@@ -1,0 +1,17 @@
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Build outputs (not used now but reserved)
+dist/
+build/
+
+# Node (not used now, just in case)
+node_modules/
+
+# Temporary
+.tmp/
+.cache/

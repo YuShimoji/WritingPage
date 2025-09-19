@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen Writer - 小説執筆ツール</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- サイドバー -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>設定</h2>
+                <button id="close-sidebar" class="icon-button">×</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>テーマ</h3>
+                <div class="theme-presets">
+                    <button class="theme-preset" data-theme="light">ライト</button>
+                    <button class="theme-preset" data-theme="dark">ダーク</button>
+                    <button class="theme-preset" data-theme="sepia">セピア</button>
+                </div>
+                
+                <div class="color-picker">
+                    <label for="bg-color">背景色</label>
+                    <input type="color" id="bg-color" value="#ffffff">
+                    
+                    <label for="text-color">文字色</label>
+                    <input type="color" id="text-color" value="#333333">
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>フォント</h3>
+                <select id="font-family">
+                    <option value="'Noto Serif JP', serif">Noto Serif JP</option>
+                    <option value="'Yu Mincho', 'YuMincho', serif">游明朝</option>
+                    <option value="'Hiragino Mincho ProN', serif">ヒラギノ明朝</option>
+                </select>
+                
+                <label for="font-size">フォントサイズ: <span id="font-size-value">16</span>px</label>
+                <input type="range" id="font-size" min="12" max="32" value="16">
+                
+                <label for="line-height">行間: <span id="line-height-value">1.6</span></label>
+                <input type="range" id="line-height" min="1" max="3" step="0.1" value="1.6">
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>ドキュメント</h3>
+                <button id="new-document">新規ドキュメント</button>
+                <button id="export-txt">テキストで保存</button>
+                <button id="export-md">Markdownで保存</button>
+            </div>
+        </aside>
+        
+        <!-- メインコンテンツ -->
+        <main class="main-content">
+            <!-- ツールバー -->
+            <div class="toolbar">
+                <button id="toggle-sidebar" class="icon-button">☰</button>
+                <div class="word-count">0 文字</div>
+                <div class="toolbar-actions">
+                    <button id="toggle-toolbar" class="icon-button">⌨️</button>
+                    <button id="fullscreen" class="icon-button">⛶</button>
+                </div>
+            </div>
+            
+            <!-- エディタエリア -->
+            <div class="editor-container">
+                <textarea id="editor" placeholder="ここに小説を入力してください..."></textarea>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/storage.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
