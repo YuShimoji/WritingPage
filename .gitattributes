@@ -1,0 +1,16 @@
+# Normalize line endings
+* text=auto
+
+# Enforce LF for cross-platform text files
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.sh text eol=lf
+
+# Windows-specific scripts keep CRLF
+*.bat text eol=crlf
+*.ps1 text eol=crlf

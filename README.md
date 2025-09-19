@@ -3,6 +3,7 @@
 Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説執筆ページです。余計なUIを排し、必要時にだけ現れるサイドバー・ツールバーで設定を調整できます。サーバー不要・オフライン可で、すぐに書き始められます。
 
 ## 特徴
+
 - シンプルなエディタ（`textarea`ベース）
 - 自動保存（ブラウザの LocalStorage）
 - 文字数・語数カウンタ
@@ -18,19 +19,23 @@ Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説
 3. 左上の「☰」で設定サイドバーを開き、テーマやフォントを調整
 
 ## キーボードショートカット
+
 - 保存: `Ctrl + S` / `Cmd + S`
 - インデント: `Tab`
 - フルスクリーン切替: ツールバー右端の ⛶ アイコン
 
 ## データ保存
+
 - 入力内容は LocalStorage に自動保存されます。
 - ブラウザや端末をまたいだ同期は行いません（設計上の単純性を優先）。
 
 ## エクスポート
+
 - サイドバー「ドキュメント」から `.txt` / `.md` として保存可能です。
 
 ## ファイル構成
-```
+
+```text
 WritingPage/
 ├─ index.html
 ├─ css/
@@ -43,6 +48,7 @@ WritingPage/
 ```
 
 ## 設計概要
+
 - 関心毎の分離（SoC）
   - `storage.js`: LocalStorage とエクスポート
   - `theme.js`: CSS変数によるテーマ・配色・フォント適用
@@ -53,15 +59,37 @@ WritingPage/
 詳しくは `docs/DESIGN.md` を参照してください。
 
 ## 開発の進め方
+
 - 選択肢駆動（Choices-Driven Development）で意思決定をドキュメント化
 - タスクは小さく分割してこまめにコミット
 - 詳細は `docs/choices-driven-development.md` を参照
 
 ## テスト手順
+
 手順は `docs/TESTING.md` にまとめています。動作確認時はチェックリストに従って検証してください。
 
 ## 変更履歴
+
 `CHANGELOG.md` を参照。
 
+## 関連ドキュメント
+
+- `docs/USAGE.md`
+- `docs/TESTING.md`
+- `docs/DESIGN.md`
+- `docs/THEMES.md`
+- `docs/ROADMAP.md`
+- `docs/RELEASE.md`
+- `docs/BACKLOG.md`
+- `docs/ISSUES.md`
+- `docs/CONVENTIONS.md`
+- `docs/LABELS.md`
+- `SECURITY.md`
+- `CODE_OF_CONDUCT.md`
+- `CONTRIBUTING.md`
+- `VERSION`
+- `LICENSE`
+
 ## ライセンス
+
 内部利用想定。外部公開時に適切なライセンスを設定してください。
