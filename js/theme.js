@@ -2,8 +2,14 @@
 class ThemeManager {
     constructor() {
         this.settings = window.ZenWriterStorage.loadSettings();
+        // 最初にテーマを適用
         this.applyTheme(this.settings.theme);
-        this.applyCustomColors(this.settings.bgColor, this.settings.textColor);
+        // カスタムカラーが有効な場合のみ上書き
+        if (this.settings.useCustomColors) {
+            this.applyCustomColors(this.settings.bgColor, this.settings.textColor, true);
+        } else {
+            this.clearCustomColors();
+        }
         this.applyFontSettings(this.settings.fontFamily, this.settings.fontSize, this.settings.lineHeight);
     }
 
@@ -14,6 +20,10 @@ class ThemeManager {
     applyTheme(theme) {
         document.documentElement.setAttribute('data-theme', theme);
         this.settings.theme = theme;
+        // カスタムカラー無効時はテーマの既定色を使うため、上書きをクリア
+        if (!this.settings.useCustomColors) {
+            this.clearCustomColors();
+        }
         window.ZenWriterStorage.saveSettings(this.settings);
     }
 
@@ -22,7 +32,7 @@ class ThemeManager {
      * @param {string} bgColor - 背景色
      * @param {string} textColor - 文字色
      */
-    applyCustomColors(bgColor, textColor) {
+    applyCustomColors(bgColor, textColor, enable = true) {
         const root = document.documentElement;
         root.style.setProperty('--bg-color', bgColor);
         root.style.setProperty('--text-color', textColor);
@@ -35,6 +45,21 @@ class ThemeManager {
         
         this.settings.bgColor = bgColor;
         this.settings.textColor = textColor;
+        this.settings.useCustomColors = !!enable;
+        window.ZenWriterStorage.saveSettings(this.settings);
+    }
+
+    /**
+     * カスタムカラーの上書きを解除（テーマ既定に戻す）
+     */
+    clearCustomColors() {
+        const root = document.documentElement;
+        root.style.removeProperty('--bg-color');
+        root.style.removeProperty('--text-color');
+        root.style.removeProperty('--sidebar-bg');
+        root.style.removeProperty('--toolbar-bg');
+        root.style.removeProperty('--border-color');
+        this.settings.useCustomColors = false;
         window.ZenWriterStorage.saveSettings(this.settings);
     }
 

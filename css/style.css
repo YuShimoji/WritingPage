@@ -237,6 +237,11 @@ input[type="color"] {
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
+.theme-preset.active {
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+}
+
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
     .editor-container {
@@ -251,4 +256,27 @@ input[type="color"] {
     .sidebar.open {
         left: 0;
     }
+}
+
+/* フローティングアクションボタン（ツールバー再表示） */
+.fab-toggle-toolbar {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--focus-color);
+    color: #fff;
+    border: none;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1500;
+}
+
+.fab-toggle-toolbar:hover {
+    opacity: 0.9;
 }

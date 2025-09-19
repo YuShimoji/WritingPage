@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const lineHeightInput = document.getElementById('line-height');
     const lineHeightValue = document.getElementById('line-height-value');
     const editor = document.getElementById('editor');
+    const showToolbarBtn = document.getElementById('show-toolbar');
+    const resetColorsBtn = document.getElementById('reset-colors');
 
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
@@ -33,7 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ツールバーの表示/非表示を切り替え
     function toggleToolbar() {
-        toolbar.style.display = toolbar.style.display === 'none' ? 'flex' : 'none';
+        const willShow = toolbar.style.display === 'none';
+        toolbar.style.display = willShow ? 'flex' : 'none';
+        if (showToolbarBtn) {
+            showToolbarBtn.style.display = willShow ? 'none' : 'inline-flex';
+        }
     }
 
     // フルスクリーン切り替え
@@ -82,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleSidebarBtn) toggleSidebarBtn.addEventListener('click', toggleSidebar);
     if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
     if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
+    if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
     
     // ドキュメント操作
@@ -93,6 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
     themePresets.forEach(btn => {
         btn.addEventListener('click', () => {
             window.ZenWriterTheme.applyTheme(btn.dataset.theme);
+            // テーマプリセット選択時はカスタムカラー上書きを解除
+            window.ZenWriterTheme.clearCustomColors();
             applySettingsToUI();
         });
     });
@@ -100,13 +109,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // カラーピッカー
     if (bgColorInput) {
         bgColorInput.addEventListener('input', (e) => {
-            window.ZenWriterTheme.applyCustomColors(e.target.value, textColorInput.value);
+            const text = textColorInput ? textColorInput.value : '#333333';
+            window.ZenWriterTheme.applyCustomColors(e.target.value, text, true);
         });
     }
     
     if (textColorInput) {
         textColorInput.addEventListener('input', (e) => {
-            window.ZenWriterTheme.applyCustomColors(bgColorInput.value, e.target.value);
+            const bg = bgColorInput ? bgColorInput.value : '#ffffff';
+            window.ZenWriterTheme.applyCustomColors(bg, e.target.value, true);
+        });
+    }
+
+    // カスタム色リセット
+    if (resetColorsBtn) {
+        resetColorsBtn.addEventListener('click', () => {
+            window.ZenWriterTheme.clearCustomColors();
+            applySettingsToUI();
         });
     }
     
@@ -160,4 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 設定をUIに反映
     applySettingsToUI();
+
+    // 初期状態でツールバーが非表示の場合の保険（通常は表示）
+    if (toolbar && getComputedStyle(toolbar).display === 'none' && showToolbarBtn) {
+        showToolbarBtn.style.display = 'inline-flex';
+    }
 });

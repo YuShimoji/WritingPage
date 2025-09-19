@@ -11,7 +11,9 @@ const DEFAULT_SETTINGS = {
     fontSize: 16,
     lineHeight: 1.6,
     bgColor: '#ffffff',
-    textColor: '#333333'
+    textColor: '#333333',
+    // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
+    useCustomColors: false
 };
 
 /**
@@ -63,7 +65,9 @@ function loadSettings() {
     try {
         const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (savedSettings) {
-            return JSON.parse(savedSettings);
+            // 既存保存データに新規キーが無い場合へ配慮しデフォルトをマージ
+            const parsed = JSON.parse(savedSettings);
+            return { ...DEFAULT_SETTINGS, ...parsed };
         }
     } catch (e) {
         console.error('設定の読み込み中にエラーが発生しました:', e);
