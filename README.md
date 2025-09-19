@@ -14,6 +14,7 @@ Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説
 - フルスクリーン切替
 
 ## クイックスタート
+
 1. このフォルダの `index.html` をブラウザで開く
 2. そのまま入力して執筆開始（自動保存されます）
 3. 左上の「☰」で設定サイドバーを開き、テーマやフォントを調整
@@ -80,10 +81,13 @@ WritingPage/
 - `docs/THEMES.md`
 - `docs/ROADMAP.md`
 - `docs/RELEASE.md`
+- `docs/DEPLOY.md`
 - `docs/BACKLOG.md`
 - `docs/ISSUES.md`
+- `docs/KNOWN_ISSUES.md`
 - `docs/CONVENTIONS.md`
 - `docs/LABELS.md`
+- `docs/PALETTE_DESIGN.md`
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`
