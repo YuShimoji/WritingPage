@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const newDocumentBtn = document.getElementById('new-document');
     const exportTxtBtn = document.getElementById('export-txt');
     const exportMdBtn = document.getElementById('export-md');
+    const importBtn = document.getElementById('import-file');
+    const fileInput = document.getElementById('file-input');
     const themePresets = document.querySelectorAll('.theme-preset');
     const bgColorInput = document.getElementById('bg-color');
     const textColorInput = document.getElementById('text-color');
@@ -27,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('editor');
     const showToolbarBtn = document.getElementById('show-toolbar');
     const resetColorsBtn = document.getElementById('reset-colors');
+    const toolsFab = document.getElementById('fab-tools');
+    const fontPanel = document.getElementById('floating-font-panel');
+    const closeFontPanelBtn = document.getElementById('close-font-panel');
+    const globalFontRange = document.getElementById('global-font-size');
+    const globalFontNumber = document.getElementById('global-font-size-number');
 
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
@@ -95,6 +102,26 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => window.ZenWriterEditor.newDocument());
     if (exportTxtBtn) exportTxtBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsText());
     if (exportMdBtn) exportMdBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsMarkdown());
+    if (importBtn && fileInput) {
+        importBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                const text = reader.result || '';
+                window.ZenWriterEditor.setContent(text);
+                window.ZenWriterEditor.showNotification('ファイルを読み込みました');
+                // 使い終わったら値をクリアして同じファイルでも再度選択可能に
+                fileInput.value = '';
+            };
+            reader.onerror = () => {
+                console.error('ファイル読み込みエラー');
+                window.ZenWriterEditor.showNotification('読み込みに失敗しました');
+            };
+            reader.readAsText(file, 'utf-8');
+        });
+    }
     
     // テーマ設定
     themePresets.forEach(btn => {
@@ -126,6 +153,39 @@ document.addEventListener('DOMContentLoaded', () => {
         resetColorsBtn.addEventListener('click', () => {
             window.ZenWriterTheme.clearCustomColors();
             applySettingsToUI();
+        });
+    }
+
+    // フローティングツール（フォントパネル）
+    function toggleFontPanel(forceShow = null) {
+        if (!fontPanel) return;
+        const willShow = forceShow !== null ? !!forceShow : fontPanel.style.display === 'none';
+        fontPanel.style.display = willShow ? 'block' : 'none';
+        if (willShow) {
+            // 現在設定をUIへ反映
+            const s = window.ZenWriterStorage.loadSettings();
+            if (globalFontRange) globalFontRange.value = s.fontSize;
+            if (globalFontNumber) globalFontNumber.value = s.fontSize;
+        }
+    }
+    if (toolsFab) toolsFab.addEventListener('click', () => toggleFontPanel());
+    if (closeFontPanelBtn) closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+
+    // フォントパネルのコントロール
+    function updateGlobalFontFrom(value) {
+        const size = parseFloat(value);
+        if (!isNaN(size)) {
+            window.ZenWriterEditor.setGlobalFontSize(size);
+        }
+    }
+    if (globalFontRange) {
+        globalFontRange.addEventListener('input', (e) => {
+            updateGlobalFontFrom(e.target.value);
+        });
+    }
+    if (globalFontNumber) {
+        globalFontNumber.addEventListener('input', (e) => {
+            updateGlobalFontFrom(e.target.value);
         });
     }
     

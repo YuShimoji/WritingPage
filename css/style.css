@@ -280,3 +280,82 @@ input[type="color"] {
 .fab-toggle-toolbar:hover {
     opacity: 0.9;
 }
+
+/* 追加機能用FAB */
+.fab-tools {
+    position: fixed;
+    right: 16px;
+    bottom: 72px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--toolbar-text);
+    color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1500;
+}
+
+.fab-tools:hover { opacity: 0.95; }
+
+/* フローティングパネル */
+.floating-panel {
+    position: fixed;
+    right: 16px;
+    bottom: 128px;
+    width: 260px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    z-index: 1600;
+}
+
+.floating-panel .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border-color);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.floating-panel .panel-body { padding: 10px; }
+.floating-panel .panel-row { margin-top: 8px; display:flex; align-items:center; gap:8px; }
+.floating-panel .panel-hint { margin-top: 6px; font-size: 12px; opacity: 0.8; }
+.floating-panel .panel-close { background: transparent; border: none; color: inherit; font-size: 16px; cursor: pointer; }
+
+/* アウトラインセクション */
+.outline-levels .level-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.outline-insert {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.outline-insert .outline-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    cursor: pointer;
+}
+
+.outline-insert .outline-btn:hover {
+    background: rgba(0,0,0,0.04);
+}

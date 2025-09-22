@@ -33,6 +33,21 @@ class EditorManager {
                 this.saveContent();
                 this.showNotification('保存しました');
             }
+
+            // フォントサイズ調整ショートカット
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    this.adjustGlobalFontSize(1);
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    this.adjustGlobalFontSize(-1);
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    const defaults = window.ZenWriterStorage.DEFAULT_SETTINGS;
+                    this.setGlobalFontSize(defaults.fontSize);
+                }
+            }
         });
     }
 
@@ -71,6 +86,16 @@ class EditorManager {
         if (savedContent) {
             this.editor.value = savedContent;
         }
+    }
+
+    /**
+     * エディタ内容を置き換える（読み込み時など）
+     * @param {string} text
+     */
+    setContent(text) {
+        this.editor.value = text || '';
+        this.saveContent();
+        this.updateWordCount();
     }
 
     /**
@@ -174,6 +199,43 @@ class EditorManager {
                 notification.remove();
             }, 300);
         }, duration);
+    }
+
+    /**
+     * 現在の設定に対してフォントサイズを増減
+     * @param {number} delta 正または負の増分
+     */
+    adjustGlobalFontSize(delta) {
+        const settings = window.ZenWriterStorage.loadSettings();
+        const next = this.clampFontSize((settings.fontSize || 16) + delta);
+        this.setGlobalFontSize(next);
+    }
+
+    /**
+     * フォントサイズを指定値に設定し、関連UIを同期
+     * @param {number} sizePx
+     */
+    setGlobalFontSize(sizePx) {
+        const settings = window.ZenWriterStorage.loadSettings();
+        const next = this.clampFontSize(sizePx);
+        window.ZenWriterTheme.applyFontSettings(
+            settings.fontFamily,
+            next,
+            settings.lineHeight
+        );
+        // UI同期（存在する場合）
+        const sidebarRange = document.getElementById('font-size');
+        const sidebarValue = document.getElementById('font-size-value');
+        if (sidebarRange) sidebarRange.value = next;
+        if (sidebarValue) sidebarValue.textContent = next;
+        const panelRange = document.getElementById('global-font-size');
+        const panelNumber = document.getElementById('global-font-size-number');
+        if (panelRange) panelRange.value = next;
+        if (panelNumber) panelNumber.value = next;
+    }
+
+    clampFontSize(px) {
+        return Math.min(48, Math.max(12, Math.round(px)));
     }
 }
 

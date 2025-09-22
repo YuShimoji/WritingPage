@@ -50,8 +50,28 @@
             </div>
             
             <div class="sidebar-section">
+                <h3>アウトライン</h3>
+                <label for="outline-set">プリセット</label>
+                <select id="outline-set"></select>
+                <div class="outline-controls">
+                    <details>
+                        <summary>新しいプリセットを作成</summary>
+                        <label for="outline-new-name">名前</label>
+                        <input type="text" id="outline-new-name" placeholder="例: 三部構成">
+                        <label for="outline-new-levels">レベル（カンマ区切り）</label>
+                        <input type="text" id="outline-new-levels" placeholder="部,章,節">
+                        <button id="create-outline-set">作成</button>
+                    </details>
+                </div>
+                <div id="outline-levels-container" class="outline-levels"></div>
+                <div id="outline-insert-buttons" class="outline-insert"></div>
+            </div>
+
+            <div class="sidebar-section">
                 <h3>ドキュメント</h3>
                 <button id="new-document">新規ドキュメント</button>
+                <button id="import-file">ファイルを読み込む</button>
+                <input type="file" id="file-input" accept=".txt,.md,.markdown,.text" style="display:none" />
                 <button id="export-txt">テキストで保存</button>
                 <button id="export-md">Markdownで保存</button>
             </div>
@@ -77,10 +97,27 @@
     </div>
     <!-- ツールバー再表示用FAB -->
     <button id="show-toolbar" class="fab-toggle-toolbar" title="ツールバーを表示" style="display:none;">⌨️</button>
+    <!-- 追加機能用FAB -->
+    <button id="fab-tools" class="fab-tools" title="ツール">⚙️</button>
+    <!-- フローティングフォントパネル -->
+    <div id="floating-font-panel" class="floating-panel" style="display:none;">
+        <div class="panel-header">
+            <span>フォントサイズ</span>
+            <button class="panel-close" id="close-font-panel">×</button>
+        </div>
+        <div class="panel-body">
+            <input type="range" id="global-font-size" min="12" max="48" value="16">
+            <div class="panel-row">
+                <input type="number" id="global-font-size-number" min="12" max="48" value="16" style="width:72px;"> px
+            </div>
+            <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
+        </div>
+    </div>
     
     <script src="js/storage.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/editor.js"></script>
+    <script src="js/outline.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

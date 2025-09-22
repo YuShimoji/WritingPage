@@ -1,7 +1,8 @@
 // ローカルストレージのキー
 const STORAGE_KEYS = {
     CONTENT: 'zenWriter_content',
-    SETTINGS: 'zenWriter_settings'
+    SETTINGS: 'zenWriter_settings',
+    OUTLINE: 'zenWriter_outline'
 };
 
 // デフォルト設定
@@ -28,6 +29,34 @@ function saveContent(content) {
         console.error('保存中にエラーが発生しました:', e);
         return false;
     }
+
+/**
+ * アウトラインデータを保存
+ * @param {Object} outline - セット一覧や現在のセットなどのオブジェクト
+ */
+function saveOutline(outline) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.OUTLINE, JSON.stringify(outline));
+        return true;
+    } catch (e) {
+        console.error('アウトライン保存中にエラーが発生しました:', e);
+        return false;
+    }
+}
+
+/**
+ * アウトラインデータを読み込み
+ * @returns {Object|null} 保存されていたアウトラインデータ、無ければ null
+ */
+function loadOutline() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.OUTLINE);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+        console.error('アウトライン読込中にエラーが発生しました:', e);
+        return null;
+    }
+}
 }
 
 /**
@@ -117,6 +146,8 @@ if (typeof module !== 'undefined' && module.exports) {
         loadContent,
         saveSettings,
         loadSettings,
+        saveOutline,
+        loadOutline,
         exportText,
         DEFAULT_SETTINGS
     };
