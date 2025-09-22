@@ -15,6 +15,21 @@
                 <h2>設定</h2>
                 <button id="close-sidebar" class="icon-button">×</button>
             </div>
+
+            <div class="sidebar-section">
+                <h3>賞/メタ情報</h3>
+                <label for="award-effect">表示効果</label>
+                <select id="award-effect">
+                    <option value="accordion">アコーディオン</option>
+                    <option value="floating">フローティング</option>
+                </select>
+                <div class="award-editor">
+                    <input type="text" id="award-title" placeholder="賞名（例: 〇〇文学賞）">
+                    <input type="text" id="award-year" placeholder="年（例: 2025）">
+                    <button id="add-award">追加</button>
+                </div>
+                <div id="award-list" class="award-list"></div>
+            </div>
             
             <div class="sidebar-section">
                 <h3>テーマ</h3>
@@ -22,6 +37,18 @@
                     <button class="theme-preset" data-theme="light">ライト</button>
                     <button class="theme-preset" data-theme="dark">ダーク</button>
                     <button class="theme-preset" data-theme="sepia">セピア</button>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>テーマプリセット（拡張）</h3>
+                    <label for="theme-bundle-select">プリセット</label>
+                    <select id="theme-bundle-select"></select>
+                    <div class="bundle-controls">
+                        <input type="text" id="theme-bundle-name" placeholder="現在の設定を保存（名前）">
+                        <button id="save-theme-bundle">保存</button>
+                        <button id="apply-theme-bundle">適用</button>
+                        <button id="delete-theme-bundle">削除</button>
+                    </div>
                 </div>
                 
                 <div class="color-picker">
@@ -79,6 +106,8 @@
         
         <!-- メインコンテンツ -->
         <main class="main-content">
+            <!-- 賞/メタ情報の表示領域 -->
+            <div id="awards-display" class="awards-display"></div>
             <!-- ツールバー -->
             <div class="toolbar">
                 <button id="toggle-sidebar" class="icon-button">☰</button>
@@ -118,6 +147,8 @@
     <script src="js/theme.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/outline.js"></script>
+    <script src="js/themes-advanced.js"></script>
+    <script src="js/awards.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

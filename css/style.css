@@ -359,3 +359,31 @@ input[type="color"] {
 .outline-insert .outline-btn:hover {
     background: rgba(0,0,0,0.04);
 }
+
+/* ===== 賞/メタ情報 ===== */
+.award-editor { display:flex; gap:6px; margin-top:6px; flex-wrap: wrap; }
+.award-editor input { flex: 1 1 120px; }
+
+.award-admin-list { list-style: none; padding: 0; margin: 6px 0 0; }
+.award-admin-list li { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 0; }
+.award-admin-list .small { font-size: 12px; padding: 2px 6px; border-radius: 3px; border:1px solid var(--border-color); background: transparent; cursor: pointer; }
+.award-admin-list .danger { color: #c62828; border-color: #c62828; }
+.award-admin-list .danger:hover { background: rgba(198,40,40,0.08); }
+
+.awards-display { position: relative; min-height: 0; margin: 8px 0; }
+
+/* アコーディオン表示 */
+.awards-accordion details { border:1px solid var(--border-color); border-radius:6px; margin:6px 0; background: var(--bg-color); }
+.awards-accordion summary { padding:8px 10px; cursor: pointer; user-select:none; }
+.awards-accordion .award-card { padding:10px; border-top:1px solid var(--border-color); color: var(--text-color); }
+
+/* フローティング演出 */
+.awards-display.floating { height: 160px; overflow: hidden; border:1px dashed var(--border-color); border-radius:8px; background: var(--bg-color); }
+.floating-badge { position:absolute; bottom: -40px; padding:4px 8px; background: var(--toolbar-bg); color: var(--toolbar-text); border:1px solid var(--border-color); border-radius: 999px; animation-name: awardsFloatUp; animation-timing-function: linear; animation-iteration-count: infinite; white-space: nowrap; font-size: 12px; }
+
+@keyframes awardsFloatUp {
+    0% { transform: translateY(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-200px); opacity: 0; }
+}
