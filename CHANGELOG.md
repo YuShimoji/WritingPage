@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-09-23
+
+### Added
+
+- ツールバー（文字数バー）の開閉と表示状態の保存（Alt+W ショートカット）
+- ミニHUD（左下に文字数/語数をフェード表示、拡張可能）
+- テーマセクションの折りたたみ（details）で左サイドバーのUIを極小化
+- アウトライン項目の上下並び替え（保存/反映）
+
+### Changed
+
+- CSS: toolbar-hidden時のエディタ全高、detailsスタイル、ミニHUDスタイル、小ボタン汎用スタイル
+- Docs: USAGE/TESTING 更新
+
 ## [0.2.1] - 2025-09-23
 
 ### Fixed
