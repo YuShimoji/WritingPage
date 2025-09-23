@@ -32,33 +32,35 @@
             </div>
             
             <div class="sidebar-section">
-                <h3>テーマ</h3>
-                <div class="theme-presets">
-                    <button class="theme-preset" data-theme="light">ライト</button>
-                    <button class="theme-preset" data-theme="dark">ダーク</button>
-                    <button class="theme-preset" data-theme="sepia">セピア</button>
-                </div>
-
-                <div class="sidebar-section">
-                    <h3>テーマプリセット（拡張）</h3>
-                    <label for="theme-bundle-select">プリセット</label>
-                    <select id="theme-bundle-select"></select>
-                    <div class="bundle-controls">
-                        <input type="text" id="theme-bundle-name" placeholder="現在の設定を保存（名前）">
-                        <button id="save-theme-bundle">保存</button>
-                        <button id="apply-theme-bundle">適用</button>
-                        <button id="delete-theme-bundle">削除</button>
+                <details id="theme-section">
+                    <summary>テーマ</summary>
+                    <div class="theme-presets" style="margin-top:8px;">
+                        <button class="theme-preset" data-theme="light">ライト</button>
+                        <button class="theme-preset" data-theme="dark">ダーク</button>
+                        <button class="theme-preset" data-theme="sepia">セピア</button>
                     </div>
-                </div>
-                
-                <div class="color-picker">
-                    <label for="bg-color">背景色</label>
-                    <input type="color" id="bg-color" value="#ffffff">
+
+                    <div class="sidebar-section">
+                        <h3>テーマプリセット（拡張）</h3>
+                        <label for="theme-bundle-select">プリセット</label>
+                        <select id="theme-bundle-select"></select>
+                        <div class="bundle-controls">
+                            <input type="text" id="theme-bundle-name" placeholder="現在の設定を保存（名前）">
+                            <button id="save-theme-bundle">保存</button>
+                            <button id="apply-theme-bundle">適用</button>
+                            <button id="delete-theme-bundle">削除</button>
+                        </div>
+                    </div>
                     
-                    <label for="text-color">文字色</label>
-                    <input type="color" id="text-color" value="#333333">
-                    <button id="reset-colors" class="button" style="margin-top:0.5rem;">カスタム色リセット</button>
-                </div>
+                    <div class="color-picker">
+                        <label for="bg-color">背景色</label>
+                        <input type="color" id="bg-color" value="#ffffff">
+                        
+                        <label for="text-color">文字色</label>
+                        <input type="color" id="text-color" value="#333333">
+                        <button id="reset-colors" class="button" style="margin-top:0.5rem;">カスタム色リセット</button>
+                    </div>
+                </details>
             </div>
             
             <div class="sidebar-section">
@@ -145,6 +147,7 @@
     
     <script src="js/storage.js"></script>
     <script src="js/theme.js"></script>
+    <script src="js/hud.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/outline.js"></script>
     <script src="js/themes-advanced.js"></script>

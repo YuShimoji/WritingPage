@@ -13,6 +13,14 @@
     --transition-speed: 0.3s;
 }
 
+/* 小さめのボタン汎用スタイル */
+.small { font-size: 12px; padding: 2px 6px; border-radius: 3px; }
+
+/* ツールバー非表示時はエディタをフル高さに */
+body.toolbar-hidden #editor {
+    height: 100vh;
+}
+
 /* ダークテーマ */
 [data-theme="dark"] {
     --bg-color: #1a1a1a;
@@ -387,3 +395,39 @@ input[type="color"] {
     90% { opacity: 1; }
     100% { transform: translateY(-200px); opacity: 0; }
 }
+
+/* ===== サイドバー details（折りたたみ） ===== */
+.sidebar details {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: var(--bg-color);
+}
+.sidebar details + details { margin-top: 10px; }
+.sidebar summary { cursor: pointer; font-weight: 600; list-style: none; }
+.sidebar summary::-webkit-details-marker { display: none; }
+
+/* ===== ミニHUD ===== */
+.mini-hud {
+    position: fixed;
+    left: 16px;
+    bottom: 16px;
+    min-width: 140px;
+    max-width: 60vw;
+    padding: 8px 12px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    font-size: 12px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1700;
+}
+.mini-hud.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.mini-hud.pinned { pointer-events: auto; }

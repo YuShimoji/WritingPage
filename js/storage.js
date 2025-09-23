@@ -14,7 +14,9 @@ const DEFAULT_SETTINGS = {
     bgColor: '#ffffff',
     textColor: '#333333',
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
-    useCustomColors: false
+    useCustomColors: false,
+    // ツールバー（文字数バー含む）の表示状態
+    toolbarVisible: true
 };
 
 /**

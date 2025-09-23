@@ -40,13 +40,22 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebar.classList.toggle('open');
     }
 
-    // ツールバーの表示/非表示を切り替え
+    // ツールバー表示/非表示の適用（保存・レイアウト反映を含む）
+    function setToolbarVisibility(show) {
+        if (!toolbar) return;
+        toolbar.style.display = show ? 'flex' : 'none';
+        if (showToolbarBtn) showToolbarBtn.style.display = show ? 'none' : 'inline-flex';
+        document.body.classList.toggle('toolbar-hidden', !show);
+    }
+
+    // ツールバーの表示/非表示を切り替え（状態保存）
     function toggleToolbar() {
-        const willShow = toolbar.style.display === 'none';
-        toolbar.style.display = willShow ? 'flex' : 'none';
-        if (showToolbarBtn) {
-            showToolbarBtn.style.display = willShow ? 'none' : 'inline-flex';
-        }
+        const willShow = getComputedStyle(toolbar).display === 'none';
+        setToolbarVisibility(willShow);
+        // 状態保存
+        const s = window.ZenWriterStorage.loadSettings();
+        s.toolbarVisible = willShow;
+        window.ZenWriterStorage.saveSettings(s);
     }
 
     // フルスクリーン切り替え
@@ -89,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
             lineHeightInput.value = settings.lineHeight;
             lineHeightValue.textContent = settings.lineHeight;
         }
+        // ツールバー表示状態
+        if (typeof settings.toolbarVisible !== 'undefined') {
+            setToolbarVisibility(!!settings.toolbarVisible);
+        }
     }
 
     // イベントリスナーを設定
@@ -97,6 +110,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
     if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+    // キーボードショートカット: Alt+W でツールバー表示切替
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && (e.key === 'w' || e.key === 'W')) {
+            e.preventDefault();
+            toggleToolbar();
+        }
+    });
     
     // ドキュメント操作
     if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => window.ZenWriterEditor.newDocument());
@@ -247,8 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 設定をUIに反映
     applySettingsToUI();
 
-    // 初期状態でツールバーが非表示の場合の保険（通常は表示）
-    if (toolbar && getComputedStyle(toolbar).display === 'none' && showToolbarBtn) {
-        showToolbarBtn.style.display = 'inline-flex';
+    // 初期状態の整合性（設定反映後に再度確認）
+    if (toolbar) {
+        const s = window.ZenWriterStorage.loadSettings();
+        setToolbarVisibility(s.toolbarVisible !== false);
     }
 });

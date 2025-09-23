@@ -64,8 +64,12 @@
         const row = document.createElement('div');
         row.className = 'level-row';
         row.innerHTML = `
-          <label>${this.escape(lv.label)}</label>
-          <input type="color" value="${lv.color || '#888888'}" data-index="${i}">
+          <label style="flex:1 1 auto;">${this.escape(lv.label)}</label>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <input type="color" value="${lv.color || '#888888'}" data-index="${i}">
+            <button class="small btn-move" data-dir="up" data-index="${i}" title="上へ">↑</button>
+            <button class="small btn-move" data-dir="down" data-index="${i}" title="下へ">↓</button>
+          </div>
         `;
         this.$levels.appendChild(row);
       });
@@ -127,6 +131,25 @@
             this.save();
             this.renderCurrentSet();
           }
+        }
+      });
+
+      // 並べ替え（イベントデリゲーション）
+      this.$levels.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t && t.matches('.btn-move')) {
+          const dir = t.getAttribute('data-dir');
+          const idx = parseInt(t.getAttribute('data-index'), 10);
+          const set = this.currentSet;
+          if (!set) return;
+          const newIdx = dir === 'up' ? idx - 1 : idx + 1;
+          if (newIdx < 0 || newIdx >= set.levels.length) return;
+          const arr = set.levels;
+          const tmp = arr[idx];
+          arr[idx] = arr[newIdx];
+          arr[newIdx] = tmp;
+          this.save();
+          this.renderCurrentSet();
         }
       });
     }

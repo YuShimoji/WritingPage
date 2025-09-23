@@ -154,6 +154,11 @@ class EditorManager {
         const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
         
         this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語`;
+        // ミニHUDに一時表示（存在する場合）
+        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
+            // 入力中は小さくフェード表示して邪魔にならないよう短めに
+            window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`, 1000);
+        }
     }
 
     /**
