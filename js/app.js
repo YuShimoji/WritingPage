@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
         const inFormControl = ['input','select','textarea','button'].includes(targetTag);
         if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
+            if (e.repeat) return; // 長押しの自動リピートで連続トグルしない
             e.preventDefault();
             toggleToolbar();
         }
