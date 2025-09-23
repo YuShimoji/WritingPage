@@ -156,8 +156,8 @@ class EditorManager {
         this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語`;
         // ミニHUDに一時表示（存在する場合）
         if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-            // 入力中は小さくフェード表示して邪魔にならないよう短めに
-            window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`, 1000);
+            // HUD 設定の既定時間に従う（durationを渡さない）
+            window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`);
         }
     }
 
