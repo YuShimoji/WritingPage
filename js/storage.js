@@ -29,6 +29,7 @@ function saveContent(content) {
         console.error('保存中にエラーが発生しました:', e);
         return false;
     }
+}
 
 /**
  * アウトラインデータを保存
@@ -56,7 +57,6 @@ function loadOutline() {
         console.error('アウトライン読込中にエラーが発生しました:', e);
         return null;
     }
-}
 }
 
 /**
@@ -136,6 +136,8 @@ if (typeof module !== 'undefined' && module.exports) {
         loadContent,
         saveSettings,
         loadSettings,
+        saveOutline,
+        loadOutline,
         exportText,
         DEFAULT_SETTINGS
     };

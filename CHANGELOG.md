@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-09-23
+
+### Fixed
+
+- storage.js の構文エラー（saveContent の閉じカッコ欠落）を修正
+- これにより `window.ZenWriterStorage` が未定義になる連鎖エラー（theme.js / editor.js / outline.js）を解消
+- アプリ初期化時の依存エラーで UI が反応しない問題を解消
+
 ## [0.2.0] - 2025-09-22
 
 ### Added

@@ -224,13 +224,20 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // エディタにフォーカス
     if (editor) {
-        // マウスクリックでフォーカス
+        // マウスクリックでフォーカス（サイドバー内クリック時は除外）
         document.addEventListener('click', (e) => {
-            if (e.target !== editor && !sidebar.contains(e.target)) {
+            // サイドバー内またはサイドバー関連要素のクリック時はフォーカスしない
+            const sidebarElements = document.querySelector('.sidebar');
+            const floatingPanels = document.querySelectorAll('.floating-panel');
+            const isInSidebar = sidebarElements && sidebarElements.contains(e.target);
+            const isInFloatingPanel = Array.from(floatingPanels).some(panel => panel.contains(e.target));
+            const isToolbarButton = e.target.closest('.toolbar') !== null;
+
+            if (e.target !== editor && !isInSidebar && !isInFloatingPanel && !isToolbarButton) {
                 editor.focus();
             }
         });
-        
+
         // 初期フォーカス
         setTimeout(() => {
             editor.focus();
