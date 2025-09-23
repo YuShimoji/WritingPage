@@ -1,0 +1,76 @@
+name: Sync Issues from docs
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/ISSUES.md'
+      - '.github/workflows/sync-issues.yml'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  create_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create or update issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = [
+              {
+                title: '用語整備・仕様遵守（UIラベルの統一）',
+                body: `目的: 仕様書に記載のない用語（例: 「賞名」）がUIに混在しているため、用語を仕様に沿って統一し、ユーザーの混乱を防ぐ\n\nDoD:\n- 現状のUIラベルの棚卸しと差分一覧（仕様との突合）\n- 用語ガイドライン（CONVENTIONS.md または新規ドキュメント）に決定を反映\n- UIラベル・プレースホルダー・ヘルプテキストの一括置換\n- 国際化（将来対応）を見据えたキー化（data-i18n 等）方針の草案`,
+                labels: ['product:backlog','type:enhancement']
+              },
+              {
+                title: 'テーマUIの極小化と「設定ハブ」への移動',
+                body: `目的: 左サイドバーの情報過多を解消し、テーマ等のカスタム要素は別の設定ハブ（ドロワー/ダイアログ）に集約する\n\nDoD:\n- 左サイドバーから「テーマ」セクションを折りたたみ/最小化（初期は閉）\n- 「詳細設定」ボタンで設定ハブ（モーダル or 右ドロワー）を開く導線を追加\n- 設定ハブに「テーマ/フォント/配色/高度なテーマプリセット」を再配置\n- 既存ショートカット（フォントサイズ等）との整合性とドキュメント更新`,
+                labels: ['product:backlog','type:enhancement','area:UI']
+              },
+              {
+                title: 'アウトライン項目のユーザー並び替え（部/章/節/話など）',
+                body: `目的: アウトラインの階層項目をユーザーが任意に並べ替え可能にし、執筆スタイルへ柔軟に適応\n\nDoD:\n- 並び替えUI（ドラッグ＆ドロップ、または上下ボタン）を提供\n- 並び順をLocalStorageへ保存/復元\n- 挿入ボタンの順序/色が並び替え結果に連動\n- USAGE/TESTINGの更新`,
+                labels: ['product:backlog','type:enhancement','area:outline']
+              },
+              {
+                title: 'フォント設定の適用範囲の明確化（本文 vs UI）',
+                body: `目的: 「フォント」が小説本文用かサイトUI用かが不明瞭なため、適用範囲を分離\n\nDoD:\n- CSS変数を本文用（--content-font-...）とUI用（--ui-font-...）に分離\n- 設定UIで「本文フォント」「UIフォント」を独立して設定/保存\n- 既存テーマ/プリセットとの整合性を担保\n- ドキュメント（THEMES.md/USAGE.md/TESTING.md）更新`,
+                labels: ['product:backlog','type:enhancement','area:typography']
+              },
+              {
+                title: '見出し階層のハードコーディング解消',
+                body: `目的: 章/節/部 等の固定前提を排し、OutlineManagerのテンプレート機構に一本化\n\nDoD:\n- コード全体を点検し、固定ラベルのハードコーディングを撤廃\n- DEFAULT_OUTLINE は初期値としてのみ使用し、全UIはテンプレートに依存\n- リグレッションテスト（既存テンプレートとの互換）`,
+                labels: ['product:backlog','type:refactor','area:outline']
+              },
+              {
+                title: 'ワードカウントバーの開閉（常時表示/自動隠し/手動トグル）',
+                body: `目的: 執筆集中を阻害しないよう、上部の文字数/語数バーを開閉可能にする\n\nDoD:\n- バーの折りたたみ/展開（状態は保存、初期状態の設定可）\n- キーボードショートカット（例: Ctrl/Alt+W）でトグル\n- 自動非表示（入力停止/再開でフェード）オプション\n- USAGE/TESTING 更新`,
+                labels: ['product:backlog','type:enhancement','area:editor']
+              },
+              {
+                title: 'フェードイン/アウト型ミニHUD（拡張可能な小ウィンドウ）',
+                body: `目的: 文字数などの指標や簡易操作をフェード表示する、小型で拡張可能なHUDを設計/実装\n\nDoD:\n- HUDのUIコンポーネント（CSSアニメーション/位置/サイズ）\n- API（publish(message, type, duration), pin(), close() など）\n- 文字数/語数の一時表示を標準実装。後から他機能（例えばタイマー、進捗、ゴール）を追加可能\n- アクセシビリティ考慮（コントラスト、フォーカス移動、スクリーンリーダー）\n- USAGE/TESTING 更新`,
+                labels: ['product:backlog','type:enhancement','area:UI']
+              }
+            ];
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            for (const item of issues) {
+              // search existing open issue with same title
+              const { data: existing } = await github.rest.issues.listForRepo({ owner, repo, state: 'open', per_page: 100 });
+              const found = existing.find(i => i.title === item.title);
+              if (found) {
+                core.info(`Exists: ${item.title} (#${found.number})`);
+                continue;
+              }
+              const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
+              core.info(`Created: ${item.title} (#${res.data.number})`);
+            }
