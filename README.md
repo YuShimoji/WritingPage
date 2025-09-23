@@ -16,7 +16,6 @@ Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説
 - フローティングツール（⚙️）でページ全体のフォントサイズをスライダー/数値で調整
 - アウトライン（部/章/節 等）のプリセット作成・切替・見出し挿入、色変更
 - 高度なテーマプリセット（フォント/サイズ/行間/色の組合せ保存・適用）
-- 賞/メタ情報の管理と表示（アコーディオン/フローティング演出）
 
 ## クイックスタート
 
@@ -32,6 +31,7 @@ Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説
 - フォントサイズ拡大: `Ctrl/Cmd + +` または `Ctrl/Cmd + =`
 - フォントサイズ縮小: `Ctrl/Cmd + -`
 - フォントサイズ初期化: `Ctrl/Cmd + 0`
+- ツールバー表示/非表示: `Alt + W`
 
 ## データ保存
 
@@ -49,11 +49,15 @@ WritingPage/
 ├─ index.html
 ├─ css/
 │  └─ style.css
-└─ js/
-   ├─ app.js
-   ├─ editor.js
-   ├─ storage.js
-   └─ theme.js
+├─ js/
+│  ├─ app.js
+│  ├─ editor.js
+│  ├─ outline.js
+│  ├─ storage.js
+│  ├─ theme.js
+│  ├─ themes-advanced.js
+│  └─ hud.js
+└─ favicon.svg
 ```
 
 ## 設計概要

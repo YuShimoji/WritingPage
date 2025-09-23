@@ -120,8 +120,8 @@
         });
       }
 
-      // 色変更
-      this.$levels.addEventListener('input', (e) => {
+      // 色変更（inputでの逐次反映はDOM再構築を避け、changeで保存+再描画）
+      this.$levels.addEventListener('change', (e) => {
         const t = e.target;
         if (t && t.matches('input[type="color"]')) {
           const idx = parseInt(t.getAttribute('data-index'), 10);

@@ -71,6 +71,12 @@ jobs:
                 core.info(`Exists: ${item.title} (#${found.number})`);
                 continue;
               }
-              const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
-              core.info(`Created: ${item.title} (#${res.data.number})`);
+              try {
+                const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
+                core.info(`Created: ${item.title} (#${res.data.number})`);
+              } catch (e) {
+                core.warning(`Labeled create failed for "${item.title}": ${e.message}. Retrying without labels...`);
+                const res2 = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body });
+                core.info(`Created: ${item.title} (#${res2.data.number})`);
+              }
             }

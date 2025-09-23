@@ -28,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lineHeightValue = document.getElementById('line-height-value');
     const editor = document.getElementById('editor');
     const showToolbarBtn = document.getElementById('show-toolbar');
+    const editorContainer = document.querySelector('.editor-container');
     const resetColorsBtn = document.getElementById('reset-colors');
     const toolsFab = document.getElementById('fab-tools');
     const fontPanel = document.getElementById('floating-font-panel');
@@ -49,7 +50,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ツールバーの表示/非表示を切り替え（状態保存）
+    let lastToolbarToggle = 0;
     function toggleToolbar() {
+        const now = Date.now();
+        if (now - lastToolbarToggle < 150) return; // debounce 二重発火防止
+        lastToolbarToggle = now;
         const willShow = getComputedStyle(toolbar).display === 'none';
         setToolbarVisibility(willShow);
         // 状態保存
@@ -112,7 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
     // キーボードショートカット: Alt+W でツールバー表示切替
     document.addEventListener('keydown', (e) => {
-        if (e.altKey && (e.key === 'w' || e.key === 'W')) {
+        const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        const inFormControl = ['input','select','textarea','button'].includes(targetTag);
+        if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
             e.preventDefault();
             toggleToolbar();
         }
@@ -242,20 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // エディタにフォーカス
-    if (editor) {
-        // マウスクリックでフォーカス（サイドバー内クリック時は除外）
-        document.addEventListener('click', (e) => {
-            // サイドバー内またはサイドバー関連要素のクリック時はフォーカスしない
-            const sidebarElements = document.querySelector('.sidebar');
-            const floatingPanels = document.querySelectorAll('.floating-panel');
-            const isInSidebar = sidebarElements && sidebarElements.contains(e.target);
-            const isInFloatingPanel = Array.from(floatingPanels).some(panel => panel.contains(e.target));
-            const isToolbarButton = e.target.closest('.toolbar') !== null;
-
-            if (e.target !== editor && !isInSidebar && !isInFloatingPanel && !isToolbarButton) {
-                editor.focus();
-            }
+    // エディタにフォーカス（エディタ領域をクリックしたときのみ）
+    if (editor && editorContainer) {
+        editorContainer.addEventListener('click', () => {
+            editor.focus();
         });
 
         // 初期フォーカス

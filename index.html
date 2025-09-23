@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zen Writer - 小説執筆ツール</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -16,20 +17,7 @@
                 <button id="close-sidebar" class="icon-button">×</button>
             </div>
 
-            <div class="sidebar-section">
-                <h3>賞/メタ情報</h3>
-                <label for="award-effect">表示効果</label>
-                <select id="award-effect">
-                    <option value="accordion">アコーディオン</option>
-                    <option value="floating">フローティング</option>
-                </select>
-                <div class="award-editor">
-                    <input type="text" id="award-title" placeholder="賞名（例: 〇〇文学賞）">
-                    <input type="text" id="award-year" placeholder="年（例: 2025）">
-                    <button id="add-award">追加</button>
-                </div>
-                <div id="award-list" class="award-list"></div>
-            </div>
+            
             
             <div class="sidebar-section">
                 <details id="theme-section">
@@ -108,8 +96,6 @@
         
         <!-- メインコンテンツ -->
         <main class="main-content">
-            <!-- 賞/メタ情報の表示領域 -->
-            <div id="awards-display" class="awards-display"></div>
             <!-- ツールバー -->
             <div class="toolbar">
                 <button id="toggle-sidebar" class="icon-button">☰</button>
@@ -151,7 +137,6 @@
     <script src="js/editor.js"></script>
     <script src="js/outline.js"></script>
     <script src="js/themes-advanced.js"></script>
-    <script src="js/awards.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
