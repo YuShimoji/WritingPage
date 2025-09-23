@@ -21,6 +21,10 @@ body.toolbar-hidden #editor {
     height: 100vh;
 }
 
+/* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
+html[data-toolbar-hidden="true"] .toolbar { display: none !important; }
+html[data-toolbar-hidden="true"] #editor { height: 100vh; }
+
 /* ダークテーマ */
 [data-theme="dark"] {
     --bg-color: #1a1a1a;

@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zen Writer - 小説執筆ツール</title>
+    <script>
+      (function(){
+        try {
+          var raw = localStorage.getItem('zenWriter_settings');
+          if (raw) {
+            var s = JSON.parse(raw);
+            if (s && s.toolbarVisible === false) {
+              document.documentElement.setAttribute('data-toolbar-hidden','true');
+            }
+          }
+        } catch(e) { /* ignore */ }
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">

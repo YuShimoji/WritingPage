@@ -47,6 +47,12 @@ document.addEventListener('DOMContentLoaded', () => {
         toolbar.style.display = show ? 'flex' : 'none';
         if (showToolbarBtn) showToolbarBtn.style.display = show ? 'none' : 'inline-flex';
         document.body.classList.toggle('toolbar-hidden', !show);
+        // 早期CSS適用のため、ルート要素にもフラグを反映
+        if (!show) {
+            document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+        } else {
+            document.documentElement.removeAttribute('data-toolbar-hidden');
+        }
     }
 
     // ツールバーの表示/非表示を切り替え（状態保存）

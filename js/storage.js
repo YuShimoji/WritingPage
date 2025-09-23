@@ -16,7 +16,15 @@ const DEFAULT_SETTINGS = {
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
     useCustomColors: false,
     // ツールバー（文字数バー含む）の表示状態
-    toolbarVisible: true
+    toolbarVisible: true,
+    // ミニHUDの設定
+    hud: {
+        position: 'bottom-left', // 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'
+        duration: 1200,
+        bg: '#000000',
+        fg: '#ffffff',
+        opacity: 0.75
+    }
 };
 
 /**
