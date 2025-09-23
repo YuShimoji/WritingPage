@@ -35,6 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeFontPanelBtn = document.getElementById('close-font-panel');
     const globalFontRange = document.getElementById('global-font-size');
     const globalFontNumber = document.getElementById('global-font-size-number');
+    // HUD 設定UI
+    const hudPosSelect = document.getElementById('hud-position');
+    const hudDurationInput = document.getElementById('hud-duration');
+    const hudBgInput = document.getElementById('hud-bg');
+    const hudFgInput = document.getElementById('hud-fg');
+    const hudOpacityRange = document.getElementById('hud-opacity');
+    const hudOpacityValue = document.getElementById('hud-opacity-value');
 
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
@@ -113,6 +120,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (typeof settings.toolbarVisible !== 'undefined') {
             setToolbarVisibility(!!settings.toolbarVisible);
         }
+
+        // HUD 設定の初期反映
+        const hud = settings.hud || {};
+        if (hudPosSelect) hudPosSelect.value = hud.position || 'bottom-left';
+        if (hudDurationInput) hudDurationInput.value = hud.duration || 1200;
+        if (hudBgInput) hudBgInput.value = hud.bg || '#000000';
+        if (hudFgInput) hudFgInput.value = hud.fg || '#ffffff';
+        if (hudOpacityRange) hudOpacityRange.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
+        if (hudOpacityValue) hudOpacityValue.textContent = String((typeof hud.opacity === 'number') ? hud.opacity : 0.75);
     }
 
     // イベントリスナーを設定
@@ -254,6 +270,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 parseFloat(e.target.value)
             );
         });
+    }
+
+    // ------- HUD 設定のイベント -------
+    function updateHudSettings(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.hud = { ...(s.hud || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
+            window.ZenWriterHUD.updateFromSettings();
+        }
+    }
+    if (hudPosSelect) {
+        hudPosSelect.addEventListener('change', (e)=> updateHudSettings({ position: e.target.value }));
+    }
+    if (hudDurationInput) {
+        const clamp = (n)=> Math.max(300, Math.min(5000, parseInt(n,10)||1200));
+        hudDurationInput.addEventListener('input', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
+        hudDurationInput.addEventListener('change', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
+    }
+    if (hudBgInput) {
+        hudBgInput.addEventListener('change', (e)=> updateHudSettings({ bg: e.target.value }));
+    }
+    if (hudFgInput) {
+        hudFgInput.addEventListener('change', (e)=> updateHudSettings({ fg: e.target.value }));
+    }
+    if (hudOpacityRange) {
+        const setOpacity = (v)=>{
+            const val = Math.max(0, Math.min(1, parseFloat(v)));
+            if (hudOpacityValue) hudOpacityValue.textContent = String(val);
+            updateHudSettings({ opacity: val });
+        };
+        hudOpacityRange.addEventListener('input', (e)=> setOpacity(e.target.value));
+        hudOpacityRange.addEventListener('change', (e)=> setOpacity(e.target.value));
     }
     
     // エディタにフォーカス（エディタ領域をクリックしたときのみ）

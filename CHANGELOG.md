@@ -1,3 +1,9 @@
+## [0.3.2] - 2025-09-24
+
+### Added
+
+- HUD 設定UIを追加（表示位置/時間/背景色/文字色/不透明度）。設定は LocalStorage に保存され、即時反映されます。
+
 # Changelog
 
 All notable changes to this project will be documented in this file.

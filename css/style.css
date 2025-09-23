@@ -386,8 +386,6 @@ input[type="color"] {
 /* ===== ミニHUD ===== */
 .mini-hud {
     position: fixed;
-    left: 16px;
-    bottom: 16px;
     min-width: 140px;
     max-width: 60vw;
     padding: 8px 12px;
@@ -402,6 +400,10 @@ input[type="color"] {
     transition: opacity 0.2s ease, transform 0.2s ease;
     z-index: 1700;
 }
+.mini-hud.pos-bl { left: 16px; bottom: 16px; }
+.mini-hud.pos-br { right: 16px; bottom: 16px; }
+.mini-hud.pos-tl { left: 16px; top: 16px; }
+.mini-hud.pos-tr { right: 16px; top: 16px; }
 .mini-hud.show {
     opacity: 1;
     transform: translateY(0);
