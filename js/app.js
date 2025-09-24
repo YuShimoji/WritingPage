@@ -6,6 +6,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // 印刷処理
+    function printDocument(){
+        const pv = document.getElementById('print-view');
+        if (!pv || !editor) return;
+        const text = editor.value || '';
+        pv.innerHTML = '';
+        const norm = text.replace(/\r\n/g, '\n');
+        const blocks = norm.split(/\n{2,}/);
+        blocks.forEach(seg => {
+            const p = document.createElement('p');
+            p.textContent = seg;
+            pv.appendChild(p);
+        });
+        window.print();
+    }
+
     // 要素を取得
     const toggleSidebarBtn = document.getElementById('toggle-sidebar');
     const closeSidebarBtn = document.getElementById('close-sidebar');
@@ -18,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportMdBtn = document.getElementById('export-md');
     const importBtn = document.getElementById('import-file');
     const fileInput = document.getElementById('file-input');
+    const printBtn = document.getElementById('print-document');
     const themePresets = document.querySelectorAll('.theme-preset');
     const bgColorInput = document.getElementById('bg-color');
     const textColorInput = document.getElementById('text-color');
@@ -175,6 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsText(file, 'utf-8');
         });
+    }
+    if (printBtn) {
+        printBtn.addEventListener('click', printDocument);
     }
     
     // テーマ設定

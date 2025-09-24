@@ -409,3 +409,17 @@ input[type="color"] {
     transform: translateY(0);
 }
 .mini-hud.pinned { pointer-events: auto; }
+
+/* ===== 印刷ビュー ===== */
+.print-view { display: none; max-width: 900px; margin: 0 auto; padding: 1.5cm 1.5cm; color: #000; background: #fff; }
+.print-view p { margin: 0 0 0.8em; white-space: pre-wrap; word-break: break-word; }
+
+/* 印刷時のレイアウト */
+@media print {
+  /* 画面UIは隠す */
+  .sidebar, .toolbar, .fab-toggle-toolbar, .fab-tools, .floating-panel { display: none !important; }
+  #editor { display: none !important; }
+  /* 印刷ビューを表示 */
+  .print-view { display: block !important; }
+  html, body { background: #fff !important; color: #000 !important; }
+}
