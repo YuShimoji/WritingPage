@@ -2,7 +2,8 @@
 const STORAGE_KEYS = {
     CONTENT: 'zenWriter_content',
     SETTINGS: 'zenWriter_settings',
-    OUTLINE: 'zenWriter_outline'
+    OUTLINE: 'zenWriter_outline',
+    SNAPSHOTS: 'zenWriter_snapshots'
 };
 
 // デフォルト設定
@@ -26,6 +27,51 @@ const DEFAULT_SETTINGS = {
         opacity: 0.75
     }
 };
+
+// ===== スナップショット（自動バックアップ） =====
+function loadSnapshots(){
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.SNAPSHOTS);
+        return raw ? JSON.parse(raw) : [];
+    } catch(e){
+        console.error('スナップショット読込エラー:', e);
+        return [];
+    }
+}
+
+function saveSnapshots(list){
+    try {
+        localStorage.setItem(STORAGE_KEYS.SNAPSHOTS, JSON.stringify(list));
+        return true;
+    } catch(e){
+        console.error('スナップショット保存エラー:', e);
+        return false;
+    }
+}
+
+function addSnapshot(content, maxKeep = 10){
+    const list = loadSnapshots();
+    const snap = {
+        id: 'snap_' + Date.now(),
+        ts: Date.now(),
+        len: (content || '').length,
+        content: content || ''
+    };
+    list.push(snap);
+    // 新しい順に並べ替えて上位 maxKeep 件に制限
+    list.sort((a,b)=> b.ts - a.ts);
+    const trimmed = list.slice(0, Math.max(1, maxKeep));
+    saveSnapshots(trimmed);
+    return snap;
+}
+
+function deleteSnapshot(id){
+    const list = loadSnapshots();
+    const next = list.filter(s => s.id !== id);
+    saveSnapshots(next);
+    return true;
+}
+
 
 /**
  * コンテンツをローカルストレージに保存
@@ -149,7 +195,11 @@ if (typeof module !== 'undefined' && module.exports) {
         saveOutline,
         loadOutline,
         exportText,
-        DEFAULT_SETTINGS
+        DEFAULT_SETTINGS,
+        // snapshots
+        loadSnapshots,
+        addSnapshot,
+        deleteSnapshot
     };
 } else {
     // ブラウザ環境
@@ -161,6 +211,10 @@ if (typeof module !== 'undefined' && module.exports) {
         saveOutline,
         loadOutline,
         exportText,
-        DEFAULT_SETTINGS
+        DEFAULT_SETTINGS,
+        // snapshots
+        loadSnapshots,
+        addSnapshot,
+        deleteSnapshot
     };
 }
