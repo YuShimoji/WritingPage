@@ -74,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = window.ZenWriterStorage.loadSettings();
         s.toolbarVisible = willShow;
         window.ZenWriterStorage.saveSettings(s);
+        // ツールバーを表示にしたらHUDを隠す
+        if (willShow && window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
+            window.ZenWriterHUD.hide();
+        }
     }
 
     // フルスクリーン切り替え

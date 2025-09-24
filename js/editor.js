@@ -154,10 +154,16 @@ class EditorManager {
         const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
         
         this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語`;
-        // ミニHUDに一時表示（存在する場合）
-        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-            // HUD 設定の既定時間に従う（durationを渡さない）
-            window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`);
+        // ミニHUDに一時表示（ツールバー非表示時のみ）
+        if (window.ZenWriterHUD) {
+            const toolbarHidden = document.body.classList.contains('toolbar-hidden') ||
+                                  document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
+            if (toolbarHidden && typeof window.ZenWriterHUD.publish === 'function') {
+                // HUD 設定の既定時間に従う（durationを渡さない）
+                window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`);
+            } else if (!toolbarHidden && typeof window.ZenWriterHUD.hide === 'function') {
+                window.ZenWriterHUD.hide();
+            }
         }
     }
 

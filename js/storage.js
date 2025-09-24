@@ -15,8 +15,8 @@ const DEFAULT_SETTINGS = {
     textColor: '#333333',
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
     useCustomColors: false,
-    // ツールバー（文字数バー含む）の表示状態
-    toolbarVisible: true,
+    // ツールバー（文字数バー含む）の表示状態（初回は非表示）
+    toolbarVisible: false,
     // ミニHUDの設定
     hud: {
         position: 'bottom-left', // 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'
