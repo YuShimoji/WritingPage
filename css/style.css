@@ -19,7 +19,6 @@
 /* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
 html[data-toolbar-hidden="true"] .toolbar { display: none !important; }
 /* ツールバー表示時は、重なりを避けるためエディタ上端に余白を追加 */
-body:not(.toolbar-hidden) #editor { padding-top: calc(60px + 1rem); }
 html:not([data-toolbar-hidden="true"]) #editor { padding-top: calc(60px + 1rem); }
 
 /* ダークテーマ */
