@@ -124,6 +124,11 @@ body {
     gap: 0.5rem;
 }
 
+/* 目標進捗バー */
+.goal-progress { display: inline-flex; align-items: center; width: 22vw; min-width: 160px; max-width: 280px; padding: 0 8px; }
+.goal-progress__track { position: relative; width: 100%; height: 6px; background: rgba(0,0,0,0.08); border: 1px solid var(--border-color); border-radius: 999px; overflow: hidden; }
+.goal-progress__bar { position: absolute; left: 0; top: 0; height: 100%; width: 0%; background: var(--focus-color); transition: width 0.2s ease; }
+
 /* サイドバー */
 .sidebar {
     position: fixed;
@@ -267,6 +272,8 @@ input[type="color"] {
     .sidebar.open {
         left: 0;
     }
+    /* モバイルでは進捗バーを自動非表示（省スペース） */
+    .goal-progress { display: none !important; }
 }
 
 /* フローティングアクションボタン（ツールバー再表示） */

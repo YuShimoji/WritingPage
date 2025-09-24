@@ -18,6 +18,7 @@ function get(path) {
       index.status === 200 &&
       /<div\s+class=\"toolbar\"/i.test(index.body) &&
       /<textarea\s+id=\"editor\"/i.test(index.body) &&
+      /id=\"goal-progress\"/i.test(index.body) &&
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
@@ -26,7 +27,8 @@ function get(path) {
     const hasRootHide = /html\[data-toolbar-hidden=\"true\"\] \.toolbar/.test(css.body);
     const hasRootShowPadding = /html:not\(\[data-toolbar-hidden=\"true\"\]\) #editor/.test(css.body);
     const removedBodyRule = !/body:not\(\.toolbar-hidden\) #editor/.test(css.body);
-    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule;
+    const hasProgressCss = /\.goal-progress__bar/.test(css.body);
+    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
 
     if (!(okIndex && okCss)) {

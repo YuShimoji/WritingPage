@@ -3,6 +3,8 @@ class EditorManager {
     constructor() {
         this.editor = document.getElementById('editor');
         this.wordCountElement = document.querySelector('.word-count');
+        this.goalProgressEl = document.getElementById('goal-progress');
+        this.goalProgressBarEl = this.goalProgressEl ? this.goalProgressEl.querySelector('.goal-progress__bar') : null;
         // 自動スナップショット用の状態
         this._lastSnapTs = 0;
         this._lastSnapLen = 0;
@@ -191,6 +193,13 @@ class EditorManager {
             const ratio = target > 0 ? Math.min(1, charCount / target) : 0;
             const pct = Math.floor(ratio * 100);
             suffix += ` | 目標 ${target} (${pct}%)`;
+            // 進捗バーの表示と更新
+            if (this.goalProgressEl && this.goalProgressBarEl) {
+                this.goalProgressEl.style.display = 'inline-flex';
+                this.goalProgressEl.setAttribute('aria-hidden', 'false');
+                const w = Math.max(0, Math.min(100, pct));
+                this.goalProgressBarEl.style.width = `${w}%`;
+            }
             // 締切日がある場合は残日数を併記
             if (goal.deadline) {
                 const today = new Date();
@@ -220,6 +229,11 @@ class EditorManager {
         } else {
             // 目標未設定時はフラグをリセット
             this._goalReachedNotified = false;
+            // 進捗バーを隠す
+            if (this.goalProgressEl) {
+                this.goalProgressEl.style.display = 'none';
+                this.goalProgressEl.setAttribute('aria-hidden', 'true');
+            }
         }
 
         this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語${suffix}`;
