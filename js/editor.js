@@ -3,6 +3,11 @@ class EditorManager {
     constructor() {
         this.editor = document.getElementById('editor');
         this.wordCountElement = document.querySelector('.word-count');
+        // 自動スナップショット用の状態
+        this._lastSnapTs = 0;
+        this._lastSnapLen = 0;
+        this.SNAPSHOT_MIN_INTERVAL = 120000; // 2分
+        this.SNAPSHOT_MIN_DELTA = 300; // 300文字以上の変化
         this.setupEventListeners();
         this.loadContent();
         this.updateWordCount();
@@ -16,6 +21,7 @@ class EditorManager {
         this.editor.addEventListener('input', () => {
             this.saveContent();
             this.updateWordCount();
+            this.maybeAutoSnapshot();
         });
 
         // タブキーでインデント
@@ -76,6 +82,28 @@ class EditorManager {
      */
     saveContent() {
         window.ZenWriterStorage.saveContent(this.editor.value);
+    }
+
+    maybeAutoSnapshot(){
+        if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
+        const now = Date.now();
+        const len = (this.editor.value || '').length;
+        if (this._lastSnapTs === 0) {
+            // 初回基準
+            this._lastSnapTs = now;
+            this._lastSnapLen = len;
+            return;
+        }
+        const dt = now - this._lastSnapTs;
+        const dlen = Math.abs(len - this._lastSnapLen);
+        if (dt >= this.SNAPSHOT_MIN_INTERVAL && dlen >= this.SNAPSHOT_MIN_DELTA) {
+            window.ZenWriterStorage.addSnapshot(this.editor.value);
+            this._lastSnapTs = now;
+            this._lastSnapLen = len;
+            if (typeof this.showNotification === 'function') {
+                this.showNotification('自動バックアップを保存しました');
+            }
+        }
     }
 
     /**

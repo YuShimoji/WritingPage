@@ -16,14 +16,11 @@
 /* 小さめのボタン汎用スタイル */
 .small { font-size: 12px; padding: 2px 6px; border-radius: 3px; }
 
-/* ツールバー非表示時はエディタをフル高さに */
-body.toolbar-hidden #editor {
-    height: 100vh;
-}
-
 /* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
 html[data-toolbar-hidden="true"] .toolbar { display: none !important; }
-html[data-toolbar-hidden="true"] #editor { height: 100vh; }
+/* ツールバー表示時は、重なりを避けるためエディタ上端に余白を追加 */
+body:not(.toolbar-hidden) #editor { padding-top: calc(60px + 1rem); }
+html:not([data-toolbar-hidden="true"]) #editor { padding-top: calc(60px + 1rem); }
 
 /* ダークテーマ */
 [data-theme="dark"] {
@@ -90,7 +87,7 @@ body {
 /* テキストエリア */
 #editor {
     width: 100%;
-    height: calc(100vh - 60px);
+    height: 100vh; /* 常に一定。ツールバーはstickyでオーバーレイ表示 */
     border: none;
     resize: none;
     background-color: transparent;
@@ -113,6 +110,9 @@ body {
     color: var(--toolbar-text);
     border-bottom: 1px solid var(--border-color);
     transition: background-color var(--transition-speed), color var(--transition-speed), border-color var(--transition-speed);
+    position: sticky; /* スクロール時も上部に固定 */
+    top: 0;
+    z-index: 1100;
 }
 
 .word-count {

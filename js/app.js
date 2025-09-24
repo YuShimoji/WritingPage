@@ -59,6 +59,63 @@ document.addEventListener('DOMContentLoaded', () => {
     const hudFgInput = document.getElementById('hud-fg');
     const hudOpacityRange = document.getElementById('hud-opacity');
     const hudOpacityValue = document.getElementById('hud-opacity-value');
+    const hudTestBtn = document.getElementById('hud-test');
+    // スナップショットUI
+    const snapNowBtn = document.getElementById('snapshot-now');
+    const snapListEl = document.getElementById('snapshot-list');
+
+    function formatTs(ts){
+        const d = new Date(ts);
+        const p = (n)=> String(n).padStart(2,'0');
+        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+
+    function renderSnapshots(){
+        if (!snapListEl || !window.ZenWriterStorage || !window.ZenWriterStorage.loadSnapshots) return;
+        const list = window.ZenWriterStorage.loadSnapshots() || [];
+        snapListEl.innerHTML = '';
+        if (list.length === 0){
+            const empty = document.createElement('div');
+            empty.style.opacity = '0.7';
+            empty.textContent = 'バックアップはありません';
+            snapListEl.appendChild(empty);
+            return;
+        }
+        list.forEach(s => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.justifyContent = 'space-between';
+            row.style.alignItems = 'center';
+            row.style.gap = '6px';
+            row.style.margin = '4px 0';
+            const meta = document.createElement('div');
+            meta.textContent = `${formatTs(s.ts)} / ${s.len} 文字`;
+            const actions = document.createElement('div');
+            const restore = document.createElement('button');
+            restore.className = 'small';
+            restore.textContent = '復元';
+            restore.addEventListener('click', () => {
+                if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){
+                    window.ZenWriterEditor.setContent(s.content || '');
+                    window.ZenWriterEditor.showNotification('バックアップから復元しました');
+                }
+            });
+            const del = document.createElement('button');
+            del.className = 'small';
+            del.textContent = '削除';
+            del.addEventListener('click', () => {
+                if (confirm('このバックアップを削除しますか？')){
+                    window.ZenWriterStorage.deleteSnapshot(s.id);
+                    renderSnapshots();
+                }
+            });
+            actions.appendChild(restore);
+            actions.appendChild(del);
+            row.appendChild(meta);
+            row.appendChild(actions);
+            snapListEl.appendChild(row);
+        });
+    }
 
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
@@ -262,6 +319,19 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGlobalFontFrom(e.target.value);
         });
     }
+
+    // スナップショット: 今すぐ保存
+    if (snapNowBtn) {
+        snapNowBtn.addEventListener('click', () => {
+            if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
+            const content = editor ? (editor.value || '') : '';
+            window.ZenWriterStorage.addSnapshot(content);
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+                window.ZenWriterEditor.showNotification('バックアップを保存しました');
+            }
+            renderSnapshots();
+        });
+    }
     
     // フォント設定
     if (fontFamilySelect) {
@@ -328,6 +398,13 @@ document.addEventListener('DOMContentLoaded', () => {
         hudOpacityRange.addEventListener('input', (e)=> setOpacity(e.target.value));
         hudOpacityRange.addEventListener('change', (e)=> setOpacity(e.target.value));
     }
+    if (hudTestBtn) {
+        hudTestBtn.addEventListener('click', ()=>{
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
+                window.ZenWriterHUD.publish('テスト: 123 文字 / 45 語', 1200);
+            }
+        });
+    }
     
     // エディタにフォーカス（エディタ領域をクリックしたときのみ）
     if (editor && editorContainer) {
@@ -343,10 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 設定をUIに反映
     applySettingsToUI();
+    // バックアップ一覧
+    renderSnapshots();
 
-    // 初期状態の整合性（設定反映後に再度確認）
-    if (toolbar) {
-        const s = window.ZenWriterStorage.loadSettings();
-        setToolbarVisibility(s.toolbarVisible !== false);
-    }
+    // 初期状態の整合性
+    // applySettingsToUI() と head内の early-boot で反映済みのため、ここでの上書きは行わない
 });

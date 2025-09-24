@@ -13,17 +13,30 @@
     constructor(){
       this.el = document.createElement('div');
       this.el.className = 'mini-hud';
+      // 位置が未適用でも左下に出るように既定クラスを付与
+      this.el.classList.add('pos-bl');
       this.timer = null;
       this.durationOverride = null;
       this._posClasses = ['pos-bl','pos-br','pos-tl','pos-tr'];
+      this._inited = false;
 
-      document.addEventListener('DOMContentLoaded', () => {
+      const init = () => {
+        if (this._inited) return;
+        this._inited = true;
         // 設定反映（位置/色/不透明度/既定の表示時間）
-        const s = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings()) || {};
+        const s = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings && window.ZenWriterStorage.loadSettings()) || {};
         const hud = (s && s.hud) || {};
         this.applyConfig(hud);
-        document.body.appendChild(this.el);
-      });
+        if (!document.body.contains(this.el)) {
+          document.body.appendChild(this.el);
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init, { once: true });
+      } else {
+        init();
+      }
     }
 
     /**

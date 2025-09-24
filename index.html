@@ -103,6 +103,7 @@
 
                 <label for="hud-opacity">不透明度: <span id="hud-opacity-value">0.75</span></label>
                 <input type="range" id="hud-opacity" min="0" max="1" step="0.05" value="0.75">
+                <button id="hud-test" class="small" style="margin-top:6px;">HUDテスト表示</button>
             </div>
             
             <div class="sidebar-section">
@@ -124,12 +125,19 @@
             </div>
 
             <div class="sidebar-section">
+                <h3>バックアップ</h3>
+                <button id="snapshot-now">今すぐ保存</button>
+                <div id="snapshot-list" class="snapshot-list" style="margin-top:8px;"></div>
+            </div>
+
+            <div class="sidebar-section">
                 <h3>ドキュメント</h3>
                 <button id="new-document">新規ドキュメント</button>
                 <button id="import-file">ファイルを読み込む</button>
                 <input type="file" id="file-input" accept=".txt,.md,.markdown,.text" style="display:none" />
                 <button id="export-txt">テキストで保存</button>
                 <button id="export-md">Markdownで保存</button>
+                <button id="print-document">印刷</button>
             </div>
         </aside>
         
@@ -137,24 +145,25 @@
         <main class="main-content">
             <!-- ツールバー -->
             <div class="toolbar">
-                <button id="toggle-sidebar" class="icon-button">☰</button>
+                <button id="toggle-sidebar" class="icon-button" aria-label="サイドバーを開閉">☰</button>
                 <div class="word-count">0 文字</div>
                 <div class="toolbar-actions">
-                    <button id="toggle-toolbar" class="icon-button">⌨️</button>
-                    <button id="fullscreen" class="icon-button">⛶</button>
+                    <button id="toggle-toolbar" class="icon-button" aria-label="ツールバーを開閉">⌨️</button>
+                    <button id="fullscreen" class="icon-button" aria-label="フルスクリーン切替">⛶</button>
                 </div>
             </div>
             
             <!-- エディタエリア -->
             <div class="editor-container">
                 <textarea id="editor" placeholder="ここに小説を入力してください..."></textarea>
+                <div id="print-view" class="print-view" aria-hidden="true"></div>
             </div>
         </main>
     </div>
     <!-- ツールバー再表示用FAB -->
-    <button id="show-toolbar" class="fab-toggle-toolbar" title="ツールバーを表示" style="display:none;">⌨️</button>
+    <button id="show-toolbar" class="fab-toggle-toolbar" title="ツールバーを表示" aria-label="ツールバーを表示" style="display:none;">⌨️</button>
     <!-- 追加機能用FAB -->
-    <button id="fab-tools" class="fab-tools" title="ツール">⚙️</button>
+    <button id="fab-tools" class="fab-tools" title="ツール" aria-label="ツール">⚙️</button>
     <!-- フローティングフォントパネル -->
     <div id="floating-font-panel" class="floating-panel" style="display:none;">
         <div class="panel-header">
