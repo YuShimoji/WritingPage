@@ -125,10 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ツールバー表示/非表示の適用（保存・レイアウト反映を含む）
     function setToolbarVisibility(show) {
         if (!toolbar) return;
-        toolbar.style.display = show ? 'flex' : 'none';
+        // インライン style ではなく、ルート属性 + クラスで一元制御
+        // これにより computedStyle の不整合や一時的な二重描画を回避
         if (showToolbarBtn) showToolbarBtn.style.display = show ? 'none' : 'inline-flex';
         document.body.classList.toggle('toolbar-hidden', !show);
-        // 早期CSS適用のため、ルート要素にもフラグを反映
         if (!show) {
             document.documentElement.setAttribute('data-toolbar-hidden', 'true');
         } else {
