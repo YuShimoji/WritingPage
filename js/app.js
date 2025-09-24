@@ -63,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // スナップショットUI
     const snapNowBtn = document.getElementById('snapshot-now');
     const snapListEl = document.getElementById('snapshot-list');
+    // 執筆目標
+    const goalTargetInput = document.getElementById('goal-target');
+    const goalDeadlineInput = document.getElementById('goal-deadline');
 
     function formatTs(ts){
         const d = new Date(ts);
@@ -142,7 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = Date.now();
         if (now - lastToolbarToggle < 150) return; // debounce 二重発火防止
         lastToolbarToggle = now;
-        const willShow = getComputedStyle(toolbar).display === 'none';
+        // ルート属性（early-boot と setToolbarVisibility が管理）に基づき判定
+        const rootHidden = document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
+        const willShow = !!rootHidden;
         setToolbarVisibility(willShow);
         // 状態保存
         const s = window.ZenWriterStorage.loadSettings();
@@ -207,6 +212,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (hudFgInput) hudFgInput.value = hud.fg || '#ffffff';
         if (hudOpacityRange) hudOpacityRange.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
         if (hudOpacityValue) hudOpacityValue.textContent = String((typeof hud.opacity === 'number') ? hud.opacity : 0.75);
+
+        // 執筆目標の初期反映
+        const goal = settings.goal || {};
+        if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
+        if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
     }
 
     // イベントリスナーを設定
@@ -404,6 +414,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.ZenWriterHUD.publish('テスト: 123 文字 / 45 語', 1200);
             }
         });
+    }
+
+    // ------- 執筆目標（goal） -------
+    function saveGoalPatch(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.goal = { ...(s.goal || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+        // 文字数表示を更新
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
+            window.ZenWriterEditor.updateWordCount();
+        }
+    }
+    if (goalTargetInput){
+        const clampTarget = (v)=> Math.max(0, parseInt(v,10) || 0);
+        goalTargetInput.addEventListener('input', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));
+        goalTargetInput.addEventListener('change', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));
+    }
+    if (goalDeadlineInput){
+        goalDeadlineInput.addEventListener('change', (e)=> saveGoalPatch({ deadline: (e.target.value || '') || null }));
     }
     
     // エディタにフォーカス（エディタ領域をクリックしたときのみ）

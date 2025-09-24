@@ -8,6 +8,8 @@ class EditorManager {
         this._lastSnapLen = 0;
         this.SNAPSHOT_MIN_INTERVAL = 120000; // 2分
         this.SNAPSHOT_MIN_DELTA = 300; // 300文字以上の変化
+        // 目標達成の一時フラグ（再達成の過剰通知を抑止）
+        this._goalReachedNotified = false;
         this.setupEventListeners();
         this.loadContent();
         this.updateWordCount();
@@ -180,8 +182,47 @@ class EditorManager {
         const text = this.editor.value;
         const charCount = text.length;
         const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-        
-        this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語`;
+        // 執筆目標の進捗（任意）
+        const s = window.ZenWriterStorage.loadSettings();
+        const goal = (s && s.goal) || {};
+        let suffix = '';
+        if (goal && (parseInt(goal.target,10) || 0) > 0) {
+            const target = Math.max(0, parseInt(goal.target,10) || 0);
+            const ratio = target > 0 ? Math.min(1, charCount / target) : 0;
+            const pct = Math.floor(ratio * 100);
+            suffix += ` | 目標 ${target} (${pct}%)`;
+            // 締切日がある場合は残日数を併記
+            if (goal.deadline) {
+                const today = new Date();
+                const dl = new Date(`${goal.deadline}T00:00:00`);
+                const msPerDay = 24*60*60*1000;
+                const days = Math.ceil((dl - today) / msPerDay);
+                if (!isNaN(days)) {
+                    if (days >= 0) suffix += ` | 残り${days}日`;
+                    else suffix += ` | 期限超過${Math.abs(days)}日`;
+                }
+            }
+            // 目標達成時の通知（初回のみ）
+            if (charCount >= target) {
+                if (!this._goalReachedNotified) {
+                    this._goalReachedNotified = true;
+                    if (typeof this.showNotification === 'function') {
+                        this.showNotification('目標達成！お疲れさまです 🎉');
+                    }
+                    if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
+                        window.ZenWriterHUD.publish('目標達成！', 1500);
+                    }
+                }
+            } else {
+                // 目標未達に戻った場合はフラグをリセット
+                this._goalReachedNotified = false;
+            }
+        } else {
+            // 目標未設定時はフラグをリセット
+            this._goalReachedNotified = false;
+        }
+
+        this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語${suffix}`;
         // ミニHUDに一時表示（ツールバー非表示時のみ）
         if (window.ZenWriterHUD) {
             const toolbarHidden = document.body.classList.contains('toolbar-hidden') ||

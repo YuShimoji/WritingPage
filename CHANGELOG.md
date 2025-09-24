@@ -1,3 +1,17 @@
+<!-- markdownlint-disable MD024 -->
+## [0.3.5] - 2025-09-24
+
+### Added
+
+- 執筆目標（目標文字数・任意の締切）を追加。ツールバーの文字数表示に進捗%と残日数を併記、達成時に通知。
+- 自動チェック用スクリプト `scripts/dev-check.js` に UI/スタイル検証を追加。
+
+### Changed
+
+- ツールバー表示制御を root属性（`data-toolbar-hidden`）と body クラスで一元管理し、二重表示/揺れを解消。
+- CSS のフォーム入力スタイルを拡充（number / date）。
+- TESTING.md / KNOWN_ISSUES.md を実装に合わせて更新。
+
 ## [0.3.4] - 2025-09-24
 
 ### Changed
@@ -89,3 +103,4 @@ All notable changes to this project will be documented in this file.
 - エクスポート（TXT/MD）、サイドバー、ツールバー、フルスクリーン
 - ドキュメント（README, DESIGN, TESTING, ROADMAP, Choices-Driven Development）
 - Issueテンプレート雛形
+<!-- markdownlint-enable MD024 -->

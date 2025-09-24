@@ -18,6 +18,11 @@ const DEFAULT_SETTINGS = {
     useCustomColors: false,
     // ツールバー（文字数バー含む）の表示状態（初回は非表示）
     toolbarVisible: false,
+    // 執筆目標
+    goal: {
+        target: 0,       // 目標文字数（0 は未設定）
+        deadline: null   // 'YYYY-MM-DD' または null
+    },
     // ミニHUDの設定
     hud: {
         position: 'bottom-left', // 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right'

@@ -204,7 +204,7 @@ button:active {
 }
 
 /* フォーム要素 */
-select, input[type="range"], input[type="color"] {
+select, input[type="range"], input[type="color"], input[type="number"], input[type="date"] {
     width: 100%;
     margin-bottom: 1rem;
     padding: 0.5rem;
