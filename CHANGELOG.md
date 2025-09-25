@@ -1,5 +1,12 @@
 # Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.8] - 2025-09-25
+
+### Changed
+
+- ドキュメント一覧を最終更新日時の新しい順（降順）で表示
+- USAGE/TESTING に並び順に関する記述を追記
+
 ## [0.3.7] - 2025-09-25
 
 ### Added

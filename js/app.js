@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderDocList(){
         if (!docSelect || !window.ZenWriterStorage) return;
-        const docs = window.ZenWriterStorage.loadDocuments();
+        const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
         const cur = window.ZenWriterStorage.getCurrentDocId();
         docSelect.innerHTML = '';
         if (!docs || docs.length === 0){
