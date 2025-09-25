@@ -459,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!cur) return;
             if (!confirm('このドキュメントを削除しますか？この操作は元に戻せません。')) return;
             window.ZenWriterStorage.deleteDocument(cur);
-            const docs = window.ZenWriterStorage.loadDocuments();
+            const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
             if (docs.length > 0){
                 const next = docs[0];
                 window.ZenWriterStorage.setCurrentDocId(next.id);

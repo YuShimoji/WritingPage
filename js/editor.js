@@ -146,7 +146,8 @@ class EditorManager {
      */
     exportAsText() {
         const content = this.editor.value || ' ';
-        const filename = `zenwriter_${this.getFormattedDate()}.txt`;
+        const base = this.getCurrentDocBaseName();
+        const filename = `${base}_${this.getFormattedDate()}.txt`;
         window.ZenWriterStorage.exportText(content, filename, 'text/plain');
     }
 
@@ -155,7 +156,8 @@ class EditorManager {
      */
     exportAsMarkdown() {
         const content = this.editor.value || ' ';
-        const filename = `zenwriter_${this.getFormattedDate()}.md`;
+        const base = this.getCurrentDocBaseName();
+        const filename = `${base}_${this.getFormattedDate()}.md`;
         window.ZenWriterStorage.exportText(content, filename, 'text/markdown');
     }
 
@@ -175,6 +177,36 @@ class EditorManager {
         const seconds = pad(now.getSeconds());
         
         return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+    }
+
+    /**
+     * 現在選択中ドキュメントのファイル名ベースを取得（無効文字は置換）
+     * @returns {string}
+     */
+    getCurrentDocBaseName(){
+        try {
+            if (!window.ZenWriterStorage || !window.ZenWriterStorage.getCurrentDocId) return 'zenwriter';
+            const id = window.ZenWriterStorage.getCurrentDocId();
+            const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
+            const doc = docs.find(d => d && d.id === id);
+            const name = (doc && doc.name) ? String(doc.name) : 'zenwriter';
+            return this.sanitizeForFilename(name.trim() || 'zenwriter');
+        } catch(_) { return 'zenwriter'; }
+    }
+
+    /**
+     * ファイル名に使えない文字を安全なものに置換
+     * @param {string} s
+     * @returns {string}
+     */
+    sanitizeForFilename(s){
+        // Windows禁止文字 \ / : * ? " < > | と制御文字を置換し、連続空白を圧縮
+        return s
+            .replace(/[\\/:*?"<>|]/g, '_')
+            .replace(/[\x00-\x1F\x7F]/g, '_')
+            .replace(/\s+/g, ' ')
+            .slice(0, 60) // 長すぎる名前を抑制
+            || 'zenwriter';
     }
 
     /**

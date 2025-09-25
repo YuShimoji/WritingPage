@@ -1,5 +1,13 @@
 # Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.10] - 2025-09-25
+
+### Changed
+
+- エクスポート（TXT/MD）のファイル名に現在のドキュメント名を反映（`<doc>_YYYYMMDD_HHMMSS.ext`）
+- ドキュメント名の無効文字（\\ / : * ? " < > | など）をアンダースコアにサニタイズ
+- USAGE/TESTING を上記仕様に合わせて更新
+
 ## [0.3.9] - 2025-09-25
 
 ### Changed
