@@ -1,5 +1,8 @@
 const http = require('http');
 
+const fs = require('fs');
+const path = require('path');
+
 function get(path) {
   return new Promise((resolve, reject) => {
     const req = http.get({ host: '127.0.0.1', port: 8080, path }, (res) => {
@@ -16,6 +19,7 @@ function get(path) {
     const index = await get('/');
     const okIndex =
       index.status === 200 &&
+      /<title>\s*Zen Writer\s*-\s*小説執筆ツール\s*<\/title>/i.test(index.body) &&
       /<div\s+class=\"toolbar\"/i.test(index.body) &&
       /<textarea\s+id=\"editor\"/i.test(index.body) &&
       /id=\"goal-progress\"/i.test(index.body) &&
@@ -35,7 +39,21 @@ function get(path) {
     const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss)) {
+    // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
+    const appPath = path.join(__dirname, '..', 'js', 'app.js');
+    let appSrc = '';
+    try {
+      appSrc = fs.readFileSync(appPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', appPath, e.message);
+    }
+    const hasUpdateFn = /function\s+updateDocumentTitle\s*\(/.test(appSrc);
+    const hasNamePattern = /document\.title\s*=\s*name\s*\?\s*`?\$\{\s*name\s*\}\s*-\s*Zen Writer`?/m.test(appSrc);
+    const hasFallback = /['"]Zen Writer\s*-\s*小説執筆ツール['"]/m.test(appSrc);
+    const okTitleSpec = hasUpdateFn && hasNamePattern && hasFallback;
+    console.log('CHECK title spec (app.js) ->', okTitleSpec ? 'OK' : 'NG', { hasUpdateFn, hasNamePattern, hasFallback });
+
+    if (!(okIndex && okCss && okTitleSpec)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
