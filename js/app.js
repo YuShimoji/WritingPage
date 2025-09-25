@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
                 window.ZenWriterEditor.setContent(initial);
             }
+            updateDocumentTitle();
         } else {
             // カレントが無ければ先頭に設定
             if (!cur || !docs.some(d => d && d.id === cur)){
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
                     window.ZenWriterEditor.setContent(first.content || '');
                 }
+                updateDocumentTitle();
             }
         }
     }
@@ -72,8 +74,22 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZenWriterEditor.setContent(target.content || '');
         }
         if (docSelect) docSelect.value = id;
+        updateDocumentTitle();
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
             window.ZenWriterEditor.showNotification(`「${target.name || '無題'}」を開きました`, 1200);
+        }
+    }
+
+    // タイトル更新（ドキュメント名 - Zen Writer）
+    function updateDocumentTitle(){
+        try {
+            const docs = window.ZenWriterStorage.loadDocuments() || [];
+            const cur = window.ZenWriterStorage.getCurrentDocId();
+            const doc = docs.find(d => d && d.id === cur);
+            const name = (doc && doc.name) ? doc.name : '';
+            document.title = name ? `${name} - Zen Writer` : 'Zen Writer - 小説執筆ツール';
+        } catch(_) {
+            document.title = 'Zen Writer - 小説執筆ツール';
         }
     }
 
@@ -322,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZenWriterEditor.setContent('');
         }
         renderDocList();
+        updateDocumentTitle();
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
             window.ZenWriterEditor.showNotification('新規ドキュメントを作成しました', 1200);
         }
@@ -355,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期: ドキュメント管理セットアップ
     ensureInitialDocument();
     renderDocList();
+    updateDocumentTitle();
 
     // テーマ設定
     themePresets.forEach(btn => {
@@ -436,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.ZenWriterEditor.setContent('');
             }
             renderDocList();
+            updateDocumentTitle();
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
                 window.ZenWriterEditor.showNotification('ドキュメントを作成しました', 1200);
             }
@@ -451,6 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (name === null) return;
             window.ZenWriterStorage.renameDocument(cur, name || '無題');
             renderDocList();
+            updateDocumentTitle();
         });
     }
     if (docDeleteBtn){
@@ -474,6 +494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             renderDocList();
+            updateDocumentTitle();
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
                 window.ZenWriterEditor.showNotification('ドキュメントを削除しました', 1200);
             }

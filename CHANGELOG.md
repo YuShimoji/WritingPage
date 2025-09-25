@@ -1,5 +1,13 @@
 # Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.11] - 2025-09-25
+
+### Changed
+
+- ブラウザのタブタイトルに現在のドキュメント名を反映（`<doc> - Zen Writer`）
+- 作成/切替/改名/削除/初期化直後にタイトルを更新
+- USAGE/TESTING を上記仕様に合わせて更新
+
 ## [0.3.10] - 2025-09-25
 
 ### Changed
