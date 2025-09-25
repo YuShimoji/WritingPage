@@ -1,4 +1,16 @@
+# Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.7] - 2025-09-25
+
+### Added
+
+- 複数ドキュメント管理（作成/一覧/切替/改名/削除）
+
+### Changed
+
+- scripts/dev-check.js にドキュメント管理UIの存在チェックを追加
+- README/USAGE/TESTING を複数ドキュメント管理に合わせて更新
+
 ## [0.3.6] - 2025-09-24
 
 ### Added
@@ -48,10 +60,6 @@
 ### Added
 
 - HUD 設定UIを追加（表示位置/時間/背景色/文字色/不透明度）。設定は LocalStorage に保存され、即時反映されます。
-
-# Changelog
-
-All notable changes to this project will be documented in this file.
 
 ## [0.3.1] - 2025-09-24
 

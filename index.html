@@ -140,6 +140,13 @@
 
             <div class="sidebar-section">
                 <h3>ドキュメント</h3>
+                <label for="doc-select">ドキュメント一覧</label>
+                <select id="doc-select"></select>
+                <div class="doc-actions" style="display:flex; gap:6px; margin:6px 0;">
+                    <button id="doc-create" class="small">作成</button>
+                    <button id="doc-rename" class="small">改名</button>
+                    <button id="doc-delete" class="small">削除</button>
+                </div>
                 <button id="new-document">新規ドキュメント</button>
                 <button id="import-file">ファイルを読み込む</button>
                 <input type="file" id="file-input" accept=".txt,.md,.markdown,.text" style="display:none" />

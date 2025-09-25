@@ -19,6 +19,10 @@ function get(path) {
       /<div\s+class=\"toolbar\"/i.test(index.body) &&
       /<textarea\s+id=\"editor\"/i.test(index.body) &&
       /id=\"goal-progress\"/i.test(index.body) &&
+      /id=\"doc-select\"/i.test(index.body) &&
+      /id=\"doc-create\"/i.test(index.body) &&
+      /id=\"doc-rename\"/i.test(index.body) &&
+      /id=\"doc-delete\"/i.test(index.body) &&
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');

@@ -3,7 +3,9 @@ const STORAGE_KEYS = {
     CONTENT: 'zenWriter_content',
     SETTINGS: 'zenWriter_settings',
     OUTLINE: 'zenWriter_outline',
-    SNAPSHOTS: 'zenWriter_snapshots'
+    SNAPSHOTS: 'zenWriter_snapshots',
+    DOCS: 'zenWriter_docs',
+    CURRENT_DOC_ID: 'zenWriter_currentDocId'
 };
 
 // デフォルト設定
@@ -85,6 +87,20 @@ function deleteSnapshot(id){
 function saveContent(content) {
     try {
         localStorage.setItem(STORAGE_KEYS.CONTENT, content);
+        // 複数ドキュメント管理が有効な場合は、現在ドキュメントにも反映
+        try {
+            const curId = localStorage.getItem(STORAGE_KEYS.CURRENT_DOC_ID);
+            if (curId) {
+                const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
+                const docs = raw ? JSON.parse(raw) : [];
+                const idx = docs.findIndex(d => d && d.id === curId);
+                if (idx >= 0) {
+                    docs[idx].content = content || '';
+                    docs[idx].updatedAt = Date.now();
+                    localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs));
+                }
+            }
+        } catch(e){ /* ignore */ }
         return true;
     } catch (e) {
         console.error('保存中にエラーが発生しました:', e);
@@ -131,6 +147,81 @@ function loadContent() {
         console.error('読み込み中にエラーが発生しました:', e);
         return '';
     }
+}
+
+// ===== 複数ドキュメント管理 =====
+function loadDocuments(){
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
+        return raw ? JSON.parse(raw) : [];
+    } catch(e){
+        console.error('ドキュメント読込エラー:', e);
+        return [];
+    }
+}
+
+function saveDocuments(list){
+    try {
+        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(list||[]));
+        return true;
+    } catch(e){
+        console.error('ドキュメント保存エラー:', e);
+        return false;
+    }
+}
+
+function getCurrentDocId(){
+    try {
+        return localStorage.getItem(STORAGE_KEYS.CURRENT_DOC_ID);
+    } catch(e){ return null; }
+}
+
+function setCurrentDocId(id){
+    try {
+        if (id) localStorage.setItem(STORAGE_KEYS.CURRENT_DOC_ID, id);
+        else localStorage.removeItem(STORAGE_KEYS.CURRENT_DOC_ID);
+        return true;
+    } catch(e){ return false; }
+}
+
+function createDocument(name = '新規ドキュメント', content = ''){
+    const docs = loadDocuments();
+    const doc = { id: 'doc_'+Date.now(), name: String(name||'新規ドキュメント'), content: String(content||''), createdAt: Date.now(), updatedAt: Date.now() };
+    docs.push(doc);
+    saveDocuments(docs);
+    return doc;
+}
+
+function updateDocumentContent(id, content){
+    const docs = loadDocuments();
+    const idx = docs.findIndex(d => d && d.id === id);
+    if (idx < 0) return false;
+    docs[idx].content = String(content||'');
+    docs[idx].updatedAt = Date.now();
+    saveDocuments(docs);
+    // 現在ドキュメントなら CONTENT も同期
+    if (getCurrentDocId() === id){
+        try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch(_){}
+    }
+    return true;
+}
+
+function renameDocument(id, name){
+    const docs = loadDocuments();
+    const idx = docs.findIndex(d => d && d.id === id);
+    if (idx < 0) return false;
+    docs[idx].name = String(name||docs[idx].name||'無題');
+    docs[idx].updatedAt = Date.now();
+    saveDocuments(docs);
+    return true;
+}
+
+function deleteDocument(id){
+    const docs = loadDocuments();
+    const next = docs.filter(d => d && d.id !== id);
+    saveDocuments(next);
+    if (getCurrentDocId() === id) setCurrentDocId(null);
+    return true;
 }
 
 /**
@@ -190,36 +281,54 @@ function exportText(text, filename, type = 'text/plain') {
 }
 
 // モジュールとしてエクスポート
-if (typeof module !== 'undefined' && module.exports) {
-    // Node.js環境
-    module.exports = {
-        saveContent,
-        loadContent,
-        saveSettings,
-        loadSettings,
-        saveOutline,
-        loadOutline,
-        exportText,
-        DEFAULT_SETTINGS,
-        // snapshots
-        loadSnapshots,
-        addSnapshot,
-        deleteSnapshot
-    };
-} else {
-    // ブラウザ環境
-    window.ZenWriterStorage = {
-        saveContent,
-        loadContent,
-        saveSettings,
-        loadSettings,
-        saveOutline,
-        loadOutline,
-        exportText,
-        DEFAULT_SETTINGS,
-        // snapshots
-        loadSnapshots,
-        addSnapshot,
-        deleteSnapshot
-    };
-}
+    if (typeof module !== 'undefined' && module.exports) {
+        // Node.js環境
+        module.exports = {
+            saveContent,
+            loadContent,
+            saveSettings,
+            loadSettings,
+            saveOutline,
+            loadOutline,
+            exportText,
+            DEFAULT_SETTINGS,
+            // snapshots
+            loadSnapshots,
+            addSnapshot,
+            deleteSnapshot,
+            // docs
+            loadDocuments,
+            saveDocuments,
+            getCurrentDocId,
+            setCurrentDocId,
+            createDocument,
+            updateDocumentContent,
+            renameDocument,
+            deleteDocument
+        };
+    } else {
+        // ブラウザ環境
+        window.ZenWriterStorage = {
+            saveContent,
+            loadContent,
+            saveSettings,
+            loadSettings,
+            saveOutline,
+            loadOutline,
+            exportText,
+            DEFAULT_SETTINGS,
+            // snapshots
+            loadSnapshots,
+            addSnapshot,
+            deleteSnapshot,
+            // docs
+            loadDocuments,
+            saveDocuments,
+            getCurrentDocId,
+            setCurrentDocId,
+            createDocument,
+            updateDocumentContent,
+            renameDocument,
+            deleteDocument
+        };
+    }
