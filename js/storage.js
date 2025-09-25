@@ -95,8 +95,12 @@ function saveContent(content) {
                 const docs = raw ? JSON.parse(raw) : [];
                 const idx = docs.findIndex(d => d && d.id === curId);
                 if (idx >= 0) {
-                    docs[idx].content = content || '';
-                    docs[idx].updatedAt = Date.now();
+                    const nextContent = content || '';
+                    const prevContent = String(docs[idx].content || '');
+                    docs[idx].content = nextContent;
+                    if (prevContent !== nextContent) {
+                        docs[idx].updatedAt = Date.now();
+                    }
                     localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs));
                 }
             }

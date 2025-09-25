@@ -313,7 +313,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // ドキュメント操作
-    if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => window.ZenWriterEditor.newDocument());
+    if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => {
+        const name = prompt('新しいドキュメント名を入力', '無題');
+        if (name === null) return;
+        const doc = window.ZenWriterStorage.createDocument(name || '無題', '');
+        window.ZenWriterStorage.setCurrentDocId(doc.id);
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
+            window.ZenWriterEditor.setContent('');
+        }
+        renderDocList();
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
+            window.ZenWriterEditor.showNotification('新規ドキュメントを作成しました', 1200);
+        }
+    });
     if (exportTxtBtn) exportTxtBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsText());
     if (exportMdBtn) exportMdBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsMarkdown());
     if (importBtn && fileInput) {
