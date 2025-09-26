@@ -39,6 +39,13 @@ function get(path) {
     const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
 
+    // プラグインUIとスクリプトの存在検証
+    const hasPluginsPanel = /id=\"plugins-panel\"/i.test(index.body);
+    const pluginRegistry = await get('/js/plugins/registry.js');
+    const pluginChoice = await get('/js/plugins/choice.js');
+    const okPlugins = hasPluginsPanel && pluginRegistry.status === 200 && pluginChoice.status === 200;
+    console.log('CHECK plugins ->', okPlugins ? 'OK' : 'NG', { hasPluginsPanel, registry: pluginRegistry.status, choice: pluginChoice.status });
+
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
     let appSrc = '';
@@ -53,7 +60,7 @@ function get(path) {
     const okTitleSpec = hasUpdateFn && hasNamePattern && hasFallback;
     console.log('CHECK title spec (app.js) ->', okTitleSpec ? 'OK' : 'NG', { hasUpdateFn, hasNamePattern, hasFallback });
 
-    if (!(okIndex && okCss && okTitleSpec)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');

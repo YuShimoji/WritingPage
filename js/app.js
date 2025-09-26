@@ -158,6 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 執筆目標
     const goalTargetInput = document.getElementById('goal-target');
     const goalDeadlineInput = document.getElementById('goal-deadline');
+    // プラグインパネル
+    const pluginsPanel = document.getElementById('plugins-panel');
 
     function formatTs(ts){
         const d = new Date(ts);
@@ -210,6 +212,54 @@ document.addEventListener('DOMContentLoaded', () => {
             row.appendChild(actions);
             snapListEl.appendChild(row);
         });
+    }
+
+    // プラグインを描画
+    function renderPlugins(){
+        if (!pluginsPanel || !window.ZenWriterPlugins) return;
+        try {
+            const list = window.ZenWriterPlugins.list ? (window.ZenWriterPlugins.list() || []) : [];
+            pluginsPanel.innerHTML = '';
+            if (!list.length) {
+                const empty = document.createElement('div');
+                empty.style.opacity = '0.7';
+                empty.textContent = '利用可能な拡張機能はありません';
+                pluginsPanel.appendChild(empty);
+                return;
+            }
+            list.forEach(p => {
+                const group = document.createElement('div');
+                group.className = 'plugin-group';
+                group.style.display = 'flex';
+                group.style.flexDirection = 'column';
+                group.style.gap = '6px';
+
+                const title = document.createElement('div');
+                title.className = 'plugin-title';
+                title.textContent = p.name || p.id;
+                title.style.fontWeight = 'bold';
+                group.appendChild(title);
+
+                const actionsWrap = document.createElement('div');
+                actionsWrap.className = 'plugin-actions';
+                actionsWrap.style.display = 'flex';
+                actionsWrap.style.flexWrap = 'wrap';
+                actionsWrap.style.gap = '6px';
+                (p.actions || []).forEach(a => {
+                    const btn = document.createElement('button');
+                    btn.className = 'small';
+                    btn.textContent = a.label || a.id;
+                    btn.addEventListener('click', () => {
+                        try { if (a && typeof a.run === 'function') a.run(); } catch(e){ console.error(e); }
+                    });
+                    actionsWrap.appendChild(btn);
+                });
+                group.appendChild(actionsWrap);
+                pluginsPanel.appendChild(group);
+            });
+        } catch (e) {
+            console.error('プラグイン描画エラー:', e);
+        }
     }
 
     // サイドバーの表示/非表示を切り替え
@@ -373,6 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ensureInitialDocument();
     renderDocList();
     updateDocumentTitle();
+    renderPlugins();
 
     // テーマ設定
     themePresets.forEach(btn => {
