@@ -8,7 +8,7 @@ function get(path) {
     const req = http.get({ host: '127.0.0.1', port: 8080, path }, (res) => {
       let data = '';
       res.on('data', (chunk) => (data += chunk));
-      res.on('end', () => resolve({ status: res.statusCode, body: data }));
+      res.on('end', () => resolve({ status: res.statusCode, body: data, headers: res.headers }));
     });
     req.on('error', reject);
   });
@@ -60,7 +60,18 @@ function get(path) {
     const okTitleSpec = hasUpdateFn && hasNamePattern && hasFallback;
     console.log('CHECK title spec (app.js) ->', okTitleSpec ? 'OK' : 'NG', { hasUpdateFn, hasNamePattern, hasFallback });
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins)) {
+    // 埋め込みデモの存在確認
+    const embedDemo = await get('/embed-demo.html');
+    const okEmbedDemo = embedDemo.status === 200 && /<h1>\s*Zen Writer Embed Demo\s*<\/h1>/i.test(embedDemo.body);
+    console.log('GET /embed-demo.html ->', embedDemo.status, okEmbedDemo ? 'OK' : 'NG');
+
+    // favicon.ico フォールバック確認（サーバー再起動後に 200 / image/svg+xml になる想定）
+    const fav = await get('/favicon.ico');
+    const ct = (fav.headers && (fav.headers['content-type'] || fav.headers['Content-Type'])) || '';
+    const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
+    console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
+
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');

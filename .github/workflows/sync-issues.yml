@@ -2,7 +2,9 @@ name: Sync Issues from docs
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'feat/**'
     paths:
       - 'docs/ISSUES.md'
       - '.github/workflows/sync-issues.yml'
@@ -63,16 +65,28 @@ jobs:
             // 既存Issueを全件（最大100件）取得
             const { data: existingAll } = await github.rest.issues.listForRepo({ owner, repo, state: 'all', per_page: 100 });
 
-            // 作成/更新/再オープン
+            // 作成/更新/再オープン（ラベル未定義時はラベルなしでフォールバック）
             for (const item of wanted){
               const found = existingAll.find(i => i.title === item.title);
               if (found){
-                const newLabels = Array.from(new Set([...(found.labels||[]).map(l=> typeof l === 'string' ? l : l.name), ...item.labels]));
-                await github.rest.issues.update({ owner, repo, issue_number: found.number, body: item.body, labels: newLabels, state: 'open' });
-                core.info(`Updated: ${item.title} (#${found.number})`);
+                try {
+                  const newLabels = Array.from(new Set([...(found.labels||[]).map(l=> typeof l === 'string' ? l : l.name), ...item.labels]));
+                  await github.rest.issues.update({ owner, repo, issue_number: found.number, body: item.body, labels: newLabels, state: 'open' });
+                  core.info(`Updated: ${item.title} (#${found.number})`);
+                } catch (e) {
+                  core.warning(`Update with labels failed for ${item.title}: ${e.message}. Retrying without labels...`);
+                  await github.rest.issues.update({ owner, repo, issue_number: found.number, body: item.body, state: 'open' });
+                  core.info(`Updated (no labels): ${item.title} (#${found.number})`);
+                }
               } else {
-                const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
-                core.info(`Created: ${item.title} (#${res.data.number})`);
+                try {
+                  const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
+                  core.info(`Created: ${item.title} (#${res.data.number})`);
+                } catch (e) {
+                  core.warning(`Create with labels failed for ${item.title}: ${e.message}. Retrying without labels...`);
+                  const res2 = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body });
+                  core.info(`Created (no labels): ${item.title} (#${res2.data.number})`);
+                }
               }
             }
 
