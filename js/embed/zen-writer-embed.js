@@ -17,6 +17,30 @@
 
     let ready = false;
     let childWin = null;
+    // postMessage mode state
+    const inflight = new Map();
+    let pmReady = false;
+    const targetOrigin = options.targetOrigin || '*';
+
+    function onMessage(event){
+      if (!iframe.contentWindow || event.source !== iframe.contentWindow) return;
+      const data = event.data || {};
+      if (data && data.type === 'ZW_EMBED_READY') {
+        pmReady = true;
+        if (!ready) ready = true;
+        return; // waitForReady() loop will resolve on next tick
+      }
+      if (data && data.type === 'ZW_RESPONSE' && data.requestId) {
+        const entry = inflight.get(data.requestId);
+        if (entry) {
+          clearTimeout(entry.t);
+          inflight.delete(data.requestId);
+          if (data.ok) entry.resolve(data.result);
+          else entry.reject(new Error(data.error || 'ZenWriterEmbed: response error'));
+        }
+      }
+    }
+    window.addEventListener('message', onMessage);
 
     function waitForReady(){
       return new Promise((resolve, reject) => {
@@ -34,7 +58,11 @@
               if (ok) { ready = true; return resolve(); }
             }
           } catch(e){
-            // cross-origin access error: fallthrough to postMessage mode (not implemented yet)
+            // cross-origin access error: fallthrough to postMessage mode
+          }
+          // postMessage mode: 親から READY が来るのを待つ
+          if (!sameOrigin || pmReady) {
+            if (pmReady) { ready = true; return resolve(); }
           }
           if (Date.now() - start > timeout) return reject(new Error('ZenWriterEmbed: timeout waiting child app'));
           setTimeout(tick, 100);
@@ -44,6 +72,20 @@
     }
 
     async function _ensure(){ if (!ready) await waitForReady(); }
+    async function rpc(type, payload){
+      await _ensure();
+      if (sameOrigin) throw new Error('ZenWriterEmbed: rpc should not be used in same-origin mode');
+      return new Promise((resolve, reject) => {
+        const id = Math.random().toString(36).slice(2);
+        const t = setTimeout(() => {
+          inflight.delete(id);
+          reject(new Error('ZenWriterEmbed: rpc timeout'));
+        }, options.timeoutMs || 10000);
+        inflight.set(id, { resolve, reject, t });
+        iframe.contentWindow.postMessage({ type, requestId: id, payload }, targetOrigin);
+      });
+    }
+
     return {
       iframe,
       async getContent(){
@@ -56,7 +98,11 @@
             if (childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor) {
               return String(childWin.ZenWriterEditor.editor.value || '');
             }
-          } catch(_){}
+          } catch(_){ }
+        } else {
+          // postMessage mode
+          const res = await rpc('ZW_GET_CONTENT');
+          return String(res || '');
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       },
@@ -72,6 +118,9 @@
               return true;
             }
           } catch(_){ }
+        } else {
+          await rpc('ZW_SET_CONTENT', { text: String(text||'') });
+          return true;
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       },
@@ -85,6 +134,9 @@
             const el = childWin.document.getElementById('editor');
             if (el) { el.focus(); return true; }
           } catch(_){ }
+        } else {
+          await rpc('ZW_FOCUS');
+          return true;
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       },
@@ -101,10 +153,13 @@
               return true;
             }
           } catch(_){ }
+        } else {
+          await rpc('ZW_TAKE_SNAPSHOT');
+          return true;
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       }
     };
   }
   window.ZenWriterEmbed = { create };
-})();
+  })();
