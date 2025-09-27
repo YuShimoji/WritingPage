@@ -30,7 +30,7 @@
           childWin = iframe.contentWindow;
           try {
             if (sameOrigin) {
-              const ok = childWin && childWin.ZenWriterEditor && childWin.ZenWriterStorage;
+              const ok = childWin && (childWin.ZenWriterAPI || (childWin.ZenWriterEditor && childWin.ZenWriterStorage));
               if (ok) { ready = true; return resolve(); }
             }
           } catch(e){
@@ -44,13 +44,15 @@
     }
 
     async function _ensure(){ if (!ready) await waitForReady(); }
-
     return {
       iframe,
       async getContent(){
         await _ensure();
         if (sameOrigin) {
           try {
+            if (childWin.ZenWriterAPI && typeof childWin.ZenWriterAPI.getContent === 'function') {
+              return String(childWin.ZenWriterAPI.getContent() || '');
+            }
             if (childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor) {
               return String(childWin.ZenWriterEditor.editor.value || '');
             }
@@ -62,11 +64,14 @@
         await _ensure();
         if (sameOrigin) {
           try {
+            if (childWin.ZenWriterAPI && typeof childWin.ZenWriterAPI.setContent === 'function'){
+              return !!childWin.ZenWriterAPI.setContent(String(text||''));
+            }
             if (childWin.ZenWriterEditor && typeof childWin.ZenWriterEditor.setContent === 'function'){
               childWin.ZenWriterEditor.setContent(String(text||''));
               return true;
             }
-          } catch(_){}
+          } catch(_){ }
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       },
@@ -74,9 +79,12 @@
         await _ensure();
         if (sameOrigin) {
           try {
+            if (childWin.ZenWriterAPI && typeof childWin.ZenWriterAPI.focus === 'function') {
+              return !!childWin.ZenWriterAPI.focus();
+            }
             const el = childWin.document.getElementById('editor');
             if (el) { el.focus(); return true; }
-          } catch(_){}
+          } catch(_){ }
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       },
@@ -84,17 +92,19 @@
         await _ensure();
         if (sameOrigin) {
           try {
+            if (childWin.ZenWriterAPI && typeof childWin.ZenWriterAPI.takeSnapshot === 'function') {
+              return !!childWin.ZenWriterAPI.takeSnapshot();
+            }
             const content = childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor ? (childWin.ZenWriterEditor.editor.value || '') : '';
             if (childWin.ZenWriterStorage && typeof childWin.ZenWriterStorage.addSnapshot === 'function'){
               childWin.ZenWriterStorage.addSnapshot(content);
               return true;
             }
-          } catch(_){}
+          } catch(_){ }
         }
         throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
       }
     };
   }
-
   window.ZenWriterEmbed = { create };
 })();

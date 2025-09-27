@@ -34,6 +34,10 @@ function sendFile(res, fp){
 const server = http.createServer((req, res) => {
   let reqPath = decodeURIComponent(req.url.split('?')[0] || '/');
   if (reqPath === '/') reqPath = '/index.html';
+  // favicon.ico は存在しないため、favicon.svg にフォールバック
+  if (reqPath === '/favicon.ico') {
+    reqPath = '/favicon.svg';
+  }
   const fp = path.join(root, reqPath);
   if (!fp.startsWith(root)) {
     res.writeHead(400); res.end('Bad Request'); return;

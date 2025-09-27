@@ -6,6 +6,11 @@
     <title>Zen Writer - 小説執筆ツール</title>
     <script>
       (function(){
+        // 埋め込みモード判定（?embed=1）
+        var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
+        if (isEmbed) {
+          document.documentElement.setAttribute('data-embed','true');
+        }
         try {
           var raw = localStorage.getItem('zenWriter_settings');
           if (raw) {
@@ -18,6 +23,10 @@
             document.documentElement.setAttribute('data-toolbar-hidden','true');
           }
         } catch(e) { /* ignore */ }
+        // 埋め込みモードではツールバーを強制的に隠す（最小UI）
+        if (isEmbed) {
+          document.documentElement.setAttribute('data-toolbar-hidden','true');
+        }
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
