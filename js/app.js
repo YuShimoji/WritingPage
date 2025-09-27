@@ -676,4 +676,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初期状態の整合性
     // applySettingsToUI() と head内の early-boot で反映済みのため、ここでの上書きは行わない
+    
+    // ===== 埋め込み/外部制御用 安定APIブリッジ =====
+    if (!window.ZenWriterAPI) {
+        window.ZenWriterAPI = {
+            /** 現在の本文を取得 */
+            getContent() {
+                const el = document.getElementById('editor');
+                return el ? String(el.value || '') : '';
+            },
+            /** 本文を設定（保存とUI更新も実施） */
+            setContent(text) {
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+                    window.ZenWriterEditor.setContent(String(text || ''));
+                    return true;
+                }
+                const el = document.getElementById('editor');
+                if (el) {
+                    el.value = String(text || '');
+                    if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                        window.ZenWriterStorage.saveContent(el.value);
+                    }
+                    return true;
+                }
+                return false;
+            },
+            /** エディタにフォーカスを移動 */
+            focus() {
+                const el = document.getElementById('editor');
+                if (el) { el.focus(); return true; }
+                return false;
+            },
+            /** 現在の本文でスナップショットを追加 */
+            takeSnapshot() {
+                const el = document.getElementById('editor');
+                const content = el ? (el.value || '') : '';
+                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                    window.ZenWriterStorage.addSnapshot(content);
+                    return true;
+                }
+                return false;
+            }
+        };
+    }
 });

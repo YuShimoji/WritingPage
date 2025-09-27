@@ -2,7 +2,9 @@ name: Sync Issues from docs
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - 'feat/**'
     paths:
       - 'docs/ISSUES.md'
       - '.github/workflows/sync-issues.yml'
@@ -22,87 +24,77 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const issues = [
-              {
-                title: '用語整備・仕様遵守（UIラベルの統一）',
-                body: `目的: 仕様書に記載のない用語（例: 「賞名」）がUIに混在しているため、用語を仕様に沿って統一し、ユーザーの混乱を防ぐ\n\nDoD:\n- 現状のUIラベルの棚卸しと差分一覧（仕様との突合）\n- 用語ガイドライン（CONVENTIONS.md または新規ドキュメント）に決定を反映\n- UIラベル・プレースホルダー・ヘルプテキストの一括置換\n- 国際化（将来対応）を見据えたキー化（data-i18n 等）方針の草案`,
-                labels: ['product:backlog','type:enhancement']
-              },
-              {
-                title: 'テーマUIの極小化と「設定ハブ」への移動',
-                body: `目的: 左サイドバーの情報過多を解消し、テーマ等のカスタム要素は別の設定ハブ（ドロワー/ダイアログ）に集約する\n\nDoD:\n- 左サイドバーから「テーマ」セクションを折りたたみ/最小化（初期は閉）\n- 「詳細設定」ボタンで設定ハブ（モーダル or 右ドロワー）を開く導線を追加\n- 設定ハブに「テーマ/フォント/配色/高度なテーマプリセット」を再配置\n- 既存ショートカット（フォントサイズ等）との整合性とドキュメント更新`,
-                labels: ['product:backlog','type:enhancement','area:UI']
-              },
-              {
-                title: 'アウトライン項目のユーザー並び替え（部/章/節/話など）',
-                body: `目的: アウトラインの階層項目をユーザーが任意に並べ替え可能にし、執筆スタイルへ柔軟に適応\n\nDoD:\n- 並び替えUI（ドラッグ＆ドロップ、または上下ボタン）を提供\n- 並び順をLocalStorageへ保存/復元\n- 挿入ボタンの順序/色が並び替え結果に連動\n- USAGE/TESTINGの更新`,
-                labels: ['product:backlog','type:enhancement','area:outline']
-              },
-              {
-                title: 'フォント設定の適用範囲の明確化（本文 vs UI）',
-                body: `目的: 「フォント」が小説本文用かサイトUI用かが不明瞭なため、適用範囲を分離\n\nDoD:\n- CSS変数を本文用（--content-font-...）とUI用（--ui-font-...）に分離\n- 設定UIで「本文フォント」「UIフォント」を独立して設定/保存\n- 既存テーマ/プリセットとの整合性を担保\n- ドキュメント（THEMES.md/USAGE.md/TESTING.md）更新`,
-                labels: ['product:backlog','type:enhancement','area:typography']
-              },
-              {
-                title: '見出し階層のハードコーディング解消',
-                body: `目的: 章/節/部 等の固定前提を排し、OutlineManagerのテンプレート機構に一本化\n\nDoD:\n- コード全体を点検し、固定ラベルのハードコーディングを撤廃\n- DEFAULT_OUTLINE は初期値としてのみ使用し、全UIはテンプレートに依存\n- リグレッションテスト（既存テンプレートとの互換）`,
-                labels: ['product:backlog','type:refactor','area:outline']
-              },
-              {
-                title: 'ワードカウントバーの開閉（常時表示/自動隠し/手動トグル）',
-                body: `目的: 執筆集中を阻害しないよう、上部の文字数/語数バーを開閉可能にする\n\nDoD:\n- バーの折りたたみ/展開（状態は保存、初期状態の設定可）\n- キーボードショートカット（例: Ctrl/Alt+W）でトグル\n- 自動非表示（入力停止/再開でフェード）オプション\n- USAGE/TESTING 更新`,
-                labels: ['product:backlog','type:enhancement','area:editor']
-              },
-              {
-                title: 'フェードイン/アウト型ミニHUD（拡張可能な小ウィンドウ）',
-                body: `目的: 文字数などの指標や簡易操作をフェード表示する、小型で拡張可能なHUDを設計/実装\n\nDoD:\n- HUDのUIコンポーネント（CSSアニメーション/位置/サイズ）\n- API（publish(message, type, duration), pin(), close() など）\n- 文字数/語数の一時表示を標準実装。後から他機能（例えばタイマー、進捗、ゴール）を追加可能\n- アクセシビリティ考慮（コントラスト、フォーカス移動、スクリーンリーダー）\n- USAGE/TESTING 更新`,
-                labels: ['product:backlog','type:enhancement','area:UI']
+            const fs = require('fs');
+            const path = require('path');
+
+            function parseIssuesFromMarkdown(filePath){
+              const text = fs.readFileSync(filePath, 'utf-8');
+              const lines = text.split(/\r?\n/);
+              const sections = [];
+              let cur = null;
+              for (const line of lines){
+                const m = /^##\s+(.+)$/.exec(line.trim());
+                if (m){
+                  if (cur) sections.push(cur);
+                  cur = { heading: m[1].trim(), body: [] };
+                } else if (cur){
+                  cur.body.push(line);
+                }
               }
-              ,
-              {
-                title: '埋め込み用エディター（Embed SDK v1）',
-                body: `目的: 他サイトに本エディターを簡単に埋め込み可能にする（別機能として分離、既存ページは変更しない）\n\nDoD:\n- js/embed/zen-writer-embed.js を提供。ZenWriterEmbed.create(target, options) で iframe を生成\n- postMessage で親子通信の仕様策定（READY/GET_CONTENT/SET_CONTENT/FOCUS/TAKE_SNAPSHOTなど）\n- docs/EMBED_SDK.md を作成（API/イベント/サンプルコード/セキュリティ）\n- index.html 側に ?embed=1 起動パラメータに応じた軽量モード（将来）\n- USAGE/TESTING 更新、サンプル embed-demo.html（任意）`,
-                labels: ['product:backlog','type:enhancement','area:embed']
-              },
-              {
-                title: 'スナップショット拡張（保持数/閾値/タグ/差分）',
-                body: `目的: 既存スナップショット機能を強化し、信頼性と操作性を高める\n\nDoD:\n- 保持数/間隔/文字数閾値を設定から変更可能\n- ドキュメントID紐付け、フィルタリング\n- タグ/メモ付与、手動/自動の区別\n- 復元前プレビューと差分表示（段落単位）\n- エクスポート/インポート（JSON）\n- docs/SNAPSHOT_DESIGN.md 追加、USAGE/TESTING 更新`,
-                labels: ['product:backlog','type:enhancement','area:storage']
-              },
-              {
-                title: '選択ツールチップ（Quick Actions）と装飾/挿入UI',
-                body: `目的: テキスト選択時に小さなツールチップを表示し、簡易操作で装飾や挿入を行う\n\nDoD:\n- 選択に追従するツールチップUI（位置計算/スクロール/エスケープで閉じる）\n- 装飾: 強調（**…**）、斜体（*…*）、取り消し線（~~…~~）\n- 挿入: リンク（[text](url)）、画像（![alt](url)）、区切り（---）\n- ルビ挿入: |漢字《かんじ》 形式（印刷時はそのまま、将来コンバータでHTML化）\n- プラグイン拡張点（registry.js に selection アクションを登録可能）\n- docs/EDITOR_EXTENSIONS.md 追加、USAGE/TESTING 更新`,
-                labels: ['product:backlog','type:enhancement','area:editor']
-              },
-              {
-                title: '画像挿入（IndexedDB 附帯オプション）',
-                body: `目的: 画像を安全に本文へ挿入（Markdown）。ローカルファイル/URL/貼り付け\n\nDoD:\n- まずはURL貼付/入力をサポート（![alt](https://...)）\n- オプション: IndexedDB にバイナリ保存し、zw-asset:<id> の仮想URLで参照→service worker で配信（将来）\n- 貼付（Clipboard）から画像を検出し、挿入前に確認ダイアログ\n- 容量と上限警告、USAGE/TESTING 更新`,
-                labels: ['product:backlog','type:enhancement','area:editor']
-              },
-              {
-                title: 'デザイン/設定の分離（設定ハブ & デザインツールチップ）',
-                body: `目的: デザイン系UIをいつでも分離可能・呼び出し可能に整理\n\nDoD:\n- 右ドロワー型の設定ハブ（別UI）を追加（モーダル/<dialog> でも可）\n- サイドバーからは最小情報のみ。詳細は「設定ハブを開く」導線\n- デザインツールチップ（簡易パレット/プレビュー/適用）の設計\n- ドキュメント（DESIGN.md, USAGE.md, TESTING.md）更新`,
-                labels: ['product:backlog','type:enhancement','area:UI']
+              if (cur) sections.push(cur);
+              const items = [];
+              for (const s of sections){
+                // タイトル先頭の番号やカッコを除去（"21) タイトル" -> "タイトル"）
+                const title = s.heading.replace(/^\d+\)\s*/, '').trim();
+                const body = s.body.join('\n').trim();
+                if (!title) continue;
+                items.push({
+                  title,
+                  body,
+                  labels: ['product:backlog','type:enhancement','managed:docs-sync']
+                });
               }
-            ];
+              return items;
+            }
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const wanted = parseIssuesFromMarkdown(path.join(process.cwd(), 'docs', 'ISSUES.md'));
+            const wantedByTitle = new Map(wanted.map(i => [i.title, i]));
 
-            for (const item of issues) {
-              // search existing open issue with same title
-              const { data: existing } = await github.rest.issues.listForRepo({ owner, repo, state: 'open', per_page: 100 });
-              const found = existing.find(i => i.title === item.title);
-              if (found) {
-                core.info(`Exists: ${item.title} (#${found.number})`);
-                continue;
+            // 既存Issueを全件（最大100件）取得
+            const { data: existingAll } = await github.rest.issues.listForRepo({ owner, repo, state: 'all', per_page: 100 });
+
+            // 作成/更新/再オープン（ラベル未定義時はラベルなしでフォールバック）
+            for (const item of wanted){
+              const found = existingAll.find(i => i.title === item.title);
+              if (found){
+                try {
+                  const newLabels = Array.from(new Set([...(found.labels||[]).map(l=> typeof l === 'string' ? l : l.name), ...item.labels]));
+                  await github.rest.issues.update({ owner, repo, issue_number: found.number, body: item.body, labels: newLabels, state: 'open' });
+                  core.info(`Updated: ${item.title} (#${found.number})`);
+                } catch (e) {
+                  core.warning(`Update with labels failed for ${item.title}: ${e.message}. Retrying without labels...`);
+                  await github.rest.issues.update({ owner, repo, issue_number: found.number, body: item.body, state: 'open' });
+                  core.info(`Updated (no labels): ${item.title} (#${found.number})`);
+                }
+              } else {
+                try {
+                  const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
+                  core.info(`Created: ${item.title} (#${res.data.number})`);
+                } catch (e) {
+                  core.warning(`Create with labels failed for ${item.title}: ${e.message}. Retrying without labels...`);
+                  const res2 = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body });
+                  core.info(`Created (no labels): ${item.title} (#${res2.data.number})`);
+                }
               }
-              try {
-                const res = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body, labels: item.labels });
-                core.info(`Created: ${item.title} (#${res.data.number})`);
-              } catch (e) {
-                core.warning(`Labeled create failed for "${item.title}": ${e.message}. Retrying without labels...`);
-                const res2 = await github.rest.issues.create({ owner, repo, title: item.title, body: item.body });
-                core.info(`Created: ${item.title} (#${res2.data.number})`);
+            }
+
+            // docs から消えた managed:docs-sync Issue をクローズ
+            for (const ex of existingAll){
+              const hasManaged = (ex.labels||[]).some(l => (typeof l === 'string' ? l : l.name) === 'managed:docs-sync');
+              if (hasManaged && !wantedByTitle.has(ex.title) && ex.state === 'open'){
+                await github.rest.issues.update({ owner, repo, issue_number: ex.number, state: 'closed' });
+                core.info(`Closed removed issue: ${ex.title} (#${ex.number})`);
               }
             }

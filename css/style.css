@@ -429,3 +429,20 @@ input[type="color"] {
   .print-view { display: block !important; }
   html, body { background: #fff !important; color: #000 !important; }
 }
+
+/* ===== 埋め込みモード（?embed=1） ===== */
+html[data-embed="true"] .sidebar,
+html[data-embed="true"] .toolbar,
+html[data-embed="true"] .fab-toggle-toolbar,
+html[data-embed="true"] .fab-tools,
+html[data-embed="true"] .floating-panel {
+  display: none !important;
+}
+html[data-embed="true"] .editor-container {
+  max-width: none;
+  padding: 0;
+}
+html[data-embed="true"] #editor {
+  height: 100vh;
+  padding: 1rem; /* 画面内で読みやすい余白 */
+}
