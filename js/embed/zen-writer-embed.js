@@ -4,6 +4,7 @@
     const sel = (typeof target === 'string') ? document.querySelector(target) : target;
     if (!sel) throw new Error('ZenWriterEmbed: target not found');
     let src = options.src || '/index.html';
+    let computedOrigin = null;
     const width = options.width || '100%';
     const height = options.height || '100%';
     const sameOrigin = options.sameOrigin !== false; // default true
@@ -15,8 +16,10 @@
       if (!url.searchParams.get('embed_origin') && (options.appendEmbedOrigin !== false)) {
         url.searchParams.set('embed_origin', window.location.origin);
       }
-      src = url.pathname + (url.search ? url.search : '') + (url.hash || '');
-    } catch(_){}
+      computedOrigin = url.origin;
+      const useAbs = (computedOrigin && computedOrigin !== window.location.origin);
+      src = useAbs ? url.toString() : (url.pathname + (url.search ? url.search : '') + (url.hash || ''));
+    } catch(_){ computedOrigin = null; }
     iframe.src = src;
     iframe.style.border = '0';
     iframe.style.width = width;
@@ -28,7 +31,7 @@
     // postMessage mode state
     const inflight = new Map();
     let pmReady = false;
-    const targetOrigin = sameOrigin ? window.location.origin : (options.targetOrigin || null);
+    const targetOrigin = sameOrigin ? window.location.origin : (options.targetOrigin || computedOrigin || null);
 
     function onMessage(event){
       if (!iframe.contentWindow || event.source !== iframe.contentWindow) return;
