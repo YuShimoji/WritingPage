@@ -24,7 +24,10 @@
     src: '/index.html?embed=1',
     width: '100%',
     height: '100%',
-    sameOrigin: true // クロスオリジンの場合は false にし、postMessage 実装へ切替（将来）
+    sameOrigin: true, // クロスオリジンの場合は false
+    // クロスオリジン例:
+    // sameOrigin: false,
+    // targetOrigin: new URL('https://child.example.com/index.html?embed=1', location.href).origin
   });
 
   // 使用例
@@ -59,7 +62,8 @@
 
 ## セキュリティ
 
-- クロスオリジン時は `targetOrigin` を厳密指定
+- クロスオリジン時は `targetOrigin` を厳密指定（親→子の postMessage 送信先origin）
+- 親originを子へ伝えるため、`iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin === embed_origin` の場合のみ受理
 - 許可するメッセージ `type` をホワイトリスト制御
 
 ## 今後

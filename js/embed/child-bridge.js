@@ -3,9 +3,14 @@
   var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
   if (!isEmbed) return;
 
+  var allowedOrigin = (function(){
+    try { return new URLSearchParams(location.search).get('embed_origin') || ''; } catch (_) { return ''; }
+  })();
+
   function sendToParent(msg){
     try {
-      window.parent && window.parent.postMessage(msg, '*');
+      var target = allowedOrigin || '*';
+      window.parent && window.parent.postMessage(msg, target);
     } catch(_) {}
   }
 
@@ -14,7 +19,8 @@
   }
 
   function onMessage(event){
-    // 将来: origin 検証（targetOrigin と合わせる）
+    // origin 検証（親からのメッセージのみ受理）
+    if (allowedOrigin && event.origin !== allowedOrigin) return;
     var data = event && event.data || {};
     if (!data || !data.type) return;
     var id = data.requestId;

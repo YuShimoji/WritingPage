@@ -3,12 +3,20 @@
     options = options || {};
     const sel = (typeof target === 'string') ? document.querySelector(target) : target;
     if (!sel) throw new Error('ZenWriterEmbed: target not found');
-    const src = options.src || '/index.html';
+    let src = options.src || '/index.html';
     const width = options.width || '100%';
     const height = options.height || '100%';
     const sameOrigin = options.sameOrigin !== false; // default true
 
     const iframe = document.createElement('iframe');
+    // 親originを子へ安全に伝えるためのクエリ param（child 側の許可origin判定に使用）
+    try {
+      const url = new URL(src, window.location.origin);
+      if (!url.searchParams.get('embed_origin') && (options.appendEmbedOrigin !== false)) {
+        url.searchParams.set('embed_origin', window.location.origin);
+      }
+      src = url.pathname + (url.search ? url.search : '') + (url.hash || '');
+    } catch(_){}
     iframe.src = src;
     iframe.style.border = '0';
     iframe.style.width = width;
@@ -20,10 +28,11 @@
     // postMessage mode state
     const inflight = new Map();
     let pmReady = false;
-    const targetOrigin = options.targetOrigin || '*';
+    const targetOrigin = sameOrigin ? window.location.origin : (options.targetOrigin || null);
 
     function onMessage(event){
       if (!iframe.contentWindow || event.source !== iframe.contentWindow) return;
+      if (!sameOrigin && targetOrigin && event.origin !== targetOrigin) return;
       const data = event.data || {};
       if (data && data.type === 'ZW_EMBED_READY') {
         pmReady = true;
@@ -75,6 +84,8 @@
     async function rpc(type, payload){
       await _ensure();
       if (sameOrigin) throw new Error('ZenWriterEmbed: rpc should not be used in same-origin mode');
+      if (!targetOrigin) throw new Error('ZenWriterEmbed: targetOrigin is required for cross-origin mode');
+      const usedOrigin = targetOrigin; // validated/required above
       return new Promise((resolve, reject) => {
         const id = Math.random().toString(36).slice(2);
         const t = setTimeout(() => {
@@ -82,7 +93,7 @@
           reject(new Error('ZenWriterEmbed: rpc timeout'));
         }, options.timeoutMs || 10000);
         inflight.set(id, { resolve, reject, t });
-        iframe.contentWindow.postMessage({ type, requestId: id, payload }, targetOrigin);
+        iframe.contentWindow.postMessage({ type, requestId: id, payload }, usedOrigin);
       });
     }
 
