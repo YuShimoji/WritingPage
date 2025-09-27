@@ -58,6 +58,32 @@ jobs:
                 body: `目的: 文字数などの指標や簡易操作をフェード表示する、小型で拡張可能なHUDを設計/実装\n\nDoD:\n- HUDのUIコンポーネント（CSSアニメーション/位置/サイズ）\n- API（publish(message, type, duration), pin(), close() など）\n- 文字数/語数の一時表示を標準実装。後から他機能（例えばタイマー、進捗、ゴール）を追加可能\n- アクセシビリティ考慮（コントラスト、フォーカス移動、スクリーンリーダー）\n- USAGE/TESTING 更新`,
                 labels: ['product:backlog','type:enhancement','area:UI']
               }
+              ,
+              {
+                title: '埋め込み用エディター（Embed SDK v1）',
+                body: `目的: 他サイトに本エディターを簡単に埋め込み可能にする（別機能として分離、既存ページは変更しない）\n\nDoD:\n- js/embed/zen-writer-embed.js を提供。ZenWriterEmbed.create(target, options) で iframe を生成\n- postMessage で親子通信の仕様策定（READY/GET_CONTENT/SET_CONTENT/FOCUS/TAKE_SNAPSHOTなど）\n- docs/EMBED_SDK.md を作成（API/イベント/サンプルコード/セキュリティ）\n- index.html 側に ?embed=1 起動パラメータに応じた軽量モード（将来）\n- USAGE/TESTING 更新、サンプル embed-demo.html（任意）`,
+                labels: ['product:backlog','type:enhancement','area:embed']
+              },
+              {
+                title: 'スナップショット拡張（保持数/閾値/タグ/差分）',
+                body: `目的: 既存スナップショット機能を強化し、信頼性と操作性を高める\n\nDoD:\n- 保持数/間隔/文字数閾値を設定から変更可能\n- ドキュメントID紐付け、フィルタリング\n- タグ/メモ付与、手動/自動の区別\n- 復元前プレビューと差分表示（段落単位）\n- エクスポート/インポート（JSON）\n- docs/SNAPSHOT_DESIGN.md 追加、USAGE/TESTING 更新`,
+                labels: ['product:backlog','type:enhancement','area:storage']
+              },
+              {
+                title: '選択ツールチップ（Quick Actions）と装飾/挿入UI',
+                body: `目的: テキスト選択時に小さなツールチップを表示し、簡易操作で装飾や挿入を行う\n\nDoD:\n- 選択に追従するツールチップUI（位置計算/スクロール/エスケープで閉じる）\n- 装飾: 強調（**…**）、斜体（*…*）、取り消し線（~~…~~）\n- 挿入: リンク（[text](url)）、画像（![alt](url)）、区切り（---）\n- ルビ挿入: |漢字《かんじ》 形式（印刷時はそのまま、将来コンバータでHTML化）\n- プラグイン拡張点（registry.js に selection アクションを登録可能）\n- docs/EDITOR_EXTENSIONS.md 追加、USAGE/TESTING 更新`,
+                labels: ['product:backlog','type:enhancement','area:editor']
+              },
+              {
+                title: '画像挿入（IndexedDB 附帯オプション）',
+                body: `目的: 画像を安全に本文へ挿入（Markdown）。ローカルファイル/URL/貼り付け\n\nDoD:\n- まずはURL貼付/入力をサポート（![alt](https://...)）\n- オプション: IndexedDB にバイナリ保存し、zw-asset:<id> の仮想URLで参照→service worker で配信（将来）\n- 貼付（Clipboard）から画像を検出し、挿入前に確認ダイアログ\n- 容量と上限警告、USAGE/TESTING 更新`,
+                labels: ['product:backlog','type:enhancement','area:editor']
+              },
+              {
+                title: 'デザイン/設定の分離（設定ハブ & デザインツールチップ）',
+                body: `目的: デザイン系UIをいつでも分離可能・呼び出し可能に整理\n\nDoD:\n- 右ドロワー型の設定ハブ（別UI）を追加（モーダル/<dialog> でも可）\n- サイドバーからは最小情報のみ。詳細は「設定ハブを開く」導線\n- デザインツールチップ（簡易パレット/プレビュー/適用）の設計\n- ドキュメント（DESIGN.md, USAGE.md, TESTING.md）更新`,
+                labels: ['product:backlog','type:enhancement','area:UI']
+              }
             ];
 
             const owner = context.repo.owner;

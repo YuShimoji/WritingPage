@@ -21,6 +21,7 @@ Zen Writer は、ブラウザで開くだけで使える、Zenライクな小説
 - 複数ドキュメント管理（作成/一覧/切替/改名/削除）
 - ブラウザのタブタイトルに現在のドキュメント名を反映
 - エクスポート（TXT/MD）のファイル名にドキュメント名を反映（`<doc>_YYYYMMDD_HHMMSS.ext`）
+ - 埋め込みSDK（別機能、β）: 他サイトへ `iframe` で簡単に埋め込み（`docs/EMBED_SDK.md`）
 
 ## クイックスタート
 
@@ -62,26 +63,31 @@ WritingPage/
 │  ├─ storage.js
 │  ├─ theme.js
 │  ├─ themes-advanced.js
-│  └─ hud.js
+│  ├─ hud.js
+│  ├─ plugins/
+│  │  ├─ registry.js
+│  │  └─ choice.js
+│  └─ embed/
+│     └─ zen-writer-embed.js
 └─ favicon.svg
 ```
 
 ## 設計概要
 
 - 関心毎の分離（SoC）
-  - `storage.js`: LocalStorage とエクスポート
   - `theme.js`: CSS変数によるテーマ・配色・フォント適用
   - `editor.js`: 入力、保存、カウンタ、通知
   - `app.js`: UIの初期化とイベント配線
 - CSSカスタムプロパティにより配色・タイポグラフィを一元管理
 
-詳しくは `docs/DESIGN.md` を参照してください。
+- 詳しくは `docs/DESIGN.md` を参照してください。
 
 ## 開発の進め方
 
 - 選択肢駆動（Choices-Driven Development）で意思決定をドキュメント化
 - タスクは小さく分割してこまめにコミット
-- 詳細は `docs/choices-driven-development.md` を参照
+- Embed SDK を使用して、他サイトに埋め込み可能です（`docs/EMBED_SDK.md`）
+- ブランチ運用指針は `docs/BRANCHING.md` を参照
 
 ## テスト手順
 
@@ -106,6 +112,11 @@ WritingPage/
 - `docs/CONVENTIONS.md`
 - `docs/LABELS.md`
 - `docs/PALETTE_DESIGN.md`
+- `docs/EMBED_SDK.md`
+- `docs/SNAPSHOT_DESIGN.md`
+- `docs/EDITOR_EXTENSIONS.md`
+- `docs/DESIGN_HUB.md`
+- `docs/BRANCHING.md`
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`
