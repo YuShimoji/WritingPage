@@ -11,7 +11,7 @@
 ## アーキテクチャ
 
 - ホスト側（親ページ）: `js/embed/zen-writer-embed.js` を読み込み、`ZenWriterEmbed.create()` で `iframe` を生成
-- 子ページ（エディター）: 既存の `index.html` をロード。将来的に `?embed=1` パラメータで軽量UIに切替
+- 子ページ（エディター）: 既存の `index.html` をロード。`?embed=1` パラメータで軽量UIに切替
 - 通信: v1 では「同一オリジン最適化 + 将来の postMessage 仕様」を定義（同一オリジン時は直接 API 呼び出しで高速化）
 
 ## ホストAPI
@@ -65,6 +65,14 @@
 - クロスオリジン時は `targetOrigin` を厳密指定（親→子の postMessage 送信先origin）
 - 親originを子へ伝えるため、`iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin === embed_origin` の場合のみ受理
 - 許可するメッセージ `type` をホワイトリスト制御
+
+## 軽量化（`?embed=1`）
+
+- 目的: 埋め込み先のページでの初期ロードを軽くし、必要最小限のUIのみ表示
+- UI: `html[data-embed="true"]` によりサイドバー/ツールバー等を非表示、エディタを全画面化（`css/style.css`）
+- フォント: 埋め込み時は Google Fonts を読み込まない（非埋め込み時のみ `preconnect` + stylesheet を動的追加）
+- プラグイン: `js/plugins/*.js` は非埋め込み時のみ動的ロード
+- ブリッジ: `js/embed/child-bridge.js` は常に同梱するが、`?embed=1` のときのみ postMessage リスナーが有効化
 
 ## 今後
 
