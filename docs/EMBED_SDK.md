@@ -74,6 +74,32 @@
 - プラグイン: `js/plugins/*.js` は非埋め込み時のみ動的ロード
 - ブリッジ: `js/embed/child-bridge.js` は常に同梱するが、`?embed=1` のときのみ postMessage リスナーが有効化
 
+## イベント通知 / 購読（v1）
+
+- 子→親の通知イベントを購読できます。
+  - `contentChanged`: 本文が変更されたとき（入力中・`setContent()` 実行後など）。payload: `{ len: number }`
+  - `snapshotCreated`: スナップショットが作成されたとき
+
+```html
+<script>
+  const sdk = ZenWriterEmbed.create('#zw-container', { src: '/index.html?embed=1', width: '100%', height: '100%' });
+  // 購読（解除関数が返る）
+  const offContent = sdk.on('contentChanged', (p) => {
+    console.log('contentChanged len=', (p && p.len) || 0);
+  });
+  sdk.on('snapshotCreated', () => {
+    console.log('snapshotCreated');
+  });
+  // 解除例: offContent();
+</script>
+```
+
+注意:
+
+- クロスオリジン時は、親→子の送信先 `targetOrigin` を厳密指定し、子→親の受信側では `event.origin` を検証します。
+- `embed_origin` は親の `origin` を子へ伝えるために `iframe src` に付与されます（既定ON）。
+- デモ: `embed-demo.html` ではイベントログ（右ペイン下部）で受信内容を確認できます。
+
 ## 今後
 
 - `index.html` に `?embed=1` で軽量UI（サイドバー/ツールバー最小化、HUDのみ）
