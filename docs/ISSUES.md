@@ -218,3 +218,40 @@
 ## 25) デザイン/設定の分離（設定ハブ & デザインツールチップ）
 
 - 目的: デザイン系UIをいつでも分離可能・呼び出し可能に整理
+
+## 26) Embed SDK v1 — postMessage 実装（クロスオリジン対応）
+
+- 目的: 同一オリジン最適化に加えて、親子を別オリジンにしても安全に操作できるようにする
+- DoD:
+  - [ ] 子（`index.html`）側に postMessage リスナーを実装（READY, GET/SET/FOCUS/TAKE_SNAPSHOT）
+  - [ ] 親（SDK）側は `targetOrigin` 指定で RPC（requestId付き）を送受信
+  - [ ] セキュリティ: 許可`type`ホワイトリスト、`origin`検証、タイムアウト/エラー処理
+  - [ ] `docs/EMBED_SDK.md` にメッセージ仕様と使用例（クロスオリジン）を追記
+  - [ ] `docs/EMBED_TESTING.md` にクロスオリジン手順を追加
+
+## 27) 埋め込みモード（?embed=1）最小UIの軽量化/最適化
+
+- 目的: 埋め込み時の初期ロードを軽量化し、親ページへの負荷を抑える
+- DoD:
+  - [ ] プラグイン/不要CSSの遅延読込（embed=1 のとき省略 or defer）
+  - [ ] フォント/Google Fontsの preconnect 最適化
+  - [ ] 余分なDOMを生成しない（サイドバー領域の完全スキップ）
+  - [ ] テーマ適用の最小ルールに限定（カスタムテーマは親からの指定に対応・将来）
+  - [ ] `docs/TESTING.md` に回帰観点を追記
+
+## 28) CI: smoke（dev-server + dev-check）
+
+- 目的: PR/Push ごとに基本的な構造破壊の回避を継続的に検証
+- DoD:
+  - [ ] GitHub Actions で `node scripts/dev-server.js &` → `node scripts/dev-check.js` を実行
+  - [ ] `embed-demo.html` と `favicon.ico` フォールバックの確認を含める
+  - [ ] `README.md` にバッジとワークフローへのリンクを追加（任意）
+
+## 29) 『賞/メタ情報』機能の完全撤去（仕様外）
+
+- 目的: プロダクト方針として『賞/メタ情報』機能を撤去し、UI/コード/ドキュメントから痕跡を無くす
+- DoD:
+  - [ ] UI上の項目・プレースホルダ・ラベルの削除（該当が残っていないか全体点検）
+  - [ ] コード内の定数・関数・変数・コメントの除去（検索キーワード: 賞, award, meta-info 等）
+  - [ ] ドキュメント（USAGE/TESTING/CONVENTIONS/ISSUES 他）からの記述削除
+  - [ ] 回帰: 既存の執筆/保存/エクスポート/埋め込み機能に影響がないこと

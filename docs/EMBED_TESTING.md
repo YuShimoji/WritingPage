@@ -63,6 +63,12 @@
   - 未定義時のフォールバックとして、従来の `ZenWriterEditor` / `ZenWriterStorage` にアクセス
   - クロスオリジン（将来）は postMessage 実装で対応予定
 
+### クロスオリジン時のセキュリティ注記（v1 実装済み）
+- 親→子: `ZenWriterEmbed.create()` は `iframe src` に `embed_origin=<親origin>` を自動付与（既定ON）
+- 子→親: `js/embed/child-bridge.js` は `event.origin === embed_origin` の場合のみメッセージを受理
+- 親→子のRPC送信: cross-origin では `options.targetOrigin` の指定が必須
+- これらにより、許可されたオリジン間でのみ postMessage が機能します
+
 ## 失敗時の対処
 - iframe が READY にならない
   - `index.html` が完全に読込済みか（ネットワーク/コンソール）
