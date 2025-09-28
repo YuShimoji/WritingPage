@@ -36,11 +36,23 @@
         <button id="btn-focus">focus()</button>
         <button id="btn-snap">takeSnapshot()</button>
       </div>
+      <div>
+        <strong>Events</strong>
+        <pre id="events" style="white-space: pre-wrap; background:#f7f7f7; padding:8px; height:120px; overflow:auto;"></pre>
+      </div>
     </aside>
   </main>
   <script src="js/embed/zen-writer-embed.js"></script>
   <script>
     const sdk = ZenWriterEmbed.create('#zw-container', { src: '/index.html?embed=1', width: '100%', height: '100%' });
+    const ev = document.getElementById('events');
+    function log(msg){
+      const t = new Date().toLocaleTimeString();
+      ev.textContent = `[${t}] ${msg}\n` + ev.textContent;
+    }
+    // subscribe events
+    sdk.on('contentChanged', (p)=> log(`contentChanged len=${(p&&p.len)||0}`));
+    sdk.on('snapshotCreated', ()=> log('snapshotCreated'));
     document.getElementById('btn-set').addEventListener('click', async () => {
       const t = document.getElementById('src-text').value;
       await sdk.setContent(t);
