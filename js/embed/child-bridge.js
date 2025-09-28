@@ -73,4 +73,42 @@
   function ready(){ sendToParent({ type: 'ZW_EMBED_READY' }); }
   if (document.readyState === 'complete' || document.readyState === 'interactive') ready();
   else window.addEventListener('DOMContentLoaded', ready);
+
+  // ======= 子→親 イベント通知 =======
+  function tryHookEvents(){
+    try {
+      var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) ? window.ZenWriterEditor.editor : document.getElementById('editor');
+      if (ed && !ed.__zw_hooked_input__) {
+        ed.addEventListener('input', function(){
+          try { sendToParent({ type: 'ZW_CONTENT_CHANGED', payload: { len: (ed.value||'').length } }); } catch(_){}
+        });
+        ed.__zw_hooked_input__ = true;
+      }
+      // setContent フック
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function' && !window.ZenWriterEditor.__zw_hooked_set__) {
+        var _origSet = window.ZenWriterEditor.setContent.bind(window.ZenWriterEditor);
+        window.ZenWriterEditor.setContent = function(text){
+          var r = _origSet(text);
+          try {
+            var el = (window.ZenWriterEditor && window.ZenWriterEditor.editor) ? window.ZenWriterEditor.editor : document.getElementById('editor');
+            sendToParent({ type: 'ZW_CONTENT_CHANGED', payload: { len: el ? (el.value||'').length : 0 } });
+          } catch(_){}
+          return r;
+        };
+        window.ZenWriterEditor.__zw_hooked_set__ = true;
+      }
+      // addSnapshot フック
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function' && !window.ZenWriterStorage.__zw_hooked_snap__) {
+        var _origSnap = window.ZenWriterStorage.addSnapshot.bind(window.ZenWriterStorage);
+        window.ZenWriterStorage.addSnapshot = function(content){
+          var r = _origSnap(content);
+          try { sendToParent({ type: 'ZW_SNAPSHOT_CREATED' }); } catch(_){}
+          return r;
+        };
+        window.ZenWriterStorage.__zw_hooked_snap__ = true;
+      }
+    } catch(_){}
+  }
+  if (document.readyState === 'complete' || document.readyState === 'interactive') tryHookEvents();
+  else window.addEventListener('DOMContentLoaded', tryHookEvents);
 })();
