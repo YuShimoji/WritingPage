@@ -10,7 +10,7 @@
     const sameOrigin = options.sameOrigin !== false; // default true
 
     const iframe = document.createElement('iframe');
-    // 親originを子へ安全に伝えるためのクエリ param（child 側の許可origin判定に使用）
+    // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
     try {
       const url = new URL(src, window.location.origin);
       if (!url.searchParams.get('embed_origin') && (options.appendEmbedOrigin !== false)) {
@@ -32,6 +32,13 @@
     const inflight = new Map();
     let pmReady = false;
     const targetOrigin = sameOrigin ? window.location.origin : (options.targetOrigin || computedOrigin || null);
+    // simple event system
+    const listeners = new Map(); // name -> Set<fn>
+    function emit(name, payload){
+      const set = listeners.get(name);
+      if (!set) return;
+      set.forEach(fn => { try { fn(payload); } catch(_){} });
+    }
 
     function onMessage(event){
       if (!iframe.contentWindow || event.source !== iframe.contentWindow) return;
@@ -41,6 +48,15 @@
         pmReady = true;
         if (!ready) ready = true;
         return; // waitForReady() loop will resolve on next tick
+      }
+      // child -> parent notifications
+      if (data && data.type === 'ZW_CONTENT_CHANGED') {
+        emit('contentChanged', data.payload || {});
+        return;
+      }
+      if (data && data.type === 'ZW_SNAPSHOT_CREATED') {
+        emit('snapshotCreated', data.payload || {});
+        return;
       }
       if (data && data.type === 'ZW_RESPONSE' && data.requestId) {
         const entry = inflight.get(data.requestId);
@@ -102,6 +118,18 @@
 
     return {
       iframe,
+      on(name, handler){
+        const key = String(name||'');
+        if (!listeners.has(key)) listeners.set(key, new Set());
+        listeners.get(key).add(handler);
+        // return unsubscribe function for convenience
+        return () => this.off(key, handler);
+      },
+      off(name, handler){
+        const set = listeners.get(String(name||''));
+        if (!set) return;
+        set.delete(handler);
+      },
       async getContent(){
         await _ensure();
         if (sameOrigin) {
