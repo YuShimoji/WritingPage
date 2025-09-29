@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Zen Writer Cross-Origin Embed Demo</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, Arial, sans-serif; }
+    main { display: grid; grid-template-columns: 1fr 360px; height: 100vh; }
+    #zw-container { width: 100%; height: 100%; }
+    aside { padding: 12px; border-left: 1px solid #eee; display: grid; gap: 12px; grid-auto-rows: min-content; }
+    textarea { width: 100%; min-height: 120px; }
+    button { padding: 6px 10px; }
+    h1 { margin: 10px 12px; font-size: 18px; }
+    .note { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Zen Writer Cross-Origin Embed Demo</h1>
+  <main>
+    <div id="zw-container"></div>
+    <aside>
+      <div class="note">親(8080) → 子(8081) のクロスオリジン埋め込みデモ</div>
+      <div>
+        <label>本文を設定</label>
+        <textarea id="src-text"># Cross-Origin Test\n\nこれは 8080 親ページから 8081 の子エディターへ送信される本文です。</textarea>
+        <button id="btn-set">setContent()</button>
+      </div>
+      <div>
+        <button id="btn-get">getContent()</button>
+        <pre id="out" style="white-space: pre-wrap; background:#f7f7f7; padding:8px; height:120px; overflow:auto;"></pre>
+      </div>
+      <div>
+        <button id="btn-focus">focus()</button>
+        <button id="btn-snap">takeSnapshot()</button>
+      </div>
+      <div>
+        <strong>Events</strong>
+        <pre id="events" style="white-space: pre-wrap; background:#f7f7f7; padding:8px; height:140px; overflow:auto;"></pre>
+      </div>
+      <div class="note">targetOrigin は 8081 を使用。embed_origin は SDK が自動付与します。</div>
+    </aside>
+  </main>
+  <script src="js/embed/zen-writer-embed.js"></script>
+  <script>
+    // 親は 8080 で配信されている想定
+    const childUrl = 'http://127.0.0.1:8081/index.html?embed=1';
+    const childOrigin = new URL(childUrl, location.href).origin;
+    const sdk = ZenWriterEmbed.create('#zw-container', {
+      src: childUrl,
+      width: '100%',
+      height: '100%',
+      sameOrigin: false,
+      targetOrigin: childOrigin
+    });
+
+    const ev = document.getElementById('events');
+    function log(msg){
+      const t = new Date().toLocaleTimeString();
+      ev.textContent = `[${t}] ${msg}\n` + ev.textContent;
+    }
+    sdk.on('contentChanged', (p)=> log(`contentChanged len=${(p&&p.len)||0}`));
+    sdk.on('snapshotCreated', ()=> log('snapshotCreated'));
+
+    document.getElementById('btn-set').addEventListener('click', async () => {
+      const t = document.getElementById('src-text').value;
+      await sdk.setContent(t);
+      await sdk.focus();
+    });
+    document.getElementById('btn-get').addEventListener('click', async () => {
+      const text = await sdk.getContent();
+      document.getElementById('out').textContent = text;
+    });
+    document.getElementById('btn-focus').addEventListener('click', async () => {
+      await sdk.focus();
+    });
+    document.getElementById('btn-snap').addEventListener('click', async () => {
+      await sdk.takeSnapshot();
+      alert('スナップショットを要求しました');
+    });
+  </script>
+</body>
+</html>
