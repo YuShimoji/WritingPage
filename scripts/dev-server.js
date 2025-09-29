@@ -3,7 +3,23 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const port = 8080;
+function parsePort(){
+  const env = process.env.PORT && parseInt(process.env.PORT, 10);
+  if (!isNaN(env) && env > 0) return env;
+  const argv = process.argv.slice(2);
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--port' || a === '-p') {
+      const v = parseInt(argv[i+1], 10);
+      if (!isNaN(v) && v > 0) return v;
+    }
+    const m = /^--port=(\d+)$/.exec(a);
+    if (m) return parseInt(m[1], 10);
+    if (/^\d+$/.test(a)) return parseInt(a, 10);
+  }
+  return 8080;
+}
+const port = parsePort();
 
 const mime = {
   '.html': 'text/html; charset=utf-8',

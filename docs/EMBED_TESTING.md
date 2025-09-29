@@ -86,3 +86,42 @@
 ---
 更新履歴
 - v1: 初版作成（同一オリジン向け）。クロスオリジン対応は今後の postMessage 実装で追加予定。
+
+## 付録: クロスオリジン実機テスト（2ポート）
+
+同一マシンで 2 つのローカルポートを使って、親(8080) → 子(8081) のクロスオリジン挙動を確認できます。
+
+### サーバー起動
+
+- 既定の 8080 で親を起動
+  - `node scripts/dev-server.js`
+- 子側を 8081 で起動
+  - `node scripts/dev-server.js --port 8081`
+
+補足: `scripts/dev-server.js` は `PORT` 環境変数、`--port/-p` 引数、数値単独引数のいずれでもポート指定可能です。
+
+### デモページ
+
+- 親側（8080）で以下を開く
+  - `http://127.0.0.1:8080/embed-xorigin-demo.html`
+  - iframe の `src` は `http://127.0.0.1:8081/index.html?embed=1`
+  - SDK オプションは `sameOrigin:false`、`targetOrigin: 'http://127.0.0.1:8081'`
+
+### 確認ポイント
+
+- ボタン操作
+  - setContent()/getContent()/focus()/takeSnapshot() が成功すること
+- イベント
+  - 右ペインの Events に `contentChanged` / `snapshotCreated` が表示されること
+  - 入力や setContent() 実行で `contentChanged len=...` が更新されること
+- セキュリティ
+  - `embed_origin` が iframe の URL に付与される（親の origin）
+  - 子は `event.origin === embed_origin` の場合のみメッセージを受理
+  - 親→子の RPC は `targetOrigin` に 8081 を指定して送信
+
+### トラブルシュート
+
+- 8080 が既に使用中
+  - 別ターミナルで起動していないか確認、もしくは `--port 8082` などに変更
+- READY にならない
+  - 8081 側の `index.html` が正常に配信・表示されているか（ネットワーク/コンソール）
