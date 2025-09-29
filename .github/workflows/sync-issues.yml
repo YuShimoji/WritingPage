@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
       - 'feat/**'
     paths:
       - 'docs/ISSUES.md'
