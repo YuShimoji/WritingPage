@@ -4,13 +4,21 @@
   if (!isEmbed) return;
 
   var allowedOrigin = (function(){
-    try { return new URLSearchParams(location.search).get('embed_origin') || ''; } catch (_) { return ''; }
+    try {
+      var sp = new URLSearchParams(location.search);
+      var p = sp.get('embed_origin') || '';
+      if (p) return p;
+      // フォールバック: 親の origin を referrer から推定
+      try { return new URL(document.referrer).origin; } catch(_) { return ''; }
+    } catch(_) { return ''; }
   })();
 
   function sendToParent(msg){
     try {
-      var target = allowedOrigin || '*';
-      window.parent && window.parent.postMessage(msg, target);
+      if (!window.parent) return;
+      // 許可 origin が特定できない場合は送信しない
+      if (!allowedOrigin) return;
+      window.parent.postMessage(msg, allowedOrigin);
     } catch(_) {}
   }
 
@@ -19,8 +27,10 @@
   }
 
   function onMessage(event){
-    // origin 検証（親からのメッセージのみ受理）
-    if (allowedOrigin && event.origin !== allowedOrigin) return;
+    // 親フレームからのメッセージのみ受理 + origin 検証
+    if (event.source !== window.parent) return;
+    if (!allowedOrigin) return;
+    if (event.origin !== allowedOrigin) return;
     var data = event && event.data || {};
     if (!data || !data.type) return;
     var id = data.requestId;
