@@ -65,13 +65,23 @@ function get(path) {
     const okEmbedDemo = embedDemo.status === 200 && /<h1>\s*Zen Writer Embed Demo\s*<\/h1>/i.test(embedDemo.body);
     console.log('GET /embed-demo.html ->', embedDemo.status, okEmbedDemo ? 'OK' : 'NG');
 
+    // child-bridge セキュリティパターン検証
+    const childBridge = await get('/js/embed/child-bridge.js');
+    const cbHasReady = /ZW_EMBED_READY/.test(childBridge.body || '');
+    const cbStrictParent = /event\.source\s*!==\s*window\.parent/.test(childBridge.body || '');
+    const cbStrictOrigin = /event\.origin\s*!==\s*allowedOrigin/.test(childBridge.body || '');
+    const cbNoStarSend = /postMessage\(msg,\s*allowedOrigin\)/.test(childBridge.body || '');
+    const cbHasEmbedOrigin = /embed_origin/.test(childBridge.body || '');
+    const okChildBridge = childBridge.status === 200 && cbHasReady && cbStrictParent && cbStrictOrigin && cbNoStarSend && cbHasEmbedOrigin;
+    console.log('GET /js/embed/child-bridge.js ->', childBridge.status, okChildBridge ? 'OK' : 'NG');
+
     // favicon.ico フォールバック確認（サーバー再起動後に 200 / image/svg+xml になる想定）
     const fav = await get('/favicon.ico');
     const ct = (fav.headers && (fav.headers['content-type'] || fav.headers['Content-Type'])) || '';
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav && okChildBridge)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
