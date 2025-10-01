@@ -230,17 +230,17 @@
     <script src="js/theme.js"></script>
     <script src="js/hud.js"></script>
     <script src="js/editor.js"></script>
-    <script src="js/outline.js"></script>
-    <script src="js/themes-advanced.js"></script>
     <script src="js/app.js"></script>
     <!-- 埋め込み時のpostMessageブリッジ（?embed=1でREADY/RPC受信） -->
     <script src="js/embed/child-bridge.js"></script>
     <script>
-      // 非埋め込み時のみプラグインを動的ロード
+      // 非埋め込み時のみ Outline/高度テーマ/プラグインを動的ロード（埋め込みでの初期ロードを軽量化）
       (function(){
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
         function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
+        load('js/outline.js');
+        load('js/themes-advanced.js');
         load('js/plugins/registry.js');
         load('js/plugins/choice.js');
       })();
