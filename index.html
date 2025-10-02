@@ -149,7 +149,6 @@
                         <input type="text" id="outline-new-levels" placeholder="部,章,節">
                         <button id="create-outline-set">作成</button>
                     </details>
-                </div>
                 <div id="outline-levels-container" class="outline-levels"></div>
                 <div id="outline-insert-buttons" class="outline-insert"></div>
             </div>
@@ -160,11 +159,15 @@
             </div>
 
             <div class="sidebar-section">
+                <h3>ガジェット</h3>
+                <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
+            </div>
+        </div>
+
+            <div class="sidebar-section">
                 <h3>バックアップ</h3>
                 <button id="snapshot-now">今すぐ保存</button>
                 <div id="snapshot-list" class="snapshot-list" style="margin-top:8px;"></div>
-            </div>
-
             <div class="sidebar-section">
                 <h3>ドキュメント</h3>
                 <label for="doc-select">ドキュメント一覧</label>
@@ -243,6 +246,7 @@
         load('js/themes-advanced.js');
         load('js/plugins/registry.js');
         load('js/plugins/choice.js');
+        load('js/gadgets.js');
       })();
     </script>
 </body>
