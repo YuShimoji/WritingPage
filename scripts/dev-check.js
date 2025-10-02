@@ -65,6 +65,23 @@ function get(path) {
     const okEmbedDemo = embedDemo.status === 200 && /<h1>\s*Zen Writer Embed Demo\s*<\/h1>/i.test(embedDemo.body);
     console.log('GET /embed-demo.html ->', embedDemo.status, okEmbedDemo ? 'OK' : 'NG');
 
+    // 埋め込みモード軽量化チェック（?embed=1）
+    const embedIndex = await get('/index.html?embed=1');
+    const ei = embedIndex.body || '';
+    const eiStatus = embedIndex.status === 200;
+    const eiNoOutline = !/<script\s+src=["']js\/outline\.js["']/.test(ei);
+    const eiNoThemesAdv = !/<script\s+src=["']js\/themes-advanced\.js["']/.test(ei);
+    const eiNoPluginReg = !/<script\s+src=["']js\/plugins\/registry\.js["']/.test(ei);
+    const eiNoPluginChoice = !/<script\s+src=["']js\/plugins\/choice\.js["']/.test(ei);
+    const eiHasApp = /<script\s+src=["']js\/app\.js["']/.test(ei);
+    const eiHasChildBridge = /<script\s+src=["']js\/embed\/child-bridge\.js["']/.test(ei);
+    const eiHasEmbedFlag = /setAttribute\(\'data-embed\',\'true\'\)/.test(ei);
+    const okEmbedLight = eiStatus && eiNoOutline && eiNoThemesAdv && eiNoPluginReg && eiNoPluginChoice && eiHasApp && eiHasChildBridge && eiHasEmbedFlag;
+    console.log('CHECK embed=1 lightweight ->', okEmbedLight ? 'OK' : 'NG', {
+      status: embedIndex.status,
+      eiNoOutline, eiNoThemesAdv, eiNoPluginReg, eiNoPluginChoice, eiHasApp, eiHasChildBridge, eiHasEmbedFlag
+    });
+
     // child-bridge セキュリティパターン検証
     const childBridge = await get('/js/embed/child-bridge.js');
     const cbHasReady = /ZW_EMBED_READY/.test(childBridge.body || '');
@@ -81,7 +98,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav && okChildBridge)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
