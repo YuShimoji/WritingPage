@@ -46,6 +46,12 @@ function get(path) {
     const okPlugins = hasPluginsPanel && pluginRegistry.status === 200 && pluginChoice.status === 200;
     console.log('CHECK plugins ->', okPlugins ? 'OK' : 'NG', { hasPluginsPanel, registry: pluginRegistry.status, choice: pluginChoice.status });
 
+    // ガジェットの存在検証
+    const hasGadgetsPanel = /id=\"gadgets-panel\"/i.test(index.body);
+    const gadgetsJs = await get('/js/gadgets.js');
+    const okGadgets = hasGadgetsPanel && gadgetsJs.status === 200;
+    console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', { hasGadgetsPanel, gadgets: gadgetsJs.status });
+
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
     let appSrc = '';
@@ -76,10 +82,11 @@ function get(path) {
     const eiHasApp = /<script\s+src=["']js\/app\.js["']/.test(ei);
     const eiHasChildBridge = /<script\s+src=["']js\/embed\/child-bridge\.js["']/.test(ei);
     const eiHasEmbedFlag = /setAttribute\(\'data-embed\',\'true\'\)/.test(ei);
-    const okEmbedLight = eiStatus && eiNoOutline && eiNoThemesAdv && eiNoPluginReg && eiNoPluginChoice && eiHasApp && eiHasChildBridge && eiHasEmbedFlag;
+    const eiNoGadgetsStatic = !/<script\s+src=["']js\/gadgets\.js["']/.test(ei);
+    const okEmbedLight = eiStatus && eiNoOutline && eiNoThemesAdv && eiNoPluginReg && eiNoPluginChoice && eiNoGadgetsStatic && eiHasApp && eiHasChildBridge && eiHasEmbedFlag;
     console.log('CHECK embed=1 lightweight ->', okEmbedLight ? 'OK' : 'NG', {
       status: embedIndex.status,
-      eiNoOutline, eiNoThemesAdv, eiNoPluginReg, eiNoPluginChoice, eiHasApp, eiHasChildBridge, eiHasEmbedFlag
+      eiNoOutline, eiNoThemesAdv, eiNoPluginReg, eiNoPluginChoice, eiNoGadgetsStatic, eiHasApp, eiHasChildBridge, eiHasEmbedFlag
     });
 
     // child-bridge セキュリティパターン検証
@@ -98,7 +105,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
