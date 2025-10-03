@@ -88,3 +88,69 @@ ZWGadgets.setPrefs(prefs)
 3. 「↑」「↓」で順序が変わること（Clock が上下に移動）
 4. ページをリロードし、開閉状態と順序が保持されていること
 5. `?embed=1` ではガジェットが表示されないことを確認
+
+## ドラッグ＆ドロップ並び替え（Mission 5）
+
+- サイドバーの各ガジェットはヘッダ（タイトル行）をドラッグして並び替えが可能です。
+- フォールバックとして従来の「↑/↓」ボタンも維持しています（キーボード操作向け）。
+
+### 備考
+
+- 内部的には `dataTransfer.setData('text/gadget-name', <name>)` を用い、`drop` 時に順序配列（prefs.order）を更新します。
+
+## 設定UIフレームワーク（Mission 5）
+
+- ガジェットごとに設定パネルを提供できます。登録 API は以下です。
+
+```js
+// 設定UIの登録（ガジェット名ごと）
+ZWGadgets.registerSettings('Sample', function(panelEl, ctx){
+  const enable = document.createElement('input');
+  enable.type = 'checkbox';
+  enable.checked = !!ctx.get('enabled', false);
+  enable.addEventListener('change', () => ctx.set('enabled', !!enable.checked));
+  panelEl.appendChild(enable);
+});
+```
+
+- ガジェット本体の factory には `api` が渡されます。
+
+```js
+ZWGadgets.register('Sample', function(el, api){
+  const enabled = api.get('enabled', false);
+  // ...
+});
+```
+
+### 提供されるコンテキスト API
+
+- factory の第2引数 `api`、および settings の第2引数 `ctx` は以下を持ちます。
+  - `get(key, default)` 設定値の取得
+  - `set(key, value)` 設定値の保存（保存後は自動で再描画）
+  - `prefs()` 現在のプリファレンスオブジェクト取得
+  - `refresh()` 明示的な再描画要求
+
+### 例: Clock の 12/24 時間表示
+
+```js
+// 表示ロジック（抜粋）
+const hour24 = api.get('hour24', true);
+```
+
+設定UI:
+
+```js
+ZWGadgets.registerSettings('Clock', function(el, ctx){
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !!ctx.get('hour24', true);
+  cb.addEventListener('change', () => ctx.set('hour24', !!cb.checked));
+  el.appendChild(cb);
+});
+```
+
+## テスト（追加事項）
+
+- `scripts/dev-check.js` は次を静的に検証します。
+  - DnD: `draggable=true`、`dataTransfer.setData('text/gadget-name', ...)`、`drop` リスナーの存在
+  - 設定UI: `registerSettings/getSettings/setSetting` の存在
