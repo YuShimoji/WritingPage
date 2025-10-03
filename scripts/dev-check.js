@@ -36,7 +36,10 @@ function get(path) {
     const hasRootShowPadding = /html:not\(\[data-toolbar-hidden=\"true\"\]\) #editor/.test(css.body);
     const removedBodyRule = !/body:not\(\.toolbar-hidden\) #editor/.test(css.body);
     const hasProgressCss = /\.goal-progress__bar/.test(css.body);
-    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss;
+    const hasCssSettingsBtn = /\.gadget-settings-btn\b/.test(css.body || '');
+    const hasCssSettings = /\.gadget-settings\b/.test(css.body || '');
+    const hasCssDrag = /\.gadget\.is-dragging\b/.test(css.body || '') && /\.gadget\.drag-over\b/.test(css.body || '');
+    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss && hasCssSettingsBtn && hasCssSettings && hasCssDrag;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
 
     // プラグインUIとスクリプトの存在検証
@@ -61,8 +64,16 @@ function get(path) {
     const hasSetPrefs = /setPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
     const hasMove = /move\s*:\s*function\s*\(name,\s*dir\)/m.test(gadgetsSrc);
     const hasToggle = /toggle\s*:\s*function\s*\(/m.test(gadgetsSrc);
+    const hasRegisterSettings = /registerSettings\s*:\s*function\s*\(name,\s*factory\)/m.test(gadgetsSrc);
+    const hasGetSettings = /getSettings\s*:\s*function\s*\(name\)/m.test(gadgetsSrc);
+    const hasSetSetting = /setSetting\s*:\s*function\s*\(name,\s*key,\s*value\)/m.test(gadgetsSrc);
+    const hasDraggable = /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(gadgetsSrc);
+    const hasDnDData = /dataTransfer\.setData\(\s*['\"]text\/gadget-name['\"],/m.test(gadgetsSrc);
+    const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(gadgetsSrc);
     const okGadgetsApi = hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
+    const okGadgetsM5 = hasRegisterSettings && hasGetSettings && hasSetSetting && hasDraggable && hasDnDData && hasDropListener;
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', { hasStorageKey, hasGetPrefs, hasSetPrefs, hasMove, hasToggle });
+    console.log('CHECK gadgets M5 (static) ->', okGadgetsM5 ? 'OK' : 'NG', { hasRegisterSettings, hasGetSettings, hasSetSetting, hasDraggable, hasDnDData, hasDropListener });
 
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
@@ -117,7 +128,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
