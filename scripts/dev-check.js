@@ -52,6 +52,18 @@ function get(path) {
     const okGadgets = hasGadgetsPanel && gadgetsJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', { hasGadgetsPanel, gadgets: gadgetsJs.status });
 
+    // ガジェットPrefs APIの静的実装確認（js/gadgets.js を読み取り）
+    const gadgetsPath = path.join(__dirname, '..', 'js', 'gadgets.js');
+    let gadgetsSrc = '';
+    try { gadgetsSrc = fs.readFileSync(gadgetsPath, 'utf-8'); } catch(e) { console.error('READ FAIL:', gadgetsPath, e.message); }
+    const hasStorageKey = /STORAGE_KEY\s*=\s*['\"]zenWriter_gadgets:prefs['\"]/m.test(gadgetsSrc);
+    const hasGetPrefs = /getPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
+    const hasSetPrefs = /setPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
+    const hasMove = /move\s*:\s*function\s*\(name,\s*dir\)/m.test(gadgetsSrc);
+    const hasToggle = /toggle\s*:\s*function\s*\(/m.test(gadgetsSrc);
+    const okGadgetsApi = hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
+    console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', { hasStorageKey, hasGetPrefs, hasSetPrefs, hasMove, hasToggle });
+
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
     let appSrc = '';
@@ -105,7 +117,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
