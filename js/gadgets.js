@@ -92,7 +92,7 @@
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
             head.appendChild(toggleBtn); head.appendChild(title); head.appendChild(upBtn); head.appendChild(downBtn);
-            head.style.display='flex'; head.style.alignItems='center'; head.style.gap='6px'; head.style.marginBottom='4px';
+            // styles moved to CSS (.gadget-head)
             wrap.appendChild(head);
 
             var body = document.createElement('div');
@@ -132,8 +132,7 @@
   ZWGadgets.register('Clock', function(el){
     try {
       var time = document.createElement('div');
-      time.style.fontSize = '14px';
-      time.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto, Noto Sans JP, Arial, sans-serif';
+      time.className = 'gadget-clock';
       el.appendChild(time);
       function tick(){
         try {
