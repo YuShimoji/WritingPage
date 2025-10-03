@@ -1,5 +1,17 @@
 # Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.14] - 2025-10-03
+
+### Added
+
+- ガジェットの設定保存/折りたたみ/並び替え（`ZWGadgets.getPrefs/setPrefs/toggle/move`）
+
+### Changed
+
+- `scripts/dev-check.js` にガジェットPrefs APIの静的検証を追加
+- ガジェットUIのCSSクラスを整備（`.gadget*`）、インラインスタイルを削減
+- `docs/GADGETS.md` に使い方/手動テスト手順を追記
+
 ## [0.3.13] - 2025-10-02
 
 ### Added
