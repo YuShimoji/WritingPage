@@ -122,13 +122,36 @@ function get(path) {
     const okChildBridge = childBridge.status === 200 && cbHasReady && cbStrictParent && cbStrictOrigin && cbNoStarSend && cbHasEmbedOrigin;
     console.log('GET /js/embed/child-bridge.js ->', childBridge.status, okChildBridge ? 'OK' : 'NG');
 
+    // ルール文書と AI_CONTEXT の存在/内容チェック
+    const rulesPath = path.join(__dirname, '..', 'docs', 'Windsurf_AI_Collab_Rules_v1.1.md');
+    let rulesSrc = '';
+    try { rulesSrc = fs.readFileSync(rulesPath, 'utf-8'); } catch (e) { console.error('READ FAIL:', rulesPath, e.message); }
+    const rHasComposite = /複合ミッション/m.test(rulesSrc || '');
+    const rHasAIContext = /AI_CONTEXT\.md/m.test(rulesSrc || '');
+    const rHasCIMerge = /CI\s*連携マージ/m.test(rulesSrc || '');
+    const rHasSelfPR = /自己\s*PR\s*は\s*Approve\s*不可|承認を省略/m.test(rulesSrc || '');
+    const rHasTemplate = /付録\s*A:\s*AI_CONTEXT\.md\s*テンプレート/m.test(rulesSrc || '');
+    const okRulesDoc = !!rulesSrc && rHasComposite && rHasAIContext && rHasCIMerge && rHasSelfPR && rHasTemplate;
+    console.log('CHECK rules v1.1 ->', okRulesDoc ? 'OK' : 'NG', { rHasComposite, rHasAIContext, rHasCIMerge, rHasSelfPR, rHasTemplate });
+
+    const ctxPath = path.join(__dirname, '..', 'AI_CONTEXT.md');
+    let ctxSrc = '';
+    try { ctxSrc = fs.readFileSync(ctxPath, 'utf-8'); } catch (e) { console.error('READ FAIL:', ctxPath, e.message); }
+    const cHasH1 = /^#\s*AI\s+Context/m.test(ctxSrc || '');
+    const cHasUpdated = /最終更新\s*:/m.test(ctxSrc || '');
+    const cHasMission = /現在のミッション\s*:/m.test(ctxSrc || '');
+    const cHasBranch = /ブランチ\s*:/m.test(ctxSrc || '');
+    const cHasNext = /次の中断可能点\s*:/m.test(ctxSrc || '');
+    const okAIContext = !!ctxSrc && cHasH1 && cHasUpdated && cHasMission && cHasBranch && cHasNext;
+    console.log('CHECK AI_CONTEXT.md ->', okAIContext ? 'OK' : 'NG', { cHasH1, cHasUpdated, cHasMission, cHasBranch, cHasNext });
+
     // favicon.ico フォールバック確認（サーバー再起動後に 200 / image/svg+xml になる想定）
     const fav = await get('/favicon.ico');
     const ct = (fav.headers && (fav.headers['content-type'] || fav.headers['Content-Type'])) || '';
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
