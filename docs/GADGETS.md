@@ -49,6 +49,38 @@ ZWGadgets.register('Sample', function(el){
   - `/js/gadgets.js` が 200 で取得可能
   - `/index.html?embed=1` に静的な `<script src="js/gadgets.js">` が含まれない
 
+## 設定のインポート/エクスポート（Mission 6）
+
+- 目的
+  - ガジェットの順序/開閉状態/個別設定を JSON として保存・復元できるようにします。
+- UI
+  - サイドバー「ガジェット」セクションに以下の操作ボタンを追加
+    - 「ガジェット設定をエクスポート」: 現在の設定を JSON でダウンロード
+    - 「ガジェット設定をインポート」: JSON ファイルを選択して設定を復元
+- 保存形式
+  - LocalStorage キー: `zenWriter_gadgets:prefs`
+  - JSON 例:
+
+```json
+{
+  "order": ["Clock"],
+  "collapsed": {"Clock": false},
+  "settings": {"Clock": {"hour24": true}}
+}
+```
+
+### API
+
+- `ZWGadgets.exportPrefs(): string` — 現在の設定を整形済み JSON 文字列で返します
+- `ZWGadgets.importPrefs(jsonOrObject): boolean` — インポートを実行し、成功で `true`
+
+### 手動手順
+
+1. 「ガジェット設定をエクスポート」を押してJSONを保存
+2. JSON を編集（例: `settings.Clock.hour24` を `false` に変える）
+3. 「ガジェット設定をインポート」から当該 JSON を指定
+4. Clock の 12/24 表示が反映され、必要に応じて順序/開閉も復元される
+
 ## 設定保存/折りたたみ/並び替え（v0.3.13+）
 
 - 仕組み
