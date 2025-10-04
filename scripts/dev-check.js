@@ -75,6 +75,15 @@ function get(path) {
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', { hasStorageKey, hasGetPrefs, hasSetPrefs, hasMove, hasToggle });
     console.log('CHECK gadgets M5 (static) ->', okGadgetsM5 ? 'OK' : 'NG', { hasRegisterSettings, hasGetSettings, hasSetSetting, hasDraggable, hasDnDData, hasDropListener });
 
+    // ガジェット設定のインポート/エクスポートUIとAPI
+    const hasGadgetExportBtn = /id="gadget-export"/i.test(index.body || '');
+    const hasGadgetImportBtn = /id="gadget-import"/i.test(index.body || '');
+    const hasGadgetPrefsInput = /id="gadget-prefs-input"/i.test(index.body || '');
+    const hasExportApi = /exportPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
+    const hasImportApi = /importPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
+    const okGadgetsImpExp = hasGadgetExportBtn && hasGadgetImportBtn && hasGadgetPrefsInput && hasExportApi && hasImportApi;
+    console.log('CHECK gadgets import/export ->', okGadgetsImpExp ? 'OK' : 'NG', { hasGadgetExportBtn, hasGadgetImportBtn, hasGadgetPrefsInput, hasExportApi, hasImportApi });
+
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
     let appSrc = '';
@@ -205,7 +214,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okGadgetsImpExp && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
