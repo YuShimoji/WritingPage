@@ -89,6 +89,15 @@ WritingPage/
 - Embed SDK を使用して、他サイトに埋め込み可能です（`docs/EMBED_SDK.md`）
 - ブランチ運用指針は `docs/BRANCHING.md` を参照
 
+## 開発プロトコルと中央ワークフロー
+
+- 本リポジトリは、中央リポジトリの再利用可能ワークフローを参照します。
+  - CI Smoke / Issues Sync は `uses: YuShimoji/shared-workflows/.github/workflows/*.yml@v0.1.0` を利用
+- ルール/プロトコル
+  - 作業の前提と再開手順: `AI_CONTEXT.md`
+  - 開発プロトコル（ブランチ/PR/CI連携マージ）: `DEVELOPMENT_PROTOCOL.md`
+  - ルール本文: `docs/Windsurf_AI_Collab_Rules_v1.1.md`
+
 ## テスト手順
 
 手順は `docs/TESTING.md` にまとめています。動作確認時はチェックリストに従って検証してください。

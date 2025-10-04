@@ -137,7 +137,7 @@ function get(path) {
     const ctxPath = path.join(__dirname, '..', 'AI_CONTEXT.md');
     let ctxSrc = '';
     try { ctxSrc = fs.readFileSync(ctxPath, 'utf-8'); } catch (e) { console.error('READ FAIL:', ctxPath, e.message); }
-    const cHasH1 = /^#\s*AI\s+Context/m.test(ctxSrc || '');
+    const cHasH1 = /^#\s*(AI\s+Context|AI_CONTEXT)/m.test(ctxSrc || '');
     const cHasUpdated = /最終更新\s*:/m.test(ctxSrc || '');
     const cHasMission = /現在のミッション\s*:/m.test(ctxSrc || '');
     const cHasBranch = /ブランチ\s*:/m.test(ctxSrc || '');
@@ -145,13 +145,67 @@ function get(path) {
     const okAIContext = !!ctxSrc && cHasH1 && cHasUpdated && cHasMission && cHasBranch && cHasNext;
     console.log('CHECK AI_CONTEXT.md ->', okAIContext ? 'OK' : 'NG', { cHasH1, cHasUpdated, cHasMission, cHasBranch, cHasNext });
 
+    // テンプレートの要点チェック（中断可能点・参考リンク・中央WF参照）
+    const prTplPath = path.join(__dirname, '..', '.github', 'pull_request_template.md');
+    const bugTplPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'bug_report.md');
+    const featTplPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'feature_request.md');
+    const issueCfgPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'config.yml');
+
+    let prTpl = '', bugTpl = '', featTpl = '', issueCfg = '';
+    try { prTpl = fs.readFileSync(prTplPath, 'utf-8'); } catch(_) {}
+    try { bugTpl = fs.readFileSync(bugTplPath, 'utf-8'); } catch(_) {}
+    try { featTpl = fs.readFileSync(featTplPath, 'utf-8'); } catch(_) {}
+    try { issueCfg = fs.readFileSync(issueCfgPath, 'utf-8'); } catch(_) {}
+
+    const prHasStop = /##\s*中断可能点/.test(prTpl);
+    const prHasRefs = /##\s*参考リンク/.test(prTpl) && /AI_CONTEXT\.md/.test(prTpl) && /DEVELOPMENT_PROTOCOL\.md/.test(prTpl);
+    const bugHasStop = /##\s*中断可能点/.test(bugTpl);
+    const bugHasRefs = /##\s*参考リンク/.test(bugTpl) && /AI_CONTEXT\.md/.test(bugTpl) && /DEVELOPMENT_PROTOCOL\.md/.test(bugTpl);
+    const featHasStop = /##\s*中断可能点/.test(featTpl);
+    const featHasRefs = /##\s*参考リンク/.test(featTpl) && /AI_CONTEXT\.md/.test(featTpl) && /DEVELOPMENT_PROTOCOL\.md/.test(featTpl);
+    const cfgHasCtx = /AI_CONTEXT\.md/.test(issueCfg);
+    const cfgHasProto = /DEVELOPMENT_PROTOCOL\.md/.test(issueCfg);
+    const okTemplates = prHasStop && prHasRefs && bugHasStop && bugHasRefs && featHasStop && featHasRefs && cfgHasCtx && cfgHasProto;
+    console.log('CHECK templates ->', okTemplates ? 'OK' : 'NG', { prHasStop, prHasRefs, bugHasStop, bugHasRefs, featHasStop, featHasRefs, cfgHasCtx, cfgHasProto });
+
+    // 簡易Markdownlint（基本ルール）
+    function mdLintBasic(p){
+      try {
+        const src = fs.readFileSync(p, 'utf-8');
+        const lines = String(src||'').split(/\r?\n/);
+        let firstNonEmpty = lines.find(l => l.trim().length>0) || '';
+        const h1Ok = /^#\s+/.test(firstNonEmpty);
+        let lastLevel = 0; let headingStepOk = true; let longOk = true; let trailOk = true; let tabsOk = true;
+        for (let i=0;i<lines.length;i++){
+          const line = lines[i];
+          const m = /^(#{1,6})\s+/.exec(line);
+          if (m){ const lvl = m[1].length; if (lastLevel>0 && lvl>lastLevel+1) headingStepOk = false; lastLevel = lvl; }
+          if (line.length > 200) longOk = false;
+          if (/\s$/.test(line)) trailOk = false;
+          if (/\t/.test(line)) tabsOk = false;
+        }
+        const ok = h1Ok && headingStepOk && longOk && trailOk && tabsOk;
+        return { ok, h1Ok, headingStepOk, longOk, trailOk, tabsOk };
+      } catch(_) { return { ok:false, error:'read fail' }; }
+    }
+
+    const mdTargets = [
+      path.join(__dirname, '..', 'AI_CONTEXT.md'),
+      path.join(__dirname, '..', 'DEVELOPMENT_PROTOCOL.md'),
+      path.join(__dirname, '..', 'README.md'),
+      path.join(__dirname, '..', 'CONTRIBUTING.md')
+    ];
+    const mdResults = mdTargets.map(f => ({ f, r: mdLintBasic(f) }));
+    const okMdLint = mdResults.every(x => x.r && x.r.ok);
+    console.log('CHECK markdownlint (basic) ->', okMdLint ? 'OK' : 'NG', mdResults.reduce((o,x)=>{ o[path.basename(x.f)] = x.r; return o; }, {}));
+
     // favicon.ico フォールバック確認（サーバー再起動後に 200 / image/svg+xml になる想定）
     const fav = await get('/favicon.ico');
     const ct = (fav.headers && (fav.headers['content-type'] || fav.headers['Content-Type'])) || '';
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');
