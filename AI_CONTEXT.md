@@ -47,3 +47,26 @@
 - テスト方針: `docs/TESTING.md`
 - 利用手順: `docs/USAGE.md`
 - 埋め込みSDK: `docs/EMBED_TESTING.md`
+# AI Context
+
+- 最終更新: 2025-10-03T17:41:27+09:00
+- 現在のミッション: ルール v1.1 整備と AI_CONTEXT.md 導入
+- ブランチ: main
+- 関連: Issue なし, PR なし
+- 進捗: 90% / ステータス: docs作成・初期導入
+- 次の中断可能点: ルール/AI_CONTEXT 追加の PR 作成後
+
+## 決定事項
+
+- 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
+- リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
+
+## リスク/懸念
+
+- ルール適用の浸透（コントリビュータ周知）
+
+## Backlog（将来提案）
+
+- CONTRIBUTING.md に v1.1 へのリンク追加
+- PR テンプレートに「中断可能点」欄を標準化
+- dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加

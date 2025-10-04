@@ -1,12 +1,43 @@
 # Changelog
 <!-- markdownlint-disable MD024 -->
+## [0.3.14] - 2025-10-03
+
+### Added
+
+- ガジェットの設定保存/折りたたみ/並び替え（`ZWGadgets.getPrefs/setPrefs/toggle/move`）
+
+### Changed
+
+- `scripts/dev-check.js` にガジェットPrefs APIの静的検証を追加
+- ガジェットUIのCSSクラスを整備（`.gadget*`）、インラインスタイルを削減
+- `docs/GADGETS.md` に使い方/手動テスト手順を追記
+
+## [0.3.13] - 2025-10-02
+
+### Added
+
+- サイドバーに `#gadgets-panel` を追加し、非埋め込み時のみ `js/gadgets.js` を動的ロード
+- `js/gadgets.js` にガジェットレジストリとデフォルト `Clock` ガジェットを実装
+
+### Changed
+
+- `scripts/dev-check.js` にガジェット存在検証と `?embed=1` 時の静的gadgets不在チェックを追加
+- 仕様ドキュメント `docs/GADGETS.md` を追加
+
+## [0.3.12] - 2025-10-01
+
+### Changed
+
+- 埋め込みモード（`?embed=1`）の初期ロードを軽量化（outline/themes-advanced/plugins を非埋め込み時のみ動的ロード）
+- `scripts/dev-check.js` に `embed=1` 軽量化の自動検証を追加
+- `docs/EMBED_TESTING.md` にパフォーマンス計測手順（v1.2）を追記
+
 ## [0.3.11] - 2025-09-25
 
 ### Changed
 
 - ブラウザのタブタイトルに現在のドキュメント名を反映（`<doc> - Zen Writer`）
 - 作成/切替/改名/削除/初期化直後にタイトルを更新
-- USAGE/TESTING を上記仕様に合わせて更新
 
 ## [0.3.10] - 2025-09-25
 
