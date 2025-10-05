@@ -44,6 +44,25 @@
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
     },
+    exportPrefs: function(){
+      try {
+        var p = loadPrefs();
+        return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
+      } catch(_) { return '{}'; }
+    },
+    importPrefs: function(obj){
+      try {
+        var p = obj;
+        if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch(e){ return false; } }
+        if (!p || typeof p !== 'object') return false;
+        if (!Array.isArray(p.order)) p.order = [];
+        if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
+        if (!p.settings || typeof p.settings !== 'object') p.settings = {};
+        savePrefs({ order: p.order, collapsed: p.collapsed, settings: p.settings });
+        try { this._renderLast && this._renderLast(); } catch(_) {}
+        return true;
+      } catch(_) { return false; }
+    },
     move: function(name, dir){
       try {
         var p = loadPrefs();
@@ -181,7 +200,15 @@
               try {
                 ev.preventDefault();
                 wrap.classList.remove('drag-over');
-                var src = ev.dataTransfer.getData('text/gadget-name');
+                var src = '';
+                try { src = ev && ev.dataTransfer && ev.dataTransfer.getData && ev.dataTransfer.getData('text/gadget-name') || ''; } catch(_) {}
+                // Fallback when DataTransfer is not populated (e.g., headless automation)
+                if (!src) {
+                  try {
+                    var dragging = root && root.querySelector ? root.querySelector('.gadget.is-dragging') : null;
+                    if (dragging && dragging.dataset && dragging.dataset.name) src = dragging.dataset.name;
+                  } catch(_) {}
+                }
                 var dst = name;
                 if (!src || !dst || src===dst) return;
                 var p = loadPrefs();
@@ -252,5 +279,45 @@
   // auto-init when DOM ready
   ready(function(){
     try { ZWGadgets.init('#gadgets-panel'); } catch(_) {}
+    // Wire import/export controls if present
+    try {
+      var expBtn = document.getElementById('gadget-export');
+      var impBtn = document.getElementById('gadget-import');
+      var inp = document.getElementById('gadget-prefs-input');
+      if (expBtn) {
+        expBtn.addEventListener('click', function(){
+          try {
+            var json = ZWGadgets.exportPrefs();
+            var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            var d = new Date();
+            var pad = function(n){ return (n<10?'0':'')+n; };
+            var name = 'gadgets_prefs_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.json';
+            a.href = url; a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(function(){ URL.revokeObjectURL(url); }, 0);
+          } catch(e) { /* ignore */ }
+        });
+      }
+      if (impBtn && inp) {
+        impBtn.addEventListener('click', function(){ try { inp.click(); } catch(_) {} });
+        inp.addEventListener('change', function(ev){
+          try {
+            var file = ev.target && ev.target.files && ev.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(){
+              try {
+                var ok = ZWGadgets.importPrefs(String(reader.result||''));
+                if (!ok) { console.warn('Import failed: invalid file'); }
+              } catch(e) { console.warn('Import failed:', e); }
+              try { inp.value = ''; } catch(_) {}
+            };
+            reader.onerror = function(){ try { inp.value=''; } catch(_) {} };
+            reader.readAsText(file, 'utf-8');
+          } catch(_) { try { inp.value=''; } catch(__) {} }
+        });
+      }
+    } catch(_) {}
   });
 })();

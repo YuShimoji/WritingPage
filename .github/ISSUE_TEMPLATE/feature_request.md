@@ -13,3 +13,11 @@ assignees: ''
 ## 代替案
 
 ## 追加コンテキスト
+
+## 中断可能点（任意）
+- 作業を中断する場合の安全な区切りを明記してください
+
+## 参考リンク
+- AI_CONTEXT.md
+- DEVELOPMENT_PROTOCOL.md
+- docs/Windsurf_AI_Collab_Rules_v1.1.md
