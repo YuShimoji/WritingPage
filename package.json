@@ -1,0 +1,29 @@
+{
+  "name": "writingpage",
+  "version": "1.0.0",
+  "description": "Zen Writer  ,   ,  .  ,  .  ,  .",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "npm run e2e",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:install": "playwright install --with-deps"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YuShimoji/WritingPage.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YuShimoji/WritingPage/issues"
+  },
+  "homepage": "https://github.com/YuShimoji/WritingPage#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.55.1"
+  }
+}

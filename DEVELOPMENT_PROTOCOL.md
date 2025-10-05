@@ -9,26 +9,24 @@
 
 ## 2. CI/Sync の中央化
 - 共有リポジトリ: `YuShimoji/shared-workflows`
-  - 参照タグ: `v0.1.0`
-  - `.github/workflows/ci-smoke.yml` / `.github/workflows/sync-issues.yml` を `uses: ...@v0.1.0` で呼び出し
-- 本リポジトリのトリガー
-  - CI Smoke: push(main/develop/feat/**), pull_request, workflow_dispatch
-  - Sync Issues: `docs/ISSUES.md` 変更または workflow_dispatch
-
 ## 3. ローカルワークフロー
-- 開発サーバー: `node scripts/dev-server.js`（PORT 可変: `--port`/`-p`/`PORT`）
-- 2ポート起動: `node scripts/run-two-servers.js`（8080/8081）
-- スモーク: `node scripts/dev-check.js` → ALL TESTS PASSED が合格
 
-## 4. 自律的再開プロトコル
-1) 状況把握
-   - `git status -sb` / `gh run list` / ワークフロー参照先を確認
-2) 計画
-   - 完了済みをスキップし、未完のみ実行
-3) 実行
-   - 変更はツールで直接編集、コマンドは必ず実行
-4) セーフガード
-   - 手動解決が必要な衝突時は停止し、Issue/PR に状況と推奨を記載
+- 開発サーバー: `node scripts/dev-server.js`（PORT 可変: `--port` / `-p` / `PORT`）
+- 2ポート同時起動: `node scripts/run-two-servers.js`（8080/8081）
+- スモークテスト: `node scripts/dev-check.js` → `ALL TESTS PASSED` を確認
+- クロスオリジン検証手順: `docs/EMBED_TESTING.md`（v1.1 付録参照）
+
+### E2E テスト（Playwright）
+
+- 目的: ブラウザ上の実操作（クリック/ドラッグ/ダウンロード/ファイル選択）を自動検証
+- セットアップ（初回のみ）
+  - `npm install`
+  - `npx playwright install`
+- 実行
+  - ヘッドレス: `npm run e2e`
+  - 画面表示: `npm run e2e:headed`
+- 設定: `playwright.config.js`（`scripts/dev-server.js` を自動起動）
+- テスト: `tests/e2e/gadgets.spec.js`
 
 ## 5. ドキュメント連携
 - `AI_CONTEXT.md` に前提・参照先を集約

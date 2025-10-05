@@ -200,7 +200,15 @@
               try {
                 ev.preventDefault();
                 wrap.classList.remove('drag-over');
-                var src = ev.dataTransfer.getData('text/gadget-name');
+                var src = '';
+                try { src = ev && ev.dataTransfer && ev.dataTransfer.getData && ev.dataTransfer.getData('text/gadget-name') || ''; } catch(_) {}
+                // Fallback when DataTransfer is not populated (e.g., headless automation)
+                if (!src) {
+                  try {
+                    var dragging = root && root.querySelector ? root.querySelector('.gadget.is-dragging') : null;
+                    if (dragging && dragging.dataset && dragging.dataset.name) src = dragging.dataset.name;
+                  } catch(_) {}
+                }
                 var dst = name;
                 if (!src || !dst || src===dst) return;
                 var p = loadPrefs();
