@@ -140,8 +140,9 @@ function get(path) {
     const rHasCIMerge = /CI\s*連携マージ/m.test(rulesSrc || '');
     const rHasSelfPR = /自己\s*PR\s*は\s*Approve\s*不可|承認を省略/m.test(rulesSrc || '');
     const rHasTemplate = /付録\s*A:\s*AI_CONTEXT\.md\s*テンプレート/m.test(rulesSrc || '');
-    const okRulesDoc = !!rulesSrc && rHasComposite && rHasAIContext && rHasCIMerge && rHasSelfPR && rHasTemplate;
-    console.log('CHECK rules v1.1 ->', okRulesDoc ? 'OK' : 'NG', { rHasComposite, rHasAIContext, rHasCIMerge, rHasSelfPR, rHasTemplate });
+    const rHasCentralLink = /github\.com\/YuShimoji\/shared-workflows\/blob\/main\/docs\/Windsurf_AI_Collab_Rules_v1\.1\.md/m.test(rulesSrc || '') || /shared-workflows.*Windsurf_AI_Collab_Rules_v1\.1\.md/m.test(rulesSrc || '');
+    const okRulesDoc = !!rulesSrc && (rHasCentralLink || (rHasComposite && rHasAIContext && rHasCIMerge && rHasSelfPR && rHasTemplate));
+    console.log('CHECK rules v1.1 ->', okRulesDoc ? 'OK' : 'NG', { rHasCentralLink, rHasComposite, rHasAIContext, rHasCIMerge, rHasSelfPR, rHasTemplate });
 
     const ctxPath = path.join(__dirname, '..', 'AI_CONTEXT.md');
     let ctxSrc = '';

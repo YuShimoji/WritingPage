@@ -1,0 +1,16 @@
+{
+  "name": "writingpage",
+  "version": "0.3.14",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev-server.js",
+    "dev:two": "node scripts/run-two-servers.js",
+    "test:smoke": "node scripts/dev-check.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ci": "playwright test --reporter=line",
+    "test": "npm run test:smoke && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.46.0"
+  }
+}
