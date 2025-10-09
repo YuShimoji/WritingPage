@@ -15,6 +15,11 @@ node_modules/
 # Temporary
 .tmp/
 .cache/
+tmp/
+
+# Local helper scripts / workflows
+scripts/gh-*.ps1
+shared-workflows/
 
 # Playwright outputs
 test-results/
