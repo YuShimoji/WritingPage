@@ -7,11 +7,31 @@
 - `index.html` をダブルクリックで開く（Windows/Mac共通）
 - オフラインでも動作します
 
-## GitHub Pages で公開
+## GitHub Pages で公開（DocFX サイト）
 
-1. GitHubに新規リポジトリを作成し、本フォルダの内容を push
-2. リポジトリ設定 → Pages → Branch を `main`/`master` の `root` に設定
-3. 数分後、`https://<your-account>.github.io/<repo-name>/` でアクセス可能
+DocFX によるドキュメントサイトは GitHub Actions で自動ビルドされ、`docs/` 以下のMarkdownと `README.md` などを対象に `_site/` を生成して公開します。
+
+### ローカルビルド手順
+
+1. 依存: [.NET 8 SDK](https://dotnet.microsoft.com/) と `docfx` ローカルツール（`dotnet tool restore`）。
+2. ルートで以下を実行。
+
+   ```bash
+   dotnet tool restore
+   dotnet docfx build
+   ```
+
+3. 出力: `_site/` 以下に静的ファイルが生成されます。`npx serve _site` 等で確認可能。
+
+### GitHub Pages 自動デプロイ
+
+1. `main` ブランチへ push すると `.github/workflows/deploy-pages.yml` が起動。
+2. ワークフローは `dotnet docfx build` を実行して `_site/` を生成し、`actions/deploy-pages@v4` で `github-pages` 環境へデプロイ。
+3. 公開URLはリポジトリの Pages 設定で確認できます（例: `https://<org>.github.io/WritingPage/`）。
+
+### 既存の `index.html` を公開したい場合
+
+DocFX サイトとは別に、エディタ本体を公開したい場合は従来どおり GitHub Pages の `root` へ静的ファイルを配置するか、別ブランチ/別リポジトリでホストしてください。
 
 ## Netlify で公開
 
