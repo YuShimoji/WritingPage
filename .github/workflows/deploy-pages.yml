@@ -1,8 +1,17 @@
-name: Deploy static site to Pages
+name: Docs — Build & Deploy (DocFX)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - "docfx.json"
+      - "toc.yml"
+      - "README.md"
+      - "AI_CONTEXT.md"
+      - "docs/**"
+      - "docs/**.md"
+      - "docs/**/toc.yml"
+      - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -18,20 +27,32 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore DocFX tool
+        run: dotnet tool restore
+
+      - name: Build DocFX site
+        run: dotnet docfx build
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "_site"
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    environment: production
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
