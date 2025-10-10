@@ -14,7 +14,8 @@
 - 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
 - リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
 - E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、同一/クロスオリジンを自動検証する
-- Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（将来 Issue 化してユーザー操作準拠へ改善）
+- Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（Issue #78 でフォローアップ）
+- Mission 10 では DocFX を用いたドキュメントサイト構築と GitHub Pages 自動デプロイを実装する
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -46,20 +47,17 @@
 ## 自律的再開プロトコル（チェックリスト）
 
 1. 状況把握
-
    - `git status -sb` で未コミット/見慣れないブランチ有無を確認
    - ワークフローが共有版を参照しているか（`uses: YuShimoji/shared-workflows/...@v0.1.0`）
    - 共有リポジトリが参照可能か（`gh repo view YuShimoji/shared-workflows`）
 
 2. 計画
-
    - 完了済みの作業はスキップし、未着手/未完了のタスクのみを実行
    - 変更は Issue 起票 → ブランチ作成 → 小さくコミット → PR → CI 確認 → マージ
    - 変更は必ずファイルを直接編集し、コマンドはローカルで実行
    - PR は `gh` で作成、Squash Merge を既定
 
 3. セーフガード
-
    - コンフリクトや手動解決が必要な場合は即時停止し、状況/推奨解を報告
 
 ## 参考
@@ -74,6 +72,6 @@
 
 ## Backlog（将来提案）
 
-- Mission 10: DocFX によるドキュメントサイト構築（DocFX導入・CIでビルド・GitHub Pages公開・API/仕様の自動生成）
+- CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
