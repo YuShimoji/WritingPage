@@ -18,33 +18,33 @@ test.describe('Gadgets E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    // Disable transitions/scroll behavior to avoid flakiness
-    await page.addStyleTag({ content: '.sidebar{transition:none!important} *{scroll-behavior:auto!important}' });
-
-    // Ensure sidebar is open (sidebar is off-canvas by default)
+    // Ensure sidebar is open (simulate user operations)
     const sidebar = page.locator('.sidebar');
     await expect(sidebar).toBeVisible();
-    const opened = await sidebar.evaluate(el => el.classList.contains('open'));
-    if (!opened) {
-      const fab = page.locator('#show-toolbar');
-      if (await fab.isVisible().catch(() => false)) {
-        await fab.click();
+
+    const ensureSidebarOpen = async () => {
+      const showToolbar = page.locator('#show-toolbar');
+      if (await showToolbar.isVisible().catch(() => false)) {
+        await showToolbar.click();
       }
+
       const toggleBtn = page.locator('#toggle-sidebar');
-      if (await toggleBtn.isVisible().catch(() => false)) {
+      await toggleBtn.waitFor({ state: 'visible' });
+
+      const opened = await sidebar.evaluate(el => el.classList.contains('open'));
+      if (!opened) {
         await toggleBtn.click();
-      } else {
-        // Fallback: force open if toggle is not available
-        await sidebar.evaluate(el => el.classList.add('open'));
+        await expect(sidebar).toHaveClass(/open/);
+        await page.waitForFunction(() => {
+          const el = document.querySelector('.sidebar');
+          if (!el) return false;
+          const rect = el.getBoundingClientRect();
+          return rect.left >= 0;
+        });
       }
-      // Wait until sidebar actually enters viewport (left >= 0)
-      await page.waitForFunction(() => {
-        const el = document.querySelector('.sidebar');
-        if (!el) return false;
-        const r = el.getBoundingClientRect();
-        return r.left >= 0;
-      });
-    }
+    };
+
+    await ensureSidebarOpen();
 
     // パネル表示
     await expect(page.locator('#gadgets-panel')).toBeVisible();
@@ -101,11 +101,10 @@ test.describe('Gadgets E2E', () => {
     await dummy.scrollIntoViewIfNeeded();
     await dummy.locator('.gadget-move-up').scrollIntoViewIfNeeded();
     await dummy.locator('.gadget-move-up').click();
-    // 再描画を待機
-    await page.waitForTimeout(50);
-
-    const order = await page.evaluate(() => Array.from(document.querySelectorAll('#gadgets-panel section.gadget')).map(n => n.dataset.name));
-    expect(order[0]).toBe('Dummy');
+    await page.waitForFunction(() => {
+      const order = Array.from(document.querySelectorAll('#gadgets-panel section.gadget')).map(n => n.dataset.name);
+      return order[0] === 'Dummy';
+    });
 
     // Export → Prefs を書き換えて Import（Clock を折りたたみにする）
     await page.evaluate(() => {
@@ -118,6 +117,7 @@ test.describe('Gadgets E2E', () => {
     // Reload 後も折りたたみ状態が保持されること
     await page.reload();
     await waitGadgetsReady(page);
+    await ensureSidebarOpen();
     await expect(page.locator('#gadgets-panel section.gadget[data-name="Clock"] .gadget-body')).toBeHidden();
   });
 });
