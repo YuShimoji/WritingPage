@@ -12,5 +12,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.46.0"
+  },
+  "dependencies": {
+    "sortablejs": "^1.15.2"
   }
 }

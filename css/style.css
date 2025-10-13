@@ -391,21 +391,127 @@ input[type="color"] {
 
 /* ===== ガジェット（サイドバー） ===== */
 .gadgets-panel { display: block; }
-.gadget { border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; background: var(--bg-color); margin-bottom: 10px; }
-.gadget-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; cursor: grab; }
-.gadget-head:active { cursor: grabbing; }
-.gadget-title { font-size: 0.95rem; font-weight: 600; margin: 0; }
-.gadget-toggle { background: transparent; color: inherit; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; }
-.gadget-move-up, .gadget-move-down { background: transparent; color: inherit; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; }
-.gadget-clock { font-size: 14px; font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans JP', Arial, sans-serif; }
+.gadgets-panel details.gadget {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--bg-color);
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+}
 
-/* 設定UI */
-.gadget-settings-btn { background: transparent; color: inherit; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; }
-.gadget-settings { margin-top: 6px; padding: 6px 8px; border-top: 1px dashed var(--border-color); background: rgba(0,0,0,0.03); }
+.gadgets-panel details.gadget[open] {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: rgba(74, 144, 226, 0.4);
+}
 
-/* ドラッグ状態 */
-.gadget.is-dragging { opacity: 0.6; }
-.gadget.drag-over { outline: 2px dashed var(--focus-color); outline-offset: 2px; }
+.gadgets-panel details.gadget.gadget-dragging {
+    opacity: 0.9;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+    transform: scale(1.01);
+}
+
+.gadgets-panel .sortable-placeholder,
+.gadgets-panel .gadget-placeholder {
+    border: 1px dashed rgba(74, 144, 226, 0.5);
+    border-radius: 6px;
+    background: rgba(74, 144, 226, 0.08);
+    margin-bottom: 12px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.gadget-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    font-weight: 600;
+}
+
+.gadget-summary::-webkit-details-marker { display: none; }
+
+.gadget-summary::after {
+    content: '\25BE';
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.6);
+    transition: transform 0.2s ease;
+}
+
+.gadgets-panel details.gadget:not([open]) > .gadget-summary::after {
+    transform: rotate(-90deg);
+}
+
+.gadget-summary:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+}
+
+.gadget-handle {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.5);
+    cursor: grab;
+}
+
+.gadget-handle::before { content: '\2630'; line-height: 1; }
+
+.gadget-handle:active {
+    cursor: grabbing;
+}
+
+.gadget-title {
+    flex: 1;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.gadget-settings-btn {
+    background: transparent;
+    color: inherit;
+    border: 1px solid var(--border-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.gadget-settings-btn:hover {
+    background: rgba(74, 144, 226, 0.08);
+    border-color: var(--focus-color);
+}
+
+.gadget-body {
+    padding: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.gadget-settings {
+    padding: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1);
+    display: none;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+details.gadget.settings-open > .gadget-settings {
+    display: block;
+}
+
+.gadget-clock {
+    font-size: 14px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans JP', Arial, sans-serif;
+}
+.gadget-clock {
+    font-size: 14px;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Noto Sans JP', Arial, sans-serif;
+}
 
 /* ===== ミニHUD ===== */
 .mini-hud {

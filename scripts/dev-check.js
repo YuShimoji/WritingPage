@@ -3,9 +3,9 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-function get(path) {
+function get(resourcePath) {
   return new Promise((resolve, reject) => {
-    const req = http.get({ host: '127.0.0.1', port: 8080, path }, (res) => {
+    const req = http.get({ host: '127.0.0.1', port: 8080, path: resourcePath }, (res) => {
       let data = '';
       res.on('data', (chunk) => (data += chunk));
       res.on('end', () => resolve({ status: res.statusCode, body: data, headers: res.headers }));
@@ -38,8 +38,9 @@ function get(path) {
     const hasProgressCss = /\.goal-progress__bar/.test(css.body);
     const hasCssSettingsBtn = /\.gadget-settings-btn\b/.test(css.body || '');
     const hasCssSettings = /\.gadget-settings\b/.test(css.body || '');
-    const hasCssDrag = /\.gadget\.is-dragging\b/.test(css.body || '') && /\.gadget\.drag-over\b/.test(css.body || '');
-    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss && hasCssSettingsBtn && hasCssSettings && hasCssDrag;
+    const hasCssHandle = /\.gadget-handle\b/.test(css.body || '');
+    const hasCssAccordion = /details\.gadget/.test(css.body || '') && /\.gadget-summary/.test(css.body || '');
+    const okCss = css.status === 200 && hasRootHide && hasRootShowPadding && removedBodyRule && hasProgressCss && hasCssSettingsBtn && hasCssSettings && hasCssHandle && hasCssAccordion;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
 
     // プラグインUIとスクリプトの存在検証
@@ -51,34 +52,45 @@ function get(path) {
 
     // ガジェットの存在検証
     const hasGadgetsPanel = /id=\"gadgets-panel\"/i.test(index.body);
+    const hasSortableLoader = /load\(\s*['"]js\/vendor\/sortable\.min\.js['"]\s*\)/.test(index.body || '');
+    const sortableScript = await get('/js/vendor/sortable.min.js');
+    const okSortableAsset = sortableScript.status === 200;
     const gadgetsJs = await get('/js/gadgets.js');
-    const okGadgets = hasGadgetsPanel && gadgetsJs.status === 200;
-    console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', { hasGadgetsPanel, gadgets: gadgetsJs.status });
+    const okGadgets = hasGadgetsPanel && gadgetsJs.status === 200 && okSortableAsset && hasSortableLoader;
+    console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', { hasGadgetsPanel, sortableLoader: hasSortableLoader, sortable: sortableScript.status, gadgets: gadgetsJs.status });
 
     // ガジェットPrefs APIの静的実装確認（js/gadgets.js を読み取り）
     const gadgetsPath = path.join(__dirname, '..', 'js', 'gadgets.js');
     let gadgetsSrc = '';
-    try { gadgetsSrc = fs.readFileSync(gadgetsPath, 'utf-8'); } catch(e) { console.error('READ FAIL:', gadgetsPath, e.message); }
-    const hasStorageKey = /STORAGE_KEY\s*=\s*['\"]zenWriter_gadgets:prefs['\"]/m.test(gadgetsSrc);
-    const hasGetPrefs = /getPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasSetPrefs = /setPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasMove = /move\s*:\s*function\s*\(name,\s*dir\)/m.test(gadgetsSrc);
-    const hasToggle = /toggle\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasRegisterSettings = /registerSettings\s*:\s*function\s*\(name,\s*factory\)/m.test(gadgetsSrc);
-    const hasGetSettings = /getSettings\s*:\s*function\s*\(name\)/m.test(gadgetsSrc);
-    const hasSetSetting = /setSetting\s*:\s*function\s*\(name,\s*key,\s*value\)/m.test(gadgetsSrc);
-    const hasDraggable = /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(gadgetsSrc);
-    const hasDnDData = /dataTransfer\.setData\(\s*['\"]text\/gadget-name['\"],/m.test(gadgetsSrc);
-    const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(gadgetsSrc);
+    try {
+      gadgetsSrc = fs.readFileSync(gadgetsPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', gadgetsPath, e.message);
+    }
+    const hasStorageKey = /STORAGE_KEY\s*=\s*['"]zenWriter_gadgets:prefs['"]/m.test(gadgetsSrc || '');
+    const hasGetPrefs = /getPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
+    const hasSetPrefs = /setPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
+    const hasMove = /move\s*:\s*function\s*\(name,\s*dir\)/m.test(gadgetsSrc || '');
+    const hasToggle = /toggle\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
+    const hasRegisterSettings = /registerSettings\s*:\s*function\s*\(name,\s*factory\)/m.test(gadgetsSrc || '');
+    const hasGetSettings = /getSettings\s*:\s*function\s*\(name\)/m.test(gadgetsSrc || '');
+    const hasSetSetting = /setSetting\s*:\s*function\s*\(name,\s*key,\s*value\)/m.test(gadgetsSrc || '');
+    const hasSortableCreate = /Sortable\.create\s*\(/m.test(gadgetsSrc || '');
+    const hasDetailsElement = /createElement\(\s*['"]details['"]\s*\)/m.test(gadgetsSrc || '');
+    const hasSummaryClass = /className\s*=\s*['"]gadget-summary['"]/m.test(gadgetsSrc || '');
+    const hasSettingsClass = /className\s*=\s*['"]gadget-settings['"]/m.test(gadgetsSrc || '');
+    const cssHasHandle = /\.gadget-handle\b/.test(css.body || '');
+    const cssHasDragClass = /\.gadget-dragging\b/.test(css.body || '');
+    const cssHasPlaceholder = /\.gadget-placeholder\b/.test(css.body || '');
     const okGadgetsApi = hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
-    const okGadgetsM5 = hasRegisterSettings && hasGetSettings && hasSetSetting && hasDraggable && hasDnDData && hasDropListener;
+    const okGadgetsSortable = hasRegisterSettings && hasGetSettings && hasSetSetting && hasSortableCreate && hasDetailsElement && hasSummaryClass && hasSettingsClass && cssHasHandle && cssHasDragClass && cssHasPlaceholder;
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', { hasStorageKey, hasGetPrefs, hasSetPrefs, hasMove, hasToggle });
-    console.log('CHECK gadgets M5 (static) ->', okGadgetsM5 ? 'OK' : 'NG', { hasRegisterSettings, hasGetSettings, hasSetSetting, hasDraggable, hasDnDData, hasDropListener });
+    console.log('CHECK gadgets Sortable/Accordion (static) ->', okGadgetsSortable ? 'OK' : 'NG', { hasRegisterSettings, hasGetSettings, hasSetSetting, hasSortableCreate, cssHasHandle, cssHasDragClass, cssHasPlaceholder, hasDetailsElement, hasSummaryClass, hasSettingsClass });
 
     // ガジェット設定のインポート/エクスポートUIとAPI
-    const hasGadgetExportBtn = /id="gadget-export"/i.test(index.body || '');
-    const hasGadgetImportBtn = /id="gadget-import"/i.test(index.body || '');
-    const hasGadgetPrefsInput = /id="gadget-prefs-input"/i.test(index.body || '');
+    const hasGadgetExportBtn = /id=\"gadget-export\"/i.test(index.body || '');
+    const hasGadgetImportBtn = /id=\"gadget-import\"/i.test(index.body || '');
+    const hasGadgetPrefsInput = /id=\"gadget-prefs-input\"/i.test(index.body || '');
     const hasExportApi = /exportPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
     const hasImportApi = /importPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
     const okGadgetsImpExp = hasGadgetExportBtn && hasGadgetImportBtn && hasGadgetPrefsInput && hasExportApi && hasImportApi;
@@ -113,12 +125,19 @@ function get(path) {
     const eiNoPluginChoice = !/<script\s+src=["']js\/plugins\/choice\.js["']/.test(ei);
     const eiHasApp = /<script\s+src=["']js\/app\.js["']/.test(ei);
     const eiHasChildBridge = /<script\s+src=["']js\/embed\/child-bridge\.js["']/.test(ei);
-    const eiHasEmbedFlag = /setAttribute\(\'data-embed\',\'true\'\)/.test(ei);
+    const eiHasEmbedFlag = /setAttribute\('data-embed','true'\)/.test(ei);
     const eiNoGadgetsStatic = !/<script\s+src=["']js\/gadgets\.js["']/.test(ei);
     const okEmbedLight = eiStatus && eiNoOutline && eiNoThemesAdv && eiNoPluginReg && eiNoPluginChoice && eiNoGadgetsStatic && eiHasApp && eiHasChildBridge && eiHasEmbedFlag;
     console.log('CHECK embed=1 lightweight ->', okEmbedLight ? 'OK' : 'NG', {
       status: embedIndex.status,
-      eiNoOutline, eiNoThemesAdv, eiNoPluginReg, eiNoPluginChoice, eiNoGadgetsStatic, eiHasApp, eiHasChildBridge, eiHasEmbedFlag
+      eiNoOutline,
+      eiNoThemesAdv,
+      eiNoPluginReg,
+      eiNoPluginChoice,
+      eiNoGadgetsStatic,
+      eiHasApp,
+      eiHasChildBridge,
+      eiHasEmbedFlag
     });
 
     // child-bridge セキュリティパターン検証
@@ -134,7 +153,11 @@ function get(path) {
     // ルール文書と AI_CONTEXT の存在/内容チェック
     const rulesPath = path.join(__dirname, '..', 'docs', 'Windsurf_AI_Collab_Rules_v1.1.md');
     let rulesSrc = '';
-    try { rulesSrc = fs.readFileSync(rulesPath, 'utf-8'); } catch (e) { console.error('READ FAIL:', rulesPath, e.message); }
+    try {
+      rulesSrc = fs.readFileSync(rulesPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', rulesPath, e.message);
+    }
     const rHasComposite = /複合ミッション/m.test(rulesSrc || '');
     const rHasAIContext = /AI_CONTEXT\.md/m.test(rulesSrc || '');
     const rHasCIMerge = /CI\s*連携マージ/m.test(rulesSrc || '');
@@ -146,7 +169,11 @@ function get(path) {
 
     const ctxPath = path.join(__dirname, '..', 'AI_CONTEXT.md');
     let ctxSrc = '';
-    try { ctxSrc = fs.readFileSync(ctxPath, 'utf-8'); } catch (e) { console.error('READ FAIL:', ctxPath, e.message); }
+    try {
+      ctxSrc = fs.readFileSync(ctxPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', ctxPath, e.message);
+    }
     const cHasH1 = /^#\s*(AI\s+Context|AI_CONTEXT)/m.test(ctxSrc || '');
     const cHasUpdated = /最終更新\s*:/m.test(ctxSrc || '');
     const cHasMission = /現在のミッション\s*:/m.test(ctxSrc || '');
@@ -161,11 +188,22 @@ function get(path) {
     const featTplPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'feature_request.md');
     const issueCfgPath = path.join(__dirname, '..', '.github', 'ISSUE_TEMPLATE', 'config.yml');
 
-    let prTpl = '', bugTpl = '', featTpl = '', issueCfg = '';
-    try { prTpl = fs.readFileSync(prTplPath, 'utf-8'); } catch(_) {}
-    try { bugTpl = fs.readFileSync(bugTplPath, 'utf-8'); } catch(_) {}
-    try { featTpl = fs.readFileSync(featTplPath, 'utf-8'); } catch(_) {}
-    try { issueCfg = fs.readFileSync(issueCfgPath, 'utf-8'); } catch(_) {}
+    let prTpl = '';
+    let bugTpl = '';
+    let featTpl = '';
+    let issueCfg = '';
+    try {
+      prTpl = fs.readFileSync(prTplPath, 'utf-8');
+    } catch (_) {}
+    try {
+      bugTpl = fs.readFileSync(bugTplPath, 'utf-8');
+    } catch (_) {}
+    try {
+      featTpl = fs.readFileSync(featTplPath, 'utf-8');
+    } catch (_) {}
+    try {
+      issueCfg = fs.readFileSync(issueCfgPath, 'utf-8');
+    } catch (_) {}
 
     const prHasStop = /##\s*中断可能点/.test(prTpl);
     const prHasRefs = /##\s*参考リンク/.test(prTpl) && /AI_CONTEXT\.md/.test(prTpl) && /DEVELOPMENT_PROTOCOL\.md/.test(prTpl);
@@ -179,24 +217,34 @@ function get(path) {
     console.log('CHECK templates ->', okTemplates ? 'OK' : 'NG', { prHasStop, prHasRefs, bugHasStop, bugHasRefs, featHasStop, featHasRefs, cfgHasCtx, cfgHasProto });
 
     // 簡易Markdownlint（基本ルール）
-    function mdLintBasic(p){
+    function mdLintBasic(filePath) {
       try {
-        const src = fs.readFileSync(p, 'utf-8');
-        const lines = String(src||'').split(/\r?\n/);
-        let firstNonEmpty = lines.find(l => l.trim().length>0) || '';
+        const src = fs.readFileSync(filePath, 'utf-8');
+        const lines = String(src || '').split(/\r?\n/);
+        const firstNonEmpty = lines.find((line) => line.trim().length > 0) || '';
         const h1Ok = /^#\s+/.test(firstNonEmpty);
-        let lastLevel = 0; let headingStepOk = true; let longOk = true; let trailOk = true; let tabsOk = true;
-        for (let i=0;i<lines.length;i++){
+        let lastLevel = 0;
+        let headingStepOk = true;
+        let longOk = true;
+        let trailOk = true;
+        let tabsOk = true;
+        for (let i = 0; i < lines.length; i += 1) {
           const line = lines[i];
           const m = /^(#{1,6})\s+/.exec(line);
-          if (m){ const lvl = m[1].length; if (lastLevel>0 && lvl>lastLevel+1) headingStepOk = false; lastLevel = lvl; }
+          if (m) {
+            const lvl = m[1].length;
+            if (lastLevel > 0 && lvl > lastLevel + 1) headingStepOk = false;
+            lastLevel = lvl;
+          }
           if (line.length > 200) longOk = false;
           if (/\s$/.test(line)) trailOk = false;
           if (/\t/.test(line)) tabsOk = false;
         }
         const ok = h1Ok && headingStepOk && longOk && trailOk && tabsOk;
         return { ok, h1Ok, headingStepOk, longOk, trailOk, tabsOk };
-      } catch(_) { return { ok:false, error:'read fail' }; }
+      } catch (_) {
+        return { ok: false, error: 'read fail' };
+      }
     }
 
     const mdTargets = [
@@ -205,17 +253,43 @@ function get(path) {
       path.join(__dirname, '..', 'README.md'),
       path.join(__dirname, '..', 'CONTRIBUTING.md')
     ];
-    const mdResults = mdTargets.map(f => ({ f, r: mdLintBasic(f) }));
-    const okMdLint = mdResults.every(x => x.r && x.r.ok);
-    console.log('CHECK markdownlint (basic) ->', okMdLint ? 'OK' : 'NG', mdResults.reduce((o,x)=>{ o[path.basename(x.f)] = x.r; return o; }, {}));
+    const mdResults = mdTargets.map((filePath) => ({ f: filePath, r: mdLintBasic(filePath) }));
+    const okMdLint = mdResults.every((entry) => entry.r && entry.r.ok);
+    console.log(
+      'CHECK markdownlint (basic) ->',
+      okMdLint ? 'OK' : 'NG',
+      mdResults.reduce((obj, entry) => {
+        obj[path.basename(entry.f)] = entry.r;
+        return obj;
+      }, {})
+    );
 
     // favicon.ico フォールバック確認（サーバー再起動後に 200 / image/svg+xml になる想定）
     const fav = await get('/favicon.ico');
     const ct = (fav.headers && (fav.headers['content-type'] || fav.headers['Content-Type'])) || '';
-    const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
+    const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || fav.status === 404; // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okGadgetsImpExp && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
+    if (
+      !(
+        okIndex &&
+        okCss &&
+        okTitleSpec &&
+        okPlugins &&
+        okGadgets &&
+        okGadgetsApi &&
+        okGadgetsSortable &&
+        okGadgetsImpExp &&
+        okRulesDoc &&
+        okAIContext &&
+        okEmbedDemo &&
+        okFav &&
+        okChildBridge &&
+        okEmbedLight &&
+        okTemplates &&
+        okMdLint
+      )
+    ) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');

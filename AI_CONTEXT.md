@@ -2,18 +2,29 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-06T18:53:59+09:00
-- 現在のミッション: Mission 8: E2Eテストの拡張とCI/CDの最適化
-- ブランチ: feature/m8-e2e-cicd
-- 関連: Issue なし, PR なし
-- 進捗: 90% / ステータス: PR作成・CI待機
-- 次の中断可能点: CI 成功後の自動マージ完了時
+- 最終更新: 2025-10-10T23:15:00+09:00
+- 現在のミッション: Mission 10: ガジェット機能の高度化とUI改善
+- ブランチ: feature/ISSUE-76-gadgets-ui
+- 関連: Issue #76, PR なし（未作成）
+- 進捗: 45% / ステータス: SortableJS統合・UI刷新を実装中
+- 次の中断可能点: ガジェットUI・テスト・ドキュメント更新を完了し、ローカルテスト成功・コミット直前
 
 ## 決定事項
 
 - 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
 - リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
 - E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、同一/クロスオリジンを自動検証する
+
+### Mission 10 作業メモ
+- SortableJS (`sortablejs@^1.15.2`) を `js/vendor/sortable.min.js` としてバンドルし、非埋め込みロードで利用する。
+- ガジェットUIは `<details>/<summary>` を用いたアコーディオン構造に刷新。ハンドル `.gadget-handle` をドラッグ対象とし、`gadgets.js` で `Sortable.create()` を呼び出す。
+- 設定パネルは `details.gadget` 内に `.gadget-settings` として保持し、`settings-open` クラスで開閉を制御する。
+- 続きのタスク
+  - CSS 最終調整（ドラッグ用クラス、フォーカスリングなど）
+  - `scripts/dev-check.js` の静的検証更新（Sortable対応）
+  - Playwright E2E テストの追加（並び替え・アコーディオン）と既存テスト調整
+  - `docs/GADGETS.md` / `README` 関連追記、および AI_CONTEXT.md 再更新
+  - コミット分割 → PR 作成（gh） → CI 成功確認 → マージ
 
 ## リポジトリ構成（中央ワークフロー採用）
 - 共有リポジトリ: `YuShimoji/shared-workflows`
@@ -64,7 +75,8 @@
 - ルール適用の浸透（コントリビュータ周知）
 
 ## Backlog（将来提案）
-
 - CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
+- DocFX/Docusaurus導入によるドキュメントサイト構築
+- [Technical Debt] E2Eテストのリファクタリング

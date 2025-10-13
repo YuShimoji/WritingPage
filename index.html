@@ -247,6 +247,7 @@
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
         function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
+        load('js/vendor/sortable.min.js');
         load('js/outline.js');
         load('js/themes-advanced.js');
         load('js/plugins/registry.js');

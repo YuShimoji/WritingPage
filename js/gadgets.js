@@ -95,6 +95,25 @@
       var root = document.querySelector(sel);
       if (!root) return;
 
+      function dispatchRemoved(node){
+        try {
+          if (!node) return;
+          var targets = node.querySelectorAll('.gadget-body');
+          for (var i = 0; i < targets.length; i++){
+            var target = targets[i];
+            try {
+              if (typeof Event === 'function') {
+                target.dispatchEvent(new Event('removed'));
+              } else {
+                var legacy = document.createEvent('Event');
+                legacy.initEvent('removed', false, false);
+                target.dispatchEvent(legacy);
+              }
+            } catch(_) {}
+          }
+        } catch(_) {}
+      }
+
       function buildOrder(){
         var p = loadPrefs();
         var names = self._list.map(function(x){ return x.name||''; });
@@ -104,45 +123,128 @@
         return { order: eff, prefs: p };
       }
 
+      function normalizeSelector(raw){
+        try { return String(raw || '').replace(/\\\./g, '.'); }
+        catch(_) { return raw; }
+      }
+
+      var sortableInstance = null;
+
+      function applySortable(){
+        try {
+          if (!root || typeof Sortable === 'undefined' || typeof Sortable.create !== 'function') return;
+          if (sortableInstance && typeof sortableInstance.destroy === 'function') {
+            sortableInstance.destroy();
+            sortableInstance = null;
+          }
+          var sortableOptions = {
+            animation: 140,
+            handle: '\\.gadget-handle',
+            draggable: 'details\\.gadget',
+            dragClass: 'gadget-dragging',
+            ghostClass: 'gadget-placeholder',
+            onEnd: function(){
+              try {
+                var nodes = root.querySelectorAll('details.gadget');
+                var nextOrder = [];
+                for (var i=0; i<nodes.length; i++){
+                  var nm = nodes[i].dataset.name || '';
+                  if (nm && nextOrder.indexOf(nm) < 0) nextOrder.push(nm);
+                }
+                var prefs = loadPrefs();
+                prefs.order = nextOrder;
+                savePrefs(prefs);
+                if (self._renderLast) self._renderLast();
+              } catch(_) {}
+            }
+          };
+          try {
+            sortableOptions.handle = normalizeSelector(sortableOptions.handle);
+            sortableOptions.draggable = normalizeSelector(sortableOptions.draggable);
+          } catch(_) {}
+          sortableInstance = Sortable.create(root, sortableOptions);
+        } catch(_) {}
+      }
+
+      function renderSettings(name, wrap){
+        try {
+          if (!self._settings[name]) return;
+          var panel = wrap.querySelector('.gadget-settings');
+          if (!panel) return;
+          if (!wrap.classList.contains('settings-open')){
+            panel.innerHTML = '';
+            panel.style.display = 'none';
+            return;
+          }
+          panel.style.display = '';
+          panel.innerHTML = '';
+          var ctxApi = {
+            get: function(key, d){ var s = self.getSettings(name); return (key in s) ? s[key] : d; },
+            set: function(key, val){ self.setSetting(name, key, val); },
+            prefs: function(){ return self.getPrefs(); },
+            refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
+          };
+          try { self._settings[name](panel, ctxApi); } catch(_) {}
+        } catch(_) {}
+      }
+
       function render(){
         var state = buildOrder();
         var order = state.order, prefs = state.prefs;
-        // clear
+        var prev = Array.prototype.slice.call(root.children || []);
+        for (var r=0; r<prev.length; r++) dispatchRemoved(prev[r]);
         while (root.firstChild) root.removeChild(root.firstChild);
-        // render all
         for (var k=0; k<order.length; k++){
           var name = order[k];
           var g = null;
           for (var t=0; t<self._list.length; t++){ if ((self._list[t].name||'')===name){ g=self._list[t]; break; } }
           if (!g) continue;
           try {
-            var wrap = document.createElement('section');
+            var wrap = document.createElement('details');
             wrap.className = 'gadget';
             wrap.dataset.name = name;
-            wrap.setAttribute('draggable', 'true');
+            if (!prefs.collapsed[name]) wrap.setAttribute('open', '');
 
-            var head = document.createElement('div');
-            head.className = 'gadget-head';
-            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (prefs.collapsed[name] ? '▶' : '▼');
-            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = name;
-            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
-            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
+            var summary = document.createElement('summary');
+            summary.className = 'gadget-summary';
+
+            var handle = document.createElement('span');
+            handle.className = 'gadget-handle';
+            handle.setAttribute('aria-label', 'ドラッグで並び替え');
+            handle.title = 'ドラッグして並び替え';
+
+            var title = document.createElement('span');
+            title.className = 'gadget-title';
+            title.textContent = name;
+
+            summary.appendChild(handle);
+            summary.appendChild(title);
+
             var settingsBtn = null;
             if (self._settings[name]){
               settingsBtn = document.createElement('button');
-              settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='⚙';
+              settingsBtn.type = 'button';
+              settingsBtn.className = 'gadget-settings-btn small';
+              settingsBtn.title = '設定';
+              settingsBtn.textContent = '⚙';
+              settingsBtn.addEventListener('click', (function(nm, el){
+                return function(evt){
+                  try {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    el.classList.toggle('settings-open');
+                    renderSettings(nm, el);
+                  } catch(_) {}
+                };
+              })(name, wrap));
             }
-            head.appendChild(toggleBtn); head.appendChild(title);
-            if (settingsBtn) head.appendChild(settingsBtn);
-            head.appendChild(upBtn); head.appendChild(downBtn);
-            // styles moved to CSS (.gadget-head)
-            wrap.appendChild(head);
+
+            if (settingsBtn) summary.appendChild(settingsBtn);
+            wrap.appendChild(summary);
 
             var body = document.createElement('div');
             body.className = 'gadget-body';
-            if (prefs.collapsed[name]) body.style.display = 'none';
-            wrap.appendChild(body);
-            if (typeof g.factory === 'function') {
+            if (typeof g.factory === 'function'){
               try {
                 var api = {
                   get: function(key, d){ var s = self.getSettings(name); return (key in s) ? s[key] : d; },
@@ -151,76 +253,35 @@
                   refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
                 };
                 g.factory(body, api);
-              } catch(e){ /* ignore gadget error */ }
+              } catch(_) {}
+            }
+            wrap.appendChild(body);
+
+            if (self._settings[name]){
+              var settingsPanel = document.createElement('div');
+              settingsPanel.className = 'gadget-settings';
+              wrap.appendChild(settingsPanel);
             }
 
-            // events
-            toggleBtn.addEventListener('click', function(n, b, btn){ return function(){
-              try {
-                var p = loadPrefs(); p.collapsed = p.collapsed||{}; p.collapsed[n] = !p.collapsed[n]; savePrefs(p);
-                btn.textContent = (p.collapsed[n] ? '▶' : '▼');
-                b.style.display = p.collapsed[n] ? 'none' : '';
-              } catch(_) {}
-            }; }(name, body, toggleBtn));
-
-            upBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'up'); }; }(name));
-            downBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'down'); }; }(name));
-
-            // settings panel
-            if (settingsBtn){
-              var panel = document.createElement('div'); panel.className='gadget-settings'; panel.style.display='none';
-              wrap.appendChild(panel);
-              settingsBtn.addEventListener('click', function(n, p, btn){ return function(){
+            wrap.addEventListener('toggle', (function(nm, el){
+              return function(){
                 try {
-                  var visible = p.style.display !== 'none';
-                  p.style.display = visible ? 'none' : '';
-                  if (!visible){
-                    // render settings lazily
-                    try {
-                      p.innerHTML = '';
-                      var sApi = {
-                        get: function(key, d){ var s = self.getSettings(n); return (key in s) ? s[key] : d; },
-                        set: function(key, val){ self.setSetting(n, key, val); },
-                        prefs: function(){ return self.getPrefs(); },
-                        refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
-                      };
-                      self._settings[n](p, sApi);
-                    } catch(_) {}
+                  var prefs = loadPrefs();
+                  prefs.collapsed = prefs.collapsed || {};
+                  prefs.collapsed[nm] = !el.open;
+                  savePrefs(prefs);
+                  if (!el.open) {
+                    el.classList.remove('settings-open');
                   }
+                  renderSettings(nm, el);
                 } catch(_) {}
-              }; }(name, panel, settingsBtn));
-            }
-
-            // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ try { wrap.classList.add('is-dragging'); ev.dataTransfer.setData('text/gadget-name', name); ev.dataTransfer.effectAllowed='move'; } catch(_) {} });
-            wrap.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
-            wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
-            wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
-            wrap.addEventListener('drop', function(ev){
-              try {
-                ev.preventDefault();
-                wrap.classList.remove('drag-over');
-                var src = ev.dataTransfer.getData('text/gadget-name');
-                var dst = name;
-                if (!src || !dst || src===dst) return;
-                var p = loadPrefs();
-                var names = self._list.map(function(x){ return x.name||''; });
-                var eff = [];
-                for (var i=0;i<p.order.length;i++){ if (names.indexOf(p.order[i])>=0 && eff.indexOf(p.order[i])<0) eff.push(p.order[i]); }
-                for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
-                var sIdx = eff.indexOf(src), dIdx = eff.indexOf(dst);
-                if (sIdx<0 || dIdx<0) return;
-                // move src before dst
-                eff.splice(dIdx, 0, eff.splice(sIdx,1)[0]);
-                p.order = eff;
-                savePrefs(p);
-                try { self._renderLast && self._renderLast(); } catch(_) {}
-              } catch(_) {}
-            });
+              };
+            })(name, wrap));
 
             root.appendChild(wrap);
-          } catch(e) { /* ignore per gadget */ }
+          } catch(_) {}
         }
+        applySortable();
       }
 
       self._renderLast = render;
