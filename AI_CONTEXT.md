@@ -2,18 +2,19 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-10T15:59:00+09:00
-- 現在のミッション: Mission 11: ガジェットE2Eテストのユーザー操作準拠リファクタ
-- ブランチ: feature/m11-e2e-refactor
-- 関連: Issue #78 (technical-debt)
-- 進捗: 70% / ステータス: Playwrightテスト改修完了・ローカル安定確認済み
-- 次の中断可能点: PR 作成 → CI 成功を確認した時点
+- 最終更新: 2025-10-16T02:32:00+09:00
+- 現在のミッション: Cross-Origin Embed 安定化と新機能開発準備
+- ブランチ: main（次の機能開発ブランチ作成待ち）
+- 関連: Issue #78（E2E整備）／Cross-Origin E2E Fix（未Issue）
+- 進捗: クロスオリジンE2Eテスト緑化済み・次機能着手待ち
+- 次の中断可能点: ドキュメント更新＋コミット/プッシュ完了後
+- 進捗メモ: `scripts/run-two-servers.js` の順次起動化と `e2e/xorigin.spec.js` のダイアログ処理改善により、`npm run test:smoke`/`npm run test:e2e` が成功する状態。
 
 ## 決定事項
 
 - 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
 - リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
-- E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、同一/クロスオリジンを自動検証する
+- E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、8081 → 8080 の順で立ち上げてヘルスチェックを行い、同一/クロスオリジンを自動検証する
 - Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（Issue #78 でフォローアップ）
 - Mission 10 では DocFX を用いたドキュメントサイト構築と GitHub Pages 自動デプロイを実装する
 
