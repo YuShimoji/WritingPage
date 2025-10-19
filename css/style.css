@@ -45,6 +45,30 @@ html:not([data-toolbar-hidden="true"]) #editor { padding-top: calc(60px + 1rem);
     --focus-color: #9c6b48;
 }
 
+/* 高コントラストテーマ */
+[data-theme="high-contrast"] {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --sidebar-bg: #111111;
+    --sidebar-text: #ffffff;
+    --toolbar-bg: #222222;
+    --toolbar-text: #ffffff;
+    --border-color: #555555;
+    --focus-color: #ffff00;
+}
+
+/* ソラリゼドテーマ */
+[data-theme="solarized"] {
+    --bg-color: #fdf6e3;
+    --text-color: #586e75;
+    --sidebar-bg: #eee8d5;
+    --sidebar-text: #586e75;
+    --toolbar-bg: #eee8d5;
+    --toolbar-text: #586e75;
+    --border-color: #93a1a1;
+    --focus-color: #268bd2;
+}
+
 /* リセットとベーススタイル */
 * {
     margin: 0;

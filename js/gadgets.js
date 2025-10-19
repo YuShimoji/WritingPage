@@ -996,6 +996,162 @@
     }
   }, { groups: ['structure'], title: 'ドキュメント' });
 
+  ZWGadgets.register('Outline', function(el){
+    try {
+      var storage = window.ZenWriterStorage;
+      if (!storage) {
+        var warn = document.createElement('p');
+        warn.textContent = 'ストレージが利用できません。';
+        warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
+        el.appendChild(warn);
+        return;
+      }
+
+      var wrap = document.createElement('div');
+      wrap.className = 'gadget-outline';
+      wrap.style.display = 'flex';
+      wrap.style.flexDirection = 'column';
+      wrap.style.gap = '10px';
+
+      var levelsContainer = document.createElement('div');
+      levelsContainer.className = 'outline-levels';
+      levelsContainer.style.display = 'flex';
+      levelsContainer.style.flexDirection = 'column';
+      levelsContainer.style.gap = '6px';
+
+      var insertContainer = document.createElement('div');
+      insertContainer.className = 'outline-insert';
+      insertContainer.style.display = 'flex';
+      insertContainer.style.flexWrap = 'wrap';
+      insertContainer.style.gap = '6px';
+      insertContainer.style.marginTop = '8px';
+
+      var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
+      var levelLabels = ['大見出し', '中見出し', '小見出し', '詳細', 'メモ', '注記'];
+
+      levels.forEach(function(level, idx){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'outline-btn small';
+        btn.textContent = levelLabels[idx] || level.trim();
+        btn.addEventListener('click', function(){
+          try {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
+              window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
+            }
+          } catch(e){ console.error('insert outline failed', e); }
+        });
+        insertContainer.appendChild(btn);
+      });
+
+      wrap.appendChild(levelsContainer);
+      wrap.appendChild(insertContainer);
+
+      // ドラッグ&ドロップ機能
+      var draggedElement = null;
+
+      function makeLevelRow(level, label, canDrag){
+        var row = document.createElement('div');
+        row.className = 'level-row';
+        row.draggable = canDrag;
+        row.style.display = 'flex';
+        row.style.alignItems = 'center';
+        row.style.justifyContent = 'space-between';
+        row.style.gap = '8px';
+        row.style.margin = '6px 0';
+        row.dataset.level = level;
+
+        var levelSpan = document.createElement('span');
+        levelSpan.textContent = level;
+        levelSpan.style.fontFamily = 'monospace';
+        levelSpan.style.fontWeight = 'bold';
+
+        var labelSpan = document.createElement('span');
+        labelSpan.textContent = label;
+        labelSpan.style.flex = '1';
+
+        var upBtn = document.createElement('button');
+        upBtn.type = 'button';
+        upBtn.className = 'small';
+        upBtn.textContent = '↑';
+        upBtn.style.width = '24px';
+        upBtn.style.height = '24px';
+        upBtn.addEventListener('click', function(){ moveLevel(row, -1); });
+
+        var downBtn = document.createElement('button');
+        downBtn.type = 'button';
+        downBtn.className = 'small';
+        downBtn.textContent = '↓';
+        downBtn.style.width = '24px';
+        downBtn.style.height = '24px';
+        downBtn.addEventListener('click', function(){ moveLevel(row, 1); });
+
+        if (canDrag) {
+          row.addEventListener('dragstart', function(e){
+            draggedElement = row;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', row.outerHTML);
+          });
+          row.addEventListener('dragover', function(e){
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+          });
+          row.addEventListener('drop', function(e){
+            e.preventDefault();
+            if (draggedElement && draggedElement !== row) {
+              var parent = row.parentNode;
+              var allRows = Array.from(parent.children);
+              var fromIndex = allRows.indexOf(draggedElement);
+              var toIndex = allRows.indexOf(row);
+              if (fromIndex < toIndex) {
+                parent.insertBefore(draggedElement, row.nextSibling);
+              } else {
+                parent.insertBefore(draggedElement, row);
+              }
+              draggedElement = null;
+            }
+          });
+        }
+
+        row.appendChild(levelSpan);
+        row.appendChild(labelSpan);
+        if (canDrag) {
+          row.appendChild(upBtn);
+          row.appendChild(downBtn);
+        }
+        return row;
+      }
+
+      function moveLevel(row, direction){
+        var parent = row.parentNode;
+        var sibling = direction === -1 ? row.previousElementSibling : row.nextElementSibling;
+        if (sibling) {
+          if (direction === -1) {
+            parent.insertBefore(row, sibling);
+          } else {
+            parent.insertBefore(sibling, row);
+          }
+        }
+      }
+
+      // 初期レベル表示（ドラッグ可能）
+      var initialLevels = [
+        { level: '#', label: '章' },
+        { level: '##', label: '節' },
+        { level: '###', label: '項' },
+        { level: '####', label: '目' }
+      ];
+      initialLevels.forEach(function(item){
+        levelsContainer.appendChild(makeLevelRow(item.level, item.label, true));
+      });
+
+      el.appendChild(wrap);
+    } catch(e) {
+      console.error('Outline gadget failed:', e);
+      try { el.textContent = 'アウトラインガジェットの初期化に失敗しました。'; } catch(_) {}
+    }
+  }, { groups: ['structure'], title: 'アウトライン' });
+
   ZWGadgets.register('TypographyThemes', function(el){
     try {
       var theme = window.ZenWriterTheme;
@@ -1046,11 +1202,12 @@
       var themeButtons = document.createElement('div');
       themeButtons.style.display = 'flex';
       themeButtons.style.gap = '6px';
-      ['light','dark','sepia'].forEach(function(key){
+      themeButtons.style.flexWrap = 'wrap';
+      ['light','dark','sepia','high-contrast','solarized'].forEach(function(key){
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
-        btn.textContent = ({ light:'ライト', dark:'ダーク', sepia:'セピア' })[key] || key;
+        btn.textContent = ({ light:'ライト', dark:'ダーク', sepia:'セピア', 'high-contrast':'高コントラスト', solarized:'ソラリゼド' })[key] || key;
         btn.addEventListener('click', function(){
           try {
             theme.applyTheme(key);
