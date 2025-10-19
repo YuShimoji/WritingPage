@@ -510,6 +510,18 @@
               } catch(_) {}
             });
 
+            // keyboard navigation
+            wrap.addEventListener('keydown', function(ev){
+              if (ev.key === 'ArrowUp' && ev.altKey){
+                ev.preventDefault();
+                self.move(name, 'up');
+              } else if (ev.key === 'ArrowDown' && ev.altKey){
+                ev.preventDefault();
+                self.move(name, 'down');
+              }
+            });
+            wrap.setAttribute('tabindex', '0');
+
             root.appendChild(wrap);
           } catch(e) { /* ignore per gadget */ }
         }
@@ -1759,9 +1771,13 @@
         $del.addEventListener('click', function(){
           try {
             if ($sel && $sel.value){
+              var active = ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout().name : '';
+              if ($sel.value === active){
+                alert('アクティブなロードアウトは削除できません');
+                return;
+              }
               if (!confirm('選択中のロードアウトを削除しますか？')) return;
               ZWGadgets.deleteLoadout($sel.value);
-              var active = ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout().name : '';
               refreshLoadoutUI(active);
             }
           } catch(e){ console.error('delete loadout failed', e); }
