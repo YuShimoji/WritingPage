@@ -963,10 +963,17 @@
       var btnExportTxt = makeSmallButton('テキストで保存', function(){ exportCurrent(false); });
       var btnExportMd = makeSmallButton('Markdownで保存', function(){ exportCurrent(true); });
       var btnPrint = makeSmallButton('印刷', printCurrent);
+      var btnPdfExport = makeSmallButton('PDFエクスポート', function(){
+        // PDFエクスポート機能（ブラウザ印刷利用）
+        try {
+          window.print();
+        } catch(e){ console.error('PDF export failed', e); }
+      });
       secondaryRow.appendChild(btnImport);
       secondaryRow.appendChild(btnExportTxt);
       secondaryRow.appendChild(btnExportMd);
       secondaryRow.appendChild(btnPrint);
+      secondaryRow.appendChild(btnPdfExport);
 
       var hiddenInput = document.createElement('input');
       hiddenInput.type = 'file';
@@ -1622,11 +1629,71 @@
     } catch(_) {}
   });
 
-  // auto-init when DOM ready
+  ZWGadgets.addTab = function(name, label, containerId){
+    try {
+      var tabsEl = document.getElementById('sidebar-tabs');
+      var groupsEl = document.getElementById('sidebar-groups');
+      if (!tabsEl || !groupsEl) return false;
+
+      // タブボタン追加
+      var tabBtn = document.createElement('button');
+      tabBtn.type = 'button';
+      tabBtn.className = 'sidebar-tab';
+      tabBtn.setAttribute('data-tab', name);
+      tabBtn.textContent = label;
+      tabBtn.addEventListener('click', function(){
+        var tabs = tabsEl.querySelectorAll('.sidebar-tab');
+        tabs.forEach(function(t){ t.classList.remove('active'); });
+        var groups = groupsEl.querySelectorAll('.sidebar-group');
+        groups.forEach(function(g){ g.classList.remove('active'); g.setAttribute('aria-hidden', 'true'); });
+        tabBtn.classList.add('active');
+        var targetGroup = groupsEl.querySelector('[data-group="' + name + '"]');
+        if (targetGroup){
+          targetGroup.classList.add('active');
+          targetGroup.setAttribute('aria-hidden', 'false');
+        }
+      });
+      tabsEl.appendChild(tabBtn);
+
+      // グループ追加
+      var groupEl = document.createElement('section');
+      groupEl.className = 'sidebar-group';
+      groupEl.setAttribute('data-group', name);
+      groupEl.setAttribute('aria-hidden', 'true');
+      var section = document.createElement('div');
+      section.className = 'sidebar-section';
+      var panel = document.createElement('div');
+      panel.className = 'gadgets-panel';
+      panel.setAttribute('data-gadget-group', name);
+      panel.setAttribute('aria-label', label + 'ガジェット');
+      section.appendChild(panel);
+      groupEl.appendChild(section);
+      groupsEl.appendChild(groupEl);
+
+      return true;
+    } catch(e) { console.error('addTab failed', e); return false; }
+  };
+
+  ZWGadgets.removeTab = function(name){
+    try {
+      var tabsEl = document.getElementById('sidebar-tabs');
+      var groupsEl = document.getElementById('sidebar-groups');
+      if (!tabsEl || !groupsEl) return false;
+
+      var tabBtn = tabsEl.querySelector('[data-tab="' + name + '"]');
+      if (tabBtn) tabBtn.remove();
+
+      var groupEl = groupsEl.querySelector('[data-group="' + name + '"]');
+      if (groupEl) groupEl.remove();
+
+      return true;
+    } catch(e) { console.error('removeTab failed', e); return false; }
+  };
   ready(function(){
     try { loadLoadouts(); } catch(_) {}
     try { ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' }); } catch(_) {}
     try { ZWGadgets.init('#gadgets-panel', { group: 'assist' }); } catch(_) {}
+    try { ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' }); } catch(_) {}
     // Wire Loadout UI
     try {
       var $sel = document.getElementById('loadout-select');
