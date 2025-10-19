@@ -1586,6 +1586,37 @@
       opacityRow.appendChild(opacity);
       wrap.appendChild(opacityRow);
 
+      // Writing goal settings
+      var goalSection = document.createElement('div');
+      goalSection.style.display = 'flex';
+      goalSection.style.flexDirection = 'column';
+      goalSection.style.gap = '8px';
+      goalSection.style.marginTop = '12px';
+      goalSection.style.paddingTop = '8px';
+      goalSection.style.borderTop = '1px solid var(--border-color)';
+
+      var goalLabel = document.createElement('label');
+      goalLabel.textContent = '執筆目標';
+      goalLabel.style.fontSize = '0.9rem';
+      goalLabel.style.fontWeight = '600';
+      goalSection.appendChild(goalLabel);
+
+      var goalTargetInput = document.createElement('input');
+      goalTargetInput.type = 'number';
+      goalTargetInput.placeholder = '目標文字数';
+      goalTargetInput.min = '0';
+      goalTargetInput.value = hud.goalTarget || '';
+      goalTargetInput.addEventListener('change', function(e){ saveHud({ goalTarget: parseInt(e.target.value, 10) || 0 }); });
+      goalSection.appendChild(makeRow('目標文字数', goalTargetInput));
+
+      var goalDeadlineInput = document.createElement('input');
+      goalDeadlineInput.type = 'date';
+      goalDeadlineInput.value = hud.goalDeadline || '';
+      goalDeadlineInput.addEventListener('change', function(e){ saveHud({ goalDeadline: e.target.value }); });
+      goalSection.appendChild(makeRow('締切日', goalDeadlineInput));
+
+      wrap.appendChild(goalSection);
+
       var testBtn = document.createElement('button');
       testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = 'HUDテスト表示';
       testBtn.addEventListener('click', function(){
