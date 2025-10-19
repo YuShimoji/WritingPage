@@ -23,12 +23,10 @@ function get(path) {
       /<div\s+class=\"toolbar\"/i.test(index.body) &&
       /<textarea\s+id=\"editor\"/i.test(index.body) &&
       /id=\"goal-progress\"/i.test(index.body) &&
-      /id=\"doc-select\"/i.test(index.body) &&
-      /id=\"doc-create\"/i.test(index.body) &&
-      /id=\"doc-rename\"/i.test(index.body) &&
-      /id=\"doc-delete\"/i.test(index.body) &&
       /id=\"goal-target\"/i.test(index.body) &&
-      /id=\"goal-deadline\"/i.test(index.body);
+      /id=\"goal-deadline\"/i.test(index.body) &&
+      /id=\"structure-gadgets-panel\"/i.test(index.body) &&
+      /data-gadget-group=\"structure\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await get('/css/style.css');
@@ -70,10 +68,13 @@ function get(path) {
     const hasDraggable = /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(gadgetsSrc);
     const hasDnDData = /dataTransfer\.setData\(\s*['\"]text\/gadget-name['\"],/m.test(gadgetsSrc);
     const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(gadgetsSrc);
+    const hasDocumentsGadget = /register\(['\"]Documents['\"]/.test(gadgetsSrc);
+    const hasStructureInit = /init\(['\"]#structure-gadgets-panel['\"],\s*\{\s*group:\s*['\"]structure['\"]/.test(gadgetsSrc);
     const okGadgetsApi = hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
     const okGadgetsM5 = hasRegisterSettings && hasGetSettings && hasSetSetting && hasDraggable && hasDnDData && hasDropListener;
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', { hasStorageKey, hasGetPrefs, hasSetPrefs, hasMove, hasToggle });
     console.log('CHECK gadgets M5 (static) ->', okGadgetsM5 ? 'OK' : 'NG', { hasRegisterSettings, hasGetSettings, hasSetSetting, hasDraggable, hasDnDData, hasDropListener });
+    console.log('CHECK gadgets Docs init ->', (hasDocumentsGadget && hasStructureInit) ? 'OK' : 'NG', { hasDocumentsGadget, hasStructureInit });
 
     // ガジェット設定のインポート/エクスポートUIとAPI
     const hasGadgetExportBtn = /id="gadget-export"/i.test(index.body || '');
@@ -215,7 +216,7 @@ function get(path) {
     const okFav = (fav.status === 200 && /svg\+xml/.test(ct)) || (fav.status === 404); // ローカル旧プロセス時は404を許容
     console.log('GET /favicon.ico ->', fav.status, ct || '-', okFav ? 'OK' : 'NG');
 
-    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && okGadgetsImpExp && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
+    if (!(okIndex && okCss && okTitleSpec && okPlugins && okGadgets && okGadgetsApi && okGadgetsM5 && hasDocumentsGadget && hasStructureInit && okGadgetsImpExp && okRulesDoc && okAIContext && okEmbedDemo && okFav && okChildBridge && okEmbedLight && okTemplates && okMdLint)) {
       process.exit(1);
     } else {
       console.log('ALL TESTS PASSED');

@@ -34,52 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderDocList(){
-        if (!docSelect || !window.ZenWriterStorage) return;
-        const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
-        const cur = window.ZenWriterStorage.getCurrentDocId();
-        docSelect.innerHTML = '';
-        if (!docs || docs.length === 0){
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = '(なし)';
-            docSelect.appendChild(opt);
-            if (docRenameBtn) docRenameBtn.disabled = true;
-            if (docDeleteBtn) docDeleteBtn.disabled = true;
-            return;
-        }
-        docs.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d.id;
-            opt.textContent = d.name || '無題';
-            docSelect.appendChild(opt);
-        });
-        docSelect.value = cur || docs[0].id;
-        if (docRenameBtn) docRenameBtn.disabled = false;
-        if (docDeleteBtn) docDeleteBtn.disabled = false;
-    }
-
-    function switchDocument(id){
-        if (!id || !window.ZenWriterStorage) return;
-        const docs = window.ZenWriterStorage.loadDocuments();
-        const target = docs.find(d => d && d.id === id);
-        if (!target) return;
-        // 現在の内容を一度保存（現在ドキュメントに反映）
-        if (editor && typeof window.ZenWriterStorage.saveContent === 'function'){
-            window.ZenWriterStorage.saveContent(editor.value || '');
-        }
-        // カレント切替→内容適用（setContent 内で saveContent され、新カレントに反映）
-        window.ZenWriterStorage.setCurrentDocId(id);
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-            window.ZenWriterEditor.setContent(target.content || '');
-        }
-        if (docSelect) docSelect.value = id;
-        updateDocumentTitle();
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-            window.ZenWriterEditor.showNotification(`「${target.name || '無題'}」を開きました`, 1200);
-        }
-    }
-
     // タイトル更新（ドキュメント名 - Zen Writer）
     function updateDocumentTitle(){
         try {
@@ -116,17 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleToolbarBtn = document.getElementById('toggle-toolbar');
     const toolbar = document.querySelector('.toolbar');
     const fullscreenBtn = document.getElementById('fullscreen');
-    const newDocumentBtn = document.getElementById('new-document');
-    const exportTxtBtn = document.getElementById('export-txt');
-    const exportMdBtn = document.getElementById('export-md');
-    const importBtn = document.getElementById('import-file');
-    const fileInput = document.getElementById('file-input');
-    const printBtn = document.getElementById('print-document');
-    // 複数ドキュメント管理 UI
-    const docSelect = document.getElementById('doc-select');
-    const docCreateBtn = document.getElementById('doc-create');
-    const docRenameBtn = document.getElementById('doc-rename');
-    const docDeleteBtn = document.getElementById('doc-delete');
     const themePresets = document.querySelectorAll('.theme-preset');
     const bgColorInput = document.getElementById('bg-color');
     const textColorInput = document.getElementById('text-color');
@@ -145,13 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalFontRange = document.getElementById('global-font-size');
     const globalFontNumber = document.getElementById('global-font-size-number');
     // HUD 設定UI
-    const hudPosSelect = document.getElementById('hud-position');
-    const hudDurationInput = document.getElementById('hud-duration');
-    const hudBgInput = document.getElementById('hud-bg');
-    const hudFgInput = document.getElementById('hud-fg');
-    const hudOpacityRange = document.getElementById('hud-opacity');
-    const hudOpacityValue = document.getElementById('hud-opacity-value');
-    const hudTestBtn = document.getElementById('hud-test');
     // スナップショットUI
     const snapNowBtn = document.getElementById('snapshot-now');
     const snapListEl = document.getElementById('snapshot-list');
@@ -160,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const goalDeadlineInput = document.getElementById('goal-deadline');
     // プラグインパネル
     const pluginsPanel = document.getElementById('plugins-panel');
+    const sidebarTabs = document.querySelectorAll('.sidebar-tab');
+    const sidebarGroups = document.querySelectorAll('.sidebar-group');
 
     function formatTs(ts){
         const d = new Date(ts);
@@ -346,19 +284,27 @@ document.addEventListener('DOMContentLoaded', () => {
             setToolbarVisibility(!!settings.toolbarVisible);
         }
 
-        // HUD 設定の初期反映
-        const hud = settings.hud || {};
-        if (hudPosSelect) hudPosSelect.value = hud.position || 'bottom-left';
-        if (hudDurationInput) hudDurationInput.value = hud.duration || 1200;
-        if (hudBgInput) hudBgInput.value = hud.bg || '#000000';
-        if (hudFgInput) hudFgInput.value = hud.fg || '#ffffff';
-        if (hudOpacityRange) hudOpacityRange.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
-        if (hudOpacityValue) hudOpacityValue.textContent = String((typeof hud.opacity === 'number') ? hud.opacity : 0.75);
-
         // 執筆目標の初期反映
         const goal = settings.goal || {};
         if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
         if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
+    }
+
+    function activateSidebarGroup(groupId){
+        if (!groupId) return;
+        sidebarTabs.forEach(tab => {
+            const isActive = tab.dataset.group === groupId;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        sidebarGroups.forEach(section => {
+            const isActive = section.dataset.group === groupId;
+            section.classList.toggle('active', isActive);
+            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+        });
+        if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+            window.ZWGadgets.setActiveGroup(groupId);
+        }
     }
 
     // イベントリスナーを設定
@@ -367,6 +313,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
     if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+    if (sidebarTabs && sidebarTabs.length) {
+        sidebarTabs.forEach(tab => {
+            tab.addEventListener('click', () => activateSidebarGroup(tab.dataset.group));
+        });
+    }
     // キーボードショートカット: Alt+W でツールバー表示切替
     document.addEventListener('keydown', (e) => {
         const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
@@ -375,53 +326,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.repeat) return; // 長押しの自動リピートで連続トグルしない
             e.preventDefault();
             toggleToolbar();
+            return;
+        }
+        if (!inFormControl && e.altKey && ['1','2','3'].includes(e.key)) {
+            e.preventDefault();
+            const map = { '1': 'structure', '2': 'typography', '3': 'assist' };
+            const gid = map[e.key];
+            if (gid) activateSidebarGroup(gid);
         }
     });
     
     // ドキュメント操作
-    if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => {
-        const name = prompt('新しいドキュメント名を入力', '無題');
-        if (name === null) return;
-        const doc = window.ZenWriterStorage.createDocument(name || '無題', '');
-        window.ZenWriterStorage.setCurrentDocId(doc.id);
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-            window.ZenWriterEditor.setContent('');
-        }
-        renderDocList();
-        updateDocumentTitle();
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-            window.ZenWriterEditor.showNotification('新規ドキュメントを作成しました', 1200);
-        }
-    });
-    if (exportTxtBtn) exportTxtBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsText());
-    if (exportMdBtn) exportMdBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsMarkdown());
-    if (importBtn && fileInput) {
-        importBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                const text = reader.result || '';
-                window.ZenWriterEditor.setContent(text);
-                window.ZenWriterEditor.showNotification('ファイルを読み込みました');
-                // 使い終わったら値をクリアして同じファイルでも再度選択可能に
-                fileInput.value = '';
-            };
-            reader.onerror = () => {
-                console.error('ファイル読み込みエラー');
-                window.ZenWriterEditor.showNotification('読み込みに失敗しました');
-            };
-            reader.readAsText(file, 'utf-8');
-        });
-    }
-    if (printBtn) {
-        printBtn.addEventListener('click', printDocument);
-    }
-    
     // 初期: ドキュメント管理セットアップ
     ensureInitialDocument();
-    renderDocList();
     updateDocumentTitle();
     renderPlugins();
 
@@ -491,67 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ドキュメント管理: イベント
-    if (docSelect){
-        docSelect.addEventListener('change', (e)=> switchDocument(e.target.value));
-    }
-    if (docCreateBtn){
-        docCreateBtn.addEventListener('click', ()=>{
-            const name = prompt('新しいドキュメント名を入力', '無題');
-            if (name === null) return;
-            const doc = window.ZenWriterStorage.createDocument(name || '無題', '');
-            window.ZenWriterStorage.setCurrentDocId(doc.id);
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                window.ZenWriterEditor.setContent('');
-            }
-            renderDocList();
-            updateDocumentTitle();
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-                window.ZenWriterEditor.showNotification('ドキュメントを作成しました', 1200);
-            }
-        });
-    }
-    if (docRenameBtn){
-        docRenameBtn.addEventListener('click', ()=>{
-            const cur = window.ZenWriterStorage.getCurrentDocId();
-            if (!cur) return;
-            const docs = window.ZenWriterStorage.loadDocuments();
-            const d = docs.find(x => x && x.id === cur);
-            const name = prompt('ドキュメント名を変更', d ? (d.name || '無題') : '無題');
-            if (name === null) return;
-            window.ZenWriterStorage.renameDocument(cur, name || '無題');
-            renderDocList();
-            updateDocumentTitle();
-        });
-    }
-    if (docDeleteBtn){
-        docDeleteBtn.addEventListener('click', ()=>{
-            const cur = window.ZenWriterStorage.getCurrentDocId();
-            if (!cur) return;
-            if (!confirm('このドキュメントを削除しますか？この操作は元に戻せません。')) return;
-            window.ZenWriterStorage.deleteDocument(cur);
-            const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
-            if (docs.length > 0){
-                const next = docs[0];
-                window.ZenWriterStorage.setCurrentDocId(next.id);
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                    window.ZenWriterEditor.setContent(next.content || '');
-                }
-            } else {
-                const created = window.ZenWriterStorage.createDocument('ドキュメント1', '');
-                window.ZenWriterStorage.setCurrentDocId(created.id);
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                    window.ZenWriterEditor.setContent('');
-                }
-            }
-            renderDocList();
-            updateDocumentTitle();
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-                window.ZenWriterEditor.showNotification('ドキュメントを削除しました', 1200);
-            }
-        });
-    }
-
     // スナップショット: 今すぐ保存
     if (snapNowBtn) {
         snapNowBtn.addEventListener('click', () => {
@@ -595,46 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 parseFloat(fontSizeInput.value),
                 parseFloat(e.target.value)
             );
-        });
-    }
-
-    // ------- HUD 設定のイベント -------
-    function updateHudSettings(patch){
-        const s = window.ZenWriterStorage.loadSettings();
-        s.hud = { ...(s.hud || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
-        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
-            window.ZenWriterHUD.updateFromSettings();
-        }
-    }
-    if (hudPosSelect) {
-        hudPosSelect.addEventListener('change', (e)=> updateHudSettings({ position: e.target.value }));
-    }
-    if (hudDurationInput) {
-        const clamp = (n)=> Math.max(300, Math.min(5000, parseInt(n,10)||1200));
-        hudDurationInput.addEventListener('input', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
-        hudDurationInput.addEventListener('change', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
-    }
-    if (hudBgInput) {
-        hudBgInput.addEventListener('change', (e)=> updateHudSettings({ bg: e.target.value }));
-    }
-    if (hudFgInput) {
-        hudFgInput.addEventListener('change', (e)=> updateHudSettings({ fg: e.target.value }));
-    }
-    if (hudOpacityRange) {
-        const setOpacity = (v)=>{
-            const val = Math.max(0, Math.min(1, parseFloat(v)));
-            if (hudOpacityValue) hudOpacityValue.textContent = String(val);
-            updateHudSettings({ opacity: val });
-        };
-        hudOpacityRange.addEventListener('input', (e)=> setOpacity(e.target.value));
-        hudOpacityRange.addEventListener('change', (e)=> setOpacity(e.target.value));
-    }
-    if (hudTestBtn) {
-        hudTestBtn.addEventListener('click', ()=>{
-            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-                window.ZenWriterHUD.publish('テスト: 123 文字 / 45 語', 1200);
-            }
         });
     }
 
