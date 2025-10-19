@@ -27,12 +27,16 @@
 - `Alt + W` でツールバーを隠した際もカテゴリタブは `focus-within` に応じてフェード表示。
 - Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist`系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
 
-### 現行ステータス（2025-10-19）
+### 現行ステータス（2025-10-20）
 
-- `Documents` と `Outline` は `ZWGadgets.register()` によりガジェット化済み。`structure` タブの `#structure-gadgets-panel` に表示。
-- 従来の `js/outline.js` は動的ロードから外し（ソースは残置）、UI はガジェット版へ移行。
+- `Documents`、`Outline`、`HUDSettings`、`TypographyThemes`、`Clock` がガジェット化済み。
+  - `Documents` と `Outline` は `structure` タブの `#structure-gadgets-panel` に表示。
+  - `HUDSettings` は `assist` タブに表示。
+  - `TypographyThemes` は `typography` タブに表示。
+  - `Clock` はデフォルトで `assist` に配置。
+- 従来の `js/outline.js` は動的ロードから外し、UI はガジェット版へ移行。
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
-- 今後ガジェット化する候補: HUD 設定、テーマ・フォント設定、画像調整。
+- 今後ガジェット化する候補: 画像調整、テーマ拡張プリセット。
 
 ## ロードアウトプリセット
 

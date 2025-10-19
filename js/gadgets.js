@@ -1199,14 +1199,35 @@
       colorSection.appendChild(makeRow('背景色', bgInput));
       colorSection.appendChild(makeRow('文字色', textInput));
 
+      // Color palette
+      var paletteSection = makeSection('カラーパレット');
+      var palettes = [
+        { name: 'ライト', bg: '#ffffff', text: '#333333' },
+        { name: 'ダーク', bg: '#1a1a1a', text: '#cccccc' },
+        { name: 'セピア', bg: '#f5f5dc', text: '#5a4d41' },
+        { name: '高コントラスト', bg: '#000000', text: '#ffffff' }
+      ];
+      palettes.forEach(function(p){
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'small';
+        btn.textContent = p.name;
+        btn.addEventListener('click', function(){
+          theme.applyCustomColors(p.bg, p.text, true);
+          refreshState();
+        });
+        paletteSection.appendChild(btn);
+      });
       var resetBtn = document.createElement('button');
       resetBtn.type = 'button'; resetBtn.className = 'small'; resetBtn.textContent = 'カスタム色リセット';
       resetBtn.addEventListener('click', function(){
         theme.clearCustomColors();
         refreshState();
       });
-      colorSection.appendChild(resetBtn);
+      paletteSection.appendChild(resetBtn);
+
       wrap.appendChild(colorSection);
+      wrap.appendChild(paletteSection);
 
       // Font settings
       var fontSection = makeSection('フォント');
