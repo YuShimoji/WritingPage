@@ -80,13 +80,22 @@ body {
     padding: 1rem;
     max-width: 900px;
     margin: 0 auto;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* テキストエリア */
-#editor {
+.editor-canvas {
+    position: relative;
     width: 100%;
-    height: 100vh; /* 常に一定。ツールバーはstickyでオーバーレイ表示 */
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-preview {
+    width: 100%;
+    height: 70vh;
     border: none;
     resize: none;
     background-color: transparent;
@@ -97,6 +106,108 @@ body {
     padding: 1rem;
     outline: none;
     transition: color var(--transition-speed), background-color var(--transition-speed);
+}
+
+.editor-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.editor-overlay__image {
+    position: absolute;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.editor-overlay__image img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: inherit;
+    pointer-events: none;
+}
+
+.editor-overlay__image .overlay-handle {
+    position: absolute;
+    bottom: -12px;
+    right: -12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    pointer-events: auto;
+    cursor: se-resize;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.editor-overlay__image .overlay-toggle {
+    position: absolute;
+    top: -12px;
+    left: -12px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+.editor-overlay__image.hidden {
+    opacity: 0.3;
+}
+
+.editor-overlay__image.selected {
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.6);
+}
+
+.editor-overlay__image[data-alignment="left"] {
+    transform-origin: left top;
+}
+
+.editor-overlay__image[data-alignment="center"] {
+    transform-origin: center top;
+}
+
+.editor-overlay__image[data-alignment="right"] {
+    transform-origin: right top;
+}
+
+.editor-mirror {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+}
+
+.editor-preview__header {
+    border-color: var(--focus-color);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
 /* ツールバー */

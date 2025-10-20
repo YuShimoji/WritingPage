@@ -17,6 +17,10 @@
       this.el.classList.add('pos-bl');
       this.timer = null;
       this.durationOverride = null;
+      this.defaultMessage = '';
+      this.defaultPinned = false;
+      this.defaultWidth = 240;
+      this.defaultFontSize = 14;
       this._posClasses = ['pos-bl','pos-br','pos-tl','pos-tr'];
       this._inited = false;
 
@@ -27,6 +31,14 @@
         const s = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings && window.ZenWriterStorage.loadSettings()) || {};
         const hud = (s && s.hud) || {};
         this.applyConfig(hud);
+        if (hud && typeof hud.message === 'string' && hud.message) {
+          this.publish(hud.message, hud.duration || null, { force: true });
+        }
+        if (hud && hud.pinned) {
+          this.pin();
+        } else {
+          this.unpin();
+        }
         if (!document.body.contains(this.el)) {
           document.body.appendChild(this.el);
         }
@@ -58,6 +70,9 @@
       if (!this.el.classList.contains('pinned')){
         this.timer = setTimeout(()=> this.hide(), dur);
       }
+      if (options && (options.persistMessage || options.force)) {
+        this.defaultMessage = typeof message === 'string' ? message : this.el.textContent;
+      }
     }
 
     pin(){ this.el.classList.add('pinned', 'show'); }
@@ -81,14 +96,29 @@
       const alpha = typeof hud.opacity === 'number' ? hud.opacity : 0.75;
       this.el.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
       this.el.style.color = hud.fg || '#ffffff';
+      this.el.style.minWidth = (hud.width || this.defaultWidth) + 'px';
+      this.el.style.maxWidth = Math.min(Math.max(hud.width || this.defaultWidth, 120), window.innerWidth * 0.8) + 'px';
+      this.el.style.fontSize = (hud.fontSize || this.defaultFontSize) + 'px';
       // 既定の表示時間
       this.durationOverride = hud.duration || 1200;
+      this.defaultMessage = typeof hud.message === 'string' ? hud.message : '';
+      this.defaultPinned = !!hud.pinned;
+      if (this.defaultPinned) this.pin(); else this.unpin();
     }
 
     updateFromSettings(){
       if (!window.ZenWriterStorage) return;
       const s = window.ZenWriterStorage.loadSettings() || {};
       this.applyConfig((s && s.hud) || {});
+    }
+
+    refresh(){
+      this.el.textContent = this.defaultMessage || '';
+      if (this.defaultPinned){
+        this.pin();
+      } else if (this.defaultMessage){
+        this.publish(this.defaultMessage, this.durationOverride, { persistMessage: true });
+      }
     }
   }
 

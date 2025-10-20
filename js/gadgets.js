@@ -268,6 +268,225 @@
     } catch(_) {}
   });
 
+  // HUD gadget (configures MiniHUD)
+  ZWGadgets.register('HUD', function(el){
+    try {
+      var hasStorage = !!(window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function' && typeof window.ZenWriterStorage.saveSettings === 'function');
+      var hasHud = !!(window.ZenWriterHUD && typeof window.ZenWriterHUD.applyConfig === 'function');
+      if (!hasStorage || !hasHud) {
+        var warn = document.createElement('p');
+        warn.textContent = 'HUD機能を初期化できませんでした。ページを再読み込みしてください。';
+        el.appendChild(warn);
+        return;
+      }
+
+      var defaults = (window.ZenWriterStorage.DEFAULT_SETTINGS && window.ZenWriterStorage.DEFAULT_SETTINGS.hud) || {
+        position: 'bottom-left',
+        duration: 1200,
+        bg: '#000000',
+        fg: '#ffffff',
+        opacity: 0.75,
+        message: '',
+        pinned: false,
+        width: 240,
+        fontSize: 14
+      };
+
+      function cloneHud(obj){
+        var result = {};
+        for (var key in defaults){ if (Object.prototype.hasOwnProperty.call(defaults, key)) result[key] = (obj && Object.prototype.hasOwnProperty.call(obj, key)) ? obj[key] : defaults[key]; }
+        return result;
+      }
+
+      var hud = cloneHud((window.ZenWriterStorage.loadSettings() || {}).hud || {});
+      var updating = false;
+
+      function persist(update, opts){
+        opts = opts || {};
+        hud = Object.assign({}, hud, update || {});
+        try {
+          var settings = window.ZenWriterStorage.loadSettings() || {};
+          settings.hud = Object.assign({}, settings.hud || {}, hud);
+          window.ZenWriterStorage.saveSettings(settings);
+        } catch(e){ /* ignore persist errors */ }
+        if (!opts.silent && window.ZenWriterHUD) {
+          try {
+            window.ZenWriterHUD.applyConfig(hud);
+            window.ZenWriterHUD.refresh();
+          } catch(_) {}
+        }
+        if (!opts.skipSync) syncUI();
+      }
+
+      var desc = document.createElement('p');
+      desc.textContent = 'HUDに表示する通知メッセージとスタイルを設定します。';
+      el.appendChild(desc);
+
+      function makeField(labelText){
+        var wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+        wrapper.style.gap = '4px';
+        wrapper.style.marginBottom = '10px';
+        if (labelText){
+          var label = document.createElement('label');
+          label.textContent = labelText;
+          wrapper.appendChild(label);
+        }
+        return wrapper;
+      }
+
+      var messageField = makeField('メッセージ');
+      var messageInput = document.createElement('textarea');
+      messageInput.rows = 3;
+      messageInput.placeholder = 'HUDに表示するテキスト';
+      messageInput.addEventListener('input', function(){
+        if (updating) return;
+        persist({ message: messageInput.value }, { skipSync: true, silent: !hud.pinned });
+      });
+      messageField.appendChild(messageInput);
+      el.appendChild(messageField);
+
+      var pinnedField = makeField(); pinnedField.style.flexDirection = 'row'; pinnedField.style.alignItems = 'center'; pinnedField.style.gap='6px';
+      var pinnedInput = document.createElement('input'); pinnedInput.type='checkbox';
+      var pinnedLabel = document.createElement('span'); pinnedLabel.textContent='ピン留め（常時表示）';
+      pinnedInput.addEventListener('change', function(){
+        if (updating) return;
+        persist({ pinned: !!pinnedInput.checked }, { silent: false });
+      });
+      pinnedField.appendChild(pinnedInput); pinnedField.appendChild(pinnedLabel);
+      el.appendChild(pinnedField);
+
+      var positionField = makeField('表示位置');
+      var positionSelect = document.createElement('select');
+      [
+        { value: 'bottom-left', label: '左下' },
+        { value: 'bottom-right', label: '右下' },
+        { value: 'top-left', label: '左上' },
+        { value: 'top-right', label: '右上' }
+      ].forEach(function(opt){
+        var option = document.createElement('option'); option.value = opt.value; option.textContent = opt.label; positionSelect.appendChild(option);
+      });
+      positionSelect.addEventListener('change', function(){
+        if (updating) return;
+        persist({ position: positionSelect.value });
+      });
+      positionField.appendChild(positionSelect);
+      el.appendChild(positionField);
+
+      var durationField = makeField('表示時間 (ms)');
+      var durationInput = document.createElement('input'); durationInput.type='number'; durationInput.min='300'; durationInput.max='10000'; durationInput.step='100';
+      durationInput.addEventListener('change', function(){
+        if (updating) return;
+        var val = parseInt(durationInput.value, 10);
+        if (isNaN(val) || val <= 0) val = defaults.duration;
+        persist({ duration: val });
+      });
+      durationField.appendChild(durationInput);
+      el.appendChild(durationField);
+
+      var widthField = makeField('HUD幅 (px)');
+      var widthRange = document.createElement('input'); widthRange.type='range'; widthRange.min='160'; widthRange.max='480'; widthRange.step='10';
+      var widthValue = document.createElement('div'); widthValue.style.fontSize='12px'; widthValue.style.opacity='0.8';
+      widthRange.addEventListener('input', function(){
+        if (updating) return;
+        var val = parseInt(widthRange.value, 10);
+        persist({ width: val }, { skipSync: true });
+        widthValue.textContent = val + 'px';
+      });
+      widthField.appendChild(widthRange); widthField.appendChild(widthValue);
+      el.appendChild(widthField);
+
+      var fontField = makeField('文字サイズ (px)');
+      var fontRange = document.createElement('input'); fontRange.type='range'; fontRange.min='10'; fontRange.max='28'; fontRange.step='1';
+      var fontValue = document.createElement('div'); fontValue.style.fontSize='12px'; fontValue.style.opacity='0.8';
+      fontRange.addEventListener('input', function(){
+        if (updating) return;
+        var val = parseInt(fontRange.value, 10);
+        persist({ fontSize: val }, { skipSync: true });
+        fontValue.textContent = val + 'px';
+      });
+      fontField.appendChild(fontRange); fontField.appendChild(fontValue);
+      el.appendChild(fontField);
+
+      var colorField = makeField('カラー');
+      var bgInput = document.createElement('input'); bgInput.type='color';
+      var bgLabel = document.createElement('span'); bgLabel.textContent='背景色'; bgLabel.style.fontSize='12px';
+      var fgInput = document.createElement('input'); fgInput.type='color';
+      var fgLabel = document.createElement('span'); fgLabel.textContent='文字色'; fgLabel.style.fontSize='12px';
+      colorField.appendChild(bgLabel); colorField.appendChild(bgInput); colorField.appendChild(fgLabel); colorField.appendChild(fgInput);
+      bgInput.addEventListener('input', function(){ if (updating) return; persist({ bg: bgInput.value }); });
+      fgInput.addEventListener('input', function(){ if (updating) return; persist({ fg: fgInput.value }); });
+      el.appendChild(colorField);
+
+      var opacityField = makeField('不透明度');
+      var opacityRange = document.createElement('input'); opacityRange.type='range'; opacityRange.min='0'; opacityRange.max='1'; opacityRange.step='0.05';
+      var opacityValue = document.createElement('div'); opacityValue.style.fontSize='12px'; opacityValue.style.opacity='0.8';
+      opacityRange.addEventListener('input', function(){
+        if (updating) return;
+        var val = Math.min(1, Math.max(0, parseFloat(opacityRange.value)));
+        persist({ opacity: val }, { skipSync: true });
+        opacityValue.textContent = val.toFixed(2);
+      });
+      opacityField.appendChild(opacityRange); opacityField.appendChild(opacityValue);
+      el.appendChild(opacityField);
+
+      var controls = document.createElement('div');
+      controls.style.display='flex'; controls.style.flexWrap='wrap'; controls.style.gap='8px';
+
+      var previewBtn = document.createElement('button'); previewBtn.type='button'; previewBtn.className='small'; previewBtn.textContent='プレビュー';
+      previewBtn.addEventListener('click', function(){
+        if (!window.ZenWriterHUD) return;
+        persist({ message: messageInput.value }, { skipSync: true, silent: false });
+        window.ZenWriterHUD.publish(messageInput.value || 'HUDサンプル', hud.duration || 1200, { force: true, persistMessage: true });
+        if (hud.pinned) window.ZenWriterHUD.pin(); else window.ZenWriterHUD.unpin();
+      });
+
+      var clearBtn = document.createElement('button'); clearBtn.type='button'; clearBtn.className='small'; clearBtn.textContent='クリア';
+      clearBtn.addEventListener('click', function(){
+        persist({ message: '', pinned: false }, { silent: false });
+        if (window.ZenWriterHUD) window.ZenWriterHUD.hide();
+      });
+
+      var resetBtn = document.createElement('button'); resetBtn.type='button'; resetBtn.className='small'; resetBtn.textContent='リセット';
+      resetBtn.addEventListener('click', function(){
+        persist(cloneHud(defaults), { silent: false });
+      });
+
+      controls.appendChild(previewBtn);
+      controls.appendChild(clearBtn);
+      controls.appendChild(resetBtn);
+      el.appendChild(controls);
+
+      function syncUI(){
+        updating = true;
+        try {
+          messageInput.value = hud.message || '';
+          pinnedInput.checked = !!hud.pinned;
+          positionSelect.value = hud.position || defaults.position;
+          durationInput.value = hud.duration || defaults.duration;
+          widthRange.value = hud.width || defaults.width;
+          widthValue.textContent = (hud.width || defaults.width) + 'px';
+          fontRange.value = hud.fontSize || defaults.fontSize;
+          fontValue.textContent = (hud.fontSize || defaults.fontSize) + 'px';
+          bgInput.value = hud.bg || defaults.bg;
+          fgInput.value = hud.fg || defaults.fg;
+          var op = (typeof hud.opacity === 'number') ? hud.opacity : defaults.opacity;
+          opacityRange.value = op;
+          opacityValue.textContent = op.toFixed(2);
+        } finally {
+          updating = false;
+        }
+      }
+
+      syncUI();
+      // 初期表示時にも HUD へ反映
+      persist({}, { silent: false, skipSync: true });
+    } catch(e) {
+      var err = document.createElement('p'); err.textContent='HUD設定の初期化に失敗しました。'; el.appendChild(err);
+    }
+  });
+
   // auto-init when DOM ready
   ready(function(){
     try { ZWGadgets.init('#gadgets-panel'); } catch(_) {}

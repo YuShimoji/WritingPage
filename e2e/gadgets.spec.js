@@ -97,7 +97,10 @@ test.describe('Gadgets E2E', () => {
     const dummy = page.locator('#gadgets-panel section.gadget[data-name="Dummy"]');
     await expect(dummy).toBeVisible();
 
-    // Dummy を上に移動（Up）
+    // Dummy を上に移動（Up）x2 -> 先頭に移動
+    await dummy.scrollIntoViewIfNeeded();
+    await dummy.locator('.gadget-move-up').scrollIntoViewIfNeeded();
+    await dummy.locator('.gadget-move-up').click();
     await dummy.scrollIntoViewIfNeeded();
     await dummy.locator('.gadget-move-up').scrollIntoViewIfNeeded();
     await dummy.locator('.gadget-move-up').click();
