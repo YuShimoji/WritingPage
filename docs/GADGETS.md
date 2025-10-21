@@ -7,6 +7,91 @@
 - ガジェットは小さな自己完結UI。時計/タイマー/進捗/ショートカット等を想定。
 - 初期ロード負荷を抑えるため、`?embed=1` では読み込まない（親サイトに埋め込み時は最小UIを維持）。
 - セキュリティ: DOM操作とストレージ範囲は最小限。postMessage等の外部通信は現時点では行わない。
+- サイドバーはアコーディオンでグルーピングし、縦長化を防ぎつつ主要カテゴリ（章管理/外観/アシスト）を切り替えられるようにする。
+- ユーザーはプリセット（ロードアウト）を保存・切替でき、用途に応じて表示するガジェット集合を最小構成にできるようにする。
+
+## レイアウト刷新（Accordion Framework, 2025Q4設計）
+
+- サイドバーは最大3階層（カテゴリ → ガジェット → ガジェット設定）で構成し、カテゴリは常時1つのみ展開。
+- 既定カテゴリ案:
+  - **Structure**: 章/シーン一覧、アウトライン、分岐プレビュー。
+  - **Typography**: フォント切替、行間、テーマ、ビューワーレイアウト。
+  - **Assist**: 文字数/HUD、AI要約、進捗、リマインダー。
+- 各カテゴリは `data-gadget-group` 属性で識別し、読み込み時に`ZWGadgets.initGroup(groupId)`を使用してラベル・順序を適用する。
+- スクロール負荷軽減のため、カテゴリ切替時に非表示パネルは`aria-hidden="true"`としてDOMを持続させつつリフローを抑制。
+
+### UI仕様
+
+- カテゴリタブは左サイドバー上部に横並び、キーボード操作は `Alt + 1/2/3` でフォーカス。
+- 各ガジェットセクションは従来のヘッダ（▼/▶, ⚙, ↑/↓）を維持しつつ、アコーディオン内でのみ表示。
+- `Alt + W` でツールバーを隠した際もカテゴリタブは `focus-within` に応じてフェード表示。
+- Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist`系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
+
+### 現行ステータス（2025-10-20）
+
+- `Documents`、`Outline`、`HUDSettings`、`TypographyThemes`、`Clock` がガジェット化済み。
+  - `Documents` と `Outline` は `structure` タブの `#structure-gadgets-panel` に表示。
+  - `HUDSettings` は `assist` タブに表示。
+  - `TypographyThemes` は `typography` タブに表示。
+  - `Clock` はデフォルトで `assist` に配置。
+- 従来の `js/outline.js` は動的ロードから外し、UI はガジェット版へ移行。
+- ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
+- `ZWGadgets.addTab(name, label)`: 新しいタブを動的に追加可能。ガジェットグループを拡張。
+- `ZWGadgets.removeTab(name)`: タブを削除。
+- 印刷/PDF機能をDocumentsガジェットに統合。
+
+## ロードアウトプリセット
+
+- LocalStorage にプリセット一覧を保持する（キー: `zenWriter_gadgets:loadouts`）。
+- プリセット構造案:
+
+```json
+{
+  "active": "novel-standard",
+  "entries": {
+    "novel-standard": {
+      "label": "小説・長編",
+      "groups": {
+        "structure": ["Outline", "SceneList"],
+        "typography": ["Font", "Theme"],
+        "assist": ["HUD", "WordCount"]
+      }
+    },
+    "vn-layout": {
+      "label": "ビジュアルノベル",
+      "groups": {
+        "structure": ["SceneGraph", "BranchPreview"],
+        "typography": ["Viewport", "Transition"],
+        "assist": ["AssetPalette", "AIRecap"]
+      }
+    }
+  }
+}
+```
+
+- API追加案:
+  - `ZWGadgets.defineLoadout(name, config)` — プリセットを登録。
+  - `ZWGadgets.applyLoadout(name)` — カテゴリごとのガジェットリストを切替。
+  - `ZWGadgets.listLoadouts()` / `ZWGadgets.deleteLoadout(name)` — 管理用。
+- 実装済みAPI（2025-10-19時点）:
+  - `ZWGadgets.getActiveLoadout()` — 現在適用中のロードアウト情報を取得。
+  - `ZWGadgets.captureCurrentLoadout(label?)` — DOM上の配置からロードアウト構造を採取。
+  - `ZWGadgets.assignGroups(name, groups)` — 既登録ガジェットのカテゴリを動的再設定。
+  - `ZWGadgets.setActiveGroup(groupId)` — タブ切替に合わせて描画を更新。
+  - 主要イベント: `ZWGadgetsReady`, `ZWLoadoutsChanged`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
+
+### ロードアウトUI（現況）
+
+- `index.html` のサイドバー上部に以下のUIを配置し、`js/gadgets.js` で連携済み。
+  - セレクト: `#loadout-select`
+  - 名前入力: `#loadout-name`
+  - 操作: `#loadout-save`（保存/新規定義）、`#loadout-apply`（適用）、`#loadout-delete`（削除）
+- 保存時は現在のガジェット配置を `captureCurrentLoadout()` で採取し、`defineLoadout()` → `applyLoadout()` の順に反映。
+- 複製は「対象を選択→適用→名前を入力→保存」で実現可能（専用ボタンは今後の候補）。
+- UI
+  - カテゴリタブ右側にプリセットドロップダウンを配置し、「保存」「複製」「削除」操作を提供。
+  - プリセット切替後は `ZWGadgets.importPrefs()` に近いフローで order/collapsed/settings を再構成。
+- Embed モードではホストから `sdk.setLoadout(name)` を呼び出すことでロードアウトを同期できるよう、Embed SDK v2 でイベント定義予定。
 
 ## 実装概要
 

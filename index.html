@@ -55,139 +55,71 @@
                 <button id="close-sidebar" class="icon-button">×</button>
             </div>
 
-            
-            
-            <div class="sidebar-section">
-                <details id="theme-section">
-                    <summary>テーマ</summary>
-                    <div class="theme-presets" style="margin-top:8px;">
-                        <button class="theme-preset" data-theme="light">ライト</button>
-                        <button class="theme-preset" data-theme="dark">ダーク</button>
-                        <button class="theme-preset" data-theme="sepia">セピア</button>
+            <div class="sidebar-top">
+                <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
+                    <button class="sidebar-tab active" type="button" id="sidebar-tab-structure" data-group="structure" aria-controls="sidebar-group-structure" aria-selected="true">構造</button>
+                    <button class="sidebar-tab" type="button" id="sidebar-tab-typography" data-group="typography" aria-controls="sidebar-group-typography" aria-selected="false">タイポ</button>
+                    <button class="sidebar-tab" type="button" id="sidebar-tab-assist" data-group="assist" aria-controls="sidebar-group-assist" aria-selected="false">アシスト</button>
+                </div>
+                <div class="sidebar-loadout">
+                    <label for="loadout-select">ロードアウト</label>
+                    <div class="loadout-controls">
+                        <select id="loadout-select" aria-label="ロードアウトを選択"></select>
+                        <input type="text" id="loadout-name" placeholder="プリセット名" aria-label="ロードアウト名">
+                        <div class="loadout-buttons">
+                            <button id="loadout-save" class="small" type="button">保存</button>
+                            <button id="loadout-duplicate" class="small" type="button">複製</button>
+                            <button id="loadout-apply" class="small" type="button">適用</button>
+                            <button id="loadout-delete" class="small" type="button">削除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-groups">
+                <section class="sidebar-group active" data-group="structure" id="sidebar-group-structure" role="tabpanel" aria-labelledby="sidebar-tab-structure">
+                    <div class="sidebar-section">
+                        <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
+                    </div>
+
+
+                    <div class="sidebar-section">
+                        <h3>バックアップ</h3>
+                        <button id="snapshot-now" type="button">今すぐ保存</button>
+                        <div id="snapshot-list" class="snapshot-list" style="margin-top:8px;"></div>
+                    </div>
+                </section>
+
+                <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel" aria-labelledby="sidebar-tab-typography" aria-hidden="true">
+                    <div class="sidebar-section">
+                        <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography" aria-label="タイポグラフィガジェット"></div>
+                    </div>
+                </section>
+
+                <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel" aria-labelledby="sidebar-tab-assist" aria-hidden="true">
+                    <div class="sidebar-section">
+                        <h3>執筆目標</h3>
+                        <label for="goal-target">目標文字数</label>
+                        <input type="number" id="goal-target" min="0" step="100" value="0">
+                        <label for="goal-deadline">締切（任意）</label>
+                        <input type="date" id="goal-deadline">
                     </div>
 
                     <div class="sidebar-section">
-                        <h3>テーマプリセット（拡張）</h3>
-                        <label for="theme-bundle-select">プリセット</label>
-                        <select id="theme-bundle-select"></select>
-                        <div class="bundle-controls">
-                            <input type="text" id="theme-bundle-name" placeholder="現在の設定を保存（名前）">
-                            <button id="save-theme-bundle">保存</button>
-                            <button id="apply-theme-bundle">適用</button>
-                            <button id="delete-theme-bundle">削除</button>
+                        <h3>拡張機能</h3>
+                        <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
+                    </div>
+
+                    <div class="sidebar-section">
+                        <h3>ガジェット</h3>
+                        <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
+                        <div class="gadget-tools" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                            <button id="gadget-export" class="small" type="button">ガジェット設定をエクスポート</button>
+                            <button id="gadget-import" class="small" type="button">ガジェット設定をインポート</button>
+                            <input id="gadget-prefs-input" type="file" accept="application/json,.json" style="display:none;" />
                         </div>
                     </div>
-                    
-                    <div class="color-picker">
-                        <label for="bg-color">背景色</label>
-                        <input type="color" id="bg-color" value="#ffffff">
-                        
-                        <label for="text-color">文字色</label>
-                        <input type="color" id="text-color" value="#333333">
-                        <button id="reset-colors" class="button" style="margin-top:0.5rem;">カスタム色リセット</button>
-                    </div>
-                </details>
-            </div>
-            
-            <div class="sidebar-section">
-                <h3>フォント</h3>
-                <select id="font-family">
-                    <option value="'Noto Serif JP', serif">Noto Serif JP</option>
-                    <option value="'Yu Mincho', 'YuMincho', serif">游明朝</option>
-                    <option value="'Hiragino Mincho ProN', serif">ヒラギノ明朝</option>
-                </select>
-                
-                <label for="font-size">フォントサイズ: <span id="font-size-value">16</span>px</label>
-                <input type="range" id="font-size" min="12" max="32" value="16">
-                
-                <label for="line-height">行間: <span id="line-height-value">1.6</span></label>
-                <input type="range" id="line-height" min="1" max="3" step="0.1" value="1.6">
-            </div>
-            
-            <div class="sidebar-section">
-                <h3>HUD 設定</h3>
-                <label for="hud-position">表示位置</label>
-                <select id="hud-position">
-                    <option value="bottom-left">左下</option>
-                    <option value="bottom-right">右下</option>
-                    <option value="top-left">左上</option>
-                    <option value="top-right">右上</option>
-                </select>
-
-                <label for="hud-duration">表示時間（ms）</label>
-                <input type="number" id="hud-duration" min="300" max="5000" step="100" value="1200">
-
-                <label for="hud-bg">背景色</label>
-                <input type="color" id="hud-bg" value="#000000">
-
-                <label for="hud-fg">文字色</label>
-                <input type="color" id="hud-fg" value="#ffffff">
-
-                <label for="hud-opacity">不透明度: <span id="hud-opacity-value">0.75</span></label>
-                <input type="range" id="hud-opacity" min="0" max="1" step="0.05" value="0.75">
-                <button id="hud-test" class="small" style="margin-top:6px;">HUDテスト表示</button>
-            </div>
-            
-            <div class="sidebar-section">
-                <h3>執筆目標</h3>
-                <label for="goal-target">目標文字数</label>
-                <input type="number" id="goal-target" min="0" step="100" value="0">
-                <label for="goal-deadline">締切（任意）</label>
-                <input type="date" id="goal-deadline">
-            </div>
-            
-            <div class="sidebar-section">
-                <h3>アウトライン</h3>
-                <label for="outline-set">プリセット</label>
-                <select id="outline-set"></select>
-                <div class="outline-controls">
-                    <details>
-                        <summary>新しいプリセットを作成</summary>
-                        <label for="outline-new-name">名前</label>
-                        <input type="text" id="outline-new-name" placeholder="例: 三部構成">
-                        <label for="outline-new-levels">レベル（カンマ区切り）</label>
-                        <input type="text" id="outline-new-levels" placeholder="部,章,節">
-                        <button id="create-outline-set">作成</button>
-                    </details>
-                <div id="outline-levels-container" class="outline-levels"></div>
-                <div id="outline-insert-buttons" class="outline-insert"></div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3>拡張機能</h3>
-                <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3>ガジェット</h3>
-                <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
-                <div class="gadget-tools" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
-                    <button id="gadget-export" class="small" type="button">ガジェット設定をエクスポート</button>
-                    <button id="gadget-import" class="small" type="button">ガジェット設定をインポート</button>
-                    <input id="gadget-prefs-input" type="file" accept="application/json,.json" style="display:none;" />
-                </div>
-            </div>
-        </div>
-
-            <div class="sidebar-section">
-                <h3>バックアップ</h3>
-                <button id="snapshot-now">今すぐ保存</button>
-                <div id="snapshot-list" class="snapshot-list" style="margin-top:8px;"></div>
-            <div class="sidebar-section">
-                <h3>ドキュメント</h3>
-                <label for="doc-select">ドキュメント一覧</label>
-                <select id="doc-select"></select>
-                <div class="doc-actions" style="display:flex; gap:6px; margin:6px 0;">
-                    <button id="doc-create" class="small">作成</button>
-                    <button id="doc-rename" class="small">改名</button>
-                    <button id="doc-delete" class="small">削除</button>
-                </div>
-                <button id="new-document">新規ドキュメント</button>
-                <button id="import-file">ファイルを読み込む</button>
-                <input type="file" id="file-input" accept=".txt,.md,.markdown,.text" style="display:none" />
-                <button id="export-txt">テキストで保存</button>
-                <button id="export-md">Markdownで保存</button>
-                <button id="print-document">印刷</button>
+                </section>
             </div>
             <div class="sidebar-section">
                 <h3>ヘルプ</h3>
@@ -262,7 +194,6 @@
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
         function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
-        load('js/outline.js');
         load('js/themes-advanced.js');
         load('js/plugins/registry.js');
         load('js/plugins/choice.js');

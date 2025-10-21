@@ -791,7 +791,7 @@ class EditorManager {
      */
     updateWordCount() {
         const text = this.editor.value;
-        const charCount = text.length;
+        const charCount = text ? text.replace(/\r?\n/g, '').length : 0;
         const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
         // 執筆目標の進捗（任意）
         const s = window.ZenWriterStorage.loadSettings();
