@@ -46,6 +46,13 @@ test.describe('Gadgets E2E', () => {
 
     await ensureSidebarOpen();
 
+    // ガジェットタブ(assist)をアクティブに
+    const assistTab = page.locator('#sidebar-tab-assist');
+    if (await assistTab.isVisible()) {
+      await assistTab.click();
+      await expect(assistTab).toHaveAttribute('aria-selected', 'true');
+    }
+
     // パネル表示
     await expect(page.locator('#gadgets-panel')).toBeVisible();
 
