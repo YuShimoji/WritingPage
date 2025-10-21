@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-14T18:35:00+09:00
-- 現在のミッション: Mission 12: ガジェット機能の完成
-- ブランチ: feature/m12-gadgets
-- 関連: Issue #81 (mission)
-- 進捗: 10% / ステータス: ガジェットD&D/設定方針整理・ドキュメント準備中
-- 次の中断可能点: ガジェットD&D UX実装完了・E2E追加直前
+- 最終更新: 2025-10-21T18:30:00+09:00
+- 現在のミッション: Project Stabilization / Mission 12 Finalize
+- ブランチ: feature/m12-gadgets (PR #87)
+- 関連: PR #87
+- 進捗: 95% / ステータス: CI E2E fix pushed, awaiting green CI & auto-merge
+- 次の中断可能点: CI green → PR auto-merged to main
 
 ## 決定事項
 
