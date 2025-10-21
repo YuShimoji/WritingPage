@@ -1394,9 +1394,65 @@
         });
         paletteSection.appendChild(btn);
       });
+
+      // Custom color presets
+      var customPresets = JSON.parse(localStorage.getItem('zenWriter_colorPresets') || '[]');
+      if (customPresets.length > 0) {
+        customPresets.forEach(function(preset, idx){
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'small';
+          btn.textContent = preset.name;
+          btn.style.fontStyle = 'italic';
+          btn.addEventListener('click', function(){
+            theme.applyCustomColors(preset.bg, preset.text, true);
+            refreshState();
+          });
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'small';
+          delBtn.textContent = '×';
+          delBtn.style.marginLeft = '4px';
+          delBtn.style.color = 'red';
+          delBtn.addEventListener('click', function(e){
+            e.stopPropagation();
+            if (confirm('このプリセットを削除しますか？')) {
+              customPresets.splice(idx, 1);
+              localStorage.setItem('zenWriter_colorPresets', JSON.stringify(customPresets));
+              location.reload(); // Simple refresh to update UI
+            }
+          });
+          var container = document.createElement('div');
+          container.style.display = 'inline-block';
+          container.appendChild(btn);
+          container.appendChild(delBtn);
+          paletteSection.appendChild(container);
+        });
+      }
+
+      var savePresetBtn = document.createElement('button');
+      savePresetBtn.type = 'button';
+      savePresetBtn.className = 'small';
+      savePresetBtn.textContent = '現在の色を保存';
+      savePresetBtn.addEventListener('click', function(){
+        var name = prompt('プリセット名を入力');
+        if (!name || !name.trim()) return;
+        var currentBg = bgInput.value;
+        var currentText = textInput.value;
+        customPresets.push({ name: name.trim(), bg: currentBg, text: currentText });
+        localStorage.setItem('zenWriter_colorPresets', JSON.stringify(customPresets));
+        alert('プリセットを保存しました');
+        location.reload(); // Simple refresh to update UI
+      });
+      paletteSection.appendChild(savePresetBtn);
+
       var resetBtn = document.createElement('button');
-      resetBtn.type = 'button'; resetBtn.className = 'small'; resetBtn.textContent = 'カスタム色リセット';
+      resetBtn.type = 'button';
+      resetBtn.className = 'small';
+      resetBtn.textContent = 'リセット';
       resetBtn.addEventListener('click', function(){
+        bgInput.value = '#ffffff';
+        textInput.value = '#333333';
         theme.clearCustomColors();
         refreshState();
       });
@@ -1413,16 +1469,6 @@
         { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
         { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
       ];
-      fonts.forEach(function(f){
-        var opt = document.createElement('option');
-        opt.value = f.value; opt.textContent = f.label;
-        fontSelect.appendChild(opt);
-      });
-      fontSelect.value = settings.fontFamily || fonts[0].value;
-      fontSelect.addEventListener('change', function(e){
-        theme.applyFontSettings(e.target.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value));
-        refreshState();
-      });
       fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
 
       var fontSizeInput = document.createElement('input');
