@@ -575,3 +575,147 @@ html[data-embed="true"] #editor {
   height: 100vh;
   padding: 1rem; /* 画面内で読みやすい余白 */
 }
+
+/* ===== 印刷用スタイル ===== */
+@media print {
+  /* 基本設定 */
+  body {
+    font-family: 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    color: black;
+    background: white;
+  }
+
+  /* エディタ領域 */
+  .editor-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #editor {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  /* 見出しスタイル */
+  #editor h1 {
+    font-size: 24pt;
+    font-weight: bold;
+    line-height: 1.2;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  #editor h2 {
+    font-size: 18pt;
+    font-weight: bold;
+    line-height: 1.3;
+    margin-top: 1.5em;
+    margin-bottom: 0.8em;
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  #editor h3 {
+    font-size: 14pt;
+    font-weight: bold;
+    line-height: 1.4;
+    margin-top: 1.2em;
+    margin-bottom: 0.6em;
+    page-break-after: avoid;
+  }
+
+  #editor h4, #editor h5, #editor h6 {
+    font-size: 12pt;
+    font-weight: bold;
+    line-height: 1.4;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+  }
+
+  /* 段落 */
+  #editor p {
+    margin-top: 0;
+    margin-bottom: 1em;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* リスト */
+  #editor ul, #editor ol {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  #editor li {
+    margin-bottom: 0.3em;
+  }
+
+  /* コードブロック */
+  #editor pre {
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+    line-height: 1.2;
+    margin: 1em 0;
+    padding: 0.5em;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  #editor code {
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+  }
+
+  /* 引用 */
+  #editor blockquote {
+    margin: 1em 2em;
+    font-style: italic;
+    border-left: 4px solid #ccc;
+    padding-left: 1em;
+  }
+
+  /* 水平線 */
+  #editor hr {
+    border: none;
+    border-top: 1px solid #999;
+    margin: 2em 0;
+    page-break-after: avoid;
+  }
+
+  /* サイドバー非表示 */
+  .sidebar, .gadgets-panel, .sidebar-tabs, .sidebar-groups {
+    display: none !important;
+  }
+
+  /* ツールバー非表示 */
+  .toolbar {
+    display: none !important;
+  }
+
+  /* ミニHUD非表示 */
+  .mini-hud {
+    display: none !important;
+  }
+
+  /* ページ区切り */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* 印刷時に隠す要素 */
+  .no-print {
+    display: none !important;
+  }
+}
