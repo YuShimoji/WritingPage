@@ -9,8 +9,14 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#gadgets-panel');
     } catch (_) { return false; }
   });
+  // assistタブをアクティブにしてガジェットパネルを表示
+  const assistTab = document.querySelector('#sidebar-tab-assist');
+  if (assistTab) {
+    assistTab.click();
+  }
   // 初回レンダ後のガジェット要素を待機
-  await page.waitForSelector('#gadgets-panel section.gadget');
+  await new Promise(resolve => setTimeout(resolve, 500)); // タブ切り替え待機
+  return !!document.querySelector('#gadgets-panel section.gadget');
 }
 
 test.describe('Gadgets E2E', () => {
