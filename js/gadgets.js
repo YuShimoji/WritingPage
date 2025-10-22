@@ -27,7 +27,7 @@
         label: '小説・長編',
         groups: {
           structure: ['Documents','Outline'],
-          typography: ['TypographyThemes'],
+          typography: ['TypographyThemes','EditorLayout'],
           assist: ['Clock','HUDSettings']
         }
       },
@@ -35,7 +35,7 @@
         label: 'ビジュアルノベル',
         groups: {
           structure: ['Documents','Outline'],
-          typography: ['TypographyThemes'],
+          typography: ['TypographyThemes','EditorLayout'],
           assist: ['Clock','HUDSettings']
         }
       }
@@ -1634,6 +1634,127 @@
       try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(_) {}
     }
   }, { groups: ['assist'], title: 'HUD設定' });
+
+  // EditorLayout gadget
+  ZWGadgets.register('EditorLayout', function(el, api){
+    try {
+      var settings = api && typeof api.getSettings === 'function' ? api.getSettings() : {};
+      var width = settings.width || 900;
+      var paddingX = settings.paddingX || 100;
+      var showBorder = !!settings.showBorder;
+
+      function applyLayout(){
+        try {
+          var container = document.querySelector('.editor-container');
+          var canvas = document.querySelector('.editor-canvas');
+          var preview = document.querySelector('.editor-preview');
+          if (container) {
+            container.style.padding = '2rem';
+            container.style.display = 'flex';
+            container.style.justifyContent = 'center';
+            container.style.minHeight = '100vh';
+          }
+          if (canvas) {
+            canvas.style.width = width + 'px';
+          }
+          if (preview) {
+            preview.style.padding = '1rem ' + paddingX + 'px';
+            preview.style.border = showBorder ? '1px solid var(--border-color)' : 'none';
+            preview.style.outline = showBorder ? 'none' : 'none';
+          }
+        } catch(e) { console.error('applyLayout failed', e); }
+      }
+      applyLayout();
+    } catch(e) {
+      console.error('EditorLayout gadget failed:', e);
+      try { el.textContent = 'エディタレイアウトガジェットの初期化に失敗しました。'; } catch(_) {}
+    }
+  }, { groups: ['typography'], title: 'エディタレイアウト' });
+
+  // EditorLayout settings UI
+  ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
+    try {
+      var makeRow = function(labelText, control){
+        var row = document.createElement('label');
+        row.style.display = 'flex';
+        row.style.flexDirection = 'column';
+        row.style.gap = '4px';
+        row.textContent = labelText;
+        row.appendChild(control);
+        return row;
+      };
+
+      // Width slider
+      var widthInput = document.createElement('input');
+      widthInput.type = 'range';
+      widthInput.min = '600';
+      widthInput.max = '2000';
+      widthInput.step = '50';
+      widthInput.value = ctx.get('width', 900);
+      var widthLabel = document.createElement('div');
+      widthLabel.textContent = '幅: ' + widthInput.value + 'px';
+      widthLabel.style.fontSize = '0.85rem';
+      widthLabel.style.opacity = '0.8';
+      widthInput.addEventListener('input', function(){
+        widthLabel.textContent = '幅: ' + widthInput.value + 'px';
+        ctx.set('width', parseInt(widthInput.value, 10));
+      });
+      widthInput.addEventListener('change', function(){
+        ctx.set('width', parseInt(widthInput.value, 10));
+      });
+      var widthRow = document.createElement('div');
+      widthRow.style.display = 'flex';
+      widthRow.style.flexDirection = 'column';
+      widthRow.style.gap = '4px';
+      widthRow.appendChild(widthLabel);
+      widthRow.appendChild(widthInput);
+      el.appendChild(widthRow);
+
+      // Padding X slider
+      var paddingInput = document.createElement('input');
+      paddingInput.type = 'range';
+      paddingInput.min = '0';
+      paddingInput.max = '200';
+      paddingInput.step = '10';
+      paddingInput.value = ctx.get('paddingX', 100);
+      var paddingLabel = document.createElement('div');
+      paddingLabel.textContent = '左右余白: ' + paddingInput.value + 'px';
+      paddingLabel.style.fontSize = '0.85rem';
+      paddingLabel.style.opacity = '0.8';
+      paddingInput.addEventListener('input', function(){
+        paddingLabel.textContent = '左右余白: ' + paddingInput.value + 'px';
+        ctx.set('paddingX', parseInt(paddingInput.value, 10));
+      });
+      paddingInput.addEventListener('change', function(){
+        ctx.set('paddingX', parseInt(paddingInput.value, 10));
+      });
+      var paddingRow = document.createElement('div');
+      paddingRow.style.display = 'flex';
+      paddingRow.style.flexDirection = 'column';
+      paddingRow.style.gap = '4px';
+      paddingRow.appendChild(paddingLabel);
+      paddingRow.appendChild(paddingInput);
+      el.appendChild(paddingRow);
+
+      // Border checkbox
+      var borderRow = document.createElement('label');
+      borderRow.style.display = 'flex';
+      borderRow.style.alignItems = 'center';
+      borderRow.style.gap = '6px';
+      var borderCb = document.createElement('input');
+      borderCb.type = 'checkbox';
+      borderCb.checked = !!ctx.get('showBorder', false);
+      var borderTxt = document.createElement('span');
+      borderTxt.textContent = '枠線を表示';
+      borderCb.addEventListener('change', function(){
+        ctx.set('showBorder', !!borderCb.checked);
+      });
+      borderRow.appendChild(borderCb);
+      borderRow.appendChild(borderTxt);
+      el.appendChild(borderRow);
+
+    } catch(e) { console.error('EditorLayout settings failed:', e); }
+  });
 
   // Default gadget: Clock
   ZWGadgets.register('Clock', function(el, api){

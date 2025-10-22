@@ -101,17 +101,15 @@ body {
 /* エディタコンテナ */
 .editor-container {
     flex: 1;
-    padding: 1rem;
-    max-width: 900px;
-    margin: 0 auto;
+    padding: 2rem;
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    justify-content: center;
+    min-height: 100vh;
 }
 
 .editor-canvas {
     position: relative;
-    width: 100%;
+    width: 900px;
     min-height: 400px;
     display: flex;
     flex-direction: column;
@@ -127,7 +125,7 @@ body {
     font-family: var(--font-family);
     font-size: var(--font-size);
     line-height: var(--line-height);
-    padding: 1rem;
+    padding: 1rem 100px;
     outline: none;
     transition: color var(--transition-speed), background-color var(--transition-speed);
 }
