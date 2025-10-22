@@ -2,21 +2,21 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-20T04:40:00+09:00
-- 現在のミッション: 配色プリセット実装完了、次の機能開発準備
-- ブランチ: main
-- 関連: TypographyThemesガジェットにユーザー定義プリセット追加
-- 進捗: 中優先度3項目完了、テスト緑化済み
-- 次の中断可能点: 次中優先度項目（フォント適用範囲など）着手前
-- 進捗メモ: LocalStorage保存/読み込み/削除機能追加。npm run test:smoke PASSED
+- 最終更新: 2025-10-21T18:30:00+09:00
+- 現在のミッション: Project Stabilization / Mission 12 Finalize
+- ブランチ: feature/m12-gadgets (PR #87)
+- 関連: PR #87
+- 進捗: 95% / ステータス: CI E2E fix pushed, awaiting green CI & auto-merge
+- 次の中断可能点: CI green → PR auto-merged to main
 
 ## 決定事項
 
 - 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
 - リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
-- E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、8081 → 8080 の順で立ち上げてヘルスチェックを行い、同一/クロスオリジンを自動検証する
+- E2E は Playwright を採用。`scripts/run-two-servers.js` を webServer で起動し、同一/クロスオリジンを自動検証する
 - Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（Issue #78 でフォローアップ）
 - Mission 10 では DocFX を用いたドキュメントサイト構築と GitHub Pages 自動デプロイを実装する
+- Mission 12 以降では、サイドバーの利便性機能（例: 執筆目標）は原則ガジェット化し、ガジェット/アコーディオン内の並び替え・表示制御を計画的に整備する
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -73,7 +73,8 @@
 
 ## Backlog（将来提案）
 
+- Mission 13: 表現力の強化（グラフィックノベル対応・フォント装飾）
+- Mission 14: 管理能力の向上（高度なドキュメント管理機能）
 - CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
-- エディタの文字数計測で改行が 1 文字としてカウントされる現象の是正（行頭・行末処理の再検討）

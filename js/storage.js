@@ -5,7 +5,8 @@ const STORAGE_KEYS = {
     OUTLINE: 'zenWriter_outline',
     SNAPSHOTS: 'zenWriter_snapshots',
     DOCS: 'zenWriter_docs',
-    CURRENT_DOC_ID: 'zenWriter_currentDocId'
+    CURRENT_DOC_ID: 'zenWriter_currentDocId',
+    ASSETS: 'zenWriter_assets'
 };
 
 // デフォルト設定
@@ -31,7 +32,11 @@ const DEFAULT_SETTINGS = {
         duration: 1200,
         bg: '#000000',
         fg: '#ffffff',
-        opacity: 0.75
+        opacity: 0.75,
+        message: '',
+        pinned: false,
+        width: 240,
+        fontSize: 14
     }
 };
 
@@ -153,6 +158,125 @@ function loadContent() {
     }
 }
 
+// ===== 画像アセット管理 =====
+function normalizeAsset(asset){
+    if (!asset) return null;
+    if (typeof asset.hidden !== 'boolean') asset.hidden = false;
+    if (typeof asset.widthPercent !== 'number') asset.widthPercent = 60;
+    if (!asset.alignment) asset.alignment = 'auto';
+    if (typeof asset.order !== 'number') asset.order = 0;
+    return asset;
+}
+
+function loadAssets(){
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.ASSETS);
+        const parsed = raw ? JSON.parse(raw) : {};
+        Object.keys(parsed).forEach(key => { parsed[key] = normalizeAsset(parsed[key]); });
+        return parsed;
+    } catch(e){
+        console.error('アセット読込エラー:', e);
+        return {};
+    }
+}
+
+function saveAssets(map){
+    try {
+        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(map || {}));
+        return true;
+    } catch(e){
+        console.error('アセット保存エラー:', e);
+        return false;
+    }
+}
+
+function sanitizeAssetName(name){
+    return String(name || 'image')
+        .replace(/[\/:*?"<>|]/g, '_')
+        .replace(/[\x00-\x1F\x7F]/g, '_')
+        .trim() || 'image';
+}
+
+function findExistingAssetByDataUrl(map, dataUrl){
+    const entries = Object.values(map || {});
+    for (let i = 0; i < entries.length; i += 1){
+        if (entries[i] && entries[i].dataUrl === dataUrl){
+            return entries[i];
+        }
+    }
+    return null;
+}
+
+function saveAssetFromDataUrl(dataUrl, meta = {}){
+    if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) return null;
+    const assets = loadAssets();
+    const existing = findExistingAssetByDataUrl(assets, dataUrl);
+    if (existing) {
+        const normalized = normalizeAsset(existing);
+        assets[normalized.id] = normalized;
+        saveAssets(assets);
+        return normalized;
+    }
+    const id = 'asset_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+    const name = sanitizeAssetName(meta.name || meta.fileName || 'image');
+    const extensionMatch = (meta.name || meta.fileName || '').match(/\.([a-zA-Z0-9]+)$/);
+    const extension = extensionMatch ? extensionMatch[1].toLowerCase() : 'png';
+    const fileName = `${id}.${extension}`;
+    const asset = {
+        id,
+        name,
+        fileName,
+        type: meta.type || '',
+        size: typeof meta.size === 'number' ? meta.size : null,
+        dataUrl,
+        createdAt: Date.now(),
+        hidden: false,
+        widthPercent: 60,
+        alignment: 'auto',
+        order: meta.order || 0
+    };
+    assets[id] = asset;
+    saveAssets(assets);
+    return asset;
+}
+
+function getAsset(id){
+    if (!id) return null;
+    const assets = loadAssets();
+    return assets[id] || null;
+}
+
+function deleteAsset(id){
+    const assets = loadAssets();
+    if (!assets[id]) return false;
+    delete assets[id];
+    return saveAssets(assets);
+}
+
+function updateAssetMeta(id, patch){
+    if (!id) return null;
+    const assets = loadAssets();
+    const current = assets[id];
+    if (!current) return null;
+    const next = normalizeAsset(Object.assign({}, current, patch || {}));
+    assets[id] = next;
+    saveAssets(assets);
+    return next;
+}
+
+function replaceAssetPlaceholders(text, mode = 'data-url'){
+    if (typeof text !== 'string' || text.indexOf('asset://') === -1) return text;
+    const assets = loadAssets();
+    return text.replace(/(!\[[^\]]*\])\((asset:\/\/([^\s)]+))\)/g, (match, label, _link, assetId) => {
+        const asset = assets[assetId];
+        if (!asset) return match;
+        if (mode === 'relative-path' && asset.fileName) {
+            return `${label}(assets/${asset.fileName})`;
+        }
+        return `${label}(${asset.dataUrl})`;
+    });
+}
+
 // ===== 複数ドキュメント管理 =====
 function loadDocuments(){
     try {
@@ -252,12 +376,19 @@ function loadSettings() {
         if (savedSettings) {
             // 既存保存データに新規キーが無い場合へ配慮しデフォルトをマージ
             const parsed = JSON.parse(savedSettings);
-            return { ...DEFAULT_SETTINGS, ...parsed };
+            const merged = { ...DEFAULT_SETTINGS, ...parsed };
+            merged.goal = { ...DEFAULT_SETTINGS.goal, ...(parsed.goal || {}) };
+            merged.hud = { ...DEFAULT_SETTINGS.hud, ...(parsed.hud || {}) };
+            return merged;
         }
     } catch (e) {
         console.error('設定の読み込み中にエラーが発生しました:', e);
     }
-    return { ...DEFAULT_SETTINGS };
+    return {
+        ...DEFAULT_SETTINGS,
+        goal: { ...DEFAULT_SETTINGS.goal },
+        hud: { ...DEFAULT_SETTINGS.hud }
+    };
 }
 
 /**
@@ -268,7 +399,8 @@ function loadSettings() {
  */
 function exportText(text, filename, type = 'text/plain') {
     try {
-        const blob = new Blob([text], { type });
+        const resolved = replaceAssetPlaceholders(text, 'data-url');
+        const blob = new Blob([resolved], { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -295,6 +427,13 @@ function exportText(text, filename, type = 'text/plain') {
             saveOutline,
             loadOutline,
             exportText,
+            // assets
+            loadAssets,
+            saveAssetFromDataUrl,
+            getAsset,
+            deleteAsset,
+            updateAssetMeta,
+            replaceAssetPlaceholders,
             DEFAULT_SETTINGS,
             // snapshots
             loadSnapshots,
@@ -320,6 +459,12 @@ function exportText(text, filename, type = 'text/plain') {
             saveOutline,
             loadOutline,
             exportText,
+            // assets
+            loadAssets,
+            saveAssetFromDataUrl,
+            getAsset,
+            deleteAsset,
+            replaceAssetPlaceholders,
             DEFAULT_SETTINGS,
             // snapshots
             loadSnapshots,
