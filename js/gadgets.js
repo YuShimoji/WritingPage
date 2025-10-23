@@ -358,6 +358,33 @@
       var group = opts.group || 'assist';
       this._roots[group] = root;
       if (!this._activeGroup) this._activeGroup = group;
+
+      // Tab inter-move support
+      root.addEventListener('dragover', function(ev){
+        try {
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect = 'move';
+          root.classList.add('drag-over-tab');
+        } catch(_) {}
+      });
+      root.addEventListener('dragleave', function(){
+        try { root.classList.remove('drag-over-tab'); } catch(_) {}
+      });
+      root.addEventListener('drop', function(ev){
+        try {
+          ev.preventDefault();
+          root.classList.remove('drag-over-tab');
+          var name = ev.dataTransfer.getData('text/gadget-name');
+          if (!name) return;
+          // Assign to this group
+          var currentGroups = self._list.find(function(g){ return g.name === name; });
+          if (!currentGroups) return;
+          var newGroups = [group];
+          self.assignGroups(name, newGroups);
+          self._renderLast && self._renderLast();
+        } catch(_) {}
+      });
+
       var data = this._ensureLoadouts();
       this._applyLoadoutEntry(data.entries[data.active]);
 
@@ -534,6 +561,54 @@
 
             root.appendChild(wrap);
           } catch(e) { /* ignore per gadget */ }
+        }
+
+        // Add available gadgets list
+        var available = self._list.filter(function(g){
+          return Array.isArray(g.groups) && g.groups.indexOf(group) < 0;
+        });
+        if (available.length > 0){
+          var addSection = document.createElement('div');
+          addSection.className = 'gadget-add-section';
+          addSection.style.marginTop = '12px';
+          addSection.style.padding = '8px';
+          addSection.style.border = '1px dashed var(--border-color)';
+          addSection.style.borderRadius = '4px';
+          addSection.style.background = 'var(--bg-color)';
+
+          var addTitle = document.createElement('div');
+          addTitle.textContent = '+ ガジェット追加';
+          addTitle.style.fontSize = '0.9rem';
+          addTitle.style.fontWeight = '600';
+          addTitle.style.marginBottom = '6px';
+          addTitle.style.cursor = 'pointer';
+          addSection.appendChild(addTitle);
+
+          var addList = document.createElement('div');
+          addList.style.display = 'none';
+          addList.style.gap = '4px';
+          addList.style.flexDirection = 'column';
+
+          available.forEach(function(g){
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'small';
+            btn.textContent = g.title || g.name;
+            btn.style.width = '100%';
+            btn.addEventListener('click', function(){
+              self.assignGroups(g.name, [group]);
+              self._renderLast && self._renderLast();
+            });
+            addList.appendChild(btn);
+          });
+
+          addSection.appendChild(addList);
+
+          addTitle.addEventListener('click', function(){
+            addList.style.display = addList.style.display === 'none' ? 'flex' : 'none';
+          });
+
+          root.appendChild(addSection);
         }
       }
 

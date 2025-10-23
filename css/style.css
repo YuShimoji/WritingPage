@@ -630,6 +630,10 @@ input[type="color"] {
 
 /* ドラッグ状態 */
 .gadget.is-dragging { opacity: 0.6; }
+.gadget.drag-over-tab {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: var(--focus-color);
+}
 .gadget.drag-over { outline: 2px dashed var(--focus-color); outline-offset: 2px; }
 
 /* ===== ミニHUD ===== */
