@@ -1644,7 +1644,7 @@
       function applyLayout(){
         try {
           var canvas = document.querySelector('.editor-canvas');
-          var preview = document.querySelector('.editor-preview');
+          var preview = document.getElementById('editor-preview');
           if (canvas) {
             canvas.style.width = width + 'px';
           }
@@ -1676,6 +1676,58 @@
       try { el.textContent = 'エディタレイアウトガジェットの初期化に失敗しました。'; } catch(_) {}
     }
   }, { groups: ['typography'], title: 'エディタレイアウト' });
+
+  // Images gadget (insert/list/remove)
+  ZWGadgets.register('Images', function(el){
+    try {
+      var API = window.ZenWriterImages;
+      var root = document.createElement('div');
+      root.style.display = 'grid';
+      root.style.gap = '6px';
+
+      var urlRow = document.createElement('div');
+      var urlInput = document.createElement('input'); urlInput.type='url'; urlInput.placeholder='画像URLを入力';
+      var addUrlBtn = document.createElement('button'); addUrlBtn.type='button'; addUrlBtn.className='small'; addUrlBtn.textContent='URL追加';
+      urlRow.appendChild(urlInput); urlRow.appendChild(addUrlBtn);
+
+      var fileRow = document.createElement('div');
+      var fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='image/*';
+      fileRow.appendChild(fileInput);
+
+      var list = document.createElement('div'); list.style.display='grid'; list.style.gap='6px';
+
+      function renderList(){
+        try {
+          list.innerHTML='';
+          var images = (API && typeof API._load==='function') ? API._load() : [];
+          images.forEach(function(it){
+            var row = document.createElement('div'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px';
+            var thumb = document.createElement('img'); thumb.src=it.src; thumb.alt=it.alt||''; thumb.style.width='40px'; thumb.style.height='40px'; thumb.style.objectFit='cover'; thumb.style.border='1px solid var(--border-color)';
+            var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex='1 1 auto'; name.style.fontSize='12px'; name.style.opacity='0.8';
+            var rm = document.createElement('button'); rm.type='button'; rm.className='small'; rm.textContent='削除';
+            rm.addEventListener('click', function(){ try { API && API.remove && API.remove(it.id); renderList(); } catch(_){} });
+            row.appendChild(thumb); row.appendChild(name); row.appendChild(rm);
+            list.appendChild(row);
+          });
+        } catch(_) {}
+      }
+
+      addUrlBtn.addEventListener('click', function(){
+        var val = (urlInput.value||'').trim(); if (!val) return;
+        try { API && API.addFromUrl && API.addFromUrl(val); urlInput.value=''; renderList(); } catch(_){}
+      });
+      fileInput.addEventListener('change', function(){ try { var f=fileInput.files && fileInput.files[0]; if (f && API && API.addFromFile){ API.addFromFile(f); fileInput.value=''; renderList(); } } catch(_){}
+      });
+
+      root.appendChild(urlRow);
+      root.appendChild(fileRow);
+      root.appendChild(list);
+      el.appendChild(root);
+
+      renderList();
+      try { window.addEventListener('ZWDocumentsChanged', renderList); } catch(_) {}
+    } catch(e){ try { el.textContent = '画像ガジェットの初期化に失敗しました。'; } catch(_) {} }
+  }, { groups: ['assist'], title: '画像' });
 
   // EditorLayout settings UI
   ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
