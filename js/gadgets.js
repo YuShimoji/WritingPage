@@ -301,7 +301,10 @@
         var s = p.settings[name] = p.settings[name] || {};
         s[key] = value;
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
+        // NOTE: 再レンダリングは行わない。購読しているガジェットが即時に反映する。
+        var detail = { name: name, key: key, value: value, settings: s };
+        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', { detail: detail })); } catch(_) {}
+        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch(_) {}
       } catch(_) {}
     },
     exportPrefs: function(){
@@ -441,10 +444,12 @@
             wrap.className = 'gadget';
             wrap.dataset.name = name;
             wrap.dataset.group = group;
-            wrap.setAttribute('draggable', 'true');
+            // ガジェット本体はドラッグ不可。ヘッダーのみドラッグ可能。
+            wrap.setAttribute('draggable', 'false');
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
+            head.setAttribute('draggable', 'true');
             var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
@@ -453,9 +458,13 @@
               settingsBtn = document.createElement('button');
               settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='⚙';
             }
+            // 削除ボタン（現在のタブから除外）
+            var removeBtn = document.createElement('button');
+            removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='✕';
             head.appendChild(title);
             if (settingsBtn) head.appendChild(settingsBtn);
             head.appendChild(upBtn); head.appendChild(downBtn);
+            head.appendChild(removeBtn);
             // styles moved to CSS (.gadget-head)
             wrap.appendChild(head);
 
@@ -477,14 +486,22 @@
             // events
 
             upBtn.addEventListener('click', function(n, w){ return function(){ 
-              w.classList.add('moving-up');
-              self.move(n, 'up'); 
-              setTimeout(function(){ w.classList.remove('moving-up'); }, 300);
+              try {
+                w.classList.add('moving-up');
+                setTimeout(function(){
+                  self.move(n, 'up');
+                  setTimeout(function(){ w.classList.remove('moving-up'); }, 220);
+                }, 180);
+              } catch(_) {}
             }; }(name, wrap));
             downBtn.addEventListener('click', function(n, w){ return function(){ 
-              w.classList.add('moving-down');
-              self.move(n, 'down'); 
-              setTimeout(function(){ w.classList.remove('moving-down'); }, 300);
+              try {
+                w.classList.add('moving-down');
+                setTimeout(function(){
+                  self.move(n, 'down');
+                  setTimeout(function(){ w.classList.remove('moving-down'); }, 220);
+                }, 180);
+              } catch(_) {}
             }; }(name, wrap));
 
             // settings panel
@@ -512,20 +529,15 @@
               }; }(name, panel, settingsBtn));
             }
 
-            // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ 
-              try { 
-                var t = ev.target;
-                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.tagName === 'BUTTON')) {
-                  ev.preventDefault();
-                  return;
-                }
-                wrap.classList.add('is-dragging'); 
-                ev.dataTransfer.setData('text/gadget-name', name); 
-                ev.dataTransfer.effectAllowed='move'; 
-              } catch(_) {} 
+            // drag and drop reorder（ヘッダーのみドラッグ開始）
+            head.addEventListener('dragstart', function(ev){
+              try {
+                wrap.classList.add('is-dragging');
+                ev.dataTransfer.setData('text/gadget-name', name);
+                ev.dataTransfer.effectAllowed='move';
+              } catch(_) {}
             });
-            wrap.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
+            head.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
             wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
             wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
             wrap.addEventListener('drop', function(ev){
@@ -558,6 +570,18 @@
               }
             });
             wrap.setAttribute('tabindex', '0');
+
+            // remove button: 現在のグループからこのガジェットを除外
+            removeBtn.addEventListener('click', function(){
+              try {
+                var item = self._list.find(function(it){ return (it.name||'') === name; });
+                var current = Array.isArray(item && item.groups) ? item.groups.slice() : [];
+                var next = current.filter(function(gr){ return gr !== group; });
+                self.assignGroups(name, next);
+              } finally {
+                try { self._renderLast && self._renderLast(); } catch(_) {}
+              }
+            });
 
             root.appendChild(wrap);
           } catch(e) { /* ignore per gadget */ }
@@ -1632,15 +1656,21 @@
       }
       applyLayout();
 
-      // 設定変更時に再適用
-      if (api && typeof api.onSettingsChange === 'function') {
-        api.onSettingsChange(function(newSettings){
-          width = newSettings.width || 900;
-          paddingX = newSettings.paddingX || 100;
-          showBorder = !!newSettings.showBorder;
-          applyLayout();
-        });
+      // 設定変更イベント（共通/個別）を購読して再適用
+      function _onSettingsChanged(ev){
+        try {
+          var d = ev && ev.detail ? ev.detail : {};
+          if (d && d.name === 'EditorLayout'){
+            var s = d.settings || {};
+            width = (typeof s.width === 'number') ? s.width : width;
+            paddingX = (typeof s.paddingX === 'number') ? s.paddingX : paddingX;
+            showBorder = !!s.showBorder;
+            applyLayout();
+          }
+        } catch(_) {}
       }
+      try { window.addEventListener('ZWGadgetSettingsChanged', _onSettingsChanged); } catch(_) {}
+      try { window.addEventListener('ZWGadgetSettingsChanged:EditorLayout', _onSettingsChanged); } catch(_) {}
     } catch(e) {
       console.error('EditorLayout gadget failed:', e);
       try { el.textContent = 'エディタレイアウトガジェットの初期化に失敗しました。'; } catch(_) {}
