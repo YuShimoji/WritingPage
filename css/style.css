@@ -615,7 +615,9 @@ input[type="color"] {
 
 /* ===== ガジェット（サイドバー） ===== */
 .gadgets-panel { display: block; }
-.gadget { border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; background: var(--bg-color); margin-bottom: 10px; }
+.gadget { border: 1px solid var(--border-color); border-radius: 6px; padding: 6px 8px; background: var(--bg-color); margin-bottom: 10px; transition: transform 0.3s ease; }
+.gadget.moving-up { transform: translateY(-10px); }
+.gadget.moving-down { transform: translateY(10px); }
 .gadget-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; cursor: grab; }
 .gadget-head:active { cursor: grabbing; }
 .gadget-title { font-size: 0.95rem; font-weight: 600; margin: 0; }

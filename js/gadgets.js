@@ -418,7 +418,6 @@
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
-            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (prefs.collapsed[name] ? '▶' : '▼');
             var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
@@ -427,7 +426,7 @@
               settingsBtn = document.createElement('button');
               settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='⚙';
             }
-            head.appendChild(toggleBtn); head.appendChild(title);
+            head.appendChild(title);
             if (settingsBtn) head.appendChild(settingsBtn);
             head.appendChild(upBtn); head.appendChild(downBtn);
             // styles moved to CSS (.gadget-head)
@@ -435,7 +434,6 @@
 
             var body = document.createElement('div');
             body.className = 'gadget-body';
-            if (prefs.collapsed[name]) body.style.display = 'none';
             wrap.appendChild(body);
             if (typeof g.factory === 'function') {
               try {
@@ -450,16 +448,17 @@
             }
 
             // events
-            toggleBtn.addEventListener('click', function(n, b, btn){ return function(){
-              try {
-                var p = loadPrefs(); p.collapsed = p.collapsed||{}; p.collapsed[n] = !p.collapsed[n]; savePrefs(p);
-                btn.textContent = (p.collapsed[n] ? '▶' : '▼');
-                b.style.display = p.collapsed[n] ? 'none' : '';
-              } catch(_) {}
-            }; }(name, body, toggleBtn));
 
-            upBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'up'); }; }(name));
-            downBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'down'); }; }(name));
+            upBtn.addEventListener('click', function(n, w){ return function(){ 
+              w.classList.add('moving-up');
+              self.move(n, 'up'); 
+              setTimeout(function(){ w.classList.remove('moving-up'); }, 300);
+            }; }(name, wrap));
+            downBtn.addEventListener('click', function(n, w){ return function(){ 
+              w.classList.add('moving-down');
+              self.move(n, 'down'); 
+              setTimeout(function(){ w.classList.remove('moving-down'); }, 300);
+            }; }(name, wrap));
 
             // settings panel
             if (settingsBtn){
@@ -487,7 +486,18 @@
             }
 
             // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ try { wrap.classList.add('is-dragging'); ev.dataTransfer.setData('text/gadget-name', name); ev.dataTransfer.effectAllowed='move'; } catch(_) {} });
+            wrap.addEventListener('dragstart', function(ev){ 
+              try { 
+                var t = ev.target;
+                if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.tagName === 'BUTTON')) {
+                  ev.preventDefault();
+                  return;
+                }
+                wrap.classList.add('is-dragging'); 
+                ev.dataTransfer.setData('text/gadget-name', name); 
+                ev.dataTransfer.effectAllowed='move'; 
+              } catch(_) {} 
+            });
             wrap.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
             wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
             wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
@@ -1546,6 +1556,16 @@
         } catch(e) { console.error('applyLayout failed', e); }
       }
       applyLayout();
+
+      // 設定変更時に再適用
+      if (api && typeof api.onSettingsChange === 'function') {
+        api.onSettingsChange(function(newSettings){
+          width = newSettings.width || 900;
+          paddingX = newSettings.paddingX || 100;
+          showBorder = !!newSettings.showBorder;
+          applyLayout();
+        });
+      }
     } catch(e) {
       console.error('EditorLayout gadget failed:', e);
       try { el.textContent = 'エディタレイアウトガジェットの初期化に失敗しました。'; } catch(_) {}
