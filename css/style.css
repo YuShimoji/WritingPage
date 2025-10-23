@@ -105,7 +105,8 @@ body {
     flex: 1;
     padding: 2rem;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -656,7 +657,9 @@ input[type="color"] {
 }
 .mini-hud.pinned { pointer-events: auto; }
 
-/* ===== 印刷ビュー ===== */
+.editor-preview--bordered {
+    border: 1px solid var(--border-color);
+}
 .print-view { display: none; max-width: 900px; margin: 0 auto; padding: 1.5cm 1.5cm; color: #000; background: #fff; font-family: 'Noto Serif JP', serif; font-size: 12pt; line-height: 1.5; }
 .print-view p { margin: 0 0 1em; white-space: pre-wrap; word-break: break-word; }
 .print-view h1, .print-view h2, .print-view h3, .print-view h4, .print-view h5, .print-view h6 { color: #000; font-weight: bold; margin: 1.5em 0 0.5em; page-break-after: avoid; }

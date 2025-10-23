@@ -1534,22 +1534,14 @@
 
       function applyLayout(){
         try {
-          var container = document.querySelector('.editor-container');
           var canvas = document.querySelector('.editor-canvas');
           var preview = document.querySelector('.editor-preview');
-          if (container) {
-            container.style.padding = '2rem';
-            container.style.display = 'flex';
-            container.style.justifyContent = 'center';
-            container.style.minHeight = '100vh';
-          }
           if (canvas) {
             canvas.style.width = width + 'px';
           }
           if (preview) {
             preview.style.padding = '1rem ' + paddingX + 'px';
-            preview.style.border = showBorder ? '1px solid var(--border-color)' : 'none';
-            preview.style.outline = showBorder ? 'none' : 'none';
+            preview.classList.toggle('editor-preview--bordered', showBorder);
           }
         } catch(e) { console.error('applyLayout failed', e); }
       }
