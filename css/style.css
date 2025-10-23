@@ -8,7 +8,8 @@
     --border-color: #e0e0e0;
     --focus-color: #4a90e2;
     --font-family: 'Noto Serif JP', serif;
-    --font-size: 16px;
+    --ui-font-size: 16px;
+    --editor-font-size: 16px;
     --line-height: 1.6;
     --transition-speed: 0.3s;
 }
@@ -81,6 +82,7 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: var(--line-height);
+    font-size: var(--ui-font-size);
     transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
@@ -123,7 +125,7 @@ body {
     background-color: transparent;
     color: var(--text-color);
     font-family: var(--font-family);
-    font-size: var(--font-size);
+    font-size: var(--editor-font-size);
     line-height: var(--line-height);
     padding: 1rem 100px;
     outline: none;

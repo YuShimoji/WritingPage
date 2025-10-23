@@ -1237,229 +1237,47 @@
       });
       themesSection.appendChild(themeButtons);
 
-      // Advanced bundle controls (optional)
-      if (document.getElementById('theme-bundle-select')) {
-        var bundleWrap = document.createElement('div');
-        bundleWrap.style.display = 'flex';
-        bundleWrap.style.flexDirection = 'column';
-        bundleWrap.style.gap = '4px';
-
-        var bundleSelect = document.createElement('select');
-        bundleSelect.id = 'gadget-theme-bundle-select';
-
-        var bundleName = document.createElement('input');
-        bundleName.type = 'text';
-        bundleName.placeholder = '現在の設定を保存（名前）';
-
-        var bundleControls = document.createElement('div');
-        bundleControls.style.display = 'flex';
-        bundleControls.style.flexWrap = 'wrap';
-        bundleControls.style.gap = '6px';
-
-        function getBundles(){
-          try {
-            var raw = localStorage.getItem('zenWriter_themeBundles');
-            return raw ? JSON.parse(raw) : { bundles: [], currentId: null };
-          } catch(e){ console.error(e); return { bundles: [], currentId: null }; }
-        }
-        function saveBundles(state){
-          try { localStorage.setItem('zenWriter_themeBundles', JSON.stringify(state)); return true; }
-          catch(e){ console.error(e); return false; }
-        }
-        function renderBundles(){
-          var state = getBundles();
-          bundleSelect.innerHTML = '';
-          state.bundles.forEach(function(b){
-            var opt = document.createElement('option');
-            opt.value = b.id; opt.textContent = b.name || '(名称未設定)';
-            bundleSelect.appendChild(opt);
-          });
-          if (state.currentId) bundleSelect.value = state.currentId;
-        }
-        function currentSnapshot(){
-          var s = storage.loadSettings();
-          return {
-            id: 'bundle-' + Date.now(),
-            name: '',
-            theme: s.theme,
-            fontFamily: s.fontFamily,
-            fontSize: s.fontSize,
-            lineHeight: s.lineHeight,
-            useCustomColors: !!s.useCustomColors,
-            bgColor: s.bgColor,
-            textColor: s.textColor
-          };
-        }
-        function applyBundle(bundle){
-          if (!bundle) return;
-          theme.applyTheme(bundle.theme || 'light');
-          if (bundle.useCustomColors && bundle.bgColor && bundle.textColor){
-            theme.applyCustomColors(bundle.bgColor, bundle.textColor, true);
-          } else {
-            theme.clearCustomColors();
-          }
-          theme.applyFontSettings(bundle.fontFamily, parseFloat(bundle.fontSize), parseFloat(bundle.lineHeight));
-          refreshState();
-        }
-
-        var saveBtn = document.createElement('button');
-        saveBtn.type = 'button'; saveBtn.className = 'small'; saveBtn.textContent = '保存';
-        saveBtn.addEventListener('click', function(){
-          var state = getBundles();
-          var snap = currentSnapshot();
-          snap.name = (bundleName && bundleName.value.trim()) || '新しいテーマ';
-          state.bundles.push(snap);
-          state.currentId = snap.id;
-          saveBundles(state);
-          renderBundles();
-          if (bundleName) bundleName.value = '';
-        });
-
-        var applyBtn = document.createElement('button');
-        applyBtn.type = 'button'; applyBtn.className = 'small'; applyBtn.textContent = '適用';
-        applyBtn.addEventListener('click', function(){
-          var state = getBundles();
-          var id = bundleSelect.value;
-          var bundle = state.bundles.find(function(b){ return b.id === id; });
-          if (bundle){
-            state.currentId = bundle.id;
-            saveBundles(state);
-            applyBundle(bundle);
-          }
-        });
-
-        var deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button'; deleteBtn.className = 'small'; deleteBtn.textContent = '削除';
-        deleteBtn.addEventListener('click', function(){
-          var state = getBundles();
-          var id = bundleSelect.value;
-          var idx = state.bundles.findIndex(function(b){ return b.id === id; });
-          if (idx >= 0){
-            state.bundles.splice(idx,1);
-            state.currentId = state.bundles[0] ? state.bundles[0].id : null;
-            saveBundles(state);
-            renderBundles();
-          }
-        });
-
-        bundleControls.appendChild(saveBtn);
-        bundleControls.appendChild(applyBtn);
-        bundleControls.appendChild(deleteBtn);
-
-        bundleWrap.appendChild(bundleSelect);
-        bundleWrap.appendChild(bundleName);
-        bundleWrap.appendChild(bundleControls);
-        themesSection.appendChild(bundleWrap);
-
-        renderBundles();
-      }
-
-      wrap.appendChild(themesSection);
-
-      // Custom colors
-      var colorSection = makeSection('カスタムカラー');
+      // Color section
+      var colorSection = makeSection('色');
       var bgInput = document.createElement('input');
       bgInput.type = 'color';
       bgInput.value = settings.bgColor || '#ffffff';
-      bgInput.addEventListener('input', function(e){
-        theme.applyCustomColors(e.target.value, textInput.value || '#333333', true);
-        refreshState();
-      });
       var textInput = document.createElement('input');
       textInput.type = 'color';
       textInput.value = settings.textColor || '#333333';
-      textInput.addEventListener('input', function(e){
-        theme.applyCustomColors(bgInput.value || '#ffffff', e.target.value, true);
+
+      bgInput.addEventListener('change', function(){
+        theme.applyCustomColors(bgInput.value, textInput.value, true);
         refreshState();
       });
+      textInput.addEventListener('change', function(){
+        theme.applyCustomColors(bgInput.value, textInput.value, true);
+        refreshState();
+      });
+
       colorSection.appendChild(makeRow('背景色', bgInput));
       colorSection.appendChild(makeRow('文字色', textInput));
 
-      // Color palette
-      var paletteSection = makeSection('カラーパレット');
-      var palettes = [
-        { name: 'ライト', bg: '#ffffff', text: '#333333' },
-        { name: 'ダーク', bg: '#1a1a1a', text: '#cccccc' },
-        { name: 'セピア', bg: '#f5f5dc', text: '#5a4d41' },
-        { name: '高コントラスト', bg: '#000000', text: '#ffffff' }
-      ];
-      palettes.forEach(function(p){
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'small';
-        btn.textContent = p.name;
-        btn.addEventListener('click', function(){
-          theme.applyCustomColors(p.bg, p.text, true);
-          refreshState();
-        });
-        paletteSection.appendChild(btn);
-      });
-
       // Custom color presets
-      var customPresets = JSON.parse(localStorage.getItem('zenWriter_colorPresets') || '[]');
+      var paletteSection = makeSection('カスタム色');
+      var customPresets = [];
+      try {
+        var stored = localStorage.getItem('zenWriter_colorPresets');
+        if (stored) customPresets = JSON.parse(stored);
+      } catch(_) {}
       if (customPresets.length > 0) {
         customPresets.forEach(function(preset, idx){
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'small';
           btn.textContent = preset.name;
-          btn.style.fontStyle = 'italic';
           btn.addEventListener('click', function(){
             theme.applyCustomColors(preset.bg, preset.text, true);
             refreshState();
           });
-          var delBtn = document.createElement('button');
-          delBtn.type = 'button';
-          delBtn.className = 'small';
-          delBtn.textContent = '×';
-          delBtn.style.marginLeft = '4px';
-          delBtn.style.color = 'red';
-          delBtn.addEventListener('click', function(e){
-            e.stopPropagation();
-            if (confirm('このプリセットを削除しますか？')) {
-              customPresets.splice(idx, 1);
-              localStorage.setItem('zenWriter_colorPresets', JSON.stringify(customPresets));
-              location.reload(); // Simple refresh to update UI
-            }
-          });
-          var container = document.createElement('div');
-          container.style.display = 'inline-block';
-          container.appendChild(btn);
-          container.appendChild(delBtn);
-          paletteSection.appendChild(container);
+          paletteSection.appendChild(btn);
         });
       }
-
-      var savePresetBtn = document.createElement('button');
-      savePresetBtn.type = 'button';
-      savePresetBtn.className = 'small';
-      savePresetBtn.textContent = '現在の色を保存';
-      savePresetBtn.addEventListener('click', function(){
-        var name = prompt('プリセット名を入力');
-        if (!name || !name.trim()) return;
-        var currentBg = bgInput.value;
-        var currentText = textInput.value;
-        customPresets.push({ name: name.trim(), bg: currentBg, text: currentText });
-        localStorage.setItem('zenWriter_colorPresets', JSON.stringify(customPresets));
-        alert('プリセットを保存しました');
-        location.reload(); // Simple refresh to update UI
-      });
-      paletteSection.appendChild(savePresetBtn);
-
-      var resetBtn = document.createElement('button');
-      resetBtn.type = 'button';
-      resetBtn.className = 'small';
-      resetBtn.textContent = 'リセット';
-      resetBtn.addEventListener('click', function(){
-        bgInput.value = '#ffffff';
-        textInput.value = '#333333';
-        theme.clearCustomColors();
-        refreshState();
-      });
-      paletteSection.appendChild(resetBtn);
-
-      wrap.appendChild(colorSection);
-      wrap.appendChild(paletteSection);
 
       // Font settings
       var fontSection = makeSection('フォント');
@@ -1469,25 +1287,44 @@
         { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
         { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
       ];
+      fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
       fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
 
-      var fontSizeInput = document.createElement('input');
-      fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.value = settings.fontSize || 16;
-      var fontSizeLabel = document.createElement('div');
-      fontSizeLabel.style.fontSize = '0.85rem'; fontSizeLabel.style.opacity = '0.8';
-      fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
-      fontSizeInput.addEventListener('input', function(e){
-        fontSizeLabel.textContent = 'フォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
+      var uiFontSizeInput = document.createElement('input');
+      uiFontSizeInput.type = 'range'; uiFontSizeInput.min = '12'; uiFontSizeInput.max = '32'; uiFontSizeInput.step = '1'; uiFontSizeInput.value = settings.uiFontSize || 16;
+      var uiFontSizeLabel = document.createElement('div');
+      uiFontSizeLabel.style.fontSize = '0.85rem'; uiFontSizeLabel.style.opacity = '0.8';
+      uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
+      uiFontSizeInput.addEventListener('input', function(e){
+        uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + e.target.value + 'px';
+        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(lineHeightInput.value), parseInt(e.target.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
-      var fontSizeRow = document.createElement('div');
-      fontSizeRow.style.display = 'flex';
-      fontSizeRow.style.flexDirection = 'column';
-      fontSizeRow.style.gap = '4px';
-      fontSizeRow.appendChild(fontSizeLabel);
-      fontSizeRow.appendChild(fontSizeInput);
-      fontSection.appendChild(fontSizeRow);
+      var uiFontSizeRow = document.createElement('div');
+      uiFontSizeRow.style.display = 'flex';
+      uiFontSizeRow.style.flexDirection = 'column';
+      uiFontSizeRow.style.gap = '4px';
+      uiFontSizeRow.appendChild(uiFontSizeLabel);
+      uiFontSizeRow.appendChild(uiFontSizeInput);
+      fontSection.appendChild(uiFontSizeRow);
+
+      var editorFontSizeInput = document.createElement('input');
+      editorFontSizeInput.type = 'range'; editorFontSizeInput.min = '12'; editorFontSizeInput.max = '32'; editorFontSizeInput.step = '1'; editorFontSizeInput.value = settings.editorFontSize || 16;
+      var editorFontSizeLabel = document.createElement('div');
+      editorFontSizeLabel.style.fontSize = '0.85rem'; editorFontSizeLabel.style.opacity = '0.8';
+      editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
+      editorFontSizeInput.addEventListener('input', function(e){
+        editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + e.target.value + 'px';
+        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value, 10), parseInt(e.target.value, 10));
+        refreshState();
+      });
+      var editorFontSizeRow = document.createElement('div');
+      editorFontSizeRow.style.display = 'flex';
+      editorFontSizeRow.style.flexDirection = 'column';
+      editorFontSizeRow.style.gap = '4px';
+      editorFontSizeRow.appendChild(editorFontSizeLabel);
+      editorFontSizeRow.appendChild(editorFontSizeInput);
+      fontSection.appendChild(editorFontSizeRow);
 
       var lineHeightInput = document.createElement('input');
       lineHeightInput.type = 'range'; lineHeightInput.min = '1'; lineHeightInput.max = '3'; lineHeightInput.step = '0.1';
@@ -1497,7 +1334,7 @@
       lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
       lineHeightInput.addEventListener('input', function(e){
         lineHeightLabel.textContent = '行間: ' + e.target.value;
-        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
+        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(e.target.value), parseInt(uiFontSizeInput.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
       var lineHeightRow = document.createElement('div');
@@ -1508,6 +1345,9 @@
       lineHeightRow.appendChild(lineHeightInput);
       fontSection.appendChild(lineHeightRow);
 
+      wrap.appendChild(themesSection);
+      wrap.appendChild(colorSection);
+      wrap.appendChild(paletteSection);
       wrap.appendChild(fontSection);
 
       el.appendChild(wrap);
@@ -1517,8 +1357,10 @@
           var latest = storage.loadSettings();
           if (!latest) return;
           fontSelect.value = latest.fontFamily || fonts[0].value;
-          fontSizeInput.value = latest.fontSize || 16;
-          fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
+          uiFontSizeInput.value = latest.uiFontSize || 16;
+          uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
+          editorFontSizeInput.value = latest.editorFontSize || 16;
+          editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
           lineHeightInput.value = latest.lineHeight || 1.6;
           lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
           bgInput.value = latest.bgColor || '#ffffff';
@@ -1526,6 +1368,7 @@
         } catch(e){ console.error('refreshState failed', e); }
       }
 
+      window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);
       window.addEventListener('ZenWriterSettingsChanged', refreshState);
     } catch(e) {

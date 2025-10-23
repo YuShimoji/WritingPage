@@ -10,7 +10,7 @@ class ThemeManager {
         } else {
             this.clearCustomColors();
         }
-        this.applyFontSettings(this.settings.fontFamily, this.settings.fontSize, this.settings.lineHeight);
+        this.applyFontSettings(this.settings.fontFamily, this.settings.fontSize, this.settings.lineHeight, this.settings.uiFontSize, this.settings.editorFontSize);
     }
 
     /**
@@ -69,14 +69,17 @@ class ThemeManager {
      * @param {number} fontSize - フォントサイズ (px)
      * @param {number} lineHeight - 行の高さ
      */
-    applyFontSettings(fontFamily, fontSize, lineHeight) {
+    applyFontSettings(fontFamily, fontSize, lineHeight, uiFontSize, editorFontSize) {
         const root = document.documentElement;
         root.style.setProperty('--font-family', fontFamily);
-        root.style.setProperty('--font-size', `${fontSize}px`);
+        root.style.setProperty('--ui-font-size', `${uiFontSize || fontSize}px`);
+        root.style.setProperty('--editor-font-size', `${editorFontSize || fontSize}px`);
         root.style.setProperty('--line-height', lineHeight);
         
         this.settings.fontFamily = fontFamily;
-        this.settings.fontSize = fontSize;
+        this.settings.fontSize = fontSize; // 後方互換
+        this.settings.uiFontSize = uiFontSize || fontSize;
+        this.settings.editorFontSize = editorFontSize || fontSize;
         this.settings.lineHeight = lineHeight;
         window.ZenWriterStorage.saveSettings(this.settings);
     }
