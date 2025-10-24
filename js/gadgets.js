@@ -384,7 +384,7 @@
           if (!currentGroups) return;
           var newGroups = [group];
           self.assignGroups(name, newGroups);
-          self._renderLast && self._renderLast();
+          if (self._renderLast) self._renderLast();
         } catch(_) {}
       });
 
@@ -555,7 +555,7 @@
                 eff.splice(dIdx, 0, eff.splice(sIdx,1)[0]);
                 p.order = eff;
                 savePrefs(p);
-                try { self._renderLast && self._renderLast(); } catch(_) {}
+                try { if (self._renderLast) self._renderLast(); } catch(_) {}
               } catch(_) {}
             });
 

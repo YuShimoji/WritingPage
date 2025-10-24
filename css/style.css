@@ -627,6 +627,8 @@ input[type="color"] {
 .gadget-settings-btn { background: transparent; color: inherit; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; cursor: pointer; font-size: 12px; }
 .gadget-settings-btn:hover { background: rgba(0,0,0,0.05); }
 .gadget-settings { margin-top: 6px; padding: 6px 8px; border-top: 1px dashed var(--border-color); background: rgba(0,0,0,0.03); }
+.gadgets-panel { display: flex; flex-direction: column; gap: 12px; }
+.gadget-body { margin-top: 6px; display: block; }
 
 /* ドラッグ状態 */
 .gadget.is-dragging { opacity: 0.6; }

@@ -10,6 +10,9 @@
   function load(docId){
     try { var s=getStorage(); if(!s) return []; var raw=s.getItem(key(docId)); var arr=raw?JSON.parse(raw):[]; return Array.isArray(arr)?arr:[]; } catch(_) { return []; }
   }
+  function list(docId){
+    return load(docId || getDocId());
+  }
   function save(docId, arr){
     try { var s=getStorage(); if(!s) return; s.setItem(key(docId), JSON.stringify(Array.isArray(arr)?arr:[])); } catch(_) {}
   }
@@ -55,8 +58,8 @@
 
   function addFromDataURL(dataURL, opt){
     var docId = getDocId();
-    var list = load(docId);
-    list.push({
+    var listArr = load(docId);
+    listArr.push({
       id: uid(),
       srcType: 'dataUrl',
       src: dataURL,
@@ -66,7 +69,7 @@
       top: (opt && opt.top) || 16,
       alignment: (opt && opt.alignment) || 'left'
     });
-    save(docId, list);
+    save(docId, listArr);
     renderOverlay();
   }
 
@@ -98,15 +101,15 @@
 
   function remove(id){
     var docId = getDocId();
-    var list = load(docId).filter(function(it){ return it && it.id !== id; });
-    save(docId, list);
+    var listArr = load(docId).filter(function(it){ return it && it.id !== id; });
+    save(docId, listArr);
     renderOverlay();
   }
 
   function update(id, patch){
     var docId = getDocId();
-    var list = load(docId).map(function(it){ if (it && it.id === id){ return Object.assign({}, it, patch||{}); } return it; });
-    save(docId, list);
+    var listArr = load(docId).map(function(it){ if (it && it.id === id){ return Object.assign({}, it, patch||{}); } return it; });
+    save(docId, listArr);
     renderOverlay();
   }
 
@@ -143,8 +146,9 @@
     addFromUrl: addFromUrl,
     remove: remove,
     update: update,
-    _load: load,
-    _save: save
+    list: list,
+    _load: function(docId){ return load(docId || getDocId()); },
+    _save: function(docId, arr){ save(docId || getDocId(), arr); }
   };
 
   try { window.ZenWriterImages = API; } catch(_) {}
