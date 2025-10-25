@@ -487,10 +487,42 @@
             }
 
             // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ try { wrap.classList.add('is-dragging'); ev.dataTransfer.setData('text/gadget-name', name); ev.dataTransfer.effectAllowed='move'; } catch(_) {} });
-            wrap.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
-            wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
-            wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
+            wrap.addEventListener('dragstart', function(ev){ 
+              try { 
+                wrap.classList.add('is-dragging'); 
+                ev.dataTransfer.setData('text/gadget-name', name); 
+                ev.dataTransfer.effectAllowed='move'; 
+              } catch(_) {} 
+            });
+            wrap.addEventListener('dragend', function(){ 
+              try { 
+                wrap.classList.remove('is-dragging'); 
+                // すべてのドラッグオーバー状態をクリア
+                var allGadgets = wrap.parentNode.querySelectorAll('.gadget');
+                for (var i = 0; i < allGadgets.length; i++) {
+                  allGadgets[i].classList.remove('drag-over');
+                }
+              } catch(_) {} 
+            });
+            wrap.addEventListener('dragover', function(ev){ 
+              try { 
+                ev.preventDefault(); 
+                ev.dataTransfer.dropEffect='move'; 
+                if (!wrap.classList.contains('is-dragging')) {
+                  wrap.classList.add('drag-over');
+                }
+              } catch(_) {} 
+            });
+            wrap.addEventListener('dragleave', function(ev){ 
+              try { 
+                // ドラッグが本当に離れたか確認（子要素への移動を無視）
+                var rect = wrap.getBoundingClientRect();
+                var x = ev.clientX, y = ev.clientY;
+                if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                  wrap.classList.remove('drag-over');
+                }
+              } catch(_) {} 
+            });
             wrap.addEventListener('drop', function(ev){
               try {
                 ev.preventDefault();
@@ -498,16 +530,30 @@
                 var src = ev.dataTransfer.getData('text/gadget-name');
                 var dst = name;
                 if (!src || !dst || src===dst) return;
-                var p = loadPrefs();
-                var eff = state.order.slice();
-                var sIdx = eff.indexOf(src), dIdx = eff.indexOf(dst);
+                
+                // DOMから現在の順序を取得
+                var container = wrap.parentNode;
+                var gadgets = container.querySelectorAll('.gadget');
+                var currentOrder = [];
+                for (var i = 0; i < gadgets.length; i++) {
+                  var gName = gadgets[i].dataset.name;
+                  if (gName) currentOrder.push(gName);
+                }
+                
+                var sIdx = currentOrder.indexOf(src), dIdx = currentOrder.indexOf(dst);
                 if (sIdx<0 || dIdx<0) return;
-                // move src before dst
-                eff.splice(dIdx, 0, eff.splice(sIdx,1)[0]);
-                p.order = eff;
+                
+                // srcをdstの前に移動
+                currentOrder.splice(dIdx, 0, currentOrder.splice(sIdx, 1)[0]);
+                
+                // 設定に保存
+                var p = loadPrefs();
+                p.order = currentOrder;
                 savePrefs(p);
                 try { self._renderLast && self._renderLast(); } catch(_) {}
-              } catch(_) {}
+              } catch(e) {
+                console.warn('Gadget drop failed:', e);
+              }
             });
 
             // keyboard navigation
