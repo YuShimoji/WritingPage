@@ -10,7 +10,7 @@ class ThemeManager {
         } else {
             this.clearCustomColors();
         }
-        this.applyFontSettings(this.settings.fontFamily, this.settings.fontSize, this.settings.lineHeight);
+        this.applyFontSettings(this.settings.fontFamilyContent, this.settings.fontFamilyUI, this.settings.fontSize, this.settings.lineHeight);
     }
 
     /**
@@ -65,17 +65,20 @@ class ThemeManager {
 
     /**
      * フォント設定を適用
-     * @param {string} fontFamily - フォントファミリー
+     * @param {string} fontFamilyContent - 本文フォントファミリー
+     * @param {string} fontFamilyUI - UIフォントファミリー
      * @param {number} fontSize - フォントサイズ (px)
      * @param {number} lineHeight - 行の高さ
      */
-    applyFontSettings(fontFamily, fontSize, lineHeight) {
+    applyFontSettings(fontFamilyContent, fontFamilyUI, fontSize, lineHeight) {
         const root = document.documentElement;
-        root.style.setProperty('--font-family', fontFamily);
+        root.style.setProperty('--font-family', fontFamilyContent || 'Noto Serif JP, serif');
+        root.style.setProperty('--font-family-ui', fontFamilyUI || 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif');
         root.style.setProperty('--font-size', `${fontSize}px`);
         root.style.setProperty('--line-height', lineHeight);
         
-        this.settings.fontFamily = fontFamily;
+        this.settings.fontFamilyContent = fontFamilyContent;
+        this.settings.fontFamilyUI = fontFamilyUI;
         this.settings.fontSize = fontSize;
         this.settings.lineHeight = lineHeight;
         window.ZenWriterStorage.saveSettings(this.settings);

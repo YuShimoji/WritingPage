@@ -1509,13 +1509,41 @@
 
       // Font settings
       var fontSection = makeSection('フォント');
-      var fontSelect = document.createElement('select');
-      var fonts = [
+      var fontContentSelect = document.createElement('select');
+      var contentFonts = [
         { value: "'Noto Serif JP', serif", label: 'Noto Serif JP' },
         { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
         { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
       ];
-      fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
+      contentFonts.forEach(function(f){
+        var opt = document.createElement('option');
+        opt.value = f.value;
+        opt.textContent = f.label;
+        fontContentSelect.appendChild(opt);
+      });
+      fontContentSelect.addEventListener('change', function(){
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value));
+        refreshState();
+      });
+      fontSection.appendChild(makeRow('本文フォントファミリー', fontContentSelect));
+
+      var fontUISelect = document.createElement('select');
+      var uiFonts = [
+        { value: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", label: 'システムフォント' },
+        { value: "'Noto Sans JP', sans-serif", label: 'Noto Sans JP' },
+        { value: "'Yu Gothic', 'YuGothic', sans-serif", label: '游ゴシック' }
+      ];
+      uiFonts.forEach(function(f){
+        var opt = document.createElement('option');
+        opt.value = f.value;
+        opt.textContent = f.label;
+        fontUISelect.appendChild(opt);
+      });
+      fontUISelect.addEventListener('change', function(){
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value));
+        refreshState();
+      });
+      fontSection.appendChild(makeRow('UIフォントファミリー', fontUISelect));
 
       var fontSizeInput = document.createElement('input');
       fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.value = settings.fontSize || 16;
@@ -1524,7 +1552,11 @@
       fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
       fontSizeInput.addEventListener('input', function(e){
         fontSizeLabel.textContent = 'フォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
+        refreshState();
+      });
+      fontSizeInput.addEventListener('change', function(e){
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
         refreshState();
       });
       var fontSizeRow = document.createElement('div');
@@ -1543,7 +1575,11 @@
       lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
       lineHeightInput.addEventListener('input', function(e){
         lineHeightLabel.textContent = '行間: ' + e.target.value;
-        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
+        refreshState();
+      });
+      lineHeightInput.addEventListener('change', function(e){
+        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
         refreshState();
       });
       var lineHeightRow = document.createElement('div');
@@ -1562,7 +1598,8 @@
         try {
           var latest = storage.loadSettings();
           if (!latest) return;
-          fontSelect.value = latest.fontFamily || fonts[0].value;
+          fontContentSelect.value = latest.fontFamilyContent || contentFonts[0].value;
+          fontUISelect.value = latest.fontFamilyUI || uiFonts[0].value;
           fontSizeInput.value = latest.fontSize || 16;
           fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
           lineHeightInput.value = latest.lineHeight || 1.6;
