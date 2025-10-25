@@ -706,7 +706,15 @@ input[type="color"] {
   background: rgba(74, 144, 226, 0.05);
 }
 
-/* ===== ミニHUD ===== */
+/* ===== 検索ハイライト ===== */
+.search-highlight {
+    position: absolute;
+    background-color: rgba(255, 255, 0, 0.3);
+    border: 1px solid rgba(255, 255, 0, 0.6);
+    border-radius: 2px;
+    pointer-events: none;
+    z-index: 10;
+}
 .mini-hud {
     position: fixed;
     min-width: 140px;

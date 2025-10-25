@@ -334,6 +334,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const gid = map[e.key];
             if (gid) activateSidebarGroup(gid);
         }
+        // Ctrl+F で検索パネルを開く
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
+                window.ZenWriterEditor.toggleSearchPanel();
+            }
+        }
     });
     
     // ドキュメント操作
@@ -489,6 +496,76 @@ document.addEventListener('DOMContentLoaded', () => {
     applySettingsToUI();
     // バックアップ一覧
     renderSnapshots();
+
+    // 検索パネルのイベントリスナー
+    const searchPanel = document.getElementById('search-panel');
+    const closeSearchPanelBtn = document.getElementById('close-search-panel');
+    const searchInput = document.getElementById('search-input');
+    const replaceInput = document.getElementById('replace-input');
+    const replaceSingleBtn = document.getElementById('replace-single');
+    const replaceAllBtn = document.getElementById('replace-all');
+    const searchPrevBtn = document.getElementById('search-prev');
+    const searchNextBtn = document.getElementById('search-next');
+
+    if (closeSearchPanelBtn) {
+        closeSearchPanelBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.hideSearchPanel === 'function') {
+                window.ZenWriterEditor.hideSearchPanel();
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
+                window.ZenWriterEditor.updateSearchMatches();
+            }
+        });
+    }
+
+    if (replaceSingleBtn) {
+        replaceSingleBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceSingle === 'function') {
+                window.ZenWriterEditor.replaceSingle();
+            }
+        });
+    }
+
+    if (replaceAllBtn) {
+        replaceAllBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceAll === 'function') {
+                window.ZenWriterEditor.replaceAll();
+            }
+        });
+    }
+
+    if (searchPrevBtn) {
+        searchPrevBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
+                window.ZenWriterEditor.navigateMatch(-1);
+            }
+        });
+    }
+
+    if (searchNextBtn) {
+        searchNextBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
+                window.ZenWriterEditor.navigateMatch(1);
+            }
+        });
+    }
+
+    // 検索オプションの変更時にも再検索
+    ['search-case-sensitive', 'search-regex'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
+                    window.ZenWriterEditor.updateSearchMatches();
+                }
+            });
+        }
+    });
 
     // 初期状態の整合性
     // applySettingsToUI() と head内の early-boot で反映済みのため、ここでの上書きは行わない

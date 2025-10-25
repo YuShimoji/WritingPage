@@ -940,6 +940,283 @@ class EditorManager {
     clampFontSize(px) {
         return Math.min(48, Math.max(12, Math.round(px)));
     }
+
+    /**
+     * 検索パネルを表示/非表示
+     */
+    toggleSearchPanel() {
+        const panel = document.getElementById('search-panel');
+        if (!panel) return;
+        const isVisible = panel.style.display !== 'none';
+        if (isVisible) {
+            this.hideSearchPanel();
+        } else {
+            this.showSearchPanel();
+        }
+    }
+
+    showSearchPanel() {
+        const panel = document.getElementById('search-panel');
+        if (!panel) return;
+        panel.style.display = 'block';
+        const input = document.getElementById('search-input');
+        if (input) {
+            input.focus();
+            // 選択範囲があればそれを検索語に
+            const selected = this.editor.value.substring(this.editor.selectionStart, this.editor.selectionEnd);
+            if (selected) {
+                input.value = selected;
+            }
+        }
+        this.updateSearchMatches();
+    }
+
+    hideSearchPanel() {
+        const panel = document.getElementById('search-panel');
+        if (panel) {
+            panel.style.display = 'none';
+        }
+        this.clearSearchHighlights();
+    }
+
+    /**
+     * 検索条件に基づいてマッチを取得
+     */
+    getSearchRegex() {
+        const input = document.getElementById('search-input');
+        const caseSensitive = document.getElementById('search-case-sensitive')?.checked;
+        const useRegex = document.getElementById('search-regex')?.checked;
+        const query = input?.value || '';
+
+        if (!query) return null;
+
+        let flags = 'g';
+        if (!caseSensitive) flags += 'i';
+
+        try {
+            return useRegex ? new RegExp(query, flags) : new RegExp(this.escapeRegex(query), flags);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    /**
+     * マッチを検索してハイライト
+     */
+    updateSearchMatches() {
+        this.clearSearchHighlights();
+        const regex = this.getSearchRegex();
+        if (!regex) {
+            this.updateMatchCount(0);
+            return;
+        }
+
+        const text = this.editor.value;
+        const matches = [];
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+            matches.push({
+                start: match.index,
+                end: match.index + match[0].length,
+                text: match[0]
+            });
+        }
+
+        this.currentMatches = matches;
+        this.currentMatchIndex = -1;
+        this.updateMatchCount(matches.length);
+        this.highlightMatches(matches);
+    }
+
+    /**
+     * マッチ数を更新
+     */
+    updateMatchCount(count) {
+        const countEl = document.getElementById('match-count');
+        if (countEl) {
+            if (count === 0) {
+                countEl.textContent = '一致するテキストが見つかりません';
+            } else {
+                countEl.textContent = `${count} 件一致しました`;
+            }
+        }
+    }
+
+    /**
+     * マッチをハイライト
+     */
+    highlightMatches(matches) {
+        const overlay = this.editorOverlay;
+        if (!overlay) return;
+
+        matches.forEach((match, index) => {
+            const highlight = document.createElement('div');
+            highlight.className = 'search-highlight';
+            highlight.dataset.matchIndex = index;
+
+            const rect = this.getTextPosition(match.start, match.end);
+            if (rect) {
+                highlight.style.left = rect.left + 'px';
+                highlight.style.top = rect.top + 'px';
+                highlight.style.width = rect.width + 'px';
+                highlight.style.height = rect.height + 'px';
+                overlay.appendChild(highlight);
+            }
+        });
+    }
+
+    /**
+     * テキスト位置を取得
+     */
+    getTextPosition(start, end) {
+        const mirror = this.editorMirror;
+        if (!mirror) return null;
+
+        const text = this.editor.value;
+        const before = text.substring(0, start);
+        const match = text.substring(start, end);
+        const after = text.substring(end);
+
+        mirror.innerHTML = this.escapeHtml(before) +
+                          '<span class="search-match">' + this.escapeHtml(match) + '</span>' +
+                          this.escapeHtml(after);
+        mirror.innerHTML = mirror.innerHTML.replace(/\n/g, '<br>');
+
+        const matchEl = mirror.querySelector('.search-match');
+        if (matchEl) {
+            const rect = matchEl.getBoundingClientRect();
+            const editorRect = this.editor.getBoundingClientRect();
+            return {
+                left: rect.left - editorRect.left,
+                top: rect.top - editorRect.top,
+                width: rect.width,
+                height: rect.height
+            };
+        }
+        return null;
+    }
+
+    /**
+     * ハイライトをクリア
+     */
+    clearSearchHighlights() {
+        const highlights = this.editorOverlay?.querySelectorAll('.search-highlight');
+        if (highlights) {
+            highlights.forEach(h => h.remove());
+        }
+    }
+
+    /**
+     * 次/前のマッチに移動
+     */
+    navigateMatch(direction) {
+        if (!this.currentMatches || this.currentMatches.length === 0) return;
+
+        if (direction > 0) {
+            this.currentMatchIndex = (this.currentMatchIndex + 1) % this.currentMatches.length;
+        } else {
+            this.currentMatchIndex = this.currentMatchIndex <= 0 ?
+                this.currentMatches.length - 1 : this.currentMatchIndex - 1;
+        }
+
+        const match = this.currentMatches[this.currentMatchIndex];
+        this.selectMatch(match);
+    }
+
+    /**
+     * マッチを選択
+     */
+    selectMatch(match) {
+        this.editor.selectionStart = match.start;
+        this.editor.selectionEnd = match.end;
+        this.editor.focus();
+        this.scrollToMatch(match);
+    }
+
+    /**
+     * マッチにスクロール
+     */
+    scrollToMatch(match) {
+        // 簡易的なスクロール実装
+        const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
+        const lines = this.editor.value.substring(0, match.start).split('\n').length - 1;
+        const y = lines * lineHeight;
+        this.editor.scrollTop = Math.max(0, y - this.editor.clientHeight / 2);
+    }
+
+    /**
+     * 単一置換
+     */
+    replaceSingle() {
+        const replaceInput = document.getElementById('replace-input');
+        const replaceText = replaceInput?.value || '';
+
+        if (!this.currentMatches || this.currentMatchIndex < 0) return;
+
+        const match = this.currentMatches[this.currentMatchIndex];
+        const before = this.editor.value.substring(0, match.start);
+        const after = this.editor.value.substring(match.end);
+
+        this.editor.value = before + replaceText + after;
+        this.saveContent();
+        this.updateWordCount();
+
+        // マッチ位置を調整
+        const newEnd = match.start + replaceText.length;
+        this.currentMatches.splice(this.currentMatchIndex, 1);
+
+        // 残りのマッチ位置を調整
+        for (let i = this.currentMatchIndex; i < this.currentMatches.length; i++) {
+            this.currentMatches[i].start += replaceText.length - match.text.length;
+            this.currentMatches[i].end += replaceText.length - match.text.length;
+        }
+
+        if (this.currentMatches.length === 0) {
+            this.currentMatchIndex = -1;
+        } else {
+            this.currentMatchIndex = Math.min(this.currentMatchIndex, this.currentMatches.length - 1);
+        }
+
+        this.updateMatchCount(this.currentMatches.length);
+        this.updateSearchMatches();
+
+        // エディタの選択を更新
+        if (this.currentMatchIndex >= 0) {
+            const newMatch = this.currentMatches[this.currentMatchIndex];
+            this.selectMatch(newMatch);
+        }
+    }
+
+    /**
+     * すべて置換
+     */
+    replaceAll() {
+        const replaceInput = document.getElementById('replace-input');
+        const replaceText = replaceInput?.value || '';
+        const regex = this.getSearchRegex();
+
+        if (!regex || !this.currentMatches) return;
+
+        let result = this.editor.value;
+        let offset = 0;
+
+        this.currentMatches.forEach(match => {
+            const before = result.substring(0, match.start + offset);
+            const after = result.substring(match.end + offset);
+            result = before + replaceText + after;
+            offset += replaceText.length - match.text.length;
+        });
+
+        this.editor.value = result;
+        this.saveContent();
+        this.updateWordCount();
+        this.updateSearchMatches();
+        this.showNotification('すべて置換しました');
+    }
 }
 
 // グローバルオブジェクトに追加

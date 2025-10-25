@@ -180,6 +180,31 @@
             <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
         </div>
     </div>
+    <!-- 検索置換パネル -->
+    <div id="search-panel" class="floating-panel" style="display:none;">
+        <div class="panel-header">
+            <span>検索と置換</span>
+            <button class="panel-close" id="close-search-panel">×</button>
+        </div>
+        <div class="panel-body">
+            <input type="text" id="search-input" placeholder="検索するテキスト">
+            <input type="text" id="replace-input" placeholder="置換するテキスト">
+            <div class="panel-row">
+                <label style="margin-right: 1rem;"><input type="checkbox" id="search-case-sensitive"> 大文字/小文字を区別</label>
+                <label><input type="checkbox" id="search-regex"> 正規表現</label>
+            </div>
+            <div class="panel-row">
+                <button id="replace-single" class="small" type="button">置換</button>
+                <button id="replace-all" class="small" type="button">すべて置換</button>
+                <button id="search-prev" class="small" type="button">前へ</button>
+                <button id="search-next" class="small" type="button">次へ</button>
+            </div>
+            <div class="panel-hint">
+                <span id="match-count">一致するテキストが見つかりません</span><br>
+                <small>ショートカット: Ctrl+F で検索パネルを開く</small>
+            </div>
+        </div>
+    </div>
     
     <script src="js/storage.js"></script>
     <script src="js/theme.js"></script>
