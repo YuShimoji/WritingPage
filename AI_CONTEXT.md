@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-21T18:30:00+09:00
-- 現在のミッション: Project Stabilization / Mission 12 Finalize
-- ブランチ: feature/m12-gadgets (PR #87)
-- 関連: PR #87
-- 進捗: 95% / ステータス: CI E2E fix pushed, awaiting green CI & auto-merge
-- 次の中断可能点: CI green → PR auto-merged to main
+- 最終更新: 2025-10-24T23:30:00+09:00
+- 現在のミッション: Mission 13 準備 - ミニHUDカスタマイズ機能の実装
+- ブランチ: main（次の機能ブランチ作成待ち）
+- 関連: BACKLOG「フェードイン/アウト型ミニHUD」
+- 進捗: 0% / ステータス: Mission 12 完了・main 安定・次タスク整理中
+- 次の中断可能点: Mission 13 ブランチ作成 → 設計・実装着手後
 
 ## 決定事項
 
