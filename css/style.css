@@ -8,8 +8,8 @@
     --border-color: #e0e0e0;
     --focus-color: #4a90e2;
     --font-family: 'Noto Serif JP', serif;
-    --font-family-ui: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-size: 16px;
+    --ui-font-size: 16px;
+    --editor-font-size: 16px;
     --line-height: 1.6;
     --transition-speed: 0.3s;
 
@@ -117,10 +117,11 @@ html:not([data-toolbar-hidden="true"]) #editor { padding-top: calc(60px + 1rem);
 }
 
 body {
-    font-family: var(--font-family-ui);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
     line-height: var(--line-height);
+    font-size: var(--ui-font-size);
     transition: background-color var(--transition-speed), color var(--transition-speed);
 }
 
@@ -143,8 +144,7 @@ body {
     flex: 1;
     padding: 2rem;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+    align-items: center;
     min-height: 100vh;
 }
 
@@ -167,7 +167,7 @@ body {
     background-color: transparent;
     color: var(--text-color);
     font-family: var(--font-family);
-    font-size: var(--font-size);
+    font-size: var(--editor-font-size);
     line-height: var(--line-height);
     padding: 1rem 100px;
     outline: none;
@@ -692,15 +692,9 @@ input[type="color"] {
   transition: all 0.2s ease, transform 0.1s ease, box-shadow 0.1s ease;
 }
 .gadget:hover { border-color: var(--focus-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.gadget-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
-  cursor: grab;
-  transition: background-color 0.2s ease;
-  user-select: none;
-}
+.gadget.moving-up { transform: translateY(-10px); }
+.gadget.moving-down { transform: translateY(10px); }
+.gadget-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; cursor: grab; }
 .gadget-head:active { cursor: grabbing; }
 .gadget-title { font-size: 0.95rem; font-weight: 600; margin: 0; }
 .gadget-toggle { background: transparent; color: inherit; border: 1px solid var(--border-color); padding: 2px 6px; border-radius: 4px; transition: background-color 0.2s ease; }
@@ -718,25 +712,12 @@ input[type="color"] {
   transition: all 0.2s ease;
 }
 .gadget-settings-btn:hover { background: rgba(0,0,0,0.05); }
-.gadget-settings {
-  margin-top: 6px;
-  padding: 6px 8px;
-  border-top: 1px dashed var(--border-color);
-  background: rgba(0,0,0,0.03);
-  transition: all 0.3s ease;
-}
+.gadget-settings { margin-top: 6px; padding: 6px 8px; border-top: 1px dashed var(--border-color); background: rgba(0,0,0,0.03); }
 
 /* ドラッグ状態 */
-.gadget.is-dragging {
-  opacity: 0.6;
-  transform: rotate(2deg);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.gadget.drag-over {
-  outline: 2px dashed var(--focus-color);
-  outline-offset: 2px;
-  background: rgba(74, 144, 226, 0.05);
-}
+.gadget.is-dragging { opacity: 0.6; transform: rotate(2deg); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.gadget.drag-over { outline: 2px dashed var(--focus-color); outline-offset: 2px; background: rgba(74, 144, 226, 0.05); }
+.gadgets-panel.drag-over-tab { background: rgba(74, 144, 226, 0.06); outline: 2px dashed var(--focus-color); outline-offset: 2px; }
 
 /* ===== 検索ハイライト ===== */
 .search-highlight {
@@ -773,7 +754,9 @@ input[type="color"] {
 }
 .mini-hud.pinned { pointer-events: auto; }
 
-/* ===== 印刷ビュー ===== */
+.editor-preview--bordered {
+    border: 1px solid var(--border-color);
+}
 .print-view { display: none; max-width: 900px; margin: 0 auto; padding: 1.5cm 1.5cm; color: #000; background: #fff; font-family: 'Noto Serif JP', serif; font-size: 12pt; line-height: 1.5; }
 .print-view p { margin: 0 0 1em; white-space: pre-wrap; word-break: break-word; }
 .print-view h1, .print-view h2, .print-view h3, .print-view h4, .print-view h5, .print-view h6 {

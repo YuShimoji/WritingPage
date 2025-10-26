@@ -10,7 +10,7 @@ class ThemeManager {
         } else {
             this.clearCustomColors();
         }
-        this.applyFontSettings(this.settings.fontFamilyContent, this.settings.fontFamilyUI, this.settings.fontSize, this.settings.lineHeight);
+        this.applyFontSettings(this.settings.fontFamily || this.settings.fontFamilyContent, this.settings.fontSize, this.settings.lineHeight, this.settings.uiFontSize, this.settings.editorFontSize);
     }
 
     /**
@@ -65,21 +65,24 @@ class ThemeManager {
 
     /**
      * フォント設定を適用
-     * @param {string} fontFamilyContent - 本文フォントファミリー
-     * @param {string} fontFamilyUI - UIフォントファミリー
+     * @param {string} fontFamily - 本文フォントファミリー
      * @param {number} fontSize - フォントサイズ (px)
      * @param {number} lineHeight - 行の高さ
+     * @param {number} uiFontSize - UIフォントサイズ (px)
+     * @param {number} editorFontSize - エディタフォントサイズ (px)
      */
-    applyFontSettings(fontFamilyContent, fontFamilyUI, fontSize, lineHeight) {
+    applyFontSettings(fontFamily, fontSize, lineHeight, uiFontSize, editorFontSize) {
         const root = document.documentElement;
-        root.style.setProperty('--font-family', fontFamilyContent || 'Noto Serif JP, serif');
-        root.style.setProperty('--font-family-ui', fontFamilyUI || 'system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif');
+        root.style.setProperty('--font-family', fontFamily);
         root.style.setProperty('--font-size', `${fontSize}px`);
+        root.style.setProperty('--ui-font-size', `${uiFontSize || fontSize}px`);
+        root.style.setProperty('--editor-font-size', `${editorFontSize || fontSize}px`);
         root.style.setProperty('--line-height', lineHeight);
         
-        this.settings.fontFamilyContent = fontFamilyContent;
-        this.settings.fontFamilyUI = fontFamilyUI;
-        this.settings.fontSize = fontSize;
+        this.settings.fontFamily = fontFamily;
+        this.settings.fontSize = fontSize; // 後方互換
+        this.settings.uiFontSize = uiFontSize || fontSize;
+        this.settings.editorFontSize = editorFontSize || fontSize;
         this.settings.lineHeight = lineHeight;
         window.ZenWriterStorage.saveSettings(this.settings);
     }
