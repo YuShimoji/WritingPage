@@ -53,15 +53,33 @@ function shutdown() {
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
+function parseBasePort() {
+  const argv = process.argv.slice(2);
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (/^\d+$/.test(a)) return parseInt(a, 10);
+    let m = /^--base=(\d+)$/.exec(a);
+    if (m) return parseInt(m[1], 10);
+    m = /^--port=(\d+)$/.exec(a);
+    if (m) return parseInt(m[1], 10);
+    if ((a === '--base' || a === '--port') && /^\d+$/.test(argv[i+1] || '')) {
+      return parseInt(argv[i+1], 10);
+    }
+  }
+  return 8080;
+}
+
 async function main(){
   try {
-    console.log('Starting dev server on 8081 ...');
-    start(8081);
-    await waitForReady(8081);
-    console.log('Server 8081 ready. Starting dev server on 8080 ...');
-    start(8080);
-    await waitForReady(8080);
-    console.log('Servers ready on 8080 and 8081.');
+    const base = parseBasePort();
+    const childPort = base + 1;
+    console.log(`Starting dev server on ${childPort} ...`);
+    start(childPort);
+    await waitForReady(childPort);
+    console.log(`Server ${childPort} ready. Starting dev server on ${base} ...`);
+    start(base);
+    await waitForReady(base);
+    console.log(`Servers ready on ${base} and ${childPort}.`);
   } catch (err) {
     console.error('Failed to start dev servers:', err);
     shutdown();

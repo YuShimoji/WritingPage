@@ -99,11 +99,30 @@
       this.el.style.minWidth = (hud.width || this.defaultWidth) + 'px';
       this.el.style.maxWidth = Math.min(Math.max(hud.width || this.defaultWidth, 120), window.innerWidth * 0.8) + 'px';
       this.el.style.fontSize = (hud.fontSize || this.defaultFontSize) + 'px';
-      // 既定の表示時間
-      this.durationOverride = hud.duration || 1200;
-      this.defaultMessage = typeof hud.message === 'string' ? hud.message : '';
-      this.defaultPinned = !!hud.pinned;
-      if (this.defaultPinned) this.pin(); else this.unpin();
+      this.durationOverride = hud.duration || null;
+    }
+
+    /**
+     * 設定変更時にHUDを更新（ガジェット連携用）
+     */
+    updateFromSettings(){
+      try {
+        const s = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings && window.ZenWriterStorage.loadSettings()) || {};
+        const hud = (s && s.hud) || {};
+        this.applyConfig(hud);
+        // メッセージが設定されている場合は再表示
+        if (hud && typeof hud.message === 'string' && hud.message) {
+          this.publish(hud.message, hud.duration || null, { force: true });
+        }
+        // ピン状態も反映
+        if (hud && hud.pinned) {
+          this.pin();
+        } else {
+          this.unpin();
+        }
+      } catch(e) {
+        console.warn('HUD updateFromSettings failed:', e);
+      }
     }
 
     updateFromSettings(){

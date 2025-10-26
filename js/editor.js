@@ -479,12 +479,8 @@ class EditorManager {
             const widthPercent = Math.min(100, Math.max(10, asset.widthPercent || 60));
             const widthPx = Math.max(40, Math.round(usableWidth * (widthPercent / 100)));
 
+            // 画像を左寄せに固定（エディタ拡大時の上書きを防ぐ）
             let left = padding.left;
-            if (asset.alignment === 'center') {
-                left = padding.left + (usableWidth - widthPx) / 2;
-            } else if (asset.alignment === 'right') {
-                left = padding.left + usableWidth - widthPx;
-            }
 
             const top = anchor.offsetTop - this.editor.scrollTop + (asset.offsetY || 0);
 

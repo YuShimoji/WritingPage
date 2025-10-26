@@ -143,16 +143,20 @@ body {
     flex: 1;
     padding: 2rem;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
     min-height: 100vh;
 }
 
 .editor-canvas {
     position: relative;
-    width: 900px;
-    min-height: 400px;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .editor-preview {
@@ -170,6 +174,32 @@ body {
     transition: color var(--transition-speed), background-color var(--transition-speed);
 }
 
+.editor-preview--collapsed {
+    display: none;
+}
+
+#editor {
+    width: 100%;
+    min-height: 600px;
+    border: none;
+    outline: none;
+    padding: 2rem;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+    line-height: var(--line-height);
+    resize: none;
+    transition: color var(--transition-speed), background-color var(--transition-speed);
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+#editor::-webkit-scrollbar {
+    display: none;
+}
+
 .editor-overlay {
     position: absolute;
     top: 0;
@@ -185,6 +215,7 @@ body {
     border-radius: 6px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.18);
     transition: transform 0.1s ease, box-shadow 0.2s ease;
+    max-width: calc(100% - 20px);
 }
 
 .editor-overlay__image img {
@@ -668,6 +699,7 @@ input[type="color"] {
   margin-bottom: 4px;
   cursor: grab;
   transition: background-color 0.2s ease;
+  user-select: none;
 }
 .gadget-head:active { cursor: grabbing; }
 .gadget-title { font-size: 0.95rem; font-weight: 600; margin: 0; }

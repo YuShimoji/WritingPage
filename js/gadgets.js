@@ -26,17 +26,17 @@
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents','Outline'],
-          typography: ['TypographyThemes','EditorLayout'],
-          assist: ['Clock','HUDSettings']
+          structure: ['Documents','Outline','SnapshotManager'],
+          typography: ['EditorLayout'],
+          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
         }
       },
       'vn-layout': {
         label: 'ビジュアルノベル',
         groups: {
-          structure: ['Documents','Outline'],
-          typography: ['TypographyThemes','EditorLayout'],
-          assist: ['Clock','HUDSettings']
+          structure: ['Documents','Outline','SnapshotManager'],
+          typography: ['EditorLayout'],
+          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
         }
       }
     }
@@ -414,11 +414,12 @@
             wrap.className = 'gadget';
             wrap.dataset.name = name;
             wrap.dataset.group = group;
-            wrap.setAttribute('draggable', 'true');
+            wrap.setAttribute('draggable', 'false');
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
-            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (prefs.collapsed[name] ? '▶' : '▼');
+            var collapsed = (name === 'EditorLayout') ? false : !!prefs.collapsed[name];
+            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (collapsed ? '▶' : '▼');
             var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
@@ -435,7 +436,7 @@
 
             var body = document.createElement('div');
             body.className = 'gadget-body';
-            if (prefs.collapsed[name]) body.style.display = 'none';
+            if (collapsed) body.style.display = 'none';
             wrap.appendChild(body);
             if (typeof g.factory === 'function') {
               try {
@@ -487,8 +488,25 @@
             }
 
             // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ 
+            head.setAttribute('draggable', 'true');
+            head.addEventListener('dragstart', function(ev){ 
               try { 
+                // ガジェット内のコントロールでドラッグしない
+                var tag = ev.target.tagName.toLowerCase();
+                if (['input','button','label','select','textarea'].includes(tag)) {
+                  ev.preventDefault();
+                  return;
+                }
+                // HUD の位置チェック
+                var hud = document.querySelector('.mini-hud');
+                if (hud && hud.classList.contains('pinned')) {
+                  var rect = hud.getBoundingClientRect();
+                  var x = ev.clientX, y = ev.clientY;
+                  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    ev.preventDefault();
+                    return;
+                  }
+                }
                 wrap.classList.add('is-dragging'); 
                 ev.dataTransfer.setData('text/gadget-name', name); 
                 ev.dataTransfer.effectAllowed='move'; 
@@ -555,18 +573,6 @@
                 console.warn('Gadget drop failed:', e);
               }
             });
-
-            // keyboard navigation
-            wrap.addEventListener('keydown', function(ev){
-              if (ev.key === 'ArrowUp' && ev.altKey){
-                ev.preventDefault();
-                self.move(name, 'up');
-              } else if (ev.key === 'ArrowDown' && ev.altKey){
-                ev.preventDefault();
-                self.move(name, 'down');
-              }
-            });
-            wrap.setAttribute('tabindex', '0');
 
             root.appendChild(wrap);
           } catch(e) { /* ignore per gadget */ }
@@ -1125,6 +1131,40 @@
         row.style.gap = '8px';
         row.style.margin = '6px 0';
         row.dataset.level = level;
+
+        var head = document.createElement('div');
+        head.className = 'gadget-head';
+        head.style.display = 'flex';
+        head.style.alignItems = 'center';
+        head.style.justifyContent = 'space-between';
+        head.style.padding = '6px 8px';
+        head.style.cursor = 'pointer';
+        head.style.userSelect = 'none';
+        var title = document.createElement('span');
+        title.className = 'gadget-title';
+        title.textContent = label;
+        title.style.fontWeight = 'bold';
+        title.style.flex = '1';
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'gadget-toggle-btn';
+        toggleBtn.textContent = '▼';
+        toggleBtn.style.border = 'none';
+        toggleBtn.style.background = 'none';
+        toggleBtn.style.cursor = 'pointer';
+        toggleBtn.style.fontSize = '12px';
+        toggleBtn.addEventListener('click', function(ev){
+          ev.stopPropagation();
+          row.classList.toggle('collapsed');
+          toggleBtn.textContent = row.classList.contains('collapsed') ? '▶' : '▼';
+        });
+        var settingsBtn = document.createElement('button');
+        settingsBtn.className = 'gadget-settings-btn small';
+        settingsBtn.textContent = '⚙️';
+        settingsBtn.title = '設定';
+        head.appendChild(title);
+        head.appendChild(toggleBtn);
+        head.appendChild(settingsBtn);
+        row.appendChild(head);
 
         var levelSpan = document.createElement('span');
         levelSpan.textContent = level;
@@ -1715,37 +1755,6 @@
       opacityRow.appendChild(opacity);
       wrap.appendChild(opacityRow);
 
-      // Writing goal settings
-      var goalSection = document.createElement('div');
-      goalSection.style.display = 'flex';
-      goalSection.style.flexDirection = 'column';
-      goalSection.style.gap = '8px';
-      goalSection.style.marginTop = '12px';
-      goalSection.style.paddingTop = '8px';
-      goalSection.style.borderTop = '1px solid var(--border-color)';
-
-      var goalLabel = document.createElement('label');
-      goalLabel.textContent = '執筆目標';
-      goalLabel.style.fontSize = '0.9rem';
-      goalLabel.style.fontWeight = '600';
-      goalSection.appendChild(goalLabel);
-
-      var goalTargetInput = document.createElement('input');
-      goalTargetInput.type = 'number';
-      goalTargetInput.placeholder = '目標文字数';
-      goalTargetInput.min = '0';
-      goalTargetInput.value = hud.goalTarget || '';
-      goalTargetInput.addEventListener('change', function(e){ saveHud({ goalTarget: parseInt(e.target.value, 10) || 0 }); });
-      goalSection.appendChild(makeRow('目標文字数', goalTargetInput));
-
-      var goalDeadlineInput = document.createElement('input');
-      goalDeadlineInput.type = 'date';
-      goalDeadlineInput.value = hud.goalDeadline || '';
-      goalDeadlineInput.addEventListener('change', function(e){ saveHud({ goalDeadline: e.target.value }); });
-      goalSection.appendChild(makeRow('締切日', goalDeadlineInput));
-
-      wrap.appendChild(goalSection);
-
       var testBtn = document.createElement('button');
       testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = 'HUDテスト表示';
       testBtn.addEventListener('click', function(){
@@ -1764,41 +1773,253 @@
     }
   }, { groups: ['assist'], title: 'HUD設定' });
 
-  // EditorLayout gadget
-  ZWGadgets.register('EditorLayout', function(el, api){
+  // Writing Goal gadget
+  ZWGadgets.register('WritingGoal', function(el, api){
     try {
-      var settings = api && typeof api.getSettings === 'function' ? api.getSettings() : {};
-      var width = settings.width || 900;
-      var paddingX = settings.paddingX || 100;
-      var showBorder = !!settings.showBorder;
-
-      function applyLayout(){
-        try {
-          var container = document.querySelector('.editor-container');
-          var canvas = document.querySelector('.editor-canvas');
-          var preview = document.querySelector('.editor-preview');
-          if (container) {
-            container.style.padding = '2rem';
-            container.style.display = 'flex';
-            container.style.justifyContent = 'center';
-            container.style.minHeight = '100vh';
-          }
-          if (canvas) {
-            canvas.style.width = width + 'px';
-          }
-          if (preview) {
-            preview.style.padding = '1rem ' + paddingX + 'px';
-            preview.style.border = showBorder ? '1px solid var(--border-color)' : 'none';
-            preview.style.outline = showBorder ? 'none' : 'none';
-          }
-        } catch(e) { console.error('applyLayout failed', e); }
+      var storage = window.ZenWriterStorage;
+      var editor = window.ZenWriterEditor;
+      if (!storage) {
+        var warn = document.createElement('p');
+        warn.textContent = 'ストレージが利用できないため目標を保存できません。';
+        warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
+        el.appendChild(warn);
+        return;
       }
-      applyLayout();
+
+      var goal = api && typeof api.get === 'function' ? api.get('goal', {}) : {};
+
+      var wrap = document.createElement('div');
+      wrap.className = 'gadget-goal';
+      wrap.style.display = 'flex';
+      wrap.style.flexDirection = 'column';
+      wrap.style.gap = '8px';
+
+      var target = document.createElement('input');
+      target.type = 'number'; target.min = '0'; target.placeholder = '例: 2000';
+      target.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
+      target.addEventListener('input', function(e){ 
+        var n = Math.max(0, parseInt(e.target.value,10)||0); 
+        var newGoal = Object.assign({}, goal, { target: n });
+        if (api && typeof api.set === 'function') api.set('goal', newGoal);
+        try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
+      });
+
+      var deadline = document.createElement('input');
+      deadline.type = 'date'; deadline.value = goal.deadline || '';
+      deadline.addEventListener('change', function(e){ 
+        var newGoal = Object.assign({}, goal, { deadline: e.target.value || '' });
+        if (api && typeof api.set === 'function') api.set('goal', newGoal);
+      });
+
+      var row1 = document.createElement('label'); row1.style.display='flex'; row1.style.flexDirection='column'; row1.style.gap='4px'; row1.textContent = '目標文字数'; row1.appendChild(target);
+      var row2 = document.createElement('label'); row2.style.display='flex'; row2.style.flexDirection='column'; row2.style.gap='4px'; row2.textContent = '締切日'; row2.appendChild(deadline);
+
+      var reset = document.createElement('button'); reset.type='button'; reset.className='small'; reset.textContent='目標をクリア';
+      reset.addEventListener('click', function(){ 
+        if (confirm('執筆目標をクリアしますか？')){ 
+          if (api && typeof api.set === 'function') api.set('goal', {});
+          target.value = 0; deadline.value=''; 
+          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
+        }
+      });
+
+      wrap.appendChild(row1);
+      wrap.appendChild(row2);
+      wrap.appendChild(reset);
+      el.appendChild(wrap);
     } catch(e) {
-      console.error('EditorLayout gadget failed:', e);
-      try { el.textContent = 'エディタレイアウトガジェットの初期化に失敗しました。'; } catch(_) {}
+      console.error('WritingGoal gadget failed:', e);
+      try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['typography'], title: 'エディタレイアウト' });
+  }, { groups: ['assist'], title: '執筆目標' });
+
+  // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
+  ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, api){
+    try {
+      var storage = window.ZenWriterStorage;
+      var editor = window.ZenWriterEditor;
+      if (!storage || !storage.loadSnapshots || !storage.addSnapshot) {
+        var warn = document.createElement('p');
+        warn.textContent = 'スナップショット機能が利用できません。';
+        warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
+        el.appendChild(warn);
+        return;
+      }
+
+      function formatTs(ts){
+        const d = new Date(ts);
+        const p = (n)=> String(n).padStart(2,'0');
+        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      }
+
+      function renderSnapshots(){
+        var list = storage.loadSnapshots() || [];
+        el.innerHTML = '';
+        if (list.length === 0){
+          const empty = document.createElement('div');
+          empty.style.opacity = '0.7';
+          empty.textContent = 'バックアップはありません';
+          el.appendChild(empty);
+          return;
+        }
+        list.forEach(s => {
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
+          row.style.gap = '6px';
+          row.style.margin = '4px 0';
+          const meta = document.createElement('div');
+          meta.textContent = `${formatTs(s.ts)} / ${s.len} 文字`;
+          const actions = document.createElement('div');
+          const restore = document.createElement('button');
+          restore.className = 'small';
+          restore.textContent = '復元';
+          restore.addEventListener('click', () => {
+            if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){
+              editor.setContent(s.content || '');
+              if (typeof editor.showNotification === 'function') {
+                editor.showNotification('バックアップから復元しました');
+              }
+            }
+          });
+          const del = document.createElement('button');
+          del.className = 'small';
+          del.textContent = '削除';
+          del.addEventListener('click', () => {
+            if (confirm('このバックアップを削除しますか？')){
+              storage.deleteSnapshot(s.id);
+              renderSnapshots();
+            }
+          });
+          actions.appendChild(restore);
+          actions.appendChild(del);
+          row.appendChild(meta);
+          row.appendChild(actions);
+          el.appendChild(row);
+        });
+      }
+
+      const saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.className = 'small';
+      saveBtn.textContent = '今すぐ保存';
+      saveBtn.addEventListener('click', () => {
+        const content = editor && editor.value ? editor.value : '';
+        storage.addSnapshot(content);
+        if (typeof editor.showNotification === 'function') {
+          editor.showNotification('バックアップを保存しました');
+        }
+        renderSnapshots();
+      });
+      el.appendChild(saveBtn);
+
+      renderSnapshots();
+    } catch(e) {
+      console.error('SnapshotManager gadget failed:', e);
+      try { el.textContent = 'スナップショットガジェットの初期化に失敗しました。'; } catch(_) {}
+    }
+  }, { groups: ['assist'], title: 'バックアップ' });
+
+  // Print Settings gadget
+  ZWGadgets.register('PrintSettings', function(el, api){
+    try {
+      const printBtn = document.createElement('button');
+      printBtn.type = 'button';
+      printBtn.className = 'small';
+      printBtn.textContent = '印刷プレビュー';
+      printBtn.addEventListener('click', () => {
+        const pv = document.getElementById('print-view');
+        if (!pv || !editor) return;
+        const text = editor.value || '';
+        pv.innerHTML = '';
+        const norm = text.replace(/\r\n/g, '\n');
+        const blocks = norm.split(/\n{2,}/);
+        blocks.forEach(seg => {
+          const p = document.createElement('p');
+          p.textContent = seg;
+          pv.appendChild(p);
+        });
+        window.print();
+      });
+      el.appendChild(printBtn);
+
+      const exportBtn = document.createElement('button');
+      exportBtn.type = 'button';
+      exportBtn.className = 'small';
+      exportBtn.textContent = 'TXTエクスポート';
+      exportBtn.addEventListener('click', () => {
+        const text = editor && editor.value ? editor.value : '';
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'document.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+      el.appendChild(exportBtn);
+    } catch(e) {
+      console.error('PrintSettings gadget failed:', e);
+      try { el.textContent = '印刷設定ガジェットの初期化に失敗しました。'; } catch(_) {}
+    }
+  }, { groups: ['assist'], title: 'エクスポート' });
+
+  // (removed) legacy EditorLayout gadget (replaced by new implementation at bottom)
+
+  // SnapshotManager gadget (バックアップ管理)
+  ZWGadgets.register('SnapshotManager', function(el){
+    try {
+      var storage = window.ZenWriterStorage;
+      var editorManager = window.ZenWriterEditor;
+      if (!storage || !storage.loadSnapshots) {
+        var warn = document.createElement('p'); warn.style.opacity='0.7'; warn.textContent='バックアップ機能を利用できません。'; el.appendChild(warn); return;
+      }
+      var wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.gap='8px';
+      var btn = document.createElement('button'); btn.type='button'; btn.textContent='今すぐ保存'; btn.addEventListener('click', function(){ try {
+        var content = (editorManager && editorManager.editor) ? (editorManager.editor.value||'') : (storage.loadContent ? storage.loadContent() : '');
+        storage.addSnapshot(content);
+        if (editorManager && typeof editorManager.showNotification==='function') editorManager.showNotification('バックアップを保存しました');
+        renderList();
+      } catch(e){} });
+      var listEl = document.createElement('div'); listEl.className='snapshot-list';
+      wrap.appendChild(btn); wrap.appendChild(listEl); el.appendChild(wrap);
+
+      function fmt(ts){ var d=new Date(ts); var p=function(n){return String(n).padStart(2,'0')}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+      function renderList(){
+        var list = storage.loadSnapshots()||[]; listEl.innerHTML='';
+        if (!list.length){ var empty=document.createElement('div'); empty.style.opacity='0.7'; empty.textContent='バックアップはありません'; listEl.appendChild(empty); return; }
+        list.forEach(function(s){
+          var row=document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.gap='6px'; row.style.margin='4px 0';
+          var meta=document.createElement('div'); meta.textContent=fmt(s.ts)+' / '+s.len+' 文字';
+          var actions=document.createElement('div');
+          var restore=document.createElement('button'); restore.className='small'; restore.textContent='復元'; restore.addEventListener('click', function(){ if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){ if (editorManager && typeof editorManager.setContent==='function'){ editorManager.setContent(s.content||''); if (editorManager.showNotification) editorManager.showNotification('バックアップから復元しました'); } } });
+          var del=document.createElement('button'); del.className='small'; del.textContent='削除'; del.addEventListener('click', function(){ storage.deleteSnapshot(s.id); renderList(); });
+          actions.appendChild(restore); actions.appendChild(del);
+          row.appendChild(meta); row.appendChild(actions); listEl.appendChild(row);
+        });
+      }
+      renderList();
+    } catch(e) { try { el.textContent='スナップショットの初期化に失敗しました。'; } catch(_) {} }
+  }, { groups: ['structure'], title: 'バックアップ' });
+
+  // ChoiceTools gadget（選択肢ツール）
+  ZWGadgets.register('ChoiceTools', function(el){
+    try {
+      var ed = window.ZenWriterEditor;
+      var wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexWrap='wrap'; wrap.style.gap='6px';
+      function makeBtn(text, handler){ var b=document.createElement('button'); b.type='button'; b.className='small'; b.textContent=text; b.addEventListener('click', handler); return b; }
+      function insertChoice(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var tpl=['','[choice title="選択肢"]','- [> 選択肢1](#label1)','- [> 選択肢2](#label2)','[/choice]',''].join('\n'); ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('選択肢ブロックを挿入しました'); }
+      function insertLabel(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var name=prompt('ラベルIDを入力','label1'); if (name===null) return; var tpl=['','[label id="'+String((name||'label1').trim())+'"]','', '[/label]',''].join('\n'); ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('ラベルを挿入しました'); }
+      function insertJump(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var to=prompt('ジャンプ先ラベルIDを入力','label1'); if (to===null) return; var tpl='\n[jump to="'+String((to||'label1').trim())+'"]\n'; ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('ジャンプを挿入しました'); }
+      wrap.appendChild(makeBtn('選択肢ブロック', insertChoice));
+      wrap.appendChild(makeBtn('ラベル', insertLabel));
+      wrap.appendChild(makeBtn('ジャンプ', insertJump));
+      el.appendChild(wrap);
+    } catch(e){ try { el.textContent='選択肢ツールの初期化に失敗しました。'; } catch(_) {} }
+  }, { groups: ['assist'], title: '選択肢' });
 
   // EditorLayout settings UI
   ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
@@ -1987,8 +2208,12 @@
     try { ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' }); } catch(_) {}
     try { ZWGadgets.init('#gadgets-panel', { group: 'assist' }); } catch(_) {}
     try { ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' }); } catch(_) {}
-    // Wire Loadout UI
+    // Wire Loadout UI (one-time binding guard)
     try {
+      if (window.__ZW_LOADOUT_UI_BOUND__) { /* already bound */ }
+      else { window.__ZW_LOADOUT_UI_BOUND__ = true; }
+      if (window.__ZW_LOADOUT_UI_BOUND_INIT_DONE__) return; // prevent double handlers
+      window.__ZW_LOADOUT_UI_BOUND_INIT_DONE__ = true;
       var $sel = document.getElementById('loadout-select');
       var $name = document.getElementById('loadout-name');
       var $save = document.getElementById('loadout-save');
@@ -2058,7 +2283,9 @@
                 return;
               }
               if (!confirm('選択中のロードアウトを削除しますか？')) return;
-              ZWGadgets.deleteLoadout($sel.value);
+              // 選択値を即時に退避してから削除を実行（UI再描画による値変化を防止）
+              var toDelete = String($sel.value);
+              ZWGadgets.deleteLoadout(toDelete);
               refreshLoadoutUI(active);
             }
           } catch(e){ console.error('delete loadout failed', e); }
@@ -2114,4 +2341,74 @@
       }
     } catch(_) {}
   });
+
+  ZWGadgets.register('EditorLayout', function(el){
+    try {
+      var api = arguments[1];
+      var wrap = document.createElement('div');
+      wrap.style.display = 'flex';
+      wrap.style.flexDirection = 'column';
+      wrap.style.gap = '8px';
+
+      // 執筆エリア枠表示
+      var borderLabel = document.createElement('label');
+      borderLabel.innerHTML = '<input type="checkbox" id="editor-border-toggle"> 執筆エリアの枠を表示';
+      var borderInput = borderLabel.querySelector('#editor-border-toggle');
+      borderInput.checked = api.get('borderVisible', true);
+      borderInput.addEventListener('change', function(){
+        api.set('borderVisible', this.checked);
+        applySettings();
+      });
+
+      // 画像プレビュー表示
+      var previewLabel = document.createElement('label');
+      previewLabel.innerHTML = '<input type="checkbox" id="preview-toggle"> 画像プレビューを表示';
+      var previewInput = previewLabel.querySelector('#preview-toggle');
+      previewInput.checked = api.get('previewVisible', false);
+      previewInput.addEventListener('change', function(){
+        api.set('previewVisible', this.checked);
+        applySettings();
+      });
+
+      // padding
+      var paddingLabel = document.createElement('label');
+      paddingLabel.textContent = '執筆エリア内余白 (px)';
+      var paddingInput = document.createElement('input');
+      paddingInput.type = 'range';
+      paddingInput.min = '0';
+      paddingInput.max = '100';
+      paddingInput.value = api.get('editorPadding', 32);
+      paddingInput.addEventListener('input', function(){
+        api.set('editorPadding', this.value);
+        applySettings();
+      });
+
+      wrap.appendChild(borderLabel);
+      wrap.appendChild(previewLabel);
+      wrap.appendChild(paddingLabel);
+      wrap.appendChild(paddingInput);
+      el.appendChild(wrap);
+
+      function applySettings(){
+        var borderVisible = api.get('borderVisible', false);
+        var previewVisible = api.get('previewVisible', false);
+        var padding = api.get('editorPadding', 32);
+        var editor = document.getElementById('editor');
+        var preview = document.getElementById('editor-preview');
+        if (editor){
+          editor.style.border = borderVisible ? '1px solid var(--border-color)' : 'none';
+          editor.style.outline = borderVisible ? '' : 'none';
+          editor.style.padding = padding + 'px';
+        }
+        if (preview){
+          preview.classList.toggle('editor-preview--collapsed', !previewVisible);
+        }
+      }
+
+      applySettings();
+    } catch(e){
+      console.error('EditorLayout gadget failed:', e);
+    }
+  }, { groups: ['typography'], title: 'エディタレイアウト' });
+
 })();

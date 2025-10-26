@@ -82,12 +82,6 @@
                         <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
                     </div>
 
-
-                    <div class="sidebar-section">
-                        <h3>バックアップ</h3>
-                        <button id="snapshot-now" type="button">今すぐ保存</button>
-                        <div id="snapshot-list" class="snapshot-list" style="margin-top:8px;"></div>
-                    </div>
                 </section>
 
                 <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel" aria-labelledby="sidebar-tab-typography" aria-hidden="true">
@@ -98,20 +92,10 @@
 
                 <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel" aria-labelledby="sidebar-tab-assist" aria-hidden="true">
                     <div class="sidebar-section">
-                        <h3>執筆目標</h3>
-                        <label for="goal-target">目標文字数</label>
-                        <input type="number" id="goal-target" min="0" step="100" value="0">
-                        <label for="goal-deadline">締切（任意）</label>
-                        <input type="date" id="goal-deadline">
-                    </div>
-
-                    <div class="sidebar-section">
-                        <h3>拡張機能</h3>
                         <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
                     </div>
 
                     <div class="sidebar-section">
-                        <h3>ガジェット</h3>
                         <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
                         <div class="gadget-tools" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
                             <button id="gadget-export" class="small" type="button">ガジェット設定をエクスポート</button>
@@ -151,13 +135,9 @@
                     <div id="editor-overlay" class="editor-overlay" aria-hidden="true"></div>
                     <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
                 </div>
-                <section id="editor-preview" class="editor-preview" aria-live="polite">
-                    <header class="editor-preview__header">
-                        <h3>画像プレビュー</h3>
-                        <button type="button" id="editor-preview-toggle" class="small">折りたたむ</button>
-                    </header>
+                <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite">
                     <div id="editor-preview-body" class="editor-preview__body"></div>
-                </section>
+                </div>
                 <div id="print-view" class="print-view" aria-hidden="true"></div>
             </div>
         </main>

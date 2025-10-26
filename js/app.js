@@ -89,8 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const globalFontNumber = document.getElementById('global-font-size-number');
     // HUD 設定UI
     // スナップショットUI
-    const snapNowBtn = document.getElementById('snapshot-now');
-    const snapListEl = document.getElementById('snapshot-list');
     // 執筆目標
     const goalTargetInput = document.getElementById('goal-target');
     const goalDeadlineInput = document.getElementById('goal-deadline');
@@ -105,53 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
-    function renderSnapshots(){
-        if (!snapListEl || !window.ZenWriterStorage || !window.ZenWriterStorage.loadSnapshots) return;
-        const list = window.ZenWriterStorage.loadSnapshots() || [];
-        snapListEl.innerHTML = '';
-        if (list.length === 0){
-            const empty = document.createElement('div');
-            empty.style.opacity = '0.7';
-            empty.textContent = 'バックアップはありません';
-            snapListEl.appendChild(empty);
-            return;
-        }
-        list.forEach(s => {
-            const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.justifyContent = 'space-between';
-            row.style.alignItems = 'center';
-            row.style.gap = '6px';
-            row.style.margin = '4px 0';
-            const meta = document.createElement('div');
-            meta.textContent = `${formatTs(s.ts)} / ${s.len} 文字`;
-            const actions = document.createElement('div');
-            const restore = document.createElement('button');
-            restore.className = 'small';
-            restore.textContent = '復元';
-            restore.addEventListener('click', () => {
-                if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){
-                    window.ZenWriterEditor.setContent(s.content || '');
-                    window.ZenWriterEditor.showNotification('バックアップから復元しました');
-                }
-            });
-            const del = document.createElement('button');
-            del.className = 'small';
-            del.textContent = '削除';
-            del.addEventListener('click', () => {
-                if (confirm('このバックアップを削除しますか？')){
-                    window.ZenWriterStorage.deleteSnapshot(s.id);
-                    renderSnapshots();
-                }
-            });
-            actions.appendChild(restore);
-            actions.appendChild(del);
-            row.appendChild(meta);
-            row.appendChild(actions);
-            snapListEl.appendChild(row);
-        });
-    }
-
     // プラグインを描画
     function renderPlugins(){
         if (!pluginsPanel || !window.ZenWriterPlugins) return;
@@ -159,10 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const list = window.ZenWriterPlugins.list ? (window.ZenWriterPlugins.list() || []) : [];
             pluginsPanel.innerHTML = '';
             if (!list.length) {
-                const empty = document.createElement('div');
-                empty.style.opacity = '0.7';
-                empty.textContent = '利用可能な拡張機能はありません';
-                pluginsPanel.appendChild(empty);
+                // メッセージを表示しない
                 return;
             }
             list.forEach(p => {
@@ -416,17 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // スナップショット: 今すぐ保存
-    if (snapNowBtn) {
-        snapNowBtn.addEventListener('click', () => {
-            if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
-            const content = editor ? (editor.value || '') : '';
-            window.ZenWriterStorage.addSnapshot(content);
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
-                window.ZenWriterEditor.showNotification('バックアップを保存しました');
-            }
-            renderSnapshots();
-        });
-    }
+    // 削除済み
     
     // フォント設定
     if (fontFamilySelect) {
@@ -495,7 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 設定をUIに反映
     applySettingsToUI();
     // バックアップ一覧
-    renderSnapshots();
+    // renderSnapshots();
 
     // 検索パネルのイベントリスナー
     const searchPanel = document.getElementById('search-panel');

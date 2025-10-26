@@ -9,14 +9,15 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#gadgets-panel');
     } catch (_) { return false; }
   });
-  // assistタブをアクティブにしてガジェットパネルを表示
-  const assistTab = document.querySelector('#sidebar-tab-assist');
-  if (assistTab) {
-    assistTab.click();
+  // assistタブをアクティブにしてガジェットパネルを表示（ブラウザ文脈で実行）
+  const assistTab = page.locator('#sidebar-tab-assist');
+  if (await assistTab.isVisible().catch(() => false)) {
+    await assistTab.click();
   }
   // 初回レンダ後のガジェット要素を待機
-  await new Promise(resolve => setTimeout(resolve, 500)); // タブ切り替え待機
-  return !!document.querySelector('#gadgets-panel section.gadget');
+  await page.waitForTimeout(500);
+  await page.waitForSelector('#gadgets-panel section.gadget', { state: 'attached' });
+  return true;
 }
 
 test.describe('Gadgets E2E', () => {

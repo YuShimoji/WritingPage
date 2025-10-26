@@ -127,6 +127,48 @@ ZWGadgets.register('Sample', function(el){
 // DOM Ready 時に自動で ZWGadgets.init() が走る
 ```
 
+## ガジェット追加手順（最短）
+
+1. `js/gadgets.js` にガジェットを登録
+
+```js
+// 例: WritingGoal と同等の最小構成
+ZWGadgets.register('MyGadget', function(el, api){
+  var box = document.createElement('div');
+  box.textContent = 'MyGadget is here!';
+  el.appendChild(box);
+}, { groups: ['assist'], title: 'MyGadget' });
+```
+
+2. ロードアウトへ含める（任意）
+
+```js
+// 既定プリセットに含めたい場合は DEFAULT_LOADOUTS を編集
+// assist や typography 等の希望グループへガジェット名を追加
+```
+
+3. 設定UIを付ける（任意）
+
+```js
+ZWGadgets.registerSettings('MyGadget', function(panel, ctx){
+  var cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.checked = !!ctx.get('enabled', true);
+  cb.addEventListener('change', function(){ ctx.set('enabled', !!cb.checked); });
+  panel.appendChild(cb);
+});
+```
+
+4. 並び順・折りたたみは自動保存
+
+- ヘッダの「↑/↓」「▼/▶」操作は `prefs.order` / `prefs.collapsed` に自動保存されます。
+- ドラッグ＆ドロップでも並び替え可能です。
+
+5. テスト
+
+- 画面で追加ガジェットが表示されること。
+- 必要なら `ZWGadgets.assignGroups('MyGadget', ['assist'])` で所属を動的変更。
+
 ## テスト
 
 - `scripts/dev-check.js` が以下を自動検証

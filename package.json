@@ -8,9 +8,17 @@
     "test:smoke": "node scripts/dev-check.js",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
+    "lint:js:check": "eslint . --ext .js",
+    "lint:js:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write .",
+    "lint:md": "markdownlint **/*.md",
+    "lint": "npm run lint:js:check && npm run lint:md",
     "test": "npm run test:smoke && npm run test:e2e"
   },
   "devDependencies": {
-    "@playwright/test": "^1.46.0"
+    "@playwright/test": "^1.46.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "markdownlint-cli": "^0.40.0"
   }
 }
