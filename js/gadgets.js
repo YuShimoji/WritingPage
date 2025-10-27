@@ -444,20 +444,17 @@
             wrap.className = 'gadget';
             wrap.dataset.name = name;
             wrap.dataset.group = group;
-<<<<<<< HEAD
-=======
             // ガジェット本体はドラッグ不可。ヘッダーのみドラッグ可能。
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
             wrap.setAttribute('draggable', 'false');
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
-<<<<<<< HEAD
-            var collapsed = (name === 'EditorLayout') ? false : !!prefs.collapsed[name];
-            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (collapsed ? '▶' : '▼');
-=======
             head.setAttribute('draggable', 'true');
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
+            var collapsed = (name === 'EditorLayout') ? false : !!(prefs.collapsed && prefs.collapsed[name]);
+            var toggleBtn = document.createElement('button');
+            toggleBtn.type='button';
+            toggleBtn.className='gadget-toggle';
+            toggleBtn.textContent = (collapsed ? '▶' : '▼');
             var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
@@ -470,6 +467,7 @@
             var removeBtn = document.createElement('button');
             removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='✕';
             head.appendChild(title);
+            head.appendChild(toggleBtn);
             if (settingsBtn) head.appendChild(settingsBtn);
             head.appendChild(upBtn); head.appendChild(downBtn);
             head.appendChild(removeBtn);
@@ -478,11 +476,20 @@
 
             var body = document.createElement('div');
             body.className = 'gadget-body';
-<<<<<<< HEAD
             if (collapsed) body.style.display = 'none';
-=======
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
             wrap.appendChild(body);
+            // 折りたたみトグル
+            toggleBtn.addEventListener('click', function(){
+              try {
+                collapsed = !collapsed;
+                body.style.display = collapsed ? 'none' : '';
+                toggleBtn.textContent = collapsed ? '▶' : '▼';
+                var p = loadPrefs();
+                p.collapsed = p.collapsed || {};
+                p.collapsed[name] = collapsed;
+                savePrefs(p);
+              } catch(_) {}
+            });
             if (typeof g.factory === 'function') {
               try {
                 var api = {
@@ -540,19 +547,16 @@
                 } catch(_) {}
               }; }(name, panel, settingsBtn));
             }
-
-<<<<<<< HEAD
-            // drag and drop reorder
-            head.setAttribute('draggable', 'true');
+            // drag and drop reorder（ヘッダーのみドラッグ開始）
             head.addEventListener('dragstart', function(ev){ 
               try { 
                 // ガジェット内のコントロールでドラッグしない
-                var tag = ev.target.tagName.toLowerCase();
+                var tag = ev.target && ev.target.tagName ? ev.target.tagName.toLowerCase() : '';
                 if (['input','button','label','select','textarea'].includes(tag)) {
                   ev.preventDefault();
                   return;
                 }
-                // HUD の位置チェック
+                // HUD の位置チェック（ピン留め中は干渉を避ける）
                 var hud = document.querySelector('.mini-hud');
                 if (hud && hud.classList.contains('pinned')) {
                   var rect = hud.getBoundingClientRect();
@@ -596,19 +600,6 @@
                 }
               } catch(_) {} 
             });
-=======
-            // drag and drop reorder（ヘッダーのみドラッグ開始）
-            head.addEventListener('dragstart', function(ev){
-              try {
-                wrap.classList.add('is-dragging');
-                ev.dataTransfer.setData('text/gadget-name', name);
-                ev.dataTransfer.effectAllowed='move';
-              } catch(_) {}
-            });
-            head.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
-            wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
-            wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
             wrap.addEventListener('drop', function(ev){
               try {
                 ev.preventDefault();
@@ -636,11 +627,6 @@
                 var p = loadPrefs();
                 p.order = currentOrder;
                 savePrefs(p);
-<<<<<<< HEAD
-                try { self._renderLast && self._renderLast(); } catch(_) {}
-              } catch(e) {
-                console.warn('Gadget drop failed:', e);
-=======
                 try { if (self._renderLast) self._renderLast(); } catch(_) {}
               } catch(_) {}
             });
@@ -653,7 +639,6 @@
               } else if (ev.key === 'ArrowDown' && ev.altKey){
                 ev.preventDefault();
                 self.move(name, 'down');
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
               }
             });
 
@@ -1510,68 +1495,35 @@
 
       // Font settings
       var fontSection = makeSection('フォント');
-      var fontContentSelect = document.createElement('select');
-      var contentFonts = [
+      var fontSelect = document.createElement('select');
+      var fonts = [
         { value: "'Noto Serif JP', serif", label: 'Noto Serif JP' },
         { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
         { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
       ];
-<<<<<<< HEAD
-      contentFonts.forEach(function(f){
-        var opt = document.createElement('option');
-        opt.value = f.value;
-        opt.textContent = f.label;
-        fontContentSelect.appendChild(opt);
-      });
-      fontContentSelect.addEventListener('change', function(){
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value));
-        refreshState();
-      });
-      fontSection.appendChild(makeRow('本文フォントファミリー', fontContentSelect));
-
-      var fontUISelect = document.createElement('select');
-      var uiFonts = [
-        { value: "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", label: 'システムフォント' },
-        { value: "'Noto Sans JP', sans-serif", label: 'Noto Sans JP' },
-        { value: "'Yu Gothic', 'YuGothic', sans-serif", label: '游ゴシック' }
-      ];
-      uiFonts.forEach(function(f){
-        var opt = document.createElement('option');
-        opt.value = f.value;
-        opt.textContent = f.label;
-        fontUISelect.appendChild(opt);
-      });
-      fontUISelect.addEventListener('change', function(){
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value));
-        refreshState();
-      });
-      fontSection.appendChild(makeRow('UIフォントファミリー', fontUISelect));
+      fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
+      fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
 
       var fontSizeInput = document.createElement('input');
-      fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.value = settings.fontSize || 16;
+      fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.step = '1'; fontSizeInput.value = settings.fontSize || 16;
       var fontSizeLabel = document.createElement('div');
       fontSizeLabel.style.fontSize = '0.85rem'; fontSizeLabel.style.opacity = '0.8';
       fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
       fontSizeInput.addEventListener('input', function(e){
         fontSizeLabel.textContent = 'フォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
+        theme.applyFontSettings(fontSelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value || e.target.value, 10), parseInt(editorFontSizeInput.value || e.target.value, 10));
         refreshState();
       });
-      fontSizeInput.addEventListener('change', function(e){
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value));
-=======
-      fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
-      fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
+      fontSection.appendChild(makeRow('本文フォントサイズ', fontSizeInput));
 
       var uiFontSizeInput = document.createElement('input');
-      uiFontSizeInput.type = 'range'; uiFontSizeInput.min = '12'; uiFontSizeInput.max = '32'; uiFontSizeInput.step = '1'; uiFontSizeInput.value = settings.uiFontSize || 16;
+      uiFontSizeInput.type = 'range'; uiFontSizeInput.min = '12'; uiFontSizeInput.max = '32'; uiFontSizeInput.step = '1'; uiFontSizeInput.value = settings.uiFontSize || settings.fontSize || 16;
       var uiFontSizeLabel = document.createElement('div');
       uiFontSizeLabel.style.fontSize = '0.85rem'; uiFontSizeLabel.style.opacity = '0.8';
       uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
       uiFontSizeInput.addEventListener('input', function(e){
         uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(lineHeightInput.value), parseInt(e.target.value, 10), parseInt(editorFontSizeInput.value, 10));
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
+        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(e.target.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
       var uiFontSizeRow = document.createElement('div');
@@ -1589,7 +1541,7 @@
       editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
       editorFontSizeInput.addEventListener('input', function(e){
         editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value, 10), parseInt(e.target.value, 10));
+        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value, 10), parseInt(e.target.value, 10));
         refreshState();
       });
       var editorFontSizeRow = document.createElement('div');
@@ -1608,15 +1560,7 @@
       lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
       lineHeightInput.addEventListener('input', function(e){
         lineHeightLabel.textContent = '行間: ' + e.target.value;
-<<<<<<< HEAD
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
-        refreshState();
-      });
-      lineHeightInput.addEventListener('change', function(e){
-        theme.applyFontSettings(fontContentSelect.value, fontUISelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value));
-=======
-        theme.applyFontSettings(fontSelect.value, settings.fontSize || 16, parseFloat(e.target.value), parseInt(uiFontSizeInput.value, 10), parseInt(editorFontSizeInput.value, 10));
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
+        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value), parseInt(uiFontSizeInput.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
       var lineHeightRow = document.createElement('div');
@@ -1638,18 +1582,13 @@
         try {
           var latest = storage.loadSettings();
           if (!latest) return;
-<<<<<<< HEAD
-          fontContentSelect.value = latest.fontFamilyContent || contentFonts[0].value;
-          fontUISelect.value = latest.fontFamilyUI || uiFonts[0].value;
+          fontSelect.value = latest.fontFamily || fonts[0].value;
           fontSizeInput.value = latest.fontSize || 16;
           fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
-=======
-          fontSelect.value = latest.fontFamily || fonts[0].value;
-          uiFontSizeInput.value = latest.uiFontSize || 16;
+          uiFontSizeInput.value = latest.uiFontSize || fontSizeInput.value;
           uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
-          editorFontSizeInput.value = latest.editorFontSize || 16;
+          editorFontSizeInput.value = latest.editorFontSize || fontSizeInput.value;
           editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
           lineHeightInput.value = latest.lineHeight || 1.6;
           lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
           bgInput.value = latest.bgColor || '#ffffff';
@@ -1764,6 +1703,26 @@
       opacityRow.appendChild(opacity);
       wrap.appendChild(opacityRow);
 
+      // 幅（px）
+      var widthInput = document.createElement('input');
+      widthInput.type = 'number'; widthInput.min = '120'; widthInput.max = '800'; widthInput.step = '10';
+      widthInput.value = hud.width || 240;
+      function clampWidth(v){ var n = parseInt(v,10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); }
+      var widthHandler = function(e){ saveHud({ width: clampWidth(e.target.value) }); };
+      widthInput.addEventListener('change', widthHandler);
+      widthInput.addEventListener('input', widthHandler);
+      wrap.appendChild(makeRow('幅（px）', widthInput));
+
+      // フォントサイズ（px）
+      var fontSizeNum = document.createElement('input');
+      fontSizeNum.type = 'number'; fontSizeNum.min = '10'; fontSizeNum.max = '24'; fontSizeNum.step = '1';
+      fontSizeNum.value = hud.fontSize || 14;
+      function clampFontPx(v){ var n = parseInt(v,10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); }
+      var fontHandler = function(e){ saveHud({ fontSize: clampFontPx(e.target.value) }); };
+      fontSizeNum.addEventListener('change', fontHandler);
+      fontSizeNum.addEventListener('input', fontHandler);
+      wrap.appendChild(makeRow('フォントサイズ（px）', fontSizeNum));
+
       var testBtn = document.createElement('button');
       testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = 'HUDテスト表示';
       testBtn.addEventListener('click', function(){
@@ -1785,7 +1744,6 @@
   // Writing Goal gadget
   ZWGadgets.register('WritingGoal', function(el, api){
     try {
-<<<<<<< HEAD
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
       if (!storage) {
@@ -1837,43 +1795,6 @@
       wrap.appendChild(row2);
       wrap.appendChild(reset);
       el.appendChild(wrap);
-=======
-      var settings = api && typeof api.getSettings === 'function' ? api.getSettings() : {};
-      var width = settings.width || 900;
-      var paddingX = settings.paddingX || 100;
-      var showBorder = !!settings.showBorder;
-
-      function applyLayout(){
-        try {
-          var canvas = document.querySelector('.editor-canvas');
-          var preview = document.getElementById('editor-preview');
-          if (canvas) {
-            canvas.style.width = width + 'px';
-          }
-          if (preview) {
-            preview.style.padding = '1rem ' + paddingX + 'px';
-            preview.classList.toggle('editor-preview--bordered', showBorder);
-          }
-        } catch(e) { console.error('applyLayout failed', e); }
-      }
-      applyLayout();
-
-      // 設定変更イベント（共通/個別）を購読して再適用
-      function _onSettingsChanged(ev){
-        try {
-          var d = ev && ev.detail ? ev.detail : {};
-          if (d && d.name === 'EditorLayout'){
-            var s = d.settings || {};
-            width = (typeof s.width === 'number') ? s.width : width;
-            paddingX = (typeof s.paddingX === 'number') ? s.paddingX : paddingX;
-            showBorder = !!s.showBorder;
-            applyLayout();
-          }
-        } catch(_) {}
-      }
-      try { window.addEventListener('ZWGadgetSettingsChanged', _onSettingsChanged); } catch(_) {}
-      try { window.addEventListener('ZWGadgetSettingsChanged:EditorLayout', _onSettingsChanged); } catch(_) {}
->>>>>>> b25e30623a219ed7d1f25c57adcc84b87e0b5901
     } catch(e) {
       console.error('WritingGoal gadget failed:', e);
       try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}

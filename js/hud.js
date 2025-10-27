@@ -125,12 +125,6 @@
       }
     }
 
-    updateFromSettings(){
-      if (!window.ZenWriterStorage) return;
-      const s = window.ZenWriterStorage.loadSettings() || {};
-      this.applyConfig((s && s.hud) || {});
-    }
-
     refresh(){
       this.el.textContent = this.defaultMessage || '';
       if (this.defaultPinned){
