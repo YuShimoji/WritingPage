@@ -1534,322 +1534,313 @@
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'small';
-          btn.textContent = preset.name;
-          btn.addEventListener('click', function(){
-            theme.applyCustomColors(preset.bg, preset.text, true);
-            refreshState();
-          });
-          paletteSection.appendChild(btn);
-        });
-      }
-
-      // Font settings
-      var fontSection = makeSection('フォント');
-      var fontSelect = document.createElement('select');
-      var fonts = [
-        { value: "'Noto Serif JP', serif", label: 'Noto Serif JP' },
-        { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
-        { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
-      ];
-      fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
-      fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
-
-      var fontSizeInput = document.createElement('input');
-      fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.step = '1'; fontSizeInput.value = settings.fontSize || 16;
-      var fontSizeLabel = document.createElement('div');
-      fontSizeLabel.style.fontSize = '0.85rem'; fontSizeLabel.style.opacity = '0.8';
-      fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
-      fontSizeInput.addEventListener('input', function(e){
-        fontSizeLabel.textContent = 'フォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value || e.target.value, 10), parseInt(editorFontSizeInput.value || e.target.value, 10));
-        refreshState();
-      });
-      fontSection.appendChild(makeRow('本文フォントサイズ', fontSizeInput));
-
-      var uiFontSizeInput = document.createElement('input');
-      uiFontSizeInput.type = 'range'; uiFontSizeInput.min = '12'; uiFontSizeInput.max = '32'; uiFontSizeInput.step = '1'; uiFontSizeInput.value = settings.uiFontSize || settings.fontSize || 16;
-      var uiFontSizeLabel = document.createElement('div');
-      uiFontSizeLabel.style.fontSize = '0.85rem'; uiFontSizeLabel.style.opacity = '0.8';
-      uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
-      uiFontSizeInput.addEventListener('input', function(e){
-        uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(e.target.value, 10), parseInt(editorFontSizeInput.value, 10));
-        refreshState();
-      });
-      var uiFontSizeRow = document.createElement('div');
-      uiFontSizeRow.style.display = 'flex';
-      uiFontSizeRow.style.flexDirection = 'column';
-      uiFontSizeRow.style.gap = '4px';
-      uiFontSizeRow.appendChild(uiFontSizeLabel);
-      uiFontSizeRow.appendChild(uiFontSizeInput);
-      fontSection.appendChild(uiFontSizeRow);
-
-      var editorFontSizeInput = document.createElement('input');
-      editorFontSizeInput.type = 'range'; editorFontSizeInput.min = '12'; editorFontSizeInput.max = '32'; editorFontSizeInput.step = '1'; editorFontSizeInput.value = settings.editorFontSize || 16;
-      var editorFontSizeLabel = document.createElement('div');
-      editorFontSizeLabel.style.fontSize = '0.85rem'; editorFontSizeLabel.style.opacity = '0.8';
-      editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
-      editorFontSizeInput.addEventListener('input', function(e){
-        editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + e.target.value + 'px';
-        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value, 10), parseInt(e.target.value, 10));
-        refreshState();
-      });
-      var editorFontSizeRow = document.createElement('div');
-      editorFontSizeRow.style.display = 'flex';
-      editorFontSizeRow.style.flexDirection = 'column';
-      editorFontSizeRow.style.gap = '4px';
-      editorFontSizeRow.appendChild(editorFontSizeLabel);
-      editorFontSizeRow.appendChild(editorFontSizeInput);
-      fontSection.appendChild(editorFontSizeRow);
-
-      var lineHeightInput = document.createElement('input');
-      lineHeightInput.type = 'range'; lineHeightInput.min = '1'; lineHeightInput.max = '3'; lineHeightInput.step = '0.1';
-      lineHeightInput.value = settings.lineHeight || 1.6;
-      var lineHeightLabel = document.createElement('div');
-      lineHeightLabel.style.fontSize = '0.85rem'; lineHeightLabel.style.opacity = '0.8';
-      lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
-      lineHeightInput.addEventListener('input', function(e){
-        lineHeightLabel.textContent = '行間: ' + e.target.value;
-        theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value), parseInt(uiFontSizeInput.value, 10), parseInt(editorFontSizeInput.value, 10));
-        refreshState();
-      });
-      var lineHeightRow = document.createElement('div');
-      lineHeightRow.style.display = 'flex';
-      lineHeightRow.style.flexDirection = 'column';
-      lineHeightRow.style.gap = '4px';
-      lineHeightRow.appendChild(lineHeightLabel);
-      lineHeightRow.appendChild(lineHeightInput);
-      fontSection.appendChild(lineHeightRow);
-
-      wrap.appendChild(themesSection);
-      wrap.appendChild(colorSection);
-      wrap.appendChild(paletteSection);
-      wrap.appendChild(fontSection);
-
-      el.appendChild(wrap);
-
-      function refreshState(){
-        try {
-          var latest = storage.loadSettings();
-          if (!latest) return;
-          fontSelect.value = latest.fontFamily || fonts[0].value;
-          fontSizeInput.value = latest.fontSize || 16;
-          fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
-          uiFontSizeInput.value = latest.uiFontSize || fontSizeInput.value;
-          uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
-          editorFontSizeInput.value = latest.editorFontSize || fontSizeInput.value;
-          editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
-          lineHeightInput.value = latest.lineHeight || 1.6;
-          lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
-          bgInput.value = latest.bgColor || '#ffffff';
-          textInput.value = latest.textColor || '#333333';
-        } catch(e){ console.error('refreshState failed', e); }
-      }
-
-      window.addEventListener('ZWLoadoutsChanged', refreshState);
-      window.addEventListener('ZWLoadoutApplied', refreshState);
-      window.addEventListener('ZenWriterSettingsChanged', refreshState);
-    } catch(e) {
-      console.error('TypographyThemes gadget failed:', e);
-      try { el.textContent = 'タイポ設定ガジェットの初期化に失敗しました。'; } catch(_) {}
-    }
-  }, { groups: ['typography'], title: 'テーマ & フォント' });
-
-  ZWGadgets.register('HUDSettings', function(el){
-    try {
-      var storage = window.ZenWriterStorage;
-      if (!storage || typeof storage.loadSettings !== 'function' || typeof storage.saveSettings !== 'function') {
-        var warn = document.createElement('p');
-        warn.textContent = 'HUD設定は利用できません。';
-        warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
-        el.appendChild(warn);
-        return;
-      }
-
-      function loadHud(){
-        var settings = storage.loadSettings() || {};
-        return settings.hud || {};
-      }
-      function saveHud(patch){
-        var settings = storage.loadSettings() || {};
-        settings.hud = Object.assign({}, settings.hud || {}, patch || {});
-        storage.saveSettings(settings);
-        try {
-          if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
-            window.ZenWriterHUD.updateFromSettings();
-          }
-        } catch(_) {}
-      }
-
-      var hud = loadHud();
-
-      var wrap = document.createElement('div');
-      wrap.className = 'gadget-hud-settings';
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
-
-      function makeRow(labelText, control){
-        var row = document.createElement('label');
-        row.style.display = 'flex';
-        row.style.flexDirection = 'column';
-        row.style.gap = '4px';
-        row.textContent = labelText;
-        row.appendChild(control);
-        return row;
-      }
-
-      var select = document.createElement('select');
-      [
-        { value: 'bottom-left', label: '左下' },
-        { value: 'bottom-right', label: '右下' },
-        { value: 'top-left', label: '左上' },
-        { value: 'top-right', label: '右上' }
-      ].forEach(function(opt){
-        var o = document.createElement('option');
-        o.value = opt.value; o.textContent = opt.label; select.appendChild(o);
-      });
-      select.value = hud.position || 'bottom-left';
-      select.addEventListener('change', function(e){ saveHud({ position: e.target.value }); });
-      wrap.appendChild(makeRow('表示位置', select));
-
-      var duration = document.createElement('input');
-      duration.type = 'number'; duration.min = '300'; duration.max = '5000'; duration.step = '100';
-      duration.value = hud.duration || 1200;
-      function clampDuration(v){ var n = parseInt(v,10); if (isNaN(n)) return 1200; return Math.max(300, Math.min(5000, n)); }
-      var durationHandler = function(e){ saveHud({ duration: clampDuration(e.target.value) }); };
-      duration.addEventListener('change', durationHandler);
-      duration.addEventListener('input', durationHandler);
-      wrap.appendChild(makeRow('表示時間（ms）', duration));
-
-      var bg = document.createElement('input');
-      bg.type = 'color'; bg.value = hud.bg || '#000000';
-      bg.addEventListener('change', function(e){ saveHud({ bg: e.target.value }); });
-      wrap.appendChild(makeRow('背景色', bg));
-
-      var fg = document.createElement('input');
-      fg.type = 'color'; fg.value = hud.fg || '#ffffff';
-      fg.addEventListener('change', function(e){ saveHud({ fg: e.target.value }); });
-      wrap.appendChild(makeRow('文字色', fg));
-
-      var opacityLabel = document.createElement('div');
-      opacityLabel.textContent = '不透明度: ' + (typeof hud.opacity === 'number' ? hud.opacity : 0.75);
-      opacityLabel.style.fontSize = '0.85rem'; opacityLabel.style.opacity = '0.8';
-      var opacity = document.createElement('input');
-      opacity.type = 'range'; opacity.min = '0'; opacity.max = '1'; opacity.step = '0.05';
-      opacity.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
-      function setOpacity(val){
-        var num = Math.max(0, Math.min(1, parseFloat(val)));
-        opacityLabel.textContent = '不透明度: ' + num;
-        saveHud({ opacity: num });
-      }
-      opacity.addEventListener('input', function(e){ setOpacity(e.target.value); });
-      opacity.addEventListener('change', function(e){ setOpacity(e.target.value); });
-      var opacityRow = document.createElement('div');
-      opacityRow.style.display = 'flex';
-      opacityRow.style.flexDirection = 'column';
-      opacityRow.style.gap = '4px';
-      opacityRow.appendChild(opacityLabel);
-      opacityRow.appendChild(opacity);
-      wrap.appendChild(opacityRow);
-
-      // 幅（px）
-      var widthInput = document.createElement('input');
-      widthInput.type = 'number'; widthInput.min = '120'; widthInput.max = '800'; widthInput.step = '10';
-      widthInput.value = hud.width || 240;
-      function clampWidth(v){ var n = parseInt(v,10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); }
-      var widthHandler = function(e){ saveHud({ width: clampWidth(e.target.value) }); };
-      widthInput.addEventListener('change', widthHandler);
-      widthInput.addEventListener('input', widthHandler);
-      wrap.appendChild(makeRow('幅（px）', widthInput));
-
-      // フォントサイズ（px）
-      var fontSizeNum = document.createElement('input');
-      fontSizeNum.type = 'number'; fontSizeNum.min = '10'; fontSizeNum.max = '24'; fontSizeNum.step = '1';
-      fontSizeNum.value = hud.fontSize || 14;
-      function clampFontPx(v){ var n = parseInt(v,10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); }
-      var fontHandler = function(e){ saveHud({ fontSize: clampFontPx(e.target.value) }); };
-      fontSizeNum.addEventListener('change', fontHandler);
-      fontSizeNum.addEventListener('input', fontHandler);
-      wrap.appendChild(makeRow('フォントサイズ（px）', fontSizeNum));
-
-      var testBtn = document.createElement('button');
-      testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = 'HUDテスト表示';
-      testBtn.addEventListener('click', function(){
-        try {
-          if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-            window.ZenWriterHUD.publish('HUDテスト表示');
-          }
-        } catch(_) {}
-      });
-      wrap.appendChild(testBtn);
-
-      el.appendChild(wrap);
-    } catch(e) {
-      console.error('HUDSettings gadget failed:', e);
-      try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(_) {}
-    }
-  }, { groups: ['assist'], title: 'HUD設定' });
-
-  // Writing Goal gadget
-  ZWGadgets.register('WritingGoal', function(el, api){
-    try {
-      var storage = window.ZenWriterStorage;
-      var editor = window.ZenWriterEditor;
-      if (!storage) {
-        var warn = document.createElement('p');
-        warn.textContent = 'ストレージが利用できないため目標を保存できません。';
-        warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
-        el.appendChild(warn);
-        return;
-      }
-
-      var goal = api && typeof api.get === 'function' ? api.get('goal', {}) : {};
-
-      var wrap = document.createElement('div');
-      wrap.className = 'gadget-goal';
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
-
-      var target = document.createElement('input');
-      target.type = 'number'; target.min = '0'; target.placeholder = '例: 2000';
-      target.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
-      target.addEventListener('input', function(e){ 
-        var n = Math.max(0, parseInt(e.target.value,10)||0); 
-        var newGoal = Object.assign({}, goal, { target: n });
-        if (api && typeof api.set === 'function') api.set('goal', newGoal);
-        try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
-      });
-
-      var deadline = document.createElement('input');
-      deadline.type = 'date'; deadline.value = goal.deadline || '';
-      deadline.addEventListener('change', function(e){ 
-        var newGoal = Object.assign({}, goal, { deadline: e.target.value || '' });
-        if (api && typeof api.set === 'function') api.set('goal', newGoal);
-      });
-
-      var row1 = document.createElement('label'); row1.style.display='flex'; row1.style.flexDirection='column'; row1.style.gap='4px'; row1.textContent = '目標文字数'; row1.appendChild(target);
-      var row2 = document.createElement('label'); row2.style.display='flex'; row2.style.flexDirection='column'; row2.style.gap='4px'; row2.textContent = '締切日'; row2.appendChild(deadline);
-
-      var reset = document.createElement('button'); reset.type='button'; reset.className='small'; reset.textContent='目標をクリア';
-      reset.addEventListener('click', function(){ 
-        if (confirm('執筆目標をクリアしますか？')){ 
-          if (api && typeof api.set === 'function') api.set('goal', {});
-          target.value = 0; deadline.value=''; 
-          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
+          btn.textContent = text;
+          btn.addEventListener('click', handler);
+          return btn;
         }
-      });
 
-      wrap.appendChild(row1);
-      wrap.appendChild(row2);
-      wrap.appendChild(reset);
-      el.appendChild(wrap);
-    } catch(e) {
-      console.error('WritingGoal gadget failed:', e);
-      try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}
-    }
-  }, { groups: ['assist'], title: '執筆目標' });
+        var primaryRow = document.createElement('div');
+        primaryRow.style.display = 'flex';
+        primaryRow.style.flexWrap = 'wrap';
+        primaryRow.style.gap = '6px';
+        var btnCreate = makeSmallButton('作成', createDocument);
+        var btnRename = makeSmallButton('改名', renameDocument);
+        var btnDelete = makeSmallButton('削除', deleteDocument);
+        elements.renameBtn = btnRename;
+        elements.deleteBtn = btnDelete;
+        primaryRow.appendChild(btnCreate);
+        primaryRow.appendChild(btnRename);
+        primaryRow.appendChild(btnDelete);
+
+        var secondaryRow = document.createElement('div');
+        secondaryRow.style.display = 'flex';
+        secondaryRow.style.flexWrap = 'wrap';
+        secondaryRow.style.gap = '6px';
+        var btnImport = makeSmallButton('ファイルを読み込む', function () {
+          hiddenInput.click();
+        });
+        var btnExportTxt = makeSmallButton('テキストで保存', function () {
+          exportCurrent(false);
+        });
+        var btnExportMd = makeSmallButton('Markdownで保存', function () {
+          exportCurrent(true);
+        });
+        var btnPrint = makeSmallButton('印刷', printCurrent);
+        var btnPdfExport = makeSmallButton('PDFエクスポート', function () {
+          try {
+            window.print();
+          } catch (e) {
+            console.error('PDF export failed', e);
+          }
+        });
+        secondaryRow.appendChild(btnImport);
+        secondaryRow.appendChild(btnExportTxt);
+        secondaryRow.appendChild(btnExportMd);
+        secondaryRow.appendChild(btnPrint);
+        secondaryRow.appendChild(btnPdfExport);
+
+        var hiddenInput = document.createElement('input');
+        hiddenInput.type = 'file';
+        hiddenInput.accept = '.txt,.md,.markdown,.text';
+        hiddenInput.style.display = 'none';
+        hiddenInput.addEventListener('change', function (ev) {
+          try {
+            importFile(ev.target.files);
+          } finally {
+            ev.target.value = '';
+          }
+        });
+
+        container.appendChild(label);
+        container.appendChild(select);
+        container.appendChild(primaryRow);
+        container.appendChild(secondaryRow);
+        container.appendChild(hiddenInput);
+
+        el.appendChild(container);
+
+        refreshOptions();
+        updateDocumentTitle();
+
+        window.addEventListener('ZWLoadoutsChanged', function () {
+          refreshOptions(storage.getCurrentDocId());
+        });
+        window.addEventListener('ZWLoadoutApplied', function () {
+          refreshOptions(storage.getCurrentDocId());
+        });
+        window.addEventListener('ZWDocumentsChanged', function () {
+          refreshOptions(storage.getCurrentDocId());
+        });
+      } catch (e) {
+        console.error('Documents gadget failed:', e);
+        try {
+          el.textContent = 'ドキュメントガジェットの初期化に失敗しました。';
+        } catch (_) {}
+      }
+    },
+    { groups: ['structure'], title: 'ドキュメント' },
+  );
+
+  ZWGadgets.register(
+    'Outline',
+    function (el) {
+      try {
+        var storage = window.ZenWriterStorage;
+        if (!storage) {
+          var warn = document.createElement('p');
+          warn.textContent = 'ストレージが利用できません。';
+          warn.style.opacity = '0.7';
+          warn.style.fontSize = '0.9rem';
+          el.appendChild(warn);
+          return;
+        }
+
+        var wrap = document.createElement('div');
+        wrap.className = 'gadget-outline';
+        wrap.style.display = 'flex';
+        wrap.style.flexDirection = 'column';
+        wrap.style.gap = '10px';
+
+        var levelsContainer = document.createElement('div');
+        levelsContainer.className = 'outline-levels';
+        levelsContainer.style.display = 'flex';
+        levelsContainer.style.flexDirection = 'column';
+        levelsContainer.style.gap = '6px';
+
+        var insertContainer = document.createElement('div');
+        insertContainer.className = 'outline-insert';
+        insertContainer.style.display = 'flex';
+        insertContainer.style.flexWrap = 'wrap';
+        insertContainer.style.gap = '6px';
+        insertContainer.style.marginTop = '8px';
+
+        var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
+        var levelLabels = [
+          '大見出し',
+          '中見出し',
+          '小見出し',
+          '詳細',
+          'メモ',
+          '注記',
+        ];
+
+        levels.forEach(function (level, idx) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'outline-btn small';
+          btn.textContent = levelLabels[idx] || level.trim();
+          btn.addEventListener('click', function () {
+            try {
+              if (
+                window.ZenWriterEditor &&
+                typeof window.ZenWriterEditor.insertTextAtCursor === 'function'
+              ) {
+                window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
+              }
+            } catch (e) {
+              console.error('insert outline failed', e);
+            }
+          });
+          insertContainer.appendChild(btn);
+        });
+
+        wrap.appendChild(levelsContainer);
+        wrap.appendChild(insertContainer);
+
+        // ドラッグ&ドロップ機能
+        var draggedElement = null;
+
+        function makeLevelRow(level, label, canDrag) {
+          var row = document.createElement('div');
+          row.className = 'level-row';
+          row.draggable = canDrag;
+          row.style.display = 'flex';
+          row.style.alignItems = 'center';
+          row.style.justifyContent = 'space-between';
+          row.style.gap = '8px';
+          row.style.margin = '6px 0';
+          row.dataset.level = level;
+
+          var head = document.createElement('div');
+          head.className = 'gadget-head';
+          head.style.display = 'flex';
+          head.style.alignItems = 'center';
+          head.style.justifyContent = 'space-between';
+          head.style.padding = '6px 8px';
+          head.style.cursor = 'pointer';
+          head.style.userSelect = 'none';
+          var title = document.createElement('span');
+          title.className = 'gadget-title';
+          title.textContent = label;
+          title.style.fontWeight = 'bold';
+          title.style.flex = '1';
+          var toggleBtn = document.createElement('button');
+          toggleBtn.className = 'gadget-toggle-btn';
+          toggleBtn.textContent = '▼';
+          toggleBtn.style.border = 'none';
+          toggleBtn.style.background = 'none';
+          toggleBtn.style.cursor = 'pointer';
+          toggleBtn.style.fontSize = '12px';
+          toggleBtn.addEventListener('click', function (ev) {
+            ev.stopPropagation();
+            row.classList.toggle('collapsed');
+            toggleBtn.textContent = row.classList.contains('collapsed')
+              ? '▶'
+              : '▼';
+          });
+          var settingsBtn = document.createElement('button');
+          settingsBtn.className = 'gadget-settings-btn small';
+          settingsBtn.textContent = '⚙️';
+          settingsBtn.title = '設定';
+          head.appendChild(title);
+          head.appendChild(toggleBtn);
+          head.appendChild(settingsBtn);
+          row.appendChild(head);
+
+          var levelSpan = document.createElement('span');
+          levelSpan.textContent = level;
+          levelSpan.style.fontFamily = 'monospace';
+          levelSpan.style.fontWeight = 'bold';
+
+          var labelSpan = document.createElement('span');
+          labelSpan.textContent = label;
+          labelSpan.style.flex = '1';
+
+          var upBtn = document.createElement('button');
+          upBtn.type = 'button';
+          upBtn.className = 'small';
+          upBtn.textContent = '↑';
+          upBtn.style.width = '24px';
+          upBtn.style.height = '24px';
+          upBtn.addEventListener('click', function () {
+            moveLevel(row, -1);
+          });
+
+          var downBtn = document.createElement('button');
+          downBtn.type = 'button';
+          downBtn.className = 'small';
+          downBtn.textContent = '↓';
+          downBtn.style.width = '24px';
+          downBtn.style.height = '24px';
+          downBtn.addEventListener('click', function () {
+            moveLevel(row, 1);
+          });
+
+          if (canDrag) {
+            row.addEventListener('dragstart', function (e) {
+              draggedElement = row;
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/html', row.outerHTML);
+            });
+            row.addEventListener('dragover', function (e) {
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+            });
+            row.addEventListener('drop', function (e) {
+              e.preventDefault();
+              if (draggedElement && draggedElement !== row) {
+                var parent = row.parentNode;
+                var allRows = Array.from(parent.children);
+                var fromIndex = allRows.indexOf(draggedElement);
+                var toIndex = allRows.indexOf(row);
+                if (fromIndex < toIndex) {
+                  parent.insertBefore(draggedElement, row.nextSibling);
+                } else {
+                  parent.insertBefore(draggedElement, row);
+                }
+                draggedElement = null;
+              }
+            });
+          }
+
+          row.appendChild(levelSpan);
+          row.appendChild(labelSpan);
+          if (canDrag) {
+            row.appendChild(upBtn);
+            row.appendChild(downBtn);
+          }
+          return row;
+        }
+
+        function moveLevel(row, direction) {
+          var parent = row.parentNode;
+          var sibling =
+            direction === -1
+              ? row.previousElementSibling
+              : row.nextElementSibling;
+          if (sibling) {
+            if (direction === -1) {
+              parent.insertBefore(row, sibling);
+            } else {
+              parent.insertBefore(sibling, row);
+            }
+          }
+        }
+
+        // 初期レベル表示（ドラッグ可能）
+        var initialLevels = [
+          { level: '#', label: '章' },
+          { level: '##', label: '節' },
+          { level: '###', label: '項' },
+          { level: '####', label: '目' },
+        ];
+        initialLevels.forEach(function (item) {
+          levelsContainer.appendChild(
+            makeLevelRow(item.level, item.label, true),
+          );
+        });
+
+        el.appendChild(wrap);
+      } catch (e) {
+        console.error('Outline gadget failed:', e);
+        try {
+          el.textContent = 'アウトラインガジェットの初期化に失敗しました。';
+        } catch (_) {}
+      }
+    },
+    { groups: ['structure'], title: 'アウトライン' },
+  );
+
 
   // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
   ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, api){
