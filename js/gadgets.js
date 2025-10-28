@@ -1534,7 +1534,6 @@
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'small';
-<<<<<<< Updated upstream
           btn.textContent = preset.name;
           btn.addEventListener('click', function(){
             theme.applyCustomColors(preset.bg, preset.text, true);
@@ -1839,14 +1838,9 @@
           if (api && typeof api.set === 'function') api.set('goal', {});
           target.value = 0; deadline.value=''; 
           try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
-=======
-          btn.textContent = text;
-          btn.addEventListener('click', handler);
-          return btn;
->>>>>>> Stashed changes
         }
+      });
 
-<<<<<<< Updated upstream
       wrap.appendChild(row1);
       wrap.appendChild(row2);
       wrap.appendChild(reset);
@@ -1884,89 +1878,165 @@
           empty.style.opacity = '0.7';
           empty.textContent = 'バックアップはありません';
           el.appendChild(empty);
-=======
-        var primaryRow = document.createElement('div');
-        primaryRow.style.display = 'flex';
-        primaryRow.style.flexWrap = 'wrap';
-        primaryRow.style.gap = '6px';
-        var btnCreate = makeSmallButton('作成', createDocument);
-        var btnRename = makeSmallButton('改名', renameDocument);
-        var btnDelete = makeSmallButton('削除', deleteDocument);
-        elements.renameBtn = btnRename;
-        elements.deleteBtn = btnDelete;
-        primaryRow.appendChild(btnCreate);
-        primaryRow.appendChild(btnRename);
-        primaryRow.appendChild(btnDelete);
-
-        var secondaryRow = document.createElement('div');
-        secondaryRow.style.display = 'flex';
-        secondaryRow.style.flexWrap = 'wrap';
-        secondaryRow.style.gap = '6px';
-        var btnImport = makeSmallButton('ファイルを読み込む', function () {
-          hiddenInput.click();
+          return;
+        }
+        list.forEach(function(item){
+          var row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
+          row.style.padding = '6px 8px';
+          row.style.borderBottom = '1px solid #ccc';
+          var ts = document.createElement('span');
+          ts.textContent = formatTs(item.ts);
+          ts.style.flex = '1';
+          var label = document.createElement('span');
+          label.textContent = item.label || 'バックアップ';
+          label.style.flex = '1';
+          var restoreBtn = document.createElement('button');
+          restoreBtn.type = 'button';
+          restoreBtn.className = 'small';
+          restoreBtn.textContent = '復元';
+          restoreBtn.addEventListener('click', function(){
+            if (confirm('このバックアップを復元しますか？')) {
+              storage.addSnapshot({
+                ts: Date.now(),
+                label: '復元',
+                data: item.data,
+              });
+              editor && editor.updateContent && editor.updateContent(item.data);
+            }
+          });
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'small';
+          deleteBtn.textContent = '削除';
+          deleteBtn.addEventListener('click', function(){
+            if (confirm('このバックアップを削除しますか？')) {
+              storage.removeSnapshot(item.ts);
+              renderSnapshots();
+            }
+          });
+          row.appendChild(ts);
+          row.appendChild(label);
+          row.appendChild(restoreBtn);
+          row.appendChild(deleteBtn);
+          el.appendChild(row);
         });
-        var btnExportTxt = makeSmallButton('テキストで保存', function () {
-          exportCurrent(false);
-        });
-        var btnExportMd = makeSmallButton('Markdownで保存', function () {
-          exportCurrent(true);
-        });
-        var btnPrint = makeSmallButton('印刷', printCurrent);
-        var btnPdfExport = makeSmallButton('PDFエクスポート', function () {
-          // PDFエクスポート機能（ブラウザ印刷利用）
-          try {
-            window.print();
-          } catch (e) {
-            console.error('PDF export failed', e);
-          }
-        });
-        secondaryRow.appendChild(btnImport);
-        secondaryRow.appendChild(btnExportTxt);
-        secondaryRow.appendChild(btnExportMd);
-        secondaryRow.appendChild(btnPrint);
-        secondaryRow.appendChild(btnPdfExport);
-
-        var hiddenInput = document.createElement('input');
-        hiddenInput.type = 'file';
-        hiddenInput.accept = '.txt,.md,.markdown,.text';
-        hiddenInput.style.display = 'none';
-        hiddenInput.addEventListener('change', function (ev) {
-          try {
-            importFile(ev.target.files);
-          } finally {
-            ev.target.value = '';
-          }
-        });
-
-        container.appendChild(label);
-        container.appendChild(select);
-        container.appendChild(primaryRow);
-        container.appendChild(secondaryRow);
-        container.appendChild(hiddenInput);
-
-        el.appendChild(container);
-
-        refreshOptions();
-        updateDocumentTitle();
-
-        window.addEventListener('ZWLoadoutsChanged', function () {
-          refreshOptions(storage.getCurrentDocId());
-        });
-        window.addEventListener('ZWLoadoutApplied', function () {
-          refreshOptions(storage.getCurrentDocId());
-        });
-        window.addEventListener('ZWDocumentsChanged', function () {
-          refreshOptions(storage.getCurrentDocId());
-        });
-      } catch (e) {
-        console.error('Documents gadget failed:', e);
-        try {
-          el.textContent = 'ドキュメントガジェットの初期化に失敗しました。';
-        } catch (_) {}
       }
-    },
-    { groups: ['structure'], title: 'ドキュメント' },
-  );
+      renderSnapshots();
+    } catch(e) {
+      console.error('SnapshotManagerLegacyAssist gadget failed:', e);
+      try { el.textContent = 'スナップショットマネージャーガジェットの初期化に失敗しました。'; } catch(_) {}
+    }
+  }, { groups: ['assist'], title: 'スナップショットマネージャー' });
+
+  // Documents gadget
+  ZWGadgets.register('Documents', function(el, api){
+    try {
+      var storage = window.ZenWriterStorage;
+      var container = document.createElement('div');
+      container.className = 'gadget-documents';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '8px';
+
+      var label = document.createElement('label');
+      label.textContent = 'ドキュメント';
+      label.style.fontWeight = 'bold';
+
+      var select = document.createElement('select');
+      select.className = 'gadget-select';
+      select.addEventListener('change', function(e){
+        var docId = e.target.value;
+        if (api && typeof api.set === 'function') api.set('docId', docId);
+        storage.setCurrentDocId(docId);
+        refreshOptions(docId);
+        updateDocumentTitle();
+      });
+
+      var primaryRow = document.createElement('div');
+      primaryRow.style.display = 'flex';
+      primaryRow.style.flexWrap = 'wrap';
+      primaryRow.style.gap = '6px';
+      var btnCreate = makeSmallButton('作成', createDocument);
+      var btnRename = makeSmallButton('改名', renameDocument);
+      var btnDelete = makeSmallButton('削除', deleteDocument);
+      elements.renameBtn = btnRename;
+      elements.deleteBtn = btnDelete;
+      primaryRow.appendChild(btnCreate);
+      primaryRow.appendChild(btnRename);
+      primaryRow.appendChild(btnDelete);
+
+      var secondaryRow = document.createElement('div');
+      secondaryRow.style.display = 'flex';
+      secondaryRow.style.flexWrap = 'wrap';
+      secondaryRow.style.gap = '6px';
+      var btnImport = makeSmallButton('ファイルを読み込む', function () {
+        hiddenInput.click();
+      });
+      var btnExportTxt = makeSmallButton('テキストで保存', function () {
+        exportCurrent(false);
+      });
+      var btnExportMd = makeSmallButton('Markdownで保存', function () {
+        exportCurrent(true);
+      });
+      var btnPrint = makeSmallButton('印刷', printCurrent);
+      var btnPdfExport = makeSmallButton('PDFエクスポート', function () {
+        // PDFエクスポート機能（ブラウザ印刷利用）
+        try {
+          window.print();
+        } catch (e) {
+          console.error('PDF export failed', e);
+        }
+      });
+      secondaryRow.appendChild(btnImport);
+      secondaryRow.appendChild(btnExportTxt);
+      secondaryRow.appendChild(btnExportMd);
+      secondaryRow.appendChild(btnPrint);
+      secondaryRow.appendChild(btnPdfExport);
+
+      var hiddenInput = document.createElement('input');
+      hiddenInput.type = 'file';
+      hiddenInput.accept = '.txt,.md,.markdown,.text';
+      hiddenInput.style.display = 'none';
+      hiddenInput.addEventListener('change', function (ev) {
+        try {
+          importFile(ev.target.files);
+        } finally {
+          ev.target.value = '';
+        }
+      });
+
+      container.appendChild(label);
+      container.appendChild(select);
+      container.appendChild(primaryRow);
+      container.appendChild(secondaryRow);
+      container.appendChild(hiddenInput);
+
+      el.appendChild(container);
+
+      refreshOptions();
+      updateDocumentTitle();
+
+      window.addEventListener('ZWLoadoutsChanged', function () {
+        refreshOptions(storage.getCurrentDocId());
+      });
+      window.addEventListener('ZWLoadoutApplied', function () {
+        refreshOptions(storage.getCurrentDocId());
+      });
+      window.addEventListener('ZWDocumentsChanged', function () {
+        refreshOptions(storage.getCurrentDocId());
+      });
+    } catch (e) {
+      console.error('Documents gadget failed:', e);
+      try {
+        el.textContent = 'ドキュメントガジェットの初期化に失敗しました。';
+      } catch (_) {}
+    }
+  },
+  { groups: ['structure'], title: 'ドキュメント' },
+);
 
   ZWGadgets.register(
     'Outline',
@@ -1979,7 +2049,6 @@
           warn.style.opacity = '0.7';
           warn.style.fontSize = '0.9rem';
           el.appendChild(warn);
->>>>>>> Stashed changes
           return;
         }
 
