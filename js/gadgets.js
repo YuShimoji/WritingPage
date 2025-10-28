@@ -586,17 +586,6 @@
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
-<<<<<<< Updated upstream
-            head.setAttribute('draggable', 'true');
-            var collapsed = (name === 'EditorLayout') ? false : !!(prefs.collapsed && prefs.collapsed[name]);
-            var toggleBtn = document.createElement('button');
-            toggleBtn.type='button';
-            toggleBtn.className='gadget-toggle';
-            toggleBtn.textContent = (collapsed ? '▶' : '▼');
-            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
-            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
-            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
-=======
             var collapsed =
               name === 'EditorLayout' ? false : !!prefs.collapsed[name];
             var toggleBtn = document.createElement('button');
@@ -616,7 +605,6 @@
             downBtn.className = 'gadget-move-down small';
             downBtn.textContent = '↓';
             downBtn.title = '下へ';
->>>>>>> Stashed changes
             var settingsBtn = null;
             if (self._settings[name]) {
               settingsBtn = document.createElement('button');
@@ -758,63 +746,6 @@
                 })(name, panel, settingsBtn),
               );
             }
-<<<<<<< Updated upstream
-            // drag and drop reorder（ヘッダーのみドラッグ開始）
-            head.addEventListener('dragstart', function(ev){ 
-              try { 
-                // ガジェット内のコントロールでドラッグしない
-                var tag = ev.target && ev.target.tagName ? ev.target.tagName.toLowerCase() : '';
-                if (['input','button','label','select','textarea'].includes(tag)) {
-                  ev.preventDefault();
-                  return;
-                }
-                // HUD の位置チェック（ピン留め中は干渉を避ける）
-                var hud = document.querySelector('.mini-hud');
-                if (hud && hud.classList.contains('pinned')) {
-                  var rect = hud.getBoundingClientRect();
-                  var x = ev.clientX, y = ev.clientY;
-                  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                    ev.preventDefault();
-                    return;
-                  }
-                }
-                wrap.classList.add('is-dragging'); 
-                ev.dataTransfer.setData('text/gadget-name', name); 
-                ev.dataTransfer.effectAllowed='move'; 
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragend', function(){ 
-              try { 
-                wrap.classList.remove('is-dragging'); 
-                // すべてのドラッグオーバー状態をクリア
-                var allGadgets = wrap.parentNode.querySelectorAll('.gadget');
-                for (var i = 0; i < allGadgets.length; i++) {
-                  allGadgets[i].classList.remove('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragover', function(ev){ 
-              try { 
-                ev.preventDefault(); 
-                ev.dataTransfer.dropEffect='move'; 
-                if (!wrap.classList.contains('is-dragging')) {
-                  wrap.classList.add('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragleave', function(ev){ 
-              try { 
-                // ドラッグが本当に離れたか確認（子要素への移動を無視）
-                var rect = wrap.getBoundingClientRect();
-                var x = ev.clientX, y = ev.clientY;
-                if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                  wrap.classList.remove('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('drop', function(ev){
-=======
-
             // drag and drop reorder（ヘッダーのみドラッグ開始）
             head.addEventListener('dragstart', function (ev) {
               try {
@@ -841,7 +772,6 @@
               } catch (_) {}
             });
             wrap.addEventListener('drop', function (ev) {
->>>>>>> Stashed changes
               try {
                 ev.preventDefault();
                 wrap.classList.remove('drag-over');
@@ -869,15 +799,10 @@
                 var p = loadPrefs();
                 p.order = currentOrder;
                 savePrefs(p);
-<<<<<<< Updated upstream
-                try { if (self._renderLast) self._renderLast(); } catch(_) {}
-              } catch(_) {}
-=======
                 try {
                   if (self._renderLast) self._renderLast();
                 } catch (_) {}
               } catch (_) {}
->>>>>>> Stashed changes
             });
 
             // keyboard navigation

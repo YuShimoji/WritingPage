@@ -154,9 +154,6 @@
       }
     }
 
-<<<<<<< Updated upstream
-    refresh(){
-=======
     updateFromSettings() {
       if (!window.ZenWriterStorage) return;
       const s = window.ZenWriterStorage.loadSettings() || {};
@@ -164,7 +161,6 @@
     }
 
     refresh() {
->>>>>>> Stashed changes
       this.el.textContent = this.defaultMessage || '';
       if (this.defaultPinned) {
         this.pin();
