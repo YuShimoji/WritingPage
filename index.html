@@ -1,60 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zen Writer - 小説執筆ツール</title>
     <script>
-      (function(){
+      (function () {
         // 埋め込みモード判定（?embed=1）
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) {
-          document.documentElement.setAttribute('data-embed','true');
+          document.documentElement.setAttribute('data-embed', 'true');
         }
         try {
           var raw = localStorage.getItem('zenWriter_settings');
           if (raw) {
             var s = JSON.parse(raw);
             if (s && s.toolbarVisible === false) {
-              document.documentElement.setAttribute('data-toolbar-hidden','true');
+              document.documentElement.setAttribute(
+                'data-toolbar-hidden',
+                'true',
+              );
             }
           } else {
             // 設定が未作成（初回起動）は非表示にする
-            document.documentElement.setAttribute('data-toolbar-hidden','true');
+            document.documentElement.setAttribute(
+              'data-toolbar-hidden',
+              'true',
+            );
           }
-        } catch(e) { /* ignore */ }
+        } catch (e) {
+          /* ignore */
+        }
         // 埋め込みモードではツールバーを強制的に隠す（最小UI）
         if (isEmbed) {
-          document.documentElement.setAttribute('data-toolbar-hidden','true');
+          document.documentElement.setAttribute('data-toolbar-hidden', 'true');
         }
       })();
     </script>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="css/style.css" />
     <script>
       // 非埋め込み時のみ Google Fonts を動的に読み込む（preconnect 最適化込み）
-      (function(){
+      (function () {
         try {
           var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
           if (isEmbed) return;
           var head = document.getElementsByTagName('head')[0];
-          var l1 = document.createElement('link'); l1.rel = 'preconnect'; l1.href = 'https://fonts.googleapis.com';
-          var l2 = document.createElement('link'); l2.rel = 'preconnect'; l2.href = 'https://fonts.gstatic.com'; l2.crossOrigin = '';
-          var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
-          head.appendChild(l1); head.appendChild(l2); head.appendChild(css);
-        } catch(_) {}
+          var l1 = document.createElement('link');
+          l1.rel = 'preconnect';
+          l1.href = 'https://fonts.googleapis.com';
+          var l2 = document.createElement('link');
+          l2.rel = 'preconnect';
+          l2.href = 'https://fonts.gstatic.com';
+          l2.crossOrigin = '';
+          var css = document.createElement('link');
+          css.rel = 'stylesheet';
+          css.href =
+            'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
+          head.appendChild(l1);
+          head.appendChild(l2);
+          head.appendChild(css);
+        } catch (_) {}
       })();
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="app-container">
-        <!-- サイドバー -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>設定</h2>
-                <button id="close-sidebar" class="icon-button">×</button>
-            </div>
+      <!-- サイドバー -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <h2>設定</h2>
+          <button id="close-sidebar" class="icon-button">×</button>
+        </div>
 
+        <div class="sidebar-top">
+          <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
+            <button
+              class="sidebar-tab active"
+              type="button"
+              id="sidebar-tab-structure"
+              data-group="structure"
+              aria-controls="sidebar-group-structure"
+              aria-selected="true"
+            >
+              構造
+            </button>
+            <button
+              class="sidebar-tab"
+              type="button"
+              id="sidebar-tab-typography"
+              data-group="typography"
+              aria-controls="sidebar-group-typography"
+              aria-selected="false"
+            >
+              タイポ
+            </button>
+            <button
+              class="sidebar-tab"
+              type="button"
+              id="sidebar-tab-assist"
+              data-group="assist"
+              aria-controls="sidebar-group-assist"
+              aria-selected="false"
+            >
+              アシスト
+            </button>
+          </div>
+          <div class="sidebar-loadout">
+            <label for="loadout-select">ロードアウト</label>
+            <div class="loadout-controls">
+              <select
+                id="loadout-select"
+                aria-label="ロードアウトを選択"
+              ></select>
+              <input
+                type="text"
+                id="loadout-name"
+                placeholder="プリセット名"
+                aria-label="ロードアウト名"
+              />
+              <div class="loadout-buttons">
+                <button id="loadout-save" class="small" type="button">
+                  保存
+                </button>
+                <button id="loadout-duplicate" class="small" type="button">
+                  複製
+                </button>
+                <button id="loadout-apply" class="small" type="button">
+                  適用
+                </button>
+                <button id="loadout-delete" class="small" type="button">
+                  削除
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+<<<<<<< Updated upstream
             <div class="sidebar-top">
                 <div class="sidebar-tabs" id="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
                     <button class="sidebar-tab active" type="button" id="sidebar-tab-structure" data-group="structure" aria-controls="sidebar-group-structure" aria-selected="true">構造</button>
@@ -105,87 +188,245 @@
                     </div>
                 </section>
             </div>
+=======
+        <div class="sidebar-groups">
+          <section
+            class="sidebar-group active"
+            data-group="structure"
+            id="sidebar-group-structure"
+            role="tabpanel"
+            aria-labelledby="sidebar-tab-structure"
+          >
+>>>>>>> Stashed changes
             <div class="sidebar-section">
-                <h3>ヘルプ</h3>
-                <a class="button" href="docs/editor-help.html" target="_blank" rel="noopener">エディタ機能ガイドを開く</a>
+              <div
+                id="structure-gadgets-panel"
+                class="gadgets-panel"
+                data-gadget-group="structure"
+                aria-label="構造ガジェット"
+              ></div>
             </div>
-        </aside>
-        
-        <!-- メインコンテンツ -->
-        <main class="main-content">
-            <!-- ツールバー -->
-            <div class="toolbar">
-                <button id="toggle-sidebar" class="icon-button" aria-label="サイドバーを開閉">☰</button>
-                <div class="word-count">0 文字</div>
-                <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display:none;">
-                    <div class="goal-progress__track">
-                        <div class="goal-progress__bar" style="width:0%"></div>
-                    </div>
-                </div>
-                <div class="toolbar-actions">
-                    <button id="toggle-toolbar" class="icon-button" aria-label="ツールバーを開閉">⌨️</button>
-                    <button id="fullscreen" class="icon-button" aria-label="フルスクリーン切替">⛶</button>
-                </div>
+          </section>
+
+          <section
+            class="sidebar-group"
+            data-group="typography"
+            id="sidebar-group-typography"
+            role="tabpanel"
+            aria-labelledby="sidebar-tab-typography"
+            aria-hidden="true"
+          >
+            <div class="sidebar-section">
+              <div
+                id="typography-gadgets-panel"
+                class="gadgets-panel"
+                data-gadget-group="typography"
+                aria-label="タイポグラフィガジェット"
+              ></div>
             </div>
-            
-            <!-- エディタエリア -->
-            <div class="editor-container">
-                <div class="editor-canvas">
-                    <textarea id="editor" placeholder="ここに小説を入力してください..."></textarea>
-                    <div id="editor-overlay" class="editor-overlay" aria-hidden="true"></div>
-                    <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
-                </div>
-                <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite">
-                    <div id="editor-preview-body" class="editor-preview__body"></div>
-                </div>
-                <div id="print-view" class="print-view" aria-hidden="true"></div>
+          </section>
+
+          <section
+            class="sidebar-group"
+            data-group="assist"
+            id="sidebar-group-assist"
+            role="tabpanel"
+            aria-labelledby="sidebar-tab-assist"
+            aria-hidden="true"
+          >
+            <div class="sidebar-section">
+              <div
+                id="plugins-panel"
+                class="plugins-panel"
+                aria-label="プラグイン操作"
+              ></div>
             </div>
-        </main>
+
+            <div class="sidebar-section">
+              <div
+                id="gadgets-panel"
+                class="gadgets-panel"
+                aria-label="ガジェット"
+              ></div>
+              <div
+                class="gadget-tools"
+                style="
+                  margin-top: 8px;
+                  display: flex;
+                  flex-wrap: wrap;
+                  gap: 6px;
+                "
+              >
+                <button id="gadget-export" class="small" type="button">
+                  ガジェット設定をエクスポート
+                </button>
+                <button id="gadget-import" class="small" type="button">
+                  ガジェット設定をインポート
+                </button>
+                <input
+                  id="gadget-prefs-input"
+                  type="file"
+                  accept="application/json,.json"
+                  style="display: none"
+                />
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="sidebar-section">
+          <h3>ヘルプ</h3>
+          <a
+            class="button"
+            href="docs/editor-help.html"
+            target="_blank"
+            rel="noopener"
+            >エディタ機能ガイドを開く</a
+          >
+        </div>
+      </aside>
+
+      <!-- メインコンテンツ -->
+      <main class="main-content">
+        <!-- ツールバー -->
+        <div class="toolbar">
+          <button
+            id="toggle-sidebar"
+            class="icon-button"
+            aria-label="サイドバーを開閉"
+          >
+            ☰
+          </button>
+          <div class="word-count">0 文字</div>
+          <div
+            id="goal-progress"
+            class="goal-progress"
+            aria-hidden="true"
+            style="display: none"
+          >
+            <div class="goal-progress__track">
+              <div class="goal-progress__bar" style="width: 0%"></div>
+            </div>
+          </div>
+          <div class="toolbar-actions">
+            <button
+              id="toggle-toolbar"
+              class="icon-button"
+              aria-label="ツールバーを開閉"
+            >
+              ⌨️
+            </button>
+            <button
+              id="fullscreen"
+              class="icon-button"
+              aria-label="フルスクリーン切替"
+            >
+              ⛶
+            </button>
+          </div>
+        </div>
+
+        <!-- エディタエリア -->
+        <div class="editor-container">
+          <div class="editor-canvas">
+            <textarea
+              id="editor"
+              placeholder="ここに小説を入力してください..."
+            ></textarea>
+            <div
+              id="editor-overlay"
+              class="editor-overlay"
+              aria-hidden="true"
+            ></div>
+            <div
+              id="editor-mirror"
+              class="editor-mirror"
+              aria-hidden="true"
+            ></div>
+          </div>
+          <div
+            id="editor-preview"
+            class="editor-preview editor-preview--collapsed"
+            aria-live="polite"
+          >
+            <div id="editor-preview-body" class="editor-preview__body"></div>
+          </div>
+          <div id="print-view" class="print-view" aria-hidden="true"></div>
+        </div>
+      </main>
     </div>
     <!-- ツールバー再表示用FAB -->
-    <button id="show-toolbar" class="fab-toggle-toolbar" title="ツールバーを表示" aria-label="ツールバーを表示" style="display:none;">⌨️</button>
+    <button
+      id="show-toolbar"
+      class="fab-toggle-toolbar"
+      title="ツールバーを表示"
+      aria-label="ツールバーを表示"
+      style="display: none"
+    >
+      ⌨️
+    </button>
     <!-- 追加機能用FAB -->
-    <button id="fab-tools" class="fab-tools" title="ツール" aria-label="ツール">⚙️</button>
+    <button id="fab-tools" class="fab-tools" title="ツール" aria-label="ツール">
+      ⚙️
+    </button>
     <!-- フローティングフォントパネル -->
-    <div id="floating-font-panel" class="floating-panel" style="display:none;">
-        <div class="panel-header">
-            <span>フォントサイズ</span>
-            <button class="panel-close" id="close-font-panel">×</button>
+    <div id="floating-font-panel" class="floating-panel" style="display: none">
+      <div class="panel-header">
+        <span>フォントサイズ</span>
+        <button class="panel-close" id="close-font-panel">×</button>
+      </div>
+      <div class="panel-body">
+        <input
+          type="range"
+          id="global-font-size"
+          min="12"
+          max="48"
+          value="16"
+        />
+        <div class="panel-row">
+          <input
+            type="number"
+            id="global-font-size-number"
+            min="12"
+            max="48"
+            value="16"
+            style="width: 72px"
+          />
+          px
         </div>
-        <div class="panel-body">
-            <input type="range" id="global-font-size" min="12" max="48" value="16">
-            <div class="panel-row">
-                <input type="number" id="global-font-size-number" min="12" max="48" value="16" style="width:72px;"> px
-            </div>
-            <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
-        </div>
+        <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
+      </div>
     </div>
     <!-- 検索置換パネル -->
-    <div id="search-panel" class="floating-panel" style="display:none;">
-        <div class="panel-header">
-            <span>検索と置換</span>
-            <button class="panel-close" id="close-search-panel">×</button>
+    <div id="search-panel" class="floating-panel" style="display: none">
+      <div class="panel-header">
+        <span>検索と置換</span>
+        <button class="panel-close" id="close-search-panel">×</button>
+      </div>
+      <div class="panel-body">
+        <input type="text" id="search-input" placeholder="検索するテキスト" />
+        <input type="text" id="replace-input" placeholder="置換するテキスト" />
+        <div class="panel-row">
+          <label style="margin-right: 1rem"
+            ><input type="checkbox" id="search-case-sensitive" />
+            大文字/小文字を区別</label
+          >
+          <label><input type="checkbox" id="search-regex" /> 正規表現</label>
         </div>
-        <div class="panel-body">
-            <input type="text" id="search-input" placeholder="検索するテキスト">
-            <input type="text" id="replace-input" placeholder="置換するテキスト">
-            <div class="panel-row">
-                <label style="margin-right: 1rem;"><input type="checkbox" id="search-case-sensitive"> 大文字/小文字を区別</label>
-                <label><input type="checkbox" id="search-regex"> 正規表現</label>
-            </div>
-            <div class="panel-row">
-                <button id="replace-single" class="small" type="button">置換</button>
-                <button id="replace-all" class="small" type="button">すべて置換</button>
-                <button id="search-prev" class="small" type="button">前へ</button>
-                <button id="search-next" class="small" type="button">次へ</button>
-            </div>
-            <div class="panel-hint">
-                <span id="match-count">一致するテキストが見つかりません</span><br>
-                <small>ショートカット: Ctrl+F で検索パネルを開く</small>
-            </div>
+        <div class="panel-row">
+          <button id="replace-single" class="small" type="button">置換</button>
+          <button id="replace-all" class="small" type="button">
+            すべて置換
+          </button>
+          <button id="search-prev" class="small" type="button">前へ</button>
+          <button id="search-next" class="small" type="button">次へ</button>
         </div>
+        <div class="panel-hint">
+          <span id="match-count">一致するテキストが見つかりません</span><br />
+          <small>ショートカット: Ctrl+F で検索パネルを開く</small>
+        </div>
+      </div>
     </div>
-    
+
     <script src="js/storage.js"></script>
     <script src="js/theme.js"></script>
     <script src="js/hud.js"></script>
@@ -195,10 +436,15 @@
     <script src="js/embed/child-bridge.js"></script>
     <script>
       // 非埋め込み時のみ Outline/高度テーマ/プラグインを動的ロード（埋め込みでの初期ロードを軽量化）
-      (function(){
+      (function () {
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
-        function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
+        function load(src) {
+          var s = document.createElement('script');
+          s.src = src;
+          s.defer = true;
+          document.body.appendChild(s);
+        }
         load('js/themes-advanced.js');
         load('js/plugins/registry.js');
         load('js/plugins/choice.js');
@@ -206,5 +452,5 @@
         load('js/images.js');
       })();
     </script>
-</body>
+  </body>
 </html>

@@ -32,7 +32,7 @@
 
   // 使用例
   sdk.setContent('# タイトル\n\n本文...').then(() => sdk.focus());
-  sdk.getContent().then(text => console.log(text));
+  sdk.getContent().then((text) => console.log(text));
   sdk.takeSnapshot();
 </script>
 ```
@@ -82,7 +82,11 @@
 
 ```html
 <script>
-  const sdk = ZenWriterEmbed.create('#zw-container', { src: '/index.html?embed=1', width: '100%', height: '100%' });
+  const sdk = ZenWriterEmbed.create('#zw-container', {
+    src: '/index.html?embed=1',
+    width: '100%',
+    height: '100%',
+  });
   // 購読（解除関数が返る）
   const offContent = sdk.on('contentChanged', (p) => {
     console.log('contentChanged len=', (p && p.len) || 0);

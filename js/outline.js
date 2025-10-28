@@ -1,5 +1,5 @@
 // アウトライン管理
-(function(){
+(function () {
   const STORAGE = window.ZenWriterStorage;
 
   const DEFAULT_OUTLINE = {
@@ -10,11 +10,11 @@
         levels: [
           { key: 'part', label: '部', color: '#4a90e2' },
           { key: 'chapter', label: '章', color: '#7b8a8b' },
-          { key: 'section', label: '節', color: '#b88a4a' }
-        ]
-      }
+          { key: 'section', label: '節', color: '#b88a4a' },
+        ],
+      },
     ],
-    currentSetId: 'default-3'
+    currentSetId: 'default-3',
   };
 
   class OutlineManager {
@@ -39,13 +39,16 @@
     }
 
     get currentSet() {
-      return this.state.sets.find(s => s.id === this.state.currentSetId) || this.state.sets[0];
+      return (
+        this.state.sets.find((s) => s.id === this.state.currentSetId) ||
+        this.state.sets[0]
+      );
     }
 
     renderSetSelect() {
       const sel = this.$setSelect;
       sel.innerHTML = '';
-      this.state.sets.forEach(set => {
+      this.state.sets.forEach((set) => {
         const opt = document.createElement('option');
         opt.value = set.id;
         opt.textContent = set.name;
@@ -102,13 +105,20 @@
             alert('レベル名をカンマ区切りで入力してください');
             return;
           }
-          const labels = levelsCsv.split(',').map(s => s.trim()).filter(Boolean);
+          const labels = levelsCsv
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
           const palette = this.generatePalette(labels.length);
           const id = `set-${Date.now()}`;
           const set = {
             id,
             name,
-            levels: labels.map((label, idx) => ({ key: `k${idx}`, label, color: palette[idx] }))
+            levels: labels.map((label, idx) => ({
+              key: `k${idx}`,
+              label,
+              color: palette[idx],
+            })),
           };
           this.state.sets.push(set);
           this.state.currentSetId = id;
@@ -160,7 +170,10 @@
       const depth = index + 1; // 1-based
       const prefix = '#'.repeat(Math.min(depth, 6));
       const text = `${prefix} ${set.levels[index].label} タイトル\n\n`;
-      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
+      if (
+        window.ZenWriterEditor &&
+        typeof window.ZenWriterEditor.insertTextAtCursor === 'function'
+      ) {
         window.ZenWriterEditor.insertTextAtCursor(text);
       }
     }
@@ -175,14 +188,18 @@
     }
 
     hslToHex(h, s, l) {
-      s /= 100; l /= 100;
-      const k = n => (n + h/30) % 12;
+      s /= 100;
+      l /= 100;
+      const k = (n) => (n + h / 30) % 12;
       const a = s * Math.min(l, 1 - l);
-      const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      const f = (n) =>
+        l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
       const r = Math.round(255 * f(0));
       const g = Math.round(255 * f(8));
       const b = Math.round(255 * f(4));
-      return '#' + [r,g,b].map(x => x.toString(16).padStart(2, '0')).join('');
+      return (
+        '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')
+      );
     }
 
     escape(str) {

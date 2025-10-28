@@ -2,16 +2,16 @@ name: Docs — Build & Deploy (DocFX)
 
 on:
   push:
-    branches: ["main"]
+    branches: ['main']
     paths:
-      - "docfx.json"
-      - "toc.yml"
-      - "README.md"
-      - "AI_CONTEXT.md"
-      - "docs/**"
-      - "docs/**.md"
-      - "docs/**/toc.yml"
-      - ".github/workflows/deploy-pages.yml"
+      - 'docfx.json'
+      - 'toc.yml'
+      - 'README.md'
+      - 'AI_CONTEXT.md'
+      - 'docs/**'
+      - 'docs/**.md'
+      - 'docs/**/toc.yml'
+      - '.github/workflows/deploy-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -20,7 +20,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: true
 
 jobs:
@@ -33,7 +33,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: '8.0.x'
 
       - name: Restore DocFX tool
         run: dotnet tool restore
@@ -47,7 +47,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "_site"
+          path: '_site'
 
   deploy:
     needs: build

@@ -3,17 +3,11 @@
     "content": [
       {
         "src": ".",
-        "files": [
-          "README.md",
-          "AI_CONTEXT.md"
-        ]
+        "files": ["README.md", "AI_CONTEXT.md"]
       },
       {
         "src": "docs",
-        "files": [
-          "**/*.md",
-          "!test-reports/**"
-        ]
+        "files": ["**/*.md", "!test-reports/**"]
       }
     ],
     "resource": [],
@@ -24,8 +18,6 @@
       "_enableSearch": true,
       "language": "ja-JP"
     },
-    "template": [
-      "default"
-    ]
+    "template": ["default"]
   }
 }

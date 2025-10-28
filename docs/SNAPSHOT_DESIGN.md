@@ -27,14 +27,14 @@
 ```ts
 // LocalStorage or IndexedDB へ保存
 interface Snapshot {
-  id: string;        // 'snap_<ts>_<rand>'
-  ts: number;        // epoch ms
-  docId?: string;    // 紐づくドキュメントID（未設定ならカレント）
-  len: number;       // 文字数
+  id: string; // 'snap_<ts>_<rand>'
+  ts: number; // epoch ms
+  docId?: string; // 紐づくドキュメントID（未設定ならカレント）
+  len: number; // 文字数
   type: 'auto' | 'manual';
-  tags?: string[];   // ['checkpoint','before-print'] など
-  note?: string;     // 任意メモ
-  content: string;   // 本文
+  tags?: string[]; // ['checkpoint','before-print'] など
+  note?: string; // 任意メモ
+  content: string; // 本文
 }
 ```
 

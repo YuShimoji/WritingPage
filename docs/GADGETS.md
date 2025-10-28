@@ -108,18 +108,23 @@
 <!-- index.html（抜粋） -->
 <div id="gadgets-panel" class="gadgets-panel"></div>
 <script>
-(function(){
-  var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
-  if (isEmbed) return;
-  function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
-  load('js/gadgets.js');
-})();
+  (function () {
+    var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
+    if (isEmbed) return;
+    function load(src) {
+      var s = document.createElement('script');
+      s.src = src;
+      s.defer = true;
+      document.body.appendChild(s);
+    }
+    load('js/gadgets.js');
+  })();
 </script>
 ```
 
 ```js
 // カスタムガジェットの登録例
-ZWGadgets.register('Sample', function(el){
+ZWGadgets.register('Sample', function (el) {
   var p = document.createElement('p');
   p.textContent = 'Hello Gadget!';
   el.appendChild(p);
@@ -133,11 +138,15 @@ ZWGadgets.register('Sample', function(el){
 
 ```js
 // 例: WritingGoal と同等の最小構成
-ZWGadgets.register('MyGadget', function(el, api){
-  var box = document.createElement('div');
-  box.textContent = 'MyGadget is here!';
-  el.appendChild(box);
-}, { groups: ['assist'], title: 'MyGadget' });
+ZWGadgets.register(
+  'MyGadget',
+  function (el, api) {
+    var box = document.createElement('div');
+    box.textContent = 'MyGadget is here!';
+    el.appendChild(box);
+  },
+  { groups: ['assist'], title: 'MyGadget' },
+);
 ```
 
 2. ロードアウトへ含める（任意）
@@ -150,11 +159,13 @@ ZWGadgets.register('MyGadget', function(el, api){
 3. 設定UIを付ける（任意）
 
 ```js
-ZWGadgets.registerSettings('MyGadget', function(panel, ctx){
+ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
   var cb = document.createElement('input');
   cb.type = 'checkbox';
   cb.checked = !!ctx.get('enabled', true);
-  cb.addEventListener('change', function(){ ctx.set('enabled', !!cb.checked); });
+  cb.addEventListener('change', function () {
+    ctx.set('enabled', !!cb.checked);
+  });
   panel.appendChild(cb);
 });
 ```
@@ -191,8 +202,8 @@ ZWGadgets.registerSettings('MyGadget', function(panel, ctx){
 ```json
 {
   "order": ["Clock"],
-  "collapsed": {"Clock": false},
-  "settings": {"Clock": {"hour24": true}}
+  "collapsed": { "Clock": false },
+  "settings": { "Clock": { "hour24": true } }
 }
 ```
 
@@ -223,15 +234,15 @@ ZWGadgets.registerSettings('MyGadget', function(panel, ctx){
 
 ```js
 // Clock を下へ移動
-ZWGadgets.move('Clock', 'down')
+ZWGadgets.move('Clock', 'down');
 
 // Clock を折りたたむ/展開
-ZWGadgets.toggle('Clock')
+ZWGadgets.toggle('Clock');
 
 // 直接プリファレンスを書き換えて再描画
-const prefs = ZWGadgets.getPrefs()
-prefs.order = ['Clock']
-ZWGadgets.setPrefs(prefs)
+const prefs = ZWGadgets.getPrefs();
+prefs.order = ['Clock'];
+ZWGadgets.setPrefs(prefs);
 ```
 
 ## 将来拡張
@@ -263,7 +274,7 @@ ZWGadgets.setPrefs(prefs)
 
 ```js
 // 設定UIの登録（ガジェット名ごと）
-ZWGadgets.registerSettings('Sample', function(panelEl, ctx){
+ZWGadgets.registerSettings('Sample', function (panelEl, ctx) {
   const enable = document.createElement('input');
   enable.type = 'checkbox';
   enable.checked = !!ctx.get('enabled', false);
@@ -275,7 +286,7 @@ ZWGadgets.registerSettings('Sample', function(panelEl, ctx){
 - ガジェット本体の factory には `api` が渡されます。
 
 ```js
-ZWGadgets.register('Sample', function(el, api){
+ZWGadgets.register('Sample', function (el, api) {
   const enabled = api.get('enabled', false);
   // ...
 });
@@ -299,7 +310,7 @@ const hour24 = api.get('hour24', true);
 設定UI:
 
 ```js
-ZWGadgets.registerSettings('Clock', function(el, ctx){
+ZWGadgets.registerSettings('Clock', function (el, ctx) {
   const cb = document.createElement('input');
   cb.type = 'checkbox';
   cb.checked = !!ctx.get('hour24', true);

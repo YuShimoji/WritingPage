@@ -1,129 +1,192 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zen Writer エディタ機能ガイド</title>
-  <link rel="stylesheet" href="../css/style.css">
-  <style>
-    body {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
-      background: var(--bg-color);
-      color: var(--text-color);
-      font-family: var(--font-family);
-      line-height: var(--line-height);
-    }
-    h1, h2, h3 {
-      margin-top: 1.8rem;
-      margin-bottom: 0.8rem;
-    }
-    h1 { font-size: 2rem; }
-    h2 { font-size: 1.4rem; }
-    h3 { font-size: 1.2rem; }
-    p { margin: 0.8rem 0; }
-    ul, ol {
-      margin: 0.6rem 0 1.2rem 1.5rem;
-    }
-    li + li {
-      margin-top: 0.4rem;
-    }
-    .meta {
-      font-size: 0.85rem;
-      opacity: 0.8;
-      margin-bottom: 1.2rem;
-    }
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.9rem;
-      margin-bottom: 1.5rem;
-      color: var(--focus-color);
-      text-decoration: none;
-    }
-    .back-link:hover {
-      text-decoration: underline;
-    }
-  </style>
-</head>
-<body>
-  <a class="back-link" href="../index.html">← Zen Writer に戻る</a>
-  <h1>Zen Writer エディタ機能ガイド</h1>
-  <div class="meta">最終更新: 2025-10-16T13:40:00+09:00 / 更新者: Cascade AI</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zen Writer エディタ機能ガイド</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      body {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family: var(--font-family);
+        line-height: var(--line-height);
+      }
+      h1,
+      h2,
+      h3 {
+        margin-top: 1.8rem;
+        margin-bottom: 0.8rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+      }
+      h3 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin: 0.8rem 0;
+      }
+      ul,
+      ol {
+        margin: 0.6rem 0 1.2rem 1.5rem;
+      }
+      li + li {
+        margin-top: 0.4rem;
+      }
+      .meta {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-bottom: 1.2rem;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        color: var(--focus-color);
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back-link" href="../index.html">← Zen Writer に戻る</a>
+    <h1>Zen Writer エディタ機能ガイド</h1>
+    <div class="meta">
+      最終更新: 2025-10-16T13:40:00+09:00 / 更新者: Cascade AI
+    </div>
 
-  <h2>概要</h2>
-  <p>Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォント操作など）の利用手順をまとめています。最新の UI と整合しており、新しい端末からアクセスした場合でもここを参照することで操作方法を把握できます。</p>
+    <h2>概要</h2>
+    <p>
+      Zen Writer
+      のエディタおよび補助機能（HUD、画像挿入、フォント操作など）の利用手順をまとめています。最新の
+      UI
+      と整合しており、新しい端末からアクセスした場合でもここを参照することで操作方法を把握できます。
+    </p>
 
-  <h2>1. HUD（ミニ通知）</h2>
-  <ul>
-    <li>ガジェットの「HUD」カードから設定を開きます。</li>
-    <li>メッセージ、表示位置、表示時間、背景色/文字色、サイズ、不透明度を調整できます。</li>
-    <li>「ピン留め」を有効にすると常時表示され、無効時はフェードアウトします。</li>
-    <li>「プレビュー」で即時確認、「クリア」でメッセージ削除、「リセット」で初期設定に戻せます。</li>
-  </ul>
+    <h2>1. HUD（ミニ通知）</h2>
+    <ul>
+      <li>ガジェットの「HUD」カードから設定を開きます。</li>
+      <li>
+        メッセージ、表示位置、表示時間、背景色/文字色、サイズ、不透明度を調整できます。
+      </li>
+      <li>
+        「ピン留め」を有効にすると常時表示され、無効時はフェードアウトします。
+      </li>
+      <li>
+        「プレビュー」で即時確認、「クリア」でメッセージ削除、「リセット」で初期設定に戻せます。
+      </li>
+    </ul>
 
-  <h2>2. 執筆目標</h2>
-  <ul>
-    <li>ガジェット側で表示/非表示や順序を管理できます。</li>
-    <li>目標文字数、締切日を設定すると、ツールバーの進捗バーや HUD 通知に連携します。</li>
-  </ul>
+    <h2>2. 執筆目標</h2>
+    <ul>
+      <li>ガジェット側で表示/非表示や順序を管理できます。</li>
+      <li>
+        目標文字数、締切日を設定すると、ツールバーの進捗バーや HUD
+        通知に連携します。
+      </li>
+    </ul>
 
-  <h2>3. 画像の挿入</h2>
-  <h3>3-1. 貼り付け</h3>
-  <ol>
-    <li>クリップボードに画像をコピーする。</li>
-    <li>エディタにフォーカスした状態で <code>Ctrl/⌘ + V</code>。</li>
-    <li><code>![ファイル名](dataURL)</code> 形式の Markdown が挿入されます。</li>
-  </ol>
+    <h2>3. 画像の挿入</h2>
+    <h3>3-1. 貼り付け</h3>
+    <ol>
+      <li>クリップボードに画像をコピーする。</li>
+      <li>エディタにフォーカスした状態で <code>Ctrl/⌘ + V</code>。</li>
+      <li>
+        <code>![ファイル名](asset://ID)</code> 形式の Markdown が挿入されます。
+      </li>
+    </ol>
 
-  <h3>3-2. ドラッグ＆ドロップ</h3>
-  <ol>
-    <li>エディタへ画像ファイル（PNG/JPEG 等）をドラッグします。</li>
-    <li>ドロップ時に自動で Base64 Markdown が挿入されます。</li>
-    <li>既にテキストがある場合、自動で改行が追加され適切に配置されます。</li>
-  </ol>
+    <h3>3-2. ドラッグ＆ドロップ</h3>
+    <ol>
+      <li>エディタへ画像ファイル（PNG/JPEG 等）をドラッグします。</li>
+      <li>ドロップ時に自動で asset:// 参照の Markdown が挿入されます。</li>
+      <li>既にテキストがある場合、自動で改行が追加され適切に配置されます。</li>
+    </ol>
 
-  <h3>3-3. ファイル選択ボタン（今後の拡張予定）</h3>
-  <ul>
-    <li>サイドバー上の「ファイルを読み込む」ボタンから <code>.txt/.md</code> を読み込めます。</li>
-    <li>画像専用のアップロードボタンは検討中です（Issue #84 参照）。</li>
-  </ul>
+    <h3>3-3. 画像プレビュー機能</h3>
+    <ul>
+      <li>挿入された画像はエディタ内で直接表示（オーバーレイ）されます。</li>
+      <li>オーバーレイ画像をドラッグして位置を調整できます。</li>
+      <li>右下のリサイズハンドルで幅を変更できます。</li>
+      <li>左上のトグルボタンで表示/非表示を切り替えられます。</li>
+      <li>右側の「画像プレビュー」パネルで一括管理可能です。
+        <ul>
+          <li>スライダーで幅調整、プルダウンで整列変更。</li>
+          <li>「隠す」/「表示する」ボタンで個別制御。</li>
+          <li>「別タブで開く」でフルサイズ表示。</li>
+        </ul>
+      </li>
+    </ul>
 
-  <h2>4. フロートツールバー（予定）</h2>
-  <ul>
-    <li>フロートツールバーに画像挿入ショートカットを追加する構想を進行中です。</li>
-    <li>実装後は HUD と同様にガジェット設定からカスタマイズできる予定です。</li>
-  </ul>
+    <h3>3-4. ファイル選択ボタン（今後の拡張予定）</h3>
+    <ul>
+      <li>
+        サイドバー上の「ファイルを読み込む」ボタンから
+        <code>.txt/.md</code> を読み込めます。
+      </li>
+      <li>画像専用のアップロードボタンは検討中です（Issue #84 参照）。</li>
+    </ul>
 
-  <h2>5. フォント・テーマ・カスタムカラー</h2>
-  <ul>
-    <li>サイドバーの「テーマ」「フォント」セクション、およびフローティングフォントパネルから調整できます。</li>
-    <li>Google Fonts（非埋め込み時）により、<code>Noto Serif JP</code> などが選択可能です。</li>
-  </ul>
+    <h2>4. フロートツールバー（予定）</h2>
+    <ul>
+      <li>
+        フロートツールバーに画像挿入ショートカットを追加する構想を進行中です。
+      </li>
+      <li>
+        実装後は HUD と同様にガジェット設定からカスタマイズできる予定です。
+      </li>
+    </ul>
 
-  <h2>6. ショートカット一覧</h2>
-  <ul>
-    <li><code>Ctrl/⌘ + S</code>: 保存</li>
-    <li><code>Ctrl/⌘ + (+ / - / 0)</code>: フォントサイズ調整</li>
-    <li><code>Alt + W</code>: ツールバー表示切替（PCのみ）</li>
-    <li><code>Tab</code>: インデント</li>
-  </ul>
+    <h2>5. フォント・テーマ・カスタムカラー</h2>
+    <ul>
+      <li>
+        サイドバーの「テーマ」「フォント」セクション、およびフローティングフォントパネルから調整できます。
+      </li>
+      <li>
+        Google Fonts（非埋め込み時）により、<code>Noto Serif JP</code>
+        などが選択可能です。
+      </li>
+    </ul>
 
-  <h2>7. バックアップとスナップショット</h2>
-  <ul>
-    <li>「今すぐ保存」ボタンでスナップショットを作成</li>
-    <li>2分以上 / 300文字以上の変化がある場合、自動スナップショットが作成されます。</li>
-  </ul>
+    <h2>6. ショートカット一覧</h2>
+    <ul>
+      <li><code>Ctrl/⌘ + S</code>: 保存</li>
+      <li><code>Ctrl/⌘ + (+ / - / 0)</code>: フォントサイズ調整</li>
+      <li><code>Alt + W</code>: ツールバー表示切替（PCのみ）</li>
+      <li><code>Tab</code>: インデント</li>
+    </ul>
 
-  <h2>8. ドキュメント切替</h2>
-  <ul>
-    <li>「ドキュメント一覧」から複数の原稿を切り替え可能。</li>
-    <li>作成 / 改名 / 削除はサイドバーのボタンから操作します。</li>
-  </ul>
+    <h2>7. バックアップとスナップショット</h2>
+    <ul>
+      <li>「今すぐ保存」ボタンでスナップショットを作成</li>
+      <li>
+        2分以上 /
+        300文字以上の変化がある場合、自動スナップショットが作成されます。
+      </li>
+    </ul>
 
-  <hr>
-  <p>不明点や改善提案があれば Issue 化してください。最新ビルドの UI を確認できない場合は、<code>feature/m12-gadgets</code> ブランチの README と合わせて参照すると追従しやすくなります。</p>
-</body>
+    <h2>8. ドキュメント切替</h2>
+    <ul>
+      <li>「ドキュメント一覧」から複数の原稿を切り替え可能。</li>
+      <li>作成 / 改名 / 削除はサイドバーのボタンから操作します。</li>
+    </ul>
+
+    <hr />
+    <p>
+      不明点や改善提案があれば Issue 化してください。最新ビルドの UI
+      を確認できない場合は、<code>feature/m12-gadgets</code> ブランチの README
+      と合わせて参照すると追従しやすくなります。
+    </p>
+  </body>
 </html>

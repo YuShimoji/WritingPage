@@ -17,27 +17,42 @@ test.describe('Embed Demo (same-origin)', () => {
         const ifr = document.querySelector('#zw-container iframe');
         if (!ifr || !ifr.contentWindow) return false;
         const api = ifr.contentWindow.ZenWriterAPI;
-        return !!api && typeof api.getContent === 'function' && typeof api.setContent === 'function';
-      } catch(_) { return false; }
+        return (
+          !!api &&
+          typeof api.getContent === 'function' &&
+          typeof api.setContent === 'function'
+        );
+      } catch (_) {
+        return false;
+      }
     });
 
     // setContent via child API (same-origin direct call for robustness)
     const content = 'Hello from E2E!\n\nこれは自動テストの本文です。';
     await page.fill('#src-text', content);
     await frame.locator('html').evaluate((_, t) => {
-      return window.ZenWriterAPI && typeof window.ZenWriterAPI.setContent === 'function'
+      return window.ZenWriterAPI &&
+        typeof window.ZenWriterAPI.setContent === 'function'
         ? window.ZenWriterAPI.setContent(t)
         : false;
     }, content);
     // focus via child API to mimic demo button
-    await frame.locator('html').evaluate(() => window.ZenWriterAPI && window.ZenWriterAPI.focus && window.ZenWriterAPI.focus());
+    await frame
+      .locator('html')
+      .evaluate(
+        () =>
+          window.ZenWriterAPI &&
+          window.ZenWriterAPI.focus &&
+          window.ZenWriterAPI.focus(),
+      );
 
     // confirm the iframe editor actually received content
     await expect(frame.locator('#editor')).toHaveValue(/Hello from E2E/);
 
     // getContent (direct) and verify
     const got = await frame.locator('html').evaluate(() => {
-      return window.ZenWriterAPI && typeof window.ZenWriterAPI.getContent === 'function'
+      return window.ZenWriterAPI &&
+        typeof window.ZenWriterAPI.getContent === 'function'
         ? window.ZenWriterAPI.getContent()
         : '';
     });
@@ -45,19 +60,28 @@ test.describe('Embed Demo (same-origin)', () => {
 
     // iframe editor should have focus after set+focus
     await expect(frame.locator('#editor')).toBeVisible();
-    const isFocused = await frame.locator('#editor').evaluate(el => {
-      try { return el === document.activeElement; } catch(_) { return false; }
+    const isFocused = await frame.locator('#editor').evaluate((el) => {
+      try {
+        return el === document.activeElement;
+      } catch (_) {
+        return false;
+      }
     });
     expect(isFocused).toBeTruthy();
 
     // snapshot via child API and verify child state
     await frame.locator('html').evaluate(() => {
-      return window.ZenWriterAPI && typeof window.ZenWriterAPI.takeSnapshot === 'function'
+      return window.ZenWriterAPI &&
+        typeof window.ZenWriterAPI.takeSnapshot === 'function'
         ? window.ZenWriterAPI.takeSnapshot()
         : false;
     });
     const snapCount = await frame.locator('html').evaluate(() => {
-      try { return (window.ZenWriterStorage.loadSnapshots() || []).length; } catch(_) { return 0; }
+      try {
+        return (window.ZenWriterStorage.loadSnapshots() || []).length;
+      } catch (_) {
+        return 0;
+      }
     });
     expect(snapCount).toBeGreaterThan(0);
 

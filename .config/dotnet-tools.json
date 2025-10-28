@@ -4,9 +4,7 @@
   "tools": {
     "docfx": {
       "version": "2.78.3",
-      "commands": [
-        "docfx"
-      ],
+      "commands": ["docfx"],
       "rollForward": false
     }
   }

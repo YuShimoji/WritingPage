@@ -6,11 +6,15 @@ const serverScript = path.join(__dirname, 'dev-server.js');
 const processes = new Map();
 
 function start(port) {
-  const child = spawn(process.execPath, [serverScript, '--port', String(port)], {
-    env: { ...process.env, PORT: String(port) },
-    stdio: ['ignore', 'inherit', 'inherit'],
-    windowsHide: true,
-  });
+  const child = spawn(
+    process.execPath,
+    [serverScript, '--port', String(port)],
+    {
+      env: { ...process.env, PORT: String(port) },
+      stdio: ['ignore', 'inherit', 'inherit'],
+      windowsHide: true,
+    },
+  );
   processes.set(port, child);
   child.on('exit', (code, signal) => {
     console.log(`[server:${port}] exited code=${code} signal=${signal}`);
@@ -21,13 +25,16 @@ function start(port) {
 function waitForReady(port, retries = 50, delay = 200) {
   return new Promise((resolve, reject) => {
     const attempt = () => {
-      const req = http.get({ hostname: '127.0.0.1', port, path: '/index.html' }, res => {
-        res.resume();
-        if (res.statusCode && res.statusCode < 500) {
-          return resolve();
-        }
-        retry();
-      });
+      const req = http.get(
+        { hostname: '127.0.0.1', port, path: '/index.html' },
+        (res) => {
+          res.resume();
+          if (res.statusCode && res.statusCode < 500) {
+            return resolve();
+          }
+          retry();
+        },
+      );
       req.on('error', retry);
       req.end();
     };
@@ -44,7 +51,7 @@ function waitForReady(port, retries = 50, delay = 200) {
 
 function shutdown() {
   console.log('\nShutting down servers...');
-  processes.forEach(child => {
+  processes.forEach((child) => {
     if (child && !child.killed) child.kill('SIGINT');
   });
   setTimeout(() => process.exit(0), 200);
@@ -62,21 +69,23 @@ function parseBasePort() {
     if (m) return parseInt(m[1], 10);
     m = /^--port=(\d+)$/.exec(a);
     if (m) return parseInt(m[1], 10);
-    if ((a === '--base' || a === '--port') && /^\d+$/.test(argv[i+1] || '')) {
-      return parseInt(argv[i+1], 10);
+    if ((a === '--base' || a === '--port') && /^\d+$/.test(argv[i + 1] || '')) {
+      return parseInt(argv[i + 1], 10);
     }
   }
   return 8080;
 }
 
-async function main(){
+async function main() {
   try {
     const base = parseBasePort();
     const childPort = base + 1;
     console.log(`Starting dev server on ${childPort} ...`);
     start(childPort);
     await waitForReady(childPort);
-    console.log(`Server ${childPort} ready. Starting dev server on ${base} ...`);
+    console.log(
+      `Server ${childPort} ready. Starting dev server on ${base} ...`,
+    );
     start(base);
     await waitForReady(base);
     console.log(`Servers ready on ${base} and ${childPort}.`);
