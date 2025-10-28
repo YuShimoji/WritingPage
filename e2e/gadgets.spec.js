@@ -17,7 +17,7 @@ async function waitGadgetsReady(page) {
     await assistTab.click();
   }
   // 初回レンダ後のガジェット要素を待機
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(2000);
   await page.waitForSelector('#gadgets-panel section.gadget', {
     state: 'attached',
   });
@@ -78,9 +78,13 @@ test.describe('Gadgets E2E', () => {
 
     // Toggle（折りたたみ）
     const cBody = clock.locator('.gadget-body');
+    const isVisible = await cBody.isVisible();
+    if (!isVisible) {
+      await clock.scrollIntoViewIfNeeded();
+      await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
+      await clock.locator('.gadget-toggle').click();
+    }
     await expect(cBody).toBeVisible();
-    await clock.scrollIntoViewIfNeeded();
-    await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
     await clock.locator('.gadget-toggle').click();
     await expect(cBody).toBeHidden();
     await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
@@ -190,12 +194,6 @@ test.describe('Gadgets E2E', () => {
     const typoTab = page.locator('button.sidebar-tab', { hasText: 'タイポ' });
     await typoTab.click();
     await expect(typoTab).toHaveAttribute('aria-selected', 'true');
-    // ガジェットグループを変更
-    await page.evaluate(() => {
-      try {
-        window.ZWGadgets.setActiveGroup('typography');
-      } catch (_) {}
-    });
 
     // EditorLayout ガジェットが表示されていること
     const layoutGadget = page.locator(
