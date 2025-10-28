@@ -78,13 +78,13 @@ test.describe('Gadgets E2E', () => {
 
     // Toggle（折りたたみ）
     const cBody = clock.locator('.gadget-body');
-    const isVisible = await cBody.isVisible();
-    if (!isVisible) {
-      await clock.scrollIntoViewIfNeeded();
-      await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
-      await clock.locator('.gadget-toggle').click();
-    }
+    await page.waitForFunction(() => {
+      const el = document.querySelector('#gadgets-panel section.gadget[data-name="Clock"] .gadget-body');
+      return el && el.style.display !== 'none';
+    });
     await expect(cBody).toBeVisible();
+    await clock.scrollIntoViewIfNeeded();
+    await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
     await clock.locator('.gadget-toggle').click();
     await expect(cBody).toBeHidden();
     await clock.locator('.gadget-toggle').scrollIntoViewIfNeeded();
