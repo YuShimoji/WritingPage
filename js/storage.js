@@ -38,6 +38,16 @@ const DEFAULT_SETTINGS = {
     width: 240,
     fontSize: 14,
   },
+  typewriter: {
+    enabled: false,
+    anchorRatio: 0.5,
+    stickiness: 0.9,
+  },
+  snapshot: {
+    intervalMs: 120000,
+    deltaChars: 300,
+    retention: 10,
+  },
 };
 
 // ===== スナップショット（自動バックアップ） =====
@@ -403,6 +413,14 @@ function loadSettings() {
       const merged = { ...DEFAULT_SETTINGS, ...parsed };
       merged.goal = { ...DEFAULT_SETTINGS.goal, ...(parsed.goal || {}) };
       merged.hud = { ...DEFAULT_SETTINGS.hud, ...(parsed.hud || {}) };
+      merged.typewriter = {
+        ...DEFAULT_SETTINGS.typewriter,
+        ...(parsed.typewriter || {}),
+      };
+      merged.snapshot = {
+        ...DEFAULT_SETTINGS.snapshot,
+        ...(parsed.snapshot || {}),
+      };
       return merged;
     }
   } catch (e) {
@@ -412,6 +430,8 @@ function loadSettings() {
     ...DEFAULT_SETTINGS,
     goal: { ...DEFAULT_SETTINGS.goal },
     hud: { ...DEFAULT_SETTINGS.hud },
+    typewriter: { ...DEFAULT_SETTINGS.typewriter },
+    snapshot: { ...DEFAULT_SETTINGS.snapshot },
   };
 }
 

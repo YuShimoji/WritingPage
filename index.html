@@ -105,6 +105,16 @@
             >
               アシスト
             </button>
+            <button
+              class="sidebar-tab"
+              type="button"
+              id="sidebar-tab-editor"
+              data-group="editor"
+              aria-controls="sidebar-group-editor"
+              aria-selected="false"
+            >
+              エディタ
+            </button>
           </div>
           <div class="sidebar-loadout">
             <label for="loadout-select">ロードアウト</label>
@@ -135,60 +145,8 @@
               </div>
             </div>
           </div>
-        </div>
-
-<<<<<<< Updated upstream
-            <div class="sidebar-top">
-                <div class="sidebar-tabs" id="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
-                    <button class="sidebar-tab active" type="button" id="sidebar-tab-structure" data-group="structure" aria-controls="sidebar-group-structure" aria-selected="true">構造</button>
-                    <button class="sidebar-tab" type="button" id="sidebar-tab-typography" data-group="typography" aria-controls="sidebar-group-typography" aria-selected="false">タイポ</button>
-                    <button class="sidebar-tab" type="button" id="sidebar-tab-assist" data-group="assist" aria-controls="sidebar-group-assist" aria-selected="false">アシスト</button>
-                </div>
-                <div class="sidebar-loadout">
-                    <label for="loadout-select">ロードアウト</label>
-                    <div class="loadout-controls">
-                        <select id="loadout-select" aria-label="ロードアウトを選択"></select>
-                        <input type="text" id="loadout-name" placeholder="プリセット名" aria-label="ロードアウト名">
-                        <div class="loadout-buttons">
-                            <button id="loadout-save" class="small" type="button">保存</button>
-                            <button id="loadout-duplicate" class="small" type="button">複製</button>
-                            <button id="loadout-apply" class="small" type="button">適用</button>
-                            <button id="loadout-delete" class="small" type="button">削除</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-groups" id="sidebar-groups">
-                <section class="sidebar-group active" data-group="structure" id="sidebar-group-structure" role="tabpanel" aria-labelledby="sidebar-tab-structure">
-                    <div class="sidebar-section">
-                        <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
-                    </div>
-
-                </section>
-
-                <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel" aria-labelledby="sidebar-tab-typography" aria-hidden="true">
-                    <div class="sidebar-section">
-                        <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography" aria-label="タイポグラフィガジェット"></div>
-                    </div>
-                </section>
-
-                <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel" aria-labelledby="sidebar-tab-assist" aria-hidden="true">
-                    <div class="sidebar-section">
-                        <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
-                        <div class="gadget-tools" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
-                            <button id="gadget-export" class="small" type="button">ガジェット設定をエクスポート</button>
-                            <button id="gadget-import" class="small" type="button">ガジェット設定をインポート</button>
-                            <input id="gadget-prefs-input" type="file" accept="application/json,.json" style="display:none;" />
-                        </div>
-                    </div>
-                </section>
-            </div>
-=======
+      </div>
+      
         <div class="sidebar-groups">
           <section
             class="sidebar-group active"
@@ -197,7 +155,6 @@
             role="tabpanel"
             aria-labelledby="sidebar-tab-structure"
           >
->>>>>>> Stashed changes
             <div class="sidebar-section">
               <div
                 id="structure-gadgets-panel"
@@ -269,6 +226,45 @@
                   accept="application/json,.json"
                   style="display: none"
                 />
+              </div>
+            </div>
+          </section>
+          <section
+            class="sidebar-group"
+            data-group="editor"
+            id="sidebar-group-editor"
+            role="tabpanel"
+            aria-labelledby="sidebar-tab-editor"
+            aria-hidden="true"
+          >
+            <div class="sidebar-section">
+              <h4>タイプライターモード</h4>
+              <div class="panel-row">
+                <label for="typewriter-enabled">有効化</label>
+                <input type="checkbox" id="typewriter-enabled" />
+              </div>
+              <div class="panel-row">
+                <label for="typewriter-anchor-ratio">アンカー位置 (0.05-0.95)</label>
+                <input type="range" id="typewriter-anchor-ratio" min="0.05" max="0.95" step="0.05" value="0.5" />
+              </div>
+              <div class="panel-row">
+                <label for="typewriter-stickiness">張り付き強度 (0-1)</label>
+                <input type="range" id="typewriter-stickiness" min="0" max="1" step="0.1" value="0.9" />
+              </div>
+            </div>
+            <div class="sidebar-section">
+              <h4>オートセーブ & スナップショット</h4>
+              <div class="panel-row">
+                <label for="snapshot-interval-ms">間隔 (ms, 30000-300000)</label>
+                <input type="number" id="snapshot-interval-ms" min="30000" max="300000" step="30000" value="120000" />
+              </div>
+              <div class="panel-row">
+                <label for="snapshot-delta-chars">差分文字数 (50-1000)</label>
+                <input type="number" id="snapshot-delta-chars" min="50" max="1000" step="50" value="300" />
+              </div>
+              <div class="panel-row">
+                <label for="snapshot-retention">保持数 (1-50)</label>
+                <input type="number" id="snapshot-retention" min="1" max="50" step="1" value="10" />
               </div>
             </div>
           </section>

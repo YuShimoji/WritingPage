@@ -60,6 +60,39 @@
   border-radius: 3px;
 }
 
+/* ボタン共通スタイル（モダン化） */
+button, input[type="button"], .button {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+button:hover, input[type="button"]:hover, .button:hover {
+  background-color: var(--toolbar-bg);
+  border-color: var(--focus-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* 入力要素モダン化 */
+input[type="text"], input[type="range"], input[type="number"], textarea {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+}
+
+input[type="text"]:focus, input[type="range"]:focus, input[type="number"]:focus, textarea:focus {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  outline: none;
+}
+
 /* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
 html[data-toolbar-hidden='true'] .toolbar {
   display: none !important;

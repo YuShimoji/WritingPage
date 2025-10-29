@@ -112,6 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebarTabs = document.querySelectorAll('.sidebar-tab');
   const sidebarGroups = document.querySelectorAll('.sidebar-group');
 
+  // Editor settings UI
+  const typewriterEnabled = document.getElementById('typewriter-enabled');
+  const typewriterAnchorRatio = document.getElementById('typewriter-anchor-ratio');
+  const typewriterStickiness = document.getElementById('typewriter-stickiness');
+  const snapshotIntervalMs = document.getElementById('snapshot-interval-ms');
+  const snapshotDeltaChars = document.getElementById('snapshot-delta-chars');
+  const snapshotRetention = document.getElementById('snapshot-retention');
+
   function formatTs(ts) {
     const d = new Date(ts);
     const p = (n) => String(n).padStart(2, '0');
@@ -267,6 +275,16 @@ document.addEventListener('DOMContentLoaded', () => {
           ? goal.target
           : parseInt(goal.target, 10) || 0;
     if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
+
+    // Editor settings
+    const tw = settings.typewriter || {};
+    if (typewriterEnabled) typewriterEnabled.checked = !!tw.enabled;
+    if (typewriterAnchorRatio) typewriterAnchorRatio.value = tw.anchorRatio || 0.5;
+    if (typewriterStickiness) typewriterStickiness.value = tw.stickiness || 0.9;
+    const snap = settings.snapshot || {};
+    if (snapshotIntervalMs) snapshotIntervalMs.value = snap.intervalMs || 120000;
+    if (snapshotDeltaChars) snapshotDeltaChars.value = snap.deltaChars || 300;
+    if (snapshotRetention) snapshotRetention.value = snap.retention || 10;
   }
 
   function activateSidebarGroup(groupId) {
@@ -317,9 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleToolbar();
       return;
     }
-    if (!inFormControl && e.altKey && ['1', '2', '3'].includes(e.key)) {
+    if (!inFormControl && e.altKey && ['1', '2', '3', '4'].includes(e.key)) {
       e.preventDefault();
-      const map = { 1: 'structure', 2: 'typography', 3: 'assist' };
+      const map = { 1: 'structure', 2: 'typography', 3: 'assist', 4: 'editor' };
       const gid = map[e.key];
       if (gid) activateSidebarGroup(gid);
     }
@@ -472,6 +490,32 @@ document.addEventListener('DOMContentLoaded', () => {
       saveGoalPatch({ deadline: e.target.value || '' || null }),
     );
   }
+
+  // Editor settings event listeners
+  function saveTypewriterSettings() {
+    const s = window.ZenWriterStorage.loadSettings();
+    s.typewriter = {
+      enabled: typewriterEnabled ? typewriterEnabled.checked : false,
+      anchorRatio: typewriterAnchorRatio ? parseFloat(typewriterAnchorRatio.value) : 0.5,
+      stickiness: typewriterStickiness ? parseFloat(typewriterStickiness.value) : 0.9,
+    };
+    window.ZenWriterStorage.saveSettings(s);
+  }
+  function saveSnapshotSettings() {
+    const s = window.ZenWriterStorage.loadSettings();
+    s.snapshot = {
+      intervalMs: snapshotIntervalMs ? parseInt(snapshotIntervalMs.value, 10) : 120000,
+      deltaChars: snapshotDeltaChars ? parseInt(snapshotDeltaChars.value, 10) : 300,
+      retention: snapshotRetention ? parseInt(snapshotRetention.value, 10) : 10,
+    };
+    window.ZenWriterStorage.saveSettings(s);
+  }
+  if (typewriterEnabled) typewriterEnabled.addEventListener('change', saveTypewriterSettings);
+  if (typewriterAnchorRatio) typewriterAnchorRatio.addEventListener('input', saveTypewriterSettings);
+  if (typewriterStickiness) typewriterStickiness.addEventListener('input', saveTypewriterSettings);
+  if (snapshotIntervalMs) snapshotIntervalMs.addEventListener('change', saveSnapshotSettings);
+  if (snapshotDeltaChars) snapshotDeltaChars.addEventListener('change', saveSnapshotSettings);
+  if (snapshotRetention) snapshotRetention.addEventListener('change', saveSnapshotSettings);
 
   // エディタにフォーカス（エディタ領域をクリックしたときのみ）
   if (editor && editorContainer) {

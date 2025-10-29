@@ -10,8 +10,15 @@ class EditorManager {
     // 自動スナップショット用の状態
     this._lastSnapTs = 0;
     this._lastSnapLen = 0;
-    this.SNAPSHOT_MIN_INTERVAL = 120000; // 2分
-    this.SNAPSHOT_MIN_DELTA = 300; // 300文字以上の変化
+    const _s = window.ZenWriterStorage.loadSettings();
+    this.SNAPSHOT_MIN_INTERVAL =
+      _s && _s.snapshot && typeof _s.snapshot.intervalMs === 'number'
+        ? _s.snapshot.intervalMs
+        : 120000;
+    this.SNAPSHOT_MIN_DELTA =
+      _s && _s.snapshot && typeof _s.snapshot.deltaChars === 'number'
+        ? _s.snapshot.deltaChars
+        : 300;
     // 目標達成の一時フラグ（再達成の過剰通知を抑止）
     this._goalReachedNotified = false;
     this.dropIndicatorClass = 'drop-ready';
@@ -23,6 +30,7 @@ class EditorManager {
     this._overlayRenderFrame = null;
     this._lastOverlayEntries = [];
     this._cachedEditorMetrics = null;
+    this._typewriterRaf = null;
     this.setupEventListeners();
     this.setupImageHandlers();
     this.setupPreviewPanel();
@@ -30,6 +38,12 @@ class EditorManager {
     this.loadContent();
     this.updateWordCount();
     this.renderImagePreview();
+    this.maybeTypewriterScroll('init');
+    if (this.previewPanelBody) {
+      this.previewPanelBody.addEventListener('click', (e) =>
+        this.handlePreviewLink(e),
+      );
+    }
   }
 
   /**
@@ -42,14 +56,58 @@ class EditorManager {
       this.updateWordCount();
       this.maybeAutoSnapshot();
       this.renderImagePreview();
+      this.maybeTypewriterScroll('input');
     });
 
-    // タブキーでインデント
+    // タブキーでインデント + タイプライターモードのスクロール制御
     this.editor.addEventListener('keydown', (e) => {
       if (e.key === 'Tab') {
         e.preventDefault();
         this.insertTextAtCursor('\t');
       }
+      // Markdown: 自動リスト継続（Enter）
+      if (e.key === 'Enter') {
+        try {
+          const pos = this.editor.selectionStart;
+          const text = this.editor.value || '';
+          const lineStart = text.lastIndexOf('\n', Math.max(0, pos - 1)) + 1;
+          const line = text.slice(lineStart, pos);
+          const bullet = line.match(/^\s*([*-]\s+)/);
+          const ordered = line.match(/^\s*(\d+)\.\s+/);
+          if (bullet || ordered) {
+            e.preventDefault();
+            const contentAfterMarker = line.replace(/^\s*([*-]|\d+\.)\s+/, '');
+            if (contentAfterMarker.trim() === '') {
+              // 空の行でEnterならリスト終了
+              this.insertTextAtCursor('\n');
+            } else {
+              const prefix = bullet
+                ? bullet[1]
+                : `${parseInt(ordered[1], 10) + 1}. `;
+              this.insertTextAtCursor(`\n${prefix}`);
+            }
+            // タイプライタースクロール（改行）
+            setTimeout(() => this.maybeTypewriterScroll('newline'), 0);
+            return;
+          }
+        } catch (_) {}
+      }
+      if (
+        e.key === 'Enter' ||
+        e.key === 'ArrowUp' ||
+        e.key === 'ArrowDown' ||
+        e.key === 'PageUp' ||
+        e.key === 'PageDown' ||
+        e.key === 'Home' ||
+        e.key === 'End'
+      ) {
+        const t = e.key === 'Enter' ? 'newline' : 'nav';
+        setTimeout(() => this.maybeTypewriterScroll(t), 0);
+      }
+    });
+
+    this.editor.addEventListener('click', () => {
+      this.maybeTypewriterScroll('click');
     });
 
     // 保存ショートカット (Ctrl+S or Cmd+S)
@@ -62,6 +120,22 @@ class EditorManager {
 
       // フォントサイズ調整ショートカット
       if (e.ctrlKey || e.metaKey) {
+        // Markdown ショートカット: 太字/斜体/リンク
+        if (e.key === 'b' || e.key === 'B') {
+          e.preventDefault();
+          this.applyMarkdownShortcut('bold');
+          return;
+        }
+        if (e.key === 'i' || e.key === 'I') {
+          e.preventDefault();
+          this.applyMarkdownShortcut('italic');
+          return;
+        }
+        if (e.key === 'k' || e.key === 'K') {
+          e.preventDefault();
+          this.applyMarkdownShortcut('link');
+          return;
+        }
         if (e.key === '+' || e.key === '=') {
           e.preventDefault();
           this.adjustGlobalFontSize(1);
@@ -291,6 +365,11 @@ class EditorManager {
     const matches = Array.from(content.matchAll(regex));
     this.previewPanelBody.innerHTML = '';
 
+    // --- Markdown live preview (minimal) ---
+    const md = this.buildMarkdownPreview(content);
+    if (md) this.previewPanelBody.appendChild(md);
+
+    // --- Images preview ---
     if (!matches.length) {
       const hint = document.createElement('div');
       hint.className = 'preview-empty-hint';
@@ -360,6 +439,52 @@ class EditorManager {
 
     this._lastOverlayEntries = orderedEntries;
     this.renderOverlayImages(orderedEntries, content);
+  }
+
+  // 最小のMarkdownプレビュー: 見出し/強調/リスト/段落のみ（画像は別プレビューへ）
+  buildMarkdownPreview(content) {
+    try {
+      const container = document.createElement('div');
+      container.className = 'md-preview';
+      const maxLen = 20000; // パフォーマンス保護
+      let src = String(content || '').slice(0, maxLen);
+      // 画像はここでは除去（下の画像プレビューで扱う）
+      src = src.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
+      // エスケープ
+      let html = this.escapeHtml(src);
+      // 行ごとに処理
+      html = html
+        // 見出し # ～ ###
+        .replace(/^###\s+(.+)$/gm, '<h3>$1<\/h3>')
+        .replace(/^##\s+(.+)$/gm, '<h2>$1<\/h2>')
+        .replace(/^#\s+(.+)$/gm, '<h1>$1<\/h1>')
+        // 太字/斜体
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1<\/em>')
+        // リンク
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1<\/a>')
+        // 行頭の箇条書き
+        .replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1<\/li>');
+      // 箇条書きのliをulでラップ（簡易）
+      html = html.replace(/(?:<li>[^<]+<\/li>\n?)+/g, (m) => {
+        const items = m.trim().replace(/\n/g, '');
+        return `<ul>${items}<\/ul>`;
+      });
+      // 段落化（既にh*/ul/li の行は対象外）
+      html = html
+        .split(/\n{2,}/)
+        .map((blk) => {
+          const t = blk.trim();
+          if (!t) return '';
+          if (/^<(h\d|ul|li|pre|blockquote)/.test(t)) return t;
+          return `<p>${t.replace(/\n/g, '<br>')}<\/p>`;
+        })
+        .join('\n');
+      container.innerHTML = html;
+      return container;
+    } catch (_) {
+      return null;
+    }
   }
 
   createPreviewCard({ assetId, asset, matchIndex }) {
@@ -763,7 +888,12 @@ class EditorManager {
     const dt = now - this._lastSnapTs;
     const dlen = Math.abs(len - this._lastSnapLen);
     if (dt >= this.SNAPSHOT_MIN_INTERVAL && dlen >= this.SNAPSHOT_MIN_DELTA) {
-      window.ZenWriterStorage.addSnapshot(this.editor.value);
+      const s = window.ZenWriterStorage.loadSettings();
+      const keep =
+        s && s.snapshot && typeof s.snapshot.retention === 'number'
+          ? Math.max(1, s.snapshot.retention)
+          : 10;
+      window.ZenWriterStorage.addSnapshot(this.editor.value, keep);
       this._lastSnapTs = now;
       this._lastSnapLen = len;
       if (typeof this.showNotification === 'function') {
@@ -1337,6 +1467,160 @@ class EditorManager {
     this.showNotification('すべて置換しました');
   }
 }
+
+/**
+ * タイプライターモード: カーソルを一定高さに維持するスクロール
+ * @param {('init'|'input'|'newline'|'nav'|'click')} trigger
+ */
+EditorManager.prototype.maybeTypewriterScroll = function (trigger) {
+  try {
+    const s = window.ZenWriterStorage.loadSettings();
+    const cfg = s && s.typewriter ? s.typewriter : null;
+    if (!cfg || !cfg.enabled) return;
+    const editor = this.editor;
+    if (!editor) return;
+    // 精度向上: mirrorベースでキャレットYを取得（失敗時は従来推定にフォールバック）
+    let caretY = this.getCaretTopViaMirror();
+    if (typeof caretY !== 'number' || isNaN(caretY)) {
+      const line = this.getCaretLineIndex();
+      const lh = this.getComputedLineHeight();
+      caretY = line * lh;
+    }
+    const anchorRatio = Math.min(0.95, Math.max(0.05, cfg.anchorRatio || 0.5));
+    const viewport = editor.clientHeight;
+    const targetAnchorY = anchorRatio * viewport;
+    let targetScroll = caretY - targetAnchorY;
+    const maxScroll = Math.max(0, editor.scrollHeight - viewport);
+    targetScroll = Math.max(0, Math.min(maxScroll, targetScroll));
+
+    const stick = Math.min(1, Math.max(0, cfg.stickiness ?? 0.9));
+    const base = trigger === 'newline' ? stick : Math.max(0.2, stick * 0.7);
+
+    const animate = () => {
+      const cur = editor.scrollTop;
+      const diff = targetScroll - cur;
+      if (Math.abs(diff) < 0.5) {
+        editor.scrollTop = targetScroll;
+        this._typewriterRaf = null;
+        return;
+      }
+      editor.scrollTop = cur + diff * base;
+      this._typewriterRaf = requestAnimationFrame(animate);
+    };
+
+    if (this._typewriterRaf) cancelAnimationFrame(this._typewriterRaf);
+    this._typewriterRaf = requestAnimationFrame(animate);
+  } catch (_) {}
+};
+
+EditorManager.prototype.getComputedLineHeight = function () {
+  const lh = parseFloat(getComputedStyle(this.editor).lineHeight);
+  if (!isNaN(lh) && lh > 0) return lh;
+  return 20;
+};
+
+EditorManager.prototype.getCaretLineIndex = function () {
+  try {
+    const pos = this.editor.selectionStart || 0;
+    const text = this.editor.value || '';
+    let lines = 0;
+    for (let i = 0; i < pos; i += 1) {
+      if (text.charCodeAt(i) === 10) lines += 1; // '\n'
+    }
+    return lines;
+  } catch (_) {
+    return 0;
+  }
+};
+
+// ミラーを用いて実測のキャレットY座標（内容先頭からのpx）を取得
+EditorManager.prototype.getCaretTopViaMirror = function () {
+  try {
+    const ed = this.editor;
+    if (!ed) return NaN;
+    const style = window.getComputedStyle(ed);
+    // ミラー要素を生成
+    const mirror = document.createElement('div');
+    mirror.style.position = 'absolute';
+    mirror.style.visibility = 'hidden';
+    mirror.style.whiteSpace = 'pre-wrap';
+    mirror.style.wordWrap = 'break-word';
+    mirror.style.overflowWrap = 'break-word';
+    mirror.style.boxSizing = style.boxSizing || 'border-box';
+    mirror.style.fontFamily = style.fontFamily;
+    mirror.style.fontSize = style.fontSize;
+    mirror.style.lineHeight = style.lineHeight;
+    mirror.style.letterSpacing = style.letterSpacing;
+    mirror.style.paddingTop = style.paddingTop;
+    mirror.style.paddingRight = style.paddingRight;
+    mirror.style.paddingBottom = style.paddingBottom;
+    mirror.style.paddingLeft = style.paddingLeft;
+    mirror.style.border = style.border;
+    mirror.style.width = ed.clientWidth + 'px';
+    mirror.style.left = '-9999px';
+    mirror.style.top = '0';
+
+    const before = (ed.value || '').slice(0, ed.selectionStart || 0);
+    const after = (ed.value || '').slice(ed.selectionStart || 0);
+    // テキストノード + アンカー
+    const textBefore = document.createTextNode(before);
+    const anchor = document.createElement('span');
+    anchor.textContent = '\u200b'; // zero-width
+    const textAfter = document.createTextNode(after);
+    mirror.appendChild(textBefore);
+    mirror.appendChild(anchor);
+    mirror.appendChild(textAfter);
+    document.body.appendChild(mirror);
+    // アンカーのtop（padding含む）を取得
+    const rect = anchor.getBoundingClientRect();
+    const baseRect = mirror.getBoundingClientRect();
+    const top = rect.top - baseRect.top; // mirror内の相対位置
+    document.body.removeChild(mirror);
+    return Math.max(0, top);
+  } catch (_) {
+    return NaN;
+  }
+};
+
+// Markdownショートカット適用
+EditorManager.prototype.applyMarkdownShortcut = function (kind) {
+  try {
+    const ed = this.editor;
+    const start = ed.selectionStart;
+    const end = ed.selectionEnd;
+    const val = ed.value || '';
+    const sel = val.slice(start, end);
+    let prefix = '';
+    let suffix = '';
+    if (kind === 'bold') {
+      prefix = '**';
+      suffix = '**';
+    } else if (kind === 'italic') {
+      prefix = '*';
+      suffix = '*';
+    } else if (kind === 'link') {
+      prefix = '[';
+      suffix = '](url)';
+    }
+    const before = val.slice(0, start);
+    const after = val.slice(end);
+    ed.value = before + prefix + sel + suffix + after;
+    // キャレット位置を選択テキスト末尾（リンクはurl内を選択）へ
+    if (kind === 'link') {
+      const urlStart = before.length + prefix.length + sel.length + 2; // ](
+      const urlEnd = urlStart + 3; // 'url'
+      ed.selectionStart = urlStart;
+      ed.selectionEnd = urlEnd;
+    } else {
+      const newPos = before.length + prefix.length + sel.length + suffix.length;
+      ed.selectionStart = newPos;
+      ed.selectionEnd = newPos;
+    }
+    ed.focus();
+    this.saveContent();
+    this.updateWordCount();
+  } catch (_) {}
+};
 
 // グローバルオブジェクトに追加
 window.ZenWriterEditor = new EditorManager();

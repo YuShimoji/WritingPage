@@ -520,17 +520,21 @@
           }
           return false;
         });
-        if (!allowedNames.length) {
-          allowedNames = self._list
-            .filter(function (item) {
-              return (
-                Array.isArray(item.groups) && item.groups.indexOf(group) >= 0
-              );
-            })
-            .map(function (item) {
-              return item.name || '';
-            })
-            .filter(Boolean);
+        // ロードアウトに未登録でも、該当グループに属するガジェットは候補へ含める
+        var extras = self._list
+          .filter(function (item) {
+            return (
+              Array.isArray(item.groups) &&
+              item.groups.indexOf(group) >= 0 &&
+              allowedNamesAll.indexOf(item.name || '') < 0
+            );
+          })
+          .map(function (item) {
+            return item.name || '';
+          })
+          .filter(Boolean);
+        for (var exi = 0; exi < extras.length; exi++) {
+          if (allowedNames.indexOf(extras[exi]) < 0) allowedNames.push(extras[exi]);
         }
         var allowedSet = {};
         for (var ai = 0; ai < allowedNames.length; ai++) {
@@ -1622,228 +1626,7 @@
   );
 
   ZWGadgets.register(
-    'Outline',
-    function (el) {
-      try {
-        var storage = window.ZenWriterStorage;
-        if (!storage) {
-          var warn = document.createElement('p');
-          warn.textContent = 'ストレージが利用できません。';
-          warn.style.opacity = '0.7';
-          warn.style.fontSize = '0.9rem';
-          el.appendChild(warn);
-          return;
-        }
-
-        var wrap = document.createElement('div');
-        wrap.className = 'gadget-outline';
-        wrap.style.display = 'flex';
-        wrap.style.flexDirection = 'column';
-        wrap.style.gap = '10px';
-
-        var levelsContainer = document.createElement('div');
-        levelsContainer.className = 'outline-levels';
-        levelsContainer.style.display = 'flex';
-        levelsContainer.style.flexDirection = 'column';
-        levelsContainer.style.gap = '6px';
-
-        var insertContainer = document.createElement('div');
-        insertContainer.className = 'outline-insert';
-        insertContainer.style.display = 'flex';
-        insertContainer.style.flexWrap = 'wrap';
-        insertContainer.style.gap = '6px';
-        insertContainer.style.marginTop = '8px';
-
-        var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
-        var levelLabels = [
-          '大見出し',
-          '中見出し',
-          '小見出し',
-          '詳細',
-          'メモ',
-          '注記',
-        ];
-
-        levels.forEach(function (level, idx) {
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'outline-btn small';
-          btn.textContent = levelLabels[idx] || level.trim();
-          btn.addEventListener('click', function () {
-            try {
-              if (
-                window.ZenWriterEditor &&
-                typeof window.ZenWriterEditor.insertTextAtCursor === 'function'
-              ) {
-                window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
-              }
-            } catch (e) {
-              console.error('insert outline failed', e);
-            }
-          });
-          insertContainer.appendChild(btn);
-        });
-
-        wrap.appendChild(levelsContainer);
-        wrap.appendChild(insertContainer);
-
-        // ドラッグ&ドロップ機能
-        var draggedElement = null;
-
-        function makeLevelRow(level, label, canDrag) {
-          var row = document.createElement('div');
-          row.className = 'level-row';
-          row.draggable = canDrag;
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.justifyContent = 'space-between';
-          row.style.gap = '8px';
-          row.style.margin = '6px 0';
-          row.dataset.level = level;
-
-          var head = document.createElement('div');
-          head.className = 'gadget-head';
-          head.style.display = 'flex';
-          head.style.alignItems = 'center';
-          head.style.justifyContent = 'space-between';
-          head.style.padding = '6px 8px';
-          head.style.cursor = 'pointer';
-          head.style.userSelect = 'none';
-          var title = document.createElement('span');
-          title.className = 'gadget-title';
-          title.textContent = label;
-          title.style.fontWeight = 'bold';
-          title.style.flex = '1';
-          var toggleBtn = document.createElement('button');
-          toggleBtn.className = 'gadget-toggle-btn';
-          toggleBtn.textContent = '▼';
-          toggleBtn.style.border = 'none';
-          toggleBtn.style.background = 'none';
-          toggleBtn.style.cursor = 'pointer';
-          toggleBtn.style.fontSize = '12px';
-          toggleBtn.addEventListener('click', function (ev) {
-            ev.stopPropagation();
-            row.classList.toggle('collapsed');
-            toggleBtn.textContent = row.classList.contains('collapsed')
-              ? '▶'
-              : '▼';
-          });
-          var settingsBtn = document.createElement('button');
-          settingsBtn.className = 'gadget-settings-btn small';
-          settingsBtn.textContent = '⚙️';
-          settingsBtn.title = '設定';
-          head.appendChild(title);
-          head.appendChild(toggleBtn);
-          head.appendChild(settingsBtn);
-          row.appendChild(head);
-
-          var levelSpan = document.createElement('span');
-          levelSpan.textContent = level;
-          levelSpan.style.fontFamily = 'monospace';
-          levelSpan.style.fontWeight = 'bold';
-
-          var labelSpan = document.createElement('span');
-          labelSpan.textContent = label;
-          labelSpan.style.flex = '1';
-
-          var upBtn = document.createElement('button');
-          upBtn.type = 'button';
-          upBtn.className = 'small';
-          upBtn.textContent = '↑';
-          upBtn.style.width = '24px';
-          upBtn.style.height = '24px';
-          upBtn.addEventListener('click', function () {
-            moveLevel(row, -1);
-          });
-
-          var downBtn = document.createElement('button');
-          downBtn.type = 'button';
-          downBtn.className = 'small';
-          downBtn.textContent = '↓';
-          downBtn.style.width = '24px';
-          downBtn.style.height = '24px';
-          downBtn.addEventListener('click', function () {
-            moveLevel(row, 1);
-          });
-
-          if (canDrag) {
-            row.addEventListener('dragstart', function (e) {
-              draggedElement = row;
-              e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer.setData('text/html', row.outerHTML);
-            });
-            row.addEventListener('dragover', function (e) {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-            });
-            row.addEventListener('drop', function (e) {
-              e.preventDefault();
-              if (draggedElement && draggedElement !== row) {
-                var parent = row.parentNode;
-                var allRows = Array.from(parent.children);
-                var fromIndex = allRows.indexOf(draggedElement);
-                var toIndex = allRows.indexOf(row);
-                if (fromIndex < toIndex) {
-                  parent.insertBefore(draggedElement, row.nextSibling);
-                } else {
-                  parent.insertBefore(draggedElement, row);
-                }
-                draggedElement = null;
-              }
-            });
-          }
-
-          row.appendChild(levelSpan);
-          row.appendChild(labelSpan);
-          if (canDrag) {
-            row.appendChild(upBtn);
-            row.appendChild(downBtn);
-          }
-          return row;
-        }
-
-        function moveLevel(row, direction) {
-          var parent = row.parentNode;
-          var sibling =
-            direction === -1
-              ? row.previousElementSibling
-              : row.nextElementSibling;
-          if (sibling) {
-            if (direction === -1) {
-              parent.insertBefore(row, sibling);
-            } else {
-              parent.insertBefore(sibling, row);
-            }
-          }
-        }
-
-        // 初期レベル表示（ドラッグ可能）
-        var initialLevels = [
-          { level: '#', label: '章' },
-          { level: '##', label: '節' },
-          { level: '###', label: '項' },
-          { level: '####', label: '目' },
-        ];
-        initialLevels.forEach(function (item) {
-          levelsContainer.appendChild(
-            makeLevelRow(item.level, item.label, true),
-          );
-        });
-
-        el.appendChild(wrap);
-      } catch (e) {
-        console.error('Outline gadget failed:', e);
-        try {
-          el.textContent = 'アウトラインガジェットの初期化に失敗しました。';
-        } catch (_) {}
-      }
-    },
-    { groups: ['structure'], title: 'アウトライン' },
-  );
-
-
-  // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
-  ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, api){
+    'SnapshotManagerLegacyAssist', function(el, api){
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
@@ -2027,226 +1810,6 @@
     }
   },
   { groups: ['structure'], title: 'ドキュメント' },
-);
-
-  ZWGadgets.register(
-    'Outline',
-    function (el) {
-      try {
-        var storage = window.ZenWriterStorage;
-        if (!storage) {
-          var warn = document.createElement('p');
-          warn.textContent = 'ストレージが利用できません。';
-          warn.style.opacity = '0.7';
-          warn.style.fontSize = '0.9rem';
-          el.appendChild(warn);
-          return;
-        }
-
-        var wrap = document.createElement('div');
-        wrap.className = 'gadget-outline';
-        wrap.style.display = 'flex';
-        wrap.style.flexDirection = 'column';
-        wrap.style.gap = '10px';
-
-        var levelsContainer = document.createElement('div');
-        levelsContainer.className = 'outline-levels';
-        levelsContainer.style.display = 'flex';
-        levelsContainer.style.flexDirection = 'column';
-        levelsContainer.style.gap = '6px';
-
-        var insertContainer = document.createElement('div');
-        insertContainer.className = 'outline-insert';
-        insertContainer.style.display = 'flex';
-        insertContainer.style.flexWrap = 'wrap';
-        insertContainer.style.gap = '6px';
-        insertContainer.style.marginTop = '8px';
-
-        var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
-        var levelLabels = [
-          '大見出し',
-          '中見出し',
-          '小見出し',
-          '詳細',
-          'メモ',
-          '注記',
-        ];
-
-        levels.forEach(function (level, idx) {
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'outline-btn small';
-          btn.textContent = levelLabels[idx] || level.trim();
-          btn.addEventListener('click', function () {
-            try {
-              if (
-                window.ZenWriterEditor &&
-                typeof window.ZenWriterEditor.insertTextAtCursor === 'function'
-              ) {
-                window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
-              }
-            } catch (e) {
-              console.error('insert outline failed', e);
-            }
-          });
-          insertContainer.appendChild(btn);
-        });
-
-        wrap.appendChild(levelsContainer);
-        wrap.appendChild(insertContainer);
-
-        // ドラッグ&ドロップ機能
-        var draggedElement = null;
-
-        function makeLevelRow(level, label, canDrag) {
-          var row = document.createElement('div');
-          row.className = 'level-row';
-          row.draggable = canDrag;
-          row.style.display = 'flex';
-          row.style.alignItems = 'center';
-          row.style.justifyContent = 'space-between';
-          row.style.gap = '8px';
-          row.style.margin = '6px 0';
-          row.dataset.level = level;
-
-          var head = document.createElement('div');
-          head.className = 'gadget-head';
-          head.style.display = 'flex';
-          head.style.alignItems = 'center';
-          head.style.justifyContent = 'space-between';
-          head.style.padding = '6px 8px';
-          head.style.cursor = 'pointer';
-          head.style.userSelect = 'none';
-          var title = document.createElement('span');
-          title.className = 'gadget-title';
-          title.textContent = label;
-          title.style.fontWeight = 'bold';
-          title.style.flex = '1';
-          var toggleBtn = document.createElement('button');
-          toggleBtn.className = 'gadget-toggle-btn';
-          toggleBtn.textContent = '▼';
-          toggleBtn.style.border = 'none';
-          toggleBtn.style.background = 'none';
-          toggleBtn.style.cursor = 'pointer';
-          toggleBtn.style.fontSize = '12px';
-          toggleBtn.addEventListener('click', function (ev) {
-            ev.stopPropagation();
-            row.classList.toggle('collapsed');
-            toggleBtn.textContent = row.classList.contains('collapsed')
-              ? '▶'
-              : '▼';
-          });
-          var settingsBtn = document.createElement('button');
-          settingsBtn.className = 'gadget-settings-btn small';
-          settingsBtn.textContent = '⚙️';
-          settingsBtn.title = '設定';
-          head.appendChild(title);
-          head.appendChild(toggleBtn);
-          head.appendChild(settingsBtn);
-          row.appendChild(head);
-
-          var levelSpan = document.createElement('span');
-          levelSpan.textContent = level;
-          levelSpan.style.fontFamily = 'monospace';
-          levelSpan.style.fontWeight = 'bold';
-
-          var labelSpan = document.createElement('span');
-          labelSpan.textContent = label;
-          labelSpan.style.flex = '1';
-
-          var upBtn = document.createElement('button');
-          upBtn.type = 'button';
-          upBtn.className = 'small';
-          upBtn.textContent = '↑';
-          upBtn.style.width = '24px';
-          upBtn.style.height = '24px';
-          upBtn.addEventListener('click', function () {
-            moveLevel(row, -1);
-          });
-
-          var downBtn = document.createElement('button');
-          downBtn.type = 'button';
-          downBtn.className = 'small';
-          downBtn.textContent = '↓';
-          downBtn.style.width = '24px';
-          downBtn.style.height = '24px';
-          downBtn.addEventListener('click', function () {
-            moveLevel(row, 1);
-          });
-
-          if (canDrag) {
-            row.addEventListener('dragstart', function (e) {
-              draggedElement = row;
-              e.dataTransfer.effectAllowed = 'move';
-              e.dataTransfer.setData('text/html', row.outerHTML);
-            });
-            row.addEventListener('dragover', function (e) {
-              e.preventDefault();
-              e.dataTransfer.dropEffect = 'move';
-            });
-            row.addEventListener('drop', function (e) {
-              e.preventDefault();
-              if (draggedElement && draggedElement !== row) {
-                var parent = row.parentNode;
-                var allRows = Array.from(parent.children);
-                var fromIndex = allRows.indexOf(draggedElement);
-                var toIndex = allRows.indexOf(row);
-                if (fromIndex < toIndex) {
-                  parent.insertBefore(draggedElement, row.nextSibling);
-                } else {
-                  parent.insertBefore(draggedElement, row);
-                }
-                draggedElement = null;
-              }
-            });
-          }
-
-          row.appendChild(levelSpan);
-          row.appendChild(labelSpan);
-          if (canDrag) {
-            row.appendChild(upBtn);
-            row.appendChild(downBtn);
-          }
-          return row;
-        }
-
-        function moveLevel(row, direction) {
-          var parent = row.parentNode;
-          var sibling =
-            direction === -1
-              ? row.previousElementSibling
-              : row.nextElementSibling;
-          if (sibling) {
-            if (direction === -1) {
-              parent.insertBefore(row, sibling);
-            } else {
-              parent.insertBefore(sibling, row);
-            }
-          }
-        }
-
-        // 初期レベル表示（ドラッグ可能）
-        var initialLevels = [
-          { level: '#', label: '章' },
-          { level: '##', label: '節' },
-          { level: '###', label: '項' },
-          { level: '####', label: '目' },
-        ];
-        initialLevels.forEach(function (item) {
-          levelsContainer.appendChild(
-            makeLevelRow(item.level, item.label, true),
-          );
-        });
-
-        el.appendChild(wrap);
-      } catch (e) {
-        console.error('Outline gadget failed:', e);
-        try {
-          el.textContent = 'アウトラインガジェットの初期化に失敗しました。';
-        } catch (_) {}
-      }
-    },
-    { groups: ['structure'], title: 'アウトライン' },
   );
 
   ZWGadgets.register(
@@ -2557,6 +2120,93 @@
   );
 
   ZWGadgets.register(
+    'EditorLayout',
+    function (el, api) {
+      try {
+        var wrap = document.createElement('div');
+        wrap.style.display = 'flex';
+        wrap.style.flexDirection = 'column';
+        wrap.style.gap = '8px';
+
+        function makeRow(labelText, control) {
+          var row = document.createElement('label');
+          row.style.display = 'flex';
+          row.style.flexDirection = 'column';
+          row.style.gap = '4px';
+          row.textContent = labelText;
+          row.appendChild(control);
+          return row;
+        }
+
+        var s = (api && typeof api.getSettings === 'function') ? (api.getSettings() || {}) : {};
+
+        var cbBorder = document.createElement('input');
+        cbBorder.type = 'checkbox';
+        cbBorder.checked = !!s.showBorder;
+        cbBorder.addEventListener('change', function () {
+          var ns = Object.assign({}, s, { showBorder: !!cbBorder.checked });
+          s = ns;
+          if (api && typeof api.setSettings === 'function') api.setSettings(ns);
+          applyToDOM();
+        });
+
+        var cbPreview = document.createElement('input');
+        cbPreview.type = 'checkbox';
+        cbPreview.checked = !!s.showPreview;
+        cbPreview.addEventListener('change', function () {
+          var ns = Object.assign({}, s, { showPreview: !!cbPreview.checked });
+          s = ns;
+          if (api && typeof api.setSettings === 'function') api.setSettings(ns);
+          applyToDOM();
+        });
+
+        var padding = document.createElement('input');
+        padding.type = 'range';
+        padding.min = '0';
+        padding.max = '200';
+        padding.step = '10';
+        padding.value = String(typeof s.paddingX === 'number' ? s.paddingX : 100);
+        padding.addEventListener('input', function () {
+          var px = parseInt(padding.value, 10) || 0;
+          var ns = Object.assign({}, s, { paddingX: px });
+          s = ns;
+          if (api && typeof api.setSettings === 'function') api.setSettings(ns);
+          applyToDOM();
+        });
+
+        wrap.appendChild(makeRow('編集エリアの枠を表示', cbBorder));
+        wrap.appendChild(makeRow('白黒プレビューを表示', cbPreview));
+        wrap.appendChild(makeRow('執筆エリア内余白（px）', padding));
+        el.appendChild(wrap);
+
+        function applyToDOM() {
+          try {
+            var preview = document.getElementById('editor-preview');
+            if (preview) {
+              preview.classList.toggle('editor-preview--bordered', !!s.showBorder);
+              preview.classList.toggle('editor-preview--collapsed', !s.showPreview);
+              var px = typeof s.paddingX === 'number' ? s.paddingX : 100;
+              preview.style.padding = '1rem ' + px + 'px';
+              if (s.showPreview) {
+                preview.style.filter = 'grayscale(100%)';
+              } else {
+                preview.style.filter = '';
+              }
+            }
+          } catch (_) {}
+        }
+
+        applyToDOM();
+      } catch (e) {
+        try {
+          el.textContent = 'エディタレイアウトの初期化に失敗しました。';
+        } catch (_) {}
+      }
+    },
+    { groups: ['typography'], title: 'エディタレイアウト' },
+  );
+
+  ZWGadgets.register(
     'HUDSettings',
     function (el) {
       try {
@@ -2820,6 +2470,9 @@
             if (preview) {
               preview.style.padding = '1rem ' + paddingX + 'px';
               preview.classList.toggle('editor-preview--bordered', showBorder);
+              var sAll = (window.ZWGadgets && typeof window.ZWGadgets.getSettings === 'function') ? (window.ZWGadgets.getSettings('EditorLayout') || {}) : {};
+              var sp = !!(sAll && sAll.showPreview);
+              preview.classList.toggle('editor-preview--collapsed', !sp);
             }
           } catch (e) {
             console.error('applyLayout failed', e);
@@ -3566,10 +3219,10 @@
       ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
     } catch (_) {}
     try {
-      ZWGadgets.init('#gadgets-panel', { group: 'assist' });
+      ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
     } catch (_) {}
     try {
-      ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
+      ZWGadgets.init('#gadgets-panel', { group: 'assist' });
     } catch (_) {}
     // Wire Loadout UI (one-time binding guard)
     try {
@@ -3803,83 +3456,4 @@
     } catch (_) {}
   });
 
-  ZWGadgets.register(
-    'EditorLayout',
-    function (el) {
-      try {
-        var api = arguments[1];
-        var wrap = document.createElement('div');
-        wrap.style.display = 'flex';
-        wrap.style.flexDirection = 'column';
-        wrap.style.gap = '8px';
-
-        // 執筆エリア枠表示
-        var borderLabel = document.createElement('label');
-        borderLabel.innerHTML =
-          '<input type="checkbox" id="editor-border-toggle"> 執筆エリアの枠を表示';
-        var borderInput = borderLabel.querySelector('#editor-border-toggle');
-        borderInput.checked = api.get('borderVisible', true);
-        borderInput.addEventListener('change', function () {
-          api.set('borderVisible', this.checked);
-          applySettings();
-        });
-
-        // 画像プレビュー表示
-        var previewLabel = document.createElement('label');
-        previewLabel.innerHTML =
-          '<input type="checkbox" id="preview-toggle"> 画像プレビューを表示';
-        var previewInput = previewLabel.querySelector('#preview-toggle');
-        previewInput.checked = api.get('previewVisible', false);
-        previewInput.addEventListener('change', function () {
-          api.set('previewVisible', this.checked);
-          applySettings();
-        });
-
-        // padding
-        var paddingLabel = document.createElement('label');
-        paddingLabel.textContent = '執筆エリア内余白 (px)';
-        var paddingInput = document.createElement('input');
-        paddingInput.type = 'range';
-        paddingInput.min = '0';
-        paddingInput.max = '100';
-        paddingInput.value = api.get('editorPadding', 32);
-        paddingInput.addEventListener('input', function () {
-          api.set('editorPadding', this.value);
-          applySettings();
-        });
-
-        wrap.appendChild(borderLabel);
-        wrap.appendChild(previewLabel);
-        wrap.appendChild(paddingLabel);
-        wrap.appendChild(paddingInput);
-        el.appendChild(wrap);
-
-        function applySettings() {
-          var borderVisible = api.get('borderVisible', false);
-          var previewVisible = api.get('previewVisible', false);
-          var padding = api.get('editorPadding', 32);
-          var editor = document.getElementById('editor');
-          var preview = document.getElementById('editor-preview');
-          if (editor) {
-            editor.style.border = borderVisible
-              ? '1px solid var(--border-color)'
-              : 'none';
-            editor.style.outline = borderVisible ? '' : 'none';
-            editor.style.padding = padding + 'px';
-          }
-          if (preview) {
-            preview.classList.toggle(
-              'editor-preview--collapsed',
-              !previewVisible,
-            );
-          }
-        }
-
-        applySettings();
-      } catch (e) {
-        console.error('EditorLayout gadget failed:', e);
-      }
-    },
-    { groups: ['typography'], title: 'エディタレイアウト' },
-  );
 })();

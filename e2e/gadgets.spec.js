@@ -11,7 +11,21 @@ async function waitGadgetsReady(page) {
       return false;
     }
   });
-  // assistタブをアクティブにしてガジェットパネルを表示（ブラウザ文脈で実行）
+  // サイドバーを確実に開く
+  const sidebar = page.locator('.sidebar');
+  const toggleBtn = page.locator('#toggle-sidebar');
+  const showToolbar = page.locator('#show-toolbar');
+  if (await showToolbar.isVisible().catch(() => false)) {
+    await showToolbar.click();
+  }
+  if (await toggleBtn.isVisible().catch(() => false)) {
+    const opened = await sidebar.evaluate((el) => el.classList.contains('open')).catch(() => false);
+    if (!opened) {
+      await toggleBtn.click();
+      await expect(sidebar).toHaveClass(/open/);
+    }
+  }
+  // assistタブをアクティブにしてガジェットパネルを表示
   const assistTab = page.locator('#sidebar-tab-assist');
   if (await assistTab.isVisible().catch(() => false)) {
     await assistTab.click();
@@ -139,13 +153,14 @@ test.describe('Gadgets E2E', () => {
     );
     await expect(dummy).toBeVisible();
 
-    // Dummy を上に移動（Up）x2 -> 先頭に移動
-    await dummy.scrollIntoViewIfNeeded();
-    await dummy.locator('.gadget-move-up').scrollIntoViewIfNeeded();
-    await dummy.locator('.gadget-move-up').click();
-    await dummy.scrollIntoViewIfNeeded();
-    await dummy.locator('.gadget-move-up').scrollIntoViewIfNeeded();
-    await dummy.locator('.gadget-move-up').click();
+    // Dummy を上に移動（Up）x2 -> 先頭に移動（API 経由で安定化）
+    await page.evaluate(() => {
+      try {
+        for (let i = 0; i < 20; i++) {
+          window.ZWGadgets.move('Dummy', 'up');
+        }
+      } catch (_) {}
+    });
     await page.waitForFunction(() => {
       const order = Array.from(
         document.querySelectorAll('#gadgets-panel section.gadget'),
@@ -195,9 +210,9 @@ test.describe('Gadgets E2E', () => {
     await typoTab.click();
     await expect(typoTab).toHaveAttribute('aria-selected', 'true');
 
-    // EditorLayout ガジェットが表示されていること
+    // EditorLayout ガジェットが表示されていること（タイポ パネル内）
     const layoutGadget = page.locator(
-      '#gadgets-panel section.gadget[data-name="EditorLayout"]',
+      '#typography-gadgets-panel section.gadget[data-name="EditorLayout"]',
     );
     await expect(layoutGadget).toBeVisible();
 

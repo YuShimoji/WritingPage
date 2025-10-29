@@ -99,8 +99,11 @@
     </main>
     <script src="js/embed/zen-writer-embed.js"></script>
     <script>
-      // 親は 8080 で配信されている想定
-      const childUrl = 'http://127.0.0.1:8081/index.html?embed=1';
+      // 親の現在ポート+1 を子ポートとする（run-two-servers.js に追従）
+      const parentURL = new URL(location.href);
+      const basePort = parentURL.port ? parseInt(parentURL.port, 10) : 80;
+      const childPort = basePort + 1;
+      const childUrl = `${parentURL.protocol}//${parentURL.hostname}:${childPort}/index.html?embed=1`;
       const childOrigin = new URL(childUrl, location.href).origin;
       const sdk = ZenWriterEmbed.create('#zw-container', {
         src: childUrl,
