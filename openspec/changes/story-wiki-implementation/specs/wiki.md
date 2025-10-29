@@ -3,7 +3,7 @@
 ## Overview
 Implement a story wiki feature with AI-assisted content generation to help users build and manage story elements like characters, plots, and world-building.
 
-## MODIFIED Requirements
+## COMPLETED Requirements
 
 ### Story Wiki Gadget
 The application shall include a Story Wiki gadget that allows users to create and manage wiki pages for story elements.
@@ -39,6 +39,19 @@ Then AI generates detailed descriptions and backstories
 Given current plot points
 When user requests expansion
 Then AI suggests plot twists and developments
+
+## Implementation Details
+
+### Storage Layer
+- Wiki pages stored in localStorage under 'zenWriter_wiki' key
+- Each page has: id, title, content (Markdown), tags, createdAt, updatedAt
+- CRUD operations via ZenWriterStorage API
+
+### UI Features
+- Wiki tab added dynamically with ZWGadgets.addTab
+- Search functionality for finding pages by title/content/tags
+- Inline editing with modal dialogs
+- Tag-based organization
 
 ## Constraints
 - AI generation is optional and configurable
