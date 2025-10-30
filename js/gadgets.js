@@ -1705,6 +1705,150 @@
     }
   }, { groups: ['assist'], title: 'スナップショットマネージャー' });
 
+  // Tree Pane gadget (structure group minimal version) - documents and gadgets tree view with expand/collapse and click navigation
+  ZWGadgets.register('TreePane', function(el, api){
+    try {
+      var storage = window.ZenWriterStorage;
+      if (!storage || !storage.loadDocuments) {
+        var warn = document.createElement('p');
+        warn.textContent = 'ストレージが利用できません。';
+        warn.style.opacity = '0.7';
+        warn.style.fontSize = '0.9rem';
+        el.appendChild(warn);
+        return;
+      }
+
+      var container = document.createElement('div');
+      container.className = 'gadget-tree-pane';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '4px';
+      container.style.maxHeight = '400px';
+      container.style.overflowY = 'auto';
+
+      var expanded = api && typeof api.get === 'function' ? api.get('expanded', { documents: true, gadgets: false }) : { documents: true, gadgets: false };
+
+      function createTreeItem(label, isFolder, level, onClick, onToggle, isExpanded) {
+        var item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.alignItems = 'center';
+        item.style.padding = '2px 4px';
+        item.style.paddingLeft = (level * 16) + 'px';
+        item.style.cursor = 'pointer';
+        item.style.borderRadius = '3px';
+        item.addEventListener('mouseenter', function() { item.style.backgroundColor = 'var(--bg-hover-color, #f0f0f0)'; });
+        item.addEventListener('mouseleave', function() { item.style.backgroundColor = ''; });
+
+        if (isFolder) {
+          var toggleBtn = document.createElement('button');
+          toggleBtn.type = 'button';
+          toggleBtn.textContent = isExpanded ? '▼' : '▶';
+          toggleBtn.style.border = 'none';
+          toggleBtn.style.background = 'none';
+          toggleBtn.style.cursor = 'pointer';
+          toggleBtn.style.fontSize = '0.8rem';
+          toggleBtn.style.width = '16px';
+          toggleBtn.style.height = '16px';
+          toggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            onToggle && onToggle();
+          });
+          item.appendChild(toggleBtn);
+        } else {
+          item.style.paddingLeft = (level * 16 + 16) + 'px';
+        }
+
+        var textSpan = document.createElement('span');
+        textSpan.textContent = label;
+        textSpan.style.fontSize = '0.9rem';
+        textSpan.style.fontWeight = isFolder ? 'bold' : 'normal';
+        item.appendChild(textSpan);
+
+        item.addEventListener('click', onClick);
+        return item;
+      }
+
+      function renderTree() {
+        container.innerHTML = '';
+
+        // Documents folder
+        var docsFolder = createTreeItem('ドキュメント', true, 0, null, function() {
+          expanded.documents = !expanded.documents;
+          if (api && typeof api.set === 'function') api.set('expanded', expanded);
+          renderTree();
+        }, expanded.documents);
+        container.appendChild(docsFolder);
+
+        if (expanded.documents) {
+          var docs = storage.loadDocuments() || [];
+          docs.forEach(function(doc) {
+            if (!doc || !doc.id) return;
+            var currentDocId = storage.getCurrentDocId();
+            var isActive = doc.id === currentDocId;
+            var docItem = createTreeItem(doc.name || '無題', false, 1, function() {
+              storage.setCurrentDocId(doc.id);
+              if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+                window.ZenWriterEditor.setContent(doc.content || '');
+              }
+              updateDocumentTitle();
+              renderTree();
+            }, null, false);
+            if (isActive) {
+              docItem.style.fontWeight = 'bold';
+              docItem.style.backgroundColor = 'var(--accent-color, #007acc)';
+              docItem.style.color = 'white';
+            }
+            container.appendChild(docItem);
+          });
+        }
+
+        // Gadgets folder
+        var gadgetsFolder = createTreeItem('ガジェット', true, 0, null, function() {
+          expanded.gadgets = !expanded.gadgets;
+          if (api && typeof api.set === 'function') api.set('expanded', expanded);
+          renderTree();
+        }, expanded.gadgets);
+        container.appendChild(gadgetsFolder);
+
+        if (expanded.gadgets) {
+          if (window.ZWGadgets && window.ZWGadgets._list) {
+            window.ZWGadgets._list.forEach(function(gadget) {
+              var gadgetItem = createTreeItem(gadget.title || gadget.name, false, 1, null, null, false);
+              container.appendChild(gadgetItem);
+            });
+          }
+        }
+      }
+
+      function updateDocumentTitle() {
+        try {
+          var docs = storage.loadDocuments() || [];
+          var cur = storage.getCurrentDocId();
+          var doc = docs.find(function(d) { return d && d.id === cur; });
+          var name = doc && doc.name ? doc.name : '';
+          document.title = name ? name + ' - Zen Writer' : 'Zen Writer - 小説執筆ツール';
+        } catch (_) {
+          document.title = 'Zen Writer - 小説執筆ツール';
+        }
+      }
+
+      el.appendChild(container);
+      renderTree();
+
+      // Listen for changes
+      window.addEventListener('ZWDocumentsChanged', renderTree);
+      window.addEventListener('ZWLoadoutsChanged', renderTree);
+      window.addEventListener('ZWLoadoutApplied', renderTree);
+    } catch (e) {
+      console.error('TreePane gadget failed:', e);
+      try {
+        el.textContent = 'ツリーペインガジェットの初期化に失敗しました。';
+      } catch (_) {}
+    }
+  },
+  { groups: ['structure'], title: 'ツリーペイン' },
+  );
+
   // Documents gadget
   ZWGadgets.register('Documents', function(el, api){
     try {

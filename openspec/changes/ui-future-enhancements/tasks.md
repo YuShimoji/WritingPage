@@ -8,7 +8,7 @@
 - [x] 2.3 Ensure autosave/snapshot settings are parameterized
 
 ## 3. Tree Pane & Gadgets
-- [ ] 3.1 Spec tree pane with folders (lazy render, drag/drop)
+- [x] 3.1 Spec tree pane with folders (lazy render, drag/drop)
 - [ ] 3.2 Corkboard gadget spec and minimal stub
 - [ ] 3.3 Registry extensions for hierarchical gadgets
 
