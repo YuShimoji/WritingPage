@@ -1205,7 +1205,54 @@ html[data-embed='true'] #editor {
     page-break-before: always;
   }
 
-  /* 印刷時に隠す要素 */
+/* Content Linking スタイル */
+.md-doc-link, .md-asset-link {
+  color: #007acc;
+  text-decoration: underline;
+  cursor: pointer;
+  position: relative;
+}
+
+.md-doc-link:hover, .md-asset-link:hover {
+  color: #0056b3;
+  text-decoration: none;
+}
+
+/* リンクホバー・プレビュー */
+.link-preview {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.2s, transform 0.2s;
+  max-width: 300px;
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.link-preview.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.link-preview::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 10px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid rgba(0, 0, 0, 0.9);
+}/* 印刷時に隠す要素 */
   .no-print {
     display: none !important;
   }

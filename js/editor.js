@@ -566,6 +566,70 @@ class EditorManager {
           }
         }
       });
+      // ホバー・プレビューの設定
+      const links = container.querySelectorAll('.md-doc-link, .md-asset-link');
+      links.forEach(link => {
+        let previewEl = null;
+        let timeoutId = null;
+
+        link.addEventListener('mouseenter', (e) => {
+          if (timeoutId) clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            previewEl = document.createElement('div');
+            previewEl.className = 'link-preview';
+            document.body.appendChild(previewEl);
+
+            if (link.classList.contains('md-doc-link')) {
+              const docId = link.dataset.docLink;
+              let previewText = 'ドキュメントを読み込み中...';
+              if (window.ZenWriterStorage) {
+                const docs = window.ZenWriterStorage.loadDocuments() || [];
+                const doc = docs.find(d => d && d.id === docId);
+                if (doc) {
+                  previewText = `${doc.name || 'Untitled'}\n${(doc.content || '').slice(0, 100)}${(doc.content || '').length > 100 ? '...' : ''}`;
+                } else {
+                  previewText = 'ドキュメントが見つかりません';
+                }
+              }
+              previewEl.textContent = previewText;
+            } else if (link.classList.contains('md-asset-link')) {
+              const assetId = link.dataset.assetLink;
+              let previewText = 'アセットを読み込み中...';
+              if (window.ZenWriterStorage) {
+                const assets = window.ZenWriterStorage.loadAssets();
+                const asset = assets ? assets[assetId] : null;
+                if (asset) {
+                  previewText = `${asset.name || 'Image'}\nタイプ: ${asset.type || 'image'}`;
+                } else {
+                  previewText = 'アセットが見つかりません';
+                }
+              }
+              previewEl.textContent = previewText;
+            }
+
+            const rect = link.getBoundingClientRect();
+            previewEl.style.left = rect.left + 'px';
+            previewEl.style.top = (rect.bottom + 5) + 'px';
+            previewEl.classList.add('show');
+          }, 300); // 300ms遅延
+        });
+
+        link.addEventListener('mouseleave', () => {
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+            timeoutId = null;
+          }
+          if (previewEl) {
+            previewEl.classList.remove('show');
+            setTimeout(() => {
+              if (previewEl && previewEl.parentNode) {
+                previewEl.parentNode.removeChild(previewEl);
+              }
+              previewEl = null;
+            }, 200);
+          }
+        });
+      });
       return container;
     } catch (_) {
       return null;

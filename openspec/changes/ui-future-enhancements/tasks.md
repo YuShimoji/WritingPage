@@ -25,7 +25,7 @@
 - [ ] 6.2 Keyboard navigation & accessibility
 
 ## 7. Content Linking
-- [ ] 7.1 Link model (doc://, asset://, http(s)://)
+- [x] 7.1 Link model (doc://, asset://, http(s)://)
 - [ ] 7.2 Navigation behaviors & hover preview
 
 ## 8. Theme & Background (Low Priority)
