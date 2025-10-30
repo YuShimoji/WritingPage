@@ -779,6 +779,61 @@ class EditorManager {
     filterRow.appendChild(filterValue);
     controls.appendChild(filterRow);
 
+    // 状態保存・復元
+    const stateRow = document.createElement('div');
+    stateRow.style.display = 'flex';
+    stateRow.style.gap = '0.5rem';
+    stateRow.style.marginTop = '0.5rem';
+
+    const saveStateBtn = document.createElement('button');
+    saveStateBtn.type = 'button';
+    saveStateBtn.className = 'small';
+    saveStateBtn.textContent = '状態保存';
+    saveStateBtn.title = '現在の画像状態を保存';
+    saveStateBtn.addEventListener('click', () => {
+      const state = {
+        widthPercent: asset.widthPercent || 60,
+        alignment: asset.alignment || 'auto',
+        offsetY: asset.offsetY || 0,
+        opacity: asset.opacity !== undefined ? asset.opacity : 1.0,
+        filter: asset.filter || 'none',
+        hidden: asset.hidden || false
+      };
+      // ローカルストレージに保存
+      const key = `zw_image_state_${assetId}`;
+      try {
+        localStorage.setItem(key, JSON.stringify(state));
+        this.showNotification('画像状態を保存しました');
+      } catch (e) {
+        console.error('状態保存エラー:', e);
+      }
+    });
+
+    const restoreStateBtn = document.createElement('button');
+    restoreStateBtn.type = 'button';
+    restoreStateBtn.className = 'small';
+    restoreStateBtn.textContent = '状態復元';
+    restoreStateBtn.title = '保存した画像状態を復元';
+    restoreStateBtn.addEventListener('click', () => {
+      const key = `zw_image_state_${assetId}`;
+      try {
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          const state = JSON.parse(saved);
+          this.persistAssetMeta(assetId, state);
+          this.showNotification('画像状態を復元しました');
+        } else {
+          this.showNotification('保存された状態が見つかりません');
+        }
+      } catch (e) {
+        console.error('状態復元エラー:', e);
+      }
+    });
+
+    stateRow.appendChild(saveStateBtn);
+    stateRow.appendChild(restoreStateBtn);
+    controls.appendChild(stateRow);
+
     body.appendChild(controls);
     card.appendChild(body);
 
