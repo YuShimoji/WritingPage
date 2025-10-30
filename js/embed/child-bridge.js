@@ -105,7 +105,28 @@
   window.addEventListener('message', onMessage);
 
   function ready() {
-    sendToParent({ type: 'ZW_EMBED_READY' });
+    // ZenWriterAPI 準備完了を待ってから READY を通知（set/get の競合回避）
+    (function waitAPI(startTs) {
+      try {
+        if (
+          window.ZenWriterAPI &&
+          typeof window.ZenWriterAPI.getContent === 'function' &&
+          typeof window.ZenWriterAPI.setContent === 'function'
+        ) {
+          sendToParent({ type: 'ZW_EMBED_READY' });
+          return;
+        }
+      } catch (_) {}
+      if (!startTs) startTs = Date.now();
+      if (Date.now() - startTs > 10000) {
+        // タイムアウト時は最小限のREADY（getは空文字fallback, setは失敗返却）
+        sendToParent({ type: 'ZW_EMBED_READY' });
+        return;
+      }
+      setTimeout(function () {
+        waitAPI(startTs);
+      }, 50);
+    })();
   }
   if (
     document.readyState === 'complete' ||

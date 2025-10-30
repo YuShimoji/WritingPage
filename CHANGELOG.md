@@ -2,6 +2,46 @@
 
 <!-- markdownlint-disable MD024 -->
 
+## [0.3.16] - 2025-10-29
+
+### Added
+
+- OpenSpec `ui-future-enhancements` 実装（タイプライター精度向上、Markdown最小プレビュー・ショートカット・リスト継続、プレビュー内リンクナビ）
+- 設定UI「エディタ」タブにタイプライターモードとスナップショット設定を追加
+- タイプライターモード: ミラーDOM計測で精度向上、設定UIで有効化/アンカー/張り付き調整
+- Markdown機能: Ctrl/Cmd+B/I/Kショートカット、Enterでのリスト自動継続、最小ライブプレビュー（見出し/強調/リスト/リンク）
+- スナップショット: 設定UIで間隔/差分/保持数調整、storage.jsでretention実装
+- E2Eテスト: `editor-settings.spec.js` で設定永続化検証
+- ツリーペイン最小実装: ドキュメント/ガジェットツリー表示、展開/折りたたみ、クリックナビ、設定保存
+- Corkboard最小実装: テキストカード追加・ドラッグ並び替え、Enterキー新規カード作成
+- Markdown拡張: コードブロック簡易表示、目次リンク生成・スクロール同期トグル
+- Images Interactiveプリセット: VN肖像/背景/挿絵/テキストボックス用プリセット
+- Images Interactiveコントロール: 不透明度・フィルターの数値コントロール
+- Images Interactiveスナップショット: 画像状態の保存・復元機能
+- Content Linkingモデル: doc://, asset://, http(s)://リンクサポート
+- Content Linkingナビゲーション: クリックナビとホバー・プレビュー
+- Panels Layout: Docking/splitモデル (ゾーン・永続化)
+- Panels Layout: キーボードナビゲーションとアクセシビリティ
+
+### Changed
+
+- README.md にUI将来強化計画と拡張アイデアを更新
+- OpenSpec proposal/tasks/specs を詳細化・完了タスクマーク
+
+## [0.3.15] - 2025-10-29
+
+### Added
+
+- OpenSpec `ui-future-enhancements` を追加（UI将来強化計画の仕様策定、詳細: `openspec/changes/ui-future-enhancements/`）
+- タイプライターモードの最小実装（設定項目追加、スナップショット制御、スクロール固定ロジック）
+- オートセーブ/スナップショットの設定パラメータ化（間隔/差分/保持数）
+- 記載漏れの将来拡張アイデアをREADMEに整理
+
+### Docs
+
+- README.md にUI将来強化計画と将来拡張アイデアを追記
+- OpenSpec proposal/tasks/spec deltas を新規作成
+
 ## [0.3.14] - 2025-10-03
 
 ### Added

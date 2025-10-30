@@ -9,7 +9,21 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#gadgets-panel');
     } catch (_) { return false; }
   });
-  // assistタブをアクティブにしてガジェットパネルを表示（ブラウザ文脈で実行）
+  // サイドバーを確実に開く
+  const sidebar = page.locator('.sidebar');
+  const toggleBtn = page.locator('#toggle-sidebar');
+  const showToolbar = page.locator('#show-toolbar');
+  if (await showToolbar.isVisible().catch(() => false)) {
+    await showToolbar.click();
+  }
+  if (await toggleBtn.isVisible().catch(() => false)) {
+    const opened = await sidebar.evaluate((el) => el.classList.contains('open')).catch(() => false);
+    if (!opened) {
+      await toggleBtn.click();
+      await expect(sidebar).toHaveClass(/open/);
+    }
+  }
+  // assistタブをアクティブにしてガジェットパネルを表示
   const assistTab = page.locator('#sidebar-tab-assist');
   if (await assistTab.isVisible().catch(() => false)) {
     await assistTab.click();
@@ -118,6 +132,24 @@ test.describe('Gadgets E2E', () => {
     const dummy = page.locator('#gadgets-panel section.gadget[data-name="Dummy"]');
     await expect(dummy).toBeVisible();
 
+<<<<<<< HEAD
+=======
+    // Dummy を上に移動（Up）x2 -> 先頭に移動（API 経由で安定化）
+    await page.evaluate(() => {
+      try {
+        for (let i = 0; i < 20; i++) {
+          window.ZWGadgets.move('Dummy', 'up');
+        }
+      } catch (_) {}
+    });
+    await page.waitForFunction(() => {
+      const order = Array.from(
+        document.querySelectorAll('#gadgets-panel section.gadget'),
+      ).map((n) => n.dataset.name);
+      return order[0] === 'Dummy';
+    });
+
+>>>>>>> e5d00c4cc4eb4c7fee8cb1f55f02c778c157da58
     // Export → Prefs を書き換えて Import（Clock を折りたたみにする）
     await page.evaluate(() => {
       const p = JSON.parse(window.ZWGadgets.exportPrefs());
@@ -130,6 +162,61 @@ test.describe('Gadgets E2E', () => {
     await page.reload();
     await waitGadgetsReady(page);
     await ensureSidebarOpen();
+<<<<<<< HEAD
     await expect(page.locator('#gadgets-panel section.gadget[data-name="Clock"] .gadget-body')).toBeHidden();
+=======
+    await expect(
+      page.locator(
+        '#gadgets-panel section.gadget[data-name="Clock"] .gadget-body',
+      ),
+    ).toBeHidden();
+  });
+
+  test('EditorLayout slider keeps gadget open and updates layout', async ({
+    page,
+  }) => {
+    await page.goto(pageUrl);
+    await waitGadgetsReady(page);
+
+    const ensureSidebarOpen = async () => {
+      const sidebar = page.locator('.sidebar');
+      const toggleBtn = page.locator('#toggle-sidebar');
+      if (!(await sidebar.isVisible())) {
+        await toggleBtn.click();
+        await expect(sidebar).toBeVisible();
+      }
+    };
+
+    await ensureSidebarOpen();
+
+    // タイポタブをアクティブに
+    const typoTab = page.locator('button.sidebar-tab', { hasText: 'タイポ' });
+    await typoTab.click();
+    await expect(typoTab).toHaveAttribute('aria-selected', 'true');
+
+    // EditorLayout ガジェットが表示されていること（タイポ パネル内）
+    const layoutGadget = page.locator(
+      '#typography-gadgets-panel section.gadget[data-name="EditorLayout"]',
+    );
+    await expect(layoutGadget).toBeVisible();
+
+    // スライダーを操作
+    const slider = layoutGadget.locator('input[type="range"]');
+    await expect(slider).toBeVisible();
+    const beforeValue = await slider.inputValue();
+    await slider.fill('150');
+    const afterValue = await slider.inputValue();
+    expect(afterValue).toBe('150');
+
+    // ガジェットが閉じていないこと
+    await expect(layoutGadget).toBeVisible();
+
+    // レイアウトが反映されていること（editor-previewのpaddingが変わっている）
+    const preview = page.locator('#editor-preview');
+    const padding = await preview.evaluate(
+      (el) => getComputedStyle(el).paddingLeft,
+    );
+    expect(parseFloat(padding)).toBeGreaterThan(50); // デフォルトより大きい
+>>>>>>> e5d00c4cc4eb4c7fee8cb1f55f02c778c157da58
   });
 });

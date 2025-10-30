@@ -1,4 +1,4 @@
-// フェードイン/アウト型 ミニHUD
+ // フェードイン/アウト型 ミニHUD
 (function () {
   function hexToRgb(hex) {
     hex = (hex || '').replace('#', '');
@@ -152,12 +152,6 @@
       } catch (e) {
         console.warn('HUD updateFromSettings failed:', e);
       }
-    }
-
-    updateFromSettings() {
-      if (!window.ZenWriterStorage) return;
-      const s = window.ZenWriterStorage.loadSettings() || {};
-      this.applyConfig((s && s.hud) || {});
     }
 
     refresh() {
