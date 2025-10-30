@@ -669,6 +669,116 @@ class EditorManager {
     });
     controls.appendChild(presetSelect);
 
+    // 不透明度コントロール
+    const opacityRow = document.createElement('div');
+    opacityRow.style.display = 'flex';
+    opacityRow.style.alignItems = 'center';
+    opacityRow.style.marginTop = '0.5rem';
+    opacityRow.style.gap = '0.5rem';
+
+    const opacityLabel = document.createElement('span');
+    opacityLabel.textContent = '不透明度:';
+    opacityLabel.style.fontSize = '0.85rem';
+
+    const opacityRange = document.createElement('input');
+    opacityRange.type = 'range';
+    opacityRange.min = '0';
+    opacityRange.max = '1';
+    opacityRange.step = '0.1';
+    opacityRange.value = asset.opacity !== undefined ? asset.opacity : 1.0;
+    opacityRange.style.flex = '1';
+
+    const opacityValue = document.createElement('span');
+    opacityValue.textContent = `${Math.round((asset.opacity !== undefined ? asset.opacity : 1.0) * 100)}%`;
+    opacityValue.style.fontSize = '0.85rem';
+    opacityValue.style.minWidth = '3rem';
+    opacityValue.style.textAlign = 'right';
+
+    opacityRange.addEventListener('input', () => {
+      const val = parseFloat(opacityRange.value);
+      opacityValue.textContent = `${Math.round(val * 100)}%`;
+      img.style.opacity = asset.hidden ? 0.25 : val;
+    });
+    opacityRange.addEventListener('change', () => {
+      const val = parseFloat(opacityRange.value);
+      this.persistAssetMeta(assetId, { opacity: val });
+    });
+
+    opacityRow.appendChild(opacityLabel);
+    opacityRow.appendChild(opacityRange);
+    opacityRow.appendChild(opacityValue);
+    controls.appendChild(opacityRow);
+
+    // フィルターコントロール
+    const filterRow = document.createElement('div');
+    filterRow.style.display = 'flex';
+    filterRow.style.alignItems = 'center';
+    filterRow.style.marginTop = '0.5rem';
+    filterRow.style.gap = '0.5rem';
+
+    const filterLabel = document.createElement('span');
+    filterLabel.textContent = 'フィルター:';
+    filterLabel.style.fontSize = '0.85rem';
+
+    const filterSelect = document.createElement('select');
+    filterSelect.style.flex = '1';
+    const filterOptions = [
+      { value: 'none', label: 'なし' },
+      { value: 'blur', label: 'ぼかし' },
+      { value: 'brightness', label: '明るさ' },
+      { value: 'contrast', label: 'コントラスト' },
+      { value: 'saturate', label: '彩度' }
+    ];
+    filterOptions.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt.value;
+      option.textContent = opt.label;
+      filterSelect.appendChild(option);
+    });
+
+    const filterValue = document.createElement('input');
+    filterValue.type = 'number';
+    filterValue.min = '0';
+    filterValue.max = '5';
+    filterValue.step = '0.1';
+    filterValue.style.width = '4rem';
+    filterValue.style.fontSize = '0.85rem';
+    filterValue.value = '1.0';
+
+    // 現在のフィルターを解析
+    const currentFilter = asset.filter || 'none';
+    if (currentFilter !== 'none') {
+      const match = currentFilter.match(/(blur|brightness|contrast|saturate)\(([^)]+)\)/);
+      if (match) {
+        filterSelect.value = match[1];
+        const val = parseFloat(match[2]);
+        filterValue.value = isNaN(val) ? '1.0' : val.toString();
+      }
+    }
+
+    const updateFilter = () => {
+      const type = filterSelect.value;
+      const val = parseFloat(filterValue.value) || 1.0;
+      let filterStr = 'none';
+      if (type !== 'none') {
+        if (type === 'blur') {
+          filterStr = `blur(${val}px)`;
+        } else {
+          filterStr = `${type}(${val})`;
+        }
+      }
+      img.style.filter = filterStr;
+      this.persistAssetMeta(assetId, { filter: filterStr });
+    };
+
+    filterSelect.addEventListener('change', updateFilter);
+    filterValue.addEventListener('input', updateFilter);
+
+    filterRow.appendChild(filterLabel);
+    filterRow.appendChild(filterSelect);
+    filterRow.appendChild(filterValue);
+    controls.appendChild(filterRow);
+
     body.appendChild(controls);
     card.appendChild(body);
 

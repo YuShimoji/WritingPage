@@ -18,8 +18,7 @@
 - [x] 4.3 Typora-like behaviors (list, heading, code block)
 - [x] 4.4 Extended markdown: code blocks, table of contents, sync scroll
 
-## 5. Images Interactive
-- [ ] 5.1 Preset profiles (VN usage)
+- [x] 5.1 Preset profiles (VN usage)
 - [ ] 5.2 Fine-grained numeric controls (width, offset, opacity, filters)
 - [ ] 5.3 Snapshot of per-image states and restore
 
