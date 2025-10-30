@@ -73,6 +73,7 @@
     dockBtn.className = 'panel-control';
     dockBtn.textContent = '📌';
     dockBtn.title = 'ドッキング切替';
+    dockBtn.setAttribute('aria-label', 'パネルをドッキングまたはフローティングに切替');
     dockBtn.addEventListener('click', () => togglePanelDocking(id));
     controls.appendChild(dockBtn);
 
@@ -81,6 +82,7 @@
     closeBtn.className = 'panel-control panel-close';
     closeBtn.textContent = '×';
     closeBtn.title = '閉じる';
+    closeBtn.setAttribute('aria-label', 'パネルを閉じる');
     closeBtn.addEventListener('click', () => hidePanel(id));
     controls.appendChild(closeBtn);
 
@@ -150,6 +152,57 @@
       document.addEventListener('mousemove', move);
       document.addEventListener('mouseup', up);
     });
+
+    // キーボードナビゲーション
+    handle.addEventListener('keydown', (e) => {
+      if (e.target.classList.contains('panel-control')) return;
+      const step = e.shiftKey ? 10 : 1;
+      switch (e.key) {
+        case 'ArrowUp':
+          e.preventDefault();
+          movePanel(panel, 0, -step);
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          movePanel(panel, 0, step);
+          break;
+        case 'ArrowLeft':
+          e.preventDefault();
+          movePanel(panel, -step, 0);
+          break;
+        case 'ArrowRight':
+          e.preventDefault();
+          movePanel(panel, step, 0);
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          togglePanelDocking(panel.id);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          hidePanel(panel.id);
+          break;
+      }
+    });
+
+    // アクセシビリティ属性
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'false');
+    panel.setAttribute('aria-labelledby', panel.id + '-title');
+    handle.setAttribute('tabindex', '0');
+    handle.setAttribute('aria-label', 'パネルをドラッグまたはキーボードで移動');
+    titleEl.id = panel.id + '-title';
+  }
+
+  function movePanel(panel, deltaX, deltaY) {
+    const rect = panel.getBoundingClientRect();
+    const newLeft = Math.max(0, Math.min(window.innerWidth - rect.width, rect.left + deltaX));
+    const newTop = Math.max(0, Math.min(window.innerHeight - rect.height, rect.top + deltaY));
+    panel.style.left = newLeft + 'px';
+    panel.style.top = newTop + 'px';
+    panel.style.right = 'auto';
+    panel.style.bottom = 'auto';
   }
 
   function detectDropZone(x, y) {

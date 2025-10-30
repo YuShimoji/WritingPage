@@ -20,6 +20,7 @@
 - Images Interactiveスナップショット: 画像状態の保存・復元機能
 - Content Linkingモデル: doc://, asset://, http(s)://リンクサポート
 - Content Linkingナビゲーション: クリックナビとホバー・プレビュー
+- Panels Layout: Docking/splitモデル (ゾーン・永続化)
 
 ### Changed
 

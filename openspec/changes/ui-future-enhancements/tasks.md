@@ -21,7 +21,7 @@
 - [x] 5.3 Snapshot of per-image states and restore
 
 ## 6. Panels Layout
-- [ ] 6.1 Docking/split model (zones, persistence)
+- [x] 6.1 Docking/split model (zones, persistence)
 - [ ] 6.2 Keyboard navigation & accessibility
 
 ## 7. Content Linking
