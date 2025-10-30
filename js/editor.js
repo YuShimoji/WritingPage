@@ -580,9 +580,12 @@ class EditorManager {
     img.alt = asset.name || '';
     img.style.width = `${asset.widthPercent || 60}%`;
     this.applyAlignmentToImage(img, asset.alignment);
-    if (asset.hidden) {
+>    if (asset.hidden) {
       img.style.opacity = '0.25';
+    } else {
+      img.style.opacity = asset.opacity !== undefined ? asset.opacity : 1.0;
     }
+    img.style.filter = asset.filter || 'none';
     body.appendChild(img);
 
     const controls = document.createElement('div');
@@ -629,6 +632,42 @@ class EditorManager {
     controls.appendChild(widthRange);
     controls.appendChild(widthLabel);
     controls.appendChild(alignSelect);
+
+    // プリセットセレクト
+    const presetSelect = document.createElement('select');
+    presetSelect.style.width = '100%';
+    presetSelect.style.marginTop = '0.5rem';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'プリセットを選択';
+    presetSelect.appendChild(defaultOption);
+    Object.keys(this.imagePresets).forEach(key => {
+      const preset = this.imagePresets[key];
+      const option = document.createElement('option');
+      option.value = key;
+      option.textContent = `${preset.name} (${preset.description})`;
+      presetSelect.appendChild(option);
+    });
+    presetSelect.addEventListener('change', () => {
+      const presetKey = presetSelect.value;
+      if (presetKey && this.imagePresets[presetKey]) {
+        const preset = this.imagePresets[presetKey];
+        // プリセット適用
+        widthRange.value = preset.widthPercent;
+        widthLabel.textContent = `幅: ${preset.widthPercent}%`;
+        img.style.width = `${preset.widthPercent}%`;
+        alignSelect.value = preset.alignment;
+        img.style.opacity = preset.opacity;
+        img.style.filter = preset.filter;
+        this.persistAssetMeta(assetId, {
+          widthPercent: preset.widthPercent,
+          alignment: preset.alignment,
+          opacity: preset.opacity,
+          filter: preset.filter
+        });
+      }
+    });
+    controls.appendChild(presetSelect);
 
     body.appendChild(controls);
     card.appendChild(body);
@@ -1686,5 +1725,38 @@ EditorManager.prototype.onEditorScroll = function () {
   preview.scrollTop = targetScroll;
 };
 
-// グローバルオブジェクトに追加
-window.ZenWriterEditor = new EditorManager();
+// 画像プリセット定義（VNスタイル）
+EditorManager.prototype.imagePresets = {
+  'vn-portrait': {
+    name: 'VN肖像',
+    widthPercent: 30,
+    alignment: 'center',
+    opacity: 1.0,
+    filter: 'none',
+    description: 'キャラクター肖像用'
+  },
+  'vn-background': {
+    name: 'VN背景',
+    widthPercent: 100,
+    alignment: 'center',
+    opacity: 0.8,
+    filter: 'blur(1px)',
+    description: '背景画像用'
+  },
+  'vn-illustration': {
+    name: 'VN挿絵',
+    widthPercent: 70,
+    alignment: 'center',
+    opacity: 1.0,
+    filter: 'none',
+    description: '本文挿絵用'
+  },
+  'vn-textbox': {
+    name: 'VNテキストボックス',
+    widthPercent: 80,
+    alignment: 'center',
+    opacity: 0.9,
+    filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))',
+    description: 'テキストボックス用'
+  }
+};

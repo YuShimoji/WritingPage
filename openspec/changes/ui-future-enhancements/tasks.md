@@ -16,7 +16,7 @@
 - [x] 4.1 Live preview pipeline & keyboard shortcuts
 - [x] 4.2 Image embed compatibility (asset://, data URL, relative export)
 - [x] 4.3 Typora-like behaviors (list, heading, code block)
-- [ ] 4.4 Extended markdown: code blocks, table of contents, sync scroll
+- [x] 4.4 Extended markdown: code blocks, table of contents, sync scroll
 
 ## 5. Images Interactive
 - [ ] 5.1 Preset profiles (VN usage)
