@@ -119,6 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const snapshotIntervalMs = document.getElementById('snapshot-interval-ms');
   const snapshotDeltaChars = document.getElementById('snapshot-delta-chars');
   const snapshotRetention = document.getElementById('snapshot-retention');
+  const previewSyncScroll = document.getElementById('preview-sync-scroll');
 
   function formatTs(ts) {
     const d = new Date(ts);
@@ -285,6 +286,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (snapshotIntervalMs) snapshotIntervalMs.value = snap.intervalMs || 120000;
     if (snapshotDeltaChars) snapshotDeltaChars.value = snap.deltaChars || 300;
     if (snapshotRetention) snapshotRetention.value = snap.retention || 10;
+    const preview = settings.preview || {};
+    if (previewSyncScroll) previewSyncScroll.checked = !!preview.syncScroll;
   }
 
   function activateSidebarGroup(groupId) {
@@ -510,17 +513,36 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     window.ZenWriterStorage.saveSettings(s);
   }
+  function savePreviewSettings() {
+    const s = window.ZenWriterStorage.loadSettings();
+    s.preview = {
+      syncScroll: previewSyncScroll ? previewSyncScroll.checked : false,
+    };
+    window.ZenWriterStorage.saveSettings(s);
+    // スクロール同期を即時反映
+    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setSyncScroll === 'function') {
+      window.ZenWriterEditor.setSyncScroll(previewSyncScroll.checked);
+    }
+  }
   if (typewriterEnabled) typewriterEnabled.addEventListener('change', saveTypewriterSettings);
   if (typewriterAnchorRatio) typewriterAnchorRatio.addEventListener('input', saveTypewriterSettings);
   if (typewriterStickiness) typewriterStickiness.addEventListener('input', saveTypewriterSettings);
   if (snapshotIntervalMs) snapshotIntervalMs.addEventListener('change', saveSnapshotSettings);
   if (snapshotDeltaChars) snapshotDeltaChars.addEventListener('change', saveSnapshotSettings);
   if (snapshotRetention) snapshotRetention.addEventListener('change', saveSnapshotSettings);
+  if (previewSyncScroll) previewSyncScroll.addEventListener('change', savePreviewSettings);
 
   // エディタにフォーカス（エディタ領域をクリックしたときのみ）
   if (editor && editorContainer) {
     editorContainer.addEventListener('click', () => {
       editor.focus();
+    });
+
+    // エディタスクロール時の同期処理
+    editor.addEventListener('scroll', () => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.onEditorScroll === 'function') {
+        window.ZenWriterEditor.onEditorScroll();
+      }
     });
 
     // 初期フォーカス
@@ -531,6 +553,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 設定をUIに反映
   applySettingsToUI();
+  // 初期スクロール同期設定
+  if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setSyncScroll === 'function') {
+    const settings = window.ZenWriterStorage.loadSettings();
+    const preview = settings.preview || {};
+    window.ZenWriterEditor.setSyncScroll(!!preview.syncScroll);
+  }
   // バックアップ一覧
   // renderSnapshots();
 

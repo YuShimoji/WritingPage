@@ -441,7 +441,7 @@ class EditorManager {
     this.renderOverlayImages(orderedEntries, content);
   }
 
-  // 最小のMarkdownプレビュー: 見出し/強調/リスト/段落のみ（画像は別プレビューへ）
+  // 拡張Markdownプレビュー: コードブロック、目次、スクロール同期（最小実装版）
   buildMarkdownPreview(content) {
     try {
       const container = document.createElement('div');
@@ -452,35 +452,82 @@ class EditorManager {
       src = src.replace(/!\[[^\]]*\]\([^)]*\)/g, '');
       // エスケープ
       let html = this.escapeHtml(src);
+      // コードブロック処理（``` または ~~~）
+      html = html.replace(/```([\s\S]*?)```|~~~([\s\S]*?)~~~/g, (match, p1, p2) => {
+        const code = (p1 || p2 || '').trim();
+        if (!code) return '<pre><code></code></pre>';
+        return `<pre><code>${this.escapeHtml(code)}</code></pre>`;
+      });
+      // 目次生成（見出しから）
+      const headings = [];
+      html = html.replace(/<h(\d)>([^<]+)<\/h\d>/gi, (match, level, title) => {
+        const id = 'toc-' + headings.length;
+        headings.push({ level: parseInt(level), title, id });
+        return `<h${level} id="${id}">${title}</h${level}>`;
+      });
       // 行ごとに処理
       html = html
         // 見出し # ～ ###
-        .replace(/^###\s+(.+)$/gm, '<h3>$1<\/h3>')
-        .replace(/^##\s+(.+)$/gm, '<h2>$1<\/h2>')
-        .replace(/^#\s+(.+)$/gm, '<h1>$1<\/h1>')
+        .replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
+        .replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
+        .replace(/^#\s+(.+)$/gm, '<h1>$1</h1>')
         // 太字/斜体
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1<\/em>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
         // リンク
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1<\/a>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
         // 行頭の箇条書き
-        .replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1<\/li>');
+        .replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
       // 箇条書きのliをulでラップ（簡易）
-      html = html.replace(/(?:<li>[^<]+<\/li>\n?)+/g, (m) => {
+      html = html.replace(/(?:<li>[^<]+</li>\n?)+/g, (m) => {
         const items = m.trim().replace(/\n/g, '');
-        return `<ul>${items}<\/ul>`;
+        return `<ul>${items}</ul>`;
       });
-      // 段落化（既にh*/ul/li の行は対象外）
+      // 段落化（既にh*/ul/li/pre の行は対象外）
       html = html
         .split(/\n{2,}/)
         .map((blk) => {
           const t = blk.trim();
           if (!t) return '';
           if (/^<(h\d|ul|li|pre|blockquote)/.test(t)) return t;
-          return `<p>${t.replace(/\n/g, '<br>')}<\/p>`;
+          return `<p>${t.replace(/\n/g, '<br>')}</p>`;
         })
         .join('\n');
       container.innerHTML = html;
+      // 目次を追加（見出しがある場合のみ）
+      if (headings.length > 0) {
+        const toc = document.createElement('div');
+        toc.className = 'md-toc';
+        toc.style.marginBottom = '1rem';
+        toc.style.padding = '0.5rem';
+        toc.style.backgroundColor = '#f5f5f5';
+        toc.style.borderRadius = '4px';
+        toc.innerHTML = '<h4 style="margin: 0 0 0.5rem 0; font-size: 0.9rem;">目次</h4>';
+        const tocList = document.createElement('ul');
+        tocList.style.margin = '0';
+        tocList.style.paddingLeft = '1rem';
+        headings.forEach(h => {
+          const li = document.createElement('li');
+          li.style.marginBottom = '0.25rem';
+          li.style.listStyle = 'none';
+          li.style.paddingLeft = ((h.level - 1) * 1) + 'rem';
+          const link = document.createElement('a');
+          link.href = '#' + h.id;
+          link.textContent = h.title;
+          link.style.fontSize = '0.85rem';
+          link.style.color = '#007acc';
+          link.style.textDecoration = 'none';
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const el = document.getElementById(h.id);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          });
+          li.appendChild(link);
+          tocList.appendChild(li);
+        });
+        toc.appendChild(tocList);
+        container.insertBefore(toc, container.firstChild);
+      }
       return container;
     } catch (_) {
       return null;
@@ -1620,6 +1667,23 @@ EditorManager.prototype.applyMarkdownShortcut = function (kind) {
     this.saveContent();
     this.updateWordCount();
   } catch (_) {}
+};
+
+// スクロール同期設定
+EditorManager.prototype.setSyncScroll = function (enabled) {
+  this._syncScrollEnabled = !!enabled;
+  this.renderImagePreview(); // プレビューを更新
+};
+
+// エディタスクロール時の同期処理
+EditorManager.prototype.onEditorScroll = function () {
+  if (!this._syncScrollEnabled || !this.previewPanelBody) return;
+  const editor = this.editor;
+  if (!editor) return;
+  const scrollRatio = editor.scrollTop / (editor.scrollHeight - editor.clientHeight);
+  const preview = this.previewPanelBody;
+  const targetScroll = scrollRatio * (preview.scrollHeight - preview.clientHeight);
+  preview.scrollTop = targetScroll;
 };
 
 // グローバルオブジェクトに追加
