@@ -63,6 +63,8 @@
 
     const titleEl = document.createElement('span');
     titleEl.textContent = title;
+    // Ensure title element has a stable id for aria-labelledby
+    try { titleEl.id = id + '-title'; } catch(_) {}
     header.appendChild(titleEl);
 
     const controls = document.createElement('div');
@@ -192,7 +194,6 @@
     panel.setAttribute('aria-labelledby', panel.id + '-title');
     handle.setAttribute('tabindex', '0');
     handle.setAttribute('aria-label', 'パネルをドラッグまたはキーボードで移動');
-    titleEl.id = panel.id + '-title';
   }
 
   function movePanel(panel, deltaX, deltaY) {

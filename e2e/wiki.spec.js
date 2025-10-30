@@ -1,4 +1,5 @@
-});
+// @ts-check
+const { test, expect } = require('@playwright/test');
 
 test.describe('Story Wiki', () => {
   test.beforeEach(async ({ page }) => {

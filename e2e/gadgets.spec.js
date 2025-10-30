@@ -132,8 +132,6 @@ test.describe('Gadgets E2E', () => {
     const dummy = page.locator('#gadgets-panel section.gadget[data-name="Dummy"]');
     await expect(dummy).toBeVisible();
 
-<<<<<<< HEAD
-=======
     // Dummy を上に移動（Up）x2 -> 先頭に移動（API 経由で安定化）
     await page.evaluate(() => {
       try {
@@ -149,7 +147,6 @@ test.describe('Gadgets E2E', () => {
       return order[0] === 'Dummy';
     });
 
->>>>>>> e5d00c4cc4eb4c7fee8cb1f55f02c778c157da58
     // Export → Prefs を書き換えて Import（Clock を折りたたみにする）
     await page.evaluate(() => {
       const p = JSON.parse(window.ZWGadgets.exportPrefs());
@@ -162,9 +159,6 @@ test.describe('Gadgets E2E', () => {
     await page.reload();
     await waitGadgetsReady(page);
     await ensureSidebarOpen();
-<<<<<<< HEAD
-    await expect(page.locator('#gadgets-panel section.gadget[data-name="Clock"] .gadget-body')).toBeHidden();
-=======
     await expect(
       page.locator(
         '#gadgets-panel section.gadget[data-name="Clock"] .gadget-body',
@@ -217,6 +211,5 @@ test.describe('Gadgets E2E', () => {
       (el) => getComputedStyle(el).paddingLeft,
     );
     expect(parseFloat(padding)).toBeGreaterThan(50); // デフォルトより大きい
->>>>>>> e5d00c4cc4eb4c7fee8cb1f55f02c778c157da58
   });
 });

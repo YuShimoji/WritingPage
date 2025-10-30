@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-30T03:36:00+09:00
-- 現在のミッション: Mission 13 開始 - 表現力の強化（グラフィックノベル対応・フォント装飾）
-- ブランチ: feat/mission13-graphic-novel-enhancement（作成済み）
-- 関連: BACKLOG「見出し階層のハードコーディング解消」
-- 進捗: Mission 13 完了 (全Phase実装完了) / ステータス: Mission 13 完了 - 次回Mission待機中
-- 次の中断可能点: ブランチ作成 → 設計・実装着手後
+- 最終更新: 2025-10-31T02:37:00+09:00
+- 現在のミッション: OpenSpec実装完了 - Panels拡張準備
+- ブランチ: feat/openspec-implementation（完了）
+- 関連: OpenSpec v1.1 タスク完了
+- 進捗: UI presentation, Typewriter, Snapshot, NodeGraph, Wiki, Font sizes実装完了 / E2Eテスト追加完了
+- 次の中断可能点: Panels API設計着手
 
 ## 決定事項
 

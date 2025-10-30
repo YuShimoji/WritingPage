@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('必要なスクリプトが読み込まれていません');
         return;
     }
+    // 要素別フォントサイズを適用
+    applyElementFontSizes();
 
     // ------- 複数ドキュメント管理 -------
     function ensureInitialDocument(){
@@ -70,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleToolbarBtn = document.getElementById('toggle-toolbar');
     const toolbar = document.querySelector('.toolbar');
     const fullscreenBtn = document.getElementById('fullscreen');
-    const themePresets = document.querySelectorAll('.theme-preset');
+    const feedbackBtn = document.getElementById('feedback');
     const bgColorInput = document.getElementById('bg-color');
     const textColorInput = document.getElementById('text-color');
     const fontFamilySelect = document.getElementById('font-family');
@@ -87,8 +89,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeFontPanelBtn = document.getElementById('close-font-panel');
     const globalFontRange = document.getElementById('global-font-size');
     const globalFontNumber = document.getElementById('global-font-size-number');
+    // Editor 設定UI: Typewriter / Snapshot / Preview
+    const typewriterEnabled = document.getElementById('typewriter-enabled');
+    const typewriterAnchor = document.getElementById('typewriter-anchor-ratio');
+    const typewriterStickiness = document.getElementById('typewriter-stickiness');
+    const snapshotInterval = document.getElementById('snapshot-interval-ms');
+    const snapshotDelta = document.getElementById('snapshot-delta-chars');
+    const snapshotRetention = document.getElementById('snapshot-retention');
+    const previewSyncScroll = document.getElementById('preview-sync-scroll');
     // HUD 設定UI
-    // スナップショットUI
     // 執筆目標
     const goalTargetInput = document.getElementById('goal-target');
     const goalDeadlineInput = document.getElementById('goal-deadline');
@@ -96,6 +105,70 @@ document.addEventListener('DOMContentLoaded', () => {
     const pluginsPanel = document.getElementById('plugins-panel');
     const sidebarTabs = document.querySelectorAll('.sidebar-tab');
     const sidebarGroups = document.querySelectorAll('.sidebar-group');
+
+    // 要素別フォントサイズを適用
+    function applyElementFontSizes(){
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            const fs = (s && s.fontSizes) || {};
+            const root = document.documentElement;
+            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', fs.heading + 'px');
+            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', fs.body + 'px');
+        } catch(_) {}
+    }
+
+    // サイドバータブの表示方式を反映
+    function applyTabsPresentationUI(){
+        try {
+            const sb = document.getElementById('sidebar');
+            if (!sb) return;
+            const mode = sb.getAttribute('data-tabs-presentation') || 'tabs';
+            const tabsBar = document.querySelector('.sidebar-tabs');
+            const top = document.querySelector('.sidebar-top');
+            const ddId = 'tabs-dropdown-select';
+            let dd = document.getElementById(ddId);
+
+            // reset defaults
+            if (tabsBar) tabsBar.style.display = '';
+            if (mode !== 'dropdown' && dd && dd.parentNode) dd.parentNode.removeChild(dd);
+
+            if (mode === 'dropdown'){
+                if (tabsBar) tabsBar.style.display = 'none';
+                if (!dd){
+                    dd = document.createElement('select');
+                    dd.id = ddId;
+                    dd.setAttribute('aria-label','サイドバータブ');
+                    const tabs = document.querySelectorAll('.sidebar-tab');
+                    tabs.forEach(t => {
+                        const opt = document.createElement('option');
+                        opt.value = t.getAttribute('data-group');
+                        opt.textContent = t.textContent || opt.value;
+                        dd.appendChild(opt);
+                    });
+                    dd.addEventListener('change', () => activateSidebarGroup(dd.value));
+                    if (top) top.insertBefore(dd, top.firstChild);
+                }
+                // set value to current active group
+                const activeTab = document.querySelector('.sidebar-tab.active');
+                const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                if (dd) dd.value = gid;
+            }
+
+            if (mode === 'accordion'){
+                if (tabsBar) tabsBar.style.display = 'none';
+                // 全グループを展開表示
+                document.querySelectorAll('.sidebar-group').forEach(sec => {
+                    sec.classList.add('active');
+                    sec.setAttribute('aria-hidden','false');
+                });
+            } else {
+                // デフォルト動作: active のみ表示
+                const activeTab = document.querySelector('.sidebar-tab.active');
+                const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                activateSidebarGroup(gid);
+            }
+        } catch(_) {}
+    }
 
     function formatTs(ts){
         const d = new Date(ts);
@@ -236,10 +309,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const goal = settings.goal || {};
         if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
         if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
+
+        // Typewriter 設定の初期反映
+        const tw = settings.typewriter || {};
+        if (typewriterEnabled) typewriterEnabled.checked = !!tw.enabled;
+        if (typewriterAnchor) typewriterAnchor.value = String((typeof tw.anchorRatio === 'number' ? tw.anchorRatio : 0.5));
+        if (typewriterStickiness) typewriterStickiness.value = String((typeof tw.stickiness === 'number' ? tw.stickiness : 0.9));
+
+        // Snapshot 設定の初期反映
+        const snap = settings.snapshot || {};
+        if (snapshotInterval) snapshotInterval.value = String((typeof snap.intervalMs === 'number' ? snap.intervalMs : 120000));
+        if (snapshotDelta) snapshotDelta.value = String((typeof snap.deltaChars === 'number' ? snap.deltaChars : 300));
+        if (snapshotRetention) snapshotRetention.value = String((typeof snap.retention === 'number' ? snap.retention : 10));
+
+        // Preview 設定の初期反映
+        const prev = settings.preview || {};
+        if (previewSyncScroll) previewSyncScroll.checked = !!prev.syncScroll;
     }
 
     function activateSidebarGroup(groupId){
         if (!groupId) return;
+        // 現在のactive groupを取得
+        const currentActiveTab = document.querySelector('.sidebar-tab.active');
+        const currentGroupId = currentActiveTab ? currentActiveTab.dataset.group : null;
+        if (currentGroupId === groupId) return; // すでにactiveならスキップ
         sidebarTabs.forEach(tab => {
             const isActive = tab.dataset.group === groupId;
             tab.classList.toggle('active', isActive);
@@ -253,6 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
             window.ZWGadgets.setActiveGroup(groupId);
         }
+        // プレゼンテーション方式に合わせてUI反映
+        applyTabsPresentationUI();
     }
 
     // イベントリスナーを設定
@@ -260,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
     if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
     if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
+    if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackPanel);
     if (sidebarTabs && sidebarTabs.length) {
         sidebarTabs.forEach(tab => {
             tab.addEventListener('click', () => activateSidebarGroup(tab.dataset.group));
@@ -297,8 +392,47 @@ document.addEventListener('DOMContentLoaded', () => {
     updateDocumentTitle();
     renderPlugins();
 
-    // 初期サイドバー表示（E2Eテスト対応）
-    sidebar.classList.add('open');
+    // サイドバー初期表示は設定しない（E2Eはボタンで開閉する前提）
+
+    // UI設定を適用（サイドバー幅やタブ表示方式）
+    (function applyUISettings(){
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            if (sidebar && s && s.ui) {
+                if (typeof s.ui.sidebarWidth === 'number') {
+                    sidebar.style.width = Math.max(220, Math.min(560, s.ui.sidebarWidth)) + 'px';
+                }
+                if (s.ui.tabsPresentation) {
+                    sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));
+                }
+            }
+        } catch(_) {}
+    })();
+
+    // ガジェットの初期化（構造/タイポ/アシストの各ルート）
+    (function initGadgetsWithRetry(){
+        let tries = 0;
+        const maxTries = 60; // ~3秒
+        function tick(){
+            tries++;
+            if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function'){
+                try {
+                    window.ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
+                    window.ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
+                    window.ZWGadgets.init('#gadgets-panel', { group: 'assist' });
+                    // 最初に選択されているUIタブを反映（デフォルトは structure）
+                    const activeTab = document.querySelector('.sidebar-tab.active');
+                    const gid = activeTab ? (activeTab.getAttribute('data-group') || 'structure') : 'structure';
+                    if (typeof window.ZWGadgets.setActiveGroup === 'function') {
+                        window.ZWGadgets.setActiveGroup(gid);
+                    }
+                } catch(e) { /* ignore */ }
+                return;
+            }
+            if (tries < maxTries) setTimeout(tick, 50);
+        }
+        tick();
+    })();
 
     // テーマ設定
     themePresets.forEach(btn => {
@@ -331,6 +465,45 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZenWriterTheme.clearCustomColors();
             applySettingsToUI();
         });
+    }
+
+    // フィードバックパネル
+    let feedbackPanel = null;
+    function toggleFeedbackPanel(){
+        if (!feedbackPanel){
+            feedbackPanel = document.createElement('div');
+            feedbackPanel.className = 'floating-panel';
+            feedbackPanel.id = 'feedback-panel';
+            feedbackPanel.style.display = 'none';
+            feedbackPanel.innerHTML = `
+                <div class="panel-header">
+                    <span>フィードバック</span>
+                    <button class="panel-close" id="close-feedback-panel">×</button>
+                </div>
+                <div class="panel-body">
+                    <p>問題報告や機能要望をお送りください。</p>
+                    <textarea id="feedback-text" placeholder="詳細を記述してください..." rows="6" style="width:100%; margin:8px 0;"></textarea>
+                    <div style="display:flex; gap:8px;">
+                        <button id="submit-feedback" class="small">送信</button>
+                        <button id="cancel-feedback" class="small">キャンセル</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(feedbackPanel);
+            document.getElementById('close-feedback-panel').addEventListener('click', () => feedbackPanel.style.display = 'none');
+            document.getElementById('cancel-feedback').addEventListener('click', () => feedbackPanel.style.display = 'none');
+            document.getElementById('submit-feedback').addEventListener('click', () => {
+                const text = document.getElementById('feedback-text').value.trim();
+                if (text) {
+                    // GitHub Issue作成（仮）
+                    const url = `https://github.com/YuShimoji/WritingPage/issues/new?title=Feedback&body=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                    feedbackPanel.style.display = 'none';
+                    document.getElementById('feedback-text').value = '';
+                }
+            });
+        }
+        feedbackPanel.style.display = feedbackPanel.style.display === 'none' ? 'block' : 'none';
     }
 
     // フローティングツール（フォントパネル）
@@ -412,6 +585,67 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZenWriterEditor.updateWordCount();
         }
     }
+
+    // ------- Editor 設定（typewriter / snapshot / preview） -------
+    function saveTypewriterPatch(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.typewriter = { ...(s.typewriter || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+    }
+    function saveSnapshotPatch(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.snapshot = { ...(s.snapshot || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+    }
+    function savePreviewPatch(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.preview = { ...(s.preview || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+    }
+
+    // clamp helpers
+    const clamp = (val, min, max, def) => {
+        const n = typeof val === 'number' ? val : parseFloat(val);
+        if (isNaN(n)) return def;
+        return Math.max(min, Math.min(max, n));
+    };
+
+    // Typewriter handlers
+    if (typewriterEnabled){
+        typewriterEnabled.addEventListener('change', (e)=> saveTypewriterPatch({ enabled: !!e.target.checked }));
+    }
+    if (typewriterAnchor){
+        const onChange = (e)=> saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
+        typewriterAnchor.addEventListener('input', onChange);
+        typewriterAnchor.addEventListener('change', onChange);
+    }
+    if (typewriterStickiness){
+        const onChange = (e)=> saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
+        typewriterStickiness.addEventListener('input', onChange);
+        typewriterStickiness.addEventListener('change', onChange);
+    }
+
+    // Snapshot handlers
+    if (snapshotInterval){
+        const onChange = (e)=> saveSnapshotPatch({ intervalMs: Math.round(clamp(e.target.value, 30000, 300000, 120000)) });
+        snapshotInterval.addEventListener('input', onChange);
+        snapshotInterval.addEventListener('change', onChange);
+    }
+    if (snapshotDelta){
+        const onChange = (e)=> saveSnapshotPatch({ deltaChars: Math.round(clamp(e.target.value, 50, 1000, 300)) });
+        snapshotDelta.addEventListener('input', onChange);
+        snapshotDelta.addEventListener('change', onChange);
+    }
+    if (snapshotRetention){
+        const onChange = (e)=> saveSnapshotPatch({ retention: Math.round(clamp(e.target.value, 1, 50, 10)) });
+        snapshotRetention.addEventListener('input', onChange);
+        snapshotRetention.addEventListener('change', onChange);
+    }
+
+    // Preview handlers
+    if (previewSyncScroll){
+        previewSyncScroll.addEventListener('change', (e)=> savePreviewPatch({ syncScroll: !!e.target.checked }));
+    }
     if (goalTargetInput){
         const clampTarget = (v)=> Math.max(0, parseInt(v,10) || 0);
         goalTargetInput.addEventListener('input', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));
@@ -421,16 +655,17 @@ document.addEventListener('DOMContentLoaded', () => {
         goalDeadlineInput.addEventListener('change', (e)=> saveGoalPatch({ deadline: (e.target.value || '') || null }));
     }
     
-    // エディタにフォーカス（エディタ領域をクリックしたときのみ）
-    if (editor && editorContainer) {
-        editorContainer.addEventListener('click', () => {
-            editor.focus();
+    // Help button: Wikiタブを開く
+    if (helpButton) {
+        helpButton.addEventListener('click', function(){
+            // サイドバー開く
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
+                window.ZenWriterHUD.hide();
+            }
+            sidebar.classList.add('open');
+            // Wikiタブに切替
+            activateSidebarGroup('wiki');
         });
-
-        // 初期フォーカス
-        setTimeout(() => {
-            editor.focus();
-        }, 100);
     }
     
     // 設定をUIに反映
@@ -553,4 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
+
+    // 要素別フォントサイズを適用
+    applyElementFontSizes();
 });

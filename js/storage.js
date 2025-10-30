@@ -38,6 +38,27 @@ const DEFAULT_SETTINGS = {
         pinned: false,
         width: 240,
         fontSize: 14
+    },
+    // タイプライターモード
+    typewriter: {
+        enabled: false,
+        anchorRatio: 0.5,
+        stickiness: 0.9
+    },
+    // オートセーブ & スナップショット
+    snapshot: {
+        intervalMs: 120000,
+        deltaChars: 300,
+        retention: 10
+    },
+    // プレビュー設定
+    preview: {
+        syncScroll: false
+    },
+    // UI設定
+    ui: {
+        tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
+        sidebarWidth: 320
     }
 };
 
@@ -278,82 +299,6 @@ function replaceAssetPlaceholders(text, mode = 'data-url'){
     });
 }
 
-// ===== Wikiページ管理 =====
-function loadWikiPages(){
-    try {
-        const raw = localStorage.getItem(STORAGE_KEYS.WIKI);
-        return raw ? JSON.parse(raw) : {};
-    } catch(e){
-        console.error('Wikiページ読込エラー:', e);
-        return {};
-    }
-}
-
-function saveWikiPages(pages){
-    try {
-        localStorage.setItem(STORAGE_KEYS.WIKI, JSON.stringify(pages || {}));
-        return true;
-    } catch(e){
-        console.error('Wikiページ保存エラー:', e);
-        return false;
-    }
-}
-
-function createWikiPage(title, content = '', tags = []){
-    const pages = loadWikiPages();
-    const id = 'wiki_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-    const page = {
-        id,
-        title: String(title || '無題'),
-        content: String(content || ''),
-        tags: Array.isArray(tags) ? tags : [],
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-    };
-    pages[id] = page;
-    saveWikiPages(pages);
-    return page;
-}
-
-function getWikiPage(id){
-    const pages = loadWikiPages();
-    return pages[id] || null;
-}
-
-function updateWikiPage(id, updates){
-    const pages = loadWikiPages();
-    const page = pages[id];
-    if (!page) return null;
-    const updated = Object.assign({}, page, updates, { updatedAt: Date.now() });
-    pages[id] = updated;
-    saveWikiPages(pages);
-    return updated;
-}
-
-function deleteWikiPage(id){
-    const pages = loadWikiPages();
-    if (!pages[id]) return false;
-    delete pages[id];
-    saveWikiPages(pages);
-    return true;
-}
-
-function listWikiPages(){
-    const pages = loadWikiPages();
-    return Object.values(pages).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-}
-
-function searchWikiPages(query){
-    const pages = listWikiPages();
-    if (!query) return pages;
-    const q = String(query).toLowerCase();
-    return pages.filter(page =>
-        page.title.toLowerCase().includes(q) ||
-        page.content.toLowerCase().includes(q) ||
-        (page.tags && page.tags.some(tag => tag.toLowerCase().includes(q)))
-    );
-}
-
 // ===== 複数ドキュメント管理 =====
 function loadDocuments(){
     try {
@@ -456,6 +401,10 @@ function loadSettings() {
             const merged = { ...DEFAULT_SETTINGS, ...parsed };
             merged.goal = { ...DEFAULT_SETTINGS.goal, ...(parsed.goal || {}) };
             merged.hud = { ...DEFAULT_SETTINGS.hud, ...(parsed.hud || {}) };
+            merged.typewriter = { ...DEFAULT_SETTINGS.typewriter, ...(parsed.typewriter || {}) };
+            merged.snapshot = { ...DEFAULT_SETTINGS.snapshot, ...(parsed.snapshot || {}) };
+            merged.preview = { ...DEFAULT_SETTINGS.preview, ...(parsed.preview || {}) };
+            merged.ui = { ...DEFAULT_SETTINGS.ui, ...(parsed.ui || {}) };
             return merged;
         }
     } catch (e) {
@@ -464,7 +413,11 @@ function loadSettings() {
     return {
         ...DEFAULT_SETTINGS,
         goal: { ...DEFAULT_SETTINGS.goal },
-        hud: { ...DEFAULT_SETTINGS.hud }
+        hud: { ...DEFAULT_SETTINGS.hud },
+        typewriter: { ...DEFAULT_SETTINGS.typewriter },
+        snapshot: { ...DEFAULT_SETTINGS.snapshot },
+        preview: { ...DEFAULT_SETTINGS.preview },
+        ui: { ...DEFAULT_SETTINGS.ui }
     };
 }
 
@@ -535,7 +488,8 @@ function createWikiPage(pageData) {
         id: 'wiki_' + Date.now(),
         title: pageData.title || '無題',
         content: pageData.content || '',
-        tags: pageData.tags || [],
+        tags: Array.isArray(pageData.tags) ? pageData.tags : [],
+        folder: typeof pageData.folder === 'string' ? pageData.folder : '',
         createdAt: Date.now(),
         updatedAt: Date.now()
     };
@@ -605,9 +559,11 @@ function searchWikiPages(query) {
     const lowerQuery = query.toLowerCase();
 
     return pages.filter(page => {
-        return page.title.toLowerCase().includes(lowerQuery) ||
-               page.content.toLowerCase().includes(lowerQuery) ||
-               (page.tags && page.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
+        const inTitle = String(page.title||'').toLowerCase().includes(lowerQuery);
+        const inBody = String(page.content||'').toLowerCase().includes(lowerQuery);
+        const inTags = Array.isArray(page.tags) && page.tags.some(tag => String(tag).toLowerCase().includes(lowerQuery));
+        const inFolder = String(page.folder||'').toLowerCase().includes(lowerQuery);
+        return inTitle || inBody || inTags || inFolder;
     });
 }
     if (typeof module !== 'undefined' && module.exports) {

@@ -14,6 +14,10 @@
   --line-height: 1.6;
   --transition-speed: 0.3s;
 
+  /* Element font sizes */
+  --heading-font-size: 20px;
+  --body-font-size: 16px;
+
   /* 見出しスタイル設定（テンプレート化） */
   --heading-h1-size: 1.5em;
   --heading-h1-weight: bold;
@@ -530,6 +534,58 @@ body {
 .sidebar-group.active {
   display: block;
 }
+
+/* Accordion mode: show all groups as details */
+[data-tabs-presentation="accordion"] .sidebar-tabs {
+  display: none !important;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group {
+  display: block;
+  margin-bottom: 10px;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group.active {
+  display: block;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group[aria-hidden="true"] {
+  display: none;
+}
+
+/* Buttons mode: show tabs as buttons */
+[data-tabs-presentation="buttons"] .sidebar-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-tabs-presentation="buttons"] .sidebar-tab {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+[data-tabs-presentation="buttons"] .sidebar-tab.active {
+  background: var(--focus-color);
+  color: white;
+}
+
+/* Dropdown mode handled in JS */
 
 .sidebar-group[aria-hidden='true'] {
   display: none;
@@ -1140,16 +1196,17 @@ html[data-embed='true'] #editor {
   }
 
   /* 見出しスタイル（CSS変数を使用） */
-  #editor h1 {
-    font-size: var(--heading-h1-size);
-    font-weight: var(--heading-h1-weight);
-    line-height: var(--heading-h1-line-height);
-    margin-top: var(--heading-h1-margin-top);
-    margin-bottom: var(--heading-h1-margin-bottom);
-    border-bottom: var(--heading-h1-border-bottom);
-    padding-bottom: var(--heading-h1-padding-bottom);
-    page-break-after: avoid;
-    page-break-inside: avoid;
+  #editor h1,
+  #editor h2,
+  #editor h3,
+  #editor h4,
+  #editor h5,
+  #editor h6 {
+    font-size: var(--heading-font-size);
+  }
+
+  #editor p {
+    font-size: var(--body-font-size);
   }
 
   #editor h2 {

@@ -131,6 +131,7 @@
     _loadouts: null,
     _activeGroup: 'assist',
     _defaults: {},
+    _renderPending: null,
     _ensureLoadouts: function(){
       if (!this._loadouts) this._loadouts = loadLoadouts();
       return this._loadouts;
@@ -149,7 +150,8 @@
       for (var j=0; j<this._list.length; j++){
         var item = this._list[j];
         var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['assist'];
-        item.groups = map[item.name] ? map[item.name].slice() : fallback;
+        var current = Array.isArray(item.groups) ? item.groups.slice() : [];
+        item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
     },
     _getActiveEntry: function(){
@@ -274,10 +276,17 @@
       };
     },
     setActiveGroup: function(group){
+      var self = this;
       if (!group) return;
-      this._activeGroup = group;
+      if (self._activeGroup === group) return; // すでにactiveならスキップ
+      self._activeGroup = group;
       emit('ZWLoadoutGroupChanged', { group: group });
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      // requestAnimationFrameで遅延実行して連続呼び出しを防ぐ
+      if (self._renderPending) cancelAnimationFrame(self._renderPending);
+      self._renderPending = requestAnimationFrame(function(){
+        try { self._renderLast && self._renderLast(); } catch(_) {}
+        self._renderPending = null;
+      });
     },
     assignGroups: function(name, groups){
       if (!name) return;
@@ -401,6 +410,7 @@
         root.removeAttribute('data-gadgets-hidden');
 
         var allowedNamesAll = self._getActiveNames();
+        // Loadout由来の許可名
         var allowedNames = allowedNamesAll.filter(function(name){
           for (var idx = 0; idx < self._list.length; idx++){
             var item = self._list[idx];
@@ -410,6 +420,13 @@
           }
           return false;
         });
+        // 手動割当やデフォルトgroupsにより、このgroupに属するものを追加許可
+        for (var zz=0; zz<self._list.length; zz++){
+          var it = self._list[zz];
+          if (Array.isArray(it.groups) && it.groups.indexOf(group) >= 0){
+            if (allowedNames.indexOf(it.name) < 0) allowedNames.push(it.name);
+          }
+        }
         if (!allowedNames.length) {
           allowedNames = self._list
             .filter(function(item){ return Array.isArray(item.groups) && item.groups.indexOf(group) >= 0; })

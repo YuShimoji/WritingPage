@@ -34,6 +34,10 @@ class EditorManager {
         this.loadContent();
         this.updateWordCount();
         this.renderImagePreview();
+        // イベント配線（パネルボタン、検索、ショートカット等）
+        this.setupEventListeners();
+        // タイプライターモードのインストール
+        this.installTypewriterHandlers();
     }
 
     /**
@@ -166,6 +170,49 @@ class EditorManager {
                 }
             });
         });
+    }
+
+    // ===== タイプライターモード =====
+    installTypewriterHandlers(){
+        if (!this.editor) return;
+        const onCaretMove = () => this.applyTypewriterIfEnabled();
+        this.editor.addEventListener('input', onCaretMove);
+        this.editor.addEventListener('keyup', onCaretMove);
+        this.editor.addEventListener('click', onCaretMove);
+        window.addEventListener('resize', onCaretMove);
+        this.editor.addEventListener('scroll', () => {
+            this._ty_scrollPending = true;
+            clearTimeout(this._ty_scrollTimer);
+            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.applyTypewriterIfEnabled(); }, 120);
+        });
+        setTimeout(()=> this.applyTypewriterIfEnabled(), 50);
+    }
+
+    applyTypewriterIfEnabled(){
+        try {
+            if (!this.editor || !window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return;
+            const s = window.ZenWriterStorage.loadSettings();
+            const tw = (s && s.typewriter) || {};
+            if (!tw.enabled) return;
+            const anchor = (typeof tw.anchorRatio === 'number') ? Math.max(0.05, Math.min(0.95, tw.anchorRatio)) : 0.5;
+            const sticky = (typeof tw.stickiness === 'number') ? Math.max(0, Math.min(1, tw.stickiness)) : 0.9;
+
+            const style = window.getComputedStyle(this.editor);
+            const lineHeight = parseFloat(style.lineHeight) || 20;
+            const selStart = this.editor.selectionStart || 0;
+            const before = (this.editor.value || '').substring(0, selStart);
+            const caretLine = (before.match(/\n/g) || []).length;
+            const caretY = caretLine * lineHeight;
+
+            const viewportH = this.editor.clientHeight;
+            const currentScroll = this.editor.scrollTop;
+            const desiredCenterY = currentScroll + viewportH * anchor;
+            const delta = caretY - desiredCenterY;
+            const next = Math.max(0, Math.min(this.editor.scrollHeight - viewportH, Math.round(currentScroll + delta * sticky)));
+            if (Math.abs(next - currentScroll) > 1) {
+                this.editor.scrollTop = next;
+            }
+        } catch(_) {}
     }
 
     /**

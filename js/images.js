@@ -9,7 +9,7 @@
     } catch (_) {
       return null;
     }
-
+  }
   function bringToFront(id) {
     if (!id) return;
     var docId = getDocId();
