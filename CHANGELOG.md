@@ -21,6 +21,7 @@
 - Content Linkingモデル: doc://, asset://, http(s)://リンクサポート
 - Content Linkingナビゲーション: クリックナビとホバー・プレビュー
 - Panels Layout: Docking/splitモデル (ゾーン・永続化)
+- Panels Layout: キーボードナビゲーションとアクセシビリティ
 
 ### Changed
 

@@ -10,7 +10,7 @@
 ## 3. Tree Pane & Gadgets
 - [x] 3.1 Spec tree pane with folders (lazy render, drag/drop)
 - [x] 3.2 Corkboard gadget spec and minimal stub
-- [ ] 3.3 Registry extensions for hierarchical gadgets
+- [x] 3.3 Registry extensions for hierarchical gadgets
 
 ## 4. Markdown Experience
 - [x] 4.1 Live preview pipeline & keyboard shortcuts
@@ -22,7 +22,7 @@
 
 ## 6. Panels Layout
 - [x] 6.1 Docking/split model (zones, persistence)
-- [ ] 6.2 Keyboard navigation & accessibility
+- [x] 6.2 Keyboard navigation & accessibility
 
 ## 7. Content Linking
 - [x] 7.1 Link model (doc://, asset://, http(s)://)

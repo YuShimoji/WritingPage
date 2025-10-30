@@ -682,7 +682,7 @@ class EditorManager {
     img.alt = asset.name || '';
     img.style.width = `${asset.widthPercent || 60}%`;
     this.applyAlignmentToImage(img, asset.alignment);
->    if (asset.hidden) {
+    if (asset.hidden) {
       img.style.opacity = '0.25';
     } else {
       img.style.opacity = asset.opacity !== undefined ? asset.opacity : 1.0;
@@ -1259,8 +1259,29 @@ class EditorManager {
    * ローカルストレージからコンテンツを読み込み
    */
   loadContent() {
-    const savedContent = window.ZenWriterStorage.loadContent();
-    const processed = this.convertLegacyImageEmbeds(savedContent || '');
+    let text = '';
+    try {
+      if (
+        window.ZenWriterStorage &&
+        typeof window.ZenWriterStorage.getCurrentDocId === 'function' &&
+        typeof window.ZenWriterStorage.loadDocuments === 'function'
+      ) {
+        const cur = window.ZenWriterStorage.getCurrentDocId();
+        const docs = window.ZenWriterStorage.loadDocuments() || [];
+        const doc = docs.find((d) => d && d.id === cur);
+        if (doc && typeof doc.content === 'string') {
+          text = doc.content;
+        }
+      }
+    } catch (_) {}
+    if (!text) {
+      try {
+        text = window.ZenWriterStorage.loadContent() || '';
+      } catch (_) {
+        text = '';
+      }
+    }
+    const processed = this.convertLegacyImageEmbeds(text || '');
     this.editor.value = processed || '';
     this.renderImagePreview();
   }
@@ -2027,3 +2048,8 @@ EditorManager.prototype.imagePresets = {
     description: 'テキストボックス用'
   }
 };
+
+// グローバルインスタンス生成
+try {
+  window.ZenWriterEditor = new EditorManager();
+} catch (_) {}

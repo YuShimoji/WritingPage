@@ -7,6 +7,7 @@
   --toolbar-text: #333333;
   --border-color: #e0e0e0;
   --focus-color: #4a90e2;
+  --accent-color: #007acc;
   --font-family: 'Noto Serif JP', serif;
   --ui-font-size: 16px;
   --editor-font-size: 16px;
@@ -272,6 +273,8 @@ body {
     transform 0.1s ease,
     box-shadow 0.2s ease;
   max-width: calc(100% - 20px);
+  pointer-events: auto;
+  cursor: move;
 }
 
 .editor-overlay__image img {
@@ -284,35 +287,40 @@ body {
 
 .editor-overlay__image .overlay-handle {
   position: absolute;
-  bottom: -12px;
-  right: -12px;
-  width: 28px;
-  height: 28px;
+  bottom: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--accent-color, #007acc);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 14px;
+  line-height: 1;
   pointer-events: auto;
   cursor: se-resize;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+.editor-overlay__image .overlay-handle::after {
+  content: "↘";
+}
+
 .editor-overlay__image .overlay-toggle {
   position: absolute;
-  top: -12px;
-  left: -12px;
-  width: 28px;
-  height: 28px;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.7);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 12px;
   pointer-events: auto;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -549,7 +557,7 @@ body {
 /* ボタン */
 button,
 .button {
-  background-color: var(--focus-color);
+  background-color: var(--accent-color, var(--focus-color));
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -608,6 +616,45 @@ input[type='date'] {
 
 input[type='range'] {
   padding: 0;
+}
+
+/* 入力コントロールにアクセント色を適用 */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent-color);
+}
+
+/* Range slider styling (WebKit) */
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-color));
+  border-radius: 999px;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  margin-top: -5px; /* center on 6px track */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+/* Range slider styling (Firefox) */
+input[type='range']::-moz-range-track {
+  height: 6px;
+  background: var(--accent-color);
+  border-radius: 999px;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--accent-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
 input[type='color'] {
@@ -969,6 +1016,11 @@ input[type='color'] {
 .editor-preview--bordered {
   border: 1px solid var(--border-color);
 }
+
+/* 余白ドラッグ時のガイド枠 */
+.editor-preview--guide {
+  box-shadow: inset 0 0 0 2px var(--accent-color);
+}
 .print-view {
   display: none;
   max-width: 900px;
@@ -1205,6 +1257,12 @@ html[data-embed='true'] #editor {
     page-break-before: always;
   }
 
+  /* 印刷時に隠す要素 */
+  .no-print {
+    display: none !important;
+  }
+}
+
 /* Content Linking スタイル */
 .md-doc-link, .md-asset-link {
   color: #007acc;
@@ -1252,10 +1310,6 @@ html[data-embed='true'] #editor {
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
   border-bottom: 6px solid rgba(0, 0, 0, 0.9);
-}/* 印刷時に隠す要素 */
-  .no-print {
-    display: none !important;
-  }
 }
 
 /* Panels Layout スタイル */

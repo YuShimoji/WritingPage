@@ -595,7 +595,6 @@
             var toggleBtn = document.createElement('button');
             toggleBtn.type = 'button';
             toggleBtn.className = 'gadget-toggle';
-            toggleBtn.textContent = collapsed ? '▶' : '▼';
             var title = document.createElement('h4');
             title.className = 'gadget-title';
             title.textContent = g.title || name;
@@ -634,20 +633,46 @@
 
             var body = document.createElement('div');
             body.className = 'gadget-body';
-            if (collapsed) body.style.display = 'none';
             wrap.appendChild(body);
-            // 折りたたみトグル
-            toggleBtn.addEventListener('click', function(){
-              try {
-                collapsed = !collapsed;
-                body.style.display = collapsed ? 'none' : '';
-                toggleBtn.textContent = collapsed ? '▶' : '▼';
-                var p = loadPrefs();
-                p.collapsed = p.collapsed || {};
-                p.collapsed[name] = collapsed;
-                savePrefs(p);
-              } catch(_) {}
-            });
+            // ガジェットごとの折りたたみ状態をモジュール化して管理
+            (function (state) {
+              function updateCollapsed(next) {
+                var isCollapsed = !!next;
+                state.collapsed = isCollapsed;
+                state.body.style.display = isCollapsed ? 'none' : '';
+                state.toggleBtn.textContent = isCollapsed ? '▶' : '▼';
+                try {
+                  var prefs = loadPrefs();
+                  prefs.collapsed = prefs.collapsed || {};
+                  prefs.collapsed[state.name] = isCollapsed;
+                  savePrefs(prefs);
+                } catch (_) {}
+              }
+
+              // 初期状態の反映
+              updateCollapsed(state.collapsed);
+
+              state.toggleBtn.addEventListener('click', function (event) {
+                event.stopPropagation();
+                updateCollapsed(!state.collapsed);
+              });
+
+              state.head.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  updateCollapsed(!state.collapsed);
+                }
+              });
+            })(
+              {
+                name: name,
+                group: group,
+                body: body,
+                head: head,
+                toggleBtn: toggleBtn,
+                collapsed: collapsed,
+              },
+            );
             if (typeof g.factory === 'function') {
               try {
                 var api = {
@@ -1213,6 +1238,345 @@
     { groups: ['structure'], title: 'アウトライン' },
   );
 
+  // Tree Pane gadget (ツリーペイン) - ガジェットを階層構造で整理
+  ZWGadgets.register(
+    'TreePane',
+    function (el) {
+      try {
+        var self = this;
+        var treeContainer = document.createElement('div');
+        treeContainer.className = 'tree-pane';
+        treeContainer.style.padding = '8px';
+
+        // ツリー構造の構築
+        function buildTree() {
+          treeContainer.innerHTML = '';
+          var groups = ['assist', 'structure', 'typography'];
+          var groupLabels = {
+            assist: '支援ツール',
+            structure: '構成',
+            typography: 'スタイル'
+          };
+
+          groups.forEach(function(group) {
+            var groupDiv = document.createElement('div');
+            groupDiv.className = 'tree-group';
+            groupDiv.style.marginBottom = '8px';
+
+            // グループヘッダー（展開/折りたたみ可能）
+            var groupHeader = document.createElement('div');
+            groupHeader.className = 'tree-group-header';
+            groupHeader.style.display = 'flex';
+            groupHeader.style.alignItems = 'center';
+            groupHeader.style.cursor = 'pointer';
+            groupHeader.style.padding = '4px';
+            groupHeader.style.borderRadius = '4px';
+            groupHeader.style.background = 'var(--bg-color)';
+            groupHeader.addEventListener('click', function() {
+              var content = groupDiv.querySelector('.tree-group-content');
+              if (content) {
+                var isHidden = content.style.display === 'none';
+                content.style.display = isHidden ? 'block' : 'none';
+                var toggle = groupHeader.querySelector('.tree-toggle');
+                if (toggle) toggle.textContent = isHidden ? '▼' : '▶';
+              }
+            });
+
+            var toggleIcon = document.createElement('span');
+            toggleIcon.className = 'tree-toggle';
+            toggleIcon.textContent = '▼';
+            toggleIcon.style.marginRight = '4px';
+            toggleIcon.style.fontSize = '0.8em';
+
+            var groupLabel = document.createElement('span');
+            groupLabel.textContent = groupLabels[group] || group;
+            groupLabel.style.fontWeight = 'bold';
+            groupLabel.style.fontSize = '0.9em';
+
+            groupHeader.appendChild(toggleIcon);
+            groupHeader.appendChild(groupLabel);
+            groupDiv.appendChild(groupHeader);
+
+            // グループコンテンツ
+            var groupContent = document.createElement('div');
+            groupContent.className = 'tree-group-content';
+            groupContent.style.marginLeft = '16px';
+            groupContent.style.marginTop = '4px';
+
+            // このグループに属するガジェットを取得
+            var gadgets = self._list.filter(function(g) {
+              return Array.isArray(g.groups) && g.groups.indexOf(group) >= 0;
+            });
+
+            gadgets.forEach(function(gadget) {
+              var itemDiv = document.createElement('div');
+              itemDiv.className = 'tree-item';
+              itemDiv.style.padding = '2px 4px';
+              itemDiv.style.borderRadius = '3px';
+              itemDiv.style.cursor = 'pointer';
+              itemDiv.textContent = gadget.title || gadget.name;
+              itemDiv.title = 'クリックしてアクティブ化';
+              itemDiv.addEventListener('click', function() {
+                // ツリーアイテムクリックで該当ガジェットをアクティブ化
+                try {
+                  self.setActiveGroup(group);
+                  // 該当ガジェットまでスクロール（簡易実装）
+                  var gadgetElement = document.querySelector('.gadget[data-name="' + gadget.name + '"]');
+                  if (gadgetElement) {
+                    gadgetElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    // ハイライト効果
+                    gadgetElement.style.boxShadow = '0 0 0 2px var(--accent-color)';
+                    setTimeout(function() {
+                      gadgetElement.style.boxShadow = '';
+                    }, 1000);
+                  }
+                } catch(_) {}
+              });
+              groupContent.appendChild(itemDiv);
+            });
+
+            groupDiv.appendChild(groupContent);
+            treeContainer.appendChild(groupDiv);
+          });
+
+          // 空の状態表示
+          if (treeContainer.children.length === 0) {
+            var emptyMsg = document.createElement('div');
+            emptyMsg.textContent = '利用可能なガジェットがありません';
+            emptyMsg.style.padding = '16px';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.color = 'var(--text-color-secondary)';
+            emptyMsg.style.fontSize = '0.9em';
+            treeContainer.appendChild(emptyMsg);
+          }
+        }
+
+        // 初期構築
+        buildTree();
+
+        // ガジェット変更時にツリーを更新
+        var updateTree = function() {
+          try {
+            buildTree();
+          } catch(_) {}
+        };
+
+        // イベントリスナー
+        window.addEventListener('ZWLoadoutDefined', updateTree);
+        window.addEventListener('ZWLoadoutApplied', updateTree);
+
+        el.appendChild(treeContainer);
+
+        // クリーンアップ
+        return function() {
+          window.removeEventListener('ZWLoadoutDefined', updateTree);
+          window.removeEventListener('ZWLoadoutApplied', updateTree);
+        };
+      } catch (e) {
+        console.error('Tree Pane gadget failed:', e);
+        try {
+          el.textContent = 'ツリーペインの初期化に失敗しました。';
+        } catch (_) {}
+      }
+    },
+    { groups: ['assist'], title: 'ツリーペイン' },
+  );
+
+  // Snapshots gadget (バックアップ/スナップショット管理)
+  ZWGadgets.register(
+    'Snapshots',
+    function (el) {
+      try {
+        var storage = window.ZenWriterStorage;
+        var editorManager = window.ZenWriterEditor;
+
+        if (!storage || typeof storage.loadSnapshots !== 'function') {
+          var warn = document.createElement('p');
+          warn.textContent = 'ストレージ機能が利用できないため、スナップショットを管理できません。';
+          warn.style.fontSize = '0.9rem';
+          warn.style.opacity = '0.7';
+          el.appendChild(warn);
+          return;
+        }
+
+        var container = document.createElement('div');
+        container.className = 'snapshots-gadget';
+        container.style.display = 'flex';
+        container.style.flexDirection = 'column';
+        container.style.gap = '8px';
+
+        // 現在のコンテンツを保存ボタン
+        var saveBtn = document.createElement('button');
+        saveBtn.type = 'button';
+        saveBtn.className = 'small';
+        saveBtn.textContent = '今すぐ保存';
+        saveBtn.title = '現在のコンテンツをスナップショットとして保存';
+        saveBtn.style.width = '100%';
+        saveBtn.addEventListener('click', function() {
+          try {
+            if (editorManager && editorManager.saveContent) {
+              editorManager.saveContent();
+            }
+            var content = '';
+            if (editorManager && editorManager.editor) {
+              content = editorManager.editor.value || '';
+            } else {
+              content = storage.loadContent() || '';
+            }
+            var snap = storage.addSnapshot(content);
+            if (snap) {
+              notify('スナップショットを保存しました', 1500);
+              refreshList();
+            }
+          } catch (e) {
+            console.error('Snapshot save failed:', e);
+            notify('スナップショットの保存に失敗しました', 2000);
+          }
+        });
+
+        // スナップショット一覧
+        var listContainer = document.createElement('div');
+        listContainer.className = 'snapshots-list';
+        listContainer.style.maxHeight = '300px';
+        listContainer.style.overflowY = 'auto';
+
+        function notify(message, duration) {
+          try {
+            if (editorManager && typeof editorManager.showNotification === 'function') {
+              editorManager.showNotification(message, duration || 1200);
+            }
+          } catch (_) {}
+        }
+
+        function formatDate(ts) {
+          var d = new Date(ts);
+          var pad = function(n) { return String(n).padStart(2, '0'); };
+          return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
+                 ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+
+        function refreshList() {
+          try {
+            listContainer.innerHTML = '';
+            var snaps = storage.loadSnapshots() || [];
+            if (!snaps.length) {
+              var empty = document.createElement('div');
+              empty.textContent = 'スナップショットがありません';
+              empty.style.padding = '16px';
+              empty.style.textAlign = 'center';
+              empty.style.color = 'var(--text-color-secondary)';
+              empty.style.fontSize = '0.9em';
+              listContainer.appendChild(empty);
+              return;
+            }
+
+            snaps.forEach(function(snap) {
+              var item = document.createElement('div');
+              item.className = 'snapshot-item';
+              item.style.display = 'flex';
+              item.style.flexDirection = 'column';
+              item.style.gap = '4px';
+              item.style.padding = '8px';
+              item.style.border = '1px solid var(--border-color)';
+              item.style.borderRadius = '4px';
+              item.style.background = 'var(--bg-color)';
+
+              // ヘッダー行
+              var header = document.createElement('div');
+              header.style.display = 'flex';
+              header.style.justifyContent = 'space-between';
+              header.style.alignItems = 'center';
+
+              var dateSpan = document.createElement('span');
+              dateSpan.textContent = formatDate(snap.ts);
+              dateSpan.style.fontSize = '0.8em';
+              dateSpan.style.color = 'var(--text-color-secondary)';
+
+              var sizeSpan = document.createElement('span');
+              sizeSpan.textContent = (snap.len || 0) + ' 文字';
+              sizeSpan.style.fontSize = '0.8em';
+              sizeSpan.style.color = 'var(--text-color-secondary)';
+
+              header.appendChild(dateSpan);
+              header.appendChild(sizeSpan);
+
+              // アクションボタン
+              var actions = document.createElement('div');
+              actions.style.display = 'flex';
+              actions.style.gap = '4px';
+              actions.style.marginTop = '4px';
+
+              var restoreBtn = document.createElement('button');
+              restoreBtn.type = 'button';
+              restoreBtn.className = 'small';
+              restoreBtn.textContent = '復元';
+              restoreBtn.title = 'このスナップショットの内容をエディタに読み込み';
+              restoreBtn.addEventListener('click', function() {
+                try {
+                  if (editorManager && typeof editorManager.setContent === 'function') {
+                    editorManager.setContent(snap.content || '');
+                    notify('スナップショットを復元しました', 1500);
+                  }
+                } catch (e) {
+                  console.error('Snapshot restore failed:', e);
+                  notify('スナップショットの復元に失敗しました', 2000);
+                }
+              });
+
+              var deleteBtn = document.createElement('button');
+              deleteBtn.type = 'button';
+              deleteBtn.className = 'small';
+              deleteBtn.textContent = '削除';
+              deleteBtn.title = 'このスナップショットを削除';
+              deleteBtn.addEventListener('click', function() {
+                if (confirm('このスナップショットを削除しますか？')) {
+                  try {
+                    storage.deleteSnapshot(snap.id);
+                    refreshList();
+                    notify('スナップショットを削除しました', 1000);
+                  } catch (e) {
+                    console.error('Snapshot delete failed:', e);
+                    notify('スナップショットの削除に失敗しました', 2000);
+                  }
+                }
+              });
+
+              actions.appendChild(restoreBtn);
+              actions.appendChild(deleteBtn);
+
+              item.appendChild(header);
+              item.appendChild(actions);
+              listContainer.appendChild(item);
+            });
+          } catch (e) {
+            console.error('Failed to refresh snapshots list:', e);
+          }
+        }
+
+        container.appendChild(saveBtn);
+        container.appendChild(listContainer);
+        el.appendChild(container);
+
+        // 初期表示
+        refreshList();
+
+        // 定期更新（オプション）
+        var refreshInterval = setInterval(refreshList, 30000); // 30秒毎
+
+        // クリーンアップ
+        return function() {
+          if (refreshInterval) clearInterval(refreshInterval);
+        };
+      } catch (e) {
+        console.error('Snapshots gadget failed:', e);
+        try {
+          el.textContent = 'スナップショット機能の初期化に失敗しました。';
+        } catch (_) {}
+      }
+    },
+    { groups: ['assist'], title: 'バックアップ' },
+  );
+
   ZWGadgets.register(
     'Documents',
     function (el) {
@@ -1726,7 +2090,9 @@
       container.style.maxHeight = '400px';
       container.style.overflowY = 'auto';
 
-      var expanded = api && typeof api.get === 'function' ? api.get('expanded', { documents: true, gadgets: false }) : { documents: true, gadgets: false };
+      var expanded = api && typeof api.get === 'function'
+        ? api.get('expanded', { documents: true, gadgets: false, images: true, imageFolders: {} })
+        : { documents: true, gadgets: false, images: true, imageFolders: {} };
 
       function createTreeItem(label, isFolder, level, onClick, onToggle, isExpanded) {
         var item = document.createElement('div');
@@ -1818,6 +2184,45 @@
             });
           }
         }
+
+        // Images folder
+        var imagesAPI = window.ZenWriterImages;
+        var imagesRoot = createTreeItem('画像', true, 0, null, function(){
+          expanded.images = !expanded.images;
+          if (api && typeof api.set === 'function') api.set('expanded', expanded);
+          renderTree();
+        }, expanded.images);
+        container.appendChild(imagesRoot);
+
+        if (expanded.images && imagesAPI && typeof imagesAPI._load === 'function') {
+          var imgs = imagesAPI._load() || [];
+          // group by folder
+          var groups = {};
+          for (var i = 0; i < imgs.length; i++) {
+            var g = (imgs[i] && imgs[i].folder) ? String(imgs[i].folder) : '(未分類)';
+            if (!groups[g]) groups[g] = [];
+            groups[g].push(imgs[i]);
+          }
+          Object.keys(groups).sort().forEach(function(fname){
+            var isExp = expanded.imageFolders && typeof expanded.imageFolders[fname] === 'boolean' ? !!expanded.imageFolders[fname] : true;
+            var folderNode = createTreeItem(fname, true, 1, null, function(){
+              if (!expanded.imageFolders) expanded.imageFolders = {};
+              expanded.imageFolders[fname] = !isExp;
+              if (api && typeof api.set === 'function') api.set('expanded', expanded);
+              renderTree();
+            }, isExp);
+            container.appendChild(folderNode);
+            if (isExp) {
+              groups[fname].forEach(function(it){
+                var label = (it && (it.alt || it.id)) || '(image)';
+                var imgItem = createTreeItem(label, false, 2, function(){
+                  try{ imagesAPI && imagesAPI.focus && imagesAPI.focus(it.id); }catch(_){}
+                }, null, false);
+                container.appendChild(imgItem);
+              });
+            }
+          });
+        }
       }
 
       function updateDocumentTitle() {
@@ -1839,6 +2244,7 @@
       window.addEventListener('ZWDocumentsChanged', renderTree);
       window.addEventListener('ZWLoadoutsChanged', renderTree);
       window.addEventListener('ZWLoadoutApplied', renderTree);
+      window.addEventListener('ZWImagesChanged', renderTree);
     } catch (e) {
       console.error('TreePane gadget failed:', e);
       try {
@@ -2163,33 +2569,37 @@
           'high-contrast': '高コントラスト',
           solarized: 'ソラリゼド',
         };
-        var colorsSection = makeSection('テーマ & 色');
-        var themeButtons = document.createElement('div');
-        themeButtons.style.display = 'flex';
-        themeButtons.style.flexWrap = 'wrap';
-        themeButtons.style.gap = '6px';
+        var colorsSection = makeSection('テーマ & フォント');
+        var themeSelect = document.createElement('select');
         themes.forEach(function (key) {
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'small';
-          btn.textContent = themeLabels[key] || key;
-          btn.addEventListener('click', function () {
-            try {
-              theme.applyTheme(key);
-              refreshState();
-            } catch (err) {
-              console.error('applyTheme failed', err);
-            }
-          });
-          themeButtons.appendChild(btn);
+          var opt = document.createElement('option');
+          opt.value = key;
+          opt.textContent = themeLabels[key] || key;
+          themeSelect.appendChild(opt);
         });
-        colorsSection.appendChild(themeButtons);
+        themeSelect.addEventListener('change', function(){
+          try {
+            var key = themeSelect.value;
+            theme.applyTheme(key);
+            var s = storage.loadSettings() || {};
+            s.themeName = key;
+            storage.saveSettings(s);
+          } catch (err) {
+            console.error('applyTheme failed', err);
+          }
+          refreshState();
+        });
+        colorsSection.appendChild(makeField('テーマ', themeSelect));
 
         var bgInput = document.createElement('input');
         bgInput.type = 'color';
         bgInput.addEventListener('change', function () {
           try {
             theme.applyCustomColors(bgInput.value, textInput.value, true);
+            var s = storage.loadSettings() || {};
+            s.bgColor = bgInput.value;
+            s.textColor = textInput.value;
+            storage.saveSettings(s);
           } catch (err) {
             console.error('applyCustomColors failed', err);
           }
@@ -2200,6 +2610,10 @@
         textInput.addEventListener('change', function () {
           try {
             theme.applyCustomColors(bgInput.value, textInput.value, true);
+            var s = storage.loadSettings() || {};
+            s.bgColor = bgInput.value;
+            s.textColor = textInput.value;
+            storage.saveSettings(s);
           } catch (err) {
             console.error('applyCustomColors failed', err);
           }
@@ -2207,6 +2621,24 @@
         });
         colorsSection.appendChild(makeField('背景色', bgInput));
         colorsSection.appendChild(makeField('文字色', textInput));
+
+        // アクセント色（UIボタン/スライダーなどの基調色）
+        var accentInput = document.createElement('input');
+        accentInput.type = 'color';
+        accentInput.addEventListener('change', function(){
+          try {
+            var val = accentInput.value || '#007acc';
+            document.documentElement.style.setProperty('--accent-color', val);
+            document.documentElement.style.setProperty('--focus-color', val);
+            var s = storage.loadSettings() || {};
+            s.accentColor = val;
+            storage.saveSettings(s);
+          } catch (err) {
+            console.error('applyAccentColor failed', err);
+          }
+          refreshState();
+        });
+        colorsSection.appendChild(makeField('アクセント色', accentInput));
 
         var fontSection = makeSection('フォント');
 
@@ -2334,6 +2766,32 @@
         lineHeightRow.appendChild(lineHeightInput);
         fontSection.appendChild(lineHeightRow);
 
+        // UI要素の間隔
+        var uiGapRow = document.createElement('div');
+        uiGapRow.style.display = 'flex';
+        uiGapRow.style.flexDirection = 'column';
+        uiGapRow.style.gap = '4px';
+        var uiGapLabel = document.createElement('div');
+        uiGapLabel.style.fontSize = '0.85rem';
+        uiGapLabel.style.opacity = '0.8';
+        var uiGapInput = document.createElement('input');
+        uiGapInput.type = 'range';
+        uiGapInput.min = '2';
+        uiGapInput.max = '24';
+        uiGapInput.step = '1';
+        uiGapInput.addEventListener('input', function(){
+          uiGapLabel.textContent = 'UI要素間隔: ' + uiGapInput.value + 'px';
+          try {
+            var s = storage.loadSettings() || {};
+            s.uiGap = parseInt(uiGapInput.value, 10) || 6;
+            storage.saveSettings(s);
+            refreshState();
+          } catch(_){}
+        });
+        uiGapRow.appendChild(uiGapLabel);
+        uiGapRow.appendChild(uiGapInput);
+        fontSection.appendChild(uiGapRow);
+
         wrap.appendChild(colorsSection);
         wrap.appendChild(fontSection);
         el.appendChild(wrap);
@@ -2379,6 +2837,9 @@
             var line = settings.lineHeight || 1.6;
             var bg = settings.bgColor || '#ffffff';
             var text = settings.textColor || '#333333';
+            var accent = settings.accentColor || '#007acc';
+            var uiGap = typeof settings.uiGap === 'number' ? settings.uiGap : 6;
+            var selectedTheme = settings.themeName || themes[0];
 
             if (contentFontSelect.value !== currentContentFont)
               contentFontSelect.value = currentContentFont;
@@ -2396,6 +2857,23 @@
             lineHeightLabel.textContent = '行間: ' + line;
             bgInput.value = bg;
             textInput.value = text;
+            accentInput.value = accent;
+            try {
+              document.documentElement.style.setProperty('--accent-color', accent);
+              document.documentElement.style.setProperty('--focus-color', accent);
+            } catch (_) {}
+            // UI間隔を適用
+            wrap.style.gap = String(Math.max(0, uiGap)) + 'px';
+            var sections = wrap.querySelectorAll('.typography-section');
+            for (var i = 0; i < sections.length; i++) {
+              sections[i].style.gap = String(Math.max(0, uiGap)) + 'px';
+            }
+            uiGapInput.value = uiGap;
+            uiGapLabel.textContent = 'UI要素間隔: ' + uiGap + 'px';
+            // テーマ選択
+            if (themeSelect && themeSelect.value !== selectedTheme) {
+              themeSelect.value = selectedTheme;
+            }
           } catch (err) {
             console.error('refreshState failed', err);
           }
@@ -2456,23 +2934,69 @@
           applyToDOM();
         });
 
+        var togglesRow = document.createElement('div');
+        togglesRow.style.display = 'flex';
+        togglesRow.style.alignItems = 'center';
+        togglesRow.style.gap = '12px';
+        var togglesLabel = document.createElement('div');
+        togglesLabel.textContent = '表示';
+        togglesLabel.style.minWidth = '3em';
+        var borderLabel = document.createElement('label');
+        borderLabel.style.display = 'inline-flex';
+        borderLabel.style.alignItems = 'center';
+        borderLabel.style.gap = '6px';
+        borderLabel.appendChild(cbBorder);
+        borderLabel.appendChild(document.createTextNode('編集エリア枠'));
+        var prevLabel = document.createElement('label');
+        prevLabel.style.display = 'inline-flex';
+        prevLabel.style.alignItems = 'center';
+        prevLabel.style.gap = '6px';
+        prevLabel.appendChild(cbPreview);
+        prevLabel.appendChild(document.createTextNode('白黒プレビュー'));
+        togglesRow.appendChild(togglesLabel);
+        togglesRow.appendChild(borderLabel);
+        togglesRow.appendChild(prevLabel);
+
+        var paddingRow = document.createElement('div');
+        paddingRow.style.display = 'flex';
+        paddingRow.style.flexDirection = 'column';
+        paddingRow.style.gap = '4px';
+        var paddingLabel = document.createElement('div');
+        paddingLabel.style.fontSize = '0.85rem';
+        paddingLabel.style.opacity = '0.8';
         var padding = document.createElement('input');
         padding.type = 'range';
         padding.min = '0';
         padding.max = '200';
         padding.step = '10';
         padding.value = String(typeof s.paddingX === 'number' ? s.paddingX : 100);
+        var updatePaddingLabel = function(px){
+          paddingLabel.textContent = '執筆エリア内余白: ' + px + 'px';
+        };
+        updatePaddingLabel(parseInt(padding.value,10)||0);
         padding.addEventListener('input', function () {
           var px = parseInt(padding.value, 10) || 0;
+          updatePaddingLabel(px);
           var ns = Object.assign({}, s, { paddingX: px });
           s = ns;
           if (api && typeof api.setSettings === 'function') api.setSettings(ns);
+          try{
+            var preview = document.getElementById('editor-preview');
+            if (preview) preview.classList.add('editor-preview--guide');
+          }catch(_){}
           applyToDOM();
         });
+        padding.addEventListener('change', function(){
+          try{
+            var preview = document.getElementById('editor-preview');
+            if (preview) preview.classList.remove('editor-preview--guide');
+          }catch(_){}
+        });
+        paddingRow.appendChild(paddingLabel);
+        paddingRow.appendChild(padding);
 
-        wrap.appendChild(makeRow('編集エリアの枠を表示', cbBorder));
-        wrap.appendChild(makeRow('白黒プレビューを表示', cbPreview));
-        wrap.appendChild(makeRow('執筆エリア内余白（px）', padding));
+        wrap.appendChild(togglesRow);
+        wrap.appendChild(paddingRow);
         el.appendChild(wrap);
 
         function applyToDOM() {
@@ -3208,11 +3732,35 @@
               thumb.style.height = '40px';
               thumb.style.objectFit = 'cover';
               thumb.style.border = '1px solid var(--border-color)';
+              thumb.style.cursor = 'pointer';
               var name = document.createElement('div');
               name.textContent = it.alt || it.id || '(image)';
               name.style.flex = '1 1 auto';
               name.style.fontSize = '12px';
               name.style.opacity = '0.8';
+              name.style.display = 'flex';
+              name.style.alignItems = 'center';
+              name.style.gap = '6px';
+
+              var badge = document.createElement('span');
+              badge.textContent = it.hidden ? '非表示' : '表示中';
+              badge.style.fontSize = '10px';
+              badge.style.padding = '0 4px';
+              badge.style.borderRadius = '3px';
+              badge.style.background = it.hidden
+                ? 'rgba(128,128,128,0.25)'
+                : 'rgba(0,128,0,0.2)';
+              badge.style.color = it.hidden ? '#444' : '#064';
+
+              name.appendChild(badge);
+
+              thumb.addEventListener('click', function () {
+                try {
+                  API && API.focus && API.focus(it.id);
+                } catch (_) {}
+              });
+
+              // 操作群
               var rm = document.createElement('button');
               rm.type = 'button';
               rm.className = 'small';
@@ -3223,8 +3771,95 @@
                   renderList();
                 } catch (_) {}
               });
+
+              var toggleBtn = document.createElement('button');
+              toggleBtn.type = 'button';
+              toggleBtn.className = 'small';
+              toggleBtn.textContent = it.hidden ? '再表示' : '非表示';
+              toggleBtn.addEventListener('click', function () {
+                try {
+                  API && API.toggleVisibility &&
+                    API.toggleVisibility(it.id, !it.hidden);
+                  renderList();
+                } catch (_) {}
+              });
+
+              var renameBtn = document.createElement('button');
+              renameBtn.type = 'button';
+              renameBtn.className = 'small';
+              renameBtn.textContent = '名称変更';
+              renameBtn.addEventListener('click', function () {
+                try {
+                  var next = prompt('画像名（alt）を入力', it.alt || '');
+                  if (next !== null && API && API.rename) {
+                    API.rename(it.id, next);
+                    renderList();
+                  }
+                } catch (_) {}
+              });
+
+              // フォルダ編集
+              var folderInput = document.createElement('input');
+              folderInput.type = 'text';
+              folderInput.placeholder = 'フォルダ';
+              folderInput.value = it.folder || '';
+              folderInput.style.width = '7rem';
+              folderInput.addEventListener('change', function(){
+                try {
+                  API && API.setFolder && API.setFolder(it.id, folderInput.value || '');
+                  renderList();
+                } catch(_){}
+              });
+
+              // 複製
+              var dupBtn = document.createElement('button');
+              dupBtn.type = 'button';
+              dupBtn.className = 'small';
+              dupBtn.textContent = '複製';
+              dupBtn.addEventListener('click', function(){
+                try { API && API.duplicate && API.duplicate(it.id); renderList(); } catch(_){}
+              });
+
+              // 前面
+              var frontBtn = document.createElement('button');
+              frontBtn.type = 'button';
+              frontBtn.className = 'small';
+              frontBtn.textContent = '前面';
+              frontBtn.addEventListener('click', function(){
+                try { API && API.bringToFront && API.bringToFront(it.id); renderList(); } catch(_){}
+              });
+
+              // クリップボード
+              var copyBtn = document.createElement('button');
+              copyBtn.type = 'button';
+              copyBtn.className = 'small';
+              copyBtn.textContent = 'コピー';
+              copyBtn.addEventListener('click', async function(){
+                try {
+                  if (navigator.clipboard) {
+                    if (it.src && it.src.indexOf('data:') === 0 && window.ClipboardItem) {
+                      const res = await fetch(it.src);
+                      const blob = await res.blob();
+                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                    } else if (window.ClipboardItem && it.src) {
+                      const res = await fetch(it.src);
+                      const blob = await res.blob();
+                      await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                    } else if (it.src) {
+                      await navigator.clipboard.writeText(it.src);
+                    }
+                  }
+                } catch(_){}
+              });
+
               row.appendChild(thumb);
               row.appendChild(name);
+              row.appendChild(folderInput);
+              row.appendChild(dupBtn);
+              row.appendChild(frontBtn);
+              row.appendChild(copyBtn);
+              row.appendChild(toggleBtn);
+              row.appendChild(renameBtn);
               row.appendChild(rm);
               list.appendChild(row);
             });
@@ -3259,6 +3894,7 @@
         renderList();
         try {
           window.addEventListener('ZWDocumentsChanged', renderList);
+          window.addEventListener('ZWImagesChanged', renderList);
         } catch (_) {}
       } catch (e) {
         try {
