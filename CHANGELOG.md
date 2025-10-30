@@ -19,6 +19,7 @@
 - Images Interactiveコントロール: 不透明度・フィルターの数値コントロール
 - Images Interactiveスナップショット: 画像状態の保存・復元機能
 - Content Linkingモデル: doc://, asset://, http(s)://リンクサポート
+- Content Linkingナビゲーション: クリックナビとホバー・プレビュー
 
 ### Changed
 

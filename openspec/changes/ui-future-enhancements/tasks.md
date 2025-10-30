@@ -26,7 +26,7 @@
 
 ## 7. Content Linking
 - [x] 7.1 Link model (doc://, asset://, http(s)://)
-- [ ] 7.2 Navigation behaviors & hover preview
+- [x] 7.2 Navigation behaviors & hover preview
 
 ## 8. Theme & Background (Low Priority)
 - [ ] 8.1 Dark mode palette expansion

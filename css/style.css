@@ -1257,3 +1257,108 @@ html[data-embed='true'] #editor {
     display: none !important;
   }
 }
+
+/* Panels Layout スタイル */
+.dockable-panel {
+  position: absolute;
+  background: var(--bg-color, #ffffff);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.panel-header {
+  background: var(--accent-color, #007acc);
+  color: white;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  border-radius: 4px 4px 0 0;
+}
+
+.panel-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.panel-control {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.panel-control:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.panel-close:hover {
+  background: rgba(255, 0, 0, 0.3);
+}
+
+.panel-body {
+  padding: 12px;
+  flex: 1;
+  overflow: auto;
+}
+
+/* フローティングパネル */
+.floating-panels {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 99;
+}
+
+.floating-panels .dockable-panel {
+  pointer-events: auto;
+}
+
+/* ドッキングされたパネル */
+.docked {
+  position: relative !important;
+  width: 100% !important;
+  height: auto !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ボトムパネル */
+.bottom-panels {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-color, #ffffff);
+  border-top: 1px solid #ccc;
+  display: flex;
+  z-index: 50;
+}
+
+.bottom-panels .dockable-panel {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.bottom-panels .panel-header {
+  border-radius: 0;
+}
