@@ -1849,6 +1849,158 @@
   { groups: ['structure'], title: 'ツリーペイン' },
   );
 
+  // Corkboard gadget (minimal version) - text cards add/drag reorder only
+  ZWGadgets.register('Corkboard', function(el, api){
+    try {
+      var container = document.createElement('div');
+      container.className = 'gadget-corkboard';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.gap = '8px';
+      container.style.maxHeight = '500px';
+      container.style.overflowY = 'auto';
+      container.style.padding = '8px';
+      container.style.backgroundColor = 'var(--bg-color, #f9f9f9)';
+      container.style.borderRadius = '4px';
+
+      var cards = api && typeof api.get === 'function' ? api.get('cards', []) : [];
+      var draggedCard = null;
+      var dragOverCard = null;
+
+      function createCard(text, index) {
+        var card = document.createElement('div');
+        card.className = 'corkboard-card';
+        card.style.backgroundColor = 'white';
+        card.style.border = '1px solid #ddd';
+        card.style.borderRadius = '4px';
+        card.style.padding = '8px';
+        card.style.cursor = 'move';
+        card.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+        card.style.minHeight = '40px';
+        card.draggable = true;
+        card.dataset.index = index;
+
+        var textArea = document.createElement('textarea');
+        textArea.value = text || '';
+        textArea.placeholder = 'テキストを入力...';
+        textArea.style.width = '100%';
+        textArea.style.border = 'none';
+        textArea.style.resize = 'none';
+        textArea.style.background = 'transparent';
+        textArea.style.fontSize = '0.9rem';
+        textArea.style.lineHeight = '1.4';
+        textArea.addEventListener('input', function() {
+          cards[index] = textArea.value;
+          if (api && typeof api.set === 'function') api.set('cards', cards);
+          autoResize(textArea);
+        });
+        textArea.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            addNewCard(index + 1);
+          }
+        });
+
+        card.addEventListener('dragstart', function(e) {
+          draggedCard = card;
+          e.dataTransfer.effectAllowed = 'move';
+          card.style.opacity = '0.5';
+        });
+        card.addEventListener('dragend', function(e) {
+          draggedCard = null;
+          card.style.opacity = '1';
+          if (dragOverCard) {
+            dragOverCard.style.borderTop = '';
+            dragOverCard = null;
+          }
+        });
+        card.addEventListener('dragover', function(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if (dragOverCard !== card) {
+            if (dragOverCard) dragOverCard.style.borderTop = '';
+            dragOverCard = card;
+            card.style.borderTop = '2px solid #007acc';
+          }
+        });
+        card.addEventListener('dragleave', function(e) {
+          if (dragOverCard === card) {
+            card.style.borderTop = '';
+            dragOverCard = null;
+          }
+        });
+        card.addEventListener('drop', function(e) {
+          e.preventDefault();
+          card.style.borderTop = '';
+          if (draggedCard && draggedCard !== card) {
+            var fromIndex = parseInt(draggedCard.dataset.index);
+            var toIndex = parseInt(card.dataset.index);
+            if (fromIndex !== toIndex) {
+              var movedCard = cards.splice(fromIndex, 1)[0];
+              cards.splice(toIndex, 0, movedCard);
+              if (api && typeof api.set === 'function') api.set('cards', cards);
+              renderCards();
+            }
+          }
+          draggedCard = null;
+          dragOverCard = null;
+        });
+
+        card.appendChild(textArea);
+        autoResize(textArea);
+        return card;
+      }
+
+      function autoResize(textArea) {
+        textArea.style.height = 'auto';
+        textArea.style.height = textArea.scrollHeight + 'px';
+      }
+
+      function addNewCard(atIndex) {
+        cards.splice(atIndex, 0, '');
+        if (api && typeof api.set === 'function') api.set('cards', cards);
+        renderCards();
+        // Focus the new card
+        setTimeout(function() {
+          var newCards = container.querySelectorAll('.corkboard-card');
+          if (newCards[atIndex]) {
+            var textArea = newCards[atIndex].querySelector('textarea');
+            if (textArea) textArea.focus();
+          }
+        }, 0);
+      }
+
+      function renderCards() {
+        container.innerHTML = '';
+        cards.forEach(function(cardText, index) {
+          var card = createCard(cardText, index);
+          container.appendChild(card);
+        });
+        // Add button to add new card
+        var addBtn = document.createElement('button');
+        addBtn.type = 'button';
+        addBtn.textContent = '+ 新しいカード';
+        addBtn.className = 'small';
+        addBtn.style.width = '100%';
+        addBtn.style.marginTop = '8px';
+        addBtn.addEventListener('click', function() {
+          addNewCard(cards.length);
+        });
+        container.appendChild(addBtn);
+      }
+
+      el.appendChild(container);
+      renderCards();
+    } catch (e) {
+      console.error('Corkboard gadget failed:', e);
+      try {
+        el.textContent = 'Corkboardガジェットの初期化に失敗しました。';
+      } catch (_) {}
+    }
+  },
+  { groups: ['assist'], title: 'Corkboard' },
+  );
+
   // Documents gadget
   ZWGadgets.register('Documents', function(el, api){
     try {

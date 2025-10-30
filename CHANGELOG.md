@@ -6,12 +6,13 @@
 
 ### Added
 
-- OpenSpec `ui-future-enhancements` 実装（タイプライターモード精度向上、Markdown最小プレビュー・ショートカット・リスト継続、プレビュー内リンクナビ）
+- OpenSpec `ui-future-enhancements` 実装（タイプライター精度向上、Markdown最小プレビュー・ショートカット・リスト継続、プレビュー内リンクナビ）
 - 設定UI「エディタ」タブにタイプライターモードとスナップショット設定を追加
 - タイプライターモード: ミラーDOM計測で精度向上、設定UIで有効化/アンカー/張り付き調整
 - Markdown機能: Ctrl/Cmd+B/I/Kショートカット、Enterでのリスト自動継続、最小ライブプレビュー（見出し/強調/リスト/リンク）
 - スナップショット: 設定UIで間隔/差分/保持数調整、storage.jsでretention実装
 - E2Eテスト: `editor-settings.spec.js` で設定永続化検証
+- ツリーペイン最小実装: ドキュメント/ガジェットツリー表示、展開/折りたたみ、クリックナビ、設定保存
 
 ### Changed
 

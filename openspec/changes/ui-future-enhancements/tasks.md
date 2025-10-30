@@ -9,7 +9,7 @@
 
 ## 3. Tree Pane & Gadgets
 - [x] 3.1 Spec tree pane with folders (lazy render, drag/drop)
-- [ ] 3.2 Corkboard gadget spec and minimal stub
+- [x] 3.2 Corkboard gadget spec and minimal stub
 - [ ] 3.3 Registry extensions for hierarchical gadgets
 
 ## 4. Markdown Experience
