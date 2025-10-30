@@ -5,9 +5,11 @@ test.describe('Editor Settings', () => {
   test('should toggle typewriter mode and save settings', async ({ page }) => {
     // Load the page
     await page.goto('/');
-
-    // Open sidebar and navigate to editor tab
+    await page.waitForSelector('#show-toolbar', { state: 'visible' });
+    await page.click('#show-toolbar');
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
     await page.click('#sidebar-tab-editor');
 
     // Enable typewriter mode
@@ -25,7 +27,9 @@ test.describe('Editor Settings', () => {
 
     // Reload and verify persistence
     await page.reload();
+    await page.locator('#toggle-sidebar').waitFor();
     await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
     await page.click('#sidebar-tab-editor');
 
     await expect(page.locator('#typewriter-enabled')).toBeChecked();
@@ -36,9 +40,11 @@ test.describe('Editor Settings', () => {
   test('should adjust snapshot settings and save', async ({ page }) => {
     // Load the page
     await page.goto('/');
-
-    // Open sidebar and navigate to editor tab
+    await page.waitForSelector('#show-toolbar', { state: 'visible' });
+    await page.click('#show-toolbar');
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
     await page.click('#sidebar-tab-editor');
 
     // Adjust snapshot interval
@@ -52,10 +58,13 @@ test.describe('Editor Settings', () => {
     // Adjust retention
     const retention = page.locator('#snapshot-retention');
     await retention.fill('5');
+    await retention.press('Enter');
 
     // Reload and verify persistence
     await page.reload();
+    await page.locator('#toggle-sidebar').waitFor();
     await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
     await page.click('#sidebar-tab-editor');
 
     await expect(page.locator('#snapshot-interval-ms')).toHaveValue('60000');
