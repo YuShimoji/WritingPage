@@ -2677,6 +2677,415 @@
     }
 }, { groups: ['wiki'], title: '物語Wiki' });
 
+  // HUDSettings ガジェット
+  ZWGadgets.register('HUDSettings', function(el, options){
+    try {
+      el.innerHTML = '';
+      el.style.display = 'flex';
+      el.style.flexDirection = 'column';
+      el.style.gap = '12px';
+
+      var storage = window.ZenWriterStorage;
+      if (!storage || !storage.loadSettings) {
+        el.textContent = 'ストレージが利用できません';
+        return;
+      }
+
+      var settings = storage.loadSettings();
+      var hud = settings.hud || {};
+      var mergedHud = Object.assign({}, {
+        position: 'bottom-left',
+        duration: 1200,
+        bg: '#000000',
+        fg: '#ffffff',
+        opacity: 0.75,
+        message: '',
+        pinned: false,
+        width: 240,
+        fontSize: 14
+      }, hud);
+
+      // 位置選択
+      var posLabel = document.createElement('label');
+      posLabel.textContent = '位置:';
+      var posSelect = document.createElement('select');
+      posSelect.style.width = '100%';
+      posSelect.style.padding = '4px';
+      posSelect.style.border = '1px solid var(--border-color)';
+      posSelect.style.borderRadius = '4px';
+      posSelect.style.background = 'var(--bg-color)';
+      posSelect.style.color = 'var(--text-color)';
+
+      ['bottom-left', 'bottom-right', 'top-left', 'top-right'].forEach(function(pos){
+        var opt = document.createElement('option');
+        opt.value = pos;
+        opt.textContent = pos.replace('-', ' ');
+        if (mergedHud.position === pos) opt.selected = true;
+        posSelect.appendChild(opt);
+      });
+
+      // 表示時間
+      var durLabel = document.createElement('label');
+      durLabel.textContent = 'フェード時間 (ms):';
+      var durInput = document.createElement('input');
+      durInput.type = 'number';
+      durInput.min = '500';
+      durInput.max = '5000';
+      durInput.step = '100';
+      durInput.value = mergedHud.duration;
+      durInput.style.width = '100%';
+      durInput.style.padding = '4px';
+      durInput.style.border = '1px solid var(--border-color)';
+      durInput.style.borderRadius = '4px';
+
+      // 背景色
+      var bgLabel = document.createElement('label');
+      bgLabel.textContent = '背景色:';
+      var bgInput = document.createElement('input');
+      bgInput.type = 'color';
+      bgInput.value = mergedHud.bg;
+      bgInput.style.width = '100%';
+      bgInput.style.height = '32px';
+
+      // 文字色
+      var fgLabel = document.createElement('label');
+      fgLabel.textContent = '文字色:';
+      var fgInput = document.createElement('input');
+      fgInput.type = 'color';
+      fgInput.value = mergedHud.fg;
+      fgInput.style.width = '100%';
+      fgInput.style.height = '32px';
+
+      // 不透明度
+      var opLabel = document.createElement('label');
+      opLabel.textContent = '不透明度:';
+      var opInput = document.createElement('input');
+      opInput.type = 'range';
+      opInput.min = '0.1';
+      opInput.max = '1.0';
+      opInput.step = '0.05';
+      opInput.value = mergedHud.opacity;
+      opInput.style.width = '100%';
+
+      var opValue = document.createElement('span');
+      opValue.textContent = Math.round(mergedHud.opacity * 100) + '%';
+      opValue.style.fontSize = '12px';
+      opValue.style.marginLeft = '8px';
+
+      opInput.addEventListener('input', function(){
+        opValue.textContent = Math.round(this.value * 100) + '%';
+      });
+
+      // 幅
+      var widthLabel = document.createElement('label');
+      widthLabel.textContent = '幅 (px):';
+      var widthInput = document.createElement('input');
+      widthInput.type = 'number';
+      widthInput.min = '120';
+      widthInput.max = '800';
+      widthInput.step = '10';
+      widthInput.value = mergedHud.width;
+      widthInput.style.width = '100%';
+      widthInput.style.padding = '4px';
+      widthInput.style.border = '1px solid var(--border-color)';
+      widthInput.style.borderRadius = '4px';
+
+      // フォントサイズ
+      var fsLabel = document.createElement('label');
+      fsLabel.textContent = 'フォントサイズ (px):';
+      var fsInput = document.createElement('input');
+      fsInput.type = 'number';
+      fsInput.min = '10';
+      fsInput.max = '24';
+      fsInput.step = '1';
+      fsInput.value = mergedHud.fontSize;
+      fsInput.style.width = '100%';
+      fsInput.style.padding = '4px';
+      fsInput.style.border = '1px solid var(--border-color)';
+      fsInput.style.borderRadius = '4px';
+
+      // メッセージ
+      var msgLabel = document.createElement('label');
+      msgLabel.textContent = 'メッセージ:';
+      var msgInput = document.createElement('input');
+      msgInput.type = 'text';
+      msgInput.placeholder = 'HUDに表示するメッセージ';
+      msgInput.value = mergedHud.message;
+      msgInput.style.width = '100%';
+      msgInput.style.padding = '4px';
+      msgInput.style.border = '1px solid var(--border-color)';
+      msgInput.style.borderRadius = '4px';
+
+      // ピン留め
+      var pinLabel = document.createElement('label');
+      pinLabel.style.display = 'flex';
+      pinLabel.style.alignItems = 'center';
+      pinLabel.style.gap = '8px';
+      var pinInput = document.createElement('input');
+      pinInput.type = 'checkbox';
+      pinInput.checked = mergedHud.pinned;
+      pinLabel.appendChild(pinInput);
+      pinLabel.appendChild(document.createTextNode('常に表示'));
+
+      // 保存ボタン
+      var saveBtn = document.createElement('button');
+      saveBtn.className = 'small';
+      saveBtn.textContent = '設定を保存';
+      saveBtn.addEventListener('click', function(){
+        var updatedHud = {
+          position: posSelect.value,
+          duration: parseInt(durInput.value) || 1200,
+          bg: bgInput.value,
+          fg: fgInput.value,
+          opacity: parseFloat(opInput.value) || 0.75,
+          message: msgInput.value.trim(),
+          pinned: pinInput.checked,
+          width: parseInt(widthInput.value) || 240,
+          fontSize: parseInt(fsInput.value) || 14
+        };
+
+        settings.hud = updatedHud;
+        storage.saveSettings(settings);
+
+        // HUDに即時反映
+        if (window.ZenWriterHUD && window.ZenWriterHUD.applyConfig) {
+          window.ZenWriterHUD.applyConfig(updatedHud);
+        }
+
+        alert('HUD設定を保存しました');
+      });
+
+      // レイアウト
+      el.appendChild(posLabel);
+      el.appendChild(posSelect);
+      el.appendChild(durLabel);
+      el.appendChild(durInput);
+      el.appendChild(bgLabel);
+      el.appendChild(bgInput);
+      el.appendChild(fgLabel);
+      el.appendChild(fgInput);
+
+      var opRow = document.createElement('div');
+      opRow.style.display = 'flex';
+      opRow.style.alignItems = 'center';
+      opRow.appendChild(opLabel);
+      opRow.appendChild(opValue);
+      el.appendChild(opRow);
+      el.appendChild(opInput);
+
+      el.appendChild(widthLabel);
+      el.appendChild(widthInput);
+      el.appendChild(fsLabel);
+      el.appendChild(fsInput);
+      el.appendChild(msgLabel);
+      el.appendChild(msgInput);
+      el.appendChild(pinLabel);
+      el.appendChild(saveBtn);
+
+    } catch(e) {
+      console.error('HUDSettings gadget failed:', e);
+      el.textContent = 'HUD設定ガジェットの初期化に失敗しました。';
+    }
+  }, { groups: ['assist'], title: 'HUD設定' });
+
+  // StoryWiki ガジェット
+  ZWGadgets.register('StoryWiki', function(el, options){
+    try {
+      el.innerHTML = '';
+      el.style.display = 'flex';
+      el.style.flexDirection = 'column';
+      el.style.gap = '12px';
+
+      var storage = window.ZenWriterStorage;
+      if (!storage || !storage.loadWikiPages) {
+        el.textContent = 'ストレージが利用できません';
+        return;
+      }
+
+      // 検索入力
+      var searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = 'ページを検索...';
+      searchInput.style.width = '100%';
+      searchInput.style.padding = '8px';
+      searchInput.style.border = '1px solid var(--border-color)';
+      searchInput.style.borderRadius = '4px';
+      searchInput.style.background = 'var(--bg-color)';
+      searchInput.style.color = 'var(--text-color)';
+
+      // 新規作成ボタン
+      var createBtn = document.createElement('button');
+      createBtn.className = 'small';
+      createBtn.textContent = '新規ページ作成';
+
+      // ページリストコンテナ
+      var listContainer = document.createElement('div');
+      listContainer.style.flex = '1';
+      listContainer.style.overflow = 'auto';
+      listContainer.style.border = '1px solid var(--border-color)';
+      listContainer.style.borderRadius = '4px';
+      listContainer.style.padding = '8px';
+      listContainer.style.background = 'var(--bg-color)';
+
+      function renderList(){
+        listContainer.innerHTML = '';
+        var pages = storage.loadWikiPages() || [];
+        var query = searchInput.value.toLowerCase().trim();
+
+        pages.forEach(function(page){
+          if (query && !page.title.toLowerCase().includes(query) && !page.content.toLowerCase().includes(query)) {
+            return;
+          }
+
+          var item = document.createElement('div');
+          item.style.padding = '8px';
+          item.style.marginBottom = '4px';
+          item.style.border = '1px solid var(--border-color)';
+          item.style.borderRadius = '4px';
+          item.style.background = 'var(--bg-color)';
+          item.style.cursor = 'pointer';
+
+          var title = document.createElement('div');
+          title.textContent = page.title || '無題';
+          title.style.fontWeight = 'bold';
+          title.style.marginBottom = '4px';
+
+          var preview = document.createElement('div');
+          preview.textContent = (page.content || '').substring(0, 100) + '...';
+          preview.style.fontSize = '12px';
+          preview.style.opacity = '0.7';
+
+          item.appendChild(title);
+          item.appendChild(preview);
+
+          item.addEventListener('click', function(){
+            // ページ編集ダイアログを表示
+            showPageEditor(page.id);
+          });
+
+          listContainer.appendChild(item);
+        });
+
+        if (pages.length === 0) {
+          listContainer.textContent = 'ページがありません。新規作成ボタンから作成してください。';
+          listContainer.style.textAlign = 'center';
+          listContainer.style.padding = '40px';
+          listContainer.style.opacity = '0.6';
+        }
+      }
+
+      function showPageEditor(pageId){
+        var page = pageId ? storage.getWikiPage(pageId) : null;
+
+        var titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.value = page ? (page.title || '') : '';
+        titleInput.placeholder = 'ページタイトル';
+        titleInput.style.width = '100%';
+        titleInput.style.padding = '4px';
+        titleInput.style.border = '1px solid var(--border-color)';
+        titleInput.style.borderRadius = '4px';
+
+        var contentTextarea = document.createElement('textarea');
+        contentTextarea.value = page ? (page.content || '') : '';
+        contentTextarea.placeholder = 'ページ内容';
+        contentTextarea.style.width = '100%';
+        contentTextarea.style.height = '200px';
+        contentTextarea.style.padding = '4px';
+        contentTextarea.style.border = '1px solid var(--border-color)';
+        contentTextarea.style.borderRadius = '4px';
+        contentTextarea.style.resize = 'vertical';
+
+        var tagsInput = document.createElement('input');
+        tagsInput.type = 'text';
+        tagsInput.value = page ? ((page.tags || []).join(', ')) : '';
+        tagsInput.placeholder = 'タグ（カンマ区切り）';
+        tagsInput.style.width = '100%';
+        tagsInput.style.padding = '4px';
+        tagsInput.style.border = '1px solid var(--border-color)';
+        tagsInput.style.borderRadius = '4px';
+
+        var saveBtn = document.createElement('button');
+        saveBtn.type = 'button';
+        saveBtn.className = 'small';
+        saveBtn.textContent = '保存';
+        saveBtn.addEventListener('click', function(){
+          var updates = {
+            title: titleInput.value.trim() || '無題',
+            content: contentTextarea.value,
+            tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean)
+          };
+          if (pageId) {
+            storage.updateWikiPage(pageId, updates);
+          } else {
+            storage.createWikiPage(updates);
+          }
+          renderList();
+          document.body.removeChild(editorDialog);
+        });
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'small';
+        cancelBtn.textContent = 'キャンセル';
+        cancelBtn.addEventListener('click', function(){
+          document.body.removeChild(editorDialog);
+        });
+
+        var editorDialog = document.createElement('div');
+        editorDialog.style.position = 'fixed';
+        editorDialog.style.top = '50%';
+        editorDialog.style.left = '50%';
+        editorDialog.style.transform = 'translate(-50%, -50%)';
+        editorDialog.style.background = 'var(--bg-color)';
+        editorDialog.style.border = '1px solid var(--border-color)';
+        editorDialog.style.borderRadius = '8px';
+        editorDialog.style.padding = '16px';
+        editorDialog.style.zIndex = '10000';
+        editorDialog.style.width = '80%';
+        editorDialog.style.maxWidth = '600px';
+        editorDialog.style.maxHeight = '80vh';
+        editorDialog.style.overflow = 'auto';
+        editorDialog.style.display = 'flex';
+        editorDialog.style.flexDirection = 'column';
+        editorDialog.style.gap = '8px';
+
+        editorDialog.appendChild(document.createTextNode('タイトル:'));
+        editorDialog.appendChild(titleInput);
+        editorDialog.appendChild(document.createTextNode('内容:'));
+        editorDialog.appendChild(contentTextarea);
+        editorDialog.appendChild(document.createTextNode('タグ:'));
+        editorDialog.appendChild(tagsInput);
+
+        var btns = document.createElement('div');
+        btns.style.display = 'flex';
+        btns.style.gap = '8px';
+        btns.appendChild(saveBtn);
+        btns.appendChild(cancelBtn);
+        editorDialog.appendChild(btns);
+
+        document.body.appendChild(editorDialog);
+      }
+
+      createBtn.addEventListener('click', function(){
+        showPageEditor(null);
+      });
+
+      searchInput.addEventListener('input', function(){
+        renderList();
+      });
+
+      el.appendChild(searchInput);
+      el.appendChild(createBtn);
+      el.appendChild(listContainer);
+
+      renderList();
+    } catch(e) {
+      console.error('StoryWiki gadget failed:', e);
+      el.textContent = 'Wikiガジェットの初期化に失敗しました。';
+    }
+  }, { groups: ['wiki'], title: '物語Wiki' });
+
   ready(function(){
     ZWGadgets.init('#gadgets-panel', { group: 'assist' });
     ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });

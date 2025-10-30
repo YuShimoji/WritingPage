@@ -17,11 +17,17 @@ class EditorManager {
         this.editorMirror = document.getElementById('editor-mirror');
         this.previewPanel = document.getElementById('editor-preview');
         this.previewPanelBody = document.getElementById('editor-preview-body');
-        this.previewPanelToggle = document.getElementById('editor-preview-toggle');
-        this._overlayRenderFrame = null;
-        this._lastOverlayEntries = [];
-        this._cachedEditorMetrics = null;
-        this.setupEventListeners();
+        // フォント装飾パネル
+        this.fontDecorationPanel = document.getElementById('font-decoration-panel');
+        this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
+        this.closeFontDecorationBtn = document.getElementById('close-font-decoration-panel');
+        // テキストアニメーションパネル
+        this.textAnimationPanel = document.getElementById('text-animation-panel');
+        this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
+        this.closeTextAnimationBtn = document.getElementById('close-text-animation-panel');
+        // 検索パネル
+        this.searchPanel = document.getElementById('search-panel');
+        this.closeSearchBtn = document.getElementById('close-search-panel');
         this.setupImageHandlers();
         this.setupPreviewPanel();
         this.setupOverlaySupport();
@@ -72,6 +78,93 @@ class EditorManager {
                     this.setGlobalFontSize(defaults.fontSize);
                 }
             }
+
+            // フォント装飾ショートカット
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 'b') {
+                    e.preventDefault();
+                    this.applyFontDecoration('bold');
+                } else if (e.key === 'i') {
+                    e.preventDefault();
+                    this.applyFontDecoration('italic');
+                } else if (e.key === 'f') {
+                    e.preventDefault();
+                    this.showSearchPanel();
+                }
+            }
+        });
+
+        // フォント装飾パネルイベント
+        if (this.toggleFontDecorationBtn) {
+            this.toggleFontDecorationBtn.addEventListener('click', () => {
+                this.toggleFontDecorationPanel();
+            });
+        }
+        if (this.closeFontDecorationBtn) {
+            this.closeFontDecorationBtn.addEventListener('click', () => {
+                this.hideFontDecorationPanel();
+            });
+        }
+
+        // テキストアニメーションパネルイベント
+        if (this.toggleTextAnimationBtn) {
+            this.toggleTextAnimationBtn.addEventListener('click', () => {
+                this.toggleTextAnimationPanel();
+            });
+        }
+        if (this.closeTextAnimationBtn) {
+            this.closeTextAnimationBtn.addEventListener('click', () => {
+                this.hideTextAnimationPanel();
+            });
+        }
+
+        // 検索パネルイベント
+        if (this.closeSearchBtn) {
+            this.closeSearchBtn.addEventListener('click', () => {
+                this.hideSearchPanel();
+            });
+        }
+
+        // 検索パネル内のボタンイベント
+        const replaceSingleBtn = document.getElementById('replace-single');
+        const replaceAllBtn = document.getElementById('replace-all');
+        const searchPrevBtn = document.getElementById('search-prev');
+        const searchNextBtn = document.getElementById('search-next');
+        const searchInput = document.getElementById('search-input');
+
+        if (replaceSingleBtn) {
+            replaceSingleBtn.addEventListener('click', () => this.replaceSingle());
+        }
+        if (replaceAllBtn) {
+            replaceAllBtn.addEventListener('click', () => this.replaceAll());
+        }
+        if (searchPrevBtn) {
+            searchPrevBtn.addEventListener('click', () => this.navigateMatch(-1));
+        }
+        if (searchNextBtn) {
+            searchNextBtn.addEventListener('click', () => this.navigateMatch(1));
+        }
+
+        // 検索入力のリアルタイム検索
+        if (searchInput) {
+            let searchTimeout;
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.updateSearchMatches();
+                }, 200); // 200ms遅延で検索
+            });
+        }
+
+        // フォント装飾ボタンイベント
+        const decorButtons = document.querySelectorAll('.decor-btn');
+        decorButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tag = btn.dataset.tag;
+                if (tag) {
+                    this.applyFontDecoration(tag);
+                }
+            });
         });
     }
 
@@ -598,11 +691,11 @@ class EditorManager {
         let match;
         while ((match = regex.exec(content)) !== null) {
             const before = content.slice(lastIndex, match.index);
-            html += this.processTextAnimations(this.escapeHtml(before)).replace(/\n/g, '<br>');
+            html += this.processFontDecorations(this.processTextAnimations(this.escapeHtml(before))).replace(/\n/g, '<br>');
             html += `<span class="mirror-asset" data-asset-id="${match[1]}">&#8203;</span>`;
             lastIndex = match.index + match[0].length;
         }
-        html += this.processTextAnimations(this.escapeHtml(content.slice(lastIndex))).replace(/\n/g, '<br>');
+        html += this.processFontDecorations(this.processTextAnimations(this.escapeHtml(content.slice(lastIndex)))).replace(/\n/g, '<br>');
         return html;
     }
 
@@ -619,7 +712,32 @@ class EditorManager {
         return text
             .replace(/\[fade\](.*?)\[\/fade\]/gi, '<span class="anim-fade">$1</span>')
             .replace(/\[slide\](.*?)\[\/slide\]/gi, '<span class="anim-slide">$1</span>')
-            .replace(/\[type\](.*?)\[\/type\]/gi, '<span class="anim-typewriter">$1</span>');
+            .replace(/\[type\](.*?)\[\/type\]/gi, '<span class="anim-typewriter">$1</span>')
+            .replace(/\[pulse\](.*?)\[\/pulse\]/gi, '<span class="anim-pulse">$1</span>')
+            .replace(/\[shake\](.*?)\[\/shake\]/gi, '<span class="anim-shake">$1</span>')
+            .replace(/\[bounce\](.*?)\[\/bounce\]/gi, '<span class="anim-bounce">$1</span>')
+            .replace(/\[fadein\](.*?)\[\/fadein\]/gi, '<span class="anim-fade-in">$1</span>');
+    }
+
+    processFontDecorations(text) {
+        if (!text) return text;
+        // Font decoration tags: [bold]text[/bold], [italic]text[/italic], etc.
+        return text
+            .replace(/\[bold\](.*?)\[\/bold\]/gi, '<span class="decor-bold">$1</span>')
+            .replace(/\[italic\](.*?)\[\/italic\]/gi, '<span class="decor-italic">$1</span>')
+            .replace(/\[underline\](.*?)\[\/underline\]/gi, '<span class="decor-underline">$1</span>')
+            .replace(/\[strike\](.*?)\[\/strike\]/gi, '<span class="decor-strikethrough">$1</span>')
+            .replace(/\[smallcaps\](.*?)\[\/smallcaps\]/gi, '<span class="decor-smallcaps">$1</span>')
+            .replace(/\[light\](.*?)\[\/light\]/gi, '<span class="decor-light">$1</span>')
+            .replace(/\[shadow\](.*?)\[\/shadow\]/gi, '<span class="decor-shadow">$1</span>')
+            .replace(/\[black\](.*?)\[\/black\]/gi, '<span class="decor-black">$1</span>')
+            .replace(/\[uppercase\](.*?)\[\/uppercase\]/gi, '<span class="decor-uppercase">$1</span>')
+            .replace(/\[lowercase\](.*?)\[\/lowercase\]/gi, '<span class="decor-lowercase">$1</span>')
+            .replace(/\[capitalize\](.*?)\[\/capitalize\]/gi, '<span class="decor-capitalize">$1</span>')
+            .replace(/\[outline\](.*?)\[\/outline\]/gi, '<span class="decor-outline">$1</span>')
+            .replace(/\[glow\](.*?)\[\/glow\]/gi, '<span class="decor-glow">$1</span>')
+            .replace(/\[wide\](.*?)\[\/wide\]/gi, '<span class="decor-wide">$1</span>')
+            .replace(/\[narrow\](.*?)\[\/narrow\]/gi, '<span class="decor-narrow">$1</span>');
     }
 
     persistAssetMeta(assetId, patch) {
@@ -1223,6 +1341,123 @@ class EditorManager {
         this.updateWordCount();
         this.updateSearchMatches();
         this.showNotification('すべて置換しました');
+    }
+
+    /**
+     * フォント装飾を適用
+     * @param {string} tag - 装飾タグ名
+     */
+    applyFontDecoration(tag) {
+        const start = this.editor.selectionStart;
+        const end = this.editor.selectionEnd;
+        const selectedText = this.editor.value.substring(start, end);
+
+        let tagText;
+        if (selectedText) {
+            // 選択テキストがある場合は囲む
+            tagText = `[${tag}]${selectedText}[/${tag}]`;
+        } else {
+            // 選択がない場合はタグを挿入
+            tagText = `[${tag}]テキスト[/${tag}]`;
+        }
+
+        this.insertTextAtCursor(tagText, { start, end });
+        this.hideFontDecorationPanel();
+    }
+
+    /**
+     * フォント装飾パネルを表示/非表示
+     */
+    toggleFontDecorationPanel() {
+        if (!this.fontDecorationPanel) return;
+        const isVisible = this.fontDecorationPanel.style.display !== 'none';
+        if (isVisible) {
+            this.hideFontDecorationPanel();
+        } else {
+            this.showFontDecorationPanel();
+        }
+    }
+
+    /**
+     * フォント装飾パネルを表示
+     */
+    showFontDecorationPanel() {
+        if (!this.fontDecorationPanel) return;
+        this.fontDecorationPanel.style.display = 'block';
+        // 他のパネルを隠す
+        this.hideSearchPanel();
+        if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
+    }
+
+    /**
+     * フォント装飾パネルを非表示
+     */
+    hideFontDecorationPanel() {
+        if (this.fontDecorationPanel) {
+            this.fontDecorationPanel.style.display = 'none';
+        }
+    }
+
+    /**
+     * テキストアニメーションパネルを表示/非表示
+     */
+    toggleTextAnimationPanel() {
+        if (!this.textAnimationPanel) return;
+        const isVisible = this.textAnimationPanel.style.display !== 'none';
+        if (isVisible) {
+            this.hideTextAnimationPanel();
+        } else {
+            this.showTextAnimationPanel();
+        }
+    }
+
+    /**
+     * テキストアニメーションパネルを表示
+     */
+    showTextAnimationPanel() {
+        if (!this.textAnimationPanel) return;
+        this.textAnimationPanel.style.display = 'block';
+        // 他のパネルを隠す
+        this.hideSearchPanel();
+        this.hideFontDecorationPanel();
+        if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
+    }
+
+    /**
+     * テキストアニメーションパネルを非表示
+     */
+    hideTextAnimationPanel() {
+        if (this.textAnimationPanel) {
+            this.textAnimationPanel.style.display = 'none';
+        }
+    }
+
+    /**
+     * 検索パネルを表示
+     */
+    showSearchPanel() {
+        if (!this.searchPanel) return;
+        this.searchPanel.style.display = 'block';
+        // 他のパネルを隠す
+        this.hideFontDecorationPanel();
+        this.hideTextAnimationPanel();
+        if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
+
+        // 検索入力にフォーカス
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }
+
+    /**
+     * 検索パネルを非表示
+     */
+    hideSearchPanel() {
+        if (this.searchPanel) {
+            this.searchPanel.style.display = 'none';
+        }
+        this.clearSearchHighlights();
     }
 }
 

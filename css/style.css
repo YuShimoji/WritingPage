@@ -1205,3 +1205,131 @@ html[data-embed='true'] #editor {
     from { width: 0; }
     to { width: 100%; }
 }
+
+/* ===== フォント装飾 ===== */
+.decor-bold {
+    font-weight: 700;
+}
+
+.decor-italic {
+    font-style: italic;
+}
+
+.decor-underline {
+    text-decoration: underline;
+}
+
+.decor-strikethrough {
+    text-decoration: line-through;
+}
+
+.decor-smallcaps {
+    font-variant: small-caps;
+}
+
+.decor-light {
+    font-weight: 300;
+}
+
+.decor-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* ===== フォント装飾UI ===== */
+.decor-btn {
+    padding: 6px 12px;
+    margin: 2px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    min-width: 32px;
+    transition: background-color 0.2s;
+}
+
+.decor-btn:hover {
+    background: var(--hover-bg-color);
+}
+
+.decor-btn:active {
+    background: var(--active-bg-color);
+}
+
+/* ===== 高度なフォント装飾 ===== */
+.decor-uppercase {
+    text-transform: uppercase;
+}
+
+.decor-lowercase {
+    text-transform: lowercase;
+}
+
+.decor-capitalize {
+    text-transform: capitalize;
+}
+
+.decor-black {
+    font-weight: 900;
+}
+
+.decor-outline {
+    text-shadow: 
+        -1px -1px 0 var(--text-color),
+         1px -1px 0 var(--text-color),
+        -1px  1px 0 var(--text-color),
+         1px  1px 0 var(--text-color);
+    color: transparent;
+}
+
+.decor-glow {
+    text-shadow: 0 0 10px var(--text-color);
+}
+
+.decor-wide {
+    letter-spacing: 0.1em;
+}
+
+.decor-narrow {
+    letter-spacing: -0.05em;
+}
+
+/* ===== テキストアニメーション効果 ===== */
+.anim-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.anim-shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+.anim-bounce {
+    animation: bounce 1s;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.anim-fade-in {
+    animation: fade-in-slow 2s ease-in;
+}
+
+@keyframes fade-in-slow {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

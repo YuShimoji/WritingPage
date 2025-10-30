@@ -7,7 +7,7 @@ const STORAGE_KEYS = {
     DOCS: 'zenWriter_docs',
     CURRENT_DOC_ID: 'zenWriter_currentDocId',
     ASSETS: 'zenWriter_assets',
-    WIKI: 'zenWriter_wiki'
+    WIKI_PAGES: 'zenWriter_wiki_pages'
 };
 
 // デフォルト設定
@@ -493,7 +493,123 @@ function exportText(text, filename, type = 'text/plain') {
     }
 }
 
-// モジュールとしてエクスポート
+// ===== Wiki ページ管理 =====
+
+/**
+ * Wikiページを読み込み
+ * @returns {Array} Wikiページの配列
+ */
+function loadWikiPages() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.WIKI_PAGES);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        console.error('Wikiページ読込エラー:', e);
+        return [];
+    }
+}
+
+/**
+ * Wikiページを保存
+ * @param {Array} pages - Wikiページの配列
+ * @returns {boolean} 保存成功かどうか
+ */
+function saveWikiPages(pages) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.WIKI_PAGES, JSON.stringify(pages || []));
+        return true;
+    } catch (e) {
+        console.error('Wikiページ保存エラー:', e);
+        return false;
+    }
+}
+
+/**
+ * 新しいWikiページを作成
+ * @param {Object} pageData - ページデータ {title, content, tags}
+ * @returns {Object} 作成されたページ
+ */
+function createWikiPage(pageData) {
+    const pages = loadWikiPages();
+    const page = {
+        id: 'wiki_' + Date.now(),
+        title: pageData.title || '無題',
+        content: pageData.content || '',
+        tags: pageData.tags || [],
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    };
+    pages.push(page);
+    saveWikiPages(pages);
+    return page;
+}
+
+/**
+ * Wikiページを取得
+ * @param {string} pageId - ページID
+ * @returns {Object|null} ページデータまたはnull
+ */
+function getWikiPage(pageId) {
+    const pages = loadWikiPages();
+    return pages.find(p => p.id === pageId) || null;
+}
+
+/**
+ * Wikiページを更新
+ * @param {string} pageId - ページID
+ * @param {Object} updates - 更新データ {title, content, tags}
+ * @returns {boolean} 更新成功かどうか
+ */
+function updateWikiPage(pageId, updates) {
+    const pages = loadWikiPages();
+    const index = pages.findIndex(p => p.id === pageId);
+    if (index === -1) return false;
+
+    pages[index] = {
+        ...pages[index],
+        ...updates,
+        updatedAt: Date.now()
+    };
+    return saveWikiPages(pages);
+}
+
+/**
+ * Wikiページを削除
+ * @param {string} pageId - ページID
+ * @returns {boolean} 削除成功かどうか
+ */
+function deleteWikiPage(pageId) {
+    const pages = loadWikiPages();
+    const filtered = pages.filter(p => p.id !== pageId);
+    if (filtered.length === pages.length) return false;
+    return saveWikiPages(filtered);
+}
+
+/**
+ * Wikiページを一覧取得
+ * @returns {Array} Wikiページの配列
+ */
+function listWikiPages() {
+    return loadWikiPages();
+}
+
+/**
+ * Wikiページを検索
+ * @param {string} query - 検索クエリ
+ * @returns {Array} 一致するページの配列
+ */
+function searchWikiPages(query) {
+    if (!query || typeof query !== 'string') return listWikiPages();
+
+    const pages = loadWikiPages();
+    const lowerQuery = query.toLowerCase();
+
+    return pages.filter(page => {
+        return page.title.toLowerCase().includes(lowerQuery) ||
+               page.content.toLowerCase().includes(lowerQuery) ||
+               (page.tags && page.tags.some(tag => tag.toLowerCase().includes(lowerQuery)));
+    });
+}
     if (typeof module !== 'undefined' && module.exports) {
         // Node.js環境
         module.exports = {

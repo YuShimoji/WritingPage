@@ -324,3 +324,146 @@ ZWGadgets.registerSettings('Clock', function (el, ctx) {
 - `scripts/dev-check.js` は次を静的に検証します。
   - DnD: `draggable=true`、`dataTransfer.setData('text/gadget-name', ...)`、`drop` リスナーの存在
   - 設定UI: `registerSettings/getSettings/setSetting` の存在
+
+## HUDSettings ガジェット
+
+HUD（Heads-Up Display）の表示設定を管理するガジェットです。フェードイン/アウト型ミニHUDの位置・色・サイズ・メッセージなどを調整できます。
+
+### 設定項目
+
+- **位置 (Position)**: HUDの表示位置（bottom-left, bottom-right, top-left, top-right）
+- **フェード時間 (Duration)**: メッセージの表示継続時間（500-5000ms）
+- **背景色 (Background Color)**: HUDの背景色（カラーピッカー）
+- **文字色 (Text Color)**: HUDの文字色（カラーピッカー）
+- **不透明度 (Opacity)**: HUDの透明度（0.1-1.0の範囲）
+- **幅 (Width)**: HUDの幅（120-800px）
+- **フォントサイズ (Font Size)**: HUDの文字サイズ（10-24px）
+- **メッセージ (Message)**: デフォルトで表示するメッセージ
+- **常に表示 (Pinned)**: HUDを常に表示するか（チェックボックス）
+
+### 既定値
+
+```json
+{
+  "position": "bottom-left",
+  "duration": 1200,
+  "bg": "#000000",
+  "fg": "#ffffff",
+  "opacity": 0.75,
+  "width": 240,
+  "fontSize": 14,
+  "message": "",
+  "pinned": false
+}
+```
+
+### 設定範囲
+
+- 幅: 120-800px（ウィンドウ幅の80%以内に制限）
+- フォントサイズ: 10-24px
+- 不透明度: 0.1-1.0
+- フェード時間: 500-5000ms
+
+### 使用方法
+
+1. サイドバーの「アシスト」タブで「HUD設定」をクリック
+2. 各項目を調整
+3. 「設定を保存」ボタンをクリックして反映
+4. 即座にHUDの表示が更新されます
+
+### プログラムからの制御
+
+```js
+// HUD設定を直接適用
+const hudConfig = {
+  position: 'top-right',
+  bg: '#ff0000',
+  fg: '#ffffff',
+  width: 300,
+  fontSize: 16
+};
+
+if (window.ZenWriterHUD && window.ZenWriterHUD.applyConfig) {
+  window.ZenWriterHUD.applyConfig(hudConfig);
+}
+
+// 設定に保存
+const settings = window.ZenWriterStorage.loadSettings();
+settings.hud = hudConfig;
+window.ZenWriterStorage.saveSettings(settings);
+```
+
+## Story Wiki ガジェット
+
+物語Wikiは、小説執筆時に登場人物、場所、プロットなどの情報を整理するためのWiki機能を提供します。各ページはタイトル、本文、タグで構成され、検索やリンク機能で効率的に管理できます。
+
+### 機能概要
+
+- **ページ管理**: 作成、編集、削除、一覧表示
+- **検索機能**: タイトル、本文、タグからの全文検索
+- **タグ付け**: ページのカテゴライズと整理
+- **ローカル保存**: localStorageを使用した永続化
+
+### ページ構造
+
+各Wikiページは以下のフィールドを持ちます：
+
+```json
+{
+  "id": "wiki_1640995200000",
+  "title": "主人公",
+  "content": "主人公の詳細な説明...",
+  "tags": ["character", "main", "protagonist"],
+  "createdAt": 1640995200000,
+  "updatedAt": 1640995200000
+}
+```
+
+### 使用方法
+
+1. Wikiタブを開く（サイドバー上部のタブから「Wiki」を選択）
+2. 「新規ページ作成」ボタンをクリック
+3. タイトル、本文、タグを入力して保存
+4. 既存ページはリストからクリックして編集
+5. 検索ボックスでページを検索
+
+### テンプレートの活用
+
+Wikiページ作成時に以下のテンプレートを使用することを推奨：
+
+- **キャラクター**: 外見、性格、背景、動機などの情報
+- **場所**: 地理的特徴、雰囲気、重要性などの情報  
+- **アイテム**: 外見、効果、使用方法などの情報
+- **プロット**: 出来事の時系列、因果関係などの情報
+
+### プログラムからの操作
+
+```js
+// Wikiページを作成
+const newPage = window.ZenWriterStorage.createWikiPage({
+  title: '魔法の剣',
+  content: '古代の魔法が込められた剣。敵を一撃で倒す力を持つ。',
+  tags: ['item', 'weapon', 'magic']
+});
+
+// Wikiページを検索
+const results = window.ZenWriterStorage.searchWikiPages('魔法');
+
+// Wikiページを更新
+window.ZenWriterStorage.updateWikiPage(pageId, {
+  content: '更新された説明...'
+});
+
+// Wikiページを削除
+window.ZenWriterStorage.deleteWikiPage(pageId);
+```
+
+### バックアップとエクスポート
+
+WikiデータはlocalStorageに保存されるため、ブラウザの設定からエクスポート/インポート可能です。定期的なバックアップを推奨します。
+
+### 制限事項
+
+- 現在、ページ間のリンク機能は未実装
+- AI統合による自動生成機能は今後の拡張予定
+- 画像添付機能は未対応（テキストベースのみ）

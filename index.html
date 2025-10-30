@@ -137,58 +137,6 @@
           </div>
         </div>
 
-<<<<<<< Updated upstream
-            <div class="sidebar-top">
-                <div class="sidebar-tabs" id="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
-                    <button class="sidebar-tab active" type="button" id="sidebar-tab-structure" data-group="structure" aria-controls="sidebar-group-structure" aria-selected="true">構造</button>
-                    <button class="sidebar-tab" type="button" id="sidebar-tab-typography" data-group="typography" aria-controls="sidebar-group-typography" aria-selected="false">タイポ</button>
-                    <button class="sidebar-tab" type="button" id="sidebar-tab-assist" data-group="assist" aria-controls="sidebar-group-assist" aria-selected="false">アシスト</button>
-                </div>
-                <div class="sidebar-loadout">
-                    <label for="loadout-select">ロードアウト</label>
-                    <div class="loadout-controls">
-                        <select id="loadout-select" aria-label="ロードアウトを選択"></select>
-                        <input type="text" id="loadout-name" placeholder="プリセット名" aria-label="ロードアウト名">
-                        <div class="loadout-buttons">
-                            <button id="loadout-save" class="small" type="button">保存</button>
-                            <button id="loadout-duplicate" class="small" type="button">複製</button>
-                            <button id="loadout-apply" class="small" type="button">適用</button>
-                            <button id="loadout-delete" class="small" type="button">削除</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar-groups" id="sidebar-groups">
-                <section class="sidebar-group active" data-group="structure" id="sidebar-group-structure" role="tabpanel" aria-labelledby="sidebar-tab-structure">
-                    <div class="sidebar-section">
-                        <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
-                    </div>
-
-                </section>
-
-                <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel" aria-labelledby="sidebar-tab-typography" aria-hidden="true">
-                    <div class="sidebar-section">
-                        <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography" aria-label="タイポグラフィガジェット"></div>
-                    </div>
-                </section>
-
-                <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel" aria-labelledby="sidebar-tab-assist" aria-hidden="true">
-                    <div class="sidebar-section">
-                        <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
-                    </div>
-
-                    <div class="sidebar-section">
-                        <div id="gadgets-panel" class="gadgets-panel" aria-label="ガジェット"></div>
-                        <div class="gadget-tools" style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
-                            <button id="gadget-export" class="small" type="button">ガジェット設定をエクスポート</button>
-                            <button id="gadget-import" class="small" type="button">ガジェット設定をインポート</button>
-                            <input id="gadget-prefs-input" type="file" accept="application/json,.json" style="display:none;" />
-                        </div>
-                    </div>
-                </section>
-            </div>
-=======
         <div class="sidebar-groups">
           <section
             class="sidebar-group active"
@@ -197,7 +145,6 @@
             role="tabpanel"
             aria-labelledby="sidebar-tab-structure"
           >
->>>>>>> Stashed changes
             <div class="sidebar-section">
               <div
                 id="structure-gadgets-panel"
@@ -308,6 +255,22 @@
             </div>
           </div>
           <div class="toolbar-actions">
+            <button
+              id="toggle-text-animation"
+              class="icon-button"
+              title="テキストアニメーション"
+              aria-label="テキストアニメーションパネルを開く"
+            >
+              ✨
+            </button>
+            <button
+              id="toggle-font-decoration"
+              class="icon-button"
+              title="フォント装飾"
+              aria-label="フォント装飾パネルを開く"
+            >
+              🖋️
+            </button>
             <button
               id="toggle-toolbar"
               class="icon-button"
@@ -423,6 +386,66 @@
         <div class="panel-hint">
           <span id="match-count">一致するテキストが見つかりません</span><br />
           <small>ショートカット: Ctrl+F で検索パネルを開く</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- フォント装飾パネル -->
+    <div id="font-decoration-panel" class="floating-panel" style="display: none">
+      <div class="panel-header">
+        <span>フォント装飾</span>
+        <button class="panel-close" id="close-font-decoration-panel">×</button>
+      </div>
+      <div class="panel-body">
+        <div class="panel-row">
+          <button id="decor-bold" class="decor-btn" data-tag="bold" title="太字 (Ctrl+B)">B</button>
+          <button id="decor-italic" class="decor-btn" data-tag="italic" title="斜体 (Ctrl+I)">I</button>
+          <button id="decor-underline" class="decor-btn" data-tag="underline" title="下線">U</button>
+          <button id="decor-strike" class="decor-btn" data-tag="strike" title="取り消し線">S</button>
+          <button id="decor-black" class="decor-btn" data-tag="black" title="極太">極</button>
+        </div>
+        <div class="panel-row">
+          <button id="decor-light" class="decor-btn" data-tag="light" title="細字">細</button>
+          <button id="decor-smallcaps" class="decor-btn" data-tag="smallcaps" title="スモールキャップ">SC</button>
+          <button id="decor-shadow" class="decor-btn" data-tag="shadow" title="影付き">影</button>
+          <button id="decor-outline" class="decor-btn" data-tag="outline" title="輪郭">輪</button>
+          <button id="decor-glow" class="decor-btn" data-tag="glow" title="発光">光</button>
+        </div>
+        <div class="panel-row">
+          <button id="decor-uppercase" class="decor-btn" data-tag="uppercase" title="大文字">大</button>
+          <button id="decor-lowercase" class="decor-btn" data-tag="lowercase" title="小文字">小</button>
+          <button id="decor-capitalize" class="decor-btn" data-tag="capitalize" title="先頭大文字">頭</button>
+          <button id="decor-wide" class="decor-btn" data-tag="wide" title="文字間広">広</button>
+          <button id="decor-narrow" class="decor-btn" data-tag="narrow" title="文字間狭">狭</button>
+        </div>
+        <div class="panel-hint">
+          テキストを選択してボタンをクリック、またはタグを手動入力<br>
+          例: [bold]テキスト[/bold]
+        </div>
+      </div>
+    </div>
+
+    <!-- テキストアニメーション パネル -->
+    <div id="text-animation-panel" class="floating-panel" style="display: none">
+      <div class="panel-header">
+        <span>テキストアニメーション</span>
+        <button class="panel-close" id="close-text-animation-panel">×</button>
+      </div>
+      <div class="panel-body">
+        <div class="panel-row">
+          <button id="anim-fade" class="decor-btn" data-tag="fade" title="フェードイン">フェード</button>
+          <button id="anim-slide" class="decor-btn" data-tag="slide" title="スライドイン">スライド</button>
+          <button id="anim-type" class="decor-btn" data-tag="type" title="タイプライター">タイプ</button>
+          <button id="anim-pulse" class="decor-btn" data-tag="pulse" title="パルス">パルス</button>
+        </div>
+        <div class="panel-row">
+          <button id="anim-shake" class="decor-btn" data-tag="shake" title="シェイク">シェイク</button>
+          <button id="anim-bounce" class="decor-btn" data-tag="bounce" title="バウンス">バウンス</button>
+          <button id="anim-fadein" class="decor-btn" data-tag="fadein" title="ゆっくりフェード">遅フェード</button>
+        </div>
+        <div class="panel-hint">
+          アニメーションタグでテキストに動きを付ける<br>
+          例: [pulse]強調テキスト[/pulse]
         </div>
       </div>
     </div>
