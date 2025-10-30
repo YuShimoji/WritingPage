@@ -475,11 +475,22 @@ class EditorManager {
         .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
         .replace(/\*(.+?)\*/g, '<em>$1</em>')
         // リンク
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>')
+        .replace(/\[([^\/]]+)\]\(([^)]+)\)/g, (match, text, url) => {
+          // 特殊リンク処理
+          if (url.startsWith('doc://')) {
+            const docId = url.slice(6);
+            return `<a href="#" data-doc-link="${docId}" class="md-doc-link">${text}</a>`;
+          } else if (url.startsWith('asset://')) {
+            const assetId = url.slice(8);
+            return `<a href="#" data-asset-link="${assetId}" class="md-asset-link">${text}</a>`;
+          } else {
+            return `<a href="${url}" target="_blank" rel="noopener">${text}</a>`;
+          }
+        })
         // 行頭の箇条書き
         .replace(/^\s*[-*]\s+(.+)$/gm, '<li>$1</li>');
       // 箇条書きのliをulでラップ（簡易）
-      html = html.replace(/(?:<li>[^<]+</li>\n?)+/g, (m) => {
+      html = html.replace(/(?:<li>[^<]+<\/li>\n?)+/g, (m) => {
         const items = m.trim().replace(/\n/g, '');
         return `<ul>${items}</ul>`;
       });
@@ -528,6 +539,33 @@ class EditorManager {
         toc.appendChild(tocList);
         container.insertBefore(toc, container.firstChild);
       }
+      // 特殊リンクのイベント設定
+      container.addEventListener('click', (e) => {
+        const link = e.target.closest('.md-doc-link, .md-asset-link');
+        if (!link) return;
+        e.preventDefault();
+        if (link.classList.contains('md-doc-link')) {
+          const docId = link.dataset.docLink;
+          if (docId && window.ZenWriterStorage) {
+            // ドキュメント切替
+            window.ZenWriterStorage.setCurrentDocId(docId);
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.loadContent === 'function') {
+              window.ZenWriterEditor.loadContent();
+            }
+          }
+        } else if (link.classList.contains('md-asset-link')) {
+          const assetId = link.dataset.assetLink;
+          if (assetId && window.ZenWriterStorage) {
+            const assets = window.ZenWriterStorage.loadAssets();
+            const asset = assets ? assets[assetId] : null;
+            if (asset && asset.dataUrl) {
+              // アセットを開く
+              const w = window.open(asset.dataUrl, '_blank', 'noopener');
+              if (w) w.focus();
+            }
+          }
+        }
+      });
       return container;
     } catch (_) {
       return null;

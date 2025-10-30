@@ -18,8 +18,7 @@
 - [x] 4.3 Typora-like behaviors (list, heading, code block)
 - [x] 4.4 Extended markdown: code blocks, table of contents, sync scroll
 
-- [x] 5.2 Fine-grained numeric controls (width, offset, opacity, filters)
-- [ ] 5.3 Snapshot of per-image states and restore
+- [x] 5.3 Snapshot of per-image states and restore
 
 ## 6. Panels Layout
 - [ ] 6.1 Docking/split model (zones, persistence)
