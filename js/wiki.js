@@ -305,7 +305,6 @@
           }
         });
       }
-
       function refreshList(){
         var all = STORAGE.listWikiPages();
         var showHelp = !!(helpToggle && helpToggle.checked);

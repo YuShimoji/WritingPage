@@ -1479,6 +1479,15 @@ input[type='color'] {
   background: rgba(0, 0, 0, 0.03);
 }
 
+/* ===== Wiki ガジェット: 縦リサイズハンドル ===== */
+.wiki-resizer-y {
+  height: 6px;
+  cursor: ns-resize;
+  background: transparent;
+  border-top: 1px dashed var(--border-color);
+  margin-top: 2px;
+}
+
 /* ドラッグ状態 */
 .gadget.is-dragging {
   opacity: 0.6;
