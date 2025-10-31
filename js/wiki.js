@@ -108,9 +108,47 @@
       var folder = el('input'); folder.type='text'; folder.placeholder='フォルダ';
       var tags = el('input'); tags.type='text'; tags.placeholder='タグ (カンマ区切り)';
       var body = el('textarea'); body.rows=10; body.placeholder='本文（Markdown 可）';
+      // 初期高さとリサイズ禁止（独自ハンドルで制御）
+      try {
+        var initialH = parseInt(api.get('bodyHeight', 300), 10) || 300;
+        body.style.minHeight = '180px';
+        body.style.height = Math.max(180, initialH) + 'px';
+        body.style.resize = 'none';
+      } catch(_) {}
+      // リサイズハンドル
+      var bodyResizer = el('div','wiki-resizer-y');
+      bodyResizer.setAttribute('aria-label','Wiki本文の高さを調整');
+      (function(){
+        var startY = 0, startH = 0, resizing = false, prevUserSelect = '';
+        function onMove(ev){
+          if (!resizing) return;
+          var dy = ev.clientY - startY;
+          var nh = Math.max(180, Math.min(1200, startH + dy));
+          body.style.height = nh + 'px';
+        }
+        function onUp(){
+          if (!resizing) return;
+          resizing = false;
+          try { api.set('bodyHeight', parseInt(body.style.height,10)||300); } catch(_) {}
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+          try { document.body.style.userSelect = prevUserSelect; } catch(_) {}
+        }
+        bodyResizer.addEventListener('mousedown', function(ev){
+          try {
+            resizing = true;
+            startY = ev.clientY;
+            startH = body.offsetHeight;
+            prevUserSelect = document.body.style.userSelect;
+            document.body.style.userSelect = 'none';
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          } catch(_) {}
+        });
+      })();
       var btnSave = el('button','small'); btnSave.textContent='保存';
       var btnGenerate = el('button','small'); btnGenerate.textContent='選択語から生成';
-      editor.appendChild(title); editor.appendChild(folder); editor.appendChild(tags); editor.appendChild(body); editor.appendChild(btnSave); editor.appendChild(btnGenerate);
+      editor.appendChild(title); editor.appendChild(folder); editor.appendChild(tags); editor.appendChild(body); editor.appendChild(bodyResizer); editor.appendChild(btnSave); editor.appendChild(btnGenerate);
 
       layout.appendChild(listWrap); layout.appendChild(editor);
 
@@ -135,6 +173,7 @@
         });
       }
       seedHelpPages();
+      function refreshList(){
         var all = STORAGE.listWikiPages();
         var q = String(search.value||'').toLowerCase();
         var filtered = !q? all : all.filter(function(p){
