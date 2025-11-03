@@ -58,6 +58,20 @@
   --heading-h6-line-height: 1.4;
 }
 
+/* エディタオーバーレイ: 文字数スタンプ */
+.editor-overlay__stamp {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ツールバーが非表示のときはサイドバーを全高に */
+html[data-toolbar-hidden='true'] .sidebar {
+  top: 0;
+  height: 100vh;
+}
+
 /* 小さめのボタン汎用スタイル */
 .small {
   font-size: 12px;
@@ -253,6 +267,7 @@ body {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  scroll-behavior: smooth;
 }
 
 #editor::-webkit-scrollbar {
@@ -279,6 +294,16 @@ body {
   max-width: calc(100% - 20px);
   pointer-events: auto;
   cursor: move;
+}
+
+.editor-overlay__wrap-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(2rem + var(--wrap-ch, 80ch));
+  width: 0;
+  border-left: 1px dashed rgba(0, 0, 0, 0.25);
+  pointer-events: none;
 }
 
 .editor-overlay__image img {
@@ -387,11 +412,19 @@ body {
   position: sticky; /* スクロール時も上部に固定 */
   top: 0;
   z-index: 1100;
+  width: 100vw; /* 固定幅に */
+  box-sizing: border-box;
 }
 
 .word-count {
   font-size: 0.9rem;
   opacity: 0.7;
+}
+
+.sidebar-controls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .toolbar-actions {
@@ -430,10 +463,10 @@ body {
 /* サイドバー */
 .sidebar {
   position: fixed;
-  top: 0;
+  top: 60px;
   left: -320px;
   width: 320px;
-  height: 100vh;
+  height: calc(100vh - 60px);
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
   padding: 1rem;
@@ -450,6 +483,10 @@ body {
 
 .sidebar.open {
   left: 0;
+}
+
+.sidebar.open ~ .main-content {
+  margin-left: 320px;
 }
 
 .sidebar-header {
@@ -613,7 +650,7 @@ body {
 /* ボタン */
 button,
 .button {
-  background-color: var(--accent-color, var(--focus-color));
+  background-color: var(--button-color, var(--accent-color));
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -761,6 +798,10 @@ input[type='color'] {
 
   .sidebar.open {
     left: 0;
+  }
+  /* モバイルではメインコンテンツのマージンを付けない */
+  .sidebar.open ~ .main-content {
+    margin-left: 0 !important;
   }
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {
@@ -1588,15 +1629,25 @@ html[data-embed='true'] #editor {
   overflow: auto;
 }
 
-/* フローティングパネル */
-.floating-panels {
+.character-stamp {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: var(--font-family);
+  z-index: 100;
   pointer-events: none;
-  z-index: 99;
+}
+
+.inline-stamp {
+  font-style: italic;
+  font-size: 0.75em;
+  opacity: 0.6;
+  color: var(--text-color);
 }
 
 .floating-panels .dockable-panel {

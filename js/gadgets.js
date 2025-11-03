@@ -1595,6 +1595,8 @@
 
       el.appendChild(wrap);
 
+      refreshState();
+
       function refreshState(){
         try {
           var latest = storage.loadSettings();
@@ -2906,6 +2908,7 @@
   }, { groups: ['assist'], title: 'HUD設定' });
 
   // StoryWiki ガジェット
+  /*
   ZWGadgets.register('StoryWiki', function(el, options){
     try {
       el.innerHTML = '';
@@ -3102,6 +3105,7 @@
       el.textContent = 'Wikiガジェットの初期化に失敗しました。';
     }
   }, { groups: ['wiki'], title: '物語Wiki' });
+  */
 
   ready(function(){
     ZWGadgets.init('#gadgets-panel', { group: 'assist' });

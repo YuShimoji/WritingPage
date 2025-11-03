@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const helpButton = document.getElementById('help-button');
     const bgColorInput = document.getElementById('bg-color');
     const textColorInput = document.getElementById('text-color');
+    const buttonColorInput = document.getElementById('button-color');
     const fontFamilySelect = document.getElementById('font-family');
     const fontSizeInput = document.getElementById('font-size');
     const fontSizeValue = document.getElementById('font-size-value');
@@ -85,7 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const editor = document.getElementById('editor');
     const showToolbarBtn = document.getElementById('show-toolbar');
     const editorContainer = document.querySelector('.editor-container');
+    const mainContent = document.querySelector('.main-content');
     const resetColorsBtn = document.getElementById('reset-colors');
+    const insertStampBtn = document.getElementById('insert-stamp');
     const toolsFab = document.getElementById('fab-tools');
     const fontPanel = document.getElementById('floating-font-panel');
     const closeFontPanelBtn = document.getElementById('close-font-panel');
@@ -226,6 +229,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
         sidebar.classList.toggle('open');
+        const isOpen = sidebar.classList.contains('open');
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        const closeBtn = document.getElementById('close-sidebar');
+        if (toggleBtn) toggleBtn.style.display = isOpen ? 'none' : 'inline-flex';
+        if (closeBtn) closeBtn.style.display = isOpen ? 'inline-flex' : 'none';
+        // メインエリア押し出し（動的幅）
+        try {
+            const sbWidth = isOpen ? Math.round(parseFloat(getComputedStyle(sidebar).width) || 320) : 0;
+            if (mainContent) mainContent.style.marginLeft = sbWidth + 'px';
+        } catch(_) {}
     }
 
     // ツールバー表示/非表示の適用（保存・レイアウト反映を含む）
@@ -291,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // カラーピッカーを設定
         if (bgColorInput) bgColorInput.value = settings.bgColor;
         if (textColorInput) textColorInput.value = settings.textColor;
+        if (buttonColorInput) buttonColorInput.value = settings.buttonColor || '#007acc';
         
         // フォント設定を設定
         if (fontFamilySelect) fontFamilySelect.value = settings.fontFamily;
@@ -363,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tab.addEventListener('click', () => activateSidebarGroup(tab.dataset.group));
         });
     }
-    // キーボードショートカット: Alt+W でツールバー表示切替
+    // キーボードショートカット: Alt+W でツールバー表示切替, Alt+S で文字数スタンプ挿入
     document.addEventListener('keydown', (e) => {
         const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
         const inFormControl = ['input','select','textarea','button'].includes(targetTag);
@@ -371,6 +385,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.repeat) return; // 長押しの自動リピートで連続トグルしない
             e.preventDefault();
             toggleToolbar();
+            return;
+        }
+        if (!inFormControl && e.altKey && (e.key === 's' || e.key === 'S')) {
+            if (e.repeat) return;
+            e.preventDefault();
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertCharacterStamp === 'function') {
+                window.ZenWriterEditor.insertCharacterStamp();
+            }
             return;
         }
         if (!inFormControl && e.altKey && ['1','2','3'].includes(e.key)) {
@@ -461,6 +483,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (buttonColorInput) {
+        buttonColorInput.addEventListener('input', (e) => {
+            window.ZenWriterTheme.applyButtonColor(e.target.value);
+        });
+    }
+
     // カスタム色リセット
     if (resetColorsBtn) {
         resetColorsBtn.addEventListener('click', () => {
@@ -522,6 +550,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (toolsFab) toolsFab.addEventListener('click', () => toggleFontPanel());
     if (closeFontPanelBtn) closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+
+    // 文字数スタンプ挿入
+    if (insertStampBtn) {
+        insertStampBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertCharacterStamp === 'function') {
+                window.ZenWriterEditor.insertCharacterStamp();
+            }
+        });
+    }
 
     // フォントパネルのコントロール
     function updateGlobalFontFrom(value) {
@@ -672,6 +709,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 設定をUIに反映
     applySettingsToUI();
+    // サイドバーボタンの初期状態
+    const isSidebarOpen = sidebar.classList.contains('open');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const closeBtn = document.getElementById('close-sidebar');
+    if (toggleBtn) toggleBtn.style.display = isSidebarOpen ? 'none' : 'inline-flex';
+    if (closeBtn) closeBtn.style.display = isSidebarOpen ? 'inline-flex' : 'none';
     // バックアップ一覧
     // renderSnapshots();
 

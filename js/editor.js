@@ -15,6 +15,10 @@ class EditorManager {
         this.dropIndicatorClass = 'drop-ready';
         this.editorOverlay = document.getElementById('editor-overlay');
         this.editorMirror = document.getElementById('editor-mirror');
+        this.inlineStamps = [];
+        // 手動スクロール検知
+        this._manualScrollTimeout = null;
+        this._isManualScrolling = false;
         this.previewPanel = document.getElementById('editor-preview');
         this.previewPanelBody = document.getElementById('editor-preview-body');
         // フォント装飾パネル
@@ -25,6 +29,18 @@ class EditorManager {
         this.textAnimationPanel = document.getElementById('text-animation-panel');
         this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
         this.closeTextAnimationBtn = document.getElementById('close-text-animation-panel');
+
+        // 手動スクロール検知
+        this.editor.addEventListener('scroll', () => {
+            this._isManualScrolling = true;
+            clearTimeout(this._manualScrollTimeout);
+            this._manualScrollTimeout = setTimeout(() => {
+                this._isManualScrolling = false;
+            }, 2000); // 手動スクロール後2秒間typewriter調整をスキップ
+        });
+
+        // 選択変更時に文字数スタンプ更新
+        this.editor.addEventListener('selectionchange', () => this.updateWordCount());
         // 検索パネル
         this.searchPanel = document.getElementById('search-panel');
         this.closeSearchBtn = document.getElementById('close-search-panel');
@@ -38,6 +54,13 @@ class EditorManager {
         this.setupEventListeners();
         // タイプライターモードのインストール
         this.installTypewriterHandlers();
+        // 折り返しガイドを設置し、設定に基づき適用
+        if (this.editorOverlay) {
+            this._wrapGuideEl = document.createElement('div');
+            this._wrapGuideEl.className = 'editor-overlay__wrap-guide';
+            this.editorOverlay.appendChild(this._wrapGuideEl);
+        }
+        this.applyWrapCols();
     }
 
     /**
@@ -175,7 +198,7 @@ class EditorManager {
     // ===== タイプライターモード =====
     installTypewriterHandlers(){
         if (!this.editor) return;
-        const onCaretMove = () => this.applyTypewriterIfEnabled();
+        const onCaretMove = () => this.scheduleTypewriterUpdate();
         this.editor.addEventListener('input', onCaretMove);
         this.editor.addEventListener('keyup', onCaretMove);
         this.editor.addEventListener('click', onCaretMove);
@@ -183,9 +206,17 @@ class EditorManager {
         this.editor.addEventListener('scroll', () => {
             this._ty_scrollPending = true;
             clearTimeout(this._ty_scrollTimer);
-            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.applyTypewriterIfEnabled(); }, 120);
+            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.scheduleTypewriterUpdate(); }, 120);
         });
-        setTimeout(()=> this.applyTypewriterIfEnabled(), 50);
+        setTimeout(()=> this.scheduleTypewriterUpdate(), 50);
+    }
+
+    scheduleTypewriterUpdate(){
+        if (this._ty_scheduled) return;
+        this._ty_scheduled = true;
+        requestAnimationFrame(() => {
+            try { this.applyTypewriterIfEnabled(); } finally { this._ty_scheduled = false; }
+        });
     }
 
     applyTypewriterIfEnabled(){
@@ -215,6 +246,15 @@ class EditorManager {
         } catch(_) {}
     }
 
+    applyWrapCols(){
+        try {
+            const s = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') ? window.ZenWriterStorage.loadSettings() : {};
+            const tw = (s && s.typewriter) || {};
+            const cols = (typeof tw.wrapCols === 'number') ? Math.max(20, Math.min(120, tw.wrapCols)) : 80;
+            document.documentElement.style.setProperty('--wrap-ch', cols + 'ch');
+        } catch(_) {}
+    }
+
     /**
      * カーソル位置にテキストを挿入
      * @param {string} text - 挿入するテキスト
@@ -222,15 +262,17 @@ class EditorManager {
     insertTextAtCursor(text, options = {}) {
         const start = (options && typeof options.start === 'number') ? options.start : this.editor.selectionStart;
         const end = (options && typeof options.end === 'number') ? options.end : this.editor.selectionEnd;
-        const before = this.editor.value.substring(0, start);
-        const after = this.editor.value.substring(end, this.editor.value.length);
-        
-        this.editor.value = before + text + after;
-        const newPos = start + text.length;
-        this.editor.selectionStart = newPos;
-        this.editor.selectionEnd = newPos;
+        try {
+            this.editor.setRangeText(String(text), start, end, 'end');
+        } catch (_) {
+            const before = this.editor.value.substring(0, start);
+            const after = this.editor.value.substring(end, this.editor.value.length);
+            this.editor.value = before + String(text) + after;
+            const newPos = start + String(text).length;
+            this.editor.selectionStart = newPos;
+            this.editor.selectionEnd = newPos;
+        }
         this.editor.focus();
-        
         this.saveContent();
         this.updateWordCount();
     }
@@ -581,19 +623,15 @@ class EditorManager {
         }
         this._overlayRenderFrame = requestAnimationFrame(() => {
             this._overlayRenderFrame = null;
-            if (!this._lastOverlayEntries || !this._lastOverlayEntries.length) {
-                if (this.editorOverlay) this.editorOverlay.innerHTML = '';
-                return;
-            }
-            this.renderOverlayImages(this._lastOverlayEntries, this.editor.value || '');
+            const entries = Array.isArray(this._lastOverlayEntries) ? this._lastOverlayEntries : [];
+            this.renderOverlayImages(entries, this.editor.value || '');
         });
     }
 
     renderOverlayImages(entries, content) {
         if (!this.editorOverlay || !this.editorMirror) return;
         this.editorOverlay.innerHTML = '';
-        if (!entries || !entries.length) return;
-
+        const _entries = Array.isArray(entries) ? entries : [];
         this.editorMirror.innerHTML = this.buildMirrorHtml(content);
         const style = window.getComputedStyle(this.editor);
         const padding = {
@@ -603,8 +641,7 @@ class EditorManager {
             left: parseFloat(style.paddingLeft) || 0
         };
         const usableWidth = this.editor.clientWidth - padding.left - padding.right;
-
-        entries.forEach((entry) => {
+        _entries.forEach((entry) => {
             const asset = entry.asset;
             if (!asset || !asset.dataUrl) return;
             const anchor = this.editorMirror.querySelector(`span[data-asset-id="${entry.assetId}"]`);
@@ -652,6 +689,18 @@ class EditorManager {
             this.attachOverlayInteractions({ overlay, assetId: entry.assetId, handle });
 
             this.editorOverlay.appendChild(overlay);
+        });
+
+        const stamps = Array.isArray(this.inlineStamps) ? this.inlineStamps : [];
+        stamps.forEach((st) => {
+            const rect = this.getTextPosition(Math.max(0, st.start), Math.max(st.start, st.end));
+            if (!rect) return;
+            const el = document.createElement('div');
+            el.className = 'editor-overlay__stamp inline-stamp';
+            el.textContent = `文字数: ${st.count}`;
+            el.style.left = (rect.left + rect.width + 8) + 'px';
+            el.style.top = rect.top + 'px';
+            this.editorOverlay.appendChild(el);
         });
     }
 
@@ -959,27 +1008,71 @@ class EditorManager {
     }
 
     /**
-     * 文字数を更新
+     * インライン文字数スタンプを挿入
      */
+    insertCharacterStamp() {
+        const start = this.editor.selectionStart;
+        const end = this.editor.selectionEnd;
+        let count = 0;
+        let anchorStart = start;
+        let anchorEnd = end;
+        if (start !== end) {
+            const selectedText = this.editor.value.substring(start, end).replace(/\r?\n/g, '');
+            count = selectedText.length;
+        } else {
+            const text = this.editor.value;
+            const lines = text.split('\n');
+            let currentLine = 0;
+            let charPos = 0;
+            for (let i = 0; i < lines.length; i++) {
+                if (charPos + lines[i].length >= start) {
+                    currentLine = i;
+                    break;
+                }
+                charPos += lines[i].length + 1;
+            }
+            const paragraphText = lines[currentLine] || '';
+            count = paragraphText.replace(/\r/g, '').length;
+            anchorStart = charPos;
+            anchorEnd = charPos + (lines[currentLine] ? lines[currentLine].length : 0);
+        }
+        const stamp = {
+            id: 'stamp_' + Date.now().toString(36) + Math.random().toString(36).slice(2),
+            count,
+            start: Math.max(0, anchorStart),
+            end: Math.max(Math.max(anchorStart, anchorEnd), anchorStart)
+        };
+        this.inlineStamps.push(stamp);
+        this.scheduleOverlayRefresh();
+    }
+
+    /**
+     * カーソル位置を取得
+     */
+    getCursorPosition() {
+        return this.editor.selectionStart || 0;
+    }
     updateWordCount() {
         const text = this.editor.value;
-        const charCount = text ? text.replace(/\r?\n/g, '').length : 0;
-        const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+        // インラインスタンプを除去してカウント
+        const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
+        const charCount = cleanText ? cleanText.replace(/\r?\n/g, '').length : 0;
+        const wordCount = cleanText.trim() === '' ? 0 : cleanText.trim().split(/\s+/).length;
         // 執筆目標の進捗（任意）
         const s = window.ZenWriterStorage.loadSettings();
         const goal = (s && s.goal) || {};
         let suffix = '';
         if (goal && (parseInt(goal.target,10) || 0) > 0) {
             const target = Math.max(0, parseInt(goal.target,10) || 0);
-            const ratio = target > 0 ? Math.min(1, charCount / target) : 0;
+            const ratio = target > 0 ? charCount / target : 0;
             const pct = Math.floor(ratio * 100);
             suffix += ` | 目標 ${target} (${pct}%)`;
             // 進捗バーの表示と更新
             if (this.goalProgressEl && this.goalProgressBarEl) {
                 this.goalProgressEl.style.display = 'inline-flex';
                 this.goalProgressEl.setAttribute('aria-hidden', 'false');
-                const w = Math.max(0, Math.min(100, pct));
-                this.goalProgressBarEl.style.width = `${w}%`;
+                const w = Math.max(0, pct);
+                this.goalProgressBarEl.style.width = `${Math.min(100, w)}%`;
             }
             // 締切日がある場合は残日数を併記
             if (goal.deadline) {
@@ -1029,6 +1122,22 @@ class EditorManager {
                 window.ZenWriterHUD.hide();
             }
         }
+
+        // Typewriter mode: 手動スクロール中でなければカーソルを中央に保つ
+        const settings = window.ZenWriterStorage.loadSettings();
+        if (settings.typewriter && settings.typewriter.enabled && !this._isManualScrolling) {
+            const anchorRatio = settings.typewriter.anchorRatio || 0.5;
+            const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
+            const cursorPos = this.getCursorPosition();
+            const cursorLine = this.editor.value.substring(0, cursorPos).split('\n').length - 1;
+            const anchorY = anchorRatio * this.editor.clientHeight;
+            const cursorY = cursorLine * lineHeight;
+            const delta = cursorY - anchorY;
+            const newScroll = this.editor.scrollTop + delta;
+            this.editor.scrollTop = Math.max(0, newScroll);
+        }
+        // オーバーレイ（スタンプ等）の再描画
+        this.scheduleOverlayRefresh();
     }
 
     /**
@@ -1399,16 +1508,24 @@ class EditorManager {
         const end = this.editor.selectionEnd;
         const selectedText = this.editor.value.substring(start, end);
 
-        let tagText;
-        if (selectedText) {
-            // 選択テキストがある場合は囲む
-            tagText = `[${tag}]${selectedText}[/${tag}]`;
-        } else {
-            // 選択がない場合はタグを挿入
-            tagText = `[${tag}]テキスト[/${tag}]`;
+        const open = `[${tag}]`;
+        const close = `[/${tag}]`;
+        const insertion = selectedText ? (open + selectedText + close) : (open + close);
+        try {
+            // 置換はUndoスタックに乗る
+            this.editor.setRangeText(insertion, start, end, 'end');
+        } catch (_) {
+            this.insertTextAtCursor(insertion, { start, end });
         }
-
-        this.insertTextAtCursor(tagText, { start, end });
+        if (!selectedText) {
+            // 選択なし時はカーソルをタグの内側へ移動
+            const caret = start + open.length;
+            this.editor.selectionStart = caret;
+            this.editor.selectionEnd = caret;
+        }
+        this.editor.focus();
+        this.saveContent();
+        this.updateWordCount();
         this.hideFontDecorationPanel();
     }
 

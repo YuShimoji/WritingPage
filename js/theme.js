@@ -35,6 +35,7 @@ class ThemeManager {
       this.clearCustomColors();
     }
     window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
   }
 
   /**
@@ -66,20 +67,30 @@ class ThemeManager {
     this.settings.textColor = textColor;
     this.settings.useCustomColors = !!enable;
     window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
   }
 
   /**
-   * カスタムカラーの上書きを解除（テーマ既定に戻す）
+   * ボタン色を適用
+   * @param {string} buttonColor - ボタン色
    */
-  clearCustomColors() {
+  applyButtonColor(buttonColor) {
     const root = document.documentElement;
-    root.style.removeProperty('--bg-color');
-    root.style.removeProperty('--text-color');
-    root.style.removeProperty('--sidebar-bg');
-    root.style.removeProperty('--toolbar-bg');
-    root.style.removeProperty('--border-color');
-    this.settings.useCustomColors = false;
+    root.style.setProperty('--button-color', buttonColor);
+    this.settings.buttonColor = buttonColor;
     window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+  }
+
+  /**
+   * ボタン色の上書きを解除
+   */
+  clearButtonColor() {
+    const root = document.documentElement;
+    root.style.removeProperty('--button-color');
+    delete this.settings.buttonColor;
+    window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
   }
 
   /**
@@ -113,6 +124,7 @@ class ThemeManager {
     this.settings.editorFontSize = editorFontSize || fontSize;
     this.settings.lineHeight = lineHeight;
     window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
   }
 
   /**

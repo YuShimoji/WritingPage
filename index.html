@@ -286,13 +286,23 @@
       <main class="main-content">
         <!-- ツールバー -->
         <div class="toolbar">
-          <button
-            id="toggle-sidebar"
-            class="icon-button"
-            aria-label="サイドバーを開閉"
-          >
-            ☰
-          </button>
+          <div class="sidebar-controls">
+            <button
+              id="toggle-sidebar"
+              class="icon-button"
+              aria-label="サイドバーを開閉"
+            >
+              ☰
+            </button>
+            <button
+              id="close-sidebar"
+              class="icon-button sidebar-close-btn"
+              aria-label="サイドバーを閉じる"
+              style="display: none"
+            >
+              ✕
+            </button>
+          </div>
           <div class="word-count">0 文字</div>
           <div
             id="goal-progress"
@@ -320,6 +330,14 @@
               aria-label="フォント装飾パネルを開く"
             >
               🖋️
+            </button>
+            <button
+              id="insert-stamp"
+              class="icon-button"
+              title="文字数スタンプ挿入"
+              aria-label="文字数スタンプを挿入"
+            >
+              📌
             </button>
             <button
               id="toggle-toolbar"

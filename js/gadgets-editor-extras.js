@@ -14,6 +14,7 @@
   }
 
   function refreshTypewriter(){ try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch(_){} }
+  function applyWrapCols(){ try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWrapCols === 'function') window.ZenWriterEditor.applyWrapCols(); } catch(_){} }
 
   function register(){
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
@@ -39,6 +40,11 @@
       var sLbl = el('div'); sLbl.textContent = '張り付き強度: '+stick.value; sLbl.style.fontSize='12px';
       row3.appendChild(sLbl); row3.appendChild(stick);
 
+      var row4 = el('div');
+      var wrapCols = el('input'); wrapCols.type='range'; wrapCols.min='40'; wrapCols.max='120'; wrapCols.step='10'; wrapCols.value = String(typeof tw.wrapCols==='number'? tw.wrapCols : 80);
+      var wLbl = el('div'); wLbl.textContent = '折り返し文字数: '+wrapCols.value; wLbl.style.fontSize='12px';
+      row4.appendChild(wLbl); row4.appendChild(wrapCols);
+
       var btnApply = el('button','small'); btnApply.textContent='今すぐ整列';
 
       enabled.addEventListener('change', function(){ withStorage(function(cfg){ cfg.typewriter = cfg.typewriter||{}; cfg.typewriter.enabled = !!enabled.checked; }); refreshTypewriter(); });
@@ -46,9 +52,11 @@
       anchor.addEventListener('change', function(){ withStorage(function(cfg){ cfg.typewriter = cfg.typewriter||{}; cfg.typewriter.anchorRatio = clamp(anchor.value,0.05,0.95); }); refreshTypewriter(); });
       stick.addEventListener('input', function(){ sLbl.textContent = '張り付き強度: '+stick.value; });
       stick.addEventListener('change', function(){ withStorage(function(cfg){ cfg.typewriter = cfg.typewriter||{}; cfg.typewriter.stickiness = clamp(stick.value,0,1); }); refreshTypewriter(); });
+      wrapCols.addEventListener('input', function(){ wLbl.textContent = '折り返し文字数: '+wrapCols.value; });
+      wrapCols.addEventListener('change', function(){ withStorage(function(cfg){ cfg.typewriter = cfg.typewriter||{}; cfg.typewriter.wrapCols = clamp(wrapCols.value,40,120); }); applyWrapCols(); });
       btnApply.addEventListener('click', refreshTypewriter);
 
-      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btnApply);
+      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
     }, { title: 'Typewriter', groups: ['typography','assist'] });
 
     // Snapshot Manager Gadget
