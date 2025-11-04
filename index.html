@@ -69,12 +69,13 @@
       <!-- サイドバー -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-          <h2>設定</h2>
-          <button id="close-sidebar" class="icon-button">×</button>
+          <h2>ガジェット設定</h2>
+          <!-- ヘッダーの閉じるボタンを削除：ツールバー側に統一 -->
         </div>
 
         <div class="sidebar-top">
-          <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ">
+          <!-- タブを1つに統一したため、タブ切り替えUIは非表示 -->
+          <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ" style="display: none;">
             <button
               class="sidebar-tab active"
               type="button"
@@ -83,37 +84,7 @@
               aria-controls="sidebar-group-structure"
               aria-selected="true"
             >
-              構造
-            </button>
-            <button
-              class="sidebar-tab"
-              type="button"
-              id="sidebar-tab-typography"
-              data-group="typography"
-              aria-controls="sidebar-group-typography"
-              aria-selected="false"
-            >
-              タイポ
-            </button>
-            <button
-              class="sidebar-tab"
-              type="button"
-              id="sidebar-tab-assist"
-              data-group="assist"
-              aria-controls="sidebar-group-assist"
-              aria-selected="false"
-            >
-              アシスト
-            </button>
-            <button
-              class="sidebar-tab"
-              type="button"
-              id="sidebar-tab-editor"
-              data-group="editor"
-              aria-controls="sidebar-group-editor"
-              aria-selected="false"
-            >
-              エディタ
+              ガジェット
             </button>
           </div>
           <div class="sidebar-loadout">
@@ -172,6 +143,7 @@
             role="tabpanel"
             aria-labelledby="sidebar-tab-typography"
             aria-hidden="true"
+            style="display: none;"
           >
             <div class="sidebar-section">
               <div
@@ -190,6 +162,7 @@
             role="tabpanel"
             aria-labelledby="sidebar-tab-assist"
             aria-hidden="true"
+            style="display: none;"
           >
             <div class="sidebar-section">
               <div
@@ -236,6 +209,7 @@
             role="tabpanel"
             aria-labelledby="sidebar-tab-editor"
             aria-hidden="true"
+            style="display: none;"
           >
             <div class="sidebar-section">
               <h4>タイプライターモード</h4>
@@ -250,6 +224,17 @@
               <div class="panel-row">
                 <label for="typewriter-stickiness">張り付き強度 (0-1)</label>
                 <input type="range" id="typewriter-stickiness" min="0" max="1" step="0.1" value="0.9" />
+              </div>
+            </div>
+            <div class="sidebar-section">
+              <h4>自動保存</h4>
+              <div class="panel-row">
+                <label for="auto-save-enabled">リアルタイム自動保存</label>
+                <input type="checkbox" id="auto-save-enabled" />
+              </div>
+              <div class="panel-row">
+                <label for="auto-save-delay-ms">遅延時間 (ms)</label>
+                <input type="number" id="auto-save-delay-ms" min="500" max="10000" step="500" value="2000" />
               </div>
             </div>
             <div class="sidebar-section">
@@ -295,7 +280,7 @@
               ☰
             </button>
             <button
-              id="close-sidebar"
+              id="toolbar-close-sidebar"
               class="icon-button sidebar-close-btn"
               aria-label="サイドバーを閉じる"
               style="display: none"
@@ -314,6 +299,8 @@
               <div class="goal-progress__bar" style="width: 0%"></div>
             </div>
           </div>
+          <input type="number" id="goal-target" placeholder="目標文字数" style="width: 100px; margin-right: 8px;" />
+          <input type="datetime-local" id="goal-deadline" placeholder="締切" style="width: 180px; margin-right: 8px;" />
           <div class="toolbar-actions">
             <button
               id="toggle-text-animation"

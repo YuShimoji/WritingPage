@@ -226,7 +226,7 @@ function get(path) {
     const eiHasApp = /<script\s+src=["']js\/app\.js["']/.test(ei);
     const eiHasChildBridge =
       /<script\s+src=["']js\/embed\/child-bridge\.js["']/.test(ei);
-    const eiHasEmbedFlag = /setAttribute\(\'data-embed\',\'true\'\)/.test(ei);
+    const eiHasEmbedFlag = /setAttribute\(\s*['"]data-embed['"],\s*['"]true['"]\)/.test(ei);
     const eiNoGadgetsStatic = !/<script\s+src=["']js\/gadgets\.js["']/.test(ei);
     const okEmbedLight =
       eiStatus &&
@@ -444,13 +444,17 @@ function get(path) {
         let longOk = true;
         let trailOk = true;
         let tabsOk = true;
+        let inCode = false;
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
-          const m = /^(#{1,6})\s+/.exec(line);
-          if (m) {
-            const lvl = m[1].length;
-            if (lastLevel > 0 && lvl > lastLevel + 1) headingStepOk = false;
-            lastLevel = lvl;
+          if (line.startsWith('```')) inCode = !inCode;
+          if (!inCode) {
+            const m = /^(#{1,6})\s+/.exec(line);
+            if (m) {
+              const lvl = m[1].length;
+              if (lastLevel > 0 && lvl > lastLevel + 1) headingStepOk = false;
+              lastLevel = lvl;
+            }
           }
           if (line.length > 200) longOk = false;
           if (/\s$/.test(line)) trailOk = false;

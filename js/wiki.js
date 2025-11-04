@@ -100,7 +100,7 @@
       variety.value = String(api.get('variety','balanced'));
       settings.appendChild(detailLbl); settings.appendChild(detail); settings.appendChild(toneLbl); settings.appendChild(tone); settings.appendChild(varietyLbl); settings.appendChild(variety);
 
-      var layout = el('div'); layout.style.display='grid'; layout.style.gridTemplateColumns='minmax(180px, 280px) 1fr'; layout.style.gap='8px';
+      var layout = el('div'); layout.style.display='grid'; layout.style.gridTemplateColumns='minmax(180px, 280px) 1fr minmax(200px, 1fr)'; layout.style.gap='8px';
       var listWrap = el('div'); listWrap.style.border='1px solid var(--border-color)'; listWrap.style.borderRadius='4px'; listWrap.style.padding='6px'; listWrap.style.maxHeight='280px'; listWrap.style.overflow='auto';
       var list = el('div'); listWrap.appendChild(list);
       var editor = el('div'); editor.style.display='grid'; editor.style.gap='6px'; editor.style.alignContent='start';
@@ -125,6 +125,7 @@
           var dy = ev.clientY - startY;
           var nh = Math.max(180, Math.min(1200, startH + dy));
           body.style.height = nh + 'px';
+          updatePreviewHeight(); // プレビュー高さを同期
         }
         function onUp(){
           if (!resizing) return;
@@ -150,11 +151,73 @@
       var btnGenerate = el('button','small'); btnGenerate.textContent='選択語から生成';
       editor.appendChild(title); editor.appendChild(folder); editor.appendChild(tags); editor.appendChild(body); editor.appendChild(bodyResizer); editor.appendChild(btnSave); editor.appendChild(btnGenerate);
 
-      layout.appendChild(listWrap); layout.appendChild(editor);
+      // Markdownレンダリング関数（XSS対策付き）
+      function renderMarkdownBasic(md){
+        try {
+          let html = String(md||'');
+          // XSS対策: 危険なHTMLタグ除去（基本的なサニタイズ）
+          html = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+          html = html.replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
+          html = html.replace(/<object[^>]*>[\s\S]*?<\/object>/gi, '');
+          html = html.replace(/<embed[^>]*>[\s\S]*?<\/embed>/gi, '');
+          html = html.replace(/<form[^>]*>[\s\S]*?<\/form>/gi, '');
+          html = html.replace(/<input[^>]*>/gi, '');
+          html = html.replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '');
+          html = html.replace(/<a[^>]*href\s*=\s*["']?\s*javascript:[^"']*["']?[^>]*>/gi, '');
+          html = html.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+          // コードブロック
+          html = html.replace(/```([\s\S]*?)```/g, function(_, code){
+            const esc = code.replace(/[&<>]/g, (c)=> ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+            return '<pre><code>'+esc+'</code></pre>';
+          });
+          // 見出し
+          html = html.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>')
+                     .replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>')
+                     .replace(/^####\s+(.+)$/gm, '<h4>$1</h4>')
+                     .replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
+                     .replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
+                     .replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
+          // 箇条書き（単純変換）
+          html = html.replace(/^(?:-\s+.+(?:\n|$))+?/gm, function(block){
+            const items = block.trim().split(/\n/).map(l => l.replace(/^[-*]\s+/, '').trim()).filter(Boolean);
+            return '<ul>'+ items.map(it => '<li>'+it+'</li>').join('') +'</ul>';
+          });
+          // 番号リスト（単純）
+          html = html.replace(/^(?:(?:\d+)\.\s+.+(?:\n|$))+?/gm, function(block){
+            const items = block.trim().split(/\n/).map(l => l.replace(/^\d+\.\s+/, '').trim()).filter(Boolean);
+            return '<ol>'+ items.map(it => '<li>'+it+'</li>').join('') +'</ol>';
+          });
+          // 太字/斜体/インラインコード/リンク
+          html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                     .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                     .replace(/`([^`]+)`/g, '<code>$1</code>')
+                     .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+          // 段落
+          html = html.replace(/(^|\n)([^<\n][^\n]*)/g, function(_, br, line){
+            if (/^\s*$/.test(line)) return br+line;
+            if (/^<h\d|^<pre|^<ul|^<ol/.test(line)) return br+line;
+            return br+'<p>'+line+'</p>';
+          });
+          return html;
+        } catch(_) { return '<pre>Render failed.</pre>'; }
+      }
+
+      // Markdownプレビュー領域
+      var previewWrap = el('div'); previewWrap.style.border='1px solid var(--border-color)'; previewWrap.style.borderRadius='4px'; previewWrap.style.padding='6px'; previewWrap.style.overflow='auto'; previewWrap.style.background='var(--bg-color)'; previewWrap.style.color='var(--text-color)';
+      var previewTitle = el('div'); previewTitle.textContent='プレビュー'; previewTitle.style.fontWeight='600'; previewTitle.style.marginBottom='6px'; previewTitle.style.fontSize='0.9rem';
+      var preview = el('div'); preview.className='wiki-preview'; preview.style.minHeight='180px'; preview.style.fontSize='0.9rem'; preview.style.lineHeight='1.4';
+      previewWrap.appendChild(previewTitle); previewWrap.appendChild(preview);
+
+      function updatePreviewHeight(){
+        preview.style.minHeight = body.style.height;
+      }
+      updatePreviewHeight();
+
+      layout.appendChild(listWrap); layout.appendChild(editor); layout.appendChild(previewWrap);
 
       root.appendChild(toolbar); root.appendChild(settings); root.appendChild(layout);
 
-      var state = { currentId: null, items: [] };
+      var state = { currentId: null, items: [], visibleRange: { start: 0, end: 50 }, observer: null };
       function seedHelpPages(){
         var helpPages = [
           { id: 'help-editor', title: 'エディタ機能', folder: 'ヘルプ', content: '# エディタ機能\n\n## 基本操作\n- **テキスト入力**: 直接編集可能\n- **保存**: Ctrl+S または自動保存\n\n## タイプライター・モード\n- 設定で有効化\n- カーソル位置にテキストが追従\n\n## フォント装飾\n- トップバーアイコンで太字、斜体等\n- テキストアニメーション: フェード、スケール等\n\n## プレビュー\n- マークダウンリアルタイムプレビュー\n- スクロール同期可能', tags: ['help','editor'] },
@@ -173,6 +236,70 @@
         });
       }
       seedHelpPages();
+
+      // 仮想スクロール用Intersection Observer
+      function setupVirtualScroll(){
+        if (state.observer) state.observer.disconnect();
+        state.observer = new IntersectionObserver(function(entries){
+          entries.forEach(function(entry){
+            if (entry.isIntersecting){
+              const index = parseInt(entry.target.dataset.index, 10);
+              if (index < state.visibleRange.start - 10){
+                // 上方向スクロール
+                state.visibleRange.start = Math.max(0, index - 20);
+                state.visibleRange.end = state.visibleRange.start + 50;
+                renderVisibleItems();
+              } else if (index > state.visibleRange.end - 10){
+                // 下方向スクロール
+                state.visibleRange.end = Math.min(state.items.length, index + 30);
+                state.visibleRange.start = Math.max(0, state.visibleRange.end - 50);
+                renderVisibleItems();
+              }
+            }
+          });
+        }, { root: listWrap, threshold: 0.1 });
+      }
+
+      function renderVisibleItems(){
+        if (!state.items.length) {
+          list.innerHTML = '<div style="padding:8px; color:#999;">ページがありません</div>';
+          return;
+        }
+        const fragment = document.createDocumentFragment();
+        const start = state.visibleRange.start;
+        const end = Math.min(state.visibleRange.end, state.items.length);
+        for (let i = start; i < end; i++){
+          const p = state.items[i];
+          const row = el('div','wiki-row');
+          row.style.display='grid'; row.style.gridTemplateColumns='1fr auto'; row.style.alignItems='center'; row.style.gap='6px'; row.style.padding='4px'; row.style.borderBottom='1px solid var(--border-color)';
+          row.dataset.index = i;
+          const left = el('div');
+          const ttl = el('div'); ttl.textContent = p.title || p.id; ttl.style.fontWeight='600';
+          const meta = el('div'); meta.style.fontSize='0.8rem'; meta.style.opacity='0.8'; meta.textContent = (p.folder? '['+p.folder+'] ' : '') + joinTags(p.tags||[]);
+          left.appendChild(ttl); left.appendChild(meta);
+          const open = el('button','small'); open.textContent='開く';
+          open.addEventListener('click', function(){ loadToEditor(p.id); });
+          row.appendChild(left); row.appendChild(open);
+          fragment.appendChild(row);
+        }
+        // 上下バッファ
+        if (start > 0){
+          const topPad = el('div'); topPad.style.height = (start * 40) + 'px'; fragment.insertBefore(topPad, fragment.firstChild);
+        }
+        if (end < state.items.length){
+          const bottomPad = el('div'); bottomPad.style.height = ((state.items.length - end) * 40) + 'px'; fragment.appendChild(bottomPad);
+        }
+        list.innerHTML = '';
+        list.appendChild(fragment);
+        // Observer設定
+        const rows = list.querySelectorAll('.wiki-row');
+        rows.forEach(function(row, idx){
+          if (idx < 5 || idx > rows.length - 6){
+            state.observer.observe(row);
+          }
+        });
+      }
+
       function refreshList(){
         var all = STORAGE.listWikiPages();
         var q = String(search.value||'').toLowerCase();
@@ -181,20 +308,13 @@
           return hay.toLowerCase().indexOf(q) >= 0;
         });
         state.items = filtered;
-        list.innerHTML = '';
-        filtered.forEach(function(p){
-          var row = el('div','wiki-row');
-          row.style.display='grid'; row.style.gridTemplateColumns='1fr auto'; row.style.alignItems='center'; row.style.gap='6px'; row.style.padding='4px'; row.style.borderBottom='1px solid var(--border-color)';
-          var left = el('div');
-          var ttl = el('div'); ttl.textContent = p.title || p.id; ttl.style.fontWeight='600';
-          var meta = el('div'); meta.style.fontSize='0.8rem'; meta.style.opacity='0.8'; meta.textContent = (p.folder? '['+p.folder+'] ' : '') + joinTags(p.tags||[]);
-          left.appendChild(ttl); left.appendChild(meta);
-          var open = el('button','small'); open.textContent='開く';
-          open.addEventListener('click', function(){ loadToEditor(p.id); });
-          row.appendChild(left); row.appendChild(open);
-          list.appendChild(row);
-        });
+        state.visibleRange = { start: 0, end: Math.min(50, filtered.length) };
+        if (!state.observer) setupVirtualScroll();
+        renderVisibleItems();
       }
+      // リアルタイムプレビュー更新
+      body.addEventListener('input', updatePreview);
+
       function loadToEditor(id){
         var all = STORAGE.listWikiPages();
         var p = all.find(function(x){ return x && x.id === id; });
@@ -204,6 +324,7 @@
         folder.value = p.folder || '';
         tags.value = joinTags(p.tags||[]);
         body.value = p.content || '';
+        updatePreview(); // プレビュー更新
       }
       function saveCurrent(){
         var id = state.currentId;

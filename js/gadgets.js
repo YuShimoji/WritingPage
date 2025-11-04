@@ -462,7 +462,9 @@
             wrap.dataset.name = name;
             wrap.dataset.group = group;
             // ガジェット本体はドラッグ不可。ヘッダーのみドラッグ可能。
-            wrap.setAttribute('draggable', 'false');
+            wrap.setAttribute('role', 'region');
+            wrap.setAttribute('aria-label', (g.title || name) + 'ガジェット');
+            wrap.setAttribute('aria-expanded', !collapsed);
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
@@ -472,7 +474,8 @@
             toggleBtn.type='button';
             toggleBtn.className='gadget-toggle';
             toggleBtn.textContent = (collapsed ? '▶' : '▼');
-            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name;
+            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name; title.id = 'gadget-title-' + name;
+            wrap.setAttribute('aria-labelledby', title.id);
             var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
             var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
             var settingsBtn = null;
@@ -483,11 +486,11 @@
             // 削除ボタン（現在のタブから除外）
             var removeBtn = document.createElement('button');
             removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='✕';
-            head.appendChild(title);
-            head.appendChild(toggleBtn);
-            if (settingsBtn) head.appendChild(settingsBtn);
-            head.appendChild(upBtn); head.appendChild(downBtn);
-            head.appendChild(removeBtn);
+            toggleBtn.setAttribute('aria-label', collapsed ? '展開' : '折りたたみ');
+            upBtn.setAttribute('aria-label', '上へ移動');
+            downBtn.setAttribute('aria-label', '下へ移動');
+            if (settingsBtn) settingsBtn.setAttribute('aria-label', '設定を開く');
+            removeBtn.setAttribute('aria-label', 'このガジェットを削除');
             // styles moved to CSS (.gadget-head)
             wrap.appendChild(head);
 
@@ -495,12 +498,12 @@
             body.className = 'gadget-body';
             if (collapsed) body.style.display = 'none';
             wrap.appendChild(body);
-            // 折りたたみトグル
             toggleBtn.addEventListener('click', function(){
               try {
                 collapsed = !collapsed;
                 body.style.display = collapsed ? 'none' : '';
                 toggleBtn.textContent = collapsed ? '▶' : '▼';
+                wrap.setAttribute('aria-expanded', !collapsed);
                 var p = loadPrefs();
                 p.collapsed = p.collapsed || {};
                 p.collapsed[name] = collapsed;

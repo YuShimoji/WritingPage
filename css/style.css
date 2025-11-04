@@ -58,20 +58,6 @@
   --heading-h6-line-height: 1.4;
 }
 
-/* エディタオーバーレイ: 文字数スタンプ */
-.editor-overlay__stamp {
-  position: absolute;
-  pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-}
-
-/* ツールバーが非表示のときはサイドバーを全高に */
-html[data-toolbar-hidden='true'] .sidebar {
-  top: 0;
-  height: 100vh;
-}
-
 /* 小さめのボタン汎用スタイル */
 .small {
   font-size: 12px;
@@ -267,7 +253,6 @@ body {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  scroll-behavior: smooth;
 }
 
 #editor::-webkit-scrollbar {
@@ -294,16 +279,6 @@ body {
   max-width: calc(100% - 20px);
   pointer-events: auto;
   cursor: move;
-}
-
-.editor-overlay__wrap-guide {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(2rem + var(--wrap-ch, 80ch));
-  width: 0;
-  border-left: 1px dashed rgba(0, 0, 0, 0.25);
-  pointer-events: none;
 }
 
 .editor-overlay__image img {
@@ -412,19 +387,11 @@ body {
   position: sticky; /* スクロール時も上部に固定 */
   top: 0;
   z-index: 1100;
-  width: 100vw; /* 固定幅に */
-  box-sizing: border-box;
 }
 
 .word-count {
   font-size: 0.9rem;
   opacity: 0.7;
-}
-
-.sidebar-controls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
 }
 
 .toolbar-actions {
@@ -463,18 +430,16 @@ body {
 /* サイドバー */
 .sidebar {
   position: fixed;
-  top: 60px;
+  top: 0;
   left: -320px;
   width: 320px;
-  height: calc(100vh - 60px);
+  height: 100vh;
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
   padding: 1rem;
   overflow: hidden;
-  transition:
-    left var(--transition-speed),
-    background-color var(--transition-speed),
-    color var(--transition-speed);
+  /* アニメーションを一時的に無効化 */
+  transition: none;
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -482,11 +447,7 @@ body {
 }
 
 .sidebar.open {
-  left: 0;
-}
-
-.sidebar.open ~ .main-content {
-  margin-left: 320px;
+  left: 0 !important; /* インラインスタイルを上書き */
 }
 
 .sidebar-header {
@@ -650,7 +611,7 @@ body {
 /* ボタン */
 button,
 .button {
-  background-color: var(--button-color, var(--accent-color));
+  background-color: var(--accent-color, var(--focus-color));
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -798,10 +759,6 @@ input[type='color'] {
 
   .sidebar.open {
     left: 0;
-  }
-  /* モバイルではメインコンテンツのマージンを付けない */
-  .sidebar.open ~ .main-content {
-    margin-left: 0 !important;
   }
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {
@@ -1040,15 +997,6 @@ input[type='color'] {
   padding: 6px 8px;
   border-top: 1px dashed var(--border-color);
   background: rgba(0, 0, 0, 0.03);
-}
-
-/* ===== Wiki ガジェット: 縦リサイズハンドル ===== */
-.wiki-resizer-y {
-  height: 6px;
-  cursor: ns-resize;
-  background: transparent;
-  border-top: 1px dashed var(--border-color);
-  margin-top: 2px;
 }
 
 /* ドラッグ状態 */
@@ -1629,25 +1577,15 @@ html[data-embed='true'] #editor {
   overflow: auto;
 }
 
-.character-stamp {
+/* フローティングパネル */
+.floating-panels {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-family: var(--font-family);
-  z-index: 100;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-}
-
-.inline-stamp {
-  font-style: italic;
-  font-size: 0.75em;
-  opacity: 0.6;
-  color: var(--text-color);
+  z-index: 99;
 }
 
 .floating-panels .dockable-panel {
@@ -1689,3 +1627,24 @@ html[data-embed='true'] #editor {
 .bottom-panels .panel-header {
   border-radius: 0;
 }
+
+/* ===== Wiki Markdownプレビュー ===== */
+.wiki-preview h1,
+.wiki-preview h2,
+.wiki-preview h3,
+.wiki-preview h4,
+.wiki-preview h5,
+.wiki-preview h6 { margin: 0.5em 0 0.25em; font-weight: bold; }
+.wiki-preview h1 { font-size: 1.2em; }
+.wiki-preview h2 { font-size: 1.1em; }
+.wiki-preview h3 { font-size: 1em; }
+.wiki-preview p { margin: 0.5em 0; }
+.wiki-preview ul, .wiki-preview ol { margin: 0.5em 0; padding-left: 1.5em; }
+.wiki-preview li { margin: 0.25em 0; }
+.wiki-preview pre { background: #f5f5f5; border: 1px solid var(--border-color); padding: 8px; overflow: auto; border-radius: 4px; margin: 0.5em 0; }
+.wiki-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; background: #f0f0f0; padding: 2px 4px; border-radius: 3px; }
+.wiki-preview pre code { background: transparent; padding: 0; }
+.wiki-preview strong { font-weight: bold; }
+.wiki-preview em { font-style: italic; }
+.wiki-preview a { color: #007acc; text-decoration: underline; }
+.wiki-preview a:hover { text-decoration: none; }

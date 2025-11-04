@@ -55,6 +55,11 @@ const DEFAULT_SETTINGS = {
     preview: {
         syncScroll: false
     },
+    // 自動保存設定
+    autoSave: {
+        enabled: false,
+        delayMs: 2000
+    },
     // UI設定
     ui: {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
@@ -404,6 +409,7 @@ function loadSettings() {
             merged.typewriter = { ...DEFAULT_SETTINGS.typewriter, ...(parsed.typewriter || {}) };
             merged.snapshot = { ...DEFAULT_SETTINGS.snapshot, ...(parsed.snapshot || {}) };
             merged.preview = { ...DEFAULT_SETTINGS.preview, ...(parsed.preview || {}) };
+            merged.autoSave = { ...DEFAULT_SETTINGS.autoSave, ...(parsed.autoSave || {}) };
             merged.ui = { ...DEFAULT_SETTINGS.ui, ...(parsed.ui || {}) };
             return merged;
         }
@@ -417,6 +423,7 @@ function loadSettings() {
         typewriter: { ...DEFAULT_SETTINGS.typewriter },
         snapshot: { ...DEFAULT_SETTINGS.snapshot },
         preview: { ...DEFAULT_SETTINGS.preview },
+        autoSave: { ...DEFAULT_SETTINGS.autoSave },
         ui: { ...DEFAULT_SETTINGS.ui }
     };
 }
