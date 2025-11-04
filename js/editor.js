@@ -12,11 +12,44 @@ class EditorManager {
         this.SNAPSHOT_MIN_DELTA = 300; // 300文字以上の変化
         // 目標達成の一時フラグ（再達成の過剰通知を抑止）
         this._goalReachedNotified = false;
+        // テキスト修飾ツールチップ
+        this.tooltip = null;
+        this.createTooltip();
         this.setupEventListeners();
         this.loadContent();
         this.updateWordCount();
     }
 
+    /**
+     * テキスト修飾ツールチップを作成
+     */
+    createTooltip() {
+        this.tooltip = document.createElement('div');
+        this.tooltip.className = 'text-decoration-tooltip';
+        this.tooltip.innerHTML = `
+            <button data-decoration="bold" title="太字">B</button>
+            <button data-decoration="italic" title="斜体">I</button>
+            <button data-decoration="strikethrough" title="取り消し線">S</button>
+            <button data-decoration="code" title="コード">` + '`' + `</button>
+            <button data-decoration="link" title="リンク">[リンク]</button>
+        `;
+        document.body.appendChild(this.tooltip);
+
+        // ボタンイベント
+        this.tooltip.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (btn && btn.dataset.decoration) {
+                this.applyDecoration(btn.dataset.decoration);
+            }
+        });
+
+        // ツールチップ外クリックで非表示
+        document.addEventListener('click', (e) => {
+            if (!this.tooltip.contains(e.target) && e.target !== this.editor) {
+                this.hideTooltip();
+            }
+        });
+    }
     /**
      * イベントリスナーを設定
      */
@@ -26,6 +59,21 @@ class EditorManager {
             this.saveContent();
             this.updateWordCount();
             this.maybeAutoSnapshot();
+        });
+
+        // テキスト選択時のツールチップ表示
+        document.addEventListener('selectionchange', () => {
+            const selection = window.getSelection();
+            if (selection.rangeCount > 0 && this.editor.contains(selection.anchorNode)) {
+                const range = selection.getRangeAt(0);
+                if (!range.collapsed) {
+                    this.showTooltip(range);
+                } else {
+                    this.hideTooltip();
+                }
+            } else {
+                this.hideTooltip();
+            }
         });
 
         // タブキーでインデント
@@ -360,8 +408,76 @@ class EditorManager {
         if (panelNumber) panelNumber.value = next;
     }
 
+    /**
+     * テキスト修飾ツールチップを表示
+     * @param {Range} range - 選択範囲
+     */
+    showTooltip(range) {
+        if (!this.tooltip) return;
+        const rect = range.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        this.tooltip.style.left = (rect.left + scrollLeft + rect.width / 2 - this.tooltip.offsetWidth / 2) + 'px';
+        this.tooltip.style.top = (rect.top + scrollTop - this.tooltip.offsetHeight - 8) + 'px';
+        this.tooltip.classList.add('show');
+    }
+
+    /**
+     * テキスト修飾ツールチップを非表示
+     */
+    hideTooltip() {
+        if (!this.tooltip) return;
+        this.tooltip.classList.remove('show');
+    }
+
     clampFontSize(px) {
         return Math.min(48, Math.max(12, Math.round(px)));
+    }
+
+    /**
+     * 修飾を適用
+     * @param {string} type - 修飾タイプ
+     */
+    applyDecoration(type) {
+        const start = this.editor.selectionStart;
+        const end = this.editor.selectionEnd;
+        if (start === end) return; // 選択なし
+
+        const selectedText = this.editor.value.substring(start, end);
+        let replacement = '';
+
+        switch (type) {
+            case 'bold':
+                replacement = `**${selectedText}**`;
+                break;
+            case 'italic':
+                replacement = `*${selectedText}*`;
+                break;
+            case 'strikethrough':
+                replacement = `~~${selectedText}~~`;
+                break;
+            case 'code':
+                replacement = `\`${selectedText}\``;
+                break;
+            case 'link':
+                const url = prompt('リンクURLを入力:', 'https://');
+                if (url) {
+                    replacement = `[${selectedText}](${url})`;
+                } else {
+                    return; // キャンセル
+                }
+                break;
+            default:
+                return;
+        }
+
+        this.editor.setRangeText(replacement);
+        this.editor.selectionStart = start;
+        this.editor.selectionEnd = start + replacement.length;
+        this.editor.focus();
+        this.saveContent();
+        this.updateWordCount();
+        this.hideTooltip();
     }
 }
 
