@@ -3118,6 +3118,154 @@
     // 動的タブ追加デモ: Wikiタブ
     ZWGadgets.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
     ZWGadgets.init('#wiki-gadgets-panel', { group: 'wiki' });
+
+    // Loadout UI event handlers
+    var loadoutSelect = document.getElementById('loadout-select');
+    var loadoutName = document.getElementById('loadout-name');
+    var loadoutSave = document.getElementById('loadout-save');
+    var loadoutDuplicate = document.getElementById('loadout-duplicate');
+    var loadoutApply = document.getElementById('loadout-apply');
+    var loadoutDelete = document.getElementById('loadout-delete');
+
+    // Loadout select change
+    if (loadoutSelect) {
+      loadoutSelect.addEventListener('change', function() {
+        var selected = loadoutSelect.value;
+        if (selected && loadoutName) {
+          var loadouts = ZWGadgets.listLoadouts();
+          var entry = loadouts.find(function(l) { return l.name === selected; });
+          if (entry) {
+            loadoutName.value = entry.label || '';
+          }
+        }
+      });
+    }
+
+    // Loadout save
+    if (loadoutSave) {
+      loadoutSave.addEventListener('click', function() {
+        var name = loadoutSelect.value;
+        var label = loadoutName.value.trim();
+        if (!label) {
+          alert('ロードアウト名を入力してください');
+          return;
+        }
+        if (!name) {
+          name = 'loadout_' + Date.now().toString(36);
+        }
+        var config = ZWGadgets.captureCurrentLoadout(label);
+        ZWGadgets.defineLoadout(name, config);
+        alert('ロードアウトを保存しました');
+        // Update select
+        if (loadoutSelect) {
+          loadoutSelect.innerHTML = '';
+          var loadouts = ZWGadgets.listLoadouts();
+          loadouts.forEach(function(l) {
+            var opt = document.createElement('option');
+            opt.value = l.name;
+            opt.textContent = l.label;
+            loadoutSelect.appendChild(opt);
+          });
+          loadoutSelect.value = name;
+        }
+      });
+    }
+
+    // Loadout duplicate
+    if (loadoutDuplicate) {
+      loadoutDuplicate.addEventListener('click', function() {
+        var selected = loadoutSelect.value;
+        if (!selected) {
+          alert('複製するロードアウトを選択してください');
+          return;
+        }
+        var loadouts = ZWGadgets.listLoadouts();
+        var entry = loadouts.find(function(l) { return l.name === selected; });
+        if (!entry) return;
+        var newName = 'loadout_' + Date.now().toString(36);
+        var newLabel = (loadoutName.value.trim() || entry.label) + ' (複製)';
+        ZWGadgets.defineLoadout(newName, { label: newLabel, groups: entry.groups || normaliseGroups({}) });
+        alert('ロードアウトを複製しました');
+        // Update select
+        if (loadoutSelect) {
+          loadoutSelect.innerHTML = '';
+          var loadouts2 = ZWGadgets.listLoadouts();
+          loadouts2.forEach(function(l) {
+            var opt = document.createElement('option');
+            opt.value = l.name;
+            opt.textContent = l.label;
+            loadoutSelect.appendChild(opt);
+          });
+          loadoutSelect.value = newName;
+          if (loadoutName) loadoutName.value = newLabel;
+        }
+      });
+    }
+
+    // Loadout apply
+    if (loadoutApply) {
+      loadoutApply.addEventListener('click', function() {
+        var selected = loadoutSelect.value;
+        if (!selected) {
+          alert('適用するロードアウトを選択してください');
+          return;
+        }
+        var success = ZWGadgets.applyLoadout(selected);
+        if (success) {
+          alert('ロードアウトを適用しました');
+        } else {
+          alert('ロードアウトの適用に失敗しました');
+        }
+      });
+    }
+
+    // Loadout delete
+    if (loadoutDelete) {
+      loadoutDelete.addEventListener('click', function() {
+        var selected = loadoutSelect.value;
+        if (!selected) {
+          alert('削除するロードアウトを選択してください');
+          return;
+        }
+        if (!confirm('このロードアウトを削除しますか？この操作は元に戻せません。')) {
+          return;
+        }
+        var success = ZWGadgets.deleteLoadout(selected);
+        if (success) {
+          alert('ロードアウトを削除しました');
+          // Update select
+          if (loadoutSelect) {
+            loadoutSelect.innerHTML = '';
+            var loadouts = ZWGadgets.listLoadouts();
+            loadouts.forEach(function(l) {
+              var opt = document.createElement('option');
+                opt.value = l.name;
+                opt.textContent = l.label;
+                loadoutSelect.appendChild(opt);
+              });
+            }
+          } else {
+            alert('ロードアウトの削除に失敗しました');
+          }
+        });
+      }
+    }
+
+    // Initialize loadout select
+    if (loadoutSelect) {
+      var loadouts = ZWGadgets.listLoadouts();
+      loadouts.forEach(function(l) {
+        var opt = document.createElement('option');
+        opt.value = l.name;
+        opt.textContent = l.label;
+        loadoutSelect.appendChild(opt);
+      });
+      var active = ZWGadgets.getActiveLoadout();
+      if (active) {
+        loadoutSelect.value = active.name;
+        if (loadoutName) loadoutName.value = active.label;
+      }
+    }
   });
 
 })();
