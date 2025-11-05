@@ -61,18 +61,49 @@ class EditorManager {
             this.maybeAutoSnapshot();
         });
 
-        // テキスト選択時のツールチップ表示
-        document.addEventListener('selectionchange', () => {
-            const selection = window.getSelection();
-            if (selection.rangeCount > 0 && this.editor.contains(selection.anchorNode)) {
-                const range = selection.getRangeAt(0);
-                if (!range.collapsed) {
-                    this.showTooltip(range);
-                } else {
-                    this.hideTooltip();
-                }
+        // テキスト選択時のツールチップ表示 (textarea用)
+        const checkSelection = () => {
+            const start = this.editor.selectionStart;
+            const end = this.editor.selectionEnd;
+            if (start !== end) {
+                // 選択範囲の位置を計算
+                const textBefore = this.editor.value.substring(0, start);
+                const linesBefore = textBefore.split('\n');
+                const lastLine = linesBefore[linesBefore.length - 1];
+                const lineIndex = linesBefore.length - 1;
+                const charIndex = lastLine.length;
+
+                // 簡易的な位置計算（改善可能）
+                const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
+                const charWidth = 8; // 平均文字幅
+
+                const rect = this.editor.getBoundingClientRect();
+                const x = rect.left + charIndex * charWidth;
+                const y = rect.top + lineIndex * lineHeight;
+
+                // 仮のrangeオブジェクトを作成
+                const fakeRange = {
+                    getBoundingClientRect: () => ({
+                        left: x,
+                        top: y,
+                        width: (end - start) * charWidth,
+                        height: lineHeight
+                    })
+                };
+
+                this.showTooltip(fakeRange);
             } else {
                 this.hideTooltip();
+            }
+        };
+
+        this.editor.addEventListener('select', checkSelection);
+        this.editor.addEventListener('mouseup', checkSelection);
+        this.editor.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown' ||
+                e.key === 'Home' || e.key === 'End' || e.key === 'PageUp' || e.key === 'PageDown' ||
+                (e.ctrlKey && (e.key === 'a' || e.key === 'A'))) {
+                setTimeout(checkSelection, 0);
             }
         });
 
@@ -102,7 +133,7 @@ class EditorManager {
                     this.adjustGlobalFontSize(-1);
                 } else if (e.key === '0') {
                     e.preventDefault();
-                    const defaults = window.ZenWriterStorage.DEFAULT_SETTINGS;
+                    const defaults = window.ZenWriterStorage.loadSettings();
                     this.setGlobalFontSize(defaults.fontSize);
                 }
             }

@@ -265,6 +265,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
         sidebar.classList.toggle('open');
+        const main = document.querySelector('.main-content');
+        if (main && window.innerWidth > 768) { // モバイルでは全幅スライドなのでmargin不要
+            main.style.marginLeft = sidebar.classList.contains('open') ? '300px' : '0';
+        }
     }
 
     // ツールバー表示/非表示の適用（保存・レイアウト反映を含む）
