@@ -1150,12 +1150,10 @@ input[type='color'] {
 
 /* ===== 埋め込みモード（?embed=1） ===== */
 html[data-embed='true'] .sidebar,
-html[data-embed='true'] .toolbar,
-html[data-embed='true'] .fab-toggle-toolbar,
-html[data-embed='true'] .fab-tools,
-html[data-embed='true'] .floating-panel {
+html[data-embed='true'] .toolbar {
   display: none !important;
 }
+html[data-embed='true'] .fab-toggle-toolbar,
 html[data-embed='true'] .editor-container {
   max-width: none;
   padding: 0;
@@ -1163,6 +1161,11 @@ html[data-embed='true'] .editor-container {
 html[data-embed='true'] #editor {
   height: 100vh;
   padding: 1rem; /* 画面内で読みやすい余白 */
+}
+
+/* ===== サイドバー開閉時のメインコンテンツ移動 ===== */
+html[data-sidebar-open] .main-content {
+  margin-left: var(--sidebar-width, 300px);
 }
 
 /* ===== 印刷用スタイル ===== */

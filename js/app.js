@@ -242,9 +242,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // CSSクラスの更新
         if (open) {
             sidebar.classList.add('open');
+            document.documentElement.setAttribute('data-sidebar-open', 'true');
             logger.info('サイドバーに .open クラスを追加');
         } else {
             sidebar.classList.remove('open');
+            document.documentElement.removeAttribute('data-sidebar-open');
             logger.info('サイドバーから .open クラスを削除');
         }
         
@@ -475,6 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // ツールバー表示状態
         if (typeof settings.toolbarVisible !== 'undefined') {
             setToolbarVisibility(!!settings.toolbarVisible);
+        }
+
+        // サイドバー表示状態
+        if (typeof settings.sidebarVisible !== 'undefined') {
+            forceSidebarState(!!settings.sidebarVisible);
         }
 
         // 執筆目標の初期反映
@@ -714,7 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    forceSidebarState(false);
+    // forceSidebarState(false); // 設定反映に任せる
     
     // カラーピッカー
     const bgColorInput = elementManager.get('bgColorInput');
