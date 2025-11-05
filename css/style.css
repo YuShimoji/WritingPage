@@ -102,7 +102,8 @@ input[type="text"]:focus, input[type="range"]:focus, input[type="number"]:focus,
 html[data-toolbar-hidden='true'] .toolbar {
   display: none !important;
 }
-/* ツールバー表示時は、重なりを避けるためエディタ上端に余白を追加 */
+
+/* ツールバー表示時は、エディタ上端に余白を追加 */
 html:not([data-toolbar-hidden='true']) #editor {
   padding-top: calc(60px + 1rem);
 }
@@ -373,6 +374,11 @@ body {
 
 /* ツールバー */
 .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -384,8 +390,6 @@ body {
     background-color var(--transition-speed),
     color var(--transition-speed),
     border-color var(--transition-speed);
-  position: sticky; /* スクロール時も上部に固定 */
-  top: 0;
   z-index: 1100;
 }
 
@@ -1166,6 +1170,11 @@ html[data-embed='true'] #editor {
 /* ===== サイドバー開閉時のメインコンテンツ移動 ===== */
 html[data-sidebar-open] .main-content {
   margin-left: var(--sidebar-width, 300px);
+}
+
+/* ===== サイドバー開閉時のツールバー位置調整 ===== */
+html[data-sidebar-open] .toolbar {
+  left: var(--sidebar-width, 300px);
 }
 
 /* ===== 印刷用スタイル ===== */
