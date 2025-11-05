@@ -83,12 +83,16 @@ class ThemeManager {
   }
 
   /**
-   * ボタン色の上書きを解除
+   * カスタムカラーの上書きを解除
    */
-  clearButtonColor() {
+  clearCustomColors() {
     const root = document.documentElement;
-    root.style.removeProperty('--button-color');
-    delete this.settings.buttonColor;
+    root.style.removeProperty('--bg-color');
+    root.style.removeProperty('--text-color');
+    root.style.removeProperty('--sidebar-bg');
+    root.style.removeProperty('--toolbar-bg');
+    root.style.removeProperty('--border-color');
+    this.settings.useCustomColors = false;
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
   }
