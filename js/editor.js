@@ -30,6 +30,9 @@ class EditorManager {
         this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
         this.closeTextAnimationBtn = document.getElementById('close-text-animation-panel');
 
+        // SearchManagerを初期化
+        this.searchManager = new SearchManager(this);
+
         // 手動スクロール検知
         this.editor.addEventListener('scroll', () => {
             this._isManualScrolling = true;
@@ -41,9 +44,6 @@ class EditorManager {
 
         // 選択変更時に文字数スタンプ更新
         this.editor.addEventListener('selectionchange', () => this.updateWordCount());
-        // 検索パネル
-        this.searchPanel = document.getElementById('search-panel');
-        this.closeSearchBtn = document.getElementById('close-search-panel');
         this.setupImageHandlers();
         this.setupPreviewPanel();
         this.setupOverlaySupport();
