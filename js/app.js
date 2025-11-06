@@ -253,8 +253,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // ツールバー側の閉じるボタンの表示制御
         const toolbarCloseSidebar = elementManager.get('toolbarCloseSidebar');
         if (toolbarCloseSidebar) {
-            toolbarCloseSidebar.style.display = open ? '' : 'none';
-            logger.info(`ツールバーの閉じるボタン: ${open ? '表示' : '非表示'}`);
+            toolbarCloseSidebar.style.display = ''; // 常に表示
+            logger.info(`ツールバーの閉じるボタン: 表示`);
         }
         
         // aria-hiddenはフォーカス移動後に設定（requestAnimationFrameで次のフレームで実行）

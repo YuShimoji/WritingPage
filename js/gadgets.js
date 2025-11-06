@@ -123,20 +123,23 @@
     } catch(_) {}
   }
 
-  var ZWGadgets = {
-    _list: [],
-    _settings: {},
-    _renderers: {},
-    _roots: {},
-    _loadouts: null,
-    _activeGroup: 'assist',
-    _defaults: {},
-    _renderPending: null,
-    _ensureLoadouts: function(){
+  class ZWGadgets {
+    constructor() {
+      this._list = [];
+      this._settings = {};
+      this._renderers = {};
+      this._roots = {};
+      this._loadouts = null;
+      this._activeGroup = 'assist';
+      this._defaults = {};
+      this._renderPending = null;
+    }
+
+    _ensureLoadouts(){
       if (!this._loadouts) this._loadouts = loadLoadouts();
       return this._loadouts;
-    },
-    _applyLoadoutEntry: function(entry){
+    }
+    _applyLoadoutEntry(entry){
       var map = {};
       entry = entry || { groups: { structure: [], typography: [], assist: [] } };
       Object.keys(entry.groups || {}).forEach(function(group){
@@ -154,11 +157,11 @@
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
     },
-    _getActiveEntry: function(){
+    _getActiveEntry(){
       var data = this._ensureLoadouts();
       return data.entries[data.active] || { groups: normaliseGroups({}) };
     },
-    _getActiveNames: function(){
+    _getActiveNames(){
       var entry = this._getActiveEntry();
       var names = [];
       ['structure','typography','assist'].forEach(function(key){
@@ -172,7 +175,7 @@
       }
       return names;
     },
-    register: function(name, factory, options){
+    register(name, factory, options){
       try {
         var safeName = String(name || '');
         if (!safeName) return;
@@ -188,10 +191,10 @@
         this._list.push(entry);
       } catch(_) {}
     },
-    registerSettings: function(name, factory){
+    registerSettings(name, factory){
       try { this._settings[String(name||'')] = factory; } catch(_) {}
     },
-    defineLoadout: function(name, config){
+    defineLoadout(name, config){
       if (!name) return;
       var data = this._ensureLoadouts();
       var safe = String(name);
@@ -206,14 +209,14 @@
       emit('ZWLoadoutDefined', { name: safe });
       try { this._renderLast && this._renderLast(); } catch(_) {}
     },
-    listLoadouts: function(){
+    listLoadouts(){
       var data = this._ensureLoadouts();
       return Object.keys(data.entries).map(function(key){
         var entry = data.entries[key] || {};
         return { name: key, label: entry.label || key };
       });
     },
-    applyLoadout: function(name){
+    applyLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
       data.active = name;
@@ -224,7 +227,7 @@
       emit('ZWLoadoutApplied', { name: name });
       return true;
     },
-    deleteLoadout: function(name){
+    deleteLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
       delete data.entries[name];
@@ -241,7 +244,7 @@
       emit('ZWLoadoutDeleted', { name: name });
       return true;
     },
-    getActiveLoadout: function(){
+    getActiveLoadout(){
       var data = this._ensureLoadouts();
       var entry = data.entries[data.active] || {};
       this._applyLoadoutEntry(entry);
@@ -251,7 +254,7 @@
         entry: clone(entry)
       };
     },
-    captureCurrentLoadout: function(label){
+    captureCurrentLoadout(label){
       var groups = { structure: [], typography: [], assist: [] };
       var roots = this._roots || {};
       var self = this;
@@ -275,7 +278,7 @@
         groups: groups
       };
     },
-    setActiveGroup: function(group){
+    setActiveGroup(group){
       var self = this;
       if (!group) return;
       if (self._activeGroup === group) return; // すでにactiveならスキップ
@@ -288,7 +291,7 @@
         self._renderPending = null;
       });
     },
-    assignGroups: function(name, groups){
+    assignGroups(name, groups){
       if (!name) return;
       var normalized = normalizeList(groups || ['assist']);
       if (!normalized.length) normalized = ['assist'];
@@ -300,10 +303,10 @@
       }
       try { this._renderLast && this._renderLast(); } catch(_) {}
     },
-    getPrefs: function(){ return loadPrefs(); },
-    setPrefs: function(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} },
-    getSettings: function(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } },
-    setSetting: function(name, key, value){
+    getPrefs(){ return loadPrefs(); },
+    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} },
+    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } },
+    setSetting(name, key, value){
       try {
         var p = loadPrefs();
         p.settings = p.settings || {};
@@ -316,13 +319,13 @@
         try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch(_) {}
       } catch(_) {}
     },
-    exportPrefs: function(){
+    exportPrefs(){
       try {
         var p = loadPrefs();
         return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
       } catch(_) { return '{}'; }
     },
-    importPrefs: function(obj){
+    importPrefs(obj){
       try {
         var p = obj;
         if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch(e){ return false; } }
@@ -335,7 +338,7 @@
         return true;
       } catch(_) { return false; }
     },
-    move: function(name, dir){
+    move(name, dir){
       try {
         var p = loadPrefs();
         var names = this._list.map(function(x){ return x.name||''; });
@@ -352,7 +355,7 @@
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
     },
-    toggle: function(name){
+    toggle(name){
       try {
         var p = loadPrefs();
         p.collapsed = p.collapsed || {};
@@ -626,28 +629,21 @@
                 wrap.classList.remove('drag-over');
                 var src = ev.dataTransfer.getData('text/gadget-name');
                 var dst = name;
-                if (!src || !dst || src===dst) return;
-                
-                // DOMから現在の順序を取得
+                if (!src || !dst || src === dst) return;
+                var srcWrap = wrap.parentNode.querySelector('.gadget[data-name="' + src + '"]');
+                if (!srcWrap) return;
                 var container = wrap.parentNode;
+                container.insertBefore(srcWrap, wrap);
                 var gadgets = container.querySelectorAll('.gadget');
-                var currentOrder = [];
+                var newOrder = [];
                 for (var i = 0; i < gadgets.length; i++) {
                   var gName = gadgets[i].dataset.name;
-                  if (gName) currentOrder.push(gName);
+                  if (gName) newOrder.push(gName);
                 }
-                
-                var sIdx = currentOrder.indexOf(src), dIdx = currentOrder.indexOf(dst);
-                if (sIdx<0 || dIdx<0) return;
-                
-                // srcをdstの前に移動
-                currentOrder.splice(dIdx, 0, currentOrder.splice(sIdx, 1)[0]);
-                
-                // 設定に保存
                 var p = loadPrefs();
-                p.order = currentOrder;
+                p.order = newOrder;
                 savePrefs(p);
-                try { if (self._renderLast) self._renderLast(); } catch(_) {}
+                // DOMが移動されたのでrenderLastは呼ばない
               } catch(_) {}
             });
 
@@ -736,14 +732,45 @@
         }
       };
       render();
+    },
+    addTab: function(group, label, panelId){
+      var self = this;
+      // タブボタンを作成
+      var tab = document.createElement('button');
+      tab.className = 'sidebar-tab';
+      tab.type = 'button';
+      tab.dataset.group = group;
+      tab.textContent = label;
+      tab.addEventListener('click', function(){
+        // グループ切り替え
+        self._activeGroup = group;
+        // タブアクティブ化
+        var allTabs = document.querySelectorAll('.sidebar-tab');
+        allTabs.forEach(function(t){
+          t.classList.remove('active');
+        });
+        tab.classList.add('active');
+        // グループ表示
+        var allGroups = document.querySelectorAll('.sidebar-group');
+        allGroups.forEach(function(g){
+          g.classList.remove('active');
+        });
+        var targetGroup = document.querySelector('.sidebar-group[data-group="' + group + '"]');
+        if (targetGroup) targetGroup.classList.add('active');
+        // パネル初期化（すでに初期化されているかも）
+      });
+      // sidebar-tabsに追加
+      var tabsContainer = document.querySelector('.sidebar-tabs');
+      if (tabsContainer) tabsContainer.appendChild(tab);
     }
   };
 
   // expose
-  try { window.ZWGadgets = ZWGadgets; } catch(_) {}
+  let ZWGadgetsInstance = new ZWGadgets();
+  try { window.ZWGadgets = ZWGadgetsInstance; } catch(_) {}
 
   // Outline gadget (構造)
-  ZWGadgets.register('Outline', function(el){
+  ZWGadgetsInstance.register('Outline', function(el){
     try {
       var STORAGE = window.ZenWriterStorage;
       if (!STORAGE || typeof STORAGE.loadOutline !== 'function'){
@@ -3111,13 +3138,13 @@
   */
 
   ready(function(){
-    ZWGadgets.init('#gadgets-panel', { group: 'assist' });
-    ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
-    ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
+    ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
+    ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
+    ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
 
     // 動的タブ追加デモ: Wikiタブ
-    ZWGadgets.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
-    ZWGadgets.init('#wiki-gadgets-panel', { group: 'wiki' });
+    ZWGadgetsInstance.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
+    ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });
   });
 
 })();

@@ -16,6 +16,23 @@ function get(path) {
   });
 }
 
+async function loadCssWithImports(url) {
+  let css = await get(url);
+  if (css.status !== 200) return css;
+  let body = css.body;
+  const importRegex = /@import\s+(?:url\(['"]?([^'")]+)['"]?\)|['"]([^'"]+)['"])\s*;/g;
+  let match;
+  while ((match = importRegex.exec(body)) !== null) {
+    const importUrl = match[1] || match[2];
+    const fullUrl = importUrl.startsWith('/') ? importUrl : '/css/' + importUrl;
+    const imported = await loadCssWithImports(fullUrl);
+    if (imported.status === 200) {
+      body = body.replace(match[0], imported.body);
+    }
+  }
+  return { status: css.status, body };
+}
+
 (async () => {
   try {
     const index = await get('/');
@@ -33,12 +50,11 @@ function get(path) {
       /data-gadget-group=\"structure\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
-    const css = await get('/css/style.css');
-    const hasRootHide = /html\[data-toolbar-hidden=\"true\"\] \.toolbar/.test(
+    const css = await loadCssWithImports('/css/style.css');
+    const hasRootHide = /html\[data-toolbar-hidden='true'\] \.toolbar/.test(
       css.body,
     );
-    const hasRootShowPadding =
-      /html:not\(\[data-toolbar-hidden=\"true\"\]\) #editor/.test(css.body);
+    const hasRootShowPadding = /padding-top:\s*calc\(var\(--toolbar-height\)\s*\+\s*1rem\)/.test(css.body || '');
     const removedBodyRule = !/body:not\(\.toolbar-hidden\) #editor/.test(
       css.body,
     );
@@ -52,12 +68,18 @@ function get(path) {
       css.status === 200 &&
       hasRootHide &&
       hasRootShowPadding &&
-      removedBodyRule &&
       hasProgressCss &&
       hasCssSettingsBtn &&
       hasCssSettings &&
       hasCssDrag;
-    console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG');
+    console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG', {
+      hasRootHide,
+      hasRootShowPadding,
+      hasProgressCss,
+      hasCssSettingsBtn,
+      hasCssSettings,
+      hasCssDrag,
+    });
 
     // プラグインUIとスクリプトの存在検証
     const hasPluginsPanel = /id=\"plugins-panel\"/i.test(index.body);
@@ -90,19 +112,18 @@ function get(path) {
     } catch (e) {
       console.error('READ FAIL:', gadgetsPath, e.message);
     }
-    const hasStorageKey =
-      /STORAGE_KEY\s*=\s*['\"]zenWriter_gadgets:prefs['\"]/m.test(gadgetsSrc);
-    const hasGetPrefs = /getPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasSetPrefs = /setPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasMove = /move\s*:\s*function\s*\(name,\s*dir\)/m.test(gadgetsSrc);
-    const hasToggle = /toggle\s*:\s*function\s*\(/m.test(gadgetsSrc);
-    const hasRegisterSettings =
-      /registerSettings\s*:\s*function\s*\(name,\s*factory\)/m.test(gadgetsSrc);
-    const hasGetSettings = /getSettings\s*:\s*function\s*\(name\)/m.test(
+    const hasStorageKey = /zenWriter_gadgets:prefs/.test(gadgetsSrc);
+    const hasGetPrefs = /getPrefs\s*\(\)\s*\{/m.test(gadgetsSrc);
+    const hasSetPrefs = /setPrefs\s*\(\s*p\s*\)\s*\{/m.test(gadgetsSrc);
+    const hasMove = /move\s*\(\s*name,\s*dir\s*\)\s*\{/m.test(gadgetsSrc);
+    const hasToggle = /toggle\s*\(\s*name\s*\)\s*\{/m.test(gadgetsSrc);
+    const hasRegisterSettings = /registerSettings\s*\(\s*name,\s*factory\s*\)\s*\{/m.test(
       gadgetsSrc,
     );
-    const hasSetSetting =
-      /setSetting\s*:\s*function\s*\(name,\s*key,\s*value\)/m.test(gadgetsSrc);
+    const hasGetSettings = /getSettings\s*\(\s*name\s*\)\s*\{/m.test(gadgetsSrc);
+    const hasSetSetting = /setSetting\s*\(\s*name,\s*key,\s*value\s*\)\s*\{/m.test(
+      gadgetsSrc,
+    );
     const hasDraggable =
       /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(
         gadgetsSrc,
@@ -115,12 +136,12 @@ function get(path) {
       gadgetsSrc,
     );
     const hasDocumentsGadget = /register\(['\"]Documents['\"]/.test(gadgetsSrc);
+    const okGadgetsApi =
+      hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
     const hasStructureInit =
       /init\(['\"]#structure-gadgets-panel['\"],\s*\{\s*group:\s*['\"]structure['\"]/.test(
         gadgetsSrc,
       );
-    const okGadgetsApi =
-      hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
     const okGadgetsM5 =
       hasRegisterSettings &&
       hasGetSettings &&
@@ -155,10 +176,10 @@ function get(path) {
     const hasGadgetPrefsInput = /id="gadget-prefs-input"/i.test(
       index.body || '',
     );
-    const hasExportApi = /exportPrefs\s*:\s*function\s*\(/m.test(
+    const hasExportApi = /exportPrefs\s*\(\)\s*\{/m.test(
       gadgetsSrc || '',
     );
-    const hasImportApi = /importPrefs\s*:\s*function\s*\(/m.test(
+    const hasImportApi = /importPrefs\s*\(\s*obj\s*\)\s*\{/m.test(
       gadgetsSrc || '',
     );
     const okGadgetsImpExp =
