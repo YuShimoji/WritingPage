@@ -2,6 +2,16 @@
 
 <!-- markdownlint-disable MD024 -->
 
+## [0.3.17] - 2025-11-06
+
+### Fixed
+
+- サイドバーアニメーションの途切れを修正（!important削除）
+- ガジェットの閉じた状態での半分閉じを修正（overflow-x: hidden追加）
+- 展開時のトップメニューとの重なりを修正（--sidebar-width定義）
+- トップメニューのサイドバー展開時の短縮を安定化（transition追加）
+- smoke testのCSS checkを修正（removedBodyRule削除）
+
 ## [0.3.16] - 2025-10-29
 
 ### Added
