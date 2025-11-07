@@ -74,19 +74,8 @@
         </div>
 
         <div class="sidebar-top">
-          <!-- タブを1つに統一したため、タブ切り替えUIは非表示 -->
-          <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ" style="display: none;">
-            <button
-              class="sidebar-tab active"
-              type="button"
-              id="sidebar-tab-structure"
-              data-group="structure"
-              aria-controls="sidebar-group-structure"
-              aria-selected="true"
-            >
-              ガジェット
-            </button>
-          </div>
+          <!-- タブ切り替えUI -->
+          <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ"></div>
           <div class="sidebar-loadout">
             <label for="loadout-select">ロードアウト</label>
             <div class="loadout-controls">
@@ -201,16 +190,24 @@
                 />
               </div>
             </div>
-          </section>
           <section
             class="sidebar-group"
-            data-group="editor"
-            id="sidebar-group-editor"
+            data-group="wiki"
+            id="sidebar-group-wiki"
             role="tabpanel"
-            aria-labelledby="sidebar-tab-editor"
+            aria-labelledby="sidebar-tab-wiki"
             aria-hidden="true"
             style="display: none;"
           >
+            <div class="sidebar-section">
+              <div
+                id="wiki-gadgets-panel"
+                class="gadgets-panel"
+                data-gadget-group="wiki"
+                aria-label="Wikiガジェット"
+              ></div>
+            </div>
+          </section>
             <div class="sidebar-section">
               <h4>タイプライターモード</h4>
               <div class="panel-row">
@@ -300,7 +297,6 @@
             </div>
           </div>
           <input type="number" id="goal-target" placeholder="目標文字数" style="width: 100px; margin-right: 8px;" />
-          <input type="datetime-local" id="goal-deadline" placeholder="締切" style="width: 180px; margin-right: 8px;" />
           <div class="toolbar-actions">
             <button
               id="toggle-text-animation"

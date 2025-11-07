@@ -57,7 +57,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['typography','assist'] });
+    }, { title: 'Typewriter', groups: ['structure'] });
 
     // Snapshot Manager Gadget
     window.ZWGadgets.register('SnapshotManager', function(root){
@@ -89,7 +89,7 @@
         }
       });
       root.appendChild(btn);
-    }, { title: 'Snapshot Manager', groups: ['assist','structure'] });
+    }, { title: 'Snapshot Manager', groups: ['structure'] });
 
     // Markdown Preview Gadget
     window.ZWGadgets.register('MarkdownPreview', function(root){
@@ -107,7 +107,7 @@
       sync.addEventListener('change', function(){ withStorage(function(cfg){ cfg.preview = cfg.preview||{}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['assist','typography'] });
+    }, { title: 'Markdown Preview', groups: ['structure'] });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function(root){
@@ -135,8 +135,48 @@
       hInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.heading = toInt(hInput.value,20); }); applyElementFontSizes(); });
       bInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.body = toInt(bInput.value,16); }); applyElementFontSizes(); });
 
-      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(fontRow);
-    }, { title: 'UI Settings', groups: ['assist'] });
+      var tabRow = el('div');
+      var tabLabel = el('label'); tabLabel.textContent='新しいタブ'; tabLabel.style.display='block';
+      var tabInput = el('input'); tabInput.type='text'; tabInput.placeholder='タブ名'; tabInput.style.width='100%';
+      var tabBtn = el('button','small'); tabBtn.textContent='追加';
+      tabRow.appendChild(tabLabel); tabRow.appendChild(tabInput); tabRow.appendChild(tabBtn);
+
+      tabBtn.addEventListener('click', function(){
+        var name = tabInput.value.trim();
+        if (!name) { alert('タブ名を入力してください'); return; }
+        if (window.ZWGadgets && typeof window.ZWGadgets.addTab === 'function') {
+          var groupId = 'custom-' + Date.now();
+          window.ZWGadgets.addTab(groupId, name, groupId + '-gadgets-panel');
+          window.ZWGadgets.init('#' + groupId + '-gadgets-panel', { group: groupId });
+          // HTMLにパネルを追加
+          var sidebarGroups = document.querySelector('.sidebar-groups');
+          if (sidebarGroups) {
+            var section = document.createElement('section');
+            section.className = 'sidebar-group';
+            section.dataset.group = groupId;
+            section.id = 'sidebar-group-' + groupId;
+            section.setAttribute('role', 'tabpanel');
+            section.setAttribute('aria-labelledby', 'sidebar-tab-' + groupId);
+            section.setAttribute('aria-hidden', 'true');
+            section.style.display = 'none';
+            var div = document.createElement('div');
+            div.className = 'sidebar-section';
+            var panel = document.createElement('div');
+            panel.id = groupId + '-gadgets-panel';
+            panel.className = 'gadgets-panel';
+            panel.dataset.gadgetGroup = groupId;
+            panel.setAttribute('aria-label', name + 'ガジェット');
+            div.appendChild(panel);
+            section.appendChild(div);
+            sidebarGroups.appendChild(section);
+          }
+          tabInput.value = '';
+          alert('タブを追加しました');
+        }
+      });
+
+      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(fontRow);
+    }, { title: 'UI Settings', groups: ['structure'] });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function(root){
@@ -150,7 +190,7 @@
         btns.forEach(function(btn){ btn.addEventListener('click', function(){ try{ if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration==='function'){ window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); }}catch(_){} }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
-    }, { title: 'Font Decoration', groups: ['typography','assist'] });
+    }, { title: 'Font Decoration', groups: ['structure'] });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function(root){
@@ -163,7 +203,7 @@
         btns.forEach(function(btn){ btn.addEventListener('click', function(){ try{ if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration==='function'){ window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); }}catch(_){} }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['assist','typography'] });
+    }, { title: 'Text Animation', groups: ['structure'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

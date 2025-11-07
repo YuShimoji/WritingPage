@@ -1057,6 +1057,7 @@ class EditorManager {
         // インラインスタンプを除去してカウント
         const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
         const charCount = cleanText ? cleanText.replace(/\r?\n/g, '').length : 0;
+        // 単語カウント: スペース区切りで分割（モックアップ実装。今後日本語対応時は形態素解析等に変更予定）
         const wordCount = cleanText.trim() === '' ? 0 : cleanText.trim().split(/\s+/).length;
         // 執筆目標の進捗（任意）
         const s = window.ZenWriterStorage.loadSettings();

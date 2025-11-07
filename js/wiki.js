@@ -86,7 +86,8 @@
       var search = el('input'); search.type='search'; search.placeholder='検索 (タイトル/本文/タグ)'; search.style.flex='1';
       var btnNew = el('button','small'); btnNew.textContent='新規ページ';
       var btnScan = el('button','small'); btnScan.textContent='ドキュメントから候補抽出';
-      toolbar.appendChild(search); toolbar.appendChild(btnNew); toolbar.appendChild(btnScan);
+      var btnHelp = el('button','small'); btnHelp.textContent='ヘルプ';
+      toolbar.appendChild(search); toolbar.appendChild(btnNew); toolbar.appendChild(btnScan); toolbar.appendChild(btnHelp);
 
       var settings = el('div','wiki-settings');
       settings.style.display='grid'; settings.style.gridTemplateColumns='repeat(3, minmax(0,1fr))'; settings.style.gap='6px';
@@ -342,6 +343,9 @@
         title.value=''; folder.value=''; tags.value=''; body.value='';
       });
       btnSave.addEventListener('click', saveCurrent);
+      btnHelp.addEventListener('click', function(){
+        loadToEditor('help-wiki');
+      });
 
       btnGenerate.addEventListener('click', function(){
         var sel = '';

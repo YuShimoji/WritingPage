@@ -26,17 +26,13 @@
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents','Outline','SnapshotManager'],
-          typography: ['EditorLayout'],
-          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
+          structure: ['Documents','Outline','SnapshotManager','Typewriter','MarkdownPreview','UISettings','FontDecoration','TextAnimation']
         }
       },
       'vn-layout': {
         label: 'ビジュアルノベル',
         groups: {
-          structure: ['Documents','Outline','SnapshotManager'],
-          typography: ['EditorLayout'],
-          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
+          structure: ['Documents','Outline','SnapshotManager','Typewriter','MarkdownPreview','UISettings','FontDecoration','TextAnimation']
         }
       }
     }
@@ -98,9 +94,7 @@
   function normaliseGroups(groups){
     var g = groups && typeof groups === 'object' ? groups : {};
     return {
-      structure: normalizeList(g.structure || []),
-      typography: normalizeList(g.typography || []),
-      assist: normalizeList(g.assist || [])
+      structure: normalizeList(g.structure || [])
     };
   }
 
@@ -156,15 +150,17 @@
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
-    },
+    }
+
     _getActiveEntry(){
       var data = this._ensureLoadouts();
       return data.entries[data.active] || { groups: normaliseGroups({}) };
-    },
+    }
+
     _getActiveNames(){
       var entry = this._getActiveEntry();
       var names = [];
-      ['structure','typography','assist'].forEach(function(key){
+      ['structure'].forEach(function(key){
         var list = entry.groups && entry.groups[key];
         if (Array.isArray(list)) {
           list.forEach(function(n){ if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n); });
@@ -174,7 +170,8 @@
         names = this._list.map(function(g){ return g.name || ''; }).filter(Boolean);
       }
       return names;
-    },
+    }
+
     register(name, factory, options){
       try {
         var safeName = String(name || '');
@@ -190,10 +187,12 @@
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
       } catch(_) {}
-    },
+    }
+
     registerSettings(name, factory){
       try { this._settings[String(name||'')] = factory; } catch(_) {}
-    },
+    }
+
     defineLoadout(name, config){
       if (!name) return;
       var data = this._ensureLoadouts();
@@ -208,14 +207,16 @@
       this._applyLoadoutEntry(this._loadouts.entries[this._loadouts.active]);
       emit('ZWLoadoutDefined', { name: safe });
       try { this._renderLast && this._renderLast(); } catch(_) {}
-    },
+    }
+
     listLoadouts(){
       var data = this._ensureLoadouts();
       return Object.keys(data.entries).map(function(key){
         var entry = data.entries[key] || {};
         return { name: key, label: entry.label || key };
       });
-    },
+    }
+
     applyLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
@@ -226,7 +227,8 @@
       try { this._renderLast && this._renderLast(); } catch(_) {}
       emit('ZWLoadoutApplied', { name: name });
       return true;
-    },
+    }
+
     deleteLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
@@ -243,7 +245,7 @@
       try { this._renderLast && this._renderLast(); } catch(_) {}
       emit('ZWLoadoutDeleted', { name: name });
       return true;
-    },
+    }
     getActiveLoadout(){
       var data = this._ensureLoadouts();
       var entry = data.entries[data.active] || {};
@@ -253,22 +255,23 @@
         label: entry.label || data.active,
         entry: clone(entry)
       };
-    },
+    }
+
     captureCurrentLoadout(label){
-      var groups = { structure: [], typography: [], assist: [] };
+      var groups = { structure: [] };
       var roots = this._roots || {};
       var self = this;
-      Object.keys(roots).forEach(function(group){
-        var root = roots[group];
-        if (!root) return;
+      // Only consider structure group
+      var group = 'structure';
+      var root = roots[group];
+      if (root) {
         var nodes = root.querySelectorAll('.gadget');
         for (var i=0; i<nodes.length; i++){
           var name = nodes[i].dataset && nodes[i].dataset.name;
           if (!name) continue;
-          if (!groups[group]) groups[group] = [];
           uniquePush(groups[group], name);
         }
-      });
+      }
       Object.keys(groups).forEach(function(key){
         groups[key] = normalizeList(groups[key] || []);
       });
@@ -277,7 +280,8 @@
         label: label || (active && active.label) || '',
         groups: groups
       };
-    },
+    }
+
     setActiveGroup(group){
       var self = this;
       if (!group) return;
@@ -290,7 +294,8 @@
         try { self._renderLast && self._renderLast(); } catch(_) {}
         self._renderPending = null;
       });
-    },
+    }
+
     assignGroups(name, groups){
       if (!name) return;
       var normalized = normalizeList(groups || ['assist']);
@@ -302,10 +307,11 @@
         }
       }
       try { this._renderLast && this._renderLast(); } catch(_) {}
-    },
-    getPrefs(){ return loadPrefs(); },
-    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} },
-    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } },
+    }
+
+    getPrefs(){ return loadPrefs(); }
+    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} }
+    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } }
     setSetting(name, key, value){
       try {
         var p = loadPrefs();
@@ -318,13 +324,15 @@
         try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', { detail: detail })); } catch(_) {}
         try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch(_) {}
       } catch(_) {}
-    },
+    }
+
     exportPrefs(){
       try {
         var p = loadPrefs();
         return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
       } catch(_) { return '{}'; }
-    },
+    }
+
     importPrefs(obj){
       try {
         var p = obj;
@@ -337,7 +345,8 @@
         try { this._renderLast && this._renderLast(); } catch(_) {}
         return true;
       } catch(_) { return false; }
-    },
+    }
+
     move(name, dir){
       try {
         var p = loadPrefs();
@@ -354,7 +363,7 @@
         savePrefs(p);
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
-    },
+    }
     toggle(name){
       try {
         var p = loadPrefs();
@@ -363,8 +372,9 @@
         savePrefs(p);
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
-    },
-    init: function(selector, options){
+    }
+
+    init(selector, options){
       var self = this;
       var opts = options && typeof options === 'object' ? options : {};
       var sel = selector || '#gadgets-panel';
@@ -732,8 +742,9 @@
         }
       };
       render();
-    },
-    addTab: function(group, label, panelId){
+    }
+
+    addTab(group, label, panelId){
       var self = this;
       // タブボタンを作成
       var tab = document.createElement('button');
@@ -763,7 +774,7 @@
       var tabsContainer = document.querySelector('.sidebar-tabs');
       if (tabsContainer) tabsContainer.appendChild(tab);
     }
-  };
+  }
 
   // expose
   let ZWGadgetsInstance = new ZWGadgets();
@@ -1652,7 +1663,7 @@
       console.error('TypographyThemes gadget failed:', e);
       try { el.textContent = 'タイポ設定ガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['typography'], title: 'テーマ & フォント' });
+  }, { groups: ['structure'], title: 'テーマ & フォント' });
 
   ZWGadgets.register('HUDSettings', function(el){
     try {
@@ -1788,7 +1799,7 @@
       console.error('HUDSettings gadget failed:', e);
       try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['assist'], title: 'HUD設定' });
+  }, { groups: ['structure'], title: 'HUD設定' });
 
   // Writing Goal gadget
   ZWGadgets.register('WritingGoal', function(el, api){
@@ -1828,27 +1839,27 @@
         if (api && typeof api.set === 'function') api.set('goal', newGoal);
       });
 
+      var colorInput = document.createElement('input');
+      colorInput.type = 'color'; colorInput.value = api.get('barColor', '#007bff');
+      colorInput.addEventListener('change', function(e){ 
+        if (api && typeof api.set === 'function') api.set('barColor', e.target.value);
+      });
+
       var row1 = document.createElement('label'); row1.style.display='flex'; row1.style.flexDirection='column'; row1.style.gap='4px'; row1.textContent = '目標文字数'; row1.appendChild(target);
       var row2 = document.createElement('label'); row2.style.display='flex'; row2.style.flexDirection='column'; row2.style.gap='4px'; row2.textContent = '締切日'; row2.appendChild(deadline);
 
-      var reset = document.createElement('button'); reset.type='button'; reset.className='small'; reset.textContent='目標をクリア';
-      reset.addEventListener('click', function(){ 
-        if (confirm('執筆目標をクリアしますか？')){ 
-          if (api && typeof api.set === 'function') api.set('goal', {});
-          target.value = 0; deadline.value=''; 
-          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
-        }
+      var row3 = document.createElement('label'); row3.style.display='flex'; row3.style.flexDirection='column'; row3.style.gap='4px'; row3.textContent = 'バー色'; row3.appendChild(colorInput);
+
+      var row4 = document.createElement('label'); row4.style.display='flex'; row4.style.alignItems='center'; row4.style.gap='6px';
+      var showEmojiCb = document.createElement('input'); showEmojiCb.type='checkbox'; showEmojiCb.checked = !!api.get('showEmoji', false);
+      var showEmojiLabel = document.createElement('span'); showEmojiLabel.textContent = '絵文字を表示';
+      row4.appendChild(showEmojiCb); row4.appendChild(showEmojiLabel);
+
+      showEmojiCb.addEventListener('change', function(e){ 
+        if (api && typeof api.set === 'function') api.set('showEmoji', !!e.target.checked);
       });
 
-      wrap.appendChild(row1);
-      wrap.appendChild(row2);
-      wrap.appendChild(reset);
-      el.appendChild(wrap);
-    } catch(e) {
-      console.error('WritingGoal gadget failed:', e);
-      try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}
-    }
-  }, { groups: ['assist'], title: '執筆目標' });
+      var reset = document.createElement('button'); reset.type='button'; reset.className='small'; reset.textContent='目標をクリア';
 
   // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
   ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, api){
@@ -1936,7 +1947,7 @@
       console.error('SnapshotManager gadget failed:', e);
       try { el.textContent = 'スナップショットガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['assist'], title: 'バックアップ' });
+  }, { groups: ['structure'], title: 'バックアップ' });
 
   // Print Settings gadget
   ZWGadgets.register('PrintSettings', function(el, api){
@@ -1982,7 +1993,7 @@
       console.error('PrintSettings gadget failed:', e);
       try { el.textContent = '印刷設定ガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['assist'], title: 'エクスポート' });
+  }, { groups: ['structure'], title: 'エクスポート' });
 
   // (removed) legacy EditorLayout gadget (replaced by new implementation at bottom)
 
@@ -2036,7 +2047,7 @@
       wrap.appendChild(makeBtn('ジャンプ', insertJump));
       el.appendChild(wrap);
     } catch(e){ try { el.textContent='選択肢ツールの初期化に失敗しました。'; } catch(_) {} }
-  }, { groups: ['assist'], title: '選択肢' });
+  }, { groups: ['structure'], title: '選択肢' });
 
   // Images gadget (insert/list/remove)
   ZWGadgets.register('Images', function(el){
@@ -2121,7 +2132,7 @@
       renderList();
       try { window.addEventListener('ZWDocumentsChanged', renderList); } catch(_) {}
     } catch(e){ try { el.textContent = '画像ガジェットの初期化に失敗しました。'; } catch(_) {} }
-  }, { groups: ['assist'], title: '画像' });
+  }, { groups: ['structure'], title: '画像' });
 
   // EditorLayout settings UI
   ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
@@ -3138,13 +3149,157 @@
   */
 
   ready(function(){
-    ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
-    ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
-    ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
+    try {
+      ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
+      ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
+      ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
 
-    // 動的タブ追加デモ: Wikiタブ
-    ZWGadgetsInstance.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
-    ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });
+      // 動的タブ追加デモ: Wikiタブ
+      ZWGadgetsInstance.register('LoadoutManager', function(el){
+        try {
+          var storage = window.ZenWriterStorage;
+          var gadgets = ZWGadgetsInstance;
+          if (!storage || !gadgets) {
+            var warn = document.createElement('p');
+            warn.textContent = 'ストレージまたはガジェットシステムが利用できません。';
+            warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
+            el.appendChild(warn);
+            return;
+          }
+
+          var wrap = document.createElement('div');
+          wrap.className = 'loadout-manager';
+          wrap.style.display = 'flex';
+          wrap.style.flexDirection = 'column';
+          wrap.style.gap = '8px';
+
+          // 現在のロードアウト名入力
+          var nameRow = document.createElement('label');
+          nameRow.style.display = 'flex';
+          nameRow.style.flexDirection = 'column';
+          nameRow.style.gap = '4px';
+          nameRow.textContent = 'ロードアウト名';
+          var nameInput = document.createElement('input');
+          nameInput.type = 'text';
+          nameInput.placeholder = '新しいロードアウト名';
+          nameInput.style.width = '100%';
+          nameRow.appendChild(nameInput);
+
+          // セレクトボックス
+          var selectRow = document.createElement('label');
+          selectRow.style.display = 'flex';
+          selectRow.style.flexDirection = 'column';
+          selectRow.style.gap = '4px';
+          selectRow.textContent = '適用するロードアウト';
+          var select = document.createElement('select');
+          select.style.width = '100%';
+          selectRow.appendChild(select);
+
+          // ボタン行
+          var btnRow = document.createElement('div');
+          btnRow.style.display = 'flex';
+          btnRow.style.gap = '4px';
+
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.textContent = '保存';
+          saveBtn.style.flex = '1';
+
+          var applyBtn = document.createElement('button');
+          applyBtn.type = 'button';
+          applyBtn.textContent = '適用';
+          applyBtn.style.flex = '1';
+
+          var duplicateBtn = document.createElement('button');
+          duplicateBtn.type = 'button';
+          duplicateBtn.textContent = '複製';
+          duplicateBtn.style.flex = '1';
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.textContent = '削除';
+          deleteBtn.style.flex = '1';
+
+          btnRow.appendChild(saveBtn);
+          btnRow.appendChild(applyBtn);
+          btnRow.appendChild(duplicateBtn);
+          btnRow.appendChild(deleteBtn);
+
+          function refreshLoadouts(){
+            var items = gadgets.listLoadouts ? gadgets.listLoadouts() : [];
+            select.innerHTML = '';
+            items.forEach(function(it){
+              var opt = document.createElement('option');
+              opt.value = it.name;
+              opt.textContent = it.label || it.name;
+              select.appendChild(opt);
+            });
+            var active = gadgets.getActiveLoadout ? gadgets.getActiveLoadout() : null;
+            if (active && select.querySelector('option[value="' + active.name + '"]')) {
+              select.value = active.name;
+            }
+            if (active && active.label) {
+              nameInput.value = active.label;
+            }
+          }
+
+          saveBtn.addEventListener('click', function(){
+            var nm = nameInput.value.trim();
+            if (!nm) { alert('ロードアウト名を入力してください'); return; }
+            var captured = gadgets.captureCurrentLoadout ? gadgets.captureCurrentLoadout(nm) : null;
+            if (!captured) { alert('現在の構成を取得できませんでした'); return; }
+            gadgets.defineLoadout(nm, captured);
+            refreshLoadouts();
+            alert('ロードアウトを保存しました');
+          });
+
+          applyBtn.addEventListener('click', function(){
+            if (!select.value) return;
+            gadgets.applyLoadout(select.value);
+            refreshLoadouts();
+            alert('ロードアウトを適用しました');
+          });
+
+          duplicateBtn.addEventListener('click', function(){
+            if (!select.value) return;
+            var newName = prompt('新しいロードアウト名を入力してください');
+            if (!newName || !newName.trim()) return;
+            var items = gadgets.listLoadouts ? gadgets.listLoadouts() : [];
+            var item = items.find(function(it){ return it.name === select.value; });
+            if (!item) return;
+            gadgets.defineLoadout(newName.trim(), item);
+            refreshLoadouts();
+            alert('ロードアウトを複製しました');
+          });
+
+          deleteBtn.addEventListener('click', function(){
+            if (!select.value) return;
+            if (!confirm('このロードアウトを削除しますか？')) return;
+            if (gadgets.deleteLoadout) gadgets.deleteLoadout(select.value);
+            refreshLoadouts();
+            alert('ロードアウトを削除しました');
+          });
+
+          wrap.appendChild(nameRow);
+          wrap.appendChild(selectRow);
+          wrap.appendChild(btnRow);
+          el.appendChild(wrap);
+
+          refreshLoadouts();
+        } catch(e) {
+          console.error('LoadoutManager gadget failed:', e);
+          try { el.textContent = 'ロードアウトマネージャーの初期化に失敗しました。'; } catch(_) {}
+        }
+      }, { groups: ['structure'], title: 'ロードアウト' });
+
+      ZWGadgetsInstance.addTab('structure', 'ロードアウト', 'loadout-gadgets-panel');
+      ZWGadgetsInstance.init('#loadout-gadgets-panel', { group: 'structure' });
+
+      ZWGadgetsInstance.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
+      ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });
+    } catch(e) {
+      console.error('ZWGadgets bootstrap failed:', e);
+    }
   });
 
 })();

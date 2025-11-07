@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ElementManagerをグローバルに公開（他の関数からアクセスするため）
     window.elementManager = elementManager;
 
-    // サイドバータブ設定の統一管理（シンプル化：1つのみ）
+    // サイドバータブ設定の統一管理
     const sidebarTabConfig = [
         {
             id: 'structure',
@@ -148,11 +148,55 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: '🏗️',
             description: 'ガジェット管理',
             panelId: 'structure-gadgets-panel'
+        },
+        {
+            id: 'loadout',
+            label: 'ロードアウト',
+            icon: '💾',
+            description: 'ガジェット構成管理',
+            panelId: 'loadout-gadgets-panel'
+        },
+        {
+            id: 'wiki',
+            label: 'Wiki',
+            icon: '📖',
+            description: '物語Wiki',
+            panelId: 'wiki-gadgets-panel'
         }
     ];
 
+    // タブボタンを動的に生成
+    function initializeSidebarTabs(){
+        const tabsContainer = document.querySelector('.sidebar-tabs');
+        if (!tabsContainer) return;
+        tabsContainer.innerHTML = '';
+        sidebarTabConfig.forEach(tab => {
+            const tabBtn = document.createElement('button');
+            tabBtn.className = 'sidebar-tab';
+            tabBtn.type = 'button';
+            tabBtn.dataset.group = tab.id;
+            tabBtn.setAttribute('aria-controls', `sidebar-group-${tab.id}`);
+            tabBtn.setAttribute('aria-selected', 'false');
+            tabBtn.textContent = tab.label;
+            // クリックハンドラを追加
+            tabBtn.addEventListener('click', () => {
+                activateSidebarGroup(tab.id);
+            });
+            tabsContainer.appendChild(tabBtn);
+        });
+        // 初期アクティブタブ
+        const firstTab = tabsContainer.querySelector('.sidebar-tab');
+        if (firstTab) {
+            firstTab.classList.add('active');
+            firstTab.setAttribute('aria-selected', 'true');
+        }
+    }
+
     // 要素別フォントサイズを適用
     applyElementFontSizes();
+
+    // タブ初期化
+    initializeSidebarTabs();
 
     // ------- 複数ドキュメント管理 -------
     function ensureInitialDocument(){
@@ -488,8 +532,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const goal = settings.goal || {};
         const goalTargetInput = elementManager.get('goalTargetInput');
         const goalDeadlineInput = elementManager.get('goalDeadlineInput');
-        if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
-        if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
+        const goalProgress = elementManager.get('goalProgress');
+        
+        // WritingGoalガジェットが有効かどうかチェック
+        const isWritingGoalActive = window.ZWGadgets && typeof window.ZWGadgets.getActiveNames === 'function' && window.ZWGadgets.getActiveNames().includes('WritingGoal');
+        
+        if (goalTargetInput) {
+            goalTargetInput.style.display = isWritingGoalActive ? '' : 'none';
+            goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
+        }
+        if (goalProgress) {
+            goalProgress.style.display = isWritingGoalActive ? '' : 'none';
+        }
+        if (goalDeadlineInput) {
+            goalDeadlineInput.style.display = isWritingGoalActive ? '' : 'none';
+            goalDeadlineInput.value = goal.deadline || '';
+        }
 
         // Typewriter 設定の初期反映
         const tw = settings.typewriter || {};
