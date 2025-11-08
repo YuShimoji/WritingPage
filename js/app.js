@@ -19,32 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ElementManagerをグローバルに公開（他の関数からアクセスするため）
     window.elementManager = new ElementManager();
 
-<<<<<<< HEAD
-    // サイドバータブ設定の統一管理
-    const sidebarTabConfig = [
-        {
-            id: 'structure',
-            label: 'ガジェット',
-            icon: '🏗️',
-            description: 'ガジェット管理',
-            panelId: 'structure-gadgets-panel'
-        },
-        {
-            id: 'loadout',
-            label: 'ロードアウト',
-            icon: '💾',
-            description: 'ガジェット構成管理',
-            panelId: 'loadout-gadgets-panel'
-        },
-        {
-            id: 'wiki',
-            label: 'Wiki',
-            icon: '📖',
-            description: '物語Wiki',
-            panelId: 'wiki-gadgets-panel'
-        }
-    ];
-=======
     // SidebarManagerを初期化
     const sidebarManager = new SidebarManager(window.elementManager);
     window.sidebarManager = sidebarManager;
@@ -52,14 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // SettingsManagerを初期化
     const settingsManager = new SettingsManager(window.elementManager);
     window.settingsManager = settingsManager;
->>>>>>> f94e150e239f0a628e4c8b9d15735e3f27f492d5
 
     // タブボタンを動的に生成
     function initializeSidebarTabs(){
         const tabsContainer = document.querySelector('.sidebar-tabs');
         if (!tabsContainer) return;
         tabsContainer.innerHTML = '';
-        sidebarTabConfig.forEach(tab => {
+        sidebarManager.sidebarTabConfig.forEach(tab => {
             const tabBtn = document.createElement('button');
             tabBtn.className = 'sidebar-tab';
             tabBtn.type = 'button';
@@ -286,106 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-
-<<<<<<< HEAD
-    // 設定をUIに反映
-    function applySettingsToUI() {
-        const settings = window.ZenWriterStorage.loadSettings();
-
-        // テーマプリセットを選択
-        const themePresets = elementManager.getMultiple('themePresets');
-        themePresets.forEach(btn => {
-            if (btn.dataset.theme === settings.theme) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-
-        // カラーピッカーを設定
-        const bgColorInput = elementManager.get('bgColorInput');
-        const textColorInput = elementManager.get('textColorInput');
-        if (bgColorInput) bgColorInput.value = settings.bgColor;
-        if (textColorInput) textColorInput.value = settings.textColor;
-
-        // フォント設定を設定
-        const fontFamilySelect = elementManager.get('fontFamilySelect');
-        const fontSizeInput = elementManager.get('fontSizeInput');
-        const fontSizeValue = elementManager.get('fontSizeValue');
-        if (fontFamilySelect) fontFamilySelect.value = settings.fontFamily;
-        if (fontSizeInput) {
-            fontSizeInput.value = settings.fontSize;
-            if (fontSizeValue) fontSizeValue.textContent = settings.fontSize;
-        }
-        const lineHeightInput = elementManager.get('lineHeightInput');
-        const lineHeightValue = elementManager.get('lineHeightValue');
-        if (lineHeightInput) {
-            lineHeightInput.value = settings.lineHeight;
-            if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight;
-        }
-        // ツールバー表示状態
-        if (typeof settings.toolbarVisible !== 'undefined') {
-            setToolbarVisibility(!!settings.toolbarVisible);
-        }
-
-        // サイドバー表示状態
-        if (typeof settings.sidebarVisible !== 'undefined') {
-            forceSidebarState(!!settings.sidebarVisible);
-        }
-
-        // 執筆目標の初期反映
-        const goal = settings.goal || {};
-        const goalTargetInput = elementManager.get('goalTargetInput');
-        const goalDeadlineInput = elementManager.get('goalDeadlineInput');
-        const goalProgress = elementManager.get('goalProgress');
-        
-        // WritingGoalガジェットが有効かどうかチェック
-        const isWritingGoalActive = window.ZWGadgets && typeof window.ZWGadgets.getActiveNames === 'function' && window.ZWGadgets.getActiveNames().includes('WritingGoal');
-        
-        if (goalTargetInput) {
-            goalTargetInput.style.display = isWritingGoalActive ? '' : 'none';
-            goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
-        }
-        if (goalProgress) {
-            goalProgress.style.display = isWritingGoalActive ? '' : 'none';
-        }
-        if (goalDeadlineInput) {
-            goalDeadlineInput.style.display = isWritingGoalActive ? '' : 'none';
-            goalDeadlineInput.value = goal.deadline || '';
-        }
-
-        // Typewriter 設定の初期反映
-        const tw = settings.typewriter || {};
-        const typewriterEnabled = elementManager.get('typewriterEnabled');
-        const typewriterAnchor = elementManager.get('typewriterAnchor');
-        const typewriterStickiness = elementManager.get('typewriterStickiness');
-        if (typewriterEnabled) typewriterEnabled.checked = !!tw.enabled;
-        if (typewriterAnchor) typewriterAnchor.value = String((typeof tw.anchorRatio === 'number' ? tw.anchorRatio : 0.5));
-        if (typewriterStickiness) typewriterStickiness.value = String((typeof tw.stickiness === 'number' ? tw.stickiness : 0.9));
-
-        // Snapshot 設定の初期反映
-        const snap = settings.snapshot || {};
-        const snapshotInterval = elementManager.get('snapshotInterval');
-        const snapshotDelta = elementManager.get('snapshotDelta');
-        const snapshotRetention = elementManager.get('snapshotRetention');
-        if (snapshotInterval) snapshotInterval.value = String((typeof snap.intervalMs === 'number' ? snap.intervalMs : 120000));
-        if (snapshotDelta) snapshotDelta.value = String((typeof snap.deltaChars === 'number' ? snap.deltaChars : 300));
-        if (snapshotRetention) snapshotRetention.value = String((typeof snap.retention === 'number' ? snap.retention : 10));
-
-        // Preview 設定の初期反映
-        const prev = settings.preview || {};
-        const previewSyncScroll = elementManager.get('previewSyncScroll');
-        if (previewSyncScroll) previewSyncScroll.checked = !!prev.syncScroll;
-
-        // AutoSave 設定の初期反映
-        const autoSave = settings.autoSave || {};
-        const autoSaveEnabled = elementManager.get('autoSaveEnabled');
-        const autoSaveDelay = elementManager.get('autoSaveDelay');
-        if (autoSaveEnabled) autoSaveEnabled.checked = !!autoSave.enabled;
-        if (autoSaveDelay) autoSaveDelay.value = String(autoSave.delayMs || 2000);
-    }
-=======
->>>>>>> f94e150e239f0a628e4c8b9d15735e3f27f492d5
 
     function activateSidebarGroup(groupId){
         window.sidebarManager.activateSidebarGroup(groupId);

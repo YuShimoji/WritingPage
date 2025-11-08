@@ -2,7 +2,7 @@
 class SidebarManager {
     constructor(elementManager) {
         this.elementManager = elementManager;
-        // サイドバータブ設定の統一管理（シンプル化：1つのみ）
+        // サイドバータブ設定の統一管理
         this.sidebarTabConfig = [
             {
                 id: 'structure',
@@ -10,6 +10,20 @@ class SidebarManager {
                 icon: '🏗️',
                 description: 'ガジェット管理',
                 panelId: 'structure-gadgets-panel'
+            },
+            {
+                id: 'loadout',
+                label: 'ロードアウト',
+                icon: '💾',
+                description: 'ガジェット構成管理',
+                panelId: 'loadout-gadgets-panel'
+            },
+            {
+                id: 'wiki',
+                label: 'Wiki',
+                icon: '📖',
+                description: '物語Wiki',
+                panelId: 'wiki-gadgets-panel'
             }
         ];
     }
