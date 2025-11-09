@@ -197,7 +197,7 @@ test.describe('Gadgets E2E', () => {
     // スライダーを操作
     const slider = layoutGadget.locator('input[type="range"]');
     await expect(slider).toBeVisible();
-    const beforeValue = await slider.inputValue();
+    const _beforeValue = await slider.inputValue();
     await slider.fill('150');
     const afterValue = await slider.inputValue();
     expect(afterValue).toBe('150');

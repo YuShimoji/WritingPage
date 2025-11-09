@@ -218,10 +218,17 @@ function saveAssets(map){
 }
 
 function sanitizeAssetName(name){
-    return String(name || 'image')
-        .replace(/[\/:*?"<>|]/g, '_')
-        .replace(/[\x00-\x1F\x7F]/g, '_')
-        .trim() || 'image';
+    var s = String(name || 'image');
+    var out = '';
+    for (var i = 0; i < s.length; i++){
+        var ch = s.charAt(i);
+        var code = ch.charCodeAt(0);
+        if (code < 0x20 || code === 0x7f) { out += '_'; continue; }
+        if (ch === '/' || ch === '\\' || ch === ':' || ch === '*' || ch === '?' || ch === '"' || ch === '<' || ch === '>' || ch === '|') { out += '_'; continue; }
+        out += ch;
+    }
+    out = out.trim();
+    return out || 'image';
 }
 
 function findExistingAssetByDataUrl(map, dataUrl){
@@ -356,7 +363,7 @@ function updateDocumentContent(id, content){
     saveDocuments(docs);
     // 現在ドキュメントなら CONTENT も同期
     if (getCurrentDocId() === id){
-        try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch(_){}
+        try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch(e){ void e; }
     }
     return true;
 }

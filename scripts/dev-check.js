@@ -1,5 +1,7 @@
 const http = require('http');
 
+/* eslint-disable no-useless-escape */
+
 const fs = require('fs');
 const path = require('path');
 
@@ -55,9 +57,6 @@ async function loadCssWithImports(url) {
       css.body,
     );
     const hasRootShowPadding = /padding-top:\s*calc\(var\(--toolbar-height\)\s*\+\s*1rem\)/.test(css.body || '');
-    const removedBodyRule = !/body:not\(\.toolbar-hidden\) #editor/.test(
-      css.body,
-    );
     const hasProgressCss = /\.goal-progress__bar/.test(css.body);
     const hasCssSettingsBtn = /\.gadget-settings-btn\b/.test(css.body || '');
     const hasCssSettings = /\.gadget-settings\b/.test(css.body || '');
@@ -405,16 +404,16 @@ async function loadCssWithImports(url) {
       issueCfg = '';
     try {
       prTpl = fs.readFileSync(prTplPath, 'utf-8');
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     try {
       bugTpl = fs.readFileSync(bugTplPath, 'utf-8');
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     try {
       featTpl = fs.readFileSync(featTplPath, 'utf-8');
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
     try {
       issueCfg = fs.readFileSync(issueCfgPath, 'utf-8');
-    } catch (_) {}
+    } catch (_) { /* ignore */ }
 
     const prHasStop = /##\s*中断可能点/.test(prTpl);
     const prHasRefs =
@@ -454,7 +453,7 @@ async function loadCssWithImports(url) {
     });
 
     // 簡易Markdownlint（基本ルール）
-    function mdLintBasic(p) {
+    const mdLintBasic = (p) => {
       try {
         const src = fs.readFileSync(p, 'utf-8');
         const lines = String(src || '').split(/\r?\n/);
@@ -483,10 +482,10 @@ async function loadCssWithImports(url) {
         }
         const ok = h1Ok && headingStepOk && longOk && trailOk && tabsOk;
         return { ok, h1Ok, headingStepOk, longOk, trailOk, tabsOk };
-      } catch (_) {
+      } catch (_) { /* ignore */
         return { ok: false, error: 'read fail' };
       }
-    }
+    };
 
     const mdTargets = [
       path.join(__dirname, '..', 'AI_CONTEXT.md'),

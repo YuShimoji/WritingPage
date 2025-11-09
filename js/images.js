@@ -64,7 +64,7 @@
         typeof window.ZenWriterStorage.getCurrentDocId === 'function'
       )
         return window.ZenWriterStorage.getCurrentDocId() || 'default';
-    } catch (_) {}
+    } catch (e) { void e; }
     return 'default';
   }
   function key(docId) {
@@ -89,7 +89,7 @@
       var s = getStorage();
       if (!s) return;
       s.setItem(key(docId), JSON.stringify(Array.isArray(arr) ? arr : []));
-    } catch (_) {}
+    } catch (e) { void e; }
   }
   function uid() {
     return 'img_' + Math.random().toString(36).slice(2);
@@ -134,7 +134,7 @@
           node.classList.remove('selected');
         }
       }
-    } catch (_) {}
+    } catch (e) { void e; }
   }
 
   function notifyChange(detail) {
@@ -146,7 +146,7 @@
           detail: info,
         }),
       );
-    } catch (_) {}
+    } catch (e) { void e; }
   }
 
   function renderOverlay() {
@@ -174,7 +174,7 @@
         wrap.style.border = '2px solid rgba(0,0,0,0.2)';
         wrap.style.borderRadius = '4px';
         wrap.style.background = 'rgba(255,255,255,0.8)';
-        try { wrap.style.zIndex = String(it.z || (i + 1)); } catch (_) {}
+        try { wrap.style.zIndex = String(it.z || (i + 1)); } catch (e) { void e; }
         if ((it.id || '') === focusTargetId) {
           wrap.classList.add('selected');
         }
@@ -196,7 +196,7 @@
         toggleBtn.type = 'button';
         toggleBtn.className = 'overlay-toggle';
         toggleBtn.title = '非表示にする';
-        toggleBtn.textContent = '×';
+        toggleBtn.textContent = '非表示';
         toggleBtn.addEventListener('click', (function (id) {
           return function (ev) {
             ev.preventDefault();
@@ -245,7 +245,7 @@
 
         // リサイズ
         (function (w, id, handle, ov) {
-          var resizeStartX, resizeStartY, startWidth;
+          var resizeStartX, startWidth;
           if (!handle) return;
           handle.addEventListener('mousedown', function (ev) {
             ev.preventDefault();
@@ -253,7 +253,6 @@
             focusTargetId = id;
             updateSelectionStyles(ov, focusTargetId);
             resizeStartX = ev.clientX;
-            resizeStartY = ev.clientY;
             startWidth = parseFloat(w.style.width || '240');
             var move = function (ev2) {
               var dx = ev2.clientX - resizeStartX;
@@ -274,9 +273,7 @@
         })(wrap, it.id, resizeHandle, overlay);
       }
       updateSelectionStyles(overlay, focusTargetId);
-    } catch (e) {
-      /* noop */
-    }
+    } catch (e) { void e; }
   }
 
   function addFromDataURL(dataURL, opt) {
@@ -330,10 +327,10 @@
       reader.onload = function (e) {
         try {
           addFromDataURL(String(e.target.result || ''));
-        } catch (_) {}
+        } catch (e2) { void e2; }
       };
       reader.readAsDataURL(file);
-    } catch (_) {}
+    } catch (e) { void e; }
   }
 
   function remove(id) {
@@ -428,7 +425,7 @@
           }
         }
       }
-    } catch (_) {}
+    } catch (e) { void e; }
   }
   function handleDrop(ev) {
     try {
@@ -446,12 +443,12 @@
         addFromUrl(url);
         return;
       }
-    } catch (_) {}
+    } catch (e) { void e; }
   }
   function handleDragOver(ev) {
     try {
       ev.preventDefault();
-    } catch (_) {}
+    } catch (e) { void e; }
   }
 
   function init() {
@@ -474,7 +471,7 @@
             remove(focusTargetId);
             ev.preventDefault();
             ev.stopPropagation();
-          } catch (_) {}
+          } catch (e2) { void e2; }
         },
         false,
       );
@@ -482,8 +479,8 @@
       try {
         window.addEventListener('ZWDocumentsChanged', renderOverlay);
         window.addEventListener('ZWImagesChanged', renderOverlay);
-      } catch (_) {}
-    } catch (_) {}
+      } catch (e2) { void e2; }
+    } catch (e) { void e; }
   }
 
   var API = {
@@ -513,7 +510,7 @@
 
   try {
     window.ZenWriterImages = API;
-  } catch (_) {}
+  } catch (e) { void e; }
   // 自動初期化
   try {
     if (document.readyState === 'loading') {
@@ -521,5 +518,5 @@
     } else {
       init();
     }
-  } catch (_) {}
+  } catch (e) { void e; }
 })();

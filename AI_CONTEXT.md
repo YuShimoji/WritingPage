@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-10-31T02:37:00+09:00
-- 現在のミッション: OpenSpec実装完了 - Panels拡張準備
-- ブランチ: feat/openspec-implementation（完了）
-- 関連: OpenSpec v1.1 タスク完了
-- 進捗: UI presentation, Typewriter, Snapshot, NodeGraph, Wiki, Font sizes実装完了 / E2Eテスト追加完了
-- 次の中断可能点: Panels API設計着手
+- 最終更新: 2025-11-10T05:20:00+09:00
+- 現在のミッション: OpenSpec反映（UI Designガジェット＆動的タブ管理）とリモートmain同期
+- ブランチ: main
+- 関連: OpenSpec v1.1 タスク進行中（change: add-ui-design-gadget-and-dynamic-tabs）
+- 進捗: UIDesign（背景グラデーション）実装・永続化 / SidebarManagerのタブ動的管理API（追加/名称変更/削除/復元）実装 / UI Settingsガジェット拡張 / CSSに --app-bg-gradient 追加 / OpenSpec変更票・specs・tasks 作成済み
+- 次の中断可能点: アイコンセット選定前（Lucide/Tabler/Heroicons検討）
 
 ## 決定事項
 
@@ -17,6 +17,9 @@
 - Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（Issue #78 でフォローアップ）
 - Mission 10 では DocFX を用いたドキュメントサイト構築と GitHub Pages 自動デプロイを実装する
 - Mission 12 以降では、サイドバーの利便性機能（例: 執筆目標）は原則ガジェット化し、ガジェット/アコーディオン内の並び替え・表示制御を計画的に整備する
+ - CSS変数 `--app-bg-gradient` を導入し、背景グラデーションはガジェットから制御
+ - SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
+ - OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -78,3 +81,5 @@
 - CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
+ - アイコンセット導入（Lucide/Tabler/Heroicons/Material Symbols）と最小サブセット運用
+ - ZWGadgetsの責務分離とモジュール化（レンダリングキュー/_renderLastの切り出し）

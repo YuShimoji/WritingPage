@@ -16,8 +16,8 @@
       if (window.ZenWriterAPI && ensure(window.ZenWriterAPI.getContent)) {
         return String(window.ZenWriterAPI.getContent() || '');
       }
-    } catch(_){}
-    try { if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.loadContent)) return String(window.ZenWriterStorage.loadContent()||''); } catch(_){}
+    } catch(e){ void e; }
+    try { if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.loadContent)) return String(window.ZenWriterStorage.loadContent()||''); } catch(e){ void e; }
     return '';
   }
 
@@ -65,7 +65,7 @@
           return defaultGenerate(term, options);
         }).catch(function(){ return defaultGenerate(term, options); });
       }
-    } catch(_){}
+    } catch(e){ /* no-op */ }
     return Promise.resolve(defaultGenerate(term, options));
   }
 
@@ -115,7 +115,7 @@
         body.style.minHeight = '180px';
         body.style.height = Math.max(180, initialH) + 'px';
         body.style.resize = 'none';
-      } catch(_) {}
+      } catch(e) { void e; }
       // リサイズハンドル
       var bodyResizer = el('div','wiki-resizer-y');
       bodyResizer.setAttribute('aria-label','Wiki本文の高さを調整');
@@ -131,10 +131,10 @@
         function onUp(){
           if (!resizing) return;
           resizing = false;
-          try { api.set('bodyHeight', parseInt(body.style.height,10)||300); } catch(_) {}
+          try { api.set('bodyHeight', parseInt(body.style.height,10)||300); } catch(e) { void e; }
           document.removeEventListener('mousemove', onMove);
           document.removeEventListener('mouseup', onUp);
-          try { document.body.style.userSelect = prevUserSelect; } catch(_) {}
+          try { document.body.style.userSelect = prevUserSelect; } catch(e) { void e; }
         }
         bodyResizer.addEventListener('mousedown', function(ev){
           try {
@@ -145,7 +145,7 @@
             document.body.style.userSelect = 'none';
             document.addEventListener('mousemove', onMove);
             document.addEventListener('mouseup', onUp);
-          } catch(_) {}
+          } catch(e) { void e; }
         });
       })();
       var btnSave = el('button','small'); btnSave.textContent='保存';
@@ -200,7 +200,7 @@
             return br+'<p>'+line+'</p>';
           });
           return html;
-        } catch(_) { return '<pre>Render failed.</pre>'; }
+        } catch(e) { void e; return '<pre>Render failed.</pre>'; }
       }
 
       // Markdownプレビュー領域
@@ -213,6 +213,12 @@
         preview.style.minHeight = body.style.height;
       }
       updatePreviewHeight();
+
+      function updatePreview(){
+        try {
+          preview.innerHTML = renderMarkdownBasic(body.value || '');
+        } catch (e) { void e; }
+      }
 
       layout.appendChild(listWrap); layout.appendChild(editor); layout.appendChild(previewWrap);
 
@@ -233,7 +239,7 @@
             if (!STORAGE.listWikiPages().some(function(p){ return p.id === page.id; })){
               STORAGE.createWikiPage(page);
             }
-          } catch(_){}
+          } catch(e){ void e; }
         });
       }
       seedHelpPages();
@@ -354,11 +360,12 @@
           if (ta && typeof ta.selectionStart === 'number' && typeof ta.selectionEnd === 'number' && ta.selectionEnd > ta.selectionStart){
             sel = String((ta.value||'').slice(ta.selectionStart, ta.selectionEnd));
           }
-        } catch(_){ sel=''; }
+        } catch(e){ sel=''; }
         if (!sel) return;
         var opt = { detailLevel: parseInt(detail.value,10)||3, tone: tone.value, variety: variety.value };
         requestAIGeneration(sel, getContent(), opt).then(function(text){
           body.value = text;
+          try { updatePreview(); } catch(e){ void e; }
         });
       });
 

@@ -46,11 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             tabsContainer.appendChild(tabBtn);
         });
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
+            list.forEach(t => { try { if (window.sidebarManager && typeof window.sidebarManager.addTab==='function') window.sidebarManager.addTab(t.id, t.label); } catch(_) {} });
+        } catch(_) {}
         // 初期アクティブタブ
         const firstTab = tabsContainer.querySelector('.sidebar-tab');
         if (firstTab) {
             firstTab.classList.add('active');
             firstTab.setAttribute('aria-selected', 'true');
+        }
+        // ElementManager のキャッシュを最新DOMで再取得（タブ生成後に必要）
+        if (window.elementManager && typeof window.elementManager.initialize === 'function') {
+            window.elementManager.initialize();
         }
     }
 
@@ -102,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 印刷処理
-    function printDocument(){
+    function _printDocument(){
         const pv = elementManager.get('print-view');
         if (!pv || !elementManager.get('editor')) return;
         const text = elementManager.get('editor').value || '';
@@ -117,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.print();
     }
 
-    function forceSidebarState(open){
+    function _forceSidebarState(open){
         const sidebar = elementManager.get('sidebar');
         if (!sidebar) {
             logger.error('サイドバー要素が見つかりません');
@@ -185,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // サイドバータブの表示方式を反映
     window.sidebarManager.applyTabsPresentationUI();
 
-    function formatTs(ts){
+    function _formatTs(ts){
         const d = new Date(ts);
         const p = (n)=> String(n).padStart(2,'0');
         return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
@@ -248,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // フルスクリーン切り替え
-    function toggleFullscreen() {
+    function _toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
                 console.error('フルスクリーンエラー:', err);
@@ -436,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackPanel.innerHTML = `
                 <div class="panel-header">
                     <span>フィードバック</span>
-                    <button class="panel-close" id="close-feedback-panel">×</button>
+                    <button class="panel-close" id="close-feedback-panel">閉じる</button>
                 </div>
                 <div class="panel-body">
                     <p>問題報告や機能要望をお送りください。</p>
@@ -674,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // リアルタイム自動保存機能
     let autoSaveTimeout = null;
-    function triggerAutoSave(){
+    function _triggerAutoSave(){
         if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
         const settings = window.ZenWriterStorage.loadSettings();
         const autoSave = settings.autoSave || {};
@@ -718,7 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('offline', updateOnlineStatus);
 
     // 自動バックアップ強化: ページを離れる前に保存
-    window.addEventListener('beforeunload', function(e){
+    window.addEventListener('beforeunload', function(_e){
         const editor = elementManager.get('editor');
         try {
             if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
@@ -741,10 +750,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.settingsManager.applySettingsToUI();
 
     // 検索パネルのイベントリスナー
-    const searchPanel = elementManager.get('searchPanel');
+    const _searchPanel = elementManager.get('searchPanel');
     const closeSearchPanelBtn = elementManager.get('closeSearchPanelBtn');
     const searchInput = elementManager.get('searchInput');
-    const replaceInput = elementManager.get('replaceInput');
+    const _replaceInput = elementManager.get('replaceInput');
     const replaceSingleBtn = elementManager.get('replaceSingleBtn');
     const replaceAllBtn = elementManager.get('replaceAllBtn');
     const searchPrevBtn = elementManager.get('searchPrevBtn');
@@ -853,14 +862,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 return false;
             }
-        }
+        };
     }
 
     // タブ管理API（リスト化・外部制御用）
     const tabManager = {
         // 利用可能なタブ一覧を取得
         getAvailableTabs() {
-            return sidebarTabConfig.map(tab => ({
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            return conf.map(tab => ({
                 id: tab.id,
                 label: tab.label,
                 icon: tab.icon,
@@ -874,7 +884,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const activeTab = document.querySelector('.sidebar-tab.active');
             if (!activeTab) return null;
             const groupId = activeTab.dataset.group;
-            return sidebarTabConfig.find(tab => tab.id === groupId) || null;
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            return conf.find(tab => tab.id === groupId) || null;
         },
 
         // タブをアクティブ化
@@ -886,18 +897,20 @@ document.addEventListener('DOMContentLoaded', () => {
         nextTab() {
             const current = this.getActiveTab();
             if (!current) return;
-            const currentIndex = sidebarTabConfig.findIndex(tab => tab.id === current.id);
-            const nextIndex = (currentIndex + 1) % sidebarTabConfig.length;
-            this.activateTab(sidebarTabConfig[nextIndex].id);
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            const currentIndex = conf.findIndex(tab => tab.id === current.id);
+            const nextIndex = (currentIndex + 1) % conf.length;
+            this.activateTab(conf[nextIndex].id);
         },
 
         // 前のタブに切り替え
         prevTab() {
             const current = this.getActiveTab();
             if (!current) return;
-            const currentIndex = sidebarTabConfig.findIndex(tab => tab.id === current.id);
-            const prevIndex = currentIndex === 0 ? sidebarTabConfig.length - 1 : currentIndex - 1;
-            this.activateTab(sidebarTabConfig[prevIndex].id);
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            const currentIndex = conf.findIndex(tab => tab.id === current.id);
+            const prevIndex = currentIndex === 0 ? conf.length - 1 : currentIndex - 1;
+            this.activateTab(conf[prevIndex].id);
         }
     };
 

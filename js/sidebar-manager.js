@@ -7,21 +7,18 @@ class SidebarManager {
             {
                 id: 'structure',
                 label: 'ガジェット',
-                icon: '🏗️',
                 description: 'ガジェット管理',
                 panelId: 'structure-gadgets-panel'
             },
             {
                 id: 'loadout',
                 label: 'ロードアウト',
-                icon: '💾',
                 description: 'ガジェット構成管理',
                 panelId: 'loadout-gadgets-panel'
             },
             {
                 id: 'wiki',
                 label: 'Wiki',
-                icon: '📖',
                 description: '物語Wiki',
                 panelId: 'wiki-gadgets-panel'
             }
@@ -71,7 +68,7 @@ class SidebarManager {
         const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
         if (toolbarCloseSidebar) {
             toolbarCloseSidebar.style.display = ''; // 常に表示
-            console.info(`ツールバーの閉じるボタン: 表示`);
+            console.info('ツールバーの閉じるボタン: 表示');
         }
         
         // aria-hiddenはフォーカス移動後に設定（requestAnimationFrameで次のフレームで実行）
@@ -118,6 +115,100 @@ class SidebarManager {
         if (willShow && window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
             window.ZenWriterHUD.hide();
         }
+    }
+
+    addTab(id, label) {
+        try {
+            var safeId = String(id || ('custom-' + Date.now()));
+            var safeLabel = String(label || safeId);
+            if (!this.sidebarTabConfig.find(function(t){ return t.id === safeId; })) {
+                this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
+            }
+            var tabsContainer = document.querySelector('.sidebar-tabs');
+            var groupsContainer = document.querySelector('.sidebar-groups');
+            if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')){
+                var btn = document.createElement('button');
+                btn.className = 'sidebar-tab';
+                btn.type = 'button';
+                btn.dataset.group = safeId;
+                btn.id = 'sidebar-tab-' + safeId;
+                btn.setAttribute('aria-controls', 'sidebar-group-' + safeId);
+                btn.setAttribute('aria-selected', 'false');
+                btn.textContent = safeLabel;
+                btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
+                tabsContainer.appendChild(btn);
+            }
+            if (groupsContainer && !document.getElementById('sidebar-group-' + safeId)){
+                var section = document.createElement('section');
+                section.className = 'sidebar-group';
+                section.dataset.group = safeId;
+                section.id = 'sidebar-group-' + safeId;
+                section.setAttribute('role', 'tabpanel');
+                section.setAttribute('aria-labelledby', 'sidebar-tab-' + safeId);
+                section.setAttribute('aria-hidden', 'true');
+                var div = document.createElement('div');
+                div.className = 'sidebar-section';
+                var panel = document.createElement('div');
+                panel.id = safeId + '-gadgets-panel';
+                panel.className = 'gadgets-panel';
+                panel.dataset.gadgetGroup = safeId;
+                panel.setAttribute('aria-label', safeLabel + 'ガジェット');
+                div.appendChild(panel);
+                section.appendChild(div);
+                groupsContainer.appendChild(section);
+                try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
+            }
+            try {
+                if (window.elementManager && typeof window.elementManager.initialize==='function') window.elementManager.initialize();
+            } catch(_) {}
+            try {
+                var s = window.ZenWriterStorage.loadSettings();
+                s.ui = s.ui || {};
+                var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
+                if (!list.some(function(t){ return t && t.id === safeId; })) list.push({ id: safeId, label: safeLabel });
+                s.ui.customTabs = list;
+                window.ZenWriterStorage.saveSettings(s);
+            } catch(_) {}
+            return safeId;
+        } catch(_) { return null; }
+    }
+
+    removeTab(id) {
+        try {
+            var idx = this.sidebarTabConfig.findIndex(function(t){ return t.id === id; });
+            if (idx >= 0) this.sidebarTabConfig.splice(idx, 1);
+            var btn = document.querySelector('.sidebar-tab[data-group="' + id + '"]');
+            if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
+            var grp = document.getElementById('sidebar-group-' + id);
+            if (grp && grp.parentNode) grp.parentNode.removeChild(grp);
+            try {
+                var s = window.ZenWriterStorage.loadSettings();
+                s.ui = s.ui || {};
+                s.ui.customTabs = (Array.isArray(s.ui.customTabs) ? s.ui.customTabs : []).filter(function(t){ return t && t.id !== id; });
+                window.ZenWriterStorage.saveSettings(s);
+            } catch(_) {}
+            var fallback = (this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) || 'structure';
+            this.activateSidebarGroup(fallback);
+        } catch(_) {}
+    }
+
+    renameTab(id, newLabel) {
+        try {
+            var label = String(newLabel || '');
+            if (!label) return;
+            var conf = this.sidebarTabConfig.find(function(t){ return t.id === id; });
+            if (conf) conf.label = label;
+            var btn = document.querySelector('.sidebar-tab[data-group="' + id + '"]');
+            if (btn) btn.textContent = label;
+            try {
+                var s = window.ZenWriterStorage.loadSettings();
+                s.ui = s.ui || {};
+                var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
+                for (var i=0;i<list.length;i++){ if (list[i] && list[i].id === id){ list[i].label = label; break; } }
+                s.ui.customTabs = list;
+                window.ZenWriterStorage.saveSettings(s);
+            } catch(_) {}
+        } catch(_) {}
     }
 
     applyTabsPresentationUI() {
@@ -167,9 +258,9 @@ class SidebarManager {
                 // デフォルト動作: active のみ表示
                 const activeTab = document.querySelector('.sidebar-tab.active');
                 const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
-                activateSidebarGroup(gid);
+                this.activateSidebarGroup(gid);
             }
-        } catch(_) {}
+        } catch(e) { void e; }
     }
 
     formatTs(ts) {
@@ -184,11 +275,16 @@ class SidebarManager {
             return;
         }
 
-        // タブ設定から有効なgroupIdかチェック
         const tabConfig = this.sidebarTabConfig.find(tab => tab.id === groupId);
         if (!tabConfig) {
-            console.warn(`Unknown sidebar group: ${groupId}`);
-            return;
+            const tabEl = document.querySelector(`.sidebar-tab[data-group="${groupId}"]`);
+            const panelEl = document.querySelector(`.sidebar-group[data-group="${groupId}"]`);
+            if (tabEl && panelEl) {
+                this.sidebarTabConfig.push({ id: groupId, label: tabEl.textContent || groupId, description: '', panelId: panelEl.id || `${groupId}-gadgets-panel` });
+            } else {
+                console.warn(`Unknown sidebar group: ${groupId}`);
+                return;
+            }
         }
 
         // 現在のactive groupを取得

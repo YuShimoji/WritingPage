@@ -70,8 +70,8 @@
           <label style="flex:1 1 auto;">${this.escape(lv.label)}</label>
           <div style="display:flex; align-items:center; gap:6px;">
             <input type="color" value="${lv.color || '#888888'}" data-index="${i}">
-            <button class="small btn-move" data-dir="up" data-index="${i}" title="上へ">↑</button>
-            <button class="small btn-move" data-dir="down" data-index="${i}" title="下へ">↓</button>
+            <button class="small btn-move" data-dir="up" data-index="${i}" title="上へ">上へ</button>
+            <button class="small btn-move" data-dir="down" data-index="${i}" title="下へ">下へ</button>
           </div>
         `;
         this.$levels.appendChild(row);

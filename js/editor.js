@@ -674,7 +674,7 @@ class EditorManager {
             toggle.type = 'button';
             toggle.className = 'overlay-toggle';
             toggle.title = asset.hidden ? '表示する' : '隠す';
-            toggle.textContent = asset.hidden ? '👁' : '🙈';
+            toggle.textContent = asset.hidden ? '表示' : '隠す';
             toggle.addEventListener('click', (e) => {
                 e.stopPropagation();
                 this.persistAssetMeta(entry.assetId, { hidden: !asset.hidden });
@@ -720,6 +720,7 @@ class EditorManager {
         handle.addEventListener('pointerdown', (event) => {
             event.preventDefault();
             event.stopPropagation();
+            if (overlay.classList.contains('hidden')) return;
             this.startOverlayResize({ overlay, assetId, event });
         });
     }
@@ -735,9 +736,9 @@ class EditorManager {
             overlay.style.top = `${startTop + deltaY}px`;
         };
 
-        const up = (ev) => {
+        const end = (_ev) => {
             overlay.removeEventListener('pointermove', move);
-            overlay.removeEventListener('pointerup', up);
+            overlay.removeEventListener('pointerup', end);
             try { overlay.releasePointerCapture(pointerId); } catch (_) {}
             const finalTop = parseFloat(overlay.style.top) || startTop;
             const delta = Math.round(finalTop - startTop);
@@ -747,7 +748,7 @@ class EditorManager {
         };
 
         overlay.addEventListener('pointermove', move);
-        overlay.addEventListener('pointerup', up);
+        overlay.addEventListener('pointerup', end);
     }
 
     startOverlayResize({ overlay, assetId, event }) {
@@ -766,9 +767,9 @@ class EditorManager {
             overlay.style.width = `${next}px`;
         };
 
-        const up = (ev) => {
+        const end = (_ev) => {
             overlay.removeEventListener('pointermove', move);
-            overlay.removeEventListener('pointerup', up);
+            overlay.removeEventListener('pointerup', end);
             try { overlay.releasePointerCapture(pointerId); } catch (_) {}
             const finalWidth = parseFloat(overlay.style.width) || startWidth;
             const percent = Math.max(10, Math.min(100, Math.round((finalWidth / usableWidth) * 100)));
@@ -776,7 +777,7 @@ class EditorManager {
         };
 
         overlay.addEventListener('pointermove', move);
-        overlay.addEventListener('pointerup', up);
+        overlay.addEventListener('pointerup', end);
     }
 
     buildMirrorHtml(content) {
@@ -1448,7 +1449,7 @@ class EditorManager {
         this.updateWordCount();
 
         // マッチ位置を調整
-        const newEnd = match.start + replaceText.length;
+        const _newEnd = match.start + replaceText.length;
         this.currentMatches.splice(this.currentMatchIndex, 1);
 
         // 残りのマッチ位置を調整

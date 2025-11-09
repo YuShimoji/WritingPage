@@ -34,7 +34,7 @@
       if (s) {
         s.setItem('zw_panel_layout', JSON.stringify(layout));
       }
-    } catch (_) {}
+    } catch (e) { void e; }
   }
 
   function getDefaultLayout() {
@@ -52,7 +52,7 @@
   }
 
   // パネル作成関数
-  function createDockablePanel(id, title, content, options = {}) {
+  function createDockablePanel(id, title, content, _options = {}) {
     const panel = document.createElement('div');
     panel.className = 'dockable-panel';
     panel.id = id;
@@ -64,7 +64,7 @@
     const titleEl = document.createElement('span');
     titleEl.textContent = title;
     // Ensure title element has a stable id for aria-labelledby
-    try { titleEl.id = id + '-title'; } catch(_) {}
+    try { titleEl.id = id + '-title'; } catch(e) { void e; }
     header.appendChild(titleEl);
 
     const controls = document.createElement('div');
@@ -73,7 +73,7 @@
     // ドッキングコントロール
     const dockBtn = document.createElement('button');
     dockBtn.className = 'panel-control';
-    dockBtn.textContent = '📌';
+    dockBtn.textContent = 'ドッキング';
     dockBtn.title = 'ドッキング切替';
     dockBtn.setAttribute('aria-label', 'パネルをドッキングまたはフローティングに切替');
     dockBtn.addEventListener('click', () => togglePanelDocking(id));
@@ -82,7 +82,7 @@
     // 閉じるボタン
     const closeBtn = document.createElement('button');
     closeBtn.className = 'panel-control panel-close';
-    closeBtn.textContent = '×';
+    closeBtn.textContent = '閉じる';
     closeBtn.title = '閉じる';
     closeBtn.setAttribute('aria-label', 'パネルを閉じる');
     closeBtn.addEventListener('click', () => hidePanel(id));
@@ -234,7 +234,7 @@
     }
 
     switch (zone) {
-      case ZONES.SIDEBAR_LEFT:
+      case ZONES.SIDEBAR_LEFT: {
         const sidebar = document.querySelector('.sidebar');
         if (sidebar) {
           sidebar.appendChild(panel);
@@ -246,7 +246,8 @@
           panel.style.bottom = '';
         }
         break;
-      case ZONES.BOTTOM:
+      }
+      case ZONES.BOTTOM: {
         // ボトムパネルコンテナを作成
         let bottomContainer = document.getElementById('bottom-panels');
         if (!bottomContainer) {
@@ -259,8 +260,10 @@
         panel.classList.remove('floating');
         panel.classList.add('docked', 'bottom');
         break;
-      default:
+      }
+      default: {
         ensureFloating(panel);
+      }
     }
   }
 
@@ -320,6 +323,6 @@
 
   try {
     window.ZenWriterPanels = API;
-  } catch (_) {}
+  } catch (e) { void e; }
 
 })();

@@ -35,7 +35,7 @@ class ThemeManager {
       this.clearCustomColors();
     }
     window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 
   /**
@@ -67,7 +67,7 @@ class ThemeManager {
     this.settings.textColor = textColor;
     this.settings.useCustomColors = !!enable;
     window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 
   /**
@@ -79,7 +79,7 @@ class ThemeManager {
     root.style.setProperty('--button-color', buttonColor);
     this.settings.buttonColor = buttonColor;
     window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 
   /**
@@ -94,7 +94,7 @@ class ThemeManager {
     root.style.removeProperty('--border-color');
     this.settings.useCustomColors = false;
     window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 
   /**
@@ -128,7 +128,7 @@ class ThemeManager {
     this.settings.editorFontSize = editorFontSize || fontSize;
     this.settings.lineHeight = lineHeight;
     window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(_) {}
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 
   /**

@@ -156,11 +156,11 @@
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
-    },
+    }
     _getActiveEntry(){
       var data = this._ensureLoadouts();
       return data.entries[data.active] || { groups: normaliseGroups({}) };
-    },
+    }
     _getActiveNames(){
       var entry = this._getActiveEntry();
       var names = [];
@@ -174,7 +174,7 @@
         names = this._list.map(function(g){ return g.name || ''; }).filter(Boolean);
       }
       return names;
-    },
+    }
     register(name, factory, options){
       try {
         var safeName = String(name || '');
@@ -190,10 +190,10 @@
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
       } catch(_) {}
-    },
+    }
     registerSettings(name, factory){
       try { this._settings[String(name||'')] = factory; } catch(_) {}
-    },
+    }
     defineLoadout(name, config){
       if (!name) return;
       var data = this._ensureLoadouts();
@@ -208,14 +208,14 @@
       this._applyLoadoutEntry(this._loadouts.entries[this._loadouts.active]);
       emit('ZWLoadoutDefined', { name: safe });
       try { this._renderLast && this._renderLast(); } catch(_) {}
-    },
+    }
     listLoadouts(){
       var data = this._ensureLoadouts();
       return Object.keys(data.entries).map(function(key){
         var entry = data.entries[key] || {};
         return { name: key, label: entry.label || key };
       });
-    },
+    }
     applyLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
@@ -226,7 +226,7 @@
       try { this._renderLast && this._renderLast(); } catch(_) {}
       emit('ZWLoadoutApplied', { name: name });
       return true;
-    },
+    }
     deleteLoadout(name){
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
@@ -243,7 +243,7 @@
       try { this._renderLast && this._renderLast(); } catch(_) {}
       emit('ZWLoadoutDeleted', { name: name });
       return true;
-    },
+    }
     getActiveLoadout(){
       var data = this._ensureLoadouts();
       var entry = data.entries[data.active] || {};
@@ -253,11 +253,11 @@
         label: entry.label || data.active,
         entry: clone(entry)
       };
-    },
+    }
     captureCurrentLoadout(label){
       var groups = { structure: [], typography: [], assist: [] };
       var roots = this._roots || {};
-      var self = this;
+      var _self = this;
       Object.keys(roots).forEach(function(group){
         var root = roots[group];
         if (!root) return;
@@ -277,7 +277,7 @@
         label: label || (active && active.label) || '',
         groups: groups
       };
-    },
+    }
     setActiveGroup(group){
       var self = this;
       if (!group) return;
@@ -290,7 +290,7 @@
         try { self._renderLast && self._renderLast(); } catch(_) {}
         self._renderPending = null;
       });
-    },
+    }
     assignGroups(name, groups){
       if (!name) return;
       var normalized = normalizeList(groups || ['assist']);
@@ -302,10 +302,10 @@
         }
       }
       try { this._renderLast && this._renderLast(); } catch(_) {}
-    },
-    getPrefs(){ return loadPrefs(); },
-    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} },
-    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } },
+    }
+    getPrefs(){ return loadPrefs(); }
+    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} }
+    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } }
     setSetting(name, key, value){
       try {
         var p = loadPrefs();
@@ -318,13 +318,13 @@
         try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', { detail: detail })); } catch(_) {}
         try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch(_) {}
       } catch(_) {}
-    },
+    }
     exportPrefs(){
       try {
         var p = loadPrefs();
         return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
       } catch(_) { return '{}'; }
-    },
+    }
     importPrefs(obj){
       try {
         var p = obj;
@@ -337,7 +337,7 @@
         try { this._renderLast && this._renderLast(); } catch(_) {}
         return true;
       } catch(_) { return false; }
-    },
+    }
     move(name, dir){
       try {
         var p = loadPrefs();
@@ -354,7 +354,7 @@
         savePrefs(p);
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
-    },
+    }
     toggle(name){
       try {
         var p = loadPrefs();
@@ -363,8 +363,8 @@
         savePrefs(p);
         try { this._renderLast && this._renderLast(); } catch(_) {}
       } catch(_) {}
-    },
-    init: function(selector, options){
+    }
+    init(selector, options){
       var self = this;
       var opts = options && typeof options === 'object' ? options : {};
       var sel = selector || '#gadgets-panel';
@@ -476,19 +476,19 @@
             var toggleBtn = document.createElement('button');
             toggleBtn.type='button';
             toggleBtn.className='gadget-toggle';
-            toggleBtn.textContent = (collapsed ? '▶' : '▼');
+            toggleBtn.textContent = (collapsed ? '展開' : '折りたたみ');
             var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name; title.id = 'gadget-title-' + name;
             wrap.setAttribute('aria-labelledby', title.id);
-            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
-            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
+            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='上へ'; upBtn.title='上へ';
+            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='下へ'; downBtn.title='下へ';
             var settingsBtn = null;
             if (self._settings[name]){
               settingsBtn = document.createElement('button');
-              settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='⚙';
+              settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='設定';
             }
             // 削除ボタン（現在のタブから除外）
             var removeBtn = document.createElement('button');
-            removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='✕';
+            removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='削除';
             toggleBtn.setAttribute('aria-label', collapsed ? '展開' : '折りたたみ');
             upBtn.setAttribute('aria-label', '上へ移動');
             downBtn.setAttribute('aria-label', '下へ移動');
@@ -505,7 +505,7 @@
               try {
                 collapsed = !collapsed;
                 body.style.display = collapsed ? 'none' : '';
-                toggleBtn.textContent = collapsed ? '▶' : '▼';
+                toggleBtn.textContent = collapsed ? '展開' : '折りたたみ';
                 wrap.setAttribute('aria-expanded', !collapsed);
                 var p = loadPrefs();
                 p.collapsed = p.collapsed || {};
@@ -550,7 +550,7 @@
             if (settingsBtn){
               var panel = document.createElement('div'); panel.className='gadget-settings'; panel.style.display='none';
               wrap.appendChild(panel);
-              settingsBtn.addEventListener('click', function(n, p, btn){ return function(){
+              settingsBtn.addEventListener('click', function(n, p, _btn){ return function(){
                 try {
                   var visible = p.style.display !== 'none';
                   p.style.display = visible ? 'none' : '';
@@ -701,16 +701,16 @@
           addList.style.flexDirection = 'column';
 
           available.forEach(function(g){
-            var btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'small';
-            btn.textContent = g.title || g.name;
-            btn.style.width = '100%';
-            btn.addEventListener('click', function(){
+            var _btn = document.createElement('button');
+            _btn.type = 'button';
+            _btn.className = 'small';
+            _btn.textContent = g.title || g.name;
+            _btn.style.width = '100%';
+            _btn.addEventListener('click', function(){
               self.assignGroups(g.name, [group]);
               self._renderLast && self._renderLast();
             });
-            addList.appendChild(btn);
+            addList.appendChild(_btn);
           });
 
           addSection.appendChild(addList);
@@ -732,38 +732,9 @@
         }
       };
       render();
-    },
-    addTab: function(group, label, panelId){
-      var self = this;
-      // タブボタンを作成
-      var tab = document.createElement('button');
-      tab.className = 'sidebar-tab';
-      tab.type = 'button';
-      tab.dataset.group = group;
-      tab.textContent = label;
-      tab.addEventListener('click', function(){
-        // グループ切り替え
-        self._activeGroup = group;
-        // タブアクティブ化
-        var allTabs = document.querySelectorAll('.sidebar-tab');
-        allTabs.forEach(function(t){
-          t.classList.remove('active');
-        });
-        tab.classList.add('active');
-        // グループ表示
-        var allGroups = document.querySelectorAll('.sidebar-group');
-        allGroups.forEach(function(g){
-          g.classList.remove('active');
-        });
-        var targetGroup = document.querySelector('.sidebar-group[data-group="' + group + '"]');
-        if (targetGroup) targetGroup.classList.add('active');
-        // パネル初期化（すでに初期化されているかも）
-      });
-      // sidebar-tabsに追加
-      var tabsContainer = document.querySelector('.sidebar-tabs');
-      if (tabsContainer) tabsContainer.appendChild(tab);
     }
-  };
+    
+  }
 
   // expose
   let ZWGadgetsInstance = new ZWGadgets();
@@ -861,8 +832,8 @@
           var left = document.createElement('label'); left.textContent = String(lv.label||''); left.style.flex='1 1 auto';
           var right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='6px';
           var color = document.createElement('input'); color.type='color'; color.value = lv.color || '#888888'; color.setAttribute('data-index', String(i));
-          var up = document.createElement('button'); up.type='button'; up.className='small btn-move'; up.setAttribute('data-dir','up'); up.setAttribute('data-index', String(i)); up.textContent='↑'; up.title='上へ';
-          var down = document.createElement('button'); down.type='button'; down.className='small btn-move'; down.setAttribute('data-dir','down'); down.setAttribute('data-index', String(i)); down.textContent='↓'; down.title='下へ';
+          var up = document.createElement('button'); up.type='button'; up.className='small btn-move'; up.setAttribute('data-dir','up'); up.setAttribute('data-index', String(i)); up.textContent='上へ'; up.title='上へ';
+          var down = document.createElement('button'); down.type='button'; down.className='small btn-move'; down.setAttribute('data-dir','down'); down.setAttribute('data-index', String(i)); down.textContent='下へ'; down.title='下へ';
           right.appendChild(color); right.appendChild(up); right.appendChild(down);
           row.appendChild(left); row.appendChild(right);
           levelsBox.appendChild(row);
@@ -1275,19 +1246,19 @@
       var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
       var levelLabels = ['大見出し', '中見出し', '小見出し', '詳細', 'メモ', '注記'];
 
-      levels.forEach(function(level, idx){
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'outline-btn small';
-        btn.textContent = levelLabels[idx] || level.trim();
-        btn.addEventListener('click', function(){
+      levels.forEach(function(level, _idx){
+        var _btn3 = document.createElement('button');
+        _btn3.type = 'button';
+        _btn3.className = 'outline-btn small';
+        _btn3.textContent = levelLabels[_idx] || level.trim();
+        _btn3.addEventListener('click', function(){
           try {
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
               window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
             }
           } catch(e){ console.error('insert outline failed', e); }
         });
-        insertContainer.appendChild(btn);
+        insertContainer.appendChild(_btn3);
       });
 
       wrap.appendChild(levelsContainer);
@@ -1322,7 +1293,7 @@
         title.style.flex = '1';
         var toggleBtn = document.createElement('button');
         toggleBtn.className = 'gadget-toggle-btn';
-        toggleBtn.textContent = '▼';
+        toggleBtn.textContent = '折りたたみ';
         toggleBtn.style.border = 'none';
         toggleBtn.style.background = 'none';
         toggleBtn.style.cursor = 'pointer';
@@ -1330,11 +1301,11 @@
         toggleBtn.addEventListener('click', function(ev){
           ev.stopPropagation();
           row.classList.toggle('collapsed');
-          toggleBtn.textContent = row.classList.contains('collapsed') ? '▶' : '▼';
+          toggleBtn.textContent = row.classList.contains('collapsed') ? '展開' : '折りたたみ';
         });
         var settingsBtn = document.createElement('button');
         settingsBtn.className = 'gadget-settings-btn small';
-        settingsBtn.textContent = '⚙️';
+        settingsBtn.textContent = '設定';
         settingsBtn.title = '設定';
         head.appendChild(title);
         head.appendChild(toggleBtn);
@@ -1353,7 +1324,7 @@
         var upBtn = document.createElement('button');
         upBtn.type = 'button';
         upBtn.className = 'small';
-        upBtn.textContent = '↑';
+        upBtn.textContent = '上へ';
         upBtn.style.width = '24px';
         upBtn.style.height = '24px';
         upBtn.addEventListener('click', function(){ moveLevel(row, -1); });
@@ -1361,7 +1332,7 @@
         var downBtn = document.createElement('button');
         downBtn.type = 'button';
         downBtn.className = 'small';
-        downBtn.textContent = '↓';
+        downBtn.textContent = '下へ';
         downBtn.style.width = '24px';
         downBtn.style.height = '24px';
         downBtn.addEventListener('click', function(){ moveLevel(row, 1); });
@@ -1467,7 +1438,7 @@
         return section;
       }
 
-      function makeRow(labelText, control){
+      var makeRow = function(labelText, control){
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
@@ -1475,7 +1446,7 @@
         row.textContent = labelText;
         row.appendChild(control);
         return row;
-      }
+      };
 
       // Theme presets
       var themesSection = makeSection('テーマ');
@@ -1527,16 +1498,16 @@
         if (stored) customPresets = JSON.parse(stored);
       } catch(_) {}
       if (customPresets.length > 0) {
-        customPresets.forEach(function(preset, idx){
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'small';
-          btn.textContent = preset.name;
-          btn.addEventListener('click', function(){
+        customPresets.forEach(function(preset, _idx){
+          var _btn2 = document.createElement('button');
+          _btn2.type = 'button';
+          _btn2.className = 'small';
+          _btn2.textContent = preset.name;
+          _btn2.addEventListener('click', function(){
             theme.applyCustomColors(preset.bg, preset.text, true);
             refreshState();
           });
-          paletteSection.appendChild(btn);
+          paletteSection.appendChild(_btn2);
         });
       }
 
@@ -1544,9 +1515,9 @@
       var fontSection = makeSection('フォント');
       var fontSelect = document.createElement('select');
       var fonts = [
-        { value: "'Noto Serif JP', serif", label: 'Noto Serif JP' },
-        { value: "'Yu Mincho', 'YuMincho', serif", label: '游明朝' },
-        { value: "'Hiragino Mincho ProN', serif", label: 'ヒラギノ明朝' }
+        { value: '"Noto Serif JP", serif', label: 'Noto Serif JP' },
+        { value: '"Yu Mincho", "YuMincho", serif', label: '游明朝' },
+        { value: '"Hiragino Mincho ProN", serif', label: 'ヒラギノ明朝' }
       ];
       fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
       fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
@@ -1627,7 +1598,7 @@
 
       refreshState();
 
-      function refreshState(){
+      var refreshState = function(){
         try {
           var latest = storage.loadSettings();
           if (!latest) return;
@@ -1643,14 +1614,14 @@
           bgInput.value = latest.bgColor || '#ffffff';
           textInput.value = latest.textColor || '#333333';
         } catch(e){ console.error('refreshState failed', e); }
-      }
+      };
 
       window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);
       window.addEventListener('ZenWriterSettingsChanged', refreshState);
     } catch(e) {
       console.error('TypographyThemes gadget failed:', e);
-      try { el.textContent = 'タイポ設定ガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = 'タイポ設定ガジェットの初期化に失敗しました。'; } catch(e) { void e; }
     }
   }, { groups: ['typography'], title: 'テーマ & フォント' });
 
@@ -1665,11 +1636,11 @@
         return;
       }
 
-      function loadHud(){
+      var loadHud = function(){
         var settings = storage.loadSettings() || {};
         return settings.hud || {};
-      }
-      function saveHud(patch){
+      };
+      var saveHud = function(patch){
         var settings = storage.loadSettings() || {};
         settings.hud = Object.assign({}, settings.hud || {}, patch || {});
         storage.saveSettings(settings);
@@ -1677,8 +1648,8 @@
           if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
             window.ZenWriterHUD.updateFromSettings();
           }
-        } catch(_) {}
-      }
+        } catch(e) { void e; }
+      };
 
       var hud = loadHud();
 
@@ -1715,7 +1686,7 @@
       var duration = document.createElement('input');
       duration.type = 'number'; duration.min = '300'; duration.max = '5000'; duration.step = '100';
       duration.value = hud.duration || 1200;
-      function clampDuration(v){ var n = parseInt(v,10); if (isNaN(n)) return 1200; return Math.max(300, Math.min(5000, n)); }
+      var clampDuration = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 1200; return Math.max(300, Math.min(5000, n)); };
       var durationHandler = function(e){ saveHud({ duration: clampDuration(e.target.value) }); };
       duration.addEventListener('change', durationHandler);
       duration.addEventListener('input', durationHandler);
@@ -1737,11 +1708,11 @@
       var opacity = document.createElement('input');
       opacity.type = 'range'; opacity.min = '0'; opacity.max = '1'; opacity.step = '0.05';
       opacity.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
-      function setOpacity(val){
+      var setOpacity = function(val){
         var num = Math.max(0, Math.min(1, parseFloat(val)));
         opacityLabel.textContent = '不透明度: ' + num;
         saveHud({ opacity: num });
-      }
+      };
       opacity.addEventListener('input', function(e){ setOpacity(e.target.value); });
       opacity.addEventListener('change', function(e){ setOpacity(e.target.value); });
       var opacityRow = document.createElement('div');
@@ -1756,7 +1727,7 @@
       var widthInput = document.createElement('input');
       widthInput.type = 'number'; widthInput.min = '120'; widthInput.max = '800'; widthInput.step = '10';
       widthInput.value = hud.width || 240;
-      function clampWidth(v){ var n = parseInt(v,10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); }
+      var clampWidth = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); };
       var widthHandler = function(e){ saveHud({ width: clampWidth(e.target.value) }); };
       widthInput.addEventListener('change', widthHandler);
       widthInput.addEventListener('input', widthHandler);
@@ -1766,7 +1737,7 @@
       var fontSizeNum = document.createElement('input');
       fontSizeNum.type = 'number'; fontSizeNum.min = '10'; fontSizeNum.max = '24'; fontSizeNum.step = '1';
       fontSizeNum.value = hud.fontSize || 14;
-      function clampFontPx(v){ var n = parseInt(v,10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); }
+      var clampFontPx = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); };
       var fontHandler = function(e){ saveHud({ fontSize: clampFontPx(e.target.value) }); };
       fontSizeNum.addEventListener('change', fontHandler);
       fontSizeNum.addEventListener('input', fontHandler);
@@ -1779,14 +1750,14 @@
           if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
             window.ZenWriterHUD.publish('HUDテスト表示');
           }
-        } catch(_) {}
+        } catch(e) { void e; }
       });
       wrap.appendChild(testBtn);
 
       el.appendChild(wrap);
     } catch(e) {
       console.error('HUDSettings gadget failed:', e);
-      try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(e) { void e; }
     }
   }, { groups: ['assist'], title: 'HUD設定' });
 
@@ -1851,7 +1822,7 @@
   }, { groups: ['assist'], title: '執筆目標' });
 
   // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
-  ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, api){
+  ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, _api){
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
@@ -1863,13 +1834,13 @@
         return;
       }
 
-      function formatTs(ts){
+      var formatTs = function(ts){
         const d = new Date(ts);
         const p = (n)=> String(n).padStart(2,'0');
         return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
-      }
+      };
 
-      function renderSnapshots(){
+      var renderSnapshots = function(){
         var list = storage.loadSnapshots() || [];
         el.innerHTML = '';
         if (list.length === 0){
@@ -1915,7 +1886,7 @@
           row.appendChild(actions);
           el.appendChild(row);
         });
-      }
+      };
 
       const saveBtn = document.createElement('button');
       saveBtn.type = 'button';
@@ -1939,16 +1910,17 @@
   }, { groups: ['assist'], title: 'バックアップ' });
 
   // Print Settings gadget
-  ZWGadgets.register('PrintSettings', function(el, api){
+  ZWGadgets.register('PrintSettings', function(el, _api){
     try {
+      var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
       const printBtn = document.createElement('button');
       printBtn.type = 'button';
       printBtn.className = 'small';
       printBtn.textContent = '印刷プレビュー';
       printBtn.addEventListener('click', () => {
         const pv = document.getElementById('print-view');
-        if (!pv || !editor) return;
-        const text = editor.value || '';
+        if (!pv || !ed) return;
+        const text = ed.value || '';
         pv.innerHTML = '';
         const norm = text.replace(/\r\n/g, '\n');
         const blocks = norm.split(/\n{2,}/);
@@ -1966,7 +1938,7 @@
       exportBtn.className = 'small';
       exportBtn.textContent = 'TXTエクスポート';
       exportBtn.addEventListener('click', () => {
-        const text = editor && editor.value ? editor.value : '';
+        const text = ed && ed.value ? ed.value : '';
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1980,7 +1952,7 @@
       el.appendChild(exportBtn);
     } catch(e) {
       console.error('PrintSettings gadget failed:', e);
-      try { el.textContent = '印刷設定ガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = '印刷設定ガジェットの初期化に失敗しました。'; } catch(e2) { void e2; }
     }
   }, { groups: ['assist'], title: 'エクスポート' });
 
@@ -2004,7 +1976,7 @@
       var listEl = document.createElement('div'); listEl.className='snapshot-list';
       wrap.appendChild(btn); wrap.appendChild(listEl); el.appendChild(wrap);
 
-      function fmt(ts){ var d=new Date(ts); var p=function(n){return String(n).padStart(2,'0')}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
+      function fmt(ts){ var d=new Date(ts); var p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
       function renderList(){
         var list = storage.loadSnapshots()||[]; listEl.innerHTML='';
         if (!list.length){ var empty=document.createElement('div'); empty.style.opacity='0.7'; empty.textContent='バックアップはありません'; listEl.appendChild(empty); return; }
@@ -2126,7 +2098,7 @@
   // EditorLayout settings UI
   ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
     try {
-      var makeRow = function(labelText, control){
+      var _makeRow = function(labelText, control){
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
@@ -2217,7 +2189,7 @@
       function tick(){
         try {
           var d = new Date();
-          var z = function(n){ return (n<10?'0':'')+n };
+          var z = function(n){ return (n<10?'0':'')+n; };
           var hour24 = api && typeof api.get==='function' ? !!api.get('hour24', true) : true;
           var h = d.getHours();
           var ap = '';
@@ -2245,205 +2217,7 @@
     } catch(_) {}
   });
 
-  ZWGadgets.addTab = function(name, label, containerId){
-    try {
-      var tabsEl = document.getElementById('sidebar-tabs');
-      var groupsEl = document.getElementById('sidebar-groups');
-      if (!tabsEl || !groupsEl) return false;
-
-      // タブボタン追加
-      var tabBtn = document.createElement('button');
-      tabBtn.type = 'button';
-      tabBtn.className = 'sidebar-tab';
-      tabBtn.setAttribute('data-tab', name);
-      tabBtn.textContent = label;
-      tabBtn.addEventListener('click', function(){
-        var tabs = tabsEl.querySelectorAll('.sidebar-tab');
-        tabs.forEach(function(t){ t.classList.remove('active'); });
-        var groups = groupsEl.querySelectorAll('.sidebar-group');
-        groups.forEach(function(g){ g.classList.remove('active'); g.setAttribute('aria-hidden', 'true'); });
-        tabBtn.classList.add('active');
-        var targetGroup = groupsEl.querySelector('[data-group="' + name + '"]');
-        if (targetGroup){
-          targetGroup.classList.add('active');
-          targetGroup.setAttribute('aria-hidden', 'false');
-        }
-      });
-      tabsEl.appendChild(tabBtn);
-
-      // グループ追加
-      var groupEl = document.createElement('section');
-      groupEl.className = 'sidebar-group';
-      groupEl.setAttribute('data-group', name);
-      groupEl.setAttribute('aria-hidden', 'true');
-      var section = document.createElement('div');
-      section.className = 'sidebar-section';
-      var panel = document.createElement('div');
-      panel.className = 'gadgets-panel';
-      panel.id = containerId || (name + '-gadgets-panel');
-      panel.setAttribute('data-gadget-group', name);
-      panel.setAttribute('aria-label', label + 'ガジェット');
-      section.appendChild(panel);
-      groupEl.appendChild(section);
-      groupsEl.appendChild(groupEl);
-
-      return true;
-    } catch(e) { console.error('addTab failed', e); return false; }
-  };
-
-  ZWGadgets.removeTab = function(name){
-    try {
-      var tabsEl = document.getElementById('sidebar-tabs');
-      var groupsEl = document.getElementById('sidebar-groups');
-      if (!tabsEl || !groupsEl) return false;
-
-      var tabBtn = tabsEl.querySelector('[data-tab="' + name + '"]');
-      if (tabBtn) tabBtn.remove();
-
-      var groupEl = groupsEl.querySelector('[data-group="' + name + '"]');
-      if (groupEl) groupEl.remove();
-
-      return true;
-    } catch(e) { console.error('removeTab failed', e); return false; }
-  };
-  ready(function(){
-    try { loadLoadouts(); } catch(_) {}
-    try { ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' }); } catch(_) {}
-    try { ZWGadgets.init('#gadgets-panel', { group: 'assist' }); } catch(_) {}
-    try { ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' }); } catch(_) {}
-    // Wire Loadout UI (one-time binding guard)
-    try {
-      if (window.__ZW_LOADOUT_UI_BOUND__) { /* already bound */ }
-      else { window.__ZW_LOADOUT_UI_BOUND__ = true; }
-      if (window.__ZW_LOADOUT_UI_BOUND_INIT_DONE__) return; // prevent double handlers
-      window.__ZW_LOADOUT_UI_BOUND_INIT_DONE__ = true;
-      var $sel = document.getElementById('loadout-select');
-      var $name = document.getElementById('loadout-name');
-      var $save = document.getElementById('loadout-save');
-      var $apply = document.getElementById('loadout-apply');
-      var $dup = document.getElementById('loadout-duplicate');
-      var $del = document.getElementById('loadout-delete');
-
-      function refreshLoadoutUI(activeName){
-        try {
-          var items = ZWGadgets.listLoadouts ? ZWGadgets.listLoadouts() : [];
-          if ($sel){
-            $sel.innerHTML='';
-            items.forEach(function(it){ var opt=document.createElement('option'); opt.value=it.name; opt.textContent=it.label||it.name; $sel.appendChild(opt); });
-            var active = (ZWGadgets.getActiveLoadout && ZWGadgets.getActiveLoadout().name) || (items[0] && items[0].name) || '';
-            $sel.value = activeName || active || '';
-          }
-          if ($name){
-            try { var cur = ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout() : null; $name.value = (cur && cur.label) || ''; } catch(_) {}
-          }
-        } catch(_) {}
-      }
-
-      if ($save){
-        $save.addEventListener('click', function(){
-          try {
-            var nm = ($name && $name.value || '').trim();
-            if (!nm){ alert('ロードアウト名を入力してください'); return; }
-            var captured = ZWGadgets.captureCurrentLoadout ? ZWGadgets.captureCurrentLoadout(nm) : null;
-            if (!captured){ alert('現在の構成を取得できませんでした'); return; }
-            ZWGadgets.defineLoadout(nm, captured);
-            ZWGadgets.applyLoadout(nm);
-            refreshLoadoutUI(nm);
-          } catch(e){ console.error('save loadout failed', e); }
-        });
-      }
-      if ($apply){
-        $apply.addEventListener('click', function(){
-          try { if ($sel && $sel.value){ ZWGadgets.applyLoadout($sel.value); refreshLoadoutUI($sel.value); } } catch(_) {}
-        });
-      }
-      if ($dup){
-        $dup.addEventListener('click', function(){
-          try {
-            if (!$sel || !$sel.value){ alert('複製元のロードアウトを選択してください'); return; }
-            var base = $sel.value;
-            var cur = ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout() : null;
-            // 現在の配置を採取して別名保存（UI入力があればそれを使う）
-            var nm = ($name && $name.value || (base + ' copy')).trim();
-            if (!nm){ alert('複製先の名前を入力してください'); return; }
-            // いったん対象を適用→現構成を採取→別名定義
-            ZWGadgets.applyLoadout(base);
-            var captured = ZWGadgets.captureCurrentLoadout ? ZWGadgets.captureCurrentLoadout(nm) : null;
-            if (!captured){ alert('ロードアウトの採取に失敗しました'); return; }
-            ZWGadgets.defineLoadout(nm, captured);
-            ZWGadgets.applyLoadout(nm);
-            refreshLoadoutUI(nm);
-          } catch(e){ console.error('duplicate loadout failed', e); }
-        });
-      }
-      if ($del){
-        $del.addEventListener('click', function(){
-          try {
-            if ($sel && $sel.value){
-              var active = ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout().name : '';
-              if ($sel.value === active){
-                alert('アクティブなロードアウトは削除できません');
-                return;
-              }
-              if (!confirm('選択中のロードアウトを削除しますか？')) return;
-              // 選択値を即時に退避してから削除を実行（UI再描画による値変化を防止）
-              var toDelete = String($sel.value);
-              ZWGadgets.deleteLoadout(toDelete);
-              refreshLoadoutUI(active);
-            }
-          } catch(e){ console.error('delete loadout failed', e); }
-        });
-      }
-      // 初期描画
-      refreshLoadoutUI();
-      // 状態変化時に更新
-      window.addEventListener('ZWLoadoutsChanged', function(){ refreshLoadoutUI(); });
-      window.addEventListener('ZWLoadoutApplied', function(){ refreshLoadoutUI(); });
-      window.addEventListener('ZWLoadoutDeleted', function(){ refreshLoadoutUI(); });
-    } catch(_) {}
-
-    emit('ZWGadgetsReady', { loadout: ZWGadgets.getActiveLoadout ? ZWGadgets.getActiveLoadout() : null });
-    // Wire import/export controls if present
-    try {
-      var expBtn = document.getElementById('gadget-export');
-      var impBtn = document.getElementById('gadget-import');
-      var inp = document.getElementById('gadget-prefs-input');
-      if (expBtn) {
-        expBtn.addEventListener('click', function(){
-          try {
-            var json = ZWGadgets.exportPrefs();
-            var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement('a');
-            var d = new Date();
-            var pad = function(n){ return (n<10?'0':'')+n; };
-            var name = 'gadgets_prefs_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.json';
-            a.href = url; a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(function(){ URL.revokeObjectURL(url); }, 0);
-          } catch(e) { /* ignore */ }
-        });
-      }
-      if (impBtn && inp) {
-        impBtn.addEventListener('click', function(){ try { inp.click(); } catch(_) {} });
-        inp.addEventListener('change', function(ev){
-          try {
-            var file = ev.target && ev.target.files && ev.target.files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(){
-              try {
-                var ok = ZWGadgets.importPrefs(String(reader.result||''));
-                if (!ok) { console.warn('Import failed: invalid file'); }
-              } catch(e) { console.warn('Import failed:', e); }
-              try { inp.value = ''; } catch(_) {}
-            };
-            reader.onerror = function(){ try { inp.value=''; } catch(_) {} };
-            reader.readAsText(file, 'utf-8');
-          } catch(_) { try { inp.value=''; } catch(__) {} }
-        });
-      }
-    } catch(_) {}
-  });
+  // 旧API (ZWGadgets.addTab/removeTab) は廃止しました
 
   ZWGadgets.register('EditorLayout', function(el){
     try {
@@ -2557,7 +2331,7 @@
         listContainer.style.maxHeight = '300px';
         listContainer.style.overflowY = 'auto';
 
-        function renderList(){
+        var renderList = function(){
             listContainer.innerHTML = '';
             var query = searchInput.value.trim();
             var pages = query ? storage.searchWikiPages(query) : storage.listWikiPages();
@@ -2619,9 +2393,9 @@
                 item.appendChild(actions);
                 listContainer.appendChild(item);
             });
-        }
+        };
 
-        function showPageEditor(pageId){
+        var showPageEditor = function(pageId){
             var page = storage.getWikiPage(pageId);
             if (!page) return;
 
@@ -2708,7 +2482,7 @@
             editorDialog.appendChild(btns);
 
             document.body.appendChild(editorDialog);
-        }
+        };
 
         searchInput.addEventListener('input', function(){
             renderList();
@@ -2727,7 +2501,7 @@
 }, { groups: ['wiki'], title: '物語Wiki' });
 
   // HUDSettings ガジェット
-  ZWGadgets.register('HUDSettings', function(el, options){
+  ZWGadgets.register('HUDSettings', function(el, _options){
     try {
       el.innerHTML = '';
       el.style.display = 'flex';
@@ -3142,8 +2916,7 @@
     ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
     ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
 
-    // 動的タブ追加デモ: Wikiタブ
-    ZWGadgetsInstance.addTab('wiki', 'Wiki', 'wiki-gadgets-panel');
+    // Wikiパネル初期化（タブ生成はアプリ側で実施）
     ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });
 
     // Loadout UI event handlers

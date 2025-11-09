@@ -6,7 +6,7 @@
   function ensure(fn){ try{ return typeof fn === 'function'; } catch(_){ return false; } }
 
   function getDocId(){
-    try { if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.getCurrentDocId)) return window.ZenWriterStorage.getCurrentDocId() || 'default'; } catch(_){}
+    try { if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.getCurrentDocId)) return window.ZenWriterStorage.getCurrentDocId() || 'default'; } catch(e){ void e; }
     return 'default';
   }
   function storageKey(docId){ return 'zw_nodegraph:'+ (docId || getDocId()); }
@@ -18,10 +18,10 @@
       if (!Array.isArray(obj.nodes)) obj.nodes = [];
       if (!Array.isArray(obj.edges)) obj.edges = [];
       return obj;
-    } catch(_) { return { nodes: [], edges: [] }; }
+    } catch(e){ void e; return { nodes: [], edges: [] }; }
   }
   function saveGraph(docId, data){
-    try { localStorage.setItem(storageKey(docId), JSON.stringify(data||{ nodes: [], edges: [] })); } catch(_){}
+    try { localStorage.setItem(storageKey(docId), JSON.stringify(data||{ nodes: [], edges: [] })); } catch(e){ void e; }
   }
   function uid(prefix){ return String(prefix||'ng_') + Math.random().toString(36).slice(2); }
 
@@ -105,7 +105,7 @@
         header.style.display='flex'; header.style.alignItems='center'; header.style.gap='6px';
         var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='1px 6px'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='#fff';
         var title = el('div'); title.textContent = n.title || n.id; title.style.fontWeight='700'; title.style.flex='1';
-        var del = el('button','small'); del.textContent='✕'; del.title='削除';
+        var del = el('button','small'); del.textContent='削除'; del.title='削除';
         header.appendChild(badge); header.appendChild(title); header.appendChild(del);
         node.appendChild(header);
 
@@ -166,7 +166,7 @@
   function registerGadget(){
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
 
-    window.ZWGadgets.register('NodeGraph', function(root, api){
+    window.ZWGadgets.register('NodeGraph', function(root, _api){
       root.innerHTML = '';
       root.style.display='grid'; root.style.gap='6px';
 

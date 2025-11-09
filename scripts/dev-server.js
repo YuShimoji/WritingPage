@@ -51,12 +51,14 @@ function sendFile(res, fp) {
 
 const server = http.createServer((req, res) => {
   let reqPath = decodeURIComponent(req.url.split('?')[0] || '/');
-  if (reqPath === '/') reqPath = '/index.html';
+  // 先頭のスラッシュを除去して相対化
+  let relPath = reqPath.replace(/^[/\\]+/, '');
+  if (relPath === '') relPath = 'index.html';
   // favicon.ico は存在しないため、favicon.svg にフォールバック
-  if (reqPath === '/favicon.ico') {
-    reqPath = '/favicon.svg';
+  if (relPath === 'favicon.ico') {
+    relPath = 'favicon.svg';
   }
-  const fp = path.join(root, reqPath);
+  const fp = path.resolve(root, relPath);
   if (!fp.startsWith(root)) {
     res.writeHead(400);
     res.end('Bad Request');

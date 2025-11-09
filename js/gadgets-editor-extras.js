@@ -113,6 +113,7 @@
     window.ZWGadgets.register('UISettings', function(root){
       var s = window.ZenWriterStorage.loadSettings();
       var ui = (s && s.ui) || {};
+      var fs = (s && s.fontSizes) || {};
       root.innerHTML=''; root.style.display='grid'; root.style.gap='8px';
 
       var presRow = el('div');
@@ -131,7 +132,7 @@
       var bLabel = el('label'); bLabel.textContent='本文サイズ'; bLabel.style.display='block';
       fontRow.appendChild(hLabel); fontRow.appendChild(hInput); fontRow.appendChild(bLabel); fontRow.appendChild(bInput);
 
-      sel.addEventListener('change', function(){ withStorage(function(cfg){ cfg.ui = cfg.ui || {}; cfg.ui.tabsPresentation = String(sel.value||'tabs'); }); try{ var sb=document.getElementById('sidebar'); if (sb) sb.setAttribute('data-tabs-presentation', String(sel.value)); if (window.ZWApplyTabsPresentationUI) window.ZWApplyTabsPresentationUI(); }catch(_){} });
+      sel.addEventListener('change', function(){ withStorage(function(cfg){ cfg.ui = cfg.ui || {}; cfg.ui.tabsPresentation = String(sel.value||'tabs'); }); try{ var sb=document.getElementById('sidebar'); if (sb) sb.setAttribute('data-tabs-presentation', String(sel.value)); if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI==='function') window.sidebarManager.applyTabsPresentationUI(); }catch(_){} });
       hInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.heading = toInt(hInput.value,20); }); applyElementFontSizes(); });
       bInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.body = toInt(bInput.value,16); }); applyElementFontSizes(); });
 
@@ -144,39 +145,80 @@
       tabBtn.addEventListener('click', function(){
         var name = tabInput.value.trim();
         if (!name) { alert('タブ名を入力してください'); return; }
-        if (window.ZWGadgets && typeof window.ZWGadgets.addTab === 'function') {
-          var groupId = 'custom-' + Date.now();
-          window.ZWGadgets.addTab(groupId, name, groupId + '-gadgets-panel');
-          window.ZWGadgets.init('#' + groupId + '-gadgets-panel', { group: groupId });
-          // HTMLにパネルを追加
-          var sidebarGroups = document.querySelector('.sidebar-groups');
-          if (sidebarGroups) {
-            var section = document.createElement('section');
-            section.className = 'sidebar-group';
-            section.dataset.group = groupId;
-            section.id = 'sidebar-group-' + groupId;
-            section.setAttribute('role', 'tabpanel');
-            section.setAttribute('aria-labelledby', 'sidebar-tab-' + groupId);
-            section.setAttribute('aria-hidden', 'true');
-            section.style.display = 'none';
-            var div = document.createElement('div');
-            div.className = 'sidebar-section';
-            var panel = document.createElement('div');
-            panel.id = groupId + '-gadgets-panel';
-            panel.className = 'gadgets-panel';
-            panel.dataset.gadgetGroup = groupId;
-            panel.setAttribute('aria-label', name + 'ガジェット');
-            div.appendChild(panel);
-            section.appendChild(div);
-            sidebarGroups.appendChild(section);
+        try {
+          if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
+            var id = window.sidebarManager.addTab(null, name);
+            if (id && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+              window.sidebarManager.activateSidebarGroup(id);
+            }
           }
-          tabInput.value = '';
-          alert('タブを追加しました');
-        }
+        } catch(_) {}
+        tabInput.value = '';
+        alert('タブを追加しました');
       });
 
-      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(fontRow);
+      var manageRow = el('div');
+      var manageLabel = el('label'); manageLabel.textContent='タブ管理'; manageLabel.style.display='block';
+      var tabSelect = el('select');
+      var renameInput = el('input'); renameInput.type='text'; renameInput.placeholder='新しい名前';
+      var renameBtn = el('button','small'); renameBtn.textContent='名称変更';
+      var removeBtn = el('button','small'); removeBtn.textContent='削除';
+      manageRow.appendChild(manageLabel); manageRow.appendChild(tabSelect); manageRow.appendChild(renameInput); manageRow.appendChild(renameBtn); manageRow.appendChild(removeBtn);
+
+      function refreshSelect(){
+        while (tabSelect.firstChild) tabSelect.removeChild(tabSelect.firstChild);
+        var list = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+        list.forEach(function(t){ var o=document.createElement('option'); o.value=t.id; o.textContent=t.label || t.id; tabSelect.appendChild(o); });
+      }
+      refreshSelect();
+      renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert('名称を変更しました'); });
+      removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm('削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert('削除しました'); });
+
+      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow);
     }, { title: 'UI Settings', groups: ['structure'] });
+
+    // UI Design Gadget (background gradient)
+    window.ZWGadgets.register('UIDesign', function(root, api){
+      var s = window.ZenWriterStorage.loadSettings();
+      var ui = (s && s.ui) || {};
+      var g = ui.bgGradient || { enabled: false, type: 'linear', angle: 135, c1: '#101318', c2: '#262f3f', opacity: 0.35 };
+      root.innerHTML=''; root.style.display='grid'; root.style.gap='6px';
+
+      function hexToRgb(h){ h=String(h||'').replace('#',''); if(h.length===3){h=h.split('').map(x=>x+x).join('');} var n=parseInt(h,16); return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 }; }
+      function rgba(hex,a){ var c=hexToRgb(hex); return 'rgba('+c.r+','+c.g+','+c.b+','+a+')'; }
+      function apply(cfg){
+        var v = 'none';
+        if (cfg.enabled){
+          var a = Math.max(0, Math.min(1, Number(cfg.opacity)||0));
+          var c1 = rgba(cfg.c1||'#000', a), c2 = rgba(cfg.c2||'#000', a);
+          if (cfg.type === 'radial') v = 'radial-gradient(circle at 50% 40%, '+c1+' 0%, '+c2+' 70%)';
+          else v = 'linear-gradient('+(Number(cfg.angle)||0)+'deg, '+c1+' 0%, '+c2+' 100%)';
+        }
+        document.documentElement.style.setProperty('--app-bg-gradient', v);
+        withStorage(function(cfgS){ cfgS.ui = cfgS.ui||{}; cfgS.ui.bgGradient = g; });
+        if (api && typeof api.refresh==='function') api.refresh();
+      }
+
+      var enable = el('input'); enable.type='checkbox'; enable.checked = !!g.enabled; var l0 = el('label'); l0.textContent='背景グラデーションを有効化'; l0.style.marginLeft='6px'; var row0=el('div'); row0.appendChild(enable); row0.appendChild(l0);
+      var typeSel = el('select'); ['linear','radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; typeSel.appendChild(o); }); typeSel.value=String(g.type||'linear');
+      var angle = el('input'); angle.type='range'; angle.min='0'; angle.max='360'; angle.step='1'; angle.value=String(g.angle||135); var aLbl = el('div'); aLbl.textContent='角度: '+angle.value+'°'; aLbl.style.fontSize='12px'; var row1=el('div'); row1.appendChild(aLbl); row1.appendChild(angle);
+      var c1 = el('input'); c1.type='color'; c1.value=String(g.c1||'#101318'); var c2 = el('input'); c2.type='color'; c2.value=String(g.c2||'#262f3f'); var row2=el('div'); row2.style.display='flex'; row2.style.gap='8px'; row2.appendChild(c1); row2.appendChild(c2);
+      var op = el('input'); op.type='range'; op.min='0'; op.max='1'; op.step='0.05'; op.value=String(typeof g.opacity==='number'? g.opacity : 0.35); var oLbl = el('div'); oLbl.textContent='強度: '+op.value; oLbl.style.fontSize='12px'; var row3=el('div'); row3.appendChild(oLbl); row3.appendChild(op);
+      var btn = el('button','small'); btn.textContent='適用';
+
+      enable.addEventListener('change', function(){ g.enabled=!!enable.checked; apply(g); });
+      typeSel.addEventListener('change', function(){ g.type=String(typeSel.value||'linear'); apply(g); });
+      angle.addEventListener('input', function(){ aLbl.textContent='角度: '+angle.value+'°'; });
+      angle.addEventListener('change', function(){ g.angle=parseInt(angle.value,10)||0; apply(g); });
+      c1.addEventListener('change', function(){ g.c1=String(c1.value||'#101318'); apply(g); });
+      c2.addEventListener('change', function(){ g.c2=String(c2.value||'#262f3f'); apply(g); });
+      op.addEventListener('input', function(){ oLbl.textContent='強度: '+op.value; });
+      op.addEventListener('change', function(){ g.opacity=Math.max(0, Math.min(1, parseFloat(op.value)||0.35)); apply(g); });
+      btn.addEventListener('click', function(){ apply(g); });
+
+      root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
+      apply(g);
+    }, { title: 'UI Design', groups: ['structure'] });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function(root){

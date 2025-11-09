@@ -274,7 +274,7 @@
               class="icon-button"
               aria-label="サイドバーを開閉"
             >
-              ☰
+              メニュー
             </button>
             <button
               id="toolbar-close-sidebar"
@@ -282,7 +282,7 @@
               aria-label="サイドバーを閉じる"
               style="display: none"
             >
-              ✕
+              閉じる
             </button>
           </div>
           <div class="word-count">0 文字</div>
@@ -297,6 +297,7 @@
             </div>
           </div>
           <input type="number" id="goal-target" placeholder="目標文字数" style="width: 100px; margin-right: 8px;" />
+          <input type="date" id="goal-deadline" aria-label="締切日" style="margin-right: 8px;" />
           <div class="toolbar-actions">
             <button
               id="toggle-text-animation"
@@ -304,7 +305,7 @@
               title="テキストアニメーション"
               aria-label="テキストアニメーションパネルを開く"
             >
-              ✨
+              アニメ
             </button>
             <button
               id="toggle-font-decoration"
@@ -312,7 +313,7 @@
               title="フォント装飾"
               aria-label="フォント装飾パネルを開く"
             >
-              🖋️
+              装飾
             </button>
             <button
               id="insert-stamp"
@@ -320,21 +321,21 @@
               title="文字数スタンプ挿入"
               aria-label="文字数スタンプを挿入"
             >
-              📌
+              スタンプ
             </button>
             <button
               id="toggle-toolbar"
               class="icon-button"
               aria-label="ツールバーを開閉"
             >
-              ⌨️
+              ツールバー
             </button>
             <button
               id="feedback"
               class="icon-button"
               aria-label="フィードバック"
             >
-              💬
+              フィードバック
             </button>
           </div>
         </div>
@@ -376,17 +377,17 @@
       aria-label="ツールバーを表示"
       style="display: none"
     >
-      ⌨️
+      ツールバー
     </button>
     <!-- 追加機能用FAB -->
     <button id="fab-tools" class="fab-tools" title="ツール" aria-label="ツール">
-      ⚙️
+      ツール
     </button>
     <!-- フローティングフォントパネル -->
     <div id="floating-font-panel" class="floating-panel" style="display: none">
       <div class="panel-header">
         <span>フォントサイズ</span>
-        <button class="panel-close" id="close-font-panel">×</button>
+        <button class="panel-close" id="close-font-panel">閉じる</button>
       </div>
       <div class="panel-body">
         <input
@@ -414,7 +415,7 @@
     <div id="search-panel" class="floating-panel" style="display: none">
       <div class="panel-header">
         <span>検索と置換</span>
-        <button class="panel-close" id="close-search-panel">×</button>
+        <button class="panel-close" id="close-search-panel">閉じる</button>
       </div>
       <div class="panel-body">
         <input type="text" id="search-input" placeholder="検索するテキスト" />
@@ -445,7 +446,7 @@
     <div id="font-decoration-panel" class="floating-panel" style="display: none">
       <div class="panel-header">
         <span>フォント装飾</span>
-        <button class="panel-close" id="close-font-decoration-panel">×</button>
+        <button class="panel-close" id="close-font-decoration-panel">閉じる</button>
       </div>
       <div class="panel-body">
         <div class="panel-row">
@@ -480,7 +481,7 @@
     <div id="text-animation-panel" class="floating-panel" style="display: none">
       <div class="panel-header">
         <span>テキストアニメーション</span>
-        <button class="panel-close" id="close-text-animation-panel">×</button>
+        <button class="panel-close" id="close-text-animation-panel">閉じる</button>
       </div>
       <div class="panel-body">
         <div class="panel-row">
