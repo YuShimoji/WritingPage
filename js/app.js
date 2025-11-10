@@ -342,7 +342,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const sidebar = elementManager.get('sidebar');
             if (sidebar && s && s.ui) {
                 if (typeof s.ui.sidebarWidth === 'number') {
-                    sidebar.style.width = Math.max(220, Math.min(560, s.ui.sidebarWidth)) + 'px';
+                    const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
+                    sidebar.style.width = w + 'px';
+                    // CSS変数にも反映（main-content のオフセットと同期）
+                    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
                 }
                 if (s.ui.tabsPresentation) {
                     sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));
@@ -642,6 +645,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const goalTargetInput = elementManager.get('goalTargetInput');
     const goalDeadlineInput = elementManager.get('goalDeadlineInput');
+    // 初期値を設定から反映
+    try {
+        const s = window.ZenWriterStorage.loadSettings();
+        const g = (s && s.goal) || {};
+        if (goalTargetInput) goalTargetInput.value = (parseInt(g.target, 10) || 0) || '';
+        if (goalDeadlineInput) goalDeadlineInput.value = g.deadline || '';
+        // 文字数表示の初期更新（CSSゲーティングを反映）
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
+            window.ZenWriterEditor.updateWordCount();
+        }
+    } catch(_) {}
     if (goalTargetInput){
         const clampTarget = (v)=> Math.max(0, parseInt(v,10) || 0);
         goalTargetInput.addEventListener('input', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));

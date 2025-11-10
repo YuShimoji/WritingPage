@@ -338,6 +338,50 @@
         return true;
       } catch(_) { return false; }
     }
+    addTab(group, label, panelId){
+      try {
+        var self = this;
+        // タブボタンを作成
+        var tab = document.createElement('button');
+        tab.className = 'sidebar-tab';
+        tab.type = 'button';
+        tab.dataset.group = group;
+        tab.textContent = label;
+        tab.setAttribute('aria-selected', 'false');
+        tab.addEventListener('click', function(){
+          // グループ切り替え
+          self._activeGroup = group;
+          // タブアクティブ化
+          var allTabs = document.querySelectorAll('.sidebar-tab');
+          allTabs.forEach(function(t){
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          tab.classList.add('active');
+          tab.setAttribute('aria-selected', 'true');
+          // パネル表示切り替え
+          var allPanels = document.querySelectorAll('.sidebar-group');
+          allPanels.forEach(function(p){
+            p.classList.remove('active');
+            p.setAttribute('aria-hidden', 'true');
+          });
+          var targetPanel = document.getElementById(panelId);
+          if (targetPanel) {
+            targetPanel.classList.add('active');
+            targetPanel.setAttribute('aria-hidden', 'false');
+          }
+          // グループ変更イベント発火
+          emit('ZWLoadoutGroupChanged', { group: group });
+        });
+        // sidebar-tabsに追加
+        var tabsContainer = document.querySelector('.sidebar-tabs');
+        if (tabsContainer) {
+          tabsContainer.appendChild(tab);
+        }
+      } catch(e) {
+        console.error('addTab failed:', e);
+      }
+    }
     move(name, dir){
       try {
         var p = loadPrefs();
@@ -898,7 +942,7 @@
     }
   }, { groups: ['structure'], title: 'アウトライン' });
 
-  ZWGadgets.register('Documents', function(el){
+  ZWGadgetsInstance.register('Documents', function(el){
     try {
       var storage = window.ZenWriterStorage;
       if (!storage) {
@@ -1775,6 +1819,13 @@
       }
 
       var goal = api && typeof api.get === 'function' ? api.get('goal', {}) : {};
+      // 初期状態をアプリ設定から上書き（存在すれば）
+      try {
+        var s0 = storage && typeof storage.loadSettings === 'function' ? storage.loadSettings() : null;
+        if (s0 && s0.goal) {
+          goal = Object.assign({}, goal, s0.goal);
+        }
+      } catch(_) {}
 
       var wrap = document.createElement('div');
       wrap.className = 'gadget-goal';
@@ -1789,6 +1840,12 @@
         var n = Math.max(0, parseInt(e.target.value,10)||0); 
         var newGoal = Object.assign({}, goal, { target: n });
         if (api && typeof api.set === 'function') api.set('goal', newGoal);
+        // アプリ設定へ同期
+        try {
+          var s = storage.loadSettings();
+          s.goal = Object.assign({}, s.goal || {}, { target: n });
+          storage.saveSettings(s);
+        } catch(_) {}
         try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
       });
 
@@ -1797,7 +1854,14 @@
       deadline.addEventListener('change', function(e){ 
         var newGoal = Object.assign({}, goal, { deadline: e.target.value || '' });
         if (api && typeof api.set === 'function') api.set('goal', newGoal);
-      });
+        // アプリ設定へ同期
+        try {
+          var s = storage.loadSettings();
+          s.goal = Object.assign({}, s.goal || {}, { deadline: (e.target.value || '') });
+          storage.saveSettings(s);
+        } catch(_) {}
+        try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}}
+      );
 
       var row1 = document.createElement('label'); row1.style.display='flex'; row1.style.flexDirection='column'; row1.style.gap='4px'; row1.textContent = '目標文字数'; row1.appendChild(target);
       var row2 = document.createElement('label'); row2.style.display='flex'; row2.style.flexDirection='column'; row2.style.gap='4px'; row2.textContent = '締切日'; row2.appendChild(deadline);
@@ -1806,15 +1870,21 @@
       reset.addEventListener('click', function(){ 
         if (confirm('執筆目標をクリアしますか？')){ 
           if (api && typeof api.set === 'function') api.set('goal', {});
+          try {
+            var s = storage.loadSettings();
+            s.goal = { target: 0, deadline: null };
+            storage.saveSettings(s);
+          } catch(_) {}
           target.value = 0; deadline.value=''; 
-          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
-        }
+          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}}
       });
 
       wrap.appendChild(row1);
       wrap.appendChild(row2);
       wrap.appendChild(reset);
       el.appendChild(wrap);
+      // 初期同期（表示とroot属性の更新）
+      try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){ }
     } catch(e) {
       console.error('WritingGoal gadget failed:', e);
       try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}
@@ -2915,6 +2985,17 @@
     ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
     ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
     ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
+
+    // タブ追加
+    ZWGadgetsInstance.addTab('assist', '支援', 'gadgets-panel');
+    ZWGadgetsInstance.addTab('structure', '構造', 'structure-gadgets-panel');
+    ZWGadgetsInstance.addTab('typography', 'タイポ', 'typography-gadgets-panel');
+
+    // 初期タブをアクティブ化
+    var firstTab = document.querySelector('.sidebar-tab');
+    if (firstTab) {
+      firstTab.click();
+    }
 
     // Wikiパネル初期化（タブ生成はアプリ側で実施）
     ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });

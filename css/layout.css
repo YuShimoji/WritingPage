@@ -29,17 +29,14 @@ body {
   display: flex;
   align-items: center;
   min-height: 100vh;
+  position: relative;
 }
 
-.editor-canvas {
-  position: relative;
+.editor-container > #editor {
   width: 100%;
   max-width: 900px;
   margin: 0 auto;
   min-height: 600px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
 }
 
 .editor-preview {
@@ -64,8 +61,6 @@ body {
 }
 
 #editor {
-  width: 100%;
-  min-height: 600px;
   border: none;
   outline: none;
   padding: 2rem;
@@ -81,6 +76,13 @@ body {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Placeholderの位置調整 */
+#editor::placeholder {
+  padding-top: 1rem;
+  color: var(--text-color);
+  opacity: 0.6;
 }
 
 #editor::-webkit-scrollbar {

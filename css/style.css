@@ -15,6 +15,8 @@
   --line-height: 1.6;
   --transition-speed: 0.3s;
   --sidebar-sticky-offset: 56px;
+  --sidebar-width: 320px;
+  --toolbar-height: 60px;
 
   /* Element font sizes */
   --heading-font-size: 20px;
@@ -202,13 +204,19 @@ body {
   transition: margin-left var(--transition-speed);
 }
 
+/* サイドバー展開時のメインオフセット */
+html[data-sidebar-open] .main-content {
+  margin-left: var(--sidebar-width, 320px);
+}
+
 /* エディタコンテナ */
 .editor-container {
   flex: 1;
-  padding: 2rem;
+  padding: 0;
   display: flex;
-  align-items: center;
-  min-height: 100vh;
+  align-items: stretch;
+  height: calc(100vh - var(--toolbar-height));
+  position: relative; /* オーバーレイの基準 */
 }
 
 .editor-canvas {
@@ -249,10 +257,10 @@ body {
 
 #editor {
   width: 100%;
-  min-height: 600px;
+  height: 100%;
   border: none;
   outline: none;
-  padding: 2rem;
+  padding: 2rem 2.5rem; /* 左右をやや広めにして読みやすい余白 */
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-family);
@@ -265,6 +273,12 @@ body {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+/* Placeholderの視認性と位置 */
+#editor::placeholder {
+  color: var(--text-color);
+  opacity: 0.6;
 }
 
 #editor::-webkit-scrollbar {
@@ -406,6 +420,11 @@ body {
 .word-count {
   font-size: 0.9rem;
   opacity: 0.7;
+  display: none; /* ガジェット有効時のみ表示（JSで切替） */
+}
+/* WritingGoal が有効なときに表示 */
+html[data-writing-goal-enabled='true'] .word-count {
+  display: inline-flex;
 }
 
 .toolbar-actions {
@@ -415,12 +434,15 @@ body {
 
 /* 目標進捗バー */
 .goal-progress {
-  display: inline-flex;
+  display: none; /* ガジェット有効時のみ表示（JSで切替） */
   align-items: center;
   width: 22vw;
   min-width: 160px;
   max-width: 280px;
   padding: 0 8px;
+}
+html[data-writing-goal-enabled='true'] .goal-progress {
+  display: inline-flex;
 }
 .goal-progress__track {
   position: relative;
@@ -445,11 +467,12 @@ body {
 .sidebar {
   position: fixed;
   top: 60px;
-  left: -320px;
-  width: 320px;
+  left: calc(var(--sidebar-width, 320px) * -1);
   height: calc(100vh - 60px);
+  width: var(--sidebar-width, 320px);
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
+  border-right: 1px solid var(--border-color);
   padding: 1rem;
   overflow-y: auto; /* サイドバー全体でスクロール */
   overflow-x: hidden;
@@ -674,8 +697,44 @@ button:active {
   white-space: nowrap;   /* 縦並び防止 */
 }
 
+/* テキストラベルの代わりにアイコン表示するための枠組み */
+.iconified { font-size: 0; position: relative; }
+.iconified::before { font-size: 1rem; line-height: 1; }
+/* Lucide SVG 用のスタイル */
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: color 0.2s, stroke 0.2s, stroke-width 0.2s, transform 0.1s, opacity 0.2s;
+}
+/* テキストラベル非表示でもボタン自体は常時表示 */
+
+/* 目標入力UIは既定で非表示。ガジェット有効時のみ表示（JSで切替） */
+#goal-target,
+#goal-deadline { display: none; }
+html[data-writing-goal-enabled='true'] #goal-target,
+html[data-writing-goal-enabled='true'] #goal-deadline { display: inline-block; }
+
 .icon-button:hover {
   background-color: rgba(0, 0, 0, 0.1);
+  color: var(--accent-color);
+}
+.icon-button:hover svg {
+  stroke-width: 2.2;
+  opacity: 0.95;
+}
+.icon-button:active svg {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-button svg {
+    transition: color 0.2s, stroke 0.2s;
+  }
 }
 
 /* ツールバーの閉じるボタン（テキスト想定） */
@@ -782,8 +841,8 @@ input[type='color'] {
 
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
-  .editor-container {
-    padding: 0.5rem;
+  .app-container {
+    flex-direction: column;
   }
 
   .sidebar {
@@ -794,6 +853,10 @@ input[type='color'] {
 
   .sidebar.open {
     left: 0;
+  }
+  /* モバイルではメインの押し出しを行わない */
+  html[data-sidebar-open] .main-content {
+    margin-left: 0;
   }
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {

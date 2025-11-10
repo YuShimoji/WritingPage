@@ -25,7 +25,7 @@ class SidebarManager {
         ];
     }
 
-    forceSidebarState(open) {
+    forceSidebarState(open, callback) {
         const sidebar = this.elementManager.get('sidebar');
         if (!sidebar) {
             console.error('サイドバー要素が見つかりません');
@@ -53,6 +53,21 @@ class SidebarManager {
             }
         }
         
+        // アニメーション完了を待つためのPromise
+        const waitForTransition = () => {
+            return new Promise((resolve) => {
+                const onTransitionEnd = (e) => {
+                    if (e.propertyName === 'left') {
+                        sidebar.removeEventListener('transitionend', onTransitionEnd);
+                        resolve();
+                    }
+                };
+                sidebar.addEventListener('transitionend', onTransitionEnd);
+                // タイムアウトでフォールバック（transitionが発火しない場合）
+                setTimeout(resolve, 350); // transition-duration + buffer
+            });
+        };
+        
         // CSSクラスの更新
         if (open) {
             sidebar.classList.add('open');
@@ -65,17 +80,18 @@ class SidebarManager {
         }
         
         // ツールバー側の閉じるボタンの表示制御
-        const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
-        if (toolbarCloseSidebar) {
-            toolbarCloseSidebar.style.display = ''; // 常に表示
-            console.info('ツールバーの閉じるボタン: 表示');
-        }
+        // const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
+        // if (toolbarCloseSidebar) {
+        //     toolbarCloseSidebar.style.display = ''; // 常に表示
+        //     console.info('ツールバーの閉じるボタン: 表示');
+        // }
         
-        // aria-hiddenはフォーカス移動後に設定（requestAnimationFrameで次のフレームで実行）
-        requestAnimationFrame(() => {
+        // transition完了を待ってからaria-hiddenを設定
+        waitForTransition().then(() => {
             sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
             console.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
             console.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
+            if (callback) callback();
         });
     }
 

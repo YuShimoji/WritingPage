@@ -63,7 +63,8 @@ const DEFAULT_SETTINGS = {
     // UI設定
     ui: {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
-        sidebarWidth: 320
+        sidebarWidth: 320,
+        showWordCount: false
     }
 };
 

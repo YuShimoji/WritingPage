@@ -1063,8 +1063,15 @@ class EditorManager {
         // 執筆目標の進捗（任意）
         const s = window.ZenWriterStorage.loadSettings();
         const goal = (s && s.goal) || {};
+        // ガジェット相当の有効状態（目標設定もしくは締切設定がある場合に有効とみなす）
+        const writingGoalEnabled = !!((parseInt(goal.target, 10) || 0) > 0 || (goal.deadline && String(goal.deadline).trim()));
+        try {
+            const root = document.documentElement;
+            if (writingGoalEnabled) root.setAttribute('data-writing-goal-enabled','true');
+            else root.removeAttribute('data-writing-goal-enabled');
+        } catch(_) {}
         let suffix = '';
-        if (goal && (parseInt(goal.target,10) || 0) > 0) {
+        if (writingGoalEnabled && (parseInt(goal.target,10) || 0) > 0) {
             const target = Math.max(0, parseInt(goal.target,10) || 0);
             const ratio = target > 0 ? charCount / target : 0;
             const pct = Math.floor(ratio * 100);

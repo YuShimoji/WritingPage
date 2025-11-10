@@ -276,14 +276,6 @@
             >
               メニュー
             </button>
-            <button
-              id="toolbar-close-sidebar"
-              class="icon-button sidebar-close-btn"
-              aria-label="サイドバーを閉じる"
-              style="display: none"
-            >
-              閉じる
-            </button>
           </div>
           <div class="word-count">0 文字</div>
           <div
@@ -296,32 +288,32 @@
               <div class="goal-progress__bar" style="width: 0%"></div>
             </div>
           </div>
-          <input type="number" id="goal-target" placeholder="目標文字数" style="width: 100px; margin-right: 8px;" />
+          <input type="number" id="goal-target" min="0" placeholder="目標文字数" style="width: 100px; margin-right: 8px;" />
           <input type="date" id="goal-deadline" aria-label="締切日" style="margin-right: 8px;" />
           <div class="toolbar-actions">
             <button
               id="toggle-text-animation"
-              class="icon-button"
+              class="icon-button iconified"
               title="テキストアニメーション"
               aria-label="テキストアニメーションパネルを開く"
             >
-              アニメ
+              <i data-lucide="sparkles" aria-hidden="true"></i>
             </button>
             <button
               id="toggle-font-decoration"
-              class="icon-button"
+              class="icon-button iconified"
               title="フォント装飾"
               aria-label="フォント装飾パネルを開く"
             >
-              装飾
+              <i data-lucide="type" aria-hidden="true"></i>
             </button>
             <button
               id="insert-stamp"
-              class="icon-button"
+              class="icon-button iconified"
               title="文字数スタンプ挿入"
               aria-label="文字数スタンプを挿入"
             >
-              スタンプ
+              <i data-lucide="stamp" aria-hidden="true"></i>
             </button>
             <button
               id="toggle-toolbar"
@@ -332,32 +324,30 @@
             </button>
             <button
               id="feedback"
-              class="icon-button"
+              class="icon-button iconified"
               aria-label="フィードバック"
             >
-              フィードバック
+              <i data-lucide="message-square" aria-hidden="true"></i>
             </button>
           </div>
         </div>
 
         <!-- エディタエリア -->
         <div class="editor-container">
-          <div class="editor-canvas">
-            <textarea
-              id="editor"
-              placeholder="ここに小説を入力してください..."
-            ></textarea>
-            <div
-              id="editor-overlay"
-              class="editor-overlay"
-              aria-hidden="true"
-            ></div>
-            <div
-              id="editor-mirror"
-              class="editor-mirror"
-              aria-hidden="true"
-            ></div>
-          </div>
+          <textarea
+            id="editor"
+            placeholder="ここに小説を入力してください..."
+          ></textarea>
+          <div
+            id="editor-overlay"
+            class="editor-overlay"
+            aria-hidden="true"
+          ></div>
+          <div
+            id="editor-mirror"
+            class="editor-mirror"
+            aria-hidden="true"
+          ></div>
           <div
             id="editor-preview"
             class="editor-preview editor-preview--collapsed"
@@ -512,6 +502,11 @@
     <script src="js/hud.js"></script>
     <script src="js/editor.js"></script>
     <script src="js/app.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script>
+      try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); } } catch (_) {}
+    </script>
     <!-- 埋め込み時のpostMessageブリッジ（?embed=1でREADY/RPC受信） -->
     <script src="js/embed/child-bridge.js"></script>
     <script>
