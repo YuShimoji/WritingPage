@@ -617,6 +617,21 @@ class EditorManager {
         return card;
     }
 
+    replaceOverlayButtonsWithIcons() {
+        if (!window.WritingIcons) return;
+
+        const toggles = this.editorOverlay.querySelectorAll('.overlay-toggle');
+        toggles.forEach(toggle => {
+            const isHidden = toggle.textContent.includes('表示');
+            toggle.innerHTML = '';
+            const icon = window.WritingIcons.createIcon(
+                isHidden ? 'eyeOff' : 'eye',
+                { size: 16, label: isHidden ? '表示する' : '隠す' }
+            );
+            toggle.appendChild(icon);
+        });
+    }
+
     scheduleOverlayRefresh() {
         if (this._overlayRenderFrame) {
             cancelAnimationFrame(this._overlayRenderFrame);
@@ -690,6 +705,9 @@ class EditorManager {
 
             this.editorOverlay.appendChild(overlay);
         });
+
+        // Replace text buttons with icons
+        this.replaceOverlayButtonsWithIcons();
 
         const stamps = Array.isArray(this.inlineStamps) ? this.inlineStamps : [];
         stamps.forEach((st) => {

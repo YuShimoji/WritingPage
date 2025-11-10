@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-11-10T05:20:00+09:00
-- 現在のミッション: OpenSpec反映（UI Designガジェット＆動的タブ管理）とリモートmain同期
+- 最終更新: 2025-11-11T02:45:00+09:00
+- 現在のミッション: ZWGadgets 初期化エラー修正完了
 - ブランチ: main
-- 関連: OpenSpec v1.1 タスク進行中（change: add-ui-design-gadget-and-dynamic-tabs）
-- 進捗: UIDesign（背景グラデーション）実装・永続化 / SidebarManagerのタブ動的管理API（追加/名称変更/削除/復元）実装 / UI Settingsガジェット拡張 / CSSに --app-bg-gradient 追加 / OpenSpec変更票・specs・tasks 作成済み
-- 次の中断可能点: アイコンセット選定前（Lucide/Tabler/Heroicons検討）
+- 関連: OpenSpec v1.1 タスク進行中（change: add-lucide-icons 完了、ガジェットシステム修正完了）
+- 進捗: ZWGadgetsInstance 初期化順序修正（クラス定義直後にインスタンス化）/ ガジェット名重複解決（Outline系統整理、Images名前修正）/ ロードアウトUI ready()関数内に統合 / Lint完全クリア / 基本機能動作確認
+- 次の中断可能点: ガジェットシステムの安定性検証とリファクタリング継続
 
 ## 決定事項
 
@@ -20,6 +20,7 @@
  - CSS変数 `--app-bg-gradient` を導入し、背景グラデーションはガジェットから制御
  - SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
  - OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
+ - Lucide アイコンセットを導入し、最小サブセット（Eye, EyeOff, Settings）でUIテキストラベルを置き換え
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -76,10 +77,21 @@
 
 ## Backlog（将来提案）
 
+### 最近解決
+- ✅ ZWGadgetsInstance 初期化順序問題（クラス定義直後に配置）
+- ✅ ガジェット名重複（Outline/OutlineQuick/Images の整理）
+- ✅ ロードアウトUI 初期化の適切な配置
+- ✅ すべてのZWGadgets.registerをZWGadgetsInstance.registerに統一
+
+### 残存課題
+- ガジェットD&D機能の再実装（スモークテストNG: hasDraggable, hasDnDData）
+- 埋め込みモードでのガジェット静的ファイル除外（eiNoGadgetsStatic）
+- ガジェットシステムのモジュール化検討（責務分離・保守性向上）
+- ガジェット登録APIの型安全性強化
+
+### 将来機能
 - Mission 13: 表現力の強化（グラフィックノベル対応・フォント装飾）
 - Mission 14: 管理能力の向上（高度なドキュメント管理機能）
 - CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
- - アイコンセット導入（Lucide/Tabler/Heroicons/Material Symbols）と最小サブセット運用
- - ZWGadgetsの責務分離とモジュール化（レンダリングキュー/_renderLastの切り出し）
