@@ -56,6 +56,8 @@ class ElementManager {
             autoSaveDelay: 'auto-save-delay-ms',
             wordWrapEnabled: 'word-wrap-enabled',
             wordWrapMaxChars: 'word-wrap-max-chars',
+            currentDocument: 'current-document',
+            newDocumentBtn: 'new-document-btn',
 
             // HUD設定UI
             goalTargetInput: 'goal-target',

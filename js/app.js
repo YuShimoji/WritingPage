@@ -949,6 +949,121 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ管理APIをグローバルに公開
     window.ZenWriterTabs = tabManager;
 
+    // ===== ファイル管理機能 =====
+    const fileManager = {
+        // ドキュメントリストを更新
+        updateDocumentList() {
+            const select = elementManager.get('currentDocument');
+            if (!select) return;
+
+            // 既存のオプションをクリア（最初のプレースホルダーは残す）
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            try {
+                const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
+                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+
+                docs.forEach(doc => {
+                    if (doc && doc.id && doc.name) {
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = doc.name;
+                        option.selected = (doc.id === currentDocId);
+                        select.appendChild(option);
+                    }
+                });
+            } catch (e) {
+                console.warn('ドキュメントリスト更新エラー:', e);
+            }
+        },
+
+        // ドキュメントを切り替え
+        switchDocument(docId) {
+            if (!docId) return;
+
+            try {
+                if (window.ZenWriterStorage.setCurrentDocId) {
+                    window.ZenWriterStorage.setCurrentDocId(docId);
+                }
+
+                // エディタの内容を更新
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.loadContent === 'function') {
+                    window.ZenWriterEditor.loadContent();
+                    window.ZenWriterEditor.updateWordCount();
+                }
+
+                // UIを更新
+                this.updateDocumentList();
+                
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+                    window.ZenWriterEditor.showNotification('ファイルを切り替えました');
+                }
+            } catch (e) {
+                console.error('ドキュメント切り替えエラー:', e);
+            }
+        },
+
+        // 新規ドキュメントを作成
+        createNewDocument() {
+            const name = prompt('新しいファイルの名前を入力してください:');
+            if (!name || !name.trim()) return;
+
+            try {
+                if (window.ZenWriterStorage.createDocument) {
+                    const newDoc = window.ZenWriterStorage.createDocument(name.trim());
+                    if (newDoc && newDoc.id) {
+                        this.switchDocument(newDoc.id);
+                    }
+                }
+            } catch (e) {
+                console.error('新規ドキュメント作成エラー:', e);
+            }
+        },
+
+        // ドキュメント管理の初期化
+        initializeDocuments() {
+            try {
+                // ドキュメントが存在しない場合はデフォルトドキュメントを作成
+                const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
+                if (docs.length === 0) {
+                    // 現在のコンテンツを取得してデフォルトドキュメントを作成
+                    const currentContent = window.ZenWriterStorage.loadContent ? (window.ZenWriterStorage.loadContent() || '') : '';
+                    window.ZenWriterStorage.createDocument('デフォルト', currentContent);
+                }
+
+                // 現在ドキュメントが設定されていない場合は最初のドキュメントを設定
+                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                if (!currentDocId && docs.length > 0) {
+                    window.ZenWriterStorage.setCurrentDocId(docs[0].id);
+                }
+            } catch (e) {
+                console.warn('ドキュメント初期化エラー:', e);
+            }
+        }
+    };
+
+    // ファイル管理イベントリスナー設定
+    const currentDocumentSelect = elementManager.get('currentDocument');
+    const newDocumentBtn = elementManager.get('newDocumentBtn');
+
+    if (currentDocumentSelect) {
+        currentDocumentSelect.addEventListener('change', (e) => {
+            fileManager.switchDocument(e.target.value);
+        });
+    }
+
+    if (newDocumentBtn) {
+        newDocumentBtn.addEventListener('click', () => {
+            fileManager.createNewDocument();
+        });
+    }
+
+    // 初期ドキュメント初期化とファイルリスト更新
+    fileManager.initializeDocuments();
+    fileManager.updateDocumentList();
+
     // 要素別フォントサイズを適用
     applyElementFontSizes();
 });
