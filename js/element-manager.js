@@ -54,6 +54,8 @@ class ElementManager {
             previewSyncScroll: 'preview-sync-scroll',
             autoSaveEnabled: 'auto-save-enabled',
             autoSaveDelay: 'auto-save-delay-ms',
+            wordWrapEnabled: 'word-wrap-enabled',
+            wordWrapMaxChars: 'word-wrap-max-chars',
 
             // HUD設定UI
             goalTargetInput: 'goal-target',

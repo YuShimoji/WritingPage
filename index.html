@@ -267,10 +267,14 @@
               </div>
             </div>
             <div class="sidebar-section">
-              <h4>Markdownプレビュー</h4>
+              <h4>エディタ設定</h4>
               <div class="panel-row">
-                <label for="preview-sync-scroll">スクロール同期</label>
-                <input type="checkbox" id="preview-sync-scroll" />
+                <label for="word-wrap-enabled">折り返し有効化</label>
+                <input type="checkbox" id="word-wrap-enabled" />
+              </div>
+              <div class="panel-row">
+                <label for="word-wrap-max-chars">折り返し文字数 (20-200)</label>
+                <input type="number" id="word-wrap-max-chars" min="20" max="200" step="10" value="80" />
               </div>
             </div>
           </section>

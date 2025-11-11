@@ -16,9 +16,9 @@ class EditorManager {
         this.editorOverlay = document.getElementById('editor-overlay');
         this.editorMirror = document.getElementById('editor-mirror');
         this.inlineStamps = [];
-        // 手動スクロール検知
-        this._manualScrollTimeout = null;
-        this._isManualScrolling = false;
+        // 文字数スタンプ
+        this.charCountStamps = [];
+        this.isCharCountStampsEnabled = true;
         this.previewPanel = document.getElementById('editor-preview');
         this.previewPanelBody = document.getElementById('editor-preview-body');
         // フォント装飾パネル
@@ -43,7 +43,10 @@ class EditorManager {
         });
 
         // 選択変更時に文字数スタンプ更新
-        this.editor.addEventListener('selectionchange', () => this.updateWordCount());
+        this.editor.addEventListener('selectionchange', () => {
+            this.updateWordCount();
+            this.updateCharCountStamps();
+        });
         this.setupImageHandlers();
         this.setupPreviewPanel();
         this.setupOverlaySupport();
@@ -60,7 +63,7 @@ class EditorManager {
             this._wrapGuideEl.className = 'editor-overlay__wrap-guide';
             this.editorOverlay.appendChild(this._wrapGuideEl);
         }
-        this.applyWrapCols();
+        this.applyWordWrap();
     }
 
     /**
@@ -246,19 +249,72 @@ class EditorManager {
         } catch(_) {}
     }
 
-    applyWrapCols(){
+    applyWordWrap(){
         try {
             const s = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') ? window.ZenWriterStorage.loadSettings() : {};
-            const tw = (s && s.typewriter) || {};
-            const cols = (typeof tw.wrapCols === 'number') ? Math.max(20, Math.min(120, tw.wrapCols)) : 80;
-            document.documentElement.style.setProperty('--wrap-ch', cols + 'ch');
+            const editor = s.editor || {};
+            const wordWrap = editor.wordWrap || {};
+            if (!wordWrap.enabled) {
+                // 折り返し無効時はガイドを隠す
+                if (this._wrapGuideEl) {
+                    this._wrapGuideEl.style.display = 'none';
+                }
+                return;
+            }
+            const maxChars = (typeof wordWrap.maxChars === 'number') ? Math.max(20, Math.min(200, wordWrap.maxChars)) : 80;
+            document.documentElement.style.setProperty('--wrap-ch', maxChars + 'ch');
+            // ガイドを表示
+            if (this._wrapGuideEl) {
+                this._wrapGuideEl.style.display = 'block';
+            }
         } catch(_) {}
     }
 
     /**
-     * カーソル位置にテキストを挿入
-     * @param {string} text - 挿入するテキスト
+     * 文字数スタンプを更新
      */
+    updateCharCountStamps(){
+        if (!this.isCharCountStampsEnabled || !this.editorOverlay) return;
+
+        // 既存の文字数スタンプを削除
+        this.charCountStamps.forEach(stamp => {
+            if (stamp.element && stamp.element.parentNode) {
+                stamp.element.parentNode.removeChild(stamp.element);
+            }
+        });
+        this.charCountStamps = [];
+
+        const start = this.editor.selectionStart;
+        const end = this.editor.selectionEnd;
+
+        // 選択範囲がない場合は何もしない
+        if (start === end) return;
+
+        const selectedText = this.editor.value.substring(start, end);
+        const charCount = selectedText.length;
+
+        // 文字数が少ない場合は表示しない
+        if (charCount < 10) return;
+
+        // 選択範囲の位置を取得
+        const rect = this.getTextPosition(start, end);
+        if (!rect) return;
+
+        // スタンプ要素を作成
+        const stamp = document.createElement('div');
+        stamp.className = 'editor-overlay__char-count-stamp';
+        stamp.textContent = `${charCount}文字`;
+        stamp.style.left = (rect.left + rect.width + 8) + 'px';
+        stamp.style.top = rect.top + 'px';
+
+        this.editorOverlay.appendChild(stamp);
+        this.charCountStamps.push({
+            element: stamp,
+            start: start,
+            end: end,
+            charCount: charCount
+        });
+    }
     insertTextAtCursor(text, options = {}) {
         const start = (options && typeof options.start === 'number') ? options.start : this.editor.selectionStart;
         const end = (options && typeof options.end === 'number') ? options.end : this.editor.selectionEnd;

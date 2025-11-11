@@ -18,6 +18,9 @@
   --sidebar-width: 320px;
   --toolbar-height: 60px;
 
+  /* 折り返し文字数設定 */
+  --wrap-ch: 80ch;
+
   /* Element font sizes */
   --heading-font-size: 20px;
   --body-font-size: 16px;
@@ -273,6 +276,11 @@ html[data-sidebar-open] .main-content {
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  /* 折り返し機能 */
+  max-width: var(--wrap-ch);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Placeholderの視認性と位置 */
@@ -295,16 +303,35 @@ html[data-sidebar-open] .main-content {
   overflow: hidden;
 }
 
-.editor-overlay__image {
+.editor-overlay__wrap-guide {
   position: absolute;
-  border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-  transition:
-    transform 0.1s ease,
-    box-shadow 0.2s ease;
-  max-width: calc(100% - 20px);
-  pointer-events: auto;
-  cursor: move;
+  top: 0;
+  left: calc(var(--wrap-ch) + 2rem + 2.5rem); /* padding-left + padding-rightの分を調整 */
+  width: 1px;
+  height: 100%;
+  background-color: rgba(255, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.editor-overlay__wrap-guide::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -4px;
+  width: 9px;
+  height: 1px;
+  background-color: rgba(255, 0, 0, 0.3);
+}
+
+.editor-overlay__wrap-guide::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: -4px;
+  width: 9px;
+  height: 1px;
+  background-color: rgba(255, 0, 0, 0.3);
 }
 
 .editor-overlay__image img {
@@ -313,6 +340,34 @@ html[data-sidebar-open] .main-content {
   height: auto;
   border-radius: inherit;
   pointer-events: none;
+}
+
+.editor-overlay__char-count-stamp {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  animation: fadeInStamp 0.2s ease-out;
+}
+
+@keyframes fadeInStamp {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .editor-overlay__image .overlay-handle {

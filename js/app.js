@@ -674,10 +674,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (autoSaveEnabled){
         autoSaveEnabled.addEventListener('change', (e)=> saveAutoSavePatch({ enabled: !!e.target.checked }));
     }
-    if (autoSaveDelay){
-        const onChange = (e)=> saveAutoSavePatch({ delayMs: Math.round(clamp(e.target.value, 500, 10000, 2000)) });
-        autoSaveDelay.addEventListener('input', onChange);
-        autoSaveDelay.addEventListener('change', onChange);
+    // エディタ設定保存関数
+    function saveEditorPatch(patch){
+        const s = window.ZenWriterStorage.loadSettings();
+        s.editor = { ...(s.editor || {}), ...patch };
+        s.editor.wordWrap = { ...(s.editor.wordWrap || {}), ...(patch.wordWrap || {}) };
+        window.ZenWriterStorage.saveSettings(s);
+        // エディタに即時反映
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWordWrap === 'function') {
+            window.ZenWriterEditor.applyWordWrap();
+        }
+    }
+
+    // Editor settings handlers
+    const wordWrapEnabled = elementManager.get('wordWrapEnabled');
+    const wordWrapMaxChars = elementManager.get('wordWrapMaxChars');
+    if (wordWrapEnabled){
+        wordWrapEnabled.addEventListener('change', (e)=> saveEditorPatch({ wordWrap: { enabled: !!e.target.checked } }));
+    }
+    if (wordWrapMaxChars){
+        const onChange = (e)=> saveEditorPatch({ wordWrap: { maxChars: Math.round(clamp(e.target.value, 20, 200, 80)) } });
+        wordWrapMaxChars.addEventListener('input', onChange);
+        wordWrapMaxChars.addEventListener('change', onChange);
     }
     
     // Help button: Wikiタブを開く

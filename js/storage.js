@@ -65,6 +65,13 @@ const DEFAULT_SETTINGS = {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
         sidebarWidth: 320,
         showWordCount: false
+    },
+    // エディタ設定
+    editor: {
+        wordWrap: {
+            enabled: false,
+            maxChars: 80 // 折り返し文字数
+        }
     }
 };
 
@@ -419,6 +426,8 @@ function loadSettings() {
             merged.preview = { ...DEFAULT_SETTINGS.preview, ...(parsed.preview || {}) };
             merged.autoSave = { ...DEFAULT_SETTINGS.autoSave, ...(parsed.autoSave || {}) };
             merged.ui = { ...DEFAULT_SETTINGS.ui, ...(parsed.ui || {}) };
+            merged.editor = { ...DEFAULT_SETTINGS.editor, ...(parsed.editor || {}) };
+            merged.editor.wordWrap = { ...DEFAULT_SETTINGS.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
             return merged;
         }
     } catch (e) {
@@ -432,7 +441,8 @@ function loadSettings() {
         snapshot: { ...DEFAULT_SETTINGS.snapshot },
         preview: { ...DEFAULT_SETTINGS.preview },
         autoSave: { ...DEFAULT_SETTINGS.autoSave },
-        ui: { ...DEFAULT_SETTINGS.ui }
+        ui: { ...DEFAULT_SETTINGS.ui },
+        editor: { ...DEFAULT_SETTINGS.editor }
     };
 }
 

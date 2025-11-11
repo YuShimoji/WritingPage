@@ -84,6 +84,14 @@ class SettingsManager {
         const autoSaveDelay = this.elementManager.get('autoSaveDelay');
         if (autoSaveEnabled) autoSaveEnabled.checked = !!autoSave.enabled;
         if (autoSaveDelay) autoSaveDelay.value = String(autoSave.delayMs || 2000);
+
+        // エディタ設定の初期反映
+        const editor = settings.editor || {};
+        const wordWrap = editor.wordWrap || {};
+        const wordWrapEnabled = this.elementManager.get('wordWrapEnabled');
+        const wordWrapMaxChars = this.elementManager.get('wordWrapMaxChars');
+        if (wordWrapEnabled) wordWrapEnabled.checked = !!wordWrap.enabled;
+        if (wordWrapMaxChars) wordWrapMaxChars.value = String(wordWrap.maxChars || 80);
     }
 }
 
