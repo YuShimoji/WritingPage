@@ -2,6 +2,30 @@
 
 <!-- markdownlint-disable MD024 -->
 
+## [0.3.18] - 2025-01-11
+
+### Added
+
+- **カラーパレット現在色反映機能**: テーマプリセット（ライト/ダーク/セピア）選択時にカラーピッカーが自動で既定色を反映
+- **テーマ設定UI**: タイポグラフィタブに背景色・文字色カラーピッカーとリセットボタンを追加
+- **テストドキュメント**: `docs/TESTING_UI_IMPROVEMENTS.md` - UI改善項目の包括的なテスト手順書を作成
+- **開発状況表**: `docs/DEVELOPMENT_STATUS.md` - 直近の開発項目と今後の予定を整理
+
+### Changed
+
+- **タイプライターモード**: `requestAnimationFrame` によるデバウンスとスムーズスクロールでキー移動時の振動を大幅軽減
+- **ThemeManager**: テーマごとの既定色を定義、`updateColorPickers()` メソッドでカラーピッカーを同期更新
+- **OpenSpec**: `ui-future-enhancements` の仕様タスク完了（Draft capability deltas, Validate with strict mode）
+
+### Fixed
+
+- **タブ切り替え重複レンダリング**: `sidebar-manager.js` で `_renderLast()` の直接呼び出しを削除、`setActiveGroup()` のみに委譲
+- **コンソールログ最適化**: 開発環境（localhost/127.0.0.1）のみ詳細ログを出力、本番環境では警告・エラーのみ
+
+### Performance
+
+- ガジェットレンダリングの重複実行を防止、パフォーマンスの軽微な改善
+
 ## [0.3.17] - 2025-11-06
 
 ### Fixed

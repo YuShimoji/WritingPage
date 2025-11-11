@@ -25,6 +25,14 @@ class SidebarManager {
         ];
     }
 
+    /**
+     * 開発環境かどうかを判定
+     * @returns {boolean} 開発環境の場合はtrue
+     */
+    _isDevMode() {
+        return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    }
+
     forceSidebarState(open, callback) {
         const sidebar = this.elementManager.get('sidebar');
         if (!sidebar) {
@@ -32,8 +40,10 @@ class SidebarManager {
             return;
         }
         
-        console.info(`forceSidebarState(${open}) 実行開始`);
-        console.info(`現在の状態: open=${sidebar.classList.contains('open')}, aria-hidden=${sidebar.getAttribute('aria-hidden')}`);
+        if (this._isDevMode()) {
+            console.info(`forceSidebarState(${open}) 実行開始`);
+            console.info(`現在の状態: open=${sidebar.classList.contains('open')}, aria-hidden=${sidebar.getAttribute('aria-hidden')}`);
+        }
         
         // 閉じる場合、サイドバー内のフォーカスを外部に移動してからaria-hiddenを設定
         if (!open) {
@@ -44,11 +54,11 @@ class SidebarManager {
                 if (editor) {
                     // フォーカスを移動
                     editor.focus();
-                    console.info('サイドバー閉鎖のため、フォーカスをエディタに移動');
+                    if (this._isDevMode()) console.info('サイドバー閉鎖のため、フォーカスをエディタに移動');
                 } else {
                     // エディタがない場合はbodyにフォーカス
                     document.body.focus();
-                    console.info('サイドバー閉鎖のため、フォーカスをbodyに移動');
+                    if (this._isDevMode()) console.info('サイドバー閉鎖のため、フォーカスをbodyに移動');
                 }
             }
         }
@@ -72,11 +82,11 @@ class SidebarManager {
         if (open) {
             sidebar.classList.add('open');
             document.documentElement.setAttribute('data-sidebar-open', 'true');
-            console.info('サイドバーに .open クラスを追加');
+            if (this._isDevMode()) console.info('サイドバーに .open クラスを追加');
         } else {
             sidebar.classList.remove('open');
             document.documentElement.removeAttribute('data-sidebar-open');
-            console.info('サイドバーから .open クラスを削除');
+            if (this._isDevMode()) console.info('サイドバーから .open クラスを削除');
         }
         
         // ツールバー側の閉じるボタンの表示制御
@@ -89,8 +99,10 @@ class SidebarManager {
         // transition完了を待ってからaria-hiddenを設定
         waitForTransition().then(() => {
             sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
-            console.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
-            console.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
+            if (this._isDevMode()) {
+                console.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
+                console.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
+            }
             if (callback) callback();
         });
     }
@@ -99,7 +111,9 @@ class SidebarManager {
         const sidebar = this.elementManager.get('sidebar');
         if (!sidebar) return;
         const willOpen = !sidebar.classList.contains('open');
-        console.info(`サイドバーを${willOpen ? '開く' : '閉じる'}`);
+        if (this._isDevMode()) {
+            console.info(`サイドバーを${willOpen ? '開く' : '閉じる'}`);
+        }
         this.forceSidebarState(willOpen);
     }
 
@@ -307,19 +321,16 @@ class SidebarManager {
         const currentActiveTab = document.querySelector('.sidebar-tab.active');
         const currentGroupId = currentActiveTab ? currentActiveTab.dataset.group : null;
         if (currentGroupId === groupId) {
-            console.info(`Tab "${groupId}" is already active`);
-            return; // すでにactiveならスキップ
+            // すでにactiveならスキップ（開発環境のみログ出力）
+            if (this._isDevMode()) {
+                console.info(`Tab "${groupId}" is already active`);
+            }
+            return;
         }
 
-        console.info(`Switching tab from "${currentGroupId}" to "${groupId}"`);
-
-        const sidebarTabs = window.elementManager.getMultiple('sidebarTabs');
-        const sidebarGroups = window.elementManager.getMultiple('sidebarGroups');
-        
-        console.info('Tab switch elements:', {
-            tabsCount: sidebarTabs.length,
-            groupsCount: sidebarGroups.length
-        });
+        if (this._isDevMode()) {
+            console.info(`Switching tab from "${currentGroupId}" to "${groupId}"`);
+        }
 
         // タブのアクティブ状態を更新
         sidebarTabs.forEach(tab => {
@@ -337,14 +348,10 @@ class SidebarManager {
 
         // ZWGadgetsに通知（ガジェットの再レンダリングをトリガー）
         if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-            console.info(`ZWGadgets.setActiveGroup("${groupId}") を呼び出し`);
             try {
                 window.ZWGadgets.setActiveGroup(groupId);
-                // ガジェットのレンダリングを強制実行
-                if (typeof window.ZWGadgets._renderLast === 'function') {
-                    window.ZWGadgets._renderLast();
-                    console.info('ガジェットのレンダリングを強制実行');
-                }
+                // setActiveGroup内でrequestAnimationFrameによる遅延レンダリングが行われるため、
+                // ここでの_renderLast()直接呼び出しは不要（重複を避ける）
             } catch (e) {
                 console.error('ZWGadgets.setActiveGroup でエラー:', e);
             }
