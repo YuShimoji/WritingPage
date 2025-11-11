@@ -291,6 +291,74 @@
         self._renderPending = null;
       });
     }
+
+    getPrefs(){
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        var p = raw ? JSON.parse(raw) : null;
+        if (!p || typeof p !== 'object') p = { order: [], collapsed: {}, settings: {} };
+        if (!Array.isArray(p.order)) p.order = [];
+        if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
+        if (!p.settings || typeof p.settings !== 'object') p.settings = {};
+        return p;
+      } catch(_) { return { order: [], collapsed: {}, settings: {} }; }
+    }
+
+    setPrefs(p){
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p||{})); } catch(_) {}
+    }
+
+    getSettings(name){
+      try {
+        var p = this.getPrefs();
+        return (p.settings && p.settings[name]) || {};
+      } catch(_) { return {}; }
+    }
+
+    setSetting(name, key, value){
+      try {
+        var p = this.getPrefs();
+        p.settings = p.settings || {};
+        var s = p.settings[name] = p.settings[name] || {};
+        s[key] = value;
+        this.setPrefs(p);
+        // Emit event
+        try {
+          window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', {
+            detail: { name: name, key: key, value: value, settings: s }
+          }));
+        } catch(_) {}
+      } catch(_) {}
+    }
+
+    listLoadouts(){
+      var data = this._ensureLoadouts();
+      return Object.keys(data.entries).map(function(key){
+        var entry = data.entries[key] || {};
+        return { name: key, label: entry.label || key };
+      });
+    }
+
+    applyLoadout(name){
+      var data = this._ensureLoadouts();
+      if (!name || !data.entries[name]) return false;
+      data.active = name;
+      saveLoadouts(data);
+      this._loadouts = loadLoadouts();
+      this._applyLoadoutEntry(this._loadouts.entries[name]);
+      return true;
+    }
+
+    getActiveLoadout(){
+      var data = this._ensureLoadouts();
+      var entry = data.entries[data.active] || {};
+      this._applyLoadoutEntry(entry);
+      return {
+        name: data.active,
+        label: entry.label || data.active,
+        entry: clone(entry)
+      };
+    }
     assignGroups(name, groups){
       if (!name) return;
       var normalized = normalizeList(groups || ['assist']);
@@ -418,370 +486,162 @@
       this._roots[group] = root;
       if (!this._activeGroup) this._activeGroup = group;
 
-      // Tab inter-move support
-      root.addEventListener('dragover', function(ev){
+      // Create render function
+      var self = this;
+      this._renderers[group] = function(){
         try {
-          ev.preventDefault();
-          ev.dataTransfer.dropEffect = 'move';
-          root.classList.add('drag-over-tab');
-        } catch(_) {}
-      });
-      root.addEventListener('dragleave', function(){
-        try { root.classList.remove('drag-over-tab'); } catch(_) {}
-      });
-      root.addEventListener('drop', function(ev){
-        try {
-          ev.preventDefault();
-          root.classList.remove('drag-over-tab');
-          var name = ev.dataTransfer.getData('text/gadget-name');
-          if (!name) return;
-          // Assign to this group
-          var currentGroups = self._list.find(function(g){ return g.name === name; });
-          if (!currentGroups) return;
-          var newGroups = [group];
-          self.assignGroups(name, newGroups);
-          if (self._renderLast) self._renderLast();
-        } catch(_) {}
-      });
-
-      var data = this._ensureLoadouts();
-      this._applyLoadoutEntry(data.entries[data.active]);
-
-      function render(){
-        var activeGroup = self._activeGroup || 'assist';
-        if (activeGroup !== group){
-          root.setAttribute('data-gadgets-hidden', 'true');
-          while (root.firstChild) root.removeChild(root.firstChild);
-          return;
-        }
-        root.removeAttribute('data-gadgets-hidden');
-
-        var allowedNamesAll = self._getActiveNames();
-        // Loadout由来の許可名
-        var allowedNames = allowedNamesAll.filter(function(name){
-          for (var idx = 0; idx < self._list.length; idx++){
-            var item = self._list[idx];
-            if ((item.name || '') === name && Array.isArray(item.groups) && item.groups.indexOf(group) >= 0){
-              return true;
+          // Clear existing gadgets
+          root.innerHTML = '';
+          
+          // Get active gadget names for this group
+          var allowedNames = self._getActiveNames();
+          
+          // Render each active gadget
+          self._list.forEach(function(entry){
+            if (!entry || !entry.groups || entry.groups.indexOf(group) === -1) return;
+            if (allowedNames.indexOf(entry.name) === -1) return;
+            
+            var wrapper = document.createElement('div');
+            wrapper.className = 'gadget-wrapper';
+            wrapper.setAttribute('data-gadget-name', entry.name);
+            
+            var gadgetEl = document.createElement('div');
+            gadgetEl.className = 'gadget';
+            
+            try {
+              var api = {
+                get: function(key, def){ return self.getSetting(entry.name, key, def); },
+                set: function(key, val){ self.setSetting(entry.name, key, val); }
+              };
+              entry.factory(gadgetEl, api);
+            } catch(e) {
+              console.error('Gadget render failed:', entry.name, e);
+              gadgetEl.textContent = 'ガジェットの読み込みに失敗しました。';
             }
-          }
-          return false;
-        });
-        // 手動割当やデフォルトgroupsにより、このgroupに属するものを追加許可
-        for (var zz=0; zz<self._list.length; zz++){
-          var it = self._list[zz];
-          if (Array.isArray(it.groups) && it.groups.indexOf(group) >= 0){
-            if (allowedNames.indexOf(it.name) < 0) allowedNames.push(it.name);
-          }
-        }
-        if (!allowedNames.length) {
-          allowedNames = self._list
-            .filter(function(item){ return Array.isArray(item.groups) && item.groups.indexOf(group) >= 0; })
-            .map(function(item){ return item.name || ''; })
-            .filter(Boolean);
-        }
-        var allowedSet = {};
-        for (var ai = 0; ai < allowedNames.length; ai++){ allowedSet[allowedNames[ai]] = true; }
-
-        function buildOrder(){
-          var p = loadPrefs();
-          var names = self._list
-            .filter(function(x){ return Array.isArray(x.groups) && x.groups.indexOf(group) >= 0 && allowedSet[x.name||'']; })
-            .map(function(x){ return x.name||''; });
-          var eff = [];
-          for (var i=0;i<p.order.length;i++){ var n = p.order[i]; if (allowedSet[n] && eff.indexOf(n)<0) eff.push(n); }
-          for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
-          return { order: eff, prefs: p };
-        }
-
-        var state = buildOrder();
-        var order = state.order, prefs = state.prefs;
-        while (root.firstChild) root.removeChild(root.firstChild);
-        for (var k=0; k<order.length; k++){
-          var name = order[k];
-          if (!allowedSet[name]) continue;
-          var g = null;
-          for (var t=0; t<self._list.length; t++){ if ((self._list[t].name||'')===name){ g=self._list[t]; break; } }
-          if (!g) continue;
-          try {
-            var wrap = document.createElement('section');
-            wrap.className = 'gadget';
-            wrap.dataset.name = name;
-            wrap.dataset.group = group;
-            // ガジェット本体はドラッグ不可。ヘッダーのみドラッグ可能。
-            wrap.setAttribute('role', 'region');
-            wrap.setAttribute('aria-label', (g.title || name) + 'ガジェット');
-            wrap.setAttribute('aria-expanded', !collapsed);
-
-            var head = document.createElement('div');
-            head.className = 'gadget-head';
-            head.setAttribute('draggable', 'true');
-            var collapsed = (name === 'EditorLayout') ? false : !!(prefs.collapsed && prefs.collapsed[name]);
-            var toggleBtn = document.createElement('button');
-            toggleBtn.type='button';
-            toggleBtn.className='gadget-toggle';
-            toggleBtn.textContent = (collapsed ? '展開' : '折りたたみ');
-            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = g.title || name; title.id = 'gadget-title-' + name;
-            wrap.setAttribute('aria-labelledby', title.id);
-            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='上へ'; upBtn.title='上へ';
-            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='下へ'; downBtn.title='下へ';
-            var settingsBtn = null;
-            if (self._settings[name]){
-              settingsBtn = document.createElement('button');
-              settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='設定';
-            }
-            // 削除ボタン（現在のタブから除外）
-            var removeBtn = document.createElement('button');
-            removeBtn.type='button'; removeBtn.className='gadget-remove-btn small'; removeBtn.title='削除'; removeBtn.textContent='削除';
-            toggleBtn.setAttribute('aria-label', collapsed ? '展開' : '折りたたみ');
-            upBtn.setAttribute('aria-label', '上へ移動');
-            downBtn.setAttribute('aria-label', '下へ移動');
-            if (settingsBtn) settingsBtn.setAttribute('aria-label', '設定を開く');
-            removeBtn.setAttribute('aria-label', 'このガジェットを削除');
-            // styles moved to CSS (.gadget-head)
-            wrap.appendChild(head);
-
-            var body = document.createElement('div');
-            body.className = 'gadget-body';
-            if (collapsed) body.style.display = 'none';
-            wrap.appendChild(body);
-            toggleBtn.addEventListener('click', function(){
-              try {
-                collapsed = !collapsed;
-                body.style.display = collapsed ? 'none' : '';
-                toggleBtn.textContent = collapsed ? '展開' : '折りたたみ';
-                wrap.setAttribute('aria-expanded', !collapsed);
-                var p = loadPrefs();
-                p.collapsed = p.collapsed || {};
-                p.collapsed[name] = collapsed;
-                savePrefs(p);
-              } catch(_) {}
-            });
-            if (typeof g.factory === 'function') {
-              try {
-                var api = {
-                  get: function(key, d){ var s = self.getSettings(name); return (key in s) ? s[key] : d; },
-                  set: function(key, val){ self.setSetting(name, key, val); },
-                  prefs: function(){ return self.getPrefs(); },
-                  refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
-                };
-                g.factory(body, api);
-              } catch(e){ /* ignore gadget error */ }
-            }
-
-            // events
-
-            upBtn.addEventListener('click', function(n, w){ return function(){ 
-              try {
-                w.classList.add('moving-up');
-                setTimeout(function(){
-                  self.move(n, 'up');
-                  setTimeout(function(){ w.classList.remove('moving-up'); }, 220);
-                }, 180);
-              } catch(_) {}
-            }; }(name, wrap));
-            downBtn.addEventListener('click', function(n, w){ return function(){ 
-              try {
-                w.classList.add('moving-down');
-                setTimeout(function(){
-                  self.move(n, 'down');
-                  setTimeout(function(){ w.classList.remove('moving-down'); }, 220);
-                }, 180);
-              } catch(_) {}
-            }; }(name, wrap));
-
-            // settings panel
-            if (settingsBtn){
-              var panel = document.createElement('div'); panel.className='gadget-settings'; panel.style.display='none';
-              wrap.appendChild(panel);
-              settingsBtn.addEventListener('click', function(n, p, _btn){ return function(){
-                try {
-                  var visible = p.style.display !== 'none';
-                  p.style.display = visible ? 'none' : '';
-                  if (!visible){
-                    // render settings lazily
-                    try {
-                      p.innerHTML = '';
-                      var sApi = {
-                        get: function(key, d){ var s = self.getSettings(n); return (key in s) ? s[key] : d; },
-                        set: function(key, val){ self.setSetting(n, key, val); },
-                        prefs: function(){ return self.getPrefs(); },
-                        refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
-                      };
-                      self._settings[n](p, sApi);
-                    } catch(_) {}
-                  }
-                } catch(_) {}
-              }; }(name, panel, settingsBtn));
-            }
-            // drag and drop reorder（ヘッダーのみドラッグ開始）
-            head.addEventListener('dragstart', function(ev){ 
-              try { 
-                // ガジェット内のコントロールでドラッグしない
-                var tag = ev.target && ev.target.tagName ? ev.target.tagName.toLowerCase() : '';
-                if (['input','button','label','select','textarea'].includes(tag)) {
-                  ev.preventDefault();
-                  return;
-                }
-                // HUD の位置チェック（ピン留め中は干渉を避ける）
-                var hud = document.querySelector('.mini-hud');
-                if (hud && hud.classList.contains('pinned')) {
-                  var rect = hud.getBoundingClientRect();
-                  var x = ev.clientX, y = ev.clientY;
-                  if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                    ev.preventDefault();
-                    return;
-                  }
-                }
-                wrap.classList.add('is-dragging'); 
-                ev.dataTransfer.setData('text/gadget-name', name); 
-                ev.dataTransfer.effectAllowed='move'; 
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragend', function(){ 
-              try { 
-                wrap.classList.remove('is-dragging'); 
-                // すべてのドラッグオーバー状態をクリア
-                var allGadgets = wrap.parentNode.querySelectorAll('.gadget');
-                for (var i = 0; i < allGadgets.length; i++) {
-                  allGadgets[i].classList.remove('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragover', function(ev){ 
-              try { 
-                ev.preventDefault(); 
-                ev.dataTransfer.dropEffect='move'; 
-                if (!wrap.classList.contains('is-dragging')) {
-                  wrap.classList.add('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('dragleave', function(ev){ 
-              try { 
-                // ドラッグが本当に離れたか確認（子要素への移動を無視）
-                var rect = wrap.getBoundingClientRect();
-                var x = ev.clientX, y = ev.clientY;
-                if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                  wrap.classList.remove('drag-over');
-                }
-              } catch(_) {} 
-            });
-            wrap.addEventListener('drop', function(ev){
-              try {
-                ev.preventDefault();
-                wrap.classList.remove('drag-over');
-                var src = ev.dataTransfer.getData('text/gadget-name');
-                var dst = name;
-                if (!src || !dst || src === dst) return;
-                var srcWrap = wrap.parentNode.querySelector('.gadget[data-name="' + src + '"]');
-                if (!srcWrap) return;
-                var container = wrap.parentNode;
-                container.insertBefore(srcWrap, wrap);
-                var gadgets = container.querySelectorAll('.gadget');
-                var newOrder = [];
-                for (var i = 0; i < gadgets.length; i++) {
-                  var gName = gadgets[i].dataset.name;
-                  if (gName) newOrder.push(gName);
-                }
-                var p = loadPrefs();
-                p.order = newOrder;
-                savePrefs(p);
-                // DOMが移動されたのでrenderLastは呼ばない
-              } catch(_) {}
-            });
-
-            // keyboard navigation
-            wrap.addEventListener('keydown', function(ev){
-              if (ev.key === 'ArrowUp' && ev.altKey){
-                ev.preventDefault();
-                self.move(name, 'up');
-              } else if (ev.key === 'ArrowDown' && ev.altKey){
-                ev.preventDefault();
-                self.move(name, 'down');
-              }
-            });
-
-            // remove button: 現在のグループからこのガジェットを除外
-            removeBtn.addEventListener('click', function(){
-              try {
-                var item = self._list.find(function(it){ return (it.name||'') === name; });
-                var current = Array.isArray(item && item.groups) ? item.groups.slice() : [];
-                var next = current.filter(function(gr){ return gr !== group; });
-                self.assignGroups(name, next);
-              } finally {
-                try { self._renderLast && self._renderLast(); } catch(_) {}
-              }
-            });
-
-            root.appendChild(wrap);
-          } catch(e) { /* ignore per gadget */ }
-        }
-
-        // Add available gadgets list
-        var available = self._list.filter(function(g){
-          return Array.isArray(g.groups) && g.groups.indexOf(group) < 0;
-        });
-        if (available.length > 0){
-          var addSection = document.createElement('div');
-          addSection.className = 'gadget-add-section';
-          addSection.style.marginTop = '12px';
-          addSection.style.padding = '8px';
-          addSection.style.border = '1px dashed var(--border-color)';
-          addSection.style.borderRadius = '4px';
-          addSection.style.background = 'var(--bg-color)';
-
-          var addTitle = document.createElement('div');
-          addTitle.textContent = '+ ガジェット追加';
-          addTitle.style.fontSize = '0.9rem';
-          addTitle.style.fontWeight = '600';
-          addTitle.style.marginBottom = '6px';
-          addTitle.style.cursor = 'pointer';
-          addSection.appendChild(addTitle);
-
-          var addList = document.createElement('div');
-          addList.style.display = 'none';
-          addList.style.gap = '4px';
-          addList.style.flexDirection = 'column';
-
-          available.forEach(function(g){
-            var _btn = document.createElement('button');
-            _btn.type = 'button';
-            _btn.className = 'small';
-            _btn.textContent = g.title || g.name;
-            _btn.style.width = '100%';
-            _btn.addEventListener('click', function(){
-              self.assignGroups(g.name, [group]);
-              self._renderLast && self._renderLast();
-            });
-            addList.appendChild(_btn);
+            
+            wrapper.appendChild(gadgetEl);
+            root.appendChild(wrapper);
           });
-
-          addSection.appendChild(addList);
-
-          addTitle.addEventListener('click', function(){
-            addList.style.display = addList.style.display === 'none' ? 'flex' : 'none';
-          });
-
-          root.appendChild(addSection);
-        }
-      }
-
-      self._renderers[group] = render;
-      self._renderLast = function(){
-        var keys = Object.keys(self._renderers || {});
-        for (var i=0; i<keys.length; i++){
-          var fn = self._renderers[keys[i]];
-          if (typeof fn === 'function') fn();
+          
+          // Replace icons after rendering
+          self.replaceGadgetSettingsWithIcons();
+        } catch(e) {
+          console.error('Renderer error for group:', group, e);
         }
       };
-      render();
+
+      this._renderers[group]();
     }
-    
+
+    _renderLast(){
+      var keys = Object.keys(this._renderers || {});
+      for (var i=0; i<keys.length; i++){
+        var fn = this._renderers[keys[i]];
+        if (typeof fn === 'function') fn();
+      }
+
+      // Icon replacement
+      this.replaceGadgetSettingsWithIcons();
+    }
+    register(name, factory, options){
+      try {
+        var safeName = String(name || '');
+        if (!safeName) return;
+        var opts = options && typeof options === 'object' ? options : {};
+        var entry = {
+          name: safeName,
+          title: opts.title || safeName,
+          factory: factory,
+          groups: normalizeList(opts.groups || ['assist'])
+        };
+        if (!entry.groups.length) entry.groups = ['assist'];
+        this._defaults[safeName] = entry.groups.slice();
+        this._list.push(entry);
+      } catch(_) {}
+    }
+
+    registerSettings(name, factory){
+      try { this._settings[String(name||'')] = factory; } catch(_) {}
+    }
+
+    _ensureLoadouts(){
+      if (this._loadoutsManager) {
+        return this._loadoutsManager._ensureLoadouts();
+      }
+      return { active: 'novel-standard', entries: {} };
+    }
+    _applyLoadoutEntry(entry){
+      // Delegate to loadouts manager
+      if (this._loadoutsManager) {
+        this._loadoutsManager._applyLoadoutEntry(entry);
+      }
+    }
+    _getActiveNames(){
+      if (this._loadoutsManager) {
+        return this._loadoutsManager._getActiveNames();
+      }
+      return [];
+    }
+
+    move(name, direction){
+      try {
+        var p = loadPrefs();
+        p.order = p.order || [];
+        var idx = p.order.indexOf(name);
+        if (idx < 0) return;
+        var newIdx = direction === 'up' ? idx - 1 : idx + 1;
+        if (newIdx < 0 || newIdx >= p.order.length) return;
+        p.order.splice(idx, 1);
+        p.order.splice(newIdx, 0, name);
+        savePrefs(p);
+        if (this._renderer) {
+          this._renderer._scheduleRender();
+        }
+      } catch(_) {}
+    }
+
+    toggle(name){
+      try {
+        var p = loadPrefs();
+        p.collapsed = p.collapsed || {};
+        p.collapsed[name] = !p.collapsed[name];
+        savePrefs(p);
+        if (this._renderer) {
+          this._renderer._scheduleRender();
+        }
+      } catch(_) {}
+    }
+
+    assignGroups(name, groups){
+      if (!name) return;
+      var normalized = normalizeList(groups || ['assist']);
+      if (!normalized.length) normalized = ['assist'];
+      for (var i=0; i<this._list.length; i++){
+        if ((this._list[i].name || '') === name){
+          this._list[i].groups = normalized;
+          break;
+        }
+      }
+    }
+
+    replaceGadgetSettingsWithIcons() {
+      if (!window.WritingIcons) return;
+
+      var settingsBtns = document.querySelectorAll('.gadget-settings-btn');
+      for (var i = 0; i < settingsBtns.length; i++) {
+        var btn = settingsBtns[i];
+        if (btn.textContent === '設定') {
+          btn.innerHTML = '';
+          var icon = window.WritingIcons.createIcon('settings', { size: 14, label: '設定を開く' });
+          btn.appendChild(icon);
+        }
+      }
+    }
+
   }
 
-  // expose
-  let ZWGadgetsInstance = new ZWGadgets();
+  // Instantiate and expose ZWGadgets
+  var ZWGadgetsInstance = new ZWGadgets();
   try { window.ZWGadgets = ZWGadgetsInstance; } catch(_) {}
 
   // Outline gadget (構造)
@@ -1257,7 +1117,7 @@
     }
   }, { groups: ['structure'], title: 'ドキュメント' });
 
-  ZWGadgets.register('Outline', function(el){
+  ZWGadgetsInstance.register('OutlineQuick', function(el){
     try {
       var storage = window.ZenWriterStorage;
       if (!storage) {
@@ -1445,9 +1305,9 @@
       console.error('Outline gadget failed:', e);
       try { el.textContent = 'アウトラインガジェットの初期化に失敗しました。'; } catch(_) {}
     }
-  }, { groups: ['structure'], title: 'アウトライン' });
+  }, { groups: ['structure'], title: 'クイックアウトライン' });
 
-  ZWGadgets.register('TypographyThemes', function(el){
+  ZWGadgetsInstance.register('TypographyThemes', function(el){
     try {
       var theme = window.ZenWriterTheme;
       var storage = window.ZenWriterStorage;
@@ -1669,7 +1529,7 @@
     }
   }, { groups: ['typography'], title: 'テーマ & フォント' });
 
-  ZWGadgets.register('HUDSettings', function(el){
+  ZWGadgetsInstance.register('HUDSettings', function(el){
     try {
       var storage = window.ZenWriterStorage;
       if (!storage || typeof storage.loadSettings !== 'function' || typeof storage.saveSettings !== 'function') {
@@ -1806,7 +1666,7 @@
   }, { groups: ['assist'], title: 'HUD設定' });
 
   // Writing Goal gadget
-  ZWGadgets.register('WritingGoal', function(el, api){
+  ZWGadgetsInstance.register('WritingGoal', function(el, api){
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
@@ -1892,7 +1752,7 @@
   }, { groups: ['assist'], title: '執筆目標' });
 
   // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
-  ZWGadgets.register('SnapshotManagerLegacyAssist', function(el, _api){
+  ZWGadgetsInstance.register('SnapshotManagerLegacyAssist', function(el, _api){
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
@@ -1980,7 +1840,7 @@
   }, { groups: ['assist'], title: 'バックアップ' });
 
   // Print Settings gadget
-  ZWGadgets.register('PrintSettings', function(el, _api){
+  ZWGadgetsInstance.register('PrintSettings', function(el, _api){
     try {
       var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
       const printBtn = document.createElement('button');
@@ -2029,7 +1889,7 @@
   // (removed) legacy EditorLayout gadget (replaced by new implementation at bottom)
 
   // SnapshotManager gadget (バックアップ管理)
-  ZWGadgets.register('SnapshotManager', function(el){
+  ZWGadgetsInstance.register('SnapshotManager', function(el){
     try {
       var storage = window.ZenWriterStorage;
       var editorManager = window.ZenWriterEditor;
@@ -2065,7 +1925,7 @@
   }, { groups: ['structure'], title: 'バックアップ' });
 
   // ChoiceTools gadget（選択肢ツール）
-  ZWGadgets.register('ChoiceTools', function(el){
+  ZWGadgetsInstance.register('ChoiceTools', function(el){
     try {
       var ed = window.ZenWriterEditor;
       var wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexWrap='wrap'; wrap.style.gap='6px';
@@ -2081,7 +1941,7 @@
   }, { groups: ['assist'], title: '選択肢' });
 
   // Images gadget (insert/list/remove)
-  ZWGadgets.register('Images', function(el){
+  ZWGadgetsInstance.register('Images', function(el){
     try {
       var API = window.ZenWriterImages;
       var root = document.createElement('div');
@@ -2166,7 +2026,7 @@
   }, { groups: ['assist'], title: '画像' });
 
   // EditorLayout settings UI
-  ZWGadgets.registerSettings('EditorLayout', function(el, ctx){
+  ZWGadgetsInstance.registerSettings('EditorLayout', function(el, ctx){
     try {
       var _makeRow = function(labelText, control){
         var row = document.createElement('label');
@@ -2251,7 +2111,7 @@
   });
 
   // Default gadget: Clock
-  ZWGadgets.register('Clock', function(el, api){
+  ZWGadgetsInstance.register('Clock', function(el, api){
     try {
       var time = document.createElement('div');
       time.className = 'gadget-clock';
@@ -2276,7 +2136,7 @@
   });
 
   // Clock settings UI
-  ZWGadgets.registerSettings('Clock', function(el, ctx){
+  ZWGadgetsInstance.registerSettings('Clock', function(el, ctx){
     try {
       var row = document.createElement('label'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='6px';
       var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!ctx.get('hour24', true);
@@ -2289,7 +2149,7 @@
 
   // 旧API (ZWGadgets.addTab/removeTab) は廃止しました
 
-  ZWGadgets.register('EditorLayout', function(el){
+  ZWGadgetsInstance.register('EditorLayout', function(el){
     try {
       var api = arguments[1];
       var wrap = document.createElement('div');
@@ -2359,7 +2219,7 @@
   }, { groups: ['typography'], title: 'エディタレイアウト' });
 
   // StoryWiki gadget
-  ZWGadgets.register('StoryWiki', function(el){
+  ZWGadgetsInstance.register('StoryWiki', function(el){
     try {
         var storage = window.ZenWriterStorage;
         if (!storage || !storage.listWikiPages) {
@@ -2571,7 +2431,7 @@
 }, { groups: ['wiki'], title: '物語Wiki' });
 
   // HUDSettings ガジェット
-  ZWGadgets.register('HUDSettings', function(el, _options){
+  ZWGadgetsInstance.register('HUDSettings', function(el, _options){
     try {
       el.innerHTML = '';
       el.style.display = 'flex';
@@ -2783,7 +2643,7 @@
 
   // StoryWiki ガジェット
   /*
-  ZWGadgets.register('StoryWiki', function(el, options){
+  ZWGadgetsInstance.register('StoryWiki', function(el, options){
     try {
       el.innerHTML = '';
       el.style.display = 'flex';
@@ -2982,6 +2842,7 @@
   */
 
   ready(function(){
+    // Initialize gadget panels
     ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
     ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
     ZWGadgetsInstance.init('#typography-gadgets-panel', { group: 'typography' });
@@ -3000,7 +2861,7 @@
     // Wikiパネル初期化（タブ生成はアプリ側で実施）
     ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });
 
-    // Loadout UI event handlers
+    // Initialize loadout UI
     var loadoutSelect = document.getElementById('loadout-select');
     var loadoutName = document.getElementById('loadout-name');
     var loadoutSave = document.getElementById('loadout-save');
