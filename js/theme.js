@@ -1,6 +1,13 @@
 // テーマ管理クラス
 class ThemeManager {
   constructor() {
+    // テーマごとの既定色
+    this.themeColors = {
+      light: { bgColor: '#ffffff', textColor: '#333333' },
+      dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+      sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' }
+    };
+    
     this.settings = window.ZenWriterStorage.loadSettings();
     // 最初にテーマを適用
     this.applyTheme(this.settings.theme);
@@ -30,12 +37,30 @@ class ThemeManager {
   applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     this.settings.theme = theme;
+    
+    // テーマの既定色を取得
+    const themeColor = this.themeColors[theme] || this.themeColors.light;
+    
     // カスタムカラー無効時はテーマの既定色を使うため、上書きをクリア
     if (!this.settings.useCustomColors) {
       this.clearCustomColors();
+      // カラーピッカーの値をテーマの既定色に更新
+      this.updateColorPickers(themeColor.bgColor, themeColor.textColor);
     }
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * カラーピッカーの値を更新
+   * @param {string} bgColor - 背景色
+   * @param {string} textColor - 文字色
+   */
+  updateColorPickers(bgColor, textColor) {
+    const bgColorInput = document.getElementById('bg-color');
+    const textColorInput = document.getElementById('text-color');
+    if (bgColorInput) bgColorInput.value = bgColor;
+    if (textColorInput) textColorInput.value = textColor;
   }
 
   /**
@@ -66,6 +91,10 @@ class ThemeManager {
     this.settings.bgColor = bgColor;
     this.settings.textColor = textColor;
     this.settings.useCustomColors = !!enable;
+    
+    // カラーピッカーの値も更新
+    this.updateColorPickers(bgColor, textColor);
+    
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }

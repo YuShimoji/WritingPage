@@ -1,8 +1,11 @@
+
 ## 1. Specifications
-- [ ] 1.1 Draft capability deltas (this change)
-- [ ] 1.2 Validate with strict mode
+
+- [x] 1.1 Draft capability deltas (this change)
+- [x] 1.2 Validate with strict mode
 
 ## 2. Foundations
+
 - [x] 2.1 Add settings for typewriter mode (enabled, anchorRatio, stickiness)
 - [x] 2.2 Implement basic typewriter scroll lock in editor
 - [x] 2.3 Ensure autosave/snapshot settings are parameterized
@@ -18,6 +21,9 @@
 - [x] 4.3 Typora-like behaviors (list, heading, code block)
 - [x] 4.4 Extended markdown: code blocks, table of contents, sync scroll
 
+## 5. Images Interactive
+- [x] 5.1 VN presets (portrait, background, illustration, textbox)
+- [x] 5.2 Numeric controls (opacity, filters)
 - [x] 5.3 Snapshot of per-image states and restore
 
 ## 6. Panels Layout

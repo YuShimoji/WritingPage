@@ -1153,15 +1153,33 @@ class EditorManager {
         // Typewriter mode: 手動スクロール中でなければカーソルを中央に保つ
         const settings = window.ZenWriterStorage.loadSettings();
         if (settings.typewriter && settings.typewriter.enabled && !this._isManualScrolling) {
-            const anchorRatio = settings.typewriter.anchorRatio || 0.5;
-            const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
-            const cursorPos = this.getCursorPosition();
-            const cursorLine = this.editor.value.substring(0, cursorPos).split('\n').length - 1;
-            const anchorY = anchorRatio * this.editor.clientHeight;
-            const cursorY = cursorLine * lineHeight;
-            const delta = cursorY - anchorY;
-            const newScroll = this.editor.scrollTop + delta;
-            this.editor.scrollTop = Math.max(0, newScroll);
+            // タイプライタースクロールをデバウンス
+            if (this._typewriterScrollPending) {
+                cancelAnimationFrame(this._typewriterScrollPending);
+            }
+            
+            this._typewriterScrollPending = requestAnimationFrame(() => {
+                const anchorRatio = settings.typewriter.anchorRatio || 0.5;
+                const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
+                const cursorPos = this.getCursorPosition();
+                const cursorLine = this.editor.value.substring(0, cursorPos).split('\n').length - 1;
+                const anchorY = anchorRatio * this.editor.clientHeight;
+                const cursorY = cursorLine * lineHeight;
+                const delta = cursorY - anchorY;
+                const newScroll = this.editor.scrollTop + delta;
+                
+                // スムーズスクロールを有効化
+                const oldBehavior = this.editor.style.scrollBehavior;
+                this.editor.style.scrollBehavior = 'smooth';
+                this.editor.scrollTop = Math.max(0, newScroll);
+                
+                // スクロール完了後に元に戻す
+                setTimeout(() => {
+                    this.editor.style.scrollBehavior = oldBehavior;
+                }, 100);
+                
+                this._typewriterScrollPending = null;
+            });
         }
         // オーバーレイ（スタンプ等）の再描画
         this.scheduleOverlayRefresh();
