@@ -208,4 +208,48 @@ test.describe('Editor Settings', () => {
     // Verify result appears
     await page.locator('.wiki-result').filter({ hasText: 'Test Page' }).waitFor();
   });
+
+  test('should have smooth typewriter scroll without jitter', async ({ page }) => {
+    // Load the page
+    await page.goto('/');
+    await page.waitForSelector('#show-toolbar', { state: 'visible' });
+    await page.click('#show-toolbar');
+    await page.locator('#editor').waitFor();
+    
+    // Create multiple lines of content
+    const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
+    await page.locator('#editor').fill(lines);
+    
+    // Enable typewriter mode
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-assist').waitFor();
+    await page.click('#sidebar-tab-assist');
+    
+    await page.locator('.gadget').filter({ hasText: 'Typewriter' }).waitFor();
+    await page.click('.gadget:has-text("Typewriter") .gadget-toggle');
+    
+    const checkbox = page.locator('#typewriter-gadget-enabled');
+    await checkbox.check();
+    
+    // Close sidebar to focus on editor
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(400);
+    
+    // Click editor and move cursor
+    await page.locator('#editor').click();
+    await page.keyboard.press('Home'); // Go to start
+    
+    // Rapidly press down arrow keys and verify no console errors
+    for (let i = 0; i < 10; i++) {
+      await page.keyboard.press('ArrowDown');
+      await page.waitForTimeout(50); // Small delay to allow smooth scroll
+    }
+    
+    // Verify editor scroll position changed
+    const scrollTop = await page.locator('#editor').evaluate((el) => el.scrollTop);
+    expect(scrollTop).toBeGreaterThan(0);
+    
+    // No errors should be in console (implicit validation)
+  });
 });

@@ -287,7 +287,8 @@
       // requestAnimationFrameで遅延実行して連続呼び出しを防ぐ
       if (self._renderPending) cancelAnimationFrame(self._renderPending);
       self._renderPending = requestAnimationFrame(function(){
-        try { self._renderLast && self._renderLast(); } catch(_) {}
+        // タブ切り替え時はアクティブグループのみレンダリング（パフォーマンス最適化）
+        try { self._renderActive && self._renderActive(); } catch(_) {}
         self._renderPending = null;
       });
     }
@@ -543,6 +544,19 @@
       // Icon replacement
       this.replaceGadgetSettingsWithIcons();
     }
+
+    /**
+     * アクティブグループのみレンダリング（パフォーマンス最適化）
+     */
+    _renderActive(){
+      if (!this._activeGroup || !this._renderers) return;
+      var fn = this._renderers[this._activeGroup];
+      if (typeof fn === 'function') fn();
+
+      // Icon replacement
+      this.replaceGadgetSettingsWithIcons();
+    }
+
     register(name, factory, options){
       try {
         var safeName = String(name || '');
