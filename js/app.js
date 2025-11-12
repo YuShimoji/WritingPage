@@ -354,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch(_) {}
     })();
 
-    // ガジェットの初期化（structureパネルのみ）
+    // ガジェットの初期化（全パネル）
     (function initGadgetsWithRetry(){
         let tries = 0;
         const maxTries = 60; // ~3秒
@@ -363,27 +363,35 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function'){
                 logger.info('ZWGadgets が利用可能になりました。初期化を開始します');
                 try {
-                    // structureパネルのみ初期化
-                    const panelId = 'structure-gadgets-panel';
-                    const panel = document.getElementById(panelId);
-                    if (panel) {
-                        window.ZWGadgets.init(`#${panelId}`, { group: 'structure' });
-                        logger.info(`ガジェット初期化完了: #${panelId}`);
-                        
-                        // アクティブグループを設定
-                        if (typeof window.ZWGadgets.setActiveGroup === 'function') {
-                            window.ZWGadgets.setActiveGroup('structure');
-                            // 初期レンダリングを強制実行
-                            if (typeof window.ZWGadgets._renderLast === 'function') {
-                                setTimeout(() => {
-                                    window.ZWGadgets._renderLast();
-                                    logger.info('ガジェット初期レンダリング完了');
-                                }, 100);
-                            }
+                    // 表示されているガジェットパネルのみ初期化（非表示のtypography/assistはスキップ）
+                    const panels = [
+                        { id: 'structure-gadgets-panel', group: 'structure' },
+                        { id: 'wiki-gadgets-panel', group: 'wiki' }
+                    ];
+                    
+                    panels.forEach(panelInfo => {
+                        const panel = document.getElementById(panelInfo.id);
+                        if (panel) {
+                            window.ZWGadgets.init(`#${panelInfo.id}`, { group: panelInfo.group });
+                            logger.info(`ガジェット初期化完了: #${panelInfo.id}`);
+                        } else {
+                            logger.warn(`パネルが見つかりません: #${panelInfo.id}`);
                         }
-                    } else {
-                        logger.error(`パネルが見つかりません: #${panelId}`);
+                    });
+                    
+                    // アクティブグループを設定（デフォルトはstructure）
+                    if (typeof window.ZWGadgets.setActiveGroup === 'function') {
+                        window.ZWGadgets.setActiveGroup('structure');
                     }
+                    
+                    // ガジェット登録完了を待ってから再レンダリング
+                    // （gadgets-editor-extras.js, wiki.js, nodegraph.jsの登録を待つ）
+                    setTimeout(() => {
+                        if (typeof window.ZWGadgets._renderLast === 'function') {
+                            window.ZWGadgets._renderLast();
+                            logger.info('ガジェット初期レンダリング完了（全ガジェット登録済み）');
+                        }
+                    }, 300);
                 } catch(e) {
                     logger.error('ガジェット初期化エラー:', e);
                 }
@@ -396,6 +404,97 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         tick();
+    })();
+
+    // ロードアウトUI初期化
+    (function initLoadoutUI(){
+        const loadoutSelect = document.getElementById('loadout-select');
+        const loadoutName = document.getElementById('loadout-name');
+        const loadoutSaveBtn = document.getElementById('loadout-save');
+        const loadoutDuplicateBtn = document.getElementById('loadout-duplicate');
+        const loadoutApplyBtn = document.getElementById('loadout-apply');
+        const loadoutDeleteBtn = document.getElementById('loadout-delete');
+
+        if (!loadoutSelect) return;
+
+        function refreshLoadoutList(){
+            if (!window.ZWGadgets) return;
+            const active = window.ZWGadgets.getActiveLoadout();
+            const data = window.ZWGadgets._ensureLoadouts();
+            loadoutSelect.innerHTML = '';
+            Object.keys(data.entries || {}).forEach(key => {
+                const entry = data.entries[key];
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = entry.label || key;
+                loadoutSelect.appendChild(opt);
+            });
+            loadoutSelect.value = active.name || '';
+            if (loadoutName) loadoutName.value = active.label || '';
+        }
+
+        if (loadoutSaveBtn) {
+            loadoutSaveBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value || ('preset-' + Date.now());
+                const label = loadoutName.value || name;
+                const captured = window.ZWGadgets.captureCurrentLoadout(label);
+                window.ZWGadgets.defineLoadout(name, captured);
+                window.ZWGadgets.activateLoadout(name);
+                refreshLoadoutList();
+                logger.info(`ロードアウト保存: ${label}`);
+            });
+        }
+
+        if (loadoutDuplicateBtn) {
+            loadoutDuplicateBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const current = window.ZWGadgets.getActiveLoadout();
+                const newName = 'preset-' + Date.now();
+                const newLabel = (loadoutName.value || current.label || '') + 'のコピー';
+                window.ZWGadgets.defineLoadout(newName, { label: newLabel, groups: current.entry.groups });
+                refreshLoadoutList();
+                logger.info(`ロードアウト複製: ${newLabel}`);
+            });
+        }
+
+        if (loadoutApplyBtn) {
+            loadoutApplyBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value;
+                if (name && window.ZWGadgets.activateLoadout(name)) {
+                    refreshLoadoutList();
+                    logger.info(`ロードアウト適用: ${name}`);
+                }
+            });
+        }
+
+        if (loadoutDeleteBtn) {
+            loadoutDeleteBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value;
+                if (name && confirm(`ロードアウト「${loadoutSelect.options[loadoutSelect.selectedIndex]?.textContent}」を削除しますか？`)) {
+                    if (window.ZWGadgets.deleteLoadout(name)) {
+                        refreshLoadoutList();
+                        logger.info(`ロードアウト削除: ${name}`);
+                    }
+                }
+            });
+        }
+
+        if (loadoutSelect) {
+            loadoutSelect.addEventListener('change', () => {
+                const name = loadoutSelect.value;
+                const data = window.ZWGadgets._ensureLoadouts();
+                const entry = data.entries[name];
+                if (loadoutName && entry) loadoutName.value = entry.label || name;
+            });
+        }
+
+        // 初期リスト生成
+        setTimeout(() => {
+            refreshLoadoutList();
+        }, 500);
     })();
 
     // テーマ設定
@@ -984,6 +1083,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!docId) return;
 
             try {
+                // 未保存変更の確認と退避
+                try {
+                    const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                        ? window.ZenWriterEditor.isDirty()
+                        : false;
+                    if (hasDirty) {
+                        const ok = confirm('未保存の変更があります。ファイルを切り替えますか？\n現在の内容はスナップショットとして自動退避します。');
+                        if (!ok) {
+                            // セレクトを元に戻す
+                            const selectEl = elementManager.get('currentDocument');
+                            const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                            if (selectEl && currentDocId) selectEl.value = currentDocId;
+                            return;
+                        }
+                        // 現在内容をスナップショットへ退避
+                        try {
+                            const editorEl = elementManager.get('editor');
+                            const content = editorEl ? (editorEl.value || '') : '';
+                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                                window.ZenWriterStorage.addSnapshot(content);
+                            }
+                        } catch (_) {}
+                    }
+                } catch(_) {}
+
                 if (window.ZenWriterStorage.setCurrentDocId) {
                     window.ZenWriterStorage.setCurrentDocId(docId);
                 }
@@ -996,6 +1120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // UIを更新
                 this.updateDocumentList();
+                try { updateDocumentTitle(); } catch(_) {}
                 
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
                     window.ZenWriterEditor.showNotification('ファイルを切り替えました');
@@ -1047,6 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ファイル管理イベントリスナー設定
     const currentDocumentSelect = elementManager.get('currentDocument');
     const newDocumentBtn = elementManager.get('newDocumentBtn');
+    const restoreFromSnapshotBtn = elementManager.get('restoreFromSnapshotBtn');
 
     if (currentDocumentSelect) {
         currentDocumentSelect.addEventListener('change', (e) => {
@@ -1056,7 +1182,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (newDocumentBtn) {
         newDocumentBtn.addEventListener('click', () => {
+            // 未保存変更の確認と退避
+            try {
+                const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                    ? window.ZenWriterEditor.isDirty()
+                    : false;
+                if (hasDirty) {
+                    const ok = confirm('未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。');
+                    if (!ok) return;
+                    try {
+                        const editorEl = elementManager.get('editor');
+                        const content = editorEl ? (editorEl.value || '') : '';
+                        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                            window.ZenWriterStorage.addSnapshot(content);
+                        }
+                    } catch(_) {}
+                }
+            } catch(_) {}
             fileManager.createNewDocument();
+        });
+    }
+
+    if (restoreFromSnapshotBtn) {
+        restoreFromSnapshotBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
+                window.ZenWriterEditor.restoreLastSnapshot();
+            }
         });
     }
 
@@ -1066,4 +1217,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 要素別フォントサイズを適用
     applyElementFontSizes();
+
+    // ページ離脱時の警告（未保存変更がある場合）
+    window.addEventListener('beforeunload', (e) => {
+        try {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function' && window.ZenWriterEditor.isDirty()) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        } catch(_) {}
+    });
 });

@@ -14,7 +14,10 @@ Zen Writerは、小説執筆に特化したWebベースのテキストエディ�
 
 ### 主な特徴
 - **ミニマルなUI**: 執筆に集中できるシンプルなインターフェース
-- **拡張可能なガジェットシステム**: プラグイン型の機能拡張
+- **完全ガジェットベースアーキテクチャ**: すべての追加機能をガジェット化
+- **動的タブシステム**: ユーザーが自由にタブを追加・削除可能
+- **プリセット（ロードアウト）**: 初心者にも分かりやすいプリセット構成
+- **フレキシブルレイアウト**: 上下左右配置、フローティング表示対応（計画中）
 - **永続化されたデータ**: LocalStorageによる自動保存
 - **リアルタイムMarkdownプレビュー**: 執筆と同時にプレビュー表示
 
@@ -75,24 +78,75 @@ class ElementManager {
 - その他の要素は単一要素として取得
 - 取得失敗時はnullまたは空配列を返す
 
-### 2. サイドバータブシステム
+### 2. ガジェットベースアーキテクチャ
 
-**タブ設定**:
+**設計思想**:
+Zen Writerは「メモ帳以上の機能はすべてガジェット化」という原則に基づいています。
+
+#### ガジェットシステムの特徴
+
+1. **完全なモジュール性**
+   - すべての追加機能はガジェットとして実装
+   - ガジェットは独立した単位で開発・テスト可能
+   - `ZWGadgets.register(name, factory, options)` で登録
+
+2. **動的タブシステム**
+   - タブは最小1つから開始
+   - ユーザーが自由にタブを追加・削除可能
+   - 各タブに任意のガジェットを配置可能
+   - `window.sidebarManager.addTab(id, label)` で追加
+   - `window.sidebarManager.removeTab(id)` で削除
+
+3. **プリセット（ロードアウト）システム**
+   - 初心者向けに推奨構成を提供
+   - ユーザーが独自のプリセットを作成・保存可能
+   - `ZWGadgets.defineLoadout(name, config)` で定義
+   - `ZWGadgets.activateLoadout(name)` で適用
+
+   **デフォルトプリセット**:
+   - `novel-standard`: 小説執筆向け基本構成
+   - `screenplay`: 脚本執筆向け構成
+   - `minimal`: 最小限の機能のみ
+
+4. **フレキシブルレイアウト**（計画中）
+   - タブを上下左右に配置可能
+   - サイドバー内での上下配置、タブ切り替え
+   - フローティングパネルとして切り離し可能
+   - 透明度調整、表示/非表示トグル
+
+#### ガジェット登録例
+
 ```javascript
-const sidebarTabConfig = [
-    { id: 'structure', label: '構造', panelId: 'structure-gadgets-panel' },
-    { id: 'typography', label: 'タイポ', panelId: 'typography-gadgets-panel' },
-    { id: 'assist', label: 'アシスト', panels: ['plugins-panel', 'gadgets-panel'] },
-    { id: 'editor', label: 'エディタ', content: 'editor-settings' }
-];
+window.ZWGadgets.register('MyGadget', function(root, api) {
+    // UIを構築
+    root.innerHTML = '<button>Click me</button>';
+    
+    // 設定の読み書き
+    const value = api.get('myKey', 'defaultValue');
+    api.set('myKey', 'newValue');
+}, {
+    title: 'My Gadget',
+    groups: ['structure'] // 所属グループ
+});
 ```
 
-**切り替えフロー**:
-1. `activateSidebarGroup(groupId)` が呼ばれる
-2. タブ設定から有効なgroupIdか確認
-3. すべてのタブの`active`クラスを更新
-4. すべてのグループパネルの表示状態を更新
-5. `ZWGadgets.setActiveGroup()` を呼び出し
+#### タブ切り替えフロー
+
+```text
+ユーザーがタブをクリック
+  ↓
+activateSidebarGroup(groupId)
+  ↓
+タブ設定から有効性確認
+  ↓
+すべてのタブのactive状態更新
+  ↓
+すべてのグループの表示状態更新
+  ↓
+ZWGadgets.setActiveGroup(groupId)
+  ↓
+アクティブグループのガジェットのみレンダリング（パフォーマンス最適化）
+```
 
 ### 3. サイドバー開閉システム
 
@@ -110,25 +164,39 @@ function forceSidebarState(open) {
 }
 ```
 
-### 4. ガジェットシステム
+### 4. ガジェット初期化とレンダリング
 
-**ガジェット初期化**:
+**初期化プロセス**:
 ```javascript
-window.ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
-window.ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
-window.ZWGadgets.init('#gadgets-panel', { group: 'assist' });
+// 表示されているパネルのみ初期化
+const panels = [
+    { id: 'structure-gadgets-panel', group: 'structure' },
+    { id: 'wiki-gadgets-panel', group: 'wiki' }
+];
+
+panels.forEach(panelInfo => {
+    window.ZWGadgets.init(`#${panelInfo.id}`, { group: panelInfo.group });
+});
+
+// アクティブグループを設定
+window.ZWGadgets.setActiveGroup('structure');
+
+// 登録完了を待ってレンダリング（遅延300ms）
+setTimeout(() => {
+    window.ZWGadgets._renderLast(); // すべてのパネルをレンダリング
+}, 300);
 ```
 
-**アクティブグループ管理**:
-```javascript
-window.ZWGadgets.setActiveGroup(groupId);
-```
+**パフォーマンス最適化**:
+
+- タブ切り替え時は`_renderActive()`でアクティブグループのみレンダリング
+- ロードアウト適用時は`_renderLast()`ですべてのグループをレンダリング
 
 ## データフロー
 
 ### 1. アプリケーション起動
 
-```
+```text
 DOMContentLoaded
   ↓
 デバッグモード設定

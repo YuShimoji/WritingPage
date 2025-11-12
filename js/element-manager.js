@@ -58,6 +58,7 @@ class ElementManager {
             wordWrapMaxChars: 'word-wrap-max-chars',
             currentDocument: 'current-document',
             newDocumentBtn: 'new-document-btn',
+            restoreFromSnapshotBtn: 'restore-from-snapshot',
 
             // HUD設定UI
             goalTargetInput: 'goal-target',

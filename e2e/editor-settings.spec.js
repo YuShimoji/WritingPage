@@ -252,4 +252,69 @@ test.describe('Editor Settings', () => {
     
     // No errors should be in console (implicit validation)
   });
+
+  test('should confirm unsaved changes on document switch and auto-save', async ({ page }) => {
+    // Load the page and create initial document
+    await page.goto('/');
+    await page.waitForSelector('#show-toolbar', { state: 'visible' });
+    await page.click('#show-toolbar');
+    await page.locator('#editor').waitFor();
+    await page.locator('#editor').fill('Initial content');
+
+    // Open sidebar and create new document
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
+    await page.click('#sidebar-tab-editor');
+
+    // Click new document button
+    const newBtn = page.locator('#new-document-btn');
+    await newBtn.waitFor();
+    await page.on('dialog', async dialog => {
+      expect(dialog.message()).toContain('未保存の変更があります');
+      await dialog.accept();
+    });
+    await newBtn.click();
+
+    // Verify editor is cleared and notification appears
+    await expect(page.locator('#editor')).toHaveValue('');
+    // Note: Notification check is implicit via no errors
+
+    // Switch back to first document
+    const docSelect = page.locator('#current-document');
+    await docSelect.selectOption({ index: 1 }); // Assuming first document is index 1
+
+    // Verify content is preserved
+    await expect(page.locator('#editor')).toHaveValue('Initial content');
+  });
+
+  test('should restore from last snapshot via button', async ({ page }) => {
+    // Load the page and type content
+    await page.goto('/');
+    await page.waitForSelector('#show-toolbar', { state: 'visible' });
+    await page.click('#show-toolbar');
+    await page.locator('#editor').waitFor();
+    await page.locator('#editor').fill('Original content for restore test');
+
+    // Open sidebar
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+    await page.locator('#sidebar-tab-editor').waitFor();
+    await page.click('#sidebar-tab-editor');
+
+    // Modify content to trigger dirty state
+    await page.locator('#editor').fill('Modified content for restore test');
+
+    // Click restore button
+    const restoreBtn = page.locator('#restore-from-snapshot');
+    await restoreBtn.waitFor();
+    await page.on('dialog', async dialog => {
+      expect(dialog.message()).toContain('最後のスナップショットから復元しますか');
+      await dialog.accept();
+    });
+    await restoreBtn.click();
+
+    // Verify content is restored
+    await expect(page.locator('#editor')).toHaveValue('Original content for restore test');
+  });
 });

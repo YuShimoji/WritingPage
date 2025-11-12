@@ -246,6 +246,65 @@
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
     }, { title: 'Text Animation', groups: ['structure'] });
+
+    // Editor Layout Gadget (余白・幅・背景色)
+    window.ZWGadgets.register('EditorLayout', function(root){
+      var s = window.ZenWriterStorage.loadSettings();
+      var layout = (s && s.editorLayout) || {};
+      root.innerHTML=''; root.style.display='grid'; root.style.gap='8px';
+
+      // 最大幅設定
+      var maxWidthRow = el('div');
+      var maxWidthLabel = el('div'); maxWidthLabel.textContent = 'エディタ最大幅（0=フル幅）'; maxWidthLabel.style.fontSize='12px';
+      var maxWidthInput = el('input'); maxWidthInput.type='number'; maxWidthInput.min='0'; maxWidthInput.max='2000'; maxWidthInput.step='50';
+      maxWidthInput.value = String(typeof layout.maxWidth==='number'? layout.maxWidth : 900);
+      maxWidthRow.appendChild(maxWidthLabel); maxWidthRow.appendChild(maxWidthInput);
+
+      // padding設定
+      var paddingRow = el('div');
+      var paddingLabel = el('div'); paddingLabel.textContent = 'エディタ内余白（px）'; paddingLabel.style.fontSize='12px';
+      var paddingInput = el('input'); paddingInput.type='number'; paddingInput.min='0'; paddingInput.max='100'; paddingInput.step='5';
+      paddingInput.value = String(typeof layout.padding==='number'? layout.padding : 32);
+      paddingRow.appendChild(paddingLabel); paddingRow.appendChild(paddingInput);
+
+      // 余白エリア背景色
+      var marginBgRow = el('div');
+      var marginBgLabel = el('div'); marginBgLabel.textContent = '余白エリア背景色'; marginBgLabel.style.fontSize='12px';
+      var marginBgInput = el('input'); marginBgInput.type='color';
+      marginBgInput.value = layout.marginBgColor || '#f5f5dc';
+      marginBgRow.appendChild(marginBgLabel); marginBgRow.appendChild(marginBgInput);
+
+      // 適用ボタン
+      var applyBtn = el('button','small'); applyBtn.textContent='適用';
+
+      function applyLayout(){
+        withStorage(function(cfg){
+          cfg.editorLayout = cfg.editorLayout || {};
+          cfg.editorLayout.maxWidth = toInt(maxWidthInput.value, 900);
+          cfg.editorLayout.padding = toInt(paddingInput.value, 32);
+          cfg.editorLayout.marginBgColor = marginBgInput.value || '#f5f5dc';
+        });
+        // Apply to DOM
+        var editor = document.getElementById('editor');
+        var container = document.querySelector('.editor-container');
+        if (editor) {
+          var maxW = toInt(maxWidthInput.value, 900);
+          var pad = toInt(paddingInput.value, 32);
+          editor.style.maxWidth = maxW > 0 ? maxW + 'px' : 'none';
+          editor.style.padding = pad + 'px';
+        }
+        if (container) {
+          container.style.backgroundColor = marginBgInput.value || '#f5f5dc';
+        }
+      }
+
+      applyBtn.addEventListener('click', applyLayout);
+
+      root.appendChild(maxWidthRow);
+      root.appendChild(paddingRow);
+      root.appendChild(marginBgRow);
+      root.appendChild(applyBtn);
+    }, { title: 'Editor Layout', groups: ['structure'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

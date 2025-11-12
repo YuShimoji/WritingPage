@@ -19,6 +19,9 @@ class EditorManager {
         // 文字数スタンプ
         this.charCountStamps = [];
         this.isCharCountStampsEnabled = true;
+        // 変更追跡（Dirty Flag）
+        this._isDirty = false;
+        this._baselineHash = null;
         this.previewPanel = document.getElementById('editor-preview');
         this.previewPanelBody = document.getElementById('editor-preview-body');
         // フォント装飾パネル
@@ -72,6 +75,7 @@ class EditorManager {
     setupEventListeners() {
         // コンテンツ変更時の自動保存
         this.editor.addEventListener('input', () => {
+            this.markDirty();
             this.saveContent();
             this.updateWordCount();
             this.maybeAutoSnapshot();
@@ -957,7 +961,41 @@ class EditorManager {
      * コンテンツをローカルストレージに保存
      */
     saveContent() {
-        window.ZenWriterStorage.saveContent(this.editor.value);
+        try {
+            window.ZenWriterStorage.saveContent(this.editor.value);
+        } catch (_) {}
+        // 自動保存してもベースラインは更新しない（セッション内変更を保持）
+    }
+
+    // 変更追跡（Dirty Flag）関連
+    _computeContentHash(text) {
+        // シンプルなdjb2風ハッシュ（依存なし）
+        let h = 5381;
+        for (let i = 0; i < text.length; i++) {
+            h = ((h << 5) + h) ^ text.charCodeAt(i);
+            h |= 0;
+        }
+        return h >>> 0;
+    }
+
+    markDirty() {
+        try {
+            const cur = this._computeContentHash(this.editor.value || '');
+            this._isDirty = (this._baselineHash == null) ? (cur !== 0) : (cur !== this._baselineHash);
+        } catch (_) {
+            this._isDirty = true;
+        }
+    }
+
+    isDirty() {
+        return !!this._isDirty;
+    }
+
+    refreshDirtyBaseline() {
+        try {
+            this._lastSavedHash = this._computeContentHash(this.editor.value || '');
+            this._isDirty = false;
+        } catch (_) {}
     }
 
     maybeAutoSnapshot(){
@@ -990,6 +1028,7 @@ class EditorManager {
         const processed = this.convertLegacyImageEmbeds(savedContent || '');
         this.editor.value = processed || '';
         this.renderImagePreview();
+        this.refreshDirtyBaseline();
     }
 
     /**
@@ -1001,6 +1040,7 @@ class EditorManager {
         this.saveContent();
         this.updateWordCount();
         this.renderImagePreview();
+        this.refreshDirtyBaseline();
     }
 
     /**
@@ -1011,6 +1051,32 @@ class EditorManager {
             this.editor.value = '';
             this.saveContent();
             this.updateWordCount();
+        }
+    }
+
+    /**
+     * 直近のスナップショットから復元（現在内容は安全のためスナップショットへ退避）
+     */
+    restoreLastSnapshot() {
+        try {
+            const snaps = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSnapshots === 'function')
+                ? (window.ZenWriterStorage.loadSnapshots() || [])
+                : [];
+            if (!snaps.length) {
+                if (typeof this.showNotification === 'function') this.showNotification('復元できるバックアップがありません');
+                return;
+            }
+            if (!confirm('最後のスナップショットから復元しますか？\n現在の内容はスナップショットとして保存されます。')) return;
+            // 現在の内容をまず退避
+            if (typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                window.ZenWriterStorage.addSnapshot(this.editor.value || '');
+            }
+            const latest = snaps[0];
+            this.setContent(latest && typeof latest.content === 'string' ? latest.content : '');
+            if (typeof this.showNotification === 'function') this.showNotification('スナップショットから復元しました');
+        } catch (e) {
+            try { if (typeof this.showNotification === 'function') this.showNotification('復元に失敗しました'); } catch(_) {}
+            console.error(e);
         }
     }
 

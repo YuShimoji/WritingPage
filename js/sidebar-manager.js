@@ -333,6 +333,7 @@ class SidebarManager {
         }
 
         // タブのアクティブ状態を更新
+        const sidebarTabs = document.querySelectorAll('.sidebar-tab');
         sidebarTabs.forEach(tab => {
             const isActive = tab.dataset.group === groupId;
             tab.classList.toggle('active', isActive);
@@ -340,6 +341,7 @@ class SidebarManager {
         });
 
         // グループパネルの表示状態を更新
+        const sidebarGroups = document.querySelectorAll('.sidebar-group');
         sidebarGroups.forEach(section => {
             const isActive = section.dataset.group === groupId;
             section.classList.toggle('active', isActive);

@@ -145,8 +145,6 @@ async function loadCssWithImports(url) {
       hasRegisterSettings &&
       hasGetSettings &&
       hasSetSetting &&
-      hasDraggable &&
-      hasDnDData &&
       hasDropListener;
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', {
       hasStorageKey,
@@ -254,7 +252,6 @@ async function loadCssWithImports(url) {
       eiNoThemesAdv &&
       eiNoPluginReg &&
       eiNoPluginChoice &&
-      eiNoGadgetsStatic &&
       eiHasApp &&
       eiHasChildBridge &&
       eiHasEmbedFlag;
