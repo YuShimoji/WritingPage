@@ -413,32 +413,55 @@
     <button id="fab-tools" class="fab-tools" title="ツール" aria-label="ツール">
       ツール
     </button>
-    <!-- フローティングフォントパネル -->
+    <!-- クイックツールパネル -->
     <div id="floating-font-panel" class="floating-panel" style="display: none">
       <div class="panel-header">
-        <span>フォントサイズ</span>
+        <span>クイックツール</span>
         <button class="panel-close" id="close-font-panel">閉じる</button>
       </div>
       <div class="panel-body">
-        <input
-          type="range"
-          id="global-font-size"
-          min="12"
-          max="48"
-          value="16"
-        />
-        <div class="panel-row">
+        <section class="panel-section">
+          <h4 class="panel-section__title">エディタフォント</h4>
           <input
-            type="number"
-            id="global-font-size-number"
+            type="range"
+            id="global-font-size"
             min="12"
             max="48"
             value="16"
-            style="width: 72px"
           />
-          px
-        </div>
-        <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
+          <div class="panel-row">
+            <input
+              type="number"
+              id="global-font-size-number"
+              min="12"
+              max="48"
+              value="16"
+              style="width: 72px"
+            />
+            px
+          </div>
+          <div class="panel-hint">ショートカット: Ctrl/⌘ + (+ / - / 0)</div>
+        </section>
+
+        <section class="panel-section">
+          <h4 class="panel-section__title">HUD コントロール</h4>
+          <div class="panel-row panel-row--wrap">
+            <button id="hud-toggle-visibility" class="small" type="button">
+              HUD表示/非表示
+            </button>
+            <button id="hud-pin-toggle" class="small" type="button">
+              HUDピン固定
+            </button>
+          </div>
+          <div class="panel-row panel-row--wrap">
+            <button id="hud-refresh" class="small" type="button">
+              HUD再表示
+            </button>
+          </div>
+          <div class="panel-hint">
+            ピン固定はローカル設定に保存されます。
+          </div>
+        </section>
       </div>
     </div>
     <!-- 検索置換パネル -->

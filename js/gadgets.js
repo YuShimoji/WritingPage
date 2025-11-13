@@ -9,6 +9,26 @@
     if (arr.indexOf(item) < 0) arr.push(item);
   }
 
+  function normalizeGroupName(name){
+    var trimmed = typeof name === 'string' ? name.trim() : '';
+    if (!trimmed) return '';
+    var lower = trimmed.toLowerCase();
+    if (lower === 'assist' || lower === 'typography') return 'structure';
+    if (KNOWN_GROUPS.indexOf(lower) >= 0) return lower;
+    return '';
+  }
+
+  function normalizeGroupList(list){
+    var out = [];
+    if (!Array.isArray(list)) return out;
+    for (var i = 0; i < list.length; i++){
+      var mapped = normalizeGroupName(list[i]);
+      if (!mapped) continue;
+      uniquePush(out, mapped);
+    }
+    return out;
+  }
+
   function emit(eventName, detail){
     try { window.dispatchEvent(new CustomEvent(eventName, { detail: detail || {} })); } catch(_) {}
   }
@@ -20,23 +40,52 @@
 
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
+  var KNOWN_GROUPS = ['structure', 'wiki'];
   var DEFAULT_LOADOUTS = {
     active: 'novel-standard',
     entries: {
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents','Outline','SnapshotManager'],
-          typography: ['EditorLayout'],
-          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
+          structure: [
+            'Documents',
+            'Outline',
+            'OutlineQuick',
+            'SnapshotManager',
+            'EditorLayout',
+            'TypographyThemes',
+            'HUDSettings',
+            'WritingGoal',
+            'PrintSettings',
+            'ChoiceTools',
+            'Clock'
+          ],
+          wiki: ['Wiki']
+        }
+      },
+      'novel-minimal': {
+        label: 'ミニマル',
+        groups: {
+          structure: ['Documents', 'Outline', 'EditorLayout', 'Clock'],
+          wiki: ['Wiki']
         }
       },
       'vn-layout': {
         label: 'ビジュアルノベル',
         groups: {
-          structure: ['Documents','Outline','SnapshotManager'],
-          typography: ['EditorLayout'],
-          assist: ['Clock','WritingGoal','PrintSettings','ChoiceTools']
+          structure: [
+            'Documents',
+            'Outline',
+            'SnapshotManager',
+            'EditorLayout',
+            'TypographyThemes',
+            'HUDSettings',
+            'WritingGoal',
+            'Images',
+            'ChoiceTools',
+            'Clock'
+          ],
+          wiki: ['Wiki', 'StoryWiki']
         }
       }
     }
@@ -97,11 +146,21 @@
 
   function normaliseGroups(groups){
     var g = groups && typeof groups === 'object' ? groups : {};
-    return {
-      structure: normalizeList(g.structure || []),
-      typography: normalizeList(g.typography || []),
-      assist: normalizeList(g.assist || [])
+    var out = {};
+    var legacyMap = {
+      typography: 'structure',
+      assist: 'structure'
     };
+    KNOWN_GROUPS.forEach(function(key){
+      out[key] = normalizeList(g[key] || []);
+    });
+    Object.keys(legacyMap).forEach(function(legacyKey){
+      var target = legacyMap[legacyKey];
+      if (!target || !out[target]) return;
+      var legacyList = normalizeList(g[legacyKey] || []);
+      legacyList.forEach(function(name){ uniquePush(out[target], name); });
+    });
+    return out;
   }
 
   function loadLoadouts(){
@@ -130,7 +189,7 @@
       this._renderers = {};
       this._roots = {};
       this._loadouts = null;
-      this._activeGroup = 'assist';
+      this._activeGroup = 'structure';
       this._defaults = {};
       this._renderPending = null;
     }
@@ -141,7 +200,7 @@
     }
     _applyLoadoutEntry(entry){
       var map = {};
-      entry = entry || { groups: { structure: [], typography: [], assist: [] } };
+      entry = entry || { groups: {} };
       Object.keys(entry.groups || {}).forEach(function(group){
         var items = entry.groups[group] || [];
         for (var i=0;i<items.length;i++){
@@ -152,7 +211,7 @@
       });
       for (var j=0; j<this._list.length; j++){
         var item = this._list[j];
-        var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['assist'];
+        var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['structure'];
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
@@ -164,7 +223,7 @@
     _getActiveNames(){
       var entry = this._getActiveEntry();
       var names = [];
-      ['structure','typography','assist'].forEach(function(key){
+      KNOWN_GROUPS.forEach(function(key){
         var list = entry.groups && entry.groups[key];
         if (Array.isArray(list)) {
           list.forEach(function(n){ if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n); });
@@ -184,9 +243,9 @@
           name: safeName,
           title: opts.title || safeName,
           factory: factory,
-          groups: normalizeList(opts.groups || ['assist'])
+          groups: normalizeGroupList(opts.groups || ['structure'])
         };
-        if (!entry.groups.length) entry.groups = ['assist'];
+        if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
       } catch(_) {}
@@ -255,7 +314,8 @@
       };
     }
     captureCurrentLoadout(label){
-      var groups = { structure: [], typography: [], assist: [] };
+      var groups = {};
+      KNOWN_GROUPS.forEach(function(key){ groups[key] = []; });
       var roots = this._roots || {};
       var _self = this;
       Object.keys(roots).forEach(function(group){
@@ -362,8 +422,8 @@
     }
     assignGroups(name, groups){
       if (!name) return;
-      var normalized = normalizeList(groups || ['assist']);
-      if (!normalized.length) normalized = ['assist'];
+      var normalized = normalizeGroupList(groups || ['structure']);
+      if (!normalized.length) normalized = ['structure'];
       for (var i=0; i<this._list.length; i++){
         if ((this._list[i].name || '') === name){
           this._list[i].groups = normalized;
@@ -483,7 +543,7 @@
       var sel = selector || '#gadgets-panel';
       var root = typeof sel === 'string' ? document.querySelector(sel) : sel;
       if (!root) return;
-      var group = opts.group || 'assist';
+      var group = normalizeGroupName(opts.group) || 'structure';
       this._roots[group] = root;
       if (!this._activeGroup) this._activeGroup = group;
 
@@ -2162,75 +2222,6 @@
   });
 
   // 旧API (ZWGadgets.addTab/removeTab) は廃止しました
-
-  ZWGadgetsInstance.register('EditorLayout', function(el){
-    try {
-      var api = arguments[1];
-      var wrap = document.createElement('div');
-      wrap.style.display = 'flex';
-      wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
-
-      // 執筆エリア枠表示
-      var borderLabel = document.createElement('label');
-      borderLabel.innerHTML = '<input type="checkbox" id="editor-border-toggle"> 執筆エリアの枠を表示';
-      var borderInput = borderLabel.querySelector('#editor-border-toggle');
-      borderInput.checked = api.get('borderVisible', true);
-      borderInput.addEventListener('change', function(){
-        api.set('borderVisible', this.checked);
-        applySettings();
-      });
-
-      // 画像プレビュー表示
-      var previewLabel = document.createElement('label');
-      previewLabel.innerHTML = '<input type="checkbox" id="preview-toggle"> 画像プレビューを表示';
-      var previewInput = previewLabel.querySelector('#preview-toggle');
-      previewInput.checked = api.get('previewVisible', false);
-      previewInput.addEventListener('change', function(){
-        api.set('previewVisible', this.checked);
-        applySettings();
-      });
-
-      // padding
-      var paddingLabel = document.createElement('label');
-      paddingLabel.textContent = '執筆エリア内余白 (px)';
-      var paddingInput = document.createElement('input');
-      paddingInput.type = 'range';
-      paddingInput.min = '0';
-      paddingInput.max = '100';
-      paddingInput.value = api.get('editorPadding', 32);
-      paddingInput.addEventListener('input', function(){
-        api.set('editorPadding', this.value);
-        applySettings();
-      });
-
-      wrap.appendChild(borderLabel);
-      wrap.appendChild(previewLabel);
-      wrap.appendChild(paddingLabel);
-      wrap.appendChild(paddingInput);
-      el.appendChild(wrap);
-
-      function applySettings(){
-        var borderVisible = api.get('borderVisible', false);
-        var previewVisible = api.get('previewVisible', false);
-        var padding = api.get('editorPadding', 32);
-        var editor = document.getElementById('editor');
-        var preview = document.getElementById('editor-preview');
-        if (editor){
-          editor.style.border = borderVisible ? '1px solid var(--border-color)' : 'none';
-          editor.style.outline = borderVisible ? '' : 'none';
-          editor.style.padding = padding + 'px';
-        }
-        if (preview){
-          preview.classList.toggle('editor-preview--collapsed', !previewVisible);
-        }
-      }
-
-      applySettings();
-    } catch(e){
-      console.error('EditorLayout gadget failed:', e);
-    }
-  }, { groups: ['typography'], title: 'エディタレイアウト' });
 
   // StoryWiki gadget
   ZWGadgetsInstance.register('StoryWiki', function(el){

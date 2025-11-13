@@ -39,6 +39,9 @@ class ElementManager {
             closeFontPanelBtn: 'close-font-panel',
             globalFontRange: 'global-font-size',
             globalFontNumber: 'global-font-size-number',
+            hudToggleVisibility: 'hud-toggle-visibility',
+            hudPinToggle: 'hud-pin-toggle',
+            hudRefresh: 'hud-refresh',
 
             // エディタ関連
             editor: 'editor',

@@ -72,6 +72,12 @@ const DEFAULT_SETTINGS = {
             enabled: false,
             maxChars: 80 // 折り返し文字数
         }
+    },
+    // エディタレイアウト設定
+    editorLayout: {
+        maxWidth: 0, // 0=全幅
+        padding: 0,  // 0=余白なし
+        marginBgColor: '#f5f5dc' // ベージュ
     }
 };
 

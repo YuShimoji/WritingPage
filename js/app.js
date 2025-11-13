@@ -588,12 +588,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const globalFontNumber = elementManager.get('globalFontNumber');
             if (globalFontRange) globalFontRange.value = s.fontSize;
             if (globalFontNumber) globalFontNumber.value = s.fontSize;
+            syncHudQuickControls();
         }
     }
     const toolsFab = elementManager.get('toolsFab');
     const closeFontPanelBtn = elementManager.get('closeFontPanelBtn');
+    const hudToggleVisibilityBtn = elementManager.get('hudToggleVisibility');
+    const hudPinToggleBtn = elementManager.get('hudPinToggle');
+    const hudRefreshBtn = elementManager.get('hudRefresh');
     if (toolsFab) toolsFab.addEventListener('click', () => toggleFontPanel());
     if (closeFontPanelBtn) closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+    if (hudToggleVisibilityBtn) hudToggleVisibilityBtn.addEventListener('click', () => toggleHudVisibility());
+    if (hudPinToggleBtn) hudPinToggleBtn.addEventListener('click', () => toggleHudPinned());
+    if (hudRefreshBtn) hudRefreshBtn.addEventListener('click', () => refreshHudFromSettings());
 
     // フォントパネルのコントロール
     function updateGlobalFontFrom(value) {
@@ -614,6 +621,98 @@ document.addEventListener('DOMContentLoaded', () => {
             updateGlobalFontFrom(e.target.value);
         });
     }
+
+    function loadHudSettings(){
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            return (s && s.hud) ? Object.assign({}, s.hud) : {};
+        } catch(_) {
+            return {};
+        }
+    }
+
+    function saveHudSettings(patch){
+        try {
+            if (!patch || typeof patch !== 'object') return;
+            const s = window.ZenWriterStorage.loadSettings();
+            s.hud = Object.assign({}, s.hud || {}, patch);
+            window.ZenWriterStorage.saveSettings(s);
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.applyConfig === 'function') {
+                window.ZenWriterHUD.applyConfig(s.hud);
+            }
+        } catch(_) {}
+    }
+
+    function hudElement(){
+        if (!window.ZenWriterHUD) return null;
+        try { return window.ZenWriterHUD.el || null; } catch(_) { return null; }
+    }
+
+    function syncHudQuickControls(){
+        const hudCfg = loadHudSettings();
+        const hudEl = hudElement();
+        const isVisible = !!(hudEl && hudEl.classList.contains('show'));
+        if (hudToggleVisibilityBtn) {
+            hudToggleVisibilityBtn.textContent = isVisible ? 'HUDを隠す' : 'HUDを表示';
+        }
+        if (hudPinToggleBtn) {
+            hudPinToggleBtn.textContent = hudCfg.pinned ? 'HUDピン解除' : 'HUDピン固定';
+        }
+    }
+
+    function toggleHudVisibility(forceShow = null){
+        if (!window.ZenWriterHUD) return;
+        const hudEl = hudElement();
+        const currentlyVisible = !!(hudEl && hudEl.classList.contains('show'));
+        const shouldShow = forceShow !== null ? !!forceShow : !currentlyVisible;
+        if (shouldShow) {
+            const cfg = loadHudSettings();
+            const message = cfg.message || window.ZenWriterHUD.defaultMessage || 'HUDを表示しました';
+            try {
+                window.ZenWriterHUD.publish(message, cfg.duration || null, { persistMessage: true });
+            } catch(_) {}
+            if (cfg.pinned && typeof window.ZenWriterHUD.pin === 'function') {
+                window.ZenWriterHUD.pin();
+            }
+        } else {
+            if (typeof window.ZenWriterHUD.hide === 'function') {
+                window.ZenWriterHUD.hide();
+            }
+        }
+        syncHudQuickControls();
+    }
+
+    function toggleHudPinned(){
+        const cfg = loadHudSettings();
+        const nextPinned = !cfg.pinned;
+        saveHudSettings({ pinned: nextPinned });
+        if (window.ZenWriterHUD) {
+            try {
+                if (nextPinned && typeof window.ZenWriterHUD.pin === 'function') {
+                    window.ZenWriterHUD.pin();
+                    toggleHudVisibility(true);
+                } else if (!nextPinned && typeof window.ZenWriterHUD.unpin === 'function') {
+                    window.ZenWriterHUD.unpin();
+                }
+            } catch(_) {}
+        }
+        syncHudQuickControls();
+    }
+
+    function refreshHudFromSettings(){
+        if (window.ZenWriterHUD) {
+            try {
+                if (typeof window.ZenWriterHUD.updateFromSettings === 'function') {
+                    window.ZenWriterHUD.updateFromSettings();
+                } else if (typeof window.ZenWriterHUD.refresh === 'function') {
+                    window.ZenWriterHUD.refresh();
+                }
+            } catch(_) {}
+        }
+        syncHudQuickControls();
+    }
+
+    syncHudQuickControls();
 
     // スナップショット: 今すぐ保存
     // 削除済み
