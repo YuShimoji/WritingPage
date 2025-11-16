@@ -24,6 +24,10 @@ class EditorManager {
         this._baselineHash = null;
         this.previewPanel = document.getElementById('editor-preview');
         this.previewPanelBody = document.getElementById('editor-preview-body');
+        this.markdownPreviewPanel = document.getElementById('markdown-preview-panel');
+        this.imagesPreviewPanel = document.getElementById('images-preview-panel');
+        this.previewPanelToggle = document.getElementById('toggle-preview');
+        this._markdownRenderer = null;
         // フォント装飾パネル
         this.fontDecorationPanel = document.getElementById('font-decoration-panel');
         this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
@@ -80,6 +84,7 @@ class EditorManager {
             this.updateWordCount();
             this.maybeAutoSnapshot();
             this.renderImagePreview();
+            this.renderMarkdownPreview();
         });
 
         // タブキーでインデント
@@ -348,9 +353,13 @@ class EditorManager {
 
     setupPreviewPanel() {
         if (!this.previewPanel || !this.previewPanelToggle) return;
+        // 初期状態をaria-pressedに反映
+        const initiallyCollapsed = this.previewPanel.classList.contains('editor-preview--collapsed');
+        this.previewPanelToggle.setAttribute('aria-pressed', initiallyCollapsed ? 'false' : 'true');
+
         this.previewPanelToggle.addEventListener('click', () => {
             const collapsed = this.previewPanel.classList.toggle('editor-preview--collapsed');
-            this.previewPanelToggle.textContent = collapsed ? '展開する' : '折りたたむ';
+            this.previewPanelToggle.setAttribute('aria-pressed', collapsed ? 'false' : 'true');
         });
     }
 
@@ -499,17 +508,17 @@ class EditorManager {
     }
 
     renderImagePreview() {
-        if (!this.previewPanelBody) return;
+        if (!this.imagesPreviewPanel) return;
         const content = this.editor.value || '';
         const regex = /!\[[^\]]*\]\(asset:\/\/([^\s)]+)\)/g;
         const matches = Array.from(content.matchAll(regex));
-        this.previewPanelBody.innerHTML = '';
+        this.imagesPreviewPanel.innerHTML = '';
 
         if (!matches.length) {
             const hint = document.createElement('div');
             hint.className = 'preview-empty-hint';
             hint.textContent = '画像はまだ挿入されていません。画像を貼り付けるとここに一覧表示されます。';
-            this.previewPanelBody.appendChild(hint);
+            this.imagesPreviewPanel.appendChild(hint);
             if (this.editorOverlay) this.editorOverlay.innerHTML = '';
             this._lastOverlayEntries = [];
             return;
@@ -541,13 +550,13 @@ class EditorManager {
             const warn = document.createElement('div');
             warn.className = 'preview-warning';
             warn.textContent = 'アセット情報が見つからない画像があります。必要であれば再読み込みしてください。';
-            this.previewPanelBody.appendChild(warn);
+            this.imagesPreviewPanel.appendChild(warn);
             if (this.editorOverlay) this.editorOverlay.innerHTML = '';
             this._lastOverlayEntries = [];
             return;
         }
 
-        this.previewPanelBody.appendChild(list);
+        this.imagesPreviewPanel.appendChild(list);
 
         if (storage && typeof storage.updateAssetMeta === 'function') {
             orderedEntries.forEach((entry, order) => {
@@ -559,6 +568,37 @@ class EditorManager {
 
         this._lastOverlayEntries = orderedEntries;
         this.renderOverlayImages(orderedEntries, content);
+    }
+
+    renderMarkdownPreview() {
+        if (!this.markdownPreviewPanel || !this.editor) return;
+        const src = this.editor.value || '';
+        this.markdownPreviewPanel.innerHTML = '';
+
+        let html = '';
+        try {
+            if (window.markdownit) {
+                if (!this._markdownRenderer) {
+                    this._markdownRenderer = window.markdownit({
+                        html: false,
+                        linkify: true,
+                        breaks: true,
+                    });
+                }
+                html = this._markdownRenderer.render(src);
+            } else {
+                // フォールバック: エスケープ + 改行を <br> に変換
+                html = (src || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/\n/g, '<br>');
+            }
+        } catch (e) {
+            html = '';
+        }
+
+        this.markdownPreviewPanel.innerHTML = html;
     }
 
     createPreviewCard({ assetId, asset, matchIndex }) {

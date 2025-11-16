@@ -79,7 +79,15 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
 | パフォーマンス最適化 | live preview 差分適用 | markdown変換のリアルタイム性向上 | 高 |
 | パフォーマンス最適化 | selection range measurement | 文字数スタンプの位置計算負荷削減 | 中 |
 
+※ v0.3.18 時点では、次の項目は実装済みです（詳細は `CHANGELOG.md` を参照してください）。
+- OpenSpec仕様: Draft capability deltas / Validate with strict mode
+- UI/UX改善: カラーパレットの現在の色反映機能
+- UI/UX改善: エディタキー移動時のガクガク振動修正
+- UI/UX改善: 折り返し文字数指定機能 / 文字数表示スタンプ機能 / 編集ファイル/章の表示・一覧機能
+- パフォーマンス最適化: typewriter scroll requestAnimationFrame
+
 ## プロジェクト・マイルストーン
 
 - **v0.3.17 (2025-11-06)**: サイドバーアニメーションとUI安定化の修正完了
-- **次期リリース予定**: OpenSpec仕様の完了とUI/UX改善項目の実装
+- **v0.3.18 (2025-01-11)**: カラーパレット現在色反映、タイプライターモードのスクロール改善、UI改善テストドキュメント整備
+- **次期リリース予定**: Dark mode palette / Background visuals / 残りのUI/UX改善とパフォーマンス最適化

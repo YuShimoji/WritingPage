@@ -97,14 +97,19 @@ class SettingsManager {
         const layout = settings.editorLayout || {};
         const editorEl = document.getElementById('editor');
         const containerEl = document.querySelector('.editor-container');
+        const maxW = typeof layout.maxWidth === 'number' ? layout.maxWidth : 0;
+        const pad = typeof layout.padding === 'number' ? layout.padding : 0;
         if (editorEl) {
-            const maxW = typeof layout.maxWidth === 'number' ? layout.maxWidth : 900;
-            const pad = typeof layout.padding === 'number' ? layout.padding : 32;
             editorEl.style.maxWidth = maxW > 0 ? maxW + 'px' : 'none';
             editorEl.style.padding = pad + 'px';
         }
-        if (containerEl && layout.marginBgColor) {
-            containerEl.style.backgroundColor = layout.marginBgColor;
+        if (containerEl) {
+            if ((maxW > 0 || pad > 0) && layout.marginBgColor) {
+                containerEl.style.backgroundColor = layout.marginBgColor;
+            } else {
+                // デフォルトはテーマ側の背景色に任せる
+                containerEl.style.backgroundColor = '';
+            }
         }
     }
 }

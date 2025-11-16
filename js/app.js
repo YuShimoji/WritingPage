@@ -508,6 +508,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    const toggleThemeBtn = elementManager.get('toggleThemeBtn');
+    if (toggleThemeBtn) {
+        toggleThemeBtn.addEventListener('click', () => {
+            try {
+                const order = ['light', 'dark', 'sepia'];
+                const currentSettings = window.ZenWriterStorage.loadSettings();
+                const currentTheme = (currentSettings && currentSettings.theme) || 'light';
+                const currentIndex = order.indexOf(currentTheme);
+                const nextTheme = order[(currentIndex + 1 + order.length) % order.length];
+                window.ZenWriterTheme.applyTheme(nextTheme);
+                // テーマボタンからの切替時もカスタムカラーは一旦リセット
+                window.ZenWriterTheme.clearCustomColors();
+                applySettingsToUI();
+            } catch (_) {}
+        });
+    }
+
     // forceSidebarState(false); // 設定反映に任せる
     
     // カラーピッカー

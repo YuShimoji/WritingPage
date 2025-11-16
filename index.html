@@ -20,12 +20,17 @@
                 'data-toolbar-hidden',
                 'true',
               );
+            } else {
+              document.documentElement.setAttribute(
+                'data-toolbar-hidden',
+                'false',
+              );
             }
           } else {
-            // 設定が未作成（初回起動）は非表示にする
+            // 設定が未作成（初回起動）は表示にする
             document.documentElement.setAttribute(
               'data-toolbar-hidden',
-              'true',
+              'false',
             );
           }
         } catch (e) {
@@ -282,6 +287,13 @@
                 <button id="restore-from-snapshot" class="button" style="width: 100%;">最後のバックアップから復元</button>
               </div>
             </div>
+            <div class="sidebar-section">
+              <h4>ヘルプ / リファレンス</h4>
+              <button id="help-button" class="small" type="button">Wikiヘルプを開く</button>
+              <div class="panel-row" style="margin-top: 4px;">
+                <a href="docs/editor-help.html" target="_blank" rel="noopener" class="small">エディタ機能ガイド（別タブ）</a>
+              </div>
+            </div>
           </section>
 
           <section
@@ -356,6 +368,22 @@
               <i data-lucide="stamp" aria-hidden="true"></i>
             </button>
             <button
+              id="toggle-theme"
+              class="icon-button iconified"
+              title="テーマを切り替え"
+              aria-label="テーマを切り替え"
+            >
+              <i data-lucide="palette" aria-hidden="true"></i>
+            </button>
+            <button
+              id="toggle-preview"
+              class="icon-button iconified"
+              title="プレビューパネル"
+              aria-label="プレビューパネルを開閉"
+            >
+              <i data-lucide="layout-template" aria-hidden="true"></i>
+            </button>
+            <button
               id="toggle-toolbar"
               class="icon-button"
               aria-label="ツールバーを開閉"
@@ -393,7 +421,10 @@
             class="editor-preview editor-preview--collapsed"
             aria-live="polite"
           >
-            <div id="editor-preview-body" class="editor-preview__body"></div>
+            <div id="editor-preview-body" class="editor-preview__body">
+              <div id="markdown-preview-panel" class="markdown-preview-panel"></div>
+              <div id="images-preview-panel" class="images-preview-panel"></div>
+            </div>
           </div>
           <div id="print-view" class="print-view" aria-hidden="true"></div>
         </div>
@@ -402,12 +433,12 @@
     <!-- ツールバー再表示用FAB -->
     <button
       id="show-toolbar"
-      class="fab-toggle-toolbar"
+      class="fab-toggle-toolbar iconified"
       title="ツールバーを表示"
       aria-label="ツールバーを表示"
       style="display: none"
     >
-      ツールバー
+      <i data-lucide="keyboard" aria-hidden="true"></i>
     </button>
     <!-- 追加機能用FAB -->
     <button id="fab-tools" class="fab-tools iconified" title="ツール" aria-label="ツール">
@@ -557,6 +588,8 @@
 
     <script src="js/storage.js"></script>
     <script src="js/theme.js"></script>
+    <!-- Markdown renderer (browser) -->
+    <script src="https://unpkg.com/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
     <script src="js/ui-labels.js"></script>
     <script src="js/element-manager.js"></script>
     <script src="js/sidebar-manager.js"></script>

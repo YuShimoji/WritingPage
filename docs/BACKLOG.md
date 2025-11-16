@@ -10,7 +10,7 @@
 - [x] アウトライン項目のユーザー並び替え（部/章/節/話など） - Outlineガジェットにドラッグ&ドロップ実装
 - [x] ワードカウントバーの開閉（常時表示/自動隠し/手動トグル） - 実装済み
 - [ ] updateWordCountデバウンス実装（長文パフォーマンス向上）
-- [ ] typewriter scroll requestAnimationFrame適用（スクロール振動解消）
+- [x] typewriter scroll requestAnimationFrame適用（スクロール振動解消）
 - [ ] live preview差分適用（リアルタイム性向上）
 
 ## 優先度: 中

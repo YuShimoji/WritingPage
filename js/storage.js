@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS = {
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
     useCustomColors: false,
     // ツールバー（文字数バー含む）の表示状態（初回は非表示）
-    toolbarVisible: false,
+    toolbarVisible: true,
     // 執筆目標
     goal: {
         target: 0,       // 目標文字数（0 は未設定）

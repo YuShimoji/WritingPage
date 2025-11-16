@@ -27,6 +27,7 @@ class ElementManager {
             textColorInput: 'text-color',
             resetColorsBtn: 'reset-colors',
             themePresets: '[data-theme-preset], .theme-preset',
+            toggleThemeBtn: 'toggle-theme',
 
             // フォント関連
             fontFamilySelect: 'font-family',
