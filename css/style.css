@@ -109,7 +109,7 @@ input[type="text"]:focus, input[type="range"]:focus, input[type="number"]:focus,
 html[data-toolbar-hidden='true'] .toolbar {
   display: none !important;
 }
-/* ツールバー表示時は、重なりを避けるためエディタ上端に余白を追加 */
+/* ツールバー表示時は、エディタ上端に最低限の余白を追加 */
 html:not([data-toolbar-hidden='true']) #editor {
   padding-top: calc(var(--toolbar-height) + 1rem);
 }
@@ -205,6 +205,16 @@ body {
   display: flex;
   flex-direction: column;
   background-color: var(--app-bg);
+}
+
+/* サイドバー展開時のメインオフセット */
+html[data-sidebar-open] .main-content {
+  margin-left: var(--sidebar-width, 320px);
+}
+
+/* サイドバー展開時もメニューボタンの表示位置を固定する */
+html[data-sidebar-open] #toggle-sidebar {
+  margin-left: calc(var(--sidebar-width, 320px) * -1);
 }
 
 /* エディタコンテナ: ツールバーを除いた残りの高さを占有 */
@@ -1015,8 +1025,8 @@ input[type='color'] {
   position: fixed;
   right: 16px;
   bottom: 72px;
-  width: 40px;
-  height: 40px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -1029,13 +1039,13 @@ input[type='color'] {
   z-index: 1500;
 }
 
-.fab-tools:hover {
-  opacity: 0.95;
+.fab-tools svg {
+  width: 40px;
+  height: 40px;
 }
 
-.fab-tools svg {
-  width: 20px;
-  height: 20px;
+.fab-tools:hover {
+  opacity: 0.95;
 }
 
 /* フローティングパネル */

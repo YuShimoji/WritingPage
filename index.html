@@ -323,10 +323,11 @@
           <div class="sidebar-controls">
             <button
               id="toggle-sidebar"
-              class="icon-button"
+              class="icon-button iconified"
               aria-label="サイドバーを開閉"
+              title="メニュー"
             >
-              メニュー
+              <i data-lucide="menu" aria-hidden="true"></i>
             </button>
           </div>
           <div class="word-count">0 文字</div>
@@ -385,10 +386,11 @@
             </button>
             <button
               id="toggle-toolbar"
-              class="icon-button"
+              class="icon-button iconified"
               aria-label="ツールバーを開閉"
+              title="ツールバー"
             >
-              ツールバー
+              <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
             <button
               id="feedback"
@@ -591,6 +593,7 @@
     <!-- Markdown renderer (browser) -->
     <script src="https://unpkg.com/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
     <script src="js/ui-labels.js"></script>
+    <script src="js/tools-registry.js"></script>
     <script src="js/element-manager.js"></script>
     <script src="js/sidebar-manager.js"></script>
     <script src="js/settings-manager.js"></script>

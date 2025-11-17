@@ -48,3 +48,39 @@
 
 ## コミット情報
 変更ファイルをコミット・プッシュしてください。
+
+## 追加仕様: UI モード (Normal / Focus / Blank)
+
+- Normal: 現在の標準 UI。ツールバー、サイドバー、HUD、FAB などが通常どおり表示される。
+- Focus: 既存の `data-toolbar-hidden` や HUD/FAB の設定を組み合わせ、執筆領域を優先した簡易 UI。必要最低限のコントロールのみ残す。
+- Blank: ヘッダー、サイドバー、HUD、FAB を含むすべての UI を隠し、エディタキャンバスのみを表示する完全な「まっさらなページ」モード。
+
+想定実装:
+
+- 設定: `settings.ui.mode` に `"normal" | "focus" | "blank"` を保存。
+- DOM: `<html data-ui-mode="normal|focus|blank">` 属性で現在のモードを表現し、CSS 側で一括制御する。
+- 戻り方: Blank モード時も、Esc キーや専用ショートカット（例: F2）で `normal` に戻せるようにする。将来的に画面端ホバーでヘッダー一時表示も検討。
+
+## 追加仕様: ツールレジストリとガジェット/ヘッダーアイコン整理
+
+- 新規ファイル `js/tools-registry.js` に、ツール定義レジストリ `window.WritingTools` を追加する。
+- ツールは次のような構造を持つ想定:
+
+  - `id`: `"text-decoration"` など、一意なツール ID
+  - `label`: ツール名（UI 表示用）
+  - `icon`: Lucide アイコン名（`"type"`, `"sparkles"` など）
+  - `group`: `"editor" | "structure" | "wiki" | "system"` など、ガジェットグループとの対応
+  - `gadgetId` (任意): 対応するガジェット ID（例: フォント装飾、テキストアニメーション、EditorLayout など）
+  - `entrypoints`: `{ headerIcon: boolean, sidebarGadget: boolean, fabMenu: boolean }` とし、「ヘッダーアイコン」「サイドバーのガジェット」「FAB メニュー」のどこからアクセスできるかを切り替え可能にする。
+
+- 目的:
+
+  - 右上ヘッダーアイコンとサイドバーガジェット、FAB でバラバラに管理されている機能を、「1 つのツール定義」から生成できるようにする。
+  - ユーザー設定から「ヘッダーアイコンとして出す」「ガジェットのみ」「両方」「FAB メニューにも出す」といった選択を行えるようにする。
+  - ガジェット内のヘッダーにも Lucide アイコンを表示できるようにし、ツールと UI の対応関係を分かりやすくする。
+
+- 現時点の状態:
+
+  - `js/tools-registry.js` はスケルトン実装として `window.WritingTools` を定義し、代表的なツール（テキスト装飾・テキストアニメーション・EditorLayout・HUD コントロールなど）を登録する。
+  - まだ既存のガジェットやボタンとは接続しておらず、「将来的にここから参照する」ための準備段階。
+  - HTML 側では `index.html` のスクリプトタグに `js/tools-registry.js` を追加し、今後の利用に備える。
