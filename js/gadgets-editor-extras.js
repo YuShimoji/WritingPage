@@ -278,23 +278,33 @@
       var applyBtn = el('button','small'); applyBtn.textContent='適用';
 
       function applyLayout(){
+        var maxW = toInt(maxWidthInput.value, 900);
+        var pad = toInt(paddingInput.value, 32);
+        var bg = marginBgInput.value || '#f5f5dc';
+
         withStorage(function(cfg){
           cfg.editorLayout = cfg.editorLayout || {};
-          cfg.editorLayout.maxWidth = toInt(maxWidthInput.value, 900);
-          cfg.editorLayout.padding = toInt(paddingInput.value, 32);
-          cfg.editorLayout.marginBgColor = marginBgInput.value || '#f5f5dc';
+          cfg.editorLayout.maxWidth = maxW;
+          cfg.editorLayout.padding = pad;
+          cfg.editorLayout.marginBgColor = bg;
         });
+
         // Apply to DOM
         var editor = document.getElementById('editor');
         var container = document.querySelector('.editor-container');
+
         if (editor) {
-          var maxW = toInt(maxWidthInput.value, 900);
-          var pad = toInt(paddingInput.value, 32);
           editor.style.maxWidth = maxW > 0 ? maxW + 'px' : 'none';
           editor.style.padding = pad + 'px';
         }
+
         if (container) {
-          container.style.backgroundColor = marginBgInput.value || '#f5f5dc';
+          if ((maxW > 0 || pad > 0) && bg) {
+            container.style.backgroundColor = bg;
+          } else {
+            // 余白がない場合はテーマ側の背景色に戻す
+            container.style.backgroundColor = '';
+          }
         }
       }
 

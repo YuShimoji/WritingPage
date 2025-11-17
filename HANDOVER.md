@@ -30,24 +30,37 @@
 - **Smokeテスト**: 全項目パス
 - **E2Eテスト**: 10項目パス、一部 HUD/Search 関連で失敗（既存の問題）
 
+### 6. UI 表示修正（背景・アイコン重複）
+- `js/gadgets-editor-extras.js` の `EditorLayout` ガジェットで、余白幅・余白が 0 のときはベージュ背景を適用しないよう修正
+- `index.html` のツールバーで、`toggle-toolbar` ボタンのアイコンを `panel-top` に変更し、`toggle-preview` と重複を解消
+- JS lint と smoke テストを再実行し、全項目パスを確認
+
 ## 現在の状態
 - 開発サーバー: http://127.0.0.1:8080 で起動
-- エディタ全幅: デフォルトで全幅表示（余白なし）
-- 余白背景: ベージュ色適用
+- エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
+- 余白背景: EditorLayout ガジェットで幅・余白を設定した場合のみベージュ適用
 - サイドバー: `structure`/`wiki` タブでガジェット表示
 - HUD/FAB: 右下アイコンでクイックツールパネル開閉、HUD コントロール機能
+- ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 
 ## 次の作業
-- ガジェット内容の充実（EditorLayout, Outline, Documents など）
-- タブ切り替え時のガジェット表示確認
+- UI ガジェット実装の継続（リッチテキストエディタ、プレビュー表示など）
+- UI モード（Normal/Focus/Blank）の実装
+- ツールレジストリの統合とユーザー設定によるエントリポイント制御
 - ドキュメント更新・コミットプッシュ
 
 ## 注意点
 - e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
 - ブラウザキャッシュクリアで最新変更が反映されることを確認
+- EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
 
 ## コミット情報
 変更ファイルをコミット・プッシュしてください。
+
+コミット済み:
+- `fix(ui): editor layout background and toolbar icons`
+  - `js/gadgets-editor-extras.js`: EditorLayout ガジェットの背景適用条件を修正
+  - `index.html`: ツールバーアイコン重複を解消
 
 ## 追加仕様: UI モード (Normal / Focus / Blank)
 
