@@ -11,16 +11,16 @@ class SidebarManager {
                 panelId: 'structure-gadgets-panel'
             },
             {
-                id: 'loadout',
-                label: 'ロードアウト',
-                description: 'ガジェット構成管理',
-                panelId: 'loadout-gadgets-panel'
-            },
-            {
                 id: 'wiki',
                 label: 'Wiki',
                 description: '物語Wiki',
                 panelId: 'wiki-gadgets-panel'
+            },
+            {
+                id: 'assist',
+                label: 'アシスト',
+                description: '支援ツール',
+                panelId: 'assist-gadgets-panel'
             }
         ];
     }

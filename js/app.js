@@ -27,6 +27,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsManager = new SettingsManager(window.elementManager);
     window.settingsManager = settingsManager;
 
+    function syncToolbarHeightWithCSSVar(){
+        try {
+            const toolbarEl = document.querySelector('.toolbar');
+            if (!toolbarEl) return;
+            const root = document.documentElement;
+            const update = () => {
+                const rect = toolbarEl.getBoundingClientRect();
+                if (!rect || !rect.height) return;
+                const h = Math.round(rect.height);
+                root.style.setProperty('--toolbar-height', h + 'px');
+            };
+            update();
+            if (typeof ResizeObserver === 'function') {
+                const ro = new ResizeObserver(() => update());
+                ro.observe(toolbarEl);
+            } else {
+                window.addEventListener('resize', update);
+            }
+        } catch(_) {}
+    }
+
     // タブボタンを動的に生成
     function initializeSidebarTabs(){
         const tabsContainer = document.querySelector('.sidebar-tabs');
@@ -65,6 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 要素別フォントサイズを適用
     applyElementFontSizes();
+
+    syncToolbarHeightWithCSSVar();
 
     // タブ初期化
     initializeSidebarTabs();
