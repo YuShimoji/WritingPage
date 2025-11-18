@@ -35,6 +35,32 @@
 - `index.html` のツールバーで、`toggle-toolbar` ボタンのアイコンを `panel-top` に変更し、`toggle-preview` と重複を解消
 - JS lint と smoke テストを再実行し、全項目パスを確認
 
+### 7. FAB 共通ライブラリ実装（Aステップ）
+- `css/style.css` に共通 FAB クラス `fab-button` を導入
+  - サイズ・位置・色・アイコンサイズを CSS 変数で制御
+  - `--fab-size`, `--fab-bottom`, `--fab-bg`, `--fab-fg`, `--fab-icon-size` など
+- `index.html` で既存の `fab-toggle-toolbar` / `fab-tools` に `fab-button` クラスを付与
+- `css/special.css` の FAB 定義も共通イメージに揃え、サイズを64pxに統一
+- 将来の FAB 追加が簡単になり、設定UIからサイズ変更可能になる基盤を整備
+
+### 8. Panel/GadgetContainer PoC 実装（Bステップ）
+- 開発用 UI ラボページ `docs/ui-lab.html` を新規作成
+  - `js/panels.js` のドッカブルパネル機能を活用
+  - 「サンプルパネルを生成」ボタンでサイドバードッキングとフローティングパネルをデモ
+- `index.html` の左サイドバー「ヘルプ / リファレンス」セクションにラボページリンクを追加
+- Region / Panel / GadgetContainer の挙動検証用のサンドボックスを構築
+
+### 9. UI アーキテクチャ仕様ドキュメント作成
+- `docs/UI_ARCHITECTURE.md` を新規作成
+- Region / Panel / Gadget / GadgetContainer / Scene / EditorArea の役割を定義
+- FAB Layer の統一管理方針、Scenes & Gradients の3レイヤ構造（Base/Pattern/Overlay）を設計
+- 将来の複数エディタ分割・動画背景・設定UI拡張を見据えた基盤仕様を整理
+
+### 6. UI 表示修正（背景・アイコン重複）
+- `js/gadgets-editor-extras.js` の `EditorLayout` ガジェットで、余白幅・余白が 0 のときはベージュ背景を適用しないよう修正
+- `index.html` のツールバーで、`toggle-toolbar` ボタンのアイコンを `panel-top` に変更し、`toggle-preview` と重複を解消
+- JS lint と smoke テストを再実行し、全項目パスを確認
+
 ## 現在の状態
 - 開発サーバー: http://127.0.0.1:8080 で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
@@ -42,20 +68,46 @@
 - サイドバー: `structure`/`wiki` タブでガジェット表示
 - HUD/FAB: 右下アイコンでクイックツールパネル開閉、HUD コントロール機能
 - ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
+- FAB: 共通クラス `fab-button` で統一、サイズ・位置・色をCSS変数で制御
+- UIラボ: `docs/ui-lab.html` で Panel/GadgetContainer の挙動検証可能
+- ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 
 ## 次の作業
-- UI ガジェット実装の継続（リッチテキストエディタ、プレビュー表示など）
-- UI モード（Normal/Focus/Blank）の実装
-- ツールレジストリの統合とユーザー設定によるエントリポイント制御
-- ドキュメント更新・コミットプッシュ
+- Scene（背景グラデーション）ガジェット PoC の実装（Cステップ）
+  - 執筆エリア背景を単色/線形グラデーション/タイリングパターンに制御
+  - Base/Pattern/Overlay 3レイヤ構造で強さ・部分的強さを表現
+  - Structure グループのガジェットタブに「Scene」ガジェットとして追加
+- UIアーキテクチャの詳細化と実装
+  - GadgetContainer の開閉・フローティング管理を強化
+  - EditorArea 分割・レイアウト保存形式の定義
+  - FAB Layer の設定UIからの編集機能を追加
+- 統合テストとドキュメント更新
+  - 全体の Lint/Smoke/E2E テスト実行
+  - UI_ARCHITECTURE.md の更新と実際の実装反映
+- 長期的な拡張
+  - 動画背景・Canvasパターンの別ガジェット化
+  - プリセット・フォルダによるUI設定の保存・切り替え
 
 ## 注意点
 - e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
 - ブラウザキャッシュクリアで最新変更が反映されることを確認
 - EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
+- UIラボページは開発用なので、本番UIとは独立して挙動確認に使用
+- EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
 
 ## コミット情報
 変更ファイルをコミット・プッシュしてください。
+
+コミット済み:
+- `fix(ui): editor layout background and toolbar icons`
+  - `js/gadgets-editor-extras.js`: EditorLayout ガジェットの背景適用条件を修正
+  - `index.html`: ツールバーアイコン重複を解消
+- `feat(ui): add FAB unification, panels PoC, and UI architecture docs`
+  - `css/style.css`: FAB 共通クラス `fab-button` を導入
+  - `css/special.css`: FAB 定義を共通イメージに揃え
+  - `index.html`: FAB に共通クラス付与、UIラボページリンク追加
+  - `docs/ui-lab.html`: 新規作成（Panel/GadgetContainer PoC）
+  - `docs/UI_ARCHITECTURE.md`: 新規作成（UIアーキテクチャ仕様）
 
 コミット済み:
 - `fix(ui): editor layout background and toolbar icons`

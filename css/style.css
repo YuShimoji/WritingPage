@@ -997,55 +997,42 @@ input[type='color'] {
   }
 }
 
-/* フローティングアクションボタン（ツールバー再表示） */
-.fab-toggle-toolbar {
+/* フローティングアクションボタン共通スタイル */
+.fab-button {
   position: fixed;
   right: 16px;
-  bottom: 16px;
-  width: 44px;
-  height: 44px;
+  bottom: var(--fab-bottom, 16px);
+  width: var(--fab-size, 64px);
+  height: var(--fab-size, 64px);
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--toolbar-text);
-  color: var(--bg-color);
+  background-color: var(--fab-bg, var(--toolbar-text));
+  color: var(--fab-fg, var(--bg-color));
   border: 1px solid var(--border-color);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   z-index: 1500;
 }
 
-.fab-toggle-toolbar:hover {
-  opacity: 0.9;
+.fab-button svg {
+  width: var(--fab-icon-size, 40px);
+  height: var(--fab-icon-size, 40px);
+}
+
+.fab-button:hover {
+  opacity: 0.95;
+}
+
+/* フローティングアクションボタン（ツールバー再表示） */
+.fab-toggle-toolbar {
+  --fab-bottom: 16px;
 }
 
 /* 追加機能用FAB */
 .fab-tools {
-  position: fixed;
-  right: 16px;
-  bottom: 72px;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--toolbar-text);
-  color: var(--bg-color);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  z-index: 1500;
-}
-
-.fab-tools svg {
-  width: 40px;
-  height: 40px;
-}
-
-.fab-tools:hover {
-  opacity: 0.95;
+  --fab-bottom: 80px;
 }
 
 /* フローティングパネル */
