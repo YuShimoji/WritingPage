@@ -62,7 +62,7 @@
 - JS lint と smoke テストを再実行し、全項目パスを確認
 
 ## 現在の状態
-- 開発サーバー: http://127.0.0.1:8080 で起動
+- 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
 - 余白背景: EditorLayout ガジェットで幅・余白を設定した場合のみベージュ適用
 - サイドバー: `structure`/`wiki` タブでガジェット表示
@@ -70,7 +70,6 @@
 - ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 - FAB: 共通クラス `fab-button` で統一、サイズ・位置・色をCSS変数で制御
 - UIラボ: `docs/ui-lab.html` で Panel/GadgetContainer の挙動検証可能
-- ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 
 ## 次の作業
 - Scene（背景グラデーション）ガジェット PoC の実装（Cステップ）
@@ -93,7 +92,6 @@
 - ブラウザキャッシュクリアで最新変更が反映されることを確認
 - EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
 - UIラボページは開発用なので、本番UIとは独立して挙動確認に使用
-- EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
 
 ## コミット情報
 変更ファイルをコミット・プッシュしてください。
@@ -108,11 +106,6 @@
   - `index.html`: FAB に共通クラス付与、UIラボページリンク追加
   - `docs/ui-lab.html`: 新規作成（Panel/GadgetContainer PoC）
   - `docs/UI_ARCHITECTURE.md`: 新規作成（UIアーキテクチャ仕様）
-
-コミット済み:
-- `fix(ui): editor layout background and toolbar icons`
-  - `js/gadgets-editor-extras.js`: EditorLayout ガジェットの背景適用条件を修正
-  - `index.html`: ツールバーアイコン重複を解消
 
 ## 追加仕様: UI モード (Normal / Focus / Blank)
 
