@@ -16,6 +16,22 @@
   function refreshTypewriter(){ try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch(_){} }
   function applyWrapCols(){ try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWrapCols === 'function') window.ZenWriterEditor.applyWrapCols(); } catch(_){} }
 
+  function hexToRgb(h){ h=String(h||'').replace('#',''); if(h.length===3){h=h.split('').map(x=>x+x).join('');} var n=parseInt(h,16); return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 }; }
+  function rgba(hex,a){ var c=hexToRgb(hex); return 'rgba('+c.r+','+c.g+','+c.b+','+a+')'; }
+
+  function createColorPickerRow(c1, c2, gap) {
+    var row = el('div'); row.style.display='flex'; row.style.gap=gap||'8px';
+    row.appendChild(c1); row.appendChild(c2);
+    return row;
+  }
+
+  function createRangeRow(labelText, input) {
+    var row = el('div');
+    var lbl = el('div'); lbl.textContent = labelText; lbl.style.fontSize='12px';
+    row.appendChild(lbl); row.appendChild(input);
+    return row;
+  }
+
   function register(){
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
 
@@ -325,9 +341,6 @@
       var overlay = scene.overlay || { enabled: false, type: 'radial', c1: '#000000', c2: 'transparent', strength: 0.2 };
       root.innerHTML=''; root.style.display='grid'; root.style.gap='12px';
 
-      function hexToRgb(h){ h=String(h||'').replace('#',''); if(h.length===3){h=h.split('').map(x=>x+x).join('');} var n=parseInt(h,16); return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 }; }
-      function rgba(hex,a){ var c=hexToRgb(hex); return 'rgba('+c.r+','+c.g+','+c.b+','+a+')'; }
-
       function applyScene(){
         var layers = [];
         
@@ -390,7 +403,7 @@
       var baseEnable = el('input'); baseEnable.type='checkbox'; baseEnable.checked = !!base.enabled; var baseLbl = el('label'); baseLbl.textContent='有効化'; baseLbl.style.marginLeft='6px'; var baseRow0=el('div'); baseRow0.appendChild(baseEnable); baseRow0.appendChild(baseLbl);
       var baseType = el('select'); ['solid','linear','radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; baseType.appendChild(o); }); baseType.value=String(base.type||'linear');
       var baseAngle = el('input'); baseAngle.type='range'; baseAngle.min='0'; baseAngle.max='360'; baseAngle.step='1'; baseAngle.value=String(base.angle||180); var baseALbl = el('div'); baseALbl.textContent='角度: '+baseAngle.value+'°'; baseALbl.style.fontSize='12px'; var baseRow1=el('div'); baseRow1.appendChild(baseALbl); baseRow1.appendChild(baseAngle);
-      var baseC1 = el('input'); baseC1.type='color'; baseC1.value=String(base.c1||'#f5f5dc'); var baseC2 = el('input'); baseC2.type='color'; baseC2.value=String(base.c2||'#e0e0c0'); var baseRow2=el('div'); baseRow2.style.display='flex'; baseRow2.style.gap='8px'; baseRow2.appendChild(baseC1); baseRow2.appendChild(baseC2);
+      var baseC1 = el('input'); baseC1.type='color'; baseC1.value=String(base.c1||'#f5f5dc'); var baseC2 = el('input'); baseC2.type='color'; baseC2.value=String(base.c2||'#e0e0c0'); var baseRow2=createColorPickerRow(baseC1, baseC2);
       var baseStr = el('input'); baseStr.type='range'; baseStr.min='0'; baseStr.max='1'; baseStr.step='0.05'; baseStr.value=String(typeof base.strength==='number'? base.strength : 0.5); var baseSLbl = el('div'); baseSLbl.textContent='強度: '+baseStr.value; baseSLbl.style.fontSize='12px'; var baseRow3=el('div'); baseRow3.appendChild(baseSLbl); baseRow3.appendChild(baseStr);
 
       baseEnable.addEventListener('change', function(){ base.enabled=!!baseEnable.checked; applyScene(); });
@@ -407,8 +420,8 @@
       var patternEnable = el('input'); patternEnable.type='checkbox'; patternEnable.checked = !!pattern.enabled; var patternLbl = el('label'); patternLbl.textContent='有効化'; patternLbl.style.marginLeft='6px'; var patternRow0=el('div'); patternRow0.appendChild(patternEnable); patternRow0.appendChild(patternLbl);
       var patternType = el('select'); ['repeating-linear','repeating-radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; patternType.appendChild(o); }); patternType.value=String(pattern.type||'repeating-linear');
       var patternAngle = el('input'); patternAngle.type='range'; patternAngle.min='0'; patternAngle.max='360'; patternAngle.step='1'; patternAngle.value=String(pattern.angle||45); var patternALbl = el('div'); patternALbl.textContent='角度: '+patternAngle.value+'°'; patternALbl.style.fontSize='12px'; var patternRow1=el('div'); patternRow1.appendChild(patternALbl); patternRow1.appendChild(patternAngle);
-      var patternSize = el('input'); patternSize.type='range'; patternSize.min='10'; patternSize.max='200'; patternSize.step='5'; patternSize.value=String(pattern.size||50); var patternSzLbl = el('div'); patternSzLbl.textContent='サイズ: '+patternSize.value+'px'; patternSzLbl.style.fontSize='12px'; var patternRow2=el('div'); patternRow2.appendChild(patternSzLbl); patternRow2.appendChild(patternSize);
-      var patternC1 = el('input'); patternC1.type='color'; patternC1.value=String(pattern.c1||'#ffffff'); var patternC2 = el('input'); patternC2.type='color'; patternC2.value=String(pattern.c2||'#e0e0e0'); var patternRow3=el('div'); patternRow3.style.display='flex'; patternRow3.style.gap='8px'; patternRow3.appendChild(patternC1); patternRow3.appendChild(patternC2);
+      var patternSize = el('input'); patternSize.type='range'; patternSize.min='10'; patternSize.max='200'; patternSize.step='5'; patternSize.value=String(pattern.size||50); var patternSzLbl = el('div'); patternSzLbl.textContent='サイズ: '+patternSize.value+'px'; patternSzLbl.style.fontSize='12px'; var patternRow2=createRangeRow('サイズ: '+patternSize.value+'px', patternSize);
+      var patternC1 = el('input'); patternC1.type='color'; patternC1.value=String(pattern.c1||'#ffffff'); var patternC2 = el('input'); patternC2.type='color'; patternC2.value=String(pattern.c2||'#e0e0e0'); var patternRow3=createColorPickerRow(patternC1, patternC2);
       var patternStr = el('input'); patternStr.type='range'; patternStr.min='0'; patternStr.max='1'; patternStr.step='0.05'; patternStr.value=String(typeof pattern.strength==='number'? pattern.strength : 0.3); var patternSLbl = el('div'); patternSLbl.textContent='強度: '+patternStr.value; patternSLbl.style.fontSize='12px'; var patternRow4=el('div'); patternRow4.appendChild(patternSLbl); patternRow4.appendChild(patternStr);
 
       patternEnable.addEventListener('change', function(){ pattern.enabled=!!patternEnable.checked; applyScene(); });
@@ -426,7 +439,7 @@
       var overlayTitle = el('div'); overlayTitle.textContent='Overlay Layer'; overlayTitle.style.fontWeight='bold'; overlayTitle.style.fontSize='14px'; overlayTitle.style.marginTop='8px';
       var overlayEnable = el('input'); overlayEnable.type='checkbox'; overlayEnable.checked = !!overlay.enabled; var overlayLbl = el('label'); overlayLbl.textContent='有効化'; overlayLbl.style.marginLeft='6px'; var overlayRow0=el('div'); overlayRow0.appendChild(overlayEnable); overlayRow0.appendChild(overlayLbl);
       var overlayType = el('select'); ['radial','linear'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; overlayType.appendChild(o); }); overlayType.value=String(overlay.type||'radial');
-      var overlayC1 = el('input'); overlayC1.type='color'; overlayC1.value=String(overlay.c1||'#000000'); var overlayC2 = el('input'); overlayC2.type='color'; overlayC2.value=String(overlay.c2||'#ffffff'); var overlayRow1=el('div'); overlayRow1.style.display='flex'; overlayRow1.style.gap='8px'; overlayRow1.appendChild(overlayC1); overlayRow1.appendChild(overlayC2);
+      var overlayC1 = el('input'); overlayC1.type='color'; overlayC1.value=String(overlay.c1||'#000000'); var overlayC2 = el('input'); overlayC2.type='color'; overlayC2.value=String(overlay.c2||'#ffffff'); var overlayRow1=createColorPickerRow(overlayC1, overlayC2);
       var overlayStr = el('input'); overlayStr.type='range'; overlayStr.min='0'; overlayStr.max='1'; overlayStr.step='0.05'; overlayStr.value=String(typeof overlay.strength==='number'? overlay.strength : 0.2); var overlaySLbl = el('div'); overlaySLbl.textContent='強度: '+overlayStr.value; overlaySLbl.style.fontSize='12px'; var overlayRow2=el('div'); overlayRow2.appendChild(overlaySLbl); overlayRow2.appendChild(overlayStr);
 
       overlayEnable.addEventListener('change', function(){ overlay.enabled=!!overlayEnable.checked; applyScene(); });

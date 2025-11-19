@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
     // ガジェットの初期化（全パネル）
-    (function initGadgetsWithRetry(){
+    function initGadgetsWithRetry(){
         let tries = 0;
         const maxTries = 60; // ~3秒
         function tick(){
@@ -427,10 +427,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         tick();
-    })();
+    }
 
     // ロードアウトUI初期化
-    (function initLoadoutUI(){
+    function initLoadoutUI(){
         const loadoutSelect = document.getElementById('loadout-select');
         const loadoutName = document.getElementById('loadout-name');
         const loadoutSaveBtn = document.getElementById('loadout-save');
@@ -518,7 +518,10 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
             refreshLoadoutList();
         }, 500);
-    })();
+    }
+
+    initGadgetsWithRetry();
+    initLoadoutUI();
 
     // テーマ設定
     const themePresets = elementManager.getMultiple('themePresets');
