@@ -315,6 +315,136 @@
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
     }, { title: 'Editor Layout', groups: ['structure'] });
+
+    // Scene Gradient Gadget (背景グラデーション 3レイヤ)
+    window.ZWGadgets.register('SceneGradient', function(root, api){
+      var s = window.ZenWriterStorage.loadSettings();
+      var scene = (s && s.scene) || {};
+      var base = scene.base || { enabled: false, type: 'linear', angle: 180, c1: '#f5f5dc', c2: '#e0e0c0', strength: 0.5 };
+      var pattern = scene.pattern || { enabled: false, type: 'repeating-linear', angle: 45, c1: '#ffffff', c2: '#e0e0e0', size: 50, strength: 0.3 };
+      var overlay = scene.overlay || { enabled: false, type: 'radial', c1: '#000000', c2: 'transparent', strength: 0.2 };
+      root.innerHTML=''; root.style.display='grid'; root.style.gap='12px';
+
+      function hexToRgb(h){ h=String(h||'').replace('#',''); if(h.length===3){h=h.split('').map(x=>x+x).join('');} var n=parseInt(h,16); return { r:(n>>16)&255, g:(n>>8)&255, b:n&255 }; }
+      function rgba(hex,a){ var c=hexToRgb(hex); return 'rgba('+c.r+','+c.g+','+c.b+','+a+')'; }
+
+      function applyScene(){
+        var layers = [];
+        
+        // Overlay Layer (最前面)
+        if (overlay.enabled) {
+          var oStr = Math.max(0, Math.min(1, Number(overlay.strength)||0));
+          var oc1 = rgba(overlay.c1||'#000', oStr);
+          var oc2 = overlay.type === 'radial' ? rgba(overlay.c2||'transparent', 0) : rgba(overlay.c2||'#000', oStr);
+          if (overlay.type === 'radial') {
+            layers.push('radial-gradient(ellipse at center, '+oc2+' 0%, '+oc1+' 100%)');
+          } else {
+            layers.push('linear-gradient(180deg, '+oc1+' 0%, '+oc2+' 100%)');
+          }
+        }
+        
+        // Pattern Layer
+        if (pattern.enabled) {
+          var pStr = Math.max(0, Math.min(1, Number(pattern.strength)||0));
+          var pc1 = rgba(pattern.c1||'#fff', pStr);
+          var pc2 = rgba(pattern.c2||'#e0e0e0', pStr);
+          var size = Math.max(10, Number(pattern.size)||50);
+          var angle = Number(pattern.angle)||45;
+          if (pattern.type === 'repeating-linear') {
+            layers.push('repeating-linear-gradient('+angle+'deg, '+pc1+' 0px, '+pc2+' '+size+'px)');
+          } else {
+            layers.push('repeating-radial-gradient(circle, '+pc1+' 0px, '+pc2+' '+size+'px)');
+          }
+        }
+        
+        // Base Layer (背面)
+        if (base.enabled) {
+          var bStr = Math.max(0, Math.min(1, Number(base.strength)||0));
+          var bc1 = rgba(base.c1||'#f5f5dc', bStr);
+          var bc2 = rgba(base.c2||'#e0e0c0', bStr);
+          var angle = Number(base.angle)||180;
+          if (base.type === 'solid') {
+            layers.push(bc1);
+          } else if (base.type === 'radial') {
+            layers.push('radial-gradient(circle at 50% 50%, '+bc1+' 0%, '+bc2+' 100%)');
+          } else {
+            layers.push('linear-gradient('+angle+'deg, '+bc1+' 0%, '+bc2+' 100%)');
+          }
+        }
+        
+        var editorContainer = document.querySelector('.editor-container');
+        if (editorContainer) {
+          if (layers.length > 0) {
+            editorContainer.style.backgroundImage = layers.join(', ');
+          } else {
+            editorContainer.style.backgroundImage = '';
+          }
+        }
+        
+        withStorage(function(cfg){ cfg.scene = { base: base, pattern: pattern, overlay: overlay }; });
+        if (api && typeof api.refresh==='function') api.refresh();
+      }
+
+      // Base Layer UI
+      var baseTitle = el('div'); baseTitle.textContent='Base Layer'; baseTitle.style.fontWeight='bold'; baseTitle.style.fontSize='14px';
+      var baseEnable = el('input'); baseEnable.type='checkbox'; baseEnable.checked = !!base.enabled; var baseLbl = el('label'); baseLbl.textContent='有効化'; baseLbl.style.marginLeft='6px'; var baseRow0=el('div'); baseRow0.appendChild(baseEnable); baseRow0.appendChild(baseLbl);
+      var baseType = el('select'); ['solid','linear','radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; baseType.appendChild(o); }); baseType.value=String(base.type||'linear');
+      var baseAngle = el('input'); baseAngle.type='range'; baseAngle.min='0'; baseAngle.max='360'; baseAngle.step='1'; baseAngle.value=String(base.angle||180); var baseALbl = el('div'); baseALbl.textContent='角度: '+baseAngle.value+'°'; baseALbl.style.fontSize='12px'; var baseRow1=el('div'); baseRow1.appendChild(baseALbl); baseRow1.appendChild(baseAngle);
+      var baseC1 = el('input'); baseC1.type='color'; baseC1.value=String(base.c1||'#f5f5dc'); var baseC2 = el('input'); baseC2.type='color'; baseC2.value=String(base.c2||'#e0e0c0'); var baseRow2=el('div'); baseRow2.style.display='flex'; baseRow2.style.gap='8px'; baseRow2.appendChild(baseC1); baseRow2.appendChild(baseC2);
+      var baseStr = el('input'); baseStr.type='range'; baseStr.min='0'; baseStr.max='1'; baseStr.step='0.05'; baseStr.value=String(typeof base.strength==='number'? base.strength : 0.5); var baseSLbl = el('div'); baseSLbl.textContent='強度: '+baseStr.value; baseSLbl.style.fontSize='12px'; var baseRow3=el('div'); baseRow3.appendChild(baseSLbl); baseRow3.appendChild(baseStr);
+
+      baseEnable.addEventListener('change', function(){ base.enabled=!!baseEnable.checked; applyScene(); });
+      baseType.addEventListener('change', function(){ base.type=String(baseType.value||'linear'); applyScene(); });
+      baseAngle.addEventListener('input', function(){ baseALbl.textContent='角度: '+baseAngle.value+'°'; });
+      baseAngle.addEventListener('change', function(){ base.angle=parseInt(baseAngle.value,10)||0; applyScene(); });
+      baseC1.addEventListener('change', function(){ base.c1=String(baseC1.value||'#f5f5dc'); applyScene(); });
+      baseC2.addEventListener('change', function(){ base.c2=String(baseC2.value||'#e0e0c0'); applyScene(); });
+      baseStr.addEventListener('input', function(){ baseSLbl.textContent='強度: '+baseStr.value; });
+      baseStr.addEventListener('change', function(){ base.strength=parseFloat(baseStr.value)||0.5; applyScene(); });
+
+      // Pattern Layer UI
+      var patternTitle = el('div'); patternTitle.textContent='Pattern Layer'; patternTitle.style.fontWeight='bold'; patternTitle.style.fontSize='14px'; patternTitle.style.marginTop='8px';
+      var patternEnable = el('input'); patternEnable.type='checkbox'; patternEnable.checked = !!pattern.enabled; var patternLbl = el('label'); patternLbl.textContent='有効化'; patternLbl.style.marginLeft='6px'; var patternRow0=el('div'); patternRow0.appendChild(patternEnable); patternRow0.appendChild(patternLbl);
+      var patternType = el('select'); ['repeating-linear','repeating-radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; patternType.appendChild(o); }); patternType.value=String(pattern.type||'repeating-linear');
+      var patternAngle = el('input'); patternAngle.type='range'; patternAngle.min='0'; patternAngle.max='360'; patternAngle.step='1'; patternAngle.value=String(pattern.angle||45); var patternALbl = el('div'); patternALbl.textContent='角度: '+patternAngle.value+'°'; patternALbl.style.fontSize='12px'; var patternRow1=el('div'); patternRow1.appendChild(patternALbl); patternRow1.appendChild(patternAngle);
+      var patternSize = el('input'); patternSize.type='range'; patternSize.min='10'; patternSize.max='200'; patternSize.step='5'; patternSize.value=String(pattern.size||50); var patternSzLbl = el('div'); patternSzLbl.textContent='サイズ: '+patternSize.value+'px'; patternSzLbl.style.fontSize='12px'; var patternRow2=el('div'); patternRow2.appendChild(patternSzLbl); patternRow2.appendChild(patternSize);
+      var patternC1 = el('input'); patternC1.type='color'; patternC1.value=String(pattern.c1||'#ffffff'); var patternC2 = el('input'); patternC2.type='color'; patternC2.value=String(pattern.c2||'#e0e0e0'); var patternRow3=el('div'); patternRow3.style.display='flex'; patternRow3.style.gap='8px'; patternRow3.appendChild(patternC1); patternRow3.appendChild(patternC2);
+      var patternStr = el('input'); patternStr.type='range'; patternStr.min='0'; patternStr.max='1'; patternStr.step='0.05'; patternStr.value=String(typeof pattern.strength==='number'? pattern.strength : 0.3); var patternSLbl = el('div'); patternSLbl.textContent='強度: '+patternStr.value; patternSLbl.style.fontSize='12px'; var patternRow4=el('div'); patternRow4.appendChild(patternSLbl); patternRow4.appendChild(patternStr);
+
+      patternEnable.addEventListener('change', function(){ pattern.enabled=!!patternEnable.checked; applyScene(); });
+      patternType.addEventListener('change', function(){ pattern.type=String(patternType.value||'repeating-linear'); applyScene(); });
+      patternAngle.addEventListener('input', function(){ patternALbl.textContent='角度: '+patternAngle.value+'°'; });
+      patternAngle.addEventListener('change', function(){ pattern.angle=parseInt(patternAngle.value,10)||0; applyScene(); });
+      patternSize.addEventListener('input', function(){ patternSzLbl.textContent='サイズ: '+patternSize.value+'px'; });
+      patternSize.addEventListener('change', function(){ pattern.size=parseInt(patternSize.value,10)||50; applyScene(); });
+      patternC1.addEventListener('change', function(){ pattern.c1=String(patternC1.value||'#ffffff'); applyScene(); });
+      patternC2.addEventListener('change', function(){ pattern.c2=String(patternC2.value||'#e0e0e0'); applyScene(); });
+      patternStr.addEventListener('input', function(){ patternSLbl.textContent='強度: '+patternStr.value; });
+      patternStr.addEventListener('change', function(){ pattern.strength=parseFloat(patternStr.value)||0.3; applyScene(); });
+
+      // Overlay Layer UI
+      var overlayTitle = el('div'); overlayTitle.textContent='Overlay Layer'; overlayTitle.style.fontWeight='bold'; overlayTitle.style.fontSize='14px'; overlayTitle.style.marginTop='8px';
+      var overlayEnable = el('input'); overlayEnable.type='checkbox'; overlayEnable.checked = !!overlay.enabled; var overlayLbl = el('label'); overlayLbl.textContent='有効化'; overlayLbl.style.marginLeft='6px'; var overlayRow0=el('div'); overlayRow0.appendChild(overlayEnable); overlayRow0.appendChild(overlayLbl);
+      var overlayType = el('select'); ['radial','linear'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; overlayType.appendChild(o); }); overlayType.value=String(overlay.type||'radial');
+      var overlayC1 = el('input'); overlayC1.type='color'; overlayC1.value=String(overlay.c1||'#000000'); var overlayC2 = el('input'); overlayC2.type='color'; overlayC2.value=String(overlay.c2||'#ffffff'); var overlayRow1=el('div'); overlayRow1.style.display='flex'; overlayRow1.style.gap='8px'; overlayRow1.appendChild(overlayC1); overlayRow1.appendChild(overlayC2);
+      var overlayStr = el('input'); overlayStr.type='range'; overlayStr.min='0'; overlayStr.max='1'; overlayStr.step='0.05'; overlayStr.value=String(typeof overlay.strength==='number'? overlay.strength : 0.2); var overlaySLbl = el('div'); overlaySLbl.textContent='強度: '+overlayStr.value; overlaySLbl.style.fontSize='12px'; var overlayRow2=el('div'); overlayRow2.appendChild(overlaySLbl); overlayRow2.appendChild(overlayStr);
+
+      overlayEnable.addEventListener('change', function(){ overlay.enabled=!!overlayEnable.checked; applyScene(); });
+      overlayType.addEventListener('change', function(){ overlay.type=String(overlayType.value||'radial'); applyScene(); });
+      overlayC1.addEventListener('change', function(){ overlay.c1=String(overlayC1.value||'#000000'); applyScene(); });
+      overlayC2.addEventListener('change', function(){ overlay.c2=String(overlayC2.value||'#ffffff'); applyScene(); });
+      overlayStr.addEventListener('input', function(){ overlaySLbl.textContent='強度: '+overlayStr.value; });
+      overlayStr.addEventListener('change', function(){ overlay.strength=parseFloat(overlayStr.value)||0.2; applyScene(); });
+
+      var applyBtn = el('button','small'); applyBtn.textContent='適用'; applyBtn.addEventListener('click', applyScene);
+
+      root.appendChild(baseTitle); root.appendChild(baseRow0); root.appendChild(baseType); root.appendChild(baseRow1); root.appendChild(baseRow2); root.appendChild(baseRow3);
+      root.appendChild(patternTitle); root.appendChild(patternRow0); root.appendChild(patternType); root.appendChild(patternRow1); root.appendChild(patternRow2); root.appendChild(patternRow3); root.appendChild(patternRow4);
+      root.appendChild(overlayTitle); root.appendChild(overlayRow0); root.appendChild(overlayType); root.appendChild(overlayRow1); root.appendChild(overlayRow2);
+      root.appendChild(applyBtn);
+      
+      applyScene();
+    }, { title: 'Scene Gradient', groups: ['structure'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

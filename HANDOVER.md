@@ -56,10 +56,15 @@
 - FAB Layer の統一管理方針、Scenes & Gradients の3レイヤ構造（Base/Pattern/Overlay）を設計
 - 将来の複数エディタ分割・動画背景・設定UI拡張を見据えた基盤仕様を整理
 
-### 6. UI 表示修正（背景・アイコン重複）
-- `js/gadgets-editor-extras.js` の `EditorLayout` ガジェットで、余白幅・余白が 0 のときはベージュ背景を適用しないよう修正
-- `index.html` のツールバーで、`toggle-toolbar` ボタンのアイコンを `panel-top` に変更し、`toggle-preview` と重複を解消
-- JS lint と smoke テストを再実行し、全項目パスを確認
+### 10. SceneGradient ガジェット PoC 実装（Cステップ）
+- `js/gadgets-editor-extras.js` に `SceneGradient` ガジェットを追加
+- Base / Pattern / Overlay の3レイヤ構造で背景グラデーションを制御
+  - **Base Layer**: 単色 / 線形グラデーション / 放射グラデーション、角度・色・強度調整
+  - **Pattern Layer**: 繰り返しグラデーション（線形/放射）、角度・サイズ・色・強度調整
+  - **Overlay Layer**: vignette風の半透明オーバーレイ、タイプ・色・強度調整
+- `.editor-container` の `backgroundImage` に適用
+- 設定は `settings.scene` に保存
+- JS lint / smoke テスト全項目パス
 
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
@@ -70,12 +75,9 @@
 - ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 - FAB: 共通クラス `fab-button` で統一、サイズ・位置・色をCSS変数で制御
 - UIラボ: `docs/ui-lab.html` で Panel/GadgetContainer の挙動検証可能
+- SceneGradient: `SceneGradient` ガジェットで背景グラデーション3レイヤ制御可能
 
 ## 次の作業
-- Scene（背景グラデーション）ガジェット PoC の実装（Cステップ）
-  - 執筆エリア背景を単色/線形グラデーション/タイリングパターンに制御
-  - Base/Pattern/Overlay 3レイヤ構造で強さ・部分的強さを表現
-  - Structure グループのガジェットタブに「Scene」ガジェットとして追加
 - UIアーキテクチャの詳細化と実装
   - GadgetContainer の開閉・フローティング管理を強化
   - EditorArea 分割・レイアウト保存形式の定義
@@ -106,6 +108,13 @@
   - `index.html`: FAB に共通クラス付与、UIラボページリンク追加
   - `docs/ui-lab.html`: 新規作成（Panel/GadgetContainer PoC）
   - `docs/UI_ARCHITECTURE.md`: 新規作成（UIアーキテクチャ仕様）
+- `fix(ui): sidebar overlay mode, dynamic toolbar height, assist tab fixes`
+  - サイドバーオーバーレイモード、動的ツールバー高さ、アシストタブ修正（リモートから統合）
+
+コミット予定:
+- `feat(ui): add SceneGradient gadget PoC`
+  - `js/gadgets-editor-extras.js`: SceneGradient ガジェット実装（Base/Pattern/Overlay 3レイヤ）
+  - `HANDOVER.md`: SceneGradient PoC 実装を追加
 
 ## 追加仕様: UI モード (Normal / Focus / Blank)
 
