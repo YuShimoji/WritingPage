@@ -107,6 +107,20 @@
         groups: normaliseGroups(entry.groups || {})
       };
     });
+    // 既存のロードアウトにも、デフォルト定義されているガジェットを自動で統合する
+    // （新規ガジェット追加時にユーザーの保存済みロードアウトへも反映するため）
+    if (DEFAULT_LOADOUTS && DEFAULT_LOADOUTS.entries) {
+      Object.keys(DEFAULT_LOADOUTS.entries).forEach(function(key){
+        var defEntry = DEFAULT_LOADOUTS.entries[key];
+        var normalized = normalizedEntries[key];
+        if (!defEntry || !normalized || !defEntry.groups) return;
+        Object.keys(defEntry.groups || {}).forEach(function(group){
+          var baseList = defEntry.groups[group] || [];
+          if (!normalized.groups[group]) normalized.groups[group] = [];
+          baseList.forEach(function(name){ uniquePush(normalized.groups[group], name); });
+        });
+      });
+    }
     if (!Object.keys(normalizedEntries).length) {
       normalizedEntries = clone(DEFAULT_LOADOUTS.entries);
     }
@@ -439,6 +453,12 @@
     getPrefs(){ return loadPrefs(); }
     setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} }
     getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } }
+    getSetting(name, key, def){
+      try {
+        var s = this.getSettings(name) || {};
+        return Object.prototype.hasOwnProperty.call(s, key) ? s[key] : def;
+      } catch(_) { return def; }
+    }
     setSetting(name, key, value){
       try {
         var p = loadPrefs();
@@ -630,9 +650,9 @@
           name: safeName,
           title: opts.title || safeName,
           factory: factory,
-          groups: normalizeList(opts.groups || ['assist'])
+          groups: normalizeGroupList(opts.groups || ['structure'])
         };
-        if (!entry.groups.length) entry.groups = ['assist'];
+        if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
       } catch(_) {}
@@ -643,22 +663,45 @@
     }
 
     _ensureLoadouts(){
-      if (this._loadoutsManager) {
-        return this._loadoutsManager._ensureLoadouts();
-      }
-      return { active: 'novel-standard', entries: {} };
+      // ロードアウト状態を遅延読み込みし、キャッシュする
+      if (!this._loadouts) this._loadouts = loadLoadouts();
+      return this._loadouts;
     }
     _applyLoadoutEntry(entry){
-      // Delegate to loadouts manager
-      if (this._loadoutsManager) {
-        this._loadoutsManager._applyLoadoutEntry(entry);
+      // アクティブなロードアウト定義に基づき、各ガジェットの所属グループを決定する
+      var map = {};
+      entry = entry || { groups: {} };
+      Object.keys(entry.groups || {}).forEach(function(group){
+        var items = entry.groups[group] || [];
+        for (var i = 0; i < items.length; i++){
+          var name = items[i];
+          if (!map[name]) map[name] = [];
+          if (map[name].indexOf(group) < 0) map[name].push(group);
+        }
+      });
+      for (var j = 0; j < this._list.length; j++){
+        var item = this._list[j];
+        var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['structure'];
+        var current = Array.isArray(item.groups) ? item.groups.slice() : [];
+        item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
     }
     _getActiveNames(){
-      if (this._loadoutsManager) {
-        return this._loadoutsManager._getActiveNames();
+      // アクティブロードアウトから有効なガジェット名を取得
+      var entry = this._getActiveEntry();
+      var names = [];
+      KNOWN_GROUPS.forEach(function(key){
+        var list = entry.groups && entry.groups[key];
+        if (Array.isArray(list)) {
+          list.forEach(function(n){
+            if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n);
+          });
+        }
+      });
+      if (!names.length) {
+        names = this._list.map(function(g){ return g.name || ''; }).filter(Boolean);
       }
-      return [];
+      return names;
     }
 
     move(name, direction){
@@ -692,14 +735,15 @@
 
     assignGroups(name, groups){
       if (!name) return;
-      var normalized = normalizeList(groups || ['assist']);
-      if (!normalized.length) normalized = ['assist'];
-      for (var i=0; i<this._list.length; i++){
+      var normalized = normalizeGroupList(groups || ['structure']);
+      if (!normalized.length) normalized = ['structure'];
+      for (var i = 0; i < this._list.length; i++){
         if ((this._list[i].name || '') === name){
           this._list[i].groups = normalized;
           break;
         }
       }
+      try { this._renderLast && this._renderLast(); } catch(_) {}
     }
 
     replaceGadgetSettingsWithIcons() {
@@ -1578,8 +1622,6 @@
 
       el.appendChild(wrap);
 
-      refreshState();
-
       var refreshState = function(){
         try {
           var latest = storage.loadSettings();
@@ -1597,6 +1639,8 @@
           textInput.value = latest.textColor || '#333333';
         } catch(e){ console.error('refreshState failed', e); }
       };
+
+      refreshState();
 
       window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);

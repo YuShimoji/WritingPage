@@ -209,7 +209,7 @@ body {
 
 /* サイドバー展開時のメインオフセット */
 html[data-sidebar-open='true'] .main-content {
-  margin-left: var(--sidebar-width, 320px);
+  margin-left: 0;
 }
 
 /* サイドバー展開時もメニューボタンの表示位置を固定する */
