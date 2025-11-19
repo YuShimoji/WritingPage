@@ -4,9 +4,6 @@ const { test, expect } = require('@playwright/test');
 test.describe('Sidebar Layout', () => {
   test('should not hide main content when sidebar is open', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    
     // Open sidebar
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -27,20 +24,17 @@ test.describe('Sidebar Layout', () => {
     const isVisible = await editorContainer.isVisible();
     expect(isVisible).toBe(true);
     
-    // Verify main content has correct margin
+    // Verify main content is not pushed by sidebar (overlay mode)
     const mainContent = page.locator('.main-content');
     const marginLeft = await mainContent.evaluate((el) => {
       return window.getComputedStyle(el).marginLeft;
     });
-    // Should have margin when sidebar is open (320px)
-    expect(parseInt(marginLeft)).toBeGreaterThan(0);
+    // In overlay mode, margin should stay at 0px even when sidebar is open
+    expect(parseInt(marginLeft)).toBe(0);
   });
 
   test('should animate sidebar open and close smoothly', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    
     const sidebar = page.locator('#sidebar');
     
     // Open sidebar
@@ -67,30 +61,28 @@ test.describe('Sidebar Layout', () => {
 
   test('should handle multiple tab switches without issues', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
     
-    // Switch between tabs multiple times
-    await page.locator('#sidebar-tab-structure').waitFor();
-    await page.click('#sidebar-tab-structure');
+    // Switch between existing tabs multiple times (structure / wiki / assist)
+    await page.locator('.sidebar-tab[data-group="structure"]').waitFor();
+    await page.click('.sidebar-tab[data-group="structure"]');
     await page.waitForTimeout(100);
-    
-    await page.click('#sidebar-tab-loadout');
+
+    await page.click('.sidebar-tab[data-group="wiki"]');
     await page.waitForTimeout(100);
-    
-    await page.click('#sidebar-tab-wiki');
+
+    await page.click('.sidebar-tab[data-group="assist"]');
     await page.waitForTimeout(100);
-    
-    await page.click('#sidebar-tab-typography');
+
+    await page.click('.sidebar-tab[data-group="structure"]');
     await page.waitForTimeout(100);
-    
-    await page.click('#sidebar-tab-assist');
+
+    await page.click('.sidebar-tab[data-group="assist"]');
     await page.waitForTimeout(100);
     
     // Verify final tab is active
-    const assistTab = page.locator('#sidebar-tab-assist');
+    const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
     await expect(assistTab).toHaveClass(/active/);
     
     // Verify corresponding panel is visible
@@ -100,17 +92,14 @@ test.describe('Sidebar Layout', () => {
 
   test('should maintain sidebar state after reload', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    
     // Open sidebar
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
     await page.waitForTimeout(400);
     
-    // Switch to typography tab
-    await page.locator('#sidebar-tab-typography').waitFor();
-    await page.click('#sidebar-tab-typography');
+    // Switch to assist tab (current implementation)
+    await page.locator('.sidebar-tab[data-group="assist"]').waitFor();
+    await page.click('.sidebar-tab[data-group="assist"]');
     
     // Reload page
     await page.reload();
