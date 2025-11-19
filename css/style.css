@@ -208,8 +208,8 @@ body {
 }
 
 /* サイドバー展開時のメインオフセット */
-html[data-sidebar-open] .main-content {
-  margin-left: 0;
+html[data-sidebar-open='true'] .main-content {
+  margin-left: var(--sidebar-width, 320px);
 }
 
 /* サイドバー展開時もメニューボタンの表示位置を固定する */
@@ -233,8 +233,8 @@ html[data-sidebar-open] #toggle-sidebar {
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
 html[data-sidebar-open='true'] .editor-container {
-  margin-left: 0;
-  width: 100%;
+  margin-left: var(--sidebar-width, 320px);
+  width: calc(100% - var(--sidebar-width, 320px));
 }
 
 /* モバイルではオーバーレイ表示にして押し出さない */
@@ -594,14 +594,14 @@ html[data-writing-goal-enabled='true'] .goal-progress {
 /* サイドバー */
 .sidebar {
   position: fixed;
-  top: 0;
+  top: var(--toolbar-height, 60px);
   left: calc(var(--sidebar-width, 320px) * -1);
-  height: 100vh;
+  height: calc(100vh - var(--toolbar-height, 60px));
   width: var(--sidebar-width, 320px);
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
   border-right: 1px solid var(--border-color);
-  padding: calc(var(--toolbar-height) + 1rem) 1rem 1rem;
+  padding: 1rem;
   overflow-y: auto; /* サイドバー全体でスクロール */
   overflow-x: hidden;
   transition: left var(--transition-speed);
@@ -611,9 +611,10 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   flex-direction: column;
 }
 
-/* ツールバーが非表示の場合は余計な上部余白をなくす */
+/* ツールバーが非表示の場合は画面全体を使う */
 html[data-toolbar-hidden='true'] .sidebar {
-  padding-top: 1rem;
+  top: 0;
+  height: 100vh;
 }
 
 .sidebar.open {
@@ -978,14 +979,25 @@ input[type='color'] {
     width: 100%;
     left: -100%;
     padding: 0.75rem;
+    top: var(--toolbar-height, 60px);
+    height: calc(100vh - var(--toolbar-height, 60px));
+  }
+
+  html[data-toolbar-hidden='true'] .sidebar {
+    top: 0;
+    height: 100vh;
   }
 
   .sidebar.open {
     left: 0;
   }
-  /* モバイルではメインの押し出しを行わない */
-  html[data-sidebar-open] .main-content {
+  /* モバイルではメインの押し出しを行わない（オーバーレイモード） */
+  html[data-sidebar-open='true'] .main-content {
     margin-left: 0;
+  }
+  html[data-sidebar-open='true'] .editor-container {
+    margin-left: 0;
+    width: 100%;
   }
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {

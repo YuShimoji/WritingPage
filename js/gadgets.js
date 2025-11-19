@@ -54,6 +54,7 @@
             'SnapshotManager',
             'Typewriter',
             'EditorLayout',
+            'SceneGradient',
             'TypographyThemes',
             'HUDSettings',
             'WritingGoal',
@@ -67,7 +68,7 @@
       'novel-minimal': {
         label: 'ミニマル',
         groups: {
-          structure: ['Documents', 'Outline', 'EditorLayout', 'Clock'],
+          structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient', 'Clock'],
           wiki: ['Wiki']
         }
       },
@@ -80,6 +81,7 @@
             'SnapshotManager',
             'Typewriter',
             'EditorLayout',
+            'SceneGradient',
             'TypographyThemes',
             'HUDSettings',
             'WritingGoal',
