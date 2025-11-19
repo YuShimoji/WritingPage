@@ -213,7 +213,7 @@ html[data-sidebar-open='true'] .main-content {
 }
 
 /* サイドバー展開時もメニューボタンの表示位置を固定する */
-html[data-sidebar-open] #toggle-sidebar {
+html[data-sidebar-open] #toolbar-close-sidebar {
   margin-left: calc(var(--sidebar-width, 320px) * -1);
 }
 
