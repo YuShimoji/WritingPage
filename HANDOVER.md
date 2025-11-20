@@ -82,6 +82,13 @@
   - `js/app.js` 内の Assist タブの「Wikiヘルプを開く」ボタンも同じく `docs/wiki-help.html` を別タブで開く実装に統一
 - 既存の Reference Wiki 相当のコンテンツは docs 配下に集約し、サイドバーの狭い領域には「物語用Wiki」だけを残す方針に更新
 
+### 12. 物語Wiki E2Eテスト安定化（2025-11-21）
+- `e2e/wiki.spec.js` を現行の `js/wiki.js` 実装に合わせて更新
+  - サイドバーの Wiki タブを開いてから `#wiki-gadgets-panel` を待機するよう前処理を修正
+  - 「新規ページ」「検索」「空状態」のテストを UI 構造に追従
+  - 「既存ページの編集」は DOM の再レンダリングに依存せず、`ZenWriterStorage` 経由で内容更新を検証
+- `npm run dev-check` および `npx playwright test e2e/wiki.spec.js` がローカルでグリーンであることを確認
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）

@@ -403,6 +403,7 @@ window.ZenWriterStorage.saveSettings(settings);
 - **検索機能**: タイトル、本文、タグからの全文検索
 - **タグ付け**: ページのカテゴライズと整理
 - **ローカル保存**: localStorageを使用した永続化
+- **E2Eテスト**: `e2e/wiki.spec.js` により、ページ作成・検索・編集・空状態など物語Wikiの基本フローを自動検証
 
 ### ページ構造
 
