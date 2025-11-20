@@ -108,6 +108,11 @@
 - 長期的な拡張
   - 動画背景・Canvasパターンの別ガジェット化
   - プリセット・フォルダによるUI設定の保存・切り替え
+- コード品質向上
+  - 大きなファイルのリファクタリング（gadgets.js, app.js など）
+  - E2Eテストの現行実装対応修正（HUD, Wiki, Theme など）
+- UIモード実装（Normal/Focus/Blank）
+  - settings.ui.mode と data-ui-mode 属性によるモード切り替え
 
 ## 注意点
 - e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
@@ -130,6 +135,11 @@
   - `docs/UI_ARCHITECTURE.md`: 新規作成（UIアーキテクチャ仕様）
 - `fix(ui): sidebar overlay mode, dynamic toolbar height, assist tab fixes`
   - サイドバーオーバーレイモード、動的ツールバー高さ、アシストタブ修正（リモートから統合）
+- `refactor(ui): gadget init and SceneGradient helpers`
+  - `js/gadgets-editor-extras.js`: SceneGradient ガジェットのリファクタリング（ヘルパー関数抽出）
+  - `js/app.js`: ガジェット初期化・ロードアウト初期化を関数化
+- `test(e2e): update sidebar layout specs for overlay tabs`
+  - `e2e/sidebar-layout.spec.js`: サイドバーオーバーレイ仕様対応とタブセレクタ修正
 
 コミット予定:
 - `feat(ui): add SceneGradient gadget PoC`
