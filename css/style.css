@@ -191,6 +191,7 @@ body {
   transition:
     background-color var(--transition-speed),
     color var(--transition-speed);
+  overflow-x: hidden;
 }
 
 /* アプリコンテナ */
@@ -226,15 +227,13 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   height: calc(100vh - var(--toolbar-height));
   position: relative; /* オーバーレイの基準 */
   background-color: var(--bg-color); /* 執筆エリアのベース色 */
-  transition:
-    margin-left var(--transition-speed),
-    width var(--transition-speed);
+  width: 100%;
+  transition: margin-left var(--transition-speed);
 }
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
 html[data-sidebar-open='true'] .editor-container {
   margin-left: var(--sidebar-width, 320px);
-  width: calc(100% - var(--sidebar-width, 320px));
 }
 
 /* モバイルではオーバーレイ表示にして押し出さない */

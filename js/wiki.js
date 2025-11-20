@@ -87,7 +87,16 @@
       var btnNew = el('button','small'); btnNew.textContent='新規ページ';
       var btnScan = el('button','small'); btnScan.textContent='ドキュメントから候補抽出';
       var btnHelp = el('button','small'); btnHelp.textContent='ヘルプ';
-      toolbar.appendChild(search); toolbar.appendChild(btnNew); toolbar.appendChild(btnScan); toolbar.appendChild(btnHelp);
+      var helpToggle = el('input'); helpToggle.type='checkbox';
+      try { helpToggle.checked = !!api.get('showHelpPages', false); } catch(e) { helpToggle.checked = false; }
+      var helpToggleLabel = el('label');
+      helpToggleLabel.style.display = 'flex';
+      helpToggleLabel.style.alignItems = 'center';
+      helpToggleLabel.style.gap = '4px';
+      helpToggleLabel.style.fontSize = '0.8rem';
+      helpToggleLabel.appendChild(helpToggle);
+      helpToggleLabel.appendChild(document.createTextNode('ヘルプも表示'));
+      toolbar.appendChild(search); toolbar.appendChild(btnNew); toolbar.appendChild(btnScan); toolbar.appendChild(btnHelp); toolbar.appendChild(helpToggleLabel);
 
       var settings = el('div','wiki-settings');
       settings.style.display='grid'; settings.style.gridTemplateColumns='repeat(3, minmax(0,1fr))'; settings.style.gap='6px';
@@ -225,24 +234,13 @@
       root.appendChild(toolbar); root.appendChild(settings); root.appendChild(layout);
 
       var state = { currentId: null, items: [], visibleRange: { start: 0, end: 50 }, observer: null };
-      function seedHelpPages(){
-        var helpPages = [
-          { id: 'help-editor', title: 'エディタ機能', folder: 'ヘルプ', content: '# エディタ機能\n\n## 基本操作\n- **テキスト入力**: 直接編集可能\n- **保存**: Ctrl+S または自動保存\n\n## タイプライター・モード\n- 設定で有効化\n- カーソル位置にテキストが追従\n\n## フォント装飾\n- トップバーアイコンで太字、斜体等\n- テキストアニメーション: フェード、スケール等\n\n## プレビュー\n- マークダウンリアルタイムプレビュー\n- スクロール同期可能', tags: ['help','editor'] },
-          { id: 'help-gadgets', title: 'ガジェットガイド', folder: 'ヘルプ', content: '# ガジェットガイド\n\n## 構造タブ\n- **ドキュメント**: 複数ファイル管理\n- **アウトライン**: 見出しレベル設定\n- **Wiki**: 用語管理\n\n## タイポタブ\n- **エディタレイアウト**: 余白調整\n\n## アシストタブ\n- **時計**: 執筆時間表示\n- **目標**: 文字数目標設定\n- **スナップショット**: 自動保存\n- **印刷設定**: 印刷スタイル\n\n## UI設定\n- タブ表示方式: ボタン/タブ/ドロップダウン/アコーディオン\n- サイドバー幅調整', tags: ['help','gadgets'] },
-          { id: 'help-wiki', title: 'Wiki使用法', folder: 'ヘルプ', content: '# Wiki使用法\n\n## ページ作成\n- 新規ページボタンで作成\n- タイトル、本文、タグ、フォルダ設定\n\n## AI生成\n- 選択語から自動生成\n- ドキュメント候補抽出\n\n## 検索\n- タイトル、本文、タグで検索\n\n## 設定\n- 詳細度: 1-5\n- トーン: neutral/formal/casual/dramatic/technical\n- バラエティ: balanced/concise/elaborate/creative', tags: ['help','wiki'] },
-          { id: 'help-nodegraph', title: 'Node Graph', folder: 'ヘルプ', content: '# Node Graph\n\n## ノード作成\n- 追加ボタンでノード作成\n\n## リンク作成\n- ノード間ドラッグで接続\n\n## 保存\n- 自動保存、ページごと\n\n## 用途\n- キャラクター関係図\n- プロット構造\n- 世界観マップ', tags: ['help','nodegraph'] },
-          { id: 'help-typewriter', title: 'タイプライター・モード', folder: 'ヘルプ', content: '# タイプライター・モード\n\n## 有効化\n- アシストタブ > Typewriterガジェット\n\n## 設定\n- **アンカー比**: 0.5 = 画面中央\n- **スティッキネス**: 0 = 追従なし, 1 = 即時追従\n\n## 動作\n- 入力中カーソルが固定位置に\n- 長文執筆に適する', tags: ['help','typewriter'] },
-          { id: 'help-snapshot', title: 'スナップショット', folder: 'ヘルプ', content: '# スナップショット\n\n## 自動保存\n- 間隔: デフォルト120秒\n- 変更文字数: デフォルト300文字\n\n## 手動保存\n- Snapshot Managerガジェット > 手動ボタン\n\n## 保持数\n- デフォルト10件\n\n## 復元\n- リストから選択して復元', tags: ['help','snapshot'] }
-        ];
-        helpPages.forEach(function(page){
-          try {
-            if (!STORAGE.listWikiPages().some(function(p){ return p.id === page.id; })){
-              STORAGE.createWikiPage(page);
-            }
-          } catch(e){ void e; }
-        });
+
+      function isHelpPage(p){
+        if (!p) return false;
+        if (String(p.folder || '') === '\u30d8\u30eb\u30d7') return true;
+        if (Array.isArray(p.tags) && p.tags.indexOf('help') >= 0) return true;
+        return false;
       }
-      seedHelpPages();
 
       // 仮想スクロール用Intersection Observer
       function setupVirtualScroll(){
@@ -309,8 +307,12 @@
 
       function refreshList(){
         var all = STORAGE.listWikiPages();
+        var showHelp = !!(helpToggle && helpToggle.checked);
+        var base = all.filter(function(p){
+          return showHelp || !isHelpPage(p);
+        });
         var q = String(search.value||'').toLowerCase();
-        var filtered = !q? all : all.filter(function(p){
+        var filtered = !q? base : base.filter(function(p){
           var hay = (p.title||'')+'\n'+(p.content||'')+'\n'+(Array.isArray(p.tags)? p.tags.join(',') : '');
           return hay.toLowerCase().indexOf(q) >= 0;
         });
@@ -344,13 +346,22 @@
         refreshList();
       }
 
+      if (helpToggle) {
+        helpToggle.addEventListener('change', function(){
+          try { api.set('showHelpPages', !!helpToggle.checked); } catch(e) { void e; }
+          refreshList();
+        });
+      }
+
       btnNew.addEventListener('click', function(){
         state.currentId = null;
         title.value=''; folder.value=''; tags.value=''; body.value='';
       });
       btnSave.addEventListener('click', saveCurrent);
       btnHelp.addEventListener('click', function(){
-        loadToEditor('help-wiki');
+        try {
+          window.open('docs/wiki-help.html', '_blank', 'noopener');
+        } catch(e) { void e; }
       });
 
       btnGenerate.addEventListener('click', function(){
@@ -385,7 +396,7 @@
       variety.addEventListener('change', function(){ api.set('variety', String(variety.value||'balanced')); });
 
       refreshList();
-    }, { title: 'Wiki', groups: ['assist','structure'] });
+    }, { title: '\u7269\u8a9eWiki', groups: ['wiki'] });
   }
 
   // init when gadgets ready

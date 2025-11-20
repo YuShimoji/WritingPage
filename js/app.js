@@ -939,18 +939,15 @@ document.addEventListener('DOMContentLoaded', () => {
         wordWrapMaxChars.addEventListener('change', onChange);
     }
     
-    // Help button: Wikiタブを開く
+    // Help button: 物語Wikiヘルプを別タブで開く
     const helpButton = elementManager.get('helpButton');
     if (helpButton) {
         helpButton.addEventListener('click', function(){
-            // サイドバー開く
-            const sidebar = elementManager.get('sidebar');
-            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
-                window.ZenWriterHUD.hide();
+            try {
+                window.open('docs/wiki-help.html', '_blank', 'noopener');
+            } catch(e) {
+                console.error('Failed to open wiki help:', e);
             }
-            if (sidebar) sidebar.classList.add('open');
-            // Wikiタブに切替
-            activateSidebarGroup('wiki');
         });
     }
     

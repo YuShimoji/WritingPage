@@ -66,25 +66,45 @@
 - 設定は `settings.scene` に保存
 - JS lint / smoke テスト全項目パス
 
+### 11. 物語WikiとReference Wikiの分離、およびサイドバー挙動の安定化（2025-11-20）
+- `css/style.css` の `.editor-container` レイアウトを調整し、サイドバー展開時に右側へ一瞬白い余白がアニメーション表示される問題を修正
+  - `width` のトランジションを廃止し、`margin-left` のみで押し出す方式に統一
+  - `body { overflow-x: hidden; }` を追加し、横スクロールバーの発生と画面端のチラつきを抑制
+- `js/wiki.js` の Wiki ガジェットを「物語Wiki」として整理
+  - ガジェットタイトルを `物語Wiki` に変更し、グループを `wiki` のみに統一
+  - Story 用ページとヘルプ用ページが混在していた一覧を見直し、デフォルトでは Story 用ページのみを表示
+  - ヘルプ系ページ（フォルダが「ヘルプ」、または `help` タグ付き）はフィルタ対象とし、Story Wiki からは事実上分離
+- 物語Wiki専用のヘルプドキュメント `docs/wiki-help.html` を新規作成
+  - 物語Wikiの概要・ページ構造・基本操作・AIを用いた自動生成・タグ/フォルダの使い分けを1ページに集約
+  - 技術的な詳細仕様は既存の `docs/GADGETS.md` の Story Wiki セクションを参照する形にし、重複を最小限に整理
+- Wikiヘルプ導線の統一
+  - `js/wiki.js` 内の「ヘルプ」ボタンを、内部の `help-wiki` ページではなく `docs/wiki-help.html` を別タブで開くよう変更
+  - `js/app.js` 内の Assist タブの「Wikiヘルプを開く」ボタンも同じく `docs/wiki-help.html` を別タブで開く実装に統一
+- 既存の Reference Wiki 相当のコンテンツは docs 配下に集約し、サイドバーの狭い領域には「物語用Wiki」だけを残す方針に更新
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
 - 余白背景: EditorLayout ガジェットで幅・余白を設定した場合のみベージュ適用
-- サイドバー: `structure`/`wiki` タブでガジェット表示
+- サイドバー: `structure`/`wiki` タブでガジェット表示。左サイドバー展開時の右側余白の一時的なチラつきは解消済み
 - HUD/FAB: 右下アイコンでクイックツールパネル開閉、HUD コントロール機能
 - ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
 - FAB: 共通クラス `fab-button` で統一、サイズ・位置・色をCSS変数で制御
 - UIラボ: `docs/ui-lab.html` で Panel/GadgetContainer の挙動検証可能
 - SceneGradient: `SceneGradient` ガジェットで背景グラデーション3レイヤ制御可能
+- Wiki: サイドバーの Wiki タブには物語Wikiガジェットのみを表示し、Reference 系ヘルプは `docs/editor-help.html` / `docs/wiki-help.html` など docs 配下のドキュメントに集約
 
 ## 次の作業
 - UIアーキテクチャの詳細化と実装
   - GadgetContainer の開閉・フローティング管理を強化
   - EditorArea 分割・レイアウト保存形式の定義
   - FAB Layer の設定UIからの編集機能を追加
+- Wiki/ガジェットまわりの整理
+  - `gadgets.js` のロードアウトおよびグループ処理を再確認し、`SceneGradient` が `structure` ガジェットとして常に期待通り表示されることを保証
+  - 物語Wikiに混入している既存のヘルプ系Wikiページ（`help-*`）のストレージ整理（必要であればマイグレーション/クリーンアップ方針を検討）
 - 統合テストとドキュメント更新
-  - 全体の Lint/Smoke/E2E テスト実行
-  - UI_ARCHITECTURE.md の更新と実際の実装反映
+  - 全体の Lint/Smoke/E2E テスト実行（MarkdownLintエラーについては別Issueで追跡継続）
+  - UI_ARCHITECTURE.md / GADGETS.md / wiki-help.html などドキュメントの整合性確認
 - 長期的な拡張
   - 動画背景・Canvasパターンの別ガジェット化
   - プリセット・フォルダによるUI設定の保存・切り替え
