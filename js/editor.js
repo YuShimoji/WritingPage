@@ -39,6 +39,10 @@ class EditorManager {
 
         // SearchManagerを初期化
         this.searchManager = new SearchManager(this);
+        // 検索パネルのDOM参照をEditorManager側にも保持しておく
+        // （Ctrl+F → showSearchPanel() で #search-panel を確実に開くため）
+        this.searchPanel = document.getElementById('search-panel');
+        this.closeSearchBtn = document.getElementById('close-search-panel');
 
         // 手動スクロール検知
         this.editor.addEventListener('scroll', () => {
@@ -158,41 +162,43 @@ class EditorManager {
         }
 
         // 検索パネルイベント
-        if (this.closeSearchBtn) {
-            this.closeSearchBtn.addEventListener('click', () => {
-                this.hideSearchPanel();
-            });
-        }
+        if (!this.searchManager) {
+            if (this.closeSearchBtn) {
+                this.closeSearchBtn.addEventListener('click', () => {
+                    this.hideSearchPanel();
+                });
+            }
 
-        // 検索パネル内のボタンイベント
-        const replaceSingleBtn = document.getElementById('replace-single');
-        const replaceAllBtn = document.getElementById('replace-all');
-        const searchPrevBtn = document.getElementById('search-prev');
-        const searchNextBtn = document.getElementById('search-next');
-        const searchInput = document.getElementById('search-input');
+            // 検索パネル内のボタンイベント
+            const replaceSingleBtn = document.getElementById('replace-single');
+            const replaceAllBtn = document.getElementById('replace-all');
+            const searchPrevBtn = document.getElementById('search-prev');
+            const searchNextBtn = document.getElementById('search-next');
+            const searchInput = document.getElementById('search-input');
 
-        if (replaceSingleBtn) {
-            replaceSingleBtn.addEventListener('click', () => this.replaceSingle());
-        }
-        if (replaceAllBtn) {
-            replaceAllBtn.addEventListener('click', () => this.replaceAll());
-        }
-        if (searchPrevBtn) {
-            searchPrevBtn.addEventListener('click', () => this.navigateMatch(-1));
-        }
-        if (searchNextBtn) {
-            searchNextBtn.addEventListener('click', () => this.navigateMatch(1));
-        }
+            if (replaceSingleBtn) {
+                replaceSingleBtn.addEventListener('click', () => this.replaceSingle());
+            }
+            if (replaceAllBtn) {
+                replaceAllBtn.addEventListener('click', () => this.replaceAll());
+            }
+            if (searchPrevBtn) {
+                searchPrevBtn.addEventListener('click', () => this.navigateMatch(-1));
+            }
+            if (searchNextBtn) {
+                searchNextBtn.addEventListener('click', () => this.navigateMatch(1));
+            }
 
-        // 検索入力のリアルタイム検索
-        if (searchInput) {
-            let searchTimeout;
-            searchInput.addEventListener('input', () => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.updateSearchMatches();
-                }, 200); // 200ms遅延で検索
-            });
+            // 検索入力のリアルタイム検索
+            if (searchInput) {
+                let searchTimeout;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        this.updateSearchMatches();
+                    }, 200); // 200ms遅延で検索
+                });
+            }
         }
 
         // フォント装飾ボタンイベント
@@ -1103,10 +1109,10 @@ class EditorManager {
                 ? (window.ZenWriterStorage.loadSnapshots() || [])
                 : [];
             if (!snaps.length) {
-                if (typeof this.showNotification === 'function') this.showNotification('復元できるバックアップがありません');
+                if (typeof this.showNotification === 'function') this.showNotification((window.UILabels && window.UILabels.RESTORE_NO_BACKUPS) || '復元できるバックアップがありません');
                 return;
             }
-            if (!confirm('最後のスナップショットから復元しますか？\n現在の内容はスナップショットとして保存されます。')) return;
+            if (!confirm((window.UILabels && window.UILabels.RESTORE_LAST_SNAPSHOT_CONFIRM) || '最後のスナップショットから復元しますか？\n現在の内容はスナップショットとして保存されます。')) return;
             // 現在の内容をまず退避
             if (typeof window.ZenWriterStorage.addSnapshot === 'function') {
                 window.ZenWriterStorage.addSnapshot(this.editor.value || '');
@@ -1115,7 +1121,7 @@ class EditorManager {
             this.setContent(latest && typeof latest.content === 'string' ? latest.content : '');
             if (typeof this.showNotification === 'function') this.showNotification('スナップショットから復元しました');
         } catch (e) {
-            try { if (typeof this.showNotification === 'function') this.showNotification('復元に失敗しました'); } catch(_) {}
+            try { if (typeof this.showNotification === 'function') this.showNotification((window.UILabels && window.UILabels.RESTORE_FAILED) || '復元に失敗しました'); } catch(_) {}
             console.error(e);
         }
     }
@@ -1241,20 +1247,27 @@ class EditorManager {
         // 単語カウント: スペース区切りで分割（モックアップ実装。今後日本語対応時は形態素解析等に変更予定）
         const wordCount = cleanText.trim() === '' ? 0 : cleanText.trim().split(/\s+/).length;
         // 執筆目標の進捗（任意）
-        const s = window.ZenWriterStorage.loadSettings();
-        const goal = (s && s.goal) || {};
-        // ガジェット相当の有効状態（目標設定もしくは締切設定がある場合に有効とみなす）
-        const writingGoalEnabled = !!((parseInt(goal.target, 10) || 0) > 0 || (goal.deadline && String(goal.deadline).trim()));
+        const settings = window.ZenWriterStorage.loadSettings();
+        const goal = (settings && settings.goal) || {};
+        const metrics = { charCount, wordCount };
+        const progress = {
+            // ガジェット相当の有効状態（目標設定もしくは締切設定がある場合に有効とみなす）
+            writingGoalEnabled: !!((parseInt(goal.target, 10) || 0) > 0 || (goal.deadline && String(goal.deadline).trim())),
+            target: parseInt(goal.target, 10) || 0,
+            deadline: goal.deadline || null,
+            pct: 0
+        };
         try {
             const root = document.documentElement;
-            if (writingGoalEnabled) root.setAttribute('data-writing-goal-enabled','true');
+            if (progress.writingGoalEnabled) root.setAttribute('data-writing-goal-enabled','true');
             else root.removeAttribute('data-writing-goal-enabled');
         } catch(_) {}
         let suffix = '';
-        if (writingGoalEnabled && (parseInt(goal.target,10) || 0) > 0) {
-            const target = Math.max(0, parseInt(goal.target,10) || 0);
-            const ratio = target > 0 ? charCount / target : 0;
+        if (progress.writingGoalEnabled && progress.target > 0) {
+            const target = Math.max(0, progress.target);
+            const ratio = target > 0 ? metrics.charCount / target : 0;
             const pct = Math.floor(ratio * 100);
+            progress.pct = pct;
             suffix += ` | 目標 ${target} (${pct}%)`;
             // 進捗バーの表示と更新
             if (this.goalProgressEl && this.goalProgressBarEl) {
@@ -1264,9 +1277,9 @@ class EditorManager {
                 this.goalProgressBarEl.style.width = `${Math.min(100, w)}%`;
             }
             // 締切日がある場合は残日数を併記
-            if (goal.deadline) {
+            if (progress.deadline) {
                 const today = new Date();
-                const dl = new Date(`${goal.deadline}T00:00:00`);
+                const dl = new Date(`${progress.deadline}T00:00:00`);
                 const msPerDay = 24*60*60*1000;
                 const days = Math.ceil((dl - today) / msPerDay);
                 if (!isNaN(days)) {
@@ -1275,7 +1288,7 @@ class EditorManager {
                 }
             }
             // 目標達成時の通知（初回のみ）
-            if (charCount >= target) {
+            if (metrics.charCount >= progress.target) {
                 if (!this._goalReachedNotified) {
                     this._goalReachedNotified = true;
                     if (typeof this.showNotification === 'function') {
@@ -1313,15 +1326,15 @@ class EditorManager {
         }
 
         // Typewriter mode: 手動スクロール中でなければカーソルを中央に保つ
-        const settings = window.ZenWriterStorage.loadSettings();
-        if (settings.typewriter && settings.typewriter.enabled && !this._isManualScrolling) {
+        const typewriterSettings = (settings && settings.typewriter) || {};
+        if (typewriterSettings.enabled && !this._isManualScrolling) {
             // タイプライタースクロールをデバウンス
             if (this._typewriterScrollPending) {
                 cancelAnimationFrame(this._typewriterScrollPending);
             }
             
             this._typewriterScrollPending = requestAnimationFrame(() => {
-                const anchorRatio = settings.typewriter.anchorRatio || 0.5;
+                const anchorRatio = typewriterSettings.anchorRatio || 0.5;
                 const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
                 const cursorPos = this.getCursorPosition();
                 const cursorLine = this.editor.value.substring(0, cursorPos).split('\n').length - 1;
@@ -1499,6 +1512,8 @@ class EditorManager {
         this.clearSearchHighlights();
         const regex = this.getSearchRegex();
         if (!regex) {
+            this.currentMatches = [];
+            this.currentMatchIndex = -1;
             this.updateMatchCount(0);
             return;
         }
@@ -1515,9 +1530,18 @@ class EditorManager {
         }
 
         this.currentMatches = matches;
-        this.currentMatchIndex = -1;
-        this.updateMatchCount(matches.length);
-        this.highlightMatches(matches);
+
+        if (matches.length > 0) {
+            // 最初のマッチを自動的に選択しておくことで、
+            // navigateMatch や replaceSingle が直後に動作するようにする
+            this.currentMatchIndex = 0;
+            this.updateMatchCount(matches.length);
+            this.highlightMatches(matches);
+            this.selectMatch(matches[0]);
+        } else {
+            this.currentMatchIndex = -1;
+            this.updateMatchCount(0);
+        }
     }
 
     /**

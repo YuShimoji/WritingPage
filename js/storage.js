@@ -64,7 +64,8 @@ const DEFAULT_SETTINGS = {
     ui: {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
         sidebarWidth: 320,
-        showWordCount: false
+        showWordCount: false,
+        uiMode: 'normal' // 'normal' | 'focus' | 'blank'
     },
     // エディタ設定
     editor: {
@@ -82,27 +83,27 @@ const DEFAULT_SETTINGS = {
 };
 
 // ===== スナップショット（自動バックアップ） =====
-function loadSnapshots(){
+function loadSnapshots() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.SNAPSHOTS);
         return raw ? JSON.parse(raw) : [];
-    } catch(e){
+    } catch (e) {
         console.error('スナップショット読込エラー:', e);
         return [];
     }
 }
 
-function saveSnapshots(list){
+function saveSnapshots(list) {
     try {
         localStorage.setItem(STORAGE_KEYS.SNAPSHOTS, JSON.stringify(list));
         return true;
-    } catch(e){
+    } catch (e) {
         console.error('スナップショット保存エラー:', e);
         return false;
     }
 }
 
-function addSnapshot(content, maxKeep = 10){
+function addSnapshot(content, maxKeep = 10) {
     const list = loadSnapshots();
     const snap = {
         id: 'snap_' + Date.now(),
@@ -112,13 +113,13 @@ function addSnapshot(content, maxKeep = 10){
     };
     list.push(snap);
     // 新しい順に並べ替えて上位 maxKeep 件に制限
-    list.sort((a,b)=> b.ts - a.ts);
+    list.sort((a, b) => b.ts - a.ts);
     const trimmed = list.slice(0, Math.max(1, maxKeep));
     saveSnapshots(trimmed);
     return snap;
 }
 
-function deleteSnapshot(id){
+function deleteSnapshot(id) {
     const list = loadSnapshots();
     const next = list.filter(s => s.id !== id);
     saveSnapshots(next);
@@ -150,7 +151,7 @@ function saveContent(content) {
                     localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs));
                 }
             }
-        } catch(e){ /* ignore */ }
+        } catch (e) { /* ignore */ }
         return true;
     } catch (e) {
         console.error('保存中にエラーが発生しました:', e);
@@ -200,7 +201,7 @@ function loadContent() {
 }
 
 // ===== 画像アセット管理 =====
-function normalizeAsset(asset){
+function normalizeAsset(asset) {
     if (!asset) return null;
     if (typeof asset.hidden !== 'boolean') asset.hidden = false;
     if (typeof asset.widthPercent !== 'number') asset.widthPercent = 60;
@@ -209,32 +210,32 @@ function normalizeAsset(asset){
     return asset;
 }
 
-function loadAssets(){
+function loadAssets() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.ASSETS);
         const parsed = raw ? JSON.parse(raw) : {};
         Object.keys(parsed).forEach(key => { parsed[key] = normalizeAsset(parsed[key]); });
         return parsed;
-    } catch(e){
+    } catch (e) {
         console.error('アセット読込エラー:', e);
         return {};
     }
 }
 
-function saveAssets(map){
+function saveAssets(map) {
     try {
         localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(map || {}));
         return true;
-    } catch(e){
+    } catch (e) {
         console.error('アセット保存エラー:', e);
         return false;
     }
 }
 
-function sanitizeAssetName(name){
+function sanitizeAssetName(name) {
     var s = String(name || 'image');
     var out = '';
-    for (var i = 0; i < s.length; i++){
+    for (var i = 0; i < s.length; i++) {
         var ch = s.charAt(i);
         var code = ch.charCodeAt(0);
         if (code < 0x20 || code === 0x7f) { out += '_'; continue; }
@@ -245,17 +246,17 @@ function sanitizeAssetName(name){
     return out || 'image';
 }
 
-function findExistingAssetByDataUrl(map, dataUrl){
+function findExistingAssetByDataUrl(map, dataUrl) {
     const entries = Object.values(map || {});
-    for (let i = 0; i < entries.length; i += 1){
-        if (entries[i] && entries[i].dataUrl === dataUrl){
+    for (let i = 0; i < entries.length; i += 1) {
+        if (entries[i] && entries[i].dataUrl === dataUrl) {
             return entries[i];
         }
     }
     return null;
 }
 
-function saveAssetFromDataUrl(dataUrl, meta = {}){
+function saveAssetFromDataUrl(dataUrl, meta = {}) {
     if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) return null;
     const assets = loadAssets();
     const existing = findExistingAssetByDataUrl(assets, dataUrl);
@@ -288,20 +289,20 @@ function saveAssetFromDataUrl(dataUrl, meta = {}){
     return asset;
 }
 
-function getAsset(id){
+function getAsset(id) {
     if (!id) return null;
     const assets = loadAssets();
     return assets[id] || null;
 }
 
-function deleteAsset(id){
+function deleteAsset(id) {
     const assets = loadAssets();
     if (!assets[id]) return false;
     delete assets[id];
     return saveAssets(assets);
 }
 
-function updateAssetMeta(id, patch){
+function updateAssetMeta(id, patch) {
     if (!id) return null;
     const assets = loadAssets();
     const current = assets[id];
@@ -312,7 +313,7 @@ function updateAssetMeta(id, patch){
     return next;
 }
 
-function replaceAssetPlaceholders(text, mode = 'data-url'){
+function replaceAssetPlaceholders(text, mode = 'data-url') {
     if (typeof text !== 'string' || text.indexOf('asset://') === -1) return text;
     const assets = loadAssets();
     return text.replace(/(!\[[^\]]*\])\((asset:\/\/([^\s)]+))\)/g, (match, label, _link, assetId) => {
@@ -326,73 +327,73 @@ function replaceAssetPlaceholders(text, mode = 'data-url'){
 }
 
 // ===== 複数ドキュメント管理 =====
-function loadDocuments(){
+function loadDocuments() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
         return raw ? JSON.parse(raw) : [];
-    } catch(e){
+    } catch (e) {
         console.error('ドキュメント読込エラー:', e);
         return [];
     }
 }
 
-function saveDocuments(list){
+function saveDocuments(list) {
     try {
-        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(list||[]));
+        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(list || []));
         return true;
-    } catch(e){
+    } catch (e) {
         console.error('ドキュメント保存エラー:', e);
         return false;
     }
 }
 
-function getCurrentDocId(){
+function getCurrentDocId() {
     try {
         return localStorage.getItem(STORAGE_KEYS.CURRENT_DOC_ID);
-    } catch(e){ return null; }
+    } catch (e) { return null; }
 }
 
-function setCurrentDocId(id){
+function setCurrentDocId(id) {
     try {
         if (id) localStorage.setItem(STORAGE_KEYS.CURRENT_DOC_ID, id);
         else localStorage.removeItem(STORAGE_KEYS.CURRENT_DOC_ID);
         return true;
-    } catch(e){ return false; }
+    } catch (e) { return false; }
 }
 
-function createDocument(name = '新規ドキュメント', content = ''){
+function createDocument(name = '新規ドキュメント', content = '') {
     const docs = loadDocuments();
-    const doc = { id: 'doc_'+Date.now(), name: String(name||'新規ドキュメント'), content: String(content||''), createdAt: Date.now(), updatedAt: Date.now() };
+    const doc = { id: 'doc_' + Date.now(), name: String(name || '新規ドキュメント'), content: String(content || ''), createdAt: Date.now(), updatedAt: Date.now() };
     docs.push(doc);
     saveDocuments(docs);
     return doc;
 }
 
-function updateDocumentContent(id, content){
+function updateDocumentContent(id, content) {
     const docs = loadDocuments();
     const idx = docs.findIndex(d => d && d.id === id);
     if (idx < 0) return false;
-    docs[idx].content = String(content||'');
+    docs[idx].content = String(content || '');
     docs[idx].updatedAt = Date.now();
     saveDocuments(docs);
     // 現在ドキュメントなら CONTENT も同期
-    if (getCurrentDocId() === id){
-        try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch(e){ void e; }
+    if (getCurrentDocId() === id) {
+        try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch (e) { void e; }
     }
     return true;
 }
 
-function renameDocument(id, name){
+function renameDocument(id, name) {
     const docs = loadDocuments();
     const idx = docs.findIndex(d => d && d.id === id);
     if (idx < 0) return false;
-    docs[idx].name = String(name||docs[idx].name||'無題');
+    docs[idx].name = String(name || docs[idx].name || '無題');
     docs[idx].updatedAt = Date.now();
     saveDocuments(docs);
     return true;
 }
 
-function deleteDocument(id){
+function deleteDocument(id) {
     const docs = loadDocuments();
     const next = docs.filter(d => d && d.id !== id);
     saveDocuments(next);
@@ -590,92 +591,92 @@ function searchWikiPages(query) {
     const lowerQuery = query.toLowerCase();
 
     return pages.filter(page => {
-        const inTitle = String(page.title||'').toLowerCase().includes(lowerQuery);
-        const inBody = String(page.content||'').toLowerCase().includes(lowerQuery);
+        const inTitle = String(page.title || '').toLowerCase().includes(lowerQuery);
+        const inBody = String(page.content || '').toLowerCase().includes(lowerQuery);
         const inTags = Array.isArray(page.tags) && page.tags.some(tag => String(tag).toLowerCase().includes(lowerQuery));
-        const inFolder = String(page.folder||'').toLowerCase().includes(lowerQuery);
+        const inFolder = String(page.folder || '').toLowerCase().includes(lowerQuery);
         return inTitle || inBody || inTags || inFolder;
     });
 }
-    if (typeof module !== 'undefined' && module.exports) {
-        // Node.js環境
-        module.exports = {
-            saveContent,
-            loadContent,
-            saveSettings,
-            loadSettings,
-            saveOutline,
-            loadOutline,
-            exportText,
-            // assets
-            loadAssets,
-            saveAssetFromDataUrl,
-            getAsset,
-            deleteAsset,
-            updateAssetMeta,
-            replaceAssetPlaceholders,
-            DEFAULT_SETTINGS,
-            // snapshots
-            loadSnapshots,
-            addSnapshot,
-            deleteSnapshot,
-            // docs
-            loadDocuments,
-            saveDocuments,
-            getCurrentDocId,
-            setCurrentDocId,
-            createDocument,
-            updateDocumentContent,
-            renameDocument,
-            deleteDocument,
-            // wiki
-            loadWikiPages,
-            saveWikiPages,
-            createWikiPage,
-            getWikiPage,
-            updateWikiPage,
-            deleteWikiPage,
-            listWikiPages,
-            searchWikiPages
-        };
-    } else {
-        // ブラウザ環境
-        window.ZenWriterStorage = {
-            saveContent,
-            loadContent,
-            saveSettings,
-            loadSettings,
-            saveOutline,
-            loadOutline,
-            exportText,
-            // assets
-            loadAssets,
-            saveAssetFromDataUrl,
-            getAsset,
-            deleteAsset,
-            replaceAssetPlaceholders,
-            DEFAULT_SETTINGS,
-            // snapshots
-            loadSnapshots,
-            addSnapshot,
-            deleteSnapshot,
-            // docs
-            loadDocuments,
-            saveDocuments,
-            getCurrentDocId,
-            setCurrentDocId,
-            createDocument,
-            updateDocumentContent,
-            renameDocument,
-            deleteDocument,
-            // wiki
-            loadWikiPages,
-            saveWikiPages,
-            createWikiPage,
-            getWikiPage,
-            updateWikiPage,
-            deleteWikiPage,
-            listWikiPages,
-            searchWikiPages
-        };
-    }
+if (typeof module !== 'undefined' && module.exports) {
+    // Node.js環境
+    module.exports = {
+        saveContent,
+        loadContent,
+        saveSettings,
+        loadSettings,
+        saveOutline,
+        loadOutline,
+        exportText,
+        // assets
+        loadAssets,
+        saveAssetFromDataUrl,
+        getAsset,
+        deleteAsset,
+        updateAssetMeta,
+        replaceAssetPlaceholders,
+        DEFAULT_SETTINGS,
+        // snapshots
+        loadSnapshots,
+        addSnapshot,
+        deleteSnapshot,
+        // docs
+        loadDocuments,
+        saveDocuments,
+        getCurrentDocId,
+        setCurrentDocId,
+        createDocument,
+        updateDocumentContent,
+        renameDocument,
+        deleteDocument,
+        // wiki
+        loadWikiPages,
+        saveWikiPages,
+        createWikiPage,
+        getWikiPage,
+        updateWikiPage,
+        deleteWikiPage,
+        listWikiPages,
+        searchWikiPages
+    };
+} else {
+    // ブラウザ環境
+    window.ZenWriterStorage = {
+        saveContent,
+        loadContent,
+        saveSettings,
+        loadSettings,
+        saveOutline,
+        loadOutline,
+        exportText,
+        // assets
+        loadAssets,
+        saveAssetFromDataUrl,
+        getAsset,
+        deleteAsset,
+        replaceAssetPlaceholders,
+        DEFAULT_SETTINGS,
+        // snapshots
+        loadSnapshots,
+        addSnapshot,
+        deleteSnapshot,
+        // docs
+        loadDocuments,
+        saveDocuments,
+        getCurrentDocId,
+        setCurrentDocId,
+        createDocument,
+        updateDocumentContent,
+        renameDocument,
+        deleteDocument,
+        // wiki
+        loadWikiPages,
+        saveWikiPages,
+        createWikiPage,
+        getWikiPage,
+        updateWikiPage,
+        deleteWikiPage,
+        listWikiPages,
+        searchWikiPages
+    };
+}

@@ -1,6 +1,7 @@
 :root {
   --bg-color: #ffffff;
-  --app-bg: #f6f7f9; /* アプリ全体の背景（白すぎ防止） */
+  --app-bg: #f6f7f9;
+  /* アプリ全体の背景（白すぎ防止） */
   --text-color: #333333;
   --sidebar-bg: #f5f5f5;
   --sidebar-text: #333333;
@@ -63,6 +64,31 @@
   --heading-h6-margin-top: 1em;
   --heading-h6-margin-bottom: 0.5em;
   --heading-h6-line-height: 1.4;
+
+  /* Spacing Variables */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Layout Variables */
+  --editor-max-width: 900px;
+  --editor-min-height: 600px;
+
+  /* Z-Index Variables */
+  --z-editor-overlay: 10;
+  --z-sidebar: 100;
+  --z-toolbar: 100;
+  --z-floating-panel: 200;
+  --z-modal: 1000;
+  --z-tooltip: 2000;
+
+  /* Border Radius */
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
 }
 
 /* 小さめのボタン汎用スタイル */
@@ -73,24 +99,32 @@
 }
 
 /* ボタン共通スタイル（モダン化） */
-button, input[type="button"], .button {
+button,
+input[type="button"],
+.button {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--bg-color);
   color: var(--text-color);
   cursor: pointer;
   transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-button:hover, input[type="button"]:hover, .button:hover {
+button:hover,
+input[type="button"]:hover,
+.button:hover {
   background-color: var(--toolbar-bg);
   border-color: var(--focus-color);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 /* 入力要素モダン化 */
-input[type="text"], input[type="range"], input[type="number"], textarea {
+input[type="text"],
+input[type="range"],
+input[type="number"],
+textarea,
+select {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 4px 8px;
@@ -99,7 +133,11 @@ input[type="text"], input[type="range"], input[type="number"], textarea {
   transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-input[type="text"]:focus, input[type="range"]:focus, input[type="number"]:focus, textarea:focus {
+input[type="text"]:focus,
+input[type="range"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
   border-color: var(--focus-color);
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
   outline: none;
@@ -109,6 +147,7 @@ input[type="text"]:focus, input[type="range"]:focus, input[type="number"]:focus,
 html[data-toolbar-hidden='true'] .toolbar {
   display: none !important;
 }
+
 /* ツールバー表示時は、エディタ上端に最低限の余白を追加 */
 html:not([data-toolbar-hidden='true']) #editor {
   padding-top: calc(var(--toolbar-height) + 1rem);
@@ -225,15 +264,18 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   display: flex;
   align-items: stretch;
   height: calc(100vh - var(--toolbar-height));
-  position: relative; /* オーバーレイの基準 */
-  background-color: var(--bg-color); /* 執筆エリアのベース色 */
+  position: relative;
+  /* オーバーレイの基準 */
+  background-color: var(--bg-color);
+  /* 執筆エリアのベース色 */
   width: 100%;
-  transition: margin-left var(--transition-speed);
+  transition: margin-left var(--transition-speed), width var(--transition-speed);
 }
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
 html[data-sidebar-open='true'] .editor-container {
   margin-left: var(--sidebar-width, 320px);
+  width: calc(100% - var(--sidebar-width, 320px));
 }
 
 /* モバイルではオーバーレイ表示にして押し出さない */
@@ -258,10 +300,11 @@ html[data-toolbar-hidden='true'] .editor-container {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fff;              /* カード風に白背景 */
+  background: #fff;
+  /* カード風に白背景 */
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .editor-preview {
@@ -293,7 +336,8 @@ html[data-toolbar-hidden='true'] .editor-container {
   height: 100%;
   border: none;
   outline: none;
-  padding: 2rem 2.5rem; /* 左右をやや広めにして読みやすい余白 */
+  /* 余白を変数化 */
+  padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-family);
@@ -361,7 +405,8 @@ html[data-toolbar-hidden='true'] .editor-container {
 .editor-overlay__wrap-guide {
   position: absolute;
   top: 0;
-  left: calc(var(--wrap-ch) + 2rem + 2.5rem); /* padding-left + padding-rightの分を調整 */
+  left: calc(var(--wrap-ch) + 2rem + 2.5rem);
+  /* padding-left + padding-rightの分を調整 */
   width: 1px;
   height: 100%;
   background-color: rgba(255, 0, 0, 0.3);
@@ -419,6 +464,7 @@ html[data-toolbar-hidden='true'] .editor-container {
     opacity: 0;
     transform: translateY(-5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -453,7 +499,8 @@ html[data-toolbar-hidden='true'] .editor-container {
   top: -10px;
   left: -10px;
   height: 24px;
-  padding: 0 8px;               /* テキストが収まる */
+  padding: 0 8px;
+  /* テキストが収まる */
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.72);
   color: #fff;
@@ -539,7 +586,8 @@ html[data-toolbar-hidden='true'] .editor-container {
     background-color var(--transition-speed),
     color var(--transition-speed),
     border-color var(--transition-speed);
-  position: sticky; /* スクロール時も上部に固定 */
+  position: sticky;
+  /* スクロール時も上部に固定 */
   top: 0;
   z-index: 1100;
 }
@@ -547,8 +595,10 @@ html[data-toolbar-hidden='true'] .editor-container {
 .word-count {
   font-size: 0.9rem;
   opacity: 0.7;
-  display: none; /* ガジェット有効時のみ表示（JSで切替） */
+  display: none;
+  /* ガジェット有効時のみ表示（JSで切替） */
 }
+
 /* WritingGoal が有効なときに表示 */
 html[data-writing-goal-enabled='true'] .word-count {
   display: inline-flex;
@@ -561,16 +611,19 @@ html[data-writing-goal-enabled='true'] .word-count {
 
 /* 目標進捗バー */
 .goal-progress {
-  display: none; /* ガジェット有効時のみ表示（JSで切替） */
+  display: none;
+  /* ガジェット有効時のみ表示（JSで切替） */
   align-items: center;
   width: 22vw;
   min-width: 160px;
   max-width: 280px;
   padding: 0 8px;
 }
+
 html[data-writing-goal-enabled='true'] .goal-progress {
   display: inline-flex;
 }
+
 .goal-progress__track {
   position: relative;
   width: 100%;
@@ -580,6 +633,7 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   border-radius: 999px;
   overflow: hidden;
 }
+
 .goal-progress__bar {
   position: absolute;
   left: 0;
@@ -601,7 +655,8 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   color: var(--sidebar-text);
   border-right: 1px solid var(--border-color);
   padding: 1rem;
-  overflow-y: auto; /* サイドバー全体でスクロール */
+  overflow-y: auto;
+  /* サイドバー全体でスクロール */
   overflow-x: hidden;
   transition: left var(--transition-speed);
   z-index: 1000;
@@ -617,7 +672,8 @@ html[data-toolbar-hidden='true'] .sidebar {
 }
 
 .sidebar.open {
-  left: 0 !important; /* インラインスタイルを上書き */
+  left: 0 !important;
+  /* インラインスタイルを上書き */
 }
 
 .sidebar-header {
@@ -656,7 +712,8 @@ html[data-toolbar-hidden='true'] .sidebar {
   border-radius: 6px;
   color: inherit;
   font-weight: 600;
-  white-space: nowrap; /* タブ名の折返し防止 */
+  white-space: nowrap;
+  /* タブ名の折返し防止 */
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -697,7 +754,8 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 .sidebar-groups {
   flex: 1;
-  overflow: visible; /* ネストスクロールを避ける */
+  overflow: visible;
+  /* ネストスクロールを避ける */
   padding-right: 4px;
 }
 
@@ -814,21 +872,33 @@ button:active {
   border: none;
   font-size: 1rem;
   cursor: pointer;
-  padding: 0 8px; /* テキストラベルでも崩れない */
+  padding: 0 8px;
+  /* テキストラベルでも崩れない */
   color: inherit;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 32px;
-  width: auto;           /* 固定幅を撤廃 */
-  min-width: 32px;       /* 最低サイズ */
+  width: auto;
+  /* 固定幅を撤廃 */
+  min-width: 32px;
+  /* 最低サイズ */
   border-radius: 4px;
-  white-space: nowrap;   /* 縦並び防止 */
+  white-space: nowrap;
+  /* 縦並び防止 */
 }
 
 /* テキストラベルの代わりにアイコン表示するための枠組み */
-.iconified { font-size: 0; position: relative; }
-.iconified::before { font-size: 1rem; line-height: 1; }
+.iconified {
+  font-size: 0;
+  position: relative;
+}
+
+.iconified::before {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* Lucide SVG 用のスタイル */
 .icon-button svg {
   width: 22px;
@@ -840,22 +910,30 @@ button:active {
   stroke-linejoin: round;
   transition: color 0.2s, stroke 0.2s, stroke-width 0.2s, transform 0.1s, opacity 0.2s;
 }
+
 /* テキストラベル非表示でもボタン自体は常時表示 */
 
 /* 目標入力UIは既定で非表示。ガジェット有効時のみ表示（JSで切替） */
 #goal-target,
-#goal-deadline { display: none; }
+#goal-deadline {
+  display: none;
+}
+
 html[data-writing-goal-enabled='true'] #goal-target,
-html[data-writing-goal-enabled='true'] #goal-deadline { display: inline-block; }
+html[data-writing-goal-enabled='true'] #goal-deadline {
+  display: inline-block;
+}
 
 .icon-button:hover {
   background-color: rgba(0, 0, 0, 0.1);
   color: var(--accent-color);
 }
+
 .icon-button:hover svg {
   stroke-width: 2.2;
   opacity: 0.95;
 }
+
 .icon-button:active svg {
   transform: scale(0.96);
 }
@@ -907,6 +985,7 @@ input[type='range']::-webkit-slider-runnable-track {
   background: linear-gradient(90deg, var(--accent-color), var(--accent-color));
   border-radius: 999px;
 }
+
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -915,8 +994,9 @@ input[type='range']::-webkit-slider-thumb {
   background: var(--accent-color);
   border: 2px solid #fff;
   border-radius: 50%;
-  margin-top: -5px; /* center on 6px track */
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  margin-top: -5px;
+  /* center on 6px track */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* Range slider styling (Firefox) */
@@ -925,13 +1005,14 @@ input[type='range']::-moz-range-track {
   background: var(--accent-color);
   border-radius: 999px;
 }
+
 input[type='range']::-moz-range-thumb {
   width: 16px;
   height: 16px;
   background: var(--accent-color);
   border: 2px solid #fff;
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 input[type='color'] {
@@ -990,14 +1071,17 @@ input[type='color'] {
   .sidebar.open {
     left: 0;
   }
+
   /* モバイルではメインの押し出しを行わない（オーバーレイモード） */
   html[data-sidebar-open='true'] .main-content {
     margin-left: 0;
   }
+
   html[data-sidebar-open='true'] .editor-container {
     margin-left: 0;
     width: 100%;
   }
+
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {
     display: none !important;
@@ -1070,17 +1154,20 @@ input[type='color'] {
 .floating-panel .panel-body {
   padding: 10px;
 }
+
 .floating-panel .panel-row {
   margin-top: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .floating-panel .panel-hint {
   margin-top: 6px;
   font-size: 12px;
   opacity: 0.8;
 }
+
 .floating-panel .panel-close {
   background: transparent;
   border: none;
@@ -1124,14 +1211,17 @@ input[type='color'] {
   padding: 6px 8px;
   background: var(--bg-color);
 }
-.sidebar details + details {
+
+.sidebar details+details {
   margin-top: 10px;
 }
+
 .sidebar summary {
   cursor: pointer;
   font-weight: 600;
   list-style: none;
 }
+
 .sidebar summary::-webkit-details-marker {
   display: none;
 }
@@ -1140,6 +1230,7 @@ input[type='color'] {
 .gadgets-panel {
   display: block;
 }
+
 .gadget {
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -1151,16 +1242,20 @@ input[type='color'] {
     transform 0.1s ease,
     box-shadow 0.1s ease;
 }
+
 .gadget:hover {
   border-color: var(--focus-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .gadget.moving-up {
   transform: translateY(-10px);
 }
+
 .gadget.moving-down {
   transform: translateY(10px);
 }
+
 .gadget-head {
   display: flex;
   align-items: center;
@@ -1168,14 +1263,17 @@ input[type='color'] {
   margin-bottom: 4px;
   cursor: grab;
 }
+
 .gadget-head:active {
   cursor: grabbing;
 }
+
 .gadget-title {
   font-size: 0.95rem;
   font-weight: 600;
   margin: 0;
 }
+
 .gadget-toggle {
   background: transparent;
   color: inherit;
@@ -1184,6 +1282,7 @@ input[type='color'] {
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
+
 .gadget-move-up,
 .gadget-move-down {
   background: transparent;
@@ -1193,11 +1292,13 @@ input[type='color'] {
   border-radius: 4px;
   transition: all 0.2s ease;
 }
+
 .gadget-move-up:hover,
 .gadget-move-down:hover {
   background: rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
+
 .gadget-clock {
   font-size: 14px;
   font-family:
@@ -1209,6 +1310,7 @@ input[type='color'] {
     Arial,
     sans-serif;
 }
+
 .gadget-settings-btn {
   background: transparent;
   color: inherit;
@@ -1219,9 +1321,11 @@ input[type='color'] {
   font-size: 12px;
   transition: all 0.2s ease;
 }
+
 .gadget-settings-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
 .gadget-settings {
   margin-top: 6px;
   padding: 6px 8px;
@@ -1235,11 +1339,13 @@ input[type='color'] {
   transform: rotate(2deg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
 .gadget.drag-over {
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;
   background: rgba(74, 144, 226, 0.05);
 }
+
 .gadgets-panel.drag-over-tab {
   background: rgba(74, 144, 226, 0.06);
   outline: 2px dashed var(--focus-color);
@@ -1255,6 +1361,7 @@ input[type='color'] {
   pointer-events: none;
   z-index: 10;
 }
+
 .mini-hud {
   position: fixed;
   min-width: 140px;
@@ -1273,26 +1380,32 @@ input[type='color'] {
     transform 0.2s ease;
   z-index: 1700;
 }
+
 .mini-hud.pos-bl {
   left: 16px;
   bottom: 16px;
 }
+
 .mini-hud.pos-br {
   right: 16px;
   bottom: 16px;
 }
+
 .mini-hud.pos-tl {
   left: 16px;
   top: 16px;
 }
+
 .mini-hud.pos-tr {
   right: 16px;
   top: 16px;
 }
+
 .mini-hud.show {
   opacity: 1;
   transform: translateY(0);
 }
+
 .mini-hud.pinned {
   pointer-events: auto;
 }
@@ -1305,6 +1418,7 @@ input[type='color'] {
 .editor-preview--guide {
   box-shadow: inset 0 0 0 2px var(--accent-color);
 }
+
 .print-view {
   display: none;
   max-width: 900px;
@@ -1316,11 +1430,13 @@ input[type='color'] {
   font-size: 12pt;
   line-height: 1.5;
 }
+
 .print-view p {
   margin: 0 0 1em;
   white-space: pre-wrap;
   word-break: break-word;
 }
+
 .print-view h1,
 .print-view h2,
 .print-view h3,
@@ -1332,22 +1448,27 @@ input[type='color'] {
   margin: var(--heading-h1-margin-top) 0 var(--heading-h1-margin-bottom);
   page-break-after: avoid;
 }
+
 .print-view h1 {
   font-size: var(--heading-h1-size);
   border-bottom: var(--heading-h1-border-bottom);
   padding-bottom: var(--heading-h1-padding-bottom);
 }
+
 .print-view h2 {
   font-size: var(--heading-h2-size);
 }
+
 .print-view h3 {
   font-size: var(--heading-h3-size);
 }
+
 .print-view h4,
 .print-view h5,
 .print-view h6 {
   font-size: var(--heading-h4-size);
 }
+
 .print-view hr {
   border: none;
   border-top: 1px solid #000;
@@ -1356,6 +1477,7 @@ input[type='color'] {
 
 /* 印刷時のレイアウト */
 @media print {
+
   /* 画面UIは隠す */
   .sidebar,
   .toolbar,
@@ -1364,13 +1486,16 @@ input[type='color'] {
   .floating-panel {
     display: none !important;
   }
+
   #editor {
     display: none !important;
   }
+
   /* 印刷ビューを表示 */
   .print-view {
     display: block !important;
   }
+
   html,
   body {
     background: #fff !important;
@@ -1386,17 +1511,21 @@ html[data-embed='true'] .fab-tools,
 html[data-embed='true'] .floating-panel {
   display: none !important;
 }
+
 html[data-embed='true'] .editor-container {
   max-width: none;
   padding: 0;
 }
+
 html[data-embed='true'] #editor {
   height: 100vh;
-  padding: 1rem; /* 画面内で読みやすい余白 */
+  padding: 1rem;
+  /* 画面内で読みやすい余白 */
 }
 
 /* ===== 印刷用スタイル ===== */
 @media print {
+
   /* 基本設定 */
   body {
     font-family: 'Times New Roman', serif;
@@ -1550,169 +1679,235 @@ html[data-embed='true'] #editor {
 
 /* ===== 文字アニメーション ===== */
 .anim-fade {
-    animation: fade-in 1.5s ease-in-out;
+  animation: fade-in 1.5s ease-in-out;
 }
+
 @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .anim-slide {
-    animation: slide-in 1s ease-out;
+  animation: slide-in 1s ease-out;
 }
+
 @keyframes slide-in {
-    from { transform: translateX(-20px); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .anim-typewriter {
-    animation: typewriter 2s steps(40, end);
-    overflow: hidden;
-    white-space: nowrap;
-    border-right: 2px solid var(--text-color);
+  animation: typewriter 2s steps(40, end);
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--text-color);
 }
+
 @keyframes typewriter {
-    from { width: 0; }
-    to { width: 100%; }
+  from {
+    width: 0;
+  }
+
+  to {
+    width: 100%;
+  }
 }
 
 /* ===== フォント装飾 ===== */
 .decor-bold {
-    font-weight: 700;
+  font-weight: 700;
 }
 
 .decor-italic {
-    font-style: italic;
+  font-style: italic;
 }
 
 .decor-underline {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .decor-strikethrough {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
 .decor-smallcaps {
-    font-variant: small-caps;
+  font-variant: small-caps;
 }
 
 .decor-light {
-    font-weight: 300;
+  font-weight: 300;
 }
 
 .decor-shadow {
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 /* ===== フォント装飾UI ===== */
 .decor-btn {
-    padding: 6px 12px;
-    margin: 2px;
-    border: 1px solid var(--border-color);
-    background: var(--bg-color);
-    color: var(--text-color);
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    min-width: 32px;
-    transition: background-color 0.2s;
+  padding: 6px 12px;
+  margin: 2px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  min-width: 32px;
+  transition: background-color 0.2s;
 }
 
 .decor-btn:hover {
-    background: var(--hover-bg-color);
+  background: var(--hover-bg-color);
 }
 
 .decor-btn:active {
-    background: var(--active-bg-color);
+  background: var(--active-bg-color);
 }
 
 /* ===== 高度なフォント装飾 ===== */
 .decor-uppercase {
-    text-transform: uppercase;
+  text-transform: uppercase;
 }
 
 .decor-lowercase {
-    text-transform: lowercase;
+  text-transform: lowercase;
 }
 
 .decor-capitalize {
-    text-transform: capitalize;
+  text-transform: capitalize;
 }
 
 .decor-black {
-    font-weight: 900;
+  font-weight: 900;
 }
 
 .decor-outline {
-    text-shadow: 
-        -1px -1px 0 var(--text-color),
-         1px -1px 0 var(--text-color),
-        -1px  1px 0 var(--text-color),
-         1px  1px 0 var(--text-color);
-    color: transparent;
+  text-shadow:
+    -1px -1px 0 var(--text-color),
+    1px -1px 0 var(--text-color),
+    -1px 1px 0 var(--text-color),
+    1px 1px 0 var(--text-color);
+  color: transparent;
 }
 
 .decor-glow {
-    text-shadow: 0 0 10px var(--text-color);
+  text-shadow: 0 0 10px var(--text-color);
 }
 
 .decor-wide {
-    letter-spacing: 0.1em;
+  letter-spacing: 0.1em;
 }
 
 .decor-narrow {
-    letter-spacing: -0.05em;
+  letter-spacing: -0.05em;
 }
 
 /* ===== テキストアニメーション効果 ===== */
 .anim-pulse {
-    animation: pulse 2s infinite;
+  animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .anim-shake {
-    animation: shake 0.5s;
+  animation: shake 0.5s;
 }
 
 @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
 }
 
 .anim-bounce {
-    animation: bounce 1s;
+  animation: bounce 1s;
 }
 
 @keyframes bounce {
-    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+
+  40% {
+    transform: translateY(-10px);
+  }
+
+  60% {
+    transform: translateY(-5px);
+  }
 }
 
 .anim-fade-in {
-    animation: fade-in-slow 2s ease-in;
+  animation: fade-in-slow 2s ease-in;
 }
 
 @keyframes fade-in-slow {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===== Content Linking スタイル ===== */
-.md-doc-link, .md-asset-link {
+.md-doc-link,
+.md-asset-link {
   color: #007acc;
   text-decoration: underline;
   cursor: pointer;
   position: relative;
 }
 
-.md-doc-link:hover, .md-asset-link:hover {
+.md-doc-link:hover,
+.md-asset-link:hover {
   color: #0056b3;
   text-decoration: none;
 }
@@ -1864,17 +2059,132 @@ html[data-embed='true'] #editor {
 .wiki-preview h3,
 .wiki-preview h4,
 .wiki-preview h5,
-.wiki-preview h6 { margin: 0.5em 0 0.25em; font-weight: bold; }
-.wiki-preview h1 { font-size: 1.2em; }
-.wiki-preview h2 { font-size: 1.1em; }
-.wiki-preview h3 { font-size: 1em; }
-.wiki-preview p { margin: 0.5em 0; }
-.wiki-preview ul, .wiki-preview ol { margin: 0.5em 0; padding-left: 1.5em; }
-.wiki-preview li { margin: 0.25em 0; }
-.wiki-preview pre { background: #f5f5f5; border: 1px solid var(--border-color); padding: 8px; overflow: auto; border-radius: 4px; margin: 0.5em 0; }
-.wiki-preview code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; background: #f0f0f0; padding: 2px 4px; border-radius: 3px; }
-.wiki-preview pre code { background: transparent; padding: 0; }
-.wiki-preview strong { font-weight: bold; }
-.wiki-preview em { font-style: italic; }
-.wiki-preview a { color: #007acc; text-decoration: underline; }
-.wiki-preview a:hover { text-decoration: none; }
+.wiki-preview h6 {
+  margin: 0.5em 0 0.25em;
+  font-weight: bold;
+}
+
+.wiki-preview h1 {
+  font-size: 1.2em;
+}
+
+.wiki-preview h2 {
+  font-size: 1.1em;
+}
+
+.wiki-preview h3 {
+  font-size: 1em;
+}
+
+.wiki-preview p {
+  margin: 0.5em 0;
+}
+
+.wiki-preview ul,
+.wiki-preview ol {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.wiki-preview li {
+  margin: 0.25em 0;
+}
+
+.wiki-preview pre {
+  background: #f5f5f5;
+  border: 1px solid var(--border-color);
+  padding: 8px;
+  overflow: auto;
+  border-radius: 4px;
+  margin: 0.5em 0;
+}
+
+.wiki-preview code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  background: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.wiki-preview pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.wiki-preview strong {
+  font-weight: bold;
+}
+
+.wiki-preview em {
+  font-style: italic;
+}
+
+.wiki-preview a {
+  color: #007acc;
+  text-decoration: underline;
+}
+
+.wiki-preview a:hover {
+  text-decoration: none;
+}
+
+/* =========================================
+   UI Modes
+   ========================================= */
+
+/* Focus Mode: Sidebar hidden, Toolbar visible */
+html[data-ui-mode="focus"] .sidebar {
+  display: none !important;
+}
+
+html[data-ui-mode="focus"] .main-content {
+  margin-left: 0 !important;
+}
+
+html[data-ui-mode="focus"] .editor-container {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+/* Hide sidebar toggle in focus mode */
+html[data-ui-mode="focus"] #toggle-sidebar-btn,
+html[data-ui-mode="focus"] #toolbar-close-sidebar {
+  display: none !important;
+}
+
+/* Blank Mode: Sidebar and Toolbar hidden */
+html[data-ui-mode="blank"] .sidebar {
+  display: none !important;
+}
+
+html[data-ui-mode="blank"] .toolbar {
+  display: none !important;
+}
+
+html[data-ui-mode="blank"] .main-content {
+  margin-left: 0 !important;
+}
+
+html[data-ui-mode="blank"] .editor-container {
+  margin-left: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+}
+
+html[data-ui-mode="blank"] #editor {
+  padding-top: 2rem !important;
+}
+
+/* Hide sidebar toggle in blank mode */
+html[data-ui-mode="blank"] #toggle-sidebar-btn,
+html[data-ui-mode="blank"] #toolbar-close-sidebar {
+  display: none !important;
+}
+
+/* Mode switching transition */
+.sidebar,
+.toolbar,
+.editor-container,
+.main-content {
+  transition: all var(--transition-speed) ease;
+}

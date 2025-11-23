@@ -1,15 +1,36 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
+/**
+ * 現行UIではツールバーはデフォルトで表示されており、
+ * Typography タブはサイドバータブ構成から外れているため、
+ * テスト側でサイドバーを開きつつ typography セクションを強制的に表示する。
+ * こうすることで、index.html 内のテーマカラーUI（#bg-color / #text-color と
+ * data-theme-preset ボタン）を引き続き単一のテスト対象とする。
+ */
+async function openSidebarAndThemePanel(page) {
+  // サイドバーを開く（ツールバーは常に表示されている前提）
+  await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+  await page.click('#toggle-sidebar');
+
+  // Typography セクションを明示的に表示状態にする
+  await page.evaluate(() => {
+    var sec = document.getElementById('sidebar-group-typography');
+    if (sec) {
+      sec.classList.add('active');
+      sec.setAttribute('aria-hidden', 'false');
+    }
+  });
+
+  // テーマ用コントロールが可視になっていることを確認
+  await page.waitForSelector('#bg-color', { state: 'visible' });
+  await page.waitForSelector('#text-color', { state: 'visible' });
+}
+
 test.describe('Theme Colors', () => {
   test('should reflect theme colors in color pickers when switching presets', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-    await page.locator('#sidebar-tab-typography').waitFor();
-    await page.click('#sidebar-tab-typography');
+    await openSidebarAndThemePanel(page);
 
     // Test Light theme
     await page.locator('button[data-theme-preset="light"]').click();
@@ -29,12 +50,7 @@ test.describe('Theme Colors', () => {
 
   test('should apply custom colors and persist after reload', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-    await page.locator('#sidebar-tab-typography').waitFor();
-    await page.click('#sidebar-tab-typography');
+    await openSidebarAndThemePanel(page);
 
     // Set custom colors
     await page.locator('#bg-color').fill('#ffcccc');
@@ -51,10 +67,7 @@ test.describe('Theme Colors', () => {
 
     // Reload and verify persistence
     await page.reload();
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-    await page.locator('#sidebar-tab-typography').waitFor();
-    await page.click('#sidebar-tab-typography');
+    await openSidebarAndThemePanel(page);
 
     await expect(page.locator('#bg-color')).toHaveValue('#ffcccc');
     await expect(page.locator('#text-color')).toHaveValue('#003300');
@@ -62,12 +75,7 @@ test.describe('Theme Colors', () => {
 
   test('should reset custom colors to theme defaults', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#show-toolbar', { state: 'visible' });
-    await page.click('#show-toolbar');
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-    await page.locator('#sidebar-tab-typography').waitFor();
-    await page.click('#sidebar-tab-typography');
+    await openSidebarAndThemePanel(page);
 
     // Set custom colors
     await page.locator('#bg-color').fill('#112233');

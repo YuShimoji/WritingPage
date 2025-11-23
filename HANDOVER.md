@@ -89,6 +89,41 @@
   - 「既存ページの編集」は DOM の再レンダリングに依存せず、`ZenWriterStorage` 経由で内容更新を検証
 - `npm run dev-check` および `npx playwright test e2e/wiki.spec.js` がローカルでグリーンであることを確認
 
+### 13. Editor Settings E2Eテスト安定化（2025-11-22）
+- `e2e/editor-settings.spec.js` を現行 UI / 実装に合わせて全面的に更新
+  - Typewriter 設定:
+    - サイドバーの Editor タブ依存を廃止し、`index.html` 上のグローバルコントロール
+      (`#typewriter-enabled`, `#typewriter-anchor-ratio`, `#typewriter-stickiness`) を直接操作
+    - リロード後も設定が `ZenWriterStorage` に永続化されていることを検証
+  - スナップショット設定・Snapshot Manager:
+    - `#snapshot-interval-ms`, `#snapshot-delta-chars`, `#snapshot-retention` を用いた設定 UI の永続テストを整理
+    - 手動スナップショット作成は実装に合わせて
+      `window.ZenWriterAPI.takeSnapshot()` または `window.ZenWriterStorage.addSnapshot()` を
+      `page.evaluate` から直接呼び出し、`loadSnapshots().length` の増加で検証
+  - UI プレゼンテーションモード:
+    - テスト内で `ZenWriterStorage` の `ui.tabsPresentation` を変更し、
+      `window.sidebarManager.applyTabsPresentationUI()` を呼び出して反映
+    - DOM 上は `#sidebar` の `data-tabs-presentation` 属性を確認するシンプルなアサーションに変更
+  - Node Graph:
+    - サイドバー/ロードアウト構成に依存した fragile なテストを廃止
+    - `window.ZWGadgets` の `NodeGraph` エントリの `factory` を直接呼び出し、
+      生成された DOM に `.ng-toolbar`, `.ng-viewport`, 「ノード追加」「リンク」ボタンが存在することを確認する
+      smoke テストに置き換え
+  - Wiki:
+    - `editor-settings.spec.js` では Wiki ガジェットの煙テストのみに縮小
+    - サイドバーの Wiki タブを開き、`#wiki-gadgets-panel` 内のツールバーと検索入力が表示されることだけを検証
+    - 詳細な CRUD / 検索フローは `e2e/wiki.spec.js` に委譲
+  - ダイアログ（未保存変更 / スナップショット復元）:
+    - Playwright の `page.on('dialog')` ではなく、`page.evaluate` 内で `window.confirm` / `window.prompt` をスタブ
+    - `window.__zwDialogLog` にメッセージを蓄積し、
+      「未保存の変更があります…」「新しいファイルの名前を入力してください:」
+      「最後のスナップショットから復元しますか？…」といった文言をテストから検証
+    - 新規ドキュメント作成時は `ZenWriterStorage.getCurrentDocId()` の変化と
+      元ドキュメントに戻したときのコンテンツ保持（`#editor` が `Initial content`）を確認
+    - スナップショット復元時は、事前に seed したスナップショットの内容に
+      `#editor` が戻ることを確認
+- `npx playwright test e2e/editor-settings.spec.js --reporter=line` が 10/10 パスすることを確認
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）

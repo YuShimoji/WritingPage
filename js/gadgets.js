@@ -1,15 +1,15 @@
-(function(){
+(function () {
   'use strict';
 
-  function clone(obj){
-    try { return JSON.parse(JSON.stringify(obj)); } catch(_) { return {}; }
+  function clone(obj) {
+    try { return JSON.parse(JSON.stringify(obj)); } catch (_) { return {}; }
   }
 
-  function uniquePush(arr, item){
+  function uniquePush(arr, item) {
     if (arr.indexOf(item) < 0) arr.push(item);
   }
 
-  function normalizeGroupName(name){
+  function normalizeGroupName(name) {
     var trimmed = typeof name === 'string' ? name.trim() : '';
     if (!trimmed) return '';
     var lower = trimmed.toLowerCase();
@@ -18,10 +18,10 @@
     return '';
   }
 
-  function normalizeGroupList(list){
+  function normalizeGroupList(list) {
     var out = [];
     if (!Array.isArray(list)) return out;
-    for (var i = 0; i < list.length; i++){
+    for (var i = 0; i < list.length; i++) {
       var mapped = normalizeGroupName(list[i]);
       if (!mapped) continue;
       uniquePush(out, mapped);
@@ -29,11 +29,11 @@
     return out;
   }
 
-  function emit(eventName, detail){
-    try { window.dispatchEvent(new CustomEvent(eventName, { detail: detail || {} })); } catch(_) {}
+  function emit(eventName, detail) {
+    try { window.dispatchEvent(new CustomEvent(eventName, { detail: detail || {} })); } catch (_) { }
   }
 
-  function ready(fn){
+  function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });
     else fn();
   }
@@ -96,11 +96,11 @@
   };
   var loadoutState = null;
 
-  function normalizeLoadouts(raw){
+  function normalizeLoadouts(raw) {
     var data = raw && typeof raw === 'object' ? clone(raw) : clone(DEFAULT_LOADOUTS);
     var entries = data.entries && typeof data.entries === 'object' ? data.entries : {};
     var normalizedEntries = {};
-    Object.keys(entries).forEach(function(key){
+    Object.keys(entries).forEach(function (key) {
       var entry = entries[key] || {};
       normalizedEntries[key] = {
         label: entry.label || key,
@@ -110,14 +110,14 @@
     // 既存のロードアウトにも、デフォルト定義されているガジェットを自動で統合する
     // （新規ガジェット追加時にユーザーの保存済みロードアウトへも反映するため）
     if (DEFAULT_LOADOUTS && DEFAULT_LOADOUTS.entries) {
-      Object.keys(DEFAULT_LOADOUTS.entries).forEach(function(key){
+      Object.keys(DEFAULT_LOADOUTS.entries).forEach(function (key) {
         var defEntry = DEFAULT_LOADOUTS.entries[key];
         var normalized = normalizedEntries[key];
         if (!defEntry || !normalized || !defEntry.groups) return;
-        Object.keys(defEntry.groups || {}).forEach(function(group){
+        Object.keys(defEntry.groups || {}).forEach(function (group) {
           var baseList = defEntry.groups[group] || [];
           if (!normalized.groups[group]) normalized.groups[group] = [];
-          baseList.forEach(function(name){ uniquePush(normalized.groups[group], name); });
+          baseList.forEach(function (name) { uniquePush(normalized.groups[group], name); });
         });
       });
     }
@@ -134,7 +134,7 @@
     };
   }
 
-  function loadPrefs(){
+  function loadPrefs() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
       var p = raw ? JSON.parse(raw) : null;
@@ -143,16 +143,16 @@
       if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
       if (!p.settings || typeof p.settings !== 'object') p.settings = {};
       return p;
-    } catch(_) { return { order: [], collapsed: {}, settings: {} }; }
+    } catch (_) { return { order: [], collapsed: {}, settings: {} }; }
   }
-  function savePrefs(p){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p||{})); } catch(_) {}
+  function savePrefs(p) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p || {})); } catch (_) { }
   }
 
-  function normalizeList(list){
+  function normalizeList(list) {
     var out = [];
     if (!Array.isArray(list)) return out;
-    for (var i=0;i<list.length;i++){
+    for (var i = 0; i < list.length; i++) {
       var name = list[i];
       if (typeof name !== 'string') continue;
       var trimmed = name.trim();
@@ -162,42 +162,42 @@
     return out;
   }
 
-  function normaliseGroups(groups){
+  function normaliseGroups(groups) {
     var g = groups && typeof groups === 'object' ? groups : {};
     var out = {};
     var legacyMap = {
       typography: 'structure',
       assist: 'structure'
     };
-    KNOWN_GROUPS.forEach(function(key){
+    KNOWN_GROUPS.forEach(function (key) {
       out[key] = normalizeList(g[key] || []);
     });
-    Object.keys(legacyMap).forEach(function(legacyKey){
+    Object.keys(legacyMap).forEach(function (legacyKey) {
       var target = legacyMap[legacyKey];
       if (!target || !out[target]) return;
       var legacyList = normalizeList(g[legacyKey] || []);
-      legacyList.forEach(function(name){ uniquePush(out[target], name); });
+      legacyList.forEach(function (name) { uniquePush(out[target], name); });
     });
     return out;
   }
 
-  function loadLoadouts(){
+  function loadLoadouts() {
     try {
       var raw = localStorage.getItem(LOADOUT_KEY);
       loadoutState = normalizeLoadouts(raw ? JSON.parse(raw) : null);
       return loadoutState;
-    } catch(_) {
+    } catch (_) {
       loadoutState = clone(DEFAULT_LOADOUTS);
       return loadoutState;
     }
   }
 
-  function saveLoadouts(data){
+  function saveLoadouts(data) {
     try {
       loadoutState = normalizeLoadouts(data);
       localStorage.setItem(LOADOUT_KEY, JSON.stringify(loadoutState));
       emit('ZWLoadoutsChanged', { loadouts: loadoutState });
-    } catch(_) {}
+    } catch (_) { }
   }
 
   class ZWGadgets {
@@ -212,47 +212,47 @@
       this._renderPending = null;
     }
 
-    _ensureLoadouts(){
+    _ensureLoadouts() {
       if (!this._loadouts) this._loadouts = loadLoadouts();
       return this._loadouts;
     }
-    _applyLoadoutEntry(entry){
+    _applyLoadoutEntry(entry) {
       var map = {};
       entry = entry || { groups: {} };
-      Object.keys(entry.groups || {}).forEach(function(group){
+      Object.keys(entry.groups || {}).forEach(function (group) {
         var items = entry.groups[group] || [];
-        for (var i=0;i<items.length;i++){
+        for (var i = 0; i < items.length; i++) {
           var name = items[i];
           if (!map[name]) map[name] = [];
           if (map[name].indexOf(group) < 0) map[name].push(group);
         }
       });
-      for (var j=0; j<this._list.length; j++){
+      for (var j = 0; j < this._list.length; j++) {
         var item = this._list[j];
         var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['structure'];
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
     }
-    _getActiveEntry(){
+    _getActiveEntry() {
       var data = this._ensureLoadouts();
       return data.entries[data.active] || { groups: normaliseGroups({}) };
     }
-    _getActiveNames(){
+    _getActiveNames() {
       var entry = this._getActiveEntry();
       var names = [];
-      KNOWN_GROUPS.forEach(function(key){
+      KNOWN_GROUPS.forEach(function (key) {
         var list = entry.groups && entry.groups[key];
         if (Array.isArray(list)) {
-          list.forEach(function(n){ if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n); });
+          list.forEach(function (n) { if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n); });
         }
       });
       if (!names.length) {
-        names = this._list.map(function(g){ return g.name || ''; }).filter(Boolean);
+        names = this._list.map(function (g) { return g.name || ''; }).filter(Boolean);
       }
       return names;
     }
-    register(name, factory, options){
+    register(name, factory, options) {
       try {
         var safeName = String(name || '');
         if (!safeName) return;
@@ -266,12 +266,12 @@
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
-      } catch(_) {}
+      } catch (_) { }
     }
-    registerSettings(name, factory){
-      try { this._settings[String(name||'')] = factory; } catch(_) {}
+    registerSettings(name, factory) {
+      try { this._settings[String(name || '')] = factory; } catch (_) { }
     }
-    defineLoadout(name, config){
+    defineLoadout(name, config) {
       if (!name) return;
       var data = this._ensureLoadouts();
       var safe = String(name);
@@ -284,27 +284,27 @@
       this._loadouts = loadLoadouts();
       this._applyLoadoutEntry(this._loadouts.entries[this._loadouts.active]);
       emit('ZWLoadoutDefined', { name: safe });
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      try { this._renderLast && this._renderLast(); } catch (_) { }
     }
-    listLoadouts(){
+    listLoadouts() {
       var data = this._ensureLoadouts();
-      return Object.keys(data.entries).map(function(key){
+      return Object.keys(data.entries).map(function (key) {
         var entry = data.entries[key] || {};
         return { name: key, label: entry.label || key };
       });
     }
-    applyLoadout(name){
+    applyLoadout(name) {
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
       data.active = name;
       saveLoadouts(data);
       this._loadouts = loadLoadouts();
       this._applyLoadoutEntry(this._loadouts.entries[name]);
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      try { this._renderLast && this._renderLast(); } catch (_) { }
       emit('ZWLoadoutApplied', { name: name });
       return true;
     }
-    deleteLoadout(name){
+    deleteLoadout(name) {
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
       delete data.entries[name];
@@ -317,11 +317,11 @@
       saveLoadouts(data);
       this._loadouts = loadLoadouts();
       this._applyLoadoutEntry(this._loadouts.entries[this._loadouts.active]);
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      try { this._renderLast && this._renderLast(); } catch (_) { }
       emit('ZWLoadoutDeleted', { name: name });
       return true;
     }
-    getActiveLoadout(){
+    getActiveLoadout() {
       var data = this._ensureLoadouts();
       var entry = data.entries[data.active] || {};
       this._applyLoadoutEntry(entry);
@@ -331,23 +331,23 @@
         entry: clone(entry)
       };
     }
-    captureCurrentLoadout(label){
+    captureCurrentLoadout(label) {
       var groups = {};
-      KNOWN_GROUPS.forEach(function(key){ groups[key] = []; });
+      KNOWN_GROUPS.forEach(function (key) { groups[key] = []; });
       var roots = this._roots || {};
       var _self = this;
-      Object.keys(roots).forEach(function(group){
+      Object.keys(roots).forEach(function (group) {
         var root = roots[group];
         if (!root) return;
         var nodes = root.querySelectorAll('.gadget');
-        for (var i=0; i<nodes.length; i++){
+        for (var i = 0; i < nodes.length; i++) {
           var name = nodes[i].dataset && nodes[i].dataset.name;
           if (!name) continue;
           if (!groups[group]) groups[group] = [];
           uniquePush(groups[group], name);
         }
       });
-      Object.keys(groups).forEach(function(key){
+      Object.keys(groups).forEach(function (key) {
         groups[key] = normalizeList(groups[key] || []);
       });
       var active = this.getActiveLoadout();
@@ -356,7 +356,7 @@
         groups: groups
       };
     }
-    setActiveGroup(group){
+    setActiveGroup(group) {
       var self = this;
       if (!group) return;
       if (self._activeGroup === group) return; // すでにactiveならスキップ
@@ -364,14 +364,14 @@
       emit('ZWLoadoutGroupChanged', { group: group });
       // requestAnimationFrameで遅延実行して連続呼び出しを防ぐ
       if (self._renderPending) cancelAnimationFrame(self._renderPending);
-      self._renderPending = requestAnimationFrame(function(){
+      self._renderPending = requestAnimationFrame(function () {
         // タブ切り替え時はアクティブグループのみレンダリング（パフォーマンス最適化）
-        try { self._renderActive && self._renderActive(); } catch(_) {}
+        try { self._renderActive && self._renderActive(); } catch (_) { }
         self._renderPending = null;
       });
     }
 
-    getPrefs(){
+    getPrefs() {
       try {
         var raw = localStorage.getItem(STORAGE_KEY);
         var p = raw ? JSON.parse(raw) : null;
@@ -380,21 +380,21 @@
         if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
         if (!p.settings || typeof p.settings !== 'object') p.settings = {};
         return p;
-      } catch(_) { return { order: [], collapsed: {}, settings: {} }; }
+      } catch (_) { return { order: [], collapsed: {}, settings: {} }; }
     }
 
-    setPrefs(p){
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p||{})); } catch(_) {}
+    setPrefs(p) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p || {})); } catch (_) { }
     }
 
-    getSettings(name){
+    getSettings(name) {
       try {
         var p = this.getPrefs();
         return (p.settings && p.settings[name]) || {};
-      } catch(_) { return {}; }
+      } catch (_) { return {}; }
     }
 
-    setSetting(name, key, value){
+    setSetting(name, key, value) {
       try {
         var p = this.getPrefs();
         p.settings = p.settings || {};
@@ -406,19 +406,19 @@
           window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', {
             detail: { name: name, key: key, value: value, settings: s }
           }));
-        } catch(_) {}
-      } catch(_) {}
+        } catch (_) { }
+      } catch (_) { }
     }
 
-    listLoadouts(){
+    listLoadouts() {
       var data = this._ensureLoadouts();
-      return Object.keys(data.entries).map(function(key){
+      return Object.keys(data.entries).map(function (key) {
         var entry = data.entries[key] || {};
         return { name: key, label: entry.label || key };
       });
     }
 
-    applyLoadout(name){
+    applyLoadout(name) {
       var data = this._ensureLoadouts();
       if (!name || !data.entries[name]) return false;
       data.active = name;
@@ -428,7 +428,7 @@
       return true;
     }
 
-    getActiveLoadout(){
+    getActiveLoadout() {
       var data = this._ensureLoadouts();
       var entry = data.entries[data.active] || {};
       this._applyLoadoutEntry(entry);
@@ -438,28 +438,28 @@
         entry: clone(entry)
       };
     }
-    assignGroups(name, groups){
+    assignGroups(name, groups) {
       if (!name) return;
       var normalized = normalizeGroupList(groups || ['structure']);
       if (!normalized.length) normalized = ['structure'];
-      for (var i=0; i<this._list.length; i++){
-        if ((this._list[i].name || '') === name){
+      for (var i = 0; i < this._list.length; i++) {
+        if ((this._list[i].name || '') === name) {
           this._list[i].groups = normalized;
           break;
         }
       }
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      try { this._renderLast && this._renderLast(); } catch (_) { }
     }
-    getPrefs(){ return loadPrefs(); }
-    setPrefs(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} }
-    getSettings(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } }
-    getSetting(name, key, def){
+    getPrefs() { return loadPrefs(); }
+    setPrefs(p) { savePrefs(p || { order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch (_) { } }
+    getSettings(name) { try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch (_) { return {}; } }
+    getSetting(name, key, def) {
       try {
         var s = this.getSettings(name) || {};
         return Object.prototype.hasOwnProperty.call(s, key) ? s[key] : def;
-      } catch(_) { return def; }
+      } catch (_) { return def; }
     }
-    setSetting(name, key, value){
+    setSetting(name, key, value) {
       try {
         var p = loadPrefs();
         p.settings = p.settings || {};
@@ -468,30 +468,30 @@
         savePrefs(p);
         // NOTE: 再レンダリングは行わない。購読しているガジェットが即時に反映する。
         var detail = { name: name, key: key, value: value, settings: s };
-        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', { detail: detail })); } catch(_) {}
-        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch(_) {}
-      } catch(_) {}
+        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', { detail: detail })); } catch (_) { }
+        try { window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged:' + name, { detail: detail })); } catch (_) { }
+      } catch (_) { }
     }
-    exportPrefs(){
+    exportPrefs() {
       try {
         var p = loadPrefs();
         return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
-      } catch(_) { return '{}'; }
+      } catch (_) { return '{}'; }
     }
-    importPrefs(obj){
+    importPrefs(obj) {
       try {
         var p = obj;
-        if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch(e){ return false; } }
+        if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch (e) { return false; } }
         if (!p || typeof p !== 'object') return false;
         if (!Array.isArray(p.order)) p.order = [];
         if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
         if (!p.settings || typeof p.settings !== 'object') p.settings = {};
         savePrefs({ order: p.order, collapsed: p.collapsed, settings: p.settings });
-        try { this._renderLast && this._renderLast(); } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
         return true;
-      } catch(_) { return false; }
+      } catch (_) { return false; }
     }
-    addTab(group, label, panelId){
+    addTab(group, label, panelId) {
       try {
         var self = this;
         // タブボタンを作成
@@ -501,12 +501,12 @@
         tab.dataset.group = group;
         tab.textContent = label;
         tab.setAttribute('aria-selected', 'false');
-        tab.addEventListener('click', function(){
+        tab.addEventListener('click', function () {
           // グループ切り替え
           self._activeGroup = group;
           // タブアクティブ化
           var allTabs = document.querySelectorAll('.sidebar-tab');
-          allTabs.forEach(function(t){
+          allTabs.forEach(function (t) {
             t.classList.remove('active');
             t.setAttribute('aria-selected', 'false');
           });
@@ -514,7 +514,7 @@
           tab.setAttribute('aria-selected', 'true');
           // パネル表示切り替え
           var allPanels = document.querySelectorAll('.sidebar-group');
-          allPanels.forEach(function(p){
+          allPanels.forEach(function (p) {
             p.classList.remove('active');
             p.setAttribute('aria-hidden', 'true');
           });
@@ -531,37 +531,37 @@
         if (tabsContainer) {
           tabsContainer.appendChild(tab);
         }
-      } catch(e) {
+      } catch (e) {
         console.error('addTab failed:', e);
       }
     }
-    move(name, dir){
+    move(name, dir) {
       try {
         var p = loadPrefs();
-        var names = this._list.map(function(x){ return x.name||''; });
+        var names = this._list.map(function (x) { return x.name || ''; });
         // build effective order
         var eff = [];
-        for (var i=0;i<p.order.length;i++){ if (names.indexOf(p.order[i])>=0 && eff.indexOf(p.order[i])<0) eff.push(p.order[i]); }
-        for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
+        for (var i = 0; i < p.order.length; i++) { if (names.indexOf(p.order[i]) >= 0 && eff.indexOf(p.order[i]) < 0) eff.push(p.order[i]); }
+        for (var j = 0; j < names.length; j++) { if (eff.indexOf(names[j]) < 0) eff.push(names[j]); }
         var idx = eff.indexOf(name);
-        if (idx<0) return;
-        if (dir==='up' && idx>0){ var t=eff[idx-1]; eff[idx-1]=eff[idx]; eff[idx]=t; }
-        if (dir==='down' && idx<eff.length-1){ var t2=eff[idx+1]; eff[idx+1]=eff[idx]; eff[idx]=t2; }
+        if (idx < 0) return;
+        if (dir === 'up' && idx > 0) { var t = eff[idx - 1]; eff[idx - 1] = eff[idx]; eff[idx] = t; }
+        if (dir === 'down' && idx < eff.length - 1) { var t2 = eff[idx + 1]; eff[idx + 1] = eff[idx]; eff[idx] = t2; }
         p.order = eff;
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
-      } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
+      } catch (_) { }
     }
-    toggle(name){
+    toggle(name) {
       try {
         var p = loadPrefs();
         p.collapsed = p.collapsed || {};
         p.collapsed[name] = !p.collapsed[name];
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
-      } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
+      } catch (_) { }
     }
-    init(selector, options){
+    init(selector, options) {
       var self = this;
       var opts = options && typeof options === 'object' ? options : {};
       var sel = selector || '#gadgets-panel';
@@ -573,44 +573,44 @@
 
       // Create render function
       var self = this;
-      this._renderers[group] = function(){
+      this._renderers[group] = function () {
         try {
           // Clear existing gadgets
           root.innerHTML = '';
-          
+
           // Get active gadget names for this group
           var allowedNames = self._getActiveNames();
-          
+
           // Render each active gadget
-          self._list.forEach(function(entry){
+          self._list.forEach(function (entry) {
             if (!entry || !entry.groups || entry.groups.indexOf(group) === -1) return;
             if (allowedNames.indexOf(entry.name) === -1) return;
-            
+
             var wrapper = document.createElement('div');
             wrapper.className = 'gadget-wrapper';
             wrapper.setAttribute('data-gadget-name', entry.name);
-            
+
             var gadgetEl = document.createElement('div');
             gadgetEl.className = 'gadget';
-            
+
             try {
               var api = {
-                get: function(key, def){ return self.getSetting(entry.name, key, def); },
-                set: function(key, val){ self.setSetting(entry.name, key, val); }
+                get: function (key, def) { return self.getSetting(entry.name, key, def); },
+                set: function (key, val) { self.setSetting(entry.name, key, val); }
               };
               entry.factory(gadgetEl, api);
-            } catch(e) {
+            } catch (e) {
               console.error('Gadget render failed:', entry.name, e);
               gadgetEl.textContent = 'ガジェットの読み込みに失敗しました。';
             }
-            
+
             wrapper.appendChild(gadgetEl);
             root.appendChild(wrapper);
           });
-          
+
           // Replace icons after rendering
           self.replaceGadgetSettingsWithIcons();
-        } catch(e) {
+        } catch (e) {
           console.error('Renderer error for group:', group, e);
         }
       };
@@ -618,9 +618,9 @@
       this._renderers[group]();
     }
 
-    _renderLast(){
+    _renderLast() {
       var keys = Object.keys(this._renderers || {});
-      for (var i=0; i<keys.length; i++){
+      for (var i = 0; i < keys.length; i++) {
         var fn = this._renderers[keys[i]];
         if (typeof fn === 'function') fn();
       }
@@ -632,7 +632,7 @@
     /**
      * アクティブグループのみレンダリング（パフォーマンス最適化）
      */
-    _renderActive(){
+    _renderActive() {
       if (!this._activeGroup || !this._renderers) return;
       var fn = this._renderers[this._activeGroup];
       if (typeof fn === 'function') fn();
@@ -641,7 +641,7 @@
       this.replaceGadgetSettingsWithIcons();
     }
 
-    register(name, factory, options){
+    register(name, factory, options) {
       try {
         var safeName = String(name || '');
         if (!safeName) return;
@@ -655,56 +655,56 @@
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
-      } catch(_) {}
+      } catch (_) { }
     }
 
-    registerSettings(name, factory){
-      try { this._settings[String(name||'')] = factory; } catch(_) {}
+    registerSettings(name, factory) {
+      try { this._settings[String(name || '')] = factory; } catch (_) { }
     }
 
-    _ensureLoadouts(){
+    _ensureLoadouts() {
       // ロードアウト状態を遅延読み込みし、キャッシュする
       if (!this._loadouts) this._loadouts = loadLoadouts();
       return this._loadouts;
     }
-    _applyLoadoutEntry(entry){
+    _applyLoadoutEntry(entry) {
       // アクティブなロードアウト定義に基づき、各ガジェットの所属グループを決定する
       var map = {};
       entry = entry || { groups: {} };
-      Object.keys(entry.groups || {}).forEach(function(group){
+      Object.keys(entry.groups || {}).forEach(function (group) {
         var items = entry.groups[group] || [];
-        for (var i = 0; i < items.length; i++){
+        for (var i = 0; i < items.length; i++) {
           var name = items[i];
           if (!map[name]) map[name] = [];
           if (map[name].indexOf(group) < 0) map[name].push(group);
         }
       });
-      for (var j = 0; j < this._list.length; j++){
+      for (var j = 0; j < this._list.length; j++) {
         var item = this._list[j];
         var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['structure'];
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
     }
-    _getActiveNames(){
+    _getActiveNames() {
       // アクティブロードアウトから有効なガジェット名を取得
       var entry = this._getActiveEntry();
       var names = [];
-      KNOWN_GROUPS.forEach(function(key){
+      KNOWN_GROUPS.forEach(function (key) {
         var list = entry.groups && entry.groups[key];
         if (Array.isArray(list)) {
-          list.forEach(function(n){
+          list.forEach(function (n) {
             if (typeof n === 'string' && n && names.indexOf(n) < 0) names.push(n);
           });
         }
       });
       if (!names.length) {
-        names = this._list.map(function(g){ return g.name || ''; }).filter(Boolean);
+        names = this._list.map(function (g) { return g.name || ''; }).filter(Boolean);
       }
       return names;
     }
 
-    move(name, direction){
+    move(name, direction) {
       try {
         var p = loadPrefs();
         p.order = p.order || [];
@@ -718,10 +718,10 @@
         if (this._renderer) {
           this._renderer._scheduleRender();
         }
-      } catch(_) {}
+      } catch (_) { }
     }
 
-    toggle(name){
+    toggle(name) {
       try {
         var p = loadPrefs();
         p.collapsed = p.collapsed || {};
@@ -730,20 +730,20 @@
         if (this._renderer) {
           this._renderer._scheduleRender();
         }
-      } catch(_) {}
+      } catch (_) { }
     }
 
-    assignGroups(name, groups){
+    assignGroups(name, groups) {
       if (!name) return;
       var normalized = normalizeGroupList(groups || ['structure']);
       if (!normalized.length) normalized = ['structure'];
-      for (var i = 0; i < this._list.length; i++){
-        if ((this._list[i].name || '') === name){
+      for (var i = 0; i < this._list.length; i++) {
+        if ((this._list[i].name || '') === name) {
           this._list[i].groups = normalized;
           break;
         }
       }
-      try { this._renderLast && this._renderLast(); } catch(_) {}
+      try { this._renderLast && this._renderLast(); } catch (_) { }
     }
 
     replaceGadgetSettingsWithIcons() {
@@ -764,15 +764,15 @@
 
   // Instantiate and expose ZWGadgets
   var ZWGadgetsInstance = new ZWGadgets();
-  try { window.ZWGadgets = ZWGadgetsInstance; } catch(_) {}
+  try { window.ZWGadgets = ZWGadgetsInstance; } catch (_) { }
 
   // Outline gadget (構造)
-  ZWGadgetsInstance.register('Outline', function(el){
+  ZWGadgetsInstance.register('Outline', function (el) {
     try {
       var STORAGE = window.ZenWriterStorage;
-      if (!STORAGE || typeof STORAGE.loadOutline !== 'function'){
+      if (!STORAGE || typeof STORAGE.loadOutline !== 'function') {
         var p = document.createElement('p');
-        p.textContent = 'アウトライン機能を利用できません。';
+        p.textContent = (window.UILabels && window.UILabels.OUTLINE_UNAVAILABLE) || 'アウトライン機能を利用できません。';
         p.style.opacity = '0.7'; p.style.fontSize = '0.9rem';
         el.appendChild(p);
         return;
@@ -782,11 +782,11 @@
         sets: [
           {
             id: 'default-3',
-            name: '部・章・節',
+            name: (window.UILabels && window.UILabels.OUTLINE_DEFAULT_SET_NAME) || '部・章・節',
             levels: [
-              { key: 'part', label: '部', color: '#4a90e2' },
-              { key: 'chapter', label: '章', color: '#7b8a8b' },
-              { key: 'section', label: '節', color: '#b88a4a' }
+              { key: 'part', label: (window.UILabels && window.UILabels.OUTLINE_PART) || '部', color: '#4a90e2' },
+              { key: 'chapter', label: (window.UILabels && window.UILabels.OUTLINE_CHAPTER) || '章', color: '#7b8a8b' },
+              { key: 'section', label: (window.UILabels && window.UILabels.OUTLINE_SECTION) || '節', color: '#b88a4a' }
             ]
           }
         ],
@@ -803,20 +803,20 @@
       wrap.style.gap = '8px';
 
       var label = document.createElement('label');
-      label.textContent = 'プリセット';
+      label.textContent = (window.UILabels && window.UILabels.PRESET_LABEL) || 'プリセット';
       label.setAttribute('for', 'outline-set-select');
       var sel = document.createElement('select');
       sel.id = 'outline-set-select';
 
       var details = document.createElement('details');
-      var sum = document.createElement('summary'); sum.textContent = '新しいプリセットを作成';
-      var nameLbl = document.createElement('label'); nameLbl.setAttribute('for','outline-new-name'); nameLbl.textContent='名前';
-      var nameInput = document.createElement('input'); nameInput.type='text'; nameInput.id='outline-new-name'; nameInput.placeholder='例: 三部構成';
-      var lvLbl = document.createElement('label'); lvLbl.setAttribute('for','outline-new-levels'); lvLbl.textContent='レベル（カンマ区切り）';
-      var lvInput = document.createElement('input'); lvInput.type='text'; lvInput.id='outline-new-levels'; lvInput.placeholder='部,章,節';
-      var createBtn = document.createElement('button'); createBtn.type='button'; createBtn.id='create-outline-set'; createBtn.textContent='作成';
+      var sum = document.createElement('summary'); sum.textContent = (window.UILabels && window.UILabels.CREATE_NEW_PRESET) || '新しいプリセットを作成';
+      var nameLbl = document.createElement('label'); nameLbl.setAttribute('for', 'outline-new-name'); nameLbl.textContent = (window.UILabels && window.UILabels.NAME_LABEL) || '名前';
+      var nameInput = document.createElement('input'); nameInput.type = 'text'; nameInput.id = 'outline-new-name'; nameInput.placeholder = (window.UILabels && window.UILabels.PRESET_NAME_EXAMPLE) || '例: 三部構成';
+      var lvLbl = document.createElement('label'); lvLbl.setAttribute('for', 'outline-new-levels'); lvLbl.textContent = (window.UILabels && window.UILabels.LEVELS_CSV_LABEL) || 'レベル（カンマ区切り）';
+      var lvInput = document.createElement('input'); lvInput.type = 'text'; lvInput.id = 'outline-new-levels'; lvInput.placeholder = (window.UILabels && window.UILabels.LEVELS_CSV_PLACEHOLDER) || '部,章,節';
+      var createBtn = document.createElement('button'); createBtn.type = 'button'; createBtn.id = 'create-outline-set'; createBtn.textContent = (window.UILabels && window.UILabels.CREATE) || '作成';
       var createBox = document.createElement('div');
-      createBox.style.display='grid'; createBox.style.gap='6px';
+      createBox.style.display = 'grid'; createBox.style.gap = '6px';
       createBox.appendChild(nameLbl); createBox.appendChild(nameInput);
       createBox.appendChild(lvLbl); createBox.appendChild(lvInput);
       createBox.appendChild(createBtn);
@@ -834,32 +834,36 @@
       wrap.appendChild(insertBox);
       el.appendChild(wrap);
 
-      function save(){ try { STORAGE.saveOutline(state); } catch(_) {} }
-      function currentSet(){
-        var s = state.sets.find(function(x){ return x && x.id === state.currentSetId; });
+      function save() { try { STORAGE.saveOutline(state); } catch (_) { } }
+      function currentSet() {
+        var s = state.sets.find(function (x) { return x && x.id === state.currentSetId; });
         return s || state.sets[0];
       }
-      function renderSetSelect(){
+      function renderSetSelect() {
         sel.innerHTML = '';
-        state.sets.forEach(function(set){
+        state.sets.forEach(function (set) {
           var opt = document.createElement('option');
           opt.value = set.id; opt.textContent = set.name || set.id; sel.appendChild(opt);
         });
         sel.value = state.currentSetId;
       }
-      function renderCurrentSet(){
+      function renderCurrentSet() {
         var set = currentSet(); if (!set) return;
         // levels editor
         levelsBox.innerHTML = '';
-        set.levels.forEach(function(lv, i){
+        set.levels.forEach(function (lv, i) {
           var row = document.createElement('div');
           row.className = 'level-row';
-          row.style.display='flex'; row.style.alignItems='center'; row.style.justifyContent='space-between'; row.style.gap='6px';
-          var left = document.createElement('label'); left.textContent = String(lv.label||''); left.style.flex='1 1 auto';
-          var right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='6px';
-          var color = document.createElement('input'); color.type='color'; color.value = lv.color || '#888888'; color.setAttribute('data-index', String(i));
-          var up = document.createElement('button'); up.type='button'; up.className='small btn-move'; up.setAttribute('data-dir','up'); up.setAttribute('data-index', String(i)); up.textContent='上へ'; up.title='上へ';
-          var down = document.createElement('button'); down.type='button'; down.className='small btn-move'; down.setAttribute('data-dir','down'); down.setAttribute('data-index', String(i)); down.textContent='下へ'; down.title='下へ';
+          row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.justifyContent = 'space-between'; row.style.gap = '6px';
+          var left = document.createElement('label'); left.textContent = String(lv.label || ''); left.style.flex = '1 1 auto';
+          var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'center'; right.style.gap = '6px';
+          var color = document.createElement('input'); color.type = 'color'; color.value = lv.color || '#888888'; color.setAttribute('data-index', String(i));
+          var up = document.createElement('button'); up.type = 'button'; up.className = 'small btn-move'; up.setAttribute('data-dir', 'up'); up.setAttribute('data-index', String(i));
+          up.textContent = (window.UILabels && window.UILabels.MOVE_UP) || '上へ';
+          up.title = (window.UILabels && window.UILabels.MOVE_UP) || '上へ';
+          var down = document.createElement('button'); down.type = 'button'; down.className = 'small btn-move'; down.setAttribute('data-dir', 'down'); down.setAttribute('data-index', String(i));
+          down.textContent = (window.UILabels && window.UILabels.MOVE_DOWN) || '下へ';
+          down.title = (window.UILabels && window.UILabels.MOVE_DOWN) || '下へ';
           right.appendChild(color); right.appendChild(up); right.appendChild(down);
           row.appendChild(left); row.appendChild(right);
           levelsBox.appendChild(row);
@@ -867,69 +871,69 @@
 
         // insert buttons
         insertBox.innerHTML = '';
-        set.levels.forEach(function(lv, i){
+        set.levels.forEach(function (lv, i) {
           var b = document.createElement('button');
-          b.className='outline-btn'; b.type='button';
-          b.textContent = String(lv.label||'') + ' を挿入';
+          b.className = 'outline-btn'; b.type = 'button';
+          b.textContent = String(lv.label || '') + ((window.UILabels && window.UILabels.INSERT_SUFFIX) || ' を挿入');
           b.style.borderColor = lv.color || '#888';
           b.style.color = lv.color || 'inherit';
-          b.addEventListener('click', function(){ insertLevel(i); });
+          b.addEventListener('click', function () { insertLevel(i); });
           insertBox.appendChild(b);
         });
       }
 
-      function generatePalette(n){
-        var arr=[]; for (var i=0;i<n;i++){ var hue = Math.round((360/n)*i); arr.push(hslToHex(hue,60,50)); } return arr;
+      function generatePalette(n) {
+        var arr = []; for (var i = 0; i < n; i++) { var hue = Math.round((360 / n) * i); arr.push(hslToHex(hue, 60, 50)); } return arr;
       }
-      function hslToHex(h,s,l){
-        s/=100; l/=100; var k=function(n){ return (n + h/30) % 12; };
-        var a = s * Math.min(l, 1-l);
-        var f = function(n){ return l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1))); };
-        var r=Math.round(255*f(0)), g=Math.round(255*f(8)), b=Math.round(255*f(4));
-        var toHex=function(c){ var x=c.toString(16); return x.length===1?('0'+x):x; };
-        return '#'+toHex(r)+toHex(g)+toHex(b);
+      function hslToHex(h, s, l) {
+        s /= 100; l /= 100; var k = function (n) { return (n + h / 30) % 12; };
+        var a = s * Math.min(l, 1 - l);
+        var f = function (n) { return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); };
+        var r = Math.round(255 * f(0)), g = Math.round(255 * f(8)), b = Math.round(255 * f(4));
+        var toHex = function (c) { var x = c.toString(16); return x.length === 1 ? ('0' + x) : x; };
+        return '#' + toHex(r) + toHex(g) + toHex(b);
       }
 
-      function insertLevel(index){
+      function insertLevel(index) {
         var set = currentSet(); if (!set || !set.levels[index]) return;
-        var depth = index + 1; var prefix = '#'.repeat(Math.min(depth,6));
-        var text = prefix + ' ' + String(set.levels[index].label||'') + ' タイトル\n\n';
+        var depth = index + 1; var prefix = '#'.repeat(Math.min(depth, 6));
+        var text = prefix + ' ' + String(set.levels[index].label || '') + ((window.UILabels && window.UILabels.TITLE_SUFFIX) || ' タイトル\n\n');
         try {
-          if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function'){
+          if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
             window.ZenWriterEditor.insertTextAtCursor(text);
           }
-        } catch(_) {}
+        } catch (_) { }
       }
 
       // events
-      sel.addEventListener('change', function(e){ state.currentSetId = e.target.value; save(); renderCurrentSet(); });
-      createBtn.addEventListener('click', function(){
-        var name = (nameInput.value||'').trim() || '新規プリセット';
-        var csv = (lvInput.value||'').trim(); if (!csv){ alert('レベル名をカンマ区切りで入力してください'); return; }
-        var labels = csv.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+      sel.addEventListener('change', function (e) { state.currentSetId = e.target.value; save(); renderCurrentSet(); });
+      createBtn.addEventListener('click', function () {
+        var name = (nameInput.value || '').trim() || ((window.UILabels && window.UILabels.NEW_PRESET_DEFAULT_NAME) || '新規プリセット');
+        var csv = (lvInput.value || '').trim(); if (!csv) { alert((window.UILabels && window.UILabels.LEVELS_CSV_REQUIRED) || 'レベル名をカンマ区切りで入力してください'); return; }
+        var labels = csv.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
         var palette = generatePalette(labels.length);
         var id = 'set-' + Date.now();
-        var set = { id:id, name:name, levels: labels.map(function(label,idx){ return { key: 'k'+idx, label: label, color: palette[idx] }; }) };
-        state.sets.push(set); state.currentSetId = id; save(); nameInput.value=''; lvInput.value=''; renderSetSelect(); renderCurrentSet();
+        var set = { id: id, name: name, levels: labels.map(function (label, idx) { return { key: 'k' + idx, label: label, color: palette[idx] }; }) };
+        state.sets.push(set); state.currentSetId = id; save(); nameInput.value = ''; lvInput.value = ''; renderSetSelect(); renderCurrentSet();
       });
-      levelsBox.addEventListener('change', function(e){ var t=e.target; if (t && t.matches('input[type="color"]')){ var idx=parseInt(t.getAttribute('data-index'),10); var set=currentSet(); if (set && set.levels[idx]){ set.levels[idx].color = t.value; save(); renderCurrentSet(); } } });
-      levelsBox.addEventListener('click', function(e){ var t=e.target; if (t && t.matches('.btn-move')){ var dir=t.getAttribute('data-dir'); var idx=parseInt(t.getAttribute('data-index'),10); var set=currentSet(); if (!set) return; var ni = dir==='up'? idx-1 : idx+1; if (ni<0 || ni>=set.levels.length) return; var arr=set.levels; var tmp=arr[idx]; arr[idx]=arr[ni]; arr[ni]=tmp; save(); renderCurrentSet(); } });
+      levelsBox.addEventListener('change', function (e) { var t = e.target; if (t && t.matches('input[type="color"]')) { var idx = parseInt(t.getAttribute('data-index'), 10); var set = currentSet(); if (set && set.levels[idx]) { set.levels[idx].color = t.value; save(); renderCurrentSet(); } } });
+      levelsBox.addEventListener('click', function (e) { var t = e.target; if (t && t.matches('.btn-move')) { var dir = t.getAttribute('data-dir'); var idx = parseInt(t.getAttribute('data-index'), 10); var set = currentSet(); if (!set) return; var ni = dir === 'up' ? idx - 1 : idx + 1; if (ni < 0 || ni >= set.levels.length) return; var arr = set.levels; var tmp = arr[idx]; arr[idx] = arr[ni]; arr[ni] = tmp; save(); renderCurrentSet(); } });
 
       // init
       renderSetSelect();
       renderCurrentSet();
-    } catch(e){
+    } catch (e) {
       console.error('Outline gadget failed:', e);
-      try { el.textContent = 'アウトラインの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = (window.UILabels && window.UILabels.OUTLINE_INIT_FAILED) || 'アウトラインの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: 'アウトライン' });
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_OUTLINE_TITLE) || 'アウトライン' });
 
-  ZWGadgetsInstance.register('Documents', function(el){
+  ZWGadgetsInstance.register('Documents', function (el) {
     try {
       var storage = window.ZenWriterStorage;
       if (!storage) {
         var warn = document.createElement('p');
-        warn.textContent = 'ストレージ機能が利用できないため、ドキュメントを管理できません。';
+        warn.textContent = (window.UILabels && window.UILabels.DOCS_STORAGE_UNAVAILABLE) || 'ストレージ機能が利用できないため、ドキュメントを管理できません。';
         warn.style.fontSize = '0.9rem';
         warn.style.opacity = '0.7';
         el.appendChild(warn);
@@ -940,21 +944,21 @@
       var selectId = 'zw-doc-select-' + Math.random().toString(36).slice(2);
       var state = { docs: [], currentId: null };
 
-      function notify(message, duration){
+      function notify(message, duration) {
         try {
           if (editorManager && typeof editorManager.showNotification === 'function') {
             editorManager.showNotification(message, duration || 1200);
           }
-        } catch(_) {}
+        } catch (_) { }
       }
 
-      function ensureDocuments(){
+      function ensureDocuments() {
         var docs = storage.loadDocuments() || [];
         var cur = storage.getCurrentDocId();
-        if (!docs.length){
+        if (!docs.length) {
           var initial = '';
-          try { initial = storage.loadContent() || ''; } catch(_) {}
-          var created = storage.createDocument('ドキュメント1', initial);
+          try { initial = storage.loadContent() || ''; } catch (_) { }
+          var created = storage.createDocument((window.UILabels && window.UILabels.DEFAULT_DOC_NAME) || 'ドキュメント1', initial);
           storage.setCurrentDocId(created.id);
           if (editorManager && typeof editorManager.setContent === 'function') {
             editorManager.setContent(initial);
@@ -964,9 +968,9 @@
           docs = storage.loadDocuments() || [];
           cur = created.id;
         }
-        if (!cur || !docs.some(function(d){ return d && d.id === cur; })){ 
-          var sorted = docs.slice().sort(function(a,b){ return (b.updatedAt||0) - (a.updatedAt||0); });
-          if (sorted.length){
+        if (!cur || !docs.some(function (d) { return d && d.id === cur; })) {
+          var sorted = docs.slice().sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); });
+          if (sorted.length) {
             var first = sorted[0];
             storage.setCurrentDocId(first.id);
             if (editorManager && typeof editorManager.setContent === 'function') {
@@ -981,20 +985,20 @@
         state.currentId = cur;
       }
 
-      function sortedDocs(){
+      function sortedDocs() {
         var docs = storage.loadDocuments() || [];
-        return docs.slice().sort(function(a,b){ return (b.updatedAt||0) - (a.updatedAt||0); });
+        return docs.slice().sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); });
       }
 
-      function refreshOptions(preferredId){
+      function refreshOptions(preferredId) {
         ensureDocuments();
         var docs = sortedDocs();
         var select = elements.select;
         select.innerHTML = '';
-        if (!docs.length){
+        if (!docs.length) {
           var empty = document.createElement('option');
           empty.value = '';
-          empty.textContent = '(なし)';
+          empty.textContent = (window.UILabels && window.UILabels.NO_DOCUMENTS) || '(なし)';
           select.appendChild(empty);
           select.disabled = true;
           elements.renameBtn.disabled = true;
@@ -1002,10 +1006,10 @@
           return;
         }
         select.disabled = false;
-        docs.forEach(function(doc){
+        docs.forEach(function (doc) {
           var opt = document.createElement('option');
           opt.value = doc.id;
-          opt.textContent = doc.name || '無題';
+          opt.textContent = doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題');
           select.appendChild(opt);
         });
         var cur = preferredId || storage.getCurrentDocId();
@@ -1014,34 +1018,34 @@
         elements.deleteBtn.disabled = !cur;
       }
 
-      function saveCurrentContent(){
+      function saveCurrentContent() {
         try {
           if (editorManager && editorManager.editor && typeof storage.saveContent === 'function') {
             storage.saveContent(editorManager.editor.value || '');
           }
-        } catch(_) {}
+        } catch (_) { }
       }
 
-      function updateDocumentTitle(){
+      function updateDocumentTitle() {
         try {
           var docs = storage.loadDocuments() || [];
           var cur = storage.getCurrentDocId();
-          var doc = docs.find(function(d){ return d && d.id === cur; });
+          var doc = docs.find(function (d) { return d && d.id === cur; });
           var name = doc && doc.name ? doc.name : '';
           document.title = name ? name + ' - Zen Writer' : 'Zen Writer - 小説執筆ツール';
-        } catch(_) {
+        } catch (_) {
           document.title = 'Zen Writer - 小説執筆ツール';
         }
       }
 
-      function dispatchChanged(){
-        try { window.dispatchEvent(new CustomEvent('ZWDocumentsChanged', { detail: { docs: storage.loadDocuments() || [] } })); } catch(_) {}
+      function dispatchChanged() {
+        try { window.dispatchEvent(new CustomEvent('ZWDocumentsChanged', { detail: { docs: storage.loadDocuments() || [] } })); } catch (_) { }
       }
 
-      function switchDocument(id){
+      function switchDocument(id) {
         if (!id) return;
         var docs = storage.loadDocuments() || [];
-        var doc = docs.find(function(d){ return d && d.id === id; });
+        var doc = docs.find(function (d) { return d && d.id === id; });
         if (!doc) return;
         saveCurrentContent();
         storage.setCurrentDocId(id);
@@ -1052,12 +1056,13 @@
         }
         refreshOptions(id);
         updateDocumentTitle();
-        notify('「' + (doc.name || '無題') + '」を開きました');
+        var msg = (window.UILabels && window.UILabels.DOC_OPENED_MSG) || '「{0}」を開きました';
+        notify(msg.replace('{0}', doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題')));
         dispatchChanged();
       }
 
-      function createDocument(){
-        var name = prompt('新しいドキュメント名を入力', '無題');
+      function createDocument() {
+        var name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいドキュメント名を入力', (window.UILabels && window.UILabels.UNTITLED_DOC) || '無題');
         if (name === null) return;
         var doc = storage.createDocument(name || '無題', '');
         storage.setCurrentDocId(doc.id);
@@ -1068,16 +1073,16 @@
         }
         refreshOptions(doc.id);
         updateDocumentTitle();
-        notify('ドキュメントを作成しました');
+        notify((window.UILabels && window.UILabels.DOC_CREATED_MSG) || 'ドキュメントを作成しました');
         dispatchChanged();
       }
 
-      function renameDocument(){
+      function renameDocument() {
         var cur = storage.getCurrentDocId();
         if (!cur) return;
         var docs = storage.loadDocuments() || [];
-        var doc = docs.find(function(d){ return d && d.id === cur; });
-        var name = prompt('ドキュメント名を変更', doc ? (doc.name || '無題') : '無題');
+        var doc = docs.find(function (d) { return d && d.id === cur; });
+        var name = prompt((window.UILabels && window.UILabels.RENAME_DOC_PROMPT) || 'ドキュメント名を変更', doc ? (doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題')) : ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題'));
         if (name === null) return;
         storage.renameDocument(cur, name || '無題');
         refreshOptions(cur);
@@ -1086,32 +1091,32 @@
         dispatchChanged();
       }
 
-      function deleteDocument(){
+      function deleteDocument() {
         var cur = storage.getCurrentDocId();
         if (!cur) return;
-        if (!confirm('このドキュメントを削除しますか？この操作は元に戻せません。')) return;
+        if (!confirm((window.UILabels && window.UILabels.DELETE_DOC_CONFIRM) || 'このドキュメントを削除しますか？この操作は元に戻せません。')) return;
         storage.deleteDocument(cur);
         ensureDocuments();
         var next = storage.getCurrentDocId();
         if (editorManager && typeof editorManager.setContent === 'function') {
           var docs = storage.loadDocuments() || [];
-          var doc = docs.find(function(d){ return d && d.id === next; });
+          var doc = docs.find(function (d) { return d && d.id === next; });
           editorManager.setContent(doc && doc.content ? doc.content : '');
         } else {
-          var doc2 = storage.loadDocuments().find(function(d){ return d && d.id === next; });
+          var doc2 = storage.loadDocuments().find(function (d) { return d && d.id === next; });
           storage.saveContent(doc2 ? doc2.content || '' : '');
         }
         refreshOptions(next);
         updateDocumentTitle();
-        notify('ドキュメントを削除しました');
+        notify((window.UILabels && window.UILabels.DOC_DELETED_MSG) || 'ドキュメントを削除しました');
         dispatchChanged();
       }
 
-      function importFile(files){
+      function importFile(files) {
         if (!files || !files.length) return;
         var file = files[0];
         var reader = new FileReader();
-        reader.onload = function(){
+        reader.onload = function () {
           try {
             var text = String(reader.result || '');
             if (editorManager && typeof editorManager.setContent === 'function') {
@@ -1120,15 +1125,15 @@
               storage.saveContent(text);
             }
             refreshOptions(storage.getCurrentDocId());
-            notify('ファイルを読み込みました');
+            notify((window.UILabels && window.UILabels.FILE_IMPORTED_MSG) || 'ファイルを読み込みました');
             dispatchChanged();
-          } catch(e){ console.error(e); }
+          } catch (e) { console.error(e); }
         };
-        reader.onerror = function(){ console.error('ファイル読み込みエラー'); };
+        reader.onerror = function () { console.error((window.UILabels && window.UILabels.FILE_IMPORT_ERROR) || 'ファイル読み込みエラー'); };
         reader.readAsText(file, 'utf-8');
       }
 
-      function exportCurrent(asMarkdown){
+      function exportCurrent(asMarkdown) {
         if (editorManager) {
           if (asMarkdown && typeof editorManager.exportAsMarkdown === 'function') return editorManager.exportAsMarkdown();
           if (!asMarkdown && typeof editorManager.exportAsText === 'function') return editorManager.exportAsText();
@@ -1137,14 +1142,14 @@
           var text = storage.loadContent() || '';
           var docId = storage.getCurrentDocId();
           var docs = storage.loadDocuments() || [];
-          var doc = docs.find(function(d){ return d && d.id === docId; });
+          var doc = docs.find(function (d) { return d && d.id === docId; });
           var base = doc && doc.name ? doc.name : 'zenwriter';
           var filename = base + (asMarkdown ? '.md' : '.txt');
           storage.exportText(text, filename, asMarkdown ? 'text/markdown' : 'text/plain');
-        } catch(_) {}
+        } catch (_) { }
       }
 
-      function printCurrent(){
+      function printCurrent() {
         if (window.ZenWriterApp && typeof window.ZenWriterApp.printDocument === 'function') {
           window.ZenWriterApp.printDocument();
         } else {
@@ -1161,15 +1166,15 @@
 
       var label = document.createElement('label');
       label.setAttribute('for', selectId);
-      label.textContent = 'ドキュメント一覧';
+      label.textContent = (window.UILabels && window.UILabels.DOC_LIST_LABEL) || 'ドキュメント一覧';
       label.style.fontWeight = '600';
 
       var select = document.createElement('select');
       select.id = selectId;
-      select.addEventListener('change', function(ev){ switchDocument(ev.target.value); });
+      select.addEventListener('change', function (ev) { switchDocument(ev.target.value); });
       elements.select = select;
 
-      function makeSmallButton(text, handler){
+      function makeSmallButton(text, handler) {
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
@@ -1182,9 +1187,9 @@
       primaryRow.style.display = 'flex';
       primaryRow.style.flexWrap = 'wrap';
       primaryRow.style.gap = '6px';
-      var btnCreate = makeSmallButton('作成', createDocument);
-      var btnRename = makeSmallButton('改名', renameDocument);
-      var btnDelete = makeSmallButton('削除', deleteDocument);
+      var btnCreate = makeSmallButton((window.UILabels && window.UILabels.CREATE) || '作成', createDocument);
+      var btnRename = makeSmallButton((window.UILabels && window.UILabels.RENAME) || '改名', renameDocument);
+      var btnDelete = makeSmallButton((window.UILabels && window.UILabels.DELETE) || '削除', deleteDocument);
       elements.renameBtn = btnRename;
       elements.deleteBtn = btnDelete;
       primaryRow.appendChild(btnCreate);
@@ -1195,15 +1200,15 @@
       secondaryRow.style.display = 'flex';
       secondaryRow.style.flexWrap = 'wrap';
       secondaryRow.style.gap = '6px';
-      var btnImport = makeSmallButton('ファイルを読み込む', function(){ hiddenInput.click(); });
-      var btnExportTxt = makeSmallButton('テキストで保存', function(){ exportCurrent(false); });
-      var btnExportMd = makeSmallButton('Markdownで保存', function(){ exportCurrent(true); });
-      var btnPrint = makeSmallButton('印刷', printCurrent);
-      var btnPdfExport = makeSmallButton('PDFエクスポート', function(){
+      var btnImport = makeSmallButton((window.UILabels && window.UILabels.IMPORT_FILE) || 'ファイルを読み込む', function () { hiddenInput.click(); });
+      var btnExportTxt = makeSmallButton((window.UILabels && window.UILabels.EXPORT_TEXT) || 'テキストで保存', function () { exportCurrent(false); });
+      var btnExportMd = makeSmallButton((window.UILabels && window.UILabels.EXPORT_MARKDOWN) || 'Markdownで保存', function () { exportCurrent(true); });
+      var btnPrint = makeSmallButton((window.UILabels && window.UILabels.PRINT) || '印刷', printCurrent);
+      var btnPdfExport = makeSmallButton((window.UILabels && window.UILabels.EXPORT_PDF) || 'PDFエクスポート', function () {
         // PDFエクスポート機能（ブラウザ印刷利用）
         try {
           window.print();
-        } catch(e){ console.error('PDF export failed', e); }
+        } catch (e) { console.error('PDF export failed', e); }
       });
       secondaryRow.appendChild(btnImport);
       secondaryRow.appendChild(btnExportTxt);
@@ -1215,7 +1220,7 @@
       hiddenInput.type = 'file';
       hiddenInput.accept = '.txt,.md,.markdown,.text';
       hiddenInput.style.display = 'none';
-      hiddenInput.addEventListener('change', function(ev){
+      hiddenInput.addEventListener('change', function (ev) {
         try { importFile(ev.target.files); } finally { ev.target.value = ''; }
       });
 
@@ -1230,21 +1235,21 @@
       refreshOptions();
       updateDocumentTitle();
 
-      window.addEventListener('ZWLoadoutsChanged', function(){ refreshOptions(storage.getCurrentDocId()); });
-      window.addEventListener('ZWLoadoutApplied', function(){ refreshOptions(storage.getCurrentDocId()); });
-      window.addEventListener('ZWDocumentsChanged', function(){ refreshOptions(storage.getCurrentDocId()); });
-    } catch(e) {
+      window.addEventListener('ZWLoadoutsChanged', function () { refreshOptions(storage.getCurrentDocId()); });
+      window.addEventListener('ZWLoadoutApplied', function () { refreshOptions(storage.getCurrentDocId()); });
+      window.addEventListener('ZWDocumentsChanged', function () { refreshOptions(storage.getCurrentDocId()); });
+    } catch (e) {
       console.error('Documents gadget failed:', e);
-      try { el.textContent = 'ドキュメントガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: 'ドキュメント' });
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
 
-  ZWGadgetsInstance.register('OutlineQuick', function(el){
+  ZWGadgetsInstance.register('OutlineQuick', function (el) {
     try {
       var storage = window.ZenWriterStorage;
       if (!storage) {
         var warn = document.createElement('p');
-        warn.textContent = 'ストレージが利用できません。';
+        warn.textContent = (window.UILabels && window.UILabels.STORAGE_UNAVAILABLE) || 'ストレージが利用できません。';
         warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
         el.appendChild(warn);
         return;
@@ -1270,19 +1275,26 @@
       insertContainer.style.marginTop = '8px';
 
       var levels = ['# ', '## ', '### ', '#### ', '##### ', '###### '];
-      var levelLabels = ['大見出し', '中見出し', '小見出し', '詳細', 'メモ', '注記'];
+      var levelLabels = [
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_1) || '大見出し',
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_2) || '中見出し',
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_3) || '小見出し',
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_4) || '詳細',
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_5) || 'メモ',
+        (window.UILabels && window.UILabels.OUTLINE_LEVEL_6) || '注記'
+      ];
 
-      levels.forEach(function(level, _idx){
+      levels.forEach(function (level, _idx) {
         var _btn3 = document.createElement('button');
         _btn3.type = 'button';
         _btn3.className = 'outline-btn small';
         _btn3.textContent = levelLabels[_idx] || level.trim();
-        _btn3.addEventListener('click', function(){
+        _btn3.addEventListener('click', function () {
           try {
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
               window.ZenWriterEditor.insertTextAtCursor(level + '\n\n');
             }
-          } catch(e){ console.error('insert outline failed', e); }
+          } catch (e) { console.error('insert outline failed', e); }
         });
         insertContainer.appendChild(_btn3);
       });
@@ -1293,7 +1305,7 @@
       // ドラッグ&ドロップ機能
       var draggedElement = null;
 
-      function makeLevelRow(level, label, canDrag){
+      function makeLevelRow(level, label, canDrag) {
         var row = document.createElement('div');
         row.className = 'level-row';
         row.draggable = canDrag;
@@ -1319,20 +1331,20 @@
         title.style.flex = '1';
         var toggleBtn = document.createElement('button');
         toggleBtn.className = 'gadget-toggle-btn';
-        toggleBtn.textContent = '折りたたみ';
+        toggleBtn.textContent = (window.UILabels && window.UILabels.COLLAPSE) || '折りたたみ';
         toggleBtn.style.border = 'none';
         toggleBtn.style.background = 'none';
         toggleBtn.style.cursor = 'pointer';
         toggleBtn.style.fontSize = '12px';
-        toggleBtn.addEventListener('click', function(ev){
+        toggleBtn.addEventListener('click', function (ev) {
           ev.stopPropagation();
           row.classList.toggle('collapsed');
-          toggleBtn.textContent = row.classList.contains('collapsed') ? '展開' : '折りたたみ';
+          toggleBtn.textContent = row.classList.contains('collapsed') ? ((window.UILabels && window.UILabels.EXPAND) || '展開') : ((window.UILabels && window.UILabels.COLLAPSE) || '折りたたみ');
         });
         var settingsBtn = document.createElement('button');
         settingsBtn.className = 'gadget-settings-btn small';
-        settingsBtn.textContent = '設定';
-        settingsBtn.title = '設定';
+        settingsBtn.textContent = (window.UILabels && window.UILabels.SETTINGS) || '設定';
+        settingsBtn.title = (window.UILabels && window.UILabels.SETTINGS) || '設定';
         head.appendChild(title);
         head.appendChild(toggleBtn);
         head.appendChild(settingsBtn);
@@ -1350,30 +1362,30 @@
         var upBtn = document.createElement('button');
         upBtn.type = 'button';
         upBtn.className = 'small';
-        upBtn.textContent = '上へ';
+        upBtn.textContent = (window.UILabels && window.UILabels.MOVE_UP) || '上へ';
         upBtn.style.width = '24px';
         upBtn.style.height = '24px';
-        upBtn.addEventListener('click', function(){ moveLevel(row, -1); });
+        upBtn.addEventListener('click', function () { moveLevel(row, -1); });
 
         var downBtn = document.createElement('button');
         downBtn.type = 'button';
         downBtn.className = 'small';
-        downBtn.textContent = '下へ';
+        downBtn.textContent = (window.UILabels && window.UILabels.MOVE_DOWN) || '下へ';
         downBtn.style.width = '24px';
         downBtn.style.height = '24px';
-        downBtn.addEventListener('click', function(){ moveLevel(row, 1); });
+        downBtn.addEventListener('click', function () { moveLevel(row, 1); });
 
         if (canDrag) {
-          row.addEventListener('dragstart', function(e){
+          row.addEventListener('dragstart', function (e) {
             draggedElement = row;
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', row.outerHTML);
           });
-          row.addEventListener('dragover', function(e){
+          row.addEventListener('dragover', function (e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
           });
-          row.addEventListener('drop', function(e){
+          row.addEventListener('drop', function (e) {
             e.preventDefault();
             if (draggedElement && draggedElement !== row) {
               var parent = row.parentNode;
@@ -1399,7 +1411,7 @@
         return row;
       }
 
-      function moveLevel(row, direction){
+      function moveLevel(row, direction) {
         var parent = row.parentNode;
         var sibling = direction === -1 ? row.previousElementSibling : row.nextElementSibling;
         if (sibling) {
@@ -1413,29 +1425,29 @@
 
       // 初期レベル表示（ドラッグ可能）
       var initialLevels = [
-        { level: '#', label: '章' },
-        { level: '##', label: '節' },
-        { level: '###', label: '項' },
-        { level: '####', label: '目' }
+        { level: '#', label: (window.UILabels && window.UILabels.OUTLINE_CHAPTER) || '章' },
+        { level: '##', label: (window.UILabels && window.UILabels.OUTLINE_SECTION) || '節' },
+        { level: '###', label: (window.UILabels && window.UILabels.OUTLINE_LEVEL_3) || '項' },
+        { level: '####', label: (window.UILabels && window.UILabels.OUTLINE_LEVEL_4) || '目' }
       ];
-      initialLevels.forEach(function(item){
+      initialLevels.forEach(function (item) {
         levelsContainer.appendChild(makeLevelRow(item.level, item.label, true));
       });
 
       el.appendChild(wrap);
-    } catch(e) {
+    } catch (e) {
       console.error('Outline gadget failed:', e);
-      try { el.textContent = 'アウトラインガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = (window.UILabels && window.UILabels.OUTLINE_QUICK_INIT_FAILED) || 'アウトラインガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: 'クイックアウトライン' });
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_OUTLINE_QUICK_TITLE) || 'クイックアウトライン' });
 
-  ZWGadgetsInstance.register('TypographyThemes', function(el){
+  ZWGadgetsInstance.register('TypographyThemes', function (el) {
     try {
       var theme = window.ZenWriterTheme;
       var storage = window.ZenWriterStorage;
       if (!theme || !storage) {
         var warn = document.createElement('p');
-        warn.textContent = 'タイポ設定を読み込めません。';
+        warn.textContent = (window.UILabels && window.UILabels.TYPO_SETTINGS_UNAVAILABLE) || 'タイポ設定を読み込めません。';
         warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
         el.appendChild(warn);
         return;
@@ -1450,7 +1462,7 @@
       wrap.style.flexDirection = 'column';
       wrap.style.gap = '12px';
 
-      function makeSection(title){
+      function makeSection(title) {
         var section = document.createElement('div');
         section.className = 'typography-section';
         var heading = document.createElement('h4');
@@ -1464,7 +1476,7 @@
         return section;
       }
 
-      var makeRow = function(labelText, control){
+      var makeRow = function (labelText, control) {
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
@@ -1475,28 +1487,34 @@
       };
 
       // Theme presets
-      var themesSection = makeSection('テーマ');
+      var themesSection = makeSection((window.UILabels && window.UILabels.THEME_SECTION) || 'テーマ');
       var themeButtons = document.createElement('div');
       themeButtons.style.display = 'flex';
       themeButtons.style.gap = '6px';
       themeButtons.style.flexWrap = 'wrap';
-      ['light','dark','sepia','high-contrast','solarized'].forEach(function(key){
+      ['light', 'dark', 'sepia', 'high-contrast', 'solarized'].forEach(function (key) {
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
-        btn.textContent = ({ light:'ライト', dark:'ダーク', sepia:'セピア', 'high-contrast':'高コントラスト', solarized:'ソラリゼド' })[key] || key;
-        btn.addEventListener('click', function(){
+        btn.textContent = ({
+          light: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト',
+          dark: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク',
+          sepia: (window.UILabels && window.UILabels.THEME_NAME_SEPIA) || 'セピア',
+          'high-contrast': (window.UILabels && window.UILabels.THEME_NAME_HIGH_CONTRAST) || '高コントラスト',
+          solarized: (window.UILabels && window.UILabels.THEME_NAME_SOLARIZED) || 'ソラリゼド'
+        })[key] || key;
+        btn.addEventListener('click', function () {
           try {
             theme.applyTheme(key);
-            try { refreshState(); } catch(_) {}
-          } catch(e){ console.error('applyTheme failed', e); }
+            try { refreshState(); } catch (_) { }
+          } catch (e) { console.error('applyTheme failed', e); }
         });
         themeButtons.appendChild(btn);
       });
       themesSection.appendChild(themeButtons);
 
       // Color section
-      var colorSection = makeSection('色');
+      var colorSection = makeSection((window.UILabels && window.UILabels.COLOR_SECTION) || '色');
       var bgInput = document.createElement('input');
       bgInput.type = 'color';
       bgInput.value = settings.bgColor || '#ffffff';
@@ -1504,32 +1522,32 @@
       textInput.type = 'color';
       textInput.value = settings.textColor || '#333333';
 
-      bgInput.addEventListener('change', function(){
+      bgInput.addEventListener('change', function () {
         theme.applyCustomColors(bgInput.value, textInput.value, true);
         refreshState();
       });
-      textInput.addEventListener('change', function(){
+      textInput.addEventListener('change', function () {
         theme.applyCustomColors(bgInput.value, textInput.value, true);
         refreshState();
       });
 
-      colorSection.appendChild(makeRow('背景色', bgInput));
-      colorSection.appendChild(makeRow('文字色', textInput));
+      colorSection.appendChild(makeRow((window.UILabels && window.UILabels.BACKGROUND_COLOR) || '背景色', bgInput));
+      colorSection.appendChild(makeRow((window.UILabels && window.UILabels.TEXT_COLOR) || '文字色', textInput));
 
       // Custom color presets
-      var paletteSection = makeSection('カスタム色');
+      var paletteSection = makeSection((window.UILabels && window.UILabels.CUSTOM_COLOR_SECTION) || 'カスタム色');
       var customPresets = [];
       try {
         var stored = localStorage.getItem('zenWriter_colorPresets');
         if (stored) customPresets = JSON.parse(stored);
-      } catch(_) {}
+      } catch (_) { }
       if (customPresets.length > 0) {
-        customPresets.forEach(function(preset, _idx){
+        customPresets.forEach(function (preset, _idx) {
           var _btn2 = document.createElement('button');
           _btn2.type = 'button';
           _btn2.className = 'small';
           _btn2.textContent = preset.name;
-          _btn2.addEventListener('click', function(){
+          _btn2.addEventListener('click', function () {
             theme.applyCustomColors(preset.bg, preset.text, true);
             refreshState();
           });
@@ -1538,35 +1556,35 @@
       }
 
       // Font settings
-      var fontSection = makeSection('フォント');
+      var fontSection = makeSection((window.UILabels && window.UILabels.FONT_SECTION) || 'フォント');
       var fontSelect = document.createElement('select');
       var fonts = [
         { value: '"Noto Serif JP", serif', label: 'Noto Serif JP' },
         { value: '"Yu Mincho", "YuMincho", serif', label: '游明朝' },
         { value: '"Hiragino Mincho ProN", serif', label: 'ヒラギノ明朝' }
       ];
-      fonts.forEach(function(f){ var opt=document.createElement('option'); opt.value=f.value; opt.textContent=f.label; fontSelect.appendChild(opt); });
-      fontSection.appendChild(makeRow('フォントファミリー', fontSelect));
+      fonts.forEach(function (f) { var opt = document.createElement('option'); opt.value = f.value; opt.textContent = f.label; fontSelect.appendChild(opt); });
+      fontSection.appendChild(makeRow((window.UILabels && window.UILabels.FONT_FAMILY) || 'フォントファミリー', fontSelect));
 
       var fontSizeInput = document.createElement('input');
       fontSizeInput.type = 'range'; fontSizeInput.min = '12'; fontSizeInput.max = '32'; fontSizeInput.step = '1'; fontSizeInput.value = settings.fontSize || 16;
       var fontSizeLabel = document.createElement('div');
       fontSizeLabel.style.fontSize = '0.85rem'; fontSizeLabel.style.opacity = '0.8';
       fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
-      fontSizeInput.addEventListener('input', function(e){
-        fontSizeLabel.textContent = 'フォントサイズ: ' + e.target.value + 'px';
+      fontSizeInput.addEventListener('input', function (e) {
+        fontSizeLabel.textContent = ((window.UILabels && window.UILabels.FONT_SIZE_PREFIX) || 'フォントサイズ: ') + e.target.value + 'px';
         theme.applyFontSettings(fontSelect.value, parseFloat(e.target.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value || e.target.value, 10), parseInt(editorFontSizeInput.value || e.target.value, 10));
         refreshState();
       });
-      fontSection.appendChild(makeRow('本文フォントサイズ', fontSizeInput));
+      fontSection.appendChild(makeRow((window.UILabels && window.UILabels.BODY_FONT_SIZE) || '本文フォントサイズ', fontSizeInput));
 
       var uiFontSizeInput = document.createElement('input');
       uiFontSizeInput.type = 'range'; uiFontSizeInput.min = '12'; uiFontSizeInput.max = '32'; uiFontSizeInput.step = '1'; uiFontSizeInput.value = settings.uiFontSize || settings.fontSize || 16;
       var uiFontSizeLabel = document.createElement('div');
       uiFontSizeLabel.style.fontSize = '0.85rem'; uiFontSizeLabel.style.opacity = '0.8';
-      uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
-      uiFontSizeInput.addEventListener('input', function(e){
-        uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + e.target.value + 'px';
+      uiFontSizeLabel.textContent = ((window.UILabels && window.UILabels.UI_FONT_SIZE_PREFIX) || 'UIフォントサイズ: ') + uiFontSizeInput.value + 'px';
+      uiFontSizeInput.addEventListener('input', function (e) {
+        uiFontSizeLabel.textContent = ((window.UILabels && window.UILabels.UI_FONT_SIZE_PREFIX) || 'UIフォントサイズ: ') + e.target.value + 'px';
         theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(e.target.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
@@ -1582,9 +1600,9 @@
       editorFontSizeInput.type = 'range'; editorFontSizeInput.min = '12'; editorFontSizeInput.max = '32'; editorFontSizeInput.step = '1'; editorFontSizeInput.value = settings.editorFontSize || 16;
       var editorFontSizeLabel = document.createElement('div');
       editorFontSizeLabel.style.fontSize = '0.85rem'; editorFontSizeLabel.style.opacity = '0.8';
-      editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
-      editorFontSizeInput.addEventListener('input', function(e){
-        editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + e.target.value + 'px';
+      editorFontSizeLabel.textContent = ((window.UILabels && window.UILabels.EDITOR_FONT_SIZE_PREFIX) || 'エディタフォントサイズ: ') + editorFontSizeInput.value + 'px';
+      editorFontSizeInput.addEventListener('input', function (e) {
+        editorFontSizeLabel.textContent = ((window.UILabels && window.UILabels.EDITOR_FONT_SIZE_PREFIX) || 'エディタフォントサイズ: ') + e.target.value + 'px';
         theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(lineHeightInput.value), parseInt(uiFontSizeInput.value, 10), parseInt(e.target.value, 10));
         refreshState();
       });
@@ -1601,9 +1619,9 @@
       lineHeightInput.value = settings.lineHeight || 1.6;
       var lineHeightLabel = document.createElement('div');
       lineHeightLabel.style.fontSize = '0.85rem'; lineHeightLabel.style.opacity = '0.8';
-      lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
-      lineHeightInput.addEventListener('input', function(e){
-        lineHeightLabel.textContent = '行間: ' + e.target.value;
+      lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
+      lineHeightInput.addEventListener('input', function (e) {
+        lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + e.target.value;
         theme.applyFontSettings(fontSelect.value, parseFloat(fontSizeInput.value), parseFloat(e.target.value), parseInt(uiFontSizeInput.value, 10), parseInt(editorFontSizeInput.value, 10));
         refreshState();
       });
@@ -1622,22 +1640,22 @@
 
       el.appendChild(wrap);
 
-      var refreshState = function(){
+      var refreshState = function () {
         try {
           var latest = storage.loadSettings();
           if (!latest) return;
           fontSelect.value = latest.fontFamily || fonts[0].value;
           fontSizeInput.value = latest.fontSize || 16;
-          fontSizeLabel.textContent = 'フォントサイズ: ' + fontSizeInput.value + 'px';
+          fontSizeLabel.textContent = ((window.UILabels && window.UILabels.FONT_SIZE_PREFIX) || 'フォントサイズ: ') + fontSizeInput.value + 'px';
           uiFontSizeInput.value = latest.uiFontSize || fontSizeInput.value;
-          uiFontSizeLabel.textContent = 'UIフォントサイズ: ' + uiFontSizeInput.value + 'px';
+          uiFontSizeLabel.textContent = ((window.UILabels && window.UILabels.UI_FONT_SIZE_PREFIX) || 'UIフォントサイズ: ') + uiFontSizeInput.value + 'px';
           editorFontSizeInput.value = latest.editorFontSize || fontSizeInput.value;
-          editorFontSizeLabel.textContent = 'エディタフォントサイズ: ' + editorFontSizeInput.value + 'px';
+          editorFontSizeLabel.textContent = ((window.UILabels && window.UILabels.EDITOR_FONT_SIZE_PREFIX) || 'エディタフォントサイズ: ') + editorFontSizeInput.value + 'px';
           lineHeightInput.value = latest.lineHeight || 1.6;
-          lineHeightLabel.textContent = '行間: ' + lineHeightInput.value;
+          lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
           bgInput.value = latest.bgColor || '#ffffff';
           textInput.value = latest.textColor || '#333333';
-        } catch(e){ console.error('refreshState failed', e); }
+        } catch (e) { console.error('refreshState failed', e); }
       };
 
       refreshState();
@@ -1645,28 +1663,28 @@
       window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);
       window.addEventListener('ZenWriterSettingsChanged', refreshState);
-    } catch(e) {
+    } catch (e) {
       console.error('TypographyThemes gadget failed:', e);
-      try { el.textContent = 'タイポ設定ガジェットの初期化に失敗しました。'; } catch(e) { void e; }
+      try { el.textContent = (window.UILabels && window.UILabels.TYPO_INIT_FAILED) || 'タイポ設定ガジェットの初期化に失敗しました。'; } catch (e) { void e; }
     }
-  }, { groups: ['typography'], title: 'テーマ & フォント' });
+  }, { groups: ['typography'], title: (window.UILabels && window.UILabels.GADGET_THEME_TITLE) || 'テーマ & フォント' });
 
-  ZWGadgetsInstance.register('HUDSettings', function(el){
+  ZWGadgetsInstance.register('HUDSettings', function (el) {
     try {
       var storage = window.ZenWriterStorage;
       if (!storage || typeof storage.loadSettings !== 'function' || typeof storage.saveSettings !== 'function') {
         var warn = document.createElement('p');
-        warn.textContent = 'HUD設定は利用できません。';
+        warn.textContent = (window.UILabels && window.UILabels.HUD_SETTINGS_UNAVAILABLE) || 'HUD設定は利用できません。';
         warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
         el.appendChild(warn);
         return;
       }
 
-      var loadHud = function(){
+      var loadHud = function () {
         var settings = storage.loadSettings() || {};
         return settings.hud || {};
       };
-      var saveHud = function(patch){
+      var saveHud = function (patch) {
         var settings = storage.loadSettings() || {};
         settings.hud = Object.assign({}, settings.hud || {}, patch || {});
         storage.saveSettings(settings);
@@ -1674,7 +1692,7 @@
           if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
             window.ZenWriterHUD.updateFromSettings();
           }
-        } catch(e) { void e; }
+        } catch (e) { void e; }
       };
 
       var hud = loadHud();
@@ -1685,7 +1703,7 @@
       wrap.style.flexDirection = 'column';
       wrap.style.gap = '8px';
 
-      function makeRow(labelText, control){
+      function makeRow(labelText, control) {
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
@@ -1697,50 +1715,50 @@
 
       var select = document.createElement('select');
       [
-        { value: 'bottom-left', label: '左下' },
-        { value: 'bottom-right', label: '右下' },
-        { value: 'top-left', label: '左上' },
-        { value: 'top-right', label: '右上' }
-      ].forEach(function(opt){
+        { value: 'bottom-left', label: (window.UILabels && window.UILabels.POSITION_BOTTOM_LEFT) || '左下' },
+        { value: 'bottom-right', label: (window.UILabels && window.UILabels.POSITION_BOTTOM_RIGHT) || '右下' },
+        { value: 'top-left', label: (window.UILabels && window.UILabels.POSITION_TOP_LEFT) || '左上' },
+        { value: 'top-right', label: (window.UILabels && window.UILabels.POSITION_TOP_RIGHT) || '右上' }
+      ].forEach(function (opt) {
         var o = document.createElement('option');
         o.value = opt.value; o.textContent = opt.label; select.appendChild(o);
       });
       select.value = hud.position || 'bottom-left';
-      select.addEventListener('change', function(e){ saveHud({ position: e.target.value }); });
-      wrap.appendChild(makeRow('表示位置', select));
+      select.addEventListener('change', function (e) { saveHud({ position: e.target.value }); });
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_POSITION) || '表示位置', select));
 
       var duration = document.createElement('input');
       duration.type = 'number'; duration.min = '300'; duration.max = '5000'; duration.step = '100';
       duration.value = hud.duration || 1200;
-      var clampDuration = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 1200; return Math.max(300, Math.min(5000, n)); };
-      var durationHandler = function(e){ saveHud({ duration: clampDuration(e.target.value) }); };
+      var clampDuration = function (v) { var n = parseInt(v, 10); if (isNaN(n)) return 1200; return Math.max(300, Math.min(5000, n)); };
+      var durationHandler = function (e) { saveHud({ duration: clampDuration(e.target.value) }); };
       duration.addEventListener('change', durationHandler);
       duration.addEventListener('input', durationHandler);
-      wrap.appendChild(makeRow('表示時間（ms）', duration));
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_DURATION) || '表示時間（ms）', duration));
 
       var bg = document.createElement('input');
       bg.type = 'color'; bg.value = hud.bg || '#000000';
-      bg.addEventListener('change', function(e){ saveHud({ bg: e.target.value }); });
-      wrap.appendChild(makeRow('背景色', bg));
+      bg.addEventListener('change', function (e) { saveHud({ bg: e.target.value }); });
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_BACKGROUND) || '背景色', bg));
 
       var fg = document.createElement('input');
       fg.type = 'color'; fg.value = hud.fg || '#ffffff';
-      fg.addEventListener('change', function(e){ saveHud({ fg: e.target.value }); });
-      wrap.appendChild(makeRow('文字色', fg));
+      fg.addEventListener('change', function (e) { saveHud({ fg: e.target.value }); });
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_TEXT_COLOR) || '文字色', fg));
 
       var opacityLabel = document.createElement('div');
-      opacityLabel.textContent = '不透明度: ' + (typeof hud.opacity === 'number' ? hud.opacity : 0.75);
+      opacityLabel.textContent = ((window.UILabels && window.UILabels.HUD_OPACITY_PREFIX) || '不透明度: ') + (typeof hud.opacity === 'number' ? hud.opacity : 0.75);
       opacityLabel.style.fontSize = '0.85rem'; opacityLabel.style.opacity = '0.8';
       var opacity = document.createElement('input');
       opacity.type = 'range'; opacity.min = '0'; opacity.max = '1'; opacity.step = '0.05';
       opacity.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
-      var setOpacity = function(val){
+      var setOpacity = function (val) {
         var num = Math.max(0, Math.min(1, parseFloat(val)));
-        opacityLabel.textContent = '不透明度: ' + num;
+        opacityLabel.textContent = ((window.UILabels && window.UILabels.HUD_OPACITY_PREFIX) || '不透明度: ') + num;
         saveHud({ opacity: num });
       };
-      opacity.addEventListener('input', function(e){ setOpacity(e.target.value); });
-      opacity.addEventListener('change', function(e){ setOpacity(e.target.value); });
+      opacity.addEventListener('input', function (e) { setOpacity(e.target.value); });
+      opacity.addEventListener('change', function (e) { setOpacity(e.target.value); });
       var opacityRow = document.createElement('div');
       opacityRow.style.display = 'flex';
       opacityRow.style.flexDirection = 'column';
@@ -1753,48 +1771,48 @@
       var widthInput = document.createElement('input');
       widthInput.type = 'number'; widthInput.min = '120'; widthInput.max = '800'; widthInput.step = '10';
       widthInput.value = hud.width || 240;
-      var clampWidth = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); };
-      var widthHandler = function(e){ saveHud({ width: clampWidth(e.target.value) }); };
+      var clampWidth = function (v) { var n = parseInt(v, 10); if (isNaN(n)) return 240; return Math.max(120, Math.min(800, n)); };
+      var widthHandler = function (e) { saveHud({ width: clampWidth(e.target.value) }); };
       widthInput.addEventListener('change', widthHandler);
       widthInput.addEventListener('input', widthHandler);
-      wrap.appendChild(makeRow('幅（px）', widthInput));
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_WIDTH) || '幅（px）', widthInput));
 
       // フォントサイズ（px）
       var fontSizeNum = document.createElement('input');
       fontSizeNum.type = 'number'; fontSizeNum.min = '10'; fontSizeNum.max = '24'; fontSizeNum.step = '1';
       fontSizeNum.value = hud.fontSize || 14;
-      var clampFontPx = function(v){ var n = parseInt(v,10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); };
-      var fontHandler = function(e){ saveHud({ fontSize: clampFontPx(e.target.value) }); };
+      var clampFontPx = function (v) { var n = parseInt(v, 10); if (isNaN(n)) return 14; return Math.max(10, Math.min(24, n)); };
+      var fontHandler = function (e) { saveHud({ fontSize: clampFontPx(e.target.value) }); };
       fontSizeNum.addEventListener('change', fontHandler);
       fontSizeNum.addEventListener('input', fontHandler);
-      wrap.appendChild(makeRow('フォントサイズ（px）', fontSizeNum));
+      wrap.appendChild(makeRow((window.UILabels && window.UILabels.HUD_FONT_SIZE) || 'フォントサイズ（px）', fontSizeNum));
 
       var testBtn = document.createElement('button');
-      testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = 'HUDテスト表示';
-      testBtn.addEventListener('click', function(){
+      testBtn.type = 'button'; testBtn.className = 'small'; testBtn.textContent = (window.UILabels && window.UILabels.HUD_TEST) || 'HUDテスト表示';
+      testBtn.addEventListener('click', function () {
         try {
           if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-            window.ZenWriterHUD.publish('HUDテスト表示');
+            window.ZenWriterHUD.publish((window.UILabels && window.UILabels.HUD_TEST) || 'HUDテスト表示');
           }
-        } catch(e) { void e; }
+        } catch (e) { void e; }
       });
       wrap.appendChild(testBtn);
 
       el.appendChild(wrap);
-    } catch(e) {
+    } catch (e) {
       console.error('HUDSettings gadget failed:', e);
-      try { el.textContent = 'HUD設定ガジェットの初期化に失敗しました。'; } catch(e) { void e; }
+      try { el.textContent = (window.UILabels && window.UILabels.HUD_INIT_FAILED) || 'HUD設定ガジェットの初期化に失敗しました。'; } catch (e) { void e; }
     }
-  }, { groups: ['assist'], title: 'HUD設定' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
 
   // Writing Goal gadget
-  ZWGadgetsInstance.register('WritingGoal', function(el, api){
+  ZWGadgetsInstance.register('WritingGoal', function (el, api) {
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
       if (!storage) {
         var warn = document.createElement('p');
-        warn.textContent = 'ストレージが利用できないため目標を保存できません。';
+        warn.textContent = (window.UILabels && window.UILabels.GOAL_STORAGE_UNAVAILABLE) || 'ストレージが利用できません。';
         warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
         el.appendChild(warn);
         return;
@@ -1807,7 +1825,7 @@
         if (s0 && s0.goal) {
           goal = Object.assign({}, goal, s0.goal);
         }
-      } catch(_) {}
+      } catch (_) { }
 
       var wrap = document.createElement('div');
       wrap.className = 'gadget-goal';
@@ -1816,10 +1834,10 @@
       wrap.style.gap = '8px';
 
       var target = document.createElement('input');
-      target.type = 'number'; target.min = '0'; target.placeholder = '例: 2000';
-      target.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
-      target.addEventListener('input', function(e){ 
-        var n = Math.max(0, parseInt(e.target.value,10)||0); 
+      target.type = 'number'; target.min = '0'; target.placeholder = (window.UILabels && window.UILabels.GOAL_TARGET_PLACEHOLDER) || '例: 2000';
+      target.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target, 10) || 0);
+      target.addEventListener('input', function (e) {
+        var n = Math.max(0, parseInt(e.target.value, 10) || 0);
         var newGoal = Object.assign({}, goal, { target: n });
         if (api && typeof api.set === 'function') api.set('goal', newGoal);
         // アプリ設定へ同期
@@ -1827,13 +1845,13 @@
           var s = storage.loadSettings();
           s.goal = Object.assign({}, s.goal || {}, { target: n });
           storage.saveSettings(s);
-        } catch(_) {}
-        try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}
+        } catch (_) { }
+        try { editor && editor.updateWordCount && editor.updateWordCount(); } catch (_) { }
       });
 
       var deadline = document.createElement('input');
       deadline.type = 'date'; deadline.value = goal.deadline || '';
-      deadline.addEventListener('change', function(e){ 
+      deadline.addEventListener('change', function (e) {
         var newGoal = Object.assign({}, goal, { deadline: e.target.value || '' });
         if (api && typeof api.set === 'function') api.set('goal', newGoal);
         // アプリ設定へ同期
@@ -1841,24 +1859,26 @@
           var s = storage.loadSettings();
           s.goal = Object.assign({}, s.goal || {}, { deadline: (e.target.value || '') });
           storage.saveSettings(s);
-        } catch(_) {}
-        try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}}
+        } catch (_) { }
+        try { editor && editor.updateWordCount && editor.updateWordCount(); } catch (_) { }
+      }
       );
 
-      var row1 = document.createElement('label'); row1.style.display='flex'; row1.style.flexDirection='column'; row1.style.gap='4px'; row1.textContent = '目標文字数'; row1.appendChild(target);
-      var row2 = document.createElement('label'); row2.style.display='flex'; row2.style.flexDirection='column'; row2.style.gap='4px'; row2.textContent = '締切日'; row2.appendChild(deadline);
+      var row1 = document.createElement('label'); row1.style.display = 'flex'; row1.style.flexDirection = 'column'; row1.style.gap = '4px'; row1.textContent = (window.UILabels && window.UILabels.GOAL_TARGET) || '目標文字数'; row1.appendChild(target);
+      var row2 = document.createElement('label'); row2.style.display = 'flex'; row2.style.flexDirection = 'column'; row2.style.gap = '4px'; row2.textContent = (window.UILabels && window.UILabels.DEADLINE) || '締切日'; row2.appendChild(deadline);
 
-      var reset = document.createElement('button'); reset.type='button'; reset.className='small'; reset.textContent='目標をクリア';
-      reset.addEventListener('click', function(){ 
-        if (confirm('執筆目標をクリアしますか？')){ 
+      var reset = document.createElement('button'); reset.type = 'button'; reset.className = 'small'; reset.textContent = (window.UILabels && window.UILabels.CLEAR_GOAL) || '目標をクリア';
+      reset.addEventListener('click', function () {
+        if (confirm((window.UILabels && window.UILabels.CLEAR_GOAL_CONFIRM) || '執筆目標をクリアしますか？')) {
           if (api && typeof api.set === 'function') api.set('goal', {});
           try {
             var s = storage.loadSettings();
             s.goal = { target: 0, deadline: null };
             storage.saveSettings(s);
-          } catch(_) {}
-          target.value = 0; deadline.value=''; 
-          try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){}}
+          } catch (_) { }
+          target.value = 0; deadline.value = '';
+          try { editor && editor.updateWordCount && editor.updateWordCount(); } catch (_) { }
+        }
       });
 
       wrap.appendChild(row1);
@@ -1866,39 +1886,39 @@
       wrap.appendChild(reset);
       el.appendChild(wrap);
       // 初期同期（表示とroot属性の更新）
-      try{ editor && editor.updateWordCount && editor.updateWordCount(); }catch(_){ }
-    } catch(e) {
+      try { editor && editor.updateWordCount && editor.updateWordCount(); } catch (_) { }
+    } catch (e) {
       console.error('WritingGoal gadget failed:', e);
-      try { el.textContent = '執筆目標ガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = (window.UILabels && window.UILabels.GOAL_INIT_FAILED) || '執筆目標ガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['assist'], title: '執筆目標' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_GOAL_TITLE) || '執筆目標' });
 
   // Snapshot Manager gadget (legacy assist) — renamed to avoid conflict
-  ZWGadgetsInstance.register('SnapshotManagerLegacyAssist', function(el, _api){
+  ZWGadgetsInstance.register('SnapshotManagerLegacyAssist', function (el, _api) {
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
       if (!storage || !storage.loadSnapshots || !storage.addSnapshot) {
         var warn = document.createElement('p');
-        warn.textContent = 'スナップショット機能が利用できません。';
+        warn.textContent = (window.UILabels && window.UILabels.SNAPSHOT_UNAVAILABLE) || 'スナップショット機能が利用できません。';
         warn.style.opacity = '0.7'; warn.style.fontSize = '0.9rem';
         el.appendChild(warn);
         return;
       }
 
-      var formatTs = function(ts){
+      var formatTs = function (ts) {
         const d = new Date(ts);
-        const p = (n)=> String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
       };
 
-      var renderSnapshots = function(){
+      var renderSnapshots = function () {
         var list = storage.loadSnapshots() || [];
         el.innerHTML = '';
-        if (list.length === 0){
+        if (list.length === 0) {
           const empty = document.createElement('div');
           empty.style.opacity = '0.7';
-          empty.textContent = 'バックアップはありません';
+          empty.textContent = (window.UILabels && window.UILabels.NO_BACKUPS) || 'バックアップはありません';
           el.appendChild(empty);
           return;
         }
@@ -1910,24 +1930,24 @@
           row.style.gap = '6px';
           row.style.margin = '4px 0';
           const meta = document.createElement('div');
-          meta.textContent = `${formatTs(s.ts)} / ${s.len} 文字`;
+          meta.textContent = `${formatTs(s.ts)} / ${s.len} ` + ((window.UILabels && window.UILabels.CHARS_SUFFIX) || '文字');
           const actions = document.createElement('div');
           const restore = document.createElement('button');
           restore.className = 'small';
-          restore.textContent = '復元';
+          restore.textContent = (window.UILabels && window.UILabels.RESTORE) || '復元';
           restore.addEventListener('click', () => {
-            if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){
+            if (confirm((window.UILabels && window.UILabels.CONFIRM_RESTORE) || 'このバックアップで本文を置き換えます。よろしいですか？')) {
               editor.setContent(s.content || '');
               if (typeof editor.showNotification === 'function') {
-                editor.showNotification('バックアップから復元しました');
+                editor.showNotification((window.UILabels && window.UILabels.RESTORED) || 'バックアップから復元しました');
               }
             }
           });
           const del = document.createElement('button');
           del.className = 'small';
-          del.textContent = '削除';
+          del.textContent = (window.UILabels && window.UILabels.DELETE) || '削除';
           del.addEventListener('click', () => {
-            if (confirm('このバックアップを削除しますか？')){
+            if (confirm((window.UILabels && window.UILabels.CONFIRM_DELETE) || 'このバックアップを削除しますか？')) {
               storage.deleteSnapshot(s.id);
               renderSnapshots();
             }
@@ -1943,42 +1963,42 @@
       const saveBtn = document.createElement('button');
       saveBtn.type = 'button';
       saveBtn.className = 'small';
-      saveBtn.textContent = '今すぐ保存';
+      saveBtn.textContent = (window.UILabels && window.UILabels.NOW_SAVE) || '今すぐ保存';
       saveBtn.addEventListener('click', () => {
         const content = editor && editor.value ? editor.value : '';
         storage.addSnapshot(content);
         if (typeof editor.showNotification === 'function') {
-          editor.showNotification('バックアップを保存しました');
+          editor.showNotification((window.UILabels && window.UILabels.BACKUP_SAVED) || 'バックアップを保存しました');
         }
         renderSnapshots();
       });
       el.appendChild(saveBtn);
 
       renderSnapshots();
-    } catch(e) {
+    } catch (e) {
       console.error('SnapshotManager gadget failed:', e);
-      try { el.textContent = 'スナップショットガジェットの初期化に失敗しました。'; } catch(_) {}
+      try { el.textContent = (window.UILabels && window.UILabels.SNAPSHOT_INIT_FAILED) || 'スナップショットガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['assist'], title: 'バックアップ' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_BACKUP_TITLE) || 'バックアップ' });
 
   // Print Settings gadget
-  ZWGadgetsInstance.register('PrintSettings', function(el, _api){
+  ZWGadgetsInstance.register('PrintSettings', function (el, _api) {
     try {
       var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
 
-      function createPrintButton(editorEl){
+      function createPrintButton(editorEl) {
         const printBtn = document.createElement('button');
         printBtn.type = 'button';
         printBtn.className = 'small';
-        printBtn.textContent = '印刷プレビュー';
-        printBtn.addEventListener('click', function(){
+        printBtn.textContent = (window.UILabels && window.UILabels.PRINT_PREVIEW) || '印刷プレビュー';
+        printBtn.addEventListener('click', function () {
           const pv = document.getElementById('print-view');
           if (!pv || !editorEl) return;
           const text = editorEl.value || '';
           pv.innerHTML = '';
           const norm = text.replace(/\r\n/g, '\n');
           const blocks = norm.split(/\n{2,}/);
-          blocks.forEach(function(seg){
+          blocks.forEach(function (seg) {
             const p = document.createElement('p');
             p.textContent = seg;
             pv.appendChild(p);
@@ -1988,18 +2008,18 @@
         return printBtn;
       }
 
-      function createExportButton(editorEl){
+      function createExportButton(editorEl) {
         const exportBtn = document.createElement('button');
         exportBtn.type = 'button';
         exportBtn.className = 'small';
-        exportBtn.textContent = 'TXTエクスポート';
-        exportBtn.addEventListener('click', function(){
+        exportBtn.textContent = (window.UILabels && window.UILabels.TXT_EXPORT) || 'TXTエクスポート';
+        exportBtn.addEventListener('click', function () {
           const text = editorEl && editorEl.value ? editorEl.value : '';
           const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
           a.href = url;
-          a.download = 'document.txt';
+          a.download = (window.UILabels && window.UILabels.EXPORT_FILENAME_DEFAULT) || 'document.txt';
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
@@ -2010,68 +2030,89 @@
 
       el.appendChild(createPrintButton(ed));
       el.appendChild(createExportButton(ed));
-    } catch(e) {
+    } catch (e) {
       console.error('PrintSettings gadget failed:', e);
-      try { el.textContent = '印刷設定ガジェットの初期化に失敗しました。'; } catch(e2) { void e2; }
+      try { el.textContent = (window.UILabels && window.UILabels.PRINT_INIT_FAILED) || '印刷設定ガジェットの初期化に失敗しました。'; } catch (e2) { void e2; }
     }
-  }, { groups: ['assist'], title: 'エクスポート' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_EXPORT_TITLE) || 'エクスポート' });
 
   // (removed) legacy EditorLayout gadget (replaced by new implementation at bottom)
 
   // SnapshotManager gadget (バックアップ管理)
-  ZWGadgetsInstance.register('SnapshotManager', function(el){
+  ZWGadgetsInstance.register('SnapshotManager', function (el) {
     try {
       var storage = window.ZenWriterStorage;
       var editorManager = window.ZenWriterEditor;
       if (!storage || !storage.loadSnapshots) {
-        var warn = document.createElement('p'); warn.style.opacity='0.7'; warn.textContent='バックアップ機能を利用できません。'; el.appendChild(warn); return;
+        var warn = document.createElement('p'); warn.style.opacity = '0.7'; warn.textContent = (window.UILabels && window.UILabels.BACKUP_UNAVAILABLE) || 'バックアップ機能を利用できません。'; el.appendChild(warn); return;
       }
-      var wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexDirection='column'; wrap.style.gap='8px';
-      var btn = document.createElement('button'); btn.type='button'; btn.textContent='今すぐ保存'; btn.addEventListener('click', function(){ try {
-        var content = (editorManager && editorManager.editor) ? (editorManager.editor.value||'') : (storage.loadContent ? storage.loadContent() : '');
-        storage.addSnapshot(content);
-        if (editorManager && typeof editorManager.showNotification==='function') editorManager.showNotification('バックアップを保存しました');
-        renderList();
-      } catch(e){} });
-      var listEl = document.createElement('div'); listEl.className='snapshot-list';
+      var wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexDirection = 'column'; wrap.style.gap = '8px';
+      var btn = document.createElement('button'); btn.type = 'button'; btn.textContent = (window.UILabels && window.UILabels.NOW_SAVE) || '今すぐ保存'; btn.addEventListener('click', function () {
+        try {
+          var content = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : (storage.loadContent ? storage.loadContent() : '');
+          storage.addSnapshot(content);
+          if (editorManager && typeof editorManager.showNotification === 'function') editorManager.showNotification((window.UILabels && window.UILabels.BACKUP_SAVED) || 'バックアップを保存しました');
+          renderList();
+        } catch (e) { }
+      });
+      var listEl = document.createElement('div'); listEl.className = 'snapshot-list';
       wrap.appendChild(btn); wrap.appendChild(listEl); el.appendChild(wrap);
 
-      function fmt(ts){ var d=new Date(ts); var p=function(n){return String(n).padStart(2,'0');}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds()); }
-      function renderList(){
-        var list = storage.loadSnapshots()||[]; listEl.innerHTML='';
-        if (!list.length){ var empty=document.createElement('div'); empty.style.opacity='0.7'; empty.textContent='バックアップはありません'; listEl.appendChild(empty); return; }
-        list.forEach(function(s){
-          var row=document.createElement('div'); row.style.display='flex'; row.style.justifyContent='space-between'; row.style.alignItems='center'; row.style.gap='6px'; row.style.margin='4px 0';
-          var meta=document.createElement('div'); meta.textContent=fmt(s.ts)+' / '+s.len+' 文字';
-          var actions=document.createElement('div');
-          var restore=document.createElement('button'); restore.className='small'; restore.textContent='復元'; restore.addEventListener('click', function(){ if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){ if (editorManager && typeof editorManager.setContent==='function'){ editorManager.setContent(s.content||''); if (editorManager.showNotification) editorManager.showNotification('バックアップから復元しました'); } } });
-          var del=document.createElement('button'); del.className='small'; del.textContent='削除'; del.addEventListener('click', function(){ storage.deleteSnapshot(s.id); renderList(); });
+      function fmt(ts) { var d = new Date(ts); var p = function (n) { return String(n).padStart(2, '0'); }; return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+      function renderList() {
+        var list = storage.loadSnapshots() || []; listEl.innerHTML = '';
+        if (!list.length) { var empty = document.createElement('div'); empty.style.opacity = '0.7'; empty.textContent = (window.UILabels && window.UILabels.NO_BACKUPS) || 'バックアップはありません'; listEl.appendChild(empty); return; }
+        list.forEach(function (s) {
+          var row = document.createElement('div'); row.style.display = 'flex'; row.style.justifyContent = 'space-between'; row.style.alignItems = 'center'; row.style.gap = '6px'; row.style.margin = '4px 0';
+          var meta = document.createElement('div'); meta.textContent = fmt(s.ts) + ' / ' + s.len + ' ' + ((window.UILabels && window.UILabels.CHARS_SUFFIX) || '文字');
+          var actions = document.createElement('div');
+          var restore = document.createElement('button'); restore.className = 'small'; restore.textContent = (window.UILabels && window.UILabels.RESTORE) || '復元'; restore.addEventListener('click', function () { if (confirm((window.UILabels && window.UILabels.CONFIRM_RESTORE) || 'このバックアップで本文を置き換えます。よろしいですか？')) { if (editorManager && typeof editorManager.setContent === 'function') { editorManager.setContent(s.content || ''); if (editorManager.showNotification) editorManager.showNotification((window.UILabels && window.UILabels.RESTORED) || 'バックアップから復元しました'); } } });
+          var del = document.createElement('button'); del.className = 'small'; del.textContent = (window.UILabels && window.UILabels.DELETE) || '削除'; del.addEventListener('click', function () { storage.deleteSnapshot(s.id); renderList(); });
           actions.appendChild(restore); actions.appendChild(del);
           row.appendChild(meta); row.appendChild(actions); listEl.appendChild(row);
         });
       }
       renderList();
-    } catch(e) { try { el.textContent='スナップショットの初期化に失敗しました。'; } catch(_) {} }
-  }, { groups: ['structure'], title: 'バックアップ' });
+    } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.SNAPSHOT_INIT_FAILED) || 'スナップショットの初期化に失敗しました。'; } catch (_) { } }
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_BACKUP_TITLE) || 'バックアップ' });
 
   // ChoiceTools gadget（選択肢ツール）
-  ZWGadgetsInstance.register('ChoiceTools', function(el){
+  ZWGadgetsInstance.register('ChoiceTools', function (el) {
     try {
       var ed = window.ZenWriterEditor;
-      var wrap = document.createElement('div'); wrap.style.display='flex'; wrap.style.flexWrap='wrap'; wrap.style.gap='6px';
-      function makeBtn(text, handler){ var b=document.createElement('button'); b.type='button'; b.className='small'; b.textContent=text; b.addEventListener('click', handler); return b; }
-      function insertChoice(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var tpl=['','[choice title="選択肢"]','- [> 選択肢1](#label1)','- [> 選択肢2](#label2)','[/choice]',''].join('\n'); ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('選択肢ブロックを挿入しました'); }
-      function insertLabel(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var name=prompt('ラベルIDを入力','label1'); if (name===null) return; var tpl=['','[label id="'+String((name||'label1').trim())+'"]','', '[/label]',''].join('\n'); ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('ラベルを挿入しました'); }
-      function insertJump(){ if (!ed || typeof ed.insertTextAtCursor!=='function') return; var to=prompt('ジャンプ先ラベルIDを入力','label1'); if (to===null) return; var tpl='\n[jump to="'+String((to||'label1').trim())+'"]\n'; ed.insertTextAtCursor(tpl); if (ed.showNotification) ed.showNotification('ジャンプを挿入しました'); }
-      wrap.appendChild(makeBtn('選択肢ブロック', insertChoice));
-      wrap.appendChild(makeBtn('ラベル', insertLabel));
-      wrap.appendChild(makeBtn('ジャンプ', insertJump));
+      var wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '6px';
+      function makeBtn(text, handler) { var b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = text; b.addEventListener('click', handler); return b; }
+      function insertChoice() {
+        if (!ed || typeof ed.insertTextAtCursor !== 'function') return;
+        var tpl = ['', '[choice title="' + ((window.UILabels && window.UILabels.CHOICE_BLOCK_TITLE) || '選択肢') + '"]', '- [> ' + ((window.UILabels && window.UILabels.CHOICE_OPTION_1) || '選択肢1') + '](#label1)', '- [> ' + ((window.UILabels && window.UILabels.CHOICE_OPTION_2) || '選択肢2') + '](#label2)', '[/choice]', ''].join('\n');
+        ed.insertTextAtCursor(tpl);
+        if (ed.showNotification) ed.showNotification((window.UILabels && window.UILabels.CHOICE_INSERTED) || '選択肢ブロックを挿入しました');
+      }
+      function insertLabel() {
+        if (!ed || typeof ed.insertTextAtCursor !== 'function') return;
+        var name = prompt((window.UILabels && window.UILabels.LABEL_ID_PROMPT) || 'ラベルIDを入力', 'label1');
+        if (name === null) return;
+        var tpl = ['', '[label id="' + String((name || 'label1').trim()) + '"]', '', '[/label]', ''].join('\n');
+        ed.insertTextAtCursor(tpl);
+        if (ed.showNotification) ed.showNotification((window.UILabels && window.UILabels.LABEL_INSERTED) || 'ラベルを挿入しました');
+      }
+      function insertJump() {
+        if (!ed || typeof ed.insertTextAtCursor !== 'function') return;
+        var to = prompt((window.UILabels && window.UILabels.JUMP_ID_PROMPT) || 'ジャンプ先ラベルIDを入力', 'label1');
+        if (to === null) return;
+        var tpl = '\n[jump to="' + String((to || 'label1').trim()) + '"]\n';
+        ed.insertTextAtCursor(tpl);
+        if (ed.showNotification) ed.showNotification((window.UILabels && window.UILabels.JUMP_INSERTED) || 'ジャンプを挿入しました');
+      }
+      wrap.appendChild(makeBtn((window.UILabels && window.UILabels.BTN_CHOICE_BLOCK) || '選択肢ブロック', insertChoice));
+      wrap.appendChild(makeBtn((window.UILabels && window.UILabels.BTN_LABEL) || 'ラベル', insertLabel));
+      wrap.appendChild(makeBtn((window.UILabels && window.UILabels.BTN_JUMP) || 'ジャンプ', insertJump));
       el.appendChild(wrap);
-    } catch(e){ try { el.textContent='選択肢ツールの初期化に失敗しました。'; } catch(_) {} }
-  }, { groups: ['assist'], title: '選択肢' });
+    } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.CHOICE_TOOL_INIT_FAILED) || '選択肢ツールの初期化に失敗しました。'; } catch (_) { } }
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_CHOICE_TITLE) || '選択肢' });
 
   // Images gadget (insert/list/remove)
-  ZWGadgetsInstance.register('Images', function(el){
+  ZWGadgetsInstance.register('Images', function (el) {
     try {
       var API = window.ZenWriterImages;
       var root = document.createElement('div');
@@ -2079,70 +2120,71 @@
       root.style.gap = '6px';
 
       var urlRow = document.createElement('div');
-      var urlInput = document.createElement('input'); urlInput.type='url'; urlInput.placeholder='画像URLを入力';
-      var addUrlBtn = document.createElement('button'); addUrlBtn.type='button'; addUrlBtn.className='small'; addUrlBtn.textContent='URL追加';
+      var urlInput = document.createElement('input'); urlInput.type = 'url'; urlInput.placeholder = (window.UILabels && window.UILabels.IMG_URL_PLACEHOLDER) || '画像URLを入力';
+      var addUrlBtn = document.createElement('button'); addUrlBtn.type = 'button'; addUrlBtn.className = 'small'; addUrlBtn.textContent = (window.UILabels && window.UILabels.BTN_ADD_URL) || 'URL追加';
       urlRow.appendChild(urlInput); urlRow.appendChild(addUrlBtn);
 
       var fileRow = document.createElement('div');
-      var fileInput = document.createElement('input'); fileInput.type='file'; fileInput.accept='image/*';
+      var fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*';
       fileRow.appendChild(fileInput);
 
-      var list = document.createElement('div'); list.style.display='grid'; list.style.gap='6px';
+      var list = document.createElement('div'); list.style.display = 'grid'; list.style.gap = '6px';
 
-      function showEditDialog(id, it){
+      function showEditDialog(id, it) {
         try {
           // 簡易ダイアログ
-          var altInput = document.createElement('input'); altInput.type='text'; altInput.placeholder='Altテキスト'; altInput.value=it.alt||'';
-          var widthInput = document.createElement('input'); widthInput.type='number'; widthInput.min='100'; widthInput.max='800'; widthInput.value=it.width||240;
+          var altInput = document.createElement('input'); altInput.type = 'text'; altInput.placeholder = (window.UILabels && window.UILabels.IMG_ALT_PLACEHOLDER) || 'Altテキスト'; altInput.value = it.alt || '';
+          var widthInput = document.createElement('input'); widthInput.type = 'number'; widthInput.min = '100'; widthInput.max = '800'; widthInput.value = it.width || 240;
           var alignSelect = document.createElement('select');
-          ['left','center','right'].forEach(function(a){ var o=document.createElement('option'); o.value=a; o.textContent=a; alignSelect.appendChild(o); });
+          ['left', 'center', 'right'].forEach(function (a) { var o = document.createElement('option'); o.value = a; o.textContent = a; alignSelect.appendChild(o); });
           alignSelect.value = it.alignment || 'left';
-          var saveBtn = document.createElement('button'); saveBtn.type='button'; saveBtn.textContent='保存'; saveBtn.className='small';
-          var cancelBtn = document.createElement('button'); cancelBtn.type='button'; cancelBtn.textContent='キャンセル'; cancelBtn.className='small';
+          var saveBtn = document.createElement('button'); saveBtn.type = 'button'; saveBtn.textContent = (window.UILabels && window.UILabels.BTN_SAVE) || '保存'; saveBtn.className = 'small';
+          var cancelBtn = document.createElement('button'); cancelBtn.type = 'button'; cancelBtn.textContent = (window.UILabels && window.UILabels.BTN_CANCEL) || 'キャンセル'; cancelBtn.className = 'small';
 
-          var dialog = document.createElement('div'); dialog.style.position='fixed'; dialog.style.top='50%'; dialog.style.left='50%'; dialog.style.transform='translate(-50%,-50%)'; dialog.style.background='var(--bg-color)'; dialog.style.border='1px solid var(--border-color)'; dialog.style.padding='16px'; dialog.style.zIndex='10000'; dialog.style.display='flex'; dialog.style.flexDirection='column'; dialog.style.gap='8px';
-          dialog.appendChild(document.createTextNode('Altテキスト:')); dialog.appendChild(altInput);
-          dialog.appendChild(document.createTextNode('幅 (px):')); dialog.appendChild(widthInput);
-          dialog.appendChild(document.createTextNode('配置:')); dialog.appendChild(alignSelect);
-          var btns = document.createElement('div'); btns.style.display='flex'; btns.style.gap='8px';
+          var dialog = document.createElement('div'); dialog.style.position = 'fixed'; dialog.style.top = '50%'; dialog.style.left = '50%'; dialog.style.transform = 'translate(-50%,-50%)'; dialog.style.background = 'var(--bg-color)'; dialog.style.border = '1px solid var(--border-color)'; dialog.style.padding = '16px'; dialog.style.zIndex = '10000'; dialog.style.display = 'flex'; dialog.style.flexDirection = 'column'; dialog.style.gap = '8px';
+          dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_ALT_PLACEHOLDER) || 'Altテキスト:')); dialog.appendChild(altInput);
+          dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_WIDTH_LABEL) || '幅 (px):')); dialog.appendChild(widthInput);
+          dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_ALIGN_LABEL) || '配置:')); dialog.appendChild(alignSelect);
+          var btns = document.createElement('div'); btns.style.display = 'flex'; btns.style.gap = '8px';
           btns.appendChild(saveBtn); btns.appendChild(cancelBtn);
           dialog.appendChild(btns);
           document.body.appendChild(dialog);
 
-          saveBtn.addEventListener('click', function(){
+          saveBtn.addEventListener('click', function () {
             try {
-              API && API.update && API.update(id, { alt: altInput.value, width: parseInt(widthInput.value,10), alignment: alignSelect.value });
+              API && API.update && API.update(id, { alt: altInput.value, width: parseInt(widthInput.value, 10), alignment: alignSelect.value });
               renderList();
               document.body.removeChild(dialog);
-            } catch(_) {}
+            } catch (_) { }
           });
-          cancelBtn.addEventListener('click', function(){ document.body.removeChild(dialog); });
-        } catch(_) {}
+          cancelBtn.addEventListener('click', function () { document.body.removeChild(dialog); });
+        } catch (_) { }
       }
 
-      function renderList(){
+      function renderList() {
         try {
-          list.innerHTML='';
-          var images = (API && typeof API._load==='function') ? API._load() : [];
-          images.forEach(function(it){
-            var row = document.createElement('div'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='8px';
-            var thumb = document.createElement('img'); thumb.src=it.src; thumb.alt=it.alt||''; thumb.style.width='40px'; thumb.style.height='40px'; thumb.style.objectFit='cover'; thumb.style.border='1px solid var(--border-color)';
-            var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex='1 1 auto'; name.style.fontSize='12px'; name.style.opacity='0.8';
-            var editBtn = document.createElement('button'); editBtn.type='button'; editBtn.className='small'; editBtn.textContent='編集'; editBtn.title='プロパティ編集';
-            editBtn.addEventListener('click', function(){ showEditDialog(it.id, it); });
-            var rm = document.createElement('button'); rm.type='button'; rm.className='small'; rm.textContent='削除';
-            rm.addEventListener('click', function(){ try { API && API.remove && API.remove(it.id); renderList(); } catch(_){} });
+          list.innerHTML = '';
+          var images = (API && typeof API._load === 'function') ? API._load() : [];
+          images.forEach(function (it) {
+            var row = document.createElement('div'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+            var thumb = document.createElement('img'); thumb.src = it.src; thumb.alt = it.alt || ''; thumb.style.width = '40px'; thumb.style.height = '40px'; thumb.style.objectFit = 'cover'; thumb.style.border = '1px solid var(--border-color)';
+            var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex = '1 1 auto'; name.style.fontSize = '12px'; name.style.opacity = '0.8';
+            var editBtn = document.createElement('button'); editBtn.type = 'button'; editBtn.className = 'small'; editBtn.textContent = (window.UILabels && window.UILabels.BTN_EDIT) || '編集'; editBtn.title = (window.UILabels && window.UILabels.BTN_EDIT_TITLE) || 'プロパティ編集';
+            editBtn.addEventListener('click', function () { showEditDialog(it.id, it); });
+            var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'small'; rm.textContent = (window.UILabels && window.UILabels.BTN_DELETE) || '削除';
+            rm.addEventListener('click', function () { try { API && API.remove && API.remove(it.id); renderList(); } catch (_) { } });
             row.appendChild(thumb); row.appendChild(name); row.appendChild(editBtn); row.appendChild(rm);
             list.appendChild(row);
           });
-        } catch(_) {}
+        } catch (_) { }
       }
 
-      addUrlBtn.addEventListener('click', function(){
-        var val = (urlInput.value||'').trim(); if (!val) return;
-        try { API && API.addFromUrl && API.addFromUrl(val); urlInput.value=''; renderList(); } catch(_){}
+      addUrlBtn.addEventListener('click', function () {
+        var val = (urlInput.value || '').trim(); if (!val) return;
+        try { API && API.addFromUrl && API.addFromUrl(val); urlInput.value = ''; renderList(); } catch (_) { }
       });
-      fileInput.addEventListener('change', function(){ try { var f=fileInput.files && fileInput.files[0]; if (f && API && API.addFromFile){ API.addFromFile(f); fileInput.value=''; renderList(); } } catch(_){}
+      fileInput.addEventListener('change', function () {
+        try { var f = fileInput.files && fileInput.files[0]; if (f && API && API.addFromFile) { API.addFromFile(f); fileInput.value = ''; renderList(); } } catch (_) { }
       });
 
       root.appendChild(urlRow);
@@ -2151,14 +2193,14 @@
       el.appendChild(root);
 
       renderList();
-      try { window.addEventListener('ZWDocumentsChanged', renderList); } catch(_) {}
-    } catch(e){ try { el.textContent = '画像ガジェットの初期化に失敗しました。'; } catch(_) {} }
-  }, { groups: ['assist'], title: '画像' });
+      try { window.addEventListener('ZWDocumentsChanged', renderList); } catch (_) { }
+    } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.IMG_INIT_FAILED) || '画像ガジェットの初期化に失敗しました。'; } catch (_) { } }
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_IMAGES_TITLE) || '画像' });
 
   // EditorLayout settings UI
-  ZWGadgetsInstance.registerSettings('EditorLayout', function(el, ctx){
+  ZWGadgetsInstance.registerSettings('EditorLayout', function (el, ctx) {
     try {
-      var _makeRow = function(labelText, control){
+      var _makeRow = function (labelText, control) {
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
@@ -2176,14 +2218,14 @@
       widthInput.step = '50';
       widthInput.value = ctx.get('width', 900);
       var widthLabel = document.createElement('div');
-      widthLabel.textContent = '幅: ' + widthInput.value + 'px';
+      widthLabel.textContent = ((window.UILabels && window.UILabels.LAYOUT_WIDTH_PREFIX) || '幅: ') + widthInput.value + 'px';
       widthLabel.style.fontSize = '0.85rem';
       widthLabel.style.opacity = '0.8';
-      widthInput.addEventListener('input', function(){
-        widthLabel.textContent = '幅: ' + widthInput.value + 'px';
+      widthInput.addEventListener('input', function () {
+        widthLabel.textContent = ((window.UILabels && window.UILabels.LAYOUT_WIDTH_PREFIX) || '幅: ') + widthInput.value + 'px';
         ctx.set('width', parseInt(widthInput.value, 10));
       });
-      widthInput.addEventListener('change', function(){
+      widthInput.addEventListener('change', function () {
         ctx.set('width', parseInt(widthInput.value, 10));
       });
       var widthRow = document.createElement('div');
@@ -2202,14 +2244,14 @@
       paddingInput.step = '10';
       paddingInput.value = ctx.get('paddingX', 100);
       var paddingLabel = document.createElement('div');
-      paddingLabel.textContent = '左右余白: ' + paddingInput.value + 'px';
+      paddingLabel.textContent = ((window.UILabels && window.UILabels.LAYOUT_PADDING_PREFIX) || '左右余白: ') + paddingInput.value + 'px';
       paddingLabel.style.fontSize = '0.85rem';
       paddingLabel.style.opacity = '0.8';
-      paddingInput.addEventListener('input', function(){
-        paddingLabel.textContent = '左右余白: ' + paddingInput.value + 'px';
+      paddingInput.addEventListener('input', function () {
+        paddingLabel.textContent = ((window.UILabels && window.UILabels.LAYOUT_PADDING_PREFIX) || '左右余白: ') + paddingInput.value + 'px';
         ctx.set('paddingX', parseInt(paddingInput.value, 10));
       });
-      paddingInput.addEventListener('change', function(){
+      paddingInput.addEventListener('change', function () {
         ctx.set('paddingX', parseInt(paddingInput.value, 10));
       });
       var paddingRow = document.createElement('div');
@@ -2229,270 +2271,270 @@
       borderCb.type = 'checkbox';
       borderCb.checked = !!ctx.get('showBorder', false);
       var borderTxt = document.createElement('span');
-      borderTxt.textContent = '枠線を表示';
-      borderCb.addEventListener('change', function(){
+      borderTxt.textContent = (window.UILabels && window.UILabels.LAYOUT_SHOW_BORDER) || '枠線を表示';
+      borderCb.addEventListener('change', function () {
         ctx.set('showBorder', !!borderCb.checked);
       });
       borderRow.appendChild(borderCb);
       borderRow.appendChild(borderTxt);
       el.appendChild(borderRow);
 
-    } catch(e) { console.error('EditorLayout settings failed:', e); }
+    } catch (e) { console.error('EditorLayout settings failed:', e); }
   });
 
   // Default gadget: Clock
-  ZWGadgetsInstance.register('Clock', function(el, api){
+  ZWGadgetsInstance.register('Clock', function (el, api) {
     try {
       var time = document.createElement('div');
       time.className = 'gadget-clock';
       el.appendChild(time);
-      function tick(){
+      function tick() {
         try {
           var d = new Date();
-          var z = function(n){ return (n<10?'0':'')+n; };
-          var hour24 = api && typeof api.get==='function' ? !!api.get('hour24', true) : true;
+          var z = function (n) { return (n < 10 ? '0' : '') + n; };
+          var hour24 = api && typeof api.get === 'function' ? !!api.get('hour24', true) : true;
           var h = d.getHours();
           var ap = '';
-          if (!hour24){ ap = (h>=12?' PM':' AM'); h = h%12; if (h===0) h = 12; }
-          var s = d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate()) + ' ' + (hour24? z(h) : (h<10?' '+h:h)) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()) + (hour24?'':ap);
+          if (!hour24) { ap = (h >= 12 ? ' PM' : ' AM'); h = h % 12; if (h === 0) h = 12; }
+          var s = d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + (hour24 ? z(h) : (h < 10 ? ' ' + h : h)) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()) + (hour24 ? '' : ap);
           time.textContent = s;
-        } catch(_) {}
+        } catch (_) { }
       }
       tick();
       var id = setInterval(tick, 1000);
-      try { el.addEventListener('removed', function(){ clearInterval(id); }); } catch(_) {}
-      try { window.addEventListener('beforeunload', function(){ clearInterval(id); }, { once: true }); } catch(_) {}
-    } catch(_) {}
+      try { el.addEventListener('removed', function () { clearInterval(id); }); } catch (_) { }
+      try { window.addEventListener('beforeunload', function () { clearInterval(id); }, { once: true }); } catch (_) { }
+    } catch (_) { }
   });
 
   // Clock settings UI
-  ZWGadgetsInstance.registerSettings('Clock', function(el, ctx){
+  ZWGadgetsInstance.registerSettings('Clock', function (el, ctx) {
     try {
-      var row = document.createElement('label'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='6px';
-      var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!ctx.get('hour24', true);
-      var txt = document.createElement('span'); txt.textContent = '24時間表示';
-      cb.addEventListener('change', function(){ try { ctx.set('hour24', !!cb.checked); } catch(_) {} });
+      var row = document.createElement('label'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '6px';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!ctx.get('hour24', true);
+      var txt = document.createElement('span'); txt.textContent = (window.UILabels && window.UILabels.CLOCK_24H) || '24時間表示';
+      cb.addEventListener('change', function () { try { ctx.set('hour24', !!cb.checked); } catch (_) { } });
       row.appendChild(cb); row.appendChild(txt);
       el.appendChild(row);
-    } catch(_) {}
+    } catch (_) { }
   });
 
   // 旧API (ZWGadgets.addTab/removeTab) は廃止しました
 
   // StoryWiki gadget
-  ZWGadgetsInstance.register('StoryWiki', function(el){
+  ZWGadgetsInstance.register('StoryWiki', function (el) {
     try {
-        var storage = window.ZenWriterStorage;
-        if (!storage || !storage.listWikiPages) {
-            el.textContent = 'ストレージが利用できません。';
-            return;
+      var storage = window.ZenWriterStorage;
+      if (!storage || !storage.listWikiPages) {
+        el.textContent = (window.UILabels && window.UILabels.STORAGE_UNAVAILABLE) || 'ストレージが利用できません。';
+        return;
+      }
+
+      var wrap = document.createElement('div');
+      wrap.className = 'gadget-wiki';
+      wrap.style.display = 'flex';
+      wrap.style.flexDirection = 'column';
+      wrap.style.gap = '8px';
+
+      // 検索入力
+      var searchInput = document.createElement('input');
+      searchInput.type = 'text';
+      searchInput.placeholder = (window.UILabels && window.UILabels.WIKI_SEARCH_PLACEHOLDER) || 'Wikiページを検索...';
+      searchInput.style.width = '100%';
+      searchInput.style.padding = '4px';
+      searchInput.style.border = '1px solid var(--border-color)';
+      searchInput.style.borderRadius = '4px';
+
+      // 新規作成ボタン
+      var createBtn = document.createElement('button');
+      createBtn.type = 'button';
+      createBtn.className = 'small';
+      createBtn.textContent = (window.UILabels && window.UILabels.BTN_NEW_WIKI_PAGE) || '+ 新規Wikiページ';
+      createBtn.addEventListener('click', function () {
+        var title = prompt((window.UILabels && window.UILabels.WIKI_TITLE_PROMPT) || 'Wikiページのタイトルを入力:');
+        if (title && title.trim()) {
+          var page = storage.createWikiPage(title.trim());
+          if (page) renderList();
+        }
+      });
+
+      // Wikiリスト
+      var listContainer = document.createElement('div');
+      listContainer.className = 'wiki-list';
+      listContainer.style.maxHeight = '300px';
+      listContainer.style.overflowY = 'auto';
+
+      var renderList = function () {
+        listContainer.innerHTML = '';
+        var query = searchInput.value.trim();
+        var pages = query ? storage.searchWikiPages(query) : storage.listWikiPages();
+        if (!pages || !pages.length) {
+          var placeholder = document.createElement('div');
+          placeholder.style.opacity = '0.7';
+          placeholder.textContent = query ? ((window.UILabels && window.UILabels.WIKI_NO_RESULTS) || '検索結果が見つかりません。') : ((window.UILabels && window.UILabels.WIKI_EMPTY) || 'Wikiページはまだありません。新規作成してください。');
+          listContainer.appendChild(placeholder);
+          return;
         }
 
-        var wrap = document.createElement('div');
-        wrap.className = 'gadget-wiki';
-        wrap.style.display = 'flex';
-        wrap.style.flexDirection = 'column';
-        wrap.style.gap = '8px';
+        pages.forEach(function (page) {
+          var item = document.createElement('div');
+          item.className = 'wiki-item';
+          item.style.display = 'flex';
+          item.style.alignItems = 'center';
+          item.style.justifyContent = 'space-between';
+          item.style.padding = '6px';
+          item.style.border = '1px solid var(--border-color)';
+          item.style.borderRadius = '4px';
+          item.style.marginBottom = '4px';
+          item.style.background = 'var(--bg-color)';
 
-        // 検索入力
-        var searchInput = document.createElement('input');
-        searchInput.type = 'text';
-        searchInput.placeholder = 'Wikiページを検索...';
-        searchInput.style.width = '100%';
-        searchInput.style.padding = '4px';
-        searchInput.style.border = '1px solid var(--border-color)';
-        searchInput.style.borderRadius = '4px';
+          var title = document.createElement('span');
+          title.textContent = page.title;
+          title.style.flex = '1';
+          title.style.cursor = 'pointer';
+          title.style.fontWeight = '500';
+          title.addEventListener('click', function () {
+            showPageEditor(page.id);
+          });
 
-        // 新規作成ボタン
-        var createBtn = document.createElement('button');
-        createBtn.type = 'button';
-        createBtn.className = 'small';
-        createBtn.textContent = '+ 新規Wikiページ';
-        createBtn.addEventListener('click', function(){
-            var title = prompt('Wikiページのタイトルを入力:');
-            if (title && title.trim()) {
-                var page = storage.createWikiPage(title.trim());
-                if (page) renderList();
+          var actions = document.createElement('div');
+          actions.style.display = 'flex';
+          actions.style.gap = '4px';
+
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'small';
+          editBtn.textContent = (window.UILabels && window.UILabels.BTN_EDIT) || '編集';
+          editBtn.addEventListener('click', function () {
+            showPageEditor(page.id);
+          });
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'small';
+          deleteBtn.textContent = (window.UILabels && window.UILabels.BTN_DELETE) || '削除';
+          deleteBtn.addEventListener('click', function () {
+            if (confirm((window.UILabels && window.UILabels.WIKI_DELETE_CONFIRM) || 'このWikiページを削除しますか？')) {
+              storage.deleteWikiPage(page.id);
+              renderList();
             }
+          });
+
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+          item.appendChild(title);
+          item.appendChild(actions);
+          listContainer.appendChild(item);
+        });
+      };
+
+      var showPageEditor = function (pageId) {
+        var page = storage.getWikiPage(pageId);
+        if (!page) return;
+
+        var titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.value = page.title;
+        titleInput.style.width = '100%';
+        titleInput.style.padding = '4px';
+        titleInput.style.border = '1px solid var(--border-color)';
+        titleInput.style.borderRadius = '4px';
+
+        var contentTextarea = document.createElement('textarea');
+        contentTextarea.value = page.content;
+        contentTextarea.style.width = '100%';
+        contentTextarea.style.height = '200px';
+        contentTextarea.style.padding = '4px';
+        contentTextarea.style.border = '1px solid var(--border-color)';
+        contentTextarea.style.borderRadius = '4px';
+        contentTextarea.style.fontFamily = 'monospace';
+        contentTextarea.style.resize = 'vertical';
+
+        var tagsInput = document.createElement('input');
+        tagsInput.type = 'text';
+        tagsInput.value = (page.tags || []).join(', ');
+        tagsInput.placeholder = (window.UILabels && window.UILabels.WIKI_TAGS_PLACEHOLDER) || 'タグ（カンマ区切り）';
+        tagsInput.style.width = '100%';
+        tagsInput.style.padding = '4px';
+        tagsInput.style.border = '1px solid var(--border-color)';
+        tagsInput.style.borderRadius = '4px';
+
+        var saveBtn = document.createElement('button');
+        saveBtn.type = 'button';
+        saveBtn.className = 'small';
+        saveBtn.textContent = (window.UILabels && window.UILabels.BTN_SAVE) || '保存';
+        saveBtn.addEventListener('click', function () {
+          var updates = {
+            title: titleInput.value.trim() || '無題',
+            content: contentTextarea.value,
+            tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean)
+          };
+          storage.updateWikiPage(pageId, updates);
+          renderList();
+          document.body.removeChild(editorDialog);
         });
 
-        // Wikiリスト
-        var listContainer = document.createElement('div');
-        listContainer.className = 'wiki-list';
-        listContainer.style.maxHeight = '300px';
-        listContainer.style.overflowY = 'auto';
-
-        var renderList = function(){
-            listContainer.innerHTML = '';
-            var query = searchInput.value.trim();
-            var pages = query ? storage.searchWikiPages(query) : storage.listWikiPages();
-            if (!pages || !pages.length) {
-                var placeholder = document.createElement('div');
-                placeholder.style.opacity = '0.7';
-                placeholder.textContent = query ? '検索結果が見つかりません。' : 'Wikiページはまだありません。新規作成してください。';
-                listContainer.appendChild(placeholder);
-                return;
-            }
-
-            pages.forEach(function(page){
-                var item = document.createElement('div');
-                item.className = 'wiki-item';
-                item.style.display = 'flex';
-                item.style.alignItems = 'center';
-                item.style.justifyContent = 'space-between';
-                item.style.padding = '6px';
-                item.style.border = '1px solid var(--border-color)';
-                item.style.borderRadius = '4px';
-                item.style.marginBottom = '4px';
-                item.style.background = 'var(--bg-color)';
-
-                var title = document.createElement('span');
-                title.textContent = page.title;
-                title.style.flex = '1';
-                title.style.cursor = 'pointer';
-                title.style.fontWeight = '500';
-                title.addEventListener('click', function(){
-                    showPageEditor(page.id);
-                });
-
-                var actions = document.createElement('div');
-                actions.style.display = 'flex';
-                actions.style.gap = '4px';
-
-                var editBtn = document.createElement('button');
-                editBtn.type = 'button';
-                editBtn.className = 'small';
-                editBtn.textContent = '編集';
-                editBtn.addEventListener('click', function(){
-                    showPageEditor(page.id);
-                });
-
-                var deleteBtn = document.createElement('button');
-                deleteBtn.type = 'button';
-                deleteBtn.className = 'small';
-                deleteBtn.textContent = '削除';
-                deleteBtn.addEventListener('click', function(){
-                    if (confirm('このWikiページを削除しますか？')) {
-                        storage.deleteWikiPage(page.id);
-                        renderList();
-                    }
-                });
-
-                actions.appendChild(editBtn);
-                actions.appendChild(deleteBtn);
-                item.appendChild(title);
-                item.appendChild(actions);
-                listContainer.appendChild(item);
-            });
-        };
-
-        var showPageEditor = function(pageId){
-            var page = storage.getWikiPage(pageId);
-            if (!page) return;
-
-            var titleInput = document.createElement('input');
-            titleInput.type = 'text';
-            titleInput.value = page.title;
-            titleInput.style.width = '100%';
-            titleInput.style.padding = '4px';
-            titleInput.style.border = '1px solid var(--border-color)';
-            titleInput.style.borderRadius = '4px';
-
-            var contentTextarea = document.createElement('textarea');
-            contentTextarea.value = page.content;
-            contentTextarea.style.width = '100%';
-            contentTextarea.style.height = '200px';
-            contentTextarea.style.padding = '4px';
-            contentTextarea.style.border = '1px solid var(--border-color)';
-            contentTextarea.style.borderRadius = '4px';
-            contentTextarea.style.fontFamily = 'monospace';
-            contentTextarea.style.resize = 'vertical';
-
-            var tagsInput = document.createElement('input');
-            tagsInput.type = 'text';
-            tagsInput.value = (page.tags || []).join(', ');
-            tagsInput.placeholder = 'タグ（カンマ区切り）';
-            tagsInput.style.width = '100%';
-            tagsInput.style.padding = '4px';
-            tagsInput.style.border = '1px solid var(--border-color)';
-            tagsInput.style.borderRadius = '4px';
-
-            var saveBtn = document.createElement('button');
-            saveBtn.type = 'button';
-            saveBtn.className = 'small';
-            saveBtn.textContent = '保存';
-            saveBtn.addEventListener('click', function(){
-                var updates = {
-                    title: titleInput.value.trim() || '無題',
-                    content: contentTextarea.value,
-                    tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean)
-                };
-                storage.updateWikiPage(pageId, updates);
-                renderList();
-                document.body.removeChild(editorDialog);
-            });
-
-            var cancelBtn = document.createElement('button');
-            cancelBtn.type = 'button';
-            cancelBtn.className = 'small';
-            cancelBtn.textContent = 'キャンセル';
-            cancelBtn.addEventListener('click', function(){
-                document.body.removeChild(editorDialog);
-            });
-
-            var editorDialog = document.createElement('div');
-            editorDialog.style.position = 'fixed';
-            editorDialog.style.top = '50%';
-            editorDialog.style.left = '50%';
-            editorDialog.style.transform = 'translate(-50%, -50%)';
-            editorDialog.style.background = 'var(--bg-color)';
-            editorDialog.style.border = '1px solid var(--border-color)';
-            editorDialog.style.borderRadius = '8px';
-            editorDialog.style.padding = '16px';
-            editorDialog.style.zIndex = '10000';
-            editorDialog.style.width = '80%';
-            editorDialog.style.maxWidth = '600px';
-            editorDialog.style.maxHeight = '80vh';
-            editorDialog.style.overflow = 'auto';
-            editorDialog.style.display = 'flex';
-            editorDialog.style.flexDirection = 'column';
-            editorDialog.style.gap = '8px';
-
-            editorDialog.appendChild(document.createTextNode('タイトル:'));
-            editorDialog.appendChild(titleInput);
-            editorDialog.appendChild(document.createTextNode('内容:'));
-            editorDialog.appendChild(contentTextarea);
-            editorDialog.appendChild(document.createTextNode('タグ:'));
-            editorDialog.appendChild(tagsInput);
-
-            var btns = document.createElement('div');
-            btns.style.display = 'flex';
-            btns.style.gap = '8px';
-            btns.appendChild(saveBtn);
-            btns.appendChild(cancelBtn);
-            editorDialog.appendChild(btns);
-
-            document.body.appendChild(editorDialog);
-        };
-
-        searchInput.addEventListener('input', function(){
-            renderList();
+        var cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'small';
+        cancelBtn.textContent = (window.UILabels && window.UILabels.BTN_CANCEL) || 'キャンセル';
+        cancelBtn.addEventListener('click', function () {
+          document.body.removeChild(editorDialog);
         });
 
-        wrap.appendChild(searchInput);
-        wrap.appendChild(createBtn);
-        wrap.appendChild(listContainer);
-        el.appendChild(wrap);
+        var editorDialog = document.createElement('div');
+        editorDialog.style.position = 'fixed';
+        editorDialog.style.top = '50%';
+        editorDialog.style.left = '50%';
+        editorDialog.style.transform = 'translate(-50%, -50%)';
+        editorDialog.style.background = 'var(--bg-color)';
+        editorDialog.style.border = '1px solid var(--border-color)';
+        editorDialog.style.borderRadius = '8px';
+        editorDialog.style.padding = '16px';
+        editorDialog.style.zIndex = '10000';
+        editorDialog.style.width = '80%';
+        editorDialog.style.maxWidth = '600px';
+        editorDialog.style.maxHeight = '80vh';
+        editorDialog.style.overflow = 'auto';
+        editorDialog.style.display = 'flex';
+        editorDialog.style.flexDirection = 'column';
+        editorDialog.style.gap = '8px';
 
+        editorDialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.WIKI_LABEL_TITLE) || 'タイトル:'));
+        editorDialog.appendChild(titleInput);
+        editorDialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.WIKI_LABEL_CONTENT) || '内容:'));
+        editorDialog.appendChild(contentTextarea);
+        editorDialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.WIKI_LABEL_TAGS) || 'タグ:'));
+        editorDialog.appendChild(tagsInput);
+
+        var btns = document.createElement('div');
+        btns.style.display = 'flex';
+        btns.style.gap = '8px';
+        btns.appendChild(saveBtn);
+        btns.appendChild(cancelBtn);
+        editorDialog.appendChild(btns);
+
+        document.body.appendChild(editorDialog);
+      };
+
+      searchInput.addEventListener('input', function () {
         renderList();
-    } catch(e) {
-        console.error('StoryWiki gadget failed:', e);
-        el.textContent = 'Wikiガジェットの初期化に失敗しました。';
+      });
+
+      wrap.appendChild(searchInput);
+      wrap.appendChild(createBtn);
+      wrap.appendChild(listContainer);
+      el.appendChild(wrap);
+
+      renderList();
+    } catch (e) {
+      console.error('StoryWiki gadget failed:', e);
+      el.textContent = (window.UILabels && window.UILabels.WIKI_INIT_FAILED) || 'Wikiガジェットの初期化に失敗しました。';
     }
-}, { groups: ['wiki'], title: '物語Wiki' });
+  }, { groups: ['wiki'], title: (window.UILabels && window.UILabels.GADGET_WIKI_TITLE) || '物語Wiki' });
 
   // HUDSettings ガジェット
-  ZWGadgetsInstance.register('HUDSettings', function(el, _options){
+  ZWGadgetsInstance.register('HUDSettings', function (el, _options) {
     try {
       el.innerHTML = '';
       el.style.display = 'flex';
@@ -2501,7 +2543,7 @@
 
       var storage = window.ZenWriterStorage;
       if (!storage || !storage.loadSettings) {
-        el.textContent = 'ストレージが利用できません';
+        el.textContent = (window.UILabels && window.UILabels.STORAGE_UNAVAILABLE) || 'ストレージが利用できません';
         return;
       }
 
@@ -2521,7 +2563,7 @@
 
       // 位置選択
       var posLabel = document.createElement('label');
-      posLabel.textContent = '位置:';
+      posLabel.textContent = (window.UILabels && window.UILabels.HUD_POSITION) || '位置:';
       var posSelect = document.createElement('select');
       posSelect.style.width = '100%';
       posSelect.style.padding = '4px';
@@ -2530,17 +2572,18 @@
       posSelect.style.background = 'var(--bg-color)';
       posSelect.style.color = 'var(--text-color)';
 
-      ['bottom-left', 'bottom-right', 'top-left', 'top-right'].forEach(function(pos){
+      ['bottom-left', 'bottom-right', 'top-left', 'top-right'].forEach(function (pos) {
         var opt = document.createElement('option');
         opt.value = pos;
-        opt.textContent = pos.replace('-', ' ');
+        var labelKey = 'POSITION_' + pos.replace('-', '_').toUpperCase();
+        opt.textContent = (window.UILabels && window.UILabels[labelKey]) || pos.replace('-', ' ');
         if (mergedHud.position === pos) opt.selected = true;
         posSelect.appendChild(opt);
       });
 
       // 表示時間
       var durLabel = document.createElement('label');
-      durLabel.textContent = 'フェード時間 (ms):';
+      durLabel.textContent = (window.UILabels && window.UILabels.HUD_DURATION) || 'フェード時間 (ms):';
       var durInput = document.createElement('input');
       durInput.type = 'number';
       durInput.min = '500';
@@ -2554,7 +2597,7 @@
 
       // 背景色
       var bgLabel = document.createElement('label');
-      bgLabel.textContent = '背景色:';
+      bgLabel.textContent = (window.UILabels && window.UILabels.HUD_BACKGROUND) || '背景色:';
       var bgInput = document.createElement('input');
       bgInput.type = 'color';
       bgInput.value = mergedHud.bg;
@@ -2563,7 +2606,7 @@
 
       // 文字色
       var fgLabel = document.createElement('label');
-      fgLabel.textContent = '文字色:';
+      fgLabel.textContent = (window.UILabels && window.UILabels.HUD_TEXT_COLOR) || '文字色:';
       var fgInput = document.createElement('input');
       fgInput.type = 'color';
       fgInput.value = mergedHud.fg;
@@ -2572,7 +2615,7 @@
 
       // 不透明度
       var opLabel = document.createElement('label');
-      opLabel.textContent = '不透明度:';
+      opLabel.textContent = (window.UILabels && window.UILabels.HUD_OPACITY_PREFIX) || '不透明度:';
       var opInput = document.createElement('input');
       opInput.type = 'range';
       opInput.min = '0.1';
@@ -2586,13 +2629,13 @@
       opValue.style.fontSize = '12px';
       opValue.style.marginLeft = '8px';
 
-      opInput.addEventListener('input', function(){
+      opInput.addEventListener('input', function () {
         opValue.textContent = Math.round(this.value * 100) + '%';
       });
 
       // 幅
       var widthLabel = document.createElement('label');
-      widthLabel.textContent = '幅 (px):';
+      widthLabel.textContent = (window.UILabels && window.UILabels.HUD_WIDTH) || '幅 (px):';
       var widthInput = document.createElement('input');
       widthInput.type = 'number';
       widthInput.min = '120';
@@ -2606,7 +2649,7 @@
 
       // フォントサイズ
       var fsLabel = document.createElement('label');
-      fsLabel.textContent = 'フォントサイズ (px):';
+      fsLabel.textContent = (window.UILabels && window.UILabels.HUD_FONT_SIZE) || 'フォントサイズ (px):';
       var fsInput = document.createElement('input');
       fsInput.type = 'number';
       fsInput.min = '10';
@@ -2620,10 +2663,10 @@
 
       // メッセージ
       var msgLabel = document.createElement('label');
-      msgLabel.textContent = 'メッセージ:';
+      msgLabel.textContent = (window.UILabels && window.UILabels.HUD_MESSAGE_LABEL) || 'メッセージ:';
       var msgInput = document.createElement('input');
       msgInput.type = 'text';
-      msgInput.placeholder = 'HUDに表示するメッセージ';
+      msgInput.placeholder = (window.UILabels && window.UILabels.HUD_MESSAGE_PLACEHOLDER) || 'HUDに表示するメッセージ';
       msgInput.value = mergedHud.message;
       msgInput.style.width = '100%';
       msgInput.style.padding = '4px';
@@ -2639,13 +2682,13 @@
       pinInput.type = 'checkbox';
       pinInput.checked = mergedHud.pinned;
       pinLabel.appendChild(pinInput);
-      pinLabel.appendChild(document.createTextNode('常に表示'));
+      pinLabel.appendChild(document.createTextNode((window.UILabels && window.UILabels.HUD_PINNED_LABEL) || '常に表示'));
 
       // 保存ボタン
       var saveBtn = document.createElement('button');
       saveBtn.className = 'small';
-      saveBtn.textContent = '設定を保存';
-      saveBtn.addEventListener('click', function(){
+      saveBtn.textContent = (window.UILabels && window.UILabels.BTN_SAVE_SETTINGS) || '設定を保存';
+      saveBtn.addEventListener('click', function () {
         var updatedHud = {
           position: posSelect.value,
           duration: parseInt(durInput.value) || 1200,
@@ -2666,7 +2709,7 @@
           window.ZenWriterHUD.applyConfig(updatedHud);
         }
 
-        alert('HUD設定を保存しました');
+        alert((window.UILabels && window.UILabels.HUD_SAVED_MESSAGE) || 'HUD設定を保存しました');
       });
 
       // レイアウト
@@ -2696,11 +2739,11 @@
       el.appendChild(pinLabel);
       el.appendChild(saveBtn);
 
-    } catch(e) {
+    } catch (e) {
       console.error('HUDSettings gadget failed:', e);
-      el.textContent = 'HUD設定ガジェットの初期化に失敗しました。';
+      el.textContent = (window.UILabels && window.UILabels.HUD_INIT_FAILED) || 'HUD設定ガジェットの初期化に失敗しました。';
     }
-  }, { groups: ['assist'], title: 'HUD設定' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
 
   // StoryWiki ガジェット
   /*
@@ -2902,7 +2945,7 @@
   }, { groups: ['wiki'], title: '物語Wiki' });
   */
 
-  ready(function(){
+  ready(function () {
     // Initialize gadget panels
     ZWGadgetsInstance.init('#gadgets-panel', { group: 'assist' });
     ZWGadgetsInstance.init('#structure-gadgets-panel', { group: 'structure' });
@@ -2932,11 +2975,11 @@
 
     // Loadout select change
     if (loadoutSelect) {
-      loadoutSelect.addEventListener('change', function() {
+      loadoutSelect.addEventListener('change', function () {
         var selected = loadoutSelect.value;
         if (selected && loadoutName) {
           var loadouts = ZWGadgetsInstance.listLoadouts();
-          var entry = loadouts.find(function(l) { return l.name === selected; });
+          var entry = loadouts.find(function (l) { return l.name === selected; });
           if (entry) {
             loadoutName.value = entry.label || '';
           }
@@ -2946,11 +2989,11 @@
 
     // Loadout save
     if (loadoutSave) {
-      loadoutSave.addEventListener('click', function() {
+      loadoutSave.addEventListener('click', function () {
         var name = loadoutSelect.value;
         var label = loadoutName.value.trim();
         if (!label) {
-          alert('ロードアウト名を入力してください');
+          alert((window.UILabels && window.UILabels.LOADOUT_NAME_PROMPT) || 'ロードアウト名を入力してください');
           return;
         }
         if (!name) {
@@ -2958,12 +3001,12 @@
         }
         var config = ZWGadgetsInstance.captureCurrentLoadout(label);
         ZWGadgetsInstance.defineLoadout(name, config);
-        alert('ロードアウトを保存しました');
+        alert((window.UILabels && window.UILabels.LOADOUT_SAVED) || 'ロードアウトを保存しました');
         // Update select
         if (loadoutSelect) {
           loadoutSelect.innerHTML = '';
           var loadouts = ZWGadgetsInstance.listLoadouts();
-          loadouts.forEach(function(l) {
+          loadouts.forEach(function (l) {
             var opt = document.createElement('option');
             opt.value = l.name;
             opt.textContent = l.label;
@@ -2976,24 +3019,24 @@
 
     // Loadout duplicate
     if (loadoutDuplicate) {
-      loadoutDuplicate.addEventListener('click', function() {
+      loadoutDuplicate.addEventListener('click', function () {
         var selected = loadoutSelect.value;
         if (!selected) {
-          alert('複製するロードアウトを選択してください');
+          alert((window.UILabels && window.UILabels.LOADOUT_SELECT_TO_DUPLICATE) || '複製するロードアウトを選択してください');
           return;
         }
         var loadouts = ZWGadgetsInstance.listLoadouts();
-        var entry = loadouts.find(function(l) { return l.name === selected; });
+        var entry = loadouts.find(function (l) { return l.name === selected; });
         if (!entry) return;
         var newName = 'loadout_' + Date.now().toString(36);
-        var newLabel = (loadoutName.value.trim() || entry.label) + ' (複製)';
+        var newLabel = (loadoutName.value.trim() || entry.label) + ((window.UILabels && window.UILabels.LOADOUT_DUPLICATE_SUFFIX) || ' (複製)');
         ZWGadgetsInstance.defineLoadout(newName, { label: newLabel, groups: entry.groups || normaliseGroups({}) });
-        alert('ロードアウトを複製しました');
+        alert((window.UILabels && window.UILabels.LOADOUT_DUPLICATED) || 'ロードアウトを複製しました');
         // Update select
         if (loadoutSelect) {
           loadoutSelect.innerHTML = '';
           var loadouts2 = ZWGadgetsInstance.listLoadouts();
-          loadouts2.forEach(function(l) {
+          loadouts2.forEach(function (l) {
             var opt = document.createElement('option');
             opt.value = l.name;
             opt.textContent = l.label;
@@ -3007,40 +3050,40 @@
 
     // Loadout apply
     if (loadoutApply) {
-      loadoutApply.addEventListener('click', function() {
+      loadoutApply.addEventListener('click', function () {
         var selected = loadoutSelect.value;
         if (!selected) {
-          alert('適用するロードアウトを選択してください');
+          alert((window.UILabels && window.UILabels.LOADOUT_SELECT_TO_APPLY) || '適用するロードアウトを選択してください');
           return;
         }
         var success = ZWGadgetsInstance.applyLoadout(selected);
         if (success) {
-          alert('ロードアウトを適用しました');
+          alert((window.UILabels && window.UILabels.LOADOUT_APPLIED) || 'ロードアウトを適用しました');
         } else {
-          alert('ロードアウトの適用に失敗しました');
+          alert((window.UILabels && window.UILabels.LOADOUT_APPLY_FAILED) || 'ロードアウトの適用に失敗しました');
         }
       });
     }
 
     // Loadout delete
     if (loadoutDelete) {
-      loadoutDelete.addEventListener('click', function() {
+      loadoutDelete.addEventListener('click', function () {
         var selected = loadoutSelect.value;
         if (!selected) {
-          alert('削除するロードアウトを選択してください');
+          alert((window.UILabels && window.UILabels.LOADOUT_SELECT_TO_DELETE) || '削除するロードアウトを選択してください');
           return;
         }
-        if (!confirm('このロードアウトを削除しますか？この操作は元に戻せません。')) {
+        if (!confirm((window.UILabels && window.UILabels.LOADOUT_DELETE_CONFIRM) || 'このロードアウトを削除しますか？この操作は元に戻せません。')) {
           return;
         }
         var success = ZWGadgetsInstance.deleteLoadout(selected);
         if (success) {
-          alert('ロードアウトを削除しました');
+          alert((window.UILabels && window.UILabels.LOADOUT_DELETED) || 'ロードアウトを削除しました');
           // Update select
           if (loadoutSelect) {
             loadoutSelect.innerHTML = '';
             var loadouts = ZWGadgetsInstance.listLoadouts();
-            loadouts.forEach(function(l) {
+            loadouts.forEach(function (l) {
               var opt = document.createElement('option');
               opt.value = l.name;
               opt.textContent = l.label;
@@ -3048,7 +3091,7 @@
             });
           }
         } else {
-          alert('ロードアウトの削除に失敗しました');
+          alert((window.UILabels && window.UILabels.LOADOUT_DELETE_FAILED) || 'ロードアウトの削除に失敗しました');
         }
       });
     }
@@ -3056,7 +3099,7 @@
     // Initialize loadout select
     if (loadoutSelect) {
       var loadouts = ZWGadgetsInstance.listLoadouts();
-      loadouts.forEach(function(l) {
+      loadouts.forEach(function (l) {
         var opt = document.createElement('option');
         opt.value = l.name;
         opt.textContent = l.label;
