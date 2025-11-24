@@ -72,7 +72,8 @@ const DEFAULT_SETTINGS = {
         wordWrap: {
             enabled: false,
             maxChars: 80 // 折り返し文字数
-        }
+        },
+        placeholder: ''
     },
     // エディタレイアウト設定
     editorLayout: {

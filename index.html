@@ -114,27 +114,6 @@
         <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel"
           aria-labelledby="sidebar-tab-typography" aria-hidden="true">
           <div class="sidebar-section">
-            <h4 data-i18n="THEME_SECTION"></h4>
-            <div class="theme-presets"
-              style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px;">
-              <button class="theme-preset small" data-theme-preset="light" data-theme="light"
-                data-i18n="THEME_LIGHT"></button>
-              <button class="theme-preset small" data-theme-preset="dark" data-theme="dark"
-                data-i18n="THEME_DARK"></button>
-              <button class="theme-preset small" data-theme-preset="sepia" data-theme="sepia"
-                data-i18n="THEME_SEPIA"></button>
-            </div>
-            <div class="panel-row" style="margin-bottom: 8px;">
-              <label for="bg-color" data-i18n="BACKGROUND_COLOR"></label>
-              <input type="color" id="bg-color" value="#ffffff" />
-            </div>
-            <div class="panel-row" style="margin-bottom: 8px;">
-              <label for="text-color" data-i18n="TEXT_COLOR"></label>
-              <input type="color" id="text-color" value="#333333" />
-            </div>
-            <button class="small" id="reset-colors" type="button" data-i18n="RESET_COLORS"></button>
-          </div>
-          <div class="sidebar-section">
             <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography"
               aria-label="タイポグラフィガジェット"></div>
           </div>
@@ -143,104 +122,8 @@
         <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel"
           aria-labelledby="sidebar-tab-assist" aria-hidden="true">
           <div class="sidebar-section">
-            <div id="plugins-panel" class="plugins-panel" aria-label="プラグイン操作"></div>
-          </div>
-
-          <div class="sidebar-section">
-            <div id="gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="ガジェット"></div>
-            <div class="gadget-tools" style="
-                  margin-top: 8px;
-                  display: flex;
-                  flex-wrap: wrap;
-                  gap: 6px;
-                ">
-              <button id="gadget-export" class="small" type="button" data-i18n="EXPORT">
-              </button>
-              <button id="gadget-import" class="small" type="button" data-i18n="IMPORT">
-              </button>
-              <input id="gadget-prefs-input" type="file" accept="application/json,.json" style="display: none" />
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="支援ガジェット"></div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="TYPEWRITER_SECTION"></h4>
-            <div class="panel-row">
-              <label for="typewriter-enabled" data-i18n="TYPEWRITER_ENABLED"></label>
-              <input type="checkbox" id="typewriter-enabled" />
-            </div>
-            <div class="panel-row">
-              <label for="typewriter-anchor-ratio" data-i18n="TYPEWRITER_ANCHOR"></label>
-              <input type="range" id="typewriter-anchor-ratio" min="0.05" max="0.95" step="0.05" value="0.5" />
-            </div>
-            <div class="panel-row">
-              <label for="typewriter-stickiness" data-i18n="TYPEWRITER_STICKINESS"></label>
-              <input type="range" id="typewriter-stickiness" min="0" max="1" step="0.1" value="0.9" />
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="AUTO_SAVE_SECTION"></h4>
-            <div class="panel-row">
-              <label for="auto-save-enabled" data-i18n="AUTO_SAVE_ENABLED"></label>
-              <input type="checkbox" id="auto-save-enabled" />
-            </div>
-            <div class="panel-row">
-              <label for="auto-save-delay-ms" data-i18n="AUTO_SAVE_DELAY"></label>
-              <input type="number" id="auto-save-delay-ms" min="500" max="10000" step="500" value="2000" />
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="SNAPSHOT_SECTION"></h4>
-            <div class="panel-row">
-              <label for="snapshot-interval-ms" data-i18n="SNAPSHOT_INTERVAL"></label>
-              <input type="number" id="snapshot-interval-ms" min="30000" max="300000" step="30000" value="120000" />
-            </div>
-            <div class="panel-row">
-              <label for="snapshot-delta-chars" data-i18n="SNAPSHOT_DELTA"></label>
-              <input type="number" id="snapshot-delta-chars" min="50" max="1000" step="50" value="300" />
-            </div>
-            <div class="panel-row">
-              <label for="snapshot-retention" data-i18n="SNAPSHOT_RETENTION"></label>
-              <input type="number" id="snapshot-retention" min="1" max="50" step="1" value="10" />
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="EDITOR_SETTINGS_SECTION"></h4>
-            <div class="panel-row">
-              <label for="word-wrap-enabled" data-i18n="WRAP_COLUMNS"></label>
-              <input type="checkbox" id="word-wrap-enabled" />
-            </div>
-            <div class="panel-row">
-              <label for="word-wrap-max-chars" data-i18n="WRAP_COLUMNS"></label>
-              <input type="number" id="word-wrap-max-chars" min="20" max="200" step="10" value="80" />
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="FILE_MANAGEMENT_SECTION"></h4>
-            <div class="panel-row">
-              <label for="current-document" data-i18n="CURRENT_FILE"></label>
-              <select id="current-document" style="width: 100%; margin-top: 4px;">
-                <option value="" data-i18n="CURRENT_FILE">ファイルを選択...</option>
-              </select>
-            </div>
-            <div class="panel-row" style="margin-top: 8px;">
-              <button id="new-document-btn" class="button" style="width: 100%;" data-i18n="NEW_FILE"></button>
-            </div>
-            <div class="panel-row" style="margin-top: 6px;">
-              <button id="restore-from-snapshot" class="button" style="width: 100%;"
-                data-i18n="RESTORE_FROM_BACKUP"></button>
-            </div>
-          </div>
-          <div class="sidebar-section">
-            <h4 data-i18n="HELP_SECTION"></h4>
-            <button id="help-button" class="small" type="button" data-i18n="OPEN_WIKI_HELP"></button>
-            <div class="panel-row" style="margin-top: 4px;">
-              <a href="docs/editor-help.html" target="_blank" rel="noopener" class="small" data-i18n="EDITOR_GUIDE"></a>
-            </div>
-            <div class="panel-row" style="margin-top: 2px;">
-              <a href="docs/ui-lab.html" target="_blank" rel="noopener" class="small" data-i18n="UI_LAB"></a>
-            </div>
+            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"
+              aria-label="支援ガジェット"></div>
           </div>
         </section>
 

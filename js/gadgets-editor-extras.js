@@ -130,6 +130,7 @@
       var s = window.ZenWriterStorage.loadSettings();
       var ui = (s && s.ui) || {};
       var fs = (s && s.fontSizes) || {};
+      var editorCfg = (s && s.editor) || {};
       root.innerHTML=''; root.style.display='grid'; root.style.gap='8px';
 
       var presRow = el('div');
@@ -148,9 +149,40 @@
       var bLabel = el('label'); bLabel.textContent='本文サイズ'; bLabel.style.display='block';
       fontRow.appendChild(hLabel); fontRow.appendChild(hInput); fontRow.appendChild(bLabel); fontRow.appendChild(bInput);
 
+      // エディタプレースホルダ設定
+      var placeholderRow = el('div');
+      var placeholderLabel = el('label');
+      placeholderLabel.textContent = 'エディタプレースホルダ';
+      placeholderLabel.style.display = 'block';
+      var placeholderInput = el('input');
+      placeholderInput.type = 'text';
+      placeholderInput.placeholder = (window.UILabels && window.UILabels.EDITOR_PLACEHOLDER) || 'ここに小説を入力してください...';
+      placeholderInput.value = typeof editorCfg.placeholder === 'string' ? editorCfg.placeholder : '';
+      placeholderInput.style.width = '100%';
+      placeholderRow.appendChild(placeholderLabel);
+      placeholderRow.appendChild(placeholderInput);
+
       sel.addEventListener('change', function(){ withStorage(function(cfg){ cfg.ui = cfg.ui || {}; cfg.ui.tabsPresentation = String(sel.value||'tabs'); }); try{ var sb=document.getElementById('sidebar'); if (sb) sb.setAttribute('data-tabs-presentation', String(sel.value)); if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI==='function') window.sidebarManager.applyTabsPresentationUI(); }catch(_){} });
       hInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.heading = toInt(hInput.value,20); }); applyElementFontSizes(); });
       bInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.body = toInt(bInput.value,16); }); applyElementFontSizes(); });
+
+      placeholderInput.addEventListener('change', function(){
+        var value = String(placeholderInput.value || '');
+        withStorage(function(cfg){
+          cfg.editor = cfg.editor || {};
+          cfg.editor.placeholder = value;
+        });
+        try {
+          var editorEl = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
+          if (editorEl) {
+            if (value.trim()) {
+              editorEl.setAttribute('placeholder', value);
+            } else if (window.UILabels && window.UILabels.EDITOR_PLACEHOLDER) {
+              editorEl.setAttribute('placeholder', window.UILabels.EDITOR_PLACEHOLDER);
+            }
+          }
+        } catch(_) {}
+      });
 
       var tabRow = el('div');
       var tabLabel = el('label'); tabLabel.textContent='新しいタブ'; tabLabel.style.display='block';
@@ -190,7 +222,7 @@
       renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert('名称を変更しました'); });
       removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm('削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert('削除しました'); });
 
-      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow);
+      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
     }, { title: 'UI Settings', groups: ['structure'] });
 
     // UI Design Gadget (background gradient)

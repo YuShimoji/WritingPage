@@ -1,6 +1,8 @@
 # GADGETS — サイドバーのガジェット化
 
-本書は `#gadgets-panel` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
+ 本書は `#gadgets-panel` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
+
+> 注記: 本書には「現行実装の説明」と「将来設計/未実装案（旧計画メモを含む）」が混在しています。節タイトルと本文中の説明でステータス（現行/設計案）を明示するよう順次整理していきます。
 
 ## 方針
 
@@ -39,6 +41,45 @@
 - `ZWGadgets.addTab(name, label)`: 新しいタブを動的に追加可能。ガジェットグループを拡張。
 - `ZWGadgets.removeTab(name)`: タブを削除。
 - 印刷/PDF機能をDocumentsガジェットに統合。
+
+## Sidebar と ZWGadgets の責務（Cフェーズ設計メモ）
+
+- 本セクションは 2025Q4 Cフェーズでの整理方針メモであり、現行コードを大きく壊さずに責務の境界を明確にすることを目的とします。
+
+### Sidebar（タブ/パネル管理）
+
+- 主担当: `SidebarManager`（`js/sidebar-manager.js`）。
+- DOM:
+  - タブ: `.sidebar-tab[data-group="<groupId>"]`
+  - パネル: `.sidebar-group[data-group="<groupId>"]`
+- 役割:
+  - 開閉状態（`open` クラス等）とアクティブ状態（`active`、`aria-selected` / `aria-hidden`）を一元管理します。
+  - グループ切替時に `ZWLoadoutGroupChanged` イベントを発火します。
+
+### ZWGadgets（ガジェット描画）
+
+- 主担当: `ZWGadgets`（`js/gadgets.js`）。
+- DOM:
+  - コンテナ: `.gadgets-panel[data-gadget-group="<groupId>"]`
+  - 各ガジェット: `.gadget-wrapper[data-gadget-name="<Name>"]`
+- 役割:
+  - `ZWGadgets.register(name, factory, { groups: [...] })` でガジェットを登録します。
+  - `ZWGadgets.init(selector, { group })` でコンテナに紐づくレンダラを登録し、ロードアウトに応じて再描画します。
+  - タブや `.sidebar-group` 自体の生成・表示制御は将来的に Sidebar 側へ寄せる想定です（`ZWGadgets.addTab/removeTab` は互換目的で残しつつ縮小方向）。
+
+### data-属性ベースの安定セレクタ
+
+- テストや拡張時には、次の data-属性を安定セレクタとして優先的に用います。
+  - `data-group="<groupId>"` … Sidebar のタブおよびカテゴリパネル。
+  - `data-gadget-group="<groupId>"` … 各カテゴリ内のガジェットコンテナ。
+  - `data-gadget-name="<Name>"` … 各ガジェットインスタンス。
+- `groupId` は現行では `structure` / `typography` / `assist` / `wiki` を基準とし、ロードアウト設定のキーとも一致させます。
+
+### 今後の整理方針（ドラフト）
+
+- タブ構成の SSOT を `SidebarManager.sidebarTabConfig` に集約し、タブの追加/削除は基本的に Sidebar 側の API から行うようにします。
+- `.gadgets-panel[data-gadget-group]` への `ZWGadgets.init()` 呼び出しは、アプリ初期化コードからのみ行うことを推奨します。
+- `ZWGadgets.addTab/removeTab` によるタブ生成は、既存ロードアウト互換のため当面は維持しつつも、新規機能では Sidebar 側の仕組みを優先します。
 
 ## ロードアウトプリセット
 
@@ -245,7 +286,9 @@ prefs.order = ['Clock'];
 ZWGadgets.setPrefs(prefs);
 ```
 
-## 将来拡張
+## 将来拡張（旧計画メモ・要見直し）
+
+> この節は当初の計画メモであり、2025-11 時点では一部が既に実装済み・一部が未実装の状態です。詳細な実装状況は本書の各セクションおよびコード（`js/gadgets.js`）・BACKLOG を参照してください。
 
 - ガジェット設定の保存/復元（LocalStorage）
 - 並び替え/折りたたみ

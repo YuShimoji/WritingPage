@@ -13,8 +13,8 @@
     var trimmed = typeof name === 'string' ? name.trim() : '';
     if (!trimmed) return '';
     var lower = trimmed.toLowerCase();
-    if (lower === 'assist' || lower === 'typography') return 'structure';
     if (KNOWN_GROUPS.indexOf(lower) >= 0) return lower;
+    if (lower === 'typo') return 'typography';
     return '';
   }
 
@@ -40,7 +40,7 @@
 
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
-  var KNOWN_GROUPS = ['structure', 'wiki'];
+  var KNOWN_GROUPS = ['structure', 'wiki', 'assist', 'typography'];
   var DEFAULT_LOADOUTS = {
     active: 'novel-standard',
     entries: {
@@ -51,24 +51,30 @@
             'Documents',
             'Outline',
             'OutlineQuick',
-            'SnapshotManager',
-            'Typewriter',
             'EditorLayout',
             'SceneGradient',
-            'TypographyThemes',
+            'ChoiceTools',
+            'PrintSettings'
+          ],
+          assist: [
+            'Typewriter',
+            'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'PrintSettings',
-            'ChoiceTools',
-            'Clock'
+            'Clock',
+            'MarkdownPreview',
+            'UISettings'
           ],
+          typography: ['TypographyThemes'],
           wiki: ['Wiki']
         }
       },
       'novel-minimal': {
         label: 'ミニマル',
         groups: {
-          structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient', 'Clock'],
+          structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient'],
+          assist: ['HUDSettings', 'WritingGoal', 'Clock'],
+          typography: ['TypographyThemes'],
           wiki: ['Wiki']
         }
       },
@@ -78,17 +84,21 @@
           structure: [
             'Documents',
             'Outline',
-            'SnapshotManager',
-            'Typewriter',
             'EditorLayout',
             'SceneGradient',
-            'TypographyThemes',
+            'Images',
+            'ChoiceTools'
+          ],
+          assist: [
+            'Typewriter',
+            'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'Images',
-            'ChoiceTools',
-            'Clock'
+            'Clock',
+            'MarkdownPreview',
+            'UISettings'
           ],
+          typography: ['TypographyThemes'],
           wiki: ['Wiki', 'StoryWiki']
         }
       }
@@ -165,18 +175,8 @@
   function normaliseGroups(groups) {
     var g = groups && typeof groups === 'object' ? groups : {};
     var out = {};
-    var legacyMap = {
-      typography: 'structure',
-      assist: 'structure'
-    };
     KNOWN_GROUPS.forEach(function (key) {
       out[key] = normalizeList(g[key] || []);
-    });
-    Object.keys(legacyMap).forEach(function (legacyKey) {
-      var target = legacyMap[legacyKey];
-      if (!target || !out[target]) return;
-      var legacyList = normalizeList(g[legacyKey] || []);
-      legacyList.forEach(function (name) { uniquePush(out[target], name); });
     });
     return out;
   }
@@ -580,6 +580,18 @@
 
           // Get active gadget names for this group
           var allowedNames = self._getActiveNames();
+
+          // 古いロードアウトなどでこのグループ向けのエントリが存在しない場合、
+          // 当該グループに属するガジェットはすべて表示する（フォールバック）
+          var hasActiveForGroup = self._list.some(function (entry) {
+            return entry && entry.groups && entry.groups.indexOf(group) !== -1 &&
+              allowedNames.indexOf(entry.name) !== -1;
+          });
+          if (!hasActiveForGroup) {
+            allowedNames = self._list
+              .filter(function (entry) { return entry && entry.groups && entry.groups.indexOf(group) !== -1; })
+              .map(function (entry) { return entry.name; });
+          }
 
           // Render each active gadget
           self._list.forEach(function (entry) {
@@ -1462,6 +1474,114 @@
       wrap.style.flexDirection = 'column';
       wrap.style.gap = '12px';
 
+      // Visual Profile プリセット（Phase A: テーマ/フォント/行間/表示モードのみ）
+      var visualProfiles = [
+        {
+          id: '',
+          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_CUSTOM) || 'カスタム（個別設定）'
+        },
+        {
+          id: 'standard',
+          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_STANDARD) || '標準レイアウト',
+          theme: 'light',
+          useCustomColors: false,
+          fontFamily: '"Noto Serif JP", serif',
+          uiFontSize: 16,
+          editorFontSize: 16,
+          lineHeight: 1.6,
+          uiMode: 'normal'
+        },
+        {
+          id: 'focus-dark',
+          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_FOCUS_DARK) || '集中レイアウト（ダーク）',
+          theme: 'dark',
+          useCustomColors: false,
+          fontFamily: '"Noto Serif JP", serif',
+          uiFontSize: 15,
+          editorFontSize: 17,
+          lineHeight: 1.8,
+          uiMode: 'focus'
+        },
+        {
+          id: 'blank-light',
+          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_BLANK_LIGHT) || 'ブランクレイアウト（ライト）',
+          theme: 'light',
+          useCustomColors: false,
+          fontFamily: '"Noto Serif JP", serif',
+          uiFontSize: 14,
+          editorFontSize: 18,
+          lineHeight: 1.9,
+          uiMode: 'blank'
+        }
+      ];
+
+      var visualProfileMap = {};
+      visualProfiles.forEach(function (p) {
+        if (p.id) visualProfileMap[p.id] = p;
+      });
+
+      var visualProfileSelect = null;
+
+      function applyVisualProfile(profile) {
+        if (!profile || !profile.id) return;
+
+        // テーマ/色
+        try {
+          var themeName = profile.theme || 'light';
+          theme.applyTheme(themeName);
+          if (profile.useCustomColors && profile.bgColor && profile.textColor) {
+            theme.applyCustomColors(profile.bgColor, profile.textColor, true);
+          } else {
+            theme.clearCustomColors();
+          }
+        } catch (e) {
+          console.error('applyVisualProfile theme failed', e);
+        }
+
+        // フォント/行間
+        try {
+          var ff = profile.fontFamily || (fonts && fonts[0] && fonts[0].value) || '"Noto Serif JP", serif';
+          var baseSize = settings.fontSize || 16;
+          var uiSize = profile.uiFontSize || settings.uiFontSize || baseSize;
+          var editorSize = profile.editorFontSize || settings.editorFontSize || baseSize;
+          var lh = profile.lineHeight || settings.lineHeight || 1.6;
+          theme.applyFontSettings(ff, editorSize, lh, uiSize, editorSize);
+        } catch (e) {
+          console.error('applyVisualProfile fonts failed', e);
+        }
+
+        // 表示モード（UIモード）
+        try {
+          var validModes = ['normal', 'focus', 'blank'];
+          var targetMode = validModes.indexOf(profile.uiMode) !== -1 ? profile.uiMode : 'normal';
+          document.documentElement.setAttribute('data-ui-mode', targetMode);
+
+          var selectEl = document.getElementById('ui-mode-select');
+          if (selectEl && selectEl.value !== targetMode) {
+            selectEl.value = targetMode;
+          }
+
+          if (storage && typeof storage.loadSettings === 'function' && typeof storage.saveSettings === 'function') {
+            var s = storage.loadSettings() || {};
+            if (!s.ui) s.ui = {};
+            s.ui.uiMode = targetMode;
+            s.visualProfileId = profile.id;
+            storage.saveSettings(s);
+          }
+        } catch (e) {
+          console.error('applyVisualProfile ui mode failed', e);
+        }
+
+        // UI状態の再同期
+        try {
+          if (typeof refreshState === 'function') {
+            refreshState();
+          }
+        } catch (e) {
+          console.error('applyVisualProfile refresh failed', e);
+        }
+      }
+
       function makeSection(title) {
         var section = document.createElement('div');
         section.className = 'typography-section';
@@ -1555,6 +1675,38 @@
         });
       }
 
+      // Visual Profile presets
+      var visualProfileSection = makeSection((window.UILabels && window.UILabels.VISUAL_PROFILE_SECTION) || 'Visual Profile（試験機能）');
+      visualProfileSelect = document.createElement('select');
+      visualProfileSelect.style.maxWidth = '100%';
+      visualProfiles.forEach(function (p) {
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.label;
+        visualProfileSelect.appendChild(opt);
+      });
+      visualProfileSelect.addEventListener('change', function (e) {
+        var id = e.target.value;
+        var profile = visualProfileMap[id];
+        if (!profile) {
+          // カスタムに戻す場合は visualProfileId のみクリア
+          try {
+            if (storage && typeof storage.loadSettings === 'function' && typeof storage.saveSettings === 'function') {
+              var s = storage.loadSettings() || {};
+              if (s.visualProfileId) {
+                delete s.visualProfileId;
+                storage.saveSettings(s);
+              }
+            }
+          } catch (err) {
+            console.error('clear visualProfileId failed', err);
+          }
+          return;
+        }
+        applyVisualProfile(profile);
+      });
+      visualProfileSection.appendChild(visualProfileSelect);
+
       // Font settings
       var fontSection = makeSection((window.UILabels && window.UILabels.FONT_SECTION) || 'フォント');
       var fontSelect = document.createElement('select');
@@ -1636,11 +1788,12 @@
       wrap.appendChild(themesSection);
       wrap.appendChild(colorSection);
       wrap.appendChild(paletteSection);
+      wrap.appendChild(visualProfileSection);
       wrap.appendChild(fontSection);
 
       el.appendChild(wrap);
 
-      var refreshState = function () {
+      function refreshState() {
         try {
           var latest = storage.loadSettings();
           if (!latest) return;
@@ -1655,8 +1808,33 @@
           lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
           bgInput.value = latest.bgColor || '#ffffff';
           textInput.value = latest.textColor || '#333333';
+
+          // Visual Profile セレクトの状態を同期
+          if (visualProfileSelect) {
+            var selectedId = latest.visualProfileId || '';
+            var matched = null;
+            var latestUiMode = latest.ui && latest.ui.uiMode;
+
+            if (selectedId && visualProfileMap[selectedId]) {
+              matched = visualProfileMap[selectedId];
+            } else {
+              visualProfiles.some(function (p) {
+                if (!p.id) return false;
+                if (p.theme && p.theme !== latest.theme) return false;
+                if (p.fontFamily && p.fontFamily !== (latest.fontFamily || fonts[0].value)) return false;
+                if (typeof p.editorFontSize === 'number' && p.editorFontSize !== (latest.editorFontSize || latest.fontSize || 16)) return false;
+                if (typeof p.lineHeight === 'number' && String(p.lineHeight) !== String(latest.lineHeight || 1.6)) return false;
+                if (p.uiMode && p.uiMode !== latestUiMode) return false;
+                matched = p;
+                return true;
+              });
+              selectedId = matched ? matched.id : '';
+            }
+
+            visualProfileSelect.value = selectedId;
+          }
         } catch (e) { console.error('refreshState failed', e); }
-      };
+      }
 
       refreshState();
 
@@ -2955,12 +3133,6 @@
     ZWGadgetsInstance.addTab('assist', '支援', 'gadgets-panel');
     ZWGadgetsInstance.addTab('structure', '構造', 'structure-gadgets-panel');
     ZWGadgetsInstance.addTab('typography', 'タイポ', 'typography-gadgets-panel');
-
-    // 初期タブをアクティブ化
-    var firstTab = document.querySelector('.sidebar-tab');
-    if (firstTab) {
-      firstTab.click();
-    }
 
     // Wikiパネル初期化（タブ生成はアプリ側で実施）
     ZWGadgetsInstance.init('#wiki-gadgets-panel', { group: 'wiki' });

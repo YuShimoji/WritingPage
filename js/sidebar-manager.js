@@ -11,6 +11,12 @@ class SidebarManager {
                 panelId: 'structure-gadgets-panel'
             },
             {
+                id: 'typography',
+                label: 'テーマ・フォント',
+                description: 'タイポグラフィ設定',
+                panelId: 'typography-gadgets-panel'
+            },
+            {
                 id: 'wiki',
                 label: 'Wiki',
                 description: '物語Wiki',

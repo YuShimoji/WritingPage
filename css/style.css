@@ -597,6 +597,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   opacity: 0.7;
   display: none;
   /* ガジェット有効時のみ表示（JSで切替） */
+  white-space: nowrap;
 }
 
 /* WritingGoal が有効なときに表示 */
@@ -683,6 +684,12 @@ html[data-toolbar-hidden='true'] .sidebar {
   margin-bottom: 1.5rem;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-header h2 {
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.6;
 }
 
 .sidebar-top {
@@ -921,7 +928,9 @@ button:active {
 
 html[data-writing-goal-enabled='true'] #goal-target,
 html[data-writing-goal-enabled='true'] #goal-deadline {
-  display: inline-block;
+  /* 目標/締切の編集は WritingGoal ガジェット側に集約するため、
+     ツールバー上の入力欄は常に非表示に保つ */
+  display: none;
 }
 
 .icon-button:hover {
@@ -2152,7 +2161,7 @@ html[data-ui-mode="focus"] #toolbar-close-sidebar {
   display: none !important;
 }
 
-/* Blank Mode: Sidebar and Toolbar hidden */
+/* Blank Mode: Sidebar and Toolbar hidden（本文のみ + 脱出用FAB） */
 html[data-ui-mode="blank"] .sidebar {
   display: none !important;
 }
@@ -2175,10 +2184,9 @@ html[data-ui-mode="blank"] #editor {
   padding-top: 2rem !important;
 }
 
-/* Hide sidebar toggle in blank mode */
-html[data-ui-mode="blank"] #toggle-sidebar-btn,
-html[data-ui-mode="blank"] #toolbar-close-sidebar {
-  display: none !important;
+/* ブランクモード中もツールバー再表示用FABだけは表示しておく */
+html[data-ui-mode="blank"] .fab-toggle-toolbar {
+  display: inline-flex !important;
 }
 
 /* Mode switching transition */

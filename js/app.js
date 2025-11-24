@@ -14,6 +14,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function applyUILabels() {
         if (!window.UILabels) return;
 
+        // ユーザー設定（エディタプレースホルダなど）を取得
+        let editorPlaceholderOverride = null;
+        try {
+            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+                const s = window.ZenWriterStorage.loadSettings();
+                if (s && s.editor && typeof s.editor.placeholder === 'string') {
+                    const trimmed = s.editor.placeholder.trim();
+                    if (trimmed) editorPlaceholderOverride = trimmed;
+                }
+            }
+        } catch (_) { }
+
         // data-i18n 属性を持つ要素を更新
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
@@ -25,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // data-i18n-placeholder 属性を持つ要素を更新
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
-            if (window.UILabels[key]) {
+            if (key === 'EDITOR_PLACEHOLDER' && editorPlaceholderOverride) {
+                el.setAttribute('placeholder', editorPlaceholderOverride);
+            } else if (window.UILabels[key]) {
                 el.setAttribute('placeholder', window.UILabels[key]);
             }
         });
@@ -323,6 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ツールバーの表示/非表示を切り替え（状態保存）
     function toggleToolbar() {
+        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+        // ブランクモード時にツールバー操作が行われた場合は、
+        // まず通常モードへ戻してから処理する（脱出用エスケープ）
+        if (currentMode === 'blank') {
+            setUIMode('normal');
+            return;
+        }
         window.sidebarManager.toggleToolbar();
     }
 
@@ -441,6 +462,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const validModes = ['normal', 'focus', 'blank'];
         const targetMode = validModes.includes(mode) ? mode : 'normal';
 
+        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+
+        // ブランクモードに入るときは、ツールバーを一時的に隠して
+        // 再表示用FAB（show-toolbar）を出しておく
+        if (targetMode === 'blank') {
+            try {
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(false);
+                } else {
+                    document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+                }
+            } catch (_) { }
+        }
+
+        // ブランクモードから通常/フォーカスに戻る場合、ツールバー状態を復元
+        if (currentMode === 'blank' && targetMode !== 'blank') {
+            try {
+                const s = window.ZenWriterStorage.loadSettings();
+                const toolbarVisible = s.toolbarVisible !== false; // デフォルトは表示
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(toolbarVisible);
+                }
+            } catch (_) {
+                // エラー時はツールバーを表示状態に戻す
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(true);
+                } else {
+                    document.documentElement.removeAttribute('data-toolbar-hidden');
+                }
+            }
+        }
+
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
         const select = document.getElementById('ui-mode-select');
@@ -474,29 +527,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
                 logger.info('ZWGadgets が利用可能になりました。初期化を開始します');
                 try {
-                    // 表示されているガジェットパネルのみ初期化（非表示のtypography/assistはスキップ）
-                    const panels = [
-                        { id: 'structure-gadgets-panel', group: 'structure' },
-                        { id: 'wiki-gadgets-panel', group: 'wiki' }
-                    ];
+                    const panels = Array.from(document.querySelectorAll('.gadgets-panel[data-gadget-group]'))
+                        .map(panel => ({ selector: `#${panel.id}`, group: panel.dataset.gadgetGroup }))
+                        .filter(info => info.selector && info.group);
 
-                    panels.forEach(panelInfo => {
-                        const panel = document.getElementById(panelInfo.id);
-                        if (panel) {
-                            window.ZWGadgets.init(`#${panelInfo.id}`, { group: panelInfo.group });
-                            logger.info(`ガジェット初期化完了: #${panelInfo.id}`);
-                        } else {
-                            logger.warn(`パネルが見つかりません: #${panelInfo.id}`);
+                    if (!panels.length) {
+                        logger.warn('初期化対象のガジェットパネルが見つかりません');
+                    }
+
+                    panels.forEach(info => {
+                        try {
+                            window.ZWGadgets.init(info.selector, { group: info.group });
+                            logger.info(`ガジェット初期化完了: ${info.selector}`);
+                        } catch (initErr) {
+                            logger.error(`ガジェット初期化失敗: ${info.selector}`, initErr);
                         }
                     });
 
-                    // アクティブグループを設定（デフォルトはstructure）
                     if (typeof window.ZWGadgets.setActiveGroup === 'function') {
                         window.ZWGadgets.setActiveGroup('structure');
                     }
 
-                    // ガジェット登録完了を待ってから再レンダリング
-                    // （gadgets-editor-extras.js, wiki.js, nodegraph.jsの登録を待つ）
                     setTimeout(() => {
                         if (typeof window.ZWGadgets._renderLast === 'function') {
                             window.ZWGadgets._renderLast();
