@@ -1074,6 +1074,24 @@
       }
 
       function createDocument() {
+        // 未保存変更の確認と退避（app.js の newDocumentBtn と同様の処理）
+        try {
+          var hasDirty = (editorManager && typeof editorManager.isDirty === 'function')
+            ? editorManager.isDirty()
+            : false;
+          if (hasDirty) {
+            var msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
+            var ok = confirm(msg);
+            if (!ok) return;
+            try {
+              var content = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : '';
+              if (storage && typeof storage.addSnapshot === 'function') {
+                storage.addSnapshot(content);
+              }
+            } catch (_) { }
+          }
+        } catch (_) { }
+
         var name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいドキュメント名を入力', (window.UILabels && window.UILabels.UNTITLED_DOC) || '無題');
         if (name === null) return;
         var doc = storage.createDocument(name || '無題', '');

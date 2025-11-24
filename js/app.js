@@ -635,11 +635,10 @@ document.addEventListener('DOMContentLoaded', () => {
             loadoutDeleteBtn.addEventListener('click', () => {
                 if (!window.ZWGadgets) return;
                 const name = loadoutSelect.value;
-                if (name && confirm(`ロードアウト「${loadoutSelect.options[loadoutSelect.selectedIndex]?.textContent}」を削除しますか？`)) {
-                    if (window.ZWGadgets.deleteLoadout(name)) {
-                        refreshLoadoutList();
-                        logger.info(`ロードアウト削除: ${name}`);
-                    }
+                // ZWGadgets.deleteLoadout() が内部で確認ダイアログを表示するため、ここでは confirm を呼ばない
+                if (name && window.ZWGadgets.deleteLoadout(name)) {
+                    refreshLoadoutList();
+                    logger.info(`ロードアウト削除: ${name}`);
                 }
             });
         }
