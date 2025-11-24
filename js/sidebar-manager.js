@@ -6,8 +6,8 @@ class SidebarManager {
         this.sidebarTabConfig = [
             {
                 id: 'structure',
-                label: 'ガジェット',
-                description: 'ガジェット管理',
+                label: '構造',
+                description: 'ドキュメント構造・ガジェット管理',
                 panelId: 'structure-gadgets-panel'
             },
             {
