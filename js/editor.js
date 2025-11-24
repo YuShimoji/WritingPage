@@ -53,16 +53,20 @@ class EditorManager {
             }, 2000); // 手動スクロール後2秒間typewriter調整をスキップ
         });
 
+        // updateWordCount デバウンスタイマー（長文パフォーマンス改善）
+        this._wordCountDebounceTimer = null;
+        this._WORD_COUNT_DEBOUNCE_DELAY = 300; // 300ms
+
         // 選択変更時に文字数スタンプ更新
         this.editor.addEventListener('selectionchange', () => {
-            this.updateWordCount();
+            this.updateWordCount(); // デバウンス版
             this.updateCharCountStamps();
         });
         this.setupImageHandlers();
         this.setupPreviewPanel();
         this.setupOverlaySupport();
         this.loadContent();
-        this.updateWordCount();
+        this._updateWordCountImmediate(); // 初回は即座に実行
         this.renderImagePreview();
         // イベント配線（パネルボタン、検索、ショートカット等）
         this.setupEventListeners();
@@ -85,7 +89,7 @@ class EditorManager {
         this.editor.addEventListener('input', () => {
             this.markDirty();
             this.saveContent();
-            this.updateWordCount();
+            this.updateWordCount(); // デバウンス版で高頻度入力に対応
             this.maybeAutoSnapshot();
             this.renderImagePreview();
             this.renderMarkdownPreview();
@@ -1084,7 +1088,7 @@ class EditorManager {
     setContent(text) {
         this.editor.value = text || '';
         this.saveContent();
-        this.updateWordCount();
+        this._updateWordCountImmediate(); // 即座に実行
         this.renderImagePreview();
         this.refreshDirtyBaseline();
     }
@@ -1096,7 +1100,7 @@ class EditorManager {
         if (confirm('現在の内容を破棄して新規ドキュメントを作成しますか？')) {
             this.editor.value = '';
             this.saveContent();
-            this.updateWordCount();
+            this._updateWordCountImmediate(); // 即座に実行
         }
     }
 
@@ -1239,7 +1243,25 @@ class EditorManager {
     getCursorPosition() {
         return this.editor.selectionStart || 0;
     }
+
+    /**
+     * updateWordCount のデバウンス版（長文入力時のパフォーマンス改善）
+     * 高頻度で呼ばれる input イベント等で使用
+     */
     updateWordCount() {
+        if (this._wordCountDebounceTimer) {
+            clearTimeout(this._wordCountDebounceTimer);
+        }
+        this._wordCountDebounceTimer = setTimeout(() => {
+            this._updateWordCountImmediate();
+        }, this._WORD_COUNT_DEBOUNCE_DELAY);
+    }
+
+    /**
+     * ワードカウント・進捗表示の即時更新（デバウンスなし）
+     * setContent/loadContent など初期化時や重要な操作時に使用
+     */
+    _updateWordCountImmediate() {
         const text = this.editor.value;
         // インラインスタンプを除去してカウント
         const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
@@ -1682,7 +1704,7 @@ class EditorManager {
 
         this.editor.value = before + replaceText + after;
         this.saveContent();
-        this.updateWordCount();
+        this._updateWordCountImmediate(); // 置換後は即座に更新
 
         // マッチ位置を調整
         const _newEnd = match.start + replaceText.length;
@@ -1732,7 +1754,7 @@ class EditorManager {
 
         this.editor.value = result;
         this.saveContent();
-        this.updateWordCount();
+        this._updateWordCountImmediate(); // 一括置換後は即座に更新
         this.updateSearchMatches();
         this.showNotification('すべて置換しました');
     }
@@ -1763,7 +1785,7 @@ class EditorManager {
         }
         this.editor.focus();
         this.saveContent();
-        this.updateWordCount();
+        this._updateWordCountImmediate(); // 装飾適用後は即座に更新
         this.hideFontDecorationPanel();
     }
 
