@@ -1634,6 +1634,7 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
+        btn.setAttribute('data-theme-preset', key);
         btn.textContent = ({
           light: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト',
           dark: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク',
@@ -1673,6 +1674,20 @@
 
       colorSection.appendChild(makeRow((window.UILabels && window.UILabels.BACKGROUND_COLOR) || '背景色', bgInput));
       colorSection.appendChild(makeRow((window.UILabels && window.UILabels.TEXT_COLOR) || '文字色', textInput));
+
+      // Reset colors button
+      var resetColorsBtn = document.createElement('button');
+      resetColorsBtn.type = 'button';
+      resetColorsBtn.id = 'reset-colors';
+      resetColorsBtn.className = 'small';
+      resetColorsBtn.textContent = (window.UILabels && window.UILabels.RESET_COLORS) || '色をリセット';
+      resetColorsBtn.addEventListener('click', function () {
+        try {
+          theme.clearCustomColors();
+          refreshState();
+        } catch (e) { console.error('clearCustomColors failed', e); }
+      });
+      colorSection.appendChild(resetColorsBtn);
 
       // Custom color presets
       var paletteSection = makeSection((window.UILabels && window.UILabels.CUSTOM_COLOR_SECTION) || 'カスタム色');
