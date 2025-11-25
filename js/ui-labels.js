@@ -195,6 +195,7 @@ window.UILabels = {
     DOC_RENAMED_MSG: 'ドキュメント名を更新しました',
     DELETE_DOC_CONFIRM: 'このドキュメントを削除しますか？この操作は元に戻せません。',
     DOC_DELETED_MSG: 'ドキュメントを削除しました',
+    EDITOR_NEW_DOC_CONFIRM: '現在の内容を破棄して新規ドキュメントを作成しますか？',
     FILE_IMPORTED_MSG: 'ファイルを読み込みました',
     FILE_IMPORT_ERROR: 'ファイル読み込みエラー',
     DOC_LIST_LABEL: 'ドキュメント一覧',
@@ -326,6 +327,13 @@ window.UILabels = {
     HUD_PINNED_LABEL: '常に表示',
     BTN_SAVE_SETTINGS: '設定を保存',
     HUD_SAVED_MESSAGE: 'HUD設定を保存しました',
+
+    // Sidebar Tabs / UI Settings
+    TAB_NAME_REQUIRED: 'タブ名を入力してください',
+    TAB_ADDED: 'タブを追加しました',
+    TAB_RENAMED: '名称を変更しました',
+    TAB_DELETE_CONFIRM: '削除しますか？',
+    TAB_DELETED: '削除しました',
 
     // Loadout UI
     LOADOUT_TITLE: 'ロードアウト',

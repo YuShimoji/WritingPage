@@ -192,7 +192,7 @@
 
       tabBtn.addEventListener('click', function(){
         var name = tabInput.value.trim();
-        if (!name) { alert('タブ名を入力してください'); return; }
+        if (!name) { alert((window.UILabels && window.UILabels.TAB_NAME_REQUIRED) || 'タブ名を入力してください'); return; }
         try {
           if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
             var id = window.sidebarManager.addTab(null, name);
@@ -202,7 +202,7 @@
           }
         } catch(_) {}
         tabInput.value = '';
-        alert('タブを追加しました');
+        alert((window.UILabels && window.UILabels.TAB_ADDED) || 'タブを追加しました');
       });
 
       var manageRow = el('div');
@@ -219,8 +219,8 @@
         list.forEach(function(t){ var o=document.createElement('option'); o.value=t.id; o.textContent=t.label || t.id; tabSelect.appendChild(o); });
       }
       refreshSelect();
-      renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert('名称を変更しました'); });
-      removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm('削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert('削除しました'); });
+      renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert((window.UILabels && window.UILabels.TAB_RENAMED) || '名称を変更しました'); });
+      removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm((window.UILabels && window.UILabels.TAB_DELETE_CONFIRM) || '削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert((window.UILabels && window.UILabels.TAB_DELETED) || '削除しました'); });
 
       root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
     }, { title: 'UI Settings', groups: ['structure'] });

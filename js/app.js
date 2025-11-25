@@ -1414,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 新規ドキュメントを作成
         createNewDocument() {
-            const name = prompt('新しいファイルの名前を入力してください:');
+            const name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいファイルの名前を入力してください:');
             if (!name || !name.trim()) return;
 
             try {

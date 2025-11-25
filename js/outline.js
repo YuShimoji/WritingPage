@@ -6,11 +6,11 @@
     sets: [
       {
         id: 'default-3',
-        name: '部・章・節',
+        name: (window.UILabels && window.UILabels.OUTLINE_DEFAULT_SET_NAME) || '部・章・節',
         levels: [
-          { key: 'part', label: '部', color: '#4a90e2' },
-          { key: 'chapter', label: '章', color: '#7b8a8b' },
-          { key: 'section', label: '節', color: '#b88a4a' },
+          { key: 'part', label: (window.UILabels && window.UILabels.OUTLINE_PART) || '部', color: '#4a90e2' },
+          { key: 'chapter', label: (window.UILabels && window.UILabels.OUTLINE_CHAPTER) || '章', color: '#7b8a8b' },
+          { key: 'section', label: (window.UILabels && window.UILabels.OUTLINE_SECTION) || '節', color: '#b88a4a' },
         ],
       },
     ],
@@ -99,10 +99,11 @@
 
       if (this.$createBtn) {
         this.$createBtn.addEventListener('click', () => {
-          const name = (this.$newName.value || '').trim() || '新規プリセット';
+          const name = (this.$newName.value || '').trim() || ((window.UILabels && window.UILabels.NEW_PRESET_DEFAULT_NAME) || '新規プリセット');
           const levelsCsv = (this.$newLevels.value || '').trim();
           if (!levelsCsv) {
-            alert('レベル名をカンマ区切りで入力してください');
+            const msg = (window.UILabels && window.UILabels.LEVELS_CSV_REQUIRED) || 'レベル名をカンマ区切りで入力してください';
+            alert(msg);
             return;
           }
           const labels = levelsCsv

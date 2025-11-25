@@ -1097,7 +1097,8 @@ class EditorManager {
      * 新しいドキュメントを作成
      */
     newDocument() {
-        if (confirm('現在の内容を破棄して新規ドキュメントを作成しますか？')) {
+        const msg = (window.UILabels && window.UILabels.EDITOR_NEW_DOC_CONFIRM) || '現在の内容を破棄して新規ドキュメントを作成しますか？';
+        if (confirm(msg)) {
             this.editor.value = '';
             this.saveContent();
             this._updateWordCountImmediate(); // 即座に実行
