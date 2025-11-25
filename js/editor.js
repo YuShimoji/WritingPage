@@ -50,12 +50,17 @@ class EditorManager {
             clearTimeout(this._manualScrollTimeout);
             this._manualScrollTimeout = setTimeout(() => {
                 this._isManualScrolling = false;
-            }, 2000); // 手動スクロール後2秒間typewriter調整をスキップ
+            }, this._MANUAL_SCROLL_TIMEOUT_MS);
         });
 
         // updateWordCount デバウンスタイマー（長文パフォーマンス改善）
         this._wordCountDebounceTimer = null;
         this._WORD_COUNT_DEBOUNCE_DELAY = 300; // 300ms
+        
+        // タイプライターモード関連の定数
+        this._TYPEWRITER_SCROLL_DELAY_MS = 120; // スクロール後の更新遅延
+        this._TYPEWRITER_INITIAL_DELAY_MS = 50; // 初期更新遅延
+        this._MANUAL_SCROLL_TIMEOUT_MS = 2000; // 手動スクロール後のタイムアウト
 
         // 選択変更時に文字数スタンプ更新
         this.editor.addEventListener('selectionchange', () => {
@@ -228,9 +233,9 @@ class EditorManager {
         this.editor.addEventListener('scroll', () => {
             this._ty_scrollPending = true;
             clearTimeout(this._ty_scrollTimer);
-            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.scheduleTypewriterUpdate(); }, 120);
+            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.scheduleTypewriterUpdate(); }, this._TYPEWRITER_SCROLL_DELAY_MS);
         });
-        setTimeout(()=> this.scheduleTypewriterUpdate(), 50);
+        setTimeout(()=> this.scheduleTypewriterUpdate(), this._TYPEWRITER_INITIAL_DELAY_MS);
     }
 
     scheduleTypewriterUpdate(){

@@ -1,5 +1,8 @@
 // SidebarManager: サイドバーとツールバーの管理
 class SidebarManager {
+    // 定数定義
+    static TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer
+
     constructor(elementManager) {
         this.elementManager = elementManager;
         // サイドバータブ設定の統一管理
@@ -80,7 +83,7 @@ class SidebarManager {
                 };
                 sidebar.addEventListener('transitionend', onTransitionEnd);
                 // タイムアウトでフォールバック（transitionが発火しない場合）
-                setTimeout(resolve, 350); // transition-duration + buffer
+                setTimeout(resolve, SidebarManager.TRANSITION_TIMEOUT_MS);
             });
         };
         
