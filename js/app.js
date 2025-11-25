@@ -813,15 +813,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function saveHudSettings(patch) {
-        try {
-            if (!patch || typeof patch !== 'object') return;
-            const s = window.ZenWriterStorage.loadSettings();
-            s.hud = Object.assign({}, s.hud || {}, patch);
-            window.ZenWriterStorage.saveSettings(s);
+        updateSettingsPatch('hud', patch, () => {
             if (window.ZenWriterHUD && typeof window.ZenWriterHUD.applyConfig === 'function') {
-                window.ZenWriterHUD.applyConfig(s.hud);
+                const s = window.ZenWriterStorage.loadSettings();
+                window.ZenWriterHUD.applyConfig(s.hud || {});
             }
-        } catch (_) { }
+        });
     }
 
     function hudElement() {
@@ -940,32 +937,39 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // ------- 設定更新用共通ヘルパー -------
+    /**
+     * 設定の部分更新を行う汎用ヘルパー
+     * @param {string} key - 設定キー (e.g., 'goal', 'typewriter')
+     * @param {Object} patch - マージする設定値
+     * @param {Function} [callback] - 保存後に実行するコールバック
+     */
+    function updateSettingsPatch(key, patch, callback) {
+        const s = window.ZenWriterStorage.loadSettings();
+        s[key] = { ...(s[key] || {}), ...patch };
+        window.ZenWriterStorage.saveSettings(s);
+        if (callback) callback();
+    }
+
     // ------- 執筆目標（goal） -------
     function saveGoalPatch(patch) {
-        const s = window.ZenWriterStorage.loadSettings();
-        s.goal = { ...(s.goal || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
-        // 文字数表示を更新
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
-            window.ZenWriterEditor.updateWordCount();
-        }
+        updateSettingsPatch('goal', patch, () => {
+            // 文字数表示を更新
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
+                window.ZenWriterEditor.updateWordCount();
+            }
+        });
     }
 
     // ------- Editor 設定（typewriter / snapshot / preview） -------
     function saveTypewriterPatch(patch) {
-        const s = window.ZenWriterStorage.loadSettings();
-        s.typewriter = { ...(s.typewriter || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
+        updateSettingsPatch('typewriter', patch);
     }
     function saveSnapshotPatch(patch) {
-        const s = window.ZenWriterStorage.loadSettings();
-        s.snapshot = { ...(s.snapshot || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
+        updateSettingsPatch('snapshot', patch);
     }
     function savePreviewPatch(patch) {
-        const s = window.ZenWriterStorage.loadSettings();
-        s.preview = { ...(s.preview || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
+        updateSettingsPatch('preview', patch);
     }
 
     // リアルタイム自動保存設定
@@ -1050,9 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // AutoSave handlers
     function saveAutoSavePatch(patch) {
-        const s = window.ZenWriterStorage.loadSettings();
-        s.autoSave = { ...(s.autoSave || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
+        updateSettingsPatch('autoSave', patch);
     }
     if (autoSaveEnabled) {
         autoSaveEnabled.addEventListener('change', (e) => saveAutoSavePatch({ enabled: !!e.target.checked }));
