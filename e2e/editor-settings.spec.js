@@ -22,6 +22,9 @@ async function openSidebarAndAssistPanel(page) {
       }
     } catch (_) { /* noop */ }
   });
+
+  // ガジェットがレンダリングされるまで待機
+  await page.waitForTimeout(500);
 }
 
 test.describe('Editor Settings', () => {
@@ -31,8 +34,8 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    // Enable typewriter mode
-    const checkbox = page.locator('#typewriter-enabled');
+    // Enable typewriter mode (assistパネル内の要素を指定)
+    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
@@ -49,9 +52,9 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    await expect(page.locator('#typewriter-enabled')).toBeChecked();
-    await expect(page.locator('#typewriter-anchor-ratio')).toHaveValue('0.7');
-    await expect(page.locator('#typewriter-stickiness')).toHaveValue('0.8');
+    await expect(page.locator('#assist-gadgets-panel #typewriter-enabled')).toBeChecked();
+    await expect(page.locator('#assist-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
+    await expect(page.locator('#assist-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
   });
 
   test('should adjust snapshot settings and save', async ({ page }) => {
@@ -60,16 +63,16 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    // Adjust snapshot interval
-    const interval = page.locator('#snapshot-interval-ms');
+    // Adjust snapshot interval (assistパネル内の要素を指定)
+    const interval = page.locator('#assist-gadgets-panel #snapshot-interval-ms');
     await interval.fill('60000');
 
     // Adjust delta chars
-    const delta = page.locator('#snapshot-delta-chars');
+    const delta = page.locator('#assist-gadgets-panel #snapshot-delta-chars');
     await delta.fill('200');
 
     // Adjust retention
-    const retention = page.locator('#snapshot-retention');
+    const retention = page.locator('#assist-gadgets-panel #snapshot-retention');
     await retention.fill('5');
     await retention.press('Enter');
 
@@ -78,9 +81,9 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    await expect(page.locator('#snapshot-interval-ms')).toHaveValue('60000');
-    await expect(page.locator('#snapshot-delta-chars')).toHaveValue('200');
-    await expect(page.locator('#snapshot-retention')).toHaveValue('5');
+    await expect(page.locator('#assist-gadgets-panel #snapshot-interval-ms')).toHaveValue('60000');
+    await expect(page.locator('#assist-gadgets-panel #snapshot-delta-chars')).toHaveValue('200');
+    await expect(page.locator('#assist-gadgets-panel #snapshot-retention')).toHaveValue('5');
   });
 
   test('should switch UI presentation modes and persist', async ({ page }) => {
@@ -123,7 +126,7 @@ test.describe('Editor Settings', () => {
     // Enable typewriter via global controls in assist sidebar
     await openSidebarAndAssistPanel(page);
 
-    const chk = page.locator('#typewriter-enabled');
+    const chk = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await chk.check();
 
     // Scroll to bottom and verify caret positioning (smoke test)
@@ -278,7 +281,7 @@ test.describe('Editor Settings', () => {
     // Enable typewriter mode via global controls
     await openSidebarAndAssistPanel(page);
 
-    const checkbox = page.locator('#typewriter-enabled');
+    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await checkbox.check();
     
     // Close sidebar to focus on editor

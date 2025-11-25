@@ -6,7 +6,7 @@ const pageUrl = '/index.html';
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#gadgets-panel');
+      return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
   // サイドバーを確実に開く
@@ -26,7 +26,7 @@ async function waitGadgetsReady(page) {
   }
   // 初回レンダ後のガジェット要素を待機
   await page.waitForTimeout(500);
-  await page.waitForSelector('#gadgets-panel .gadget-wrapper', { state: 'attached' });
+  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached' });
   return true;
 }
 
@@ -36,8 +36,8 @@ test.describe('Gadgets E2E', () => {
     await waitGadgetsReady(page);
 
     // ガジェットパネルと Clock の存在のみ確認（DOM構造への依存を最小化）
-    await expect(page.locator('#gadgets-panel')).toBeVisible();
-    const clock = page.locator('#gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
+    await expect(page.locator('#assist-gadgets-panel')).toBeVisible();
+    const clock = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
     await expect(clock).toBeVisible();
 
     const clockTextBefore = await clock.locator('.gadget-clock').innerText();

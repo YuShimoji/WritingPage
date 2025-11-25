@@ -1634,6 +1634,7 @@
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
+        btn.setAttribute('data-theme-preset', key);
         btn.textContent = ({
           light: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト',
           dark: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク',
@@ -1655,9 +1656,11 @@
       var colorSection = makeSection((window.UILabels && window.UILabels.COLOR_SECTION) || '色');
       var bgInput = document.createElement('input');
       bgInput.type = 'color';
+      bgInput.id = 'bg-color';
       bgInput.value = settings.bgColor || '#ffffff';
       var textInput = document.createElement('input');
       textInput.type = 'color';
+      textInput.id = 'text-color';
       textInput.value = settings.textColor || '#333333';
 
       bgInput.addEventListener('change', function () {
@@ -1671,6 +1674,20 @@
 
       colorSection.appendChild(makeRow((window.UILabels && window.UILabels.BACKGROUND_COLOR) || '背景色', bgInput));
       colorSection.appendChild(makeRow((window.UILabels && window.UILabels.TEXT_COLOR) || '文字色', textInput));
+
+      // Reset colors button
+      var resetColorsBtn = document.createElement('button');
+      resetColorsBtn.type = 'button';
+      resetColorsBtn.id = 'reset-colors';
+      resetColorsBtn.className = 'small';
+      resetColorsBtn.textContent = (window.UILabels && window.UILabels.RESET_COLORS) || '色をリセット';
+      resetColorsBtn.addEventListener('click', function () {
+        try {
+          theme.clearCustomColors();
+          refreshState();
+        } catch (e) { console.error('clearCustomColors failed', e); }
+      });
+      colorSection.appendChild(resetColorsBtn);
 
       // Custom color presets
       var paletteSection = makeSection((window.UILabels && window.UILabels.CUSTOM_COLOR_SECTION) || 'カスタム色');
@@ -2941,205 +2958,7 @@
     }
   }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
 
-  // StoryWiki ガジェット
-  /*
-  ZWGadgetsInstance.register('StoryWiki', function(el, options){
-    try {
-      el.innerHTML = '';
-      el.style.display = 'flex';
-      el.style.flexDirection = 'column';
-      el.style.gap = '12px';
-
-      var storage = window.ZenWriterStorage;
-      if (!storage || !storage.loadWikiPages) {
-        el.textContent = 'ストレージが利用できません';
-        return;
-      }
-
-      // 検索入力
-      var searchInput = document.createElement('input');
-      searchInput.type = 'text';
-      searchInput.placeholder = 'ページを検索...';
-      searchInput.style.width = '100%';
-      searchInput.style.padding = '8px';
-      searchInput.style.border = '1px solid var(--border-color)';
-      searchInput.style.borderRadius = '4px';
-      searchInput.style.background = 'var(--bg-color)';
-      searchInput.style.color = 'var(--text-color)';
-
-      // 新規作成ボタン
-      var createBtn = document.createElement('button');
-      createBtn.className = 'small';
-      createBtn.textContent = '新規ページ作成';
-
-      // ページリストコンテナ
-      var listContainer = document.createElement('div');
-      listContainer.style.flex = '1';
-      listContainer.style.overflow = 'auto';
-      listContainer.style.border = '1px solid var(--border-color)';
-      listContainer.style.borderRadius = '4px';
-      listContainer.style.padding = '8px';
-      listContainer.style.background = 'var(--bg-color)';
-
-      function renderList(){
-        listContainer.innerHTML = '';
-        var pages = storage.loadWikiPages() || [];
-        var query = searchInput.value.toLowerCase().trim();
-
-        pages.forEach(function(page){
-          if (query && !page.title.toLowerCase().includes(query) && !page.content.toLowerCase().includes(query)) {
-            return;
-          }
-
-          var item = document.createElement('div');
-          item.style.padding = '8px';
-          item.style.marginBottom = '4px';
-          item.style.border = '1px solid var(--border-color)';
-          item.style.borderRadius = '4px';
-          item.style.background = 'var(--bg-color)';
-          item.style.cursor = 'pointer';
-
-          var title = document.createElement('div');
-          title.textContent = page.title || '無題';
-          title.style.fontWeight = 'bold';
-          title.style.marginBottom = '4px';
-
-          var preview = document.createElement('div');
-          preview.textContent = (page.content || '').substring(0, 100) + '...';
-          preview.style.fontSize = '12px';
-          preview.style.opacity = '0.7';
-
-          item.appendChild(title);
-          item.appendChild(preview);
-
-          item.addEventListener('click', function(){
-            // ページ編集ダイアログを表示
-            showPageEditor(page.id);
-          });
-
-          listContainer.appendChild(item);
-        });
-
-        if (pages.length === 0) {
-          listContainer.textContent = 'ページがありません。新規作成ボタンから作成してください。';
-          listContainer.style.textAlign = 'center';
-          listContainer.style.padding = '40px';
-          listContainer.style.opacity = '0.6';
-        }
-      }
-
-      function showPageEditor(pageId){
-        var page = pageId ? storage.getWikiPage(pageId) : null;
-
-        var titleInput = document.createElement('input');
-        titleInput.type = 'text';
-        titleInput.value = page ? (page.title || '') : '';
-        titleInput.placeholder = 'ページタイトル';
-        titleInput.style.width = '100%';
-        titleInput.style.padding = '4px';
-        titleInput.style.border = '1px solid var(--border-color)';
-        titleInput.style.borderRadius = '4px';
-
-        var contentTextarea = document.createElement('textarea');
-        contentTextarea.value = page ? (page.content || '') : '';
-        contentTextarea.placeholder = 'ページ内容';
-        contentTextarea.style.width = '100%';
-        contentTextarea.style.height = '200px';
-        contentTextarea.style.padding = '4px';
-        contentTextarea.style.border = '1px solid var(--border-color)';
-        contentTextarea.style.borderRadius = '4px';
-        contentTextarea.style.resize = 'vertical';
-
-        var tagsInput = document.createElement('input');
-        tagsInput.type = 'text';
-        tagsInput.value = page ? ((page.tags || []).join(', ')) : '';
-        tagsInput.placeholder = 'タグ（カンマ区切り）';
-        tagsInput.style.width = '100%';
-        tagsInput.style.padding = '4px';
-        tagsInput.style.border = '1px solid var(--border-color)';
-        tagsInput.style.borderRadius = '4px';
-
-        var saveBtn = document.createElement('button');
-        saveBtn.type = 'button';
-        saveBtn.className = 'small';
-        saveBtn.textContent = '保存';
-        saveBtn.addEventListener('click', function(){
-          var updates = {
-            title: titleInput.value.trim() || '無題',
-            content: contentTextarea.value,
-            tags: tagsInput.value.split(',').map(t => t.trim()).filter(Boolean)
-          };
-          if (pageId) {
-            storage.updateWikiPage(pageId, updates);
-          } else {
-            storage.createWikiPage(updates);
-          }
-          renderList();
-          document.body.removeChild(editorDialog);
-        });
-
-        var cancelBtn = document.createElement('button');
-        cancelBtn.type = 'button';
-        cancelBtn.className = 'small';
-        cancelBtn.textContent = 'キャンセル';
-        cancelBtn.addEventListener('click', function(){
-          document.body.removeChild(editorDialog);
-        });
-
-        var editorDialog = document.createElement('div');
-        editorDialog.style.position = 'fixed';
-        editorDialog.style.top = '50%';
-        editorDialog.style.left = '50%';
-        editorDialog.style.transform = 'translate(-50%, -50%)';
-        editorDialog.style.background = 'var(--bg-color)';
-        editorDialog.style.border = '1px solid var(--border-color)';
-        editorDialog.style.borderRadius = '8px';
-        editorDialog.style.padding = '16px';
-        editorDialog.style.zIndex = '10000';
-        editorDialog.style.width = '80%';
-        editorDialog.style.maxWidth = '600px';
-        editorDialog.style.maxHeight = '80vh';
-        editorDialog.style.overflow = 'auto';
-        editorDialog.style.display = 'flex';
-        editorDialog.style.flexDirection = 'column';
-        editorDialog.style.gap = '8px';
-
-        editorDialog.appendChild(document.createTextNode('タイトル:'));
-        editorDialog.appendChild(titleInput);
-        editorDialog.appendChild(document.createTextNode('内容:'));
-        editorDialog.appendChild(contentTextarea);
-        editorDialog.appendChild(document.createTextNode('タグ:'));
-        editorDialog.appendChild(tagsInput);
-
-        var btns = document.createElement('div');
-        btns.style.display = 'flex';
-        btns.style.gap = '8px';
-        btns.appendChild(saveBtn);
-        btns.appendChild(cancelBtn);
-        editorDialog.appendChild(btns);
-
-        document.body.appendChild(editorDialog);
-      }
-
-      createBtn.addEventListener('click', function(){
-        showPageEditor(null);
-      });
-
-      searchInput.addEventListener('input', function(){
-        renderList();
-      });
-
-      el.appendChild(searchInput);
-      el.appendChild(createBtn);
-      el.appendChild(listContainer);
-
-      renderList();
-    } catch(e) {
-      console.error('StoryWiki gadget failed:', e);
-      el.textContent = 'Wikiガジェットの初期化に失敗しました。';
-    }
-  }, { groups: ['wiki'], title: '物語Wiki' });
-  */
+  // StoryWiki ガジェットは js/wiki.js に実装済み
 
   ready(function () {
     // Initialize gadget panels

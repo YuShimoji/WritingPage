@@ -80,17 +80,26 @@ async function loadCssWithImports(url) {
       hasCssDrag,
     });
 
-    // プラグインは廃止済み（ガジェット化）のためチェックスキップ
-    const okPlugins = true;
-    console.log('CHECK plugins -> SKIPPED (legacy feature)');
+    // プラグインスクリプトの存在検証（UIパネルはオプション）
+    const pluginRegistry = await get('/js/plugins/registry.js');
+    const pluginChoice = await get('/js/plugins/choice.js');
+    const okPlugins =
+      pluginRegistry.status === 200 &&
+      pluginChoice.status === 200;
+    console.log('CHECK plugins ->', okPlugins ? 'OK' : 'NG', {
+      registry: pluginRegistry.status,
+      choice: pluginChoice.status,
+    });
 
-    // ガジェットの存在検証（複数グループパネル対応）
+    // ガジェットの存在検証（新UI構造: structure/assist/wiki/typographyパネル）
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
+    const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
     const hasGadgetGroup = /data-gadget-group="structure"/i.test(index.body);
     const gadgetsJs = await get('/js/gadgets.js');
-    const okGadgets = hasStructurePanel && hasGadgetGroup && gadgetsJs.status === 200;
+    const okGadgets = hasStructurePanel && hasAssistPanel && hasGadgetGroup && gadgetsJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
       hasStructurePanel,
+      hasAssistPanel,
       hasGadgetGroup,
       gadgets: gadgetsJs.status,
     });

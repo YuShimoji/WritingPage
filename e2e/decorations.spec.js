@@ -24,6 +24,29 @@ async function openSidebarAndStructurePanel(page) {
   });
 }
 
+async function openSidebarAndAssistPanel(page) {
+  // サイドバーを開き、assist グループをアクティブにする
+  await page.waitForSelector('#sidebar', { timeout: 10000 });
+
+  const isOpen = await page.evaluate(() => {
+    const sb = document.getElementById('sidebar');
+    return !!(sb && sb.classList.contains('open'));
+  });
+
+  if (!isOpen) {
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+  }
+
+  await page.evaluate(() => {
+    try {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('assist');
+      }
+    } catch (_) { /* noop */ }
+  });
+}
+
 test.describe('Font Decoration System', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:8080');
@@ -154,21 +177,21 @@ test.describe('HUD Settings', () => {
 
     await page.reload();
 
-    // HUDSettings は実質 structure グループのガジェットとして描画される
-    await openSidebarAndStructurePanel(page);
+    // HUDSettings は assist グループのガジェットとして描画される
+    await openSidebarAndAssistPanel(page);
   });
 
   test('should display HUD settings gadget', async ({ page }) => {
-    // HUDSettings gadget should be available in structure group
-    const hudGadgets = await page.locator('#structure-gadgets-panel [data-gadget-name="HUDSettings"]');
+    // HUDSettings gadget should be available in assist group
+    const hudGadgets = await page.locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
 
   test('should update HUD width setting', async ({ page }) => {
-    // 自動保存型の HUDSettings ガジェット（保存ボタンなし）を対象とする
+    // HUDSettings ガジェットを対象とする
     const hudGadget = await page
-      .locator('#structure-gadgets-panel [data-gadget-name="HUDSettings"]:not(:has(button:has-text("設定を保存")))')
+      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
       .first();
 
     const widthInput = hudGadget.locator('input[type="number"][min="120"]').first();
@@ -180,7 +203,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD font size setting', async ({ page }) => {
     const hudGadget = await page
-      .locator('#structure-gadgets-panel [data-gadget-name="HUDSettings"]:not(:has(button:has-text("設定を保存")))')
+      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
       .first();
 
     const fsInput = hudGadget.locator('input[type="number"][min="10"]').first();
@@ -192,7 +215,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD colors', async ({ page }) => {
     const hudGadget = await page
-      .locator('#structure-gadgets-panel [data-gadget-name="HUDSettings"]:not(:has(button:has-text("設定を保存")))')
+      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
       .first();
 
     const firstColorInput = hudGadget.locator('input[type="color"]').first();
