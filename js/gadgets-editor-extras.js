@@ -43,16 +43,16 @@
       root.style.display='grid'; root.style.gap='6px';
 
       var row1 = el('div');
-      var enabled = el('input'); enabled.type='checkbox'; enabled.checked = !!tw.enabled; var lbl1 = el('label'); lbl1.textContent = '有効化'; lbl1.style.marginLeft='6px';
+      var enabled = el('input'); enabled.type='checkbox'; enabled.id='typewriter-enabled'; enabled.checked = !!tw.enabled; var lbl1 = el('label'); lbl1.textContent = '有効化'; lbl1.style.marginLeft='6px'; lbl1.setAttribute('for','typewriter-enabled');
       row1.appendChild(enabled); row1.appendChild(lbl1);
 
       var row2 = el('div');
-      var anchor = el('input'); anchor.type='range'; anchor.min='0.05'; anchor.max='0.95'; anchor.step='0.05'; anchor.value = String(typeof tw.anchorRatio==='number'? tw.anchorRatio : 0.5);
+      var anchor = el('input'); anchor.type='range'; anchor.id='typewriter-anchor-ratio'; anchor.min='0.05'; anchor.max='0.95'; anchor.step='0.05'; anchor.value = String(typeof tw.anchorRatio==='number'? tw.anchorRatio : 0.5);
       var aLbl = el('div'); aLbl.textContent = 'アンカー位置: '+anchor.value; aLbl.style.fontSize='12px';
       row2.appendChild(aLbl); row2.appendChild(anchor);
 
       var row3 = el('div');
-      var stick = el('input'); stick.type='range'; stick.min='0'; stick.max='1'; stick.step='0.1'; stick.value = String(typeof tw.stickiness==='number'? tw.stickiness : 0.9);
+      var stick = el('input'); stick.type='range'; stick.id='typewriter-stickiness'; stick.min='0'; stick.max='1'; stick.step='0.1'; stick.value = String(typeof tw.stickiness==='number'? tw.stickiness : 0.9);
       var sLbl = el('div'); sLbl.textContent = '張り付き強度: '+stick.value; sLbl.style.fontSize='12px';
       row3.appendChild(sLbl); row3.appendChild(stick);
 
@@ -89,9 +89,9 @@
         row.appendChild(l); row.appendChild(input); root.appendChild(row);
       }
 
-      addNumber('間隔(ms)','snap-int',30000,300000,30000, (snap.intervalMs||120000), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.intervalMs = Math.max(30000, Math.min(300000, v)); }); });
-      addNumber('差分文字数','snap-delta',50,1000,50, (snap.deltaChars||300), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.deltaChars = Math.max(50, Math.min(1000, v)); }); });
-      addNumber('保持数','snap-keep',1,50,1, (snap.retention||10), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.retention = Math.max(1, Math.min(50, v)); }); });
+      addNumber('間隔(ms)','snapshot-interval-ms',30000,300000,30000, (snap.intervalMs||120000), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.intervalMs = Math.max(30000, Math.min(300000, v)); }); });
+      addNumber('差分文字数','snapshot-delta-chars',50,1000,50, (snap.deltaChars||300), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.deltaChars = Math.max(50, Math.min(1000, v)); }); });
+      addNumber('保持数','snapshot-retention',1,50,1, (snap.retention||10), function(v){ withStorage(function(cfg){ cfg.snapshot=cfg.snapshot||{}; cfg.snapshot.retention = Math.max(1, Math.min(50, v)); }); });
 
       var btn = el('button','small'); btn.textContent='今すぐスナップショット';
       btn.addEventListener('click', function(){

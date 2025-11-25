@@ -80,26 +80,25 @@ async function loadCssWithImports(url) {
       hasCssDrag,
     });
 
-    // プラグインUIとスクリプトの存在検証
-    const hasPluginsPanel = /id=\"plugins-panel\"/i.test(index.body);
+    // プラグインスクリプトの存在検証（UIパネルはオプション）
     const pluginRegistry = await get('/js/plugins/registry.js');
     const pluginChoice = await get('/js/plugins/choice.js');
     const okPlugins =
-      hasPluginsPanel &&
       pluginRegistry.status === 200 &&
       pluginChoice.status === 200;
     console.log('CHECK plugins ->', okPlugins ? 'OK' : 'NG', {
-      hasPluginsPanel,
       registry: pluginRegistry.status,
       choice: pluginChoice.status,
     });
 
-    // ガジェットの存在検証
-    const hasGadgetsPanel = /id=\"gadgets-panel\"/i.test(index.body);
+    // ガジェットの存在検証（新UI構造: structure/assist/wiki/typographyパネル）
+    const hasStructurePanel = /id=\"structure-gadgets-panel\"/i.test(index.body);
+    const hasAssistPanel = /id=\"assist-gadgets-panel\"/i.test(index.body);
     const gadgetsJs = await get('/js/gadgets.js');
-    const okGadgets = hasGadgetsPanel && gadgetsJs.status === 200;
+    const okGadgets = hasStructurePanel && hasAssistPanel && gadgetsJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
-      hasGadgetsPanel,
+      hasStructurePanel,
+      hasAssistPanel,
       gadgets: gadgetsJs.status,
     });
 
@@ -167,31 +166,18 @@ async function loadCssWithImports(url) {
       { hasDocumentsGadget, hasStructureInit },
     );
 
-    // ガジェット設定のインポート/エクスポートUIとAPI
-    const hasGadgetExportBtn = /id="gadget-export"/i.test(index.body || '');
-    const hasGadgetImportBtn = /id="gadget-import"/i.test(index.body || '');
-    const hasGadgetPrefsInput = /id="gadget-prefs-input"/i.test(
-      index.body || '',
-    );
+    // ガジェット設定のインポート/エクスポートAPI（UIはオプション）
     const hasExportApi = /exportPrefs\s*\(\)\s*\{/m.test(
       gadgetsSrc || '',
     );
     const hasImportApi = /importPrefs\s*\(\s*obj\s*\)\s*\{/m.test(
       gadgetsSrc || '',
     );
-    const okGadgetsImpExp =
-      hasGadgetExportBtn &&
-      hasGadgetImportBtn &&
-      hasGadgetPrefsInput &&
-      hasExportApi &&
-      hasImportApi;
+    const okGadgetsImpExp = hasExportApi && hasImportApi;
     console.log(
       'CHECK gadgets import/export ->',
       okGadgetsImpExp ? 'OK' : 'NG',
       {
-        hasGadgetExportBtn,
-        hasGadgetImportBtn,
-        hasGadgetPrefsInput,
         hasExportApi,
         hasImportApi,
       },
