@@ -40,10 +40,11 @@
       var s = window.ZenWriterStorage.loadSettings();
       var tw = (s && s.typewriter) || {};
       root.innerHTML='';
-      root.style.display='grid'; root.style.gap='6px';
+      root.style.display='grid'; root.style.gap='8px';
 
-      var row1 = el('div');
-      var enabled = el('input'); enabled.type='checkbox'; enabled.id='typewriter-enabled'; enabled.checked = !!tw.enabled; var lbl1 = el('label'); lbl1.textContent = '有効化'; lbl1.style.marginLeft='6px'; lbl1.setAttribute('for','typewriter-enabled');
+      var row1 = el('label', 'toggle-switch');
+      var enabled = el('input'); enabled.type='checkbox'; enabled.id='typewriter-enabled'; enabled.checked = !!tw.enabled;
+      var lbl1 = el('span'); lbl1.textContent = 'タイプライターモード';
       row1.appendChild(enabled); row1.appendChild(lbl1);
 
       var row2 = el('div');
@@ -137,6 +138,31 @@
       var sel = el('select'); ['buttons','tabs','dropdown','accordion'].forEach(function(k){ var o=el('option'); o.value=k; o.textContent=k; sel.appendChild(o); }); sel.value = String(ui.tabsPresentation || 'tabs');
       var l1 = el('label'); l1.textContent='タブ表示方式'; l1.style.display='block'; presRow.appendChild(l1); presRow.appendChild(sel);
 
+      // UI表示スタイル（アイコン/テキスト切替）
+      var styleRow = el('div');
+      var styleSel = el('select');
+      [
+        { value: 'default', label: 'アイコン+テキスト' },
+        { value: 'icons-only', label: 'アイコンのみ' },
+        { value: 'text-only', label: 'テキストのみ' }
+      ].forEach(function(opt) {
+        var o = el('option'); o.value = opt.value; o.textContent = opt.label; styleSel.appendChild(o);
+      });
+      styleSel.value = String(ui.uiStyle || 'default');
+      var styleLabel = el('label'); styleLabel.textContent = 'ボタン表示'; styleLabel.style.display = 'block';
+      styleRow.appendChild(styleLabel); styleRow.appendChild(styleSel);
+
+      styleSel.addEventListener('change', function() {
+        var val = styleSel.value;
+        withStorage(function(cfg) { cfg.ui = cfg.ui || {}; cfg.ui.uiStyle = val; });
+        document.documentElement.setAttribute('data-ui-style', val === 'default' ? '' : val);
+      });
+
+      // 初期適用
+      if (ui.uiStyle && ui.uiStyle !== 'default') {
+        document.documentElement.setAttribute('data-ui-style', ui.uiStyle);
+      }
+
       var widthRow = el('div');
       var rng = el('input'); rng.type='range'; rng.min='220'; rng.max='560'; rng.step='10'; rng.value=String(typeof ui.sidebarWidth==='number'? ui.sidebarWidth : 320);
       var note = el('div'); note.style.fontSize='12px'; note.textContent = 'サイドバー幅: '+rng.value+'px';
@@ -222,7 +248,7 @@
       renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert((window.UILabels && window.UILabels.TAB_RENAMED) || '名称を変更しました'); });
       removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm((window.UILabels && window.UILabels.TAB_DELETE_CONFIRM) || '削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert((window.UILabels && window.UILabels.TAB_DELETED) || '削除しました'); });
 
-      root.appendChild(presRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
+      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
     }, { title: 'UI Settings', groups: ['structure'] });
 
     // UI Design Gadget (background gradient)
@@ -247,7 +273,10 @@
         if (api && typeof api.refresh==='function') api.refresh();
       }
 
-      var enable = el('input'); enable.type='checkbox'; enable.checked = !!g.enabled; var l0 = el('label'); l0.textContent='背景グラデーションを有効化'; l0.style.marginLeft='6px'; var row0=el('div'); row0.appendChild(enable); row0.appendChild(l0);
+      var row0 = el('label', 'toggle-switch');
+      var enable = el('input'); enable.type='checkbox'; enable.checked = !!g.enabled;
+      var l0 = el('span'); l0.textContent='背景グラデーション';
+      row0.appendChild(enable); row0.appendChild(l0);
       var typeSel = el('select'); ['linear','radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; typeSel.appendChild(o); }); typeSel.value=String(g.type||'linear');
       var angle = el('input'); angle.type='range'; angle.min='0'; angle.max='360'; angle.step='1'; angle.value=String(g.angle||135); var aLbl = el('div'); aLbl.textContent='角度: '+angle.value+'°'; aLbl.style.fontSize='12px'; var row1=el('div'); row1.appendChild(aLbl); row1.appendChild(angle);
       var c1 = el('input'); c1.type='color'; c1.value=String(g.c1||'#101318'); var c2 = el('input'); c2.type='color'; c2.value=String(g.c2||'#262f3f'); var row2=el('div'); row2.style.display='flex'; row2.style.gap='8px'; row2.appendChild(c1); row2.appendChild(c2);
@@ -432,7 +461,9 @@
 
       // Base Layer UI
       var baseTitle = el('div'); baseTitle.textContent='Base Layer'; baseTitle.style.fontWeight='bold'; baseTitle.style.fontSize='14px';
-      var baseEnable = el('input'); baseEnable.type='checkbox'; baseEnable.checked = !!base.enabled; var baseLbl = el('label'); baseLbl.textContent='有効化'; baseLbl.style.marginLeft='6px'; var baseRow0=el('div'); baseRow0.appendChild(baseEnable); baseRow0.appendChild(baseLbl);
+      var baseRow0 = el('label', 'toggle-switch toggle-compact');
+      var baseEnable = el('input'); baseEnable.type='checkbox'; baseEnable.checked = !!base.enabled;
+      baseRow0.appendChild(baseEnable);
       var baseType = el('select'); ['solid','linear','radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; baseType.appendChild(o); }); baseType.value=String(base.type||'linear');
       var baseAngle = el('input'); baseAngle.type='range'; baseAngle.min='0'; baseAngle.max='360'; baseAngle.step='1'; baseAngle.value=String(base.angle||180); var baseALbl = el('div'); baseALbl.textContent='角度: '+baseAngle.value+'°'; baseALbl.style.fontSize='12px'; var baseRow1=el('div'); baseRow1.appendChild(baseALbl); baseRow1.appendChild(baseAngle);
       var baseC1 = el('input'); baseC1.type='color'; baseC1.value=String(base.c1||'#f5f5dc'); var baseC2 = el('input'); baseC2.type='color'; baseC2.value=String(base.c2||'#e0e0c0'); var baseRow2=createColorPickerRow(baseC1, baseC2);
@@ -449,7 +480,9 @@
 
       // Pattern Layer UI
       var patternTitle = el('div'); patternTitle.textContent='Pattern Layer'; patternTitle.style.fontWeight='bold'; patternTitle.style.fontSize='14px'; patternTitle.style.marginTop='8px';
-      var patternEnable = el('input'); patternEnable.type='checkbox'; patternEnable.checked = !!pattern.enabled; var patternLbl = el('label'); patternLbl.textContent='有効化'; patternLbl.style.marginLeft='6px'; var patternRow0=el('div'); patternRow0.appendChild(patternEnable); patternRow0.appendChild(patternLbl);
+      var patternRow0 = el('label', 'toggle-switch toggle-compact');
+      var patternEnable = el('input'); patternEnable.type='checkbox'; patternEnable.checked = !!pattern.enabled;
+      patternRow0.appendChild(patternEnable);
       var patternType = el('select'); ['repeating-linear','repeating-radial'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; patternType.appendChild(o); }); patternType.value=String(pattern.type||'repeating-linear');
       var patternAngle = el('input'); patternAngle.type='range'; patternAngle.min='0'; patternAngle.max='360'; patternAngle.step='1'; patternAngle.value=String(pattern.angle||45); var patternALbl = el('div'); patternALbl.textContent='角度: '+patternAngle.value+'°'; patternALbl.style.fontSize='12px'; var patternRow1=el('div'); patternRow1.appendChild(patternALbl); patternRow1.appendChild(patternAngle);
       var patternSize = el('input'); patternSize.type='range'; patternSize.min='10'; patternSize.max='200'; patternSize.step='5'; patternSize.value=String(pattern.size||50); var patternSzLbl = el('div'); patternSzLbl.textContent='サイズ: '+patternSize.value+'px'; patternSzLbl.style.fontSize='12px'; var patternRow2=createRangeRow('サイズ: '+patternSize.value+'px', patternSize);
@@ -469,7 +502,9 @@
 
       // Overlay Layer UI
       var overlayTitle = el('div'); overlayTitle.textContent='Overlay Layer'; overlayTitle.style.fontWeight='bold'; overlayTitle.style.fontSize='14px'; overlayTitle.style.marginTop='8px';
-      var overlayEnable = el('input'); overlayEnable.type='checkbox'; overlayEnable.checked = !!overlay.enabled; var overlayLbl = el('label'); overlayLbl.textContent='有効化'; overlayLbl.style.marginLeft='6px'; var overlayRow0=el('div'); overlayRow0.appendChild(overlayEnable); overlayRow0.appendChild(overlayLbl);
+      var overlayRow0 = el('label', 'toggle-switch toggle-compact');
+      var overlayEnable = el('input'); overlayEnable.type='checkbox'; overlayEnable.checked = !!overlay.enabled;
+      overlayRow0.appendChild(overlayEnable);
       var overlayType = el('select'); ['radial','linear'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; overlayType.appendChild(o); }); overlayType.value=String(overlay.type||'radial');
       var overlayC1 = el('input'); overlayC1.type='color'; overlayC1.value=String(overlay.c1||'#000000'); var overlayC2 = el('input'); overlayC2.type='color'; overlayC2.value=String(overlay.c2||'#ffffff'); var overlayRow1=createColorPickerRow(overlayC1, overlayC2);
       var overlayStr = el('input'); overlayStr.type='range'; overlayStr.min='0'; overlayStr.max='1'; overlayStr.step='0.05'; overlayStr.value=String(typeof overlay.strength==='number'? overlay.strength : 0.2); var overlaySLbl = el('div'); overlaySLbl.textContent='強度: '+overlayStr.value; overlaySLbl.style.fontSize='12px'; var overlayRow2=el('div'); overlayRow2.appendChild(overlaySLbl); overlayRow2.appendChild(overlayStr);

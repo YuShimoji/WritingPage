@@ -2196,3 +2196,278 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
 .main-content {
   transition: all var(--transition-speed) ease;
 }
+
+/* ===== ヘルプガジェット ===== */
+.help-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.help-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  background: var(--sidebar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.help-nav-btn:hover {
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
+}
+
+.help-nav-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+.help-nav-icon {
+  font-size: 12px;
+}
+
+.help-nav-text {
+  white-space: nowrap;
+}
+
+.help-content {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.help-content h3 {
+  font-size: 15px;
+  font-weight: bold;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.help-content h4 {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 12px 0 6px 0;
+  color: var(--accent-color);
+}
+
+.help-content p {
+  margin: 6px 0;
+}
+
+.help-content ul,
+.help-content ol {
+  margin: 6px 0;
+  padding-left: 20px;
+}
+
+.help-content li {
+  margin: 4px 0;
+}
+
+.help-content code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.help-content kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  background: var(--sidebar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+
+.help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin: 8px 0;
+}
+
+.help-table td {
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.help-table td:first-child {
+  width: 40%;
+}
+
+/* ===== UI洗練: トグルスイッチ風チェックボックス ===== */
+.toggle-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-switch input[type="checkbox"] {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin: 0;
+}
+
+.toggle-switch input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input[type="checkbox"]:checked {
+  background: var(--accent-color);
+}
+
+.toggle-switch input[type="checkbox"]:checked::before {
+  transform: translateX(16px);
+}
+
+.toggle-switch input[type="checkbox"]:focus {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+}
+
+/* コンパクトトグル（ラベルなし） */
+.toggle-compact input[type="checkbox"] {
+  width: 32px;
+  height: 18px;
+}
+
+.toggle-compact input[type="checkbox"]::before {
+  width: 14px;
+  height: 14px;
+}
+
+.toggle-compact input[type="checkbox"]:checked::before {
+  transform: translateX(14px);
+}
+
+/* チェックボックスの青色を控えめに */
+input[type="checkbox"] {
+  accent-color: var(--accent-color);
+}
+
+/* ガジェット内のチェックボックス行を整理 */
+.gadget-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.gadget-toggle-row label {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* ===== ガジェット改行・レイアウト改善 ===== */
+.gadgets-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gadget-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ガジェット内のフォーム要素の間隔統一 */
+.gadget-wrapper > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 横並びの要素 */
+.gadget-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ガジェット内のセクション区切り */
+.gadget-section {
+  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid var(--border-color);
+}
+
+/* ラベルのスタイル統一 */
+.gadget-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-color);
+  opacity: 0.8;
+}
+
+/* スライダー行のレイアウト改善 */
+.gadget-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gadget-slider-row input[type="range"] {
+  width: 100%;
+}
+
+/* ボタングループ */
+.gadget-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* ===== アイコン/テキスト切替対応 ===== */
+[data-ui-style="icons-only"] .btn-text,
+[data-ui-style="icons-only"] .help-nav-text {
+  display: none;
+}
+
+[data-ui-style="icons-only"] .help-nav-btn {
+  padding: 6px;
+}
+
+[data-ui-style="text-only"] .btn-icon,
+[data-ui-style="text-only"] .help-nav-icon {
+  display: none;
+}
+
+/* ===== ダークテーマでのヘルプ表示調整 ===== */
+[data-theme="dark"] .help-content code {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .help-content kbd {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}

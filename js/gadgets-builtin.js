@@ -501,18 +501,16 @@
     }
   }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
 
-  // TypographyThemes gadget
-  ZWGadgetsInstance.register('TypographyThemes', function (el) {
-    // ... TypographyThemes gadget implementation
-  }, { groups: ['typography'], title: (window.UILabels && window.UILabels.GADGET_THEME_TITLE) || 'テーマ & フォント' });
+  // TypographyThemes gadget (個別ファイル化済み - gadgets-typography.js)
 
-  // HUDSettings gadget
-  ZWGadgetsInstance.register('HUDSettings', function (el) {
-    // ... HUDSettings gadget implementation
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
+  // HUDSettings gadget (個別ファイル化済み - gadgets-hud.js)
 
   // Other built-in gadgets...
-  // Clock, WritingGoal, SnapshotManager, etc.
+  // EditorLayout, etc.
+
+  // EditorLayout settings UI (個別ファイル化済み - gadgets-layout.js)
+
+  // SnapshotManager gadget (個別ファイル化済み - gadgets-snapshot.js)
 
   // Export the instance with built-in gadgets registered
   try {
