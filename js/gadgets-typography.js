@@ -6,7 +6,9 @@
   var ZWGadgetsCore = window.ZWGadgetsCore;
   if (!utils || !ZWGadgetsCore) return;
 
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  // Use the global ZWGadgets instance instead of creating a new one
+  var ZWGadgetsInstance = window.ZWGadgets;
+  if (!ZWGadgetsInstance) return;
 
   // TypographyThemes gadget (個別ファイル化)
   ZWGadgetsInstance.register('TypographyThemes', function (el) {
@@ -379,8 +381,19 @@
           editorFontSizeLabel.textContent = ((window.UILabels && window.UILabels.EDITOR_FONT_SIZE_PREFIX) || 'エディタフォントサイズ: ') + editorFontSizeInput.value + 'px';
           lineHeightInput.value = latest.lineHeight || 1.6;
           lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
-          bgInput.value = latest.bgColor || '#ffffff';
-          textInput.value = latest.textColor || '#333333';
+          
+          // カラー設定
+          if (latest.useCustomColors && latest.bgColor && latest.textColor) {
+            bgInput.value = latest.bgColor;
+            textInput.value = latest.textColor;
+          } else {
+            // テーマの既定色を使用
+            var currentTheme = latest.theme || 'light';
+            var themeColors = { light: { bg: '#ffffff', text: '#333333' }, dark: { bg: '#1e1e1e', text: '#e0e0e0' }, sepia: { bg: '#f4ecd8', text: '#5b4636' } };
+            var themeColor = themeColors[currentTheme] || themeColors.light;
+            bgInput.value = themeColor.bg;
+            textInput.value = themeColor.text;
+          }
 
           // Visual Profile セレクトの状態を同期
           if (visualProfileSelect) {

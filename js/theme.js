@@ -122,6 +122,16 @@ class ThemeManager {
     root.style.removeProperty('--toolbar-bg');
     root.style.removeProperty('--border-color');
     this.settings.useCustomColors = false;
+    
+    // 設定からカスタムカラーを削除
+    delete this.settings.bgColor;
+    delete this.settings.textColor;
+    
+    // カラーピッカーを現在のテーマの既定色に更新
+    const currentTheme = this.settings.theme || 'light';
+    const themeColor = this.themeColors[currentTheme] || this.themeColors.light;
+    this.updateColorPickers(themeColor.bgColor, themeColor.textColor);
+    
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
