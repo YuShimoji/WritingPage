@@ -74,7 +74,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['structure'] });
+    }, { title: 'Typewriter', groups: ['assist'] });
 
     // Snapshot Manager Gadget
     window.ZWGadgets.register('SnapshotManager', function(root){
@@ -106,7 +106,7 @@
         }
       });
       root.appendChild(btn);
-    }, { title: 'Snapshot Manager', groups: ['structure'] });
+    }, { title: 'Snapshot Manager', groups: ['assist'] });
 
     // Markdown Preview Gadget
     window.ZWGadgets.register('MarkdownPreview', function(root){
@@ -124,7 +124,7 @@
       sync.addEventListener('change', function(){ withStorage(function(cfg){ cfg.preview = cfg.preview||{}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['structure'] });
+    }, { title: 'Markdown Preview', groups: ['assist'] });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function(root){
@@ -249,7 +249,7 @@
       removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm((window.UILabels && window.UILabels.TAB_DELETE_CONFIRM) || '削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert((window.UILabels && window.UILabels.TAB_DELETED) || '削除しました'); });
 
       root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
-    }, { title: 'UI Settings', groups: ['structure'] });
+    }, { title: 'UI Settings', groups: ['assist'] });
 
     // UI Design Gadget (background gradient)
     window.ZWGadgets.register('UIDesign', function(root, api){

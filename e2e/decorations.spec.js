@@ -43,6 +43,9 @@ async function openSidebarAndAssistPanel(page) {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
         window.sidebarManager.activateSidebarGroup('assist');
       }
+      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+        window.ZWGadgets.setActiveGroup('assist');
+      }
     } catch (_) { /* noop */ }
   });
 }
@@ -183,7 +186,7 @@ test.describe('HUD Settings', () => {
 
   test('should display HUD settings gadget', async ({ page }) => {
     // HUDSettings gadget should be available in assist group
-    const hudGadgets = await page.locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]');
+    const hudGadgets = await page.locator('#assist-gadgets-panel [data-gadget="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -191,7 +194,7 @@ test.describe('HUD Settings', () => {
   test('should update HUD width setting', async ({ page }) => {
     // HUDSettings ガジェットを対象とする
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
+      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
       .first();
 
     const widthInput = hudGadget.locator('input[type="number"][min="120"]').first();
@@ -203,7 +206,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD font size setting', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
+      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
       .first();
 
     const fsInput = hudGadget.locator('input[type="number"][min="10"]').first();
@@ -215,7 +218,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD colors', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget-name="HUDSettings"]')
+      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
       .first();
 
     const firstColorInput = hudGadget.locator('input[type="color"]').first();

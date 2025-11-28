@@ -1,15 +1,8 @@
 (function () {
   'use strict';
 
-  // Depends on gadgets-utils.js and gadgets-core.js
-  var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
-
   // HUDSettings gadget (個別ファイル化)
-  ZWGadgetsInstance.register('HUDSettings', function (el) {
+  window.ZWGadgets.register('HUDSettings', function (el) {
     try {
       el.innerHTML = '';
       el.style.display = 'flex';
@@ -219,5 +212,10 @@
       el.textContent = (window.UILabels && window.UILabels.HUD_INIT_FAILED) || 'HUD設定ガジェットの初期化に失敗しました。';
     }
   }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
+
+  // 登録後に再描画をトリガー
+  if (window.ZWGadgets && typeof window.ZWGadgets._renderLast === 'function') {
+    window.ZWGadgets._renderLast();
+  }
 
 })();

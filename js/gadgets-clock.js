@@ -3,13 +3,11 @@
 
   // Depends on gadgets-utils.js and gadgets-core.js
   var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgets = window.ZWGadgets;
+  if (!utils || !ZWGadgets) return;
 
   // Clock gadget (個別ファイル化)
-  ZWGadgetsInstance.register('Clock', function (el, api) {
+  ZWGadgets.register('Clock', function (el, api) {
     try {
       var time = document.createElement('div');
       time.className = 'gadget-clock';
@@ -34,7 +32,7 @@
   });
 
   // Clock settings UI
-  ZWGadgetsInstance.registerSettings('Clock', function (el, ctx) {
+  ZWGadgets.registerSettings('Clock', function (el, ctx) {
     try {
       var row = document.createElement('label'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '6px';
       var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!ctx.get('hour24', true);

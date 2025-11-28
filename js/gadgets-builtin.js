@@ -446,6 +446,7 @@
       primaryRow.style.flexWrap = 'wrap';
       primaryRow.style.gap = '6px';
       var btnCreate = makeSmallButton((window.UILabels && window.UILabels.CREATE) || '作成', createDocument);
+      btnCreate.id = 'new-document-btn';
       var btnRename = makeSmallButton((window.UILabels && window.UILabels.RENAME) || '改名', renameDocument);
       var btnDelete = makeSmallButton((window.UILabels && window.UILabels.DELETE) || '削除', deleteDocument);
       elements.renameBtn = btnRename;
@@ -467,11 +468,18 @@
           window.print();
         } catch (e) { console.error('PDF export failed', e); }
       });
+      var btnRestoreSnapshot = makeSmallButton((window.UILabels && window.UILabels.RESTORE_SNAPSHOT) || 'スナップショットから復元', function () {
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
+          window.ZenWriterEditor.restoreLastSnapshot();
+        }
+      });
+      btnRestoreSnapshot.id = 'restore-from-snapshot';
       secondaryRow.appendChild(btnImport);
       secondaryRow.appendChild(btnExportTxt);
       secondaryRow.appendChild(btnExportMd);
       secondaryRow.appendChild(btnPrint);
       secondaryRow.appendChild(btnPdfExport);
+      secondaryRow.appendChild(btnRestoreSnapshot);
 
       var hiddenInput = document.createElement('input');
       hiddenInput.type = 'file';
@@ -499,7 +507,7 @@
       console.error('Documents gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
 
   // TypographyThemes gadget (個別ファイル化済み - gadgets-typography.js)
 

@@ -14,12 +14,12 @@
 
   ready(function () {
     // Initialize gadget panels
-    ZWGadgets.init('#gadgets-panel', { group: 'assist' });
+    ZWGadgets.init('#assist-gadgets-panel', { group: 'assist' });
     ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
     ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
 
     // Add tabs
-    ZWGadgets.addTab('assist', '支援', 'gadgets-panel');
+    ZWGadgets.addTab('assist', '支援', 'assist-gadgets-panel');
     ZWGadgets.addTab('structure', '構造', 'structure-gadgets-panel');
     ZWGadgets.addTab('typography', 'タイポ', 'typography-gadgets-panel');
 
