@@ -332,21 +332,21 @@
 
       // 最大幅設定
       var maxWidthRow = el('div');
-      var maxWidthLabel = el('div'); maxWidthLabel.textContent = 'エディタ最大幅（0=フル幅）'; maxWidthLabel.style.fontSize='12px';
+      var maxWidthLabel = el('div'); maxWidthLabel.textContent = '最大幅 (0=全幅)'; maxWidthLabel.style.fontSize='12px';
       var maxWidthInput = el('input'); maxWidthInput.type='number'; maxWidthInput.min='0'; maxWidthInput.max='2000'; maxWidthInput.step='50';
       maxWidthInput.value = String(typeof layout.maxWidth==='number'? layout.maxWidth : 900);
       maxWidthRow.appendChild(maxWidthLabel); maxWidthRow.appendChild(maxWidthInput);
 
       // padding設定
       var paddingRow = el('div');
-      var paddingLabel = el('div'); paddingLabel.textContent = 'エディタ内余白（px）'; paddingLabel.style.fontSize='12px';
+      var paddingLabel = el('div'); paddingLabel.textContent = '内余白 (px)'; paddingLabel.style.fontSize='12px';
       var paddingInput = el('input'); paddingInput.type='number'; paddingInput.min='0'; paddingInput.max='100'; paddingInput.step='5';
       paddingInput.value = String(typeof layout.padding==='number'? layout.padding : 32);
       paddingRow.appendChild(paddingLabel); paddingRow.appendChild(paddingInput);
 
       // 余白エリア背景色
       var marginBgRow = el('div');
-      var marginBgLabel = el('div'); marginBgLabel.textContent = '余白エリア背景色'; marginBgLabel.style.fontSize='12px';
+      var marginBgLabel = el('div'); marginBgLabel.textContent = '余白背景色'; marginBgLabel.style.fontSize='12px';
       var marginBgInput = el('input'); marginBgInput.type='color';
       marginBgInput.value = layout.marginBgColor || '#f5f5dc';
       marginBgRow.appendChild(marginBgLabel); marginBgRow.appendChild(marginBgInput);

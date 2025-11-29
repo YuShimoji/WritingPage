@@ -2476,3 +2476,80 @@ input[type="checkbox"] {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* ===== サイドバーレイアウト安定化 ===== */
+
+/* 空のヘッダーを非表示 */
+.sidebar-header h2:empty {
+  display: none;
+}
+
+.sidebar-header:has(h2:empty) {
+  padding: 6px 8px;
+  min-height: auto;
+}
+
+/* ガジェット内のボタンサイズ統一 */
+.gadget button,
+.gadget .btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  min-height: 26px;
+  white-space: nowrap;
+}
+
+/* ボタングループのボタン配置を整理 */
+.gadget-button-group button,
+.gadget .button-row button {
+  flex: 0 0 auto;
+}
+
+/* ドキュメントガジェットのボタン行を整理 */
+.gadget .docs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* アウトラインプリセットボタン */
+.gadget .preset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+/* サイドバータブのコンパクト化 */
+.sidebar-tab {
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+/* ロードアウトセクションのコンパクト化 */
+.sidebar-loadout {
+  padding: 8px;
+}
+
+.sidebar-loadout .loadout-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.sidebar-loadout .loadout-actions button {
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
+/* Visual Profile セクションのラベル短縮 */
+.gadget select {
+  font-size: 12px;
+  padding: 4px 6px;
+}
+
+/* サイドバー全体のスクロール安定化 */
+.sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+}

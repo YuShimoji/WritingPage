@@ -468,7 +468,7 @@
           window.print();
         } catch (e) { console.error('PDF export failed', e); }
       });
-      var btnRestoreSnapshot = makeSmallButton((window.UILabels && window.UILabels.RESTORE_SNAPSHOT) || 'スナップショットから復元', function () {
+      var btnRestoreSnapshot = makeSmallButton((window.UILabels && window.UILabels.RESTORE_FROM_BACKUP) || '復元', function () {
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
           window.ZenWriterEditor.restoreLastSnapshot();
         }
