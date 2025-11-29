@@ -2,11 +2,11 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-11-30T07:30:00+09:00
-- 現在のミッション: Visual Profile Phase A 実装完了、UIデザイン指針策定完了
+- 最終更新: 2025-11-30T08:20:00+09:00
+- 現在のミッション: UI安定化・ヘルプリソース整備完了
 - ブランチ: main
-- 関連: Visual Profile Phase A（editorWidthMode実装、ダークテーマ調整、ラベル名称変更）
-- 進捗: Visual Profile Phase A 完了 / editorWidthMode (narrow/medium/wide) 実装 / ダークテーマをObsidian/Quiver風に調整 / UIデザイン指針をDESIGN.mdに追加 / スクリプト読み込み順修正 / dev-check全通過
+- 関連: スクロールバー対策、Wikiダークテーマ対応、ロードアウト外部化、EDITOR_HELP更新
+- 進捗: scrollbar-gutter: stable 追加 / サイドバーフォーム要素のダークテーマ対応 / loadouts-presets.js 外部化 / EDITOR_HELP.md に Visual Profile・ロードアウト・Markdown機能を追加 / dev-check全通過
 - 次の中断可能点: Visual Profile Phase B（プロファイル保存/読込UI）、サイドバー構造再設計への着手
 
 ## 決定事項
