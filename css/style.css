@@ -662,8 +662,9 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   border-right: 1px solid var(--border-color);
   padding: 1rem;
   overflow-y: auto;
-  /* サイドバー全体でスクロール */
   overflow-x: hidden;
+  /* スクロールバーの表示/非表示によるレイアウト崩れを防止 */
+  scrollbar-gutter: stable;
   transition: left var(--transition-speed);
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
@@ -2140,6 +2141,51 @@ html[data-embed='true'] #editor {
 
 .wiki-preview a:hover {
   text-decoration: none;
+}
+
+/* ===== Wikiガジェット ===== */
+.gadget-wiki input,
+.gadget-wiki textarea {
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
+
+.gadget-wiki input::placeholder,
+.gadget-wiki textarea::placeholder {
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.wiki-list {
+  scrollbar-gutter: stable;
+}
+
+.wiki-item {
+  background: var(--sidebar-bg) !important;
+  color: var(--text-color);
+}
+
+.wiki-item span {
+  color: var(--text-color);
+}
+
+/* ダークテーマでの Wiki 可視性向上 */
+[data-theme='dark'] .gadget-wiki input,
+[data-theme='dark'] .gadget-wiki textarea {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+[data-theme='dark'] .gadget-wiki input::placeholder,
+[data-theme='dark'] .gadget-wiki textarea::placeholder {
+  color: #888;
+}
+
+[data-theme='dark'] .wiki-item {
+  background: #252525 !important;
+  border-color: #444 !important;
 }
 
 /* =========================================

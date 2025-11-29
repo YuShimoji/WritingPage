@@ -66,65 +66,18 @@
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
   var KNOWN_GROUPS = ['structure', 'wiki', 'assist', 'typography'];
 
-  var DEFAULT_LOADOUTS = {
+  // ロードアウトプリセットは loadouts-presets.js から読み込み
+  // フォールバック用の最小定義のみ保持
+  var DEFAULT_LOADOUTS = window.ZWLoadoutPresets || {
     active: 'novel-standard',
     entries: {
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: [
-            'Documents',
-            'Outline',
-            'OutlineQuick',
-            'EditorLayout',
-            'SceneGradient',
-            'ChoiceTools',
-            'PrintSettings'
-          ],
-          assist: [
-            'Typewriter',
-            'SnapshotManager',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
-            'MarkdownPreview',
-            'UISettings'
-          ],
+          structure: ['Documents', 'Outline', 'EditorLayout'],
+          assist: ['HUDSettings', 'Clock'],
           typography: ['TypographyThemes'],
           wiki: ['Wiki']
-        }
-      },
-      'novel-minimal': {
-        label: 'ミニマル',
-        groups: {
-          structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient'],
-          assist: ['HUDSettings', 'WritingGoal', 'Clock'],
-          typography: ['TypographyThemes'],
-          wiki: ['Wiki']
-        }
-      },
-      'vn-layout': {
-        label: 'ビジュアルノベル',
-        groups: {
-          structure: [
-            'Documents',
-            'Outline',
-            'EditorLayout',
-            'SceneGradient',
-            'Images',
-            'ChoiceTools'
-          ],
-          assist: [
-            'Typewriter',
-            'SnapshotManager',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
-            'MarkdownPreview',
-            'UISettings'
-          ],
-          typography: ['TypographyThemes'],
-          wiki: ['Wiki', 'StoryWiki']
         }
       }
     }
