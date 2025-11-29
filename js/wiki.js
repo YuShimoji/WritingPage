@@ -99,18 +99,19 @@
       toolbar.appendChild(search); toolbar.appendChild(btnNew); toolbar.appendChild(btnScan); toolbar.appendChild(btnHelp); toolbar.appendChild(helpToggleLabel);
 
       var settings = el('div','wiki-settings');
-      settings.style.display='grid'; settings.style.gridTemplateColumns='repeat(3, minmax(0,1fr))'; settings.style.gap='6px';
+      settings.style.display='grid'; settings.style.gridTemplateColumns='auto 1fr'; settings.style.gap='4px 8px'; settings.style.alignItems='center'; settings.style.fontSize='12px';
       var detailLbl = el('label'); detailLbl.textContent='詳細度';
-      var detail = el('input'); detail.type='range'; detail.min='1'; detail.max='5'; detail.step='1'; detail.value=String(api.get('detailLevel',3));
+      var detail = el('input'); detail.type='range'; detail.min='1'; detail.max='5'; detail.step='1'; detail.value=String(api.get('detailLevel',3)); detail.style.width='100%';
       var toneLbl = el('label'); toneLbl.textContent='トーン';
-      var tone = el('select'); ['neutral','formal','casual','dramatic','technical'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; tone.appendChild(o); });
+      var tone = el('select'); ['neutral','formal','casual','dramatic','technical'].forEach(function(t){ var o=el('option'); o.value=t; o.textContent=t; tone.appendChild(o); }); tone.style.width='100%';
       tone.value = String(api.get('tone','neutral'));
       var varietyLbl = el('label'); varietyLbl.textContent='バラエティ';
-      var variety = el('select'); ['balanced','concise','elaborate','creative'].forEach(function(v){ var o=el('option'); o.value=v; o.textContent=v; variety.appendChild(o); });
+      var variety = el('select'); ['balanced','concise','elaborate','creative'].forEach(function(v){ var o=el('option'); o.value=v; o.textContent=v; variety.appendChild(o); }); variety.style.width='100%';
       variety.value = String(api.get('variety','balanced'));
       settings.appendChild(detailLbl); settings.appendChild(detail); settings.appendChild(toneLbl); settings.appendChild(tone); settings.appendChild(varietyLbl); settings.appendChild(variety);
 
-      var layout = el('div'); layout.style.display='grid'; layout.style.gridTemplateColumns='minmax(180px, 280px) 1fr minmax(200px, 1fr)'; layout.style.gap='8px';
+      // サイドバー向け1カラムレイアウト（リストと編集フォームを縦に配置）
+      var layout = el('div'); layout.style.display='flex'; layout.style.flexDirection='column'; layout.style.gap='8px';
       var listWrap = el('div'); listWrap.style.border='1px solid var(--border-color)'; listWrap.style.borderRadius='4px'; listWrap.style.padding='6px'; listWrap.style.maxHeight='280px'; listWrap.style.overflow='auto';
       var list = el('div'); listWrap.appendChild(list);
       var editor = el('div'); editor.style.display='grid'; editor.style.gap='6px'; editor.style.alignContent='start';
