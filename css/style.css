@@ -76,6 +76,8 @@
   /* Layout Variables */
   --editor-max-width: 900px;
   --editor-min-height: 600px;
+  --editor-padding-x: 2.5rem;
+  --editor-padding-y: 2rem;
 
   /* Z-Index Variables */
   --z-editor-overlay: 10;
@@ -153,17 +155,20 @@ html:not([data-toolbar-hidden='true']) #editor {
   padding-top: calc(var(--toolbar-height) + 1rem);
 }
 
-/* ダークテーマ */
+/* ダークテーマ
+   デザイン指針: サイドバー/ヘッダーは暗め、エディタは一段明るく（本文が主役）
+   参考: Obsidian/Quiver 風の3カラム構成 */
 [data-theme='dark'] {
-  --bg-color: #1a1a1a;
-  --app-bg: #0f0f10;
-  --text-color: #e0e0e0;
-  --sidebar-bg: #2d2d2d;
-  --sidebar-text: #e0e0e0;
-  --toolbar-bg: #333333;
-  --toolbar-text: #e0e0e0;
-  --border-color: #444444;
-  --focus-color: #5d9cec;
+  --bg-color: #1e1e1e;
+  --app-bg: #121214;
+  --text-color: #d4d4d4;
+  --sidebar-bg: #181818;
+  --sidebar-text: #cccccc;
+  --toolbar-bg: #1c1c1c;
+  --toolbar-text: #cccccc;
+  --border-color: #3a3a3a;
+  --focus-color: #569cd6;
+  --accent-color: #4fc1ff;
 }
 
 /* セピアテーマ */

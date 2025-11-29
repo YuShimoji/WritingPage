@@ -1889,6 +1889,41 @@ class EditorManager {
         }
         this.clearSearchHighlights();
     }
+
+    /**
+     * エディタ幅モードを適用
+     * Visual Profile から呼び出される
+     * @param {string} mode - 'narrow' | 'medium' | 'wide'
+     */
+    applyWidthMode(mode) {
+        const widthMap = {
+            narrow: '700px',
+            medium: '900px',
+            wide: '1200px'
+        };
+        const paddingMap = {
+            narrow: '60px',
+            medium: '40px',
+            wide: '20px'
+        };
+        const maxWidth = widthMap[mode] || widthMap.medium;
+        const padding = paddingMap[mode] || paddingMap.medium;
+        
+        document.documentElement.style.setProperty('--editor-max-width', maxWidth);
+        document.documentElement.style.setProperty('--editor-padding-x', padding);
+        
+        // 設定に保存
+        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+            try {
+                const settings = window.ZenWriterStorage.loadSettings() || {};
+                if (!settings.editorLayout) settings.editorLayout = {};
+                settings.editorLayout.widthMode = mode;
+                window.ZenWriterStorage.saveSettings(settings);
+            } catch (e) {
+                console.warn('Failed to save editorWidthMode:', e);
+            }
+        }
+    }
 }
 
 // グローバルオブジェクトに追加

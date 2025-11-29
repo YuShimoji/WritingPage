@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-11-11T02:45:00+09:00
-- 現在のミッション: ZWGadgets 初期化エラー修正完了
+- 最終更新: 2025-11-30T07:30:00+09:00
+- 現在のミッション: Visual Profile Phase A 実装完了、UIデザイン指針策定完了
 - ブランチ: main
-- 関連: OpenSpec v1.1 タスク進行中（change: add-lucide-icons 完了、ガジェットシステム修正完了）
-- 進捗: ZWGadgetsInstance 初期化順序修正（クラス定義直後にインスタンス化）/ ガジェット名重複解決（Outline系統整理、Images名前修正）/ ロードアウトUI ready()関数内に統合 / Lint完全クリア / 基本機能動作確認
-- 次の中断可能点: ガジェットシステムの安定性検証とリファクタリング継続
+- 関連: Visual Profile Phase A（editorWidthMode実装、ダークテーマ調整、ラベル名称変更）
+- 進捗: Visual Profile Phase A 完了 / editorWidthMode (narrow/medium/wide) 実装 / ダークテーマをObsidian/Quiver風に調整 / UIデザイン指針をDESIGN.mdに追加 / スクリプト読み込み順修正 / dev-check全通過
+- 次の中断可能点: Visual Profile Phase B（プロファイル保存/読込UI）、サイドバー構造再設計への着手
 
 ## 決定事項
 
@@ -21,6 +21,9 @@
  - SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
  - OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
  - Lucide アイコンセットを導入し、最小サブセット（Eye, EyeOff, Settings）でUIテキストラベルを置き換え
+ - dev-check.js を現行UI構造（multi-panel）に対応し、プラグイン廃止・ガジェット構造チェックを更新
+ - マジックナンバーを定数化（SidebarManager.TRANSITION_TIMEOUT_MS, EditorManager タイマー関連定数）
+ - 重複コード削減のため updateSettingsPatch() ヘルパーを導入し、設定更新パターンを統一
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -78,18 +81,38 @@
 ## Backlog（将来提案）
 
 ### 最近解決
-- ✅ ZWGadgetsInstance 初期化順序問題（クラス定義直後に配置）
-- ✅ ガジェット名重複（Outline/OutlineQuick/Images の整理）
-- ✅ ロードアウトUI 初期化の適切な配置
-- ✅ すべてのZWGadgets.registerをZWGadgetsInstance.registerに統一
+- ✅ Visual Profile Phase A 実装完了（概念モデル、最小UI、editorWidthMode）
+- ✅ editorWidthMode (narrow/medium/wide) 実装と CSS 変数連携
+- ✅ ダークテーマを Obsidian/Quiver 風に調整（サイドバー暗め、エディタ明るめ）
+- ✅ UIデザイン指針（Zen Writer × ノートアプリ折衷）を DESIGN.md に追加
+- ✅ Visual Profile ラベル名称変更（集中→ダーク等の機能的名称に）
+- ✅ Visual Profile から UIモードを分離（レイアウトシフト抑制）
+- ✅ スクリプト読み込み順修正（ui-labels.js を visual-profile.js より先に）
 
 ### 残存課題
+- Visual Profile Phase B（プロファイル保存/読込UI、ユーザー定義プロファイル）
+- サイドバー＆ガジェット構造の責務分離（データ属性ベースの安定セレクタ、グループ正規化、SidebarManager/ZWGadgets分離）
+- Typora風ツリーペインの実装（ドキュメント管理の階層化）
+- 汎用フローティングパネル機能（任意ガジェットの切り離し）
+- HUD拡張（位置・フェード・背景色のカスタマイズ）
 - ガジェットD&D機能の再実装（スモークテストNG: hasDraggable, hasDnDData）
 - 埋め込みモードでのガジェット静的ファイル除外（eiNoGadgetsStatic）
 - ガジェットシステムのモジュール化検討（責務分離・保守性向上）
 - ガジェット登録APIの型安全性強化
 
 ### 将来機能
+- **Phase B: Visual Profile 拡張**
+  - プロファイル保存/読込UI
+  - ユーザー定義プロファイル
+  - EditorLayout ガジェットとの厳密な連動
+- **Phase C: サイドバー＆ガジェット構造再設計**
+  - データ属性ベースの安定セレクタ導入
+  - SidebarManagerとZWGadgetsの責務分離整理
+  - ガジェットグループの正規化
+- **Phase D: 高度UI拡張**
+  - Typora風ツリーペイン（ドキュメント階層管理）
+  - 汎用フローティングパネル機能（パネル位置カスタマイズ）
+  - HUD拡張（位置・フェード・背景色カスタマイズ）
 - Mission 13: 表現力の強化（グラフィックノベル対応・フォント装飾）
 - Mission 14: 管理能力の向上（高度なドキュメント管理機能）
 - CONTRIBUTING.md に v1.1 へのリンク追加

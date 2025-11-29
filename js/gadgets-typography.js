@@ -32,46 +32,57 @@
       wrap.style.flexDirection = 'column';
       wrap.style.gap = '12px';
 
-      // Visual Profile プリセット（Phase A: テーマ/フォント/行間/表示モードのみ）
-      var visualProfiles = [
-        {
-          id: '',
-          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_CUSTOM) || 'カスタム（個別設定）'
-        },
-        {
-          id: 'standard',
-          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_STANDARD) || '標準レイアウト',
-          theme: 'light',
-          useCustomColors: false,
-          fontFamily: '"Noto Serif JP", serif',
-          uiFontSize: 16,
-          editorFontSize: 16,
-          lineHeight: 1.6,
-          uiMode: 'normal'
-        },
-        {
-          id: 'focus-dark',
-          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_FOCUS_DARK) || '集中レイアウト（ダーク）',
-          theme: 'dark',
-          useCustomColors: false,
-          fontFamily: '"Noto Serif JP", serif',
-          uiFontSize: 15,
-          editorFontSize: 17,
-          lineHeight: 1.8,
-          uiMode: 'focus'
-        },
-        {
-          id: 'blank-light',
-          label: (window.UILabels && window.UILabels.VISUAL_PROFILE_BLANK_LIGHT) || 'ブランクレイアウト（ライト）',
-          theme: 'light',
-          useCustomColors: false,
-          fontFamily: '"Noto Serif JP", serif',
-          uiFontSize: 14,
-          editorFontSize: 18,
-          lineHeight: 1.9,
-          uiMode: 'blank'
-        }
-      ];
+      // Visual Profile プリセット（新API利用）
+      var visualProfileApi = window.ZenWriterVisualProfile;
+      if (!visualProfileApi) {
+        console.warn('ZenWriterVisualProfile API not available, falling back to inline profiles');
+        // フォールバック: 従来のハードコードプロファイル
+        var visualProfiles = [
+          {
+            id: '',
+            label: (window.UILabels && window.UILabels.VISUAL_PROFILE_CUSTOM) || 'カスタム（個別設定）'
+          },
+          {
+            id: 'standard',
+            label: (window.UILabels && window.UILabels.VISUAL_PROFILE_STANDARD) || 'ライト',
+            theme: 'light',
+            useCustomColors: false,
+            fontFamily: '"Noto Serif JP", serif',
+            uiFontSize: 16,
+            editorFontSize: 16,
+            lineHeight: 1.6
+          },
+          {
+            id: 'focus-dark',
+            label: (window.UILabels && window.UILabels.VISUAL_PROFILE_FOCUS_DARK) || 'ダーク',
+            theme: 'dark',
+            useCustomColors: false,
+            fontFamily: '"Noto Serif JP", serif',
+            uiFontSize: 15,
+            editorFontSize: 17,
+            lineHeight: 1.8
+          },
+          {
+            id: 'blank-light',
+            label: (window.UILabels && window.UILabels.VISUAL_PROFILE_BLANK_LIGHT) || 'ライト（余白広め）',
+            theme: 'light',
+            useCustomColors: false,
+            fontFamily: '"Noto Serif JP", serif',
+            uiFontSize: 14,
+            editorFontSize: 18,
+            lineHeight: 1.9
+          }
+        ];
+      } else {
+        // 新API利用: 組み込みプロファイルを取得し、カスタムを追加
+        var builtInProfiles = visualProfileApi.getBuiltInProfiles();
+        var visualProfiles = [
+          {
+            id: '',
+            label: (window.UILabels && window.UILabels.VISUAL_PROFILE_CUSTOM) || 'カスタム（個別設定）'
+          }
+        ].concat(builtInProfiles);
+      }
 
       var visualProfileMap = {};
       visualProfiles.forEach(function (p) {
@@ -81,6 +92,13 @@
       var visualProfileSelect = null;
 
       function applyVisualProfile(profile) {
+        // 新APIが利用可能な場合はそれを使用
+        if (visualProfileApi && typeof visualProfileApi.applyVisualProfile === 'function') {
+          visualProfileApi.applyVisualProfile(profile);
+          return;
+        }
+
+        // フォールバック: 従来の実装
         if (!profile || !profile.id) return;
 
         // テーマ/色
@@ -108,26 +126,16 @@
           console.error('applyVisualProfile fonts failed', e);
         }
 
-        // 表示モード（UIモード）
+        // 表示モード（UIモード）はここでは変更しない（既存のUIモードUIに委ねる）
         try {
-          var validModes = ['normal', 'focus', 'blank'];
-          var targetMode = validModes.indexOf(profile.uiMode) !== -1 ? profile.uiMode : 'normal';
-          document.documentElement.setAttribute('data-ui-mode', targetMode);
-
-          var selectEl = document.getElementById('ui-mode-select');
-          if (selectEl && selectEl.value !== targetMode) {
-            selectEl.value = targetMode;
-          }
-
           if (storage && typeof storage.loadSettings === 'function' && typeof storage.saveSettings === 'function') {
             var s = storage.loadSettings() || {};
             if (!s.ui) s.ui = {};
-            s.ui.uiMode = targetMode;
             s.visualProfileId = profile.id;
             storage.saveSettings(s);
           }
         } catch (e) {
-          console.error('applyVisualProfile ui mode failed', e);
+          console.error('applyVisualProfile ui mode fallback failed', e);
         }
 
         // UI状態の再同期

@@ -396,5 +396,12 @@ window.UILabels = {
     HINT_HUD_PIN: 'ピン固定はローカル設定に保存されます。',
     HINT_SEARCH_SHORTCUT: 'ショートカット: Ctrl+F で検索パネルを開く',
     HINT_DECORATION: 'テキストを選択してボタンをクリック、またはタグを手動入力<br>例: [bold]テキスト[/bold]',
-    HINT_ANIMATION: 'アニメーションタグでテキストに動きを付ける<br>例: [pulse]強調テキスト[/pulse]'
+    HINT_ANIMATION: 'アニメーションタグでテキストに動きを付ける<br>例: [pulse]強調テキスト[/pulse]',
+
+    // Visual Profile
+    VISUAL_PROFILE_SECTION: 'Visual Profile（試験機能）',
+    VISUAL_PROFILE_CUSTOM: 'カスタム（個別設定）',
+    VISUAL_PROFILE_STANDARD: 'ライト',
+    VISUAL_PROFILE_FOCUS_DARK: 'ダーク',
+    VISUAL_PROFILE_BLANK_LIGHT: 'ライト（余白広め）'
 };
