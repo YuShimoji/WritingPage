@@ -150,32 +150,58 @@
         return `
           <h3>ガジェット設定</h3>
           
-          <h4>ロードアウト</h4>
+          <h4>ロードアウト（プリセット構成）</h4>
           <p>ガジェットの構成をプリセットとして保存・切替できます。</p>
           <ul>
-            <li><strong>保存</strong>: 現在の構成を名前を付けて保存</li>
-            <li><strong>複製</strong>: 既存のプリセットをコピー</li>
-            <li><strong>適用</strong>: 選択したプリセットを適用</li>
-            <li><strong>削除</strong>: プリセットを削除</li>
+            <li><strong>小説・長編</strong>: フル機能構成</li>
+            <li><strong>ミニマル</strong>: 最小限の機能で集中</li>
+            <li><strong>ビジュアルノベル</strong>: VN/ゲームシナリオ向け</li>
+            <li><strong>脚本・シナリオ</strong>: 映像/舞台脚本向け</li>
           </ul>
+          <p>「保存」「複製」「適用」「削除」でカスタムロードアウトを管理。</p>
           
-          <h4>タブ管理</h4>
-          <p>「UI Settings」ガジェットでタブを管理できます。</p>
+          <h4>主要ガジェット一覧</h4>
           <ul>
-            <li>新しいタブを追加</li>
-            <li>タブ名の変更</li>
-            <li>不要なタブの削除</li>
-          </ul>
-          
-          <h4>各ガジェット</h4>
-          <ul>
-            <li><strong>プリセット</strong>: 部/章/節の構造管理</li>
-            <li><strong>ドキュメント一覧</strong>: 原稿の切り替え</li>
+            <li><strong>ドキュメント</strong>: 原稿の管理・切り替え・エクスポート</li>
+            <li><strong>アウトライン</strong>: 部/章/節の構造管理</li>
+            <li><strong>EditorLayout</strong>: エディタの幅・余白・背景色</li>
             <li><strong>Typewriter</strong>: タイプライターモード設定</li>
             <li><strong>HUD設定</strong>: ミニ通知の表示設定</li>
             <li><strong>執筆目標</strong>: 目標文字数と締切</li>
-            <li><strong>テーマ</strong>: 配色の切り替え</li>
+            <li><strong>スナップショット</strong>: バックアップ管理</li>
+            <li><strong>TypographyThemes</strong>: テーマ・フォント設定</li>
           </ul>
+        `;
+      }
+    },
+    {
+      id: 'visual-profile',
+      title: 'Visual Profile',
+      icon: '🎭',
+      content: function () {
+        return `
+          <h3>Visual Profile（表示プロファイル）</h3>
+          
+          <h4>概要</h4>
+          <p>テーマ・フォント・行間・余白バランスをまとめたプリセット機能です。</p>
+          
+          <h4>組み込みプロファイル</h4>
+          <ul>
+            <li><strong>ライト</strong>: 明るい標準テーマ</li>
+            <li><strong>ダーク</strong>: 暗い背景、狭めの幅</li>
+            <li><strong>ライト（余白広め）</strong>: 広い余白でゆったり執筆</li>
+          </ul>
+          
+          <h4>エディタ幅モード</h4>
+          <ul>
+            <li><strong>narrow</strong>: 狭い幅（集中向け）</li>
+            <li><strong>medium</strong>: 標準幅</li>
+            <li><strong>wide</strong>: 広い幅（長文向け）</li>
+          </ul>
+          
+          <h4>表示モードとの違い</h4>
+          <p>Visual Profileは「見た目」を、表示モードは「UI構成」を制御します。
+          プロファイル切り替え時、サイドバーの状態は維持されます。</p>
         `;
       }
     },
