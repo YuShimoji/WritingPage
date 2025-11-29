@@ -2143,20 +2143,36 @@ html[data-embed='true'] #editor {
   text-decoration: none;
 }
 
-/* ===== Wikiガジェット ===== */
-.gadget-wiki input,
-.gadget-wiki textarea {
+/* ===== サイドバー内フォーム要素のダークテーマ対応 ===== */
+.sidebar input,
+.sidebar textarea,
+.sidebar select {
   background: var(--bg-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
 }
 
-.gadget-wiki input::placeholder,
-.gadget-wiki textarea::placeholder {
+.sidebar input::placeholder,
+.sidebar textarea::placeholder {
   color: var(--text-color);
   opacity: 0.5;
 }
 
+/* ダークテーマでのフォーム要素 */
+[data-theme='dark'] .sidebar input,
+[data-theme='dark'] .sidebar textarea,
+[data-theme='dark'] .sidebar select {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #444;
+}
+
+[data-theme='dark'] .sidebar input::placeholder,
+[data-theme='dark'] .sidebar textarea::placeholder {
+  color: #888;
+}
+
+/* ===== Wikiガジェット ===== */
 .wiki-list {
   scrollbar-gutter: stable;
 }
@@ -2168,19 +2184,6 @@ html[data-embed='true'] #editor {
 
 .wiki-item span {
   color: var(--text-color);
-}
-
-/* ダークテーマでの Wiki 可視性向上 */
-[data-theme='dark'] .gadget-wiki input,
-[data-theme='dark'] .gadget-wiki textarea {
-  background: #2a2a2a;
-  color: #e0e0e0;
-  border-color: #444;
-}
-
-[data-theme='dark'] .gadget-wiki input::placeholder,
-[data-theme='dark'] .gadget-wiki textarea::placeholder {
-  color: #888;
 }
 
 [data-theme='dark'] .wiki-item {
