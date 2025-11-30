@@ -424,7 +424,57 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.ZenWriterEditor.toggleSearchPanel();
             }
         }
+
+        // Ctrl+Shift+Z: 最後のスナップショットから復元
+        if (e.ctrlKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            restoreLastSnapshot();
+        }
     }, true); // capture: trueで優先的に処理
+
+    /**
+     * 最後のスナップショットから復元（Ctrl+Shift+Z）
+     * 復元前に現在の内容を自動でスナップショット保存
+     */
+    function restoreLastSnapshot() {
+        const storage = window.ZenWriterStorage;
+        const editor = window.ZenWriterEditor;
+        if (!storage || !editor) return;
+
+        const snapshots = storage.loadSnapshots ? storage.loadSnapshots() : [];
+        if (!snapshots.length) {
+            if (editor.showNotification) {
+                editor.showNotification(
+                    (window.UILabels && window.UILabels.RESTORE_NO_BACKUPS) || '復元できるバックアップがありません',
+                    2000
+                );
+            }
+            return;
+        }
+
+        // 確認ダイアログ
+        const confirmMsg = (window.UILabels && window.UILabels.RESTORE_LAST_SNAPSHOT_CONFIRM) ||
+            '最後のスナップショットから復元しますか？\n現在の内容はスナップショットとして保存されます。';
+        if (!confirm(confirmMsg)) return;
+
+        // 復元前に現在の内容をスナップショット保存（安全策）
+        const currentContent = editor.editor ? editor.editor.value : '';
+        if (currentContent && storage.addSnapshot) {
+            storage.addSnapshot(currentContent);
+        }
+
+        // 最新のスナップショットを復元
+        const latest = snapshots[0]; // 新しい順にソート済み
+        if (editor.setContent) {
+            editor.setContent(latest.content || '');
+            if (editor.showNotification) {
+                editor.showNotification(
+                    (window.UILabels && window.UILabels.RESTORED) || 'バックアップから復元しました',
+                    1500
+                );
+            }
+        }
+    }
 
     // ドキュメント操作
     // 初期: ドキュメント管理セットアップ
