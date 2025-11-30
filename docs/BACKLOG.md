@@ -31,7 +31,7 @@
 - [ ] スペルチェック（基本的なスペル提案）
 - [x] 自動保存設定（間隔/条件のカスタマイズ）- UISettingsガジェットに実装
 - [x] ヘルプ/チュートリアル（オンラインヘルプ、ショートカット一覧）- Helpガジェット実装済み、EDITOR_HELP.md整備済み
-- [~] 破棄確認・復元機能強化（履歴UI、ゴミ箱、ショートカット）- Ctrl+Shift+Z で最新スナップショット復元、復元前自動バックアップ実装
+- [x] 破棄確認・復元機能強化（履歴UI、ゴミ箱、ショートカット）- Ctrl+Shift+Z 復元、復元前自動バックアップ、最新強調表示、プレビュー機能実装
 - [x] selection range measurement最適化（文字数スタンプ位置計算負荷削減）- updateCharCountStamps に100msデバウンス追加
 - [x] Visual Profile Phase A（概念モデル、最小UI、editorWidthMode）- 実装済み
 - [x] Visual Profile Phase B（保存/読込 UI、ユーザー定義プロファイル）- ガジェット実装済み
