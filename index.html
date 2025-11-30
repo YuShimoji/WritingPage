@@ -83,23 +83,8 @@
       <div class="sidebar-top">
         <!-- タブ切り替えUI -->
         <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ"></div>
-        <div class="sidebar-loadout">
-          <label for="loadout-select" data-i18n="LOADOUT_LABEL"></label>
-          <div class="loadout-controls">
-            <select id="loadout-select" aria-label="ロードアウトを選択"></select>
-            <input type="text" id="loadout-name" data-i18n-placeholder="PRESET_NAME_PLACEHOLDER" aria-label="ロードアウト名" />
-            <div class="loadout-buttons">
-              <button id="loadout-save" class="small" type="button" data-i18n="SAVE">
-              </button>
-              <button id="loadout-duplicate" class="small" type="button" data-i18n="DUPLICATE">
-              </button>
-              <button id="loadout-apply" class="small" type="button" data-i18n="APPLY">
-              </button>
-              <button id="loadout-delete" class="small" type="button" data-i18n="DELETE">
-              </button>
-            </div>
-          </div>
-        </div>
+        <!-- ロードアウトUI: gadgets-loadout.js により動的生成 -->
+        <div class="sidebar-loadout"></div>
       </div>
 
       <div class="sidebar-groups">
@@ -360,6 +345,7 @@
   <script src="js/gadgets-layout.js"></script>
   <script src="js/gadgets-help.js"></script>
   <script src="js/gadgets-visual-profile.js"></script>
+  <script src="js/gadgets-loadout.js"></script>
   <script src="js/gadgets-init.js"></script>
   <script src="js/gadgets-editor-extras.js"></script>
   <script src="js/wiki.js"></script>
