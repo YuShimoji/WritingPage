@@ -248,7 +248,68 @@
       renameBtn.addEventListener('click', function(){ var id=tabSelect.value; var name=renameInput.value.trim(); if (!id||!name) return; try{ if (window.sidebarManager && typeof window.sidebarManager.renameTab==='function') window.sidebarManager.renameTab(id, name); }catch(_){} renameInput.value=''; refreshSelect(); alert((window.UILabels && window.UILabels.TAB_RENAMED) || '名称を変更しました'); });
       removeBtn.addEventListener('click', function(){ var id=tabSelect.value; if (!id) return; if (!confirm((window.UILabels && window.UILabels.TAB_DELETE_CONFIRM) || '削除しますか？')) return; try{ if (window.sidebarManager && typeof window.sidebarManager.removeTab==='function') window.sidebarManager.removeTab(id); }catch(_){} refreshSelect(); alert((window.UILabels && window.UILabels.TAB_DELETED) || '削除しました'); });
 
-      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
+      // 自動保存設定
+      var autoSaveCfg = (s && s.autoSave) || {};
+      var autoSaveRow = el('div');
+      autoSaveRow.style.display = 'grid';
+      autoSaveRow.style.gap = '4px';
+
+      var autoSaveLabel = el('label');
+      autoSaveLabel.style.display = 'flex';
+      autoSaveLabel.style.alignItems = 'center';
+      autoSaveLabel.style.gap = '6px';
+      var autoSaveCheck = el('input');
+      autoSaveCheck.type = 'checkbox';
+      autoSaveCheck.id = 'auto-save-enabled';
+      autoSaveCheck.checked = !!autoSaveCfg.enabled;
+      var autoSaveLabelText = el('span');
+      autoSaveLabelText.textContent = '自動保存';
+      autoSaveLabel.appendChild(autoSaveCheck);
+      autoSaveLabel.appendChild(autoSaveLabelText);
+
+      var autoSaveDelayRow = el('div');
+      autoSaveDelayRow.style.display = 'flex';
+      autoSaveDelayRow.style.alignItems = 'center';
+      autoSaveDelayRow.style.gap = '6px';
+      autoSaveDelayRow.style.fontSize = '12px';
+      var autoSaveDelayLabel = el('span');
+      autoSaveDelayLabel.textContent = '遅延:';
+      var autoSaveDelayInput = el('input');
+      autoSaveDelayInput.type = 'number';
+      autoSaveDelayInput.id = 'auto-save-delay-ms';
+      autoSaveDelayInput.min = '500';
+      autoSaveDelayInput.max = '30000';
+      autoSaveDelayInput.step = '500';
+      autoSaveDelayInput.value = String(autoSaveCfg.delayMs || 2000);
+      autoSaveDelayInput.style.width = '70px';
+      var autoSaveDelayUnit = el('span');
+      autoSaveDelayUnit.textContent = 'ms';
+      autoSaveDelayRow.appendChild(autoSaveDelayLabel);
+      autoSaveDelayRow.appendChild(autoSaveDelayInput);
+      autoSaveDelayRow.appendChild(autoSaveDelayUnit);
+
+      autoSaveCheck.addEventListener('change', function() {
+        withStorage(function(cfg) {
+          cfg.autoSave = cfg.autoSave || {};
+          cfg.autoSave.enabled = !!autoSaveCheck.checked;
+        });
+      });
+
+      autoSaveDelayInput.addEventListener('change', function() {
+        var val = parseInt(autoSaveDelayInput.value, 10);
+        if (isNaN(val) || val < 500) val = 500;
+        if (val > 30000) val = 30000;
+        autoSaveDelayInput.value = String(val);
+        withStorage(function(cfg) {
+          cfg.autoSave = cfg.autoSave || {};
+          cfg.autoSave.delayMs = val;
+        });
+      });
+
+      autoSaveRow.appendChild(autoSaveLabel);
+      autoSaveRow.appendChild(autoSaveDelayRow);
+
+      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
     }, { title: 'UI Settings', groups: ['assist'] });
 
     // UI Design Gadget (background gradient)
