@@ -34,7 +34,7 @@
 - [ ] 破棄確認・復元機能強化（履歴UI、ゴミ箱、ショートカット）
 - [ ] selection range measurement最適化（文字数スタンプ位置計算負荷削減）
 - [x] Visual Profile Phase A（概念モデル、最小UI、editorWidthMode）- 実装済み
-- [ ] Visual Profile Phase B（保存/読込 UI、ユーザー定義プロファイル）※ 詳細は `docs/VISUAL_PROFILE.md` を参照
+- [x] Visual Profile Phase B（保存/読込 UI、ユーザー定義プロファイル）- ガジェット実装済み
 - [ ] サイドバー＆ガジェット構造の安定化（データ属性ベースの安定セレクタ導入、ガジェットグループ正規化、SidebarManager と ZWGadgets の責務分離整理）（Cフェーズ）
 - [ ] ワードカウント/進捗ヘッダーの再配置（エディタ上部から HUD/ガジェット等への退避と改行削減）
 - [ ] テーマごとのボタン/リンクアクセントカラー一括制御（テーマ/Visual Profile と連携したスタイル適用）

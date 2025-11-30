@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-11-30T08:20:00+09:00
-- 現在のミッション: UI安定化・ヘルプリソース整備完了
+- 最終更新: 2025-11-30T14:50:00+09:00
+- 現在のミッション: v0.3.20 リリース準備完了
 - ブランチ: main
-- 関連: スクロールバー対策、Wikiダークテーマ対応、ロードアウト外部化、EDITOR_HELP更新
-- 進捗: scrollbar-gutter: stable 追加 / サイドバーフォーム要素のダークテーマ対応 / loadouts-presets.js 外部化 / EDITOR_HELP.md に Visual Profile・ロードアウト・Markdown機能を追加 / dev-check全通過
-- 次の中断可能点: Visual Profile Phase B（プロファイル保存/読込UI）、サイドバー構造再設計への着手
+- 関連: Visual Profile Phase B、Wikiレイアウト修正、スクロールバー対策、ロードアウト外部化
+- 進捗: Visual Profile Phase B 完了（gadgets-visual-profile.js）/ Wikiガジェット1カラム化 / ヘルプガジェット拡充 / DEVELOPMENT_STATUS.md 更新 / dev-check全通過
+- 次の中断可能点: サイドバー構造再設計（Cフェーズ）、検索置換機能、フローティングパネル
 
 ## 決定事項
 
