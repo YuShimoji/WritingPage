@@ -62,10 +62,13 @@ class EditorManager {
         this._TYPEWRITER_INITIAL_DELAY_MS = 50; // 初期更新遅延
         this._MANUAL_SCROLL_TIMEOUT_MS = 2000; // 手動スクロール後のタイムアウト
 
-        // 選択変更時に文字数スタンプ更新
+        // 選択変更時に文字数スタンプ更新（デバウンス適用）
+        this._charStampTimer = null;
         this.editor.addEventListener('selectionchange', () => {
             this.updateWordCount(); // デバウンス版
-            this.updateCharCountStamps();
+            // 文字数スタンプ更新をデバウンス
+            if (this._charStampTimer) clearTimeout(this._charStampTimer);
+            this._charStampTimer = setTimeout(() => this.updateCharCountStamps(), 100);
         });
         this.setupImageHandlers();
         this.setupPreviewPanel();
