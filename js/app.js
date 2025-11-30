@@ -1366,29 +1366,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!docId) return;
 
             try {
-                // 未保存変更の確認と退避
+                // 自動保存設定を取得
+                const settings = window.ZenWriterStorage.loadSettings ? window.ZenWriterStorage.loadSettings() : {};
+                const autoSaveEnabled = settings.autoSave && settings.autoSave.enabled;
+
+                // 未保存変更の確認と退避（自動保存無効時のみダイアログ表示）
                 try {
                     const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
                         ? window.ZenWriterEditor.isDirty()
                         : false;
                     if (hasDirty) {
-                        const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_SWITCH) || '未保存の変更があります。ファイルを切り替えますか？\n現在の内容はスナップショットとして自動退避します。';
-                        const ok = confirm(msg);
-                        if (!ok) {
-                            // セレクトを元に戻す
-                            const selectEl = elementManager.get('currentDocument');
-                            const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
-                            if (selectEl && currentDocId) selectEl.value = currentDocId;
-                            return;
-                        }
-                        // 現在内容をスナップショットへ退避
-                        try {
+                        // 自動保存が有効なら即座に保存してダイアログなしで切り替え
+                        if (autoSaveEnabled) {
                             const editorEl = elementManager.get('editor');
                             const content = editorEl ? (editorEl.value || '') : '';
-                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
-                                window.ZenWriterStorage.addSnapshot(content);
+                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                                window.ZenWriterStorage.saveContent(content);
                             }
-                        } catch (_) { }
+                        } else {
+                            // 自動保存が無効なら確認ダイアログを表示
+                            const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_SWITCH) || '未保存の変更があります。ファイルを切り替えますか？\n現在の内容はスナップショットとして自動退避します。';
+                            const ok = confirm(msg);
+                            if (!ok) {
+                                // セレクトを元に戻す
+                                const selectEl = elementManager.get('currentDocument');
+                                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                                if (selectEl && currentDocId) selectEl.value = currentDocId;
+                                return;
+                            }
+                            // 現在内容をスナップショットへ退避
+                            try {
+                                const editorEl = elementManager.get('editor');
+                                const content = editorEl ? (editorEl.value || '') : '';
+                                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                                    window.ZenWriterStorage.addSnapshot(content);
+                                }
+                            } catch (_) { }
+                        }
                     }
                 } catch (_) { }
 

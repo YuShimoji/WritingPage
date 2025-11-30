@@ -28,7 +28,8 @@
             'WritingGoal',
             'Clock',
             'MarkdownPreview',
-            'UISettings'
+            'UISettings',
+            'Help'
           ],
           typography: ['TypographyThemes', 'VisualProfile'],
           wiki: ['Wiki']
@@ -39,7 +40,7 @@
         description: '最小限の機能で集中執筆',
         groups: {
           structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient'],
-          assist: ['HUDSettings', 'WritingGoal', 'Clock'],
+          assist: ['HUDSettings', 'WritingGoal', 'Clock', 'Help'],
           typography: ['TypographyThemes', 'VisualProfile'],
           wiki: ['Wiki']
         }
@@ -63,7 +64,8 @@
             'WritingGoal',
             'Clock',
             'MarkdownPreview',
-            'UISettings'
+            'UISettings',
+            'Help'
           ],
           typography: ['TypographyThemes', 'VisualProfile'],
           wiki: ['Wiki', 'StoryWiki']
@@ -83,7 +85,8 @@
             'HUDSettings',
             'WritingGoal',
             'Clock',
-            'UISettings'
+            'UISettings',
+            'Help'
           ],
           typography: ['TypographyThemes', 'VisualProfile'],
           wiki: ['Wiki']
