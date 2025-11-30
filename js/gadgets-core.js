@@ -286,6 +286,9 @@
     addTab(group, label, panelId) {
       try {
         var self = this;
+        // フェーズC-1: データ属性ベースのセレクタを使用
+        var getGroupSection = utils.getGroupSection;
+
         var tab = document.createElement('button');
         tab.className = 'sidebar-tab';
         tab.type = 'button';
@@ -306,7 +309,8 @@
             p.classList.remove('active');
             p.setAttribute('aria-hidden', 'true');
           });
-          var targetPanel = document.getElementById(panelId);
+          // データ属性ベースでセクションを取得（フェーズC-1）
+          var targetPanel = getGroupSection ? getGroupSection(group) : document.getElementById(panelId);
           if (targetPanel) {
             targetPanel.classList.add('active');
             targetPanel.setAttribute('aria-hidden', 'false');

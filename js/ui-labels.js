@@ -29,18 +29,11 @@ window.UILabels = {
     RESTORE_FAILED: '復元に失敗しました',
     CONFIRM_LOADOUT_DELETE: '選択中のロードアウトを削除しますか？',
     ACTIVE_LOADOUT_DELETE: 'アクティブなロードアウトは削除できません',
-    LOADOUT_NAME_PROMPT: 'ロードアウト名を入力してください',
-    LOADOUT_SAVED: 'ロードアウトを保存しました',
-    LOADOUT_SELECT_TO_DUPLICATE: '複製するロードアウトを選択してください',
-    LOADOUT_DUPLICATE_SUFFIX: ' (複製)',
-    LOADOUT_DUPLICATED: 'ロードアウトを複製しました',
-    LOADOUT_APPLIED: 'ロードアウトを適用しました',
-    LOADOUT_DELETE_CONFIRM: 'このロードアウトを削除しますか？',
-    LOADOUT_DELETED: 'ロードアウトを削除しました',
     DUPLICATE_LOADOUT_NAME: '複製先の名前を入力してください',
     BASE_LOADOUT_NAME: '複製元のロードアウトを選択してください',
     CAPTURE_FAILED: '現在の構成を取得できませんでした',
     NO_NAME: '名前を入力してください',
+    // ロードアウト関連ラベルは後方の「Loadout UI」セクションに集約
     // プレースホルダー
     LABEL_ID_PROMPT: 'ラベルIDを入力',
     JUMP_LABEL_PROMPT: 'ジャンプ先ラベルIDを入力',
@@ -139,7 +132,6 @@ window.UILabels = {
 
     // 追加UIラベル
     GADGET_SETTINGS: '',
-    LOADOUT_LABEL: 'ロードアウト',
     PRESET_NAME_PLACEHOLDER: 'プリセット名',
     THEME_SECTION: 'テーマ',
     THEME_LIGHT: 'ライト',
@@ -356,19 +348,14 @@ window.UILabels = {
     TAB_DELETE_CONFIRM: '削除しますか？',
     TAB_DELETED: '削除しました',
 
-    // Loadout UI
+    // Loadout UI（ロードアウト関連ラベル集約）
     LOADOUT_TITLE: 'ロードアウト',
+    LOADOUT_LABEL: 'ロードアウト',
     LOADOUT_PLACEHOLDER: 'プリセット名を入力...',
     LOADOUT_SAVE: '保存',
     LOADOUT_DUPLICATE: '複製',
     LOADOUT_APPLY: '適用',
     LOADOUT_DELETE: '削除',
-
-    // UI Modes
-    MODE_NORMAL: '通常モード',
-    MODE_FOCUS: 'フォーカスモード',
-    MODE_BLANK: 'ブランクモード',
-    MODE_TITLE: '表示モード',
     LOADOUT_NAME_PROMPT: 'ロードアウト名を入力してください',
     LOADOUT_SAVED: 'ロードアウトを保存しました',
     LOADOUT_DUPLICATE_SUFFIX: ' (複製)',
@@ -378,9 +365,15 @@ window.UILabels = {
     LOADOUT_APPLIED: 'ロードアウトを適用しました',
     LOADOUT_APPLY_FAILED: 'ロードアウトの適用に失敗しました',
     LOADOUT_SELECT_TO_DELETE: '削除するロードアウトを選択してください',
-    LOADOUT_DELETE_CONFIRM: 'このロードアウトを削除しますか？この操作は元に戻せません。',
+    LOADOUT_DELETE_CONFIRM: 'このロードアウトを削除しますか？',
     LOADOUT_DELETED: 'ロードアウトを削除しました',
     LOADOUT_DELETE_FAILED: 'ロードアウトの削除に失敗しました',
+
+    // UI Modes
+    MODE_NORMAL: '通常モード',
+    MODE_FOCUS: 'フォーカスモード',
+    MODE_BLANK: 'ブランクモード',
+    MODE_TITLE: '表示モード',
 
     // Index.html specific
     GOAL_TARGET_PLACEHOLDER: '目標文字数',
