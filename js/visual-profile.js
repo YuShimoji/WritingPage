@@ -139,10 +139,172 @@ function getBuiltInProfiles() {
   return [...BUILT_IN_PROFILES];
 }
 
+// ===== Phase B: ユーザー定義プロファイル =====
+
+const USER_PROFILES_KEY = 'zenWriter_visualProfiles:user';
+const CURRENT_PROFILE_KEY = 'zenWriter_visualProfiles:current';
+
+/**
+ * ユーザー定義プロファイルを取得
+ * @returns {VisualProfile[]}
+ */
+function getUserProfiles() {
+  try {
+    const stored = localStorage.getItem(USER_PROFILES_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (e) {
+    console.warn('Failed to load user profiles:', e);
+  }
+  return [];
+}
+
+/**
+ * ユーザー定義プロファイルを保存
+ * @param {VisualProfile[]} profiles
+ */
+function saveUserProfiles(profiles) {
+  try {
+    localStorage.setItem(USER_PROFILES_KEY, JSON.stringify(profiles));
+  } catch (e) {
+    console.error('Failed to save user profiles:', e);
+  }
+}
+
+/**
+ * すべてのプロファイル（組み込み + ユーザー定義）を取得
+ * @returns {VisualProfile[]}
+ */
+function getAllProfiles() {
+  return [...BUILT_IN_PROFILES, ...getUserProfiles()];
+}
+
+/**
+ * IDからプロファイルを取得（組み込み + ユーザー定義）
+ * @param {string} profileId
+ * @returns {VisualProfile|null}
+ */
+function getProfile(profileId) {
+  return getAllProfiles().find(p => p.id === profileId) || null;
+}
+
+/**
+ * 現在の設定からプロファイルを作成して保存
+ * @param {string} name - プロファイル名
+ * @returns {VisualProfile} 作成されたプロファイル
+ */
+function saveCurrentAsProfile(name) {
+  const id = 'user-' + Date.now();
+  const profile = {
+    id,
+    label: name,
+    theme: document.documentElement.getAttribute('data-theme') || 'light',
+    useCustomColors: false,
+    fontFamily: getComputedStyle(document.documentElement).getPropertyValue('--font-family').trim() || 'serif',
+    uiFontSize: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--ui-font-size')) || 16,
+    editorFontSize: parseInt(getComputedStyle(document.documentElement).getPropertyValue('--font-size')) || 16,
+    lineHeight: parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--line-height')) || 1.6,
+    editorWidthMode: localStorage.getItem('zenWriter_editorWidthMode') || 'medium',
+    isUserDefined: true
+  };
+  
+  const userProfiles = getUserProfiles();
+  userProfiles.push(profile);
+  saveUserProfiles(userProfiles);
+  
+  return profile;
+}
+
+/**
+ * ユーザー定義プロファイルを削除
+ * @param {string} profileId
+ * @returns {boolean} 削除成功
+ */
+function deleteUserProfile(profileId) {
+  if (!profileId.startsWith('user-')) return false;
+  
+  const userProfiles = getUserProfiles();
+  const index = userProfiles.findIndex(p => p.id === profileId);
+  if (index === -1) return false;
+  
+  userProfiles.splice(index, 1);
+  saveUserProfiles(userProfiles);
+  return true;
+}
+
+/**
+ * ユーザー定義プロファイルを更新
+ * @param {string} profileId
+ * @param {Partial<VisualProfile>} updates
+ * @returns {boolean}
+ */
+function updateUserProfile(profileId, updates) {
+  if (!profileId.startsWith('user-')) return false;
+  
+  const userProfiles = getUserProfiles();
+  const index = userProfiles.findIndex(p => p.id === profileId);
+  if (index === -1) return false;
+  
+  userProfiles[index] = { ...userProfiles[index], ...updates };
+  saveUserProfiles(userProfiles);
+  return true;
+}
+
+/**
+ * 現在適用中のプロファイルIDを取得
+ * @returns {string|null}
+ */
+function getCurrentProfileId() {
+  try {
+    return localStorage.getItem(CURRENT_PROFILE_KEY) || null;
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * 現在適用中のプロファイルIDを保存
+ * @param {string} profileId
+ */
+function setCurrentProfileId(profileId) {
+  try {
+    localStorage.setItem(CURRENT_PROFILE_KEY, profileId);
+  } catch (e) {
+    console.warn('Failed to save current profile ID:', e);
+  }
+}
+
+/**
+ * プロファイルを適用し、IDを記録
+ * @param {string} profileId
+ * @returns {boolean}
+ */
+function applyProfileById(profileId) {
+  const profile = getProfile(profileId);
+  if (!profile) return false;
+  
+  applyVisualProfile(profile);
+  setCurrentProfileId(profileId);
+  return true;
+}
+
 // グローバルオブジェクトに公開
 window.ZenWriterVisualProfile = {
+  // Phase A
   applyVisualProfile,
   getBuiltInProfile,
   getBuiltInProfiles,
-  BUILT_IN_PROFILES
+  BUILT_IN_PROFILES,
+  // Phase B
+  getUserProfiles,
+  getAllProfiles,
+  getProfile,
+  saveCurrentAsProfile,
+  deleteUserProfile,
+  updateUserProfile,
+  getCurrentProfileId,
+  setCurrentProfileId,
+  applyProfileById
 };
