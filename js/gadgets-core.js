@@ -1,3 +1,16 @@
+/**
+ * ZWGadgets Core: ガジェットシステムの中核モジュール
+ *
+ * 責務（フェーズC-2で明確化）:
+ * - ガジェットの登録（register, registerSettings）
+ * - ガジェットのレンダリング（init, _renderLast, _renderActive）
+ * - 設定管理（getSettings, setSetting, getPrefs, setPrefs）
+ * - ロードアウト管理（defineLoadout, applyLoadout, deleteLoadout, listLoadouts）
+ *
+ * SidebarManager との連携:
+ * - SidebarManager が addTab でパネル作成時に init を呼び出し
+ * - タブ切り替え・サイドバー制御は SidebarManager が担当
+ */
 (function () {
   'use strict';
 

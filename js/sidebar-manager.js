@@ -1,4 +1,16 @@
-// SidebarManager: サイドバーとツールバーの管理
+/**
+ * SidebarManager: サイドバーとツールバーの管理
+ *
+ * 責務（フェーズC-2で明確化）:
+ * - サイドバーの開閉制御（forceSidebarState, toggleSidebar）
+ * - ツールバーの表示/非表示制御（setToolbarVisibility, toggleToolbar）
+ * - タブの追加/削除/名前変更（addTab, removeTab, renameTab）
+ * - サイドバーグループの切り替え（activateSidebarGroup）
+ *
+ * ZWGadgets との連携:
+ * - addTab でパネル作成時に ZWGadgets.init を呼び出し
+ * - ガジェットのレンダリング・設定管理は ZWGadgets が担当
+ */
 class SidebarManager {
     // 定数定義
     static TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer

@@ -35,7 +35,7 @@
 - [x] selection range measurement最適化（文字数スタンプ位置計算負荷削減）- updateCharCountStamps に100msデバウンス追加
 - [x] Visual Profile Phase A（概念モデル、最小UI、editorWidthMode）- 実装済み
 - [x] Visual Profile Phase B（保存/読込 UI、ユーザー定義プロファイル）- ガジェット実装済み
-- [ ] サイドバー＆ガジェット構造の安定化（データ属性ベースの安定セレクタ導入、ガジェットグループ正規化、SidebarManager と ZWGadgets の責務分離整理）（Cフェーズ）
+- [x] サイドバー＆ガジェット構造の安定化（データ属性ベースの安定セレクタ導入、ガジェットグループ正規化、SidebarManager と ZWGadgets の責務分離整理）（Cフェーズ完了）
 - [ ] ワードカウント/進捗ヘッダーの再配置（エディタ上部から HUD/ガジェット等への退避と改行削減）
 - [ ] テーマごとのボタン/リンクアクセントカラー一括制御（テーマ/Visual Profile と連携したスタイル適用）
 - [ ] Typora風ツリーペイン（ドキュメント/メモ/Markdown管理を統合するツリーUIの設計と段階的実装）
@@ -60,7 +60,7 @@
 
 ## 次期フェーズ案（v0.4.x）
 
-### フェーズ C: サイドバー構造安定化（現在進行中）
+### フェーズ C: サイドバー構造安定化（完了）
 
 **C-1: データ属性スキーマ導入**
 - [x] `data-gadget-group`, `data-gadget-id` 等の安定セレクタを定義 - GADGET_GROUPS オブジェクトを gadgets-utils.js に追加
@@ -68,9 +68,9 @@
 - [x] CSS/JS で脆い ID/クラスセレクタ依存をデータ属性経由に移行 - gadgets-init.js, gadgets-core.js を更新
 
 **C-2: SidebarManager と ZWGadgets の責務分離**
-- [ ] SidebarManager: タブ切替/グループ表示制御に専念
-- [ ] ZWGadgets: ガジェット登録/レンダリング/設定管理に専念
-- [ ] 両者の境界を明確化し、循環参照を排除
+- [x] SidebarManager: タブ切替/グループ表示制御に専念 - 責務をコメントで明確化
+- [x] ZWGadgets: ガジェット登録/レンダリング/設定管理に専念 - 責務をコメントで明確化
+- [x] 両者の境界を明確化し、循環参照を排除 - addTab での連携ポイントを文書化
 
 **C-3: ガジェットグループ正規化**
 - [x] グループ名を定数化（GADGET_GROUPS オブジェクト）- gadgets-utils.js に定義済み
