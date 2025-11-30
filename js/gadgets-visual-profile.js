@@ -30,7 +30,7 @@
       selectRow.style.alignItems = 'center';
 
       const selectLabel = el('label');
-      selectLabel.textContent = 'プロファイル';
+      selectLabel.textContent = (window.UILabels && window.UILabels.PROFILE_LABEL) || 'プロファイル';
       selectLabel.style.fontSize = '12px';
       selectLabel.style.minWidth = '70px';
 
@@ -43,7 +43,7 @@
         
         // 組み込みプロファイル
         const builtInGroup = el('optgroup');
-        builtInGroup.label = '組み込み';
+        builtInGroup.label = (window.UILabels && window.UILabels.PROFILE_BUILTIN) || '組み込み';
         VP.getBuiltInProfiles().forEach(function (p) {
           const opt = el('option');
           opt.value = p.id;
@@ -57,7 +57,7 @@
         const userProfiles = VP.getUserProfiles();
         if (userProfiles.length > 0) {
           const userGroup = el('optgroup');
-          userGroup.label = 'ユーザー定義';
+          userGroup.label = (window.UILabels && window.UILabels.PROFILE_USER_DEFINED) || 'ユーザー定義';
           userProfiles.forEach(function (p) {
             const opt = el('option');
             opt.value = p.id;
@@ -89,8 +89,8 @@
       btnRow.style.flexWrap = 'wrap';
 
       const btnApply = el('button', 'small');
-      btnApply.textContent = '適用';
-      btnApply.title = '選択したプロファイルを適用';
+      btnApply.textContent = (window.UILabels && window.UILabels.APPLY) || '適用';
+      btnApply.title = (window.UILabels && window.UILabels.PROFILE_APPLY_TOOLTIP) || '選択したプロファイルを適用';
       btnApply.addEventListener('click', function () {
         const profileId = select.value;
         if (profileId) {
@@ -99,10 +99,10 @@
       });
 
       const btnSave = el('button', 'small');
-      btnSave.textContent = '保存';
-      btnSave.title = '現在の設定を新規プロファイルとして保存';
+      btnSave.textContent = (window.UILabels && window.UILabels.SAVE) || '保存';
+      btnSave.title = (window.UILabels && window.UILabels.PROFILE_SAVE_TOOLTIP) || '現在の設定を新規プロファイルとして保存';
       btnSave.addEventListener('click', function () {
-        const name = prompt('プロファイル名を入力してください:', '');
+        const name = prompt((window.UILabels && window.UILabels.PROFILE_NAME_PROMPT) || 'プロファイル名を入力してください:', '');
         if (name && name.trim()) {
           VP.saveCurrentAsProfile(name.trim());
           refreshSelect();
@@ -118,8 +118,8 @@
       });
 
       const btnDelete = el('button', 'small');
-      btnDelete.textContent = '削除';
-      btnDelete.title = 'ユーザー定義プロファイルを削除';
+      btnDelete.textContent = (window.UILabels && window.UILabels.DELETE) || '削除';
+      btnDelete.title = (window.UILabels && window.UILabels.PROFILE_DELETE_TOOLTIP) || 'ユーザー定義プロファイルを削除';
 
       function updateDeleteBtn() {
         const profileId = select.value;
@@ -133,7 +133,7 @@
         const profile = VP.getProfile(profileId);
         if (!profile) return;
         
-        if (confirm('プロファイル「' + profile.label + '」を削除しますか？')) {
+        if (confirm(((window.UILabels && window.UILabels.PROFILE_DELETE_CONFIRM) || 'プロファイル「{name}」を削除しますか？').replace('{name}', profile.label))) {
           VP.deleteUserProfile(profileId);
           refreshSelect();
           // デフォルトに戻す
@@ -162,9 +162,9 @@
         const currentId = VP.getCurrentProfileId();
         const profile = currentId ? VP.getProfile(currentId) : null;
         if (profile) {
-          infoDiv.textContent = '現在: ' + profile.label + ' (' + profile.theme + ', ' + profile.editorWidthMode + ')';
+          infoDiv.textContent = ((window.UILabels && window.UILabels.PROFILE_CURRENT) || '現在: ') + profile.label + ' (' + profile.theme + ', ' + profile.editorWidthMode + ')';
         } else {
-          infoDiv.textContent = '現在: 未設定';
+          infoDiv.textContent = (window.UILabels && window.UILabels.PROFILE_NOT_SET) || '現在: 未設定';
         }
       }
 
