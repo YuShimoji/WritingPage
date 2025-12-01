@@ -1564,10 +1564,17 @@ document.addEventListener('DOMContentLoaded', () => {
     fileManager.initializeDocuments();
     fileManager.updateDocumentList();
 
-    // 要素別フォントサイズを適用
-    applyElementFontSizes();
-
-    // ページ離脱時の警告（未保存変更がある場合）
+    // 背景ビジュアルのスクロール連動
+    let scrollY = 0;
+    function updateBackgroundScroll() {
+        const newScrollY = window.scrollY || window.pageYOffset || 0;
+        if (Math.abs(newScrollY - scrollY) > 1) { // 1px以上の変化で更新
+            scrollY = newScrollY;
+            document.documentElement.style.setProperty('--scroll-y', scrollY + 'px');
+        }
+        requestAnimationFrame(updateBackgroundScroll);
+    }
+    updateBackgroundScroll();
     window.addEventListener('beforeunload', (e) => {
         try {
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function' && window.ZenWriterEditor.isDirty()) {

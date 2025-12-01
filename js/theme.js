@@ -5,7 +5,11 @@ class ThemeManager {
     this.themeColors = {
       light: { bgColor: '#ffffff', textColor: '#333333' },
       dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
-      sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' }
+      sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' },
+      midnight: { bgColor: '#0f0f23', textColor: '#cccccc' },
+      charcoal: { bgColor: '#2d3748', textColor: '#e2e8f0' },
+      abyss: { bgColor: '#0a0a0a', textColor: '#d4d4d4' },
+      'deep-space': { bgColor: '#001122', textColor: '#a0c4ff' }
     };
     
     this.settings = window.ZenWriterStorage.loadSettings();
@@ -168,6 +172,66 @@ class ThemeManager {
     this.settings.lineHeight = lineHeight;
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * 背景ビジュアルを設定
+   * @param {Object} options - 背景設定オプション
+   * @param {string} options.gradient - グラデーションCSS
+   * @param {string} options.image - 背景画像URL
+   * @param {number} options.opacity - 画像不透明度
+   * @param {number} options.scrollFactor - スクロール連動係数
+   * @param {number} options.blur - ぼかし量
+   */
+  setBackgroundVisual(options = {}) {
+    const root = document.documentElement;
+    
+    if (options.gradient !== undefined) {
+      root.style.setProperty('--bg-gradient', options.gradient);
+      this.settings.bgGradient = options.gradient;
+    }
+    
+    if (options.image !== undefined) {
+      const imageUrl = options.image ? `url(${options.image})` : 'none';
+      root.style.setProperty('--bg-image', imageUrl);
+      this.settings.bgImage = options.image;
+    }
+    
+    if (options.opacity !== undefined) {
+      root.style.setProperty('--bg-image-opacity', options.opacity);
+      this.settings.bgImageOpacity = options.opacity;
+    }
+    
+    if (options.scrollFactor !== undefined) {
+      root.style.setProperty('--bg-scroll-factor', options.scrollFactor);
+      this.settings.bgScrollFactor = options.scrollFactor;
+    }
+    
+    if (options.blur !== undefined) {
+      root.style.setProperty('--bg-blur', `${options.blur}px`);
+      this.settings.bgBlur = options.blur;
+    }
+    
+    window.ZenWriterStorage.saveSettings(this.settings);
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * ランダム背景を適用
+   */
+  applyRandomBackground() {
+    const gradients = [
+      'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+      'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+      'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+      'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+      'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+      'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)'
+    ];
+    
+    const randomGradient = gradients[Math.floor(Math.random() * gradients.length)];
+    this.setBackgroundVisual({ gradient: randomGradient, image: null, opacity: 0.1 });
   }
 
   /**
