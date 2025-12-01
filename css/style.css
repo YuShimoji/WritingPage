@@ -9,7 +9,7 @@
   --toolbar-text: #333333;
   --border-color: #e0e0e0;
   --focus-color: #4a90e2;
-  --accent-color: #007acc;
+  --accent-color: var(--focus-color);
   --font-family: 'Noto Serif JP', serif;
   --ui-font-size: 16px;
   --editor-font-size: 16px;
@@ -175,7 +175,7 @@ html:not([data-toolbar-hidden='true']) #editor {
   --toolbar-text: #cccccc;
   --border-color: #3a3a3a;
   --focus-color: #569cd6;
-  --accent-color: #4fc1ff;
+  --accent-color: var(--focus-color);
 }
 
 /* セピアテーマ */
@@ -2166,7 +2166,7 @@ html[data-embed='true'] #editor {
 }
 
 .wiki-preview a {
-  color: #007acc;
+  color: var(--accent-color);
   text-decoration: underline;
 }
 

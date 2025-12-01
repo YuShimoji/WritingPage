@@ -29,6 +29,17 @@ npm run test:e2e
   - 同一オリジン埋め込み: setContent/getContent/focus/takeSnapshot
   - クロスオリジン埋め込み: postMessage を介した操作
 
+### ビジュアルテスト（Puppeteer）
+
+```bash
+npm run test:puppeteer
+```
+
+- **前提**: 別ターミナルで `npm run dev` を実行し、`http://127.0.0.1:8080` でアプリが起動していること
+- **期待結果**:
+  - ブラウザウィンドウが開き、トップ画面が表示される
+  - スクリーンショットが `test-screenshots/` に保存される（例: `initial-load.png`）
+
 ### リンター実行
 
 ```bash

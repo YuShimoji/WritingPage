@@ -35,12 +35,12 @@
 - [x] 7.2 Navigation behaviors & hover preview
 
 ## 8. Theme & Background (Low Priority)
-- [ ] 8.1 Dark mode palette expansion
-- [ ] 8.2 Background visuals with scroll dynamics and randomness
+- [x] 8.1 Dark mode palette expansion
+- [x] 8.2 Background visuals with scroll dynamics and randomness
 
 ## 9. QA & Docs
 - [x] 9.1 E2E & smoke updates
-- [ ] 9.2 USAGE/CHANGELOG updates
+- [x] 9.2 USAGE/CHANGELOG updates
 
 ## 10. UI/UX Backlog (From Test Feedback)
 - [x] 10.1 左サイドバー展開時のメインエリア隠れを修正 (パネルレイアウト調整)
@@ -49,4 +49,4 @@
 - [x] 10.4 折り返し文字数指定機能を追加
 - [x] 10.5 文字数表示スタンプ機能を実装 (区切り・段落集計)
 - [x] 10.6 編集ファイル/章の表示・一覧機能を追加 (UX向上)
-- [ ] 10.7 破棄確認・復元機能を強化 (変更追跡)
+- [x] 10.7 破棄確認・復元機能を強化 (変更追跡)

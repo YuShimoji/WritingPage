@@ -11,7 +11,8 @@
 - `--toolbar-bg`: ツールバー背景
 - `--toolbar-text`: ツールバー文字
 - `--border-color`: 罫線色
-- `--focus-color`: 強調色/ボタン色
+- `--focus-color`: 強調色/ボタン色（アクセント色のベース）
+- `--accent-color`: ボタン/リンク/フォームコントロール用アクセント色（通常は `--focus-color` と同一）
 - `--font-family`: ベースフォント
 - `--font-size`: ベースフォントサイズ
 - `--line-height`: 行間
