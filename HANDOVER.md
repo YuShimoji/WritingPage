@@ -283,3 +283,43 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - `js/tools-registry.js` はスケルトン実装として `window.WritingTools` を定義し、代表的なツール（テキスト装飾・テキストアニメーション・EditorLayout・HUD コントロールなど）を登録する。
   - まだ既存のガジェットやボタンとは接続しておらず、「将来的にここから参照する」ための準備段階。
   - HTML 側では `index.html` のスクリプトタグに `js/tools-registry.js` を追加し、今後の利用に備える。
+
+## 15. TypographyThemes ガジェット分割（2025-12-03）
+
+### 実施内容
+
+旧 `TypographyThemes` ガジェット（445行の単一ファイル）を、責務ごとに3つのガジェットに分割:
+
+1. **Themes ガジェット** (`js/gadgets-themes.js`, 244行)
+   - テーマプリセット（light/dark/sepia/high-contrast/solarized）
+   - カスタムカラー設定（背景色・文字色）
+   - 色リセット機能
+   - カスタム色プリセットの保存・適用
+
+2. **Typography ガジェット** (`js/gadgets-typography.js`, 218行)
+   - フォントファミリー選択（9種類のフォント）
+   - UIフォントサイズ設定
+   - エディタフォントサイズ設定
+   - 行間設定
+
+3. **Visual Profile ガジェット** (`js/gadgets-visual-profile.js`, 既存)
+   - 組み込みプロファイルの選択・適用
+   - ユーザー定義プロファイルの作成・編集・削除
+
+### 変更ファイル
+
+- `js/gadgets-themes.js`: 新規作成
+- `js/gadgets-typography.js`: フォント設定のみに縮小
+- `index.html`: `gadgets-themes.js` のスクリプト参照追加
+- `docs/BACKLOG.md`: 完了タスクとして記録
+
+### 検証結果
+
+- `node scripts/dev-check.js`: ALL TESTS PASSED
+- ブラウザでの動作確認: テーマ切替、カラー設定、フォント設定が独立して動作
+
+### 効果
+
+- 単一責任の原則に準拠し、各ガジェットの責務が明確化
+- 今後の機能拡張（テーマ追加、フォント追加など）が容易に
+- コードの可読性・保守性が向上
