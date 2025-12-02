@@ -126,10 +126,9 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 
 ---
 
-**最終更新**: 2025-01-XX  
+**最終更新**: 2025-12-02  
 **担当**: AI Assistant  
-**次回作業開始予定**: リファクタリング実行フェーズ2 (gadgets.js分割)
-- Region / Panel / GadgetContainer の挙動検証用のサンドボックスを構築
+**次回作業開始予定**: バックログ整理・未実装機能総ざらい (フェーズ候補整理)
 
 ### 9. UI アーキテクチャ仕様ドキュメント作成
 - `docs/UI_ARCHITECTURE.md` を新規作成
@@ -239,6 +238,10 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - `js/app.js`: ガジェット初期化・ロードアウト初期化を関数化
 - `test(e2e): update sidebar layout specs for overlay tabs`
   - `e2e/sidebar-layout.spec.js`: サイドバーオーバーレイ仕様対応とタブセレクタ修正
+- `feat(editor): Markdownライブプレビュー性能改善とドキュメント更新`
+  - `js/editor.js`: renderMarkdownPreview() をデバウンス版と即時版に分離（100msデバウンス）
+  - `docs/BACKLOG.md`: デバウンス適用完了マーク、差分適用を長期課題に
+  - `docs/HANDOVER.md`: 作業内容追加更新
 
 コミット予定:
 - `feat(ui): add SceneGradient gadget PoC`
