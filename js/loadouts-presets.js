@@ -31,7 +31,7 @@
             'UISettings',
             'Help'
           ],
-          typography: ['TypographyThemes', 'VisualProfile'],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
           wiki: ['Wiki']
         }
       },
@@ -41,7 +41,7 @@
         groups: {
           structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient'],
           assist: ['HUDSettings', 'WritingGoal', 'Clock', 'Help'],
-          typography: ['TypographyThemes', 'VisualProfile'],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
           wiki: ['Wiki']
         }
       },
@@ -67,7 +67,7 @@
             'UISettings',
             'Help'
           ],
-          typography: ['TypographyThemes', 'VisualProfile'],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
           wiki: ['Wiki', 'StoryWiki']
         }
       },
@@ -88,7 +88,7 @@
             'UISettings',
             'Help'
           ],
-          typography: ['TypographyThemes', 'VisualProfile'],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
           wiki: ['Wiki']
         }
       }

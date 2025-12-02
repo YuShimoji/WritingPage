@@ -31,10 +31,10 @@
 
 ### 現行ステータス（2025-10-20）
 
-- `Documents`、`Outline`、`HUDSettings`、`TypographyThemes`、`Clock` がガジェット化済み。
+- `Documents`、`Outline`、`HUDSettings`、`Themes`、`Typography`、`VisualProfile`、`Clock` がガジェット化済み。
   - `Documents` と `Outline` は `structure` タブの `#structure-gadgets-panel` に表示。
   - `HUDSettings` は `assist` タブに表示。
-  - `TypographyThemes` は `typography` タブに表示。
+  - `Themes`、`Typography`、`VisualProfile` は `typography` タブに表示（旧 `TypographyThemes` を分割）。
   - `Clock` はデフォルトで `assist` に配置。
 - 従来の `js/outline.js` は動的ロードから外し、UI はガジェット版へ移行。
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
@@ -58,7 +58,7 @@
 
 ### ZWGadgets（ガジェット描画）
 
-- 主担当: `ZWGadgets`（`js/gadgets.js`）。
+- 主担当: `ZWGadgets`（`js/gadgets-core.js`、`js/gadgets-utils.js`、`js/gadgets-loadouts.js`）。
 - DOM:
   - コンテナ: `.gadgets-panel[data-gadget-group="<groupId>"]`
   - 各ガジェット: `.gadget-wrapper[data-gadget-name="<Name>"]`

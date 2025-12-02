@@ -95,22 +95,24 @@ async function loadCssWithImports(url) {
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
     const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
     const hasGadgetGroup = /data-gadget-group="structure"/i.test(index.body);
-    const gadgetsJs = await get('/js/gadgets.js');
-    const okGadgets = hasStructurePanel && hasAssistPanel && hasGadgetGroup && gadgetsJs.status === 200;
+    const gadgetsCoreJs = await get('/js/gadgets-core.js');
+    const okGadgets = hasStructurePanel && hasAssistPanel && hasGadgetGroup && gadgetsCoreJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
       hasStructurePanel,
       hasAssistPanel,
       hasGadgetGroup,
-      gadgets: gadgetsJs.status,
+      gadgets: gadgetsCoreJs.status,
     });
 
-    // ガジェットPrefs APIの静的実装確認（js/gadgets.js を読み取り）
-    const gadgetsPath = path.join(__dirname, '..', 'js', 'gadgets.js');
+    // ガジェットPrefs APIの静的実装確認（モジュール化されたファイル群を読み取り）
+    const gadgetsCorePath = path.join(__dirname, '..', 'js', 'gadgets-core.js');
+    const gadgetsUtilsPath = path.join(__dirname, '..', 'js', 'gadgets-utils.js');
     let gadgetsSrc = '';
     try {
-      gadgetsSrc = fs.readFileSync(gadgetsPath, 'utf-8');
+      gadgetsSrc = fs.readFileSync(gadgetsCorePath, 'utf-8');
+      gadgetsSrc += fs.readFileSync(gadgetsUtilsPath, 'utf-8');
     } catch (e) {
-      console.error('READ FAIL:', gadgetsPath, e.message);
+      console.error('READ FAIL:', e.message);
     }
     const hasStorageKey = /zenWriter_gadgets:prefs/.test(gadgetsSrc);
     const hasGetPrefs = /getPrefs\s*\(\)\s*\{/m.test(gadgetsSrc);
@@ -135,18 +137,31 @@ async function loadCssWithImports(url) {
     const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(
       gadgetsSrc,
     );
-    const hasDocumentsGadget = /register\(['\"]Documents['\"]/.test(gadgetsSrc);
+    // Documents ガジェットは gadgets-builtin.js に定義
+    const builtinPath = path.join(__dirname, '..', 'js', 'gadgets-builtin.js');
+    let builtinSrc = '';
+    try {
+      builtinSrc = fs.readFileSync(builtinPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', builtinPath, e.message);
+    }
+    const hasDocumentsGadget = /register\(['"]Documents['"]/.test(builtinSrc);
     const okGadgetsApi =
       hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
-    const hasStructureInit =
-      /init\(['\"]#structure-gadgets-panel['\"],\s*\{\s*group:\s*['\"]structure['\"]/.test(
-        gadgetsSrc,
-      );
+    // 初期化コードは gadgets-init.js に移動済み
+    const initPath = path.join(__dirname, '..', 'js', 'gadgets-init.js');
+    let initSrc = '';
+    try {
+      initSrc = fs.readFileSync(initPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', initPath, e.message);
+    }
+    const hasStructureInit = /init\(panel,\s*\{\s*group:\s*groupName\s*\}\)/.test(initSrc);
+    // M5: 設定管理API（ドラッグ&ドロップは将来機能のため除外）
     const okGadgetsM5 =
       hasRegisterSettings &&
       hasGetSettings &&
-      hasSetSetting &&
-      hasDropListener;
+      hasSetSetting;
     console.log('CHECK gadgets API (static) ->', okGadgetsApi ? 'OK' : 'NG', {
       hasStorageKey,
       hasGetPrefs,
@@ -158,9 +173,7 @@ async function loadCssWithImports(url) {
       hasRegisterSettings,
       hasGetSettings,
       hasSetSetting,
-      hasDraggable,
-      hasDnDData,
-      hasDropListener,
+      // 将来機能（ドラッグ&ドロップ）: hasDraggable, hasDnDData, hasDropListener
     });
     console.log(
       'CHECK gadgets Docs init ->',

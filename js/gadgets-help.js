@@ -169,7 +169,9 @@
             <li><strong>HUD設定</strong>: ミニ通知の表示設定</li>
             <li><strong>執筆目標</strong>: 目標文字数と締切</li>
             <li><strong>スナップショット</strong>: バックアップ管理</li>
-            <li><strong>TypographyThemes</strong>: テーマ・フォント設定</li>
+            <li><strong>テーマ</strong>: テーマ・カラー設定</li>
+            <li><strong>フォント</strong>: フォント・行間設定</li>
+            <li><strong>Visual Profile</strong>: 複合プロファイル管理</li>
           </ul>
         `;
       }

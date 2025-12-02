@@ -24,14 +24,14 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 既存Issueの棚卸しと優先度付け
 
 #### 3. 未実装機能・未修正の総ざらいと優先度付け ✅
-- `gadgets.js` (2994行): 最大の課題ファイル、単一責任違反の疑い
+- `gadgets.js` (2994行): → モジュール化完了、`js/_legacy/gadgets.js` にアーカイブ済み
 - Wiki/StoryWikiガジェットの重複実装問題
 - UI構造変更に伴うテストセレクタの不整合
 - ガジェットロードアウト処理の再確認が必要
 
 #### 4. コードベース分析とリファクタリング計画策定 ✅
 - `docs/REFACTORING_PLAN.md` に詳細な計画書を作成
-- 短期計画: gadgets.js分割、ビルトインガジェット個別ファイル化
+- 短期計画: gadgets.js分割 → 完了、ビルトインガジェット個別ファイル化 → 完了
 - 中期計画: editor.js/app.js整理、未実装機能の実装
 - 品質基準: テストカバレッジ80%以上、静的解析エラー0件
 
@@ -41,7 +41,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - gadgetsパネルIDを `structure-gadgets-panel`, `assist-gadgets-panel` に統一
   - import/export APIチェックをUI要素依存からAPI存在確認に変更
 
-- **重複コード削除**: `js/gadgets.js` からコメントアウトされたStoryWikiガジェット（約200行）を削除
+- **重複コード削除**: `js/gadgets.js` からコメントアウトされたStoryWikiガジェット（約200行）を削除、最終的に `js/_legacy/gadgets.js` にアーカイブ
 
 - **テスト用ID追加**:
   - `js/gadgets.js`: カラーピッカーに `#bg-color`, `#text-color`, テーマボタンに `data-theme-preset` 属性、リセットボタン `#reset-colors`

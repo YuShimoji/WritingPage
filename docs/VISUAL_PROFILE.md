@@ -12,7 +12,7 @@
   - 「テーマ」「背景色」「フォント」「余白」「表示モード」がバラバラではなく、
     「執筆モードの雰囲気セット（= Visual Profile）」として理解できるようにする。
 - **内部実装の整理**
-  - 現在は `ThemeManager` / TypographyThemes ガジェット / EditorLayout ガジェット / 表示モードセレクト などが個別に設定を持っている。
+  - 現在は `ThemeManager` / Themes・ Typography ガジェット / EditorLayout ガジェット / 表示モードセレクト などが個別に設定を持っている。
   - これらを **1つの論理モデル（VisualProfile）から投影される値** として扱えるようにする土台を作る。
 - **将来拡張の足場**
   - 将来的な「プロファイルの保存/切替UI」「作業シーンごとのプリセット」などに備え、モデル側の責務とUI側の責務を分離する。
@@ -23,7 +23,7 @@
 
 - **テーマ/背景色**
   - `ThemeManager`（`js/theme.js`）が `data-theme` 属性と CSS 変数を通じてテーマ・背景色・テキスト色を適用。
-  - TypographyThemes ガジェットからプリセット切替/カスタムカラー適用を操作。
+  - Themes ガジェットからプリセット切替/カスタムカラー適用を操作。
 - **フォント/行間/サイズ**
   - `ThemeManager.applyFontSettings()` が `--font-family` / `--font-size` / `--line-height` / `--editor-font-size` / `--ui-font-size` を設定。
 - **エディタ余白・最大幅**
@@ -157,8 +157,8 @@ function applyVisualProfile(profile: VisualProfile) {
 Phase A では、**フル機能のUIではなく「最小限のプリセットセレクト」**として実装します。
 
 - **配置場所**
-  - 左サイドバーの Typography 系パネル内、「テーマ & フォント」ガジェット（TypographyThemes）の一部として、
-    小さな `Visual Profile` セクションを追加します。
+  - 左サイドバーの Typography 系パネル内、VisualProfile ガジェットとして独立。
+    （旧 TypographyThemes から分割済み）
 - **Phase A で実装する UI 要素**
   - プロファイル選択セレクトボックス（例: `標準レイアウト`, `集中レイアウト（ダーク）`, `ブランクレイアウト（ライト）`, `カスタム`）。
   - 選択に応じて、`theme` / `fontFamily` / `editorFontSize` / `uiFontSize` / `lineHeight` / `uiMode` を一括適用します。

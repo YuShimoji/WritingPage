@@ -139,7 +139,7 @@
         groups: {
           structure: ['Documents', 'Outline', 'EditorLayout'],
           assist: ['HUDSettings', 'Clock'],
-          typography: ['TypographyThemes'],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
           wiki: ['Wiki']
         }
       }
