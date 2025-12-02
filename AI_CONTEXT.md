@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-11-30T16:55:00+09:00
-- 現在のミッション: v0.3.21 リリース準備完了・バックログ整理継続
+- 最終更新: 2025-12-03T08:30:00+09:00
+- 現在のミッション: ガジェット基盤モジュール化完了・リファクタリング継続
 - ブランチ: main
-- 関連: Helpガジェット追加、自動保存設定UI、ドキュメント切替UX改善、BACKLOGステータス整理
-- 進捗: 全ロードアウトにHelp追加 / 自動保存UI実装 / ドキュメント切替時の確認ダイアログ改善 / 検索置換・ヘルプ・自動保存を完了マーク
-- 次の中断可能点: サイドバー構造再設計（Cフェーズ）、ミニHUD拡張、フローティングパネル
+- 関連: gadgets.jsモジュール化、TypographyThemes分割、ドキュメント整理
+- 進捗: gadgets.js→_legacy移動 / TypographyThemes→Themes/Typography/VisualProfile分割 / dev-check.js更新 / REFACTORING_PLAN更新
+- 次の中断可能点: フローティングパネル設計、editor.js/app.js整理
 
 ## 決定事項
 
@@ -81,38 +81,29 @@
 ## Backlog（将来提案）
 
 ### 最近解決
-- ✅ Visual Profile Phase A 実装完了（概念モデル、最小UI、editorWidthMode）
-- ✅ editorWidthMode (narrow/medium/wide) 実装と CSS 変数連携
-- ✅ ダークテーマを Obsidian/Quiver 風に調整（サイドバー暗め、エディタ明るめ）
-- ✅ UIデザイン指針（Zen Writer × ノートアプリ折衷）を DESIGN.md に追加
-- ✅ Visual Profile ラベル名称変更（集中→ダーク等の機能的名称に）
-- ✅ Visual Profile から UIモードを分離（レイアウトシフト抑制）
-- ✅ スクリプト読み込み順修正（ui-labels.js を visual-profile.js より先に）
+- ✅ gadgets.js モジュール化完了（core/utils/loadouts/init/builtin に分割）
+- ✅ TypographyThemes ガジェットを Themes/Typography/VisualProfile に分割
+- ✅ 旧 gadgets.js を js/_legacy/ にアーカイブ
+- ✅ dev-check.js を新モジュール構造に対応
+- ✅ ドキュメント更新（GADGETS.md, VISUAL_PROFILE.md, REFACTORING_PLAN.md）
+- ✅ フェーズ C/D 完了（サイドバー構造安定化、HUD拡張）
 
 ### 残存課題
-- Visual Profile Phase B（プロファイル保存/読込UI、ユーザー定義プロファイル）
-- サイドバー＆ガジェット構造の責務分離（データ属性ベースの安定セレクタ、グループ正規化、SidebarManager/ZWGadgets分離）
+- editor.js (1763行) / app.js (1437行) の整理（各 500行以下を目標）
 - Typora風ツリーペインの実装（ドキュメント管理の階層化）
 - 汎用フローティングパネル機能（任意ガジェットの切り離し）
-- HUD拡張（位置・フェード・背景色のカスタマイズ）
-- ガジェットD&D機能の再実装（スモークテストNG: hasDraggable, hasDnDData）
-- 埋め込みモードでのガジェット静的ファイル除外（eiNoGadgetsStatic）
-- ガジェットシステムのモジュール化検討（責務分離・保守性向上）
+- ガジェットD&D機能の実装（将来機能）
 - ガジェット登録APIの型安全性強化
 
 ### 将来機能
-- **Phase B: Visual Profile 拡張**
-  - プロファイル保存/読込UI
-  - ユーザー定義プロファイル
-  - EditorLayout ガジェットとの厳密な連動
-- **Phase C: サイドバー＆ガジェット構造再設計**
-  - データ属性ベースの安定セレクタ導入
-  - SidebarManagerとZWGadgetsの責務分離整理
-  - ガジェットグループの正規化
-- **Phase D: 高度UI拡張**
+- **Phase E: パネル・レイアウト機能**
+  - フローティングパネル機能（サイドバーから切り離し、透明度調整）
+  - 柔軟なタブ配置システム（上下左右への配置）
+  - タブへのガジェット動的割り当て（ドラッグ&ドロップ）
+- **長期課題**
   - Typora風ツリーペイン（ドキュメント階層管理）
-  - 汎用フローティングパネル機能（パネル位置カスタマイズ）
-  - HUD拡張（位置・フェード・背景色カスタマイズ）
+  - live preview差分適用（morphdom等によるDOM差分更新）
+  - プラグイン拡張システム（ユーザー定義ガジェット）
 - Mission 13: 表現力の強化（グラフィックノベル対応・フォント装飾）
 - Mission 14: 管理能力の向上（高度なドキュメント管理機能）
 - CONTRIBUTING.md に v1.1 へのリンク追加
