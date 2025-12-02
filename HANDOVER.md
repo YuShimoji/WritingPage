@@ -170,7 +170,13 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - 「既存ページの編集」は DOM の再レンダリングに依存せず、`ZenWriterStorage` 経由で内容更新を検証
 - `npm run dev-check` および `npx playwright test e2e/wiki.spec.js` がローカルでグリーンであることを確認
 
-### 13. Editor Settings E2Eテスト安定化（2025-11-22）
+### 14. テーマごとのアクセントカラー一括制御（2025-12-02）
+- `js/theme.js` の `ThemeManager.themeColors` に `high-contrast` / `solarized` テーマの既定色を追加
+- `css/style.css` の各テーマブロックに `--accent-color` を定義（sepia/high-contrast/solarized）
+- `css/special.css` の Content Linking 用リンク色を `--accent-color` / `--focus-color` ベースに変更
+- ボタン・スライダー・リンク・チェックボックスなどがテーマごとに一貫したアクセントカラーを適用
+- `node scripts/dev-check.js` 全項目パス
+- BACKLOG.md / DEVELOPMENT_STATUS.md を完了状態に更新
 - `e2e/editor-settings.spec.js` を現行 UI / 実装に合わせて全面的に更新
   - Typewriter 設定:
     - サイドバーの Editor タブ依存を廃止し、`index.html` 上のグローバルコントロール
