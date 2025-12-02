@@ -56,6 +56,10 @@ class EditorManager {
         // updateWordCount デバウンスタイマー（長文パフォーマンス改善）
         this._wordCountDebounceTimer = null;
         this._WORD_COUNT_DEBOUNCE_DELAY = 300; // 300ms
+
+        // Markdownプレビューデバウンスタイマー（長文パフォーマンス改善）
+        this._markdownPreviewDebounceTimer = null;
+        this._MARKDOWN_PREVIEW_DEBOUNCE_DELAY = 100; // 100ms
         
         // タイプライターモード関連の定数
         this._TYPEWRITER_SCROLL_DELAY_MS = 120; // スクロール後の更新遅延
@@ -100,7 +104,7 @@ class EditorManager {
             this.updateWordCount(); // デバウンス版で高頻度入力に対応
             this.maybeAutoSnapshot();
             this.renderImagePreview();
-            this.renderMarkdownPreview();
+            this.renderMarkdownPreview(); // デバウンス版で高頻度入力に対応
         });
 
         // タブキーでインデント
@@ -588,7 +592,24 @@ class EditorManager {
         this.renderOverlayImages(orderedEntries, content);
     }
 
+    /**
+     * Markdownプレビューのデバウンス版（長文入力時のパフォーマンス改善）
+     * 高頻度で呼ばれる input イベント等で使用
+     */
     renderMarkdownPreview() {
+        if (this._markdownPreviewDebounceTimer) {
+            clearTimeout(this._markdownPreviewDebounceTimer);
+        }
+        this._markdownPreviewDebounceTimer = setTimeout(() => {
+            this._renderMarkdownPreviewImmediate();
+        }, this._MARKDOWN_PREVIEW_DEBOUNCE_DELAY);
+    }
+
+    /**
+     * Markdownプレビューの即時更新（デバウンスなし）
+     * setContent/loadContent など初期化時や重要な操作時に使用
+     */
+    _renderMarkdownPreviewImmediate() {
         if (!this.markdownPreviewPanel || !this.editor) return;
         const src = this.editor.value || '';
         this.markdownPreviewPanel.innerHTML = '';
