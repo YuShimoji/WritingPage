@@ -608,11 +608,11 @@ class EditorManager {
     /**
      * Markdownプレビューの即時更新（デバウンスなし）
      * setContent/loadContent など初期化時や重要な操作時に使用
+     * morphdom による差分適用でスクロール位置・フォーカスを保持
      */
     _renderMarkdownPreviewImmediate() {
         if (!this.markdownPreviewPanel || !this.editor) return;
         const src = this.editor.value || '';
-        this.markdownPreviewPanel.innerHTML = '';
 
         let html = '';
         try {
@@ -637,7 +637,23 @@ class EditorManager {
             html = '';
         }
 
-        this.markdownPreviewPanel.innerHTML = html;
+        // morphdom による差分適用（スクロール位置・フォーカス保持）
+        if (window.morphdom) {
+            const tempContainer = document.createElement('div');
+            tempContainer.innerHTML = html;
+            try {
+                window.morphdom(this.markdownPreviewPanel, tempContainer, {
+                    childrenOnly: true  // コンテナ自体は変更せず、子要素のみ更新
+                });
+            } catch (morphErr) {
+                // morphdom エラー時はフォールバック
+                console.warn('morphdom error, falling back to innerHTML:', morphErr);
+                this.markdownPreviewPanel.innerHTML = html;
+            }
+        } else {
+            // morphdom 未ロード時はフォールバック
+            this.markdownPreviewPanel.innerHTML = html;
+        }
     }
 
     createPreviewCard({ assetId, asset, matchIndex }) {

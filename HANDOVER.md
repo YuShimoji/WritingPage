@@ -188,6 +188,14 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `docs/EDITOR_HELP.md` のショートカット一覧を更新
 - `node scripts/dev-check.js` 全項目パス
 
+### 16. Live Preview 差分適用 (morphdom)（2025-12-03）
+- `index.html` に morphdom CDN を追加
+- `js/editor.js` の `_renderMarkdownPreviewImmediate()` を morphdom 版に更新
+  - DOM差分適用でスクロール位置・フォーカスを保持
+  - morphdom 未ロード時は従来の innerHTML フォールバック
+- `docs/LIVE_PREVIEW_DIFF_DESIGN.md` に設計ドキュメントを作成
+- `node scripts/dev-check.js` 全項目パス
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
