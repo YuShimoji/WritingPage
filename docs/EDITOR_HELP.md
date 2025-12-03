@@ -141,6 +141,8 @@ Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォン
 | Alt+W | ツールバー表示/非表示切り替え |
 | Ctrl+F | 検索パネル開閉 |
 | Ctrl+Shift+Z | 最後のスナップショットから復元 |
+| F2 | UIモード切替 (Normal → Focus → Blank) |
+| Esc | Focus/Blankモードから Normal に戻る |
 | Ctrl+B | 太字 |
 | Ctrl+I | 斜体 |
 | Tab | インデント挿入 |

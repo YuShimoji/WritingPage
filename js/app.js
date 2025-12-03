@@ -430,6 +430,27 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             restoreLastSnapshot();
         }
+
+        // F2: UIモードサイクル切替 (normal → focus → blank → normal)
+        if (e.key === 'F2') {
+            e.preventDefault();
+            const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+            const modes = ['normal', 'focus', 'blank'];
+            const currentIndex = modes.indexOf(currentMode);
+            const nextIndex = (currentIndex + 1) % modes.length;
+            setUIMode(modes[nextIndex]);
+            return;
+        }
+
+        // Escape: Blankモードから Normal に戻る
+        if (e.key === 'Escape') {
+            const currentMode = document.documentElement.getAttribute('data-ui-mode');
+            if (currentMode === 'blank' || currentMode === 'focus') {
+                e.preventDefault();
+                setUIMode('normal');
+                return;
+            }
+        }
     }, true); // capture: trueで優先的に処理
 
     /**

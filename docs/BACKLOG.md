@@ -37,6 +37,7 @@
 - [x] Visual Profile Phase A（概念モデル、最小UI、editorWidthMode）- 実装済み
 - [x] Visual Profile Phase B（保存/読込 UI、ユーザー定義プロファイル）- ガジェット実装済み
 - [x] サイドバー＆ガジェット構造の安定化（データ属性ベースの安定セレクタ導入、ガジェットグループ正規化、SidebarManager と ZWGadgets の責務分離整理）（Cフェーズ完了）
+- [x] UIモード実装 (Normal/Focus/Blank) - settings.ui.uiMode と data-ui-mode 属性によるモード切替、F2でサイクル切替、Escでnormalに復帰 - 2025-12-03完了
 - [x] ワードカウント/進捗ヘッダーの再配置（エディタ上部から HUD/ガジェット等への退避と改行削減）【フェーズ候補: v0.4.x / カテゴリ: HUD・情報レイアウト】
 - [x] テーマごとのボタン/リンクアクセントカラー一括制御（テーマ/Visual Profile と連携したスタイル適用）- 2025-12-02完了、css/style.cssとcss/special.cssで--accent-color変数を統一
 - [ ] Typora風ツリーペイン（ドキュメント/メモ/Markdown管理を統合するツリーUIの設計と段階的実装）【フェーズ候補: 長期 / カテゴリ: ドキュメントナビゲーション】

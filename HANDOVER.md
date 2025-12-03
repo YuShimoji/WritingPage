@@ -177,6 +177,17 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - BACKLOG.md にデバウンス適用を完了マーク、差分適用（morphdom等）を長期課題として残す
 - `node scripts/dev-check.js` 全項目パス
 
+### 15. UIモード実装 (Normal/Focus/Blank)（2025-12-03）
+- `css/style.css` に `html[data-ui-mode='focus']` / `html[data-ui-mode='blank']` のCSSルールを追加
+  - Focus: サイドバー・HUD・FABを非表示、ツールバーは残す
+  - Blank: すべてのUIを非表示、エディタのみ表示
+- `js/app.js` の `setUIMode(mode)` 関数を活用
+  - F2キー: UIモードサイクル切替 (normal → focus → blank → normal)
+  - Escキー: Focus/Blankモードから Normal に復帰
+- `settings.ui.uiMode` に保存し、起動時に復元
+- `docs/EDITOR_HELP.md` のショートカット一覧を更新
+- `node scripts/dev-check.js` 全項目パス
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）

@@ -162,6 +162,49 @@ html:not([data-toolbar-hidden='true']) #editor {
   padding-top: calc(var(--toolbar-height) + 1rem);
 }
 
+/* ===== UIモード: Focus / Blank ===== */
+
+/* Focus モード: サイドバー・HUD・FABを簡易非表示、ツールバーは残す */
+html[data-ui-mode='focus'] .sidebar {
+  display: none !important;
+}
+html[data-ui-mode='focus'] .mini-hud {
+  display: none !important;
+}
+html[data-ui-mode='focus'] .fab-button {
+  display: none !important;
+}
+html[data-ui-mode='focus'] #quick-tools-panel {
+  display: none !important;
+}
+html[data-ui-mode='focus'] .editor-container {
+  margin-left: 0 !important;
+}
+
+/* Blank モード: すべてのUIを隠し、エディタのみ表示 */
+html[data-ui-mode='blank'] .toolbar {
+  display: none !important;
+}
+html[data-ui-mode='blank'] .sidebar {
+  display: none !important;
+}
+html[data-ui-mode='blank'] .mini-hud {
+  display: none !important;
+}
+html[data-ui-mode='blank'] .fab-button {
+  display: none !important;
+}
+html[data-ui-mode='blank'] #quick-tools-panel {
+  display: none !important;
+}
+html[data-ui-mode='blank'] .editor-container {
+  margin-left: 0 !important;
+  height: 100vh;
+}
+html[data-ui-mode='blank'] #editor {
+  padding-top: 1rem;
+}
+
 /* ダークテーマ
    デザイン指針: サイドバー/ヘッダーは暗め、エディタは一段明るく（本文が主役）
    参考: Obsidian/Quiver 風の3カラム構成 */
