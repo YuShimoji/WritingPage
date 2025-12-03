@@ -323,3 +323,39 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 単一責任の原則に準拠し、各ガジェットの責務が明確化
 - 今後の機能拡張（テーマ追加、フォント追加など）が容易に
 - コードの可読性・保守性が向上
+
+## 16. テスト方法の再整理と現状の引き継ぎ（2025-12-03）
+
+### 自動テストと開発サーバーの関係
+
+- スモークテスト（`npm run test:smoke` → `node scripts/dev-check.js`）
+  - 前提: 別ターミナルで `npm run dev` を起動し、`http://127.0.0.1:8080` でアプリが応答していること。
+  - 内容: index.html/CSS/gadgets API/AI_CONTEXT.md などを HTTP 経由で取得し、HTML 構造やガジェット基盤、ルール文書の整合性を静的チェック。
+- E2E テスト（`npm run test:e2e`）
+  - Playwright の `webServer` 設定により、`node scripts/run-two-servers.js 9080` が自動起動。
+  - 同一/クロスオリジン用に 2 ポート構成（base=9080, child=9081）で dev-server を起動し、ガジェットや Embed のブラウザ操作を包括的に検証。
+- Puppeteer テスト（`npm run test:puppeteer`）
+  - 前提: `npm run dev` で 8080 ポートの dev-server が起動済み。
+  - 内容: 初期表示のスクリーンショット取得など、ビジュアル確認用の補助テスト。
+
+### index.html 直接オープンとの使い分け
+
+- `index.html` をブラウザで直接開く（`file://`）運用は、純粋なオフライン執筆用途としては引き続き有効。
+- ただし、`dev-check.js` や E2E/Puppeteer など **自動テストは HTTP 前提** のため、開発・検証作業では `npm run dev` または Playwright の `webServer` を前提にするのが標準。
+
+### 現在の状態と確認済み事項
+
+- `js/gadgets.js` のモジュール分割完了、`js/_legacy/gadgets.js` へのアーカイブ済み。
+- ガジェット基盤は `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` に分割され、`dev-check.js` も新構成に追従。
+- 旧 `TypographyThemes` ガジェットは `Themes` / `Typography` / `VisualProfile` の 3 ガジェットに分割され、ロードアウト・ヘルプ・ドキュメントの参照も更新済み。
+- `BACKLOG.md` と `AI_CONTEXT.md` を現在のモジュール構成・進捗に合わせて更新し、フェーズ C/D 完了および残タスク（editor.js/app.js の整理、Panel/Region 基盤設計など）を明示。
+- `node scripts/dev-check.js` 実行結果: **ALL TESTS PASSED** を確認済み。
+
+### 次回以降の推奨タスク（サマリ）
+
+1. TESTING.md の微修正  
+   - スモークテスト手順に「事前に `npm run dev` を起動する」ことを明記し、README の Quick Start との整合を取る。
+2. editor.js / app.js の分割計画策定  
+   - それぞれ 500 行以下を目標に、EditorCore/HUD/Snapshot/ショートカットなど責務ごとのモジュール構成を検討し、簡易設計メモを作成。
+3. Panel/GadgetContainer 抽象レイヤの PoC  
+   - `docs/UI_ARCHITECTURE.md` の Region/Panel モデルに沿って、左サイドバーの既存パネルを薄い抽象レイヤ（Panel/GadgetContainer）経由で初期化する実験実装を行い、将来のフローティングパネル実装に備える。
