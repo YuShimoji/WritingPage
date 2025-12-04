@@ -5,6 +5,7 @@ class ThemeManager {
     this.themeColors = {
       light: { bgColor: '#ffffff', textColor: '#333333' },
       dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+      night: { bgColor: '#262626', textColor: '#e5e5e5' },
       sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' },
       midnight: { bgColor: '#0f0f23', textColor: '#cccccc' },
       charcoal: { bgColor: '#2d3748', textColor: '#e2e8f0' },

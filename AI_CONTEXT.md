@@ -2,12 +2,12 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-03T08:30:00+09:00
+- 最終更新: 2025-12-04T05:30:00+09:00
 - 現在のミッション: ガジェット基盤モジュール化完了・リファクタリング継続
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ドキュメント整理
-- 進捗: gadgets.js→_legacy移動 / TypographyThemes→Themes/Typography/VisualProfile分割 / dev-check.js更新 / REFACTORING_PLAN更新
-- 次の中断可能点: フローティングパネル設計、editor.js/app.js整理
+- 進捗: gadgets.js→_legacy移動 / TypographyThemes→Themes/Typography/VisualProfile分割 / テーマdark/night調整 / dev-check.js更新 / REFACTORING_PLAN・BACKLOG・THEMES更新
+- 次の中断可能点: パネル構造基盤（フローティングパネル）設計と UI/エディタ配色分離の設計メモ作成、editor.js/app.js整理
 
 ## 決定事項
 
@@ -87,6 +87,7 @@
 - ✅ dev-check.js を新モジュール構造に対応
 - ✅ ドキュメント更新（GADGETS.md, VISUAL_PROFILE.md, REFACTORING_PLAN.md）
 - ✅ フェーズ C/D 完了（サイドバー構造安定化、HUD拡張）
+ - ✅ テーマプリセット調整（dark のグレー化、night 追加）と THEMES/BACKLOG 更新
 
 ### 残存課題
 - editor.js (1763行) / app.js (1437行) の整理（各 500行以下を目標）

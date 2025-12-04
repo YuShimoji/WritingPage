@@ -66,6 +66,7 @@
       var themePresets = [
         { key: 'light', label: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト' },
         { key: 'dark', label: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク' },
+        { key: 'night', label: (window.UILabels && window.UILabels.THEME_NAME_NIGHT) || 'ナイト' },
         { key: 'sepia', label: (window.UILabels && window.UILabels.THEME_NAME_SEPIA) || 'セピア' },
         { key: 'high-contrast', label: (window.UILabels && window.UILabels.THEME_NAME_HIGH_CONTRAST) || '高コントラスト' },
         { key: 'solarized', label: (window.UILabels && window.UILabels.THEME_NAME_SOLARIZED) || 'ソラリゼド' }
@@ -210,6 +211,7 @@
             var themeColors = {
               light: { bg: '#ffffff', text: '#333333' },
               dark: { bg: '#1e1e1e', text: '#e0e0e0' },
+              night: { bg: '#262626', text: '#e5e5e5' },
               sepia: { bg: '#f4ecd8', text: '#5b4636' },
               'high-contrast': { bg: '#000000', text: '#ffffff' },
               solarized: { bg: '#fdf6e3', text: '#586e75' }

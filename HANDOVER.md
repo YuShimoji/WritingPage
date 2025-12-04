@@ -378,3 +378,50 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
    - それぞれ 500 行以下を目標に、EditorCore/HUD/Snapshot/ショートカットなど責務ごとのモジュール構成を検討し、簡易設計メモを作成。
 3. Panel/GadgetContainer 抽象レイヤの PoC  
    - `docs/UI_ARCHITECTURE.md` の Region/Panel モデルに沿って、左サイドバーの既存パネルを薄い抽象レイヤ（Panel/GadgetContainer）経由で初期化する実験実装を行い、将来のフローティングパネル実装に備える。
+
+## 17. テーマプリセット調整とナイトテーマ追加（2025-12-04）
+
+### 実施内容
+
+- テーマプリセットのうち、ライト/ダークが他プリセット（セピア/高コントラスト等）に比べてボタン色の変化が分かりにくいという指摘を受け、配色設計を再確認。
+- ダークテーマのアクセント色を「濃い灰色」に変更し、ボタン・チェックボックス・スライダーなど UI コントロール全体で一貫したダークグレー基調となるよう調整。
+- 新しい暗色テーマ `night` を追加。`dark` より一段階明るいモノクロ寄りの暗色テーマとして定義し、背景/テキスト/ボタンすべてをグレー系で統一。
+- ThemeManager（`js/theme.js`）の `themeColors` に `night` を追加し、テーマ適用時の既定色およびカラーピッカー初期値と整合。
+- Themes ガジェット（`js/gadgets-themes.js`）に `night` プリセットボタンを追加し、既存の light/dark/sepia/high-contrast/solarized と並べて選択可能にした。
+- `js/ui-labels.js` に `THEME_NAME_NIGHT` ラベル（「ナイト」）を追加し、ローカライズ済みラベルから参照。
+- `docs/THEMES.md` のプリセット一覧に `night` を追記し、仕様レベルで新テーマを明示。
+- `docs/BACKLOG.md` に、テーマプリセット拡張のための集中管理機構、および UI 配色と執筆エリア配色の分離という 2 つの設計タスクを追加。
+
+### 影響ファイル
+
+- `css/style.css`  
+  - `[data-theme='dark']` の `--focus-color` を `#555555`（濃い灰色）に変更し、`--accent-color` を `var(--focus-color)` に統一。  
+  - 新テーマ `[data-theme='night']` を追加し、背景/テキスト/サイドバー/ツールバー/ボーダー/アクセント色をグレー系で定義。  
+- `js/theme.js`  
+  - `this.themeColors` に `night: { bgColor: '#262626', textColor: '#e5e5e5' }` を追加し、テーマ適用時の既定色に反映。  
+- `js/gadgets-themes.js`  
+  - `themePresets` に `night` を追加し、サイドバーの Themes ガジェットから選択可能にした。  
+  - `refreshState()` 内の `themeColors` に `night` を追加し、カラーピッカーの既定値（背景/文字色）がテーマと同期するようにした。  
+- `js/ui-labels.js`  
+  - Typography Themes 系ラベルに `THEME_NAME_NIGHT: 'ナイト'` を追加。  
+- `docs/THEMES.md`  
+  - プリセット一覧に `night` を追加し、「ダークより一段階明るいモノクロ暗色テーマ」として記載。  
+- `docs/BACKLOG.md`  
+  - 「テーマプリセット拡張のための集中管理機構」「UI配色と執筆エリア配色の分離」を中優先タスクとして追加。  
+
+### 検証
+
+- `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、**ALL TESTS PASSED** を確認。  
+- ブラウザ上で `Themes` ガジェットから以下を手動確認:  
+  - `light` → `dark` → `night` → `sepia` → `high-contrast` → `solarized` と順に切り替え、  
+    - ボタン・チェックボックス・スライダーのアクセント色が各テーマに応じて変化すること  
+    - 特に `dark` と `night` で「濃い灰色／やや明るい灰色」の差が視認できること  
+
+### 設計メモ / 今後の改善点
+
+- 現状の Themes ガジェットの「背景色」「文字色」カラーピッカーは `--bg-color` / `--text-color` を直接上書きしており、**UI と執筆エリアが同一レイヤーの配色**になっている。  
+- 本来は、  
+  - UI 全体の配色（ツールバー/サイドバー/ボタン等）  
+  - 執筆エリア（本文）の配色・装飾  
+  を別レイヤーとして扱い、テーマプリセットは主に UI 側のトーン/コントラストを制御し、本文のスタイルは Visual Profile や別ガジェット側で管理するのが望ましい。  
+- このため、`docs/BACKLOG.md` に「テーマプリセット拡張のための集中管理機構」「UI配色と執筆エリア配色の分離」を追加タスクとして明示し、今後の設計リファインで対応する方針。

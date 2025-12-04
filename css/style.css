@@ -217,7 +217,20 @@ html[data-ui-mode='blank'] #editor {
   --toolbar-bg: #1c1c1c;
   --toolbar-text: #cccccc;
   --border-color: #3a3a3a;
-  --focus-color: #569cd6;
+  --focus-color: #555555;
+  --accent-color: var(--focus-color);
+}
+
+[data-theme='night'] {
+  --bg-color: #262626;
+  --app-bg: #1f1f1f;
+  --text-color: #e5e5e5;
+  --sidebar-bg: #2b2b2b;
+  --sidebar-text: #f0f0f0;
+  --toolbar-bg: #2f2f2f;
+  --toolbar-text: #f0f0f0;
+  --border-color: #444444;
+  --focus-color: #777777;
   --accent-color: var(--focus-color);
 }
 

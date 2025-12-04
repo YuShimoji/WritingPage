@@ -246,6 +246,7 @@ window.UILabels = {
     TYPO_SETTINGS_UNAVAILABLE: 'タイポ設定を読み込めません。',
     THEME_NAME_LIGHT: 'ライト',
     THEME_NAME_DARK: 'ダーク',
+    THEME_NAME_NIGHT: 'ナイト',
     THEME_NAME_SEPIA: 'セピア',
     THEME_NAME_HIGH_CONTRAST: '高コントラスト',
     THEME_NAME_SOLARIZED: 'ソラリゼド',
