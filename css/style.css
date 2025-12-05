@@ -2117,6 +2117,8 @@ html[data-embed='true'] #editor {
 
 .floating-panels .dockable-panel {
   pointer-events: auto;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 /* ドッキングされたパネル */

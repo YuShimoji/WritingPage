@@ -196,6 +196,15 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `docs/LIVE_PREVIEW_DIFF_DESIGN.md` に設計ドキュメントを作成
 - `node scripts/dev-check.js` 全項目パス
 
+### 17. Phase E: フローティングパネル PoC（2025-12-05）
+- `js/gadgets-editor-extras.js` の UISettings ガジェットに「構造パネルをフローティング表示 (PoC)」ボタンを追加
+  - `ZenWriterPanels.createDockablePanel()` を使用してフローティングパネルを生成
+  - パネル内に structure グループのガジェットをミラー表示
+  - ドッキング/フローティング切替、ドラッグ移動、閉じるボタンが動作
+- `css/style.css` にフローティングパネルの高さ制限（max-height: 80vh）を追加
+- 既存の `js/panels.js` の API をそのまま活用（新規コード最小化）
+- `node scripts/dev-check.js` 全項目パス
+
 ## 現在の状態
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）

@@ -309,7 +309,48 @@
       autoSaveRow.appendChild(autoSaveLabel);
       autoSaveRow.appendChild(autoSaveDelayRow);
 
-      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow);
+      var floatRow = el('div');
+      var floatLabel = el('div'); floatLabel.textContent = 'フローティングパネルPoC (構造)'; floatLabel.style.fontSize = '12px';
+      var floatBtn = el('button', 'small'); floatBtn.textContent = '構造パネルをフローティング表示 (PoC)';
+      floatRow.appendChild(floatLabel); floatRow.appendChild(floatBtn);
+
+      floatBtn.addEventListener('click', function() {
+        try {
+          if (!window.ZenWriterPanels || typeof window.ZenWriterPanels.createDockablePanel !== 'function') {
+            alert('Panels PoC API が利用できません');
+            return;
+          }
+
+          var existing = document.getElementById('structure-floating-panel');
+          if (existing) {
+            existing.style.display = (existing.style.display === 'none' ? 'block' : 'none');
+            return;
+          }
+
+          var container = document.createElement('div');
+          container.id = 'structure-floating-gadgets-panel';
+          container.className = 'gadgets-panel';
+          container.dataset.gadgetGroup = 'structure';
+          container.setAttribute('aria-label', '構造ガジェット (フローティングPoC)');
+
+          var panel = window.ZenWriterPanels.createDockablePanel('structure-floating-panel', '構造 (パネルPoC)', container);
+
+          var floatingContainer = document.getElementById('floating-panels');
+          if (!floatingContainer) {
+            floatingContainer = document.createElement('div');
+            floatingContainer.id = 'floating-panels';
+            floatingContainer.className = 'floating-panels';
+            document.body.appendChild(floatingContainer);
+          }
+          floatingContainer.appendChild(panel);
+
+          if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+            window.ZWGadgets.init('#structure-floating-gadgets-panel', { group: 'structure' });
+          }
+        } catch (_) {}
+      });
+
+      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
     }, { title: 'UI Settings', groups: ['assist'] });
 
     // UI Design Gadget (background gradient)
