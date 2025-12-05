@@ -43,7 +43,7 @@
         width: 300,
         collapsed: false
       },
-      floating: [],
+      floating: {},  // { panelId: { left, top, width, height, visible } }
       bottom: {
         height: 200,
         panels: []
@@ -51,12 +51,62 @@
     };
   }
 
+  // フローティングパネルの状態を保存
+  function savePanelState(panelId, state) {
+    try {
+      const layout = loadPanelLayout();
+      layout.floating = layout.floating || {};
+      layout.floating[panelId] = { ...layout.floating[panelId], ...state };
+      savePanelLayout(layout);
+    } catch (e) { void e; }
+  }
+
+  // フローティングパネルの状態を取得
+  function getPanelState(panelId) {
+    try {
+      const layout = loadPanelLayout();
+      return (layout.floating && layout.floating[panelId]) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // 画面中央の座標を計算
+  function getCenteredPosition(width, height) {
+    const w = width || 320;
+    const h = height || 400;
+    return {
+      left: Math.max(50, (window.innerWidth - w) / 2),
+      top: Math.max(50, (window.innerHeight - h) / 2)
+    };
+  }
+
   // パネル作成関数
-  function createDockablePanel(id, title, content, _options = {}) {
+  function createDockablePanel(id, title, content, options = {}) {
     const panel = document.createElement('div');
     panel.className = 'dockable-panel';
     panel.id = id;
     panel.dataset.panelId = id;
+
+    // 保存された状態を復元、または初期位置を設定
+    const savedState = getPanelState(id);
+    const defaultSize = { width: options.width || 320, height: options.height || 400 };
+    let initialPos;
+
+    if (savedState && savedState.left !== undefined && savedState.top !== undefined) {
+      // 保存された位置を使用
+      initialPos = { left: savedState.left, top: savedState.top };
+    } else if (options.centered !== false) {
+      // デフォルトで画面中央に配置
+      initialPos = getCenteredPosition(defaultSize.width, defaultSize.height);
+    } else {
+      initialPos = { left: options.left || 100, top: options.top || 100 };
+    }
+
+    panel.style.left = initialPos.left + 'px';
+    panel.style.top = initialPos.top + 'px';
+    if (options.width) panel.style.width = options.width + 'px';
+    if (options.height) panel.style.maxHeight = options.height + 'px';
 
     const header = document.createElement('div');
     header.className = 'panel-header';
@@ -146,8 +196,14 @@
           } else {
             // フローティングに留める
             ensureFloating(panel);
+            // 位置を保存
+            savePanelState(panel.id, {
+              left: rect.left,
+              top: rect.top,
+              width: rect.width,
+              height: rect.height
+            });
           }
-          savePanelLayout(loadPanelLayout());
         }
       };
 
@@ -299,14 +355,29 @@
     const panel = document.getElementById(panelId);
     if (panel) {
       panel.style.display = 'none';
+      savePanelState(panelId, { visible: false });
     }
   }
 
   function showPanel(panelId) {
     const panel = document.getElementById(panelId);
     if (panel) {
-      panel.style.display = 'block';
+      panel.style.display = '';
+      savePanelState(panelId, { visible: true });
     }
+  }
+
+  // パネルの表示/非表示をトグル
+  function togglePanel(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return false;
+    const isVisible = panel.style.display !== 'none';
+    if (isVisible) {
+      hidePanel(panelId);
+    } else {
+      showPanel(panelId);
+    }
+    return !isVisible;
   }
 
   // API
@@ -317,6 +388,9 @@
     togglePanelDocking,
     hidePanel,
     showPanel,
+    togglePanel,
+    savePanelState,
+    getPanelState,
     loadLayout: loadPanelLayout,
     saveLayout: savePanelLayout
   };

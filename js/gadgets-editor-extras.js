@@ -309,31 +309,61 @@
       autoSaveRow.appendChild(autoSaveLabel);
       autoSaveRow.appendChild(autoSaveDelayRow);
 
+      // フローティングパネル設定
       var floatRow = el('div');
-      var floatLabel = el('div'); floatLabel.textContent = 'フローティングパネルPoC (構造)'; floatLabel.style.fontSize = '12px';
-      var floatBtn = el('button', 'small'); floatBtn.textContent = '構造パネルをフローティング表示 (PoC)';
-      floatRow.appendChild(floatLabel); floatRow.appendChild(floatBtn);
+      floatRow.style.display = 'grid';
+      floatRow.style.gap = '6px';
+      var floatLabel = el('div'); floatLabel.textContent = 'フローティングパネル'; floatLabel.style.fontSize = '12px'; floatLabel.style.fontWeight = 'bold';
+      
+      var floatTabSelect = el('select');
+      floatTabSelect.style.width = '100%';
+      var tabOptions = [
+        { id: 'structure', label: '構造', group: 'structure' },
+        { id: 'typography', label: 'テーマ・フォント', group: 'typography' },
+        { id: 'assist', label: 'アシスト', group: 'assist' },
+        { id: 'wiki', label: 'Wiki', group: 'wiki' }
+      ];
+      tabOptions.forEach(function(opt) {
+        var o = el('option'); o.value = opt.id; o.textContent = opt.label; floatTabSelect.appendChild(o);
+      });
 
-      floatBtn.addEventListener('click', function() {
+      var floatBtnRow = el('div');
+      floatBtnRow.style.display = 'flex';
+      floatBtnRow.style.gap = '6px';
+      var floatBtn = el('button', 'small'); floatBtn.textContent = '表示/非表示';
+      var floatCloseBtn = el('button', 'small'); floatCloseBtn.textContent = '閉じる';
+      floatBtnRow.appendChild(floatBtn);
+      floatBtnRow.appendChild(floatCloseBtn);
+
+      floatRow.appendChild(floatLabel);
+      floatRow.appendChild(floatTabSelect);
+      floatRow.appendChild(floatBtnRow);
+
+      // フローティングパネル生成/トグル
+      function createOrToggleFloatingPanel(tabId) {
         try {
           if (!window.ZenWriterPanels || typeof window.ZenWriterPanels.createDockablePanel !== 'function') {
-            alert('Panels PoC API が利用できません');
+            alert('Panels API が利用できません');
             return;
           }
 
-          var existing = document.getElementById('structure-floating-panel');
+          var tabConfig = tabOptions.find(function(t) { return t.id === tabId; });
+          if (!tabConfig) return;
+
+          var panelId = tabId + '-floating-panel';
+          var existing = document.getElementById(panelId);
           if (existing) {
-            existing.style.display = (existing.style.display === 'none' ? 'block' : 'none');
+            window.ZenWriterPanels.togglePanel(panelId);
             return;
           }
 
           var container = document.createElement('div');
-          container.id = 'structure-floating-gadgets-panel';
+          container.id = tabId + '-floating-gadgets-panel';
           container.className = 'gadgets-panel';
-          container.dataset.gadgetGroup = 'structure';
-          container.setAttribute('aria-label', '構造ガジェット (フローティングPoC)');
+          container.dataset.gadgetGroup = tabConfig.group;
+          container.setAttribute('aria-label', tabConfig.label + 'ガジェット (フローティング)');
 
-          var panel = window.ZenWriterPanels.createDockablePanel('structure-floating-panel', '構造 (パネルPoC)', container);
+          var panel = window.ZenWriterPanels.createDockablePanel(panelId, tabConfig.label, container, { width: 320 });
 
           var floatingContainer = document.getElementById('floating-panels');
           if (!floatingContainer) {
@@ -345,9 +375,20 @@
           floatingContainer.appendChild(panel);
 
           if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
-            window.ZWGadgets.init('#structure-floating-gadgets-panel', { group: 'structure' });
+            window.ZWGadgets.init('#' + container.id, { group: tabConfig.group });
           }
         } catch (_) {}
+      }
+
+      floatBtn.addEventListener('click', function() {
+        createOrToggleFloatingPanel(floatTabSelect.value);
+      });
+
+      floatCloseBtn.addEventListener('click', function() {
+        var panelId = floatTabSelect.value + '-floating-panel';
+        if (window.ZenWriterPanels) {
+          window.ZenWriterPanels.hidePanel(panelId);
+        }
       });
 
       root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);

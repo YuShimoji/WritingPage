@@ -218,27 +218,30 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - Wiki: サイドバーの Wiki タブには物語Wikiガジェットのみを表示し、Reference 系ヘルプは `docs/editor-help.html` / `docs/wiki-help.html` など docs 配下のドキュメントに集約
 
 ## 次の作業
-- UIアーキテクチャの詳細化と実装
-  - GadgetContainer の開閉・フローティング管理を強化
-  - EditorArea 分割・レイアウト保存形式の定義
-  - FAB Layer の設定UIからの編集機能を追加
-- Wiki/ガジェットまわりの整理
-  - `gadgets.js` のロードアウトおよびグループ処理を再確認し、`SceneGradient` が `structure` ガジェットとして常に期待通り表示されることを保証
-  - 物語Wikiに混入している既存のヘルプ系Wikiページ（`help-*`）のストレージ整理（必要であればマイグレーション/クリーンアップ方針を検討）
-- 統合テストとドキュメント更新
-  - 全体の Lint/Smoke/E2E テスト実行（MarkdownLintエラーについては別Issueで追跡継続）
-  - UI_ARCHITECTURE.md / GADGETS.md / wiki-help.html などドキュメントの整合性確認
-- 長期的な拡張
-  - 動画背景・Canvasパターンの別ガジェット化
-  - プリセット・フォルダによるUI設定の保存・切り替え
-- コード品質向上
-  - 大きなファイルのリファクタリング（gadgets.js, app.js など）
-  - E2Eテストの現行実装対応修正（HUD, Wiki, Theme など）
-- UIモード実装（Normal/Focus/Blank）
-  - settings.ui.mode と data-ui-mode 属性によるモード切り替え
-- **未実装機能の総ざらいと次期フェーズ整理**
-  - BACKLOG.md の未完了項目をフェーズ/カテゴリ別に整理
-  - 次期フェーズ候補を明示し、優先度付け
+
+### 優先: Phase E-2 フローティングパネル本実装
+- 状態保存（位置・サイズ・開閉状態）を settings に永続化
+- 初期表示位置の最適化（画面中央寄せ）
+- 全タブ対応（structure / typography / assist / wiki）
+- 透明度調整UI（任意）
+
+### UIアーキテクチャの詳細化
+- GadgetContainer の開閉・フローティング管理を強化（Phase E と連携）
+- EditorArea 分割・レイアウト保存形式の定義
+- FAB Layer の設定UIからの編集機能を追加
+
+### Wiki/ガジェットまわりの整理
+- 物語Wikiに混入している既存のヘルプ系Wikiページ（`help-*`）のストレージ整理
+
+### コード品質向上
+- 大きなファイルのリファクタリング（gadgets.js, app.js など）
+- ESLint/Prettier 導入検討
+- E2Eテストの現行実装対応修正（HUD, Wiki, Theme など）
+
+### 長期的な拡張
+- 動画背景・Canvasパターンの別ガジェット化
+- Typora風ツリーペイン（ドキュメント管理統合）
+- プラグイン拡張システム
 
 ## 注意点
 - e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
