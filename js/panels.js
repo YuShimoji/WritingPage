@@ -88,16 +88,13 @@
     panel.id = id;
     panel.dataset.panelId = id;
 
-    // 保存された状態を復元、または初期位置を設定
     const savedState = getPanelState(id);
     const defaultSize = { width: options.width || 320, height: options.height || 400 };
     let initialPos;
 
     if (savedState && savedState.left !== undefined && savedState.top !== undefined) {
-      // 保存された位置を使用
       initialPos = { left: savedState.left, top: savedState.top };
     } else if (options.centered !== false) {
-      // デフォルトで画面中央に配置
       initialPos = getCenteredPosition(defaultSize.width, defaultSize.height);
     } else {
       initialPos = { left: options.left || 100, top: options.top || 100 };
@@ -112,8 +109,8 @@
     header.className = 'panel-header';
 
     const titleEl = document.createElement('span');
-    titleEl.textContent = title;
-    // Ensure title element has a stable id for aria-labelledby
+    const panelTitle = savedState && typeof savedState.title === 'string' && savedState.title ? savedState.title : title;
+    titleEl.textContent = panelTitle;
     try { titleEl.id = id + '-title'; } catch(e) { void e; }
     header.appendChild(titleEl);
 
@@ -150,8 +147,21 @@
     }
     panel.appendChild(body);
 
-    // ドラッグ可能にする
     makeDraggable(panel, header);
+
+    function renamePanel() {
+      let current = titleEl.textContent || '';
+      const next = window.prompt(current, current);
+      if (!next) return;
+      const trimmed = String(next).trim();
+      if (!trimmed) return;
+      titleEl.textContent = trimmed;
+      savePanelState(id, { title: trimmed });
+    }
+
+    titleEl.addEventListener('dblclick', function () {
+      renamePanel();
+    });
 
     return panel;
   }
