@@ -63,14 +63,19 @@
       themeButtons.style.gap = '6px';
       themeButtons.style.flexWrap = 'wrap';
 
-      var themePresets = [
-        { key: 'light', label: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト' },
-        { key: 'dark', label: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク' },
-        { key: 'night', label: (window.UILabels && window.UILabels.THEME_NAME_NIGHT) || 'ナイト' },
-        { key: 'sepia', label: (window.UILabels && window.UILabels.THEME_NAME_SEPIA) || 'セピア' },
-        { key: 'high-contrast', label: (window.UILabels && window.UILabels.THEME_NAME_HIGH_CONTRAST) || '高コントラスト' },
-        { key: 'solarized', label: (window.UILabels && window.UILabels.THEME_NAME_SOLARIZED) || 'ソラリゼド' }
-      ];
+      // ThemeRegistry からプリセット一覧を取得（フォールバック付き）
+      var themePresets = (window.ThemeRegistry && typeof window.ThemeRegistry.listPresets === 'function')
+        ? window.ThemeRegistry.listPresets().map(function (p) {
+            return { key: p.id, label: window.ThemeRegistry.getLabel(p.id) };
+          })
+        : [
+            { key: 'light', label: (window.UILabels && window.UILabels.THEME_NAME_LIGHT) || 'ライト' },
+            { key: 'dark', label: (window.UILabels && window.UILabels.THEME_NAME_DARK) || 'ダーク' },
+            { key: 'night', label: (window.UILabels && window.UILabels.THEME_NAME_NIGHT) || 'ナイト' },
+            { key: 'sepia', label: (window.UILabels && window.UILabels.THEME_NAME_SEPIA) || 'セピア' },
+            { key: 'high-contrast', label: (window.UILabels && window.UILabels.THEME_NAME_HIGH_CONTRAST) || '高コントラスト' },
+            { key: 'solarized', label: (window.UILabels && window.UILabels.THEME_NAME_SOLARIZED) || 'ソラリゼド' }
+          ];
 
       themePresets.forEach(function (preset) {
         var btn = document.createElement('button');
@@ -206,17 +211,23 @@
             bgInput.value = latest.bgColor;
             textInput.value = latest.textColor;
           } else {
-            // テーマの既定色を使用
+            // テーマの既定色を使用（ThemeRegistry 経由、フォールバック付き）
             var currentTheme = latest.theme || 'light';
-            var themeColors = {
-              light: { bg: '#ffffff', text: '#333333' },
-              dark: { bg: '#1e1e1e', text: '#e0e0e0' },
-              night: { bg: '#262626', text: '#e5e5e5' },
-              sepia: { bg: '#f4ecd8', text: '#5b4636' },
-              'high-contrast': { bg: '#000000', text: '#ffffff' },
-              solarized: { bg: '#fdf6e3', text: '#586e75' }
-            };
-            var themeColor = themeColors[currentTheme] || themeColors.light;
+            var themeColor;
+            if (window.ThemeRegistry && typeof window.ThemeRegistry.getColors === 'function') {
+              var colors = window.ThemeRegistry.getColors(currentTheme);
+              themeColor = { bg: colors.bgColor, text: colors.textColor };
+            } else {
+              var fallbackColors = {
+                light: { bg: '#ffffff', text: '#333333' },
+                dark: { bg: '#1e1e1e', text: '#e0e0e0' },
+                night: { bg: '#262626', text: '#e5e5e5' },
+                sepia: { bg: '#f4ecd8', text: '#5b4636' },
+                'high-contrast': { bg: '#000000', text: '#ffffff' },
+                solarized: { bg: '#fdf6e3', text: '#586e75' }
+              };
+              themeColor = fallbackColors[currentTheme] || fallbackColors.light;
+            }
             bgInput.value = themeColor.bg;
             textInput.value = themeColor.text;
           }

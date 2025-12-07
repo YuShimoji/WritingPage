@@ -364,6 +364,42 @@ class EditorManager {
         this.updateWordCount();
     }
 
+    getSelectionRange() {
+        if (!this.editor) return { start: 0, end: 0 };
+        return {
+            start: this.editor.selectionStart || 0,
+            end: this.editor.selectionEnd || 0
+        };
+    }
+
+    getSelectedText() {
+        if (!this.editor) return '';
+        const range = this.getSelectionRange();
+        if (range.start === range.end) return '';
+        const value = this.editor.value || '';
+        return value.substring(range.start, range.end);
+    }
+
+    wrapSelection(prefix, suffix = prefix) {
+        if (!this.editor) return;
+        const el = this.editor;
+        const start = el.selectionStart || 0;
+        const end = el.selectionEnd || 0;
+        if (start === end) return;
+        const value = el.value || '';
+        const before = value.slice(0, start);
+        const middle = value.slice(start, end);
+        const after = value.slice(end);
+        el.value = before + prefix + middle + suffix + after;
+        const newStart = start + prefix.length;
+        const newEnd = newStart + middle.length;
+        el.selectionStart = newStart;
+        el.selectionEnd = newEnd;
+        el.focus();
+        this.saveContent();
+        this.updateWordCount();
+    }
+
     setupImageHandlers() {
         if (!this.editor) return;
         this.editor.addEventListener('paste', (e) => this.handlePasteEvent(e));
@@ -394,202 +430,69 @@ class EditorManager {
     }
 
     handlePasteEvent(event) {
-        const items = event.clipboardData && event.clipboardData.items;
-        if (!items || !items.length) return;
-        const imageFiles = Array.from(items)
-            .filter((item) => item.kind === 'file' && item.type && item.type.startsWith('image/'))
-            .map((item) => item.getAsFile())
-            .filter(Boolean);
-        if (!imageFiles.length) return;
-        event.preventDefault();
-        this.insertImagesSequentially(imageFiles);
+        if (typeof editorImages_handlePasteEvent === 'function') {
+            return editorImages_handlePasteEvent(this, event);
+        }
     }
 
     handleDragOver(event) {
-        if (!event.dataTransfer) return;
-        if (Array.from(event.dataTransfer.types || []).includes('Files')) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = 'copy';
-            this.editor.classList.add(this.dropIndicatorClass);
+        if (typeof editorImages_handleDragOver === 'function') {
+            return editorImages_handleDragOver(this, event);
         }
     }
 
     handleDragLeave(event) {
-        if (event.relatedTarget === this.editor) return;
-        this.editor.classList.remove(this.dropIndicatorClass);
+        if (typeof editorImages_handleDragLeave === 'function') {
+            return editorImages_handleDragLeave(this, event);
+        }
     }
 
     handleDropEvent(event) {
-        if (!event.dataTransfer) return;
-        const files = Array.from(event.dataTransfer.files || []).filter((file) => file.type && file.type.startsWith('image/'));
-        if (!files.length) {
-            this.editor.classList.remove(this.dropIndicatorClass);
-            return;
+        if (typeof editorImages_handleDropEvent === 'function') {
+            return editorImages_handleDropEvent(this, event);
         }
-        event.preventDefault();
-        this.editor.classList.remove(this.dropIndicatorClass);
-        this.editor.focus();
-        this.insertImagesSequentially(files);
     }
 
     insertImagesSequentially(files, index = 0) {
-        if (!files || index >= files.length) return;
-        this.insertImageFile(files[index])
-            .catch(() => {
-                this.showNotification('画像の挿入に失敗しました');
-            })
-            .finally(() => {
-                this.insertImagesSequentially(files, index + 1);
-            });
+        if (typeof editorImages_insertImagesSequentially === 'function') {
+            return editorImages_insertImagesSequentially(this, files, index);
+        }
     }
 
     insertImageFile(file) {
-        return new Promise((resolve, reject) => {
-            if (!file) { resolve(); return; }
-            const reader = new FileReader();
-            const selection = {
-                start: this.editor.selectionStart,
-                end: this.editor.selectionEnd
-            };
-            reader.onload = () => {
-                try {
-                    const dataUrl = reader.result;
-                    const markdown = this.buildAssetAwareMarkdown({
-                        dataUrl,
-                        file,
-                        selectionStart: selection.start
-                    });
-                    this.insertTextAtCursor(markdown, selection);
-                    if (typeof this.showNotification === 'function') {
-                        this.showNotification('画像を挿入しました', 1500);
-                    }
-                    this.renderImagePreview();
-                    resolve();
-                } catch (err) {
-                    reject(err);
-                }
-            };
-            reader.onerror = reject;
-            try {
-                reader.readAsDataURL(file);
-            } catch (err) {
-                reject(err);
-            }
-        });
+        if (typeof editorImages_insertImageFile === 'function') {
+            return editorImages_insertImageFile(this, file);
+        }
+        return Promise.resolve();
     }
 
-    buildAssetAwareMarkdown({ dataUrl, file, selectionStart }) {
-        const before = this.editor.value.substring(0, selectionStart || 0);
-        const prefix = before && !/\n$/.test(before) ? '\n\n' : '';
-        const suffix = '\n\n';
-        const alt = this.deriveAltText(file && file.name);
-        let link = dataUrl;
-        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveAssetFromDataUrl === 'function') {
-            const asset = window.ZenWriterStorage.saveAssetFromDataUrl(dataUrl, {
-                name: alt,
-                fileName: file && file.name,
-                type: file && file.type,
-                size: file && file.size
-            });
-            if (asset && asset.id) {
-                link = `asset://${asset.id}`;
-            }
+    buildAssetAwareMarkdown(args) {
+        if (typeof editorImages_buildAssetAwareMarkdown === 'function') {
+            return editorImages_buildAssetAwareMarkdown(this, args || {});
         }
-        return `${prefix}![${alt}](${link})${suffix}`;
+        return '';
     }
 
     deriveAltText(fileName) {
+        if (typeof editorImages_deriveAltText === 'function') {
+            return editorImages_deriveAltText(fileName);
+        }
         const base = fileName ? String(fileName).replace(/\.[^.]+$/, '') : 'image';
         const sanitized = base.replace(/[_`*\[\]{}()#!|<>]/g, ' ').trim();
         return sanitized || 'image';
     }
 
     convertLegacyImageEmbeds(content) {
-        if (!content || content.indexOf('data:image') === -1) {
-            return content;
-        }
-        if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.saveAssetFromDataUrl !== 'function') {
-            return content;
-        }
-        const pattern = /!\[([^\]]*)\]\((data:image\/[^)]+)\)/g;
-        let changed = false;
-        const replaced = content.replace(pattern, (match, alt, dataUrl) => {
-            const asset = window.ZenWriterStorage.saveAssetFromDataUrl(dataUrl, { name: alt || 'image' });
-            if (!asset || !asset.id) {
-                return match;
-            }
-            changed = true;
-            const safeAlt = (alt || '').trim();
-            return `![${safeAlt}](asset://${asset.id})`;
-        });
-        if (changed) {
-            this.updateStorageContentAfterMigration(replaced);
-            return replaced;
+        if (typeof editorImages_convertLegacyImageEmbeds === 'function') {
+            return editorImages_convertLegacyImageEmbeds(this, content);
         }
         return content;
     }
 
     renderImagePreview() {
-        if (!this.imagesPreviewPanel) return;
-        const content = this.editor.value || '';
-        const regex = /!\[[^\]]*\]\(asset:\/\/([^\s)]+)\)/g;
-        const matches = Array.from(content.matchAll(regex));
-        this.imagesPreviewPanel.innerHTML = '';
-
-        if (!matches.length) {
-            const hint = document.createElement('div');
-            hint.className = 'preview-empty-hint';
-            hint.textContent = '画像はまだ挿入されていません。画像を貼り付けるとここに一覧表示されます。';
-            this.imagesPreviewPanel.appendChild(hint);
-            if (this.editorOverlay) this.editorOverlay.innerHTML = '';
-            this._lastOverlayEntries = [];
-            return;
+        if (typeof editorImages_renderImagePreview === 'function') {
+            return editorImages_renderImagePreview(this);
         }
-
-        const storage = window.ZenWriterStorage;
-        const assets = (storage && typeof storage.loadAssets === 'function') ? storage.loadAssets() : {};
-
-        const list = document.createElement('div');
-        list.className = 'editor-preview__items';
-
-        const orderedEntries = [];
-        matches.forEach((match, index) => {
-            const assetId = match[1];
-            const asset = assets[assetId];
-            if (!asset || !asset.dataUrl) return;
-            orderedEntries.push({
-                assetId,
-                asset,
-                matchIndex: index,
-                matchStart: typeof match.index === 'number' ? match.index : content.indexOf(match[0]),
-                matchLength: match[0].length
-            });
-            const card = this.createPreviewCard({ assetId, asset, matchIndex: index });
-            if (card) list.appendChild(card);
-        });
-
-        if (!list.childElementCount) {
-            const warn = document.createElement('div');
-            warn.className = 'preview-warning';
-            warn.textContent = 'アセット情報が見つからない画像があります。必要であれば再読み込みしてください。';
-            this.imagesPreviewPanel.appendChild(warn);
-            if (this.editorOverlay) this.editorOverlay.innerHTML = '';
-            this._lastOverlayEntries = [];
-            return;
-        }
-
-        this.imagesPreviewPanel.appendChild(list);
-
-        if (storage && typeof storage.updateAssetMeta === 'function') {
-            orderedEntries.forEach((entry, order) => {
-                if (typeof entry.asset.order !== 'number' || entry.asset.order !== order) {
-                    storage.updateAssetMeta(entry.assetId, { order });
-                }
-            });
-        }
-
-        this._lastOverlayEntries = orderedEntries;
-        this.renderOverlayImages(orderedEntries, content);
     }
 
     /**
@@ -597,12 +500,7 @@ class EditorManager {
      * 高頻度で呼ばれる input イベント等で使用
      */
     renderMarkdownPreview() {
-        if (this._markdownPreviewDebounceTimer) {
-            clearTimeout(this._markdownPreviewDebounceTimer);
-        }
-        this._markdownPreviewDebounceTimer = setTimeout(() => {
-            this._renderMarkdownPreviewImmediate();
-        }, this._MARKDOWN_PREVIEW_DEBOUNCE_DELAY);
+        editorPreview_renderMarkdownPreview(this);
     }
 
     /**
@@ -611,49 +509,7 @@ class EditorManager {
      * morphdom による差分適用でスクロール位置・フォーカスを保持
      */
     _renderMarkdownPreviewImmediate() {
-        if (!this.markdownPreviewPanel || !this.editor) return;
-        const src = this.editor.value || '';
-
-        let html = '';
-        try {
-            if (window.markdownit) {
-                if (!this._markdownRenderer) {
-                    this._markdownRenderer = window.markdownit({
-                        html: false,
-                        linkify: true,
-                        breaks: true,
-                    });
-                }
-                html = this._markdownRenderer.render(src);
-            } else {
-                // フォールバック: エスケープ + 改行を <br> に変換
-                html = (src || '')
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/\n/g, '<br>');
-            }
-        } catch (e) {
-            html = '';
-        }
-
-        // morphdom による差分適用（スクロール位置・フォーカス保持）
-        if (window.morphdom) {
-            const tempContainer = document.createElement('div');
-            tempContainer.innerHTML = html;
-            try {
-                window.morphdom(this.markdownPreviewPanel, tempContainer, {
-                    childrenOnly: true  // コンテナ自体は変更せず、子要素のみ更新
-                });
-            } catch (morphErr) {
-                // morphdom エラー時はフォールバック
-                console.warn('morphdom error, falling back to innerHTML:', morphErr);
-                this.markdownPreviewPanel.innerHTML = html;
-            }
-        } else {
-            // morphdom 未ロード時はフォールバック
-            this.markdownPreviewPanel.innerHTML = html;
-        }
+        editorPreview_renderMarkdownPreviewImmediate(this);
     }
 
     createPreviewCard({ assetId, asset, matchIndex }) {
@@ -773,200 +629,47 @@ class EditorManager {
     }
 
     replaceOverlayButtonsWithIcons() {
-        if (!window.WritingIcons) return;
-
-        const toggles = this.editorOverlay.querySelectorAll('.overlay-toggle');
-        toggles.forEach(toggle => {
-            const isHidden = toggle.textContent.includes('表示');
-            toggle.innerHTML = '';
-            const icon = window.WritingIcons.createIcon(
-                isHidden ? 'eyeOff' : 'eye',
-                { size: 16, label: isHidden ? '表示する' : '隠す' }
-            );
-            toggle.appendChild(icon);
-        });
+        if (typeof window.editorOverlays_replaceOverlayButtonsWithIcons === 'function') {
+            return window.editorOverlays_replaceOverlayButtonsWithIcons(this);
+        }
     }
 
     scheduleOverlayRefresh() {
-        if (this._overlayRenderFrame) {
-            cancelAnimationFrame(this._overlayRenderFrame);
+        if (typeof window.editorOverlays_scheduleOverlayRefresh === 'function') {
+            return window.editorOverlays_scheduleOverlayRefresh(this);
         }
-        this._overlayRenderFrame = requestAnimationFrame(() => {
-            this._overlayRenderFrame = null;
-            const entries = Array.isArray(this._lastOverlayEntries) ? this._lastOverlayEntries : [];
-            this.renderOverlayImages(entries, this.editor.value || '');
-        });
     }
 
     renderOverlayImages(entries, content) {
-        if (!this.editorOverlay || !this.editorMirror) return;
-        this.editorOverlay.innerHTML = '';
-        const _entries = Array.isArray(entries) ? entries : [];
-        this.editorMirror.innerHTML = this.buildMirrorHtml(content);
-        const style = window.getComputedStyle(this.editor);
-        const padding = {
-            top: parseFloat(style.paddingTop) || 0,
-            right: parseFloat(style.paddingRight) || 0,
-            bottom: parseFloat(style.paddingBottom) || 0,
-            left: parseFloat(style.paddingLeft) || 0
-        };
-        const usableWidth = this.editor.clientWidth - padding.left - padding.right;
-        _entries.forEach((entry) => {
-            const asset = entry.asset;
-            if (!asset || !asset.dataUrl) return;
-            const anchor = this.editorMirror.querySelector(`span[data-asset-id="${entry.assetId}"]`);
-            if (!anchor) return;
-
-            const overlay = document.createElement('div');
-            overlay.className = 'editor-overlay__image';
-            overlay.dataset.assetId = entry.assetId;
-            overlay.dataset.alignment = asset.alignment || 'auto';
-            if (asset.hidden) overlay.classList.add('hidden');
-
-            const widthPercent = Math.min(100, Math.max(10, asset.widthPercent || 60));
-            const widthPx = Math.max(40, Math.round(usableWidth * (widthPercent / 100)));
-
-            // 画像を左寄せに固定（エディタ拡大時の上書きを防ぐ）
-            let left = padding.left;
-
-            const top = anchor.offsetTop - this.editor.scrollTop + (asset.offsetY || 0);
-
-            overlay.style.left = `${left}px`;
-            overlay.style.top = `${top}px`;
-            overlay.style.width = `${widthPx}px`;
-
-            const img = document.createElement('img');
-            img.src = asset.dataUrl;
-            img.alt = asset.name || '';
-            overlay.appendChild(img);
-
-            const toggle = document.createElement('button');
-            toggle.type = 'button';
-            toggle.className = 'overlay-toggle';
-            toggle.title = asset.hidden ? '表示する' : '隠す';
-            toggle.textContent = asset.hidden ? '表示' : '隠す';
-            toggle.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.persistAssetMeta(entry.assetId, { hidden: !asset.hidden });
-            });
-            overlay.appendChild(toggle);
-
-            const handle = document.createElement('div');
-            handle.className = 'overlay-handle';
-            handle.textContent = '↔';
-            overlay.appendChild(handle);
-
-            this.attachOverlayInteractions({ overlay, assetId: entry.assetId, handle });
-
-            this.editorOverlay.appendChild(overlay);
-        });
-
-        // Replace text buttons with icons
-        this.replaceOverlayButtonsWithIcons();
-
-        const stamps = Array.isArray(this.inlineStamps) ? this.inlineStamps : [];
-        stamps.forEach((st) => {
-            const rect = this.getTextPosition(Math.max(0, st.start), Math.max(st.start, st.end));
-            if (!rect) return;
-            const el = document.createElement('div');
-            el.className = 'editor-overlay__stamp inline-stamp';
-            el.textContent = `文字数: ${st.count}`;
-            el.style.left = (rect.left + rect.width + 8) + 'px';
-            el.style.top = rect.top + 'px';
-            this.editorOverlay.appendChild(el);
-        });
+        if (typeof window.editorOverlays_renderOverlayImages === 'function') {
+            return window.editorOverlays_renderOverlayImages(this, entries, content);
+        }
     }
 
-    attachOverlayInteractions({ overlay, assetId, handle }) {
-        overlay.style.pointerEvents = 'auto';
-        overlay.style.cursor = 'move';
-
-        overlay.addEventListener('pointerdown', (event) => {
-            if (event.target === handle || event.target.classList.contains('overlay-toggle')) {
-                return;
-            }
-            if (overlay.classList.contains('hidden')) return;
-            event.preventDefault();
-            this.startOverlayDrag({ overlay, assetId, event });
-        });
-
-        handle.addEventListener('pointerdown', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            if (overlay.classList.contains('hidden')) return;
-            this.startOverlayResize({ overlay, assetId, event });
-        });
+    attachOverlayInteractions(args) {
+        if (typeof window.editorOverlays_attachOverlayInteractions === 'function') {
+            return window.editorOverlays_attachOverlayInteractions(this, args || {});
+        }
     }
 
-    startOverlayDrag({ overlay, assetId, event }) {
-        const pointerId = event.pointerId;
-        overlay.setPointerCapture(pointerId);
-        const startY = event.clientY;
-        const startTop = parseFloat(overlay.style.top) || 0;
-
-        const move = (ev) => {
-            const deltaY = ev.clientY - startY;
-            overlay.style.top = `${startTop + deltaY}px`;
-        };
-
-        const end = (_ev) => {
-            overlay.removeEventListener('pointermove', move);
-            overlay.removeEventListener('pointerup', end);
-            try { overlay.releasePointerCapture(pointerId); } catch (_) {}
-            const finalTop = parseFloat(overlay.style.top) || startTop;
-            const delta = Math.round(finalTop - startTop);
-            const asset = this.getAsset(assetId);
-            const base = asset && typeof asset.offsetY === 'number' ? asset.offsetY : 0;
-            this.persistAssetMeta(assetId, { offsetY: base + delta });
-        };
-
-        overlay.addEventListener('pointermove', move);
-        overlay.addEventListener('pointerup', end);
+    startOverlayDrag(args) {
+        if (typeof window.editorOverlays_startOverlayDrag === 'function') {
+            return window.editorOverlays_startOverlayDrag(this, args || {});
+        }
     }
 
-    startOverlayResize({ overlay, assetId, event }) {
-        const pointerId = event.pointerId;
-        overlay.setPointerCapture(pointerId);
-        const startX = event.clientX;
-        const startWidth = parseFloat(overlay.style.width) || 0;
-        const style = window.getComputedStyle(this.editor);
-        const paddingLeft = parseFloat(style.paddingLeft) || 0;
-        const paddingRight = parseFloat(style.paddingRight) || 0;
-        const usableWidth = this.editor.clientWidth - paddingLeft - paddingRight;
-
-        const move = (ev) => {
-            const delta = ev.clientX - startX;
-            const next = Math.max(40, startWidth + delta);
-            overlay.style.width = `${next}px`;
-        };
-
-        const end = (_ev) => {
-            overlay.removeEventListener('pointermove', move);
-            overlay.removeEventListener('pointerup', end);
-            try { overlay.releasePointerCapture(pointerId); } catch (_) {}
-            const finalWidth = parseFloat(overlay.style.width) || startWidth;
-            const percent = Math.max(10, Math.min(100, Math.round((finalWidth / usableWidth) * 100)));
-            this.persistAssetMeta(assetId, { widthPercent: percent });
-        };
-
-        overlay.addEventListener('pointermove', move);
-        overlay.addEventListener('pointerup', end);
+    startOverlayResize(args) {
+        if (typeof window.editorOverlays_startOverlayResize === 'function') {
+            return window.editorOverlays_startOverlayResize(this, args || {});
+        }
     }
 
     buildMirrorHtml(content) {
-        if (!content) return '';
-        const regex = /!\[[^\]]*\]\(asset:\/\/([^\s)]+)\)/g;
-        let lastIndex = 0;
-        let html = '';
-        let match;
-        while ((match = regex.exec(content)) !== null) {
-            const before = content.slice(lastIndex, match.index);
-            html += this.processFontDecorations(this.processTextAnimations(this.escapeHtml(before))).replace(/\n/g, '<br>');
-            html += `<span class="mirror-asset" data-asset-id="${match[1]}">&#8203;</span>`;
-            lastIndex = match.index + match[0].length;
+        if (typeof window.editorOverlays_buildMirrorHtml === 'function') {
+            return window.editorOverlays_buildMirrorHtml(this, content);
         }
-        html += this.processFontDecorations(this.processTextAnimations(this.escapeHtml(content.slice(lastIndex)))).replace(/\n/g, '<br>');
-        return html;
+        const safe = this.escapeHtml(content || '');
+        return safe.replace(/\n/g, '<br>');
     }
 
     escapeHtml(text) {

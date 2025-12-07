@@ -1,17 +1,17 @@
 // テーマ管理クラス
 class ThemeManager {
   constructor() {
-    // テーマごとの既定色
-    this.themeColors = {
-      light: { bgColor: '#ffffff', textColor: '#333333' },
-      dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
-      night: { bgColor: '#262626', textColor: '#e5e5e5' },
-      sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' },
-      midnight: { bgColor: '#0f0f23', textColor: '#cccccc' },
-      charcoal: { bgColor: '#2d3748', textColor: '#e2e8f0' },
-      abyss: { bgColor: '#0a0a0a', textColor: '#d4d4d4' },
-      'deep-space': { bgColor: '#001122', textColor: '#a0c4ff' }
-    };
+    // テーマごとの既定色（ThemeRegistry から取得、フォールバック付き）
+    this.themeColors = (window.ThemeRegistry && typeof window.ThemeRegistry.toThemeColorsMap === 'function')
+      ? window.ThemeRegistry.toThemeColorsMap()
+      : {
+          light: { bgColor: '#ffffff', textColor: '#333333' },
+          dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+          night: { bgColor: '#262626', textColor: '#e5e5e5' },
+          sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' },
+          'high-contrast': { bgColor: '#000000', textColor: '#ffffff' },
+          solarized: { bgColor: '#fdf6e3', textColor: '#586e75' }
+        };
     
     this.settings = window.ZenWriterStorage.loadSettings();
     // 最初にテーマを適用

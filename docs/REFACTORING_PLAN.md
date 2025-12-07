@@ -143,3 +143,71 @@ js/
 - **段階的移行**: 一度に大きな変更を避け、小さなコミットで進める
 - **テスト駆動**: 変更前後でテストを実行し、リグレッションを防止
 - **バックアップ**: 主要な変更前にブランチを作成
+
+## 6. editor.js / app.js 分割方針（ドラフト）
+
+### 6.1 目標と制約
+
+- 目標行数: 各ファイル 500 行程度を目安に、責務ごとに分割する。
+- 互換性: `window.ZenWriterEditor` / 既存のグローバル関数・ショートカットの挙動は維持する（呼び出し側 API は極力変更しない）。
+- 段階的移行: まずは「中身を別ファイルに移す」形でラップし、最終的に app.js から責務を徐々に削っていく。
+
+### 6.2 editor.js 分割案
+
+現状の EditorManager（単一ファイル 1763 行）を、主に以下の責務に分割する想定。
+
+- `editor-core.js`
+  - EditorManager 本体のコンストラクタ
+  - コンテンツロード/保存、カーソル位置/スクロール位置の復元
+  - 基本的な入力ハンドラ（input, keydown など）と `updateWordCount()` まわり
+- `editor-preview.js`
+  - Markdown レンダリング、デバウンス版/即時版のプレビュー更新
+  - morphdom ベースの差分適用処理
+- `editor-search.js`
+  - エディタ内検索/置換 UI とマッチリスト管理
+  - `getTextPosition()` を含む検索用ハイライト座標計算
+- `editor-overlays.js`
+  - エディタオーバーレイ（文字数スタンプ等）の描画・更新
+  - スクロール/リサイズ時の overlay 再配置ロジック
+- `editor-images.js`
+  - 画像ペースト/ドラッグ&ドロップ処理
+  - 画像挿入キューやストレージ連携（あれば）
+
+移行ステップ（例）:
+
+1. 既存 editor.js から、明確に独立している関数群（画像処理、検索 UI など）をそのままコピーし、新ファイルにモジュールとして切り出す。
+2. editor.js 側には「インポート＋薄い委譲関数」のみを残し、外部 API (`window.ZenWriterEditor`) は維持する。
+3. 開発サーバー＋ `npm run test:smoke` で挙動確認。
+4. 安定後、徐々に editor.js 本体からロジックを削除し、「EditorManager 定義＋エントリポイント」程度の薄いファイルに縮小していく。
+
+**進捗メモ（2025-12-07〜2025-12-08 時点）**
+- `editor-preview.js` に Markdown プレビュー処理を抽出し、EditorManager からは `editorPreview_renderMarkdownPreview*` を経由して委譲。
+- `editor-images.js` に画像ペースト/ドラッグ&ドロップ、画像挿入用 Markdown 生成、旧 `data:image` 埋め込みの Asset 化、および画像プレビュー生成処理を抽出し、EditorManager からは薄いラッパーのみ残す構成に変更。
+- `editor-overlays.js` にオーバーレイ描画（画像オーバーレイ・インラインスタンプ）、ドラッグ/リサイズハンドラ、mirror HTML 構築処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
+- 各抽出ステップ後に `npm run test:smoke` を実行し、最新状態でも **ALL TESTS PASSED** を確認済み。
+
+### 6.3 app.js 分割案
+
+app.js（1437 行）についても、以下のような UI レイヤ別の分割を想定する。
+
+- `app-core.js`
+  - DOMContentLoaded 相当のエントリポイント
+  - ElementManager の初期化とグローバル設定ロード
+- `app-layout.js`
+  - サイドバー開閉、UI モード (Normal/Focus/Blank) 切り替え
+  - ツールバー/ヘッダー/FAB の表示制御
+- `app-gadgets-bridge.js`
+  - Gadgets 系モジュールとのブリッジ（ロードアウト初期化、パネルへのガジェット割り当て）
+- `app-editor-bridge.js`
+  - EditorManager との接続（ショートカット、HUD/プレビューとの連携）
+  - Selection Tooltip など Editor 依存 UI の初期化
+- `app-embed.js`
+  - 埋め込みモード（`embed=1`）関連の軽量初期化ロジック
+
+移行ステップ（例）:
+
+1. app.js の末尾にある初期化処理を `app-core.js` に移し、app.js 側は「レガシー互換レイヤ」として段階的に薄くしていく。
+2. サイドバー/ツールバーなどレイアウト系の関数群を `app-layout.js` に移動し、依存するグローバル変数・セレクタを最小限のインポートで受け取る構造に変更。
+3. Gadgets 初期化・ロードアウト処理を `app-gadgets-bridge.js` に移し、将来的にガジェット側からも再利用しやすい形にする。
+4. Editor 関連のショートカット・HUD 接続・Selection Tooltip 初期化を `app-editor-bridge.js` に分離し、editor.js の分割結果と合わせて責務境界を明確化。
+5. 各ステップごとに `npm run test:smoke` を実行し、Phase ごとの安定ポイントを HANDOVER / AI_CONTEXT に記録する。

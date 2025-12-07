@@ -223,6 +223,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - ✅ 状態保存（位置・サイズ・開閉状態）を settings に永続化
 - ✅ 初期表示位置の最適化（画面中央寄せ）
 - ✅ 全タブ対応（structure / typography / assist / wiki）
+- ✅ パネルタイトルのユーザー編集（ダブルクリックで変更・タイトル永続化）
 - 透明度調整UI・ショートカットキー（任意・次期対応）
 
 ### 優先: UIアーキテクチャの詳細化
@@ -437,3 +438,52 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - 執筆エリア（本文）の配色・装飾  
   を別レイヤーとして扱い、テーマプリセットは主に UI 側のトーン/コントラストを制御し、本文のスタイルは Visual Profile や別ガジェット側で管理するのが望ましい。  
 - このため、`docs/BACKLOG.md` に「テーマプリセット拡張のための集中管理機構」「UI配色と執筆エリア配色の分離」を追加タスクとして明示し、今後の設計リファインで対応する方針。
+
+### 18. Selection Tooltip v1 実装（2025-12-05）
+
+- 目的: `textarea` ベースのエディタで、テキスト選択に連動した最小限の Markdown 装飾/挿入操作を Quick Actions として提供する。仕様は `docs/EDITOR_EXTENSIONS.md` に準拠。
+- 実装内容:
+  - `js/editor.js`
+    - 選択範囲ヘルパを追加: `getSelectionRange()`, `getSelectedText()`, `wrapSelection(prefix, suffix = prefix)`。
+    - 既存の `insertTextAtCursor()` と同様に、編集後に `saveContent()` と `updateWordCount()` を呼び出すことで、一貫した保存/カウント更新フローを維持。
+  - `js/app.js`
+    - `initSelectionTooltip()` を追加し、`window.ZenWriterEditor` と `getTextPosition()` を利用して選択範囲上部に `position: fixed` のツールチップを表示。
+    - v1 で提供するアクション: 太字/斜体/取り消し線（wrapSelection）、リンク/画像/区切り線/ルビ（簡易ダイアログ + Markdown テンプレート挿入）。
+    - 表示条件: `selectionStart !== selectionEnd` かつエディタにフォーカスがある場合のみツールチップを表示。選択解除/エディタ外クリック/Esc で非表示。
+    - キーボード操作: Esc でツールチップを閉じる、Tab/Shift+Tab でツールチップ内ボタンを循環フォーカス。
+  - `css/style.css`
+    - `.selection-tooltip` / `.selection-tooltip button` を追加し、既存ボタンスタイルと整合したミニマルなフローティングツールバーとして定義。z-index は `--z-tooltip` を使用。
+- 検証:
+  - `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、**ALL TESTS PASSED** を確認。
+  - 手動確認として、テキストを選択 → ツールチップ表示 → 各ボタン操作（太字/リンク/画像/ルビなど）で期待どおりの Markdown が挿入されること、および Esc/クリック/選択解除でツールチップが非表示になることを確認予定。
+
+### 19. editor.js モジュール分割 Phase A（2025-12-07〜2025-12-08）
+
+- `js/editor-preview.js` に Markdown ライブプレビュー処理を抽出し、EditorManager からは `editorPreview_renderMarkdownPreview*` 経由で委譲する構成に変更。
+- `js/editor-images.js` に画像ペースト/ドラッグ&ドロップ、画像挿入用 Markdown 生成、旧 `data:image` 埋め込みの Asset 化、および画像プレビュー描画処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
+- `js/editor-overlays.js` にエディタオーバーレイ（画像オーバーレイ・インライン文字数スタンプ）の描画、ドラッグ/リサイズ用インタラクション、および mirror HTML 構築処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
+- `index.html` のスクリプト読み込み順を更新し、`editor-preview.js` → `editor-images.js` → `editor-overlays.js` → `editor.js` → `app.js` の順でロードされるよう統一。
+- 各抽出ステップ後に `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、最新状態で **ALL TESTS PASSED** を確認。
+
+### 20. ThemeRegistry 導入（テーマ集中管理 C-2）（2025-12-08）
+
+- 目的: テーマプリセット定義（ID、ラベル、色パレット）を単一レジストリで集中管理し、ThemeManager / Themes ガジェット / CSS / ドキュメント間の不整合を防止。
+- 実装内容:
+  - `js/theme-registry.js` を新規作成:
+    - `THEME_PRESETS` 配列にプリセット定義（id, labelKey, fallbackLabel, colors）を集約。
+    - `ThemeRegistry` オブジェクトを公開し、`listPresets()`, `getPreset()`, `getColors()`, `getLabel()`, `toThemeColorsMap()`, `isValidPreset()` を提供。
+  - `js/theme.js`:
+    - `ThemeManager.themeColors` を `ThemeRegistry.toThemeColorsMap()` から取得するよう変更（フォールバック付き）。
+  - `js/gadgets-themes.js`:
+    - `themePresets` を `ThemeRegistry.listPresets()` から動的生成に変更。
+    - `refreshState()` 内のテーマ色取得も `ThemeRegistry.getColors()` 経由に変更（フォールバック付き）。
+  - `index.html`:
+    - `theme-registry.js` を `theme.js` より前に読み込むよう追加。
+  - `docs/THEMES.md`:
+    - 設計メモに C-2 完了を反映。
+- 検証:
+  - `npm run test:smoke` を実行し、**ALL TESTS PASSED** を確認。
+- 次のステップ:
+  - C-3: UI/エディタ配色レイヤ分離（CSS 変数の追加とレジストリ拡張）
+  - B-1: フローティングパネル透明度・ショートカット・折りたたみ UI
+  - A-1: editor-search.js 抽出
