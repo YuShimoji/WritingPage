@@ -77,6 +77,8 @@ class ThemeManager {
     const root = document.documentElement;
     root.style.setProperty('--bg-color', bgColor);
     root.style.setProperty('--text-color', textColor);
+    root.style.setProperty('--editor-bg', bgColor);
+    root.style.setProperty('--editor-text', textColor);
 
     // 背景色の明るさに応じてテキスト色を調整
     const isLight = this.isLightColor(bgColor);
@@ -123,6 +125,8 @@ class ThemeManager {
     const root = document.documentElement;
     root.style.removeProperty('--bg-color');
     root.style.removeProperty('--text-color');
+    root.style.removeProperty('--editor-bg');
+    root.style.removeProperty('--editor-text');
     root.style.removeProperty('--sidebar-bg');
     root.style.removeProperty('--toolbar-bg');
     root.style.removeProperty('--border-color');

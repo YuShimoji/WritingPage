@@ -95,8 +95,9 @@
   - `index.html`: `theme-registry.js` を `theme.js` より前に読み込むよう追加。
   - `npm run test:smoke` で **ALL TESTS PASSED** を確認。
 
-- C-3: UI/エディタ配色のレイヤ分離
-  - CSS に UI 用/エディタ用の変数を追加し、`data-theme` ごとの定義をレジストリと 1:1 で対応させる。
+- C-3: UI/エディタ配色のレイヤ分離（進行中）
+  - Step1: editor 用 CSS 変数（`--editor-bg`, `--editor-text`）を導入し、`#editor` / `.editor-preview` が editor レイヤ経由で配色されるように変更（2025-12-10 完了）。挙動は従来のテーマと同一。
+  - Step2 以降: CSS に UI 用/エディタ用の変数を本格導入し、`data-theme` ごとの定義をレジストリと 1:1 で対応させる。
   - Themes ガジェットのカラーピッカーが「UI 全体」ではなく「本文エリア」を主に操作するように整理し、UI 側のトーンはプリセットで制御する方向に寄せる。
 
 - C-4: マイグレーションとテスト

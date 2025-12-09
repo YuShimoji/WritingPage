@@ -3,6 +3,9 @@
   --app-bg: #f6f7f9;
   /* アプリ全体の背景（白すぎ防止） */
   --text-color: #333333;
+  /* エディタ用レイヤ（C-3: UI/エディタ配色分離の下地。現在は従来変数へのフォールバック） */
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #f5f5f5;
   --sidebar-text: #333333;
   --toolbar-bg: #f0f0f0;
@@ -233,6 +236,8 @@ html[data-ui-mode='blank'] #editor {
   --bg-color: #1e1e1e;
   --app-bg: #121214;
   --text-color: #d4d4d4;
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #181818;
   --sidebar-text: #cccccc;
   --toolbar-bg: #1c1c1c;
@@ -246,6 +251,8 @@ html[data-ui-mode='blank'] #editor {
   --bg-color: #262626;
   --app-bg: #1f1f1f;
   --text-color: #e5e5e5;
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #2b2b2b;
   --sidebar-text: #f0f0f0;
   --toolbar-bg: #2f2f2f;
@@ -260,6 +267,8 @@ html[data-ui-mode='blank'] #editor {
   --bg-color: #f4ecd8;
   --app-bg: #efe6cd;
   --text-color: #5b4636;
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #e6d5b8;
   --sidebar-text: #5b4636;
   --toolbar-bg: #e6d5b8;
@@ -273,6 +282,8 @@ html[data-ui-mode='blank'] #editor {
   --bg-color: #000000;
   --app-bg: #000000;
   --text-color: #ffffff;
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #111111;
   --sidebar-text: #ffffff;
   --toolbar-bg: #222222;
@@ -286,6 +297,8 @@ html[data-ui-mode='blank'] #editor {
   --bg-color: #fdf6e3;
   --app-bg: #f6f1dc;
   --text-color: #586e75;
+  --editor-bg: var(--bg-color);
+  --editor-text: var(--text-color);
   --sidebar-bg: #eee8d5;
   --sidebar-text: #586e75;
   --toolbar-bg: #eee8d5;
@@ -427,7 +440,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   border-left: 1px solid var(--border-color);
   resize: none;
   background-color: transparent;
-  color: var(--text-color);
+  color: var(--editor-text, var(--text-color));
   font-family: var(--font-family);
   font-size: var(--editor-font-size);
   line-height: var(--line-height);
@@ -451,8 +464,8 @@ html[data-toolbar-hidden='true'] .editor-container {
   outline: none;
   /* 余白を変数化 */
   padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--editor-bg, var(--bg-color));
+  color: var(--editor-text, var(--text-color));
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: var(--line-height);

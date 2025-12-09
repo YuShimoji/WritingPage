@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-08T05:30:00+09:00
+- 最終更新: 2025-12-10T03:00:00+09:00
 - 現在のミッション: テーマ集中管理基盤の構築・editor.js/app.js の段階的分割とUI基盤リファクタリング継続
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -15,7 +15,8 @@
   - Selection Tooltip v1 実装（EDITOR_EXTENSIONS 準拠）
   - editor-preview.js・editor-images.js・editor-overlays.js 抽出（editor.js 分割 Phase A の一部完了）
   - ThemeRegistry 導入（C-2 完了: テーマ定義の集中管理基盤）
-- 次の中断可能点: UI/エディタ配色レイヤ分離（C-3）、パネルUI改善（B-1）、editor-search.js 抽出（A-1）
+  - C-3 Step1: editor 用 CSS 変数（`--editor-bg`, `--editor-text`）導入、`#editor` / `.editor-preview` が editor レイヤ経由で配色されるように変更（挙動は従来と同一）
+- 次の中断可能点: UI/エディタ配色レイヤ本格分離（C-3 Step2）、パネルUI改善（B-1）、editor-search.js 抽出（A-1）
 
 ## 決定事項
 
