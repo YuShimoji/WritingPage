@@ -126,9 +126,9 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 
 ---
 
-**最終更新**: 2025-12-03  
+**最終更新**: 2025-12-10  
 **担当**: AI Assistant  
-**次回作業開始予定**: Phase E パネル・レイアウト機能（フローティングパネル等）のPoC検討とスペルチェック/コード規約整備の優先度評価
+**次回作業開始予定**: C-3 Step2（UI/エディタ配色レイヤ本格分離）と B-1（フローティングパネルUI改善）、A-1（editor-search.js 抽出）の優先度評価と着手
 
 ### 9. UI アーキテクチャ仕様ドキュメント作成
 - `docs/UI_ARCHITECTURE.md` を新規作成
@@ -487,3 +487,24 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - C-3: UI/エディタ配色レイヤ分離（CSS 変数の追加とレジストリ拡張）
   - B-1: フローティングパネル透明度・ショートカット・折りたたみ UI
   - A-1: editor-search.js 抽出
+
+## 21. C-3: UI/エディタ配色レイヤ分離 Step1（2025-12-10）
+
+- 目的:
+  - エディタ本文エリアと UI 全体の配色レイヤを将来的に分離しつつ、現行テーマの見た目を維持したまま移行の土台を作る。
+- 実施内容:
+  - `css/style.css`:
+    - `:root` に `--editor-bg`, `--editor-text` を追加し、初期値はそれぞれ `var(--bg-color)`, `var(--text-color)` として alias 化。
+    - 各テーマプリセット (`[data-theme='dark']` など) にも `--editor-bg`, `--editor-text` を追加し、現時点では UI と同じ色を指すように定義。
+    - `#editor` / `.editor-preview` の背景色・文字色を `--editor-bg` / `--editor-text` 経由で参照するよう変更（フォールバックに従来の `--bg-color` / `--text-color` を維持）。
+  - `js/theme.js`:
+    - `ThemeManager.applyCustomColors()` で `--editor-bg`, `--editor-text` も同時に更新するよう変更。
+    - `ThemeManager.clearCustomColors()` で `--editor-bg`, `--editor-text` も削除し、現在のテーマ既定色からカラーピッカー値を再計算するように維持。
+  - ドキュメント:
+    - `docs/THEMES.md` に C-3 セクションを追加し、Step1 完了と Step2 以降の設計メモを追記。
+    - `AI_CONTEXT.md` の進捗に「C-3 Step1 完了」を追記し、次の中断可能点を「C-3 Step2 / B-1 / A-1」として更新。
+- 検証:
+  - `npm run test:smoke` を実行し、**ALL TESTS PASSED** を確認。
+- 備考:
+  - 現時点では UI とエディタ本文で同一の色を使用しており、ユーザーから見た見た目は従来テーマと完全に同一。
+  - C-3 Step2 以降で ThemeRegistry 側に UI 用/エディタ用の色レイヤ（`uiColors`/`editorColors`）を導入し、Themes ガジェットのカラーピッカーを「本文エリア優先」に再設計する予定。
