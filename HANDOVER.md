@@ -508,3 +508,10 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 備考:
   - 現時点では UI とエディタ本文で同一の色を使用しており、ユーザーから見た見た目は従来テーマと完全に同一。
   - C-3 Step2 以降で ThemeRegistry 側に UI 用/エディタ用の色レイヤ（`uiColors`/`editorColors`）を導入し、Themes ガジェットのカラーピッカーを「本文エリア優先」に再設計する予定。
+
+## 22. 最新セッション概要（2025-12-11）
+
+- C-3 Step2: CSS 全体で UI 要素を `--ui-bg` / `--ui-text`、エディタ要素を `--editor-bg` / `--editor-text` 経由で参照するように整理し、「見た目は変えずに論理レイヤのみ分離」。
+- A-1: `js/editor-search.js` を新規作成し、検索/置換ロジックを editor.js から抽出。EditorManager 側は薄い委譲メソッドのみ残す構成に変更。
+- B-1: `js/panels.js` にフローティングパネルの折りたたみボタン・透明度調整スライダーを追加し、状態（位置/サイズ/開閉/不透明度）を永続化。CSS に対応スタイルを追加。
+- ドキュメント同期: `docs/BACKLOG.md` / `docs/DEVELOPMENT_STATUS.md` / `docs/TESTING.md` / `docs/USAGE.md` / `docs/THEMES.md` / `AI_CONTEXT.md` を最新実装（ThemeRegistry / C-3 Step1/Step2 / フローティングパネル / Selection Tooltip / Visual Profile）に合わせて更新。

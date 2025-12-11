@@ -3,6 +3,8 @@
   --app-bg: #f6f7f9;
   /* アプリ全体の背景（白すぎ防止） */
   --text-color: #333333;
+  --ui-bg: var(--bg-color);
+  --ui-text: var(--text-color);
   /* エディタ用レイヤ（C-3: UI/エディタ配色分離の下地。現在は従来変数へのフォールバック） */
   --editor-bg: var(--bg-color);
   --editor-text: var(--text-color);
@@ -137,8 +139,8 @@ input[type="button"],
 .button {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
   cursor: pointer;
   transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -161,8 +163,8 @@ select {
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 4px 8px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
   transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
 }
 
@@ -326,7 +328,7 @@ body {
   background-color: var(--app-bg);
   background-image: var(--app-bg-gradient, none);
   background-attachment: fixed;
-  color: var(--text-color);
+  color: var(--ui-text);
   line-height: var(--line-height);
   font-size: var(--ui-font-size);
   transition:
@@ -510,7 +512,7 @@ html[data-toolbar-hidden='true'] .editor-container {
 
 /* Placeholderの視認性と位置 */
 #editor::placeholder {
-  color: var(--text-color);
+  color: var(--editor-text, var(--text-color));
   opacity: 0.6;
 }
 
@@ -941,7 +943,7 @@ html[data-toolbar-hidden='true'] .sidebar {
   width: 100%;
   padding: 10px;
   text-align: center;
-  background: var(--bg-color);
+  background: var(--ui-bg);
   border: 1px solid var(--border-color);
   border-radius: 4px;
 }
@@ -1100,8 +1102,8 @@ input[type='date'] {
   padding: 0.5rem;
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
   font-family: inherit;
 }
 
@@ -1168,8 +1170,8 @@ input[type='color'] {
   flex: 1;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  background-color: var(--bg-color);
-  color: var(--text-color);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
@@ -1268,8 +1270,8 @@ input[type='color'] {
   right: 16px;
   bottom: 128px;
   width: 260px;
-  background: var(--bg-color);
-  color: var(--text-color);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
@@ -1345,7 +1347,7 @@ input[type='color'] {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 6px 8px;
-  background: var(--bg-color);
+  background: var(--ui-bg);
 }
 
 .sidebar details+details {
@@ -1371,7 +1373,7 @@ input[type='color'] {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   padding: 6px 8px;
-  background: var(--bg-color);
+  background: var(--ui-bg);
   margin-bottom: 10px;
   transition:
     all 0.2s ease,
@@ -1848,7 +1850,7 @@ html[data-embed='true'] #editor {
   animation: typewriter 2s steps(40, end);
   overflow: hidden;
   white-space: nowrap;
-  border-right: 2px solid var(--text-color);
+  border-right: 2px solid var(--editor-text, var(--text-color));
 }
 
 @keyframes typewriter {
@@ -1895,8 +1897,8 @@ html[data-embed='true'] #editor {
   padding: 6px 12px;
   margin: 2px;
   border: 1px solid var(--border-color);
-  background: var(--bg-color);
-  color: var(--text-color);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
@@ -1931,15 +1933,15 @@ html[data-embed='true'] #editor {
 
 .decor-outline {
   text-shadow:
-    -1px -1px 0 var(--text-color),
-    1px -1px 0 var(--text-color),
-    -1px 1px 0 var(--text-color),
-    1px 1px 0 var(--text-color);
+    -1px -1px 0 var(--editor-text, var(--text-color)),
+    1px -1px 0 var(--editor-text, var(--text-color)),
+    -1px 1px 0 var(--editor-text, var(--text-color)),
+    1px 1px 0 var(--editor-text, var(--text-color));
   color: transparent;
 }
 
 .decor-glow {
-  text-shadow: 0 0 10px var(--text-color);
+  text-shadow: 0 0 10px var(--editor-text, var(--text-color));
 }
 
 .decor-wide {
@@ -2087,7 +2089,7 @@ html[data-embed='true'] #editor {
 /* Panels Layout スタイル */
 .dockable-panel {
   position: absolute;
-  background: var(--bg-color, #ffffff);
+  background: var(--ui-bg, #ffffff);
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -2132,6 +2134,40 @@ html[data-embed='true'] #editor {
   background: rgba(255, 0, 0, 0.3);
 }
 
+/* 折りたたみ・透明度コントロール */
+.panel-collapse,
+.panel-opacity-toggle {
+  font-weight: bold;
+  min-width: 20px;
+}
+
+.panel-opacity-slider {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--ui-bg, #333);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 8px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.panel-opacity-slider input[type="range"] {
+  width: 100px;
+  margin: 0;
+}
+
+.dockable-panel.collapsed {
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+}
+
+.dockable-panel.collapsed .panel-body {
+  display: none;
+}
+
 .panel-body {
   padding: 12px;
   flex: 1;
@@ -2174,7 +2210,7 @@ html[data-embed='true'] #editor {
   bottom: 0;
   left: 0;
   right: 0;
-  background: var(--bg-color, #ffffff);
+  background: var(--ui-bg, #ffffff);
   border-top: 1px solid #ccc;
   display: flex;
   z-index: 50;
@@ -2270,8 +2306,8 @@ html[data-embed='true'] #editor {
 .sidebar input,
 .sidebar textarea,
 .sidebar select {
-  background: var(--bg-color);
-  color: var(--text-color);
+  background: var(--ui-bg);
+  color: var(--ui-text);
   border: 1px solid var(--border-color);
 }
 
@@ -2302,11 +2338,11 @@ html[data-embed='true'] #editor {
 
 .wiki-item {
   background: var(--sidebar-bg) !important;
-  color: var(--text-color);
+  color: var(--ui-text);
 }
 
 .wiki-item span {
-  color: var(--text-color);
+  color: var(--ui-text);
 }
 
 [data-theme='dark'] .wiki-item {
@@ -2390,7 +2426,7 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   background: var(--sidebar-bg);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
-  color: var(--text-color);
+  color: var(--ui-text);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -2602,7 +2638,7 @@ input[type="checkbox"] {
 .gadget-label {
   font-size: 12px;
   font-weight: 500;
-  color: var(--text-color);
+  color: var(--ui-text);
   opacity: 0.8;
 }
 

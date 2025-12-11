@@ -77,6 +77,8 @@ class ThemeManager {
     const root = document.documentElement;
     root.style.setProperty('--bg-color', bgColor);
     root.style.setProperty('--text-color', textColor);
+    root.style.setProperty('--ui-bg', bgColor);
+    root.style.setProperty('--ui-text', textColor);
     root.style.setProperty('--editor-bg', bgColor);
     root.style.setProperty('--editor-text', textColor);
 
@@ -125,6 +127,8 @@ class ThemeManager {
     const root = document.documentElement;
     root.style.removeProperty('--bg-color');
     root.style.removeProperty('--text-color');
+    root.style.removeProperty('--ui-bg');
+    root.style.removeProperty('--ui-text');
     root.style.removeProperty('--editor-bg');
     root.style.removeProperty('--editor-text');
     root.style.removeProperty('--sidebar-bg');

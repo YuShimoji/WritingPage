@@ -117,10 +117,31 @@
     const controls = document.createElement('div');
     controls.className = 'panel-controls';
 
+    // 折りたたみボタン
+    const collapseBtn = document.createElement('button');
+    collapseBtn.className = 'panel-control panel-collapse';
+    collapseBtn.textContent = '−';
+    collapseBtn.title = '折りたたみ/展開';
+    collapseBtn.setAttribute('aria-label', 'パネルを折りたたみまたは展開');
+    collapseBtn.addEventListener('click', () => togglePanelCollapse(id));
+    controls.appendChild(collapseBtn);
+
+    // 透明度調整ボタン
+    const opacityBtn = document.createElement('button');
+    opacityBtn.className = 'panel-control panel-opacity-toggle';
+    opacityBtn.textContent = '◐';
+    opacityBtn.title = '透明度調整';
+    opacityBtn.setAttribute('aria-label', '透明度を調整');
+    opacityBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleOpacitySlider(id);
+    });
+    controls.appendChild(opacityBtn);
+
     // ドッキングコントロール
     const dockBtn = document.createElement('button');
     dockBtn.className = 'panel-control';
-    dockBtn.textContent = 'ドッキング';
+    dockBtn.textContent = '⊞';
     dockBtn.title = 'ドッキング切替';
     dockBtn.setAttribute('aria-label', 'パネルをドッキングまたはフローティングに切替');
     dockBtn.addEventListener('click', () => togglePanelDocking(id));
@@ -129,7 +150,7 @@
     // 閉じるボタン
     const closeBtn = document.createElement('button');
     closeBtn.className = 'panel-control panel-close';
-    closeBtn.textContent = '閉じる';
+    closeBtn.textContent = '×';
     closeBtn.title = '閉じる';
     closeBtn.setAttribute('aria-label', 'パネルを閉じる');
     closeBtn.addEventListener('click', () => hidePanel(id));
@@ -146,6 +167,35 @@
       body.appendChild(content);
     }
     panel.appendChild(body);
+
+    // 透明度スライダー（初期非表示）
+    const opacitySlider = document.createElement('div');
+    opacitySlider.className = 'panel-opacity-slider';
+    opacitySlider.style.display = 'none';
+    const opacityInput = document.createElement('input');
+    opacityInput.type = 'range';
+    opacityInput.min = '20';
+    opacityInput.max = '100';
+    opacityInput.value = savedState && savedState.opacity !== undefined ? savedState.opacity : 100;
+    opacityInput.addEventListener('input', () => {
+      const val = parseInt(opacityInput.value, 10) / 100;
+      panel.style.opacity = val;
+      savePanelState(id, { opacity: parseInt(opacityInput.value, 10) });
+    });
+    opacitySlider.appendChild(opacityInput);
+    header.appendChild(opacitySlider);
+
+    // 保存された透明度を適用
+    if (savedState && savedState.opacity !== undefined) {
+      panel.style.opacity = savedState.opacity / 100;
+    }
+
+    // 保存された折りたたみ状態を適用
+    if (savedState && savedState.collapsed) {
+      body.style.display = 'none';
+      collapseBtn.textContent = '+';
+      panel.classList.add('collapsed');
+    }
 
     makeDraggable(panel, header);
 
@@ -361,6 +411,39 @@
     }
   }
 
+  // パネルの折りたたみ/展開をトグル
+  function togglePanelCollapse(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const body = panel.querySelector('.panel-body');
+    const collapseBtn = panel.querySelector('.panel-collapse');
+    if (!body) return;
+
+    const isCollapsed = body.style.display === 'none';
+    if (isCollapsed) {
+      body.style.display = '';
+      if (collapseBtn) collapseBtn.textContent = '−';
+      panel.classList.remove('collapsed');
+      savePanelState(panelId, { collapsed: false });
+    } else {
+      body.style.display = 'none';
+      if (collapseBtn) collapseBtn.textContent = '+';
+      panel.classList.add('collapsed');
+      savePanelState(panelId, { collapsed: true });
+    }
+  }
+
+  // 透明度スライダーの表示/非表示をトグル
+  function toggleOpacitySlider(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const slider = panel.querySelector('.panel-opacity-slider');
+    if (!slider) return;
+
+    const isVisible = slider.style.display !== 'none';
+    slider.style.display = isVisible ? 'none' : 'block';
+  }
+
   function hidePanel(panelId) {
     const panel = document.getElementById(panelId);
     if (panel) {
@@ -396,6 +479,8 @@
     createDockablePanel,
     dockPanelToZone,
     togglePanelDocking,
+    togglePanelCollapse,
+    toggleOpacitySlider,
     hidePanel,
     showPanel,
     togglePanel,

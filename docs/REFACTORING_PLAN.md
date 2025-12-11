@@ -2,11 +2,11 @@
 
 ## 1. 現状分析
 
-### 1.1 ファイルサイズ分析（行数順、更新: 2025-12-03）
+### 1.1 ファイルサイズ分析（行数順、更新: 2025-12-11）
 
 | ファイル | 行数 | 状態 | 優先度 |
 |---------|------|------|--------|
-| editor.js | 1763 | 要整理 | 中 |
+| editor.js | 1466 | 要整理（縮小中） | 中 |
 | app.js | 1437 | 要整理 | 中 |
 | storage.js | 640 | 許容範囲 | 低 |
 | gadgets-editor-extras.js | 518 | 許容範囲 | 低 |
@@ -180,11 +180,13 @@ js/
 3. 開発サーバー＋ `npm run test:smoke` で挙動確認。
 4. 安定後、徐々に editor.js 本体からロジックを削除し、「EditorManager 定義＋エントリポイント」程度の薄いファイルに縮小していく。
 
-**進捗メモ（2025-12-07〜2025-12-08 時点）**
+**進捗メモ（2025-12-07〜2025-12-11 時点）**
 - `editor-preview.js` に Markdown プレビュー処理を抽出し、EditorManager からは `editorPreview_renderMarkdownPreview*` を経由して委譲。
 - `editor-images.js` に画像ペースト/ドラッグ&ドロップ、画像挿入用 Markdown 生成、旧 `data:image` 埋め込みの Asset 化、および画像プレビュー生成処理を抽出し、EditorManager からは薄いラッパーのみ残す構成に変更。
 - `editor-overlays.js` にオーバーレイ描画（画像オーバーレイ・インラインスタンプ）、ドラッグ/リサイズハンドラ、mirror HTML 構築処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
+- `editor-search.js` に検索・置換機能（`updateSearchMatches`, `navigateMatch`, `replaceSingle`, `replaceAll`, `getTextPosition` 等）を抽出し、EditorManager からは薄い委譲メソッドのみ残す構成に変更（2025-12-11）。
 - 各抽出ステップ後に `npm run test:smoke` を実行し、最新状態でも **ALL TESTS PASSED** を確認済み。
+- **editor.js**: 1763 行 → 1466 行（約 300 行削減）
 
 ### 6.3 app.js 分割案
 
