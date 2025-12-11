@@ -572,3 +572,25 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - Panel/GadgetContainer 抽象レイヤ関連の設計・実装タスクは、セクション 23 の「今後の推奨タスク（Panel/GadgetContainer 関連）」および BACKLOG/REFACTORING_PLAN を参照。
 - 特に Plan A として、左サイドバー初期タブ（structure/typography/wiki/assist）を `_ensureSidebarPanel` 経由に寄せる設計・PoC 実装から着手するのが自然な流れ。
 - 本セッション終了時点では、コード/ドキュメントともに `origin/main` と同期済みのため、`git pull` なしでそのまま Plan A の分析フェーズから再開可能。
+
+## 24. C-3 Step3: UI/Editor 独立配色の拡張基盤（2025-12-11）
+
+### 実施内容
+
+- **ThemeRegistry 拡張**: 各プリセットに `uiColors` / `editorColors` 構造を追加し、`getUIColors()` / `getEditorColors()` API を提供。既存の `getColors()` / `toThemeColorsMap()` は後方互換維持。
+- **ThemeManager 対応**: `applyCustomColors()` に `options.uiBgColor` / `options.uiTextColor` パラメータを追加し、UI/Editor レイヤを個別に設定可能に。`clearCustomColors()` で `ThemeRegistry.getEditorColors()` を使用するよう変更。
+- **gadgets-themes.js 調整**: `refreshState()` で `ThemeRegistry.getEditorColors()` を優先使用し、カラーピッカーが Editor レイヤの色を表示するように変更。
+- **動作確認**: `npm run test:smoke` で ALL TESTS PASSED を確認。
+- **ドキュメント更新**: `docs/THEMES.md` に C-3 Step3 完了を反映、`AI_CONTEXT.md` の進捗と次の中断可能点を更新。
+
+### 設計ポイント
+
+- 現時点では各プリセットの `uiColors` / `editorColors` は同一色を設定しており、見た目・挙動は従来と同一。
+- 将来的に「UI ダーク＋本文ライト」などの組み合わせが可能な基盤が整った。
+- カラーピッカーは主に Editor レイヤを操作し、UI 側のトーンはプリセット選択で決まる設計に寄せている。
+
+### 次回以降の推奨タスク
+
+- C-4: マイグレーションとテスト（既存設定を UI/Editor 二層構造に割り当て、TESTING.md にシナリオ追記）
+- E-3: 柔軟なタブ配置（Phase E-3/E-4 の仕様整理）
+- editor.js / app.js 分割続行（app-core.js / app-layout.js 抽出）

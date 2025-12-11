@@ -99,17 +99,18 @@
   - `index.html`: `theme-registry.js` を `theme.js` より前に読み込むよう追加。
   - `npm run test:smoke` で **ALL TESTS PASSED** を確認。
 
-- C-3: UI/エディタ配色のレイヤ分離（進行中）
+- C-3: UI/エディタ配色のレイヤ分離 ✅ 完了（2025-12-11）
   - Step1: editor 用 CSS 変数（`--editor-bg`, `--editor-text`）を導入し、`#editor` / `.editor-preview` が editor レイヤ経由で配色されるように変更（2025-12-10 完了）。挙動は従来のテーマと同一。
   - Step2: UI 用 CSS 変数（`--ui-bg`, `--ui-text`）を導入し、CSS 全体で UI/Editor レイヤを論理的に分離（2025-12-11 完了）。
     - ボタン、フォーム、サイドバー、ガジェット、フローティングパネル等の UI 要素は `--ui-bg` / `--ui-text` を参照。
     - `#editor`, `.editor-preview`, プレースホルダー、テキストアニメーション装飾等のエディタ要素は `--editor-bg` / `--editor-text` を参照。
     - `ThemeManager.applyCustomColors()` / `clearCustomColors()` が UI/Editor 両レイヤを同時に更新/解除。
     - 現時点では `--ui-*` と `--editor-*` は同じベース色（`--bg-color` / `--text-color`）を参照しており、**見た目・挙動は従来と同一**。
-  - Step3: UI/Editor で異なる配色を許容する拡張（例: UIダーク＋本文ライト）。
-    - 各プリセットについて、UI レイヤ / Editor レイヤの色セットを明示的に定義し、`ThemeRegistry` から `uiColors` / `editorColors` として取得できるようにする。
-    - Themes ガジェットのカラーピッカーは「本文エリア（Editor レイヤ）」を主に操作し、UI 側のトーンはプリセット選択（＋将来の Visual Profile）で決まる設計に寄せる。
-    - カスタムカラー適用時も、UI レイヤが極端に読みにくくならないように最低限のガード（コントラスト/明度チェックなど）を検討する。
+  - Step3: UI/Editor で異なる配色を許容する拡張基盤を実装（2025-12-11 完了）。
+    - `ThemeRegistry` に `uiColors` / `editorColors` 構造を追加し、`getUIColors()` / `getEditorColors()` API を提供。
+    - `ThemeManager.applyCustomColors()` に `options.uiBgColor` / `options.uiTextColor` パラメータを追加し、UI/Editor レイヤを個別に設定可能に。
+    - `gadgets-themes.js` のカラーピッカーが Editor レイヤの色を優先表示するよう調整。
+    - 現時点では各プリセットの `uiColors` / `editorColors` は同一色だが、将来的に「UIダーク＋本文ライト」などの組み合わせが可能な基盤が整った。
   - Step4 以降: 将来的な UI/Editor 配色の詳細調整（テーマ編集UI との連携など）は、Visual Profile や専用ガジェット側で扱う。
 
 - C-4: マイグレーションとテスト

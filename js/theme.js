@@ -70,39 +70,56 @@ class ThemeManager {
 
   /**
    * カスタムカラーを適用
-   * @param {string} bgColor - 背景色
-   * @param {string} textColor - 文字色
+   * C-3 Step3: UI/Editor レイヤを個別に扱えるよう拡張
+   * @param {string} bgColor - 背景色（主に Editor レイヤ用、UI レイヤのベースとしても使用）
+   * @param {string} textColor - 文字色（主に Editor レイヤ用、UI レイヤのベースとしても使用）
+   * @param {boolean} enable - カスタムカラーを有効にするか
+   * @param {Object} options - 追加オプション（C-3 Step3）
+   * @param {string} options.uiBgColor - UI レイヤの背景色（省略時は bgColor を使用）
+   * @param {string} options.uiTextColor - UI レイヤの文字色（省略時は textColor を使用）
    */
-  applyCustomColors(bgColor, textColor, enable = true) {
+  applyCustomColors(bgColor, textColor, enable = true, options = {}) {
     const root = document.documentElement;
+    
+    // C-3 Step3: UI/Editor レイヤ別の色を取得（省略時は bgColor/textColor を使用）
+    const uiBgColor = options.uiBgColor || bgColor;
+    const uiTextColor = options.uiTextColor || textColor;
+    const editorBgColor = bgColor;
+    const editorTextColor = textColor;
+    
+    // レガシー変数（後方互換）
     root.style.setProperty('--bg-color', bgColor);
     root.style.setProperty('--text-color', textColor);
-    root.style.setProperty('--ui-bg', bgColor);
-    root.style.setProperty('--ui-text', textColor);
-    root.style.setProperty('--editor-bg', bgColor);
-    root.style.setProperty('--editor-text', textColor);
+    
+    // UI レイヤ
+    root.style.setProperty('--ui-bg', uiBgColor);
+    root.style.setProperty('--ui-text', uiTextColor);
+    
+    // Editor レイヤ
+    root.style.setProperty('--editor-bg', editorBgColor);
+    root.style.setProperty('--editor-text', editorTextColor);
 
-    // 背景色の明るさに応じてテキスト色を調整
-    const isLight = this.isLightColor(bgColor);
+    // UI 背景色の明るさに応じて派生色を調整
+    const isLight = this.isLightColor(uiBgColor);
     root.style.setProperty(
       '--sidebar-bg',
-      isLight ? this.adjustColor(bgColor, -10) : this.adjustColor(bgColor, 20),
+      isLight ? this.adjustColor(uiBgColor, -10) : this.adjustColor(uiBgColor, 20),
     );
     root.style.setProperty(
       '--toolbar-bg',
-      isLight ? this.adjustColor(bgColor, -5) : this.adjustColor(bgColor, 15),
+      isLight ? this.adjustColor(uiBgColor, -5) : this.adjustColor(uiBgColor, 15),
     );
     root.style.setProperty(
       '--border-color',
-      isLight ? this.adjustColor(bgColor, -15) : this.adjustColor(bgColor, 30),
+      isLight ? this.adjustColor(uiBgColor, -15) : this.adjustColor(uiBgColor, 30),
     );
 
     this.settings.bgColor = bgColor;
     this.settings.textColor = textColor;
     this.settings.useCustomColors = !!enable;
     
-    // カラーピッカーの値も更新
-    this.updateColorPickers(bgColor, textColor);
+    // カラーピッカーの値も更新（Editor レイヤの色を表示）
+    this.updateColorPickers(editorBgColor, editorTextColor);
     
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
@@ -122,6 +139,7 @@ class ThemeManager {
 
   /**
    * カスタムカラーの上書きを解除
+   * C-3 Step3: ThemeRegistry 経由で Editor レイヤの既定色を取得
    */
   clearCustomColors() {
     const root = document.documentElement;
@@ -140,10 +158,12 @@ class ThemeManager {
     delete this.settings.bgColor;
     delete this.settings.textColor;
     
-    // カラーピッカーを現在のテーマの既定色に更新
+    // カラーピッカーを現在のテーマの Editor レイヤ既定色に更新（C-3 Step3）
     const currentTheme = this.settings.theme || 'light';
-    const themeColor = this.themeColors[currentTheme] || this.themeColors.light;
-    this.updateColorPickers(themeColor.bgColor, themeColor.textColor);
+    const editorColors = (window.ThemeRegistry && typeof window.ThemeRegistry.getEditorColors === 'function')
+      ? window.ThemeRegistry.getEditorColors(currentTheme)
+      : (this.themeColors[currentTheme] || this.themeColors.light);
+    this.updateColorPickers(editorColors.bgColor, editorColors.textColor);
     
     window.ZenWriterStorage.saveSettings(this.settings);
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }

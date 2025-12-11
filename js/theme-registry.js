@@ -5,7 +5,7 @@
  * 目的:
  * - テーマ定義（ID、ラベル、色パレット）を単一箇所で管理
  * - ThemeManager / Themes ガジェット / CSS / ドキュメントの不整合を防止
- * - 将来的な UI/エディタ配色分離の基盤
+ * - UI/エディタ配色分離の基盤（C-3 Step3）
  */
 (function () {
   'use strict';
@@ -16,46 +16,60 @@
    * - id: テーマID（data-theme 属性値）
    * - labelKey: UILabels のキー名
    * - fallbackLabel: UILabels が未定義の場合のフォールバックラベル
-   * - colors: 既定の背景色・文字色
+   * - colors: 既定の背景色・文字色（後方互換用）
    *   - bgColor: 背景色
    *   - textColor: 文字色
+   * - uiColors: UI レイヤ（サイドバー/ツールバー/ガジェット等）の色セット（C-3 Step3）
+   * - editorColors: エディタ本文エリアの色セット（C-3 Step3）
    */
   var THEME_PRESETS = [
     {
       id: 'light',
       labelKey: 'THEME_NAME_LIGHT',
       fallbackLabel: 'ライト',
-      colors: { bgColor: '#ffffff', textColor: '#333333' }
+      colors: { bgColor: '#ffffff', textColor: '#333333' },
+      uiColors: { bgColor: '#ffffff', textColor: '#333333' },
+      editorColors: { bgColor: '#ffffff', textColor: '#333333' }
     },
     {
       id: 'dark',
       labelKey: 'THEME_NAME_DARK',
       fallbackLabel: 'ダーク',
-      colors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' }
+      colors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+      uiColors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+      editorColors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' }
     },
     {
       id: 'night',
       labelKey: 'THEME_NAME_NIGHT',
       fallbackLabel: 'ナイト',
-      colors: { bgColor: '#262626', textColor: '#e5e5e5' }
+      colors: { bgColor: '#262626', textColor: '#e5e5e5' },
+      uiColors: { bgColor: '#262626', textColor: '#e5e5e5' },
+      editorColors: { bgColor: '#262626', textColor: '#e5e5e5' }
     },
     {
       id: 'sepia',
       labelKey: 'THEME_NAME_SEPIA',
       fallbackLabel: 'セピア',
-      colors: { bgColor: '#f4ecd8', textColor: '#5b4636' }
+      colors: { bgColor: '#f4ecd8', textColor: '#5b4636' },
+      uiColors: { bgColor: '#f4ecd8', textColor: '#5b4636' },
+      editorColors: { bgColor: '#f4ecd8', textColor: '#5b4636' }
     },
     {
       id: 'high-contrast',
       labelKey: 'THEME_NAME_HIGH_CONTRAST',
       fallbackLabel: '高コントラスト',
-      colors: { bgColor: '#000000', textColor: '#ffffff' }
+      colors: { bgColor: '#000000', textColor: '#ffffff' },
+      uiColors: { bgColor: '#000000', textColor: '#ffffff' },
+      editorColors: { bgColor: '#000000', textColor: '#ffffff' }
     },
     {
       id: 'solarized',
       labelKey: 'THEME_NAME_SOLARIZED',
       fallbackLabel: 'ソラリゼド',
-      colors: { bgColor: '#fdf6e3', textColor: '#586e75' }
+      colors: { bgColor: '#fdf6e3', textColor: '#586e75' },
+      uiColors: { bgColor: '#fdf6e3', textColor: '#586e75' },
+      editorColors: { bgColor: '#fdf6e3', textColor: '#586e75' }
     }
   ];
 
@@ -119,6 +133,34 @@
       }
       // フォールバック: light
       return { bgColor: '#ffffff', textColor: '#333333' };
+    },
+
+    /**
+     * 指定IDの UI レイヤ色を取得（C-3 Step3）
+     * @param {string} id - テーマID
+     * @returns {Object} { bgColor, textColor } または light のフォールバック
+     */
+    getUIColors: function (id) {
+      var preset = this.getPreset(id);
+      if (preset && preset.uiColors) {
+        return { bgColor: preset.uiColors.bgColor, textColor: preset.uiColors.textColor };
+      }
+      // uiColors がない場合は colors にフォールバック
+      return this.getColors(id);
+    },
+
+    /**
+     * 指定IDの Editor レイヤ色を取得（C-3 Step3）
+     * @param {string} id - テーマID
+     * @returns {Object} { bgColor, textColor } または light のフォールバック
+     */
+    getEditorColors: function (id) {
+      var preset = this.getPreset(id);
+      if (preset && preset.editorColors) {
+        return { bgColor: preset.editorColors.bgColor, textColor: preset.editorColors.textColor };
+      }
+      // editorColors がない場合は colors にフォールバック
+      return this.getColors(id);
     },
 
     /**

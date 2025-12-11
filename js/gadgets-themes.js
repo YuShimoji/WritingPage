@@ -206,15 +206,18 @@
           var latest = storage.loadSettings();
           if (!latest) return;
 
-          // カラー設定
+          // カラー設定（C-3 Step3: カラーピッカーは Editor レイヤの色を表示）
           if (latest.useCustomColors && latest.bgColor && latest.textColor) {
             bgInput.value = latest.bgColor;
             textInput.value = latest.textColor;
           } else {
-            // テーマの既定色を使用（ThemeRegistry 経由、フォールバック付き）
+            // テーマの Editor レイヤ既定色を使用（ThemeRegistry 経由、フォールバック付き）
             var currentTheme = latest.theme || 'light';
             var themeColor;
-            if (window.ThemeRegistry && typeof window.ThemeRegistry.getColors === 'function') {
+            if (window.ThemeRegistry && typeof window.ThemeRegistry.getEditorColors === 'function') {
+              var colors = window.ThemeRegistry.getEditorColors(currentTheme);
+              themeColor = { bg: colors.bgColor, text: colors.textColor };
+            } else if (window.ThemeRegistry && typeof window.ThemeRegistry.getColors === 'function') {
               var colors = window.ThemeRegistry.getColors(currentTheme);
               themeColor = { bg: colors.bgColor, text: colors.textColor };
             } else {
