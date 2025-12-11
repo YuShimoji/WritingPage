@@ -389,8 +389,9 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
    - スモークテスト手順に「事前に `npm run dev` を起動する」ことを明記し、README の Quick Start との整合を取る。
 2. editor.js / app.js の分割計画策定  
    - それぞれ 500 行以下を目標に、EditorCore/HUD/Snapshot/ショートカットなど責務ごとのモジュール構成を検討し、簡易設計メモを作成。
-3. Panel/GadgetContainer 抽象レイヤの PoC  
-   - `docs/UI_ARCHITECTURE.md` の Region/Panel モデルに沿って、左サイドバーの既存パネルを薄い抽象レイヤ（Panel/GadgetContainer）経由で初期化する実験実装を行い、将来のフローティングパネル実装に備える。
+3. Panel/GadgetContainer 抽象レイヤの拡張  
+   - 2025-12-09 時点で、左サイドバー向けの最小 PoC（`SidebarManager._ensureSidebarPanel` / `addTab` の導入）は完了。詳細はセクション 23 を参照。  
+   - 今後は Panel/GadgetContainer API の一般化と、他 Region（bottom ゾーンやフローティングパネル）への展開を検討。
 
 ## 17. テーマプリセット調整とナイトテーマ追加（2025-12-04）
 
@@ -514,4 +515,42 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - C-3 Step2: CSS 全体で UI 要素を `--ui-bg` / `--ui-text`、エディタ要素を `--editor-bg` / `--editor-text` 経由で参照するように整理し、「見た目は変えずに論理レイヤのみ分離」。
 - A-1: `js/editor-search.js` を新規作成し、検索/置換ロジックを editor.js から抽出。EditorManager 側は薄い委譲メソッドのみ残す構成に変更。
 - B-1: `js/panels.js` にフローティングパネルの折りたたみボタン・透明度調整スライダーを追加し、状態（位置/サイズ/開閉/不透明度）を永続化。CSS に対応スタイルを追加。
-- ドキュメント同期: `docs/BACKLOG.md` / `docs/DEVELOPMENT_STATUS.md` / `docs/TESTING.md` / `docs/USAGE.md` / `docs/THEMES.md` / `AI_CONTEXT.md` を最新実装（ThemeRegistry / C-3 Step1/Step2 / フローティングパネル / Selection Tooltip / Visual Profile）に合わせて更新。
+- ドキュメント同期: `docs/BACKLOG.md` / `docs/DEVELOPMENT_STATUS.md` / `docs/TESTING.md` / `docs/USAGE.md` / `docs/THEMES.md` / `AI_CONTEXT.md` を最新実装（ThemeRegistry / C-3 Step1/Step2 / フローティングパネル / Selection Tooltip / Visual Profile）に合わせて更新.
+
+## 23. Panel/GadgetContainer 抽象レイヤ PoC（左サイドバー）（2025-12-09）
+
+### 実施内容
+
+- 左サイドバーに対して、UI_ARCHITECTURE の Region/Panel/GadgetContainer モデルに沿った最小限の抽象レイヤ PoC を実装。
+- `js/sidebar-manager.js`
+  - `SidebarManager._ensureSidebarPanel(groupId, label)` を追加。
+    - `section.sidebar-group[data-group="<groupId>"]` を Panel、内部の `div.gadgets-panel[data-gadget-group="<groupId>"]` を GadgetContainer とみなし、両者をまとめて生成/確保するヘルパとして実装。
+  - `SidebarManager.addTab(id, label)` から `_ensureSidebarPanel` を利用するように変更し、タブ追加時に対応する Panel/GadgetContainer を一貫した経路で用意するようにした。
+  - 既存の DOM 構造（クラス/ID）と `ZWGadgets.init('#' + panel.id, { group: safeId })` の呼び出しタイミングは従来どおりで、挙動を変えない範囲に留めている。
+- ドキュメント更新
+  - `docs/UI_ARCHITECTURE.md`
+    - 「Panels & Layout PoC」に「Left Sidebar Runtime Mapping (PoC)」を追加し、
+      - Region: `#sidebar`（左サイドバー全体; `SIDEBAR_LEFT` ゾーン相当）
+      - Panel: `section.sidebar-group[data-group="<groupId>"]`
+      - GadgetContainer: `div.gadgets-panel[data-gadget-group="<groupId>"]`
+      の対応関係と、`_ensureSidebarPanel` / `addTab` の役割を明文化。
+  - `docs/ARCHITECTURE.md`
+    - 「新しいタブを追加する」に、実行時にタブを動的に追加する場合は `SidebarManager.addTab(id, label)` を用い、左サイドバー用の Panel/GadgetContainer 生成と `ZWGadgets.init` 呼び出しは SidebarManager 側で行う旨を追記。
+  - `docs/DEVELOPMENT_STATUS.md`
+    - 「現在の実装状況」に「左サイドバー向け Panel/GadgetContainer 薄い抽象レイヤ PoC（`SidebarManager._ensureSidebarPanel` / `addTab`）」を追加し、Phase E の進捗を反映。
+
+### テスト状況メモ
+
+- 本セッションの実行環境では、`node scripts/dev-check.js` 実行時に `Error: connect ECONNREFUSED 127.0.0.1:8080` が発生し、8080 ポート上の dev-server 非稼働によりスモークテストが失敗する状態だった。
+  - `scripts/dev-server.js` 自体には変更を加えておらず、単純な静的ファイルサーバー構成のまま。
+  - ローカル開発環境では、従来どおり **別ターミナルで `npm run dev` を起動したうえで `node scripts/dev-check.js` を実行する** 手順で確認すること。
+- 今回の変更はクライアントサイドの SidebarManager とドキュメントのみであり、サーバーサイド/ビルド設定には影響していない。
+
+### 今後の推奨タスク（Panel/GadgetContainer 関連）
+
+1. 左サイドバー初期タブ（structure/typography/wiki/assist）についても、`_ensureSidebarPanel` を経由して Panel/GadgetContainer を確保する方向への移行案を検討し、`app.js` の `initializeSidebarTabs` との責務境界を整理する。
+2. `js/panels.js` 側の Panel モデル（フローティング/ドッキング）との整合を取りつつ、`SIDEBAR_LEFT` 以外の Region（bottom ゾーンやフローティングパネル等）にも Panel/GadgetContainer 抽象レイヤを拡張するための設計メモを作成する。
+3. 将来的な Phase E-3/E-4（柔軟な配置システム）に向けて、
+   - Region → Panel → GadgetContainer → Gadget のチェーンをどのレイヤで管理するか
+   - ロードアウトや UI モード（Normal/Focus/Blank）との関係
+   を整理し、OpenSpec 側の UI アーキテクチャ仕様と整合させる。

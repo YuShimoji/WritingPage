@@ -168,6 +168,57 @@ class SidebarManager {
         }
     }
 
+    _ensureSidebarPanel(groupId, label) {
+        try {
+            const groupsContainer = document.querySelector('.sidebar-groups');
+            if (!groupsContainer || !groupId) return null;
+
+            const safeId = String(groupId);
+            const safeLabel = String(label || safeId);
+
+            let section = document.getElementById('sidebar-group-' + safeId);
+            let panel = null;
+
+            if (section) {
+                panel = section.querySelector('.gadgets-panel');
+                if (!panel) {
+                    const wrapper = section.querySelector('.sidebar-section') || section;
+                    panel = document.createElement('div');
+                    panel.id = safeId + '-gadgets-panel';
+                    panel.className = 'gadgets-panel';
+                    panel.dataset.gadgetGroup = safeId;
+                    panel.setAttribute('aria-label', safeLabel + 'ガジェット');
+                    wrapper.appendChild(panel);
+                }
+            } else {
+                section = document.createElement('section');
+                section.className = 'sidebar-group';
+                section.dataset.group = safeId;
+                section.id = 'sidebar-group-' + safeId;
+                section.setAttribute('role', 'tabpanel');
+                section.setAttribute('aria-labelledby', 'sidebar-tab-' + safeId);
+                section.setAttribute('aria-hidden', 'true');
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'sidebar-section';
+
+                panel = document.createElement('div');
+                panel.id = safeId + '-gadgets-panel';
+                panel.className = 'gadgets-panel';
+                panel.dataset.gadgetGroup = safeId;
+                panel.setAttribute('aria-label', safeLabel + 'ガジェット');
+
+                wrapper.appendChild(panel);
+                section.appendChild(wrapper);
+                groupsContainer.appendChild(section);
+            }
+
+            return { section, panel };
+        } catch (_) {
+            return null;
+        }
+    }
+
     addTab(id, label) {
         try {
             var safeId = String(id || ('custom-' + Date.now()));
@@ -176,7 +227,6 @@ class SidebarManager {
                 this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
             }
             var tabsContainer = document.querySelector('.sidebar-tabs');
-            var groupsContainer = document.querySelector('.sidebar-groups');
             if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')){
                 var btn = document.createElement('button');
                 btn.className = 'sidebar-tab';
@@ -189,25 +239,12 @@ class SidebarManager {
                 btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
                 tabsContainer.appendChild(btn);
             }
-            if (groupsContainer && !document.getElementById('sidebar-group-' + safeId)){
-                var section = document.createElement('section');
-                section.className = 'sidebar-group';
-                section.dataset.group = safeId;
-                section.id = 'sidebar-group-' + safeId;
-                section.setAttribute('role', 'tabpanel');
-                section.setAttribute('aria-labelledby', 'sidebar-tab-' + safeId);
-                section.setAttribute('aria-hidden', 'true');
-                var div = document.createElement('div');
-                div.className = 'sidebar-section';
-                var panel = document.createElement('div');
-                panel.id = safeId + '-gadgets-panel';
-                panel.className = 'gadgets-panel';
-                panel.dataset.gadgetGroup = safeId;
-                panel.setAttribute('aria-label', safeLabel + 'ガジェット');
-                div.appendChild(panel);
-                section.appendChild(div);
-                groupsContainer.appendChild(section);
-                try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
+            if (!document.getElementById('sidebar-group-' + safeId)){
+                var created = this._ensureSidebarPanel(safeId, safeLabel);
+                var panel = created && created.panel;
+                if (panel) {
+                    try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
+                }
             }
             try {
                 if (window.elementManager && typeof window.elementManager.initialize==='function') window.elementManager.initialize();

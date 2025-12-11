@@ -323,6 +323,9 @@ window.ZenWriterTabs = {
 2. `index.html` にタブボタンとグループパネルを追加
 3. 必要に応じてガジェット初期化を追加
 
+- 実行時にタブを動的に追加する場合は、`SidebarManager.addTab(id, label)` を呼び出す。
+  - このとき、左サイドバー用の `section.sidebar-group` / `div.gadgets-panel` の生成と `ZWGadgets.init` 呼び出しは SidebarManager 側で行われるため、`index.html` に静的なパネル要素を追加する必要はない。
+
 ### 新しいボタンを追加する
 
 1. `ElementManager` の `elementMap` にボタンを追加
