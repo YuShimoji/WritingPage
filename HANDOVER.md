@@ -573,7 +573,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 特に Plan A として、左サイドバー初期タブ（structure/typography/wiki/assist）を `_ensureSidebarPanel` 経由に寄せる設計・PoC 実装から着手するのが自然な流れ。
 - 本セッション終了時点では、コード/ドキュメントともに `origin/main` と同期済みのため、`git pull` なしでそのまま Plan A の分析フェーズから再開可能。
 
-## 24. C-3 Step3: UI/Editor 独立配色の拡張基盤（2025-12-11）
+## 25. C-3 Step3: UI/Editor 独立配色の拡張基盤（2025-12-11）
 
 ### 実施内容
 
@@ -594,3 +594,16 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - C-4: マイグレーションとテスト（既存設定を UI/Editor 二層構造に割り当て、TESTING.md にシナリオ追記）
 - E-3: 柔軟なタブ配置（Phase E-3/E-4 の仕様整理）
 - editor.js / app.js 分割続行（app-core.js / app-layout.js 抽出）
+
+## 26. セッション 2025-12-12 作業サマリと引き継ぎメモ
+
+### 実施内容
+
+- `git fetch origin` → `git pull --rebase origin main` により、`origin/main` の更新（C-3 Step3）をローカル `main` に取り込み。
+- Windows 環境で `.gitattributes` の `*.js text eol=lf` と作業ツリーの改行（CRLF）が不一致となり、`js/theme-registry.js` / `js/gadgets-themes.js` に意図しない「全行差分」が出る状態を確認。
+- `git add --renormalize` で LF 正規化し、`chore(eol): renormalize theme line endings` をコミット・push。
+- `git status -sb` が `## main...origin/main` であること、および `git diff origin/main` が空であることを確認。
+
+### 次回以降の注意点
+
+- Windows で同様の「全行差分」が出た場合は、まず `.gitattributes` を確認し、必要に応じて `git add --renormalize <files>` で正規化する。

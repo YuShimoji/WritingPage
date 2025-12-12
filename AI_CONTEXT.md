@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-11T22:30:00+09:00
+- 最終更新: 2025-12-12T18:45:00+09:00
 - 現在のミッション: テーマ集中管理基盤の構築・editor.js/app.js の段階的分割とUI基盤リファクタリング継続
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -20,6 +20,7 @@
   - C-3 Step3: UI/Editor 独立配色の拡張基盤を実装（ThemeRegistry に uiColors/editorColors 追加、applyCustomColors 拡張、カラーピッカー Editor 優先）
   - A-1: editor-search.js 抽出完了（検索/置換ロジックを分離、editor.js 1763→1466 行）
   - B-1: フローティングパネルUI改善完了（透明度調整スライダー、折りたたみ/展開ボタン、状態永続化）
+  - 2025-12-12: 改行コード正規化（`.gitattributes` の eol=lf に合わせ、テーマ関連 JS の LF 正規化を実施）
 - 次の中断可能点: C-4（マイグレーションとテスト）、E-3（柔軟なタブ配置）、editor/app 分割続行
 
 ## 決定事項
