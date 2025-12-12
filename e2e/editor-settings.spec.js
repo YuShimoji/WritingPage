@@ -30,6 +30,35 @@ async function openSidebarAndAssistPanel(page) {
   await page.waitForTimeout(500);
 }
 
+async function openSidebarAndStructurePanel(page) {
+  // サイドバーを開き、structure グループを SidebarManager 経由でアクティブ化する
+  await page.waitForSelector('#sidebar', { timeout: 10000 });
+
+  const isOpen = await page.evaluate(() => {
+    const sb = document.getElementById('sidebar');
+    return !!(sb && sb.classList.contains('open'));
+  });
+
+  if (!isOpen) {
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+  }
+
+  await page.evaluate(() => {
+    try {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('structure');
+      }
+      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+        window.ZWGadgets.setActiveGroup('structure');
+      }
+    } catch (_) { /* noop */ }
+  });
+
+  // ガジェットがレンダリングされるまで待機
+  await page.waitForTimeout(500);
+}
+
 test.describe('Editor Settings', () => {
   test('should toggle typewriter mode and save settings', async ({ page }) => {
     // Load the page
@@ -324,8 +353,8 @@ test.describe('Editor Settings', () => {
       return null;
     });
 
-    // Open sidebar and create new document（現行UIでは editor タブは assist グループに統合）
-    await openSidebarAndAssistPanel(page);
+    // Open sidebar and create new document（Documents は structure グループ）
+    await openSidebarAndStructurePanel(page);
 
     // Click new document button with stubbed dialogs (confirm + prompt)
     await page.waitForSelector('#new-document-btn', { state: 'attached' });
@@ -436,8 +465,8 @@ test.describe('Editor Settings', () => {
     // Modify content to simulate later edits
     await page.locator('#editor').fill('Modified content for restore test');
 
-    // Open sidebar (restore button is in file management section)
-    await openSidebarAndAssistPanel(page);
+    // Open sidebar (restore button is in Documents gadget)
+    await openSidebarAndStructurePanel(page);
 
     await page.waitForSelector('#restore-from-snapshot', { state: 'attached' });
     const restoreBtn = page.locator('#restore-from-snapshot');

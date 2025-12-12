@@ -48,6 +48,9 @@ async function openSidebarAndAssistPanel(page) {
       }
     } catch (_) { /* noop */ }
   });
+
+  // ガジェットがレンダリングされるまで待機
+  await page.waitForTimeout(500);
 }
 
 test.describe('Font Decoration System', () => {
@@ -186,7 +189,7 @@ test.describe('HUD Settings', () => {
 
   test('should display HUD settings gadget', async ({ page }) => {
     // HUDSettings gadget should be available in assist group
-    const hudGadgets = await page.locator('#assist-gadgets-panel [data-gadget="HUDSettings"]');
+    const hudGadgets = await page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -194,7 +197,7 @@ test.describe('HUD Settings', () => {
   test('should update HUD width setting', async ({ page }) => {
     // HUDSettings ガジェットを対象とする
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
+      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const widthInput = hudGadget.locator('input[type="number"][min="120"]').first();
@@ -206,7 +209,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD font size setting', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
+      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const fsInput = hudGadget.locator('input[type="number"][min="10"]').first();
@@ -218,14 +221,25 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD colors', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel [data-gadget="HUDSettings"]')
+      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const firstColorInput = hudGadget.locator('input[type="color"]').first();
     await firstColorInput.waitFor({ state: 'attached', timeout: 5000 });
 
-    await firstColorInput.fill('#ff0000', { force: true });
-    await page.waitForTimeout(200);
+    // input[type=color] は fill() だけだと change が発火しない環境があるため、イベントを明示的に送る
+    await firstColorInput.evaluate((el) => {
+      try {
+        el.value = '#ff0000';
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      } catch (_) { /* noop */ }
+    });
+
+    // HUDSettings は保存ボタン押下で永続化される
+    const saveBtn = hudGadget.locator('button.small').first();
+    await saveBtn.click({ force: true });
+    await page.waitForTimeout(250);
 
     const hudConfig = await page.evaluate(() => {
       try {
