@@ -117,7 +117,7 @@ console.log('[Debug] ZWGadgets.init:', typeof window.ZWGadgets?.init);
 if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
     window.ZWGadgets.init('#structure-gadgets-panel', { group: 'structure' });
     window.ZWGadgets.init('#typography-gadgets-panel', { group: 'typography' });
-    window.ZWGadgets.init('#gadgets-panel', { group: 'assist' });
+    window.ZWGadgets.init('#assist-gadgets-panel', { group: 'assist' });
 }
 ```
 
@@ -126,7 +126,7 @@ if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
 console.log('[Debug] Gadget panels:', {
     structure: document.getElementById('structure-gadgets-panel'),
     typography: document.getElementById('typography-gadgets-panel'),
-    assist: document.getElementById('gadgets-panel')
+    assist: document.getElementById('assist-gadgets-panel')
 });
 ```
 

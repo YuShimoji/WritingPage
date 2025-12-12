@@ -1,6 +1,6 @@
 # GADGETS — サイドバーのガジェット化
 
- 本書は `#gadgets-panel` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
+ 本書は `.gadgets-panel[data-gadget-group]` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
 
 > 注記: 本書には「現行実装の説明」と「将来設計/未実装案（旧計画メモを含む）」が混在しています。節タイトルと本文中の説明でステータス（現行/設計案）を明示するよう順次整理していきます。
 
@@ -136,18 +136,18 @@
 
 ## 実装概要
 
-- `index.html` に `#gadgets-panel` を追加
+- `index.html` に各グループ用の `.gadgets-panel[data-gadget-group]` を配置（例: `#structure-gadgets-panel` / `#typography-gadgets-panel` / `#assist-gadgets-panel` / `#wiki-gadgets-panel`）
 - 非埋め込み時のみ `js/gadgets.js` を動的ロード
 - `js/gadgets.js` は以下を提供:
   - `ZWGadgets.register(name, factory)` でガジェットを登録
-  - `ZWGadgets.init(selector)` でコンテナへマウント（既定 `#gadgets-panel`）
+  - `ZWGadgets.init(selector, { group })` でコンテナへマウント
   - 例として `Clock` ガジェットを内蔵
 
 ## 使い方
 
 ```html
 <!-- index.html（抜粋） -->
-<div id="gadgets-panel" class="gadgets-panel"></div>
+<div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"></div>
 <script>
   (function () {
     var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
@@ -224,7 +224,7 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 ## テスト
 
 - `scripts/dev-check.js` が以下を自動検証
-  - `/` のHTMLに `#gadgets-panel` が存在
+  - `/` のHTMLに各グループ用ガジェットパネル（例: `#assist-gadgets-panel`）が存在
   - `/js/gadgets.js` が 200 で取得可能
   - `/index.html?embed=1` に静的な `<script src="js/gadgets.js">` が含まれない
 
