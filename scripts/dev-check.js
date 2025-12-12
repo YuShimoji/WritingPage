@@ -189,13 +189,30 @@ async function loadCssWithImports(url) {
       gadgetsSrc || '',
     );
     const okGadgetsImpExp = hasExportApi && hasImportApi;
+
+    // UI 実装確認（静的）: gadgets-prefs.js の存在と、期待IDの定義を確認
+    const prefsUiPath = path.join(__dirname, '..', 'js', 'gadgets-prefs.js');
+    let prefsUiSrc = '';
+    try {
+      prefsUiSrc = fs.readFileSync(prefsUiPath, 'utf-8');
+    } catch (e) {
+      prefsUiSrc = '';
+    }
+    const hasPrefsUiFile = !!prefsUiSrc;
+    const hasPrefsUiIds =
+      /id\s*=\s*['\"]gadget-export['\"]/.test(prefsUiSrc) &&
+      /id\s*=\s*['\"]gadget-import['\"]/.test(prefsUiSrc) &&
+      /id\s*=\s*['\"]gadget-prefs-input['\"]/.test(prefsUiSrc);
+    const okGadgetsImpExpUi = hasPrefsUiFile && hasPrefsUiIds;
+
     console.log(
-      'CHECK gadgets import/export API ->',
-      okGadgetsImpExp ? 'OK' : 'NG',
+      'CHECK gadgets import/export ->',
+      okGadgetsImpExp && okGadgetsImpExpUi ? 'OK' : 'NG',
       {
         hasExportApi,
         hasImportApi,
-        note: 'UI is not implemented yet',
+        hasPrefsUiFile,
+        hasPrefsUiIds,
       },
     );
 

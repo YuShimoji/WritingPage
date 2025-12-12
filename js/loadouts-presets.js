@@ -29,6 +29,7 @@
             'Clock',
             'MarkdownPreview',
             'UISettings',
+            'GadgetPrefs',
             'Help'
           ],
           typography: ['Themes', 'Typography', 'VisualProfile'],
@@ -65,6 +66,7 @@
             'Clock',
             'MarkdownPreview',
             'UISettings',
+            'GadgetPrefs',
             'Help'
           ],
           typography: ['Themes', 'Typography', 'VisualProfile'],
@@ -86,6 +88,7 @@
             'WritingGoal',
             'Clock',
             'UISettings',
+            'GadgetPrefs',
             'Help'
           ],
           typography: ['Themes', 'Typography', 'VisualProfile'],
