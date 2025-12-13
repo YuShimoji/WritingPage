@@ -13,7 +13,6 @@
  */
 class SidebarManager {
     // 定数定義
-    static TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer
 
     constructor(elementManager) {
         this.elementManager = elementManager;
@@ -423,6 +422,8 @@ class SidebarManager {
         this.applyTabsPresentationUI();
     }
 }
+
+SidebarManager.TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer
 
 // グローバルに公開
 window.SidebarManager = SidebarManager;

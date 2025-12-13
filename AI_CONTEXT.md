@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-13T00:26:00+09:00
-- 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化 → 次はUI配色と執筆エリア配色の分離（C-4）/柔軟なタブ配置（E-3/E-4）
+- 最終更新: 2025-12-14T04:35:00+09:00
+- 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化 → UI配色と執筆エリア配色の分離（C-4）完了。次は柔軟なタブ配置（E-3/E-4）/ editor・app 分割続行
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
@@ -18,13 +18,16 @@
   - C-3 Step1: editor 用 CSS 変数（`--editor-bg`, `--editor-text`）導入
   - C-3 Step2: UI 用 CSS 変数（`--ui-bg`, `--ui-text`）導入、CSS 全体で UI/Editor レイヤを分離（挙動は従来と同一、論理的な分離のみ）
   - C-3 Step3: UI/Editor 独立配色の拡張基盤を実装（ThemeRegistry に uiColors/editorColors 追加、applyCustomColors 拡張、カラーピッカー Editor 優先）
+  - C-4: UI配色と執筆エリア配色の分離を完了（UI は `--ui-*` を参照し、カスタム色は Editor レイヤに反映。テーマ切替時の UI 配色は ThemeRegistry の既定色を優先）
   - A-1: editor-search.js 抽出完了（検索/置換ロジックを分離、editor.js 1763→1466 行）
   - B-1: フローティングパネルUI改善完了（透明度調整スライダー、折りたたみ/展開ボタン、状態永続化）
   - 2025-12-12: 改行コード正規化（`.gitattributes` の eol=lf に合わせ、テーマ関連 JS の LF 正規化を実施）
   - 2025-12-12: ガジェット設定のImport/Export UI（GadgetPrefs）を追加（`js/gadgets-prefs.js`）
   - 2025-12-12: `npm run test:smoke` を更新し、GadgetPrefs UI の存在を検証するように変更
   - 2025-12-12: Playwright E2E（セレクタ/タブ切替）を修正し `npm test` が green（46 passed）
-- 次の中断可能点: UI配色と執筆エリア配色の分離（C-4）、柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
+  - 2025-12-13: E2E の固定URL参照（`http://localhost:8080`）を廃止し、Playwright の baseURL に追従（`page.goto('/')`）するよう修正。`npm run test:e2e` green
+  - 2025-12-14: markdownlint/ESLint を全て解消し、E2E フレーク（タブ切替/大文字小文字検索）を待ち条件強化で安定化。`npm run lint` / `npx playwright test --workers=2` green（46 passed）
+- 次の中断可能点: 柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
 
 ## 決定事項
 
@@ -34,13 +37,13 @@
 - Mission 9 では sidebar の開閉とアニメーションをテスト中に制御する暫定措置を採用（Issue #78 でフォローアップ）
 - Mission 10 では DocFX を用いたドキュメントサイト構築と GitHub Pages 自動デプロイを実装する
 - Mission 12 以降では、サイドバーの利便性機能（例: 執筆目標）は原則ガジェット化し、ガジェット/アコーディオン内の並び替え・表示制御を計画的に整備する
- - CSS変数 `--app-bg-gradient` を導入し、背景グラデーションはガジェットから制御
- - SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
- - OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
- - Lucide アイコンセットを導入し、最小サブセット（Eye, EyeOff, Settings）でUIテキストラベルを置き換え
- - dev-check.js を現行UI構造（multi-panel）に対応し、プラグイン廃止・ガジェット構造チェックを更新
- - マジックナンバーを定数化（SidebarManager.TRANSITION_TIMEOUT_MS, EditorManager タイマー関連定数）
- - 重複コード削減のため updateSettingsPatch() ヘルパーを導入し、設定更新パターンを統一
+- CSS変数 `--app-bg-gradient` を導入し、背景グラデーションはガジェットから制御
+- SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
+- OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
+- Lucide アイコンセットを導入し、最小サブセット（Eye, EyeOff, Settings）でUIテキストラベルを置き換え
+- dev-check.js を現行UI構造（multi-panel）に対応し、プラグイン廃止・ガジェット構造チェックを更新
+- マジックナンバーを定数化（SidebarManager.TRANSITION_TIMEOUT_MS, EditorManager タイマー関連定数）
+- 重複コード削減のため updateSettingsPatch() ヘルパーを導入し、設定更新パターンを統一
 
 ## リポジトリ構成（中央ワークフロー採用）
 
@@ -98,6 +101,7 @@
 ## Backlog（将来提案）
 
 ### 最近解決
+
 - ✅ gadgets.js モジュール化完了（core/utils/loadouts/init/builtin に分割）
 - ✅ TypographyThemes ガジェットを Themes/Typography/VisualProfile に分割
 - ✅ 旧 gadgets.js を js/_legacy/ にアーカイブ
@@ -106,9 +110,10 @@
 - ✅ フェーズ C/D 完了（サイドバー構造安定化、HUD拡張）
 - ✅ テーマプリセット調整（dark のグレー化、night 追加）と THEMES/BACKLOG 更新
 - ✅ フローティングパネルのタイトル編集とタイトル永続化（Phase E）
- - ✅ Selection Tooltip v1 実装（テキスト選択に連動した装飾/挿入ツールチップ、EDITOR_EXTENSIONS.md 準拠）
+- ✅ Selection Tooltip v1 実装（テキスト選択に連動した装飾/挿入ツールチップ、EDITOR_EXTENSIONS.md 準拠）
 
 ### 残存課題
+
 - editor.js (1763行) / app.js (1437行) の整理（各 500行以下を目標）
 - Typora風ツリーペインの実装（ドキュメント管理の階層化）
 - 汎用フローティングパネル機能（任意ガジェットの切り離し）
@@ -116,6 +121,7 @@
 - ガジェット登録APIの型安全性強化
 
 ### 将来機能
+
 - **Phase E: パネル・レイアウト機能**
   - フローティングパネル機能（サイドバーから切り離し、透明度調整）
   - 柔軟なタブ配置システム（上下左右への配置）

@@ -110,9 +110,11 @@ Scene ガジェットは、背景を以下の 3 レイヤ構造で扱うこと�
   - `SidebarManager.addTab(id, label)` はこのヘルパを利用して `section.sidebar-group` / `div.gadgets-panel` を用意し、`ZWGadgets.init('#' + groupId + '-gadgets-panel', { group: groupId })` を呼び出す。
 
 今後、
+
 - 左サイドバー以外の Region（例: bottom ゾーンやフローティングパネル）にも同様の Panel/GadgetContainer 抽象レイヤを拡張する。
 - Panel/GadgetContainer API の安定化
 - EditorArea 分割とレイアウト保存形式の定義
+
 を追加し、この文書を更新していきます。
 
 SceneGradient ガジェットの PoC 実装は 2025-12-04 時点で完了済みであり、詳細は HANDOVER.md を参照してください。

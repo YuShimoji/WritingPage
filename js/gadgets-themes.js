@@ -157,7 +157,7 @@
           paletteContainer.appendChild(hint);
           return;
         }
-        customPresets.forEach(function (preset, idx) {
+        customPresets.forEach(function (preset, _idx) {
           var btn = document.createElement('button');
           btn.type = 'button';
           btn.className = 'small';

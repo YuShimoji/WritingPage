@@ -27,7 +27,7 @@
   var normaliseGroups = utils.normaliseGroups;
   var emit = utils.emit;
   var STORAGE_KEY = utils.STORAGE_KEY;
-  var LOADOUT_KEY = utils.LOADOUT_KEY;
+  var _LOADOUT_KEY = utils.LOADOUT_KEY;
   var KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
 

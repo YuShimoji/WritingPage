@@ -1,11 +1,13 @@
 # 作業申し送り: Zen Writer リファクタリング作業中
 
 ## 概要
+
 Zen Writerのストーリーエディタ・ライティングエディタ開発のための土台盤石化を目的として、コードベースのリファクタリングを進行中です。ガジェットアーキテクチャの安定化、テストの修正、コード整理を実施し、プロジェクト全体の品質向上を進めています。
 
 ## 現在のプロジェクト状況
 
 ### 目標
+
 - **ストーリーエディタ・ライティングエディタ開発の土台盤石化**
 - **コードベースの品質向上**: 単一責任、命名規則、モジュール分割、ハードコーディング除去、長すぎるスクリプトの分割
 - **テスト環境の安定化**: smoke/e2eテストの実行可能性確保
@@ -13,29 +15,34 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 
 ### 実施済み作業
 
-#### 1. リモート更新の同期とコンフリクト解消 ✅
+#### 1. リモート更新の同期とコンフリクト解消
+
 - リモートからの最新更新を取得
 - merge conflictを解決し、ローカル環境を安定化
 - プロジェクト構造の確認とドキュメント更新
 
-#### 2. プロジェクト全体像の把握 ✅
+#### 2. プロジェクト全体像の把握
+
 - 構造分析: 主要コンポーネントの依存関係理解
 - ドキュメント確認: GADGETS.md, wiki-help.html, editor-help.html
 - 既存Issueの棚卸しと優先度付け
 
-#### 3. 未実装機能・未修正の総ざらいと優先度付け ✅
+#### 3. 未実装機能・未修正の総ざらいと優先度付け
+
 - `gadgets.js` (2994行): → モジュール化完了、`js/_legacy/gadgets.js` にアーカイブ済み
 - Wiki/StoryWikiガジェットの重複実装問題
 - UI構造変更に伴うテストセレクタの不整合
 - ガジェットロードアウト処理の再確認が必要
 
-#### 4. コードベース分析とリファクタリング計画策定 ✅
+#### 4. コードベース分析とリファクタリング計画策定
+
 - `docs/REFACTORING_PLAN.md` に詳細な計画書を作成
 - 短期計画: gadgets.js分割 → 完了、ビルトインガジェット個別ファイル化 → 完了
 - 中期計画: editor.js/app.js整理、未実装機能の実装
 - 品質基準: テストカバレッジ80%以上、静的解析エラー0件
 
-#### 5. リファクタリング実行（第一段階）✅
+#### 5. リファクタリング実行（第一段階）
+
 - **smoke test修正**: `scripts/dev-check.js` を現在のUI構造に合わせて更新
   - pluginsパネルをオプション扱いに変更
   - gadgetsパネルIDを `structure-gadgets-panel`, `assist-gadgets-panel` に統一
@@ -47,7 +54,8 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - `js/gadgets.js`: カラーピッカーに `#bg-color`, `#text-color`, テーマボタンに `data-theme-preset` 属性、リセットボタン `#reset-colors`
   - `js/gadgets-editor-extras.js`: Typewriter/Snapshotガジェットのコントロールに適切なID付与
 
-#### 6. テスト実行と動作確認 ✅
+#### 6. テスト実行と動作確認
+
 - **Smokeテスト**: ALL TESTS PASSED (全項目合格)
 - **E2Eテスト**: 39 passed, 7 failed (大幅改善: 32→39 passed)
   - 残存失敗: theme-colors関連3件, editor-settings関連4件
@@ -56,6 +64,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 ### 現在のテスト状況
 
 #### 合格項目 (39件)
+
 - Clockガジェット: 時間表示切替、設定永続化
 - HUD Settings: 設定UI表示、幅・フォントサイズ設定
 - Font Decoration: 基本装飾適用
@@ -65,6 +74,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - ドキュメント切替: 自動保存機能
 
 #### 失敗項目 (7件)
+
 1. **Theme Colors** (3件):
    - テーマ切替時のカラーピッカー値不一致
    - カスタム色適用・永続化
@@ -79,12 +89,14 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 ### 技術的発見と課題
 
 #### ガジェットアーキテクチャの現状
+
 - **ZWGadgets.register()**: 機能追加の標準API
 - **ロードアウトシステム**: `DEFAULT_LOADOUTS` でプリセット構成管理
 - **グループ化**: `structure`, `assist`, `typography`, `wiki` の4グループ
 - **動的レンダリング**: SidebarManager経由でのタブ/パネル管理
 
 #### 特定された問題
+
 - **gadgets.js肥大化**: 2994行の単一ファイル、複数の責任を担う
 - **ID重複**: 複数パネルに同一ガジェットがレンダリングされる場合のID競合
 - **レンダリングタイミング**: ガジェット初期化とUI要素表示の同期問題
@@ -93,32 +105,38 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 ### 次の作業計画
 
 #### 短期（次のセッション）
+
 1. **gadgets.js分割開始**: core.js, loadouts.js, utils.js への分割
 2. **ビルトインガジェット個別化**: 各ガジェットを別ファイルに分離
 3. **残存e2eテスト修正**: 7件の失敗原因を特定し修正
 
 #### 中期
+
 1. **editor.js/app.js整理**: 責任分離とモジュール化
 2. **未実装機能の実装**: REFACTORING_PLAN.md記載の機能
 3. **ドキュメント更新**: API仕様、開発ガイドの充実
 
 #### 品質目標
+
 - **テストカバレッジ**: 最低80%、重要モジュール90%以上
 - **静的解析**: エラー0件
 - **パフォーマンス**: 起動時間改善、メモリ使用量最適化
 
 ### 環境・ツール状況
-- **開発サーバー**: http://127.0.0.1:8080 (正常動作)
+
+- **開発サーバー**: <http://127.0.0.1:8080> (正常動作)
 - **テスト環境**: Playwright e2e, 内部smokeテスト
 - **依存関係**: 既存パッケージに変更なし
 - **Git**: 最新コミット 0932f89, リモート同期済み
 
 ### 懸念事項
+
 1. **e2eテストの不安定性**: タイミング依存の失敗が残存
 2. **ガジェットレンダリング**: 複数グループ間での状態同期
 3. **パフォーマンス**: 大規模リファクタリング中の動作確認
 
 ### 完了基準
+
 - [ ] e2eテスト全合格 (現在39/46)
 - [ ] gadgets.jsのモジュール分割完了
 - [ ] 主要リファクタリング項目の実装
@@ -131,12 +149,14 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 **次回作業開始予定**: C-3 Step2（UI/エディタ配色レイヤ本格分離）と B-1（フローティングパネルUI改善）、A-1（editor-search.js 抽出）の優先度評価と着手
 
 ### 9. UI アーキテクチャ仕様ドキュメント作成
+
 - `docs/UI_ARCHITECTURE.md` を新規作成
 - Region / Panel / Gadget / GadgetContainer / Scene / EditorArea の役割を定義
 - FAB Layer の統一管理方針、Scenes & Gradients の3レイヤ構造（Base/Pattern/Overlay）を設計
 - 将来の複数エディタ分割・動画背景・設定UI拡張を見据えた基盤仕様を整理
 
 ### 10. SceneGradient ガジェット PoC 実装（Cステップ）
+
 - `js/gadgets-editor-extras.js` に `SceneGradient` ガジェットを追加
 - Base / Pattern / Overlay の3レイヤ構造で背景グラデーションを制御
   - **Base Layer**: 単色 / 線形グラデーション / 放射グラデーション、角度・色・強度調整
@@ -147,6 +167,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - JS lint / smoke テスト全項目パス
 
 ### 11. 物語WikiとReference Wikiの分離、およびサイドバー挙動の安定化（2025-11-20）
+
 - `css/style.css` の `.editor-container` レイアウトを調整し、サイドバー展開時に右側へ一瞬白い余白がアニメーション表示される問題を修正
   - `width` のトランジションを廃止し、`margin-left` のみで押し出す方式に統一
   - `body { overflow-x: hidden; }` を追加し、横スクロールバーの発生と画面端のチラつきを抑制
@@ -163,6 +184,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 既存の Reference Wiki 相当のコンテンツは docs 配下に集約し、サイドバーの狭い領域には「物語用Wiki」だけを残す方針に更新
 
 ### 12. 物語Wiki E2Eテスト安定化（2025-11-21）
+
 - `e2e/wiki.spec.js` を現行の `js/wiki.js` 実装に合わせて更新
   - サイドバーの Wiki タブを開いてから `#wiki-gadgets-panel` を待機するよう前処理を修正
   - 「新規ページ」「検索」「空状態」のテストを UI 構造に追従
@@ -170,6 +192,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `npm run dev-check` および `npx playwright test e2e/wiki.spec.js` がローカルでグリーンであることを確認
 
 ### 14. Markdownライブプレビュー性能改善（2025-12-02）
+
 - `js/editor.js` の `renderMarkdownPreview()` をデバウンス版と即時版に分離
   - デバウンス版: 100msデバウンスでinputイベントの高頻度更新を抑制（パフォーマンス改善）
   - 即時版: `_renderMarkdownPreviewImmediate()` で初期化時等の即時更新を保証
@@ -178,6 +201,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `node scripts/dev-check.js` 全項目パス
 
 ### 15. UIモード実装 (Normal/Focus/Blank)（2025-12-03）
+
 - `css/style.css` に `html[data-ui-mode='focus']` / `html[data-ui-mode='blank']` のCSSルールを追加
   - Focus: サイドバー・HUD・FABを非表示、ツールバーは残す
   - Blank: すべてのUIを非表示、エディタのみ表示
@@ -189,6 +213,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `node scripts/dev-check.js` 全項目パス
 
 ### 16. Live Preview 差分適用 (morphdom)（2025-12-03）
+
 - `index.html` に morphdom CDN を追加
 - `js/editor.js` の `_renderMarkdownPreviewImmediate()` を morphdom 版に更新
   - DOM差分適用でスクロール位置・フォーカスを保持
@@ -197,6 +222,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `node scripts/dev-check.js` 全項目パス
 
 ### 17. Phase E: フローティングパネル PoC（2025-12-05）
+
 - `js/gadgets-editor-extras.js` の UISettings ガジェットに「構造パネルをフローティング表示 (PoC)」ボタンを追加
   - `ZenWriterPanels.createDockablePanel()` を使用してフローティングパネルを生成
   - パネル内に structure グループのガジェットをミラー表示
@@ -206,6 +232,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - `node scripts/dev-check.js` 全項目パス
 
 ## 現在の状態
+
 - 開発サーバー: `http://127.0.0.1:8080` で起動
 - エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
 - 余白背景: EditorLayout ガジェットで幅・余白を設定した場合のみベージュ適用
@@ -220,6 +247,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 ## 次の作業
 
 ### 完了: Phase E-2 フローティングパネル本実装（2025-12-05）
+
 - ✅ 状態保存（位置・サイズ・開閉状態）を settings に永続化
 - ✅ 初期表示位置の最適化（画面中央寄せ）
 - ✅ 全タブ対応（structure / typography / assist / wiki）
@@ -227,33 +255,40 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 - 透明度調整UI・ショートカットキー（任意・次期対応）
 
 ### 優先: UIアーキテクチャの詳細化
+
 - GadgetContainer の開閉・フローティング管理を強化（Phase E と連携）
 - EditorArea 分割・レイアウト保存形式の定義
 - FAB Layer の設定UIからの編集機能を追加
 
 ### Wiki/ガジェットまわりの整理
+
 - 物語Wikiに混入している既存のヘルプ系Wikiページ（`help-*`）のストレージ整理
 
 ### コード品質向上
+
 - 大きなファイルのリファクタリング（gadgets.js, app.js など）
 - ESLint/Prettier 導入検討
 - E2Eテストの現行実装対応修正（HUD, Wiki, Theme など）
 
 ### 長期的な拡張
+
 - 動画背景・Canvasパターンの別ガジェット化
 - Typora風ツリーペイン（ドキュメント管理統合）
 - プラグイン拡張システム
 
 ## 注意点
+
 - e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
 - ブラウザキャッシュクリアで最新変更が反映されることを確認
 - EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
 - UIラボページは開発用なので、本番UIとは独立して挙動確認に使用
 
 ## コミット情報
+
 変更ファイルをコミット・プッシュしてください。
 
 コミット済み:
+
 - `fix(ui): editor layout background and toolbar icons`
   - `js/gadgets-editor-extras.js`: EditorLayout ガジェットの背景適用条件を修正
   - `index.html`: ツールバーアイコン重複を解消
@@ -276,6 +311,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
   - `docs/HANDOVER.md`: 作業内容追加更新
 
 コミット予定:
+
 - `feat(ui): add SceneGradient gadget PoC`
   - `js/gadgets-editor-extras.js`: SceneGradient ガジェット実装（Base/Pattern/Overlay 3レイヤ）
   - `HANDOVER.md`: SceneGradient PoC 実装を追加

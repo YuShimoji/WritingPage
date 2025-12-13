@@ -16,16 +16,6 @@ class ThemeManager {
     this.settings = window.ZenWriterStorage.loadSettings();
     // 最初にテーマを適用
     this.applyTheme(this.settings.theme);
-    // カスタムカラーが有効な場合のみ上書き
-    if (this.settings.useCustomColors) {
-      this.applyCustomColors(
-        this.settings.bgColor,
-        this.settings.textColor,
-        true,
-      );
-    } else {
-      this.clearCustomColors();
-    }
     this.applyFontSettings(
       this.settings.fontFamily || this.settings.fontFamilyContent,
       this.settings.fontSize,
@@ -40,6 +30,7 @@ class ThemeManager {
    * @param {string} theme - テーマ名 (light, dark, sepia)
    */
   applyTheme(theme) {
+    theme = theme || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     this.settings.theme = theme;
     
@@ -49,11 +40,13 @@ class ThemeManager {
     // カスタムカラー無効時はテーマの既定色を使うため、上書きをクリア
     if (!this.settings.useCustomColors) {
       this.clearCustomColors();
-      // カラーピッカーの値をテーマの既定色に更新
-      this.updateColorPickers(themeColor.bgColor, themeColor.textColor);
+      return;
     }
-    window.ZenWriterStorage.saveSettings(this.settings);
-    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+
+    // useCustomColors 有効時: Editor のカスタム色を維持しつつ、UI レイヤはテーマ既定色を優先する
+    const bg = this.settings.bgColor || themeColor.bgColor;
+    const text = this.settings.textColor || themeColor.textColor;
+    this.applyCustomColors(bg, text, true);
   }
 
   /**
@@ -80,16 +73,23 @@ class ThemeManager {
    */
   applyCustomColors(bgColor, textColor, enable = true, options = {}) {
     const root = document.documentElement;
-    
-    // C-3 Step3: UI/Editor レイヤ別の色を取得（省略時は bgColor/textColor を使用）
-    const uiBgColor = options.uiBgColor || bgColor;
-    const uiTextColor = options.uiTextColor || textColor;
+
+    // C-4: UI/Editor 分離
+    // - Editor レイヤ: bgColor/textColor（ユーザー指定）
+    // - UI レイヤ: options 指定があればそれを優先。未指定ならテーマの UI 既定色（ThemeRegistry）を優先。
+    const currentTheme = this.settings.theme || document.documentElement.getAttribute('data-theme') || 'light';
+    const themeUiColors = (window.ThemeRegistry && typeof window.ThemeRegistry.getUIColors === 'function')
+      ? window.ThemeRegistry.getUIColors(currentTheme)
+      : (this.themeColors[currentTheme] || this.themeColors.light);
+
+    const uiBgColor = options.uiBgColor || (themeUiColors && themeUiColors.bgColor) || bgColor;
+    const uiTextColor = options.uiTextColor || (themeUiColors && themeUiColors.textColor) || textColor;
     const editorBgColor = bgColor;
     const editorTextColor = textColor;
     
     // レガシー変数（後方互換）
-    root.style.setProperty('--bg-color', bgColor);
-    root.style.setProperty('--text-color', textColor);
+    root.style.setProperty('--bg-color', uiBgColor);
+    root.style.setProperty('--text-color', uiTextColor);
     
     // UI レイヤ
     root.style.setProperty('--ui-bg', uiBgColor);

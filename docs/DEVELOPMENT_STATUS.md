@@ -34,10 +34,10 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
 - [x] ガジェット登録・レンダリングシステム
 - [x] ロードアウトの保存・適用機能
 - [x] 動的タブ追加・削除のAPI（`sidebarManager.addTab/removeTab`）
- - [~] タブへのガジェット動的割り当て（ロードアウト経由の部分実装）
- - [x] フローティングパネル機能（Docking/split モデル＋位置・サイズ・開閉状態の永続化、透明度調整・折りたたみUIまで実装済み）
- - [x] 左サイドバー向け Panel/GadgetContainer 薄い抽象レイヤ PoC（`SidebarManager._ensureSidebarPanel` / `addTab`）
- - [ ] 柔軟な配置システム（タブの上下左右配置や任意タブへのガジェット割り当てなど、Phase E-3/E-4 で対応予定）
+- [~] タブへのガジェット動的割り当て（ロードアウト経由の部分実装）
+- [x] フローティングパネル機能（Docking/split モデル＋位置・サイズ・開閉状態の永続化、透明度調整・折りたたみUIまで実装済み）
+- [x] 左サイドバー向け Panel/GadgetContainer 薄い抽象レイヤ PoC（`SidebarManager._ensureSidebarPanel` / `addTab`）
+- [ ] 柔軟な配置システム（タブの上下左右配置や任意タブへのガジェット割り当てなど、Phase E-3/E-4 で対応予定）
 
 ## 直近の開発項目 (v0.3.16 実装済み)
 
@@ -81,6 +81,7 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
 | パフォーマンス最適化 | selection range measurement | 文字数スタンプの位置計算負荷削減 | 中 |
 
 ※ v0.3.18 時点では、次の項目は実装済みです（詳細は `CHANGELOG.md` を参照してください）。
+
 - OpenSpec仕様: Draft capability deltas / Validate with strict mode
 - UI/UX改善: カラーパレットの現在の色反映機能
 - UI/UX改善: エディタキー移動時のガクガク振動修正

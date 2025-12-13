@@ -180,7 +180,8 @@ js/
 3. 開発サーバー＋ `npm run test:smoke` で挙動確認。
 4. 安定後、徐々に editor.js 本体からロジックを削除し、「EditorManager 定義＋エントリポイント」程度の薄いファイルに縮小していく。
 
-**進捗メモ（2025-12-07〜2025-12-11 時点）**
+#### 進捗メモ（2025-12-07〜2025-12-11 時点）
+
 - `editor-preview.js` に Markdown プレビュー処理を抽出し、EditorManager からは `editorPreview_renderMarkdownPreview*` を経由して委譲。
 - `editor-images.js` に画像ペースト/ドラッグ&ドロップ、画像挿入用 Markdown 生成、旧 `data:image` 埋め込みの Asset 化、および画像プレビュー生成処理を抽出し、EditorManager からは薄いラッパーのみ残す構成に変更。
 - `editor-overlays.js` にオーバーレイ描画（画像オーバーレイ・インラインスタンプ）、ドラッグ/リサイズハンドラ、mirror HTML 構築処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。

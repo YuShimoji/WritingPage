@@ -1,6 +1,7 @@
 # Zen Writer アーキテクチャドキュメント
 
 ## 📋 目次
+
 1. [概要](#概要)
 2. [システム構成](#システム構成)
 3. [主要コンポーネント](#主要コンポーネント)
@@ -13,6 +14,7 @@
 Zen Writerは、小説執筆に特化したWebベースのテキストエディタです。
 
 ### 主な特徴
+
 - **ミニマルなUI**: 執筆に集中できるシンプルなインターフェース
 - **完全ガジェットベースアーキテクチャ**: すべての追加機能をガジェット化
 - **動的タブシステム**: ユーザーが自由にタブを追加・削除可能
@@ -25,7 +27,7 @@ Zen Writerは、小説執筆に特化したWebベースのテキストエディ�
 
 ### ディレクトリ構造
 
-```
+```text
 WritingPage/
 ├── index.html                 # メインHTML
 ├── css/
@@ -74,6 +76,7 @@ class ElementManager {
 ```
 
 **重要なポイント**:
+
 - `sidebarTabs`, `sidebarGroups`, `themePresets` は複数要素として取得
 - その他の要素は単一要素として取得
 - 取得失敗時はnullまたは空配列を返す
@@ -142,20 +145,17 @@ activateSidebarGroup(groupId)
 すべてのタブのactive状態更新
   ↓
 すべてのグループの表示状態更新
-  ↓
-ZWGadgets.setActiveGroup(groupId)
-  ↓
-アクティブグループのガジェットのみレンダリング（パフォーマンス最適化）
-```
 
 ### 3. サイドバー開閉システム
 
 **ボタンの役割**:
+
 - `#toggle-sidebar`: サイドバーの開閉を切り替え（ツールバー）
 - `#sidebar-header-close`: サイドバーを閉じる（サイドバーヘッダー内）
 - `#toolbar-close-sidebar`: サイドバーを閉じる（ツールバー内、サイドバーが開いているときのみ表示）
 
 **状態管理**:
+
 ```javascript
 function forceSidebarState(open) {
     sidebar.classList.toggle('open', !!open);
@@ -167,6 +167,7 @@ function forceSidebarState(open) {
 ### 4. ガジェット初期化とレンダリング
 
 **初期化プロセス**:
+
 ```javascript
 // 表示されているパネルのみ初期化
 const panels = [
@@ -218,7 +219,7 @@ UI設定適用
 
 ### 2. タブ切り替え
 
-```
+```text
 ユーザーがタブをクリック
   ↓
 activateSidebarGroup(groupId)
@@ -236,7 +237,7 @@ applyTabsPresentationUI()
 
 ### 3. データ保存
 
-```
+```text
 エディタ入力
   ↓
 自動保存トリガー（遅延）
@@ -251,43 +252,52 @@ HUD通知（オプション）
 ## 重要な設計原則
 
 ### 1. **ID の一意性**
+
 - HTML内のすべてのIDは一意でなければならない
 - 同じ機能を持つ複数のボタンには、異なるIDを付与
 
 ### 2. **要素の取得**
+
 - すべての要素取得は`ElementManager`経由で行う
 - 直接`document.getElementById()`を使用しない
 
 ### 3. **イベントリスナー**
+
 - イベントリスナーは`DOMContentLoaded`内で設定
 - 複数要素には`forEach`でリスナーを設定
 
 ### 4. **デバッグログ**
+
 - 開発環境でのみログを出力（`localhost` / `127.0.0.1`）
 - 本番環境ではエラーと警告のみ出力
 
 ### 5. **アクセシビリティ**
+
 - `aria-hidden`, `aria-selected`, `aria-controls` を適切に設定
 - `role="tablist"`, `role="tabpanel"` でタブ構造を明示
 
 ## 既知の問題と対策
 
 ### 問題1: 重複ID
+
 **症状**: 複数の要素が同じIDを持つ
 **原因**: HTML設計の不備
 **対策**: すべてのIDを一意にする
 
 ### 問題2: 単一要素として取得された複数要素
+
 **症状**: タブが1つしか動作しない
 **原因**: `querySelector`で複数要素を取得
 **対策**: `querySelectorAll`を使用し、`ElementManager`で管理
 
 ### 問題3: スコープ外の要素参照
+
 **症状**: `elementManager is not defined`
 **原因**: 関数スコープ外からアクセス
 **対策**: `window.elementManager`としてグローバルに公開
 
 ### 対策済み
+
 - ElementManagerによる中央集権的な要素管理
 - 複数要素の適切な取得と管理
 - デバッグログによる動作確認
@@ -295,6 +305,7 @@ HUD通知（オプション）
 ## グローバルAPI
 
 ### ZenWriterAPI
+
 ```javascript
 window.ZenWriterAPI = {
     getContent(),      // 現在の本文を取得
@@ -305,6 +316,7 @@ window.ZenWriterAPI = {
 ```
 
 ### ZenWriterTabs
+
 ```javascript
 window.ZenWriterTabs = {
     getAvailableTabs(),  // 利用可能なタブ一覧

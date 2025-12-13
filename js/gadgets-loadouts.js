@@ -7,14 +7,14 @@
 
   var clone = utils.clone;
   var uniquePush = utils.uniquePush;
-  var normalizeGroupName = utils.normalizeGroupName;
-  var normalizeGroupList = utils.normalizeGroupList;
-  var normalizeList = utils.normalizeList;
+  var _normalizeGroupName = utils.normalizeGroupName;
+  var _normalizeGroupList = utils.normalizeGroupList;
+  var _normalizeList = utils.normalizeList;
   var normaliseGroups = utils.normaliseGroups;
   var emit = utils.emit;
   var STORAGE_KEY = utils.STORAGE_KEY;
   var LOADOUT_KEY = utils.LOADOUT_KEY;
-  var KNOWN_GROUPS = utils.KNOWN_GROUPS;
+  var _KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
 
   var loadoutState = null;

@@ -63,30 +63,40 @@ test.describe('Sidebar Layout', () => {
     await page.goto('/');
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
-    
-    // Switch between existing tabs multiple times (structure / wiki / assist)
-    await page.locator('.sidebar-tab[data-group="structure"]').waitFor();
-    await page.click('.sidebar-tab[data-group="structure"]');
-    await page.waitForTimeout(100);
 
-    await page.click('.sidebar-tab[data-group="wiki"]');
-    await page.waitForTimeout(100);
+    const sidebar = page.locator('#sidebar');
+    await expect(sidebar).toHaveClass(/open/);
 
-    await page.click('.sidebar-tab[data-group="assist"]');
-    await page.waitForTimeout(100);
-
-    await page.click('.sidebar-tab[data-group="structure"]');
-    await page.waitForTimeout(100);
-
-    await page.click('.sidebar-tab[data-group="assist"]');
-    await page.waitForTimeout(100);
-    
-    // Verify final tab is active
+    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
+    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
     const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
-    await expect(assistTab).toHaveClass(/active/);
-    
-    // Verify corresponding panel is visible
+
+    const structurePanel = page.locator('.sidebar-group[data-group="structure"]');
+    const wikiPanel = page.locator('.sidebar-group[data-group="wiki"]');
     const assistPanel = page.locator('.sidebar-group[data-group="assist"]');
+
+    await expect(structureTab).toBeVisible();
+    await expect(wikiTab).toBeVisible();
+    await expect(assistTab).toBeVisible();
+
+    // Switch between existing tabs multiple times (structure / wiki / assist)
+    await structureTab.click();
+    await expect(structurePanel).toHaveClass(/active/);
+
+    await wikiTab.click();
+    await expect(wikiPanel).toHaveClass(/active/);
+
+    await assistTab.click();
+    await expect(assistPanel).toHaveClass(/active/);
+
+    await structureTab.click();
+    await expect(structurePanel).toHaveClass(/active/);
+
+    await assistTab.click();
+    await expect(assistPanel).toHaveClass(/active/);
+
+    // Verify final tab is active
+    await expect(assistTab).toHaveClass(/active/);
     await expect(assistPanel).toHaveClass(/active/);
   });
 

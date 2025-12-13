@@ -358,7 +358,7 @@ test.describe('Editor Settings', () => {
 
     // Click new document button with stubbed dialogs (confirm + prompt)
     await page.waitForSelector('#new-document-btn', { state: 'attached' });
-    const newBtn = page.locator('#new-document-btn');
+    const _newBtn = page.locator('#new-document-btn');
 
     await page.evaluate(() => {
       (window).__zwDialogLog = [];
@@ -469,7 +469,7 @@ test.describe('Editor Settings', () => {
     await openSidebarAndStructurePanel(page);
 
     await page.waitForSelector('#restore-from-snapshot', { state: 'attached' });
-    const restoreBtn = page.locator('#restore-from-snapshot');
+    const _restoreBtn = page.locator('#restore-from-snapshot');
     await page.evaluate(() => {
       const btn = document.getElementById('restore-from-snapshot');
       if (btn) btn.click();

@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-async function openSidebarAndStructurePanel(page) {
+async function _openSidebarAndStructurePanel(page) {
   // サイドバーを開き、structure グループを正式なAPI経由でアクティブにする
   await page.waitForSelector('#sidebar', { timeout: 10000 });
 
@@ -55,7 +55,7 @@ async function openSidebarAndAssistPanel(page) {
 
 test.describe('Font Decoration System', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     // Wait for editor to load
     await page.waitForSelector('#editor', { timeout: 10000 });
   });
@@ -172,7 +172,7 @@ test.describe('Font Decoration System', () => {
 
 test.describe('HUD Settings', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     // HUD 関連ロードアウトを初期化してデフォルト構成（HUDSettings を含む）に戻す
     await page.evaluate(() => {
       try {
@@ -260,7 +260,7 @@ test.describe('HUD Settings', () => {
 
 test.describe('Search and Replace', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
   });
 
@@ -366,12 +366,17 @@ test.describe('Search and Replace', () => {
     await page.keyboard.press('Control+f');
     await page.waitForSelector('#search-panel', { timeout: 5000 });
     await page.fill('#search-input', 'Hello');
-    await page.check('#search-case-sensitive');
-    await page.waitForTimeout(300);
+
+    const caseCheckbox = page.locator('#search-case-sensitive');
+    await caseCheckbox.check();
+    await expect(caseCheckbox).toBeChecked();
 
     // 大文字/小文字を区別する場合は、先頭の "Hello" のみが一致対象
-    const matchCount = await page.locator('#match-count');
-    await expect(matchCount).toContainText('1 件一致しました');
+    const matchCount = page.locator('#match-count');
+    await expect(matchCount).toBeVisible();
+    await expect
+      .poll(async () => (await matchCount.textContent()) || '')
+      .toContain('1 件一致しました');
   });
 
   test('should close search panel', async ({ page }) => {

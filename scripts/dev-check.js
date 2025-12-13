@@ -126,15 +126,15 @@ async function loadCssWithImports(url) {
     const hasSetSetting = /setSetting\s*\(\s*name,\s*key,\s*value\s*\)\s*\{/m.test(
       gadgetsSrc,
     );
-    const hasDraggable =
+    const _hasDraggable =
       /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(
         gadgetsSrc,
       );
-    const hasDnDData =
+    const _hasDnDData =
       /dataTransfer\.setData\(\s*['\"]text\/gadget-name['\"],/m.test(
         gadgetsSrc,
       );
-    const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(
+    const _hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(
       gadgetsSrc,
     );
     // Documents ガジェットは gadgets-builtin.js に定義

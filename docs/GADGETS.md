@@ -190,14 +190,14 @@ ZWGadgets.register(
 );
 ```
 
-2. ロードアウトへ含める（任意）
+1. ロードアウトへ含める（任意）
 
 ```js
 // 既定プリセットに含めたい場合は DEFAULT_LOADOUTS を編集
 // assist や typography 等の希望グループへガジェット名を追加
 ```
 
-3. 設定UIを付ける（任意）
+1. 設定UIを付ける（任意）
 
 ```js
 ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
@@ -211,12 +211,12 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 });
 ```
 
-4. 並び順・折りたたみは自動保存
+1. 並び順・折りたたみは自動保存
 
 - ヘッダの「↑/↓」「▼/▶」操作は `prefs.order` / `prefs.collapsed` に自動保存されます。
 - ドラッグ＆ドロップでも並び替え可能です。
 
-5. テスト
+1. テスト
 
 - 画面で追加ガジェットが表示されること。
 - 必要なら `ZWGadgets.assignGroups('MyGadget', ['assist'])` で所属を動的変更。

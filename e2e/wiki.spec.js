@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('Story Wiki', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:8080');
+    await page.goto('/');
     const sidebar = page.locator('.sidebar');
     const toggleBtn = page.locator('#toggle-sidebar');
 

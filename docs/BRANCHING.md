@@ -47,4 +47,4 @@
 
 ## 参考
 
-- Conventional Commits: https://www.conventionalcommits.org/ja/v1.0.0/
+- Conventional Commits: [Conventional Commits](https://www.conventionalcommits.org/ja/v1.0.0/)
