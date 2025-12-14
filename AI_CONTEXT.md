@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T16:25:14.038+09:00
-- 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化（継続） + OpenSpec strict 検証とSSOT整合（specデルタ修正/REFACTORING_PLAN更新）
-- ブランチ: chore/ssot-openspec-validate-cleanup
+- 最終更新: 2025-12-14T17:59:23.326+09:00
+- 現在のミッション: OpenSpec strict 検証とSSOT整合（完了）→ アーカイブ運用と未整備changeの整理（継続）
+- ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -29,7 +29,7 @@
   - 2025-12-14: markdownlint/ESLint を全て解消し、E2E フレーク（タブ切替/大文字小文字検索）を待ち条件強化で安定化。`npm run lint` / `npx playwright test --workers=2` green（46 passed）
   - 2025-12-14: OpenSpec の specデルタを strict に適合（MUST/SHALL + Requirement/Scenario 体裁）させ、`openspec validate --changes --strict` を全通し（9 passed）。smoke（dev-check）は dev server 未起動時に自動起動するよう更新
   - 2025-12-14: （運用）このリポジトリのみ `core.autocrlf=false` に設定し、`.gitattributes`（`*.md eol=lf`）を優先
-- 次の中断可能点: OpenSpec changes のアーカイブ候補整理→ユーザー確認→`openspec archive` 実行 / その後に柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
+- 次の中断可能点: OpenSpec changes のアーカイブ（別PR推奨）/ 「タスク欠落・下書き扱い」の方針決定が必要になった時点
 
 ## OpenSpec changes の分類（暫定）
 
