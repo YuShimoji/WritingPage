@@ -131,7 +131,10 @@ async function loadCssWithImports(url) {
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body) &&
       /id=\"structure-gadgets-panel\"/i.test(index.body) &&
-      /data-gadget-group=\"structure\"/i.test(index.body);
+      /data-gadget-group=\"structure\"/i.test(index.body) &&
+      /id=\"help-button\"/i.test(index.body) &&
+      /id=\"editor-help-button\"/i.test(index.body) &&
+      /id=\"ui-lab-link\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await loadCssWithImports('/css/style.css');
@@ -317,6 +320,18 @@ async function loadCssWithImports(url) {
       hasUpdateFn,
       hasNamePattern,
       hasFallback,
+    });
+
+    // ヘルプ/リファレンスの静的HTML存在確認（リンク切れの早期検知）
+    const wikiHelp = await get('/docs/wiki-help.html');
+    const editorHelp = await get('/docs/editor-help.html');
+    const uiLab = await get('/docs/ui-lab.html');
+    const okHelpDocs =
+      wikiHelp.status === 200 && editorHelp.status === 200 && uiLab.status === 200;
+    console.log('CHECK help docs ->', okHelpDocs ? 'OK' : 'NG', {
+      wikiHelp: wikiHelp.status,
+      editorHelp: editorHelp.status,
+      uiLab: uiLab.status,
     });
 
     // 埋め込みデモの存在確認

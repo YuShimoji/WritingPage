@@ -2454,6 +2454,22 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
 .help-nav-icon {
   font-size: 12px;
 }
+.help-nav-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
+
+.help-inline-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.help-inline-icon svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+}
 
 .help-nav-text {
   white-space: nowrap;

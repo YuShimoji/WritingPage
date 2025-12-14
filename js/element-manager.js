@@ -69,6 +69,7 @@ class ElementManager {
             goalDeadlineInput: 'goal-deadline',
             pluginsPanel: 'plugins-panel',
             helpButton: 'help-button',
+            editorHelpButton: 'editor-help-button',
 
             // 検索パネル
             searchPanel: 'search-panel',

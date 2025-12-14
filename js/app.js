@@ -1176,6 +1176,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const editorHelpButton = elementManager.get('editorHelpButton');
+    if (editorHelpButton) {
+        editorHelpButton.addEventListener('click', function () {
+            try {
+                window.open('docs/editor-help.html', '_blank', 'noopener');
+            } catch (e) {
+                console.error('Failed to open editor help:', e);
+            }
+        });
+    }
+
     // リアルタイム自動保存機能
     let autoSaveTimeout = null;
     function _triggerAutoSave() {

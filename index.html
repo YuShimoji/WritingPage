@@ -107,6 +107,12 @@
         <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel"
           aria-labelledby="sidebar-tab-assist" aria-hidden="true">
           <div class="sidebar-section">
+            <h3 data-i18n="HELP_SECTION"></h3>
+            <div class="sidebar-help-links" role="group" aria-label="ヘルプ / リファレンス">
+              <button id="help-button" class="small" type="button" data-i18n="OPEN_WIKI_HELP"></button>
+              <button id="editor-help-button" class="small" type="button" data-i18n="EDITOR_GUIDE"></button>
+              <a id="ui-lab-link" class="small" href="docs/ui-lab.html" target="_blank" rel="noopener" data-i18n="UI_LAB"></a>
+            </div>
             <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"
               aria-label="支援ガジェット"></div>
           </div>
@@ -369,7 +375,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <script>
-    try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons(); } } catch (_) { }
+    try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ icons: window.lucide.icons }); } } catch (_) { }
   </script>
   <!-- 埋め込み時のpostMessageブリッジ（?embed=1でREADY/RPC受信） -->
   <script src="js/embed/child-bridge.js"></script>
