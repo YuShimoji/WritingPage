@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-15T03:40:00.000+09:00
-- 現在のミッション: ヘルプ導線/アイコン不具合の修正（Assistタブのヘルプリンク復活、サイドバー絵文字排除）
-- ブランチ: fix/help-links-icons
+- 最終更新: 2025-12-15T08:49:02.515+09:00
+- 現在のミッション: ヘルプ導線/アイコン不具合の修正（完了: mainへ反映済み）
+- ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -37,7 +37,8 @@
   - 2025-12-15: Helpガジェットの絵文字（ナビ/本文内）をLucide化し、`createIcons({ icons })` 呼び出しを統一（index.html / gadgets-help.js）
   - 2025-12-15: Helpガジェット内Lucideのサイズ/整列CSSを追加（.help-nav-icon svg / .help-inline-icon svg）
   - 2025-12-15: `npm run test:smoke` green（ALL TESTS PASSED）
- - 次の中断可能点: 変更のコミット直前 / PR作成直前
+  - 2025-12-15: main にマージし、origin/main へ push 済み
+ - 次の中断可能点: 次タスク着手前（main反映済みのため、ここから新規作業開始可）
 
 ## OpenSpec changes の分類（暫定）
 
