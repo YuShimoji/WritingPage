@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T12:48:46.2608938+09:00
+- 最終更新: 2025-12-14T15:08:25.632+09:00
 - 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化（継続） + OpenSpec strict 検証とSSOT整合（specデルタ修正/REFACTORING_PLAN更新）
 - ブランチ: chore/ssot-openspec-validate-cleanup
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -30,6 +30,39 @@
   - 2025-12-14: OpenSpec の specデルタを strict に適合（MUST/SHALL + Requirement/Scenario 体裁）させ、`openspec validate --changes --strict` を全通し（9 passed）。smoke（dev-check）は dev server 未起動時に自動起動するよう更新
   - 2025-12-14: （運用）このリポジトリのみ `core.autocrlf=false` に設定し、`.gitattributes`（`*.md eol=lf`）を優先
 - 次の中断可能点: OpenSpec changes のアーカイブ候補整理→ユーザー確認→`openspec archive` 実行 / その後に柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
+
+## OpenSpec changes の分類（暫定）
+
+### アーカイブ候補（完了）
+
+- add-ui-design-gadget-and-dynamic-tabs
+- polish-ui-feedback-response
+- ui-future-enhancements
+
+### アーカイブ候補（実装は完了、Follow-ups残）
+
+- add-gadgets-modularization（ユニットテスト/拡張APIドキュメント化）
+- add-lucide-icons（追加アイコン導入/ダークモード対応アイコン検討）
+
+### 継続（未完了）
+
+- add-modular-ui-wiki-nodegraph
+- graphic-novel-font-decoration
+- hud-customization-enhancement
+- polish-ui-from-test-feedback
+- story-wiki-implementation
+- ui-enhancements
+
+### 下書き/整備不足（タスク形式・粒度の再整理が必要）
+
+- ui-stability-and-cleanup（`openspec list` 上は No tasks）
+
+## VERSION 不一致（調査メモ）
+
+- `VERSION`: 0.3.14
+- `package.json`: 0.3.18
+- `VERSION` は現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
+- 最新のリリースコミットは `chore(release): v0.3.14`（以降のバージョン運用は要整理）
 
 ## 決定事項
 
