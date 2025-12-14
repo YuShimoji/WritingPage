@@ -467,6 +467,33 @@ async function loadCssWithImports(url) {
       cHasNext,
     });
 
+    // VERSION と package.json の version 整合チェック（運用ズレの早期検知）
+    const versionPath = path.join(__dirname, '..', 'VERSION');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    let versionSrc = '';
+    let packageVersion = '';
+    try {
+      versionSrc = String(fs.readFileSync(versionPath, 'utf-8') || '').trim();
+    } catch (e) {
+      console.error('READ FAIL:', versionPath, e.message);
+    }
+    try {
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      packageVersion = String((pkg && pkg.version) || '').trim();
+    } catch (e) {
+      console.error('READ FAIL:', packageJsonPath, e.message);
+    }
+    const okVersionAlignment =
+      !!versionSrc && !!packageVersion && versionSrc === packageVersion;
+    console.log(
+      'CHECK version alignment ->',
+      okVersionAlignment ? 'OK' : 'NG',
+      {
+        VERSION: versionSrc,
+        packageJson: packageVersion,
+      },
+    );
+
     // テンプレートの要点チェック（中断可能点・参考リンク・中央WF参照）
     const prTplPath = path.join(
       __dirname,
@@ -632,6 +659,7 @@ async function loadCssWithImports(url) {
         okRulesDoc &&
         okAIContext &&
         okEmbedDemo &&
+        okVersionAlignment &&
         okFav &&
         okChildBridge &&
         okEmbedLight &&

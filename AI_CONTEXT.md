@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T15:08:25.632+09:00
+- 最終更新: 2025-12-14T16:25:14.038+09:00
 - 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化（継続） + OpenSpec strict 検証とSSOT整合（specデルタ修正/REFACTORING_PLAN更新）
 - ブランチ: chore/ssot-openspec-validate-cleanup
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -57,12 +57,12 @@
 
 - ui-stability-and-cleanup（`openspec list` 上は No tasks）
 
-## VERSION 不一致（調査メモ）
+## VERSION
 
-- `VERSION`: 0.3.14
+- `VERSION`: 0.3.18
 - `package.json`: 0.3.18
-- `VERSION` は現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
-- 最新のリリースコミットは `chore(release): v0.3.14`（以降のバージョン運用は要整理）
+- バージョンは現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
+- 2025-12-14: `VERSION` と `package.json` を 0.3.18 に同期
 
 ## 決定事項
 
