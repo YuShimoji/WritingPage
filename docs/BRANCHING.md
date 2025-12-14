@@ -31,6 +31,7 @@
 ## リリース
 
 - バージョン: `VERSION` に SemVer で記載（例: `0.3.11`）
+- `package.json` の `version` も同じ値に同期
 - 変更履歴: `CHANGELOG.md` 更新
 - タグ付け: `git tag v<version>` → `git push --tags`
 

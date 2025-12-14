@@ -4,10 +4,33 @@ const http = require('http');
 
 const fs = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
-function get(path) {
+function parsePort() {
+  const env = process.env.SMOKE_PORT && parseInt(process.env.SMOKE_PORT, 10);
+  if (!isNaN(env) && env > 0) return env;
+  const env2 = process.env.PORT && parseInt(process.env.PORT, 10);
+  if (!isNaN(env2) && env2 > 0) return env2;
+  const argv = process.argv.slice(2);
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    if (a === '--port' || a === '-p') {
+      const v = parseInt(argv[i + 1], 10);
+      if (!isNaN(v) && v > 0) return v;
+    }
+    const m = /^--port=(\d+)$/.exec(a);
+    if (m) return parseInt(m[1], 10);
+    if (/^\d+$/.test(a)) return parseInt(a, 10);
+  }
+  return 8080;
+}
+
+const PORT = parsePort();
+let startedServer = null;
+
+function get(reqPath, port = PORT) {
   return new Promise((resolve, reject) => {
-    const req = http.get({ host: '127.0.0.1', port: 8080, path }, (res) => {
+    const req = http.get({ host: '127.0.0.1', port, path: reqPath }, (res) => {
       let data = '';
       res.on('data', (chunk) => (data += chunk));
       res.on('end', () =>
@@ -16,6 +39,64 @@ function get(path) {
     });
     req.on('error', reject);
   });
+}
+
+function startDevServer(port) {
+  try {
+    const serverScript = path.join(__dirname, 'dev-server.js');
+    const child = spawn(
+      process.execPath,
+      [serverScript, '--port', String(port)],
+      {
+        env: { ...process.env, PORT: String(port) },
+        stdio: ['ignore', 'ignore', 'ignore'],
+        windowsHide: true,
+      },
+    );
+    return child;
+  } catch (_) {
+    return null;
+  }
+}
+
+function waitForReady(port, retries = 50, delay = 200) {
+  return new Promise((resolve, reject) => {
+    const attempt = () => {
+      const req = http.get(
+        { host: '127.0.0.1', port, path: '/index.html' },
+        (res) => {
+          res.resume();
+          if (res.statusCode && res.statusCode < 500) return resolve();
+          retry();
+        },
+      );
+      req.on('error', retry);
+      req.end();
+    };
+    const retry = () => {
+      if (retries <= 0) {
+        return reject(new Error(`Server on port ${port} did not become ready`));
+      }
+      retries -= 1;
+      setTimeout(attempt, delay);
+    };
+    attempt();
+  });
+}
+
+async function ensureServerReady() {
+  try {
+    const res = await get('/index.html');
+    if (res && res.status && res.status < 500) return;
+  } catch (e) {
+    if (e && e.code === 'ECONNREFUSED') {
+      startedServer = startDevServer(PORT);
+      if (!startedServer) throw e;
+      await waitForReady(PORT);
+      return;
+    }
+    throw e;
+  }
 }
 
 async function loadCssWithImports(url) {
@@ -37,6 +118,7 @@ async function loadCssWithImports(url) {
 
 (async () => {
   try {
+    await ensureServerReady();
     const index = await get('/');
     const okIndex =
       index.status === 200 &&
@@ -385,6 +467,33 @@ async function loadCssWithImports(url) {
       cHasNext,
     });
 
+    // VERSION と package.json の version 整合チェック（運用ズレの早期検知）
+    const versionPath = path.join(__dirname, '..', 'VERSION');
+    const packageJsonPath = path.join(__dirname, '..', 'package.json');
+    let versionSrc = '';
+    let packageVersion = '';
+    try {
+      versionSrc = String(fs.readFileSync(versionPath, 'utf-8') || '').trim();
+    } catch (e) {
+      console.error('READ FAIL:', versionPath, e.message);
+    }
+    try {
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
+      packageVersion = String((pkg && pkg.version) || '').trim();
+    } catch (e) {
+      console.error('READ FAIL:', packageJsonPath, e.message);
+    }
+    const okVersionAlignment =
+      !!versionSrc && !!packageVersion && versionSrc === packageVersion;
+    console.log(
+      'CHECK version alignment ->',
+      okVersionAlignment ? 'OK' : 'NG',
+      {
+        VERSION: versionSrc,
+        packageJson: packageVersion,
+      },
+    );
+
     // テンプレートの要点チェック（中断可能点・参考リンク・中央WF参照）
     const prTplPath = path.join(
       __dirname,
@@ -550,6 +659,7 @@ async function loadCssWithImports(url) {
         okRulesDoc &&
         okAIContext &&
         okEmbedDemo &&
+        okVersionAlignment &&
         okFav &&
         okChildBridge &&
         okEmbedLight &&
@@ -557,13 +667,28 @@ async function loadCssWithImports(url) {
         okMdLint
       )
     ) {
-      process.exit(1);
+      process.exitCode = 1;
+      return;
     } else {
       console.log('ALL TESTS PASSED');
-      process.exit(0);
+      process.exitCode = 0;
+      return;
     }
   } catch (e) {
     console.error('DEV CHECK FAILED', e);
-    process.exit(1);
+    process.exitCode = 1;
+    return;
+  } finally {
+    if (startedServer && !startedServer.killed) {
+      try {
+        startedServer.kill('SIGINT');
+      } catch (_) {
+        try {
+          startedServer.kill();
+        } catch (_) {
+          /* ignore */
+        }
+      }
+    }
   }
 })();

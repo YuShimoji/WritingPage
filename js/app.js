@@ -369,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toolbarCloseSidebar = elementManager.get('toolbarCloseSidebar');
     const toggleToolbarBtn = elementManager.get('toggleToolbarBtn');
     const showToolbarBtn = elementManager.get('showToolbarBtn');
+    const fullscreenBtn = elementManager.get('fullscreenBtn');
     const feedbackBtn = elementManager.get('feedbackBtn');
 
     // サイドバーの開閉ボタン（ツールバー側のみ）
@@ -378,6 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // その他のボタン
     if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
     if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
+    if (fullscreenBtn) fullscreenBtn.addEventListener('click', _toggleFullscreen);
     if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackPanel);
 
     const sidebarTabs = elementManager.getMultiple('sidebarTabs');

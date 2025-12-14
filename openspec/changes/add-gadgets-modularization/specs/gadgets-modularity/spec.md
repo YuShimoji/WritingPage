@@ -1,7 +1,8 @@
 ## MODIFIED Requirements
 
 ### Requirement: ZWGadgets Modularity
-ZWGadgets クラスは責務分離によりモジュール化され、保守性と拡張性を向上させる。
+ The system MUST modularize the ZWGadgets implementation by separating responsibilities to improve maintainability and extensibility.
+ ZWGadgets クラスは責務分離によりモジュール化され、保守性と拡張性を向上させる。
 
 #### Scenario: Rendering Queue Extraction
 - WHEN ZWGadgetsRenderer モジュールが読み込まれる
@@ -18,7 +19,8 @@ ZWGadgets クラスは責務分離によりモジュール化され、保守性�
 ## ADDED Requirements
 
 ### Requirement: Backward Compatibility
-既存の ZWGadgets API は変更後も完全に互換性を維持する。
+ The system MUST maintain full backward compatibility for the existing ZWGadgets API after modularization.
+ 既存の ZWGadgets API は変更後も完全に互換性を維持する。
 
 #### Scenario: Existing Code Works
 - WHEN 既存のガジェットコードを実行

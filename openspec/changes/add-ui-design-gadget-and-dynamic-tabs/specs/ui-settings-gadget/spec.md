@@ -1,7 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: UI Settings Gadget Enhancements
-UI Settings ガジェットは、サイドバータブの追加/名称変更/削除を提供し、表示方式変更時に即時適用されるUI更新を行わなければならない。
+ The system MUST provide UI Settings gadget controls to add/rename/remove sidebar tabs and MUST apply tab presentation changes immediately.
+ UI Settings ガジェットは、サイドバータブの追加/名称変更/削除を提供し、表示方式変更時に即時適用されるUI更新を行わなければならない。
 
 #### Scenario: Manage tabs via gadget
 - WHEN ガジェット内のフォームでタブの追加/名称変更/削除を操作

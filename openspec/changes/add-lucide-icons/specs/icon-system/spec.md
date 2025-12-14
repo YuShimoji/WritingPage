@@ -1,6 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Icon System Integration
+ The system MUST integrate the Lucide icon set so UI elements can use consistent icons.
 アプリは Lucide アイコンセットを統合し、UI 要素で一貫したアイコンを使用できる機能を提供しなければならない。
 
 #### Scenario: Load icons on page load
@@ -18,7 +19,8 @@
 ## MODIFIED Requirements
 
 ### Requirement: UI Accessibility
-UI 要素はアイコン使用でアクセシビリティを向上させなければならない。
+ UI elements MUST remain accessible when using icons.
+ UI 要素はアイコン使用でアクセシビリティを向上させなければならない。
 
 #### Scenario: Icon with label
 - WHEN アイコン付きボタンをスクリーンリーダーで確認

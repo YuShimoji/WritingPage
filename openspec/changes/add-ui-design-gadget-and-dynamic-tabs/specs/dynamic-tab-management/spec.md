@@ -1,6 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Dynamic Sidebar Tabs Management
+ The system MUST allow users to add, rename, and remove sidebar tabs and MUST persist and restore the configuration on startup.
 アプリはサイドバータブの追加/名称変更/削除と、設定の永続化・起動時復元を提供しなければならない。
 
 #### Scenario: Add tab

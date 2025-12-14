@@ -46,9 +46,9 @@
 #### B. テストとの不整合
 
 1. **smoke test 失敗項目**
-   - `plugins-panel` ID が存在しない
-   - `gadgets-panel` ID が存在しない（個別パネルIDに変更済み）
-   - `gadget-export`, `gadget-import`, `gadget-prefs-input` UIが存在しない
+   - `plugins-panel` は `index.html` に未配置（プラグインUIは現状オプション）
+   - `gadgets-panel` は廃止済み（`structure-gadgets-panel` 等に移行済み）
+   - `scripts/dev-check.js` は dev server 未起動時に自動起動するため、手動起動前提は不要
 
 2. **DOM構造の変化に対応していないテスト**
    - 旧UI構造を期待するテストが残っている
@@ -56,14 +56,13 @@
 #### C. 未実装・仮実装
 
 1. **UIモード（Normal/Focus/Blank）**
-   - 仕様は定義済みだが、完全な実装は未完了
+   - 実装済み（`app.js` の `setUIMode()` と `html[data-ui-mode]` のCSSで適用）
 
 2. **ツールレジストリ**
-   - `js/tools-registry.js` はスケルトン実装のみ
-   - 既存ガジェット/ボタンとの接続なし
+   - `js/tools-registry.js` に静的レジストリはあるが、UI（FAB/ツールバー）との接続は未実装
 
 3. **プラグインシステム**
-   - `js/plugins/` にファイルはあるが、UIパネルなし
+   - `js/plugins/` と描画処理（`app.js` の `renderPlugins()`）はあるが、`plugins-panel` が `index.html` に未配置のためUI表示は未実装
 
 ## 2. リファクタリング計画
 
@@ -108,8 +107,8 @@ js/
 ### フェーズ5: 未実装機能の完成
 
 1. **プラグインパネル**（低優先度）
-2. **ガジェット設定のimport/export UI**
-3. **UIモードの完全実装**
+2. **ガジェット設定のimport/export UI**（実装済み）
+3. **UIモードの完全実装**（実装済み）
 
 ## 3. 実行順序
 

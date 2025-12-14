@@ -101,16 +101,36 @@ WritingPage/
 │  └─ style.css
 ├─ js/
 │  ├─ app.js
+│  ├─ app-editor-bridge.js
 │  ├─ editor.js
+│  ├─ editor-search.js
+│  ├─ editor-preview.js
+│  ├─ editor-overlays.js
+│  ├─ editor-images.js
 │  ├─ outline.js
 │  ├─ storage.js
+│  ├─ theme-registry.js
 │  ├─ theme.js
 │  ├─ themes-advanced.js
-│  ├─ hud.js
+│  ├─ sidebar-manager.js
+│  ├─ element-manager.js
+│  ├─ ui-labels.js
+│  ├─ icons.js
+│  ├─ panels.js
+│  ├─ search-manager.js
+│  ├─ settings-manager.js
+│  ├─ loadouts-presets.js
+│  ├─ gadgets-utils.js
+│  ├─ gadgets-loadouts.js
+│  ├─ gadgets-core.js
+│  ├─ gadgets-builtin.js
+│  ├─ gadgets-init.js
+│  ├─ gadgets-*.js
 │  ├─ plugins/
 │  │  ├─ registry.js
 │  │  └─ choice.js
 │  └─ embed/
+│     ├─ child-bridge.js
 │     └─ zen-writer-embed.js
 └─ favicon.svg
 ```

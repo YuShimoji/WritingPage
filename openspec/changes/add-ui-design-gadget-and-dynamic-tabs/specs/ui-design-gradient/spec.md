@@ -1,7 +1,8 @@
 ## ADDED Requirements
 
 ### Requirement: UI Background Gradient Control Gadget
-アプリは背景グラデーションをガジェットから制御できる機能を提供しなければならない（線形/放射、角度、2色、強度）。
+ The system MUST provide a gadget that allows users to control the application background gradient (linear/radial, angle, two colors, intensity).
+ アプリは背景グラデーションをガジェットから制御できる機能を提供しなければならない（線形/放射、角度、2色、強度）。
 
 #### Scenario: Enable linear gradient
 - WHEN ユーザーが UIDesign ガジェットで「有効化」をONにし、角度=135°, 色=c1/c2, 強度=0.35 を設定
