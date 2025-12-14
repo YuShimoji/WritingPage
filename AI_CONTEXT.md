@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T04:35:00+09:00
-- 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化 → UI配色と執筆エリア配色の分離（C-4）完了。次は柔軟なタブ配置（E-3/E-4）/ editor・app 分割続行
-- ブランチ: main
+- 最終更新: 2025-12-14T12:48:46.2608938+09:00
+- 現在のミッション: Gadget Import/Export UI（A案）導入とE2E安定化（継続） + OpenSpec strict 検証とSSOT整合（specデルタ修正/REFACTORING_PLAN更新）
+- ブランチ: chore/ssot-openspec-validate-cleanup
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -27,7 +27,8 @@
   - 2025-12-12: Playwright E2E（セレクタ/タブ切替）を修正し `npm test` が green（46 passed）
   - 2025-12-13: E2E の固定URL参照（`http://localhost:8080`）を廃止し、Playwright の baseURL に追従（`page.goto('/')`）するよう修正。`npm run test:e2e` green
   - 2025-12-14: markdownlint/ESLint を全て解消し、E2E フレーク（タブ切替/大文字小文字検索）を待ち条件強化で安定化。`npm run lint` / `npx playwright test --workers=2` green（46 passed）
-- 次の中断可能点: 柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
+  - 2025-12-14: OpenSpec の specデルタを strict に適合（MUST/SHALL + Requirement/Scenario 体裁）させ、`openspec validate --changes --strict` を全通し（9 passed）。smoke（dev-check）は dev server 未起動時に自動起動するよう更新
+- 次の中断可能点: OpenSpec changes のアーカイブ候補整理→ユーザー確認→`openspec archive` 実行 / その後に柔軟なタブ配置（E-3/E-4）、editor/app 分割続行
 
 ## 決定事項
 
