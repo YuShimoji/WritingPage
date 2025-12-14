@@ -1,0 +1,19 @@
+# theme-visuals Specification
+
+## Purpose
+TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+## Requirements
+### Requirement: Dark Mode Expansion (Low Priority)
+The system SHALL provide an extended dark mode palette derived from current colors.
+
+#### Scenario: Theme switch
+- WHEN user switches to dark mode
+- THEN UI updates consistently and persists
+
+### Requirement: Background Visuals (Low Priority)
+The system SHALL support background images and gradients with optional scroll-driven dynamics and randomness.
+
+#### Scenario: Scroll dynamics
+- WHEN user scrolls
+- THEN background parameters adjust subtly per configuration
+
