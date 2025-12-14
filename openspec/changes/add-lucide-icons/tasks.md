@@ -5,7 +5,7 @@
 - [x] 1.4 UI 置き換え実装（editor.js の overlay-toggle, gadgets の設定ボタン）
 - [x] 1.5 スタイル調整（アイコンサイズ・配置）
 - [x] 1.6 テスト実行（Lint, スモーク, アイコン表示確認）
-- [ ] 1.7 AI_CONTEXT.md 更新（進捗・次の中断可能点）
+- [x] 1.7 AI_CONTEXT.md 更新（進捗・次の中断可能点）
 
 ## 2. Verification
 - [x] アイコンが正しく表示される（フォールバックなし）
