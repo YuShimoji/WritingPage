@@ -15,5 +15,5 @@
 - [x] 既存タブ操作やロードアウトへの影響なし
 
 ## 3. Follow-ups
-- [ ] アイコンセット選定/導入（Lucide/Tabler/Heroicons/Material Symbols から選定）
-- [ ] ガジェット基盤の責務分離/モジュール化設計の実施
+- [x] アイコンセット選定/導入（Lucide/Tabler/Heroicons/Material Symbols から選定）
+- [x] ガジェット基盤の責務分離/モジュール化設計の実施
