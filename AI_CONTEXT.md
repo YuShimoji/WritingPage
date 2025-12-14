@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T17:59:23.326+09:00
-- 現在のミッション: OpenSpec strict 検証とSSOT整合（完了）→ アーカイブ運用と未整備changeの整理（継続）
-- ブランチ: main
+- 最終更新: 2025-12-14T22:21:30.973+09:00
+- 現在のミッション: OpenSpec strict 検証とSSOT整合（完了）→ OpenSpec アーカイブ（Issue #91 / PR #92）→ 未整備changeの整理（継続）
+- ブランチ: main（PR #92: chore/issue-91-openspec-archive）
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -29,11 +29,13 @@
   - 2025-12-14: markdownlint/ESLint を全て解消し、E2E フレーク（タブ切替/大文字小文字検索）を待ち条件強化で安定化。`npm run lint` / `npx playwright test --workers=2` green（46 passed）
   - 2025-12-14: OpenSpec の specデルタを strict に適合（MUST/SHALL + Requirement/Scenario 体裁）させ、`openspec validate --changes --strict` を全通し（9 passed）。smoke（dev-check）は dev server 未起動時に自動起動するよう更新
   - 2025-12-14: （運用）このリポジトリのみ `core.autocrlf=false` に設定し、`.gitattributes`（`*.md eol=lf`）を優先
-- 次の中断可能点: OpenSpec changes のアーカイブ（別PR推奨）/ 「タスク欠落・下書き扱い」の方針決定が必要になった時点
+  - 2025-12-14: OpenSpec 完了 change 3件を `openspec archive -y` でアーカイブ（add-ui-design-gadget-and-dynamic-tabs / polish-ui-feedback-response / ui-future-enhancements）
+  - 2025-12-14: PR #92 を作成（CI green）
+- 次の中断可能点: PR #92 のマージ前後 / 「タスク欠落・下書き扱い」の方針決定が必要になった時点
 
 ## OpenSpec changes の分類（暫定）
 
-### アーカイブ候補（完了）
+### アーカイブ済み（Issue #91）
 
 - add-ui-design-gadget-and-dynamic-tabs
 - polish-ui-feedback-response
