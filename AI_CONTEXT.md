@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T22:21:30.973+09:00
-- 現在のミッション: OpenSpec strict 検証とSSOT整合（完了）→ OpenSpec アーカイブ（Issue #91 / PR #92）→ 未整備changeの整理（継続）
-- ブランチ: main（PR #92: chore/issue-91-openspec-archive）
+- 最終更新: 2025-12-14T23:17:19.257+09:00
+- 現在のミッション: OpenSpec アーカイブ運用の確立（Issue #91 完了）→ ドキュメント/運用テンプレ整備（Issue #93）
+- ブランチ: main（作業ブランチ: docs/issue-93-prompt-template）
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -30,8 +30,9 @@
   - 2025-12-14: OpenSpec の specデルタを strict に適合（MUST/SHALL + Requirement/Scenario 体裁）させ、`openspec validate --changes --strict` を全通し（9 passed）。smoke（dev-check）は dev server 未起動時に自動起動するよう更新
   - 2025-12-14: （運用）このリポジトリのみ `core.autocrlf=false` に設定し、`.gitattributes`（`*.md eol=lf`）を優先
   - 2025-12-14: OpenSpec 完了 change 3件を `openspec archive -y` でアーカイブ（add-ui-design-gadget-and-dynamic-tabs / polish-ui-feedback-response / ui-future-enhancements）
-  - 2025-12-14: PR #92 を作成（CI green）
-- 次の中断可能点: PR #92 のマージ前後 / 「タスク欠落・下書き扱い」の方針決定が必要になった時点
+  - 2025-12-14: PR #92 を作成（CI green）→ マージ済み。Issue #91 クローズ。
+  - 2025-12-14: docs/PROMPT_TEMPLATES.md を追加し、作業依頼/再開テンプレを標準化（Issue #93）
+- 次の中断可能点: Issue #93 の docs PR 作成直後 / CI 成功後
 
 ## OpenSpec changes の分類（暫定）
 
