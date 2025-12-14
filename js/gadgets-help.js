@@ -17,7 +17,7 @@
     {
       id: 'getting-started',
       title: 'はじめに',
-      icon: '🚀',
+      icon: 'rocket',
       content: function () {
         return `
           <h3>Zen Writer へようこそ</h3>
@@ -25,7 +25,7 @@
           <h4>基本操作</h4>
           <ul>
             <li><strong>執筆</strong>: 中央のエディタに直接入力。自動保存されます。</li>
-            <li><strong>サイドバー</strong>: 左上「☰」で開閉。設定やガジェットにアクセス。</li>
+            <li><strong>サイドバー</strong>: 左上の <span class="help-inline-icon"><i data-lucide="menu" aria-hidden="true"></i></span> で開閉。設定やガジェットにアクセス。</li>
             <li><strong>テーマ</strong>: ライト/ダーク/セピアなどを選択可能。</li>
           </ul>
           <h4>ショートカット</h4>
@@ -41,7 +41,7 @@
     {
       id: 'editor',
       title: 'エディタ機能',
-      icon: '✏️',
+      icon: 'pencil',
       content: function () {
         return `
           <h3>エディタ機能ガイド</h3>
@@ -60,7 +60,7 @@
           </ul>
           
           <h4>フォント装飾</h4>
-          <p>ツールバーの 🖋️ ボタンで装飾パネルを開きます。</p>
+          <p>ツールバーの <span class="help-inline-icon"><i data-lucide="type" aria-hidden="true"></i></span> ボタンで装飾パネルを開きます。</p>
           <ul>
             <li><code>[bold]テキスト[/bold]</code> — 太字</li>
             <li><code>[italic]テキスト[/italic]</code> — 斜体</li>
@@ -68,7 +68,7 @@
           </ul>
           
           <h4>テキストアニメーション</h4>
-          <p>ツールバーの ✨ ボタンでアニメーションパネルを開きます。</p>
+          <p>ツールバーの <span class="help-inline-icon"><i data-lucide="sparkles" aria-hidden="true"></i></span> ボタンでアニメーションパネルを開きます。</p>
           <ul>
             <li><code>[fade]テキスト[/fade]</code> — フェードイン</li>
             <li><code>[slide]テキスト[/slide]</code> — スライドイン</li>
@@ -80,7 +80,7 @@
     {
       id: 'documents',
       title: 'ドキュメント管理',
-      icon: '📄',
+      icon: 'file-text',
       content: function () {
         return `
           <h3>ドキュメント管理</h3>
@@ -113,7 +113,7 @@
     {
       id: 'wiki',
       title: '物語Wiki',
-      icon: '📚',
+      icon: 'book-open',
       content: function () {
         return `
           <h3>物語Wikiガイド</h3>
@@ -145,7 +145,7 @@
     {
       id: 'gadgets',
       title: 'ガジェット設定',
-      icon: '⚙️',
+      icon: 'settings',
       content: function () {
         return `
           <h3>ガジェット設定</h3>
@@ -179,7 +179,7 @@
     {
       id: 'visual-profile',
       title: 'Visual Profile',
-      icon: '🎭',
+      icon: 'theater',
       content: function () {
         return `
           <h3>Visual Profile（表示プロファイル）</h3>
@@ -210,7 +210,7 @@
     {
       id: 'ui-modes',
       title: '表示モード',
-      icon: '🖥️',
+      icon: 'monitor',
       content: function () {
         return `
           <h3>表示モード</h3>
@@ -227,14 +227,14 @@
           <p>ほぼ本文のみのミニマルな画面。<kbd>Alt + W</kbd>で復帰。</p>
           
           <h4>フローティングツール</h4>
-          <p>右下の歯車⚙️ボタンでフォントサイズ調整パネルを開閉。</p>
+          <p>右下の <span class="help-inline-icon"><i data-lucide="settings" aria-hidden="true"></i></span> ボタンでフォントサイズ調整パネルを開閉。</p>
         `;
       }
     },
     {
       id: 'themes',
       title: 'テーマ・外観',
-      icon: '🎨',
+      icon: 'palette',
       content: function () {
         return `
           <h3>テーマ・外観設定</h3>
@@ -266,7 +266,7 @@
     {
       id: 'keyboard',
       title: 'キーボード操作',
-      icon: '⌨️',
+      icon: 'keyboard',
       content: function () {
         return `
           <h3>キーボードショートカット一覧</h3>
@@ -342,6 +342,11 @@
 
         // コンテンツを更新
         contentArea.innerHTML = section.content();
+        try {
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons({ icons: window.lucide.icons, root: root });
+          }
+        } catch (_) { }
         contentArea.scrollTop = 0;
       }
 
@@ -350,7 +355,7 @@
         var btn = el('button', 'help-nav-btn small');
         btn.type = 'button';
         btn.dataset.section = section.id;
-        btn.innerHTML = '<span class="help-nav-icon">' + section.icon + '</span><span class="help-nav-text">' + section.title + '</span>';
+        btn.innerHTML = '<span class="help-nav-icon"><i data-lucide="' + section.icon + '" aria-hidden="true"></i></span><span class="help-nav-text">' + section.title + '</span>';
         btn.title = section.title;
         btn.addEventListener('click', function () {
           showSection(section);

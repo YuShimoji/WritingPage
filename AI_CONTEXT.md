@@ -2,9 +2,9 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-14T23:17:19.257+09:00
-- 現在のミッション: OpenSpec アーカイブ運用の確立（Issue #91 完了）→ ドキュメント/運用テンプレ整備（Issue #93）
-- ブランチ: main（作業ブランチ: docs/issue-93-prompt-template）
+- 最終更新: 2025-12-15T03:40:00.000+09:00
+- 現在のミッション: ヘルプ導線/アイコン不具合の修正（Assistタブのヘルプリンク復活、サイドバー絵文字排除）
+- ブランチ: fix/help-links-icons
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -32,7 +32,12 @@
   - 2025-12-14: OpenSpec 完了 change 3件を `openspec archive -y` でアーカイブ（add-ui-design-gadget-and-dynamic-tabs / polish-ui-feedback-response / ui-future-enhancements）
   - 2025-12-14: PR #92 を作成（CI green）→ マージ済み。Issue #91 クローズ。
   - 2025-12-14: docs/PROMPT_TEMPLATES.md を追加し、作業依頼/再開テンプレを標準化（Issue #93）
-- 次の中断可能点: Issue #93 の docs PR 作成直後 / CI 成功後
+  - 2025-12-15: Assistタブにヘルプリンク（Wiki/エディタ/UI Lab）を追加し、`editor-help-button` のイベント/ElementManager登録を実装
+  - 2025-12-15: `scripts/dev-check.js`（smoke）にヘルプ導線（ID存在/ドキュメント200）チェックを追加し、`npm run test:smoke` green
+  - 2025-12-15: Helpガジェットの絵文字（ナビ/本文内）をLucide化し、`createIcons({ icons })` 呼び出しを統一（index.html / gadgets-help.js）
+  - 2025-12-15: Helpガジェット内Lucideのサイズ/整列CSSを追加（.help-nav-icon svg / .help-inline-icon svg）
+  - 2025-12-15: `npm run test:smoke` green（ALL TESTS PASSED）
+ - 次の中断可能点: 変更のコミット直前 / PR作成直前
 
 ## OpenSpec changes の分類（暫定）
 
