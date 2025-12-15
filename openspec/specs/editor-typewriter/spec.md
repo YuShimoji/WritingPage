@@ -1,7 +1,7 @@
 # editor-typewriter Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+タイプライターモード機能を定義する。キャレット位置の固定アンカー、スティッキネス設定を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Typewriter Mode
 The editor SHALL provide a typewriter mode that keeps the caret at a fixed vertical anchor with configurable stickiness.

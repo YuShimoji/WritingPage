@@ -114,16 +114,17 @@
   - `ZWGadgets.defineLoadout(name, config)` — プリセットを登録。
   - `ZWGadgets.applyLoadout(name)` — カテゴリごとのガジェットリストを切替。
   - `ZWGadgets.listLoadouts()` / `ZWGadgets.deleteLoadout(name)` — 管理用。
-- 実装済みAPI（2025-10-19時点）:
+- 実装済みAPI（2025-12時点）:
   - `ZWGadgets.getActiveLoadout()` — 現在適用中のロードアウト情報を取得。
   - `ZWGadgets.captureCurrentLoadout(label?)` — DOM上の配置からロードアウト構造を採取。
   - `ZWGadgets.assignGroups(name, groups)` — 既登録ガジェットのカテゴリを動的再設定。
   - `ZWGadgets.setActiveGroup(groupId)` — タブ切替に合わせて描画を更新。
-  - 主要イベント: `ZWGadgetsReady`, `ZWLoadoutsChanged`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
+  - 主要イベント: `ZWLoadoutsChanged`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
+  - 注: `ZWGadgetsReady` イベントは廃止されました。初期化は `DOMContentLoaded` 後に `gadgets-init.js` が実行します。
 
 ### ロードアウトUI（現況）
 
-- `index.html` のサイドバー上部に以下のUIを配置し、`js/gadgets.js` で連携済み。
+- `index.html` のサイドバー上部に以下のUIを配置し、`js/gadgets-loadouts.js` で連携済み。
   - セレクト: `#loadout-select`
   - 名前入力: `#loadout-name`
   - 操作: `#loadout-save`（保存/新規定義）、`#loadout-apply`（適用）、`#loadout-delete`（削除）
@@ -137,8 +138,8 @@
 ## 実装概要
 
 - `index.html` に各グループ用の `.gadgets-panel[data-gadget-group]` を配置（例: `#structure-gadgets-panel` / `#typography-gadgets-panel` / `#assist-gadgets-panel` / `#wiki-gadgets-panel`）
-- 非埋め込み時のみ `js/gadgets.js` を動的ロード
-- `js/gadgets.js` は以下を提供:
+- 非埋め込み時のみ `js/gadgets-*.js` を動的ロード
+- `js/gadgets-core.js` は以下を提供:
   - `ZWGadgets.register(name, factory)` でガジェットを登録
   - `ZWGadgets.init(selector, { group })` でコンテナへマウント
   - 例として `Clock` ガジェットを内蔵
@@ -158,7 +159,8 @@
       s.defer = true;
       document.body.appendChild(s);
     }
-    load('js/gadgets.js');
+    // 現行は index.html で静的に読み込み済み
+    // load('js/gadgets-core.js'); // etc.
   })();
 </script>
 ```
@@ -175,7 +177,7 @@ ZWGadgets.register('Sample', function (el) {
 
 ## ガジェット追加手順（最短）
 
-1. `js/gadgets.js` にガジェットを登録
+1. `js/gadgets-<name>.js` にガジェットを登録
 
 ```js
 // 例: WritingGoal と同等の最小構成
@@ -225,8 +227,8 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 
 - `scripts/dev-check.js` が以下を自動検証
   - `/` のHTMLに各グループ用ガジェットパネル（例: `#assist-gadgets-panel`）が存在
-  - `/js/gadgets.js` が 200 で取得可能
-  - `/index.html?embed=1` に静的な `<script src="js/gadgets.js">` が含まれない
+  - `/js/gadgets-core.js` が 200 で取得可能
+  - `/index.html?embed=1` に静的な `<script src="js/gadgets-*.js">` が含まれない
 
 ## 設定のインポート/エクスポート（Mission 6）
 

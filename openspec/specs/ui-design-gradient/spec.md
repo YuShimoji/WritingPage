@@ -1,7 +1,7 @@
 # ui-design-gradient Specification
 
 ## Purpose
-TBD - created by archiving change add-ui-design-gadget-and-dynamic-tabs. Update Purpose after archive.
+UIDesignガジェットによる背景グラデーション制御を定義する。線形/放射、角度、色、強度の設定と永続化を規定。
 ## Requirements
 ### Requirement: UI Background Gradient Control Gadget
  The system MUST provide a gadget that allows users to control the application background gradient (linear/radial, angle, two colors, intensity).

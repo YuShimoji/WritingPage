@@ -1,7 +1,7 @@
 # editor-markdown Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+Typora風Markdownエディタ機能を定義する。ライブプレビュー、キーボードショートカット、画像埋め込み、テーブル編集を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Typora-like Markdown Editing
 The editor SHALL support Markdown authoring with live preview and familiar shortcuts.

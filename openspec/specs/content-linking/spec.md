@@ -1,7 +1,7 @@
 # content-linking Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+ドキュメント間・セクション間・アセット間のリンク機能を定義する。内部リンク、外部リンク、リンク検証を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Content Linking Across Entities
 The system SHALL support links across documents, sections, and assets. Links MAY include text and images.

@@ -1,7 +1,7 @@
 # ui Specification
 
 ## Purpose
-TBD - created by archiving change polish-ui-feedback-response. Update Purpose after archive.
+UI全般の要件を定義する。サイドバー、ガジェット表示、エディタUI、文字数スタンプ、スクロール安定性など。
 ## Requirements
 ### Requirement: Sidebar Header Stability
  The system MUST keep the sidebar header layout stable and MUST expose a close control without resizing the header.
@@ -27,17 +27,17 @@ TBD - created by archiving change polish-ui-feedback-response. Update Purpose af
 - **WHEN** 文字数が目標を超える
 - **THEN** 進捗バーが100%を超えて表示される
 
-### Requirement: Goal Calendar Integration
- The system MUST integrate writing-goal deadlines with the Calendar gadget.
- 目標文字数がカレンダーガジェットと連携。
+### Requirement: Goal Calendar Integration (Backlog)
+ The system SHOULD integrate writing-goal deadlines with a Calendar gadget if implemented.
+ 目標文字数がカレンダーガジェットと連携（将来実装予定）。
 
 #### Scenario: Calendar Goal Sync
 - **WHEN** 目標期限を設定
 - **THEN** カレンダーに表示される
 
-### Requirement: Goal Clock Integration
- The system MUST integrate writing-goal reminders with the Clock gadget.
- 目標文字数がClockガジェットと連携。
+### Requirement: Goal Clock Integration (Backlog)
+ The system SHOULD integrate writing-goal reminders with a Clock gadget if implemented.
+ 目標文字数がClockガジェットと連携（将来実装予定）。
 
 #### Scenario: Clock Goal Reminder
 - **WHEN** 目標期限が近づく

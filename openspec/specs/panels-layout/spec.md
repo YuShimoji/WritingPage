@@ -1,7 +1,7 @@
 # panels-layout Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+パネルのドッキング・分割・再配置機能を定義する。セッション間での永続化を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Flexible Panels Layout (Docking/Split)
 The system SHALL allow docking, splitting, and rearranging panels with persistence across sessions.

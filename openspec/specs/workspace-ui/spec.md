@@ -1,7 +1,7 @@
 # workspace-ui Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+ワークスペースUIの階層構造を定義する。ツリーペイン、フォルダ構造、ガジェット階層登録を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Tree Pane with Folder Structure
 The system SHALL provide a hierarchical tree pane for gadgets and documents with unlimited nesting and lazy rendering.

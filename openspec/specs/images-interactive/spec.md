@@ -1,7 +1,7 @@
 # images-interactive Specification
 
 ## Purpose
-TBD - created by archiving change ui-future-enhancements. Update Purpose after archive.
+画像のインタラクティブ制御機能を定義する。プリセット選択、パラメータ調整、ホバー操作を規定（将来実装予定）。
 ## Requirements
 ### Requirement: Interactive Image Controls
 The system SHALL provide interactive controls and presets for images, including VN-oriented behavior.

@@ -1,7 +1,7 @@
 # ui-settings-gadget Specification
 
 ## Purpose
-TBD - created by archiving change add-ui-design-gadget-and-dynamic-tabs. Update Purpose after archive.
+UISettingsガジェットによるサイドバータブ管理を定義する。タブの追加/名称変更/削除、表示方式の即時反映を規定。
 ## Requirements
 ### Requirement: UI Settings Gadget Enhancements
  The system MUST provide UI Settings gadget controls to add/rename/remove sidebar tabs and MUST apply tab presentation changes immediately.
