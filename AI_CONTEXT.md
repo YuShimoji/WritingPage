@@ -38,7 +38,7 @@
   - 2025-12-15: Helpガジェット内Lucideのサイズ/整列CSSを追加（.help-nav-icon svg / .help-inline-icon svg）
   - 2025-12-15: `npm run test:smoke` green（ALL TESTS PASSED）
   - 2025-12-15: main にマージし、origin/main へ push 済み
- - 次の中断可能点: 次タスク着手前（main反映済みのため、ここから新規作業開始可）
+- 次の中断可能点: 次タスク着手前（main反映済みのため、ここから新規作業開始可）
 
 ## OpenSpec changes の分類（暫定）
 

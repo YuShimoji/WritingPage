@@ -4,3 +4,5 @@ playwright-report/
 test-results/
 openspec/
 MILESTONE_*.md
+tmp/
+tmp/**
