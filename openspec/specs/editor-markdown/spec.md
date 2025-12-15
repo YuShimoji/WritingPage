@@ -1,7 +1,7 @@
 # editor-markdown Specification
 
 ## Purpose
-Typora風Markdownエディタ機能を定義する。ライブプレビュー、キーボードショートカット、画像埋め込み、テーブル編集を規定（将来実装予定）。
+Define requirements for Markdown authoring with live preview and common editor shortcuts.
 ## Requirements
 ### Requirement: Typora-like Markdown Editing
 The editor SHALL support Markdown authoring with live preview and familiar shortcuts.

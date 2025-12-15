@@ -1,7 +1,7 @@
 # theme-visuals Specification
 
 ## Purpose
-ダークモード拡張と背景ビジュアル機能を定義する。テーマパレット、背景画像・グラデーション、スクロール連動を規定（低優先度）。
+Define low-priority visual theme enhancements such as extended dark palette and optional background visuals.
 ## Requirements
 ### Requirement: Dark Mode Expansion (Low Priority)
 The system SHALL provide an extended dark mode palette derived from current colors.

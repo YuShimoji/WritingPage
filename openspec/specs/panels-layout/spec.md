@@ -1,7 +1,7 @@
 # panels-layout Specification
 
 ## Purpose
-パネルのドッキング・分割・再配置機能を定義する。セッション間での永続化を規定（将来実装予定）。
+Define requirements for flexible panel layout (docking/splitting/rearrangement) with persistence.
 ## Requirements
 ### Requirement: Flexible Panels Layout (Docking/Split)
 The system SHALL allow docking, splitting, and rearranging panels with persistence across sessions.

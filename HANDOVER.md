@@ -4,6 +4,52 @@
 
 Zen Writerのストーリーエディタ・ライティングエディタ開発のための土台盤石化を目的として、コードベースのリファクタリングを進行中です。ガジェットアーキテクチャの安定化、テストの修正、コード整理を実施し、プロジェクト全体の品質向上を進めています。
 
+## 申し送り（2025-12-16）
+
+### 今回の要点（調査/設計判断）
+
+- **Calendar/Clock 連携の扱い**
+  - OpenSpec `ui/spec.md` の Goal×Calendar/Clock 連携は、現状実装・優先度に照らして **Backlog（低優先）** へ降格。
+  - ここでの Calendar は **日付/予定ビューのカレンダー表示ガジェット想定**（現状未実装）。
+
+- **イベントの現状**
+  - `ZWGadgetsReady` は現行コード上で発火していないため、ドキュメント上の主要イベント表記から除外。
+  - 現行の主要イベント（`gadgets-core.js` / `gadgets-loadouts.js`）:
+    - `ZWLoadoutsChanged`, `ZWLoadoutDefined`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`
+
+- **責務の境界（現行）**
+  - `SidebarManager`（`js/sidebar-manager.js`）: タブ/パネルの表示制御、グループ切替時に `ZWGadgets.setActiveGroup(groupId)` を呼ぶ。
+  - `ZWGadgets`（`js/gadgets-core.js` 他）: ガジェット登録/レンダリング/ロードアウト/イベント。
+  - ロードアウトUI: `js/gadgets-loadout.js` が `.sidebar-loadout` に動的生成。
+  - ガジェット初期化: `js/gadgets-init.js` が `data-gadget-group` を基準に `ZWGadgets.init(panel,{group})` を実行。
+
+### 今回の変更点（反映対象）
+
+- **OpenSpec**
+  - `openspec/specs/*/spec.md` の `Purpose` が `TBD` のまま残っていた 12 spec を、仕様拡張なしで目的文だけ現状に合わせて補完。
+  - `openspec/specs/ui/spec.md` の Goal×Calendar/Clock を Backlog 化（MUST→SHOULD 相当の扱いへ）。
+
+- **Docs 同期（現行実装へ整合）**
+  - `docs/GADGETS.md`: `ZWGadgetsReady`/`js/gadgets.js` 前提/イベント発火元などのズレを修正。
+  - `docs/ARCHITECTURE.md`: `gadgets-*.js` 構成と `index.html` 読み込み順に同期、ロードアウトAPI表記を `applyLoadout` へ修正。
+  - `docs/BACKLOG.md`: 未保存確認の記述を現行（`app.js` 主導）へ修正。
+  - `docs/TROUBLESHOOTING.md`: `gadgets.js` 前提を `gadgets-*.js` 前提に修正。
+
+- **Smoke テスト安定化（重要）**
+  - `scripts/dev-check.js`: 8080 が別プロセスに占有されている場合に誤判定して NG になる問題を修正。
+    - `index.html` の title が Zen Writer であることを確認し、違えば別ポート（18080〜）で自前 dev-server を起動して検査する。
+
+### 検証結果（ダブルチェック用）
+
+- **`npm run test:smoke`**: PASS（`ALL TESTS PASSED` を確認）
+
+### 次のアクション（再開時の入口）
+
+- **引き続き総ざらい**
+  - 未実装/未修正の一覧化（docs/openspec/grep）を継続し、設計レベルのタスク分解を作る。
+- **運用**
+  - `npm run test:smoke` は dev-check のポート自動判定により、他サーバの 8080 占有があっても安定して通る。
+
 ## 現在のプロジェクト状況
 
 ### 目標
@@ -144,7 +190,7 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 
 ---
 
-**最終更新**: 2025-12-10  
+**最終更新**: 2025-12-16  
 **担当**: AI Assistant  
 **次回作業開始予定**: C-3 Step2（UI/エディタ配色レイヤ本格分離）と B-1（フローティングパネルUI改善）、A-1（editor-search.js 抽出）の優先度評価と着手
 

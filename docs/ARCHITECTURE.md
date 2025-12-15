@@ -38,12 +38,10 @@ WritingPage/
 │   ├── storage.js            # データ永続化
 │   ├── theme.js              # テーマ管理
 │   ├── hud.js                # ヘッドアップディスプレイ
-│   ├── sidebar-manager.js    # サイドバー・タブ管理（SSOT）
-│   ├── element-manager.js    # DOM要素の中央管理
-│   ├── gadgets-core.js       # ガジェットシステムコア
-│   ├── gadgets-utils.js      # ガジェットユーティリティ
-│   ├── gadgets-builtin.js    # 組み込みガジェット登録
-│   ├── gadgets-*.js          # 各種ガジェット実装
+│   ├── sidebar-manager.js     # サイドバー（タブ/パネル）管理
+│   ├── gadgets-*.js           # ガジェットシステム（モジュール分割）
+│   ├── wiki.js                # Wiki機能
+│   ├── images.js              # 画像管理
 │   └── plugins/              # プラグイン
 ├── docs/                     # ドキュメント
 ├── scripts/                  # 開発スクリプト
@@ -55,17 +53,11 @@ WritingPage/
 **重要**: スクリプトは以下の順序で読み込まれます：
 
 1. `storage.js` - データ永続化（最優先）
-2. `theme.js` - テーマ管理
-3. `hud.js` - HUD表示
-4. `editor.js` - エディタ機能
-5. `element-manager.js` - DOM要素管理
-6. `sidebar-manager.js` - サイドバー・タブ管理
-7. `gadgets-core.js` - ガジェットコア
-8. `gadgets-utils.js` - ユーティリティ
-9. `gadgets-*.js` - 各種ガジェット
-10. `gadgets-builtin.js` - 組み込み登録
-11. `gadgets-init.js` - 初期化
-12. `app.js` - アプリケーション制御（最後）
+2. `theme-registry.js` / `theme.js` - テーマ管理
+3. `element-manager.js` / `sidebar-manager.js` / `settings-manager.js` - UI基盤（要素管理・サイドバー・設定）
+4. `gadgets-*.js` - ガジェット基盤・各ガジェット・ロードアウトUI・初期化
+5. `editor-*.js` / `editor.js` - エディタ関連
+6. `app.js` - アプリケーション制御（最後）
 
 ## 主要コンポーネント
 
@@ -103,20 +95,18 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
    - ガジェットは独立した単位で開発・テスト可能
    - `ZWGadgets.register(name, factory, options)` で登録
 
-2. **動的タブシステム**（SidebarManager主導）
+2. **動的タブシステム**
    - タブは最小1つから開始
    - ユーザーが自由にタブを追加・削除可能
    - 各タブに任意のガジェットを配置可能
-   - `window.sidebarManager.addTab(id, label)` で追加（SSOT）
+   - `window.sidebarManager.addTab(id, label)` で追加
    - `window.sidebarManager.removeTab(id)` で削除
-   - `window.sidebarManager.renameTab(id, label)` で名称変更
-   - `ZWGadgets.addTab()` は互換API（内部でSidebarManagerに委譲）
 
 3. **プリセット（ロードアウト）システム**
    - 初心者向けに推奨構成を提供
    - ユーザーが独自のプリセットを作成・保存可能
    - `ZWGadgets.defineLoadout(name, config)` で定義
-   - `ZWGadgets.activateLoadout(name)` で適用
+   - `ZWGadgets.applyLoadout(name)` で適用
 
    **デフォルトプリセット**:
    - `novel-standard`: 小説執筆向け基本構成
@@ -181,23 +171,14 @@ function forceSidebarState(open) {
 **初期化プロセス**:
 
 ```javascript
-// 表示されているパネルのみ初期化
-const panels = [
-    { id: 'structure-gadgets-panel', group: 'structure' },
-    { id: 'wiki-gadgets-panel', group: 'wiki' }
-];
-
-panels.forEach(panelInfo => {
-    window.ZWGadgets.init(`#${panelInfo.id}`, { group: panelInfo.group });
-});
-
-// アクティブグループを設定
-window.ZWGadgets.setActiveGroup('structure');
-
-// 登録完了を待ってレンダリング（遅延300ms）
-setTimeout(() => {
-    window.ZWGadgets._renderLast(); // すべてのパネルをレンダリング
-}, 300);
+// 初期化は gadgets-init.js が data-gadget-group 属性を基準に行う
+// （index.html で gadgets-*.js と併せて読み込まれる）
+//
+// 例: 任意のパネルを手動で初期化したい場合
+var panel = document.querySelector('[data-gadget-group="structure"]');
+if (panel) {
+  window.ZWGadgets.init(panel, { group: 'structure' });
+}
 ```
 
 **パフォーマンス最適化**:

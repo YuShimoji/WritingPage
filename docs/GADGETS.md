@@ -54,7 +54,7 @@
   - パネル: `.sidebar-group[data-group="<groupId>"]`
 - 役割:
   - 開閉状態（`open` クラス等）とアクティブ状態（`active`、`aria-selected` / `aria-hidden`）を一元管理します。
-  - グループ切替時に `ZWLoadoutGroupChanged` イベントを発火します。
+  - グループ切替時に `ZWGadgets.setActiveGroup(groupId)` を呼び出し、ガジェット描画の更新をトリガーします（`ZWLoadoutGroupChanged` は `ZWGadgets` 側で発火）。
 
 ### ZWGadgets（ガジェット描画）
 
@@ -114,20 +114,19 @@
   - `ZWGadgets.defineLoadout(name, config)` — プリセットを登録。
   - `ZWGadgets.applyLoadout(name)` — カテゴリごとのガジェットリストを切替。
   - `ZWGadgets.listLoadouts()` / `ZWGadgets.deleteLoadout(name)` — 管理用。
-- 実装済みAPI（2025-12時点）:
+- 実装済みAPI（2025-10-19時点）:
   - `ZWGadgets.getActiveLoadout()` — 現在適用中のロードアウト情報を取得。
   - `ZWGadgets.captureCurrentLoadout(label?)` — DOM上の配置からロードアウト構造を採取。
   - `ZWGadgets.assignGroups(name, groups)` — 既登録ガジェットのカテゴリを動的再設定。
   - `ZWGadgets.setActiveGroup(groupId)` — タブ切替に合わせて描画を更新。
-  - 主要イベント: `ZWLoadoutsChanged`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
-  - 注: `ZWGadgetsReady` イベントは廃止されました。初期化は `DOMContentLoaded` 後に `gadgets-init.js` が実行します。
+  - 主要イベント: `ZWLoadoutsChanged`, `ZWLoadoutDefined`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
 
 ### ロードアウトUI（現況）
 
-- `index.html` のサイドバー上部に以下のUIを配置し、`js/gadgets-loadouts.js` で連携済み。
+- `index.html` の `.sidebar-loadout` に `js/gadgets-loadout.js` がロードアウトUIを動的生成します。
   - セレクト: `#loadout-select`
   - 名前入力: `#loadout-name`
-  - 操作: `#loadout-save`（保存/新規定義）、`#loadout-apply`（適用）、`#loadout-delete`（削除）
+  - 操作: `#loadout-save`（保存/新規定義）、`#loadout-duplicate`（複製）、`#loadout-apply`（適用）、`#loadout-delete`（削除）
 - 保存時は現在のガジェット配置を `captureCurrentLoadout()` で採取し、`defineLoadout()` → `applyLoadout()` の順に反映。
 - 複製は「対象を選択→適用→名前を入力→保存」で実現可能（専用ボタンは今後の候補）。
 - UI
@@ -138,31 +137,19 @@
 ## 実装概要
 
 - `index.html` に各グループ用の `.gadgets-panel[data-gadget-group]` を配置（例: `#structure-gadgets-panel` / `#typography-gadgets-panel` / `#assist-gadgets-panel` / `#wiki-gadgets-panel`）
-- 非埋め込み時のみ `js/gadgets-*.js` を動的ロード
-- `js/gadgets-core.js` は以下を提供:
-  - `ZWGadgets.register(name, factory)` でガジェットを登録
-  - `ZWGadgets.init(selector, { group })` でコンテナへマウント
-  - 例として `Clock` ガジェットを内蔵
+- ガジェット基盤は `js/gadgets-*.js` の複数ファイルで提供され、`index.html` から読み込まれます。
+- 初期化は `js/gadgets-init.js` が `data-gadget-group` を基準に各パネルへ `ZWGadgets.init(panel, { group })` を適用します。
 
 ## 使い方
 
 ```html
 <!-- index.html（抜粋） -->
 <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"></div>
-<script>
-  (function () {
-    var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
-    if (isEmbed) return;
-    function load(src) {
-      var s = document.createElement('script');
-      s.src = src;
-      s.defer = true;
-      document.body.appendChild(s);
-    }
-    // 現行は index.html で静的に読み込み済み
-    // load('js/gadgets-core.js'); // etc.
-  })();
-</script>
+<script src="js/gadgets-utils.js"></script>
+<script src="js/gadgets-loadouts.js"></script>
+<script src="js/gadgets-core.js"></script>
+<script src="js/gadgets-builtin.js"></script>
+<script src="js/gadgets-init.js"></script>
 ```
 
 ```js
@@ -177,7 +164,7 @@ ZWGadgets.register('Sample', function (el) {
 
 ## ガジェット追加手順（最短）
 
-1. `js/gadgets-<name>.js` にガジェットを登録
+1. `js/gadgets-*.js`（例: `js/gadgets-builtin.js` または新規 `js/gadgets-<name>.js`）にガジェットを登録
 
 ```js
 // 例: WritingGoal と同等の最小構成
@@ -228,7 +215,7 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 - `scripts/dev-check.js` が以下を自動検証
   - `/` のHTMLに各グループ用ガジェットパネル（例: `#assist-gadgets-panel`）が存在
   - `/js/gadgets-core.js` が 200 で取得可能
-  - `/index.html?embed=1` に静的な `<script src="js/gadgets-*.js">` が含まれない
+  - `/index.html?embed=1` で Outline などの追加スクリプトが読み込まれない（軽量化）
 
 ## 設定のインポート/エクスポート（Mission 6）
 

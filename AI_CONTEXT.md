@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-16T02:45+09:00
-- 現在のミッション: プロジェクト総ざらい・ドキュメント同期完了
+- 最終更新: 2025-12-16T03:27:06.8754936+09:00
+- 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
@@ -38,9 +38,8 @@
   - 2025-12-15: Helpガジェット内Lucideのサイズ/整列CSSを追加（.help-nav-icon svg / .help-inline-icon svg）
   - 2025-12-15: `npm run test:smoke` green（ALL TESTS PASSED）
   - 2025-12-15: main にマージし、origin/main へ push 済み
-  - 2025-12-16: サイドバーのcustomTabsを動的グループとして扱えるよう基盤を整理（registerGroup追加、init二重実行耐性、ガジェット登録先をwindow.ZWGadgetsへ統一、不要イベントリスナー整理）
-  - 2025-12-16: プロジェクト総ざらい完了。OpenSpec specsのTBD Purposeも10件補完、ui/spec.mdのGoal Calendar/ClockをBacklog化、ARCHITECTURE.md・GADGETS.mdを現行実装に同期。`3664aa5`
-- 次の中断可能点: 次タスク着手前（ドキュメント同期完了）
+  - 2025-12-16: OpenSpecのPurpose(TBD)整備、ui specのGoal×Calendar/ClockをBacklog化、docsの現行実装同期（GADGETS/ARCHITECTURE/BACKLOG/TROUBLESHOOTING）、dev-checkのポート誤判定修正（8080占有時の安定化）。`npm run test:smoke` green
+- 次の中断可能点: commit/push完了後に origin/main 同期確認 / 次タスク着手前
 
 ## OpenSpec changes の分類（暫定）
 

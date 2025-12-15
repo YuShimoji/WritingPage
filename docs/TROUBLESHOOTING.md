@@ -149,7 +149,7 @@ console.log('[Debug] Gadget panels:', {
 
 **予防策**:
 
-- ガジェットスクリプト（`gadgets.js`）が読み込まれているか確認
+- ガジェット関連スクリプト（`gadgets-core.js` などの `gadgets-*.js`）が読み込まれているか確認
 - 初期化を遅延させる（`setTimeout`または`DOMContentLoaded`後）
 - エラーログを確認する
 

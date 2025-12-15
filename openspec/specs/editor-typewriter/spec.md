@@ -1,7 +1,7 @@
 # editor-typewriter Specification
 
 ## Purpose
-タイプライターモード機能を定義する。キャレット位置の固定アンカー、スティッキネス設定を規定（将来実装予定）。
+Define requirements for typewriter mode (caret-anchored scrolling) with configurable behavior.
 ## Requirements
 ### Requirement: Typewriter Mode
 The editor SHALL provide a typewriter mode that keeps the caret at a fixed vertical anchor with configurable stickiness.

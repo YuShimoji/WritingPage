@@ -1,7 +1,7 @@
 # ui Specification
 
 ## Purpose
-UI全般の要件を定義する。サイドバー、ガジェット表示、エディタUI、文字数スタンプ、スクロール安定性など。
+Define UI stability and interaction requirements, including sidebar behavior and editor-adjacent UI constraints.
 ## Requirements
 ### Requirement: Sidebar Header Stability
  The system MUST keep the sidebar header layout stable and MUST expose a close control without resizing the header.
@@ -28,16 +28,16 @@ UI全般の要件を定義する。サイドバー、ガジェット表示、エ
 - **THEN** 進捗バーが100%を超えて表示される
 
 ### Requirement: Goal Calendar Integration (Backlog)
- The system SHOULD integrate writing-goal deadlines with a Calendar gadget if implemented.
- 目標文字数がカレンダーガジェットと連携（将来実装予定）。
+ The system SHOULD integrate writing-goal deadlines with a Calendar gadget (date/schedule view).
+ 目標文字数がカレンダー（日時/予定表示）ガジェットと連携。
 
 #### Scenario: Calendar Goal Sync
 - **WHEN** 目標期限を設定
 - **THEN** カレンダーに表示される
 
 ### Requirement: Goal Clock Integration (Backlog)
- The system SHOULD integrate writing-goal reminders with a Clock gadget if implemented.
- 目標文字数がClockガジェットと連携（将来実装予定）。
+ The system SHOULD integrate writing-goal reminders with the Clock gadget.
+ 目標文字数がClockガジェットと連携。
 
 #### Scenario: Clock Goal Reminder
 - **WHEN** 目標期限が近づく

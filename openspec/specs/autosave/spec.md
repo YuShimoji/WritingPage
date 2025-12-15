@@ -1,7 +1,7 @@
 # autosave Specification
 
 ## Purpose
-自動保存とスナップショット機能の要件を定義する。編集内容の自動永続化、スナップショット作成・復元、保持ポリシーを規定。
+Define autosave and snapshot/restore requirements, including configurable thresholds and retention behavior.
 ## Requirements
 ### Requirement: Autosave & Snapshot Controls
 The system SHALL autosave on edits and support configurable snapshot thresholds and intervals, including restore UI.

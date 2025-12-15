@@ -1,7 +1,7 @@
 # dynamic-tab-management Specification
 
 ## Purpose
-TBD - created by archiving change add-ui-design-gadget-and-dynamic-tabs. Update Purpose after archive.
+Define requirements for dynamically managing sidebar tabs (add/rename/remove) and persisting/restoring the configuration.
 ## Requirements
 ### Requirement: Dynamic Sidebar Tabs Management
  The system MUST allow users to add, rename, and remove sidebar tabs and MUST persist and restore the configuration on startup.

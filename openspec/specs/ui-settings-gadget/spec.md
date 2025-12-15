@@ -1,7 +1,7 @@
 # ui-settings-gadget Specification
 
 ## Purpose
-UISettingsガジェットによるサイドバータブ管理を定義する。タブの追加/名称変更/削除、表示方式の即時反映を規定。
+Define requirements for UI Settings gadget enhancements, including tab management controls and immediate UI application.
 ## Requirements
 ### Requirement: UI Settings Gadget Enhancements
  The system MUST provide UI Settings gadget controls to add/rename/remove sidebar tabs and MUST apply tab presentation changes immediately.

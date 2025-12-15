@@ -1,7 +1,7 @@
 # workspace-ui Specification
 
 ## Purpose
-ワークスペースUIの階層構造を定義する。ツリーペイン、フォルダ構造、ガジェット階層登録を規定（将来実装予定）。
+Define requirements for a hierarchical workspace tree UI and an extensible gadget registry.
 ## Requirements
 ### Requirement: Tree Pane with Folder Structure
 The system SHALL provide a hierarchical tree pane for gadgets and documents with unlimited nesting and lazy rendering.

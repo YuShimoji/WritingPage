@@ -25,8 +25,12 @@ function parsePort() {
   return 8080;
 }
 
-const PORT = parsePort();
+let PORT = parsePort();
 let startedServer = null;
+
+function isExpectedIndex(body) {
+  return /<title>\s*Zen Writer\s*-\s*小説執筆ツール\s*<\/title>/i.test(body || '');
+}
 
 function get(reqPath, port = PORT) {
   return new Promise((resolve, reject) => {
@@ -65,9 +69,12 @@ function waitForReady(port, retries = 50, delay = 200) {
       const req = http.get(
         { host: '127.0.0.1', port, path: '/index.html' },
         (res) => {
-          res.resume();
-          if (res.statusCode && res.statusCode < 500) return resolve();
-          retry();
+          let data = '';
+          res.on('data', (chunk) => (data += chunk));
+          res.on('end', () => {
+            if (res.statusCode === 200 && isExpectedIndex(data)) return resolve();
+            retry();
+          });
         },
       );
       req.on('error', retry);
@@ -85,18 +92,28 @@ function waitForReady(port, retries = 50, delay = 200) {
 }
 
 async function ensureServerReady() {
-  try {
-    const res = await get('/index.html');
-    if (res && res.status && res.status < 500) return;
-  } catch (e) {
-    if (e && e.code === 'ECONNREFUSED') {
-      startedServer = startDevServer(PORT);
-      if (!startedServer) throw e;
-      await waitForReady(PORT);
-      return;
+  const candidates = [PORT, 18080, 18081, 18082, 18083];
+  for (let i = 0; i < candidates.length; i++) {
+    const p = candidates[i];
+    try {
+      const res = await get('/index.html', p);
+      if (res && res.status === 200 && isExpectedIndex(res.body)) {
+        PORT = p;
+        return;
+      }
+      continue;
+    } catch (e) {
+      if (e && e.code === 'ECONNREFUSED') {
+        startedServer = startDevServer(p);
+        if (!startedServer) continue;
+        await waitForReady(p);
+        PORT = p;
+        return;
+      }
+      continue;
     }
-    throw e;
   }
+  throw new Error('Dev server did not become ready on any candidate port');
 }
 
 async function loadCssWithImports(url) {

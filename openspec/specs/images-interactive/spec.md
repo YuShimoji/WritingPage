@@ -1,7 +1,7 @@
 # images-interactive Specification
 
 ## Purpose
-画像のインタラクティブ制御機能を定義する。プリセット選択、パラメータ調整、ホバー操作を規定（将来実装予定）。
+Define requirements for interactive image controls and presets, including per-image persistence.
 ## Requirements
 ### Requirement: Interactive Image Controls
 The system SHALL provide interactive controls and presets for images, including VN-oriented behavior.
