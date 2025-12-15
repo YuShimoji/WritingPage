@@ -45,6 +45,46 @@ class SidebarManager {
         ];
     }
 
+    bootstrapTabs() {
+        try {
+            const tabsContainer = document.querySelector('.sidebar-tabs');
+            if (!tabsContainer) return;
+
+            tabsContainer.innerHTML = '';
+
+            try {
+                const dd = document.getElementById('tabs-dropdown-select');
+                if (dd && dd.parentNode) dd.parentNode.removeChild(dd);
+            } catch (_) { }
+
+            this.sidebarTabConfig.forEach(tab => {
+                try {
+                    this.addTab(tab.id, tab.label, { persist: false });
+                } catch (_) { }
+            });
+
+            try {
+                const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+                    ? window.ZenWriterStorage.loadSettings()
+                    : null;
+                const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
+                list.forEach(t => {
+                    if (!t || !t.id) return;
+                    this.addTab(t.id, t.label, { persist: false });
+                });
+            } catch (_) { }
+
+            const firstId = (this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) ? this.sidebarTabConfig[0].id : 'structure';
+            this.activateSidebarGroup(firstId);
+
+            try {
+                if (this.elementManager && typeof this.elementManager.initialize === 'function') {
+                    this.elementManager.initialize();
+                }
+            } catch (_) { }
+        } catch (_) { }
+    }
+
     /**
      * 開発環境かどうかを判定
      * @returns {boolean} 開発環境の場合はtrue
@@ -218,10 +258,12 @@ class SidebarManager {
         }
     }
 
-    addTab(id, label) {
+    addTab(id, label, options) {
         try {
             var safeId = String(id || ('custom-' + Date.now()));
             var safeLabel = String(label || safeId);
+            var opts = (options && typeof options === 'object') ? options : {};
+            var persist = opts.persist !== false;
             if (!this.sidebarTabConfig.find(function(t){ return t.id === safeId; })) {
                 this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
             }
@@ -248,14 +290,16 @@ class SidebarManager {
             try {
                 if (window.elementManager && typeof window.elementManager.initialize==='function') window.elementManager.initialize();
             } catch(_) {}
-            try {
-                var s = window.ZenWriterStorage.loadSettings();
-                s.ui = s.ui || {};
-                var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
-                if (!list.some(function(t){ return t && t.id === safeId; })) list.push({ id: safeId, label: safeLabel });
-                s.ui.customTabs = list;
-                window.ZenWriterStorage.saveSettings(s);
-            } catch(_) {}
+            if (persist) {
+                try {
+                    var s = window.ZenWriterStorage.loadSettings();
+                    s.ui = s.ui || {};
+                    var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
+                    if (!list.some(function(t){ return t && t.id === safeId; })) list.push({ id: safeId, label: safeLabel });
+                    s.ui.customTabs = list;
+                    window.ZenWriterStorage.saveSettings(s);
+                } catch(_) {}
+            }
             return safeId;
         } catch(_) { return null; }
     }

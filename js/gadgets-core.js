@@ -298,6 +298,12 @@
 
     addTab(group, label, panelId) {
       try {
+        try {
+          if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
+            window.sidebarManager.addTab(group, label, { persist: false });
+            return;
+          }
+        } catch (_) { }
         var self = this;
         // フェーズC-1: データ属性ベースのセレクタを使用
         var getGroupSection = utils.getGroupSection;

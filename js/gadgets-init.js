@@ -22,14 +22,6 @@
       }
     });
 
-    // Add tabs (ラベルは GADGET_GROUPS から取得)
-    ['structure', 'typography', 'wiki', 'assist'].forEach(function (groupName) {
-      var group = GADGET_GROUPS[groupName];
-      if (group) {
-        ZWGadgets.addTab(groupName, group.label);
-      }
-    });
-
     // Loadout UI is now handled by gadgets-loadout.js
     // Refresh loadout UI if available
     if (window.ZWLoadoutUI && typeof window.ZWLoadoutUI.refresh === 'function') {

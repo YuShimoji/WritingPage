@@ -111,37 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // タブボタンを動的に生成
     function initializeSidebarTabs() {
-        const tabsContainer = document.querySelector('.sidebar-tabs');
-        if (!tabsContainer) return;
-        tabsContainer.innerHTML = '';
-        sidebarManager.sidebarTabConfig.forEach(tab => {
-            const tabBtn = document.createElement('button');
-            tabBtn.className = 'sidebar-tab';
-            tabBtn.type = 'button';
-            tabBtn.dataset.group = tab.id;
-            tabBtn.setAttribute('aria-controls', `sidebar-group-${tab.id}`);
-            tabBtn.setAttribute('aria-selected', 'false');
-            tabBtn.textContent = tab.label;
-            // クリックハンドラを追加
-            tabBtn.addEventListener('click', () => {
-                activateSidebarGroup(tab.id);
-            });
-            tabsContainer.appendChild(tabBtn);
-        });
-        try {
-            const s = window.ZenWriterStorage.loadSettings();
-            const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
-            list.forEach(t => { try { if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') window.sidebarManager.addTab(t.id, t.label); } catch (_) { } });
-        } catch (_) { }
-        // 初期アクティブタブ
-        const firstTab = tabsContainer.querySelector('.sidebar-tab');
-        if (firstTab) {
-            firstTab.classList.add('active');
-            firstTab.setAttribute('aria-selected', 'true');
-        }
-        // ElementManager のキャッシュを最新DOMで再取得（タブ生成後に必要）
-        if (window.elementManager && typeof window.elementManager.initialize === 'function') {
-            window.elementManager.initialize();
+        if (sidebarManager && typeof sidebarManager.bootstrapTabs === 'function') {
+            sidebarManager.bootstrapTabs();
         }
     }
 
@@ -382,12 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', _toggleFullscreen);
     if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackPanel);
 
-    const sidebarTabs = elementManager.getMultiple('sidebarTabs');
-    if (sidebarTabs && sidebarTabs.length) {
-        sidebarTabs.forEach(tab => {
-            tab.addEventListener('click', () => activateSidebarGroup(tab.dataset.group));
-        });
-    }
     // キーボードショートカット: Alt+W でツールバー表示切替
     // capture: trueで優先的に処理
     document.addEventListener('keydown', (e) => {
@@ -527,6 +492,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (s && s.ui && s.ui.uiMode) {
                 setUIMode(s.ui.uiMode, false); // 初回は保存しない
             }
+            if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
+                window.sidebarManager.applyTabsPresentationUI();
+            }
         } catch (_) { }
     })();
 
@@ -608,8 +576,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         logger.warn('初期化対象のガジェットパネルが見つかりません');
                     }
 
+                    const roots = window.ZWGadgets._roots || {};
                     panels.forEach(info => {
                         try {
+                            if (roots && roots[info.group]) return;
                             window.ZWGadgets.init(info.selector, { group: info.group });
                             logger.info(`ガジェット初期化完了: ${info.selector}`);
                         } catch (initErr) {
@@ -618,7 +588,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
 
                     if (typeof window.ZWGadgets.setActiveGroup === 'function') {
-                        window.ZWGadgets.setActiveGroup('structure');
+                        const activeTab = document.querySelector('.sidebar-tab.active');
+                        const group = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                        window.ZWGadgets.setActiveGroup(group);
                     }
 
                     setTimeout(() => {
@@ -643,6 +615,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ロードアウトUI初期化
     function initLoadoutUI() {
+        if (window.ZWLoadoutUI && typeof window.ZWLoadoutUI.refresh === 'function') {
+            try {
+                if (window.ZWGadgets && typeof window.ZWGadgets.getActiveLoadout === 'function') {
+                    window.ZWGadgets.getActiveLoadout();
+                }
+            } catch (_) { }
+            try { window.ZWLoadoutUI.refresh(); } catch (_) { }
+            return;
+        }
         const loadoutSelect = document.getElementById('loadout-select');
         const loadoutName = document.getElementById('loadout-name');
         const loadoutSaveBtn = document.getElementById('loadout-save');
