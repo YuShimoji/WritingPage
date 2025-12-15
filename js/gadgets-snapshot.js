@@ -3,13 +3,11 @@
 
   // Depends on gadgets-utils.js and gadgets-core.js
   var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgets = window.ZWGadgets;
+  if (!utils || !ZWGadgets) return;
 
   // SnapshotManager gadget (個別ファイル化)
-  ZWGadgetsInstance.register('SnapshotManager', function (el) {
+  ZWGadgets.register('SnapshotManager', function (el) {
     try {
       var storage = window.ZenWriterStorage;
       var editorManager = window.ZenWriterEditor;

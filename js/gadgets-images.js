@@ -3,13 +3,11 @@
 
   // Depends on gadgets-utils.js and gadgets-core.js
   var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgets = window.ZWGadgets;
+  if (!utils || !ZWGadgets) return;
 
   // Images gadget (個別ファイル化)
-  ZWGadgetsInstance.register('Images', function (el) {
+  ZWGadgets.register('Images', function (el) {
     try {
       var API = window.ZenWriterImages;
       var root = document.createElement('div');

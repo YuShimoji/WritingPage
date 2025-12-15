@@ -3,13 +3,11 @@
 
   // Depends on gadgets-utils.js and gadgets-core.js
   var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgets = window.ZWGadgets;
+  if (!utils || !ZWGadgets) return;
 
   // PrintSettings gadget (個別ファイル化)
-  ZWGadgetsInstance.register('PrintSettings', function (el, _api) {
+  ZWGadgets.register('PrintSettings', function (el, _api) {
     try {
       var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
 

@@ -207,9 +207,17 @@
     setActiveGroup(group) {
       var self = this;
       if (!group) return;
-      if (self._activeGroup === group) return;
-      self._activeGroup = group;
-      emit('ZWLoadoutGroupChanged', { group: group });
+      var normalized = normalizeGroupName(group);
+      if (!normalized) {
+        try {
+          var lower = String(group || '').trim().toLowerCase();
+          normalized = normalizeGroupName(lower) || lower;
+        } catch (_) { normalized = ''; }
+      }
+      if (!normalized) return;
+      if (self._activeGroup === normalized) return;
+      self._activeGroup = normalized;
+      emit('ZWLoadoutGroupChanged', { group: normalized });
       if (self._renderPending) cancelAnimationFrame(self._renderPending);
       self._renderPending = requestAnimationFrame(function () {
         try { self._renderActive && self._renderActive(); } catch (_) { }
@@ -379,6 +387,15 @@
       var root = typeof sel === 'string' ? document.querySelector(sel) : sel;
       if (!root) return;
       var group = normalizeGroupName(opts.group) || 'structure';
+
+      try {
+        var prevGroup = root.getAttribute('data-zwg-init-group');
+        if (prevGroup === group && this._roots[group] === root && typeof this._renderers[group] === 'function') {
+          this._renderers[group]();
+          return;
+        }
+        root.setAttribute('data-zwg-init-group', group);
+      } catch (_) { }
       this._roots[group] = root;
       if (!this._activeGroup) this._activeGroup = group;
 

@@ -264,6 +264,11 @@ class SidebarManager {
             var safeLabel = String(label || safeId);
             var opts = (options && typeof options === 'object') ? options : {};
             var persist = opts.persist !== false;
+            try {
+                if (window.ZWGadgetsUtils && typeof window.ZWGadgetsUtils.registerGroup === 'function') {
+                    safeId = window.ZWGadgetsUtils.registerGroup(safeId, safeLabel) || safeId;
+                }
+            } catch (_) { }
             if (!this.sidebarTabConfig.find(function(t){ return t.id === safeId; })) {
                 this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
             }
@@ -295,7 +300,9 @@ class SidebarManager {
                     var s = window.ZenWriterStorage.loadSettings();
                     s.ui = s.ui || {};
                     var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
-                    if (!list.some(function(t){ return t && t.id === safeId; })) list.push({ id: safeId, label: safeLabel });
+                    if (!list.some(function(t){ return t && String(t.id || '').trim().toLowerCase() === String(safeId || '').trim().toLowerCase(); })) {
+                        list.push({ id: safeId, label: safeLabel });
+                    }
                     s.ui.customTabs = list;
                     window.ZenWriterStorage.saveSettings(s);
                 } catch(_) {}
@@ -306,16 +313,23 @@ class SidebarManager {
 
     removeTab(id) {
         try {
-            var idx = this.sidebarTabConfig.findIndex(function(t){ return t.id === id; });
+            var rawId = String(id || '').trim();
+            var nid = rawId.toLowerCase();
+            var idx = this.sidebarTabConfig.findIndex(function(t){ return t && String(t.id || '').trim() === rawId; });
+            if (idx < 0) idx = this.sidebarTabConfig.findIndex(function(t){ return t && String(t.id || '').trim().toLowerCase() === nid; });
             if (idx >= 0) this.sidebarTabConfig.splice(idx, 1);
-            var btn = document.querySelector('.sidebar-tab[data-group="' + id + '"]');
+            var btn = document.querySelector('.sidebar-tab[data-group="' + rawId + '"]') || document.querySelector('.sidebar-tab[data-group="' + nid + '"]');
             if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
-            var grp = document.getElementById('sidebar-group-' + id);
+            var grp = document.getElementById('sidebar-group-' + rawId) || document.getElementById('sidebar-group-' + nid);
             if (grp && grp.parentNode) grp.parentNode.removeChild(grp);
             try {
                 var s = window.ZenWriterStorage.loadSettings();
                 s.ui = s.ui || {};
-                s.ui.customTabs = (Array.isArray(s.ui.customTabs) ? s.ui.customTabs : []).filter(function(t){ return t && t.id !== id; });
+                s.ui.customTabs = (Array.isArray(s.ui.customTabs) ? s.ui.customTabs : []).filter(function(t){
+                    var tid = t && String(t.id || '').trim();
+                    if (!tid) return false;
+                    return tid !== rawId && tid.toLowerCase() !== nid;
+                });
                 window.ZenWriterStorage.saveSettings(s);
             } catch(_) {}
             var fallback = (this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) || 'structure';
@@ -325,17 +339,27 @@ class SidebarManager {
 
     renameTab(id, newLabel) {
         try {
+            var rawId = String(id || '').trim();
+            var nid = rawId.toLowerCase();
             var label = String(newLabel || '');
             if (!label) return;
-            var conf = this.sidebarTabConfig.find(function(t){ return t.id === id; });
+            var conf = this.sidebarTabConfig.find(function(t){ return t && String(t.id || '').trim() === rawId; });
+            if (!conf) conf = this.sidebarTabConfig.find(function(t){ return t && String(t.id || '').trim().toLowerCase() === nid; });
             if (conf) conf.label = label;
-            var btn = document.querySelector('.sidebar-tab[data-group="' + id + '"]');
+            var btn = document.querySelector('.sidebar-tab[data-group="' + rawId + '"]') || document.querySelector('.sidebar-tab[data-group="' + nid + '"]');
             if (btn) btn.textContent = label;
             try {
                 var s = window.ZenWriterStorage.loadSettings();
                 s.ui = s.ui || {};
                 var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
-                for (var i=0;i<list.length;i++){ if (list[i] && list[i].id === id){ list[i].label = label; break; } }
+                for (var i=0;i<list.length;i++){
+                    var tid = list[i] && String(list[i].id || '').trim();
+                    if (tid && (tid === rawId || tid.toLowerCase() === nid)){
+                        list[i].id = nid;
+                        list[i].label = label;
+                        break;
+                    }
+                }
                 s.ui.customTabs = list;
                 window.ZenWriterStorage.saveSettings(s);
             } catch(_) {}

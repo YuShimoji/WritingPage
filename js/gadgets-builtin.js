@@ -6,7 +6,7 @@
   var ZWGadgetsCore = window.ZWGadgetsCore;
   if (!utils || !ZWGadgetsCore) return;
 
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgetsInstance = window.ZWGadgets || new ZWGadgetsCore();
 
   // Outline gadget (構造)
   ZWGadgetsInstance.register('Outline', function (el) {

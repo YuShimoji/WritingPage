@@ -189,5 +189,4 @@
   } else {
     register();
   }
-  document.addEventListener('ZWGadgetsReady', register);
 })();

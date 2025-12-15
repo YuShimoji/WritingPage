@@ -15,6 +15,7 @@
     if (!trimmed) return '';
     var lower = trimmed.toLowerCase();
     if (KNOWN_GROUPS.indexOf(lower) >= 0) return lower;
+    if (GADGET_GROUPS && Object.prototype.hasOwnProperty.call(GADGET_GROUPS, lower)) return lower;
     if (lower === 'typo') return 'typography';
     return '';
   }
@@ -129,6 +130,21 @@
     return GADGET_GROUPS.hasOwnProperty(groupName);
   }
 
+  function registerGroup(groupId, label) {
+    var id = typeof groupId === 'string' ? groupId.trim().toLowerCase() : '';
+    if (!id) return '';
+    if (KNOWN_GROUPS.indexOf(id) < 0) KNOWN_GROUPS.push(id);
+    if (!Object.prototype.hasOwnProperty.call(GADGET_GROUPS, id)) {
+      GADGET_GROUPS[id] = {
+        id: id,
+        label: typeof label === 'string' && label ? label : id,
+        panelSelector: '[data-gadget-group="' + id + '"]',
+        sectionSelector: '[data-group="' + id + '"]'
+      };
+    }
+    return id;
+  }
+
   // ロードアウトプリセットは loadouts-presets.js から読み込み
   // フォールバック用の最小定義のみ保持
   var DEFAULT_LOADOUTS = window.ZWLoadoutPresets || {
@@ -164,6 +180,7 @@
       getGroupPanel: getGroupPanel,
       getGroupSection: getGroupSection,
       isValidGroup: isValidGroup,
+      registerGroup: registerGroup,
       DEFAULT_LOADOUTS: DEFAULT_LOADOUTS
     };
   } catch (_) { }

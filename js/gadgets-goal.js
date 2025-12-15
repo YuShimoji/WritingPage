@@ -3,13 +3,11 @@
 
   // Depends on gadgets-utils.js and gadgets-core.js
   var utils = window.ZWGadgetsUtils;
-  var ZWGadgetsCore = window.ZWGadgetsCore;
-  if (!utils || !ZWGadgetsCore) return;
-
-  var ZWGadgetsInstance = new ZWGadgetsCore();
+  var ZWGadgets = window.ZWGadgets;
+  if (!utils || !ZWGadgets) return;
 
   // WritingGoal gadget (個別ファイル化)
-  ZWGadgetsInstance.register('WritingGoal', function (el, api) {
+  ZWGadgets.register('WritingGoal', function (el, api) {
     try {
       var storage = window.ZenWriterStorage;
       var editor = window.ZenWriterEditor;
