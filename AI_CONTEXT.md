@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-16T03:27:06.8754936+09:00
+- 最終更新: 2025-12-16T18:27:00+09:00
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: main
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -38,7 +38,12 @@
   - 2025-12-15: Helpガジェット内Lucideのサイズ/整列CSSを追加（.help-nav-icon svg / .help-inline-icon svg）
   - 2025-12-15: `npm run test:smoke` green（ALL TESTS PASSED）
   - 2025-12-15: main にマージし、origin/main へ push 済み
-  - 2025-12-16: OpenSpecのPurpose(TBD)整備、ui specのGoal×Calendar/ClockをBacklog化、docsの現行実装同期（GADGETS/ARCHITECTURE/BACKLOG/TROUBLESHOOTING）、dev-checkのポート誤判定修正（8080占有時の安定化）。`npm run test:smoke` green
+  - 2025-12-16: OpenSpecのPurpose(TBD)整備、ui specのGoal×Calendar/ClockをBacklog化、
+    docsの現行実装同期（GADGETS/ARCHITECTURE/BACKLOG/TROUBLESHOOTING）、
+    dev-checkのポート誤判定修正（8080占有時の安定化）。`npm run test:smoke` green
+  - 2025-12-16: SidebarManager をサイドバータブ管理のSSOTとする方針を継続し、
+    `ZWGadgets.addTab()` のDOM直操作フォールバックを撤去（`window.sidebarManager.addTab()` への委譲のみ）。
+    `npm run lint` / `node scripts/dev-check.js` / `npm run test:e2e:ci` green
 - 次の中断可能点: commit/push完了後に origin/main 同期確認 / 次タスク着手前
 
 ## OpenSpec changes の分類（暫定）

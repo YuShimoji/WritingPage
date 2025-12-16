@@ -34,6 +34,7 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
 - [x] ガジェット登録・レンダリングシステム
 - [x] ロードアウトの保存・適用機能
 - [x] 動的タブ追加・削除のAPI（`sidebarManager.addTab/removeTab`）
+- [x] タブ管理のSSOT: タブ生成/復元/切替は `SidebarManager` が担当し、`ZWGadgets.addTab()` はDOMを直接操作せず `sidebarManager.addTab()` へ委譲のみ
 - [~] タブへのガジェット動的割り当て（ロードアウト経由の部分実装）
 - [x] フローティングパネル機能（Docking/split モデル＋位置・サイズ・開閉状態の永続化、透明度調整・折りたたみUIまで実装済み）
 - [x] 左サイドバー向け Panel/GadgetContainer 薄い抽象レイヤ PoC（`SidebarManager._ensureSidebarPanel` / `addTab`）

@@ -291,49 +291,10 @@
       } catch (_) { return false; }
     }
 
-    addTab(group, label, panelId) {
+    addTab(group, label, _panelId) {
       try {
-        try {
-          if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
-            window.sidebarManager.addTab(group, label, { persist: false });
-            return;
-          }
-        } catch (_) { }
-        var self = this;
-        // フェーズC-1: データ属性ベースのセレクタを使用
-        var getGroupSection = utils.getGroupSection;
-
-        var tab = document.createElement('button');
-        tab.className = 'sidebar-tab';
-        tab.type = 'button';
-        tab.dataset.group = group;
-        tab.textContent = label;
-        tab.setAttribute('aria-selected', 'false');
-        tab.addEventListener('click', function () {
-          self._activeGroup = group;
-          var allTabs = document.querySelectorAll('.sidebar-tab');
-          allTabs.forEach(function (t) {
-            t.classList.remove('active');
-            t.setAttribute('aria-selected', 'false');
-          });
-          tab.classList.add('active');
-          tab.setAttribute('aria-selected', 'true');
-          var allPanels = document.querySelectorAll('.sidebar-group');
-          allPanels.forEach(function (p) {
-            p.classList.remove('active');
-            p.setAttribute('aria-hidden', 'true');
-          });
-          // データ属性ベースでセクションを取得（フェーズC-1）
-          var targetPanel = getGroupSection ? getGroupSection(group) : document.getElementById(panelId);
-          if (targetPanel) {
-            targetPanel.classList.add('active');
-            targetPanel.setAttribute('aria-hidden', 'false');
-          }
-          emit('ZWLoadoutGroupChanged', { group: group });
-        });
-        var tabsContainer = document.querySelector('.sidebar-tabs');
-        if (tabsContainer) {
-          tabsContainer.appendChild(tab);
+        if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
+          window.sidebarManager.addTab(group, label, { persist: false });
         }
       } catch (e) {
         console.error('addTab failed:', e);
