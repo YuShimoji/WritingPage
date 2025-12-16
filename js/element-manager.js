@@ -47,6 +47,7 @@ class ElementManager {
             // エディタ関連
             editor: 'editor',
             editorContainer: '.editor-container',
+            printView: 'print-view',
 
             // エディタ設定UI
             typewriterEnabled: 'typewriter-enabled',

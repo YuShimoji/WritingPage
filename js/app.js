@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 印刷処理
     function _printDocument() {
-        const pv = elementManager.get('print-view');
+        const pv = elementManager.get('printView');
         if (!pv || !elementManager.get('editor')) return;
         const text = elementManager.get('editor').value || '';
         pv.innerHTML = '';
