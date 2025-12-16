@@ -393,8 +393,10 @@ class SidebarManager {
         } catch(_) {}
     }
 
-    applyTabsPresentationUI() {
+    applyTabsPresentationUI(options) {
         try {
+            const opts = (options && typeof options === 'object') ? options : {};
+            const skipActivate = opts.skipActivate === true;
             const sb = document.getElementById('sidebar');
             if (!sb) return;
             const mode = sb.getAttribute('data-tabs-presentation') || 'tabs';
@@ -440,7 +442,9 @@ class SidebarManager {
                 // デフォルト動作: active のみ表示
                 const activeTab = document.querySelector('.sidebar-tab.active');
                 const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
-                this.activateSidebarGroup(gid);
+                if (!skipActivate) {
+                    this.activateSidebarGroup(gid, { skipPresentationUpdate: true });
+                }
             }
         } catch(e) { void e; }
     }
@@ -451,11 +455,14 @@ class SidebarManager {
         return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
-    activateSidebarGroup(groupId) {
+    activateSidebarGroup(groupId, options) {
         if (!groupId || !window.elementManager) {
             console.warn('activateSidebarGroup: groupId または elementManager が存在しません');
             return;
         }
+
+        const opts = (options && typeof options === 'object') ? options : {};
+        const skipPresentationUpdate = opts.skipPresentationUpdate === true;
 
         const tabConfig = this.sidebarTabConfig.find(tab => tab.id === groupId);
         if (!tabConfig) {
@@ -476,6 +483,9 @@ class SidebarManager {
             // すでにactiveならスキップ（開発環境のみログ出力）
             if (this._isDevMode()) {
                 console.info(`Tab "${groupId}" is already active`);
+            }
+            if (!skipPresentationUpdate) {
+                this.applyTabsPresentationUI({ skipActivate: true });
             }
             return;
         }
@@ -514,7 +524,9 @@ class SidebarManager {
         }
 
         // プレゼンテーション方式に合わせてUI反映
-        this.applyTabsPresentationUI();
+        if (!skipPresentationUpdate) {
+            this.applyTabsPresentationUI({ skipActivate: true });
+        }
     }
 }
 
