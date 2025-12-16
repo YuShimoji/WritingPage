@@ -1,7 +1,7 @@
 # 引き継ぎ（PR #95: グラフィックノベル用サンプル作成ガジェット + ロードアウト）
 
 - 日付: 2025-12-17
-- PR: https://github.com/YuShimoji/WritingPage/pull/95
+- PR: <https://github.com/YuShimoji/WritingPage/pull/95>
 - ブランチ: `feat/graphic-novel-sample`
 
 ## 目的

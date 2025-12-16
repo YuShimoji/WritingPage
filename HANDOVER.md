@@ -4,6 +4,44 @@
 
 Zen Writerのストーリーエディタ・ライティングエディタ開発のための土台盤石化を目的として、コードベースのリファクタリングを進行中です。ガジェットアーキテクチャの安定化、テストの修正、コード整理を実施し、プロジェクト全体の品質向上を進めています。
 
+## 申し送り（2025-12-17）
+
+### 今回の目的
+
+- 監査（docs/openspec/code）で検出した「未実装/仮実装/不整合」を SSOT に集約し、日常的に参照されるドキュメント（ISSUES/BACKLOG/KNOWN_ISSUES）へ追跡導線を追加。
+- 次セッションで Issue 起票・実装着手できるよう、調査結果の入口と優先度を固定。
+
+### 反映済み（main / origin/main）
+
+- 監査SSOT: `docs/AUDIT_TASK_BREAKDOWN.md` を追加（優先度 P0/P1/P2、DoD、テスト観点、設計案比較つき）。
+- Issue導線: `docs/ISSUES.md` に監査SSOTへの入口を追加。
+- Backlog導線: `docs/BACKLOG.md` の「優先度: 低」に監査項目（SSOT参照）を追加。
+- 既知問題整合: `docs/KNOWN_ISSUES.md` の「改善済み」バージョン表記を現行 `0.3.18` に整合。
+- 追加申し送り: `docs/HANDOFF_PR95_graphic-novel-sample.md`（PR #95のハンドオフメモ）
+
+### 監査で確定した優先度（次の実装入口）
+
+- P0-1: Embed SDK の same-origin 判定と origin 検証の正規化（`docs/AUDIT_TASK_BREAKDOWN.md` 参照）
+- P1-4: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」混在の解消
+- P1-5: `scripts/dev-check.js` の期待値（未実装扱い）と現行実装の整合
+- P2-2: プラグインシステムの「UI有無」の明確化（ヘッドレス継続/露出/撤去）
+- P2-3: OpenSpec 未完了 change のトリアージ（重複統合 + Issue粒度への再分割）
+
+### 運用メモ
+
+- `git push` 時に出ていた `credential-manager-core` エラーは、`credential.helper` を `manager` に統一することで解消（以後 push のノイズ無し）。
+
+### 再開手順（最短）
+
+1. `git checkout main` → `git pull --ff-only`
+2. `npm ci`
+3. `npm run lint` / `npm run test:smoke`
+4. 入口: `docs/AUDIT_TASK_BREAKDOWN.md` → `docs/ISSUES.md` → Issue起票 → 実装
+
+### 最終確認（引き継ぎ時点）
+
+- `main` と `origin/main` が一致していること（`origin/main..HEAD` 差分ゼロ）を確認済み。
+
 ## 申し送り（2025-12-16）
 
 ### 今回の要点（調査/設計判断）
