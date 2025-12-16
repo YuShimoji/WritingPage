@@ -2,10 +2,10 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-17T04:31:12+09:00
+- 最終更新: 2025-12-17T08:48:12+09:00
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
-- ブランチ: feat/graphic-novel-sample
-- PR: #95
+- ブランチ: main
+- 関連PR: #95（Merged）
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -52,7 +52,8 @@
     サンプル作成ガジェット（Samples）を追加し、ワンクリックでサンプル文書＋SVG画像アセット（asset://）を生成できるようにした。
     `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
   - 2025-12-17: PR #95 を作成。`npm run test:smoke` / `npm run test:e2e:ci` green
-- 次の中断可能点: PR #95 のマージ / main 反映の最終確認（lint/smoke/e2e）
+  - 2025-12-17: PR #95 を squash merge し main へ反映。`npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
+- 次の中断可能点: 次タスク着手前
 
 ## OpenSpec changes の分類（暫定）
 
