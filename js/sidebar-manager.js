@@ -215,10 +215,26 @@ class SidebarManager {
             const safeId = String(groupId);
             const safeLabel = String(label || safeId);
 
-            let section = document.getElementById('sidebar-group-' + safeId);
+            const expectedSectionId = 'sidebar-group-' + safeId;
+            let section = document.getElementById(expectedSectionId);
+            if (!section) {
+                section = groupsContainer.querySelector('.sidebar-group[data-group="' + safeId + '"], [data-group="' + safeId + '"]');
+            }
             let panel = null;
 
             if (section) {
+                try {
+                    section.classList.add('sidebar-group');
+                    section.dataset.group = safeId;
+                    if (!section.id || (section.id !== expectedSectionId && !document.getElementById(expectedSectionId))) {
+                        section.id = expectedSectionId;
+                    }
+                    section.setAttribute('role', 'tabpanel');
+                    section.setAttribute('aria-labelledby', 'sidebar-tab-' + safeId);
+                    const isActive = section.classList.contains('active');
+                    section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                } catch (_) { }
+
                 panel = section.querySelector('.gadgets-panel');
                 if (!panel) {
                     const wrapper = section.querySelector('.sidebar-section') || section;
@@ -228,12 +244,22 @@ class SidebarManager {
                     panel.dataset.gadgetGroup = safeId;
                     panel.setAttribute('aria-label', safeLabel + 'ガジェット');
                     wrapper.appendChild(panel);
+                } else {
+                    try {
+                        const expectedPanelId = safeId + '-gadgets-panel';
+                        panel.classList.add('gadgets-panel');
+                        panel.dataset.gadgetGroup = safeId;
+                        if (!panel.id || (panel.id !== expectedPanelId && !document.getElementById(expectedPanelId))) {
+                            panel.id = expectedPanelId;
+                        }
+                        panel.setAttribute('aria-label', safeLabel + 'ガジェット');
+                    } catch (_) { }
                 }
             } else {
                 section = document.createElement('section');
                 section.className = 'sidebar-group';
                 section.dataset.group = safeId;
-                section.id = 'sidebar-group-' + safeId;
+                section.id = expectedSectionId;
                 section.setAttribute('role', 'tabpanel');
                 section.setAttribute('aria-labelledby', 'sidebar-tab-' + safeId);
                 section.setAttribute('aria-hidden', 'true');
@@ -272,6 +298,10 @@ class SidebarManager {
             if (!this.sidebarTabConfig.find(function(t){ return t.id === safeId; })) {
                 this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
             }
+
+            var created = this._ensureSidebarPanel(safeId, safeLabel);
+            var panel = created && created.panel;
+
             var tabsContainer = document.querySelector('.sidebar-tabs');
             if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')){
                 var btn = document.createElement('button');
@@ -285,12 +315,9 @@ class SidebarManager {
                 btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
                 tabsContainer.appendChild(btn);
             }
-            if (!document.getElementById('sidebar-group-' + safeId)){
-                var created = this._ensureSidebarPanel(safeId, safeLabel);
-                var panel = created && created.panel;
-                if (panel) {
-                    try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
-                }
+
+            if (panel) {
+                try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
             }
             try {
                 if (window.elementManager && typeof window.elementManager.initialize==='function') window.elementManager.initialize();
