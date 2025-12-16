@@ -5,6 +5,7 @@
 - 最終更新: 2025-12-17T04:31:12+09:00
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: feat/graphic-novel-sample
+- PR: #95
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -50,6 +51,7 @@
   - 2025-12-17: グラフィックノベル向けロードアウト（graphic-novel）を追加。
     サンプル作成ガジェット（Samples）を追加し、ワンクリックでサンプル文書＋SVG画像アセット（asset://）を生成できるようにした。
     `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
+  - 2025-12-17: PR #95 を作成。`npm run test:smoke` / `npm run test:e2e:ci` green
 - 次の中断可能点: PR #95 のマージ / main 反映の最終確認（lint/smoke/e2e）
 
 ## OpenSpec changes の分類（暫定）
