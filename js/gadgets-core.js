@@ -182,13 +182,15 @@
       var groups = {};
       KNOWN_GROUPS.forEach(function (key) { groups[key] = []; });
       var roots = this._roots || {};
-      var _self = this;
       Object.keys(roots).forEach(function (group) {
         var root = roots[group];
         if (!root) return;
-        var nodes = root.querySelectorAll('.gadget');
+        var nodes = root.querySelectorAll('.gadget-wrapper[data-gadget-name], [data-gadget-name]');
         for (var i = 0; i < nodes.length; i++) {
-          var name = nodes[i].dataset && nodes[i].dataset.name;
+          var name = '';
+          try {
+            name = nodes[i].getAttribute('data-gadget-name') || '';
+          } catch (_) { name = ''; }
           if (!name) continue;
           if (!groups[group]) groups[group] = [];
           uniquePush(groups[group], name);
@@ -246,21 +248,6 @@
         var p = this.getPrefs();
         return (p.settings && p.settings[name]) || {};
       } catch (_) { return {}; }
-    }
-
-    setSetting(name, key, value) {
-      try {
-        var p = this.getPrefs();
-        p.settings = p.settings || {};
-        var s = p.settings[name] = p.settings[name] || {};
-        s[key] = value;
-        this.setPrefs(p);
-        try {
-          window.dispatchEvent(new CustomEvent('ZWGadgetSettingsChanged', {
-            detail: { name: name, key: key, value: value, settings: s }
-          }));
-        } catch (_) { }
-      } catch (_) { }
     }
 
     getSetting(name, key, def) {
