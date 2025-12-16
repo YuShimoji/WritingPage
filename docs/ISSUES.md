@@ -4,6 +4,17 @@
 
 ---
 
+## 0) 監査結果タスク（SSOT）
+
+監査で抽出した「未実装/仮実装/不整合」のタスク分解は `docs/AUDIT_TASK_BREAKDOWN.md` をSSOTとし、本書は起票用に要点のみ抜粋します。
+
+- P0-1: Embed SDK の same-origin 判定と origin 検証の正規化
+- P1-3: `docs/KNOWN_ISSUES.md` のバージョン表記と実態の整合
+- P1-4: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」混在の解消
+- P1-5: smoke/dev-check の期待値（未実装扱い）と現行実装の整合
+- P2-2: プラグインシステムの「UI有無」の明確化
+- P2-3: OpenSpec 未完了 change のトリアージ（重複統合 + Issue粒度への再分割）
+
 ## 1) 複数ドキュメント管理
 
 - 目的: 小説を章や作品ごとに分割・切替できるようにする
