@@ -2,9 +2,10 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-16T19:35:00+09:00
+- 最終更新: 2025-12-17T04:31:12+09:00
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
-- ブランチ: main
+- ブランチ: feat/graphic-novel-sample
+- PR: #95
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
 - 進捗:
   - gadgets.js→_legacy移動
@@ -47,7 +48,11 @@
   - 2025-12-16: 監査SSOT `docs/AUDIT_TASK_BREAKDOWN.md` を作成し、`docs/ISSUES.md` に導線を追加。`npm run lint` / `npm run test:smoke` green
   - 2025-12-16: `docs/BACKLOG.md` に監査項目（`docs/AUDIT_TASK_BREAKDOWN.md` 参照）の追跡導線を追加
   - 2025-12-16: `docs/KNOWN_ISSUES.md` の改善済みバージョン表記を現行 `0.3.18` に同期
-- 次の中断可能点: 監査結果の Issue 粒度化（docs/ISSUES.md の詳細化）着手前 / 次タスク着手前
+  - 2025-12-17: グラフィックノベル向けロードアウト（graphic-novel）を追加。
+    サンプル作成ガジェット（Samples）を追加し、ワンクリックでサンプル文書＋SVG画像アセット（asset://）を生成できるようにした。
+    `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
+  - 2025-12-17: PR #95 を作成。`npm run test:smoke` / `npm run test:e2e:ci` green
+- 次の中断可能点: PR #95 のマージ / main 反映の最終確認（lint/smoke/e2e）
 
 ## OpenSpec changes の分類（暫定）
 

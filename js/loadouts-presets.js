@@ -73,6 +73,36 @@
           wiki: ['Wiki', 'StoryWiki']
         }
       },
+      'graphic-novel': {
+        label: 'グラフィックノベル',
+        description: '漫画/グラフィックノベル向け（画像・装飾・サンプル）',
+        groups: {
+          structure: [
+            'Documents',
+            'Outline',
+            'OutlineQuick',
+            'EditorLayout',
+            'SceneGradient',
+            'Images',
+            'FontDecoration',
+            'TextAnimation'
+          ],
+          assist: [
+            'Samples',
+            'Typewriter',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock',
+            'MarkdownPreview',
+            'UISettings',
+            'GadgetPrefs',
+            'Help'
+          ],
+          typography: ['Themes', 'Typography', 'VisualProfile'],
+          wiki: ['Wiki', 'StoryWiki']
+        }
+      },
       'screenplay': {
         label: '脚本・シナリオ',
         description: '映像・舞台脚本向け',
