@@ -77,7 +77,10 @@
 - Windows環境での改行コード混在により `git status` が汚れる事象が過去にあったため、`.gitattributes`（`*.js eol=lf`）に合わせて LF 正規化済み。
 - push 時に `git: 'credential-manager-core' is not a git command` が表示される場合があるが、push 自体は成功している（環境依存）。
 
+## 反映状況
+
+- PR #95 は squash merge 済みで `main` / `origin/main` に反映済み。
+
 ## 中断可能点 / 次アクション
 
-- PR #95 のレビュー対応
-- `main` への squash merge（マージ後に `origin/main` 同期 → lint/smoke/e2e 再実行で最終確認）
+- 次の中断可能点: 次タスク着手前
