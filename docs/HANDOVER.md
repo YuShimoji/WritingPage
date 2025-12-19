@@ -1,6 +1,6 @@
 # HANDOVER
 
-LastUpdate: 2025-12-19T18:12:00+09:00
+LastUpdate: 2025-12-19T18:50:00+09:00
 
 ## References (SSOT)
 
@@ -19,8 +19,12 @@ LastUpdate: 2025-12-19T18:12:00+09:00
 
 ## Current Status
 
-- Summary: P0-1/P1-4 を完了（Embed SDK origin 正規化 / docs整備）。次: AUDIT 次優先を選定。
+- Summary: P0-1/P1-4 を完了（Embed SDK origin 正規化 / docs整備）。次: P1-3（KNOWN_ISSUES のバージョン整合）。
 - Active Threads: 0
+
+## Active Tasks
+
+- docs/tasks/TASK_003_known_issues_version_alignment.md (P1-3, Tier 1)
 
 ## Completed Tasks
 
