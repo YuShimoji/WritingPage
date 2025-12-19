@@ -8,7 +8,6 @@
     let computedOrigin = null;
     const width = options.width || '100%';
     const height = options.height || '100%';
-    const sameOrigin = options.sameOrigin !== false; // default true
 
     const iframe = document.createElement('iframe');
     // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
@@ -29,6 +28,20 @@
     } catch (_) {
       computedOrigin = null;
     }
+    const sameOrigin =
+      typeof options.sameOrigin === 'boolean'
+        ? options.sameOrigin
+        : computedOrigin
+          ? computedOrigin === window.location.origin
+          : true;
+    const targetOrigin = sameOrigin
+      ? window.location.origin
+      : options.targetOrigin || computedOrigin || null;
+    if (!sameOrigin && !targetOrigin)
+      throw new Error(
+        'ZenWriterEmbed: cross-origin mode requires targetOrigin or resolvable src origin',
+      );
+
     iframe.src = src;
     iframe.style.border = '0';
     iframe.style.width = width;
@@ -40,9 +53,6 @@
     // postMessage mode state
     const inflight = new Map();
     let pmReady = false;
-    const targetOrigin = sameOrigin
-      ? window.location.origin
-      : options.targetOrigin || computedOrigin || null;
     // simple event system
     const listeners = new Map(); // name -> Set<fn>
     function emit(name, payload) {
@@ -58,7 +68,7 @@
     function onMessage(event) {
       if (!iframe.contentWindow || event.source !== iframe.contentWindow)
         return;
-      if (!sameOrigin && targetOrigin && event.origin !== targetOrigin) return;
+      if (targetOrigin && event.origin !== targetOrigin) return;
       const data = event.data || {};
       if (data && data.type === 'ZW_EMBED_READY') {
         pmReady = true;
@@ -105,7 +115,7 @@
               const ok =
                 childWin &&
                 (childWin.ZenWriterAPI ||
-                  (childWin.ZenWriterEditor && childWin.ZenWriterStorage));
+                  (childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor));
               if (ok) {
                 ready = true;
                 return resolve();
@@ -115,11 +125,9 @@
             // cross-origin access error: fallthrough to postMessage mode
           }
           // postMessage mode: 親から READY が来るのを待つ
-          if (!sameOrigin || pmReady) {
-            if (pmReady) {
-              ready = true;
-              return resolve();
-            }
+          if (!sameOrigin && pmReady) {
+            ready = true;
+            return resolve();
           }
           if (Date.now() - start > timeout)
             return reject(
@@ -159,6 +167,17 @@
       });
     }
 
+    function accessError(action) {
+      const suffix = action ? ` (${action})` : '';
+      if (sameOrigin)
+        return new Error(
+          `ZenWriterEmbed: same-origin APIs unavailable${suffix}; ensure the embedded document exposes ZenWriterAPI`,
+        );
+      return new Error(
+        `ZenWriterEmbed: cross-origin RPC unavailable${suffix}; ensure targetOrigin matches and child-bridge is enabled`,
+      );
+    }
+
     return {
       iframe,
       on(name, handler) {
@@ -192,7 +211,7 @@
           const res = await rpc('ZW_GET_CONTENT');
           return String(res || '');
         }
-        throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
+        throw accessError('getContent');
       },
       async setContent(text) {
         await _ensure();
@@ -216,7 +235,7 @@
           await rpc('ZW_SET_CONTENT', { text: String(text || '') });
           return true;
         }
-        throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
+        throw accessError('setContent');
       },
       async focus() {
         await _ensure();
@@ -238,7 +257,7 @@
           await rpc('ZW_FOCUS');
           return true;
         }
-        throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
+        throw accessError('focus');
       },
       async takeSnapshot() {
         await _ensure();
@@ -266,7 +285,7 @@
           await rpc('ZW_TAKE_SNAPSHOT');
           return true;
         }
-        throw new Error('ZenWriterEmbed: cross-origin mode not implemented');
+        throw accessError('takeSnapshot');
       },
     };
   }

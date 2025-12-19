@@ -1,6 +1,6 @@
 # HANDOVER
 
-LastUpdate: 2025-12-19T15:15:00+09:00
+LastUpdate: 2025-12-19T18:12:00+09:00
 
 ## References (SSOT)
 
@@ -15,17 +15,17 @@ LastUpdate: 2025-12-19T15:15:00+09:00
 
 ## GitHubAutoApprove
 
-- GitHubAutoApprove: false
+- GitHubAutoApprove: true
 
 ## Current Status
 
-- Summary: セットアップ完了（shared-workflows submodule + 運用ディレクトリ）。次: 次ミッション決定。
+- Summary: P0-1/P1-4 を完了（Embed SDK origin 正規化 / docs整備）。次: AUDIT 次優先を選定。
 - Active Threads: 0
 
-## Active Tasks
+## Completed Tasks
 
-- docs/tasks/TASK_001_embed_sdk_origin_normalization.md (P0-1, Tier 2)
-- docs/tasks/TASK_002_docs_gadgets_status_cleanup.md (P1-4, Tier 1)
+- docs/tasks/TASK_001_embed_sdk_origin_normalization.md (P0-1, Tier 2). Report: docs/inbox/REPORT_001_20251219_1810.md
+- docs/tasks/TASK_002_docs_gadgets_status_cleanup.md (P1-4, Tier 1). Report: docs/inbox/REPORT_002_20251219_1810.md
 
 ## Notes
 

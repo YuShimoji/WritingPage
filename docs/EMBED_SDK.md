@@ -24,10 +24,11 @@
     src: '/index.html?embed=1',
     width: '100%',
     height: '100%',
-    sameOrigin: true, // クロスオリジンの場合は false
-    // クロスオリジン例:
+    // sameOrigin は src の origin から自動判定（明示したい場合のみ指定）
+    // sameOrigin: true,
+    // クロスオリジン例（src が https://child.example.com/... の場合は自動判定される）:
     // sameOrigin: false,
-    // targetOrigin: new URL('https://child.example.com/index.html?embed=1', location.href).origin
+    // targetOrigin: 'https://child.example.com'
   });
 
   // 使用例
@@ -43,7 +44,8 @@
 - `options`:
   - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）
   - `width`/`height`: `iframe` のサイズ（既定: `100%`）
-  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `true`）
+  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。明示的に `true/false` を指定すると上書き）
+  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の origin ）
 
 戻り値（Promiseではなく同期オブジェクト）:
 
@@ -62,7 +64,7 @@
 
 ## セキュリティ
 
-- クロスオリジン時は `targetOrigin` を厳密指定（親→子の postMessage 送信先origin）
+- クロスオリジン時は `targetOrigin` を厳密指定（`src` が絶対URLなら既定でその origin を利用）。親→子の postMessage 送信先 origin を固定
 - 親originを子へ伝えるため、`iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin === embed_origin` の場合のみ受理
 - 許可するメッセージ `type` をホワイトリスト制御
 

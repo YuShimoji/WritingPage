@@ -2,9 +2,31 @@
 
  本書は `.gadgets-panel[data-gadget-group]` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
 
-> 注記: 本書には「現行実装の説明」と「将来設計/未実装案（旧計画メモを含む）」が混在しています。節タイトルと本文中の説明でステータス（現行/設計案）を明示するよう順次整理していきます。
+## このドキュメントの読み方
 
-## 方針
+- [現行リファレンス（現行）](#reference-current): いま使えるUI/実装/テスト情報を集約。基本的な読み方はここだけで完結します。
+- [提案・未実装 / 旧メモ](#reference-future): これから実装予定の案や過去メモ。詳細検討は `docs/BACKLOG.md` や OpenSpec を参照してください。
+
+---
+
+<a id="reference-current"></a>
+
+## 現行リファレンス（現行）
+
+> 注記: 本節は現行実装の説明のみを扱います。開発途上の検討事項は末尾の「提案・未実装 / 旧メモ」を参照してください。
+
+### 現行セクション一覧
+
+- [基本方針](#基本方針)
+- [レイアウト構造とカテゴリ](#レイアウト構造とカテゴリ現行)
+- [Sidebar と ZWGadgets の責務](#sidebar-と-zwgadgets-の責務現行)
+- [ロードアウトプリセット](#ロードアウトプリセット現行)
+- [実装概要 / 使い方 / テスト](#実装概要)
+- [設定インポート/エクスポート](#設定インポートエクスポート現行)
+- [設定保存やドラッグ操作](#設定保存折りたたみ並び替えv0313)
+- [個別ガジェット（HUDSettings / Story Wiki）](#hudsettings-ガジェット)
+
+### 基本方針
 
 - ガジェットは小さな自己完結UI。時計/タイマー/進捗/ショートカット等を想定。
 - 初期ロード負荷を抑えるため、`?embed=1` では読み込まない（親サイトに埋め込み時は最小UIを維持）。
@@ -12,24 +34,24 @@
 - サイドバーはアコーディオンでグルーピングし、縦長化を防ぎつつ主要カテゴリ（章管理/外観/アシスト）を切り替えられるようにする。
 - ユーザーはプリセット（ロードアウト）を保存・切替でき、用途に応じて表示するガジェット集合を最小構成にできるようにする。
 
-## レイアウト刷新（Accordion Framework, 2025Q4設計）
+### レイアウト構造とカテゴリ（現行）
 
 - サイドバーは最大3階層（カテゴリ → ガジェット → ガジェット設定）で構成し、カテゴリは常時1つのみ展開。
-- 既定カテゴリ案:
+- 既定カテゴリ:
   - **Structure**: 章/シーン一覧、アウトライン、分岐プレビュー。
   - **Typography**: フォント切替、行間、テーマ、ビューワーレイアウト。
   - **Assist**: 文字数/HUD、AI要約、進捗、リマインダー。
-- 各カテゴリは `data-gadget-group` 属性で識別し、読み込み時に`ZWGadgets.initGroup(groupId)`を使用してラベル・順序を適用する。
-- スクロール負荷軽減のため、カテゴリ切替時に非表示パネルは`aria-hidden="true"`としてDOMを持続させつつリフローを抑制。
+- 各カテゴリは `data-gadget-group` 属性で識別し、読み込み時に `ZWGadgets.initGroup(groupId)` を使用してラベル・順序を適用する。
+- スクロール負荷軽減のため、カテゴリ切替時に非表示パネルは `aria-hidden="true"` とし、DOMを保持したままリフローを抑制。
 
-### UI仕様
+#### UI仕様（現行）
 
 - カテゴリタブは左サイドバー上部に横並び、キーボード操作は `Alt + 1/2/3` でフォーカス。
 - 各ガジェットセクションは従来のヘッダ（▼/▶, ⚙, ↑/↓）を維持しつつ、アコーディオン内でのみ表示。
 - `Alt + W` でツールバーを隠した際もカテゴリタブは `focus-within` に応じてフェード表示。
-- Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist`系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
+- Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist` 系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
 
-### 現行ステータス（2025-10-20）
+#### 現行ステータス（2025-10-20）
 
 - `Documents`、`Outline`、`HUDSettings`、`Themes`、`Typography`、`VisualProfile`、`Clock` がガジェット化済み。
   - `Documents` と `Outline` は `structure` タブの `#structure-gadgets-panel` に表示。
@@ -40,51 +62,43 @@
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
 - `ZWGadgets.addTab(name, label)`: 新しいタブを動的に追加可能。ガジェットグループを拡張。
 - `ZWGadgets.removeTab(name)`: タブを削除。
-- 印刷/PDF機能をDocumentsガジェットに統合。
+- 印刷/PDF機能を Documents ガジェットに統合。
 
-## Sidebar と ZWGadgets の責務（Cフェーズ設計メモ）
+### Sidebar と ZWGadgets の責務（現行）
 
-- 本セクションは 2025Q4 Cフェーズでの整理方針メモであり、現行コードを大きく壊さずに責務の境界を明確にすることを目的とします。
-
-### Sidebar（タブ/パネル管理）
+#### Sidebar（タブ/パネル管理）
 
 - 主担当: `SidebarManager`（`js/sidebar-manager.js`）。
 - DOM:
   - タブ: `.sidebar-tab[data-group="<groupId>"]`
   - パネル: `.sidebar-group[data-group="<groupId>"]`
 - 役割:
-  - 開閉状態（`open` クラス等）とアクティブ状態（`active`、`aria-selected` / `aria-hidden`）を一元管理します。
-  - グループ切替時に `ZWGadgets.setActiveGroup(groupId)` を呼び出し、ガジェット描画の更新をトリガーします（`ZWLoadoutGroupChanged` は `ZWGadgets` 側で発火）。
+  - 開閉状態（`open` クラス等）とアクティブ状態（`active`、`aria-selected` / `aria-hidden`）を一元管理する。
+  - グループ切替時に `ZWGadgets.setActiveGroup(groupId)` を呼び出し、ガジェット描画の更新をトリガーする（`ZWLoadoutGroupChanged` は `ZWGadgets` 側で発火）。
 
-### ZWGadgets（ガジェット描画）
+#### ZWGadgets（ガジェット描画）
 
 - 主担当: `ZWGadgets`（`js/gadgets-core.js`、`js/gadgets-utils.js`、`js/gadgets-loadouts.js`）。
 - DOM:
   - コンテナ: `.gadgets-panel[data-gadget-group="<groupId>"]`
   - 各ガジェット: `.gadget-wrapper[data-gadget-name="<Name>"]`
 - 役割:
-  - `ZWGadgets.register(name, factory, { groups: [...] })` でガジェットを登録します。
-  - `ZWGadgets.init(selector, { group })` でコンテナに紐づくレンダラを登録し、ロードアウトに応じて再描画します。
-  - タブや `.sidebar-group` 自体の生成・表示制御は将来的に Sidebar 側へ寄せる想定です（`ZWGadgets.addTab/removeTab` は互換目的で残しつつ縮小方向）。
+  - `ZWGadgets.register(name, factory, { groups: [...] })` でガジェットを登録。
+  - `ZWGadgets.init(selector, { group })` でコンテナに紐づくレンダラを登録し、ロードアウトに応じて再描画。
+  - タブや `.sidebar-group` の生成・表示制御は Sidebar 側が担い、`ZWGadgets.addTab/removeTab` は互換目的で残す。
 
-### data-属性ベースの安定セレクタ
+#### data-属性ベースの安定セレクタ
 
-- テストや拡張時には、次の data-属性を安定セレクタとして優先的に用います。
+- テストや拡張時には次の data-属性を安定セレクタとして使用する。
   - `data-group="<groupId>"` … Sidebar のタブおよびカテゴリパネル。
   - `data-gadget-group="<groupId>"` … 各カテゴリ内のガジェットコンテナ。
   - `data-gadget-name="<Name>"` … 各ガジェットインスタンス。
-- `groupId` は現行では `structure` / `typography` / `assist` / `wiki` を基準とし、ロードアウト設定のキーとも一致させます。
+- `groupId` は `structure` / `typography` / `assist` / `wiki` を基準とし、ロードアウト設定のキーと一致。
 
-### 今後の整理方針（ドラフト）
-
-- タブ構成の SSOT を `SidebarManager.sidebarTabConfig` に集約し、タブの追加/削除は基本的に Sidebar 側の API から行うようにします。
-- `.gadgets-panel[data-gadget-group]` への `ZWGadgets.init()` 呼び出しは、アプリ初期化コードからのみ行うことを推奨します。
-- `ZWGadgets.addTab/removeTab` によるタブ生成は、既存ロードアウト互換のため当面は維持しつつも、新規機能では Sidebar 側の仕組みを優先します。
-
-## ロードアウトプリセット
+## ロードアウトプリセット（現行）
 
 - LocalStorage にプリセット一覧を保持する（キー: `zenWriter_gadgets:loadouts`）。
-- プリセット構造案:
+- プリセット構造（例: `novel-standard`）と LocalStorage 書式:
 
 ```json
 {
@@ -97,23 +111,11 @@
         "typography": ["Font", "Theme"],
         "assist": ["HUD", "WordCount"]
       }
-    },
-    "vn-layout": {
-      "label": "ビジュアルノベル",
-      "groups": {
-        "structure": ["SceneGraph", "BranchPreview"],
-        "typography": ["Viewport", "Transition"],
-        "assist": ["AssetPalette", "AIRecap"]
-      }
     }
   }
 }
 ```
 
-- API追加案:
-  - `ZWGadgets.defineLoadout(name, config)` — プリセットを登録。
-  - `ZWGadgets.applyLoadout(name)` — カテゴリごとのガジェットリストを切替。
-  - `ZWGadgets.listLoadouts()` / `ZWGadgets.deleteLoadout(name)` — 管理用。
 - 実装済みAPI（2025-10-19時点）:
   - `ZWGadgets.getActiveLoadout()` — 現在適用中のロードアウト情報を取得。
   - `ZWGadgets.captureCurrentLoadout(label?)` — DOM上の配置からロードアウト構造を採取。
@@ -217,38 +219,6 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
   - `/js/gadgets-core.js` が 200 で取得可能
   - `/index.html?embed=1` で Outline などの追加スクリプトが読み込まれない（軽量化）
 
-## 設定のインポート/エクスポート（Mission 6）
-
-- 目的
-  - ガジェットの順序/開閉状態/個別設定を JSON として保存・復元できるようにします。
-- UI
-  - サイドバー「ガジェット」セクションに以下の操作ボタンを追加
-    - 「ガジェット設定をエクスポート」: 現在の設定を JSON でダウンロード
-    - 「ガジェット設定をインポート」: JSON ファイルを選択して設定を復元
-- 保存形式
-  - LocalStorage キー: `zenWriter_gadgets:prefs`
-  - JSON 例:
-
-```json
-{
-  "order": ["Clock"],
-  "collapsed": { "Clock": false },
-  "settings": { "Clock": { "hour24": true } }
-}
-```
-
-### API
-
-- `ZWGadgets.exportPrefs(): string` — 現在の設定を整形済み JSON 文字列で返します
-- `ZWGadgets.importPrefs(jsonOrObject): boolean` — インポートを実行し、成功で `true`
-
-### 手動手順
-
-1. 「ガジェット設定をエクスポート」を押してJSONを保存
-2. JSON を編集（例: `settings.Clock.hour24` を `false` に変える）
-3. 「ガジェット設定をインポート」から当該 JSON を指定
-4. Clock の 12/24 表示が反映され、必要に応じて順序/開閉も復元される
-
 ## 設定保存/折りたたみ/並び替え（v0.3.13+）
 
 - 仕組み
@@ -274,17 +244,6 @@ const prefs = ZWGadgets.getPrefs();
 prefs.order = ['Clock'];
 ZWGadgets.setPrefs(prefs);
 ```
-
-## 将来拡張（旧計画メモ・要見直し）
-
-> この節は当初の計画メモであり、現在はガジェット基盤が `js/gadgets-core.js` / `js/gadgets-utils.js` など複数ファイルに分割されています。詳細な実装状況は本書の各セクションおよびコード・BACKLOG を参照してください。
-
-- [x] ガジェット設定の保存/復元（LocalStorage）
-  - `ZWGadgets.getPrefs/setPrefs` と各ガジェットの設定APIで実装済み
-- [x] 並び替え/折りたたみ
-  - ガジェットヘッダのドラッグ＆ドロップおよび「↑/↓」「▼/▶」ボタンで利用可能
-- [ ] プラグインと同等の拡張ポイント化
-  - `js/plugins/` ディレクトリとツールレジストリ（将来拡張）で段階的に対応予定
 
 ## 手動テスト手順（設定保存/折りたたみ/並び替え）
 
