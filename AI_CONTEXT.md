@@ -2,7 +2,16 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-17T08:48:12+09:00
+- 最終更新: 2025-12-19T15:09:00+09:00
+
+## 中央ルール参照（SSOT）
+
+- SSOT（latest）: `.shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md`
+- 運用者の入口: `.shared-workflows/docs/windsurf_workflow/OPEN_HERE.md`
+- オーケストレーション（毎回コピペ）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md`
+- オーケストレーション手順（参照）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_PROTOCOL.md`
+- 運用ストレージ: `docs/HANDOVER.md`, `docs/tasks/`, `docs/inbox/`
+
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: main
 - 関連PR: #95（Merged）
