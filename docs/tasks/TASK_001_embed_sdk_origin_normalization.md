@@ -1,11 +1,10 @@
 # Task: Embed SDK の origin 検証と same-origin 判定の正規化（P0-1）
 
-Status: DONE
+Status: BLOCKED
 Tier: 2
 Branch: feature/p0-embed-origin-normalization
 Owner: Worker-1
 Created: 2025-12-19T15:09:00+09:00
-Report: docs/inbox/REPORT_001_20251219_1810.md
 
 ## Objective
 
