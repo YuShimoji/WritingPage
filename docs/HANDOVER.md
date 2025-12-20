@@ -17,6 +17,14 @@ LastUpdate: 2025-12-19T18:50:00+09:00
 
 - GitHubAutoApprove: true
 
+## 統合済みレポート (2025-12-20)
+
+- TASK_001: Embed SDK origin 検証と same-origin 判定の正規化完了。sameOrigin デフォルトを安全側に変更。
+- TASK_002: docs/GADGETS.md の現行実装と提案の混在を解消完了。現行セクションを分離。
+- TASK_003: docs/KNOWN_ISSUES.md のバージョン表記整合確認完了。v0.3.18 と一致。
+- TASK_004: hello.js のテスト追加完了。ユニットテストファイル作成。
+- REPORT_001_20251219_1810.md: 統合済み（重複のため統合）。
+
 ## Current Status
 
 - Summary: P0-1/P1-4 を完了（Embed SDK origin 正規化 / docs整備）。次: P1-3（KNOWN_ISSUES のバージョン整合）。

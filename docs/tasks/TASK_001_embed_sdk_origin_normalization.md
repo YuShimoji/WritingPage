@@ -1,6 +1,4 @@
-# Task: Embed SDK の origin 検証と same-origin 判定の正規化（P0-1）
-
-Status: BLOCKED
+Status: Completed
 Tier: 2
 Branch: feature/p0-embed-origin-normalization
 Owner: Worker-1
@@ -15,7 +13,7 @@ Created: 2025-12-19T15:09:00+09:00
 
 - SSOT: `docs/AUDIT_TASK_BREAKDOWN.md` の **P0-1**
 - 現状の懸念:
-  - `sameOrigin` デフォルトが `true` で自動判定されない
+  - `sameOrigin` デフォルトが `true` で、`src` の origin（computedOrigin）から自動判定していない。
   - `postMessage` 受信時の検証が弱くなる余地
   - エラーメッセージが誤誘導になるケース
 
@@ -43,6 +41,5 @@ Created: 2025-12-19T15:09:00+09:00
 - [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
 - [x] 本チケットの Report 欄にレポートパスが追記されている
 
-## Notes
-
-- 実装方針は「案A（推奨）」を採用（srcのoriginから推定、ユーザー指定で上書き）
+## Report
+docs/inbox/REPORT_001_20251220_2240.md
