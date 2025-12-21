@@ -37,7 +37,7 @@ LastUpdate: 2025-12-21T02:11:00+09:00
 
 ## Completed Tasks
 
-- docs/tasks/TASK_001_embed_sdk_origin_normalization.md (P0-1, Tier 2). Report: docs/inbox/REPORT_001_20251219_1810.md
+- docs/tasks/TASK_001_embed_sdk_origin_normalization.md (P0-1, Tier 2)
 - docs/tasks/TASK_003_known_issues_version_alignment.md (P1-3, Tier 1)
 - docs/tasks/TASK_004_test_addition.md (Tier 2)
 
