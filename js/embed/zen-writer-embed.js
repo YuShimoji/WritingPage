@@ -33,7 +33,7 @@
         ? options.sameOrigin
         : computedOrigin
           ? computedOrigin === window.location.origin
-          : true;
+          : false;
     const targetOrigin = sameOrigin
       ? window.location.origin
       : options.targetOrigin || computedOrigin || null;

@@ -701,15 +701,23 @@ Zen Writerのストーリーエディタ・ライティングエディタ開発�
 
 - Panel/GadgetContainer 抽象レイヤ関連の設計・実装タスクは、セクション 23 の「今後の推奨タスク（Panel/GadgetContainer 関連）」および BACKLOG/REFACTORING_PLAN を参照。
 - 特に Plan A として、左サイドバー初期タブ（structure/typography/wiki/assist）を `_ensureSidebarPanel` 経由に寄せる設計・PoC 実装から着手するのが自然な流れ。
-- 本セッション終了時点では、コード/ドキュメントともに `origin/main` と同期済みのため、`git pull` なしでそのまま Plan A の分析フェーズから再開可能。
+-## 最新の状況
 
-## 25. C-3 Step3: UI/Editor 独立配色の拡張基盤（2025-12-11）
+### REPORT_001 (TASK_001 完了)
 
-### 実施内容
+# REPORT_001: Embed SDK の origin 検証と same-origin 判定の正規化
 
-- **ThemeRegistry 拡張**: 各プリセットに `uiColors` / `editorColors` 構造を追加し、`getUIColors()` / `getEditorColors()` API を提供。既存の `getColors()` / `toThemeColorsMap()` は後方互換維持。
-- **ThemeManager 対応**: `applyCustomColors()` に `options.uiBgColor` / `options.uiTextColor` パラメータを追加し、UI/Editor レイヤを個別に設定可能に。`clearCustomColors()` で `ThemeRegistry.getEditorColors()` を使用するよう変更。
-- **gadgets-themes.js 調整**: `refreshState()` で `ThemeRegistry.getEditorColors()` を優先使用し、カラーピッカーが Editor レイヤの色を表示するように変更。
+## Task Overview
+- **チケット**: docs/tasks/TASK_001_embed_sdk_origin_normalization.md
+- **Tier**: 2
+- **Branch**: feature/p0-embed-origin-normalization
+- **Status**: Completed
+- **作成日時**: 2025-12-20T22:40:00+09:00
+
+## Implementation Details
+
+### 変更内容
+`js/embed/zen-writer-embed.js` の `sameOrigin` 判定ロジックを正規化。
 - **動作確認**: `npm run test:smoke` で ALL TESTS PASSED を確認。
 - **ドキュメント更新**: `docs/THEMES.md` に C-3 Step3 完了を反映、`AI_CONTEXT.md` の進捗と次の中断可能点を更新。
 

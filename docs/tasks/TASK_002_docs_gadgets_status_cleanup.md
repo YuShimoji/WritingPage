@@ -1,11 +1,10 @@
 # Task: docs/GADGETS.md の現行実装と提案の混在を解消（P1-4）
 
-Status: DONE
+Status: BLOCKED
 Tier: 1
 Branch: main
 Owner: Worker-2
 Created: 2025-12-19T15:09:00+09:00
-Report: docs/inbox/REPORT_002_20251219_1810.md
 
 ## Objective
 
