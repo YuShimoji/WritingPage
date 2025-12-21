@@ -1,3 +1,5 @@
+GitHubAutoApprove: true
+
 # HANDOVER
 
 LastUpdate: 2025-12-21T02:11:00+09:00
@@ -36,6 +38,7 @@ LastUpdate: 2025-12-21T02:11:00+09:00
 ## Active Tasks
 
 - docs/tasks/TASK_002_docs_gadgets_status_cleanup.md (P1-4, Tier 1)
+- docs/tasks/TASK_005_missing_reports.md (P1-5, Tier 2)
 
 ## Completed Tasks
 

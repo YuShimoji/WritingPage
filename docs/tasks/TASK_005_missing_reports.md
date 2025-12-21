@@ -27,8 +27,8 @@ Created: 2025-12-21T11:45:00+09:00
 
 - Do not create fake reports.
 
-## DoD
-
-- [ ] Identify why the reports are missing.
-- [ ] Restore the reports if possible.
-- [ ] Update the task files and HANDOVER.md to reflect the correct report paths.
+## Definition of Done
+- [ ] Identify all missing reports from git history
+- [ ] Recover or recreate essential reports
+- [ ] Document recovery process in HANDOVER.md
+- [ ] Implement preventive measures
