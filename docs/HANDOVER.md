@@ -1,6 +1,13 @@
 # HANDOVER
 
-LastUpdate: 2025-12-21T02:11:00+09:00
+LastUpdate: 2025-12-22T13:30:00+09:00
+
+## Snapshot
+
+- Timestamp: 2025-12-22T13:30:00+09:00
+- Actor: Cascade
+- Mode: orchestration
+- Type: status-update
 
 ## References (SSOT)
 
@@ -17,24 +24,27 @@ LastUpdate: 2025-12-21T02:11:00+09:00
 
 - GitHubAutoApprove: true
 
-## 統合済みレポート (2025-12-21)
+## 統合済みレポート (2025-12-22)
 
 - TASK_001: Embed SDK origin 検証と same-origin 判定の正規化完了。sameOrigin デフォルトを安全側に変更。
-- TASK_002: docs/GADGETS.md の現行実装と提案の混在を解消（要再確認: レポート欠損のため）。
+- TASK_002: docs/GADGETS.md の現行実装と提案の混在を解消（**未統合レポートのため再稼働待ち**）。
 - TASK_003: docs/KNOWN_ISSUES.md のバージョン表記整合確認完了。v0.3.18 と一致。
 - TASK_004: hello.js のテスト追加完了。ユニットテストファイル作成。
 - REPORT_001_20251219_1810.md: 統合済み（重複のため統合）。
 - REPORT_ORCH_20251221_021100.md: 統合済み
 - REPORT_ORCH_20251221_1126.md: 統合済み
+- REPORT_ORCH_20251221_124000.md: 統合済み
+- REPORT_ORCH_20251222_0325.md: 本ドキュメントへ反映済み
 
 ## Current Status
 
-- Summary: P0-1/P1-4 を完了（Embed SDK origin 正規化 / docs整備）。次: TASK_002（docs/GADGETS.md 整理）の事実確認とレポート回収。
-- Active Threads: 1
+- Summary: SSOT/テンプレ同期と監査再実行を完了。docs/inbox に残る旧レポートの回収と TASK_002 再稼働の準備が整った。次は Worker で docs/GADGETS.md の実態調査を再開し、欠損レポートを補完する。
+- Active Threads: 1（Orchestrator）
 
 ## Active Tasks
 
-- docs/tasks/TASK_002_docs_gadgets_status_cleanup.md (P1-4, Tier 1)
+- docs/tasks/TASK_002_docs_gadgets_status_cleanup.md (P1-4, Tier 1, Status: BLOCKED → 再稼働待ち)
+- docs/tasks/TASK_005_missing_reports.md (Tier 1, Status: OPEN — レポート欠損調査)
 
 ## Completed Tasks
 
@@ -42,45 +52,65 @@ LastUpdate: 2025-12-21T02:11:00+09:00
 - docs/tasks/TASK_003_known_issues_version_alignment.md (P1-3, Tier 1)
 - docs/tasks/TASK_004_test_addition.md (Tier 2)
 
+## Risk
+
+- docs/inbox に旧レポートが残存し、HANDOVER と Report リンクの乖離が再発しやすい。
+- TASK_002 が BLOCKED 状態のまま長期化すると、docs/GADGETS.md の現行情報が失われる。
+
+## Proposals
+
+1. docs/inbox から統合済みレポートを自動削除するスクリプトを追加。
+2. dev-check に report-validator/orchestrator-audit を組み込み、監査を定常化。
+
 ## Notes
 
-- このリポジトリ直下に `shared-workflows/`（gitignore対象のクローン）が存在するが、参照SSOTは `.shared-workflows/`（submodule）とする。
-- ルール参照はバージョン固定を避けるため、原則 `.../Windsurf_AI_Collab_Rules_latest.md` を参照する。
-- ルートの `HANDOVER.md` は既存の長文申し送り（レガシー）であり、オーケストレーション運用のSSOTは `docs/HANDOVER.md` とする。
+- `.shared-workflows/`（submodule）を SW_ROOT とし、SSOT 参照は `.../Windsurf_AI_Collab_Rules_latest.md` へ統一。
+- `docs/inbox/` に残る空レポートは順次削除し、最新の Orchestrator/Worker レポートのみを保持する。
 
-## Orchestrator Report
+## Latest Orchestrator Report
 
-**Timestamp:** 2025-12-21T02:11:00+09:00
-**Actor:** Cascade
-**Issue/PR:** なし
-**Mode:** Orchestrator
-**Type:** タスク分割完了
+- File: docs/inbox/REPORT_ORCH_20251222_0325.md
+- Summary: SSOT確認・AI_CONTEXT同期・監査スクリプト実行を完了し、TASK_002 再稼働に必要な Worker プロンプトと残課題を整理。
+
+## Orchestrator Report (Snapshot)
+
+**Timestamp:** 2025-12-22T03:25:00+09:00  
+**Actor:** Cascade  
+**Issue/PR:** N/A  
+**Mode:** Orchestrator  
+**Type:** 継続監査
 
 State:
-- 監査・整合修正完了
-- TASK_002のWorkerプロンプト生成完了
-- 目標達成率85%（レポート欠損対応待ち）
+
+- docs/tasks: OPEN/IN_PROGRESS = 2（TASK_002, TASK_005）
+- docs/inbox: Worker レポート 2 件 + Orchestrator レポート 1 件（最新）
+- AI_CONTEXT.md に短期タスク欄を追加済み
 
 Strategy:
-- Workers: 1
-- Reason: TASK_002がBLOCKED状態で単独調査が必要
-- Risk: レポート欠損が解決できない場合の代替案検討が必要
-- Duration: 1-2時間
+
+- Workers: 1（TASK_002 向け）
+- Reason: docs/GADGETS.md 整理と欠損レポート補完を同一 Worker で完遂
+- Risk: docs/inbox に未統合レポートが残ると監査で警告が継続
+- Duration: ~0.5h（監査回・報告整備）
 
 Tickets:
-- `@c:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\tasks\TASK_002_docs_gadgets_status_cleanup.md`
-  Tier 1: ドキュメント整合性問題（レポート欠損調査 + ガジェットドキュメント整理）
+
+- docs/tasks/TASK_002_docs_gadgets_status_cleanup.md — Tier1 / BLOCKED
+- docs/tasks/TASK_005_missing_reports.md — Tier1 / OPEN
 
 Next:
-1. Workerプロンプトを適用しTASK_002解決を開始
-2. レポート欠損原因の調査（git履歴検索）
-3. ドキュメント整合性最終確認
+
+1. TASK_002 の Worker プロンプトを再適用し、docs/GADGETS.md の現行/提案を再整理
+2. docs/inbox の既存 Worker レポートを HANDOVER に統合し、不要ファイルを削除
+3. `git push origin main` で shared-workflows 同期と申し送り更新を共有
 
 Proposals:
-1. 監査プロセス自動化スクリプトの開発
-2. ドキュメントバージョン管理システムの導入
+
+1. docs/inbox/REPORT_* を Phase1 で統合後に自動削除するスクリプトを導入
+2. report-validator を dev-check に組み込み、逸脱を CI で検知
 
 Outlook:
-- Short-term: TASK_002解決とドキュメント整合性確保
-- Mid-term: 監査自動化・UI改善の実装
-- Long-term: プロジェクトメタデータ管理基盤の強化
+
+- Short-term: TASK_002 再稼働とレポート統合作業の完了
+- Mid-term:監査ツールを CI に組み込み、HANDOVER 乖離を自動検出
+- Long-term: docs/GADGETS.md を中心としたドキュメント整備プロセスを自動化し、OpenSpec と一元管理

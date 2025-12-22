@@ -3,6 +3,7 @@
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
 - 最終更新: 2025-12-19T15:09:00+09:00
+- **Worker完了ステータス**: worker_task002:pending
 
 ## 中央ルール参照（SSOT）
 
@@ -203,3 +204,10 @@
 - CONTRIBUTING.md に v1.1 へのリンク追加
 - PR テンプレートに「中断可能点」欄を標準化
 - dev-check に AI_CONTEXT.md の存在と最終更新日時の妥当性チェックを追加
+
+## タスク管理（短期/中期/長期）
+
+### 短期（Next）
+
+- [blocked] docs/GADGETS.md の現行実装と提案の混在を解消（P1-4） (ref: docs/tasks/TASK_002_docs_gadgets_status_cleanup.md, Status: BLOCKED → 再稼働待ち)
+- [open] レポート欠損調査（docs/inbox / HANDOVER 整合性） (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
