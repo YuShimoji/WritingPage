@@ -11,6 +11,7 @@
 - オーケストレーション（毎回コピペ）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md`
 - オーケストレーション手順（参照）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_PROTOCOL.md`
 - 運用ストレージ: `docs/HANDOVER.md`, `docs/tasks/`, `docs/inbox/`
+ - **async_mode**: true
 
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: main
@@ -215,6 +216,7 @@
 
 ### Worker完了ステータス
 - TASK_001: 完了
-- TASK_005: 進行中
+- TASK_005: 完了
 - TASK_002: 進行中
 - TASK_003: 進行中
+- **Worker完了ステータス**: TASK_001: completed, priority: critical, timeout: 30, TASK_005: completed, priority: critical, timeout: 30, TASK_002: pending, priority: non-critical, timeout: 30, TASK_003: pending, priority: non-critical, timeout: 30

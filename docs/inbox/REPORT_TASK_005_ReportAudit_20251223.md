@@ -43,3 +43,9 @@ node .shared-workflows/scripts/report-validator.js docs/inbox/REPORT_ORCH_202512
 1. Progress/Latest へ 0107/0119 を統合し、docs/inbox から削除（Orchestrator）。
 2. orchestrator-audit.js / dev-check.js を再実行し、HANDOVER の乖離警告が解消されたログを記録。
 3. REPORT_ORCH 取り込み後に自動削除するコマンドを追加する案を検討。
+
+## Risk
+- 旧レポートの統合作業が遅れると監査警告が継続するリスク
+
+## Proposals
+- レポート統合フローを自動化するスクリプトの作成

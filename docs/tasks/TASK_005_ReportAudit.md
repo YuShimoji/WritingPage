@@ -1,5 +1,5 @@
 # Task: レポート欠損調査（docs/inbox / HANDOVER 整合性）
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Orchestrator

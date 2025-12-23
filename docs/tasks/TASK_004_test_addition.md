@@ -1,6 +1,6 @@
 # Task: hello.js のテスト追加
 
-Status: DONE
+Status: OPEN
 Tier: 2
 Branch: main
 Owner: Worker-1
