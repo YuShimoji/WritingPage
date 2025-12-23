@@ -208,8 +208,13 @@
 
 ### 短期（Next）
 
-- [pending] GitHubのデフォルトブランチを main に統一（origin/HEAD を是正） (ref: docs/tasks/TASK_001_DefaultBranch.md, Status: OPEN)
 - [pending] docs/GADGETS.md の現行実装と提案の混在を解消（P1-4） (BLOCKED - 要確認) (ref: docs/tasks/TASK_002_docs_gadgets_status_cleanup.md, Status: BLOCKED)
 - [pending] 他プロジェクトへの参照方法を標準化（導入手順の最短化） (ref: docs/tasks/TASK_002_OnboardingRefStandard.md, Status: OPEN)
 - [pending] Investigate missing reports for completed tasks (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
 - [pending] レポート欠損調査（docs/inbox / HANDOVER 整合性） (ref: docs/tasks/TASK_005_ReportAudit.md, Status: OPEN)
+
+### Worker完了ステータス
+- TASK_001: 完了
+- TASK_005: 進行中
+- TASK_002: 進行中
+- TASK_003: 進行中

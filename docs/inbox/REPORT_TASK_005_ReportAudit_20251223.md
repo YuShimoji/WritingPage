@@ -2,7 +2,7 @@
 
 **Timestamp**: 2025-12-23T05:55+09:00
 **Actor**: Cascade
-**Issue/PR**: docs/tasks/TASK_005_ReportAudit.md
+**Ticket**: [TASK_005_ReportAudit](docs/tasks/TASK_005_ReportAudit.md)
 **Mode**: worker
 **Type**: ReportAudit
 **Duration**: 0.8h

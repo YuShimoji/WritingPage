@@ -18,6 +18,10 @@
 ## 次のアクション
 - Default branch 調査は完了したため、TASK_002 など他のドキュメント整備タスクへリソースを移す。
 
+## Proposals
+- デフォルトブランチの変更を検討するプロジェクト向けの移行ガイド作成
+- デフォルトブランチの変更を検討するプロジェクト向けの移行ガイド作成
+
 ## Changes
 - docs/tasks/TASK_001_DefaultBranch.md: StatusをDONE化し、DoD根拠とレポートパスを追記。
 - docs/HANDOVER.md: ProgressとLatest Reportを更新し、Default branch確認結果を共有。
