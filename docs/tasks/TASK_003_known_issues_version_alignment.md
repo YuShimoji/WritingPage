@@ -1,6 +1,6 @@
 # Task: docs/KNOWN_ISSUES.md のバージョン表記と実態の整合（P1-3）
 
-Status: COMPLETED
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker-1
