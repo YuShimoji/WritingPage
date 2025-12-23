@@ -1,6 +1,9 @@
+// 共有ワークフローからコピーした検証スクリプト
+// ソース: shared-workflows-1/scripts/report-validator.js
+
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const yaml = require('js-yaml');
 
 function runCommand(cmd, cwd) {
   try {
