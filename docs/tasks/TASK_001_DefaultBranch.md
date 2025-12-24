@@ -4,7 +4,7 @@ Tier: 1
 Branch: main
 Owner: Orchestrator
 Created: 2025-12-20T10:05+09:00
-Report: docs/inbox/REPORT_TASK_001_DefaultBranch_20251223.md
+Report: docs/reports/REPORT_TASK_001_DefaultBranch_20251223.md
 
 ## Objective
 - GitHub 側のデフォルトブランチを `main` に統一し、clone 時の初期ブランチが `main` になる状態にする。
@@ -29,7 +29,7 @@ Report: docs/inbox/REPORT_TASK_001_DefaultBranch_20251223.md
 ## DoD
 - [x] GitHub 側の Default branch が `main` になっている（`gh repo view --json defaultBranchRef --jq ".defaultBranchRef.name"` → `main`）
 - [x] `git remote show origin` の `HEAD branch` が `main` と確認できる（`git remote show origin` → `HEAD branch: main`）
-- [x] 変更/判断の根拠を docs/inbox/ のレポートに残している（`docs/inbox/REPORT_TASK_001_DefaultBranch_20251223.md`）
+- [x] 変更/判断の根拠を docs/reports/ のレポートに残している（`docs/reports/REPORT_TASK_001_DefaultBranch_20251223.md`）
 - [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes

@@ -4,6 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
+const { execSync } = require('child_process');
 
 function runCommand(cmd, cwd) {
   try {
@@ -208,6 +209,57 @@ function loadReportConfig(configPath) {
   return config;
 }
 
+function validateHandover(handoverPath) {
+  const content = fs.readFileSync(handoverPath, 'utf8');
+  const errors = [];
+  const warnings = [];
+
+  const timestamp = content.match(/\*\*Timestamp\*\*\s*:\s*(.+)/i);
+  const actor = content.match(/\*\*Actor\*\*\s*:\s*(.+)/i);
+  const type = content.match(/\*\*Type\*\*\s*:\s*(.+)/i);
+  const mode = content.match(/\*\*Mode\*\*\s*:\s*(.+)/i);
+
+  if (!timestamp) errors.push('HANDOVER.md に Timestamp がありません');
+  if (!actor) errors.push('HANDOVER.md に Actor がありません');
+  if (!type) errors.push('HANDOVER.md に Type がありません');
+  if (!mode) errors.push('HANDOVER.md に Mode がありません');
+
+  if (!content.includes('## リスク')) {
+    warnings.push('HANDOVER.md に リスク セクションがありません');
+  }
+  if (!content.includes('## Proposals')) {
+    warnings.push('HANDOVER.md に Proposals セクションがありません');
+  }
+
+  console.log(`Validation for ${handoverPath}:`);
+  if (errors.length) console.log('Errors:', errors);
+  if (warnings.length) console.log('Warnings:', warnings);
+  if (errors.length === 0) {
+    console.log('OK');
+    return true;
+  }
+  return false;
+}
+
+function parseCliArgs(argv) {
+  const args = argv.slice(2);
+  let profile = null;
+  const positional = [];
+
+  for (let i = 0; i < args.length; i += 1) {
+    const a = args[i];
+    if (a === '--profile') {
+      profile = args[i + 1] || null;
+      i += 1;
+      continue;
+    }
+    positional.push(a);
+  }
+
+  const [reportPath, configPath, projectRoot] = positional;
+  return { profile, reportPath, configPath, projectRoot };
+}
+
 function validateReport(reportPath, configPath, projectRoot) {
   const reportContent = fs.readFileSync(reportPath, 'utf8');
   const config = loadReportConfig(configPath);
@@ -282,5 +334,16 @@ function validateReport(reportPath, configPath, projectRoot) {
   return false;
 }
 
-const [,, reportPath, configPath, projectRoot] = process.argv;
+const { profile, reportPath, configPath, projectRoot } = parseCliArgs(process.argv);
+
+if (!reportPath) {
+  console.error('Usage: node scripts/report-validator.js [--profile handover] <reportPath> <configPath> [projectRoot]');
+  process.exit(1);
+}
+
+if (profile && profile.toLowerCase() === 'handover') {
+  const ok = validateHandover(reportPath);
+  process.exit(ok ? 0 : 1);
+}
+
 validateReport(reportPath, configPath, projectRoot || path.dirname(reportPath));

@@ -4,7 +4,7 @@ Tier: 1
 Branch: main
 Owner: Orchestrator
 Created: 2025-12-22T02:59+09:00
-Report: docs/inbox/REPORT_TASK_005_ReportAudit_20251223.md
+Report: docs/reports/REPORT_TASK_005_ReportAudit_20251223.md
 
 ## Objective
 - docs/inbox/ の REPORT_* と docs/HANDOVER.md（Latest Orchestrator Report / Progress 欄）の内容を突き合わせ、欠損・重複・未統合レポートを洗い出す。
@@ -33,10 +33,10 @@ Report: docs/inbox/REPORT_TASK_005_ReportAudit_20251223.md
 - 結果はドキュメント（Markdown）更新とログに限定する。PDF/外部配布は不要。
 
 ## DoD
-- [ ] docs/inbox/ にある全レポートについて、HANDOVER への反映状況を確認し、不足していれば統合 or TODO 記載を完了
-- [ ] report-validator 実行結果（コマンド・ログ・config パス）をレポートに記載
-- [ ] レポート欠損に関する原因と次アクション（例: レポート作成、テンプレ修正）を列挙
-- [ ] チケット Report 欄に `docs/inbox/REPORT_TASK_005_*.md` のパスを追記
+- [x] docs/reports/ にある全レポートについて、HANDOVER への反映状況を確認し、不足していれば統合 or TODO 記載を完了
+- [x] report-validator 実行結果（コマンド・ログ・config パス）をレポートに記載
+- [x] レポート欠損に関する原因と次アクション（例: レポート作成、テンプレ修正）を列挙
+- [x] チケット Report 欄に `docs/reports/REPORT_TASK_005_*.md` のパスを追記
 
 ## Notes
 - Orchestrator レポート作成フロー（Phase 6）で CLI が使えない場合の代替手順も整理し、HANDOVER に “手動で実施した” というログを残す。

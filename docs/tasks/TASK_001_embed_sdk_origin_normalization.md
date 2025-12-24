@@ -1,8 +1,10 @@
-Status: Completed
+# Task: Embed SDK の origin 検証と same-origin 判定の正規化（P0-1）
+Status: DONE
 Tier: 2
 Branch: feature/p0-embed-origin-normalization
 Owner: Worker-1
 Created: 2025-12-19T15:09:00+09:00
+Report: docs/reports/REPORT_001_20251219_1810.md
 
 ## Objective
 
@@ -38,8 +40,5 @@ Created: 2025-12-19T15:09:00+09:00
 
 - [x] `docs/AUDIT_TASK_BREAKDOWN.md` の P0-1 DoD を満たす
 - [x] `npm run test:smoke` が通る
-- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] docs/reports/ にレポート（REPORT_...md）が作成されている
 - [x] 本チケットの Report 欄にレポートパスが追記されている
-
-## Report
-docs/inbox/REPORT_001_20251220_2240.md
