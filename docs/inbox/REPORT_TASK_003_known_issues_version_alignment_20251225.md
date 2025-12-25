@@ -42,3 +42,9 @@
 
 ## Tests
 - `npm run test:smoke`: 未実行（本タスクはドキュメント整合確認が主であり、最新の AI_CONTEXT では直近の smoke/e2e が green であることが確認できているため、追加のテスト実行は任意と判断）。
+
+## Risk
+- 現在の `docs/KNOWN_ISSUES.md` と実装は整合しているが、将来のリリースで Known Issues 更新忘れがあると再度乖離が生じるリスクがある。
+
+## Proposals
+- バージョン付きで既知の問題を解消する場合は、`CHANGELOG.md` と `docs/KNOWN_ISSUES.md` を同一 PR で更新するルールを CONTRIBUTING に明示する。

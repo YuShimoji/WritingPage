@@ -37,6 +37,7 @@ GitHubAutoApprove: false
 - REPORT_ORCH_20251221_0126.md: report-orch-cli.js に `--sync-handover` 追加／HANDOVER.md の Latest 欄同期を自動化／REPORT_ORCH テンプレへ Duration/Changes/Risk を追加。
 - REPORT_TASK_001_DefaultBranch_20251223.md: Default branchはGitHub設定・origin/HEADともに`main`のため追加操作は不要と判断。
 - REPORT_TASK_005_ReportAudit_20251223.md: docs/reports レポート3件の検証ログ収集とHANDOVER更新。
+- REPORT_TASK_006_CompletePendingTasks_20251226.md: TASK_003/TASK_004 の完了状態とレポート/AI_CONTEXT を同期し、docs/inbox に残存していた空レポート2件（REPORT_ORCH_20251223_0215.md / REPORT_TASK_003_known_issues_version_alignment_20251224.md）を削除する整備を実施。
 
 ## Latest Orchestrator Report
 - File: docs/reports/REPORT_ORCH_20251225_0153.md
