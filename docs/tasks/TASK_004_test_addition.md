@@ -5,7 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker-1
 Created: 2025-12-20T22:40:00+09:00
-Report: docs/inbox/REPORT_TASK_004_test_addition_20251225.md
+Report: docs/reports/REPORT_TASK_004_test_addition_20251225.md
 
 ## Objective
 

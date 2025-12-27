@@ -209,10 +209,7 @@
 
 ### 短期（Next）
 
-- [pending] docs/GADGETS.md の現行実装と提案の混在を解消（P1-4） (BLOCKED - 要確認) (ref: docs/tasks/TASK_002_docs_gadgets_status_cleanup.md, Status: BLOCKED)
 - [pending] 他プロジェクトへの参照方法を標準化（導入手順の最短化） (ref: docs/tasks/TASK_002_OnboardingRefStandard.md, Status: OPEN)
-- [done] docs/KNOWN_ISSUES.md のバージョン表記と実態の整合（P1-3） (ref: docs/tasks/TASK_003_known_issues_version_alignment.md, Status: DONE)
-- [done] hello.js のテスト追加 (ref: docs/tasks/TASK_004_test_addition.md, Status: DONE)
 - [pending] Investigate missing reports for completed tasks (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
 
 ### Worker完了ステータス

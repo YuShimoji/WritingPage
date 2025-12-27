@@ -5,7 +5,7 @@ Tier: 1
 Branch: main
 Owner: Worker-1
 Created: 2025-12-19T18:50:00+09:00
-Report: docs/inbox/REPORT_TASK_003_known_issues_version_alignment_20251225.md
+Report: docs/reports/REPORT_TASK_003_known_issues_version_alignment_20251225.md
 
 ## Objective
 

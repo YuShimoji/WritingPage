@@ -6,7 +6,7 @@
 Status: DONE
 
 **Tier**: 2
-**Report**: docs/inbox/REPORT_TASK_006_CompletePendingTasks_20251226.md
+**Report**: docs/reports/REPORT_TASK_006_CompletePendingTasks_20251226.md
 
 ## 定義完了（DoD）
 - [x] TASK_003のバージョン整合性問題を解決
