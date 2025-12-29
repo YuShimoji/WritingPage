@@ -209,14 +209,14 @@
 
 ### 短期（Next）
 
-- [pending] 他プロジェクトへの参照方法を標準化（導入手順の最短化） (ref: docs/tasks/TASK_002_OnboardingRefStandard.md, Status: OPEN)
 - [pending] Investigate missing reports for completed tasks (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
+- [completed] 他プロジェクトへの参照方法を標準化（導入手順の最短化） (ref: docs/tasks/TASK_002_OnboardingRefStandard.md, Status: DONE)
 
 ### Worker完了ステータス
 - TASK_001: completed
 - TASK_005: completed
-- TASK_002: pending
+- TASK_002: completed
 - TASK_003: completed
 - TASK_004: completed
 - TASK_006: completed
-- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: pending, TASK_003: completed, TASK_004: completed, TASK_006: completed
+- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed
