@@ -1,24 +1,26 @@
 # Project Handover & Status
 
-**Timestamp**: 2025-12-27T15:10+09:00
-**Actor**: Orchestrator
+**Timestamp**: 2025-12-29T23:20+09:00
+**Actor**: Worker
 **Type**: Handover
-**Mode**: orchestrator
+**Mode**: worker
 
 ## 基本情報
-- **最終更新**: 2025-12-27T15:10+09:00
-- **更新者**: Orchestrator
+- **最終更新**: 2025-12-29T23:20+09:00
+- **更新者**: Worker
 
 ## GitHubAutoApprove
 GitHubAutoApprove: true
 
 ## 現在の目標
-- AI Reporting Improvement（Orchestrator報告の一貫性と自動検証体制を完成させる）
+- 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
+- **REPORT_20251229T2310.md**: TASK_002 を完了。`OPEN_HERE.md` と `CENTRAL_REPO_REF.md` を整理し、submodule導入手順を最短3ステップに集約。submoduleが無い場合のAIの振る舞い（手順提案して停止）を明文化。
 - **REPORT_ORCH_20251221_0107.md**: AI Reporting Improvement フェーズの立て直しとして、HANDOVER.md・AI_CONTEXT.md を最新テンプレへ統一し、報告ループ再構築の土台を整備。report-orch-cli.js / report-validator.js の実装着手により、次フェーズで自動生成・検証が行える準備を完了。
 - **REPORT_ORCH_20251221_0119.md**: AI Reporting Improvement ミッションの一環として、テンプレ/CLI/監査の「報告→検証→HANDOVER同期」ループを自動化する準備を完了。REPORT_ORCH CLI に standard スタイル必須ヘッダー自動補完を追加し、docs/reports へ 2 本の最新レポートを生成。HANDOVER.md / AI_CONTEXT.md を最新テンプレに揃え、Worker ステータス監査のブロッカーを除去。
-- **REPORT_ORCH_20251221_0126.md（Latest）**: `node .shared-workflows/scripts/report-validator.js` で 2025-12-23 に再検証し OK。CLI の `--sync-handover` で Latest Orchestrator Report 欄と summary を同期済み。
+- **REPORT_ORCH_20251227_1515.md**: .shared-workflows サブモジュールを `01f4cef` に更新し、docs/inbox/ のレポートを整理。TASK_002_docs_gadgets_status_cleanup を完了 (DONE) とし、整合性を確認。
+- **REPORT_TASK_SETUP_shared-workflows_20251228.md**: shared-workflows サブモジュールの導入状況と SSOT 同期状態を確認。sw-doctor.js の不在を検知し、復旧案を提示。
 - **REPORT_TASK_001_DefaultBranch_20251223.md**: GitHubリポジトリ設定と `git remote show origin` の双方で Default branch が `main` であることを確認し、追加作業が不要であると判断。
 - **REPORT_TASK_005_ReportAudit_20251223.md**: docs/reports に残っていた REPORT_ORCH_20251221_{0107,0119,0126}.md を全て validator で再検証し、結果を本レポートに記録。docs/HANDOVER.md の Progress / Latest Report / Outlook を最新状況に合わせて更新し、欠損レポートの統合作業 TODO を明示。
 
@@ -43,8 +45,8 @@ GitHubAutoApprove: true
 - REPORT_TASK_006_CompletePendingTasks_20251226.md（統合）: 上記 TASK_003/004 の整理と TASK_002_docs_gadgets_status_cleanup の Status 修正（BLOCKED→DONE）を含む。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20251225_0153.md
-- Summary: docs/inbox の旧REPORTを docs/reports に移管し、チケット参照とHANDOVERを整合。欠損レポート参照を git履歴から復旧
+- File: docs/inbox/REPORT_ORCH_20251229_2249.md
+- Summary: shared-workflows サブモジュールのセットアップと SSOT 同期、巡回監査による AI_CONTEXT 整合性修正を完了。TASK_002 の Worker 起動準備が整った。
 
 ## Outlook
 - Short-term: 未完了チケット（TASK_002/TASK_004/TASK_006 など）を整理し、Worker 起動で前進。

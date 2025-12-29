@@ -213,9 +213,10 @@
 - [pending] Investigate missing reports for completed tasks (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
 
 ### Worker完了ステータス
-- TASK_001: 完了
-- TASK_005: 完了
-- TASK_002: 進行中
-- TASK_003: 完了
-- TASK_004: 完了
-- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: pending, TASK_003: completed, TASK_004: completed
+- TASK_001: completed
+- TASK_005: completed
+- TASK_002: pending
+- TASK_003: completed
+- TASK_004: completed
+- TASK_006: completed
+- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: pending, TASK_003: completed, TASK_004: completed, TASK_006: completed
