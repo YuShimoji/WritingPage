@@ -1,5 +1,5 @@
 # Task: 他プロジェクトへの参照方法を標準化（導入手順の最短化）
-Status: OPEN
+Status: IN_PROGRESS
 Tier: 1
 Branch: main
 Owner: Orchestrator
