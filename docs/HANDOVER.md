@@ -23,6 +23,7 @@ GitHubAutoApprove: true
 - **REPORT_TASK_SETUP_shared-workflows_20251228.md**: shared-workflows サブモジュールの導入状況と SSOT 同期状態を確認。sw-doctor.js の不在を検知し、復旧案を提示。
 - **REPORT_TASK_001_DefaultBranch_20251223.md**: GitHubリポジトリ設定と `git remote show origin` の双方で Default branch が `main` であることを確認し、追加作業が不要であると判断。
 - **REPORT_TASK_005_ReportAudit_20251223.md**: docs/reports に残っていた REPORT_ORCH_20251221_{0107,0119,0126}.md を全て validator で再検証し、結果を本レポートに記録。docs/HANDOVER.md の Progress / Latest Report / Outlook を最新状況に合わせて更新し、欠損レポートの統合作業 TODO を明示。
+- **REPORT_TASK_005_missing_reports_20260101.md**: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsの実行結果（OK）により、TASK_001, TASK_002, TASK_003, TASK_004, TASK_005_ReportAudit, TASK_006のすべてにレポートが存在することを確認。予防策としてorchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
 
 ## ブロッカー
 - なし
@@ -45,8 +46,12 @@ GitHubAutoApprove: true
 - REPORT_TASK_006_CompletePendingTasks_20251226.md（統合）: 上記 TASK_003/004 の整理と TASK_002_docs_gadgets_status_cleanup の Status 修正（BLOCKED→DONE）を含む。
 
 ## Latest Orchestrator Report
-- File: docs/inbox/REPORT_ORCH_20251229_2310.md
+- File: docs/reports/REPORT_ORCH_20251229_2310.md
 - Summary: Worker (TASK_002) による導入手順の標準化を回収し、HANDOVER.md および AI_CONTEXT.md への統合を完了。サブモジュール内のスクリプト可用性も再確認済み。
+
+## Latest Worker Report
+- File: docs/inbox/REPORT_TASK_005_missing_reports_20260101.md
+- Summary: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
 
 ## Outlook
 - Short-term: 未完了チケット（TASK_002/TASK_004/TASK_006 など）を整理し、Worker 起動で前進。
