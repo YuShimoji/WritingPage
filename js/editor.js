@@ -1015,8 +1015,13 @@ class EditorManager {
         // インラインスタンプを除去してカウント
         const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
         const charCount = cleanText ? cleanText.replace(/\r?\n/g, '').length : 0;
-        // 単語カウント: スペース区切りで分割（モックアップ実装。今後日本語対応時は形態素解析等に変更予定）
+        
+        // [DOCUMENTATION] Word Count Behavior
+        // 現在の単語カウントは、英語圏向けの「スペース区切り」による簡易実装（モックアップ）です。
+        // 日本語などの非スペース区切り言語では正確な単語数になりません。
+        // 将来的には Intl.Segmenter や形態素解析ライブラリ（Kuromoji.js等）の導入を検討してください。
         const wordCount = cleanText.trim() === '' ? 0 : cleanText.trim().split(/\s+/).length;
+        
         // 執筆目標の進捗（任意）
         const settings = window.ZenWriterStorage.loadSettings();
         const goal = (settings && settings.goal) || {};
@@ -1063,7 +1068,7 @@ class EditorManager {
                 if (!this._goalReachedNotified) {
                     this._goalReachedNotified = true;
                     if (typeof this.showNotification === 'function') {
-                        this.showNotification('目標達成！お疲れさまです 🎉');
+                        this.showNotification('目標達成！お疲れさまです');
                     }
                     if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
                         window.ZenWriterHUD.publish('目標達成！', 1500);

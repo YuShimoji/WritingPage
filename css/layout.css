@@ -257,8 +257,8 @@ body {
   top: 0;
   height: 100%;
   width: 0%;
-  background: var(--focus-color);
-  transition: width 0.2s ease;
+  background: var(--goal-bar-color, rgba(74, 144, 226, 0.6));
+  transition: width 0.2s ease, background-color 0.3s ease;
 }
 
 /* サイドバー */

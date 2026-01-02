@@ -656,7 +656,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const label = loadoutName.value || name;
                 const captured = window.ZWGadgets.captureCurrentLoadout(label);
                 window.ZWGadgets.defineLoadout(name, captured);
-                window.ZWGadgets.activateLoadout(name);
+                // applyLoadoutを使用（activateLoadoutは存在しない）
+                if (window.ZWGadgets.applyLoadout) {
+                    window.ZWGadgets.applyLoadout(name);
+                }
                 refreshLoadoutList();
                 logger.info(`ロードアウト保存: ${label}`);
             });
@@ -678,7 +681,8 @@ document.addEventListener('DOMContentLoaded', () => {
             loadoutApplyBtn.addEventListener('click', () => {
                 if (!window.ZWGadgets) return;
                 const name = loadoutSelect.value;
-                if (name && window.ZWGadgets.activateLoadout(name)) {
+                // applyLoadoutを使用（activateLoadoutは存在しない）
+                if (name && window.ZWGadgets.applyLoadout && window.ZWGadgets.applyLoadout(name)) {
                     refreshLoadoutList();
                     logger.info(`ロードアウト適用: ${name}`);
                 }

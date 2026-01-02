@@ -1,23 +1,21 @@
 /**
  * gadgets-loadout.js
- * ロードアウト管理UIモジュール
- * サイドバー上部に配置されるロードアウト選択・管理機能
+ * ロードアウト管理ガジェット
+ * ZWGadgetsフレームワークを使用してロードアウト機能を実装
  */
 (function () {
   'use strict';
 
-  /**
-   * ロードアウトUIを初期化
-   * @param {string} containerSelector - コンテナのセレクタ（デフォルト: .sidebar-loadout）
-   */
-  function initLoadoutUI(containerSelector) {
-    var container = document.querySelector(containerSelector || '.sidebar-loadout');
-    if (!container) return;
+  if (!window.ZWGadgets || !window.ZWGadgets.register) return;
 
-    // 既存のコンテンツをクリア
-    container.innerHTML = '';
+  ZWGadgets.register('LoadoutManager', function (el, api) {
+    // コンテナ作成（既存スタイル継承のため sidebar-loadout クラス付与）
+    var container = document.createElement('div');
+    container.className = 'sidebar-loadout gadget-loadout-manager';
+    container.style.marginTop = '0'; // ガジェット内の余白調整
+    container.style.padding = '0';   // パディング調整
 
-    // UI要素を動的に生成
+    // UI要素構築
     var label = document.createElement('label');
     label.setAttribute('for', 'loadout-select');
     label.textContent = (window.UILabels && window.UILabels.LOADOUT_LABEL) || 'ロードアウト';
@@ -27,33 +25,37 @@
     controls.className = 'loadout-controls';
 
     var select = document.createElement('select');
-    select.id = 'loadout-select';
+    select.id = 'loadout-select'; // app.jsとの互換性のため
+    select.setAttribute('data-gadget-id', 'gadget-loadout-select'); // ガジェット用の識別子
     select.setAttribute('aria-label', (window.UILabels && window.UILabels.LOADOUT_SELECT_ARIA) || 'ロードアウトを選択');
+    select.style.width = '100%';
 
     var nameInput = document.createElement('input');
     nameInput.type = 'text';
-    nameInput.id = 'loadout-name';
+    nameInput.id = 'loadout-name'; // app.jsとの互換性のため
+    nameInput.setAttribute('data-gadget-id', 'gadget-loadout-name'); // ガジェット用の識別子
     nameInput.placeholder = (window.UILabels && window.UILabels.PRESET_NAME_PLACEHOLDER) || 'プリセット名';
     nameInput.setAttribute('data-i18n-placeholder', 'PRESET_NAME_PLACEHOLDER');
     nameInput.setAttribute('aria-label', (window.UILabels && window.UILabels.LOADOUT_NAME_ARIA) || 'ロードアウト名');
+    nameInput.style.width = '100%';
 
     var buttons = document.createElement('div');
     buttons.className = 'loadout-buttons';
 
-    function createButton(id, i18nKey, defaultText) {
+    function createButton(i18nKey, defaultText, id) {
       var btn = document.createElement('button');
-      btn.id = id;
       btn.className = 'small';
       btn.type = 'button';
+      if (id) btn.id = id;
       btn.textContent = (window.UILabels && window.UILabels[i18nKey]) || defaultText;
       btn.setAttribute('data-i18n', i18nKey);
       return btn;
     }
 
-    var saveBtn = createButton('loadout-save', 'SAVE', '保存');
-    var duplicateBtn = createButton('loadout-duplicate', 'DUPLICATE', '複製');
-    var applyBtn = createButton('loadout-apply', 'APPLY', '適用');
-    var deleteBtn = createButton('loadout-delete', 'DELETE', '削除');
+    var saveBtn = createButton('LOADOUT_SAVE', '保存', 'loadout-save');
+    var duplicateBtn = createButton('LOADOUT_DUPLICATE', '複製', 'loadout-duplicate');
+    var applyBtn = createButton('LOADOUT_APPLY', '適用', 'loadout-apply');
+    var deleteBtn = createButton('LOADOUT_DELETE', '削除', 'loadout-delete');
 
     buttons.appendChild(saveBtn);
     buttons.appendChild(duplicateBtn);
@@ -66,74 +68,61 @@
 
     container.appendChild(label);
     container.appendChild(controls);
+    el.appendChild(container);
 
-    // イベントリスナーを設定
-    setupEventListeners(select, nameInput, saveBtn, duplicateBtn, applyBtn, deleteBtn);
-
-    // 初期ロードアウトリストを設定
-    refreshLoadoutSelect(select);
-  }
-
-  /**
-   * ロードアウト選択を更新
-   * @param {HTMLSelectElement} select
-   */
-  function refreshLoadoutSelect(select) {
-    if (!select || !window.ZWGadgets) return;
-    select.innerHTML = '';
-    var loadouts = window.ZWGadgets.listLoadouts ? window.ZWGadgets.listLoadouts() : [];
-    loadouts.forEach(function (l) {
-      var opt = document.createElement('option');
-      opt.value = l.name;
-      opt.textContent = l.label || l.name;
-      select.appendChild(opt);
-    });
-    // 現在のアクティブロードアウトを選択
-    var active = window.ZWGadgets._loadouts && window.ZWGadgets._loadouts.active;
-    if (active && select.querySelector('option[value="' + active + '"]')) {
-      select.value = active;
+    // ヘルパー関数: リスト更新
+    function refreshList() {
+      if (!window.ZWGadgets) return;
+      select.innerHTML = '';
+      var loadouts = window.ZWGadgets.listLoadouts ? window.ZWGadgets.listLoadouts() : [];
+      loadouts.forEach(function (l) {
+        var opt = document.createElement('option');
+        opt.value = l.name;
+        opt.textContent = l.label || l.name;
+        select.appendChild(opt);
+      });
+      var active = window.ZWGadgets._loadouts && window.ZWGadgets._loadouts.active;
+      if (active && select.querySelector('option[value="' + active + '"]')) {
+        select.value = active;
+      }
+      // 名前入力欄も更新
+      updateNameInput();
     }
-  }
 
-  /**
-   * イベントリスナーを設定
-   */
-  function setupEventListeners(select, nameInput, saveBtn, duplicateBtn, applyBtn, deleteBtn) {
-    if (!window.ZWGadgets) return;
-
-    // 選択変更
-    select.addEventListener('change', function () {
+    function updateNameInput() {
       var selected = select.value;
       if (selected) {
         var loadouts = window.ZWGadgets.listLoadouts ? window.ZWGadgets.listLoadouts() : [];
         var entry = loadouts.find(function (l) { return l.name === selected; });
-        if (entry && nameInput) {
+        if (entry) {
           nameInput.value = entry.label || '';
         }
+      } else {
+        nameInput.value = '';
       }
-    });
+    }
 
-    // 保存
+    // イベントリスナー
+    select.addEventListener('change', updateNameInput);
+
     saveBtn.addEventListener('click', function () {
       var name = select.value;
-      var label = nameInput.value.trim();
-      if (!label) {
+      var labelVal = nameInput.value.trim();
+      if (!labelVal) {
         alert((window.UILabels && window.UILabels.LOADOUT_NAME_PROMPT) || 'ロードアウト名を入力してください');
         return;
       }
-      if (!name) {
-        name = 'loadout_' + Date.now().toString(36);
-      }
-      var config = window.ZWGadgets.captureCurrentLoadout ? window.ZWGadgets.captureCurrentLoadout(label) : { label: label, groups: {} };
+      if (!name) name = 'loadout_' + Date.now().toString(36);
+      
+      var config = window.ZWGadgets.captureCurrentLoadout ? window.ZWGadgets.captureCurrentLoadout(labelVal) : { label: labelVal, groups: {} };
       if (window.ZWGadgets.defineLoadout) {
         window.ZWGadgets.defineLoadout(name, config);
       }
       alert((window.UILabels && window.UILabels.LOADOUT_SAVED) || 'ロードアウトを保存しました');
-      refreshLoadoutSelect(select);
+      refreshList();
       select.value = name;
     });
 
-    // 複製
     duplicateBtn.addEventListener('click', function () {
       var selected = select.value;
       if (!selected) {
@@ -143,17 +132,18 @@
       var loadouts = window.ZWGadgets.listLoadouts ? window.ZWGadgets.listLoadouts() : [];
       var entry = loadouts.find(function (l) { return l.name === selected; });
       if (!entry) return;
+      
       var newName = 'loadout_' + Date.now().toString(36);
       var newLabel = (nameInput.value.trim() || entry.label) + ((window.UILabels && window.UILabels.LOADOUT_DUPLICATE_SUFFIX) || ' (複製)');
+      
       if (window.ZWGadgets.defineLoadout) {
         window.ZWGadgets.defineLoadout(newName, { label: newLabel, groups: entry.groups || {} });
       }
       alert((window.UILabels && window.UILabels.LOADOUT_DUPLICATED) || 'ロードアウトを複製しました');
-      refreshLoadoutSelect(select);
+      refreshList();
       select.value = newName;
     });
 
-    // 適用
     applyBtn.addEventListener('click', function () {
       var selected = select.value;
       if (!selected) return;
@@ -163,7 +153,6 @@
       alert((window.UILabels && window.UILabels.LOADOUT_APPLIED) || 'ロードアウトを適用しました');
     });
 
-    // 削除
     deleteBtn.addEventListener('click', function () {
       var selected = select.value;
       if (!selected) return;
@@ -172,25 +161,26 @@
         window.ZWGadgets.removeLoadout(selected);
       }
       alert((window.UILabels && window.UILabels.LOADOUT_DELETED) || 'ロードアウトを削除しました');
-      refreshLoadoutSelect(select);
+      refreshList();
     });
-  }
 
-  // グローバルに公開
-  window.ZWLoadoutUI = {
-    init: initLoadoutUI,
-    refresh: function () {
-      var select = document.getElementById('loadout-select');
-      if (select) refreshLoadoutSelect(select);
+    // 初期化実行
+    refreshList();
+
+    // 外部からの更新用フック（必要なら）
+    el.refresh = refreshList;
+
+    // app.jsとの互換性のため、window.ZWLoadoutUIを設定
+    if (!window.ZWLoadoutUI) {
+      window.ZWLoadoutUI = {
+        refresh: refreshList
+      };
     }
-  };
 
-  // DOMContentLoaded で自動初期化
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
-      initLoadoutUI('.sidebar-loadout');
-    });
-  } else {
-    initLoadoutUI('.sidebar-loadout');
-  }
+  }, {
+    groups: ['structure'], // Structureグループに配置
+    title: (window.UILabels && window.UILabels.GADGET_LOADOUT_TITLE) || 'ロードアウト管理',
+    description: 'ロードアウトの保存・適用・管理を行います',
+    icon: 'save'
+  });
 })();
