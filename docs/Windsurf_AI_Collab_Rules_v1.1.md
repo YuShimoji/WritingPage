@@ -2,6 +2,10 @@
 
 > 本ドキュメントは **参考資料（旧版）** です。規範（SSOT）は常に `docs/Windsurf_AI_Collab_Rules_latest.md` を参照してください。
 
+補足（参照用）:
+
+- 中央リポジトリ版: https://github.com/YuShimoji/shared-workflows/blob/main/docs/Windsurf_AI_Collab_Rules_v1.1.md
+
 ## 0. 起動シーケンス（プロジェクト抽象化）
 
 - 規範（SSOT）は常に本リポジトリの `docs/Windsurf_AI_Collab_Rules_latest.md` を参照してください（本ドキュメントは旧版の参考資料）。
