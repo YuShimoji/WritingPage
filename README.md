@@ -181,6 +181,8 @@ WritingPage/
 - `docs/BACKLOG.md`
 - `docs/ISSUES.md`
 - `docs/KNOWN_ISSUES.md`
+- `docs/PROJECT_ANALYSIS_REPORT.md` - プロジェクト徹底分析レポート
+- `docs/IMPLEMENTATION_PLAN.md` - 実装計画書
 - `docs/CONVENTIONS.md`
 - `docs/LABELS.md`
 - `docs/PALETTE_DESIGN.md`
