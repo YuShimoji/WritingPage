@@ -209,8 +209,7 @@
 
 ### 短期（Next）
 
-- [pending] Investigate missing reports for completed tasks (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
-- [completed] 他プロジェクトへの参照方法を標準化（導入手順の最短化） (ref: docs/tasks/TASK_002_OnboardingRefStandard.md, Status: DONE)
+- [done] 未完了タスクなし（docs/tasks/ に OPEN / IN_PROGRESS なし）
 
 ### Worker完了ステータス
 - TASK_001: completed

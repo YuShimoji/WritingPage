@@ -46,17 +46,17 @@ GitHubAutoApprove: true
 - REPORT_TASK_006_CompletePendingTasks_20251226.md（統合）: 上記 TASK_003/004 の整理と TASK_002_docs_gadgets_status_cleanup の Status 修正（BLOCKED→DONE）を含む。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20251229_2310.md
-- Summary: Worker (TASK_002) による導入手順の標準化を回収し、HANDOVER.md および AI_CONTEXT.md への統合を完了。サブモジュール内のスクリプト可用性も再確認済み。
+- File: docs/reports/REPORT_ORCH_20260101_2223.md
+- Summary: Phase 1.5 巡回監査による Report パス修正、HANDOVER.md 更新、Complete Gate 確認。TASK_005_missing_reports の Worker 起動と完了を回収。
 
 ## Latest Worker Report
-- File: docs/inbox/REPORT_TASK_005_missing_reports_20260101.md
+- File: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
 - Summary: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
 
 ## Outlook
-- Short-term: 未完了チケット（TASK_002/TASK_004/TASK_006 など）を整理し、Worker 起動で前進。
-- Mid-term: worker-monitor.js + AI_CONTEXT 自動更新、report-orch-cli の HANDOVER 同期を安定化し、他プロジェクトへ展開。
-- Long-term: False Completion 防止ロジックと Outlook/Next/Proposals 必須化を CI に組み込み、報告～監査を完全自動化。
+- Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
+- Mid-term: orchestrator-audit.js を CI パイプラインに組み込み、DONEタスクのレポート欠損を自動検知。worker-monitor.js + AI_CONTEXT 自動更新、report-orch-cli の HANDOVER 同期を安定化し、他プロジェクトへ展開。
+- Long-term: Complete Gate の自動化、False Completion 防止ロジックと Outlook/Next/Proposals 必須化を CI に組み込み、報告～監査を完全自動化。
 
 ## Proposals
 - AI_CONTEXT.md 初期化スクリプトを追加し、Worker 完了ステータス記録を自動化

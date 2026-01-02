@@ -5,7 +5,7 @@ Tier: 1
 Branch: main
 Owner: Worker
 Created: 2025-12-21T11:45:00+09:00
-Report: docs/inbox/REPORT_TASK_005_missing_reports_20260101.md
+Report: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
 
 ## Objective
 

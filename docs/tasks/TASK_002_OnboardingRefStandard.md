@@ -4,7 +4,7 @@ Tier: 1
 Branch: main
 Owner: Orchestrator
 Created: 2025-12-20T10:05+09:00
-Report: docs/inbox/REPORT_20251229T2310.md
+Report: docs/reports/REPORT_20251229T2310.md
 
 ## Objective
 - 他プロジェクトが shared-workflows を導入する際の参照方法（推奨: submodule）と最短手順を、迷いが出ない形で固定する。
