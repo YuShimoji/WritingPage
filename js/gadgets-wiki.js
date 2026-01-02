@@ -43,6 +43,23 @@
         }
       });
 
+      // ヘルプボタン
+      var helpBtn = document.createElement('button');
+      helpBtn.type = 'button';
+      helpBtn.className = 'small';
+      helpBtn.textContent = (window.UILabels && window.UILabels.BTN_HELP) || '?';
+      helpBtn.title = (window.UILabels && window.UILabels.BTN_HELP_TITLE) || 'Wikiヘルプ';
+      helpBtn.addEventListener('click', function () {
+        showHelp();
+      });
+
+      var btnRow = document.createElement('div');
+      btnRow.style.display = 'flex';
+      btnRow.style.justifyContent = 'space-between';
+      btnRow.style.gap = '8px';
+      btnRow.appendChild(createBtn);
+      btnRow.appendChild(helpBtn);
+
       // Wikiリスト
       var listContainer = document.createElement('div');
       listContainer.className = 'wiki-list';
@@ -202,12 +219,53 @@
         document.body.appendChild(editorDialog);
       };
 
+      var showHelp = function() {
+        var dialog = document.createElement('div');
+        dialog.style.position = 'fixed';
+        dialog.style.top = '50%';
+        dialog.style.left = '50%';
+        dialog.style.transform = 'translate(-50%, -50%)';
+        dialog.style.background = 'var(--bg-color)';
+        dialog.style.color = 'var(--text-color)';
+        dialog.style.border = '1px solid var(--border-color)';
+        dialog.style.borderRadius = '8px';
+        dialog.style.padding = '20px';
+        dialog.style.zIndex = '10000';
+        dialog.style.width = '90%';
+        dialog.style.maxWidth = '500px';
+        dialog.style.maxHeight = '80vh';
+        dialog.style.overflow = 'auto';
+        dialog.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+
+        var helpTitle = (window.UILabels && window.UILabels.WIKI_HELP_TITLE) || 'Wiki機能の使い方';
+        
+        dialog.innerHTML = 
+          '<h3 style="margin-top:0; margin-bottom:10px;">' + helpTitle + '</h3>' +
+          '<ul style="padding-left: 20px; line-height: 1.6; margin-bottom: 0;">' +
+          '<li><strong>ページの作成:</strong> 「新規Wikiページ」ボタンで作成。</li>' +
+          '<li><strong>編集:</strong> リストのタイトルか「編集」をクリック。</li>' +
+          '<li><strong>検索:</strong> 上部のボックスでフィルタリング。</li>' +
+          '<li><strong>タグ:</strong> 編集画面でタグ付け可能。</li>' +
+          '</ul>' +
+          '<p style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">※ データはブラウザ内に保存されます。</p>';
+        
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'small';
+        closeBtn.textContent = (window.UILabels && window.UILabels.BTN_CLOSE) || '閉じる';
+        closeBtn.style.marginTop = '15px';
+        closeBtn.style.float = 'right';
+        closeBtn.onclick = function() { document.body.removeChild(dialog); };
+        
+        dialog.appendChild(closeBtn);
+        document.body.appendChild(dialog);
+      };
+
       searchInput.addEventListener('input', function () {
         renderList();
       });
 
       wrap.appendChild(searchInput);
-      wrap.appendChild(createBtn);
+      wrap.appendChild(btnRow);
       wrap.appendChild(listContainer);
       el.appendChild(wrap);
 

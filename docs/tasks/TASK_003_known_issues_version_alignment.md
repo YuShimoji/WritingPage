@@ -1,11 +1,11 @@
 # Task: docs/KNOWN_ISSUES.md のバージョン表記と実態の整合（P1-3）
 
-Status: COMPLETED
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker-1
 Created: 2025-12-19T18:50:00+09:00
-Report: 
+Report: docs/reports/REPORT_TASK_003_known_issues_version_alignment_20251225.md
 
 ## Objective
 
@@ -36,8 +36,8 @@ Report:
 
 - [ ] `docs/KNOWN_ISSUES.md` 内のバージョン表記が現行 `package.json` と矛盾しない
 - [ ] 「改善済み/未解決」の表記が現状と一致する（根拠をレポートに記載）
-- [ ] `docs/inbox/` にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] `docs/reports/` にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

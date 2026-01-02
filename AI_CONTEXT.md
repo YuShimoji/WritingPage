@@ -12,6 +12,7 @@
 - オーケストレーション（毎回コピペ）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md`
 - オーケストレーション手順（参照）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_PROTOCOL.md`
 - 運用ストレージ: `docs/HANDOVER.md`, `docs/tasks/`, `docs/inbox/`
+- async_mode: true
 
 - 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
 - ブランチ: main
@@ -209,5 +210,13 @@
 
 ### 短期（Next）
 
-- [blocked] docs/GADGETS.md の現行実装と提案の混在を解消（P1-4） (ref: docs/tasks/TASK_002_docs_gadgets_status_cleanup.md, Status: BLOCKED → 再稼働待ち)
-- [open] レポート欠損調査（docs/inbox / HANDOVER 整合性） (ref: docs/tasks/TASK_005_missing_reports.md, Status: OPEN)
+- [done] 未完了タスクなし（docs/tasks/ に OPEN / IN_PROGRESS なし）
+
+### Worker完了ステータス
+- TASK_001: completed
+- TASK_005: completed
+- TASK_002: completed
+- TASK_003: completed
+- TASK_004: completed
+- TASK_006: completed
+- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed

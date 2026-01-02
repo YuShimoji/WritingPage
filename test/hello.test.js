@@ -1,15 +1,25 @@
-const assert = require('assert');
+const test = require('node:test');
+const assert = require('node:assert/strict');
 const hello = require('../hello.js');
 
-console.log('Running tests for hello.js');
+test('基本的な挨拶を返す', () => {
+  assert.equal(hello('World'), 'Hello, World!');
+});
 
-// Test case 1: Basic functionality
-assert.strictEqual(hello('World'), 'Hello, World!', 'Should return greeting with name');
+test('空文字を扱える', () => {
+  assert.equal(hello(''), 'Hello, !');
+});
 
-// Test case 2: Empty string
-assert.strictEqual(hello(''), 'Hello, !', 'Should handle empty string');
+test('特殊文字や空白を含む入力をそのまま返す', () => {
+  assert.equal(hello('Alice & Bob'), 'Hello, Alice & Bob!');
+  assert.equal(hello('  spaced  '), 'Hello,   spaced  !');
+});
 
-// Test case 3: Special characters
-assert.strictEqual(hello('Alice & Bob'), 'Hello, Alice & Bob!', 'Should handle special characters');
+test('非文字列入力でも文字列として結果を返す', () => {
+  assert.equal(hello(42), 'Hello, 42!');
+  assert.equal(hello(null), 'Hello, null!');
+});
 
-console.log('All tests passed!');
+test('ユニコード文字列をサポートする', () => {
+  assert.equal(hello('こんにちは'), 'Hello, こんにちは!');
+});

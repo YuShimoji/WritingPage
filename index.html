@@ -83,8 +83,6 @@
       <div class="sidebar-top">
         <!-- タブ切り替えUI -->
         <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ"></div>
-        <!-- ロードアウトUI: gadgets-loadout.js により動的生成 -->
-        <div class="sidebar-loadout"></div>
       </div>
 
       <div class="sidebar-groups">
@@ -143,8 +141,9 @@
           </div>
         </div>
         <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER"
-          style="width: 100px; margin-right: 8px;" />
-        <input type="date" id="goal-deadline" aria-label="締切日" style="margin-right: 8px;" />
+          aria-hidden="true" style="width: 100px; margin-right: 8px; display: none;" />
+        <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
+          style="margin-right: 8px; display: none;" />
         <div class="toolbar-actions">
           <select id="ui-mode-select" aria-label="表示モード" title="表示モード"
             style="margin-right: 8px; padding: 2px 4px; font-size: 12px;">

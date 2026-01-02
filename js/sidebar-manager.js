@@ -405,48 +405,66 @@ class SidebarManager {
             const ddId = 'tabs-dropdown-select';
             let dd = document.getElementById(ddId);
 
-            // reset defaults
-            if (tabsBar) tabsBar.style.display = '';
-            if (mode !== 'dropdown' && dd && dd.parentNode) dd.parentNode.removeChild(dd);
+            // デフォルト状態にリセット（dropdown以外ならdropdownを削除、tabsBarを表示）
+            if (mode !== 'dropdown' && dd && dd.parentNode) {
+                dd.parentNode.removeChild(dd);
+                dd = null;
+            }
+            if (tabsBar) tabsBar.style.display = (mode === 'dropdown' || mode === 'accordion') ? 'none' : '';
 
-            if (mode === 'dropdown'){
-                if (tabsBar) tabsBar.style.display = 'none';
-                if (!dd){
+            // Dropdown モード処理
+            if (mode === 'dropdown') {
+                if (!dd) {
                     dd = document.createElement('select');
                     dd.id = ddId;
-                    dd.setAttribute('aria-label','サイドバータブ');
-                    const tabs = document.querySelectorAll('.sidebar-tab');
-                    tabs.forEach(t => {
-                        const opt = document.createElement('option');
-                        opt.value = t.getAttribute('data-group');
-                        opt.textContent = t.textContent || opt.value;
-                        dd.appendChild(opt);
-                    });
+                    dd.setAttribute('aria-label', 'サイドバータブ');
+                    dd.className = 'sidebar-tab-dropdown';
+                    dd.style.width = '100%';
+                    dd.style.marginBottom = '1rem';
                     dd.addEventListener('change', () => this.activateSidebarGroup(dd.value));
                     if (top) top.insertBefore(dd, top.firstChild);
                 }
-                // set value to current active group
+                
+                // オプションを常に再構築（タブの増減に対応）
+                dd.innerHTML = '';
+                const tabs = document.querySelectorAll('.sidebar-tab');
+                tabs.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.getAttribute('data-group');
+                    opt.textContent = t.textContent || opt.value;
+                    dd.appendChild(opt);
+                });
+
+                // 現在のアクティブグループを選択
                 const activeTab = document.querySelector('.sidebar-tab.active');
                 const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
-                if (dd) dd.value = gid;
+                dd.value = gid;
             }
 
-            if (mode === 'accordion'){
-                if (tabsBar) tabsBar.style.display = 'none';
+            // Accordion モード処理
+            if (mode === 'accordion') {
                 // 全グループを展開表示
                 document.querySelectorAll('.sidebar-group').forEach(sec => {
                     sec.classList.add('active');
-                    sec.setAttribute('aria-hidden','false');
+                    sec.setAttribute('aria-hidden', 'false');
+                    sec.style.display = 'block'; 
                 });
             } else {
-                // デフォルト動作: active のみ表示
+                // 通常（Tabs）または Dropdown モード（選択されたものだけ表示）
                 const activeTab = document.querySelector('.sidebar-tab.active');
                 const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
-                if (!skipActivate) {
-                    this.activateSidebarGroup(gid, { skipPresentationUpdate: true });
-                }
+                
+                // 表示状態のリセットと更新
+                document.querySelectorAll('.sidebar-group').forEach(sec => {
+                    const isActive = sec.getAttribute('data-group') === gid;
+                    sec.classList.toggle('active', isActive);
+                    sec.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                    sec.style.display = ''; // styleリセット
+                });
             }
-        } catch(e) { void e; }
+        } catch (e) {
+            console.error('applyTabsPresentationUI error:', e);
+        }
     }
 
     formatTs(ts) {
