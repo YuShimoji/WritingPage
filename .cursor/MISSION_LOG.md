@@ -71,3 +71,16 @@ ot a git repository を誘発したこと。
 - セットアップ差分はコミット済み（残差分は機能実装由来）
 - docs/inbox は `.gitkeep` のみ
 
+## Follow-up: 作業ツリーのクリーン化と入口統一（追記）
+
+### 追記時刻
+- 2026-01-03T01:02:50.0266101+09:00
+
+### 変更（要点）
+- Orchestrator の貼り付け入口を `prompts/every_time/ORCHESTRATOR_DRIVER.txt` に統一
+  - `prompts/ORCHESTRATOR_METAPROMPT.md` は Deprecated ラッパー化
+- 未コミット差分を分割してコミットし、`git status -sb` をクリーンに復帰
+
+### 検証
+- `node .shared-workflows/scripts/sw-doctor.js --profile shared-orch-bootstrap --format text`: No issues detected. System is healthy.
+
