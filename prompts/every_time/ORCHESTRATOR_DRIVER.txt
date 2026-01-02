@@ -11,7 +11,7 @@
 - ファイルパスはハードコードしない。存在確認してから参照する。
 - **順序を飛ばさない**。フェーズは MISSION_LOG の `Current Phase` に従う。
 - **一度きりで終わらない**。毎回「次に何をするか（誰が/どの条件で）」を必ず残す。
-- 毎回の運用SSOT: `docs/windsurf_workflow/EVERY_SESSION.md`（submodule 運用なら `.shared-workflows/docs/windsurf_workflow/EVERY_SESSION.md`）
+- 毎回の運用SSOT: `.shared-workflows/docs/windsurf_workflow/EVERY_SESSION.md`（無ければ `docs/windsurf_workflow/EVERY_SESSION.md`）
 
 ### 中間報告ルール（長大作業の安定化）
 - **ツール呼び出し10回ごと**、または**ファイル編集5回ごと**に中間報告を出力する:
@@ -38,17 +38,17 @@
 
 次のファイルを読み、**今のフェーズに該当する1つだけ**適用する:
 
-- `prompts/orchestrator/modules/00_core.md`（必須、毎回）
+- `.shared-workflows/prompts/orchestrator/modules/00_core.md`（必須、毎回。無ければ `prompts/orchestrator/modules/00_core.md`）
 - 現在フェーズに対応するモジュール（1つだけ）:
-  - P0: `prompts/orchestrator/modules/P0_ssot.md`
-  - P1: `prompts/orchestrator/modules/P1_sync.md`
-  - P1.5: `prompts/orchestrator/modules/P1.5_audit.md`
-  - P1.75: `prompts/orchestrator/modules/P1.75_gate.md`
-  - P2: `prompts/orchestrator/modules/P2_status.md`
-  - P3: `prompts/orchestrator/modules/P3_strategy.md`
-  - P4: `prompts/orchestrator/modules/P4_ticket.md`
-  - P5: `prompts/orchestrator/modules/P5_worker.md`
-  - P6: `prompts/orchestrator/modules/P6_report.md`
+  - P0: `.shared-workflows/prompts/orchestrator/modules/P0_ssot.md`（無ければ `prompts/orchestrator/modules/P0_ssot.md`）
+  - P1: `.shared-workflows/prompts/orchestrator/modules/P1_sync.md`（無ければ `prompts/orchestrator/modules/P1_sync.md`）
+  - P1.5: `.shared-workflows/prompts/orchestrator/modules/P1.5_audit.md`（無ければ `prompts/orchestrator/modules/P1.5_audit.md`）
+  - P1.75: `.shared-workflows/prompts/orchestrator/modules/P1.75_gate.md`（無ければ `prompts/orchestrator/modules/P1.75_gate.md`）
+  - P2: `.shared-workflows/prompts/orchestrator/modules/P2_status.md`（無ければ `prompts/orchestrator/modules/P2_status.md`）
+  - P3: `.shared-workflows/prompts/orchestrator/modules/P3_strategy.md`（無ければ `prompts/orchestrator/modules/P3_strategy.md`）
+  - P4: `.shared-workflows/prompts/orchestrator/modules/P4_ticket.md`（無ければ `prompts/orchestrator/modules/P4_ticket.md`）
+  - P5: `.shared-workflows/prompts/orchestrator/modules/P5_worker.md`（無ければ `prompts/orchestrator/modules/P5_worker.md`）
+  - P6: `.shared-workflows/prompts/orchestrator/modules/P6_report.md`（無ければ `prompts/orchestrator/modules/P6_report.md`）
 
 ### Step C: 実行 → MISSION_LOG 更新 → チャット出力
 
