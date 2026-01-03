@@ -1,11 +1,11 @@
 # Task: docs/GADGETS.md の現行実装と提案の混在を解消（P1-4）
 
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker-2
 Created: 2025-12-19T15:09:00+09:00
-Report: docs/reports/REPORT_ORCH_20251221_0126.md
+Report: docs/reports/REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md
 
 ## Objective
 

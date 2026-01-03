@@ -24,6 +24,7 @@ GitHubAutoApprove: true
 - **REPORT_TASK_001_DefaultBranch_20251223.md**: GitHubリポジトリ設定と `git remote show origin` の双方で Default branch が `main` であることを確認し、追加作業が不要であると判断。
 - **REPORT_TASK_005_ReportAudit_20251223.md**: docs/reports に残っていた REPORT_ORCH_20251221_{0107,0119,0126}.md を全て validator で再検証し、結果を本レポートに記録。docs/HANDOVER.md の Progress / Latest Report / Outlook を最新状況に合わせて更新し、欠損レポートの統合作業 TODO を明示。
 - **REPORT_TASK_005_missing_reports_20260101.md**: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsの実行結果（OK）により、TASK_001, TASK_002, TASK_003, TASK_004, TASK_005_ReportAudit, TASK_006のすべてにレポートが存在することを確認。予防策としてorchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
+- **REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md**: `docs/GADGETS.md` 内で「現行実装」と「将来案/旧メモ（提案）」を明確に区別し、読み手が誤認しない構造に整理。すべての現行実装セクションに「（現行）」ラベルを追加し、提案・未実装セクションを末尾に分離。
 
 ## ブロッカー
 - なし
@@ -50,8 +51,8 @@ GitHubAutoApprove: true
 - Summary: Phase 1.5 巡回監査による Report パス修正、HANDOVER.md 更新、Complete Gate 確認。TASK_005_missing_reports の Worker 起動と完了を回収。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
-- Summary: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
+- File: docs/reports/REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md
+- Summary: `docs/GADGETS.md` 内で「現行実装」と「将来案/旧メモ（提案）」を明確に区別し、読み手が誤認しない構造に整理。すべての現行実装セクションに「（現行）」ラベルを追加し、提案・未実装セクションを末尾に分離。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。

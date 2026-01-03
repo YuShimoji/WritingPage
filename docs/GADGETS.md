@@ -22,8 +22,9 @@
 - [Sidebar と ZWGadgets の責務](#sidebar-と-zwgadgets-の責務現行)
 - [ロードアウトプリセット](#ロードアウトプリセット現行)
 - [実装概要 / 使い方 / テスト](#実装概要)
+- [設定保存/折りたたみ/並び替え](#設定保存折りたたみ並び替え現行v0313)
+- [設定UIフレームワーク](#設定uiフレームワーク現行)
 - [設定インポート/エクスポート](#設定インポートエクスポート現行)
-- [設定保存やドラッグ操作](#設定保存折りたたみ並び替えv0313)
 - [個別ガジェット（HUDSettings / Story Wiki）](#hudsettings-ガジェット)
 
 ### 基本方針
@@ -35,6 +36,8 @@
 - ユーザーはプリセット（ロードアウト）を保存・切替でき、用途に応じて表示するガジェット集合を最小構成にできるようにする。
 
 ### レイアウト構造とカテゴリ（現行）
+
+<a id="レイアウト構造とカテゴリ現行"></a>
 
 - サイドバーは最大3階層（カテゴリ → ガジェット → ガジェット設定）で構成し、カテゴリは常時1つのみ展開。
 - 既定カテゴリ:
@@ -65,6 +68,8 @@
 - 印刷/PDF機能を Documents ガジェットに統合。
 
 ### Sidebar と ZWGadgets の責務（現行）
+
+<a id="sidebar-と-zwgadgets-の責務現行"></a>
 
 #### Sidebar（タブ/パネル管理）
 
@@ -97,6 +102,8 @@
 
 ## ロードアウトプリセット（現行）
 
+<a id="ロードアウトプリセット現行"></a>
+
 - LocalStorage にプリセット一覧を保持する（キー: `zenWriter_gadgets:loadouts`）。
 - プリセット構造（例: `novel-standard`）と LocalStorage 書式:
 
@@ -123,7 +130,7 @@
   - `ZWGadgets.setActiveGroup(groupId)` — タブ切替に合わせて描画を更新。
   - 主要イベント: `ZWLoadoutsChanged`, `ZWLoadoutDefined`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`。
 
-### ロードアウトUI（現況）
+### ロードアウトUI（現行）
 
 - `index.html` の `.sidebar-loadout` に `js/gadgets-loadout.js` がロードアウトUIを動的生成します。
   - セレクト: `#loadout-select`
@@ -134,7 +141,6 @@
 - UI
   - カテゴリタブ右側にプリセットドロップダウンを配置し、「保存」「複製」「削除」操作を提供。
   - プリセット切替後は `ZWGadgets.importPrefs()` に近いフローで order/collapsed/settings を再構成。
-- Embed モードではホストから `sdk.setLoadout(name)` を呼び出すことでロードアウトを同期できるよう、Embed SDK v2 でイベント定義予定。
 
 ## 実装概要
 
@@ -205,7 +211,6 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 1. 並び順・折りたたみは自動保存
 
 - ヘッダの「↑/↓」「▼/▶」操作は `prefs.order` / `prefs.collapsed` に自動保存されます。
-- ドラッグ＆ドロップでも並び替え可能です。
 
 1. テスト
 
@@ -219,7 +224,9 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
   - `/js/gadgets-core.js` が 200 で取得可能
   - `/index.html?embed=1` で Outline などの追加スクリプトが読み込まれない（軽量化）
 
-## 設定保存/折りたたみ/並び替え（v0.3.13+）
+## 設定保存/折りたたみ/並び替え（現行・v0.3.13+）
+
+<a id="設定保存折りたたみ並び替え現行v0313"></a>
 
 - 仕組み
   - LocalStorage キー: `zenWriter_gadgets:prefs`
@@ -253,16 +260,9 @@ ZWGadgets.setPrefs(prefs);
 4. ページをリロードし、開閉状態と順序が保持されていること
 5. `?embed=1` ではガジェットが表示されないことを確認
 
-## ドラッグ＆ドロップ並び替え（Mission 5）
+## 設定UIフレームワーク（現行）
 
-- サイドバーの各ガジェットはヘッダ（タイトル行）をドラッグして並び替えが可能です。
-- フォールバックとして従来の「↑/↓」ボタンも維持しています（キーボード操作向け）。
-
-### 備考
-
-- 内部的には `dataTransfer.setData('text/gadget-name', <name>)` を用い、`drop` 時に順序配列（prefs.order）を更新します。
-
-## 設定UIフレームワーク（Mission 5）
+<a id="設定uiフレームワーク現行"></a>
 
 - ガジェットごとに設定パネルを提供できます。登録 API は以下です。
 
@@ -313,13 +313,35 @@ ZWGadgets.registerSettings('Clock', function (el, ctx) {
 });
 ```
 
-## テスト（追加事項）
+## 設定インポート/エクスポート（現行）
 
-- `scripts/dev-check.js` は次を静的に検証します。
-  - DnD: `draggable=true`、`dataTransfer.setData('text/gadget-name', ...)`、`drop` リスナーの存在
-  - 設定UI: `registerSettings/getSettings/setSetting` の存在
+<a id="設定インポートエクスポート現行"></a>
+
+- ガジェット設定（並び順、折りたたみ状態、各ガジェットの設定値）をJSON形式でエクスポート・インポートできます。
+- API:
+  - `ZWGadgets.exportPrefs()` — 現在の設定をJSON文字列として取得
+  - `ZWGadgets.importPrefs(obj)` — JSON文字列またはオブジェクトから設定をインポート
+- UI:
+  - `GadgetPrefs` ガジェット（`js/gadgets-prefs.js`）がエクスポート/インポートボタンを提供
+  - エクスポート: JSONファイルをダウンロード
+  - インポート: ファイル選択ダイアログからJSONファイルを選択して読み込み
+
+### 使用例
+
+```js
+// 設定をエクスポート
+const json = ZWGadgets.exportPrefs();
+console.log(json); // {"order":["Clock","HUDSettings"],"collapsed":{},"settings":{...}}
+
+// 設定をインポート
+ZWGadgets.importPrefs(json);
+// または文字列から
+ZWGadgets.importPrefs('{"order":["Clock"],"collapsed":{},"settings":{}}');
+```
 
 ## HUDSettings ガジェット
+
+<a id="hudsettings-ガジェット"></a>
 
 HUD（Heads-Up Display）の表示設定を管理するガジェットです。フェードイン/アウト型ミニHUDの位置・色・サイズ・メッセージなどを調整できます。
 
@@ -388,6 +410,8 @@ window.ZenWriterStorage.saveSettings(settings);
 ```
 
 ## Story Wiki ガジェット
+
+<a id="story-wiki-ガジェット"></a>
 
 物語Wikiは、小説執筆時に登場人物、場所、プロットなどの情報を整理するためのWiki機能を提供します。各ページはタイトル、本文、タグで構成され、検索やリンク機能で効率的に管理できます。
 
@@ -462,3 +486,26 @@ WikiデータはlocalStorageに保存されるため、ブラウザの設定か�
 - 現在、ページ間のリンク機能は未実装
 - AI統合による自動生成機能は今後の拡張予定
 - 画像添付機能は未対応（テキストベースのみ）
+
+---
+
+<a id="reference-future"></a>
+
+## 提案・未実装 / 旧メモ
+
+> 注記: 本節は将来実装予定の機能や過去の検討事項を扱います。現行実装については「現行リファレンス（現行）」を参照してください。
+
+### ドラッグ＆ドロップ並び替え（提案・未実装）
+
+- サイドバーの各ガジェットをヘッダ（タイトル行）をドラッグして並び替えできる機能。
+- 実装予定の仕様:
+  - ガジェットヘッダに `draggable="true"` を設定
+  - `dataTransfer.setData('text/gadget-name', <name>)` でドラッグデータを設定
+  - `drop` イベントで順序配列（prefs.order）を更新
+- フォールバックとして従来の「↑/↓」ボタンも維持（キーボード操作向け）。
+- 詳細検討: `docs/BACKLOG.md` の「フェーズ E: パネル・レイアウト機能」を参照。
+
+### Embed SDK v2 でのロードアウト同期（提案・未実装）
+
+- Embed モードでホストから `sdk.setLoadout(name)` を呼び出すことでロードアウトを同期できる機能。
+- 詳細検討: `docs/EMBED_SDK.md` を参照。

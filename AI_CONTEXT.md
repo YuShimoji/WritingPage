@@ -210,7 +210,7 @@
 
 ### 短期（Next）
 
-- [done] 未完了タスクなし（docs/tasks/ に OPEN / IN_PROGRESS なし）
+- [pending] セッション終端チェック（推奨運用の自動検査）と Auto-merge 運用ガイド整備 (ref: docs/tasks/TASK_007_session_end_check_and_auto_merge_guidance.md, Status: OPEN)
 
 ### Worker完了ステータス
 - TASK_001: completed
