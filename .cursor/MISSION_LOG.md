@@ -277,3 +277,38 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（改善提案タスク）（追記）
+
+### 追記時刻
+- 2026-01-03T23:10:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類
+  - TASK_008_report_orch_cli_cross_project_template.md: Tier 1（既に分類済み）
+  - TASK_009_session_end_check_ci_integration.md: Tier 2（既に分類済み）
+  - TASK_010_global_memory_central_repo_path.md: Tier 2（既に分類済み）
+  - TASK_011_worker_monitor_ai_context_init.md: Tier 2（既に分類済み）
+- 並列化可能性を判断
+  - すべてのタスクが独立作業可能（ファイル依存なし、機能境界が明確）
+  - TASK_008: ドキュメント作成（横展開テンプレート）、独立作業可能
+  - TASK_009: CI ワークフロー追加、独立作業可能
+  - TASK_010: ドキュメント更新（グローバルMemory）、独立作業可能
+  - TASK_011: スクリプト調査・実装、独立作業可能
+  - Worker 数: 3（最大3 Worker の制約により、4タスクを3 Worker に割り当て）
+    - Worker-1: TASK_008（Tier 1、優先度: High）
+    - Worker-2: TASK_009（Tier 2、CI 組み込み）
+    - Worker-3: TASK_010, TASK_011（Tier 2、ドキュメント更新とスクリプト調査を順次実行）
+- 各Workerの Focus Area / Forbidden Area を決定
+  - Worker-1 (TASK_008):
+    - Focus Area: `docs/`（横展開テンプレートの作成）、`.shared-workflows/docs/`（submodule 内のドキュメント更新、可能な場合）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止、ただしドキュメント更新は可能な場合のみ）、`js/**`（機能実装は本タスク対象外）
+  - Worker-2 (TASK_009):
+    - Focus Area: `.github/workflows/`（CI ワークフローの追加または既存ワークフローの拡張）、`docs/`（CI 組み込み手順のドキュメント化、必要に応じて）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、`js/**`（機能実装は本タスク対象外、既存スクリプトの使用のみ）
+  - Worker-3 (TASK_010, TASK_011):
+    - Focus Area: `AI_CONTEXT.md`（グローバルMemoryセクションの追加または更新）、`docs/HANDOVER.md`（必要に応じて中央リポジトリ参照情報を追加）、`scripts/`（worker-monitor.js の導入、AI_CONTEXT.md 初期化スクリプトの作成）、`docs/`（使用方法のドキュメント化、必要に応じて）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、`js/**`（機能実装は本タスク対象外、スクリプトの作成のみ）
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
