@@ -25,6 +25,7 @@ GitHubAutoApprove: true
 - **REPORT_TASK_005_ReportAudit_20251223.md**: docs/reports に残っていた REPORT_ORCH_20251221_{0107,0119,0126}.md を全て validator で再検証し、結果を本レポートに記録。docs/HANDOVER.md の Progress / Latest Report / Outlook を最新状況に合わせて更新し、欠損レポートの統合作業 TODO を明示。
 - **REPORT_TASK_005_missing_reports_20260101.md**: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsの実行結果（OK）により、TASK_001, TASK_002, TASK_003, TASK_004, TASK_005_ReportAudit, TASK_006のすべてにレポートが存在することを確認。予防策としてorchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
 - **REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md**: `docs/GADGETS.md` 内で「現行実装」と「将来案/旧メモ（提案）」を明確に区別し、読み手が誤認しない構造に整理。すべての現行実装セクションに「（現行）」ラベルを追加し、提案・未実装セクションを末尾に分離。
+- **REPORT_TASK_007_session_end_check_20260103_2105.md**: セッション終端チェックスクリプト（`scripts/session-end-check.js`）を新規作成し、Git dirty、docs/inbox 未処理レポート、ORCHESTRATOR_DRIVER.txt 入口チェックを実装。`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」セクションを追加。
 
 ## ブロッカー
 - なし
@@ -51,8 +52,8 @@ GitHubAutoApprove: true
 - Summary: Phase 1.5 巡回監査による Report パス修正、HANDOVER.md 更新、Complete Gate 確認。TASK_005_missing_reports の Worker 起動と完了を回収。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md
-- Summary: `docs/GADGETS.md` 内で「現行実装」と「将来案/旧メモ（提案）」を明確に区別し、読み手が誤認しない構造に整理。すべての現行実装セクションに「（現行）」ラベルを追加し、提案・未実装セクションを末尾に分離。
+- File: docs/inbox/REPORT_TASK_007_session_end_check_20260103_2105.md
+- Summary: セッション終端チェック用スクリプト（`scripts/session-end-check.js`）を追加し、Git dirty / docs/inbox 未処理レポート / ORCHESTRATOR_DRIVER.txt 入口の誤りを機械的に検知できるようにした。また、`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」を追記。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
@@ -74,6 +75,17 @@ GitHubAutoApprove: true
 - `ensure-ssot.js` を実行し、SSOT（latest.md, v2.0.md, v1.1.md）を同期。
 - `sw-doctor.js` を実行し、プロジェクトの構成とスクリプトの可用性を確認（ALL PASSED）。
 - `GitHubAutoApprove: true`（自動化を優先するため、暫定的に true と記載）。
+
+## Auto-merge が使えない場合の手動マージ手順
+
+GitHubAutoApprove が false の場合、または auto-merge が無効な環境では、以下の手順で手動マージを行う:
+
+1. **PR の確認**: GitHub で PR が作成されていることを確認
+2. **レビュー**: 必要に応じてコードレビューを実施
+3. **マージ**: GitHub UI または CLI でマージを実行
+   - GitHub UI: PR ページの「Merge pull request」ボタンをクリック
+   - CLI: `gh pr merge <PR番号> --merge` を実行
+4. **確認**: マージ後、`git fetch origin && git status -sb` で main ブランチが最新であることを確認
 
 ## 所要時間
 - 本フェーズ作業（テンプレ整備・スクリプト強化・監査対応）: 約 2.0h

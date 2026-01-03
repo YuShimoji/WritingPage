@@ -2,8 +2,8 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 3: 分割と戦略
-- ステータス: COMPLETED
+- 現在のフェーズ: Phase 6: Orchestrator Report
+- ステータス: IN_PROGRESS
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
 
@@ -144,3 +144,36 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 4: Worker完了（TASK_007）（追記）
+
+### 追記時刻
+- 2026-01-03T21:05:00+09:00
+
+### 実施内容
+- TASK_007_session_end_check_and_auto_merge_guidance.md を完了
+  - `scripts/session-end-check.js` を新規作成（セッション終端チェック用スクリプト）
+    - Git dirty チェック、docs/inbox 未処理レポートチェック、ORCHESTRATOR_DRIVER.txt 入口チェックを実装
+    - 異常時に明確なメッセージを出力し、exit code 1 を返す
+  - `docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」セクションを追加
+  - `docs/inbox/REPORT_TASK_007_session_end_check_20260103_2105.md` を作成
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+
+### 検証結果
+- `node scripts/session-end-check.js`: 正常動作を確認（未コミット差分と未処理レポートを検知）
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 5: チャット出力（TASK_007）（追記）
+
+### 追記時刻
+- 2026-01-03T21:05:00+09:00
+
+### 実施内容
+- 完了メッセージを出力
+- MISSION_LOG.md を更新（Phase 5 完了を記録）
+
+### 現在のフェーズ
+- Phase 5: チャット出力（完了）
