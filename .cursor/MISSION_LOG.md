@@ -2,7 +2,7 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 2: 状況把握
+- 現在のフェーズ: Phase 3: 分割と戦略
 - ステータス: COMPLETED
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
@@ -123,3 +123,24 @@ ot a git repository を誘発したこと。
 ### 次フェーズ
 - OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
 
+## Phase 3: 分割と戦略（追記）
+
+### 追記時刻
+- 2026-01-03T20:10:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類
+  - TASK_007_session_end_check_and_auto_merge_guidance.md: Tier 1（既に分類済み）
+- 並列化可能性を判断
+  - TASK_007 は単一タスクで、以下の2つの作業を含む:
+    1. セッション終端チェック用スクリプトの追加（`scripts/session-end-check.js` の新規作成）
+    2. auto-merge が使えない場合の手動マージ手順のガイド整備（`docs/HANDOVER.md` への追記）
+  - これらは独立しているが、同じタスクとして扱われているため、単一Workerで実行するのが適切
+  - Worker 数: 1
+- 各Workerの Focus Area / Forbidden Area を決定
+  - Focus Area: `scripts/`（新規スクリプト追加）、`docs/`（運用ガイドの追記）、`prompts/every_time/ORCHESTRATOR_DRIVER.txt`（入口の固定が崩れていないかの検査対象）
+  - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、`js/**`（機能実装は本タスク対象外）
+  - 既に TASK_007 のチケットに記載されている
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
