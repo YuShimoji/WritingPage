@@ -52,8 +52,8 @@ GitHubAutoApprove: true
 - Summary: Phase 1.5 巡回監査による Report パス修正、HANDOVER.md 更新、Complete Gate 確認。TASK_005_missing_reports の Worker 起動と完了を回収。
 
 ## Latest Worker Report
-- File: docs/inbox/REPORT_TASK_007_session_end_check_20260103_2105.md
-- Summary: セッション終端チェック用スクリプト（`scripts/session-end-check.js`）を追加し、Git dirty / docs/inbox 未処理レポート / ORCHESTRATOR_DRIVER.txt 入口の誤りを機械的に検知できるようにした。また、`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」を追記。
+- File: docs/reports/REPORT_TASK_007_session_end_check_20260103_2105.md
+- Summary: セッション終端チェックスクリプト（`scripts/session-end-check.js`）を新規作成し、Git dirty、docs/inbox 未処理レポート、ORCHESTRATOR_DRIVER.txt 入口チェックを実装。`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」セクションを追加。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
