@@ -1,0 +1,27 @@
+あなたはこのプロジェクトの Worker です。
+
+対象チケット:
+- `docs/tasks/TASK_007_session_end_check_and_auto_merge_guidance.md`
+
+作業ブランチ:
+- `main`（Tier 1 / 運用強化）
+
+Focus Area:
+- `scripts/`（セッション終端チェックの追加、または既存チェックの最小拡張）
+- `docs/`（auto-merge が使えない場合の手動マージ手順を短く追記）
+- `prompts/every_time/ORCHESTRATOR_DRIVER.txt`（入口ファイルの存在/誘導が崩れていないかの検査）
+
+Forbidden Area:
+- `.shared-workflows/**`（submodule内変更禁止）
+- `js/**`（機能実装は禁止）
+
+制約:
+- 外部通信やGitHub設定変更は行わない（必要条件のガイド提示まで）
+- テスト: 主要パスのみ（必要なら `node scripts/dev-check.js`）
+
+納品:
+1. チケットの `Status` を `IN_PROGRESS` → `DONE` に更新
+2. `docs/inbox/` にレポートを作成（例: `docs/inbox/REPORT_TASK_007_session_end_check_YYYYMMDD_HHMM.md`）
+3. チケットの `Report:` 欄にレポートパスを追記
+4. コミットして push（差分が残らない状態にする）
+
