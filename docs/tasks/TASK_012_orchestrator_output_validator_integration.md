@@ -1,11 +1,11 @@
 # Task: Orchestrator出力検証スクリプトの統合
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
-Report: 
+Report: docs/inbox/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md
 
 ## Objective
 
@@ -36,11 +36,16 @@ Report:
 
 ## DoD
 
-- [ ] orchestrator-output-validator.js の存在確認と使用方法の調査が完了している
-- [ ] スクリプトをプロジェクトに統合し、正常に動作することを確認
-- [ ] 使用方法がドキュメント化されている（必要に応じて）
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] orchestrator-output-validator.js の存在確認と使用方法の調査が完了している
+  - `.shared-workflows/scripts/orchestrator-output-validator.js` の存在を確認し、使用方法を調査しました
+- [x] スクリプトをプロジェクトに統合し、正常に動作することを確認
+  - `scripts/orchestrator-output-validator.js` にコピーし、動作確認を実施しました
+- [x] 使用方法がドキュメント化されている（必要に応じて）
+  - `docs/ORCHESTRATOR_OUTPUT_VALIDATOR_USAGE.md` を作成しました
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - `docs/inbox/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md` を作成しました
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - レポートパスを追記しました
 
 ## Notes
 
