@@ -1,11 +1,11 @@
 # Task: orchestrator-audit.js を CI パイプラインに組み込み
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T23:00:00+09:00
-Report: 
+Report: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md
 
 ## Objective
 
@@ -37,11 +37,16 @@ Report:
 
 ## DoD
 
-- [ ] orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにする
-- [ ] CI 実行時のエラーや警告が適切に表示されることを確認
-- [ ] 使用方法がドキュメント化されている（必要に応じて）
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにする
+  - 根拠: `.github/workflows/orchestrator-audit.yml` を新規作成し、PR作成時やマージ前に自動実行できるように設定
+- [x] CI 実行時のエラーや警告が適切に表示されることを確認
+  - 根拠: ワークフローで orchestrator-audit.js を実行し、エラーや警告が GitHub Actions のログに表示されることを確認
+- [x] 使用方法がドキュメント化されている（必要に応じて）
+  - 根拠: レポートに実装内容を記載
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md` を作成
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: Report 欄に `docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md` を追記
 
 ## Notes
 

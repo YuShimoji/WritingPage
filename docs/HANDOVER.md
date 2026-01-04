@@ -33,6 +33,8 @@ GitHubAutoApprove: true
 - **REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md**: `orchestrator-output-validator.js` をプロジェクトに統合し、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。使用方法を `docs/ORCHESTRATOR_OUTPUT_VALIDATOR_USAGE.md` にドキュメント化。
 - **REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md**: shared-workflows の `session-end-check.js` とプロジェクト側のスクリプトを同期し、最新の機能を取り込んだ。shared-workflows 版をベースに、プロジェクト固有の `checkDriverEntry()` 機能を統合。
 - **REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md**: Workerプロンプトテンプレート（`docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md`）に必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
+- **REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md**: orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにした。DONEタスクのレポート欠損や HANDOVER 乖離をCIで自動検知できるようになった。
+- **REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md**: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。PR コメントの自動検証機能を実装。
 
 ## ブロッカー
 - なし
@@ -56,14 +58,16 @@ GitHubAutoApprove: true
 - REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md: orchestrator-output-validator.js をプロジェクトに統合し、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 - REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md: shared-workflows の session-end-check.js とプロジェクト側のスクリプトを同期し、最新の機能を取り込んだ。
 - REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md: Workerプロンプトテンプレートに必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
+- REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md: orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにした。
+- REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 
 ## Latest Orchestrator Report
-- File: docs/inbox/REPORT_ORCH_20260104_2200.md
-- Summary: TASK_012, TASK_013, TASK_014 の Worker 完了レポート統合。全タスク（TASK_012-TASK_014）が完了し、改善提案タスクとshared-workflows更新対応タスクがすべて完了。
+- File: docs/inbox/REPORT_ORCH_20260105_0015.md
+- Summary: TASK_015, TASK_016 の Worker 完了レポート統合。全タスク（TASK_015-TASK_016）が完了し、CI統合タスクがすべて完了。
 
 ## Latest Worker Report
-- File: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md
-- Summary: Workerプロンプトテンプレートに必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
+- File: docs/inbox/REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md
+- Summary: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。PR コメントの自動検証機能を実装。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
