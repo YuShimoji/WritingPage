@@ -2,7 +2,7 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 1: Sync（未実装機能検討）
+- 現在のフェーズ: Phase 3: 分割と戦略（CI統合タスク）
 - ステータス: COMPLETED
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
@@ -683,3 +683,30 @@ ot a git repository を誘発したこと。
 ### 新規タスク起票
 - TASK_015_orchestrator_audit_ci_integration.md: orchestrator-audit.js を CI パイプラインに組み込み（Tier 2、優先度: Medium）
 - TASK_016_orchestrator_output_validator_ci_integration.md: orchestrator-output-validator.js を CI パイプラインに組み込み（Tier 2、優先度: Medium）
+
+## Phase 3: 分割と戦略（CI統合タスク）（追記）
+
+### 追記時刻
+- 2026-01-04T23:05:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類:
+  - TASK_015_orchestrator_audit_ci_integration.md: Tier 2（既に分類済み）
+  - TASK_016_orchestrator_output_validator_ci_integration.md: Tier 2（既に分類済み）
+- 並列化可能性を判断:
+  - すべてのタスクが独立作業可能（ファイル依存なし、機能境界が明確）
+  - TASK_015: CI ワークフロー作成（orchestrator-audit.js）、独立作業可能
+  - TASK_016: CI ワークフロー作成（orchestrator-output-validator.js）、独立作業可能
+  - Worker 数: 2（最大3 Worker の制約により、2タスクを2 Worker に割り当て）
+    - Worker-1: TASK_015（Tier 2、CI 統合）
+    - Worker-2: TASK_016（Tier 2、CI 統合）
+- 各Workerの Focus Area / Forbidden Area を決定:
+  - Worker-1 (TASK_015):
+    - Focus Area: .github/workflows/（GitHub Actions ワークフローの作成・更新）、docs/（CI 統合のドキュメント化、必要に応じて）
+    - Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、scripts/orchestrator-audit.js（既存スクリプトの変更は本タスク対象外、CI 統合のみ）
+  - Worker-2 (TASK_016):
+    - Focus Area: .github/workflows/（GitHub Actions ワークフローの作成・更新）、docs/（CI 統合のドキュメント化、必要に応じて）
+    - Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、scripts/orchestrator-output-validator.js（既存スクリプトの変更は本タスク対象外、CI 統合のみ）
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
