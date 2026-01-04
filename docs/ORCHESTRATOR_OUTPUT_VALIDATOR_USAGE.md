@@ -142,8 +142,59 @@ function validateOrchestratorReport(reportPath) {
 }
 ```
 
+## CI パイプライン統合
+
+### GitHub Actions での使用
+
+`orchestrator-output-validator.js` は GitHub Actions の CI パイプラインに組み込まれています。
+
+**ワークフローファイル**: `.github/workflows/orchestrator-output-validator.yml`
+
+**トリガー**:
+- `push`: main, develop, feat/** ブランチへの push
+- `pull_request`: PR 作成時
+- `workflow_dispatch`: 手動実行
+
+**動作**:
+
+1. **pull_request イベント**: PR の最新コメントを取得して検証
+   - PR コメントに Orchestrator の出力が含まれている場合、自動的に検証を実行
+   - PR コメントが見つからない場合は警告を表示してスキップ
+
+2. **workflow_dispatch イベント**: 手動実行時に検証対象を指定
+   - `input_text`: 検証対象のテキストを直接指定
+   - `input_file`: 検証対象のファイルパスを指定
+
+3. **push イベント**: 現時点では検証対象なし（将来の拡張用）
+
+**使用例（workflow_dispatch）**:
+
+GitHub Actions の UI から手動実行する場合:
+1. Actions タブを開く
+2. "Orchestrator Output Validator" ワークフローを選択
+3. "Run workflow" をクリック
+4. `input_text` または `input_file` を指定して実行
+
+**CI 実行時のエラー表示**:
+
+検証に失敗した場合、GitHub Actions のログに以下のように表示されます:
+
+```
+検証失敗:
+  ERROR: 必須セクション '現状' が欠落しています
+  ERROR: '次のアクション' セクションにユーザー返信テンプレ（完了判定 + 選択肢1-3）が含まれていません
+検証失敗: 2 件のエラーが見つかりました
+```
+
+**権限**:
+
+ワークフローは以下の権限を使用します:
+- `pull-requests: read`: PR コメントを取得するため
+- `issues: read`: Issue コメントを取得するため（将来の拡張用）
+
 ## 参考
 
 - 中央リポジトリ: `https://github.com/YuShimoji/shared-workflows`
 - ローカルパス（submodule）: `.shared-workflows/`
 - 関連スクリプト: `scripts/report-validator.js`（レポートファイル検証用）
+- 関連ワークフロー: `.github/workflows/session-end-check.yml`（参考実装）

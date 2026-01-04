@@ -1,0 +1,107 @@
+name: Orchestrator Output Validator
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+      - 'feature/**'
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      input_text:
+        description: '検証対象のテキスト（オプション）'
+        required: false
+        type: string
+      input_file:
+        description: '検証対象のファイルパス（オプション）'
+        required: false
+        type: string
+
+concurrency:
+  group: orchestrator-output-validator-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  pull-requests: read
+  issues: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Get PR comments for validation
+        if: github.event_name == 'pull_request'
+        id: get_pr_comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100
+            });
+            
+            // 最新のコメントを取得（Orchestrator の出力として想定）
+            // コメントが空の場合は null を返す
+            const latestComment = comments.length > 0 ? comments[comments.length - 1].body : null;
+            
+            if (latestComment) {
+              // コメントを一時ファイルに保存
+              const fs = require('fs');
+              const path = require('path');
+              const commentFile = path.join(process.cwd(), 'pr-comment.txt');
+              fs.writeFileSync(commentFile, latestComment, 'utf8');
+              console.log('PR コメントを取得しました（長さ: ' + latestComment.length + ' 文字）');
+            } else {
+              console.log('PR コメントが見つかりませんでした');
+            }
+            
+            return latestComment ? 'found' : 'not_found';
+
+      - name: Run orchestrator-output-validator
+        run: |
+          if [ -n "${{ github.event.inputs.input_file }}" ]; then
+            # workflow_dispatch で input_file が指定された場合
+            node scripts/orchestrator-output-validator.js "${{ github.event.inputs.input_file }}"
+          elif [ -n "${{ github.event.inputs.input_text }}" ]; then
+            # workflow_dispatch で input_text が指定された場合
+            echo "${{ github.event.inputs.input_text }}" | node scripts/orchestrator-output-validator.js
+          elif [ "${{ github.event_name }}" == "pull_request" ] && [ -f "pr-comment.txt" ]; then
+            # pull_request イベントで PR コメントが取得できた場合
+            node scripts/orchestrator-output-validator.js pr-comment.txt
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            # pull_request イベントで PR コメントが取得できなかった場合
+            echo "警告: PR コメントが見つかりませんでした。Orchestrator の出力を検証できません。"
+            echo "このワークフローは、PR コメントに Orchestrator の出力が含まれている場合に検証を実行します。"
+            exit 0
+          elif [ "${{ github.event_name }}" == "push" ]; then
+            # push イベントの場合（現時点では検証対象なし）
+            echo "情報: push イベントでは、Orchestrator の出力を検証する対象がありません。"
+            echo "workflow_dispatch を使用して手動で検証するか、PR コメントを検証する場合は pull_request イベントを使用してください。"
+            exit 0
+          else
+            echo "エラー: 検証対象が指定されていません。"
+            echo "workflow_dispatch の場合は input_text または input_file を指定してください。"
+            exit 1
+          fi

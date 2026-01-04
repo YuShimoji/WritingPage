@@ -7,6 +7,10 @@
 
 ## 中央ルール参照（SSOT）
 
+- **中央リポジトリ（shared-workflows）**:
+  - GitHub URL: `https://github.com/YuShimoji/shared-workflows`
+  - ローカルパス（submodule）: `.shared-workflows/`
+  - 参照方法: Git Submodule として導入済み（`.shared-workflows/` 配下）
 - SSOT（latest）: `.shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md`
 - 運用者の入口: `.shared-workflows/docs/windsurf_workflow/OPEN_HERE.md`
 - オーケストレーション（毎回コピペ）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md`
@@ -210,7 +214,9 @@
 
 ### 短期（Next）
 
-- [pending] セッション終端チェック（推奨運用の自動検査）と Auto-merge 運用ガイド整備 (ref: docs/tasks/TASK_007_session_end_check_and_auto_merge_guidance.md, Status: OPEN)
+- [pending] Orchestrator出力検証スクリプトの統合 (ref: docs/tasks/TASK_012_orchestrator_output_validator_integration.md, Status: OPEN)
+- [pending] shared-workflows の session-end-check.js とプロジェクト側の同期 (ref: docs/tasks/TASK_013_shared_workflows_session_end_check_sync.md, Status: OPEN)
+- [pending] Worker完了レポートの必須ヘッダー自動補完 (ref: docs/tasks/TASK_014_worker_report_required_headers_auto_complete.md, Status: OPEN)
 
 ### Worker完了ステータス
 - TASK_001: completed

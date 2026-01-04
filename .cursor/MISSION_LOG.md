@@ -839,3 +839,31 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 - 新規タスクが発生した場合: Phase 3（Strategy）から再開
 - Worker納品を回収した後: Phase 6（Orchestrator Report）で統合
 - ブロッカー発生時: Phase 1.5（Audit）または Phase 1.75（Gate）で対応
+
+## Phase 2: 状況把握（未実装機能検証・タスク起票）（追記）
+
+### 追記時刻
+- 2026-01-05T00:30:00+09:00
+
+### 実施内容
+- 未実装機能の検証を実施
+  - `docs/UNIMPLEMENTED_FEATURES_REPORT.md` を作成し、未実装機能をリストアップ
+  - `docs/BACKLOG.md` に未実装機能を追加（優先度: 中に8項目、優先度: 低に4項目）
+- 未実装機能のタスク起票を実施
+  - TASK_017: リッチテキストエディタ（WYSIWYG）実装（Tier 1）
+  - TASK_018: 画像位置調整・サイズ変更機能実装（Tier 1）
+  - TASK_019: コラージュレイアウト機能実装（Tier 1）
+  - TASK_020: テキストアニメーション機能実装（Tier 2）
+  - TASK_021: フォント装飾システム実装（Tier 2）
+  - TASK_022: コマンドパレット機能実装（Tier 2）
+  - TASK_023: 分割ビュー機能実装（Tier 2）
+  - TASK_024: フォーカスモード機能実装（Tier 2）
+  - TASK_025: Wikilinks/バックリンク/グラフ機能実装（Tier 3）
+  - TASK_026: タグ/スマートフォルダ機能実装（Tier 3）
+  - TASK_027: Pomodoro/集中タイマー機能実装（Tier 3）
+  - TASK_028: キーバインド編集機能実装（Tier 3）
+- 合計12件のタスクを起票
+
+### 次フェーズ
+- プロジェクト全体の整備（検証、コミット、Push）を実施
+- その後、新規タスク（TASK_017-TASK_028）の実装計画を立てる
