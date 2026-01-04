@@ -26,6 +26,10 @@ GitHubAutoApprove: true
 - **REPORT_TASK_005_missing_reports_20260101.md**: すべてのDONEタスクのレポート存在を確認し、欠損がないことを検証。orchestrator-audit.jsの実行結果（OK）により、TASK_001, TASK_002, TASK_003, TASK_004, TASK_005_ReportAudit, TASK_006のすべてにレポートが存在することを確認。予防策としてorchestrator-audit.jsをCIパイプラインに組み込むことを推奨。
 - **REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.md**: `docs/GADGETS.md` 内で「現行実装」と「将来案/旧メモ（提案）」を明確に区別し、読み手が誤認しない構造に整理。すべての現行実装セクションに「（現行）」ラベルを追加し、提案・未実装セクションを末尾に分離。
 - **REPORT_TASK_007_session_end_check_20260103_2105.md**: セッション終端チェックスクリプト（`scripts/session-end-check.js`）を新規作成し、Git dirty、docs/inbox 未処理レポート、ORCHESTRATOR_DRIVER.txt 入口チェックを実装。`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」セクションを追加。
+- **REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md**: 横展開テンプレート（`docs/CROSS_PROJECT_TEMPLATE_REPORT_ORCH.md`）を新規作成し、REPORT_ORCH CLI の導入手順、使用例、ベストプラクティスを記載。
+- **REPORT_TASK_009_session_end_check_ci_integration_20260104_1238.md**: セッション終端チェックスクリプトを GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにした。
+- **REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md**: `AI_CONTEXT.md` と `docs/HANDOVER.md` に中央リポジトリ（shared-workflows）の絶対パス（GitHub URL とローカルパス）を追加。
+- **REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md**: `worker-monitor.js` の使用方法をドキュメント化（`docs/WORKER_MONITOR_USAGE.md`）。AI_CONTEXT.md 初期化スクリプトの必要性を評価（現時点では優先度が低いと判断）。
 
 ## ブロッカー
 - なし
@@ -48,12 +52,12 @@ GitHubAutoApprove: true
 - REPORT_TASK_006_CompletePendingTasks_20251226.md（統合）: 上記 TASK_003/004 の整理と TASK_002_docs_gadgets_status_cleanup の Status 修正（BLOCKED→DONE）を含む。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20260104_0659.md
-- Summary: 改善提案を4つの新規タスクとして起票し、3つのWorkerプロンプトを生成。Worker起動準備完了。
+- File: docs/reports/REPORT_ORCH_20260104_2033.md
+- Summary: TASK_008, TASK_009, TASK_010, TASK_011 の Worker 完了レポート統合。全タスク（TASK_008-TASK_011）が完了し、改善提案タスクがすべて完了。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_007_session_end_check_20260103_2105.md
-- Summary: セッション終端チェックスクリプト（`scripts/session-end-check.js`）を新規作成し、Git dirty、docs/inbox 未処理レポート、ORCHESTRATOR_DRIVER.txt 入口チェックを実装。`docs/HANDOVER.md` に「Auto-merge が使えない場合の手動マージ手順」セクションを追加。
+- File: docs/reports/REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md
+- Summary: worker-monitor.js の使用方法をドキュメント化（docs/WORKER_MONITOR_USAGE.md）。AI_CONTEXT.md 初期化スクリプトの必要性を評価（現時点では優先度が低いと判断）。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
@@ -71,6 +75,9 @@ GitHubAutoApprove: true
 - REPORT_ORCH CLI 導入前に手動保存を行うと検証漏れ・フォーマット逸脱が再発する可能性
 
 ## セットアップ状況（2025-12-29）
+- **中央リポジトリ（shared-workflows）**:
+  - GitHub URL: `https://github.com/YuShimoji/shared-workflows`
+  - ローカルパス（submodule）: `.shared-workflows/`
 - `shared-workflows` を Submodule として `.shared-workflows/` に導入し、最新（main）に更新済み。
 - `ensure-ssot.js` を実行し、SSOT（latest.md, v2.0.md, v1.1.md）を同期。
 - `sw-doctor.js` を実行し、プロジェクトの構成とスクリプトの可用性を確認（ALL PASSED）。

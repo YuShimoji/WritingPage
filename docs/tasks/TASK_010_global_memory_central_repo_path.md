@@ -1,11 +1,11 @@
 # Task: グローバルMemoryに中央リポジトリ絶対パスを追加
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-03T23:00:00+09:00
-Report: 
+Report: docs/reports/REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md
 
 ## Objective
 
@@ -36,11 +36,16 @@ Report:
 
 ## DoD
 
-- [ ] AI_CONTEXT.md または HANDOVER.md に中央リポジトリの絶対パスが記載されている
-- [ ] 絶対パスの記載形式が明確である（例: GitHub URL、ローカルパスなど）
-- [ ] ドキュメントの整合性が保たれている
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] AI_CONTEXT.md または HANDOVER.md に中央リポジトリの絶対パスが記載されている
+  - 根拠: AI_CONTEXT.md の「中央ルール参照（SSOT）」セクションと docs/HANDOVER.md の「セットアップ状況」セクションに、GitHub URL とローカルパス（submodule）の両方を記載
+- [x] 絶対パスの記載形式が明確である（例: GitHub URL、ローカルパスなど）
+  - 根拠: GitHub URL（`https://github.com/YuShimoji/shared-workflows`）とローカルパス（`.shared-workflows/`）の両方を明記
+- [x] ドキュメントの整合性が保たれている
+  - 根拠: AI_CONTEXT.md と docs/HANDOVER.md の両方で同じ情報（GitHub URL とローカルパス）が記載されていることを確認
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md` を作成
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: Report 欄に `docs/inbox/REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md` を追記
 
 ## Notes
 

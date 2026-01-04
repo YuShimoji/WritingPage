@@ -1,11 +1,11 @@
 # Task: REPORT_ORCH CLI 完了後他プロジェクトへの横展開テンプレ作成
 
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker
 Created: 2026-01-03T23:00:00+09:00
-Report: 
+Report: docs/reports/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md 
 
 ## Objective
 
@@ -36,11 +36,16 @@ Report:
 
 ## DoD
 
-- [ ] 他プロジェクト向けの横展開テンプレート（Markdown形式）が作成されている
-- [ ] テンプレートに REPORT_ORCH CLI の導入手順が記載されている
-- [ ] テンプレートに使用例やベストプラクティスが記載されている
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] 他プロジェクト向けの横展開テンプレート（Markdown形式）が作成されている
+  - 根拠: `docs/CROSS_PROJECT_TEMPLATE_REPORT_ORCH.md` を新規作成
+- [x] テンプレートに REPORT_ORCH CLI の導入手順が記載されている
+  - 根拠: テンプレートに「導入手順」セクションを追加し、前提条件、基本的な使用方法、オプション一覧を記載
+- [x] テンプレートに使用例やベストプラクティスが記載されている
+  - 根拠: テンプレートに「使用例」セクション（4つの例）と「ベストプラクティス」セクションを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md` を作成し、`report-validator.js` で検証（OK）
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: Report 欄に `docs/inbox/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md` を追記
 
 ## Notes
 

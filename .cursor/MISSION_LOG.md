@@ -329,3 +329,138 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - Worker起動準備完了: ユーザーがWorkerプロンプトを新規チャットセッションに貼り付けて起動
+
+## Phase 6: Orchestrator Report（Worker完了レポート統合・TASK_008-011）（追記）
+
+### 追記時刻
+- 2026-01-04T20:33:00+09:00
+
+### 実施内容
+- TASK_008, TASK_009, TASK_010, TASK_011 の Worker 完了レポートを統合
+  - レポート検証: `report-validator.js` で検証
+    - TASK_008: OK（警告なし）
+    - TASK_009: OK（警告なし）
+    - TASK_010: OK（警告あり: 必須ヘッダー '概要' と '次のアクション' が不足）
+    - TASK_011: OK（警告あり: 必須ヘッダー '概要' と '次のアクション' が不足）
+  - `docs/inbox` から `docs/reports` へレポートを移動（4つのWorker完了レポート）
+  - チケットの Report 欄を `docs/reports/` に更新（TASK_008-TASK_011）
+  - `docs/HANDOVER.md` の Latest Worker Report を更新（最新のレポートに更新）
+  - `docs/HANDOVER.md` の進捗セクションにレポートを追加
+  - 最終 Orchestrator レポート（`docs/reports/REPORT_ORCH_20260104_2033.md`）を作成
+- MISSION_LOG.md を更新（Phase 6 完了を記録）
+
+### 完了タスクの成果物
+- TASK_008: `docs/CROSS_PROJECT_TEMPLATE_REPORT_ORCH.md`（横展開テンプレート）
+- TASK_009: `.github/workflows/session-end-check.yml`（CI ワークフロー）
+- TASK_010: `AI_CONTEXT.md` と `docs/HANDOVER.md` に中央リポジトリ情報を追加
+- TASK_011: `docs/WORKER_MONITOR_USAGE.md`（worker-monitor.js 使用方法）
+
+### 次フェーズ
+- 全タスク完了: 新規タスク発生時は Phase 2（状況把握）から再開
+
+## Phase 0-4: Worker完了（TASK_010, TASK_011）（追記）
+
+### 追記時刻
+- 2026-01-04T12:45:00+09:00
+
+### 実施内容
+- TASK_010_global_memory_central_repo_path.md を完了
+  - `AI_CONTEXT.md` の「中央ルール参照（SSOT）」セクションに中央リポジトリの絶対パス（GitHub URL とローカルパス）を追加
+  - `docs/HANDOVER.md` の「セットアップ状況」セクションに中央リポジトリ情報を追加
+  - `docs/inbox/REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md` を作成
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+- TASK_011_worker_monitor_ai_context_init.md を完了
+  - `worker-monitor.js` の存在確認と使用方法の調査を完了
+  - `docs/WORKER_MONITOR_USAGE.md` を作成し、使用方法をドキュメント化
+  - AI_CONTEXT.md 初期化スクリプトの必要性を評価（現時点では優先度が低いと判断）
+  - `docs/inbox/REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md` を作成
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 5: チャット出力（TASK_010, TASK_011）（追記）
+
+### 追記時刻
+- 2026-01-04T12:45:00+09:00
+
+### 実施内容
+- 完了メッセージを出力
+- MISSION_LOG.md を更新（Phase 5 完了を記録）
+
+### 現在のフェーズ
+- Phase 5: チャット出力（完了）
+
+## Phase 0-4: Worker完了（TASK_008）（追記）
+
+### 追記時刻
+- 2026-01-04T12:38:00+09:00
+
+### 実施内容
+- TASK_008_report_orch_cli_cross_project_template.md を完了
+  - 横展開テンプレート（`docs/CROSS_PROJECT_TEMPLATE_REPORT_ORCH.md`）を新規作成
+    - REPORT_ORCH CLI の導入手順を記載
+    - 基本的な使用方法とオプション一覧を記載
+    - 4つの使用例（基本的なレポート生成、ドラフト生成、AI_CONTEXT同期、カスタムパス指定）を記載
+    - ベストプラクティス（レポート生成のタイミング、検証の徹底、HANDOVER同期の活用など）を記載
+    - トラブルシューティング（よくある問題と解決策）を記載
+    - 関連ドキュメントへのリンクを記載
+  - `docs/inbox/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md` を作成
+  - レポート検証: `node scripts/report-validator.js` で検証（OK）
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+  - `docs/HANDOVER.md` の Latest Worker Report を更新
+
+### 検証結果
+- `node scripts/report-validator.js docs/inbox/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md REPORT_CONFIG.yml .`: OK
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 5: チャット出力（TASK_008）（追記）
+
+### 追記時刻
+- 2026-01-04T12:45:00+09:00
+
+### 実施内容
+- 完了メッセージを出力
+- MISSION_LOG.md を更新（Phase 5 完了を記録）
+
+### 現在のフェーズ
+- Phase 5: チャット出力（完了）
+
+## Phase 0-4: Worker完了（TASK_009）（追記）
+
+### 追記時刻
+- 2026-01-04T12:38:00+09:00
+
+### 実施内容
+- TASK_009_session_end_check_ci_integration.md を完了
+  - `.github/workflows/session-end-check.yml` を新規作成し、セッション終端チェックスクリプト（`scripts/session-end-check.js`）を実行する GitHub Actions ワークフローを追加
+  - トリガー: `push`（main, develop, feat/** ブランチ）、`pull_request`、`workflow_dispatch`
+  - ローカル環境で `node scripts/session-end-check.js` を実行し、正常動作を確認（exit code 1 で未コミット差分と未処理レポートを検知、期待通りの動作）
+  - `docs/inbox/REPORT_TASK_009_session_end_check_ci_integration_20260104_1238.md` を作成
+  - レポート検証: `report-validator.js` で検証（警告なし、OK）
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+  - `docs/HANDOVER.md` の Latest Worker Report を更新
+
+### 検証結果
+- `node scripts/session-end-check.js`: 正常動作を確認（exit code 1 で未コミット差分と未処理レポートを検知、期待通りの動作）
+- `node scripts/report-validator.js docs/inbox/REPORT_TASK_009_session_end_check_ci_integration_20260104_1238.md REPORT_CONFIG.yml .`: OK
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 5: チャット出力（TASK_009）（追記）
+
+### 追記時刻
+- 2026-01-04T12:38:00+09:00
+
+### 実施内容
+- 完了メッセージを出力
+- MISSION_LOG.md を更新（Phase 5 完了を記録）
+
+### 現在のフェーズ
+- Phase 5: チャット出力（完了）
