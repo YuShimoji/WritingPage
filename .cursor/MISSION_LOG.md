@@ -2,7 +2,7 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 5: Worker起動用プロンプト生成
+- 現在のフェーズ: Phase 6: Orchestrator Report
 - ステータス: COMPLETED
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
@@ -582,3 +582,84 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - Worker起動準備完了: ユーザーがWorkerプロンプトを新規チャットセッションに貼り付けて起動
+
+## Phase 4: Worker完了（TASK_014）（追記）
+
+### 追記時刻
+- 2026-01-04T21:56:00+09:00
+
+### 実施内容
+- TASK_014_worker_report_required_headers_auto_complete.md を完了
+  - `docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md` を更新し、Phase 4 セクションに必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加
+  - 納品レポートフォーマットに必須ヘッダー（'概要'、'現状'、'次のアクション'）を追加
+  - テンプレート末尾に注意書きを追加
+  - `docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md` を作成
+  - レポート検証: `node scripts/report-validator.js` で検証（OK、警告なし）
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+  - コミット&push 完了（main → origin/main）
+
+### 検証結果
+- `node scripts/report-validator.js docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md REPORT_CONFIG.yml .`: OK（警告なし）
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 4: Worker完了（TASK_013）（追記）
+
+### 追記時刻
+- 2026-01-04T21:58:00+09:00
+
+### 実施内容
+- TASK_013_shared_workflows_session_end_check_sync.md を完了
+  - shared-workflows 側の `session-end-check.js` の存在を確認（コミット `7c0c65b` で追加）
+  - プロジェクト側の `scripts/session-end-check.js` と差分を確認
+  - shared-workflows 版をベースに更新し、プロジェクト固有の `checkDriverEntry()` 機能を統合
+  - `docs/inbox/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md` を作成
+  - レポート検証: `node scripts/report-validator.js` で検証（OK、警告なし）
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+  - コミット&push 完了（main → origin/main）
+
+### 検証結果
+- `node scripts/session-end-check.js`: 正常に動作し、エラーと警告が適切に表示されることを確認
+- `node scripts/report-validator.js docs/inbox/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md REPORT_CONFIG.yml .`: OK（警告なし）
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）または Phase 6（Orchestrator Report）
+
+## Phase 0-4: Worker完了（TASK_012）（追記）
+
+### 追記時刻
+- 2026-01-04T21:57:00+09:00
+
+### 実施内容
+- TASK_012_orchestrator_output_validator_integration.md を完了
+  - `orchestrator-output-validator.js` を `.shared-workflows/scripts/` から `scripts/` にコピーし、プロジェクトに統合
+  - スクリプトの動作確認を実施し、正常に動作することを確認
+  - 使用方法を `docs/ORCHESTRATOR_OUTPUT_VALIDATOR_USAGE.md` にドキュメント化
+  - 既存の `report-validator.js`（レポートファイル検証用）とは異なる目的（Orchestratorチャット出力検証）を持つ独立したスクリプトとして共存
+  - `docs/inbox/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md` を作成
+  - レポート検証: `report-validator.js` で検証（OK）
+  - チケットの Status を DONE に更新、DoD 各項目に根拠を記入
+  - コミット&push 完了（main → origin/main）
+
+### 検証結果
+- `node scripts/orchestrator-output-validator.js test-orchestrator-output.txt`: 正常動作を確認（検証成功）
+- `node scripts/report-validator.js docs/inbox/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md REPORT_CONFIG.yml .`: OK
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 5（チャット出力）
+
+## Phase 5: チャット出力（TASK_012）（追記）
+
+### 追記時刻
+- 2026-01-04T21:57:00+09:00
+
+### 実施内容
+- 完了メッセージを出力
+- MISSION_LOG.md を更新（Phase 5 完了を記録）
+
+### 現在のフェーズ
+- Phase 5: チャット出力（完了）

@@ -30,6 +30,9 @@ GitHubAutoApprove: true
 - **REPORT_TASK_009_session_end_check_ci_integration_20260104_1238.md**: セッション終端チェックスクリプトを GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにした。
 - **REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md**: `AI_CONTEXT.md` と `docs/HANDOVER.md` に中央リポジトリ（shared-workflows）の絶対パス（GitHub URL とローカルパス）を追加。
 - **REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md**: `worker-monitor.js` の使用方法をドキュメント化（`docs/WORKER_MONITOR_USAGE.md`）。AI_CONTEXT.md 初期化スクリプトの必要性を評価（現時点では優先度が低いと判断）。
+- **REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md**: `orchestrator-output-validator.js` をプロジェクトに統合し、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。使用方法を `docs/ORCHESTRATOR_OUTPUT_VALIDATOR_USAGE.md` にドキュメント化。
+- **REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md**: shared-workflows の `session-end-check.js` とプロジェクト側のスクリプトを同期し、最新の機能を取り込んだ。shared-workflows 版をベースに、プロジェクト固有の `checkDriverEntry()` 機能を統合。
+- **REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md**: Workerプロンプトテンプレート（`docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md`）に必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
 
 ## ブロッカー
 - なし
@@ -50,14 +53,17 @@ GitHubAutoApprove: true
 - REPORT_TASK_003_known_issues_version_alignment_20251225.md: docs/KNOWN_ISSUES.md のバージョン表記と package.json/CHANGELOG の整合性を監査し、矛盾がないことを確認。
 - REPORT_TASK_004_test_addition_20251225.md: hello.js 用の node:test ベース単体テストを test/hello.test.js に追加（5 tests passed）。
 - REPORT_TASK_006_CompletePendingTasks_20251226.md（統合）: 上記 TASK_003/004 の整理と TASK_002_docs_gadgets_status_cleanup の Status 修正（BLOCKED→DONE）を含む。
+- REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md: orchestrator-output-validator.js をプロジェクトに統合し、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
+- REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md: shared-workflows の session-end-check.js とプロジェクト側のスクリプトを同期し、最新の機能を取り込んだ。
+- REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md: Workerプロンプトテンプレートに必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20260104_2033.md
-- Summary: TASK_008, TASK_009, TASK_010, TASK_011 の Worker 完了レポート統合。全タスク（TASK_008-TASK_011）が完了し、改善提案タスクがすべて完了。
+- File: docs/inbox/REPORT_ORCH_20260104_2200.md
+- Summary: TASK_012, TASK_013, TASK_014 の Worker 完了レポート統合。全タスク（TASK_012-TASK_014）が完了し、改善提案タスクとshared-workflows更新対応タスクがすべて完了。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md
-- Summary: worker-monitor.js の使用方法をドキュメント化（docs/WORKER_MONITOR_USAGE.md）。AI_CONTEXT.md 初期化スクリプトの必要性を評価（現時点では優先度が低いと判断）。
+- File: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md
+- Summary: Workerプロンプトテンプレートに必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記を追加し、レポート検証時の警告を事前に防ぐ仕組みを整備。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
