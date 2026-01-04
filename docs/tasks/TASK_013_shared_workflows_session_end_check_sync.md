@@ -1,11 +1,11 @@
 # Task: shared-workflows の session-end-check.js とプロジェクト側の同期
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
-Report: 
+Report: docs/inbox/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md
 
 ## Objective
 
@@ -36,11 +36,16 @@ Report:
 
 ## DoD
 
-- [ ] shared-workflows の session-end-check.js とプロジェクト側のスクリプトの差分を確認
-- [ ] 必要に応じてプロジェクト側のスクリプトを更新し、最新の機能を取り込む
-- [ ] 更新内容がドキュメント化されている（必要に応じて）
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] shared-workflows の session-end-check.js とプロジェクト側のスクリプトの差分を確認
+  - 根拠: 両者のスクリプトを比較し、shared-workflows 版の方がより高度な機能を含むことを確認
+- [x] 必要に応じてプロジェクト側のスクリプトを更新し、最新の機能を取り込む
+  - 根拠: shared-workflows 版をベースに更新し、プロジェクト固有の `checkDriverEntry()` 機能を統合
+- [x] 更新内容がドキュメント化されている（必要に応じて）
+  - 根拠: 本レポートに更新内容を記載
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md` を作成
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: チケットファイルの Report 欄に追記
 
 ## Notes
 
