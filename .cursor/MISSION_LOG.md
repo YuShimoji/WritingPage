@@ -464,3 +464,68 @@ ot a git repository を誘発したこと。
 
 ### 現在のフェーズ
 - Phase 5: チャット出力（完了）
+
+## Phase 1: Sync & Merge（shared-workflows更新取り込み）（追記）
+
+### 追記時刻
+- 2026-01-04T20:40:00+09:00
+
+### 実施内容
+- `git fetch origin` を実行し、リモートの最新状態を取得
+- `git submodule update --remote .shared-workflows` を実行し、shared-workflowsの更新を取り込み
+  - 更新内容: `463d87d` → `dbe734c`
+  - 新規追加ファイル:
+    - `scripts/orchestrator-output-validator.js`（Orchestrator出力検証スクリプト）
+    - `scripts/session-end-check.js`（セッション終端チェックスクリプト）
+  - 更新ファイル:
+    - `docs/windsurf_workflow/EVERY_SESSION.md`
+    - `docs/windsurf_workflow/OPEN_HERE.md`
+    - `prompts/every_time/ORCHESTRATOR_DRIVER.txt`
+    - `prompts/first_time/PROJECT_KICKSTART.txt`
+    - `prompts/orchestrator/modules/00_core.md`
+- `docs/inbox/` を確認し、Orchestratorレポートを `docs/reports/` へ移動
+  - `REPORT_ORCH_20260104_0659.md`（既に移動済み）
+  - `REPORT_ORCH_20260104_2033.md`（既に移動済み）
+
+### 次フェーズ
+- Phase 1 完了: Phase 2（状況把握）に進む
+
+## Phase 4: チケット発行（改善提案の起票・shared-workflows更新対応）（追記）
+
+### 追記時刻
+- 2026-01-04T20:45:00+09:00
+
+### 実施内容
+- 改善提案とshared-workflows更新対応を新規タスクとして起票
+  - TASK_012_orchestrator_output_validator_integration.md（Tier 2）
+    - Orchestrator出力検証スクリプトの統合
+  - TASK_013_shared_workflows_session_end_check_sync.md（Tier 2）
+    - shared-workflows の session-end-check.js とプロジェクト側の同期
+  - TASK_014_worker_report_required_headers_auto_complete.md（Tier 2）
+    - Worker完了レポートの必須ヘッダー自動補完
+- `node scripts/todo-sync.js` を実行し、AI_CONTEXT.md を更新
+
+### 次フェーズ
+- 新規タスクが起票されたため: Phase 2（状況把握）に進む（再実行）
+
+## Phase 2: 状況把握（再実行・新規タスク確認）（追記）
+
+### 追記時刻
+- 2026-01-04T20:50:00+09:00
+
+### 実施内容
+- `docs/HANDOVER.md` を読み、目標/進捗/ブロッカー/バックログを抽出
+  - 現在の目標: 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了
+  - ブロッカー: なし
+  - バックログ: 改善提案（Proposals セクション参照）、shared-workflows更新対応
+- `docs/tasks/` を確認し、OPEN/IN_PROGRESS を列挙
+  - OPEN: TASK_012_orchestrator_output_validator_integration.md（Tier 2、Branch: main）
+  - OPEN: TASK_013_shared_workflows_session_end_check_sync.md（Tier 2、Branch: main）
+  - OPEN: TASK_014_worker_report_required_headers_auto_complete.md（Tier 2、Branch: main）
+  - DONE: TASK_001, TASK_002, TASK_003, TASK_004, TASK_005, TASK_006, TASK_007, TASK_008, TASK_009, TASK_010, TASK_011
+  - BLOCKED: TASK_001_embed_sdk_origin_normalization.md（Status: BLOCKED）
+- `node scripts/todo-sync.js` を実行
+  - AI_CONTEXT.md の「短期（Next）」セクションを更新（新規タスクを pending として表示）
+
+### 次フェーズ
+- OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
