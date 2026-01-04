@@ -2,7 +2,7 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 3: 分割と戦略（CI統合タスク）
+- 現在のフェーズ: Phase 5: Worker起動用プロンプト生成（CI統合タスク）
 - ステータス: COMPLETED
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
@@ -710,3 +710,22 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 5: Worker起動用プロンプト生成（CI統合タスク）（追記）
+
+### 追記時刻
+- 2026-01-04T23:10:00+09:00
+
+### 実施内容
+- 2つのWorkerプロンプトを生成:
+  - prompts/worker/WORKER_TASK_015_orchestrator_audit_ci_integration.txt（TASK_015 用）
+  - prompts/worker/WORKER_TASK_016_orchestrator_output_validator_ci_integration.txt（TASK_016 用）
+- 各プロンプトに以下を含める:
+  - チケットパス
+  - Tier / Branch
+  - Focus Area / Forbidden Area
+  - 停止条件（Forbiddenに触れる必要、仮定が3つ以上、前提を覆す変更など）
+  - 納品先: docs/inbox/REPORT_...
+
+### 次フェーズ
+- Worker起動準備完了: ユーザーがWorkerプロンプトを新規チャットセッションに貼り付けて起動
