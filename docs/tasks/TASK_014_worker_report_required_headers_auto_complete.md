@@ -1,11 +1,11 @@
 # Task: Worker完了レポートの必須ヘッダー自動補完
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
-Report: 
+Report: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md
 
 ## Objective
 
@@ -37,10 +37,14 @@ Report:
 
 ## DoD
 
-- [ ] Workerプロンプトテンプレートに必須ヘッダー（'概要' と '次のアクション'）の明記を追加
-- [ ] テンプレートの更新内容がドキュメント化されている（必要に応じて）
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] Workerプロンプトテンプレートに必須ヘッダー（'概要' と '次のアクション'）の明記を追加
+  - 根拠: `docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md` の Phase 4 セクション（77行目）と納品レポートフォーマット（96-103行目）に必須ヘッダーを追加
+- [x] テンプレートの更新内容がドキュメント化されている（必要に応じて）
+  - 根拠: レポートに更新内容を記載
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md` を作成
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: Report 欄に `docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md` を追記
 
 ## Notes
 

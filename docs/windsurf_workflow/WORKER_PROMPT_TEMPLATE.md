@@ -74,6 +74,7 @@
 ## Phase 4: 納品 & 検証
 1. チケットを DONE に更新し、DoD 各項目に対して根拠（差分 or テスト結果）を記入
 2. docs/inbox/ にレポート（以下テンプレ）を作成/更新し、`node .shared-workflows/scripts/report-validator.js <REPORT_PATH_TARGET>`（無ければ `node scripts/report-validator.js <REPORT_PATH_TARGET> REPORT_CONFIG.yml .`）を実行。結果をレポートに記載
+   - **重要**: レポートには REPORT_CONFIG.yml の standard スタイルに準拠し、必須ヘッダー（'概要'、'現状'、'次のアクション'）を必ず含めること
 3. docs/HANDOVER.md の <HANDOVER_SECTIONS> を更新し、次回 Orchestrator が把握できるよう記録
 4. 実行したテストを `<cmd>=<result>` 形式でレポートとチケットに残す
 5. `git status -sb` をクリーンにしてから commit（必要なら push）。push は GitHubAutoApprove=true の場合のみ
@@ -91,6 +92,15 @@
 **Type**: Worker  
 **Duration**: <所要時間>  
 **Changes**: <変更量要約>
+
+## 概要
+- <タスクの目的と完了内容の要約>
+
+## 現状
+- <現在の状態、実施内容、変更ファイルの概要>
+
+## 次のアクション
+- <次に実施すべきこと、または「なし」>
 
 ## Changes
 - <file>: <詳細変更内容（何をどう変更したか）>
@@ -115,6 +125,8 @@
 
 ## Proposals（任意）
 - 担当外で気づいた改善案・次回タスク候補
+
+**注意**: 上記の「概要」「現状」「次のアクション」は REPORT_CONFIG.yml の standard スタイルで必須とされるヘッダーです。レポート作成時は必ず含めてください。
 ```
 
 ---
