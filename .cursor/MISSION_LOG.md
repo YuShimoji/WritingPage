@@ -529,3 +529,36 @@ ot a git repository を誘発したこと。
 
 ### 次フェーズ
 - OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（改善提案タスク・shared-workflows更新対応）（追記）
+
+### 追記時刻
+- 2026-01-04T21:00:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類
+  - TASK_012_orchestrator_output_validator_integration.md: Tier 2（既に分類済み）
+  - TASK_013_shared_workflows_session_end_check_sync.md: Tier 2（既に分類済み）
+  - TASK_014_worker_report_required_headers_auto_complete.md: Tier 2（既に分類済み）
+- 並列化可能性を判断
+  - すべてのタスクが独立作業可能（ファイル依存なし、機能境界が明確）
+  - TASK_012: スクリプト統合（orchestrator-output-validator.js）、独立作業可能
+  - TASK_013: スクリプト同期（session-end-check.js）、独立作業可能
+  - TASK_014: テンプレート更新（Workerプロンプト）、独立作業可能
+  - Worker 数: 3（最大3 Worker の制約により、3タスクを3 Worker に割り当て）
+    - Worker-1: TASK_012（Tier 2、スクリプト統合）
+    - Worker-2: TASK_013（Tier 2、スクリプト同期）
+    - Worker-3: TASK_014（Tier 2、テンプレート更新）
+- 各Workerの Focus Area / Forbidden Area を決定
+  - Worker-1 (TASK_012):
+    - Focus Area: scripts/（orchestrator-output-validator.js の統合、必要に応じてプロジェクト固有の設定を追加）、docs/（使用方法のドキュメント化、必要に応じて）
+    - Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、js/**（機能実装は本タスク対象外、スクリプトの統合のみ）
+  - Worker-2 (TASK_013):
+    - Focus Area: scripts/session-end-check.js（プロジェクト側のスクリプトの更新）、docs/（変更内容のドキュメント化、必要に応じて）
+    - Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、js/**（機能実装は本タスク対象外、スクリプトの統合のみ）
+  - Worker-3 (TASK_014):
+    - Focus Area: prompts/worker/（Workerプロンプトテンプレートの更新）、.shared-workflows/prompts/worker/（submodule 内のテンプレート更新、可能な場合）、docs/（必須ヘッダーの説明を追加、必要に応じて）
+    - Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただしドキュメント更新は可能な場合のみ）、js/**（機能実装は本タスク対象外）
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
