@@ -2,7 +2,7 @@
 
 - Mission ID: KICKSTART_2026-01-02T23:54:04.0536637+09:00
 - 開始時刻: 2026-01-02T23:54:04.0536637+09:00
-- 現在のフェーズ: Phase 6: Orchestrator Report（CI統合タスク）
+- 現在のフェーズ: Phase 1: Sync（Inbox整理）
 - ステータス: COMPLETED
 
 ## Phase 0: Bootstrap & 現状確認（進捗ログ）
@@ -760,3 +760,27 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 - 新規タスクが発生した場合: Phase 1（Sync）から再開
 - Worker納品を回収した後: Phase 6（Orchestrator Report）で統合
 - ブロッカー発生時: Phase 1.5（Audit）または Phase 1.75（Gate）で対応
+
+## Phase 1: Sync（Inbox整理）（追記）
+
+### 追記時刻
+- 2026-01-05T00:20:00+09:00
+
+### 実施内容
+- docs/inbox/ に残っていたWorker完了レポートを docs/reports/ にアーカイブ:
+  - REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md
+  - REPORT_TASK_009_session_end_check_ci_integration_20260104_1238.md
+  - REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md
+  - REPORT_TASK_011_worker_monitor_ai_context_init_20260104_1245.md
+  - REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md
+  - REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md
+  - REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md
+  - REPORT_ORCH_20260104_2200.md
+- 改善提案について確認:
+  - shared-workflows側のProposalsに記載されている改善提案は受理済みとして扱う
+  - docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンドを追加（shared-workflows側に提出済み）
+  - AI_CONTEXT.md 初期化スクリプトを追加（shared-workflows側に提出済み）
+
+### 次フェーズ
+- docs/inbox/ に REPORT_ORCH_20260105_0015.md が残っているため、統合済みとして扱うか確認が必要
+- 新規タスクが発生した場合: Phase 3（Strategy）から再開
