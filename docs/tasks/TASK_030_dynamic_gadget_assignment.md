@@ -1,11 +1,11 @@
 # Task: ガジェット動的割り当て機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-12T01:00:00+09:00
-Report: 
+Report: docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md 
 
 ## Objective
 
@@ -43,15 +43,24 @@ Report:
 
 ## DoD
 
-- [ ] ドラッグ&ドロップでガジェットをタブに追加する機能を実装
-- [ ] ガジェットをタブ間で移動する機能を実装
-- [ ] ガジェット移動時の設定自動保存機能を実装（ロードアウトに反映）
-- [ ] ドラッグ&ドロップUIを実装（ドラッグ可能なガジェット、ドロップゾーン表示）
-- [ ] 既存のロードアウトシステムとの互換性を維持（既存ロードアウトは動作し続ける）
-- [ ] ガジェットの配置情報をLocalStorageに永続化
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] ドラッグ&ドロップでガジェットをタブに追加する機能を実装
+  - 根拠: `js/gadgets-core.js` に `_setupGadgetDragHandlers` と `_setupPanelDropHandlers` を実装
+- [x] ガジェットをタブ間で移動する機能を実装
+  - 根拠: `_setupPanelDropHandlers` の `drop` イベントで `assignGroups` を呼び出し、ガジェットを新しいグループに割り当て
+- [x] ガジェット移動時の設定自動保存機能を実装（ロードアウトに反映）
+  - 根拠: `_updateLoadoutFromCurrentState` メソッドで `captureCurrentLoadout` を使用してロードアウトを自動更新
+- [x] ドラッグ&ドロップUIを実装（ドラッグ可能なガジェット、ドロップゾーン表示）
+  - 根拠: ガジェットラッパーに `draggable="true"` を設定し、CSSで `cursor: grab` / `cursor: grabbing` を追加。既存の `.is-dragging` と `.drag-over-tab` スタイルを活用
+- [x] 既存のロードアウトシステムとの互換性を維持（既存ロードアウトは動作し続ける）
+  - 根拠: 既存のロードアウトシステムを破壊せず、`captureCurrentLoadout` と `saveLoadouts` を使用して更新
+- [x] ガジェットの配置情報をLocalStorageに永続化
+  - 根拠: `_updateLoadoutFromCurrentState` で `saveLoadouts` を呼び出し、LocalStorageに保存
+- [x] E2Eテストを追加
+  - 根拠: `e2e/gadgets.spec.js` に3つのテストケースを追加（タブ間移動、視覚的フィードバック、ドロップゾーンフィードバック）
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - 根拠: `docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md` を作成
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+  - 根拠: Report欄に `docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md` を追記
 
 ## Notes
 
