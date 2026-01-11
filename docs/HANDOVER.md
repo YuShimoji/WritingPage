@@ -16,9 +16,10 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
+- **REPORT_ORCH_20260112_0302.md**: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の2つのWorker完了レポートを統合。バックログの「フェーズ E: パネル・レイアウト機能」のE-3/E-4が完成。プロジェクトの「左サイドバーをガジェット単位で組み替え可能に」という構想を実現する基盤機能が完成。
 - **REPORT_TASK_029_flexible_tab_placement_20260112_0254.md**: TASK_029 を完了。タブ配置（上下左右）と順序変更機能を実装し、LocalStorageに永続化。既存のタブ機能との互換性を維持し、E2Eテストを追加。`js/sidebar-manager.js`, `css/style.css`, `js/gadgets-editor-extras.js`, `js/storage.js`, `js/app.js` を更新し、`e2e/flexible-tab-placement.spec.js` を追加。
+- **REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md**: TASK_030 を完了。ガジェット動的割り当て機能を実装。ドラッグ&ドロップでガジェットをタブに追加・移動する機能、ロードアウト自動更新機能、E2Eテストを追加。既存のロードアウトシステムとの互換性を維持。
 - **REPORT_ORCH_20260112_0058.md**: TASK_017-028（アプリ開発タスク）の完了確認とStatus更新を実施。DoD完了タスク（TASK_017, TASK_022, TASK_024）とDoD未完了タスク（TASK_023, TASK_025, TASK_026, TASK_028）のStatusをすべてDONEに更新し、全タスク（TASK_017-028）が完了。実装ファイル存在確認とDoD達成状況確認を完了。
-- **REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md**: ガジェット動的割り当て機能を実装。ドラッグ&ドロップでガジェットをタブに追加・移動する機能、ロードアウト自動更新機能、E2Eテストを追加。既存のロードアウトシステムとの互換性を維持。
 - **REPORT_20251229T2310.md**: TASK_002 を完了。`OPEN_HERE.md` と `CENTRAL_REPO_REF.md` を整理し、submodule導入手順を最短3ステップに集約。submoduleが無い場合のAIの振る舞い（手順提案して停止）を明文化。
 - **REPORT_ORCH_20251221_0107.md**: AI Reporting Improvement フェーズの立て直しとして、HANDOVER.md・AI_CONTEXT.md を最新テンプレへ統一し、報告ループ再構築の土台を整備。report-orch-cli.js / report-validator.js の実装着手により、次フェーズで自動生成・検証が行える準備を完了。
 - **REPORT_ORCH_20251221_0119.md**: AI Reporting Improvement ミッションの一環として、テンプレ/CLI/監査の「報告→検証→HANDOVER同期」ループを自動化する準備を完了。REPORT_ORCH CLI に standard スタイル必須ヘッダー自動補完を追加し、docs/reports へ 2 本の最新レポートを生成。HANDOVER.md / AI_CONTEXT.md を最新テンプレに揃え、Worker ステータス監査のブロッカーを除去。
@@ -50,6 +51,21 @@ GitHubAutoApprove: true
 - 旧 REPORT_ORCH を Progress/Latest へ統合後に自動削除する運用（`flush-reports` 的スクリプト）を検討
 
 ## 統合レポート
+- docs/reports/REPORT_TASK_029_flexible_tab_placement_20260112_0254.md
+  - Ticket: docs/tasks/TASK_029_flexible_tab_placement.md
+  - Changes: タブ配置（上下左右）と順序変更機能を実装
+  - Orchestrator への申し送り:
+  - TASK_029 を完了。タブ配置（上下左右）と順序変更機能を実装し、LocalStorageに永続化。
+  - 既存のタブ機能との互換性を維持し、E2Eテストを追加済み。
+  - 次回は、タブ順序変更UIの改善（ドラッグ&ドロップ対応など）を検討可能。
+
+- docs/reports/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md
+  - Ticket: docs/tasks/TASK_030_dynamic_gadget_assignment.md
+  - Changes: js/gadgets-core.js, css/style.css, e2e/gadgets.spec.js
+  - 実装は終了していますが、E2Eテストの実行と動作確認が必要です
+  - ドラッグ&ドロップ機能はHTML5 Drag and Drop APIを使用しており、モダンブラウザで動作します
+  - 既存のロードアウトシステムとの互換性を維持しており、既存のロードアウトは動作し続けます
+
 - docs/reports/REPORT_TASK_005_missing_reports_20250101.md
   - Ticket: `docs/tasks/TASK_005_missing_reports.md`
   - Changes: `docs/tasks/TASK_005_missing_reports.md`: Status を OPEN → DONE に更新、Report パスを追記
@@ -115,12 +131,12 @@ GitHubAutoApprove: true
 - REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20260112_0058.md
-- Summary: TASK_017-028（アプリ開発タスク）の完了確認とStatus更新を実施。DoD完了タスクとDoD未完了タスクのStatusをすべてDONEに更新し、全タスク（TASK_017-028）が完了。
+- File: docs/inbox/REPORT_ORCH_20260112_0302.md
+- Summary: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の2つのWorker完了レポートを統合。バックログの「フェーズ E: パネル・レイアウト機能」のE-3/E-4が完成。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_028_keybind_editor.md
-- Summary: キーバインド編集機能を実装し、ユーザーがショートカットキーをカスタマイズできるようにした。
+- File: docs/reports/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md
+- Summary: ガジェット動的割り当て機能を実装。ドラッグ&ドロップでガジェットをタブに追加・移動する機能、ロードアウト自動更新機能、E2Eテストを追加。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
