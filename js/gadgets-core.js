@@ -368,6 +368,10 @@
             var wrapper = document.createElement('div');
             wrapper.className = 'gadget-wrapper';
             wrapper.setAttribute('data-gadget-name', entry.name);
+            // ドラッグ&ドロップ対応: ガジェットをドラッグ可能にする
+            wrapper.setAttribute('draggable', 'true');
+            wrapper.setAttribute('role', 'button');
+            wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」を移動');
 
             var gadgetEl = document.createElement('div');
             gadgetEl.className = 'gadget';
@@ -383,9 +387,15 @@
               gadgetEl.textContent = 'ガジェットの読み込みに失敗しました。';
             }
 
+            // ドラッグイベントハンドラーを追加
+            self._setupGadgetDragHandlers(wrapper, entry.name, group);
+
             wrapper.appendChild(gadgetEl);
             root.appendChild(wrapper);
           });
+
+          // パネルにドロップハンドラーを設定
+          self._setupPanelDropHandlers(root, group);
 
           self.replaceGadgetSettingsWithIcons();
         } catch (e) {
@@ -435,6 +445,148 @@
           var icon = window.WritingIcons.createIcon('settings', { size: 14, label: '設定を開く' });
           btn.appendChild(icon);
         }
+      }
+    }
+
+    _setupGadgetDragHandlers(wrapper, gadgetName, currentGroup) {
+      var self = this;
+      var gadgetEl = wrapper.querySelector('.gadget');
+
+      // ドラッグ開始
+      wrapper.addEventListener('dragstart', function (e) {
+        try {
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', gadgetName);
+          e.dataTransfer.setData('application/x-gadget-name', gadgetName);
+          e.dataTransfer.setData('application/x-gadget-group', currentGroup || '');
+          if (gadgetEl) gadgetEl.classList.add('is-dragging');
+        } catch (err) {
+          console.error('Drag start error:', err);
+        }
+      });
+
+      // ドラッグ終了
+      wrapper.addEventListener('dragend', function (e) {
+        try {
+          if (gadgetEl) gadgetEl.classList.remove('is-dragging');
+          // すべてのドロップゾーンのハイライトを解除
+          document.querySelectorAll('.gadgets-panel.drag-over-tab').forEach(function (panel) {
+            panel.classList.remove('drag-over-tab');
+          });
+        } catch (err) {
+          console.error('Drag end error:', err);
+        }
+      });
+    }
+
+    _setupPanelDropHandlers(panel, groupId) {
+      var self = this;
+      if (!panel || !groupId) return;
+
+      // ドラッグオーバー（ドロップ可能な状態）
+      panel.addEventListener('dragover', function (e) {
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = 'move';
+          if (!panel.classList.contains('drag-over-tab')) {
+            panel.classList.add('drag-over-tab');
+          }
+        } catch (err) {
+          console.error('Drag over error:', err);
+        }
+      });
+
+      // ドラッグリーブ（ドロップゾーンから離れた）
+      panel.addEventListener('dragleave', function (e) {
+        try {
+          // パネル内の子要素に移動した場合は解除しない
+          var rect = panel.getBoundingClientRect();
+          var x = e.clientX;
+          var y = e.clientY;
+          if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+            panel.classList.remove('drag-over-tab');
+          }
+        } catch (err) {
+          console.error('Drag leave error:', err);
+        }
+      });
+
+      // ドロップ
+      panel.addEventListener('drop', function (e) {
+        try {
+          e.preventDefault();
+          e.stopPropagation();
+          panel.classList.remove('drag-over-tab');
+
+          var gadgetName = e.dataTransfer.getData('application/x-gadget-name') || e.dataTransfer.getData('text/plain');
+          var sourceGroup = e.dataTransfer.getData('application/x-gadget-group') || '';
+
+          if (!gadgetName) return;
+
+          // 同じグループへの移動は無視
+          if (sourceGroup === groupId) {
+            return;
+          }
+
+          // ガジェットを新しいグループに割り当て
+          var currentGroups = [];
+          for (var i = 0; i < self._list.length; i++) {
+            if (self._list[i].name === gadgetName) {
+              currentGroups = (self._list[i].groups || []).slice();
+              break;
+            }
+          }
+
+          // 新しいグループを追加（既に含まれている場合は追加しない）
+          if (currentGroups.indexOf(groupId) < 0) {
+            currentGroups.push(groupId);
+          }
+
+          // ガジェットのグループを更新
+          self.assignGroups(gadgetName, currentGroups);
+
+          // ロードアウトを更新（現在の状態をキャプチャして保存）
+          self._updateLoadoutFromCurrentState();
+
+          // 再レンダリング
+          try {
+            self._renderLast && self._renderLast();
+          } catch (renderErr) {
+            console.error('Render error after drop:', renderErr);
+          }
+
+          // イベント発火
+          emit('ZWGadgetMoved', {
+            name: gadgetName,
+            fromGroup: sourceGroup,
+            toGroup: groupId
+          });
+        } catch (err) {
+          console.error('Drop error:', err);
+        }
+      });
+    }
+
+    _updateLoadoutFromCurrentState() {
+      try {
+        var self = this;
+        var currentLoadout = self.getActiveLoadout();
+        if (!currentLoadout || !currentLoadout.name) return;
+
+        // 現在の状態をキャプチャ
+        var captured = self.captureCurrentLoadout(currentLoadout.label);
+        if (!captured || !captured.groups) return;
+
+        // ロードアウトを更新
+        var data = self._ensureLoadouts();
+        if (data.entries[currentLoadout.name]) {
+          data.entries[currentLoadout.name].groups = captured.groups;
+          saveLoadouts(data);
+          self._loadouts = loadLoadouts();
+        }
+      } catch (err) {
+        console.error('Update loadout error:', err);
       }
     }
   }

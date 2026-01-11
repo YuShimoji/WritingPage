@@ -167,6 +167,12 @@
           <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉">
             <i data-lucide="layout-template" aria-hidden="true"></i>
           </button>
+          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉">
+            <i data-lucide="columns" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え" aria-label="リッチテキストエディタに切り替え">
+            <i data-lucide="pen-tool" aria-hidden="true"></i>
+          </button>
           <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" title="ツールバー">
             <i data-lucide="panel-top" aria-hidden="true"></i>
           </button>
@@ -179,9 +185,53 @@
         </div>
       </div>
 
+      <!-- 分割ビューコンテナ -->
+      <div id="split-view-container" class="split-view-container" style="display: none;">
+        <div id="split-view-left" class="split-view-panel split-view-panel--left"></div>
+        <div id="split-view-resize-handle" class="split-view-resize-handle" role="separator" aria-label="リサイズハンドル" aria-orientation="vertical"></div>
+        <div id="split-view-right" class="split-view-panel split-view-panel--right"></div>
+      </div>
+
+      <!-- 分割ビューモード選択パネル -->
+      <div id="split-view-mode-panel" class="floating-panel" style="display: none;">
+        <div class="panel-header">
+          <span>分割ビューモード</span>
+          <button class="panel-close" id="close-split-view-mode-panel">閉じる</button>
+        </div>
+        <div class="panel-body">
+          <div class="panel-row">
+            <button id="split-view-edit-preview" class="small" type="button">編集/プレビュー</button>
+            <button id="split-view-chapter-compare" class="small" type="button">章間比較</button>
+            <button id="split-view-snapshot-diff" class="small" type="button">スナップショット差分</button>
+          </div>
+        </div>
+      </div>
+
       <!-- エディタエリア -->
       <div class="editor-container">
         <textarea id="editor" data-i18n-placeholder="EDITOR_PLACEHOLDER"></textarea>
+        <!-- WYSIWYGエディタ -->
+        <div id="wysiwyg-editor" class="wysiwyg-editor" contenteditable="true" style="display: none;" data-i18n-placeholder="EDITOR_PLACEHOLDER"></div>
+        <!-- WYSIWYGツールバー -->
+        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar" aria-label="リッチテキスト編集ツールバー">
+          <button id="wysiwyg-bold" class="wysiwyg-btn" type="button" title="太字" aria-label="太字">
+            <i data-lucide="bold" aria-hidden="true"></i>
+          </button>
+          <button id="wysiwyg-italic" class="wysiwyg-btn" type="button" title="斜体" aria-label="斜体">
+            <i data-lucide="italic" aria-hidden="true"></i>
+          </button>
+          <button id="wysiwyg-underline" class="wysiwyg-btn" type="button" title="下線" aria-label="下線">
+            <i data-lucide="underline" aria-hidden="true"></i>
+          </button>
+          <div class="wysiwyg-separator"></div>
+          <button id="wysiwyg-link" class="wysiwyg-btn" type="button" title="リンク" aria-label="リンク">
+            <i data-lucide="link" aria-hidden="true"></i>
+          </button>
+          <div class="wysiwyg-separator"></div>
+          <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え" aria-label="テキストエディタに切り替え">
+            <i data-lucide="code" aria-hidden="true"></i>
+          </button>
+        </div>
         <div id="editor-overlay" class="editor-overlay" aria-hidden="true"></div>
         <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
         <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite">
@@ -320,7 +370,27 @@
         <button id="anim-bounce" class="decor-btn" data-tag="bounce" data-i18n-title="ANIM_BOUNCE_TITLE">バウンス</button>
         <button id="anim-fadein" class="decor-btn" data-tag="fadein" data-i18n-title="ANIM_FADEIN_TITLE">遅フェード</button>
       </div>
-      <div class="panel-hint" data-i18n="HINT_ANIMATION"></div>
+      <section class="panel-section">
+        <h4 class="panel-section__title" data-i18n="ANIMATION_SETTINGS">アニメーション設定</h4>
+        <div class="panel-row">
+          <label for="anim-speed" data-i18n="ANIMATION_SPEED">速度:</label>
+          <input type="range" id="anim-speed" min="0.5" max="3" step="0.1" value="1" style="flex: 1; margin: 0 8px;" />
+          <span id="anim-speed-value">1.0x</span>
+        </div>
+        <div class="panel-row">
+          <label for="anim-duration" data-i18n="ANIMATION_DURATION">持続時間 (秒):</label>
+          <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5" style="flex: 1; margin: 0 8px;" />
+          <span id="anim-duration-value">1.5s</span>
+        </div>
+        <div class="panel-row">
+          <label>
+            <input type="checkbox" id="anim-reduce-motion" />
+            <span data-i18n="REDUCE_MOTION">アニメーションを減らす（アクセシビリティ）</span>
+          </label>
+        </div>
+        <div class="panel-hint" data-i18n="HINT_ANIMATION_SETTINGS">設定は次回適用されるアニメーションに反映されます</div>
+      </section>
+      <div class="panel-hint" data-i18n="HINT_ANIMATION">テキストを選択してからアニメーションボタンをクリックしてください</div>
     </div>
   </div>
 
@@ -331,6 +401,8 @@
   <script src="js/visual-profile.js"></script>
   <!-- Markdown renderer (browser) -->
   <script src="https://unpkg.com/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+  <!-- Markdown to HTML converter (for WYSIWYG) -->
+  <script src="https://cdn.jsdelivr.net/npm/turndown@7.2.2/dist/turndown.js"></script>
   <!-- DOM diff library for live preview -->
   <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.2/dist/morphdom-umd.min.js"></script>
   <script src="js/tools-registry.js"></script>
@@ -361,14 +433,20 @@
   <script src="js/gadgets-loadout.js"></script>
   <script src="js/gadgets-samples.js"></script>
   <script src="js/gadgets-editor-extras.js"></script>
+  <script src="js/pomodoro-timer.js"></script>
+  <script src="js/gadgets-pomodoro.js"></script>
+  <script src="js/keybind-editor.js"></script>
+  <script src="js/gadgets-keybinds.js"></script>
   <script src="js/gadgets-init.js"></script>
   <script src="js/wiki.js"></script>
   <script src="js/nodegraph.js"></script>
+  <script src="js/link-graph.js"></script>
   <script src="js/hud.js"></script>
   <script src="js/editor-preview.js"></script>
   <script src="js/editor-images.js"></script>
   <script src="js/editor-overlays.js"></script>
   <script src="js/editor-search.js"></script>
+  <script src="js/editor-wysiwyg.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/app-editor-bridge.js"></script>
   <script src="js/app.js"></script>

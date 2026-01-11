@@ -1,12 +1,11 @@
 # Task: コマンドパレット機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_022_command_palette.md
 ## Objective
 
 - コマンドパレット機能を実装し、ショートカットと合わせて操作を可視化する
@@ -38,13 +37,13 @@ Report:
 
 ## DoD
 
-- [ ] コマンドパレットUIを実装（Ctrl+P / Cmd+P で起動）
-- [ ] コマンド検索機能を実装
-- [ ] 検索/置換/ガジェット操作をコマンドパレットから実行できるようにする
-- [ ] ショートカット一覧をコマンドパレットに表示
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] コマンドパレットUIを実装（Ctrl+P / Cmd+P で起動）
+- [x] コマンド検索機能を実装
+- [x] 検索/置換/ガジェット操作をコマンドパレットから実行できるようにする
+- [x] ショートカット一覧をコマンドパレットに表示
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

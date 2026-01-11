@@ -45,6 +45,12 @@ const DEFAULT_SETTINGS = {
         anchorRatio: 0.5,
         stickiness: 0.9
     },
+    // フォーカスモード（現在行以外を減光/ぼかし）
+    focusMode: {
+        enabled: false,
+        dimOpacity: 0.3,      // 減光の不透明度（0.0-1.0）
+        blurRadius: 2         // ぼかしの半径（px、0でぼかし無効）
+    },
     // オートセーブ & スナップショット
     snapshot: {
         intervalMs: 120000,
@@ -65,7 +71,9 @@ const DEFAULT_SETTINGS = {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
         sidebarWidth: 320,
         showWordCount: false,
-        uiMode: 'normal' // 'normal' | 'focus' | 'blank'
+        uiMode: 'normal', // 'normal' | 'focus' | 'blank'
+        tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
+        tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },
     // エディタ設定
     editor: {
@@ -80,6 +88,12 @@ const DEFAULT_SETTINGS = {
         maxWidth: 0, // 0=全幅
         padding: 0,  // 0=余白なし
         marginBgColor: '#f5f5dc' // ベージュ
+    },
+    // Pomodoro/集中タイマー設定
+    pomodoro: {
+        workMinutes: 25,      // 作業時間（分）
+        breakMinutes: 5,       // 休憩時間（分）
+        customMinutes: 25      // カスタム時間のデフォルト（分）
     }
 };
 
@@ -430,10 +444,14 @@ function loadSettings() {
             merged.goal = { ...DEFAULT_SETTINGS.goal, ...(parsed.goal || {}) };
             merged.hud = { ...DEFAULT_SETTINGS.hud, ...(parsed.hud || {}) };
             merged.typewriter = { ...DEFAULT_SETTINGS.typewriter, ...(parsed.typewriter || {}) };
+            merged.focusMode = { ...DEFAULT_SETTINGS.focusMode, ...(parsed.focusMode || {}) };
             merged.snapshot = { ...DEFAULT_SETTINGS.snapshot, ...(parsed.snapshot || {}) };
             merged.preview = { ...DEFAULT_SETTINGS.preview, ...(parsed.preview || {}) };
             merged.autoSave = { ...DEFAULT_SETTINGS.autoSave, ...(parsed.autoSave || {}) };
             merged.ui = { ...DEFAULT_SETTINGS.ui, ...(parsed.ui || {}) };
+            // タブ配置と順序のデフォルト値確保
+            if (!merged.ui.tabPlacement) merged.ui.tabPlacement = DEFAULT_SETTINGS.ui.tabPlacement;
+            if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];
             merged.editor = { ...DEFAULT_SETTINGS.editor, ...(parsed.editor || {}) };
             merged.editor.wordWrap = { ...DEFAULT_SETTINGS.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
             return merged;
@@ -446,6 +464,7 @@ function loadSettings() {
         goal: { ...DEFAULT_SETTINGS.goal },
         hud: { ...DEFAULT_SETTINGS.hud },
         typewriter: { ...DEFAULT_SETTINGS.typewriter },
+        focusMode: { ...DEFAULT_SETTINGS.focusMode },
         snapshot: { ...DEFAULT_SETTINGS.snapshot },
         preview: { ...DEFAULT_SETTINGS.preview },
         autoSave: { ...DEFAULT_SETTINGS.autoSave },

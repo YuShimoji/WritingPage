@@ -60,7 +60,7 @@
       const widthPercent = Math.min(100, Math.max(10, asset.widthPercent || 60));
       const widthPx = Math.max(40, Math.round(usableWidth * (widthPercent / 100)));
 
-      const left = padding.left;
+      const left = padding.left + (asset.offsetX || 0);
       const top = anchor.offsetTop - manager.editor.scrollTop + (asset.offsetY || 0);
 
       overlay.style.left = `${left}px`;
@@ -85,12 +85,13 @@
       });
       overlay.appendChild(toggle);
 
-      const handle = document.createElement('div');
-      handle.className = 'overlay-handle';
-      handle.textContent = '↔';
-      overlay.appendChild(handle);
+      // リサイズハンドル（右下）
+      const resizeHandle = document.createElement('div');
+      resizeHandle.className = 'overlay-handle overlay-handle--resize';
+      resizeHandle.setAttribute('aria-label', 'リサイズ');
+      overlay.appendChild(resizeHandle);
 
-      attachOverlayInteractions(manager, { overlay, assetId: entry.assetId, handle });
+      attachOverlayInteractions(manager, { overlay, assetId: entry.assetId, handle: resizeHandle });
 
       manager.editorOverlay.appendChild(overlay);
     });
@@ -124,7 +125,7 @@
     overlay.style.cursor = 'move';
 
     overlay.addEventListener('pointerdown', (event) => {
-      if (event.target === handle || event.target.classList.contains('overlay-toggle')) {
+      if (event.target === handle || handle.contains(event.target) || event.target.classList.contains('overlay-toggle')) {
         return;
       }
       if (overlay.classList.contains('hidden')) return;
@@ -148,11 +149,15 @@
 
     const pointerId = event.pointerId;
     overlay.setPointerCapture(pointerId);
+    const startX = event.clientX;
     const startY = event.clientY;
+    const startLeft = parseFloat(overlay.style.left) || 0;
     const startTop = parseFloat(overlay.style.top) || 0;
 
     const move = (ev) => {
+      const deltaX = ev.clientX - startX;
       const deltaY = ev.clientY - startY;
+      overlay.style.left = `${startLeft + deltaX}px`;
       overlay.style.top = `${startTop + deltaY}px`;
     };
 
@@ -162,12 +167,18 @@
       try {
         overlay.releasePointerCapture(pointerId);
       } catch (_) {}
+      const finalLeft = parseFloat(overlay.style.left) || startLeft;
       const finalTop = parseFloat(overlay.style.top) || startTop;
-      const delta = Math.round(finalTop - startTop);
+      const deltaX = Math.round(finalLeft - startLeft);
+      const deltaY = Math.round(finalTop - startTop);
       const asset = manager.getAsset ? manager.getAsset(assetId) : null;
-      const base = asset && typeof asset.offsetY === 'number' ? asset.offsetY : 0;
+      const baseX = asset && typeof asset.offsetX === 'number' ? asset.offsetX : 0;
+      const baseY = asset && typeof asset.offsetY === 'number' ? asset.offsetY : 0;
       if (typeof manager.persistAssetMeta === 'function') {
-        manager.persistAssetMeta(assetId, { offsetY: base + delta });
+        manager.persistAssetMeta(assetId, {
+          offsetX: baseX + deltaX,
+          offsetY: baseY + deltaY,
+        });
       }
     };
 

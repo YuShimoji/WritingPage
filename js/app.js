@@ -342,6 +342,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const showToolbarBtn = elementManager.get('showToolbarBtn');
     const fullscreenBtn = elementManager.get('fullscreenBtn');
     const feedbackBtn = elementManager.get('feedbackBtn');
+    const toggleSplitViewBtn = document.getElementById('toggle-split-view');
+    const splitViewModePanel = document.getElementById('split-view-mode-panel');
+    const closeSplitViewModePanelBtn = document.getElementById('close-split-view-mode-panel');
+    const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
+    const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
+    const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
 
     // サイドバーの開閉ボタン（ツールバー側のみ）
     if (toggleSidebarBtn) toggleSidebarBtn.addEventListener('click', toggleSidebar);
@@ -353,9 +359,135 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fullscreenBtn) fullscreenBtn.addEventListener('click', _toggleFullscreen);
     if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackPanel);
 
-    // キーボードショートカット: Alt+W でツールバー表示切替
+    // 分割ビューのイベントハンドラ
+    if (toggleSplitViewBtn) {
+        toggleSplitViewBtn.addEventListener('click', () => {
+            if (splitViewModePanel) {
+                const isVisible = splitViewModePanel.style.display !== 'none';
+                if (isVisible) {
+                    splitViewModePanel.style.display = 'none';
+                } else {
+                    splitViewModePanel.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    if (closeSplitViewModePanelBtn) {
+        closeSplitViewModePanelBtn.addEventListener('click', () => {
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
+        splitViewEditPreviewBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('edit-preview');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
+        splitViewChapterCompareBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('chapter-compare');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
+        splitViewSnapshotDiffBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('snapshot-diff');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    // キーボードショートカット: カスタムキーバインド対応
     // capture: trueで優先的に処理
     document.addEventListener('keydown', (e) => {
+        // キーバインドシステムが利用可能な場合はそれを使用
+        if (window.ZenWriterKeybinds) {
+            const keybinds = window.ZenWriterKeybinds.load();
+            const keybindId = window.ZenWriterKeybinds.getKeybindIdForEvent(e, keybinds);
+            
+            if (keybindId) {
+                const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+                const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
+                
+                // フォームコントロール内では一部のショートカットのみ有効
+                const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle'];
+                
+                if (inFormControl && !allowInFormControl.includes(keybindId)) {
+                    // フォームコントロール内で無効なショートカットはスキップ
+                    return;
+                }
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // キーバインドIDに基づいてアクションを実行
+                switch (keybindId) {
+                    case 'sidebar.toggle':
+                        logger.info('キーボードショートカット: サイドバー開閉');
+                        toggleSidebar();
+                        break;
+                        
+                    case 'toolbar.toggle':
+                        if (e.repeat) return;
+                        // ブランクモードなら通常モードに戻す
+                        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+                        if (currentMode === 'blank') {
+                            setUIMode('normal');
+                            return;
+                        }
+                        toggleToolbar();
+                        break;
+                        
+                    case 'search.toggle':
+                        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
+                            window.ZenWriterEditor.toggleSearchPanel();
+                        }
+                        break;
+                        
+                    case 'snapshot.restore':
+                        restoreLastSnapshot();
+                        break;
+                        
+                    case 'ui.mode.cycle':
+                        const mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+                        const modes = ['normal', 'focus', 'blank'];
+                        const currentIndex = modes.indexOf(mode);
+                        const nextIndex = (currentIndex + 1) % modes.length;
+                        setUIMode(modes[nextIndex]);
+                        break;
+                        
+                    case 'ui.mode.exit':
+                        const currentMode2 = document.documentElement.getAttribute('data-ui-mode');
+                        if (currentMode2 === 'blank' || currentMode2 === 'focus') {
+                            setUIMode('normal');
+                        }
+                        break;
+                        
+                    case 'editor.save':
+                    case 'editor.bold':
+                    case 'editor.italic':
+                    case 'editor.font.increase':
+                    case 'editor.font.decrease':
+                    case 'editor.font.reset':
+                        // editor.jsで処理される
+                        break;
+                }
+                return;
+            }
+        }
+        
+        // フォールバック: キーバインドシステムが利用できない場合は既存の処理を実行
         // Alt + 1: サイドバーを開閉（タブは1つのみなので単純化）
         if (e.altKey && e.key === '1') {
             e.preventDefault();
@@ -381,6 +513,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             toggleToolbar();
+            return;
+        }
+
+        // Ctrl+P / Cmd+P: コマンドパレット
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                window.commandPalette.toggle();
+            }
             return;
         }
 
@@ -486,6 +627,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (s.ui.tabsPresentation) {
                     sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));
+                }
+                // タブ配置を適用
+                if (window.sidebarManager && typeof window.sidebarManager.applyTabPlacement === 'function') {
+                    window.sidebarManager.applyTabPlacement();
                 }
             }
             // UIモード適用

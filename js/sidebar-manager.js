@@ -57,25 +57,53 @@ class SidebarManager {
                 if (dd && dd.parentNode) dd.parentNode.removeChild(dd);
             } catch (_) { }
 
-            this.sidebarTabConfig.forEach(tab => {
+            // タブ順序を取得（設定があれば使用、なければデフォルト順序）
+            const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+                ? window.ZenWriterStorage.loadSettings()
+                : null;
+            const tabOrder = (s && s.ui && Array.isArray(s.ui.tabOrder) && s.ui.tabOrder.length > 0)
+                ? s.ui.tabOrder
+                : this.sidebarTabConfig.map(tab => tab.id);
+
+            // 順序に従ってタブを追加
+            const allTabs = [...this.sidebarTabConfig];
+            try {
+                const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
+                list.forEach(t => {
+                    if (!t || !t.id) return;
+                    if (!allTabs.find(existing => existing.id === t.id)) {
+                        allTabs.push({ id: t.id, label: t.label, description: '', panelId: t.id + '-gadgets-panel' });
+                    }
+                });
+            } catch (_) { }
+
+            // 順序に従ってタブを追加（順序にないタブは末尾に追加）
+            const orderedTabs = [];
+            const addedIds = new Set();
+            tabOrder.forEach(tabId => {
+                const tab = allTabs.find(t => t.id === tabId);
+                if (tab) {
+                    orderedTabs.push(tab);
+                    addedIds.add(tab.id);
+                }
+            });
+            allTabs.forEach(tab => {
+                if (!addedIds.has(tab.id)) {
+                    orderedTabs.push(tab);
+                }
+            });
+
+            orderedTabs.forEach(tab => {
                 try {
                     this.addTab(tab.id, tab.label, { persist: false });
                 } catch (_) { }
             });
 
-            try {
-                const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
-                    ? window.ZenWriterStorage.loadSettings()
-                    : null;
-                const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
-                list.forEach(t => {
-                    if (!t || !t.id) return;
-                    this.addTab(t.id, t.label, { persist: false });
-                });
-            } catch (_) { }
-
-            const firstId = (this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) ? this.sidebarTabConfig[0].id : 'structure';
+            const firstId = orderedTabs.length > 0 ? orderedTabs[0].id : ((this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) ? this.sidebarTabConfig[0].id : 'structure');
             this.activateSidebarGroup(firstId);
+
+            // タブ配置を適用
+            this.applyTabPlacement();
 
             try {
                 if (this.elementManager && typeof this.elementManager.initialize === 'function') {
@@ -544,6 +572,64 @@ class SidebarManager {
         // プレゼンテーション方式に合わせてUI反映
         if (!skipPresentationUpdate) {
             this.applyTabsPresentationUI({ skipActivate: true });
+        }
+    }
+
+    /**
+     * タブ配置を適用（上下左右）
+     */
+    applyTabPlacement() {
+        try {
+            const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+                ? window.ZenWriterStorage.loadSettings()
+                : null;
+            const placement = (s && s.ui && s.ui.tabPlacement) ? s.ui.tabPlacement : 'left';
+            const sidebar = this.elementManager.get('sidebar');
+            if (sidebar) {
+                sidebar.setAttribute('data-tab-placement', placement);
+            }
+        } catch (_) { }
+    }
+
+    /**
+     * タブ順序を保存
+     * @param {string[]} order - タブIDの配列
+     */
+    saveTabOrder(order) {
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            if (!s.ui) s.ui = {};
+            s.ui.tabOrder = Array.isArray(order) ? [...order] : [];
+            window.ZenWriterStorage.saveSettings(s);
+        } catch (_) { }
+    }
+
+    /**
+     * タブ配置を保存
+     * @param {string} placement - 'left' | 'right' | 'top' | 'bottom'
+     */
+    saveTabPlacement(placement) {
+        try {
+            const validPlacements = ['left', 'right', 'top', 'bottom'];
+            if (!validPlacements.includes(placement)) placement = 'left';
+            const s = window.ZenWriterStorage.loadSettings();
+            if (!s.ui) s.ui = {};
+            s.ui.tabPlacement = placement;
+            window.ZenWriterStorage.saveSettings(s);
+            this.applyTabPlacement();
+        } catch (_) { }
+    }
+
+    /**
+     * 現在のタブ順序を取得
+     * @returns {string[]} タブIDの配列
+     */
+    getTabOrder() {
+        try {
+            const tabs = Array.from(document.querySelectorAll('.sidebar-tab'));
+            return tabs.map(tab => tab.dataset.group).filter(id => id);
+        } catch (_) {
+            return this.sidebarTabConfig.map(tab => tab.id);
         }
     }
 }

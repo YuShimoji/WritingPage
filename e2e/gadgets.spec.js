@@ -148,4 +148,121 @@ test.describe('Gadgets E2E', () => {
     expect(info.hasMarginBgInput).toBeTruthy();
     expect(info.hasApplyButton).toBeTruthy();
   });
+
+  test('Gadget drag and drop to different tab', async ({ page }) => {
+    await page.goto(pageUrl);
+    await waitGadgetsReady(page);
+
+    // ガジェットパネルが表示されていることを確認
+    await expect(page.locator('#assist-gadgets-panel')).toBeVisible();
+
+    // ガジェットラッパーが存在し、draggable属性が設定されていることを確認
+    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
+    await expect(gadgetWrapper).toBeVisible();
+    
+    const draggable = await gadgetWrapper.getAttribute('draggable');
+    expect(draggable).toBe('true');
+
+    // ガジェット名を取得
+    const gadgetName = await gadgetWrapper.getAttribute('data-gadget-name');
+    expect(gadgetName).toBeTruthy();
+
+    // structureタブを開く
+    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
+    await structureTab.click();
+    await page.waitForTimeout(300);
+
+    // structureパネルが表示されていることを確認
+    const structurePanel = page.locator('#structure-gadgets-panel');
+    await expect(structurePanel).toBeVisible();
+
+    // ガジェットをassistパネルからstructureパネルにドラッグ&ドロップ
+    await gadgetWrapper.dragTo(structurePanel);
+
+    // ドロップ後にstructureパネルにガジェットが表示されることを確認
+    await page.waitForTimeout(500);
+    const movedGadget = structurePanel.locator(`.gadget-wrapper[data-gadget-name="${gadgetName}"]`);
+    await expect(movedGadget).toBeVisible({ timeout: 2000 });
+
+    // ロードアウトが更新されていることを確認
+    const loadoutUpdated = await page.evaluate((name) => {
+      try {
+        if (window.ZWGadgets && typeof window.ZWGadgets.getActiveLoadout === 'function') {
+          const loadout = window.ZWGadgets.getActiveLoadout();
+          if (loadout && loadout.entry && loadout.entry.groups) {
+            const structureGroup = loadout.entry.groups.structure || [];
+            return structureGroup.indexOf(name) >= 0;
+          }
+        }
+      } catch (_) { }
+      return false;
+    }, gadgetName);
+    expect(loadoutUpdated).toBeTruthy();
+  });
+
+  test('Gadget drag visual feedback', async ({ page }) => {
+    await page.goto(pageUrl);
+    await waitGadgetsReady(page);
+
+    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
+    await expect(gadgetWrapper).toBeVisible();
+
+    const gadget = gadgetWrapper.locator('.gadget');
+    await expect(gadget).toBeVisible();
+
+    // ドラッグ開始
+    await gadgetWrapper.hover();
+    await page.mouse.down();
+    await page.mouse.move(10, 10);
+
+    // ドラッグ中のスタイルが適用されていることを確認
+    await expect(gadget).toHaveClass(/is-dragging/);
+
+    // ドラッグ終了
+    await page.mouse.up();
+
+    // ドラッグ中のスタイルが解除されていることを確認
+    await page.waitForTimeout(100);
+    const hasDraggingClass = await gadget.evaluate((el) => el.classList.contains('is-dragging'));
+    expect(hasDraggingClass).toBeFalsy();
+  });
+
+  test('Panel drop zone visual feedback', async ({ page }) => {
+    await page.goto(pageUrl);
+    await waitGadgetsReady(page);
+
+    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
+    await structureTab.click();
+    await page.waitForTimeout(300);
+
+    const structurePanel = page.locator('#structure-gadgets-panel');
+    await expect(structurePanel).toBeVisible();
+
+    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
+    await expect(gadgetWrapper).toBeVisible();
+
+    // ドラッグ開始
+    const box = await gadgetWrapper.boundingBox();
+    if (box) {
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+      await page.mouse.down();
+    }
+
+    // structureパネルの上に移動
+    const panelBox = await structurePanel.boundingBox();
+    if (panelBox) {
+      await page.mouse.move(panelBox.x + panelBox.width / 2, panelBox.y + panelBox.height / 2);
+      
+      // ドロップゾーンのハイライトが表示されていることを確認
+      await expect(structurePanel).toHaveClass(/drag-over-tab/);
+    }
+
+    // ドラッグ終了
+    await page.mouse.up();
+
+    // ハイライトが解除されていることを確認
+    await page.waitForTimeout(100);
+    const hasDragOverClass = await structurePanel.evaluate((el) => el.classList.contains('drag-over-tab'));
+    expect(hasDragOverClass).toBeFalsy();
+  });
 });

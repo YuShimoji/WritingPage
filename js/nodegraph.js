@@ -174,7 +174,8 @@
       var btnOpen = el('button','small'); btnOpen.textContent='パネルで開く';
       var btnAdd = el('button','small'); btnAdd.textContent='ノード追加';
       var btnLink = el('button','small'); btnLink.textContent='リンク';
-      toolbar.appendChild(btnOpen); toolbar.appendChild(btnAdd); toolbar.appendChild(btnLink);
+      var btnImportLinks = el('button','small'); btnImportLinks.textContent='リンクから生成';
+      toolbar.appendChild(btnOpen); toolbar.appendChild(btnAdd); toolbar.appendChild(btnLink); toolbar.appendChild(btnImportLinks);
 
       var viewport = el('div','ng-viewport');
       viewport.style.minHeight='260px'; viewport.style.border='1px solid var(--border-color)'; viewport.style.borderRadius='4px'; viewport.style.position='relative';
@@ -204,6 +205,69 @@
         function commit2(){ saveGraph(getDocId(), data); renderGraph(canvas2, data, commit2); }
         renderGraph(canvas2, data, commit2);
         openInPanel('Node Graph', content);
+      });
+
+      // リンクグラフから自動生成
+      btnImportLinks.addEventListener('click', function(){
+        if (!window.LinkGraph || !window.LinkGraph.generateGraphData) {
+          alert('LinkGraph機能が利用できません');
+          return;
+        }
+        var STORAGE = window.ZenWriterStorage;
+        if (!STORAGE) {
+          alert('ストレージが利用できません');
+          return;
+        }
+        var linkGraphData = window.LinkGraph.generateGraphData(STORAGE);
+        if (!linkGraphData || !linkGraphData.nodes || linkGraphData.nodes.length === 0) {
+          alert('リンクが見つかりませんでした');
+          return;
+        }
+        // 既存のノードをクリア（オプション：確認ダイアログを追加してもよい）
+        if (confirm('既存のノードを削除してリンクから生成しますか？')) {
+          data.nodes = [];
+          data.edges = [];
+        }
+        // リンクグラフのノードをNodeGraph形式に変換
+        for (var i = 0; i < linkGraphData.nodes.length; i++){
+          var lgNode = linkGraphData.nodes[i];
+          var existingNode = data.nodes.find(function(n){ return n.id === lgNode.id; });
+          if (!existingNode){
+            var nodeType = lgNode.type === 'wiki' ? 'idea' : lgNode.type === 'document' ? 'scene' : 'idea';
+            var newNode = {
+              id: lgNode.id,
+              x: lgNode.x || Math.random() * 400 + 50,
+              y: lgNode.y || Math.random() * 300 + 50,
+              w: 180,
+              h: 56,
+              type: nodeType,
+              title: lgNode.label || lgNode.id,
+              status: 'linked'
+            };
+            data.nodes.push(newNode);
+          }
+        }
+        // エッジを追加
+        for (var j = 0; j < linkGraphData.edges.length; j++){
+          var lgEdge = linkGraphData.edges[j];
+          var fromNode = data.nodes[lgEdge.from];
+          var toNode = data.nodes[lgEdge.to];
+          if (fromNode && toNode){
+            var existingEdge = data.edges.find(function(e){
+              return (e.from === fromNode.id && e.to === toNode.id) ||
+                     (e.from === toNode.id && e.to === fromNode.id);
+            });
+            if (!existingEdge){
+              data.edges.push({
+                id: uid('edge_'),
+                from: fromNode.id,
+                to: toNode.id,
+                label: lgEdge.label || '関連'
+              });
+            }
+          }
+        }
+        commit();
       });
     }, { title: 'Node Graph', groups: ['structure','assist'] });
   }

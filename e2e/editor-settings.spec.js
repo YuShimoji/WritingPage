@@ -89,6 +89,65 @@ test.describe('Editor Settings', () => {
     await expect(page.locator('#assist-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
   });
 
+  test('should toggle focus mode and save settings', async ({ page }) => {
+    // Load the page
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarAndAssistPanel(page);
+
+    // Enable focus mode (assistパネル内の要素を指定)
+    const checkbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    await expect(checkbox).toBeVisible();
+    await checkbox.check();
+
+    // Adjust dim opacity
+    const dimOpacity = page.locator('#focus-dim-opacity');
+    await dimOpacity.fill('0.5');
+
+    // Adjust blur radius
+    const blurRadius = page.locator('#focus-blur-radius');
+    await blurRadius.fill('3');
+
+    // Verify focus mode is enabled via data attribute
+    await expect(page.locator('html[data-focus-mode="enabled"]')).toBeVisible();
+
+    // Reload and verify persistence
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarAndAssistPanel(page);
+
+    await expect(page.locator('#assist-gadgets-panel #focus-mode-enabled')).toBeChecked();
+    await expect(page.locator('#assist-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
+    await expect(page.locator('#assist-gadgets-panel #focus-blur-radius')).toHaveValue('3');
+  });
+
+  test('should work with typewriter mode simultaneously', async ({ page }) => {
+    // Load the page
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarAndAssistPanel(page);
+
+    // Enable both typewriter and focus mode
+    const typewriterCheckbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    await typewriterCheckbox.check();
+
+    const focusCheckbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    await focusCheckbox.check();
+
+    // Verify both are enabled
+    await expect(typewriterCheckbox).toBeChecked();
+    await expect(focusCheckbox).toBeChecked();
+    await expect(page.locator('html[data-focus-mode="enabled"]')).toBeVisible();
+
+    // Type some text to verify both modes work together
+    await page.fill('#editor', 'Line 1\nLine 2\nLine 3');
+    await page.waitForTimeout(500);
+
+    // Both modes should still be active
+    await expect(typewriterCheckbox).toBeChecked();
+    await expect(focusCheckbox).toBeChecked();
+  });
+
   test('should adjust snapshot settings and save', async ({ page }) => {
     // Load the page
     await page.goto('/');

@@ -1,12 +1,11 @@
 # Task: Pomodoro/集中タイマー機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 3
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_TASK_027_pomodoro_focus_timer.md
 ## Objective
 
 - Pomodoro/集中タイマー機能（HUD連携のセッション管理）を実装する
@@ -39,14 +38,14 @@ Report:
 
 ## DoD
 
-- [ ] Pomodoroタイマー機能を実装（25分作業、5分休憩）
-- [ ] 集中タイマー機能を実装（カスタム時間設定）
-- [ ] HUD連携機能を実装（タイマー表示、通知）
-- [ ] セッション管理機能を実装（セッション履歴、統計）
-- [ ] タイマーUIを実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] Pomodoroタイマー機能を実装（25分作業、5分休憩）
+- [x] 集中タイマー機能を実装（カスタム時間設定）
+- [x] HUD連携機能を実装（タイマー表示、通知）
+- [x] セッション管理機能を実装（セッション履歴、統計）
+- [x] タイマーUIを実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

@@ -5,8 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
-Report: docs/inbox/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md
-
+Report: docs/reports/REPORT_TASK_012_orchestrator_output_validator_integration_20260104_2157.md
 ## Objective
 
 - shared-workflows に追加された `orchestrator-output-validator.js` をプロジェクトに統合する

@@ -35,6 +35,15 @@
       html = '';
     }
 
+    // フォント装飾とテキストアニメーションを処理
+    // プレビューでは、Markdownレンダリング後のHTMLに対して装飾を適用する
+    if (html && editorManager.processFontDecorations) {
+      html = editorManager.processFontDecorations(html);
+    }
+    if (html && editorManager.processTextAnimations) {
+      html = editorManager.processTextAnimations(html);
+    }
+
     if (window.morphdom) {
       var tempContainer = document.createElement('div');
       tempContainer.innerHTML = html;

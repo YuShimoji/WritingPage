@@ -1,12 +1,11 @@
 # Task: 分割ビュー機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_TASK_023_split_view.md
 ## Objective
 
 - 分割ビュー機能（編集/プレビュー、章間比較、スナップショット差分）を実装する
@@ -39,13 +38,13 @@ Report:
 
 ## DoD
 
-- [ ] 編集/プレビューの分割ビューを実装
-- [ ] 章間比較機能を実装
-- [ ] スナップショット差分表示機能を実装
-- [ ] 分割ビューの切り替えUIを実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] 編集/プレビューの分割ビューを実装
+- [x] 章間比較機能を実装
+- [x] スナップショット差分表示機能を実装
+- [x] 分割ビューの切り替えUIを実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

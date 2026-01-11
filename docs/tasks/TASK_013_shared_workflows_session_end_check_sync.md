@@ -5,8 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
-Report: docs/inbox/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md
-
+Report: docs/reports/REPORT_TASK_013_shared_workflows_session_end_check_sync_20260104_2158.md
 ## Objective
 
 - shared-workflows に追加された `session-end-check.js` とプロジェクト側の `scripts/session-end-check.js` を同期する

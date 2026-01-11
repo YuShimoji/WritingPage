@@ -155,6 +155,8 @@
       var images = load(docId);
       var overlay = ensureOverlay();
       if (!overlay) return;
+      // コラージュモードに応じてdata属性を設定
+      overlay.setAttribute('data-collage-mode', collageMode || 'free');
       // 一旦全クリア
       overlay.innerHTML = '';
       for (var i = 0; i < images.length; i++) {
@@ -483,6 +485,162 @@
     } catch (e) { void e; }
   }
 
+  // コラージュレイアウト管理機能
+  var collageMode = 'free'; // 'free' | 'grid'
+  var gridConfig = { rows: 2, cols: 2, gap: 16 };
+
+  function setCollageMode(mode) {
+    if (mode === 'free' || mode === 'grid') {
+      collageMode = mode;
+      renderOverlay();
+      notifyChange({ docId: getDocId(), action: 'collage-mode', mode: mode });
+    }
+  }
+
+  function getCollageMode() {
+    return collageMode;
+  }
+
+  function setGridConfig(config) {
+    if (config && typeof config.rows === 'number' && typeof config.cols === 'number') {
+      gridConfig = {
+        rows: Math.max(1, Math.min(10, config.rows)),
+        cols: Math.max(1, Math.min(10, config.cols)),
+        gap: typeof config.gap === 'number' ? Math.max(0, config.gap) : 16,
+      };
+      if (collageMode === 'grid') {
+        applyGridLayout();
+      }
+      notifyChange({ docId: getDocId(), action: 'grid-config', config: gridConfig });
+    }
+  }
+
+  function getGridConfig() {
+    return Object.assign({}, gridConfig);
+  }
+
+  function applyGridLayout() {
+    var docId = getDocId();
+    var images = load(docId).filter(function (it) { return it && !it.hidden; });
+    if (images.length === 0) return;
+
+    var overlay = ensureOverlay();
+    if (!overlay) return;
+
+    var containerWidth = overlay.offsetWidth || 800;
+    var containerHeight = overlay.offsetHeight || 600;
+    var cellWidth = (containerWidth - (gridConfig.cols + 1) * gridConfig.gap) / gridConfig.cols;
+    var cellHeight = (containerHeight - (gridConfig.rows + 1) * gridConfig.gap) / gridConfig.rows;
+
+    for (var i = 0; i < images.length && i < gridConfig.rows * gridConfig.cols; i++) {
+      var row = Math.floor(i / gridConfig.cols);
+      var col = i % gridConfig.cols;
+      var left = gridConfig.gap + col * (cellWidth + gridConfig.gap);
+      var top = gridConfig.gap + row * (cellHeight + gridConfig.gap);
+
+      update(images[i].id, {
+        left: left,
+        top: top,
+        width: Math.min(cellWidth, images[i].width || 240),
+      });
+    }
+  }
+
+  function saveCollageLayout() {
+    var docId = getDocId();
+    var images = load(docId);
+    var layout = {
+      mode: collageMode,
+      gridConfig: getGridConfig(),
+      images: images.map(function (it) {
+        return {
+          id: it.id,
+          left: it.left || 0,
+          top: it.top || 0,
+          width: it.width || 240,
+          z: it.z || 0,
+        };
+      }),
+      savedAt: Date.now(),
+    };
+    try {
+      var s = getStorage();
+      if (s) {
+        s.setItem('zw_collage_layout:' + docId, JSON.stringify(layout));
+      }
+    } catch (e) { void e; }
+    return layout;
+  }
+
+  function loadCollageLayout() {
+    var docId = getDocId();
+    try {
+      var s = getStorage();
+      if (!s) return null;
+      var raw = s.getItem('zw_collage_layout:' + docId);
+      if (!raw) return null;
+      var layout = JSON.parse(raw);
+      if (!layout || !layout.images) return null;
+
+      // レイアウト情報を復元
+      if (layout.mode) setCollageMode(layout.mode);
+      if (layout.gridConfig) setGridConfig(layout.gridConfig);
+
+      // 画像位置を復元
+      var currentImages = load(docId);
+      for (var i = 0; i < layout.images.length; i++) {
+        var saved = layout.images[i];
+        for (var j = 0; j < currentImages.length; j++) {
+          if (currentImages[j] && currentImages[j].id === saved.id) {
+            update(saved.id, {
+              left: saved.left,
+              top: saved.top,
+              width: saved.width,
+              z: saved.z,
+            });
+            break;
+          }
+        }
+      }
+      return layout;
+    } catch (e) { void e; }
+    return null;
+  }
+
+  function arrangeImagesInGrid(imageIds) {
+    if (!Array.isArray(imageIds) || imageIds.length === 0) return;
+    var docId = getDocId();
+    var images = load(docId);
+    var targetImages = images.filter(function (it) {
+      return it && imageIds.indexOf(it.id) >= 0;
+    });
+    if (targetImages.length === 0) return;
+
+    var overlay = ensureOverlay();
+    if (!overlay) return;
+
+    var containerWidth = overlay.offsetWidth || 800;
+    var containerHeight = overlay.offsetHeight || 600;
+    var count = targetImages.length;
+    var cols = Math.ceil(Math.sqrt(count));
+    var rows = Math.ceil(count / cols);
+    var cellWidth = (containerWidth - (cols + 1) * gridConfig.gap) / cols;
+    var cellHeight = (containerHeight - (rows + 1) * gridConfig.gap) / rows;
+
+    for (var i = 0; i < targetImages.length; i++) {
+      var row = Math.floor(i / cols);
+      var col = i % cols;
+      var left = gridConfig.gap + col * (cellWidth + gridConfig.gap);
+      var top = gridConfig.gap + row * (cellHeight + gridConfig.gap);
+
+      update(targetImages[i].id, {
+        left: left,
+        top: top,
+        width: Math.min(cellWidth, targetImages[i].width || 240),
+      });
+    }
+  }
+
   var API = {
     init: init,
     render: renderOverlay,
@@ -500,6 +658,15 @@
     setFolder: setFolder,
     bringToFront: bringToFront,
     duplicate: duplicate,
+    // コラージュレイアウト機能
+    setCollageMode: setCollageMode,
+    getCollageMode: getCollageMode,
+    setGridConfig: setGridConfig,
+    getGridConfig: getGridConfig,
+    applyGridLayout: applyGridLayout,
+    saveCollageLayout: saveCollageLayout,
+    loadCollageLayout: loadCollageLayout,
+    arrangeImagesInGrid: arrangeImagesInGrid,
     _load: function (docId) {
       return load(docId || getDocId());
     },

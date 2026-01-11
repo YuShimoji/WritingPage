@@ -23,6 +23,155 @@
       var fileInput = document.createElement('input'); fileInput.type = 'file'; fileInput.accept = 'image/*';
       fileRow.appendChild(fileInput);
 
+      // コラージュレイアウトコントロール
+      var collageSection = document.createElement('div');
+      collageSection.style.display = 'grid';
+      collageSection.style.gap = '6px';
+      collageSection.style.padding = '8px';
+      collageSection.style.border = '1px solid var(--border-color)';
+      collageSection.style.borderRadius = '4px';
+      collageSection.style.marginTop = '8px';
+
+      var collageTitle = document.createElement('div');
+      collageTitle.textContent = (window.UILabels && window.UILabels.COLLAGE_TITLE) || 'コラージュレイアウト';
+      collageTitle.style.fontWeight = '600';
+      collageTitle.style.fontSize = '13px';
+      collageSection.appendChild(collageTitle);
+
+      var modeRow = document.createElement('div');
+      modeRow.style.display = 'flex';
+      modeRow.style.gap = '6px';
+      var freeModeBtn = document.createElement('button');
+      freeModeBtn.type = 'button';
+      freeModeBtn.className = 'small';
+      freeModeBtn.textContent = (window.UILabels && window.UILabels.COLLAGE_MODE_FREE) || '自由配置';
+      var gridModeBtn = document.createElement('button');
+      gridModeBtn.type = 'button';
+      gridModeBtn.className = 'small';
+      gridModeBtn.textContent = (window.UILabels && window.UILabels.COLLAGE_MODE_GRID) || 'グリッド';
+      modeRow.appendChild(freeModeBtn);
+      modeRow.appendChild(gridModeBtn);
+      collageSection.appendChild(modeRow);
+
+      var gridConfigRow = document.createElement('div');
+      gridConfigRow.style.display = 'grid';
+      gridConfigRow.style.gridTemplateColumns = 'auto 1fr auto 1fr';
+      gridConfigRow.style.gap = '4px';
+      gridConfigRow.style.alignItems = 'center';
+      var rowsLabel = document.createElement('label');
+      rowsLabel.textContent = (window.UILabels && window.UILabels.COLLAGE_GRID_ROWS) || '行:';
+      rowsLabel.style.fontSize = '12px';
+      var rowsInput = document.createElement('input');
+      rowsInput.type = 'number';
+      rowsInput.min = '1';
+      rowsInput.max = '10';
+      rowsInput.value = '2';
+      rowsInput.style.width = '50px';
+      var colsLabel = document.createElement('label');
+      colsLabel.textContent = (window.UILabels && window.UILabels.COLLAGE_GRID_COLS) || '列:';
+      colsLabel.style.fontSize = '12px';
+      var colsInput = document.createElement('input');
+      colsInput.type = 'number';
+      colsInput.min = '1';
+      colsInput.max = '10';
+      colsInput.value = '2';
+      colsInput.style.width = '50px';
+      gridConfigRow.appendChild(rowsLabel);
+      gridConfigRow.appendChild(rowsInput);
+      gridConfigRow.appendChild(colsLabel);
+      gridConfigRow.appendChild(colsInput);
+      collageSection.appendChild(gridConfigRow);
+
+      var actionRow = document.createElement('div');
+      actionRow.style.display = 'flex';
+      actionRow.style.gap = '6px';
+      var applyGridBtn = document.createElement('button');
+      applyGridBtn.type = 'button';
+      applyGridBtn.className = 'small';
+      applyGridBtn.textContent = (window.UILabels && window.UILabels.COLLAGE_APPLY_GRID) || 'グリッド適用';
+      var saveLayoutBtn = document.createElement('button');
+      saveLayoutBtn.type = 'button';
+      saveLayoutBtn.className = 'small';
+      saveLayoutBtn.textContent = (window.UILabels && window.UILabels.COLLAGE_SAVE) || 'レイアウト保存';
+      var loadLayoutBtn = document.createElement('button');
+      loadLayoutBtn.type = 'button';
+      loadLayoutBtn.className = 'small';
+      loadLayoutBtn.textContent = (window.UILabels && window.UILabels.COLLAGE_LOAD) || 'レイアウト復元';
+      actionRow.appendChild(applyGridBtn);
+      actionRow.appendChild(saveLayoutBtn);
+      actionRow.appendChild(loadLayoutBtn);
+      collageSection.appendChild(actionRow);
+
+      function updateModeButtons() {
+        var mode = (API && typeof API.getCollageMode === 'function') ? API.getCollageMode() : 'free';
+        if (mode === 'free') {
+          freeModeBtn.style.background = 'var(--focus-color)';
+          freeModeBtn.style.color = '#fff';
+          gridModeBtn.style.background = '';
+          gridModeBtn.style.color = '';
+        } else {
+          freeModeBtn.style.background = '';
+          freeModeBtn.style.color = '';
+          gridModeBtn.style.background = 'var(--focus-color)';
+          gridModeBtn.style.color = '#fff';
+        }
+        var config = (API && typeof API.getGridConfig === 'function') ? API.getGridConfig() : { rows: 2, cols: 2, gap: 16 };
+        rowsInput.value = config.rows || 2;
+        colsInput.value = config.cols || 2;
+      }
+
+      freeModeBtn.addEventListener('click', function () {
+        try {
+          if (API && typeof API.setCollageMode === 'function') {
+            API.setCollageMode('free');
+            updateModeButtons();
+          }
+        } catch (_) { }
+      });
+
+      gridModeBtn.addEventListener('click', function () {
+        try {
+          if (API && typeof API.setCollageMode === 'function') {
+            API.setCollageMode('grid');
+            updateModeButtons();
+          }
+        } catch (_) { }
+      });
+
+      applyGridBtn.addEventListener('click', function () {
+        try {
+          if (API && typeof API.setGridConfig === 'function' && typeof API.applyGridLayout === 'function') {
+            API.setGridConfig({
+              rows: parseInt(rowsInput.value, 10) || 2,
+              cols: parseInt(colsInput.value, 10) || 2,
+              gap: 16,
+            });
+            API.applyGridLayout();
+            renderList();
+          }
+        } catch (_) { }
+      });
+
+      saveLayoutBtn.addEventListener('click', function () {
+        try {
+          if (API && typeof API.saveCollageLayout === 'function') {
+            API.saveCollageLayout();
+            alert((window.UILabels && window.UILabels.COLLAGE_SAVED) || 'レイアウトを保存しました');
+          }
+        } catch (_) { }
+      });
+
+      loadLayoutBtn.addEventListener('click', function () {
+        try {
+          if (API && typeof API.loadCollageLayout === 'function') {
+            API.loadCollageLayout();
+            updateModeButtons();
+            renderList();
+            alert((window.UILabels && window.UILabels.COLLAGE_LOADED) || 'レイアウトを復元しました');
+          }
+        } catch (_) { }
+      });
+
       var list = document.createElement('div'); list.style.display = 'grid'; list.style.gap = '6px';
 
       function showEditDialog(id, it) {
@@ -84,11 +233,21 @@
 
       root.appendChild(urlRow);
       root.appendChild(fileRow);
+      root.appendChild(collageSection);
       root.appendChild(list);
       el.appendChild(root);
 
+      updateModeButtons();
       renderList();
-      try { window.addEventListener('ZWDocumentsChanged', renderList); } catch (_) { }
+      try {
+        window.addEventListener('ZWDocumentsChanged', function () {
+          renderList();
+          updateModeButtons();
+        });
+        if (API && typeof API.getCollageMode === 'function') {
+          window.addEventListener('ZWImagesChanged', updateModeButtons);
+        }
+      } catch (_) { }
     } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.IMG_INIT_FAILED) || '画像ガジェットの初期化に失敗しました。'; } catch (_) { } }
   }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_IMAGES_TITLE) || '画像' });
 

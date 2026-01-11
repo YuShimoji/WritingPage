@@ -1,12 +1,11 @@
 # Task: テキストアニメーション機能実装
 
-Status: OPEN
+Status: CLOSED
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_20260112_000625_text_animation_implementation.md
 ## Objective
 
 - テキストアニメーション機能（タイピング、フェードイン/アウト等）を実装する
@@ -37,13 +36,13 @@ Report:
 
 ## DoD
 
-- [ ] タイピングアニメーション効果を実装
-- [ ] フェードイン/アウトアニメーション効果を実装
-- [ ] アニメーション設定UI（速度、タイミング調整）を実装
-- [ ] アニメーション効果をMarkdownに保存する仕組みを実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] タイピングアニメーション効果を実装
+- [x] フェードイン/アウトアニメーション効果を実装
+- [x] アニメーション設定UI（速度、タイミング調整）を実装
+- [x] アニメーション効果をMarkdownに保存する仕組みを実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

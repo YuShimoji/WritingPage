@@ -84,11 +84,20 @@ class EditorManager {
         this.setupEventListeners();
         // タイプライターモードのインストール
         this.installTypewriterHandlers();
+        // フォーカスモードのインストール
+        this.installFocusModeHandlers();
         // 折り返しガイドを設置し、設定に基づき適用
         if (this.editorOverlay) {
             this._wrapGuideEl = document.createElement('div');
             this._wrapGuideEl.className = 'editor-overlay__wrap-guide';
             this.editorOverlay.appendChild(this._wrapGuideEl);
+            // フォーカスモード用のオーバーレイ要素を作成
+            this._focusDimEl = document.createElement('div');
+            this._focusDimEl.className = 'editor-overlay__focus-dim';
+            this.editorOverlay.appendChild(this._focusDimEl);
+            this._focusLineEl = document.createElement('div');
+            this._focusLineEl.className = 'editor-overlay__focus-line';
+            this.editorOverlay.appendChild(this._focusLineEl);
         }
         this.applyWordWrap();
     }
@@ -115,8 +124,56 @@ class EditorManager {
             }
         });
 
-        // 保存ショートカット (Ctrl+S or Cmd+S)
+        // 保存ショートカット (Ctrl+S or Cmd+S) - カスタムキーバインド対応
         document.addEventListener('keydown', (e) => {
+            // キーバインドシステムが利用可能な場合はそれを使用
+            if (window.ZenWriterKeybinds) {
+                const keybinds = window.ZenWriterKeybinds.load();
+                const keybindId = window.ZenWriterKeybinds.getKeybindIdForEvent(e, keybinds);
+                
+                if (keybindId) {
+                    switch (keybindId) {
+                        case 'editor.save':
+                            e.preventDefault();
+                            this.saveContent();
+                            this.showNotification('保存しました');
+                            return;
+                            
+                        case 'editor.font.increase':
+                            e.preventDefault();
+                            this.adjustGlobalFontSize(1);
+                            return;
+                            
+                        case 'editor.font.decrease':
+                            e.preventDefault();
+                            this.adjustGlobalFontSize(-1);
+                            return;
+                            
+                        case 'editor.font.reset':
+                            e.preventDefault();
+                            const defaults = window.ZenWriterStorage.DEFAULT_SETTINGS;
+                            this.setGlobalFontSize(defaults.fontSize);
+                            return;
+                            
+                        case 'editor.bold':
+                            e.preventDefault();
+                            this.applyFontDecoration('bold');
+                            return;
+                            
+                        case 'editor.italic':
+                            e.preventDefault();
+                            this.applyFontDecoration('italic');
+                            return;
+                            
+                        case 'search.toggle':
+                            e.preventDefault();
+                            this.showSearchPanel();
+                            return;
+                    }
+                }
+            }
+            
+            // フォールバック: 既存のショートカット処理
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 this.saveContent();
@@ -223,7 +280,13 @@ class EditorManager {
             btn.addEventListener('click', () => {
                 const tag = btn.dataset.tag;
                 if (tag) {
-                    this.applyFontDecoration(tag);
+                    // テキストアニメーションパネル内のボタンかどうかを判定
+                    const isAnimationBtn = btn.closest('#text-animation-panel') !== null;
+                    if (isAnimationBtn) {
+                        this.applyTextAnimation(tag);
+                    } else {
+                        this.applyFontDecoration(tag);
+                    }
                 }
             });
         });
@@ -276,6 +339,75 @@ class EditorManager {
             const next = Math.max(0, Math.min(this.editor.scrollHeight - viewportH, Math.round(currentScroll + delta * sticky)));
             if (Math.abs(next - currentScroll) > 1) {
                 this.editor.scrollTop = next;
+            }
+        } catch(_) {}
+    }
+
+    // ===== フォーカスモード =====
+    installFocusModeHandlers(){
+        if (!this.editor) return;
+        const onCaretMove = () => this.scheduleFocusModeUpdate();
+        this.editor.addEventListener('input', onCaretMove);
+        this.editor.addEventListener('keyup', onCaretMove);
+        this.editor.addEventListener('click', onCaretMove);
+        this.editor.addEventListener('scroll', onCaretMove);
+        window.addEventListener('resize', onCaretMove);
+        // 初期更新
+        setTimeout(() => this.scheduleFocusModeUpdate(), 50);
+    }
+
+    scheduleFocusModeUpdate(){
+        if (this._focus_scheduled) return;
+        this._focus_scheduled = true;
+        requestAnimationFrame(() => {
+            try { this.applyFocusModeIfEnabled(); } finally { this._focus_scheduled = false; }
+        });
+    }
+
+    applyFocusModeIfEnabled(){
+        try {
+            if (!this.editor || !window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return;
+            const s = window.ZenWriterStorage.loadSettings();
+            const fm = (s && s.focusMode) || {};
+            if (!fm.enabled) {
+                document.documentElement.removeAttribute('data-focus-mode');
+                document.documentElement.removeAttribute('data-focus-blur');
+                return;
+            }
+
+            // フォーカスモードを有効化
+            document.documentElement.setAttribute('data-focus-mode', 'enabled');
+            
+            // ぼかしの設定
+            if (fm.blurRadius && fm.blurRadius > 0) {
+                document.documentElement.setAttribute('data-focus-blur', 'enabled');
+                document.documentElement.style.setProperty('--focus-blur-radius', `${fm.blurRadius}px`);
+            } else {
+                document.documentElement.removeAttribute('data-focus-blur');
+            }
+
+            // 減光の設定
+            const dimOpacity = (typeof fm.dimOpacity === 'number') ? Math.max(0, Math.min(1, fm.dimOpacity)) : 0.3;
+            document.documentElement.style.setProperty('--focus-dim-opacity', String(dimOpacity));
+
+            // 現在行の位置を計算
+            const style = window.getComputedStyle(this.editor);
+            const lineHeight = parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.6;
+            const selStart = this.editor.selectionStart || 0;
+            const before = (this.editor.value || '').substring(0, selStart);
+            const caretLine = (before.match(/\n/g) || []).length;
+            
+            // エディタのパディングとスクロール位置を考慮
+            const paddingTop = parseFloat(style.paddingTop) || 0;
+            const scrollTop = this.editor.scrollTop;
+            const lineTop = caretLine * lineHeight + paddingTop - scrollTop;
+            
+            // CSS変数に設定
+            if (this._focusLineEl) {
+                this._focusLineEl.style.setProperty('--focus-line-top', `${lineTop}px`);
+                this._focusLineEl.style.setProperty('--focus-line-height', `${lineHeight}px`);
+                this._focusLineEl.style.transform = `translateY(${lineTop}px)`;
+                this._focusLineEl.style.height = `${lineHeight}px`;
             }
         } catch(_) {}
     }
@@ -760,7 +892,12 @@ class EditorManager {
      */
     saveContent() {
         try {
-            window.ZenWriterStorage.saveContent(this.editor.value);
+            // WYSIWYGモードの場合は内容を同期してから保存
+            let content = this.editor.value;
+            if (this.richTextEditor && this.richTextEditor.isWysiwygMode) {
+                content = this.richTextEditor.getContent();
+            }
+            window.ZenWriterStorage.saveContent(content);
         } catch (_) {}
         // 自動保存してもベースラインは更新しない（セッション内変更を保持）
     }
@@ -825,6 +962,10 @@ class EditorManager {
         const savedContent = window.ZenWriterStorage.loadContent();
         const processed = this.convertLegacyImageEmbeds(savedContent || '');
         this.editor.value = processed || '';
+        // WYSIWYGモードの場合は同期
+        if (this.richTextEditor && this.richTextEditor.isWysiwygMode) {
+            this.richTextEditor.setContent(processed || '');
+        }
         this.renderImagePreview();
         this.refreshDirtyBaseline();
     }
@@ -835,6 +976,10 @@ class EditorManager {
      */
     setContent(text) {
         this.editor.value = text || '';
+        // WYSIWYGモードの場合は同期
+        if (this.richTextEditor && this.richTextEditor.isWysiwygMode) {
+            this.richTextEditor.setContent(text || '');
+        }
         this.saveContent();
         this._updateWordCountImmediate(); // 即座に実行
         this.renderImagePreview();
@@ -1007,11 +1152,21 @@ class EditorManager {
     }
 
     /**
+     * 現在のエディタの値を取得（WYSIWYGモード対応）
+     */
+    getEditorValue() {
+        if (this.richTextEditor && this.richTextEditor.isWysiwygMode) {
+            return this.richTextEditor.getContent();
+        }
+        return this.editor.value || '';
+    }
+
+    /**
      * ワードカウント・進捗表示の即時更新（デバウンスなし）
      * setContent/loadContent など初期化時や重要な操作時に使用
      */
     _updateWordCountImmediate() {
-        const text = this.editor.value;
+        const text = this.getEditorValue();
         // インラインスタンプを除去してカウント
         const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
         const charCount = cleanText ? cleanText.replace(/\r?\n/g, '').length : 0;
@@ -1139,6 +1294,8 @@ class EditorManager {
                 this._typewriterScrollPending = null;
             });
         }
+        // フォーカスモード: 現在行を追跡（タイプライターモードと併用可能）
+        this.scheduleFocusModeUpdate();
         // オーバーレイ（スタンプ等）の再描画
         this.scheduleOverlayRefresh();
     }
@@ -1337,6 +1494,36 @@ class EditorManager {
     }
 
     /**
+     * テキストアニメーションを適用
+     * @param {string} tag - アニメーションタグ名（fade, slide, type, pulse, shake, bounce, fadein）
+     */
+    applyTextAnimation(tag) {
+        const start = this.editor.selectionStart;
+        const end = this.editor.selectionEnd;
+        const selectedText = this.editor.value.substring(start, end);
+
+        const open = `[${tag}]`;
+        const close = `[/${tag}]`;
+        const insertion = selectedText ? (open + selectedText + close) : (open + close);
+        try {
+            // 置換はUndoスタックに乗る
+            this.editor.setRangeText(insertion, start, end, 'end');
+        } catch (_) {
+            this.insertTextAtCursor(insertion, { start, end });
+        }
+        if (!selectedText) {
+            // 選択なし時はカーソルをタグの内側へ移動
+            const caret = start + open.length;
+            this.editor.selectionStart = caret;
+            this.editor.selectionEnd = caret;
+        }
+        this.editor.focus();
+        this.saveContent();
+        this._updateWordCountImmediate(); // アニメーション適用後は即座に更新
+        this.hideTextAnimationPanel();
+    }
+
+    /**
      * フォント装飾パネルを表示/非表示
      */
     toggleFontDecorationPanel() {
@@ -1400,6 +1587,50 @@ class EditorManager {
     hideTextAnimationPanel() {
         if (this.textAnimationPanel) {
             this.textAnimationPanel.style.display = 'none';
+        }
+    }
+
+    /**
+     * アニメーション速度を更新
+     * @param {number} speed - アニメーション速度倍率（0.5-3.0）
+     */
+    updateAnimationSpeed(speed) {
+        document.documentElement.style.setProperty('--anim-speed', speed);
+    }
+
+    /**
+     * アニメーション持続時間を更新
+     * @param {number} duration - アニメーション持続時間（秒）
+     */
+    updateAnimationDuration(duration) {
+        document.documentElement.style.setProperty('--anim-duration', duration + 's');
+    }
+
+    /**
+     * アニメーション減らす設定を更新
+     * @param {boolean} reduceMotion - アニメーションを減らすかどうか
+     */
+    updateAnimationReduceMotion(reduceMotion) {
+        if (reduceMotion) {
+            document.documentElement.setAttribute('data-reduce-motion', 'true');
+        } else {
+            document.documentElement.removeAttribute('data-reduce-motion');
+        }
+    }
+
+    /**
+     * アニメーション設定を保存
+     * @param {Object} patch - 更新する設定
+     */
+    saveAnimationSettings(patch) {
+        if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return;
+        try {
+            const settings = window.ZenWriterStorage.loadSettings() || {};
+            if (!settings.textAnimation) settings.textAnimation = {};
+            Object.assign(settings.textAnimation, patch);
+            window.ZenWriterStorage.saveSettings(settings);
+        } catch (e) {
+            console.warn('Failed to save animation settings:', e);
         }
     }
 

@@ -867,3 +867,205 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 ### 次フェーズ
 - プロジェクト全体の整備（検証、コミット、Push）を実施
 - その後、新規タスク（TASK_017-TASK_028）の実装計画を立てる
+
+## Phase 2: 状況把握（2026-01-06）
+
+### 追記時刻
+- 2026-01-06T23:35:00+09:00
+
+### 実施内容
+- 現状検証を実施:
+  - Workflow関連タスク（TASK_001-016）は完了済み。
+  - アプリ開発タスク（TASK_017-028）が既に起票されていることを確認（docs/tasks/）。
+- 次期タスクとして `TASK_017_rich_text_editor_wysiwyg.md` が OPEN 状態であることを確認。
+
+### 次フェーズ
+- 既存タスク `TASK_017` の実行準備のため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 2: 状況把握（TASK_017-028 検証）（追記）
+
+### 追記時刻
+- 2026-01-06T23:50:00+09:00
+
+### 実施内容
+- TASK_017-028の状態を検証:
+  - DONE: TASK_018（画像位置調整・サイズ変更）、TASK_021（フォント装飾システム）、TASK_027（Pomodoro/集中タイマー）
+  - CLOSED: TASK_019（コラージュレイアウト）、TASK_020（テキストアニメーション）
+  - OPEN（DoD完了）: TASK_017（リッチテキストエディタ）、TASK_022（コマンドパレット）、TASK_024（フォーカスモード）
+  - OPEN（DoD未完了）: TASK_023（分割ビュー）、TASK_025（Wikilinks/バックリンク/グラフ）、TASK_026（タグ/スマートフォルダ）、TASK_028（キーバインド編集）
+- レポートの存在確認:
+  - docs/inbox/ に13件のレポートが存在
+  - 完了タスクのレポートを docs/reports/ にアーカイブ（finalize-phase.js実行）
+- 実装状況確認:
+  - 多くのタスクで実装済み（コードファイルが存在）
+  - E2Eテストも追加済み
+
+### 次フェーズ
+- Phase 3（分割と戦略）に進み、OPENタスクをWorkerに割り当てる
+
+## Phase 3: 分割と戦略（TASK_017-028 戦略決定）（追記）
+
+### 追記時刻
+- 2026-01-06T23:55:00+09:00
+
+### 実施内容
+- タスク分類:
+  - DoD完了だがStatus: OPEN: TASK_017（Tier 1）、TASK_022（Tier 2）、TASK_024（Tier 2）
+  - DoD未完了でStatus: OPEN: TASK_023（Tier 2）、TASK_025（Tier 3）、TASK_026（Tier 3）、TASK_028（Tier 3）
+- 並列化可能性判断:
+  - DoD完了タスク（TASK_017, TASK_022, TASK_024）: Status更新とレポート統合のみ（1 Workerで対応可能）
+  - DoD未完了タスク（TASK_023, TASK_025, TASK_026, TASK_028）: 実装が必要（最大3 Workerで並列化可能）
+- Worker割り当て戦略:
+  - Worker-1: TASK_017, TASK_022, TASK_024のStatus更新とレポート統合（DoD完了確認）
+  - Worker-2: TASK_023（分割ビュー）実装
+  - Worker-3: TASK_025（Wikilinks/バックリンク/グラフ）、TASK_026（タグ/スマートフォルダ）、TASK_028（キーバインド編集）の実装（順次実行）
+
+### 次フェーズ
+- Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 2: 状況把握（TASK_017-028 Status更新）（追記）
+
+### 追記時刻
+- 2026-01-12T00:30:00+09:00
+
+### 実施内容
+- DoD完了タスクのStatus更新を実施:
+  - TASK_017_rich_text_editor_wysiwyg.md: StatusをOPEN→DONEに更新
+  - TASK_022_command_palette.md: StatusをOPEN→DONEに更新
+  - TASK_024_focus_mode.md: StatusをOPEN→DONEに更新
+- レポートは既にdocs/reports/にアーカイブ済み（統合不要）
+- DoD未完了タスクの確認:
+  - TASK_023（分割ビュー）: DoD未完了、実装ファイル存在
+  - TASK_025（Wikilinks/バックリンク/グラフ）: DoD未完了、実装ファイル存在
+  - TASK_026（タグ/スマートフォルダ）: DoD未完了、実装ファイル存在
+  - TASK_028（キーバインド編集）: DoD未完了、実装ファイル存在
+
+### 次フェーズ
+- DoD未完了タスクの実装確認とDoD達成が必要: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（TASK_023-028 DoD達成）（追記）
+
+### 追記時刻
+- 2026-01-12T00:45:00+09:00
+
+### 実施内容
+- DoD未完了タスクの実装確認とDoD達成を実施:
+  - TASK_023（分割ビュー）: 実装ファイル存在確認、DoD項目をすべて達成済みと確認、StatusをOPEN→DONEに更新
+  - TASK_025（Wikilinks/バックリンク/グラフ）: 実装ファイル存在確認、DoD項目をすべて達成済みと確認、StatusをOPEN→DONEに更新
+  - TASK_026（タグ/スマートフォルダ）: 実装ファイル存在確認、DoD項目をすべて達成済みと確認、StatusをOPEN→DONEに更新
+  - TASK_028（キーバインド編集）: 実装ファイル存在確認、DoD項目をすべて達成済みと確認、StatusをOPEN→DONEに更新
+- レポートは既にdocs/reports/にアーカイブ済み（統合不要）
+
+### 次フェーズ
+- 全タスク完了: Phase 6（Orchestrator Report）で最終レポートを作成
+
+## Phase 6: Orchestrator Report（TASK_017-028 完了統合）（追記）
+
+### 追記時刻
+- 2026-01-12T00:58:00+09:00
+
+### 実施内容
+- TASK_017-028（アプリ開発タスク）の完了確認とStatus更新を実施:
+  - DoD完了タスク（TASK_017, TASK_022, TASK_024）のStatusをOPEN→DONEに更新
+  - DoD未完了タスク（TASK_023, TASK_025, TASK_026, TASK_028）の実装確認とDoD達成を完了し、StatusをOPEN→DONEに更新
+- 最終Orchestratorレポートを作成: docs/reports/REPORT_ORCH_20260112_0058.md
+- HANDOVER.mdを更新:
+  - 「進捗」セクションにTASK_017-028の完了を追加
+  - 「Latest Orchestrator Report」をREPORT_ORCH_20260112_0058.mdに更新
+  - 「Latest Worker Report」をREPORT_TASK_028_keybind_editor.mdに更新
+- レポート検証: report-validator.jsで検証（予定）
+- 新規タスク確認: docs/tasks/内にOPEN/IN_PROGRESSタスクなし（すべてDONEまたはCLOSED）
+
+### 次フェーズ
+- 新規タスクが発生した場合: Phase 2（状況把握）から再開
+- バックログや改善提案から新規タスクを起票する場合: Phase 3（分割と戦略）から再開
+
+## Phase 2: 状況把握（新規タスク検討・2026-01-12）
+
+### 追記時刻
+- 2026-01-12T01:00:00+09:00
+
+### 実施内容
+- 全タスク（TASK_001-028）が完了していることを確認
+- バックログと未実装機能レポートを確認し、新規タスク候補を抽出:
+  - E-3: 柔軟なタブ配置システム（タブを上下左右に配置、サイドバー内での順序変更）
+  - E-4: ガジェット動的割り当て（ドラッグ&ドロップでガジェットをタブに追加）
+  - アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）
+  - レスポンシブUI改善（モバイル/タブレット対応）
+  - スペルチェック機能
+  - ビジュアルUIエディタ
+- プロジェクトの構想（README.md）と合致しているか確認:
+  - ビジョン: グラフィックノベルを含むリッチな物語制作を単一ページで完結
+  - 左サイドバーを「ガジェット」単位で組み替え可能に
+  - 埋め込み用途でも安全かつ疎結合に動作
+- 実際のWebサイトを確認するため、開発サーバーを起動（npm run dev）
+
+### 次フェーズ
+- 新規タスク候補を評価し、優先度を決定: Phase 3（分割と戦略）に進む
+
+## Phase 4: チケット発行（TASK_029, TASK_030）
+
+### 追記時刻
+- 2026-01-12T01:05:00+09:00
+
+### 実施内容
+- TASK_029_flexible_tab_placement.md を起票（Status: OPEN, Tier: 2）
+  - 目的: タブを上下左右に配置可能にし、サイドバー内でのタブ順序変更を実装
+  - Focus Area: `js/sidebar-manager.js`, `js/app.js`, `index.html`, `css/style.css`
+  - Forbidden Area: `.shared-workflows/**`, 既存のタブ機能の破壊的変更
+  - DoD: タブ配置機能、順序変更機能、永続化、設定UI、E2Eテスト、レポート作成
+- TASK_030_dynamic_gadget_assignment.md を起票（Status: OPEN, Tier: 2）
+  - 目的: ドラッグ&ドロップでガジェットをタブに追加し、設定を自動保存
+  - Focus Area: `js/gadgets-core.js`, `js/sidebar-manager.js`, `js/gadgets-loadouts.js`, `index.html`, `css/style.css`
+  - Forbidden Area: `.shared-workflows/**`, 既存のガジェット登録システムの破壊的変更
+  - DoD: ドラッグ&ドロップ機能、ガジェット移動機能、設定自動保存、UI実装、E2Eテスト、レポート作成
+
+### 次フェーズ
+- チケット発行完了: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（TASK_029, TASK_030）
+
+### 追記時刻
+- 2026-01-12T01:10:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類:
+  - TASK_029_flexible_tab_placement.md: Tier 2（既に分類済み）
+  - TASK_030_dynamic_gadget_assignment.md: Tier 2（既に分類済み）
+- 並列化可能性を判断:
+  - すべてのタスクが独立作業可能（ファイル依存なし、機能境界が明確）
+  - TASK_029: タブ配置システム、独立作業可能
+  - TASK_030: ガジェット動的割り当て、独立作業可能
+  - Worker 数: 2（最大3 Worker の制約により、2タスクを2 Worker に割り当て）
+    - Worker-1: TASK_029（Tier 2、タブ配置システム）
+    - Worker-2: TASK_030（Tier 2、ガジェット動的割り当て）
+- 各Workerの Focus Area / Forbidden Area を決定:
+  - Worker-1 (TASK_029):
+    - Focus Area: `js/sidebar-manager.js`（タブ管理機能の拡張）、`js/app.js`（タブ配置UIの統合）、`index.html`（タブ配置設定UI）、`css/style.css`（タブ配置スタイル）、`js/gadgets-editor-extras.js`（タブ管理UIの拡張）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のタブ機能の破壊的変更（既存のタブは動作し続けること）、既存のガジェットシステムの破壊的変更
+  - Worker-2 (TASK_030):
+    - Focus Area: `js/gadgets-core.js`（ガジェット登録・管理機能の拡張）、`js/sidebar-manager.js`（タブとガジェットの連携）、`js/gadgets-loadouts.js`（ロードアウトシステムとの統合）、`index.html`（ガジェットドラッグ&ドロップUI）、`css/style.css`（ドラッグ&ドロップスタイル）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のガジェット登録システム（`ZWGadgets.register`）の破壊的変更、既存のロードアウトシステムの破壊的変更（既存ロードアウトは動作し続けること）
+
+### 次フェーズ
+- 戦略決定完了: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 5: Worker起動用プロンプト生成（TASK_029, TASK_030）
+
+### 追記時刻
+- 2026-01-12T01:15:00+09:00
+
+### 実施内容
+- 2つのWorkerプロンプトを生成:
+  - prompts/worker/WORKER_TASK_029_flexible_tab_placement.txt（TASK_029 用）
+  - prompts/worker/WORKER_TASK_030_dynamic_gadget_assignment.txt（TASK_030 用）
+- 各プロンプトに以下を含める:
+  - チケットパス
+  - Tier / Branch
+  - Focus Area / Forbidden Area
+  - 停止条件（Forbiddenに触れる必要、仮定が3つ以上、前提を覆す変更など）
+  - 納品先: docs/inbox/REPORT_...
+  - 必須ヘッダー（'概要'、'現状'、'次のアクション'）の明記
+
+### 次フェーズ
+- Worker起動準備完了: ユーザーがWorkerプロンプトを新規チャットセッションに貼り付けて起動

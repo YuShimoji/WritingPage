@@ -1,0 +1,115 @@
+# Worker Prompt: TASK_030_dynamic_gadget_assignment
+
+あなたは分散開発チームの Worker です。割り当てられた 1 タスクだけを完遂し、証跡を残してください。
+
+## Phase 0: 参照と整備
+- SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+- 進捗: docs/HANDOVER.md
+- チケット: docs/tasks/TASK_030_dynamic_gadget_assignment.md
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+
+## Phase 1: 前提の固定
+- Tier: 2
+- Branch: main
+- Report Target: docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_YYYYMMDD_HHMM.md
+- GitHubAutoApprove: docs/HANDOVER.md の記述を参照（未記載なら push 禁止）
+- ブランチが異なる場合:
+  - `git status -sb` で未コミットが無いことを確認
+  - `git switch main` で切替を試す
+  - 破壊的操作が必要なら停止条件
+
+## Phase 2: 境界
+- Focus Area: `js/gadgets-core.js`（ガジェット登録・管理機能の拡張）、`js/sidebar-manager.js`（タブとガジェットの連携）、`js/gadgets-loadouts.js`（ロードアウトシステムとの統合）、`index.html`（ガジェットドラッグ&ドロップUI）、`css/style.css`（ドラッグ&ドロップスタイル、ドロップゾーン表示）
+- Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のガジェット登録システム（`ZWGadgets.register`）の破壊的変更、既存のロードアウトシステムの破壊的変更（既存ロードアウトは動作し続けること）
+- DoD:
+  - [ ] ドラッグ&ドロップでガジェットをタブに追加する機能を実装
+  - [ ] ガジェットをタブ間で移動する機能を実装
+  - [ ] ガジェット移動時の設定自動保存機能を実装（ロードアウトに反映）
+  - [ ] ドラッグ&ドロップUIを実装（ドラッグ可能なガジェット、ドロップゾーン表示）
+  - [ ] 既存のロードアウトシステムとの互換性を維持（既存ロードアウトは動作し続ける）
+  - [ ] ガジェットの配置情報をLocalStorageに永続化
+  - [ ] E2Eテストを追加
+  - [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - [ ] 本チケットの Report 欄にレポートパスが追記されている
+
+## Phase 3: 実行ルール
+- チャットで完結させない。成果はファイル（docs/tasks / docs/inbox / docs/HANDOVER / git）に残す。
+- コマンドは実行して結果で判断。失敗は「失敗」と明記し、根拠と次手を出す。
+- 指示コマンドが無い場合: `Get-Command <cmd>` 等で確認 → 代替案提示 → それでも依存追加/外部通信が必要なら停止。
+- 「念のため」のテスト/フォールバック/リファクタは禁止（DoD 従属のみ）。
+- ダブルチェック:
+  - テスト/Push/長時間待機は結果を確認し、未達なら完了扱いにしない。
+  - `git status -sb` で差分を常に把握。
+- タイムアウトを宣言し、無限待機しない。
+
+## 停止条件
+- Forbidden Area に触れないと解決できない
+- 仕様仮定が3件以上
+- SSOT が取得できない / `ensure-ssot.js` でも解決不可
+- 依存追加 / 外部通信（fetch/pull/push 等）が必要で GitHubAutoApprove=true が未確認
+- 破壊的・復旧困難操作（rebase/reset/force push 等）が必要
+- 数分以上の待機が必須、またはタイムアウト超過が見込まれる
+
+## 停止時の必須アウトプット
+1. チケット docs/tasks/TASK_030_dynamic_gadget_assignment.md を IN_PROGRESS/BLOCKED のまま更新
+   - 事実 / 根拠ログ要点 / 次手 1-3 件 / Report パスを必ず追記
+2. docs/inbox/ に未完了レポートを作成し、調査結果・詰まり・次手を記録
+3. 変更は commit する（push は GitHubAutoApprove=true の場合のみ自律実行）。push 不要時は「push pending」を明記
+4. チャット 1 行: `Blocked: docs/tasks/TASK_030_dynamic_gadget_assignment.md. Reason: <要点>. Next: <候補>. Report: docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_YYYYMMDD_HHMM.md.`
+
+## Phase 4: 納品 & 検証
+1. チケットを DONE に更新し、DoD 各項目に対して根拠（差分 or テスト結果）を記入
+2. docs/inbox/ にレポート（以下テンプレ）を作成/更新し、`node .shared-workflows/scripts/report-validator.js <REPORT_PATH_TARGET>`（無ければ `node scripts/report-validator.js <REPORT_PATH_TARGET> REPORT_CONFIG.yml .`）を実行。結果をレポートに記載
+   - **重要**: レポートには REPORT_CONFIG.yml の standard スタイルに準拠し、必須ヘッダー（'概要'、'現状'、'次のアクション'）を必ず含めること
+3. docs/HANDOVER.md の「進捗」セクションを更新し、次回 Orchestrator が把握できるよう記録
+4. 実行したテストを `<cmd>=<result>` 形式でレポートとチケットに残す
+5. `git status -sb` をクリーンにしてから commit（必要なら push）。push は GitHubAutoApprove=true の場合のみ
+
+## Phase 5: チャット出力
+- 完了時: `Done: docs/tasks/TASK_030_dynamic_gadget_assignment.md. Report: docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_YYYYMMDD_HHMM.md. Tests: <cmd>=<result>.`
+- ブロッカー継続時: `Blocked: docs/tasks/TASK_030_dynamic_gadget_assignment.md. Reason: <要点>. Next: <候補>. Report: docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_YYYYMMDD_HHMM.md.`
+
+## 納品レポート（docs/inbox/REPORT_TASK_030_dynamic_gadget_assignment_YYYYMMDD_HHMM.md）フォーマット
+# Report: ガジェット動的割り当て機能実装
+
+**Timestamp**: <ISO8601>  
+**Actor**: Worker  
+**Ticket**: docs/tasks/TASK_030_dynamic_gadget_assignment.md  
+**Type**: Worker  
+**Duration**: <所要時間>  
+**Changes**: <変更量要約>
+
+## 概要
+- <タスクの目的と完了内容の要約>
+
+## 現状
+- <現在の状態、実施内容、変更ファイルの概要>
+
+## 次のアクション
+- <次に実施すべきこと、または「なし」>
+
+## Changes
+- <file>: <詳細変更内容（何をどう変更したか）>
+
+## Decisions
+- <decision>: <理由>
+
+## Verification
+- <command>: <result（成功/失敗とログ要点）>
+
+## Risk
+- <潜在リスク>
+
+## Remaining
+- なし / <残件>
+
+## Blocked（State: BLOCKED の場合）
+- Reason / Evidence / Options（1〜3）
+
+## Handover
+- Orchestrator への申し送り（次手・注意点・未解決事項）
+
+## Proposals（任意）
+- 担当外で気づいた改善案・次回タスク候補
+
+**注意**: 上記の「概要」「現状」「次のアクション」は REPORT_CONFIG.yml の standard スタイルで必須とされるヘッダーです。レポート作成時は必ず含めてください。

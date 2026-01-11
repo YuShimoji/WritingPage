@@ -76,6 +76,63 @@
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
     }, { title: 'Typewriter', groups: ['assist'] });
 
+    // Focus Mode Gadget
+    window.ZWGadgets.register('FocusMode', function(root){
+      var s = window.ZenWriterStorage.loadSettings();
+      var fm = (s && s.focusMode) || {};
+      root.innerHTML='';
+      root.style.display='grid'; root.style.gap='8px';
+
+      var row1 = el('label', 'toggle-switch');
+      var enabled = el('input'); enabled.type='checkbox'; enabled.id='focus-mode-enabled'; enabled.checked = !!fm.enabled;
+      var lbl1 = el('span'); lbl1.textContent = 'フォーカスモード';
+      row1.appendChild(enabled); row1.appendChild(lbl1);
+
+      var row2 = el('div');
+      var dimOpacity = el('input'); dimOpacity.type='range'; dimOpacity.id='focus-dim-opacity'; dimOpacity.min='0'; dimOpacity.max='1'; dimOpacity.step='0.1'; dimOpacity.value = String(typeof fm.dimOpacity==='number'? fm.dimOpacity : 0.3);
+      var dLbl = el('div'); dLbl.textContent = '減光: '+dimOpacity.value; dLbl.style.fontSize='12px';
+      row2.appendChild(dLbl); row2.appendChild(dimOpacity);
+
+      var row3 = el('div');
+      var blurRadius = el('input'); blurRadius.type='range'; blurRadius.id='focus-blur-radius'; blurRadius.min='0'; blurRadius.max='10'; blurRadius.step='0.5'; blurRadius.value = String(typeof fm.blurRadius==='number'? fm.blurRadius : 2);
+      var bLbl = el('div'); bLbl.textContent = 'ぼかし: '+blurRadius.value+'px'; bLbl.style.fontSize='12px';
+      row3.appendChild(bLbl); row3.appendChild(blurRadius);
+
+      function refreshFocusMode(){
+        try {
+          if (window.ZenWriterEditor && typeof window.ZenWriterEditor.scheduleFocusModeUpdate === 'function') {
+            window.ZenWriterEditor.scheduleFocusModeUpdate();
+          }
+        } catch(_){}
+      }
+
+      enabled.addEventListener('change', function(){ 
+        withStorage(function(cfg){ 
+          cfg.focusMode = cfg.focusMode||{}; 
+          cfg.focusMode.enabled = !!enabled.checked; 
+        }); 
+        refreshFocusMode(); 
+      });
+      dimOpacity.addEventListener('input', function(){ dLbl.textContent = '減光: '+dimOpacity.value; });
+      dimOpacity.addEventListener('change', function(){ 
+        withStorage(function(cfg){ 
+          cfg.focusMode = cfg.focusMode||{}; 
+          cfg.focusMode.dimOpacity = clamp(parseFloat(dimOpacity.value),0,1); 
+        }); 
+        refreshFocusMode(); 
+      });
+      blurRadius.addEventListener('input', function(){ bLbl.textContent = 'ぼかし: '+blurRadius.value+'px'; });
+      blurRadius.addEventListener('change', function(){ 
+        withStorage(function(cfg){ 
+          cfg.focusMode = cfg.focusMode||{}; 
+          cfg.focusMode.blurRadius = clamp(parseFloat(blurRadius.value),0,10); 
+        }); 
+        refreshFocusMode(); 
+      });
+
+      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
+    }, { title: 'Focus Mode', groups: ['assist'] });
+
     // Snapshot Manager Gadget
     window.ZWGadgets.register('SnapshotManager', function(root){
       var s = window.ZenWriterStorage.loadSettings();
@@ -188,7 +245,112 @@
       placeholderRow.appendChild(placeholderLabel);
       placeholderRow.appendChild(placeholderInput);
 
+      // タブ配置（上下左右）
+      var placementRow = el('div');
+      var placementSel = el('select');
+      [
+        { value: 'left', label: '左' },
+        { value: 'right', label: '右' },
+        { value: 'top', label: '上' },
+        { value: 'bottom', label: '下' }
+      ].forEach(function(opt) {
+        var o = el('option'); o.value = opt.value; o.textContent = opt.label; placementSel.appendChild(o);
+      });
+      placementSel.value = String(ui.tabPlacement || 'left');
+      var placementLabel = el('label'); placementLabel.textContent = 'タブ配置'; placementLabel.style.display = 'block';
+      placementRow.appendChild(placementLabel); placementRow.appendChild(placementSel);
+
+      // タブ順序変更UI
+      var orderRow = el('div');
+      var orderLabel = el('label'); orderLabel.textContent = 'タブ順序'; orderLabel.style.display = 'block';
+      var orderContainer = el('div'); orderContainer.style.display = 'flex'; orderContainer.style.flexDirection = 'column'; orderContainer.style.gap = '4px';
+      var orderList = el('div'); orderList.id = 'tab-order-list'; orderList.style.display = 'flex'; orderList.style.flexDirection = 'column'; orderList.style.gap = '4px';
+      orderContainer.appendChild(orderList);
+      orderRow.appendChild(orderLabel); orderRow.appendChild(orderContainer);
+
+      // タブ順序リストを更新
+      function refreshTabOrderList() {
+        try {
+          orderList.innerHTML = '';
+          var tabs = window.sidebarManager ? window.sidebarManager.getTabOrder() : [];
+          if (tabs.length === 0) {
+            var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '12px'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
+            return;
+          }
+          tabs.forEach(function(tabId, index) {
+            var item = el('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '8px';
+            item.style.padding = '4px 8px';
+            item.style.border = '1px solid var(--border-color, #e0e0e0)';
+            item.style.borderRadius = '4px';
+            item.style.backgroundColor = 'var(--ui-bg, #fff)';
+            item.draggable = true;
+            item.dataset.tabId = tabId;
+
+            var upBtn = el('button'); upBtn.className = 'small'; upBtn.textContent = '↑'; upBtn.style.flex = '0 0 auto';
+            var downBtn = el('button'); downBtn.className = 'small'; downBtn.textContent = '↓'; downBtn.style.flex = '0 0 auto';
+            var label = el('span'); label.textContent = tabId; label.style.flex = '1';
+            var removeBtn = el('button'); removeBtn.className = 'small'; removeBtn.textContent = '×'; removeBtn.style.flex = '0 0 auto';
+
+            if (index === 0) upBtn.disabled = true;
+            if (index === tabs.length - 1) downBtn.disabled = true;
+
+            upBtn.addEventListener('click', function() {
+              if (index > 0) {
+                var newOrder = tabs.slice();
+                newOrder[index] = tabs[index - 1];
+                newOrder[index - 1] = tabs[index];
+                if (window.sidebarManager && typeof window.sidebarManager.saveTabOrder === 'function') {
+                  window.sidebarManager.saveTabOrder(newOrder);
+                }
+                refreshTabOrderList();
+                // タブを再構築
+                if (window.sidebarManager && typeof window.sidebarManager.bootstrapTabs === 'function') {
+                  window.sidebarManager.bootstrapTabs();
+                }
+              }
+            });
+
+            downBtn.addEventListener('click', function() {
+              if (index < tabs.length - 1) {
+                var newOrder = tabs.slice();
+                newOrder[index] = tabs[index + 1];
+                newOrder[index + 1] = tabs[index];
+                if (window.sidebarManager && typeof window.sidebarManager.saveTabOrder === 'function') {
+                  window.sidebarManager.saveTabOrder(newOrder);
+                }
+                refreshTabOrderList();
+                // タブを再構築
+                if (window.sidebarManager && typeof window.sidebarManager.bootstrapTabs === 'function') {
+                  window.sidebarManager.bootstrapTabs();
+                }
+              }
+            });
+
+            item.appendChild(upBtn);
+            item.appendChild(downBtn);
+            item.appendChild(label);
+            item.appendChild(removeBtn);
+            orderList.appendChild(item);
+          });
+        } catch (e) {
+          console.error('タブ順序リスト更新エラー:', e);
+        }
+      }
+
+      // 初期化時にタブ順序リストを更新
+      setTimeout(refreshTabOrderList, 500);
+
       sel.addEventListener('change', function(){ withStorage(function(cfg){ cfg.ui = cfg.ui || {}; cfg.ui.tabsPresentation = String(sel.value||'tabs'); }); try{ var sb=document.getElementById('sidebar'); if (sb) sb.setAttribute('data-tabs-presentation', String(sel.value)); if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI==='function') window.sidebarManager.applyTabsPresentationUI(); }catch(_){} });
+      placementSel.addEventListener('change', function() {
+        var val = placementSel.value;
+        withStorage(function(cfg) { cfg.ui = cfg.ui || {}; cfg.ui.tabPlacement = val; });
+        if (window.sidebarManager && typeof window.sidebarManager.saveTabPlacement === 'function') {
+          window.sidebarManager.saveTabPlacement(val);
+        }
+      });
       hInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.heading = toInt(hInput.value,20); }); applyElementFontSizes(); });
       bInput.addEventListener('change', function(){ withStorage(function(cfg){ cfg.fontSizes = cfg.fontSizes || {}; cfg.fontSizes.body = toInt(bInput.value,16); }); applyElementFontSizes(); });
 
@@ -391,7 +553,7 @@
         }
       });
 
-      root.appendChild(presRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
     }, { title: 'UI Settings', groups: ['assist'] });
 
     // UI Design Gadget (background gradient)

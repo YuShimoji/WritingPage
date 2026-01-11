@@ -1,12 +1,11 @@
 # Task: Wikilinks/バックリンク/グラフ機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 3
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_TASK_025.md
 ## Objective
 
 - Wikilinks/バックリンク/グラフ機能（`[[link]]` 構文や `doc://` の可視化・相互参照グラフ）を実装する
@@ -39,13 +38,13 @@ Report:
 
 ## DoD
 
-- [ ] `[[link]]` 構文のパース機能を実装
-- [ ] バックリンク検出機能を実装
-- [ ] 相互参照グラフの可視化機能を実装
-- [ ] グラフ表示UIを実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] `[[link]]` 構文のパース機能を実装
+- [x] バックリンク検出機能を実装
+- [x] 相互参照グラフの可視化機能を実装
+- [x] グラフ表示UIを実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

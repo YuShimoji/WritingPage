@@ -5,8 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-04T23:00:00+09:00
-Report: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md
-
+Report: docs/reports/REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md
 ## Objective
 
 - orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、DONEタスクのレポート欠損を自動検知できるようにする

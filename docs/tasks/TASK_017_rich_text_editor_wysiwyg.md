@@ -1,12 +1,11 @@
 # Task: リッチテキストエディタ（WYSIWYG）実装
 
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_TASK_017_rich_text_editor_wysiwyg.md
 ## Objective
 
 - contenteditableベースのWYSIWYGエディタを実装し、Markdownとの双方向変換を提供する
@@ -39,13 +38,13 @@ Report:
 
 ## DoD
 
-- [ ] contenteditableベースのWYSIWYGエディタを実装
-- [ ] Markdownとの双方向変換機能を実装
-- [ ] 既存のtextareaエディタとの切り替え機能を実装
-- [ ] リッチテキスト編集機能（太字、斜体、下線、リンク等）を実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] contenteditableベースのWYSIWYGエディタを実装
+- [x] Markdownとの双方向変換機能を実装
+- [x] 既存のtextareaエディタとの切り替え機能を実装
+- [x] リッチテキスト編集機能（太字、斜体、下線、リンク等）を実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

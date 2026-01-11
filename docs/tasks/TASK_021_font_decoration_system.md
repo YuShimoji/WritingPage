@@ -1,12 +1,11 @@
 # Task: フォント装飾システム実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
-Report: 
-
+Report: docs/reports/REPORT_TASK_021.md
 ## Objective
 
 - フォント装飾システム（[bold], [italic], [underline] 等のMarkdown拡張構文）を実装する
@@ -37,14 +36,14 @@ Report:
 
 ## DoD
 
-- [ ] Markdown拡張構文（[bold], [italic], [underline] 等）を実装
-- [ ] フォント装飾のパース機能を実装
-- [ ] フォント装飾のプレビュー機能を実装
-- [ ] フォント装飾ツールバーコントロールを実装
-- [ ] フォント装飾をMarkdownに保存する仕組みを実装
-- [ ] E2Eテストを追加
-- [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
-- [ ] 本チケットの Report 欄にレポートパスが追記されている
+- [x] Markdown拡張構文（[bold], [italic], [underline] 等）を実装
+- [x] フォント装飾のパース機能を実装
+- [x] フォント装飾のプレビュー機能を実装
+- [x] フォント装飾ツールバーコントロールを実装
+- [x] フォント装飾をMarkdownに保存する仕組みを実装
+- [x] E2Eテストを追加
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
 
 ## Notes
 

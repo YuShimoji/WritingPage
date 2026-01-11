@@ -198,6 +198,16 @@
             const items = block.trim().split(/\n/).map(l => l.replace(/^\d+\.\s+/, '').trim()).filter(Boolean);
             return '<ol>'+ items.map(it => '<li>'+it+'</li>').join('') +'</ol>';
           });
+          // Wikilinks構文 `[[link]]` または `[[link|display]]` を処理
+          // コードブロック内は除外（既に処理済み）
+          html = html.replace(/\[\[([^\]]+)\]\]/g, function(match, content){
+            var parts = content.split('|');
+            var link = parts[0].trim();
+            var display = parts.length > 1 ? parts[1].trim() : link;
+            // Wikiページへのリンクとして処理（doc://形式に変換）
+            var href = 'doc://wiki:' + encodeURIComponent(link);
+            return '<a href="' + href + '" class="wikilink" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
+          });
           // 太字/斜体/インラインコード/リンク
           html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                      .replace(/\*(.+?)\*/g, '<em>$1</em>')
