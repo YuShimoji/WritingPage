@@ -36,12 +36,90 @@
 - [x] GitHubAutoApprove: true （既存設定確認）
 
 ### Phase 6: 変更をコミット
-- [/] セットアップ差分のコミット準備中
+- [x] セットアップ差分のコミット (commit: 5bd6f45)
+
+## 完了報告
+
+### 作成/更新したファイル
+- `.cursor/MISSION_LOG.md` - ミッション記録
+- `.shared-workflows` - submodule 更新 (def2c99)
+
+### Complete Gate 確認結果
+- docs/inbox: 正常（既存レポート存在）
+- docs/HANDOVER.md: GitHubAutoApprove: true 設定済み
+- sw-doctor.js: 最小限の警告のみ（Complete Gate 項目すべて揃っている）
+
+### 次に貼るべきプロンプト
+Orchestrator Metaprompt: `.shared-workflows/prompts/every_time/ORCHESTRATOR_METAPROMPT.txt`
 
 ## ログ
 - 2026-01-15 13:18:45: セットアップ開始。
 - 2026-01-15 13:19:00: Phase 0 完了。
 - 2026-01-15 13:20:30: Phase 1 完了。submodule 更新済み (.shared-workflows → def2c99)。
 - 2026-01-15 13:22:00: Phase 2-5 完了。全必須ファイル存在確認済み。
-- 2026-01-15 13:24:00: Phase 6 開始。コミット準備中。
+- 2026-01-15 13:24:00: Phase 6 完了。コミット (5bd6f45) 実施。
+- 2026-01-15 13:25:00: セットアップ完了。ステータス: COMPLETED
+- 2026-01-15 13:30:00: [TROUBLESHOOTING] `.shared-workflows/prompts` 欠損を検知。
+- 2026-01-15 13:31:00: Submodule を `origin/main` に更新し、フォルダ構造を修復。コミット (38e4126).
+- 2026-01-15 13:32:00: 修復完了。
+- 2026-01-15 13:50:00: SharedWorkflows 上流で文字化け修正 (UTF-8 BOM) が行われたため同期。コミット (107badb).
 
+
+
+
+- Mission ID: STATUS_CHECK_2026-01-15T14:00:00+09:00
+- 開始時刻: 2026-01-15 14:00:00
+- 現在のフェーズ: Phase 2: Status
+- ステータス: IN_PROGRESS
+
+## 進捗
+### Phase 2: 状況把握
+- [x] MISSION_LOG.md 読み込み
+- [x] HANDOVER.md 読み込み (LastUpdate: 2025-12-22, User Req: Site Status)
+- [ ] todo-sync.js 実行 (Script not found)
+- [x] Phase 2 完了
+
+### Phase 3: 分割と戦略
+- Task: Take site screenshots
+- Strategy: Worker x1 (TASK_006), Tier 3
+- [x] Phase 3 完了
+
+### Phase 4: チケット発行
+- [x] `docs/tasks/TASK_006_site_screenshot.md` 作成
+- [x] Phase 4 完了
+
+### Phase 5: Worker起動
+- Worker Prompt Generated
+- [x] Phase 5 完了
+
+### Phase 6: Orchestrator Report
+- [x] Report Created: `docs/inbox/REPORT_ORCH_2026-01-15_1405.md`
+- [x] Phase 6 完了
+- Next: Worker Execution (TASK_006)
+
+### Phase 1: 前提の固定
+- [x] Tier: 3 / Branch: feature/task-006-screenshots
+- [x] Report Target: docs/inbox/REPORT_TASK_006_screenshots.md
+- [x] Phase 1 完了
+
+### Phase 2: 境界確認
+- [x] Focus Area: docs/archive/screenshots/
+- [x] Forbidden Area: src/
+- [x] Phase 2 完了
+
+### Phase 3: 実行ルール
+- [x] DoD Feasibility Check: OK (Browser accessible)
+- [x] Execution: Screenshots captured
+- [x] Phase 3 完了
+
+### Phase 4: 納品 & 検証
+- [x] DoD Check: Screenshots valid
+- [x] Ticket Updated: DONE
+- [x] Report Created: docs/inbox/REPORT_TASK_006_screenshots.md
+- [x] HANDOVER Updated
+- [x] Git Commit & Push: Success
+- [x] Phase 4 完了
+
+### Phase 5: チャット出力
+- [x] Report Output: Done
+- [x] Phase 5 完了
