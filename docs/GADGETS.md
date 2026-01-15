@@ -4,14 +4,18 @@
 
 ## このドキュメントの読み方
 
-- [現行リファレンス（現行）](#reference-current): いま使えるUI/実装/テスト情報を集約。基本的な読み方はここだけで完結します。
-- [提案・未実装 / 旧メモ](#reference-future): これから実装予定の案や過去メモ。詳細検討は `docs/BACKLOG.md` や OpenSpec を参照してください。
+- [現行リファレンス（現行）](#reference-current)  
+  いま使える UI / 実装 / テスト情報を網羅。作業や検証はまずここを参照してください。
+- [提案・未実装 / 旧メモ](#reference-future)  
+  将来案や残課題を一覧化。詳細な優先度・タスクは `docs/BACKLOG.md` および OpenSpec (`openspec/changes/*`) で管理します。
+- 関連資料  
+  - `docs/ARCHITECTURE.md` … Zen Writer 全体アーキテクチャとガジェット基盤の位置付け  
+  - `docs/BACKLOG.md` … ガジェット領域の未実装/検討中タスク  
+  - `docs/AUDIT_TASK_BREAKDOWN.md` … 監査観点（P1-4）と受け入れ条件
 
 ---
 
-<a id="reference-current"></a>
-
-## 現行リファレンス（現行）
+<h2 id="reference-current">現行リファレンス（現行）</h2>
 
 > 注記: 本節は現行実装の説明のみを扱います。開発途上の検討事項は末尾の「提案・未実装 / 旧メモ」を参照してください。
 
@@ -253,7 +257,7 @@ ZWGadgets.setPrefs(prefs);
 4. ページをリロードし、開閉状態と順序が保持されていること
 5. `?embed=1` ではガジェットが表示されないことを確認
 
-## ドラッグ＆ドロップ並び替え（Mission 5）
+## ドラッグ＆ドロップ並び替え（Mission 5 / 現行）
 
 - サイドバーの各ガジェットはヘッダ（タイトル行）をドラッグして並び替えが可能です。
 - フォールバックとして従来の「↑/↓」ボタンも維持しています（キーボード操作向け）。
@@ -262,7 +266,7 @@ ZWGadgets.setPrefs(prefs);
 
 - 内部的には `dataTransfer.setData('text/gadget-name', <name>)` を用い、`drop` 時に順序配列（prefs.order）を更新します。
 
-## 設定UIフレームワーク（Mission 5）
+## 設定UIフレームワーク（Mission 5 / 現行）
 
 - ガジェットごとに設定パネルを提供できます。登録 API は以下です。
 
@@ -462,3 +466,27 @@ WikiデータはlocalStorageに保存されるため、ブラウザの設定か�
 - 現在、ページ間のリンク機能は未実装
 - AI統合による自動生成機能は今後の拡張予定
 - 画像添付機能は未対応（テキストベースのみ）
+
+---
+
+<h2 id="reference-future">提案・未実装 / 旧メモ（提案）</h2>
+
+> 本節は現行コードに未反映の検討事項をまとめています。詳細なタスク/スケジュールは `docs/BACKLOG.md` および OpenSpec (`openspec/changes/*`) を参照してください。
+
+### ガジェット/パネル設計の将来タスク
+
+1. **柔軟なタブ配置とガジェット動的割当**（`docs/BACKLOG.md` フェーズE-3/E-4）  
+   - タブを上下左右へ配置するレイアウト拡張や、ガジェットをドラッグで他タブへ移動する体験を計画中。  
+   - OpenSpec: `openspec/changes/add-modular-ui-wiki-nodegraph/` にプレゼンテーション切替・複数パネル設計が記述されています。
+2. **HUD 拡張とカスタマイズ深化**  
+   - `openspec/changes/hud-customization-enhancement/` に従い、HUDSettings ガジェットへフォント/幅調整UIなどを段階的に追加済み。残項目は tasks.md を参照。
+3. **Wiki / ノードグラフ連携**  
+   - Wiki ノードグラフ化やAIリンク生成は OpenSpec `add-modular-ui-wiki-nodegraph` と `story-wiki-implementation` で仕様化済みだが、実装は未着手。  
+   - 進める際は `docs/ARCHITECTURE.md` の「ガジェットベースアーキテクチャ」と整合を取る。
+4. **Embed / SDK 連携の拡張**  
+   - Embed時のロードアウト反映や HUD の軽量化は `docs/BACKLOG.md`（P0-1 / Embed SDK 監査）で追跡。`docs/EMBED_SDK.md` を併読してください。
+
+### 参照ガイド
+
+- 監査観点（P1-4）: `docs/AUDIT_TASK_BREAKDOWN.md` — 現行/提案の区別と受け入れ条件を定義。  
+- 将来仕様の詳細: `openspec/changes/` ディレクトリを参照し、進行中の change に紐づく tasks.md を最新化してください。

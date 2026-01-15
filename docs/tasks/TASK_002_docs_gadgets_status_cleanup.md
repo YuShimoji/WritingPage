@@ -1,6 +1,6 @@
 # Task: docs/GADGETS.md の現行実装と提案の混在を解消（P1-4）
 
-Status: IN_PROGRESS
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker-2
@@ -39,6 +39,6 @@ Created: 2025-12-19T15:09:00+09:00
 - [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
 - [x] 本チケットの Report 欄にレポートパスが追記されている
 
-## Notes
+## Report
 
-- 可能なら「（現行）」「（提案・未実装）」のようなラベルを見出しに付ける
+docs/inbox/REPORT_20251222_1416.md
