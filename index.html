@@ -109,10 +109,10 @@
             <div class="sidebar-help-links" role="group" aria-label="ヘルプ / リファレンス">
               <button id="help-button" class="small" type="button" data-i18n="OPEN_WIKI_HELP"></button>
               <button id="editor-help-button" class="small" type="button" data-i18n="EDITOR_GUIDE"></button>
-              <a id="ui-lab-link" class="small" href="docs/ui-lab.html" target="_blank" rel="noopener" data-i18n="UI_LAB"></a>
+              <a id="ui-lab-link" class="small" href="docs/ui-lab.html" target="_blank" rel="noopener"
+                data-i18n="UI_LAB"></a>
             </div>
-            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"
-              aria-label="支援ガジェット"></div>
+            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="支援ガジェット"></div>
           </div>
         </section>
 
@@ -140,8 +140,8 @@
             <div class="goal-progress__bar" style="width: 0%"></div>
           </div>
         </div>
-        <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER"
-          aria-hidden="true" style="width: 100px; margin-right: 8px; display: none;" />
+        <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER" aria-hidden="true"
+          style="width: 100px; margin-right: 8px; display: none;" />
         <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
           style="margin-right: 8px; display: none;" />
         <div class="toolbar-actions">
@@ -170,7 +170,8 @@
           <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉">
             <i data-lucide="columns" aria-hidden="true"></i>
           </button>
-          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え" aria-label="リッチテキストエディタに切り替え">
+          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え"
+            aria-label="リッチテキストエディタに切り替え">
             <i data-lucide="pen-tool" aria-hidden="true"></i>
           </button>
           <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" title="ツールバー">
@@ -188,7 +189,8 @@
       <!-- 分割ビューコンテナ -->
       <div id="split-view-container" class="split-view-container" style="display: none;">
         <div id="split-view-left" class="split-view-panel split-view-panel--left"></div>
-        <div id="split-view-resize-handle" class="split-view-resize-handle" role="separator" aria-label="リサイズハンドル" aria-orientation="vertical"></div>
+        <div id="split-view-resize-handle" class="split-view-resize-handle" role="separator" aria-label="リサイズハンドル"
+          aria-orientation="vertical"></div>
         <div id="split-view-right" class="split-view-panel split-view-panel--right"></div>
       </div>
 
@@ -211,9 +213,11 @@
       <div class="editor-container">
         <textarea id="editor" data-i18n-placeholder="EDITOR_PLACEHOLDER"></textarea>
         <!-- WYSIWYGエディタ -->
-        <div id="wysiwyg-editor" class="wysiwyg-editor" contenteditable="true" style="display: none;" data-i18n-placeholder="EDITOR_PLACEHOLDER"></div>
+        <div id="wysiwyg-editor" class="wysiwyg-editor" contenteditable="true" style="display: none;"
+          data-i18n-placeholder="EDITOR_PLACEHOLDER"></div>
         <!-- WYSIWYGツールバー -->
-        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar" aria-label="リッチテキスト編集ツールバー">
+        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar"
+          aria-label="リッチテキスト編集ツールバー">
           <button id="wysiwyg-bold" class="wysiwyg-btn" type="button" title="太字" aria-label="太字">
             <i data-lucide="bold" aria-hidden="true"></i>
           </button>
@@ -228,7 +232,8 @@
             <i data-lucide="link" aria-hidden="true"></i>
           </button>
           <div class="wysiwyg-separator"></div>
-          <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え" aria-label="テキストエディタに切り替え">
+          <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え"
+            aria-label="テキストエディタに切り替え">
             <i data-lucide="code" aria-hidden="true"></i>
           </button>
         </div>
@@ -379,7 +384,8 @@
         </div>
         <div class="panel-row">
           <label for="anim-duration" data-i18n="ANIMATION_DURATION">持続時間 (秒):</label>
-          <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5" style="flex: 1; margin: 0 8px;" />
+          <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5"
+            style="flex: 1; margin: 0 8px;" />
           <span id="anim-duration-value">1.5s</span>
         </div>
         <div class="panel-row">
@@ -446,8 +452,8 @@
   <script src="js/editor-images.js"></script>
   <script src="js/editor-overlays.js"></script>
   <script src="js/editor-search.js"></script>
-  <script src="js/editor-wysiwyg.js"></script>
   <script src="js/editor.js"></script>
+  <script src="js/editor-wysiwyg.js"></script>
   <script src="js/app-editor-bridge.js"></script>
   <script src="js/app.js"></script>
   <!-- Lucide Icons -->

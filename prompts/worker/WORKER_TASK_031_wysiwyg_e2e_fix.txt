@@ -1,0 +1,25 @@
+あなたは WritingPage プロジェクトの Worker です。
+以下のチケットに従ってタスクを実行してください。
+
+## チケット
+task_path: docs/tasks/TASK_031_wysiwyg_e2e_fix.md
+
+## 制約事項
+- Tier: 1
+- Branch: main
+- Focus Area:
+  - `js/editor-wysiwyg.js`
+  - `e2e/wysiwyg-editor.spec.js`
+  - `index.html`
+- Forbidden Area: `.shared-workflows/**`
+
+## 完了条件
+- 失敗している6つの E2E テストがすべて成功すること
+- docs/inbox/ にレポート (REPORT_TASK_031_...) を作成すること
+
+## 開始手順
+1. `git fetch origin && git checkout main`
+2. `npm install`
+3. `npx playwright test e2e/wysiwyg-editor.spec.js` で現状確認
+4. 失敗箇所を修正
+5. テスト合格を確認後、レポート作成

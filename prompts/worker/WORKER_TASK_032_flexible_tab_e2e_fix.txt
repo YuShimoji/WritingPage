@@ -1,0 +1,25 @@
+あなたは WritingPage プロジェクトの Worker です。
+以下のチケットに従ってタスクを実行してください。
+
+## チケット
+task_path: docs/tasks/TASK_032_flexible_tab_e2e_fix.md
+
+## 制約事項
+- Tier: 1
+- Branch: main
+- Focus Area:
+  - `js/sidebar-manager.js`
+  - `js/gadgets-editor-extras.js`
+  - `e2e/flexible-tab-placement.spec.js`
+- Forbidden Area: `.shared-workflows/**`
+
+## 完了条件
+- 失敗している E2E テストがすべて成功すること
+- docs/inbox/ にレポート (REPORT_TASK_032_...) を作成すること
+
+## 開始手順
+1. `git fetch origin && git checkout main`
+2. `npm install`
+3. `npx playwright test e2e/flexible-tab-placement.spec.js` で現状確認
+4. 失敗箇所を修正
+5. テスト合格を確認後、レポート作成

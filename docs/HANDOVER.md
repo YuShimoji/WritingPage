@@ -16,6 +16,7 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
+- **REPORT_TASK_032_flexible_tab_e2e_fix.md**: TASK_032（柔軟タブ配置 E2E 修正）を完了。`e2e/flexible-tab-placement.spec.js` の待機処理とロケータを改善し、全テストパスを確認。
 - **[UPDATE] 実装確認完了**: TASK_017-030 の実装コードはすべて存在することを確認。先の「虚偽完了」判定は誤りで、grepの検索パターンエラーによるもの。Statusを DONE に復元。
 - **REPORT_ORCH_20260112_0302.md**: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の完了レポート。実装は `js/sidebar-manager.js`, `js/gadgets-core.js` に存在。
 - **REPORT_ORCH_20260112_0058.md**: TASK_017-028 の完了確認。E2Eテストで部分的に成功（3/9）、残る失敗は別途バグフィックスタスクで対応。

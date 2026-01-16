@@ -217,7 +217,6 @@
 - [pending] コラージュレイアウト機能実装 (ref: docs/tasks/TASK_019_collage_layout.md, Status: CLOSED)
 - [pending] テキストアニメーション機能実装 (ref: docs/tasks/TASK_020_text_animation.md, Status: CLOSED)
 - [pending] WYSIWYG エディタ E2E テスト修正 (ref: docs/tasks/TASK_031_wysiwyg_e2e_fix.md, Status: OPEN)
-- [pending] 柔軟タブ配置 E2E テスト修正 (ref: docs/tasks/TASK_032_flexible_tab_e2e_fix.md, Status: OPEN)
 
 ### Worker完了ステータス
 - TASK_001: completed

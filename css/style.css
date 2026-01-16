@@ -197,15 +197,19 @@ html:not([data-toolbar-hidden='true']) #wysiwyg-editor {
 html[data-ui-mode='focus'] .sidebar {
   display: none !important;
 }
+
 html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
 }
+
 html[data-ui-mode='focus'] .fab-button {
   display: none !important;
 }
+
 html[data-ui-mode='focus'] #quick-tools-panel {
   display: none !important;
 }
+
 html[data-ui-mode='focus'] .editor-container {
   margin-left: 0 !important;
 }
@@ -214,22 +218,28 @@ html[data-ui-mode='focus'] .editor-container {
 html[data-ui-mode='blank'] .toolbar {
   display: none !important;
 }
+
 html[data-ui-mode='blank'] .sidebar {
   display: none !important;
 }
+
 html[data-ui-mode='blank'] .mini-hud {
   display: none !important;
 }
+
 html[data-ui-mode='blank'] .fab-button {
   display: none !important;
 }
+
 html[data-ui-mode='blank'] #quick-tools-panel {
   display: none !important;
 }
+
 html[data-ui-mode='blank'] .editor-container {
   margin-left: 0 !important;
   height: 100vh;
 }
+
 html[data-ui-mode='blank'] #editor {
   padding-top: 1rem;
 }
@@ -488,6 +498,28 @@ html[data-toolbar-hidden='true'] .editor-container {
   overflow-wrap: break-word;
 }
 
+#wysiwyg-editor {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 200px;
+  /* Ensure visibility when empty */
+  border: none;
+  outline: none;
+  padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
+  background-color: var(--editor-bg, var(--bg-color));
+  color: var(--editor-text, var(--text-color));
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  max-width: var(--wrap-ch);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .markdown-preview-panel {
   max-width: 42rem;
   margin: 0 auto 1.5rem auto;
@@ -710,7 +742,7 @@ html[data-toolbar-hidden='true'] .editor-container {
 
 /* コラージュレイアウト機能 */
 .editor-overlay[data-collage-mode='grid'] {
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -1137,6 +1169,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 /* レスポンシブ: 小画面では左配置にフォールバック */
 @media (max-width: 768px) {
+
   .sidebar[data-tab-placement="top"] .sidebar-tabs,
   .sidebar[data-tab-placement="bottom"] .sidebar-tabs {
     display: grid;
@@ -2221,6 +2254,7 @@ html[data-embed='true'] #editor {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .anim-fade,
   .anim-slide,
   .anim-typewriter,
@@ -2861,6 +2895,7 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
 .help-nav-icon {
   font-size: 12px;
 }
+
 .help-nav-icon svg {
   width: 14px;
   height: 14px;
@@ -2872,6 +2907,7 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   align-items: center;
   justify-content: center;
 }
+
 .help-inline-icon svg {
   width: 14px;
   height: 14px;
@@ -3050,7 +3086,7 @@ input[type="checkbox"] {
 }
 
 /* ガジェット内のフォーム要素の間隔統一 */
-.gadget-wrapper > div {
+.gadget-wrapper>div {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -3649,9 +3685,12 @@ a.wikilink:visited {
 }
 
 @keyframes keybind-pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }

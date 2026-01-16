@@ -14,7 +14,7 @@
       this.toggleWysiwygBtn = document.getElementById('toggle-wysiwyg');
       this.switchToTextareaBtn = document.getElementById('wysiwyg-switch-to-textarea');
       this.isWysiwygMode = false;
-      
+
       // Turndownインスタンス（HTML → Markdown変換）
       this.turndownService = null;
       if (typeof TurndownService !== 'undefined') {
@@ -46,6 +46,7 @@
       }
 
       this.init();
+      console.log('[RichTextEditor] Initialized');
     }
 
     /**
@@ -56,13 +57,15 @@
 
       // エディタ切り替えボタンのイベント
       if (this.toggleWysiwygBtn) {
-        this.toggleWysiwygBtn.addEventListener('click', () => {
+        this.toggleWysiwygBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
           this.switchToWysiwyg();
         });
       }
 
       if (this.switchToTextareaBtn) {
-        this.switchToTextareaBtn.addEventListener('click', () => {
+        this.switchToTextareaBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
           this.switchToTextarea();
         });
       }
@@ -169,13 +172,16 @@
     /**
      * コマンドを実行（太字、斜体、下線など）
      */
-    executeCommand(command) {
+    executeCommand(command, value = null) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
-      this.wysiwygEditor.focus();
-      document.execCommand(command, false, null);
-      this.wysiwygEditor.focus();
-    }
+      // 既にフォーカスがある場合Selectionが維持されるが、
+      // 明示的にfocus()するとSelectionが失われる可能性があるため削除
+      // this.wysiwygEditor.focus();
 
+      document.execCommand(command, false, value);
+      this.wysiwygEditor.focus();
+      this.updateToolbarState();
+    }
     /**
      * リンクを挿入
      */
@@ -189,7 +195,7 @@
       if (!url) return;
 
       const linkText = selectedText || url;
-      
+
       // 選択範囲がある場合はリンクに変換、ない場合はリンクを挿入
       if (selectedText) {
         document.execCommand('createLink', false, url);
@@ -199,7 +205,7 @@
         link.textContent = linkText;
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
-        
+
         const range = selection.getRangeAt(0);
         range.deleteContents();
         range.insertNode(link);
@@ -214,6 +220,7 @@
      * WYSIWYGモードに切り替え
      */
     switchToWysiwyg() {
+      console.log('[RichTextEditor] switchToWysiwyg called', { isWysiwygMode: this.isWysiwygMode });
       if (this.isWysiwygMode) return;
 
       // textareaの内容を取得してMarkdownからHTMLに変換
@@ -242,6 +249,7 @@
      * textareaモードに切り替え
      */
     switchToTextarea() {
+      console.log('[RichTextEditor] switchToTextarea called', { isWysiwygMode: this.isWysiwygMode });
       if (!this.isWysiwygMode) return;
 
       // WYSIWYGの内容を取得してHTMLからMarkdownに変換
@@ -289,7 +297,7 @@
      */
     markdownToHtml(markdown) {
       if (!markdown) return '';
-      
+
       if (this.markdownRenderer) {
         try {
           return this.markdownRenderer.render(markdown);
@@ -297,7 +305,7 @@
           console.warn('Markdown to HTML conversion failed:', e);
         }
       }
-      
+
       // フォールバック: 基本的なエスケープ
       return markdown
         .replace(/&/g, '&amp;')

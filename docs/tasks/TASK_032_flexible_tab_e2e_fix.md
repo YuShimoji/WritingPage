@@ -1,11 +1,11 @@
 # Task: 柔軟タブ配置 E2E テスト修正
 
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker
 Created: 2026-01-17T02:00:00+09:00
-Report: (未作成)
+Report: docs/reports/REPORT_TASK_032_flexible_tab_e2e_fix.md
 
 ## Objective
 
