@@ -7,14 +7,18 @@
 - SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無い場合は docs/ 配下を ensure-ssot.js で補完）
 - プロジェクト進捗: docs/HANDOVER.md
 - チケット: docs/tasks/TASK_005_missing_reports.md
+- アーカイブ: docs/archive/reports/ 配下（統合済みレポート待避場所）
 
 ## このタスクの前提
 
 - Tier: 1
 - Branch: main
-- Focus Area: docs/inbox/（REPORT_*）、docs/HANDOVER.md、docs/tasks/（Report欄）
+- Focus Area: docs/inbox/（REPORT_*）、docs/archive/reports/**、docs/HANDOVER.md、docs/tasks/（Report欄）
 - Forbidden Area: js/**, .shared-workflows/**
-- DoD: 欠損レポート原因の特定、復旧可否の判断と実施、task/HANDOVER への Report 記載
+- DoD:
+  1. 欠損レポート原因の特定（各タスクごとに根拠を記録）
+  2. 復旧可能なレポートを復元または適切に再作成し、パスを報告
+  3. タスクファイルと HANDOVER.md の Report 記載を整合（archive へ移動した場合はアーカイブ先を明記）
 
 ## 停止条件
 
@@ -27,13 +31,13 @@
 
 ## 作業手順
 
-1. チケットを IN_PROGRESS に更新して commit
-2. docs/inbox/ の REPORT_* と docs/tasks/HANDOVER の Report 記載を突き合わせ、欠損/未統合を洗い出す
-3. 復旧可能なレポートは git 履歴やバックアップから再配置し、不可なら理由と次アクションをレポートに記載
-4. DoD 達成を確認（検証ログ: report-validator / orchestrator-audit）
+1. チケットを IN_PROGRESS に更新して commit（済であれば差分確認のみ）
+2. docs/inbox/ と docs/archive/reports/** を列挙し、HANDOVER / タスクファイル記載と突き合わせて欠損・乖離を洗い出す
+3. Git 履歴や archive から復旧できるレポートを再配置し、復旧不可の場合は理由と推奨次手をレポート草案にまとめる
+4. report-validator / orchestrator-audit を実行し、復元したレポート群と HANDOVER 更新の整合を確認
 5. 納品:
-   - チケットを DONE に更新し Report 欄へパス追記
-   - docs/inbox/REPORT_YYYYMMDD_HHMM.md をテンプレに沿って作成
+   - タスクファイルを DONE に更新し、Report 欄へ最終パスを追記
+   - docs/inbox/REPORT_YYYYMMDD_HHMM.md をテンプレに沿って作成（欠損調査結果を記載）
    - すべて commit（push は GitHubAutoApprove: true のため許可）
 6. チャットは 1 行: `Done: <ticket>. Report: docs/inbox/REPORT_...md`
 

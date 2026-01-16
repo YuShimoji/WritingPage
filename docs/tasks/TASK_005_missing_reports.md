@@ -1,11 +1,10 @@
 # Task: Investigate missing reports for completed tasks
 
-Status: DONE
+Status: IN_PROGRESS
 Tier: 1
 Branch: main
-Owner: Worker
+Owner: Worker-3
 Created: 2025-12-21T11:45:00+09:00
-Report: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
 
 ## Objective
 
@@ -13,7 +12,8 @@ Report: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
 
 ## Context
 
-- TASK_001, TASK_003, TASK_004 are completed but reports are missing.
+- TASK_001, TASK_003, TASK_004 are completed but reports are missing from docs/inbox even though HANDOVER lists them as統合済み。
+- docs/inbox には旧 Worker/Orchestrator レポートが残存しており、統合状況との乖離が発生している。
 
 ## Focus Area
 
@@ -28,12 +28,8 @@ Report: docs/reports/REPORT_TASK_005_missing_reports_20260101.md
 
 - Do not create fake reports.
 
-## Definition of Done
-- [x] Identify all missing reports from git history
-  - **根拠**: gitリポジトリではないためgit historyは使用不可。orchestrator-audit.jsと手動確認により、すべてのDONEタスクのレポート存在を確認（OK）
-- [x] Recover or recreate essential reports
-  - **根拠**: 実際には欠損レポートは存在せず、すべてのDONEタスク（TASK_001, TASK_002, TASK_003, TASK_004, TASK_005_ReportAudit, TASK_006）にレポートが存在することを確認
-- [x] Document recovery process in HANDOVER.md
-  - **根拠**: docs/HANDOVER.mdの進捗セクションにTASK_005の完了を追記し、復元プロセスと予防策を記録
-- [x] Implement preventive measures
-  - **根拠**: orchestrator-audit.jsが既にDONEタスクのレポート存在をチェックしているため、CIパイプラインへの組み込みを推奨（レポートのProposalsセクションに記載）
+## DoD
+
+- [ ] Identify why the reports are missing.
+- [ ] Restore the reports if possible.
+- [ ] Update the task files and HANDOVER.md to reflect the correct report paths.

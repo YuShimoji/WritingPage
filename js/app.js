@@ -1052,6 +1052,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ツールレジストリからのUI生成 (初期実装: Header Icons)
+    function initializeToolsRegistry() {
+        if (!window.WritingTools || typeof window.WritingTools.listTools !== 'function') return;
+
+        // 1. Header Icons
+        const headerTools = window.WritingTools.listTools({ entrypoint: 'headerIcon' });
+        const toolbarActions = document.querySelector('.toolbar-actions');
+
+        if (toolbarActions) {
+            headerTools.forEach(tool => {
+                if (!tool.domId) return;
+
+                let btn = document.getElementById(tool.domId);
+                // 既存ボタンがない場合は作成
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.id = tool.domId;
+                    btn.className = 'icon-button iconified';
+                    btn.title = tool.label;
+                    btn.setAttribute('aria-label', tool.label);
+                    // 挿入位置: 最後に追加
+                    toolbarActions.appendChild(btn);
+                    if (typeof logger !== 'undefined') logger.info(`Tool button created: ${tool.domId}`);
+                }
+
+                // アイコン同期
+                if (tool.icon) {
+                    let icon = btn.querySelector('i');
+                    if (!icon) {
+                        icon = document.createElement('i');
+                        icon.setAttribute('aria-hidden', 'true');
+                        btn.appendChild(icon);
+                    }
+                    // 既存のアイコンが異なる場合のみ更新（ちらつき防止）
+                    if (icon.getAttribute('data-lucide') !== tool.icon) {
+                        icon.setAttribute('data-lucide', tool.icon);
+                    }
+                }
+            });
+
+            // Lucideアイコンの再レンダリング
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+    }
+
+    initializeToolsRegistry();
     initGadgetsWithRetry();
     initLoadoutUI();
     initSelectionTooltip();
