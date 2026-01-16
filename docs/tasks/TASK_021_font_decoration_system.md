@@ -1,6 +1,6 @@
 # Task: フォント装飾システム実装
 
-Status: DONE
+Status: OPEN
 Tier: 2
 Branch: main
 Owner: Worker

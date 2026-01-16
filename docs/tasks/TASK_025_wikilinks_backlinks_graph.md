@@ -1,6 +1,6 @@
 # Task: Wikilinks/バックリンク/グラフ機能実装
 
-Status: DONE
+Status: OPEN
 Tier: 3
 Branch: main
 Owner: Worker

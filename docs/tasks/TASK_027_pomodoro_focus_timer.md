@@ -1,6 +1,6 @@
 # Task: Pomodoro/集中タイマー機能実装
 
-Status: DONE
+Status: OPEN
 Tier: 3
 Branch: main
 Owner: Worker

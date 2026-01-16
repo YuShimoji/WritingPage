@@ -1,6 +1,6 @@
 # Task: 画像位置調整・サイズ変更機能実装
 
-Status: DONE
+Status: OPEN
 Tier: 1
 Branch: main
 Owner: Worker

@@ -1,6 +1,6 @@
 # Task: 柔軟なタブ配置システム実装
 
-Status: DONE
+Status: OPEN
 Tier: 2
 Branch: main
 Owner: Worker

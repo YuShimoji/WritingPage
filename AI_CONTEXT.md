@@ -3,7 +3,7 @@
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
 - 最終更新: 2025-12-19T15:09:00+09:00
-- **Worker完了ステータス**: worker_task002:pending
+- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed
 
 ## 中央ルール参照（SSOT）
 

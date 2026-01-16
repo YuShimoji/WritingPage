@@ -1,6 +1,6 @@
 # Task: キーバインド編集機能実装
 
-Status: DONE
+Status: OPEN
 Tier: 3
 Branch: main
 Owner: Worker
