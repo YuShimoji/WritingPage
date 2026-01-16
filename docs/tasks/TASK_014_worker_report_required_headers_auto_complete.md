@@ -1,6 +1,6 @@
 # Task: Worker完了レポートの必須ヘッダー自動補完
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

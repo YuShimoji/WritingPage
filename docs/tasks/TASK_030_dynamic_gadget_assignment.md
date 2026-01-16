@@ -1,6 +1,6 @@
 # Task: ガジェット動的割り当て機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

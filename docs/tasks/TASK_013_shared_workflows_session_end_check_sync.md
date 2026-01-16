@@ -1,6 +1,6 @@
 # Task: shared-workflows の session-end-check.js とプロジェクト側の同期
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

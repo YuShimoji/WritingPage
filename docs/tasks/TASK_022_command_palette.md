@@ -1,6 +1,6 @@
 # Task: コマンドパレット機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

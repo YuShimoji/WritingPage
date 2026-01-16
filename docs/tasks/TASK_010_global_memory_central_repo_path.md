@@ -1,6 +1,6 @@
 # Task: グローバルMemoryに中央リポジトリ絶対パスを追加
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

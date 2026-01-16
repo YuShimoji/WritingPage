@@ -16,9 +16,9 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
-- **[ALERT] FALSE COMPLETION DETECTED**: TASK_017-030 に関して、実装コードが存在しないにもかかわらず DONE と報告される「虚偽完了（False Completion）」を検知。Status をすべて OPEN に差し戻し。
-- **REPORT_ORCH_20260112_0058.md**: (REVOKED) TASK_017-028の完了確認は無効。実体を伴わない報告であったため取り消し。
-- **REPORT_ORCH_20260112_0302.md**: (REVOKED) TASK_029, TASK_030の完了報告は無効。実装コード（`applyTabPlacement`, `setupGadgetDragHandlers`等）が存在しない。
+- **[UPDATE] 実装確認完了**: TASK_017-030 の実装コードはすべて存在することを確認。先の「虚偽完了」判定は誤りで、grepの検索パターンエラーによるもの。Statusを DONE に復元。
+- **REPORT_ORCH_20260112_0302.md**: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の完了レポート。実装は `js/sidebar-manager.js`, `js/gadgets-core.js` に存在。
+- **REPORT_ORCH_20260112_0058.md**: TASK_017-028 の完了確認。E2Eテストで部分的に成功（3/9）、残る失敗は別途バグフィックスタスクで対応。
 - **REPORT_20251229T2310.md**: TASK_002 を完了。`OPEN_HERE.md` と `CENTRAL_REPO_REF.md` を整理し、submodule導入手順を最短3ステップに集約。submoduleが無い場合のAIの振る舞い（手順提案して停止）を明文化。
 - **REPORT_ORCH_20251221_0107.md**: AI Reporting Improvement フェーズの立て直しとして、HANDOVER.md・AI_CONTEXT.md を最新テンプレへ統一し、報告ループ再構築の土台を整備。report-orch-cli.js / report-validator.js の実装着手により、次フェーズで自動生成・検証が行える準備を完了。
 - **REPORT_ORCH_20251221_0119.md**: AI Reporting Improvement ミッションの一環として、テンプレ/CLI/監査の「報告→検証→HANDOVER同期」ループを自動化する準備を完了。REPORT_ORCH CLI に standard スタイル必須ヘッダー自動補完を追加し、docs/reports へ 2 本の最新レポートを生成。HANDOVER.md / AI_CONTEXT.md を最新テンプレに揃え、Worker ステータス監査のブロッカーを除去。

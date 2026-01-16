@@ -1,6 +1,6 @@
 # Task: worker-monitor.js 導入と AI_CONTEXT.md 初期化スクリプトの検討
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

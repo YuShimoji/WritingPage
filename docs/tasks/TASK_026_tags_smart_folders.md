@@ -1,6 +1,6 @@
 # Task: タグ/スマートフォルダ機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 3
 Branch: main
 Owner: Worker

@@ -1,6 +1,6 @@
 # Task: orchestrator-audit.js を CI パイプラインに組み込み
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

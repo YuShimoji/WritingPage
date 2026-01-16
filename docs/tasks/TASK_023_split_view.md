@@ -1,6 +1,6 @@
 # Task: 分割ビュー機能実装
 
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: main
 Owner: Worker

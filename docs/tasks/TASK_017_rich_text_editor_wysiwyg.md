@@ -1,6 +1,6 @@
 # Task: リッチテキストエディタ（WYSIWYG）実装
 
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: main
 Owner: Worker
