@@ -92,28 +92,28 @@
       const linkBtn = document.getElementById('wysiwyg-link');
 
       if (boldBtn) {
-        boldBtn.addEventListener('click', (e) => {
+        boldBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.executeCommand('bold');
         });
       }
 
       if (italicBtn) {
-        italicBtn.addEventListener('click', (e) => {
+        italicBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.executeCommand('italic');
         });
       }
 
       if (underlineBtn) {
-        underlineBtn.addEventListener('click', (e) => {
+        underlineBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.executeCommand('underline');
         });
       }
 
       if (linkBtn) {
-        linkBtn.addEventListener('click', (e) => {
+        linkBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.insertLink();
         });
@@ -171,49 +171,152 @@
 
     /**
      * コマンドを実行（太字、斜体、下線など）
+     * document.execCommandの代わりに、手動でHTMLタグを挿入する実装
      */
     executeCommand(command, value = null) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
-      // 既にフォーカスがある場合Selectionが維持されるが、
-      // 明示的にfocus()するとSelectionが失われる可能性があるため削除
-      // this.wysiwygEditor.focus();
 
-      document.execCommand(command, false, value);
+      // エディタにフォーカスを確保
       this.wysiwygEditor.focus();
-      this.updateToolbarState();
+
+      const selection = window.getSelection();
+      let range;
+
+      // 選択範囲を取得
+      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+        range = selection.getRangeAt(0);
+        // 選択範囲がエディタ内にあることを確認
+        if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          range = null;
+        }
+      }
+
+      // 選択範囲がない、または空の場合は、エディタ全体を選択
+      if (!range || range.collapsed) {
+        range = document.createRange();
+        range.selectNodeContents(this.wysiwygEditor);
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+
+      // 選択範囲が空の場合は何もしない
+      if (range.collapsed) {
+        return;
+      }
+
+      // 選択範囲の内容を取得
+      const selectedContent = range.extractContents();
+      
+      // コマンドに応じたタグを作成
+      let wrapper;
+      switch (command) {
+        case 'bold':
+          wrapper = document.createElement('strong');
+          break;
+        case 'italic':
+          wrapper = document.createElement('em');
+          break;
+        case 'underline':
+          wrapper = document.createElement('u');
+          break;
+        default:
+          // 未知のコマンドの場合はexecCommandにフォールバック
+          document.execCommand(command, false, value);
+          this.wysiwygEditor.focus();
+          return;
+      }
+
+      // 選択範囲の内容をラッパーで囲む
+      wrapper.appendChild(selectedContent);
+      range.insertNode(wrapper);
+
+      // 選択範囲をクリアして、挿入した要素の後にカーソルを移動
+      if (selection) {
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.setStartAfter(wrapper);
+        newRange.collapse(true);
+        selection.addRange(newRange);
+      }
+
+      this.wysiwygEditor.focus();
+      
+      // 同期をトリガー
+      this.syncToMarkdown();
     }
     /**
      * リンクを挿入
+     * document.execCommandの代わりに、手動でリンクタグを挿入する実装
      */
     insertLink() {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
+      // エディタにフォーカスを確保
+      this.wysiwygEditor.focus();
+
       const selection = window.getSelection();
-      const selectedText = selection.toString().trim();
+      let range;
+      let selectedText = '';
+
+      // 選択範囲を取得
+      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+        range = selection.getRangeAt(0);
+        // 選択範囲がエディタ内にあることを確認
+        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          selectedText = selection.toString().trim();
+        } else {
+          range = null;
+        }
+      }
+
+      // 選択範囲がない場合は、カーソル位置を取得
+      if (!range) {
+        range = document.createRange();
+        range.setStart(this.wysiwygEditor, 0);
+        range.collapse(true);
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
+        }
+      }
+
       const url = prompt('リンクのURLを入力してください:', selectedText ? 'https://' : '');
 
       if (!url) return;
 
       const linkText = selectedText || url;
 
-      // 選択範囲がある場合はリンクに変換、ない場合はリンクを挿入
-      if (selectedText) {
-        document.execCommand('createLink', false, url);
-      } else {
-        const link = document.createElement('a');
-        link.href = url;
-        link.textContent = linkText;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
+      // リンク要素を作成
+      const link = document.createElement('a');
+      link.href = url;
+      link.textContent = linkText;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
 
-        const range = selection.getRangeAt(0);
+      // 選択範囲がある場合は、その範囲をリンクに置き換え
+      if (selectedText && !range.collapsed) {
         range.deleteContents();
         range.insertNode(link);
+      } else {
+        // 選択範囲がない場合は、カーソル位置にリンクを挿入
+        range.insertNode(link);
+      }
+
+      // 選択範囲をクリアして、リンクの後にカーソルを移動
+      if (selection) {
         selection.removeAllRanges();
-        selection.addRange(range);
+        const newRange = document.createRange();
+        newRange.setStartAfter(link);
+        newRange.collapse(true);
+        selection.addRange(newRange);
       }
 
       this.wysiwygEditor.focus();
+      
+      // 同期をトリガー
+      this.syncToMarkdown();
     }
 
     /**

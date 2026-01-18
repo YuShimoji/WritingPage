@@ -44,6 +44,11 @@ class EditorManager {
         this.searchPanel = document.getElementById('search-panel');
         this.closeSearchBtn = document.getElementById('close-search-panel');
 
+        // SpellCheckerを初期化
+        if (typeof window.SpellChecker !== 'undefined') {
+            this.spellChecker = new window.SpellChecker(this);
+        }
+
         // 手動スクロール検知
         this.editor.addEventListener('scroll', () => {
             this._isManualScrolling = true;
@@ -240,6 +245,12 @@ class EditorManager {
                 this.closeSearchBtn.addEventListener('click', () => {
                     this.hideSearchPanel();
                 });
+                this.closeSearchBtn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.hideSearchPanel();
+                    }
+                });
             }
 
             // 検索パネル内のボタンイベント
@@ -287,6 +298,13 @@ class EditorManager {
                     } else {
                         this.applyFontDecoration(tag);
                     }
+                }
+            });
+            // キーボード操作対応（Enter/Space）
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    btn.click();
                 }
             });
         });
@@ -546,10 +564,19 @@ class EditorManager {
         // 初期状態をaria-pressedに反映
         const initiallyCollapsed = this.previewPanel.classList.contains('editor-preview--collapsed');
         this.previewPanelToggle.setAttribute('aria-pressed', initiallyCollapsed ? 'false' : 'true');
+        this.previewPanelToggle.setAttribute('aria-expanded', initiallyCollapsed ? 'false' : 'true');
 
         this.previewPanelToggle.addEventListener('click', () => {
             const collapsed = this.previewPanel.classList.toggle('editor-preview--collapsed');
             this.previewPanelToggle.setAttribute('aria-pressed', collapsed ? 'false' : 'true');
+            this.previewPanelToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        });
+        // キーボード操作対応
+        this.previewPanelToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.previewPanelToggle.click();
+            }
         });
     }
 
@@ -1542,9 +1569,16 @@ class EditorManager {
     showFontDecorationPanel() {
         if (!this.fontDecorationPanel) return;
         this.fontDecorationPanel.style.display = 'block';
+        this.fontDecorationPanel.setAttribute('aria-hidden', 'false');
         // 他のパネルを隠す
         this.hideSearchPanel();
         if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
+        
+        // 最初のボタンにフォーカス
+        const firstBtn = this.fontDecorationPanel.querySelector('.decor-btn');
+        if (firstBtn) {
+            setTimeout(() => firstBtn.focus(), 100);
+        }
     }
 
     /**
@@ -1553,6 +1587,7 @@ class EditorManager {
     hideFontDecorationPanel() {
         if (this.fontDecorationPanel) {
             this.fontDecorationPanel.style.display = 'none';
+            this.fontDecorationPanel.setAttribute('aria-hidden', 'true');
         }
     }
 
@@ -1575,10 +1610,17 @@ class EditorManager {
     showTextAnimationPanel() {
         if (!this.textAnimationPanel) return;
         this.textAnimationPanel.style.display = 'block';
+        this.textAnimationPanel.setAttribute('aria-hidden', 'false');
         // 他のパネルを隠す
         this.hideSearchPanel();
         this.hideFontDecorationPanel();
         if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
+        
+        // 最初のボタンにフォーカス
+        const firstBtn = this.textAnimationPanel.querySelector('.decor-btn');
+        if (firstBtn) {
+            setTimeout(() => firstBtn.focus(), 100);
+        }
     }
 
     /**
@@ -1587,6 +1629,7 @@ class EditorManager {
     hideTextAnimationPanel() {
         if (this.textAnimationPanel) {
             this.textAnimationPanel.style.display = 'none';
+            this.textAnimationPanel.setAttribute('aria-hidden', 'true');
         }
     }
 
@@ -1658,8 +1701,13 @@ class EditorManager {
     hideSearchPanel() {
         if (this.searchPanel) {
             this.searchPanel.style.display = 'none';
+            this.searchPanel.setAttribute('aria-hidden', 'true');
         }
         this.clearSearchHighlights();
+        // エディタにフォーカスを戻す
+        if (this.editor) {
+            this.editor.focus();
+        }
     }
 
     /**

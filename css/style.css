@@ -177,6 +177,42 @@ textarea:focus,
 select:focus {
   border-color: var(--ui-focus-color);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: 2px;
+}
+
+/* スクリーンリーダー専用の非表示ラベル */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* フォーカス表示の改善（WCAG 2.1 AA準拠） */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--ui-focus-color, #4a90e2);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-focus-color, #4a90e2) 20%, transparent);
+}
+
+/* キーボード操作時のフォーカス表示を強調 */
+.keyboard-user *:focus {
+  outline: 2px solid var(--ui-focus-color, #4a90e2);
+  outline-offset: 2px;
+}
+
+/* マウス操作時はフォーカス表示を控えめに */
+.mouse-user *:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -1030,7 +1066,8 @@ html[data-toolbar-hidden='true'] .sidebar {
   background: var(--toolbar-bg);
   border-color: var(--ui-focus-color);
   color: var(--ui-focus-color);
-  outline: none;
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: 2px;
 }
 
 .sidebar-loadout label {
@@ -1291,6 +1328,12 @@ html[data-writing-goal-enabled='true'] #goal-deadline {
   color: var(--ui-accent-color);
 }
 
+.icon-button:focus-visible {
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: 2px;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
 .icon-button:hover svg {
   stroke-width: 2.2;
   opacity: 0.95;
@@ -1413,18 +1456,85 @@ input[type='color'] {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 25%, transparent);
 }
 
-/* レスポンシブデザイン */
+/* =========================================
+   レスポンシブデザイン（タブレット・モバイル対応）
+   ========================================= */
+
+/* タブレット向けスタイル（max-width: 1024px） */
+@media (max-width: 1024px) {
+  /* サイドバー幅を調整 */
+  :root {
+    --sidebar-width: 280px;
+  }
+
+  /* ツールバーのアイコンサイズを調整 */
+  .toolbar-actions {
+    gap: 0.4rem;
+  }
+
+  .icon-button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 6px;
+  }
+
+  .icon-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* エディタのパディングを調整 */
+  #editor,
+  #wysiwyg-editor {
+    --editor-padding-x: 1.5rem;
+    --editor-padding-y: 1.5rem;
+  }
+
+  /* フローティングパネルのサイズ調整 */
+  .floating-panel {
+    width: 300px;
+    max-width: 90vw;
+  }
+
+  /* 分割ビューを縦並びに */
+  .split-view-container {
+    flex-direction: column;
+  }
+
+  .split-view-panel--left,
+  .split-view-panel--right {
+    width: 100%;
+    height: 50%;
+  }
+
+  .split-view-resize-handle {
+    width: 100%;
+    height: 4px;
+    cursor: row-resize;
+  }
+
+  .split-view-panel--left {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
+/* モバイル向けスタイル（max-width: 768px） */
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
   }
 
+  /* サイドバー: フルスクリーンオーバーレイ */
   .sidebar {
     width: 100%;
+    max-width: 100%;
     left: -100%;
     padding: 0.75rem;
     top: var(--toolbar-height, 60px);
     height: calc(100vh - var(--toolbar-height, 60px));
+    z-index: var(--z-sidebar, 1000);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
   }
 
   html[data-toolbar-hidden='true'] .sidebar {
@@ -1434,6 +1544,25 @@ input[type='color'] {
 
   .sidebar.open {
     left: 0;
+  }
+
+  /* サイドバーオーバーレイ（背景を暗く） */
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: calc(var(--z-sidebar, 1000) - 1);
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  html[data-sidebar-open='true'] .sidebar-overlay {
+    display: block;
+    opacity: 1;
   }
 
   /* モバイルではメインの押し出しを行わない（オーバーレイモード） */
@@ -1446,9 +1575,217 @@ input[type='color'] {
     width: 100%;
   }
 
+  /* ツールバーの最適化 */
+  .toolbar {
+    padding: 0.5rem 0.75rem;
+    height: auto;
+    min-height: var(--toolbar-height, 60px);
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .toolbar-actions {
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .icon-button {
+    min-width: 40px;
+    height: 40px;
+    padding: 0 8px;
+    /* タッチ操作に最適化: タップ領域を拡大 */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .icon-button svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* ツールバーの文字数表示を非表示（省スペース） */
+  .word-count {
+    display: none !important;
+  }
+
   /* モバイルでは進捗バーを自動非表示（省スペース） */
   .goal-progress {
     display: none !important;
+  }
+
+  /* エディタの最適化 */
+  #editor,
+  #wysiwyg-editor {
+    --editor-padding-x: 1rem;
+    --editor-padding-y: 1.5rem;
+    font-size: 16px; /* モバイルでの最小フォントサイズ */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* エディタコンテナの高さ調整 */
+  .editor-container {
+    height: calc(100vh - var(--toolbar-height, 60px));
+  }
+
+  html[data-toolbar-hidden='true'] .editor-container {
+    height: 100vh;
+  }
+
+  /* フローティングパネルの最適化 */
+  .floating-panel {
+    width: calc(100vw - 32px);
+    max-width: 400px;
+    right: 16px;
+    left: auto;
+  }
+
+  /* FABボタンのサイズ調整 */
+  .fab-button {
+    --fab-size: 56px;
+    --fab-icon-size: 28px;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  /* ハンバーガーメニューボタンのスタイル */
+  #toggle-sidebar {
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+
+  /* ハンバーガーアイコンのアニメーション（モバイル用） */
+  @media (max-width: 768px) {
+    #toggle-sidebar[aria-expanded="true"] svg {
+      transform: rotate(90deg);
+      transition: transform 0.3s ease;
+    }
+
+    /* サイドバーが開いている時はメニューアイコンをXに変更（視覚的フィードバック） */
+    html[data-sidebar-open='true'] #toggle-sidebar {
+      background-color: var(--toolbar-bg);
+    }
+  }
+
+  /* サイドバータブの最適化 */
+  .sidebar-tabs {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+  }
+
+  .sidebar-tab {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+    min-height: 44px; /* タッチ操作に最適化 */
+    touch-action: manipulation;
+  }
+
+  /* ボタンのタッチ最適化 */
+  button,
+  .button,
+  .icon-button {
+    min-height: 44px; /* iOS推奨のタッチターゲットサイズ */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* 入力要素の最適化 */
+  input[type="text"],
+  input[type="number"],
+  textarea,
+  select {
+    font-size: 16px; /* iOSでのズーム防止 */
+    padding: 8px 12px;
+    min-height: 44px;
+  }
+
+  /* ガジェット内のボタン最適化 */
+  .gadget button,
+  .gadget .btn {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  /* 検索パネルの最適化 */
+  #search-panel {
+    width: calc(100vw - 32px);
+    max-width: 500px;
+  }
+
+  /* コマンドパレットの最適化 */
+  .command-palette {
+    width: calc(100vw - 32px);
+    max-width: 600px;
+    top: 10%;
+  }
+
+  /* 分割ビューの最適化 */
+  .split-view-container {
+    flex-direction: column;
+  }
+
+  .split-view-panel--left,
+  .split-view-panel--right {
+    width: 100%;
+    height: 50%;
+  }
+
+  .split-view-resize-handle {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+    touch-action: none;
+  }
+
+  .split-view-panel--left {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  /* UIエディタパネルの最適化 */
+  .ui-editor-panel {
+    width: calc(100vw - 32px);
+    max-width: 400px;
+    right: 16px;
+    top: 80px;
+  }
+
+  /* スペルチェック提案パネルの最適化 */
+  .spell-check-suggestions {
+    max-width: calc(100vw - 32px);
+  }
+}
+
+/* タッチデバイス向けの最適化（pointer: coarse で判定） */
+@media (pointer: coarse) {
+  /* ホバー効果を無効化（タッチデバイスでは不要） */
+  button:hover,
+  .button:hover,
+  .icon-button:hover {
+    background-color: var(--ui-bg);
+  }
+
+  /* アクティブ状態を強調 */
+  button:active,
+  .button:active,
+  .icon-button:active {
+    background-color: var(--toolbar-bg);
+    transform: scale(0.98);
+  }
+
+  /* リンクのタップ領域を拡大 */
+  a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
   }
 }
 
@@ -3467,6 +3804,13 @@ html:not([data-focus-mode='enabled']) #editor::after {
   min-width: 300px;
 }
 
+/* 分割ビューのリサイズハンドルのキーボード操作 */
+#split-view-resize-handle:focus-visible {
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: 2px;
+  background: var(--ui-focus-color);
+}
+
 #split-view-mode-panel .panel-body {
   display: flex;
   flex-direction: column;
@@ -3696,6 +4040,189 @@ a.wikilink:visited {
   }
 }
 
+/* =========================================
+   UI Visual Editor
+   ========================================= */
+
+/* UIエディタが有効な時のスタイル */
+body.ui-editor-active {
+  cursor: crosshair;
+}
+
+body.ui-editor-active * {
+  cursor: inherit;
+}
+
+body.ui-editor-active #editor,
+body.ui-editor-active #wysiwyg-editor,
+body.ui-editor-active .editor-preview {
+  cursor: text;
+}
+
+/* オーバーレイ（要素選択時のハイライト） */
+.ui-editor-overlay {
+  position: fixed;
+  pointer-events: none;
+  border: 2px solid var(--focus-color, #4a90e2);
+  background: rgba(74, 144, 226, 0.1);
+  z-index: 10000;
+  display: none;
+  box-sizing: border-box;
+}
+
+/* エディタパネル */
+.ui-editor-panel {
+  position: fixed;
+  right: 16px;
+  top: 80px;
+  width: 320px;
+  max-height: calc(100vh - 100px);
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 10001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ui-editor-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.ui-editor-panel__header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.ui-editor-panel__close {
+  background: transparent;
+  border: none;
+  color: var(--ui-text);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.ui-editor-panel__close:hover {
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
+}
+
+.ui-editor-panel__body {
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ui-editor-section {
+  margin-bottom: 20px;
+}
+
+.ui-editor-section:last-child {
+  margin-bottom: 0;
+}
+
+.ui-editor-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ui-text);
+}
+
+.ui-editor-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ui-editor-info {
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+}
+
+.ui-editor-info strong {
+  display: inline-block;
+  min-width: 60px;
+  color: var(--ui-text);
+  opacity: 0.8;
+}
+
+.ui-editor-row {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ui-editor-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+}
+
+.ui-editor-row input[type="color"] {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.ui-editor-row select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  font-size: 0.9rem;
+}
+
+.ui-editor-row button {
+  flex: 1;
+}
+
+.ui-editor-row:has(button) {
+  flex-direction: row;
+}
+
+/* プレビューモード */
+body.ui-editor-preview {
+  /* プレビューモード時のスタイル（必要に応じて拡張） */
+}
+
+/* ダークテーマ対応 */
+[data-theme='dark'] .ui-editor-panel {
+  background: var(--ui-bg, #1e1e1e);
+  border-color: var(--border-color, #444);
+}
+
+[data-theme='dark'] .ui-editor-panel__header {
+  background: var(--toolbar-bg, #2a2a2a);
+  border-color: var(--border-color, #444);
+}
+
+[data-theme='dark'] .ui-editor-overlay {
+  border-color: var(--focus-color, #5ba3f5);
+  background: rgba(91, 163, 245, 0.15);
+}
+
 [data-theme='dark'] .keybind-item {
   background: #2a2a2a;
   border-color: #444;
@@ -3712,4 +4239,183 @@ a.wikilink:visited {
   background: #4a90e2;
   color: #fff;
   border-color: #4a90e2;
+}
+
+/* =========================================
+   Spell Checker Styles
+   ========================================= */
+
+/* スペルミスのハイライト */
+.spell-check-highlight {
+  position: absolute;
+  border-bottom: 2px wavy rgba(255, 0, 0, 0.6);
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 15;
+  transition: border-color 0.2s ease;
+}
+
+.spell-check-highlight:hover {
+  border-bottom-color: rgba(255, 0, 0, 0.9);
+  background-color: rgba(255, 0, 0, 0.1);
+}
+
+/* スペルチェック提案パネル */
+.spell-check-suggestions {
+  position: fixed;
+  background: var(--ui-bg, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: var(--z-tooltip, 2000);
+  min-width: 200px;
+  max-width: 300px;
+  padding: 8px;
+  display: none;
+}
+
+.spell-check-suggestions-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-text, #333);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.spell-check-suggestion {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  margin: 2px 0;
+  text-align: left;
+  background: var(--ui-bg, #ffffff);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 4px;
+  color: var(--ui-text, #333);
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.spell-check-suggestion:hover {
+  background: var(--ui-focus-color, #4a90e2);
+  color: #fff;
+  border-color: var(--ui-focus-color, #4a90e2);
+}
+
+.spell-check-suggestion:active {
+  transform: scale(0.98);
+}
+
+.spell-check-no-suggestions {
+  padding: 8px;
+  font-size: 12px;
+  color: var(--ui-text, #333);
+  opacity: 0.7;
+  text-align: center;
+}
+
+.spell-check-add-dict {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  margin-top: 8px;
+  text-align: center;
+  background: var(--ui-bg, #ffffff);
+  border: 1px solid var(--ui-accent-color, #4a90e2);
+  border-radius: 4px;
+  color: var(--ui-accent-color, #4a90e2);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.spell-check-add-dict:hover {
+  background: var(--ui-accent-color, #4a90e2);
+  color: #fff;
+}
+
+/* ダークテーマ対応 */
+[data-theme='dark'] .spell-check-suggestions {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+[data-theme='dark'] .spell-check-suggestions-title {
+  color: #e0e0e0;
+  border-bottom-color: #444;
+}
+
+[data-theme='dark'] .spell-check-suggestion {
+  background: #333;
+  border-color: #555;
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .spell-check-suggestion:hover {
+  background: #4a90e2;
+  color: #fff;
+  border-color: #4a90e2;
+}
+
+[data-theme='dark'] .spell-check-no-suggestions {
+  color: #e0e0e0;
+}
+
+[data-theme='dark'] .spell-check-add-dict {
+  background: #333;
+  border-color: #4a90e2;
+  color: #4a90e2;
+}
+
+[data-theme='dark'] .spell-check-add-dict:hover {
+  background: #4a90e2;
+  color: #fff;
+}
+
+/* アクセシビリティ: スキップリンク（キーボード操作の効率化） */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--ui-focus-color, #4a90e2);
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* アクセシビリティ: aria-liveリージョンのスタイル */
+[aria-live] {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[aria-live="polite"]:not(.word-count):not(#editor-preview) {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* フォーカストラップ（モーダルダイアログ内） */
+[aria-modal="true"] {
+  position: relative;
+}
+
+[aria-modal="true"]:focus-within {
+  outline: none;
 }

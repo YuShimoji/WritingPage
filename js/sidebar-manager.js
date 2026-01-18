@@ -176,6 +176,22 @@ class SidebarManager {
             document.documentElement.removeAttribute('data-sidebar-open');
             if (this._isDevMode()) console.info('サイドバーから .open クラスを削除');
         }
+
+        // サイドバーオーバーレイの表示制御（モバイル用）
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        if (sidebarOverlay) {
+            if (open) {
+                sidebarOverlay.setAttribute('aria-hidden', 'false');
+            } else {
+                sidebarOverlay.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        // ハンバーガーメニューボタンのaria-expanded属性を更新
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
         
         // ツールバー側の閉じるボタンの表示制御
         // const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
@@ -332,16 +348,37 @@ class SidebarManager {
 
             var tabsContainer = document.querySelector('.sidebar-tabs');
             if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')){
-                var btn = document.createElement('button');
-                btn.className = 'sidebar-tab';
-                btn.type = 'button';
-                btn.dataset.group = safeId;
-                btn.id = 'sidebar-tab-' + safeId;
-                btn.setAttribute('aria-controls', 'sidebar-group-' + safeId);
-                btn.setAttribute('aria-selected', 'false');
-                btn.textContent = safeLabel;
-                btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
-                tabsContainer.appendChild(btn);
+            var btn = document.createElement('button');
+            btn.className = 'sidebar-tab';
+            btn.type = 'button';
+            btn.dataset.group = safeId;
+            btn.id = 'sidebar-tab-' + safeId;
+            btn.setAttribute('aria-controls', 'sidebar-group-' + safeId);
+            btn.setAttribute('aria-selected', 'false');
+            btn.setAttribute('role', 'tab');
+            btn.textContent = safeLabel;
+            btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
+            // キーボード操作対応（Enter/Space）
+            btn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.activateSidebarGroup(safeId);
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    // 矢印キーでタブを切り替え
+                    e.preventDefault();
+                    const tabs = Array.from(document.querySelectorAll('.sidebar-tab'));
+                    const currentIndex = tabs.indexOf(btn);
+                    let nextIndex;
+                    if (e.key === 'ArrowRight') {
+                        nextIndex = (currentIndex + 1) % tabs.length;
+                    } else {
+                        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                    }
+                    tabs[nextIndex].focus();
+                    this.activateSidebarGroup(tabs[nextIndex].dataset.group);
+                }
+            });
+            tabsContainer.appendChild(btn);
             }
 
             if (panel) {
@@ -546,6 +583,13 @@ class SidebarManager {
             const isActive = tab.dataset.group === groupId;
             tab.classList.toggle('active', isActive);
             tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            if (isActive) {
+                // アクティブなタブにフォーカスを移動（キーボード操作時のみ）
+                const isKeyboardUser = document.body.classList.contains('keyboard-user');
+                if (isKeyboardUser) {
+                    tab.focus();
+                }
+            }
         });
 
         // グループパネルの表示状態を更新

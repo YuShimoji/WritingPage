@@ -40,6 +40,13 @@ GitHubAutoApprove: true
 - **REPORT_TASK_015_orchestrator_audit_ci_integration_20260104_2345.md**: orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにした。DONEタスクのレポート欠損や HANDOVER 乖離をCIで自動検知できるようになった。
 - **REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md**: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。PR コメントの自動検証機能を実装。
 - **REPORT_ORCH_20260112_0058.md**: TASK_017-028（アプリ開発タスク）の完了確認とStatus更新を実施。DoD完了タスク（TASK_017, TASK_022, TASK_024）とDoD未完了タスク（TASK_023, TASK_025, TASK_026, TASK_028）のStatusをすべてDONEに更新し、全タスク（TASK_017-028）が完了。
+- **REPORT_TASK_031_wysiwyg_e2e_fix_20260118_0411.md**: WYSIWYG エディタの E2E テスト修正を完了。`document.execCommand` を手動実装に置き換え、失敗していた4つのテスト（Bold, Italic, Underline, Link）を修正し、9/9 テスト成功を達成。
+- **REPORT_TASK_036_responsive_ui_improvement_20260118_1734.md**: レスポンシブUI改善（モバイル/タブレット対応）を完了。タッチ操作に最適化し、サイドバーのオーバーレイ表示、スワイプ操作、ツールバーとエディタのモバイル向け最適化を実装。E2Eテストを追加。
+- **REPORT_TASK_037_accessibility_improvement_20260118_1736.md**: アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）を完了。WCAG 2.1 AA レベルに準拠し、ARIA属性の追加、キーボード操作の実装、フォーカス管理の改善を実施。E2Eテストを追加。
+- **REPORT_TASK_038_code_style_standardization_20260118_1735.md**: コード規約の明文化（ESLint/Prettier導入）を完了。`.prettierignore`の作成、`package.json`へのスクリプト追加、`docs/CODING_STANDARDS.md`の作成、`.eslintrc.js`の更新を実施。
+- **REPORT_TASK_036_responsive_ui_improvement_20260118_1734.md**: レスポンシブUI改善（モバイル/タブレット対応）を完了。タブレット向けスタイル、モバイル向けスタイル、タッチ操作の最適化、サイドバーのオーバーレイ表示、スワイプ操作を実装。E2Eテストを追加（13テストケース）。
+- **REPORT_TASK_037_accessibility_improvement_20260118_1736.md**: アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）を完了。WCAG 2.1 AA レベルに準拠した実装を実施。ARIA属性の追加、キーボード操作の実装、フォーカス管理の改善、E2Eテストを追加（10テストケース）。
+- **REPORT_TASK_038_code_style_standardization_20260118_1735.md**: コード規約の明文化（ESLint/Prettier導入）を完了。`.prettierignore`の作成、`package.json`の更新、`docs/CODING_STANDARDS.md`の作成、`.eslintrc.js`の更新を実施。
 
 ## ブロッカー
 - なし
@@ -131,12 +138,12 @@ GitHubAutoApprove: true
 - REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20260112_0302.md
-- Summary: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の2つのWorker完了レポートを統合。バックログの「フェーズ E: パネル・レイアウト機能」のE-3/E-4が完成。
+- File: docs/reports/REPORT_ORCH_20260118_1912.md
+- Summary: TASK_036（レスポンシブUI改善）、TASK_037（アクセシビリティ向上）、TASK_038（コード規約の明文化）の3つのWorker完了レポートを統合。すべてのタスクが完了し、レポートをdocs/reports/にアーカイブ。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md
-- Summary: ガジェット動的割り当て機能を実装。ドラッグ&ドロップでガジェットをタブに追加・移動する機能、ロードアウト自動更新機能、E2Eテストを追加。
+- File: docs/reports/REPORT_TASK_038_code_style_standardization_20260118_1735.md
+- Summary: コード規約の明文化（ESLint/Prettier導入）を完了。`.prettierignore`の作成、`package.json`の更新、`docs/CODING_STANDARDS.md`の作成、`.eslintrc.js`の更新を実施。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
@@ -147,7 +154,7 @@ GitHubAutoApprove: true
 - AI_CONTEXT.md 初期化スクリプトを追加し、Worker 完了ステータス記録を自動化
 - orchestrator-audit.js を CI パイプラインに組み込み、HANDOVER 乖離を自動通知
 - REPORT_ORCH CLI に `--sync-handover` オプションを追加し、Latest Orchestrator Report 欄の更新を半自動化
-- docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンドを追加
+- ~~docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンドを追加~~（完了: `scripts/flush-reports.js`）
 
 ## リスク
 - docs/reports へ移管したアーカイブは orchestrator-audit の集計対象外のため、運用ルール（参照先の統一）が崩れると見落としが起きる可能性
@@ -172,6 +179,47 @@ GitHubAutoApprove が false の場合、または auto-merge が無効な環境�
    - GitHub UI: PR ページの「Merge pull request」ボタンをクリック
    - CLI: `gh pr merge <PR番号> --merge` を実行
 4. **確認**: マージ後、`git fetch origin && git status -sb` で main ブランチが最新であることを確認
+
+## レポート削除スクリプト（flush-reports）の使用方法
+
+HANDOVER.md に記載されているレポートを自動削除するスクリプトです。
+
+### 基本的な使用方法
+
+```bash
+# 削除対象のレポートを確認（実際には削除しない）
+node scripts/flush-reports.js --dry-run
+
+# 確認プロンプトを表示して削除
+node scripts/flush-reports.js
+
+# 確認プロンプトをスキップして削除
+node scripts/flush-reports.js --force
+```
+
+### オプション
+
+- `--dry-run`: 削除対象のレポートを表示するのみ（実際には削除しない）
+- `--force`: 確認プロンプトをスキップして削除を実行
+- `--project-root <path>`: プロジェクトルートのパスを指定（デフォルト: 現在のディレクトリ）
+- `--help`, `-h`: ヘルプを表示
+
+### 動作
+
+スクリプトは以下のセクションからレポートパスを抽出します：
+
+1. **統合レポート** セクション: `- docs/reports/REPORT_*.md` の形式
+2. **Latest Orchestrator Report** セクション: `- File: docs/reports/REPORT_*.md`
+3. **Latest Worker Report** セクション: `- File: docs/reports/REPORT_*.md`
+4. **進捗** セクション: `- **REPORT_*.md**:` の形式
+
+抽出したレポートパスが実際に存在する場合、削除対象として扱われます。
+
+### 注意事項
+
+- 削除前に `--dry-run` で削除対象を確認することを推奨します
+- `--force` オプションを使用する場合は、削除対象を十分に確認してください
+- レポートの削除は不可逆的な操作です
 
 ## 所要時間
 - 本フェーズ作業（テンプレ整備・スクリプト強化・監査対応）: 約 2.0h

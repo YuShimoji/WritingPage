@@ -1133,3 +1133,316 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 
 ### 次フェーズ
 - 開発準備完了: ユーザー指示に基づきタスク実行へ移行可能
+
+## Phase 2: 状況把握（2026-01-17）
+
+### 追記時刻
+- 2026-01-17T23:50:00+09:00
+
+### 実施内容
+- `docs/HANDOVER.md` を読み、目標/進捗/ブロッカー/バックログを抽出
+  - 現在の目標: 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了
+  - ブロッカー: なし
+  - バックログ: すべて完了済みまたは shared-workflows側に提出済み
+- `docs/tasks/` を確認し、OPEN/IN_PROGRESS を列挙
+  - OPEN: TASK_031_wysiwyg_e2e_fix.md（Tier 1、Branch: main）
+  - DONE: TASK_001-030, TASK_032
+  - BLOCKED: TASK_001_embed_sdk_origin_normalization.md（Status: BLOCKED）
+- `node .shared-workflows/scripts/todo-sync.js` を実行
+  - AI_CONTEXT.md の「短期（Next）」セクションを更新（TASK_031 が pending として表示）
+- `docs/inbox/` を確認
+  - REPORT_ORCH_20260117_0140.md（古い情報、虚偽完了の検知）
+  - REPORT_ORCH_20260117_0220.md（正しい現状把握、新規E2E修正タスク起票）
+  - REPORT_WYSIWYG_E2E_FIX.md（Worker完了レポート、5/9成功、4/9失敗）
+
+### 次フェーズ
+- OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（TASK_031）
+
+### 追記時刻
+- 2026-01-17T23:55:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類
+  - TASK_031_wysiwyg_e2e_fix.md: Tier 1（既に分類済み）
+- 並列化可能性を判断
+  - TASK_031 は単一タスクで、以下の作業を含む:
+    1. WYSIWYG エディタの E2E テスト修正（4つの失敗テストケースの修正: Bold, Italic, Underline, Link）
+    2. `document.execCommand` の問題解決または代替実装
+  - Worker レポート（REPORT_WYSIWYG_E2E_FIX.md）によると、5/9 テストが成功、4/9 テストが失敗
+  - 既存の Worker レポートが存在するが、DoD 未達成のため、追加作業が必要
+  - Worker 数: 1
+- 各Workerの Focus Area / Forbidden Area を決定
+  - Focus Area: `js/editor-wysiwyg.js`（WYSIWYG エディタ実装）、`e2e/wysiwyg-editor.spec.js`（E2E テスト）、`index.html`（WYSIWYG UI 要素）、`css/style.css`（必要に応じて）
+  - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存の成功テスト（5/9）を失敗させる変更
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 5: Worker起動用プロンプト生成（TASK_031）
+
+### 追記時刻
+- 2026-01-18T04:00:00+09:00
+
+### 実施内容
+- Worker プロンプトを生成: `prompts/worker/WORKER_TASK_031_wysiwyg_e2e_fix.txt`
+- プロンプトに以下を含める:
+  - チケットパス: `docs/tasks/TASK_031_wysiwyg_e2e_fix.md`
+  - Tier: 1 / Branch: main
+  - Focus Area / Forbidden Area
+  - 停止条件
+  - 納品先: `docs/inbox/REPORT_TASK_031_wysiwyg_e2e_fix_YYYYMMDD_HHMM.md`
+  - 背景情報（既存の Worker レポート、E2E テスト状況）
+
+### 次フェーズ
+- Worker起動準備完了: Phase 6（Orchestrator Report）に進む
+
+## Phase 6: Orchestrator Report（タスク組み立て・起票完了）
+
+### 追記時刻
+- 2026-01-18T04:02:00+09:00
+
+### 実施内容
+- Orchestrator Report を作成: `docs/inbox/REPORT_ORCH_20260118_0402.md`
+- プロジェクト状態を検証し、タスク組み立て・起票を完了
+- Worker プロンプトを生成し、Worker 起動準備を完了
+- MISSION_LOG.md を更新（Phase 6 完了を記録）
+
+### 次フェーズ
+- Worker起動準備完了: ユーザーがWorkerプロンプトを新規チャットセッションに貼り付けて起動
+
+## Phase 4: Worker完了（TASK_031）
+
+### 追記時刻
+- 2026-01-18T04:25:00+09:00
+
+### 実施内容
+- TASK_031_wysiwyg_e2e_fix.md を完了
+  - Worker 完了レポートを確認: `docs/inbox/REPORT_TASK_031_wysiwyg_e2e_fix_20260118_0411.md`
+  - レポート検証: `node .shared-workflows/scripts/report-validator.js` で検証（OK）
+  - チケットの Status を DONE に更新
+  - レポートを docs/reports/ にアーカイブ
+  - HANDOVER.md の Latest Worker Report を更新
+
+### 検証結果
+- E2E テスト結果: 9/9 テスト成功 ✅
+- 実装変更: `document.execCommand` を手動実装に置き換え
+- レポート検証: OK
+
+### 現在のフェーズ
+- Phase 4: Worker完了（完了）
+- 次フェーズ: Phase 6（Orchestrator Report）
+
+## Phase 6: Orchestrator Report（TASK_031 統合）
+
+### 追記時刻
+- 2026-01-18T04:28:00+09:00
+
+### 実施内容
+- TASK_031 の Worker 完了レポートを統合
+  - レポート検証: `report-validator.js` で検証（OK）
+  - `docs/inbox` から `docs/reports` へレポートをアーカイブ
+  - `docs/HANDOVER.md` の Latest Worker Report を更新
+  - 最終 Orchestrator レポート（`docs/inbox/REPORT_ORCH_20260118_0428.md`）を作成
+- MISSION_LOG.md を更新（Phase 6 完了を記録）
+
+### 次フェーズ
+- 新規タスクが発生した場合: Phase 2（状況把握）から再開
+- Worker納品を回収した後: Phase 6（Orchestrator Report）で統合
+- ブロッカー発生時: Phase 1.5（Audit）または Phase 1.75（Gate）で対応
+
+## Phase 2: 状況把握（新規タスク起票・2026-01-18）
+
+### 追記時刻
+- 2026-01-18T04:30:00+09:00
+
+### 実施内容
+- `docs/HANDOVER.md` を読み、目標/進捗/ブロッカー/バックログを抽出
+  - 現在の目標: 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了
+  - ブロッカー: なし
+  - バックログ: すべて完了済みまたは shared-workflows側に提出済み
+  - 改善提案（Proposals）:
+    - docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンドを追加（未実装）
+- `docs/tasks/` を確認し、OPEN/IN_PROGRESS を列挙
+  - OPEN/IN_PROGRESS タスク: なし（すべてのタスクが DONE または CLOSED）
+  - DONE: TASK_001-032
+  - CLOSED: TASK_019, TASK_020
+  - BLOCKED: TASK_001_embed_sdk_origin_normalization.md（Status: BLOCKED）
+- `docs/BACKLOG.md` を確認し、未実装機能を抽出
+  - ビジュアルUIエディタ（優先度: 中、未実装）
+  - スペルチェック（優先度: 中、未実装）
+- `node .shared-workflows/scripts/todo-sync.js` を実行
+  - AI_CONTEXT.md の「短期（Next）」セクションを更新（新規タスクを pending として表示）
+
+### 次フェーズ
+- 新規タスクを起票するため: Phase 3（分割と戦略）に進む
+
+## Phase 3: 分割と戦略（新規タスク起票）
+
+### 追記時刻
+- 2026-01-18T04:30:00+09:00
+
+### 実施内容
+- タスクを Tier 1/2/3 で分類
+  - TASK_033_visual_ui_editor.md: Tier 2（ビジュアルUIエディタ実装）
+  - TASK_034_spell_check.md: Tier 2（スペルチェック機能実装）
+  - TASK_035_flush_reports_command.md: Tier 2（レポート削除コマンド追加）
+- 並列化可能性を判断
+  - すべてのタスクが独立作業可能（ファイル依存なし、機能境界が明確）
+  - TASK_033: UIエディタ実装、独立作業可能
+  - TASK_034: スペルチェック実装、独立作業可能
+  - TASK_035: スクリプト作成、独立作業可能
+  - Worker 数: 3（最大3 Worker の制約により、3タスクを3 Worker に割り当て）
+    - Worker-1: TASK_033（Tier 2、UIエディタ実装）
+    - Worker-2: TASK_034（Tier 2、スペルチェック実装）
+    - Worker-3: TASK_035（Tier 2、スクリプト作成）
+- 各Workerの Focus Area / Forbidden Area を決定
+  - Worker-1 (TASK_033):
+    - Focus Area: `js/ui-editor.js`（新規作成）、`js/gadgets-themes.js`（統合）、`js/gadgets-visual-profile.js`（統合）、`css/style.css`（スタイル）、`index.html`（UI要素）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のテーマ/Visual Profileシステムの破壊的変更
+  - Worker-2 (TASK_034):
+    - Focus Area: `js/spell-checker.js`（新規作成）、`js/editor.js`（統合）、`css/style.css`（スタイル）、`index.html`（UI要素）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のエディタ機能の破壊的変更
+  - Worker-3 (TASK_035):
+    - Focus Area: `scripts/flush-reports.js`（新規作成）、`docs/HANDOVER.md`（使用方法のドキュメント化、必要に応じて）
+    - Forbidden Area: `.shared-workflows/**`（submodule内の変更は禁止）、既存のレポート検証システムの破壊的変更
+
+### 次フェーズ
+- チケットは既に存在しているため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 4: チケット発行（新規タスク起票）
+
+### 追記時刻
+- 2026-01-18T04:30:00+09:00
+
+### 実施内容
+- 改善提案とバックログから新規タスクを起票（優先度順）
+  - TASK_033_visual_ui_editor.md（Tier 2、優先度: Medium）
+    - ビジュアルUIエディタ実装（クリックで要素選択、個別またはタイプ別の一括色変更）
+  - TASK_034_spell_check.md（Tier 2、優先度: Medium）
+    - スペルチェック機能実装（基本的なスペル提案）
+  - TASK_035_flush_reports_command.md（Tier 2、優先度: Low）
+    - docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンド追加
+- `node .shared-workflows/scripts/todo-sync.js` を実行し、AI_CONTEXT.md を更新
+
+### 次フェーズ
+- 新規タスクが起票されたため: Phase 5（Worker起動用プロンプト生成）に進む
+
+## Phase 2: 状況把握（2026-01-17）
+
+### 追記時刻
+- 2026-01-17T23:50:00+09:00
+
+### 実施内容
+- `docs/HANDOVER.md` を読み、目標/進捗/ブロッカー/バックログを抽出
+  - 現在の目標: 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了
+  - ブロッカー: なし
+  - バックログ: すべて完了済みまたは shared-workflows側に提出済み
+- `docs/tasks/` を確認し、OPEN/IN_PROGRESS を列挙
+  - OPEN: TASK_031_wysiwyg_e2e_fix.md（Tier 1、Branch: main）
+  - DONE: TASK_001-030, TASK_032
+  - BLOCKED: TASK_001_embed_sdk_origin_normalization.md（Status: BLOCKED）
+- `node .shared-workflows/scripts/todo-sync.js` を実行
+  - AI_CONTEXT.md の「短期（Next）」セクションを更新（TASK_031 が pending として表示）
+- `docs/inbox/` を確認
+  - REPORT_ORCH_20260117_0140.md（古い情報、虚偽完了の検知）
+  - REPORT_ORCH_20260117_0220.md（正しい現状把握、新規E2E修正タスク起票）
+  - REPORT_WYSIWYG_E2E_FIX.md（Worker完了レポート、5/9成功、4/9失敗）
+
+### 次フェーズ
+- OPEN/IN_PROGRESS タスクがあるため: Phase 3（分割と戦略）に進む
+## Phase 2: 状況把握（新規タスク起票・2026-01-18 再実行）
+
+### 追記時刻
+- 2026-01-18T05:30:00+09:00
+
+### 実施内容
+- `docs/HANDOVER.md` を読み、目標/進捗/ブロッカー/バックログを抽出
+  - 現在の目標: 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了
+  - ブロッカー: なし
+  - バックログ: すべて完了済みまたは shared-workflows側に提出済み
+- `docs/tasks/` を確認し、OPEN/IN_PROGRESS を列挙
+  - OPEN/IN_PROGRESS タスク: なし（すべてのタスクが DONE または CLOSED）
+  - DONE: TASK_001-035
+  - CLOSED: TASK_019, TASK_020, TASK_033
+  - BLOCKED: TASK_001_embed_sdk_origin_normalization.md（Status: BLOCKED）
+- `docs/BACKLOG.md` を確認し、未実装機能を抽出
+  - 優先度: 低の未実装機能:
+    - レスポンシブUI改善（モバイル/タブレット対応）
+    - アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）
+    - コード規約の明文化（ESLint/Prettier導入検討）
+- `node .shared-workflows/scripts/todo-sync.js` を実行
+  - AI_CONTEXT.md の「短期（Next）」セクションを更新（新規タスクを pending として表示）
+
+### 次フェーズ
+- 新規タスクを起票するため: Phase 4（チケット発行）に進む
+
+## Phase 4: チケット発行（新規タスク起票・2026-01-18）
+
+### 追記時刻
+- 2026-01-18T05:30:00+09:00
+
+### 実施内容
+- バックログから新規タスクを起票（優先度順）
+  - TASK_036_responsive_ui_improvement.md（Tier 2、優先度: Low）
+    - レスポンシブUI改善（モバイル/タブレット対応）
+  - TASK_037_accessibility_improvement.md（Tier 2、優先度: Low）
+    - アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）
+  - TASK_038_code_style_standardization.md（Tier 2、優先度: Low）
+    - コード規約の明文化（ESLint/Prettier導入検討）
+- `node .shared-workflows/scripts/todo-sync.js` を実行し、AI_CONTEXT.md を更新
+
+### 次フェーズ
+- 新規タスクが起票されたため: Phase 3（分割と戦略）に進む
+
+## Phase 6: Orchestrator Report（TASK_036-038 統合）（追記）
+
+### 追記時刻
+- 2026-01-18T19:12:00+09:00
+
+### 実施内容
+- TASK_036, TASK_037, TASK_038 の3つのWorker完了レポートを統合
+  - レポート検証: `report-validator.js`で検証
+    - TASK_036: OK（警告: 必須ヘッダー '現状' と '次のアクション' が不足）
+    - TASK_037: OK（警告: 必須ヘッダー '概要'、'現状'、'次のアクション' が不足）
+    - TASK_038: OK（警告なし）
+  - `docs/inbox` から `docs/reports` へレポートをアーカイブ（3つのWorker完了レポート）
+  - タスクの Report 欄を `docs/reports/` に更新（TASK_036, TASK_037, TASK_038）
+  - TASK_038 の Status を OPEN → DONE に更新
+  - `docs/HANDOVER.md` の Latest Orchestrator Report を更新
+  - `docs/HANDOVER.md` の Latest Worker Report を更新
+  - `docs/HANDOVER.md` の進捗セクションにレポートを追加
+  - `docs/BACKLOG.md` を更新（完了タスクを[x]に更新）
+  - 最終 Orchestrator レポート（`docs/inbox/REPORT_ORCH_20260118_1912.md`）を作成
+- MISSION_LOG.md を更新（Phase 6 完了を記録）
+
+### 完了タスクの成果物
+- TASK_036: レスポンシブUI改善（モバイル/タブレット対応）、E2Eテスト追加
+- TASK_037: アクセシビリティ向上（WCAG 2.1 AA準拠）、E2Eテスト追加
+- TASK_038: コード規約の明文化（ESLint/Prettier導入）、`docs/CODING_STANDARDS.md`作成
+
+### 現在のフェーズ
+- Phase 6: Orchestrator Report（完了）
+- 次フェーズ: Phase 2（状況把握）に戻り、次のタスクを確認
+- TASK_036, TASK_037, TASK_038 の3つのWorker完了レポートを統合
+  - レポート検証: `report-validator.js`で検証
+    - TASK_036: OK（警告: 必須ヘッダー '現状' と '次のアクション' が不足）
+    - TASK_037: OK（警告: 必須ヘッダー '概要'、'現状'、'次のアクション' が不足）
+    - TASK_038: OK（警告なし）
+  - `docs/inbox` から `docs/reports` へレポートをアーカイブ（3つのWorker完了レポート）
+  - タスクStatus更新: TASK_038をOPEN→DONEに更新
+  - タスクファイル更新: Reportパスをdocs/reports/に更新（TASK_036, TASK_037, TASK_038）
+  - `docs/BACKLOG.md`を更新: 完了タスクを[x]に更新
+  - `docs/HANDOVER.md`を更新: 進捗セクションとLatest Orchestrator Report、Latest Worker Reportを更新
+  - 最終 Orchestrator レポート（`docs/inbox/REPORT_ORCH_20260118_1912.md`）を作成
+- MISSION_LOG.md を更新（Phase 6 完了を記録）
+
+### 現在のフェーズ
+- Phase 6: Orchestrator Report（完了）
+- 次フェーズ: Phase 2（状況把握）に進み、新規タスクを確認
+
+### 次フェーズ
+- 新規タスクが発生した場合: Phase 2（状況把握）から再開
+- Worker納品を回収した後: Phase 6（Orchestrator Report）で統合
+- ブロッカー発生時: Phase 1.5（Audit）または Phase 1.75（Gate）で対応

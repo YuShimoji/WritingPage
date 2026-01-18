@@ -10,6 +10,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logger.info('アプリケーション初期化開始');
 
+    // キーボード/マウス操作の検出（フォーカス表示の制御用）
+    let isKeyboardUser = false;
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            isKeyboardUser = true;
+            document.body.classList.add('keyboard-user');
+            document.body.classList.remove('mouse-user');
+        }
+    }, true);
+    document.addEventListener('mousedown', () => {
+        isKeyboardUser = false;
+        document.body.classList.add('mouse-user');
+        document.body.classList.remove('keyboard-user');
+    }, true);
+
     // UIラベルの適用
     function applyUILabels() {
         if (!window.UILabels) return;
@@ -230,6 +245,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // aria-hiddenはフォーカス移動後に設定（requestAnimationFrameで次のフレームで実行）
         requestAnimationFrame(() => {
             sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+            // toggle-sidebarボタンのaria-expanded属性も更新
+            const toggleBtn = elementManager.get('toggleSidebarBtn');
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-expanded', String(open));
+            }
             logger.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
             logger.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
         });
@@ -304,6 +324,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
         window.sidebarManager.toggleSidebar();
+        // ハンバーガーメニューボタンのaria-expanded属性を更新
+        const toggleBtn = elementManager.get('toggleSidebarBtn');
+        if (toggleBtn) {
+            const sidebar = elementManager.get('sidebar');
+            const isOpen = sidebar && sidebar.classList.contains('open');
+            toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        }
     }
 
     // ツールバーの表示/非表示を切り替え（状態保存）
@@ -316,6 +343,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         window.sidebarManager.toggleToolbar();
+        // aria-expanded属性を更新
+        const toggleBtn = elementManager.get('toggleToolbarBtn');
+        const showBtn = elementManager.get('showToolbarBtn');
+        const toolbar = elementManager.get('toolbar');
+        const isVisible = toolbar && !document.documentElement.getAttribute('data-toolbar-hidden');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', String(!!isVisible));
+        }
+        if (showBtn) {
+            showBtn.setAttribute('aria-expanded', String(!isVisible));
+        }
     }
 
     // フルスクリーン切り替え
@@ -348,16 +386,137 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
     const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
     const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
+    const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
 
     // サイドバーの開閉ボタン（ツールバー側のみ）
-    if (toggleSidebarBtn) toggleSidebarBtn.addEventListener('click', toggleSidebar);
-    if (toolbarCloseSidebar) toolbarCloseSidebar.addEventListener('click', toggleSidebar);
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', toggleSidebar);
+        // タッチイベントも対応
+        toggleSidebarBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleSidebar();
+        });
+    }
+    if (toolbarCloseSidebar) {
+        toolbarCloseSidebar.addEventListener('click', toggleSidebar);
+        toolbarCloseSidebar.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleSidebar();
+        });
+    }
+
+    // サイドバーオーバーレイのクリック/タッチでサイドバーを閉じる（モバイル用）
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            if (window.sidebarManager) {
+                window.sidebarManager.forceSidebarState(false);
+            }
+        });
+        sidebarOverlay.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (window.sidebarManager) {
+                window.sidebarManager.forceSidebarState(false);
+            }
+        });
+    }
+
+    // サイドバーのスワイプ操作（モバイル用）
+    (function initSidebarSwipe() {
+        const sidebar = elementManager.get('sidebar');
+        if (!sidebar) return;
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const SWIPE_THRESHOLD = 50; // スワイプ判定の最小距離（px）
+        const SWIPE_TIME_THRESHOLD = 300; // スワイプ判定の最大時間（ms）
+        const SWIPE_VERTICAL_THRESHOLD = 30; // 縦方向の許容範囲（px）
+
+        sidebar.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+
+        sidebar.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            
+            // 縦方向のスクロールが主な場合はスワイプ判定をスキップ
+            if (deltaY > SWIPE_VERTICAL_THRESHOLD && Math.abs(deltaX) < deltaY) {
+                return;
+            }
+            
+            // 左方向へのスワイプ（サイドバーを閉じる）
+            if (deltaX < -SWIPE_THRESHOLD && deltaY < SWIPE_VERTICAL_THRESHOLD) {
+                const elapsed = Date.now() - touchStartTime;
+                if (elapsed < SWIPE_TIME_THRESHOLD && window.sidebarManager) {
+                    window.sidebarManager.forceSidebarState(false);
+                }
+            }
+        }, { passive: true });
+    })();
 
     // その他のボタン
-    if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
-    if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', _toggleFullscreen);
-    if (feedbackBtn) feedbackBtn.addEventListener('click', toggleFeedbackPanel);
+    if (toggleToolbarBtn) {
+        toggleToolbarBtn.addEventListener('click', toggleToolbar);
+        toggleToolbarBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleToolbar();
+            }
+        });
+    }
+    if (showToolbarBtn) {
+        showToolbarBtn.addEventListener('click', toggleToolbar);
+        showToolbarBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleToolbar();
+            }
+        });
+    }
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', _toggleFullscreen);
+        fullscreenBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                _toggleFullscreen();
+            }
+        });
+    }
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener('click', toggleFeedbackPanel);
+        feedbackBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFeedbackPanel();
+            }
+        });
+    }
+    
+    // スペルチェックのトグル
+    if (toggleSpellCheckBtn && window.ZenWriterEditor && window.ZenWriterEditor.spellChecker) {
+        toggleSpellCheckBtn.addEventListener('click', () => {
+            const spellChecker = window.ZenWriterEditor.spellChecker;
+            if (spellChecker.enabled) {
+                spellChecker.disable();
+                toggleSpellCheckBtn.classList.remove('active');
+            } else {
+                spellChecker.enable();
+                toggleSpellCheckBtn.classList.add('active');
+            }
+        });
+        
+        // 初期状態を反映
+        if (window.ZenWriterEditor.spellChecker.enabled) {
+            toggleSpellCheckBtn.classList.add('active');
+        }
+    }
 
     // 分割ビューのイベントハンドラ
     if (toggleSplitViewBtn) {
@@ -371,6 +530,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+    }
+
+    // UIエディタのイベントハンドラ
+    if (toggleUIEditorBtn) {
+      toggleUIEditorBtn.addEventListener('click', () => {
+        if (window.uiVisualEditor) {
+          if (window.uiVisualEditor.isActive) {
+            window.uiVisualEditor.deactivate();
+          } else {
+            window.uiVisualEditor.activate();
+          }
+        }
+      });
     }
 
     if (closeSplitViewModePanelBtn) {
@@ -550,8 +722,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Escape: Blankモードから Normal に戻る
+        // Escape: Blankモードから Normal に戻る、またはモーダルを閉じる
         if (e.key === 'Escape') {
+            // 開いているモーダルダイアログを閉じる
+            const openModals = document.querySelectorAll('[aria-modal="true"][aria-hidden="false"], [aria-modal="true"]:not([aria-hidden="true"])');
+            if (openModals.length > 0) {
+                const modal = openModals[openModals.length - 1];
+                const closeBtn = modal.querySelector('.panel-close, [aria-label*="閉じる"], [aria-label*="close"]');
+                if (closeBtn) {
+                    e.preventDefault();
+                    closeBtn.click();
+                    return;
+                }
+            }
+            
             const currentMode = document.documentElement.getAttribute('data-ui-mode');
             if (currentMode === 'blank' || currentMode === 'focus') {
                 e.preventDefault();
@@ -935,15 +1119,19 @@ document.addEventListener('DOMContentLoaded', () => {
             feedbackPanel = document.createElement('div');
             feedbackPanel.className = 'floating-panel';
             feedbackPanel.id = 'feedback-panel';
+            feedbackPanel.setAttribute('role', 'dialog');
+            feedbackPanel.setAttribute('aria-labelledby', 'feedback-panel-title');
+            feedbackPanel.setAttribute('aria-modal', 'true');
             feedbackPanel.style.display = 'none';
             feedbackPanel.innerHTML = `
                 <div class="panel-header">
-                    <span>フィードバック</span>
-                    <button class="panel-close" id="close-feedback-panel">閉じる</button>
+                    <span id="feedback-panel-title">フィードバック</span>
+                    <button class="panel-close" id="close-feedback-panel" aria-label="フィードバックパネルを閉じる">閉じる</button>
                 </div>
                 <div class="panel-body">
                     <p>問題報告や機能要望をお送りください。</p>
-                    <textarea id="feedback-text" placeholder="詳細を記述してください..." rows="6" style="width:100%; margin:8px 0;"></textarea>
+                    <label for="feedback-text" class="sr-only">フィードバック内容</label>
+                    <textarea id="feedback-text" placeholder="詳細を記述してください..." rows="6" style="width:100%; margin:8px 0;" aria-label="フィードバック内容を入力"></textarea>
                     <div style="display:flex; gap:8px;">
                         <button id="submit-feedback" class="small">送信</button>
                         <button id="cancel-feedback" class="small">キャンセル</button>
@@ -951,20 +1139,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             document.body.appendChild(feedbackPanel);
-            document.getElementById('close-feedback-panel').addEventListener('click', () => feedbackPanel.style.display = 'none');
-            document.getElementById('cancel-feedback').addEventListener('click', () => feedbackPanel.style.display = 'none');
-            document.getElementById('submit-feedback').addEventListener('click', () => {
-                const text = document.getElementById('feedback-text').value.trim();
+            const closeBtn = document.getElementById('close-feedback-panel');
+            const cancelBtn = document.getElementById('cancel-feedback');
+            const submitBtn = document.getElementById('submit-feedback');
+            const textarea = document.getElementById('feedback-text');
+            
+            const closePanel = () => {
+                feedbackPanel.style.display = 'none';
+                feedbackPanel.setAttribute('aria-hidden', 'true');
+            };
+            
+            closeBtn.addEventListener('click', closePanel);
+            closeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closePanel();
+                }
+            });
+            cancelBtn.addEventListener('click', closePanel);
+            cancelBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closePanel();
+                }
+            });
+            submitBtn.addEventListener('click', () => {
+                const text = textarea.value.trim();
                 if (text) {
                     // GitHub Issue作成（仮）
                     const url = `https://github.com/YuShimoji/WritingPage/issues/new?title=Feedback&body=${encodeURIComponent(text)}`;
                     window.open(url, '_blank');
-                    feedbackPanel.style.display = 'none';
-                    document.getElementById('feedback-text').value = '';
+                    closePanel();
+                    textarea.value = '';
+                }
+            });
+            submitBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    submitBtn.click();
+                }
+            });
+            
+            // ESCキーで閉じる
+            feedbackPanel.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closePanel();
                 }
             });
         }
-        feedbackPanel.style.display = feedbackPanel.style.display === 'none' ? 'block' : 'none';
+        const isVisible = feedbackPanel.style.display !== 'none';
+        feedbackPanel.style.display = isVisible ? 'none' : 'block';
+        feedbackPanel.setAttribute('aria-hidden', String(isVisible));
+        if (!isVisible) {
+            // パネルを開いたら最初の入力欄にフォーカス
+            const textarea = document.getElementById('feedback-text');
+            if (textarea) {
+                setTimeout(() => textarea.focus(), 100);
+            }
+        }
     }
 
     // フローティングツール（フォントパネル）
@@ -973,6 +1205,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!fontPanel) return;
         const willShow = forceShow !== null ? !!forceShow : fontPanel.style.display === 'none';
         fontPanel.style.display = willShow ? 'block' : 'none';
+        // aria-expanded属性を更新
+        const toolsFab = elementManager.get('toolsFab');
+        if (toolsFab) {
+            toolsFab.setAttribute('aria-expanded', String(willShow));
+        }
         if (willShow) {
             // 現在設定をUIへ反映
             const s = window.ZenWriterStorage.loadSettings();
@@ -981,6 +1218,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (globalFontRange) globalFontRange.value = s.fontSize;
             if (globalFontNumber) globalFontNumber.value = s.fontSize;
             syncHudQuickControls();
+            // フォーカスをパネル内の最初の要素に移動
+            const firstInput = fontPanel.querySelector('input, button, select');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 100);
+            }
         }
     }
     const toolsFab = elementManager.get('toolsFab');
@@ -988,8 +1230,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const hudToggleVisibilityBtn = elementManager.get('hudToggleVisibility');
     const hudPinToggleBtn = elementManager.get('hudPinToggle');
     const hudRefreshBtn = elementManager.get('hudRefresh');
-    if (toolsFab) toolsFab.addEventListener('click', () => toggleFontPanel());
-    if (closeFontPanelBtn) closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+    if (toolsFab) {
+        toolsFab.addEventListener('click', () => toggleFontPanel());
+        toolsFab.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFontPanel();
+            }
+        });
+    }
+    if (closeFontPanelBtn) {
+        closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+        closeFontPanelBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFontPanel(false);
+            }
+        });
+    }
     if (hudToggleVisibilityBtn) hudToggleVisibilityBtn.addEventListener('click', () => toggleHudVisibility());
     if (hudPinToggleBtn) hudPinToggleBtn.addEventListener('click', () => toggleHudPinned());
     if (hudRefreshBtn) hudRefreshBtn.addEventListener('click', () => refreshHudFromSettings());

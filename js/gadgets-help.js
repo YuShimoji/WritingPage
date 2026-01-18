@@ -278,6 +278,7 @@
             <tr><td><kbd>Ctrl/⌘ + Z</kbd></td><td>元に戻す</td></tr>
             <tr><td><kbd>Ctrl/⌘ + Y</kbd></td><td>やり直し</td></tr>
             <tr><td><kbd>Tab</kbd></td><td>インデント</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>モーダルを閉じる / フォーカス/ブランクモードから通常モードに戻る</td></tr>
           </table>
           
           <h4>フォントサイズ</h4>
@@ -291,12 +292,26 @@
           <table class="help-table">
             <tr><td><kbd>Alt + W</kbd></td><td>ツールバー表示切替</td></tr>
             <tr><td><kbd>Alt + 1</kbd></td><td>サイドバー開閉</td></tr>
+            <tr><td><kbd>F2</kbd></td><td>UIモード切替 (Normal → Focus → Blank)</td></tr>
+            <tr><td><kbd>Tab</kbd></td><td>フォーカス移動（次の要素へ）</td></tr>
+            <tr><td><kbd>Shift + Tab</kbd></td><td>フォーカス移動（前の要素へ）</td></tr>
+            <tr><td><kbd>Enter / Space</kbd></td><td>ボタンやリンクを実行</td></tr>
+            <tr><td><kbd>→ / ←</kbd></td><td>サイドバータブの切り替え（タブにフォーカス時）</td></tr>
           </table>
           
           <h4>テキスト装飾</h4>
           <table class="help-table">
             <tr><td><kbd>Ctrl/⌘ + B</kbd></td><td>太字</td></tr>
             <tr><td><kbd>Ctrl/⌘ + I</kbd></td><td>斜体</td></tr>
+          </table>
+          
+          <h4>アクセシビリティ</h4>
+          <table class="help-table">
+            <tr><td><kbd>Tab</kbd></td><td>フォーカス可能な要素間を移動</td></tr>
+            <tr><td><kbd>Shift + Tab</kbd></td><td>逆方向にフォーカス移動</td></tr>
+            <tr><td><kbd>Enter / Space</kbd></td><td>ボタンやリンクをアクティブ化</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>モーダルダイアログを閉じる</td></tr>
+            <tr><td><kbd>→ / ←</kbd></td><td>タブの切り替え（タブにフォーカス時）</td></tr>
           </table>
         `;
       }
