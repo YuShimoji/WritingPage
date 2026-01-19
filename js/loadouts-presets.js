@@ -2,7 +2,7 @@
  * ロードアウトプリセット定義
  * ハードコーディングを避けるため外部ファイルに分離
  */
-(function() {
+(function () {
   'use strict';
 
   window.ZWLoadoutPresets = {
@@ -19,7 +19,8 @@
             'EditorLayout',
             'SceneGradient',
             'ChoiceTools',
-            'PrintSettings'
+            'PrintSettings',
+            'LoadoutManager'
           ],
           assist: [
             'Typewriter',
