@@ -217,9 +217,8 @@
 - [pending] コラージュレイアウト機能実装 (ref: docs/tasks/TASK_019_collage_layout.md, Status: CLOSED)
 - [pending] テキストアニメーション機能実装 (ref: docs/tasks/TASK_020_text_animation.md, Status: CLOSED)
 - [pending] ビジュアルUIエディタ実装 (ref: docs/tasks/TASK_033_visual_ui_editor.md, Status: CLOSED)
-- [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: OPEN)
-- [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: OPEN)
-- [pending] コード規約の明文化（ESLint/Prettier導入検討） (ref: docs/tasks/TASK_038_code_style_standardization.md, Status: OPEN)
+- [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: CLOSED)
+- [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
 
 ### Worker完了ステータス
 - TASK_001: completed

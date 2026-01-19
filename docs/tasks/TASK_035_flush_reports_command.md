@@ -5,7 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-18T04:30:00+09:00
-Report: docs/inbox/REPORT_TASK_035_flush_reports_command_20260118_0511.md
+Report: docs/reports/REPORT_TASK_035_flush_reports_command_20260118_0511.md
 
 ## Objective
 
