@@ -1,5 +1,5 @@
 # Task: smoke/dev-check の期待値と現行実装の整合監査
-Status: OPEN
+Status: IN_PROGRESS
 Tier: 2
 Branch: feature/audit-smoke-dev-check
 Created: 2026-01-20T03:05:00+09:00
