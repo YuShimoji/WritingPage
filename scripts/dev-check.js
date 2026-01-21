@@ -193,7 +193,7 @@ async function loadCssWithImports(url) {
       choice: pluginChoice.status,
     });
 
-    // ガジェットの存在検証（新UI構造: structure/assist/wiki/typographyパネル）
+    // ガジェットの存在検証（新UI構造: structure/assistパネル）
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
     const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
     const hasGadgetGroup = /data-gadget-group="structure"/i.test(index.body);
@@ -283,7 +283,7 @@ async function loadCssWithImports(url) {
       { hasDocumentsGadget, hasStructureInit },
     );
 
-    // ガジェット設定のインポート/エクスポートAPI（UIは未実装のためAPIのみチェック）
+    // ガジェット設定のインポート/エクスポートAPI（UIも実装済みのため、APIとUI要素の両方を検証）
     const hasExportApi = /exportPrefs\s*\(\)\s*\{/m.test(
       gadgetsSrc || '',
     );

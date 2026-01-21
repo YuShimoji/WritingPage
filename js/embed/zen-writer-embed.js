@@ -5,43 +5,48 @@
       typeof target === 'string' ? document.querySelector(target) : target;
     if (!sel) throw new Error('ZenWriterEmbed: target not found');
     let src = options.src || '/index.html';
-    let computedOrigin = null;
     const width = options.width || '100%';
     const height = options.height || '100%';
 
-    const iframe = document.createElement('iframe');
-    // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
+    // Origin resolution & validation
+    let resolvedUrl = null;
+    let resolvedOrigin = '';
     try {
-      const url = new URL(src, window.location.origin);
-      if (
-        !url.searchParams.get('embed_origin') &&
-        options.appendEmbedOrigin !== false
-      ) {
-        url.searchParams.set('embed_origin', window.location.origin);
-      }
-      computedOrigin = url.origin;
-      const useAbs =
-        computedOrigin && computedOrigin !== window.location.origin;
-      src = useAbs
-        ? url.toString()
-        : url.pathname + (url.search ? url.search : '') + (url.hash || '');
-    } catch (_) {
-      computedOrigin = null;
+      // Resolve src against current location to handle relative paths correctly
+      resolvedUrl = new URL(src, window.location.href);
+      resolvedOrigin = resolvedUrl.origin;
+    } catch (e) {
+      console.warn('ZenWriterEmbed: Invalid src URL', src);
     }
+
+    // Determine sameOrigin (user override > automatic check)
     const sameOrigin =
       typeof options.sameOrigin === 'boolean'
         ? options.sameOrigin
-        : computedOrigin
-          ? computedOrigin === window.location.origin
-          : false;
-    const targetOrigin = sameOrigin
-      ? window.location.origin
-      : options.targetOrigin || computedOrigin || null;
-    if (!sameOrigin && !targetOrigin)
-      throw new Error(
-        'ZenWriterEmbed: cross-origin mode requires targetOrigin or resolvable src origin',
-      );
+        : resolvedOrigin === window.location.origin;
 
+    // Determine targetOrigin for cross-origin communication
+    // (user override > resolved origin > error)
+    const targetOrigin =
+      options.targetOrigin || (sameOrigin ? null : resolvedOrigin);
+
+    if (!sameOrigin && !targetOrigin) {
+      throw new Error(
+        'ZenWriterEmbed: cross-origin mode requires targetOrigin or valid absolute src',
+      );
+    }
+
+    // Append embed_origin for child-side validation (security handshake)
+    if (
+      resolvedUrl &&
+      !resolvedUrl.searchParams.has('embed_origin') &&
+      options.appendEmbedOrigin !== false
+    ) {
+      resolvedUrl.searchParams.set('embed_origin', window.location.origin);
+      src = resolvedUrl.toString();
+    }
+
+    const iframe = document.createElement('iframe');
     iframe.src = src;
     iframe.style.border = '0';
     iframe.style.width = width;
@@ -61,14 +66,17 @@
       set.forEach((fn) => {
         try {
           fn(payload);
-        } catch (_) {}
+        } catch (_) { }
       });
     }
 
     function onMessage(event) {
       if (!iframe.contentWindow || event.source !== iframe.contentWindow)
         return;
-      if (targetOrigin && event.origin !== targetOrigin) return;
+
+      // Strict origin validation
+      if (!sameOrigin && targetOrigin && event.origin !== targetOrigin) return;
+
       const data = event.data || {};
       if (data && data.type === 'ZW_EMBED_READY') {
         pmReady = true;
@@ -124,15 +132,20 @@
           } catch (e) {
             // cross-origin access error: fallthrough to postMessage mode
           }
-          // postMessage mode: 親から READY が来るのを待つ
+          // postMessage mode: wait for READY from child
           if (!sameOrigin && pmReady) {
             ready = true;
             return resolve();
           }
-          if (Date.now() - start > timeout)
+          if (Date.now() - start > timeout) {
+            // Check if we might be in a same-origin situation but failed to detect
+            if (!sameOrigin && !pmReady) {
+              // Hint for debugging
+            }
             return reject(
               new Error('ZenWriterEmbed: timeout waiting child app'),
             );
+          }
           setTimeout(tick, 100);
         }
         tick();
@@ -205,7 +218,7 @@
             if (childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor) {
               return String(childWin.ZenWriterEditor.editor.value || '');
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           // postMessage mode
           const res = await rpc('ZW_GET_CONTENT');
@@ -230,7 +243,7 @@
               childWin.ZenWriterEditor.setContent(String(text || ''));
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_SET_CONTENT', { text: String(text || '') });
           return true;
@@ -252,7 +265,7 @@
               el.focus();
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_FOCUS');
           return true;
@@ -280,7 +293,7 @@
               childWin.ZenWriterStorage.addSnapshot(content);
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_TAKE_SNAPSHOT');
           return true;

@@ -42,10 +42,11 @@
 
 - `target`: CSSセレクタまたは要素
 - `options`:
-  - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）
+  - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）。相対パスは現在のページを基準に解決されます。
   - `width`/`height`: `iframe` のサイズ（既定: `100%`）
-  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。明示的に `true/false` を指定すると上書き）
-  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の origin ）
+  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のオリジンが親と一致する場合は `true`、それ以外は `false`）
+  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `sameOrigin: false` の場合、`src` から自動解決された origin）
+    - **注意**: 自動解決できない場合（`src` が不明な場合など）、クロスオリジンモードでは明示的な指定が必須です。
 
 戻り値（Promiseではなく同期オブジェクト）:
 
