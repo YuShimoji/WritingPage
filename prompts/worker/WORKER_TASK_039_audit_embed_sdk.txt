@@ -1,0 +1,64 @@
+あなたは分散開発チームの Worker です。割り当てられた 1 タスクだけを完遂し、証跡を残してください。
+
+## Phase 0: 参照と整備
+- SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+- 進捗: docs/HANDOVER.md
+- チケット: docs/tasks/TASK_039_audit_embed_sdk.md
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+
+## Phase 1: 前提の固定
+- Tier: 2
+- Branch: feature/audit-embed-sdk
+- Report Target: docs/inbox/REPORT_TASK_039_20260123_0030.md
+- GitHubAutoApprove: docs/HANDOVER.md の記述を参照（未記載なら push 禁止）
+- ブランチが異なる場合:
+  - `git status -sb` で未コミットが無いことを確認
+  - `git switch feature/audit-embed-sdk` で切替を試す（無ければ `git switch -c feature/audit-embed-sdk`）
+  - 破壊的操作が必要なら停止条件
+
+## Phase 2: 境界
+- Focus Area: js/embed/zen-writer-embed.js, js/embed/child-bridge.js, docs/EMBED_SDK.md（この範囲のみ変更可能）
+- Forbidden Area: .shared-workflows/**, 既存のEmbed動作を破壊すること（後方互換性の維持）（触れる必要が出たら停止条件）
+- DoD:
+  - [ ] cross-origin（異なる origin）で `sameOrigin` 未指定でも `targetOrigin` が `src` から推定され、`ZW_EMBED_READY` を受信できる
+  - [ ] postMessage の受信は `targetOrigin` と一致しない場合に破棄される
+  - [ ] 同一originで API が見つからない場合、誤った cross-origin エラーメッセージを出さない
+  - [ ] `npm run test:smoke` が通る
+  （完了時にチェックリストを埋め、根拠を残す）
+
+## Phase 3: 実行ルール
+- チャットで完結させない。成果はファイル（docs/tasks / docs/inbox / docs/HANDOVER / git）に残す。
+- コマンドは実行して結果で判断。失敗は「失敗」と明記し、根拠と次手を出す。
+- 指示コマンドが無い場合: `Get-Command <cmd>` 等で確認 → 代替案提示 → それでも依存追加/外部通信が必要なら停止。
+- 「念のため」のテスト/フォールバック/リファクタは禁止（DoD 従属のみ）。
+- ダブルチェック:
+  - テスト/Push/長時間待機は結果を確認し、未達なら完了扱いにしない。
+  - `git status -sb` で差分を常に把握。
+- タイムアウトを宣言し、無限待機しない。
+
+## 停止条件
+- Forbidden Area に触れないと解決できない
+- 仕様仮定が3件以上
+- SSOT が取得できない / `ensure-ssot.js` でも解決不可
+- 依存追加 / 外部通信（fetch/pull/push 等）が必要で GitHubAutoApprove=true が未確認
+- 破壊的・復旧困難操作（rebase/reset/force push 等）が必要
+- 数分以上の待機が必須、またはタイムアウト超過が見込まれる
+
+## 停止時の必須アウトプット
+1. チケット docs/tasks/TASK_039_audit_embed_sdk.md を IN_PROGRESS/BLOCKED のまま更新  
+   - 事実 / 根拠ログ要点 / 次手 1-3 件 / Report パスを必ず追記
+2. docs/inbox/ に未完了レポートを作成し、調査結果・詰まり・次手を記録
+3. 変更は commit する（push は GitHubAutoApprove=true の場合のみ自律実行）。push 不要時は「push pending」を明記
+4. チャット 1 行: `Blocked: docs/tasks/TASK_039_audit_embed_sdk.md. Reason: <要点>. Next: <候補>. Report: docs/inbox/REPORT_TASK_039_20260123_0030.md.`
+
+## Phase 4: 納品 & 検証
+1. チケットを DONE に更新し、DoD 各項目に対して根拠（差分 or テスト結果）を記入
+2. docs/inbox/ にレポート（以下テンプレ）を作成/更新し、`node .shared-workflows/scripts/report-validator.js docs/inbox/REPORT_TASK_039_20260123_0030.md`（無ければ `node scripts/report-validator.js docs/inbox/REPORT_TASK_039_20260123_0030.md REPORT_CONFIG.yml .`）を実行。結果をレポートに記載
+   - **重要**: レポートには REPORT_CONFIG.yml の standard スタイルに準拠し、必須ヘッダー（'概要'、'現状'、'次のアクション'）を必ず含めること
+3. docs/HANDOVER.md の <HANDOVER_SECTIONS> を更新し、次回 Orchestrator が把握できるよう記録
+4. 実行したテストを `<cmd>=<result>` 形式でレポートとチケットに残す
+5. `git status -sb` をクリーンにしてから commit（必要なら push）。push は GitHubAutoApprove=true の場合のみ
+
+## Phase 5: チャット出力
+- 完了時: `Done: docs/tasks/TASK_039_audit_embed_sdk.md. Report: docs/inbox/REPORT_TASK_039_20260123_0030.md. Tests: <cmd>=<result>.`
+- ブロッカー継続時: `Blocked: docs/tasks/TASK_039_audit_embed_sdk.md. Reason: <要点>. Next: <候補>. Report: docs/inbox/REPORT_TASK_039_20260123_0030.md.`
