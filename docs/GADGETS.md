@@ -485,10 +485,9 @@ WikiデータはlocalStorageに保存されるため、ブラウザの設定か�
 
 現在のWiki機能の実装ステータスと制限事項の詳細は、[DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md#wiki-機能の実装ステータス-ssot) を参照してください。
 
-主要な未実装項目:
-- ページ間のリンク機能（`[[link]]` 構文の動作）
-- AI統合機能
-- 画像添付機能
+> [!NOTE]
+> Wiki機能の未実装項目（リンク、AI、画像添付など）は全て上記 SSOT ドキュメントで一元管理されます。
+
 
 ---
 

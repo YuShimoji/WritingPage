@@ -31,3 +31,8 @@
 ## 追跡
 
 - 各項目は必要に応じて Issue を作成し、`CHANGELOG.md` に対応を記録します。
+
+## 実装ステータス
+
+機能ごとの詳細な実装状況（Wikiの未実装機能など）については、[DEVELOPMENT_STATUS.md](./DEVELOPMENT_STATUS.md) を参照してください。
+

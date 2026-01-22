@@ -20,13 +20,13 @@
     }
 
     // Determine sameOrigin (user override > automatic check)
+    // Use nullish coalescing to respect user's explicit false
     const sameOrigin =
-      typeof options.sameOrigin === 'boolean'
-        ? options.sameOrigin
-        : resolvedOrigin === window.location.origin;
+      options.sameOrigin ?? resolvedOrigin === window.location.origin;
 
     // Determine targetOrigin for cross-origin communication
-    // (user override > resolved origin > error)
+    // If we are in cross-origin mode, we prioritize user's targetOrigin, then resolvedOrigin.
+    // If same-origin mode, targetOrigin is not strictly required but can be set if needed.
     const targetOrigin =
       options.targetOrigin || (sameOrigin ? null : resolvedOrigin);
 
@@ -139,8 +139,12 @@
           }
           if (Date.now() - start > timeout) {
             // Check if we might be in a same-origin situation but failed to detect
-            if (!sameOrigin && !pmReady) {
-              // Hint for debugging
+            if (sameOrigin && !ready) {
+              return reject(
+                new Error(
+                  'ZenWriterEmbed: timeout waiting for same-origin child app. If the app is on a different origin (e.g. redirect), set { sameOrigin: false }.',
+                ),
+              );
             }
             return reject(
               new Error('ZenWriterEmbed: timeout waiting child app'),
