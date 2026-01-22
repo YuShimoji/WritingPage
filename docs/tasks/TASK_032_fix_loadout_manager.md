@@ -1,5 +1,5 @@
 # Task: LoadoutManager をデフォルトプリセットに追加
-Status: OPEN
+Status: DONE
 Tier: 1
 Branch: fix/task-032-loadout-manager
 Owner: Worker
