@@ -632,6 +632,7 @@ class SidebarManager {
             if (sidebar) {
                 sidebar.setAttribute('data-tab-placement', placement);
             }
+            document.documentElement.setAttribute('data-tab-placement', placement);
         } catch (_) { }
     }
 

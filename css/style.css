@@ -24,6 +24,7 @@
   --transition-speed: 0.3s;
   --sidebar-sticky-offset: 56px;
   --sidebar-width: 320px;
+  --sidebar-height: 300px;
   --toolbar-height: 60px;
 
   /* 背景ビジュアル設定 */
@@ -450,9 +451,35 @@ html[data-sidebar-open] #toolbar-close-sidebar {
 }
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
+/* サイドバー展開時は常に押し出し（PC/タブレット共通） */
+/* Default (Left) */
 html[data-sidebar-open='true'] .editor-container {
   margin-left: var(--sidebar-width, 320px);
   width: calc(100% - var(--sidebar-width, 320px));
+}
+
+html[data-tab-placement='right'][data-sidebar-open='true'] .editor-container {
+  margin-left: 0;
+  margin-right: var(--sidebar-width, 320px);
+  width: calc(100% - var(--sidebar-width, 320px));
+}
+
+html[data-tab-placement='top'][data-sidebar-open='true'] .editor-container {
+  margin-left: 0;
+  width: 100%;
+  padding-top: calc(var(--sidebar-height, 300px) + var(--toolbar-height, 60px) + 1rem);
+  /* paddingで押し下げるかmarginか */
+  /* editor-containerはflexアイテムなのでmargin-topが効くが、layout崩れ防止のためpadding調整も考慮 */
+  /* ここではシンプルに既存のpadding-top (toolbar + 1rem) に追加する */
+}
+
+/* Note: editor-container top padding is set at line 227: padding-top: calc(var(--toolbar-height) + 1rem); */
+/* We override it above. */
+
+html[data-tab-placement='bottom'][data-sidebar-open='true'] .editor-container {
+  margin-left: 0;
+  width: 100%;
+  padding-bottom: var(--sidebar-height, 300px);
 }
 
 /* モバイルではオーバーレイ表示にして押し出さない */
@@ -993,11 +1020,41 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   overflow-x: hidden;
   /* スクロールバーの表示/非表示によるレイアウト崩れを防止 */
   scrollbar-gutter: stable;
-  transition: left var(--transition-speed);
+  transition: all var(--transition-speed);
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+}
+
+/* Placement Overrides */
+html[data-tab-placement='right'] .sidebar {
+  left: auto;
+  right: calc(var(--sidebar-width, 320px) * -1);
+  border-right: none;
+  border-left: 1px solid var(--border-color);
+}
+
+html[data-tab-placement='top'] .sidebar {
+  top: calc(var(--sidebar-height, 300px) * -1);
+  left: 0;
+  right: 0;
+  bottom: auto;
+  width: 100%;
+  height: var(--sidebar-height, 300px);
+  border-right: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+html[data-tab-placement='bottom'] .sidebar {
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--sidebar-height, 300px) * -1);
+  width: 100%;
+  height: var(--sidebar-height, 300px);
+  border-right: none;
+  border-top: 1px solid var(--border-color);
 }
 
 /* ツールバーが非表示の場合は画面全体を使う */
@@ -1008,7 +1065,23 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 .sidebar.open {
   left: 0 !important;
-  /* インラインスタイルを上書き */
+  /* Default left override is kept, but we need specificity for others */
+}
+
+html[data-tab-placement='right'] .sidebar.open {
+  left: auto !important;
+  right: 0 !important;
+}
+
+html[data-tab-placement='top'] .sidebar.open {
+  top: var(--toolbar-height, 60px) !important;
+  left: 0 !important;
+}
+
+html[data-tab-placement='bottom'] .sidebar.open {
+  top: auto !important;
+  bottom: 0 !important;
+  left: 0 !important;
 }
 
 .sidebar-header {
@@ -1462,6 +1535,7 @@ input[type='color'] {
 
 /* タブレット向けスタイル（max-width: 1024px） */
 @media (max-width: 1024px) {
+
   /* サイドバー幅を調整 */
   :root {
     --sidebar-width: 280px;
@@ -1619,7 +1693,8 @@ input[type='color'] {
   #wysiwyg-editor {
     --editor-padding-x: 1rem;
     --editor-padding-y: 1.5rem;
-    font-size: 16px; /* モバイルでの最小フォントサイズ */
+    font-size: 16px;
+    /* モバイルでの最小フォントサイズ */
     -webkit-text-size-adjust: 100%;
   }
 
@@ -1682,7 +1757,8 @@ input[type='color'] {
   .sidebar-tab {
     padding: 0.75rem 0.5rem;
     font-size: 0.85rem;
-    min-height: 44px; /* タッチ操作に最適化 */
+    min-height: 44px;
+    /* タッチ操作に最適化 */
     touch-action: manipulation;
   }
 
@@ -1690,7 +1766,8 @@ input[type='color'] {
   button,
   .button,
   .icon-button {
-    min-height: 44px; /* iOS推奨のタッチターゲットサイズ */
+    min-height: 44px;
+    /* iOS推奨のタッチターゲットサイズ */
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
@@ -1700,7 +1777,8 @@ input[type='color'] {
   input[type="number"],
   textarea,
   select {
-    font-size: 16px; /* iOSでのズーム防止 */
+    font-size: 16px;
+    /* iOSでのズーム防止 */
     padding: 8px 12px;
     min-height: 44px;
   }
@@ -1765,6 +1843,7 @@ input[type='color'] {
 
 /* タッチデバイス向けの最適化（pointer: coarse で判定） */
 @media (pointer: coarse) {
+
   /* ホバー効果を無効化（タッチデバイスでは不要） */
   button:hover,
   .button:hover,
