@@ -1,5 +1,5 @@
 # Task: パフォーマンスベースラインの計測と記録
-Status: OPEN
+Status: DONE
 Tier: 2
 Branch: feature/perf-baseline
 Created: 2026-01-28

@@ -1587,3 +1587,9 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 ### 次フェーズ
 - Phase 5: Worker起動 (ユーザー操作)
 
+
+### 完了記録 (Integration)
+- TASK_042 merged to main
+- Status: DONE
+- Evidence: docs/evidence/
+

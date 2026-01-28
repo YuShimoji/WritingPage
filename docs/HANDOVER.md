@@ -16,6 +16,7 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
+- **REPORT_TASK_043_performance_baseline_20260128.md**: TASK_043（パフォーマンス計測）を完了。`scripts/run-perf-baseline.js` を作成し、ロード時間（平均377ms）と貼り付け応答速度のベースラインを `docs/reports/` に記録。
 - **REPORT_TASK_042_capture_current_state_20260128.md**: TASK_042（現状キャプチャ）を完了。`scripts/capture-current-state.js` を作成し、4パターン以上のスクリーンショットを `docs/evidence/` に保存、`docs/PROJECT_STATUS.md` を更新。
 - **REPORT_TASK_032_flexible_tab_e2e_fix.md**: TASK_032（柔軟タブ配置 E2E 修正）を完了。`e2e/flexible-tab-placement.spec.js` の待機処理とロケータを改善し、全テストパスを確認。
 - **[UPDATE] 実装確認完了**: TASK_017-030 の実装コードはすべて存在することを確認。先の「虚偽完了」判定は誤りで、grepの検索パターンエラーによるもの。Statusを DONE に復元。
@@ -143,8 +144,8 @@ GitHubAutoApprove: true
 - Summary: TASK_036（レスポンシブUI改善）、TASK_037（アクセシビリティ向上）、TASK_038（コード規約の明文化）の3つのWorker完了レポートを統合。すべてのタスクが完了し、レポートをdocs/reports/にアーカイブ。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_042_capture_current_state_20260128.md (Inbox)
-- Summary: プロジェクトの現状（UI実装状態）を視覚的に記録するため、Puppeteerスクリプトを作成し、スクリーンショットを `docs/evidence/` に保存。`docs/PROJECT_STATUS.md` を更新。
+- File: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md (Inbox)
+- Summary: パフォーマンス計測テストを実施。ロード時間平均377ms、10万文字貼り付け応答504msを確認。計測用スクリプト `scripts/run-perf-baseline.js` を整備。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
