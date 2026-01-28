@@ -1554,3 +1554,36 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 - [ ] git rebase --continue
 - [ ] git push origin main
 - [ ] Phase 1 螳御ｺ�
+
+## Phase 3: 分割と戦略（追加タスク）
+
+### 追記時刻
+- 2026-01-28 13:42:07 +09:00
+
+### 実施内容
+- ユーザー指示に基づき、以下のタスクを定義:
+  - **TASK_042_capture_current_state.md** (Tier 1): 現状のスクリーンショット撮影とドキュメント化
+  - **TASK_043_performance_baseline.md** (Tier 2): パフォーマンスベースラインの計測 (Recommended)
+
+- Worker割り当て:
+  - Worker数: 2
+  - 並列実行可能
+
+## Phase 4: チケット発行（追加タスク）
+
+### 実施内容
+- TASK_042, TASK_043 を発行
+
+
+### 完了条件
+- チケット発行完了: TASK_042, TASK_043
+
+## Phase 6: Orchestrator Report
+
+### 実施内容
+- Report作成: docs/inbox/REPORT_ORCH_20260128_1400.md
+- 現状: TASK_039-043 が OPEN
+
+### 次フェーズ
+- Phase 5: Worker起動 (ユーザー操作)
+

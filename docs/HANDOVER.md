@@ -16,6 +16,7 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
+- **REPORT_TASK_042_capture_current_state_20260128.md**: TASK_042（現状キャプチャ）を完了。`scripts/capture-current-state.js` を作成し、4パターン以上のスクリーンショットを `docs/evidence/` に保存、`docs/PROJECT_STATUS.md` を更新。
 - **REPORT_TASK_032_flexible_tab_e2e_fix.md**: TASK_032（柔軟タブ配置 E2E 修正）を完了。`e2e/flexible-tab-placement.spec.js` の待機処理とロケータを改善し、全テストパスを確認。
 - **[UPDATE] 実装確認完了**: TASK_017-030 の実装コードはすべて存在することを確認。先の「虚偽完了」判定は誤りで、grepの検索パターンエラーによるもの。Statusを DONE に復元。
 - **REPORT_ORCH_20260112_0302.md**: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の完了レポート。実装は `js/sidebar-manager.js`, `js/gadgets-core.js` に存在。
@@ -142,8 +143,8 @@ GitHubAutoApprove: true
 - Summary: TASK_036（レスポンシブUI改善）、TASK_037（アクセシビリティ向上）、TASK_038（コード規約の明文化）の3つのWorker完了レポートを統合。すべてのタスクが完了し、レポートをdocs/reports/にアーカイブ。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_038_code_style_standardization_20260118_1735.md
-- Summary: コード規約の明文化（ESLint/Prettier導入）を完了。`.prettierignore`の作成、`package.json`の更新、`docs/CODING_STANDARDS.md`の作成、`.eslintrc.js`の更新を実施。
+- File: docs/reports/REPORT_TASK_042_capture_current_state_20260128.md (Inbox)
+- Summary: プロジェクトの現状（UI実装状態）を視覚的に記録するため、Puppeteerスクリプトを作成し、スクリーンショットを `docs/evidence/` に保存。`docs/PROJECT_STATUS.md` を更新。
 
 ## Outlook
 - Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
