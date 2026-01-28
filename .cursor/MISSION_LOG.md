@@ -1593,3 +1593,9 @@ ode scripts/report-validator.js docs/inbox/REPORT_TASK_016_orchestrator_output_v
 - Status: DONE
 - Evidence: docs/evidence/
 
+
+### Š®—¹‹L˜^ (Integration)
+- TASK_043 merged to main
+- Status: DONE
+- Baseline: docs/reports/PERFORMANCE_BASELINE_20260128.md
+
