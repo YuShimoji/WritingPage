@@ -68,7 +68,7 @@
 - [x] レスポンシブUI改善（モバイル/タブレット対応）【フェーズ候補: 長期 / カテゴリ: レスポンシブデザイン】 - TASK_036で完了（2026-01-18）
 - [x] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）【フェーズ候補: 長期 / カテゴリ: アクセシビリティ】 - TASK_037で完了（2026-01-18）
 - [ ] 監査: Embed SDK の same-origin 判定と origin 検証の正規化（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P0-1）
-- [ ] 監査: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」混在の解消（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P1-4）
+- [x] 監査: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」混在の解消（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P1-4） - TASK_040で完了
 - [ ] 監査: smoke/dev-check の期待値（未実装扱い）と現行実装の整合（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P1-5）
 - [ ] 監査: プラグインシステムの「UI有無」の明確化（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P2-2）
 - [ ] 監査: OpenSpec 未完了 change のトリアージ（重複統合 + Issue粒度への再分割）（詳細: `docs/AUDIT_TASK_BREAKDOWN.md` の P2-3）
