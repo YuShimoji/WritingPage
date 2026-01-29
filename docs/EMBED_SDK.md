@@ -24,11 +24,10 @@
     src: '/index.html?embed=1',
     width: '100%',
     height: '100%',
-    // sameOrigin は src の origin から自動判定（明示したい場合のみ指定）
+    // sameOrigin は src の origin から自動判定（明示的に無効化したい場合のみ指定）
     // sameOrigin: true,
-    // クロスオリジン例（src が https://child.example.com/... の場合は自動判定される）:
-    // sameOrigin: false,
-    // targetOrigin: 'https://child.example.com'
+    // クロスオリジン例（src が絶対URLの場合は自動判定され、targetOrigin も推定されます）:
+    // src: 'https://other-domain.com/index.html?embed=1',
   });
 
   // 使用例
@@ -45,7 +44,7 @@
   - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）
   - `width`/`height`: `iframe` のサイズ（既定: `100%`）
   - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。明示的に `true/false` を指定すると上書き）
-  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の origin ）
+  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の origin から自動推定）
 
 戻り値（Promiseではなく同期オブジェクト）:
 

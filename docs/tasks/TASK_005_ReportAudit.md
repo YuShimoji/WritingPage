@@ -1,10 +1,11 @@
 # Task: レポート欠損調査（docs/inbox / HANDOVER 整合性）
 Status: DONE
 Tier: 1
-Branch: main
+Branch: feature/task-005-missing-reports
 Owner: Orchestrator
 Created: 2025-12-22T02:59+09:00
-Report: docs/reports/REPORT_TASK_005_ReportAudit_20251223.md
+Updated: 2026-01-17T14:10+09:00
+Report: docs/reports/REPORT_TASK_005_ReportAudit_20260117.md
 
 ## Objective
 - docs/inbox/ の REPORT_* と docs/HANDOVER.md（Latest Orchestrator Report / Progress 欄）の内容を突き合わせ、欠損・重複・未統合レポートを洗い出す。

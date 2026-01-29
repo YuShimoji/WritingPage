@@ -61,7 +61,7 @@
       set.forEach((fn) => {
         try {
           fn(payload);
-        } catch (_) {}
+        } catch (_) { }
       });
     }
 
@@ -124,14 +124,18 @@
           } catch (e) {
             // cross-origin access error: fallthrough to postMessage mode
           }
-          // postMessage mode: 親から READY が来るのを待つ
-          if (!sameOrigin && pmReady) {
+          // postMessage mode: READY が来るのを待つ (sameOrigin 時も bridge 有効なら fallback 可能)
+          if (pmReady) {
             ready = true;
             return resolve();
           }
           if (Date.now() - start > timeout)
             return reject(
-              new Error('ZenWriterEmbed: timeout waiting child app'),
+              new Error(
+                sameOrigin
+                  ? 'ZenWriterEmbed: timeout waiting for ZenWriterAPI (ensure same-origin access or child-bridge is enabled)'
+                  : 'ZenWriterEmbed: timeout waiting for child bridge (check targetOrigin and embed=1)',
+              ),
             );
           setTimeout(tick, 100);
         }
@@ -144,10 +148,6 @@
     }
     async function rpc(type, payload) {
       await _ensure();
-      if (sameOrigin)
-        throw new Error(
-          'ZenWriterEmbed: rpc should not be used in same-origin mode',
-        );
       if (!targetOrigin)
         throw new Error(
           'ZenWriterEmbed: targetOrigin is required for cross-origin mode',
@@ -205,7 +205,7 @@
             if (childWin.ZenWriterEditor && childWin.ZenWriterEditor.editor) {
               return String(childWin.ZenWriterEditor.editor.value || '');
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           // postMessage mode
           const res = await rpc('ZW_GET_CONTENT');
@@ -230,7 +230,7 @@
               childWin.ZenWriterEditor.setContent(String(text || ''));
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_SET_CONTENT', { text: String(text || '') });
           return true;
@@ -252,7 +252,7 @@
               el.focus();
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_FOCUS');
           return true;
@@ -280,7 +280,7 @@
               childWin.ZenWriterStorage.addSnapshot(content);
               return true;
             }
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await rpc('ZW_TAKE_SNAPSHOT');
           return true;

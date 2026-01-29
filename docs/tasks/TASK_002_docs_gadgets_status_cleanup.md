@@ -40,6 +40,6 @@ Report: docs/reports/REPORT_TASK_002_docs_gadgets_status_cleanup_20260103_1943.m
 - [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
 - [x] 本チケットの Report 欄にレポートパスが追記されている
 
-## Notes
+## Report
 
-- 可能なら「（現行）」「（提案・未実装）」のようなラベルを見出しに付ける
+docs/inbox/REPORT_20251222_1416.md

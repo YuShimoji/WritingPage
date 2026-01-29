@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-19T15:09:00+09:00
+- 最終更新: 2026-01-29T18:42:00+09:00
 - **Worker完了ステータス**: TASK_001-030: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
@@ -62,7 +62,7 @@
     `npm run lint` / `node scripts/dev-check.js` / `npm run test:e2e:ci` green
   - 2025-12-16: 監査SSOT `docs/AUDIT_TASK_BREAKDOWN.md` を作成し、`docs/ISSUES.md` に導線を追加。`npm run lint` / `npm run test:smoke` green
   - 2025-12-16: `docs/BACKLOG.md` に監査項目（`docs/AUDIT_TASK_BREAKDOWN.md` 参照）の追跡導線を追加
-  - 2025-12-16: `docs/KNOWN_ISSUES.md` の改善済みバージョン表記を現行 `0.3.18` に同期
+  - 2026-01-29: `docs/KNOWN_ISSUES.md` の改善済みバージョン表記を現行 `0.3.24` に同期
   - 2025-12-17: グラフィックノベル向けロードアウト（graphic-novel）を追加。
     サンプル作成ガジェット（Samples）を追加し、ワンクリックでサンプル文書＋SVG画像アセット（asset://）を生成できるようにした。
     `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
@@ -98,10 +98,10 @@
 
 ## VERSION
 
-- `VERSION`: 0.3.18
-- `package.json`: 0.3.18
+- `VERSION`: 0.3.24
+- `package.json`: 0.3.24
 - バージョンは現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
-- 2025-12-14: `VERSION` と `package.json` を 0.3.18 に同期
+- 2026-01-29: VERSION と package.json を 0.3.24 に同期
 
 ## 決定事項
 
@@ -219,12 +219,9 @@
 - [pending] ビジュアルUIエディタ実装 (ref: docs/tasks/TASK_033_visual_ui_editor.md, Status: CLOSED)
 - [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: CLOSED)
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
+- [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: OPEN)
+- [done] ドキュメントの整合性とSSOT化の監査対応 (ref: docs/tasks/TASK_040_audit_docs_consistency.md, Status: DONE)
+- [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: OPEN)
 
 ### Worker完了ステータス
-- TASK_001: completed
-- TASK_005: completed
-- TASK_002: completed
-- TASK_003: completed
-- TASK_004: completed
-- TASK_006: completed
 - **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed
