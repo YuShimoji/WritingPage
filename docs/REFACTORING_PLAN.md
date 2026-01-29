@@ -62,7 +62,7 @@
    - `js/tools-registry.js` に静的レジストリはあるが、UI（FAB/ツールバー）との接続は未実装
 
 3. **プラグインシステム**
-   - `js/plugins/` と描画処理（`app.js` の `renderPlugins()`）はあるが、`plugins-panel` が `index.html` に未配置のためUI表示は未実装
+   - `js/plugins/` と描画処理（`app.js` の `renderPlugins()`）はあるが、`plugins-panel` が `index.html` に未配置のためUI表示は未実装（現在はヘッドレスな基盤のみ）。
 
 ## 2. リファクタリング計画
 

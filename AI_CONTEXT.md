@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2025-12-19T15:09:00+09:00
+- 最終更新: 2026-01-29T13:45:00+09:00
 - **Worker完了ステータス**: TASK_001-030: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
@@ -62,7 +62,7 @@
     `npm run lint` / `node scripts/dev-check.js` / `npm run test:e2e:ci` green
   - 2025-12-16: 監査SSOT `docs/AUDIT_TASK_BREAKDOWN.md` を作成し、`docs/ISSUES.md` に導線を追加。`npm run lint` / `npm run test:smoke` green
   - 2025-12-16: `docs/BACKLOG.md` に監査項目（`docs/AUDIT_TASK_BREAKDOWN.md` 参照）の追跡導線を追加
-  - 2025-12-16: `docs/KNOWN_ISSUES.md` の改善済みバージョン表記を現行 `0.3.18` に同期
+  - 2026-01-29: `docs/KNOWN_ISSUES.md` の改善済みバージョン表記を現行 `0.3.24` に同期
   - 2025-12-17: グラフィックノベル向けロードアウト（graphic-novel）を追加。
     サンプル作成ガジェット（Samples）を追加し、ワンクリックでサンプル文書＋SVG画像アセット（asset://）を生成できるようにした。
     `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
@@ -98,10 +98,10 @@
 
 ## VERSION
 
-- `VERSION`: 0.3.18
-- `package.json`: 0.3.18
+- `VERSION`: 0.3.24
+- `package.json`: 0.3.24
 - バージョンは現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
-- 2025-12-14: `VERSION` と `package.json` を 0.3.18 に同期
+- 2026-01-29: VERSION と package.json を 0.3.24 に同期
 
 ## 決定事項
 
