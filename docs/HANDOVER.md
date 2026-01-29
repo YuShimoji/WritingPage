@@ -16,8 +16,8 @@ GitHubAutoApprove: true
 - 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
 
 ## 進捗
-- **REPORT_TASK_043_performance_baseline_20260128.md**: TASK_043（パフォーマンス計測）を完了。`scripts/run-perf-baseline.js` を作成し、ロード時間（平均377ms）と貼り付け応答速度のベースラインを `docs/reports/` に記録。
-- **REPORT_TASK_042_capture_current_state_20260128.md**: TASK_042（現状キャプチャ）を完了。`scripts/capture-current-state.js` を作成し、4パターン以上のスクリーンショットを `docs/evidence/` に保存、`docs/PROJECT_STATUS.md` を更新。
+- **REPORT_TASK_043_performance_baseline_20260128.md**: TASK_043（パフォーマンス計測）を完了。`scripts/run-perf-baseline.js` を作成し、ロード時間（平均377ms）と貼り付け応答速度のベースラインを `docs/reports/` に記録。 (DONE)
+- **REPORT_TASK_042_capture_current_state_20260128.md**: TASK_042（現状キャプチャ）を完了。`scripts/capture-current-state.js` を作成し、4パターン以上のスクリーンショットを `docs/evidence/` に保存、`docs/PROJECT_STATUS.md` を更新。 (DONE)
 - **REPORT_TASK_032_flexible_tab_e2e_fix.md**: TASK_032（柔軟タブ配置 E2E 修正）を完了。`e2e/flexible-tab-placement.spec.js` の待機処理とロケータを改善し、全テストパスを確認。
 - **[UPDATE] 実装確認完了**: TASK_017-030 の実装コードはすべて存在することを確認。先の「虚偽完了」判定は誤りで、grepの検索パターンエラーによるもの。Statusを DONE に復元。
 - **REPORT_ORCH_20260112_0302.md**: TASK_029（柔軟なタブ配置システム）とTASK_030（ガジェット動的割り当て）の完了レポート。実装は `js/sidebar-manager.js`, `js/gadgets-core.js` に存在。
@@ -60,6 +60,12 @@ GitHubAutoApprove: true
 - 旧 REPORT_ORCH を Progress/Latest へ統合後に自動削除する運用（`flush-reports` 的スクリプト）を検討
 
 ## 統合レポート
+- docs/reports/REPORT_TASK_042_capture_current_state_20260128.md
+  - Ticket: docs/tasks/TASK_042_capture_current_state.md
+  - Changes: 現状のスクリーンショット撮影とドキュメント化
+- docs/reports/REPORT_TASK_043_performance_baseline_20260128.md
+  - Ticket: docs/tasks/TASK_043_performance_baseline.md
+  - Changes: パフォーマンスベースラインの計測
 - docs/reports/REPORT_TASK_029_flexible_tab_placement_20260112_0254.md
   - Ticket: docs/tasks/TASK_029_flexible_tab_placement.md
   - Changes: タブ配置（上下左右）と順序変更機能を実装
@@ -140,11 +146,11 @@ GitHubAutoApprove: true
 - REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 
 ## Latest Orchestrator Report
-- File: docs/reports/REPORT_ORCH_20260118_1912.md
-- Summary: TASK_036（レスポンシブUI改善）、TASK_037（アクセシビリティ向上）、TASK_038（コード規約の明文化）の3つのWorker完了レポートを統合。すべてのタスクが完了し、レポートをdocs/reports/にアーカイブ。
+- File: docs/reports/REPORT_ORCH_20260128_1900.md (PROPOSED)
+- Summary: TASK_042（現状キャプチャ）および TASK_043（パフォーマンス計測）の完了を確認。プロジェクトの可視化と性能基準の策定が完了しました。
 
 ## Latest Worker Report
-- File: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md (Inbox)
+- File: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md
 - Summary: パフォーマンス計測テストを実施。ロード時間平均377ms、10万文字貼り付け応答504msを確認。計測用スクリプト `scripts/run-perf-baseline.js` を整備。
 
 ## Outlook
