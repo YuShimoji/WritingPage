@@ -4419,3 +4419,52 @@ body.ui-editor-preview {
 [aria-modal="true"]:focus-within {
   outline: none;
 }
+/* Wikilinks & Backlinks (TASK_044) */
+.wikilink {
+  color: var(--focus-color);
+  text-decoration: underline dotted;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.wikilink:hover {
+  opacity: 0.8;
+}
+
+.wikilink.is-broken {
+  color: #ff4d4f;
+  text-decoration-color: #ff4d4f;
+}
+
+.wiki-backlinks {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.9rem;
+}
+
+.wiki-backlinks h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.wiki-backlinks-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wiki-backlink-item {
+  padding: 2px 8px;
+  background: var(--toolbar-bg);
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.wiki-backlink-item:hover {
+  background: var(--border-color);
+}

@@ -2,7 +2,7 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-01-29T18:42:00+09:00
+- 最終更新: 2026-01-30T13:55:00+09:00
 - **Worker完了ステータス**: TASK_001-030: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
@@ -185,6 +185,7 @@
 - ✅ テーマプリセット調整（dark のグレー化、night 追加）と THEMES/BACKLOG 更新
 - ✅ フローティングパネルのタイトル編集とタイトル永続化（Phase E）
 - ✅ Selection Tooltip v1 実装（テキスト選択に連動した装飾/挿入ツールチップ、EDITOR_EXTENSIONS.md 準拠）
+- ✅ Wikilinks/バックリンク/グラフ機能実装 (TASK_044)
 
 ### 残存課題
 
@@ -220,8 +221,7 @@
 - [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: CLOSED)
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
 - [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: OPEN)
-- [done] ドキュメントの整合性とSSOT化の監査対応 (ref: docs/tasks/TASK_040_audit_docs_consistency.md, Status: DONE)
-- [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: OPEN)
+- [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: COMPLETED)
 
 ### Worker完了ステータス
-- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed
+- **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed, TASK_044: completed

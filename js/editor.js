@@ -65,7 +65,7 @@ class EditorManager {
         // Markdownプレビューデバウンスタイマー（長文パフォーマンス改善）
         this._markdownPreviewDebounceTimer = null;
         this._MARKDOWN_PREVIEW_DEBOUNCE_DELAY = 100; // 100ms
-        
+
         // タイプライターモード関連の定数
         this._TYPEWRITER_SCROLL_DELAY_MS = 120; // スクロール後の更新遅延
         this._TYPEWRITER_INITIAL_DELAY_MS = 50; // 初期更新遅延
@@ -135,7 +135,7 @@ class EditorManager {
             if (window.ZenWriterKeybinds) {
                 const keybinds = window.ZenWriterKeybinds.load();
                 const keybindId = window.ZenWriterKeybinds.getKeybindIdForEvent(e, keybinds);
-                
+
                 if (keybindId) {
                     switch (keybindId) {
                         case 'editor.save':
@@ -143,33 +143,33 @@ class EditorManager {
                             this.saveContent();
                             this.showNotification('保存しました');
                             return;
-                            
+
                         case 'editor.font.increase':
                             e.preventDefault();
                             this.adjustGlobalFontSize(1);
                             return;
-                            
+
                         case 'editor.font.decrease':
                             e.preventDefault();
                             this.adjustGlobalFontSize(-1);
                             return;
-                            
+
                         case 'editor.font.reset':
                             e.preventDefault();
                             const defaults = window.ZenWriterStorage.DEFAULT_SETTINGS;
                             this.setGlobalFontSize(defaults.fontSize);
                             return;
-                            
+
                         case 'editor.bold':
                             e.preventDefault();
                             this.applyFontDecoration('bold');
                             return;
-                            
+
                         case 'editor.italic':
                             e.preventDefault();
                             this.applyFontDecoration('italic');
                             return;
-                            
+
                         case 'search.toggle':
                             e.preventDefault();
                             this.showSearchPanel();
@@ -177,7 +177,7 @@ class EditorManager {
                     }
                 }
             }
-            
+
             // フォールバック: 既存のショートカット処理
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
@@ -311,7 +311,7 @@ class EditorManager {
     }
 
     // ===== タイプライターモード =====
-    installTypewriterHandlers(){
+    installTypewriterHandlers() {
         if (!this.editor) return;
         const onCaretMove = () => this.scheduleTypewriterUpdate();
         this.editor.addEventListener('input', onCaretMove);
@@ -321,12 +321,12 @@ class EditorManager {
         this.editor.addEventListener('scroll', () => {
             this._ty_scrollPending = true;
             clearTimeout(this._ty_scrollTimer);
-            this._ty_scrollTimer = setTimeout(()=>{ this._ty_scrollPending = false; this.scheduleTypewriterUpdate(); }, this._TYPEWRITER_SCROLL_DELAY_MS);
+            this._ty_scrollTimer = setTimeout(() => { this._ty_scrollPending = false; this.scheduleTypewriterUpdate(); }, this._TYPEWRITER_SCROLL_DELAY_MS);
         });
-        setTimeout(()=> this.scheduleTypewriterUpdate(), this._TYPEWRITER_INITIAL_DELAY_MS);
+        setTimeout(() => this.scheduleTypewriterUpdate(), this._TYPEWRITER_INITIAL_DELAY_MS);
     }
 
-    scheduleTypewriterUpdate(){
+    scheduleTypewriterUpdate() {
         if (this._ty_scheduled) return;
         this._ty_scheduled = true;
         requestAnimationFrame(() => {
@@ -334,7 +334,7 @@ class EditorManager {
         });
     }
 
-    applyTypewriterIfEnabled(){
+    applyTypewriterIfEnabled() {
         try {
             if (!this.editor || !window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return;
             const s = window.ZenWriterStorage.loadSettings();
@@ -358,11 +358,11 @@ class EditorManager {
             if (Math.abs(next - currentScroll) > 1) {
                 this.editor.scrollTop = next;
             }
-        } catch(_) {}
+        } catch (_) { }
     }
 
     // ===== フォーカスモード =====
-    installFocusModeHandlers(){
+    installFocusModeHandlers() {
         if (!this.editor) return;
         const onCaretMove = () => this.scheduleFocusModeUpdate();
         this.editor.addEventListener('input', onCaretMove);
@@ -374,7 +374,7 @@ class EditorManager {
         setTimeout(() => this.scheduleFocusModeUpdate(), 50);
     }
 
-    scheduleFocusModeUpdate(){
+    scheduleFocusModeUpdate() {
         if (this._focus_scheduled) return;
         this._focus_scheduled = true;
         requestAnimationFrame(() => {
@@ -382,7 +382,7 @@ class EditorManager {
         });
     }
 
-    applyFocusModeIfEnabled(){
+    applyFocusModeIfEnabled() {
         try {
             if (!this.editor || !window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return;
             const s = window.ZenWriterStorage.loadSettings();
@@ -395,7 +395,7 @@ class EditorManager {
 
             // フォーカスモードを有効化
             document.documentElement.setAttribute('data-focus-mode', 'enabled');
-            
+
             // ぼかしの設定
             if (fm.blurRadius && fm.blurRadius > 0) {
                 document.documentElement.setAttribute('data-focus-blur', 'enabled');
@@ -414,12 +414,12 @@ class EditorManager {
             const selStart = this.editor.selectionStart || 0;
             const before = (this.editor.value || '').substring(0, selStart);
             const caretLine = (before.match(/\n/g) || []).length;
-            
+
             // エディタのパディングとスクロール位置を考慮
             const paddingTop = parseFloat(style.paddingTop) || 0;
             const scrollTop = this.editor.scrollTop;
             const lineTop = caretLine * lineHeight + paddingTop - scrollTop;
-            
+
             // CSS変数に設定
             if (this._focusLineEl) {
                 this._focusLineEl.style.setProperty('--focus-line-top', `${lineTop}px`);
@@ -427,10 +427,10 @@ class EditorManager {
                 this._focusLineEl.style.transform = `translateY(${lineTop}px)`;
                 this._focusLineEl.style.height = `${lineHeight}px`;
             }
-        } catch(_) {}
+        } catch (_) { }
     }
 
-    applyWordWrap(){
+    applyWordWrap() {
         try {
             const s = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') ? window.ZenWriterStorage.loadSettings() : {};
             const editor = s.editor || {};
@@ -448,13 +448,13 @@ class EditorManager {
             if (this._wrapGuideEl) {
                 this._wrapGuideEl.style.display = 'block';
             }
-        } catch(_) {}
+        } catch (_) { }
     }
 
     /**
      * 文字数スタンプを更新
      */
-    updateCharCountStamps(){
+    updateCharCountStamps() {
         if (!this.isCharCountStampsEnabled || !this.editorOverlay) return;
 
         // 既存の文字数スタンプを削除
@@ -578,6 +578,22 @@ class EditorManager {
                 this.previewPanelToggle.click();
             }
         });
+
+        // Wikilink クリックハンドラを追加 (TASK_044)
+        if (this.markdownPreviewPanel) {
+            this.markdownPreviewPanel.addEventListener('click', (e) => {
+                const target = e.target.closest('.wikilink');
+                if (target) {
+                    e.preventDefault();
+                    const linkName = decodeURIComponent(target.dataset.wikilink || '');
+                    if (linkName && window.ZenWriterWikiAPI && typeof window.ZenWriterWikiAPI.openPageByName === 'function') {
+                        window.ZenWriterWikiAPI.openPageByName(linkName);
+                    } else {
+                        console.warn('Wiki API is not available or linkName is empty');
+                    }
+                }
+            });
+        }
     }
 
     setupOverlaySupport() {
@@ -903,7 +919,7 @@ class EditorManager {
     }
 
     updateStorageContentAfterMigration(content) {
-        try { window.ZenWriterStorage.saveContent(content); } catch (_) {}
+        try { window.ZenWriterStorage.saveContent(content); } catch (_) { }
         try {
             if (window.ZenWriterStorage.getCurrentDocId && window.ZenWriterStorage.updateDocumentContent) {
                 const currentId = window.ZenWriterStorage.getCurrentDocId();
@@ -911,7 +927,7 @@ class EditorManager {
                     window.ZenWriterStorage.updateDocumentContent(currentId, content);
                 }
             }
-        } catch (_) {}
+        } catch (_) { }
     }
 
     /**
@@ -925,7 +941,7 @@ class EditorManager {
                 content = this.richTextEditor.getContent();
             }
             window.ZenWriterStorage.saveContent(content);
-        } catch (_) {}
+        } catch (_) { }
         // 自動保存してもベースラインは更新しない（セッション内変更を保持）
     }
 
@@ -957,10 +973,10 @@ class EditorManager {
         try {
             this._lastSavedHash = this._computeContentHash(this.editor.value || '');
             this._isDirty = false;
-        } catch (_) {}
+        } catch (_) { }
     }
 
-    maybeAutoSnapshot(){
+    maybeAutoSnapshot() {
         if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
         const now = Date.now();
         const len = (this.editor.value || '').length;
@@ -1046,7 +1062,7 @@ class EditorManager {
             this.setContent(latest && typeof latest.content === 'string' ? latest.content : '');
             if (typeof this.showNotification === 'function') this.showNotification('スナップショットから復元しました');
         } catch (e) {
-            try { if (typeof this.showNotification === 'function') this.showNotification((window.UILabels && window.UILabels.RESTORE_FAILED) || '復元に失敗しました'); } catch(_) {}
+            try { if (typeof this.showNotification === 'function') this.showNotification((window.UILabels && window.UILabels.RESTORE_FAILED) || '復元に失敗しました'); } catch (_) { }
             console.error(e);
         }
     }
@@ -1078,14 +1094,14 @@ class EditorManager {
     getFormattedDate() {
         const now = new Date();
         const pad = (num) => num.toString().padStart(2, '0');
-        
+
         const year = now.getFullYear();
         const month = pad(now.getMonth() + 1);
         const day = pad(now.getDate());
         const hours = pad(now.getHours());
         const minutes = pad(now.getMinutes());
         const seconds = pad(now.getSeconds());
-        
+
         return `${year}${month}${day}_${hours}${minutes}${seconds}`;
     }
 
@@ -1093,7 +1109,7 @@ class EditorManager {
      * 現在選択中ドキュメントのファイル名ベースを取得（無効文字は置換）
      * @returns {string}
      */
-    getCurrentDocBaseName(){
+    getCurrentDocBaseName() {
         try {
             if (!window.ZenWriterStorage || !window.ZenWriterStorage.getCurrentDocId) return 'zenwriter';
             const id = window.ZenWriterStorage.getCurrentDocId();
@@ -1101,7 +1117,7 @@ class EditorManager {
             const doc = docs.find(d => d && d.id === id);
             const name = (doc && doc.name) ? String(doc.name) : 'zenwriter';
             return this.sanitizeForFilename(name.trim() || 'zenwriter');
-        } catch(_) { return 'zenwriter'; }
+        } catch (_) { return 'zenwriter'; }
     }
 
     /**
@@ -1109,7 +1125,7 @@ class EditorManager {
      * @param {string} s
      * @returns {string}
      */
-    sanitizeForFilename(s){
+    sanitizeForFilename(s) {
         // Windows禁止文字 \ / : * ? " < > | と制御文字を置換し、連続空白を圧縮
         return s
             .replace(/[\\/:*?"<>|]/g, '_')
@@ -1197,13 +1213,13 @@ class EditorManager {
         // インラインスタンプを除去してカウント
         const cleanText = text.replace(/<span class="inline-stamp">.*?<\/span>/g, '');
         const charCount = cleanText ? cleanText.replace(/\r?\n/g, '').length : 0;
-        
+
         // [DOCUMENTATION] Word Count Behavior
         // 現在の単語カウントは、英語圏向けの「スペース区切り」による簡易実装（モックアップ）です。
         // 日本語などの非スペース区切り言語では正確な単語数になりません。
         // 将来的には Intl.Segmenter や形態素解析ライブラリ（Kuromoji.js等）の導入を検討してください。
         const wordCount = cleanText.trim() === '' ? 0 : cleanText.trim().split(/\s+/).length;
-        
+
         // 執筆目標の進捗（任意）
         const settings = window.ZenWriterStorage.loadSettings();
         const goal = (settings && settings.goal) || {};
@@ -1217,9 +1233,9 @@ class EditorManager {
         };
         try {
             const root = document.documentElement;
-            if (progress.writingGoalEnabled) root.setAttribute('data-writing-goal-enabled','true');
+            if (progress.writingGoalEnabled) root.setAttribute('data-writing-goal-enabled', 'true');
             else root.removeAttribute('data-writing-goal-enabled');
-        } catch(_) {}
+        } catch (_) { }
         let suffix = '';
         if (progress.writingGoalEnabled && progress.target > 0) {
             const target = Math.max(0, progress.target);
@@ -1238,7 +1254,7 @@ class EditorManager {
             if (progress.deadline) {
                 const today = new Date();
                 const dl = new Date(`${progress.deadline}T00:00:00`);
-                const msPerDay = 24*60*60*1000;
+                const msPerDay = 24 * 60 * 60 * 1000;
                 const days = Math.ceil((dl - today) / msPerDay);
                 if (!isNaN(days)) {
                     if (days >= 0) suffix += ` | 残り${days}日`;
@@ -1281,7 +1297,7 @@ class EditorManager {
         // ミニHUDに一時表示（ツールバー非表示時のみ）
         if (window.ZenWriterHUD) {
             const toolbarHidden = document.body.classList.contains('toolbar-hidden') ||
-                                  document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
+                document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
             if (toolbarHidden && typeof window.ZenWriterHUD.publish === 'function') {
                 // HUD 設定の既定時間に従う（durationを渡さない）
                 window.ZenWriterHUD.publish(fullLabel);
@@ -1297,7 +1313,7 @@ class EditorManager {
             if (this._typewriterScrollPending) {
                 cancelAnimationFrame(this._typewriterScrollPending);
             }
-            
+
             this._typewriterScrollPending = requestAnimationFrame(() => {
                 const anchorRatio = typewriterSettings.anchorRatio || 0.5;
                 const lineHeight = parseFloat(getComputedStyle(this.editor).lineHeight) || 20;
@@ -1307,17 +1323,17 @@ class EditorManager {
                 const cursorY = cursorLine * lineHeight;
                 const delta = cursorY - anchorY;
                 const newScroll = this.editor.scrollTop + delta;
-                
+
                 // スムーズスクロールを有効化
                 const oldBehavior = this.editor.style.scrollBehavior;
                 this.editor.style.scrollBehavior = 'smooth';
                 this.editor.scrollTop = Math.max(0, newScroll);
-                
+
                 // スクロール完了後に元に戻す
                 setTimeout(() => {
                     this.editor.style.scrollBehavior = oldBehavior;
                 }, 100);
-                
+
                 this._typewriterScrollPending = null;
             });
         }
@@ -1343,7 +1359,7 @@ class EditorManager {
         const notification = document.createElement('div');
         notification.className = 'notification';
         notification.textContent = message;
-        
+
         // スタイルを適用
         notification.style.position = 'fixed';
         notification.style.bottom = '20px';
@@ -1354,15 +1370,15 @@ class EditorManager {
         notification.style.borderRadius = '4px';
         notification.style.zIndex = '1000';
         notification.style.transition = 'opacity 0.3s';
-        
+
         // ドキュメントに追加
         document.body.appendChild(notification);
-        
+
         // アニメーション用に少し遅らせる
         setTimeout(() => {
             notification.style.opacity = '1';
         }, 10);
-        
+
         // 指定時間後に削除
         setTimeout(() => {
             notification.style.opacity = '0';
@@ -1573,7 +1589,7 @@ class EditorManager {
         // 他のパネルを隠す
         this.hideSearchPanel();
         if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
-        
+
         // 最初のボタンにフォーカス
         const firstBtn = this.fontDecorationPanel.querySelector('.decor-btn');
         if (firstBtn) {
@@ -1615,7 +1631,7 @@ class EditorManager {
         this.hideSearchPanel();
         this.hideFontDecorationPanel();
         if (this.floatingFontPanel) this.floatingFontPanel.style.display = 'none';
-        
+
         // 最初のボタンにフォーカス
         const firstBtn = this.textAnimationPanel.querySelector('.decor-btn');
         if (firstBtn) {
@@ -1728,10 +1744,10 @@ class EditorManager {
         };
         const maxWidth = widthMap[mode] || widthMap.medium;
         const padding = paddingMap[mode] || paddingMap.medium;
-        
+
         document.documentElement.style.setProperty('--editor-max-width', maxWidth);
         document.documentElement.style.setProperty('--editor-padding-x', padding);
-        
+
         // 設定に保存
         if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
             try {

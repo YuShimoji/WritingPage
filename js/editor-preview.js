@@ -44,6 +44,26 @@
       html = editorManager.processTextAnimations(html);
     }
 
+    // Wikilinks [[link]] または [[link|display]] を処理
+    if (html) {
+      html = html.replace(/\[\[([^\]]+)\]\]/g, function (match, content) {
+        var parts = content.split('|');
+        var link = parts[0].trim();
+        var display = parts.length > 1 ? parts[1].trim() : link;
+
+        // 存在チェック (TASK_044)
+        var exists = false;
+        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.listWikiPages === 'function') {
+          var all = window.ZenWriterStorage.listWikiPages();
+          exists = all.some(function (p) { return (p.title || '') === link; });
+        }
+        var brokenClass = exists ? '' : ' is-broken';
+
+        // data-wikilink 属性を付与してクリックイベントで拾えるようにする
+        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '" onclick="return false;">' + display + '</a>';
+      });
+    }
+
     if (window.morphdom) {
       var tempContainer = document.createElement('div');
       tempContainer.innerHTML = html;

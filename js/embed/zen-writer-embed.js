@@ -10,6 +10,7 @@
     const height = options.height || '100%';
 
     const iframe = document.createElement('iframe');
+
     // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
     try {
       const url = new URL(src, window.location.origin);
@@ -68,7 +69,14 @@
     function onMessage(event) {
       if (!iframe.contentWindow || event.source !== iframe.contentWindow)
         return;
-      if (targetOrigin && event.origin !== targetOrigin) return;
+      // Strict origin validation
+      if (targetOrigin && event.origin !== targetOrigin) {
+        console.warn('ZenWriterEmbed: postMessage origin mismatch', {
+          expected: targetOrigin,
+          received: event.origin,
+        });
+        return;
+      }
       const data = event.data || {};
       if (data && data.type === 'ZW_EMBED_READY') {
         pmReady = true;
@@ -169,12 +177,16 @@
 
     function accessError(action) {
       const suffix = action ? ` (${action})` : '';
-      if (sameOrigin)
+      if (sameOrigin) {
         return new Error(
-          `ZenWriterEmbed: same-origin APIs unavailable${suffix}; ensure the embedded document exposes ZenWriterAPI`,
+          `ZenWriterEmbed: same-origin API access failed${suffix}. ` +
+          `Check if the embedded page correctly exposes ZenWriterAPI. ` +
+          `If this is actually a cross-origin embed, set 'sameOrigin: false'.`,
         );
+      }
       return new Error(
-        `ZenWriterEmbed: cross-origin RPC unavailable${suffix}; ensure targetOrigin matches and child-bridge is enabled`,
+        `ZenWriterEmbed: cross-origin RPC failed${suffix}. ` +
+        `Ensure targetOrigin (${targetOrigin}) is correct and child-bridge.js is loaded in the iframe with ?embed=1.`,
       );
     }
 
