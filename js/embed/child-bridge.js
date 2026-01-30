@@ -14,6 +14,7 @@
           return p;
         }
       }
+      // フォールバック: 親の origin を referrer から推定
       if (document.referrer) {
         try {
           return new URL(document.referrer).origin;

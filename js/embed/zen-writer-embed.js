@@ -5,43 +5,50 @@
       typeof target === 'string' ? document.querySelector(target) : target;
     if (!sel) throw new Error('ZenWriterEmbed: target not found');
     let src = options.src || '/index.html';
-    let computedOrigin = null;
     const width = options.width || '100%';
     const height = options.height || '100%';
 
     const iframe = document.createElement('iframe');
+    let computedOrigin = null;
 
-    // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
+    // 1. Determine origin and absolute src
     try {
       const url = new URL(src, window.location.origin);
+      computedOrigin = url.origin;
+      const useAbs = computedOrigin !== window.location.origin;
+
+      // embed_origin optimization
       if (
         !url.searchParams.get('embed_origin') &&
         options.appendEmbedOrigin !== false
       ) {
         url.searchParams.set('embed_origin', window.location.origin);
       }
-      computedOrigin = url.origin;
-      const useAbs =
-        computedOrigin && computedOrigin !== window.location.origin;
+
       src = useAbs
         ? url.toString()
         : url.pathname + (url.search ? url.search : '') + (url.hash || '');
     } catch (_) {
       computedOrigin = null;
     }
+
+    // 2. Normalize sameOrigin and targetOrigin
     const sameOrigin =
       typeof options.sameOrigin === 'boolean'
         ? options.sameOrigin
         : computedOrigin
           ? computedOrigin === window.location.origin
           : false;
+
     const targetOrigin = sameOrigin
       ? window.location.origin
       : options.targetOrigin || computedOrigin || null;
-    if (!sameOrigin && !targetOrigin)
+
+    if (!sameOrigin && !targetOrigin) {
       throw new Error(
-        'ZenWriterEmbed: cross-origin mode requires targetOrigin or resolvable src origin',
+        'ZenWriterEmbed: cross-origin mode requires targetOrigin or absolute src URL',
       );
+    }
 
     iframe.src = src;
     iframe.style.border = '0';
@@ -71,10 +78,6 @@
         return;
       // Strict origin validation
       if (targetOrigin && event.origin !== targetOrigin) {
-        console.warn('ZenWriterEmbed: postMessage origin mismatch', {
-          expected: targetOrigin,
-          received: event.origin,
-        });
         return;
       }
       const data = event.data || {};

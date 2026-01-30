@@ -43,8 +43,8 @@
 - `options`:
   - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）
   - `width`/`height`: `iframe` のサイズ（既定: `100%`）
-  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。明示的に `true/false` を指定すると上書き）
-  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の origin から自動推定）
+  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。相対パスや同一ホストなら `true`）
+  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の絶対URLから自動推定）
 
 戻り値（Promiseではなく同期オブジェクト）:
 
