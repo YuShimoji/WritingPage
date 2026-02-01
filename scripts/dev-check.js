@@ -228,15 +228,15 @@ async function loadCssWithImports(url) {
     const hasSetSetting = /setSetting\s*\(\s*name,\s*key,\s*value\s*\)\s*\{/m.test(
       gadgetsSrc,
     );
-    const _hasDraggable =
+    const hasDraggable =
       /setAttribute\(\s*['\"]draggable['\"],\s*['\"]true['\"]\s*\)/m.test(
         gadgetsSrc,
       );
-    const _hasDnDData =
-      /dataTransfer\.setData\(\s*['\"]text\/gadget-name['\"],/m.test(
+    const hasDnDData =
+      /dataTransfer\.setData\(\s*['\"]application\/x-gadget-name['\"],/m.test(
         gadgetsSrc,
       );
-    const _hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(
+    const hasDropListener = /addEventListener\(\s*['\"]drop['\"]/m.test(
       gadgetsSrc,
     );
     // Documents ガジェットは gadgets-builtin.js に定義
@@ -271,11 +271,16 @@ async function loadCssWithImports(url) {
       hasMove,
       hasToggle,
     });
+    const okGadgetDnD = hasDraggable && hasDnDData && hasDropListener;
+    console.log('CHECK gadgets D&D (static) ->', okGadgetDnD ? 'OK' : 'NG', {
+      hasDraggable,
+      hasDnDData,
+      hasDropListener,
+    });
     console.log('CHECK gadgets M5 (static) ->', okGadgetsM5 ? 'OK' : 'NG', {
       hasRegisterSettings,
       hasGetSettings,
       hasSetSetting,
-      // 将来機能（ドラッグ&ドロップ）: hasDraggable, hasDnDData, hasDropListener
     });
     console.log(
       'CHECK gadgets Docs init ->',
@@ -283,7 +288,22 @@ async function loadCssWithImports(url) {
       { hasDocumentsGadget, hasStructureInit },
     );
 
-    // ガジェット設定のインポート/エクスポートAPI（UIも実装済みのため、APIとUI要素の両方を検証）
+    // StoryWiki ガジェットの存在検証
+    const wikiPath = path.join(__dirname, '..', 'js', 'gadgets-wiki.js');
+    let wikiSrc = '';
+    try {
+      wikiSrc = fs.readFileSync(wikiPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', wikiPath, e.message);
+    }
+    const hasStoryWikiGadget = /register\(['"]StoryWiki['"]/.test(wikiSrc);
+    console.log(
+      'CHECK gadgets Wiki init ->',
+      hasStoryWikiGadget ? 'OK' : 'NG',
+      { hasStoryWikiGadget },
+    );
+
+    // ガジェット設定のインポート/エクスポートUI（GadgetPrefs）の検証
     const hasExportApi = /exportPrefs\s*\(\)\s*\{/m.test(
       gadgetsSrc || '',
     );
@@ -684,8 +704,10 @@ async function loadCssWithImports(url) {
         okPlugins &&
         okGadgets &&
         okGadgetsApi &&
+        okGadgetDnD &&
         okGadgetsM5 &&
         hasDocumentsGadget &&
+        hasStoryWikiGadget &&
         hasStructureInit &&
         okGadgetsImpExp &&
         okRulesDoc &&

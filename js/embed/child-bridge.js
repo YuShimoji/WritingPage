@@ -25,7 +25,7 @@
       // 許可 origin が特定できない場合は送信しない
       if (!allowedOrigin) return;
       window.parent.postMessage(msg, allowedOrigin);
-    } catch (_) {}
+    } catch (_) { }
   }
 
   function reply(requestId, ok, result, error) {
@@ -116,7 +116,7 @@
           sendToParent({ type: 'ZW_EMBED_READY' });
           return;
         }
-      } catch (_) {}
+      } catch (_) { }
       if (!startTs) startTs = Date.now();
       if (Date.now() - startTs > 10000) {
         // タイムアウト時は最小限のREADY（getは空文字fallback, setは失敗返却）
@@ -149,7 +149,7 @@
               type: 'ZW_CONTENT_CHANGED',
               payload: { len: (ed.value || '').length },
             });
-          } catch (_) {}
+          } catch (_) { }
         });
         ed.__zw_hooked_input__ = true;
       }
@@ -173,7 +173,7 @@
               type: 'ZW_CONTENT_CHANGED',
               payload: { len: el ? (el.value || '').length : 0 },
             });
-          } catch (_) {}
+          } catch (_) { }
           return r;
         };
         window.ZenWriterEditor.__zw_hooked_set__ = true;
@@ -191,12 +191,12 @@
           var r = _origSnap(content);
           try {
             sendToParent({ type: 'ZW_SNAPSHOT_CREATED' });
-          } catch (_) {}
+          } catch (_) { }
           return r;
         };
         window.ZenWriterStorage.__zw_hooked_snap__ = true;
       }
-    } catch (_) {}
+    } catch (_) { }
   }
   if (
     document.readyState === 'complete' ||

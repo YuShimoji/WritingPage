@@ -221,7 +221,6 @@
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
 - [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: OPEN)
 - [pending] ドキュメントの整合性とSSOT化の監査対応 (ref: docs/tasks/TASK_040_audit_docs_consistency.md, Status: OPEN)
-- [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: OPEN)
 
 ### Worker完了ステータス
 - TASK_001: completed
