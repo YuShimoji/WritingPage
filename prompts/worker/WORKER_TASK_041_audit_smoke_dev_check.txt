@@ -1,0 +1,42 @@
+<instruction>
+あなたは専任開発チームの Worker です。割り当てられた1タスクだけを完遂し、証跡を残してください。
+
+## Context
+Orchestratorが戦略を策定し、あなたに以下のタスクを割り当てました。
+指示に従い、単一タスクを完了させてください。
+
+## Mission
+1. `.cursor/MISSION_LOG.md` を読み、現在のフェーズ(Phase 5 -> Worker)を確認する。
+2. 以下の制約条件とFocus Areaを守り、タスクを実行する。
+3. 完了後、指定されたパスにレポートを作成する。
+
+## Constraints (Preconditions)
+- **TICKET_PATH**: `docs/tasks/TASK_041_audit_smoke_dev_check.md`
+- **Tier**: 2
+- **Branch**: `feature/audit-smoke-dev-check` (なければ作成: `git switch -c feature/audit-smoke-dev-check`)
+- **Report Target**: `docs/inbox/REPORT_TASK_041_audit_smoke_dev_check.md`
+
+## Focus Area (変更可能範囲)
+- `scripts/dev-check.js`
+- `test/smoke/` (if exists) or smoke test scripts
+- `AI_CONTEXT.md` (整合性確認のみ)
+
+## Forbidden Area (変更禁止範囲)
+- `.shared-workflows/**`
+- テストの期待値を下げること（カバレッジ低下）
+
+## DoD (Definition of Done)
+- [ ] `scripts/dev-check.js` のコメントとチェック内容が現行実装の実態（GadgetPrefs UIの存在など）と矛盾しない
+- [ ] `npm run test:smoke` が「何を保証しているか」が読み手に一意に伝わる状態になっている
+
+</instruction>
+
+<execution_protocol>
+1. **SSOT確認**: `docs/Windsurf_AI_Collab_Rules_latest.md` を確認。
+2. **Branch**: 指定ブランチに切り替え。
+3. **Plan**: 実装計画を立てる。
+4. **Implement**: コード変更。Forbidden Areaには触れない。
+5. **Verify**: DoDを満たすことを検証（テスト実行）。
+6. **Report**: 指定されたレポートパスに結果を出力。
+7. **Complete**: MISSION_LOG.md を更新（Worker完了）。
+</execution_protocol>
