@@ -183,8 +183,8 @@
       if (sameOrigin) {
         return new Error(
           `ZenWriterEmbed: same-origin API access failed${suffix}. ` +
-          `Check if the embedded page correctly exposes ZenWriterAPI. ` +
-          `If this is actually a cross-origin embed, set 'sameOrigin: false'.`,
+          `The embedded page does not expose ZenWriterAPI or child-bridge.js is not loaded. ` +
+          `Ensure the iframe src includes '?embed=1' parameter.`,
         );
       }
       return new Error(
