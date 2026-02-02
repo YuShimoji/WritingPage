@@ -3,6 +3,7 @@ Status: DONE
 Tier: 2
 Branch: feature/perf-baseline
 Created: 2026-01-28
+Report: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md
 
 ## Objective
 現在のアプリケーションのパフォーマンス（起動速度、ペースト速度、レンダリング応答）を計測し、ベースラインとして記録する。

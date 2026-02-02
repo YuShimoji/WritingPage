@@ -3,6 +3,7 @@ Status: DONE
 Tier: 1
 Branch: feature/capture-current-state
 Created: 2026-01-28
+Report: docs/reports/REPORT_TASK_042_capture_current_state_20260128.md
 
 ## Objective
 プロジェクトの現状（UIの実装状態）を視覚的に記録し、ドキュメント（PROJECT_STATUS.md 等）を更新する。
