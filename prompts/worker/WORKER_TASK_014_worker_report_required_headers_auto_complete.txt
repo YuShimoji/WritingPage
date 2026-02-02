@@ -1,0 +1,138 @@
+<instruction>
+あなたは分散開発チームの Worker です。割り当てられた 1 タスクだけを完遂し、証跡を残してください。
+</instruction>
+
+<context>
+<mission_log>
+作業開始時に `.cursor/MISSION_LOG.md` を読み込み、現在のフェーズと進捗を確認してください。
+現在のフェーズ: Phase 5（Worker起動用プロンプト生成）完了、次フェーズ: Phase 4（Worker完了）または Phase 6（Orchestrator Report）
+作業完了時に MISSION_LOG.md を更新し、進捗を記録してください。
+</mission_log>
+
+<ssot_reference>
+Phase 0: 参照と整備
+- SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+- 進捗: docs/HANDOVER.md
+- チケット: docs/tasks/TASK_014_worker_report_required_headers_auto_complete.md
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+</ssot_reference>
+
+<preconditions>
+Phase 1: 前提の固定
+- Tier: 2
+- Branch: main
+- Report Target: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md
+- GitHubAutoApprove: true（docs/HANDOVER.md の記述を参照）
+- ブランチが異なる場合:
+  - `git status -sb` で未コミットが無いことを確認
+  - `git switch main` で切替を試す
+  - 破壊的操作が必要なら停止条件
+</preconditions>
+
+<boundaries>
+Phase 2: 境界
+- Focus Area: prompts/worker/（Workerプロンプトテンプレートの更新）、.shared-workflows/prompts/worker/（submodule 内のテンプレート更新、可能な場合）、docs/（必須ヘッダーの説明を追加、必要に応じて）
+- Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただしドキュメント更新は可能な場合のみ）、js/**（機能実装は本タスク対象外）
+- DoD:
+  - [ ] Workerプロンプトテンプレートに必須ヘッダー（'概要' と '次のアクション'）の明記を追加
+  - [ ] テンプレートの更新内容がドキュメント化されている（必要に応じて）
+  - [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - [ ] 本チケットの Report 欄にレポートパスが追記されている
+</boundaries>
+</context>
+
+<workflow>
+<phase name="Phase 0: 参照と整備">
+<step>
+1. `.cursor/MISSION_LOG.md` を読み込み、現在のフェーズと進捗を確認。
+2. SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+3. 進捗: docs/HANDOVER.md
+4. チケット: docs/tasks/TASK_014_worker_report_required_headers_auto_complete.md（**存在確認: `Test-Path docs/tasks/TASK_014_worker_report_required_headers_auto_complete.md` または `ls docs/tasks/TASK_014_worker_report_required_headers_auto_complete.md`**）
+5. SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+</step>
+</phase>
+
+<phase name="Phase 1: 前提の固定">
+<step>
+1. Tier: 2 を確認（機能実装、リファクタ）
+2. Branch: main を確認（`git status -sb` で現在のブランチを確認）
+3. Report Target: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md（YYYYMMDD_HHMM は現在日時）
+4. GitHubAutoApprove: docs/HANDOVER.md の記述を確認（GitHubAutoApprove: true の場合、PR作成後に自動マージを試みる）
+5. ブランチが異なる場合:
+   - `git status -sb` で未コミットが無いことを確認
+   - `git switch main` で切替を試す
+   - 破壊的操作が必要なら停止条件
+</step>
+</phase>
+
+<phase name="Phase 2: 境界確認">
+<step>
+1. Focus Area を確認:
+   - prompts/worker/（Workerプロンプトテンプレートの更新）
+   - .shared-workflows/prompts/worker/（submodule 内のテンプレート更新、可能な場合）
+   - docs/（必須ヘッダーの説明を追加、必要に応じて）
+2. Forbidden Area を確認:
+   - .shared-workflows/**（submodule内の変更は禁止、ただしドキュメント更新は可能な場合のみ）
+   - js/**（機能実装は本タスク対象外）
+3. DoD を確認（チケットファイルの DoD セクションを参照）
+</step>
+</phase>
+
+<phase name="Phase 3: 実装">
+<step>
+1. Workerプロンプトテンプレートの存在確認:
+   - `.shared-workflows/docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md` の存在を確認
+   - プロジェクト側のテンプレート（`prompts/worker/` 配下）の存在を確認
+2. 必須ヘッダーの確認:
+   - REPORT_CONFIG.yml の standard スタイルで必須ヘッダー（'概要' と '次のアクション'）を確認
+3. Workerプロンプトテンプレートの更新:
+   - プロジェクト側のテンプレート（`prompts/worker/` 配下）に必須ヘッダー（'概要' と '次のアクション'）の明記を追加
+   - レポート作成時に必須ヘッダーを含めることを明記
+   - submodule 内のテンプレート更新は可能な場合のみ（.shared-workflows/prompts/worker/ が存在する場合）
+4. テンプレートの更新内容のドキュメント化（必要に応じて）:
+   - docs/ に必須ヘッダーの説明を追加
+   - 既存のドキュメントに追記するか、新規作成するか判断
+5. 動作確認:
+   - テンプレートの内容を確認し、必須ヘッダーが明記されていることを確認
+   - 主要パスのみテスト（拡張テストは後続チケットへ分離）
+</step>
+</phase>
+
+<phase name="Phase 4: レポート作成">
+<step>
+1. レポートファイルを作成: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md
+2. レポート形式: REPORT_CONFIG.yml の standard スタイルに準拠
+   - 必須ヘッダー: 概要、現状、次のアクション（本タスクの目的に沿って、必須ヘッダーを含める）
+   - その他の推奨ヘッダー: 実施内容、変更ファイル、DoD 達成状況、検証
+3. レポート検証: `node scripts/report-validator.js docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md REPORT_CONFIG.yml .`
+4. チケットの Report 欄にレポートパスを追記: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md
+5. チケットの Status を DONE に更新（DoD がすべて達成されている場合）
+</step>
+</phase>
+
+<phase name="Phase 5: コミットとプッシュ">
+<step>
+1. 変更をステージ: `git add <変更ファイル>`
+2. コミット: `git commit -m "feat: add required headers to worker prompt template (TASK_014)"`
+3. プッシュ: `git push origin main`
+4. PR作成（Tier 2 の場合）:
+   - `gh pr create --title "feat: add required headers to worker prompt template (TASK_014)" --body "TASK_014 の完了: Worker完了レポートの必須ヘッダー自動補完"`
+   - GitHubAutoApprove: true の場合、自動マージを試みる
+   - 自動マージが失敗した場合、手動マージを待つ
+</step>
+</phase>
+</workflow>
+
+<stop_conditions>
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合
+- ブランチ切替に破壊的操作が必要な場合
+- Forbidden Area に触れる必要がある場合
+- 仮定が3つ以上必要な場合
+- 前提を覆す変更が必要な場合
+</stop_conditions>
+
+<deliverables>
+- レポート: docs/inbox/REPORT_TASK_014_worker_report_required_headers_auto_complete_YYYYMMDD_HHMM.md
+- 更新されたテンプレート: prompts/worker/（Workerプロンプトテンプレートの更新）
+- ドキュメント: docs/（必須ヘッダーの説明を追加、必要に応じて）
+</deliverables>

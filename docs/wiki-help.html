@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zen Writer 物語Wikiガイド</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      body {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family: var(--font-family);
+        line-height: var(--line-height);
+      }
+      h1,
+      h2,
+      h3 {
+        margin-top: 1.8rem;
+        margin-bottom: 0.8rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+      }
+      h3 {
+        font-size: 1.2rem;
+      }
+      p {
+        margin: 0.8rem 0;
+      }
+      ul,
+      ol {
+        margin: 0.6rem 0 1.2rem 1.5rem;
+      }
+      li + li {
+        margin-top: 0.4rem;
+      }
+      .meta {
+        font-size: 0.85rem;
+        opacity: 0.8;
+        margin-bottom: 1.2rem;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+        color: var(--focus-color);
+        text-decoration: none;
+      }
+      .back-link:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back-link" href="../index.html">
+      ← Zen Writer に戻る
+    </a>
+    <h1>物語Wiki ガイド</h1>
+    <div class="meta">
+      最終更新: 2025-11-21T06:40:00+09:00 / 更新者: Cascade AI
+    </div>
+
+    <h2>1. 物語Wikiとは</h2>
+    <p>
+      物語Wikiは、小説執筆時に登場人物・場所・用語・プロットなどの設定を整理するための
+      「物語世界用データベース」です。サイドバー内の専用ガジェットとして提供され、
+      エディタ本文とは独立してローカルに保存されます。
+    </p>
+
+    <h2>2. 物語Wikiを開く</h2>
+    <ol>
+      <li>左サイドバー上部のタブから「Wiki」を選択します。</li>
+      <li>
+        ロードアウトが「小説・長編」など物語向けになっていることを確認します
+        （Wikiガジェットが表示されない場合はロードアウト設定を確認してください）。
+      </li>
+      <li>
+        「物語Wiki」ガジェット内の「新規ページ」ボタンからページを追加できます。
+      </li>
+    </ol>
+
+    <h2>3. ページ構造</h2>
+    <p>各Wikiページはおおよそ次の情報で構成されます。</p>
+    <ul>
+      <li><strong>タイトル</strong>: 用語名、キャラクター名、場所名など</li>
+      <li><strong>本文</strong>: Markdownで書ける自由テキスト</li>
+      <li><strong>タグ</strong>: 種別（character/place/item/plot など）</li>
+      <li><strong>フォルダ</strong>: シリーズ名や章単位などのグルーピングに使用可能</li>
+    </ul>
+
+    <h2>4. 基本操作</h2>
+    <h3>4-1. ページの作成</h3>
+    <ol>
+      <li>Wikiタブを開きます。</li>
+      <li>「物語Wiki」ガジェットの「新規ページ」ボタンを押します。</li>
+      <li>タイトル／本文／タグ／フォルダを入力し、「保存」ボタンを押します。</li>
+    </ol>
+
+    <h3>4-2. ページの編集</h3>
+    <ol>
+      <li>左側の一覧から編集したいページをクリックします。</li>
+      <li>右側のエディタに内容が読み込まれるので、必要な箇所を編集します。</li>
+      <li>編集後は必ず「保存」ボタンを押して反映します。</li>
+    </ol>
+
+    <h3>4-3. 検索</h3>
+    <ul>
+      <li>上部の検索ボックスにキーワードを入力します。</li>
+      <li>タイトル／本文／タグを対象とした全文検索が実行されます。</li>
+      <li>リストが自動で絞り込まれます。</li>
+    </ul>
+
+    <h2>5. AIを使った自動生成（オプション）</h2>
+    <p>
+      Zen Writer AI の機能が有効な環境では、選択した語や本文からWikiページを自動生成できます。
+    </p>
+    <h3>5-1. 選択語から生成</h3>
+    <ol>
+      <li>エディタ上で用語や名前などを選択します。</li>
+      <li>物語Wikiガジェットの「選択語から生成」ボタンを押します。</li>
+      <li>
+        詳細度・トーン・バラエティの設定に基づき、テンプレートテキストまたはAI応答から本文が作成されます。
+      </li>
+    </ol>
+
+    <h3>5-2. ドキュメントから候補抽出</h3>
+    <ol>
+      <li>「ドキュメントから候補抽出」ボタンを押します。</li>
+      <li>現在の原稿から固有名詞などの候補語が抽出されます。</li>
+      <li>最上位の候補語をタイトルにセットし、自動生成を実行します。</li>
+    </ol>
+
+    <h2>6. タグとフォルダの使い分け</h2>
+    <ul>
+      <li>
+        <strong>タグ</strong>:
+        character/place/item/event など、性質ごとの分類に向いています。
+      </li>
+      <li>
+        <strong>フォルダ</strong>:
+        シリーズ名・エピソード名・章番号など、大きなグループ分けに向いています。
+      </li>
+    </ul>
+
+    <h2>7. 参考: 技術仕様</h2>
+    <p>
+      開発・カスタマイズ観点の詳細な仕様は <code>docs/GADGETS.md</code> の
+      「Story Wiki ガジェット」セクションを参照してください。
+    </p>
+
+    <hr />
+    <p>
+      物語Wikiの挙動について不明点や改善案があれば、Issueにしていただけると
+      ガジェット実装と本ガイドの両方を更新しやすくなります。
+    </p>
+  </body>
+</html>

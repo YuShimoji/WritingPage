@@ -1,5 +1,133 @@
 # Changelog
+
 <!-- markdownlint-disable MD024 -->
+
+## [0.3.24] - 2025-11-30
+
+### Added
+- **復元機能強化**: Ctrl+Shift+Z ショートカットによる最新スナップショットからの復元
+- **スナップショットUI**: 最新スナップショットの強調表示（アクセントカラー + 「最新」バッジ）
+- **プレビュー機能**: スナップショットのクリックによるモーダルプレビュー実装
+- **ドキュメント**: `EDITOR_HELP.md` にキーボードショートカット一覧を追加
+
+## [0.3.23] - 2025-11-30
+
+### Added
+- **データ属性スキーマ**: `GADGET_GROUPS` 定数と `getGroupPanel`/`getGroupSection` ヘルパー導入
+- **セレクタ移行**: `gadgets-init.js`, `gadgets-core.js` をデータ属性ベースの安定セレクタへ更新
+
+### Changed
+- **責務分離**: `SidebarManager` と `ZWGadgets` の境界定義と循環参照排除
+
+## [0.3.22] - 2025-11-30
+
+### Changed
+- **ロードアウトガジェット化**: `gadgets-loadout.js` へ分離し `index.html` から静的要素を削除
+- **UIラベル統一**: ロードアウト/プロファイル関連ラベルを `ui-labels.js` に集約
+- **パフォーマンス**: `updateCharCountStamps` に100msデバウンス追加
+
+## [0.3.21] - 2025-11-30
+
+### Added
+- **Helpガジェット**: 全ロードアウトの assist グループにヘルプを追加
+- **自動保存設定**: `UISettings` ガジェットに有効/無効・遅延設定を追加
+
+### Changed
+- **UX改善**: 自動保存有効時のドキュメント切替ダイアログ抑制、即時保存・切替
+
+## [0.3.20] - 2025-11-30
+
+### Added
+- **Visual Profile Phase B**: ユーザー定義プロファイル保存/読込/削除機能
+- **Wikiレイアウト**: 3カラムから1カラムへ修正、サイドバー内表示を最適化
+
+### Fixed
+- **UI安定化**: `scrollbar-gutter: stable` によるレイアウトシフト防止、ダークテーマフォーム要素のスタイル修正
+
+## [0.3.19] - 2025-11-30
+
+### Added
+- **Visual Profile Phase A**: 概念モデル実装、`editorWidthMode` (narrow/medium/wide) 対応
+- **UIモード分離**: レイアウトシフト抑制のためUIモードをVisual Profileから分離
+
+### Changed
+- **ダークテーマ**: Obsidian/Quiver風の配色リファイン（コントラスト向上）
+- **UI改善**: ラベル短縮化（「+ 新規」「読込」等）、ボタンサイズ統一、サイドバーレイアウト安定化
+
+## [0.3.18] - 2025-01-11
+
+### Added
+
+- **カラーパレット現在色反映機能**: テーマプリセット（ライト/ダーク/セピア）選択時にカラーピッカーが自動で既定色を反映
+- **テーマ設定UI**: タイポグラフィタブに背景色・文字色カラーピッカーとリセットボタンを追加
+- **テストドキュメント**: `docs/TESTING_UI_IMPROVEMENTS.md` - UI改善項目の包括的なテスト手順書を作成
+- **開発状況表**: `docs/DEVELOPMENT_STATUS.md` - 直近の開発項目と今後の予定を整理
+
+### Changed
+
+- **タイプライターモード**: `requestAnimationFrame` によるデバウンスとスムーズスクロールでキー移動時の振動を大幅軽減
+- **ThemeManager**: テーマごとの既定色を定義、`updateColorPickers()` メソッドでカラーピッカーを同期更新
+- **OpenSpec**: `ui-future-enhancements` の仕様タスク完了（Draft capability deltas, Validate with strict mode）
+
+### Fixed
+
+- **タブ切り替え重複レンダリング**: `sidebar-manager.js` で `_renderLast()` の直接呼び出しを削除、`setActiveGroup()` のみに委譲
+- **コンソールログ最適化**: 開発環境（localhost/127.0.0.1）のみ詳細ログを出力、本番環境では警告・エラーのみ
+
+### Performance
+
+- ガジェットレンダリングの重複実行を防止、パフォーマンスの軽微な改善
+
+## [0.3.17] - 2025-11-06
+
+### Fixed
+
+- サイドバーアニメーションの途切れを修正（!important削除）
+- ガジェットの閉じた状態での半分閉じを修正（overflow-x: hidden追加）
+- 展開時のトップメニューとの重なりを修正（--sidebar-width定義）
+- トップメニューのサイドバー展開時の短縮を安定化（transition追加）
+- smoke testのCSS checkを修正（removedBodyRule削除）
+
+## [0.3.16] - 2025-10-29
+
+### Added
+
+- OpenSpec `ui-future-enhancements` 実装（タイプライター精度向上、Markdown最小プレビュー・ショートカット・リスト継続、プレビュー内リンクナビ）
+- 設定UI「エディタ」タブにタイプライターモードとスナップショット設定を追加
+- タイプライターモード: ミラーDOM計測で精度向上、設定UIで有効化/アンカー/張り付き調整
+- Markdown機能: Ctrl/Cmd+B/I/Kショートカット、Enterでのリスト自動継続、最小ライブプレビュー（見出し/強調/リスト/リンク）
+- スナップショット: 設定UIで間隔/差分/保持数調整、storage.jsでretention実装
+- E2Eテスト: `editor-settings.spec.js` で設定永続化検証
+- ツリーペイン最小実装: ドキュメント/ガジェットツリー表示、展開/折りたたみ、クリックナビ、設定保存
+- Corkboard最小実装: テキストカード追加・ドラッグ並び替え、Enterキー新規カード作成
+- Markdown拡張: コードブロック簡易表示、目次リンク生成・スクロール同期トグル
+- Images Interactiveプリセット: VN肖像/背景/挿絵/テキストボックス用プリセット
+- Images Interactiveコントロール: 不透明度・フィルターの数値コントロール
+- Images Interactiveスナップショット: 画像状態の保存・復元機能
+- Content Linkingモデル: doc://, asset://, http(s)://リンクサポート
+- Content Linkingナビゲーション: クリックナビとホバー・プレビュー
+- Panels Layout: Docking/splitモデル (ゾーン・永続化)
+- Panels Layout: キーボードナビゲーションとアクセシビリティ
+
+### Changed
+
+- README.md にUI将来強化計画と拡張アイデアを更新
+- OpenSpec proposal/tasks/specs を詳細化・完了タスクマーク
+
+## [0.3.15] - 2025-10-29
+
+### Added
+
+- OpenSpec `ui-future-enhancements` を追加（UI将来強化計画の仕様策定、詳細: `openspec/changes/ui-future-enhancements/`）
+- タイプライターモードの最小実装（設定項目追加、スナップショット制御、スクロール固定ロジック）
+- オートセーブ/スナップショットの設定パラメータ化（間隔/差分/保持数）
+- 記載漏れの将来拡張アイデアをREADMEに整理
+
+### Docs
+
+- README.md にUI将来強化計画と将来拡張アイデアを追記
+- OpenSpec proposal/tasks/spec deltas を新規作成
+
 ## [0.3.14] - 2025-10-03
 
 ### Added
@@ -44,7 +172,7 @@
 ### Changed
 
 - エクスポート（TXT/MD）のファイル名に現在のドキュメント名を反映（`<doc>_YYYYMMDD_HHMMSS.ext`）
-- ドキュメント名の無効文字（\\ / : * ? " < > | など）をアンダースコアにサニタイズ
+- ドキュメント名の無効文字（\\ / : \* ? " < > | など）をアンダースコアにサニタイズ
 - USAGE/TESTING を上記仕様に合わせて更新
 
 ## [0.3.9] - 2025-09-25

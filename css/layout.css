@@ -1,0 +1,515 @@
+/* ===== LAYOUT ===== */
+
+html {
+  --transition-speed: 0.3s ease;
+  font-family: var(--font-family);
+  font-size: var(--ui-font-size);
+  line-height: var(--line-height);
+  color: var(--text-color);
+  background-color: var(--bg-color);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left var(--transition-speed);
+}
+
+/* エディタコンテナ */
+.editor-container {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+.editor-container > #editor {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 600px;
+}
+
+.editor-preview {
+  width: 100%;
+  height: 70vh;
+  border: none;
+  resize: none;
+  background-color: transparent;
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-size: var(--editor-font-size);
+  line-height: var(--line-height);
+  padding: 1rem 100px;
+  outline: none;
+  transition:
+    color var(--transition-speed),
+    background-color var(--transition-speed);
+}
+
+.editor-preview--collapsed {
+  display: none;
+}
+
+#editor {
+  border: none;
+  outline: none;
+  padding: 2rem;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  resize: none;
+  transition:
+    color var(--transition-speed),
+    background-color var(--transition-speed);
+  overflow: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+/* Placeholderの位置調整 */
+#editor::placeholder {
+  padding-top: 1rem;
+  color: var(--text-color);
+  opacity: 0.6;
+}
+
+#editor::-webkit-scrollbar {
+  display: none;
+}
+
+.editor-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.editor-overlay__image {
+  position: absolute;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+  max-width: calc(100% - 20px);
+  pointer-events: auto;
+  cursor: move;
+}
+
+.editor-overlay__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.editor-overlay__image .overlay-handle {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--accent-color, #007acc);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: auto;
+  cursor: se-resize;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.editor-overlay__image .overlay-handle::after {
+  content: "↘";
+}
+
+.editor-overlay__image .overlay-toggle {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.editor-overlay__image.hidden {
+  opacity: 0.3;
+}
+
+.editor-overlay__image.selected {
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.6);
+}
+
+.editor-overlay__image[data-alignment='left'] {
+  transform-origin: left top;
+}
+
+.editor-overlay__image[data-alignment='center'] {
+  transform-origin: center top;
+}
+
+.editor-overlay__image[data-alignment='right'] {
+  transform-origin: right top;
+}
+
+.editor-mirror {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+}
+
+.editor-preview__header {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+/* ツールバー */
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: var(--toolbar-bg);
+  color: var(--toolbar-text);
+  border-bottom: 1px solid var(--border-color);
+  transition:
+    background-color var(--transition-speed),
+    color var(--transition-speed),
+    border-color var(--transition-speed),
+    left var(--transition-speed);
+  z-index: 1100;
+}
+
+.word-count {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* 目標進捗バー */
+.goal-progress {
+  display: inline-flex;
+  align-items: center;
+  width: 22vw;
+  min-width: 160px;
+  max-width: 280px;
+  padding: 0 8px;
+}
+.goal-progress__track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.goal-progress__bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0%;
+  background: var(--goal-bar-color, rgba(74, 144, 226, 0.6));
+  transition: width 0.2s ease, background-color 0.3s ease;
+}
+
+/* サイドバー */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  width: 320px;
+  height: 100vh;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  padding: 1rem;
+  overflow: hidden;
+  overflow-x: hidden;
+  transition: left 0.3s ease;
+  z-index: 1000;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.sidebar-tab {
+  padding: 0.6rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: inherit;
+  font-weight: 600;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.sidebar-tab.active,
+.sidebar-tab:focus-visible {
+  background: var(--toolbar-bg);
+  border-color: var(--focus-color);
+  color: var(--focus-color);
+  outline: none;
+}
+
+.sidebar-loadout label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.loadout-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loadout-controls select,
+.loadout-controls input[type='text'] {
+  margin-bottom: 0;
+}
+
+.loadout-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sidebar-groups {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.sidebar-group {
+  display: none;
+}
+
+.sidebar-group.active {
+  display: block;
+}
+
+/* Accordion mode: show all groups as details */
+[data-tabs-presentation="accordion"] .sidebar-tabs {
+  display: none !important;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group {
+  display: block;
+  margin-bottom: 10px;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group.active {
+  display: block;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 10px;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+[data-tabs-presentation="accordion"] .sidebar-group[aria-hidden="true"] {
+  display: none;
+}
+
+/* Buttons mode: show tabs as buttons */
+[data-tabs-presentation="buttons"] .sidebar-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+[data-tabs-presentation="buttons"] .sidebar-tab {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  text-align: center;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+[data-tabs-presentation="buttons"] .sidebar-tab.active {
+  background: var(--focus-color);
+  color: white;
+}
+
+.sidebar-group[aria-hidden='true'] {
+  display: none;
+}
+
+.sidebar-section {
+  margin-bottom: 1.5rem;
+}
+
+.sidebar-section h3 {
+  margin-bottom: 0.8rem;
+  font-size: 1.05rem;
+}
+
+.sidebar-group .gadgets-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-group .gadget {
+  margin-bottom: 0;
+}
+
+/* ===== サイドバー details（折りたたみ） ===== */
+.sidebar details {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 8px;
+  background: var(--bg-color);
+}
+.sidebar details + details {
+  margin-top: 10px;
+}
+.sidebar summary {
+  cursor: pointer;
+  font-weight: 600;
+  list-style: none;
+}
+.sidebar summary::-webkit-details-marker {
+  display: none;
+}
+
+/* ===== レスポンシブデザイン ===== */
+@media (max-width: 768px) {
+  .editor-container {
+    padding: 0.5rem;
+  }
+
+  .sidebar {
+    width: 100%;
+    left: -100%;
+    padding: 0.75rem;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+  /* モバイルでは進捗バーを自動非表示（省スペース） */
+  .goal-progress {
+    display: none !important;
+  }
+}
+
+/* ===== サイドバー開閉時のメインコンテンツ移動 ===== */
+html[data-sidebar-open] .main-content {
+  margin-left: var(--sidebar-width, 300px);
+}
+
+/* ===== サイドバー開閉時のツールバー位置調整 ===== */
+html[data-sidebar-open] .toolbar {
+  left: var(--sidebar-width, 300px);
+}
+
+/* ===== 埋め込みモード（?embed=1） ===== */
+html[data-embed='true'] .sidebar,
+html[data-embed='true'] .toolbar {
+  display: none !important;
+}
+html[data-embed='true'] .fab-toggle-toolbar,
+html[data-embed='true'] .editor-container {
+  max-width: none;
+  padding: 0;
+}
+html[data-embed='true'] #editor {
+  height: 100vh;
+  padding: 1rem; /* 画面内で読みやすい余白 */
+}
+
+/* ===== ツールバー非表示時のエディタパディング調整 ===== */
+html:not([data-toolbar-hidden='true']) #editor {
+  padding-top: calc(var(--toolbar-height) + 1rem);
+}
+
+html[data-toolbar-hidden='true'] .toolbar {
+  display: none !important;
+}

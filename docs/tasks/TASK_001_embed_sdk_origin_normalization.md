@@ -1,0 +1,46 @@
+Status: Completed
+Tier: 2
+Branch: feature/p0-embed-origin-normalization
+Owner: Worker-1
+Created: 2025-12-19T15:09:00+09:00
+
+## Objective
+
+- `js/embed/zen-writer-embed.js` の `sameOrigin` 判定と `postMessage` の origin 検証を、安全側かつ互換性を保つ形で正規化する
+- DoD（`docs/AUDIT_TASK_BREAKDOWN.md` の P0-1）を満たす
+
+## Context
+
+- SSOT: `docs/AUDIT_TASK_BREAKDOWN.md` の **P0-1**
+- 現状の懸念:
+  - `sameOrigin` デフォルトが `true` で、`src` の origin（computedOrigin）から自動判定していない。
+  - `postMessage` 受信時の検証が弱くなる余地
+  - エラーメッセージが誤誘導になるケース
+
+## Focus Area
+
+- `js/embed/zen-writer-embed.js`
+- `js/embed/child-bridge.js`
+- （必要なら）`docs/EMBED_SDK.md`
+
+## Forbidden Area
+
+- `openspec/**`（仕様再編は別チケット）
+- `js/**` の embed 以外（影響範囲を限定する）
+
+## Constraints
+
+- テスト: 主要パスのみ（網羅テストは後続タスクへ分離）
+- フォールバック: 新規追加禁止
+- 互換性: 破壊的変更（オプション削除など）は行わない（監査SSOTの案Aを前提）
+
+## DoD
+
+- [x] `docs/AUDIT_TASK_BREAKDOWN.md` の P0-1 DoD を満たす
+- [x] `npm run test:smoke` が通る
+- [x] docs/inbox/ にレポート（REPORT_...md）が作成されている
+- [x] 本チケットの Report 欄にレポートパスが追記されている
+
+## Report
+
+docs/archive/reports/2025-12-22/REPORT_20251222_1416.md

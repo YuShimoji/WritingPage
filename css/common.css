@@ -1,0 +1,170 @@
+/* 小さめのボタン汎用スタイル */
+.small {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ボタン共通スタイル（モダン化） */
+button, input[type="button"], .button {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+button:hover, input[type="button"]:hover, .button:hover {
+  background-color: var(--toolbar-bg);
+  border-color: var(--focus-color);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+}
+
+/* 入力要素モダン化 */
+input[type="text"], input[type="range"], input[type="number"], textarea {
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px 8px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: inherit;
+}
+
+/* ボタン */
+button,
+.button {
+  background-color: var(--accent-color, var(--focus-color));
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.3rem;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.icon-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* フォーム要素 */
+select,
+input[type='range'],
+input[type='color'],
+input[type='number'],
+input[type='date'] {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: inherit;
+}
+
+input[type='range'] {
+  padding: 0;
+}
+
+/* 入力コントロールにアクセント色を適用 */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent-color);
+}
+
+/* Range slider styling (WebKit) */
+input[type='range']::-webkit-slider-runnable-track {
+  height: 6px;
+  background: linear-gradient(90deg, var(--accent-color), var(--accent-color));
+  border-radius: 999px;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--accent-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  margin-top: -5px; /* center on 6px track */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+/* Range slider styling (Firefox) */
+input[type='range']::-moz-range-track {
+  height: 6px;
+  background: var(--accent-color);
+  border-radius: 999px;
+}
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--accent-color);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+input[type='color'] {
+  height: 40px;
+  padding: 0.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* テーマプリセット */
+.theme-presets {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.theme-preset {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.theme-preset:hover {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+
+.theme-preset.active {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+}

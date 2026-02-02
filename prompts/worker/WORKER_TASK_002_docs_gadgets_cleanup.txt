@@ -1,0 +1,27 @@
+あなたはこのプロジェクトの Worker です。
+
+対象チケット:
+- `docs/tasks/TASK_002_docs_gadgets_status_cleanup.md`
+
+作業ブランチ:
+- `main`（Tier 1 / ドキュメント作業）
+
+Focus Area:
+- `docs/GADGETS.md`
+- 必要に応じて参照導線のみ: `docs/ARCHITECTURE.md`, `docs/BACKLOG.md`, `docs/DEVELOPMENT_STATUS.md`
+
+Forbidden Area:
+- `js/**`（コード変更禁止）
+- `.shared-workflows/**`（submodule内変更禁止）
+
+制約:
+- 既存の事実関係を変えず「現行/提案・未実装」を明確に区別すること
+- 新規ドキュメント追加は禁止（既存ファイル内の整理と導線修正に留める）
+- テスト: 主要パスのみ（必要なら `node scripts/dev-check.js`）
+
+納品:
+1. チケットの `Status` を `IN_PROGRESS` → `DONE` に更新
+2. `docs/inbox/` にレポートを作成（例: `docs/inbox/REPORT_TASK_002_docs_gadgets_status_cleanup_YYYYMMDD_HHMM.md`）
+3. チケットの `Report:` 欄にレポートパスを追記
+4. コミットして push（差分が残らない状態にする）
+
