@@ -92,8 +92,7 @@
 ### P1-5: smoke/dev-check の期待値（「未実装扱い」）と現行実装の整合
 
 - **現状**
-  - `scripts/dev-check.js` に「ガジェット設定のインポート/エクスポート API（UIは未実装のためAPIのみチェック）」という記述がある。
-  - 一方で `AI_CONTEXT.md` ではガジェット設定の Import/Export UI（GadgetPrefs）の追加・smoke での存在検証が記録されている。
+  - `scripts/dev-check.js` では、ガジェット設定のインポート/エクスポートについて API（`exportPrefs`/`importPrefs`）と UI（`GadgetPrefs`）の両方を検証している。
 
 - **方針（比較）**
   - **案A（推奨）**: dev-check を現行実装に合わせ、UI が存在するなら UI の存在/動線を検証する。

@@ -140,7 +140,7 @@ WritingPage/
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-4
 
 **P1-5: smoke/dev-check の期待値（「未実装扱い」）と現行実装の整合**
-- **現状**: `scripts/dev-check.js` に「ガジェット設定のインポート/エクスポート API（UIは未実装のためAPIのみチェック）」という記述があるが、実際には UI が存在する
+- **現状**: `scripts/dev-check.js` はガジェット設定のインポート/エクスポートについて API（`exportPrefs`/`importPrefs`）と UI（`GadgetPrefs`）の両方を検証している
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-5
 
 ### 2.2 優先度: 中（P2）
