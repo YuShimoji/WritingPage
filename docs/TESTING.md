@@ -15,7 +15,30 @@
 npm run test:smoke
 ```
 
-- **期待結果**: 全てのチェックが `OK` となる。HTML構造、CSS/JSファイル、プラグイン/ガジェット機能、マークダウン構文などを検証。
+- **期待結果**: 全てのチェックが `OK` となり、最後に `ALL TESTS PASSED` が表示される。
+
+#### 保証内容（dev-check.js が検証する項目）
+
+| カテゴリ | チェック項目 | 保証内容 |
+|---------|-------------|---------|
+| **HTML構造** | `GET /` | タイトル、ツールバー、エディタ、目標UI、ガジェットパネル、ヘルプボタンの存在 |
+| **CSS** | `GET /css/style.css` | ツールバー非表示/表示切替、目標進捗バー、ガジェット設定ボタン、ドラッグ&ドロップのスタイル |
+| **プラグイン** | registry.js, choice.js | プラグインスクリプトの存在（UIはオプション） |
+| **ガジェット構造** | structure/assist パネル | ガジェットグループのDOM構造と gadgets-core.js の存在 |
+| **ガジェットAPI** | 静的解析 | `getPrefs/setPrefs/move/toggle` などの基本APIが実装されている |
+| **ガジェット設定API** | 静的解析 | `registerSettings/getSettings/setSetting` が実装されている |
+| **ガジェット Import/Export** | API & UI | `exportPrefs/importPrefs` API と GadgetPrefs UI（gadgets-prefs.js）の存在 |
+| **タイトル仕様** | app.js 静的解析 | `updateDocumentTitle` 関数、`<name> - Zen Writer` パターン、フォールバックの実装 |
+| **ヘルプドキュメント** | 200チェック | wiki-help.html, editor-help.html, ui-lab.html の存在 |
+| **埋め込みデモ** | embed-demo.html | デモページの存在と基本構造 |
+| **埋め込み軽量化** | ?embed=1 | 埋め込みモードで不要スクリプト（outline/themes-advanced/plugins）が除外される |
+| **child-bridge** | セキュリティパターン | origin検証、parent検証、allowedOriginへの送信制限 |
+| **ルール文書** | v1.1 | 複合ミッション、AI_CONTEXT、CI連携マージの記述 |
+| **AI_CONTEXT.md** | 必須セクション | H1、最終更新、現在のミッション、ブランチ、次の中断可能点 |
+| **バージョン整合** | VERSION vs package.json | 両ファイルのバージョンが一致 |
+| **テンプレート** | PR/Issue テンプレート | 中断可能点、参考リンク（AI_CONTEXT/DEVELOPMENT_PROTOCOL）の記載 |
+| **Markdownlint** | 基本ルール | H1先頭、見出しレベル飛び禁止、長行/末尾空白/タブなし |
+| **favicon** | フォールバック | favicon.ico が 200 で SVG として提供される |
 
 ### E2Eテスト（Playwright）
 
