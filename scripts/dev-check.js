@@ -283,7 +283,7 @@ async function loadCssWithImports(url) {
       { hasDocumentsGadget, hasStructureInit },
     );
 
-    // ガジェット設定のインポート/エクスポートAPI（UIは未実装のためAPIのみチェック）
+    // ガジェット設定のインポート/エクスポート検証（APIの実装とUIの存在を確認）
     const hasExportApi = /exportPrefs\s*\(\)\s*\{/m.test(
       gadgetsSrc || '',
     );
@@ -307,14 +307,19 @@ async function loadCssWithImports(url) {
       /id\s*=\s*['\"]gadget-prefs-input['\"]/.test(prefsUiSrc);
     const okGadgetsImpExpUi = hasPrefsUiFile && hasPrefsUiIds;
 
+    const hasPrefsUiInIndex = /<script\s+src=["']js\/gadgets-prefs.js["']/.test(index.body);
+    const hasPrefsUiRegister = /ZWGadgets\.register\(['"]GadgetPrefs['"]/.test(prefsUiSrc);
+
     console.log(
-      'CHECK gadgets import/export ->',
-      okGadgetsImpExp && okGadgetsImpExpUi ? 'OK' : 'NG',
+      'CHECK gadgets import/export (API & UI) ->',
+      okGadgetsImpExp && okGadgetsImpExpUi && hasPrefsUiInIndex && hasPrefsUiRegister ? 'OK' : 'NG',
       {
         hasExportApi,
         hasImportApi,
         hasPrefsUiFile,
         hasPrefsUiIds,
+        hasPrefsUiInIndex,
+        hasPrefsUiRegister
       },
     );
 
@@ -406,10 +411,10 @@ async function loadCssWithImports(url) {
     const cbStrictParent = /event\.source\s*!==\s*window\.parent/.test(
       childBridge.body || '',
     );
-    const cbStrictOrigin = /event\.origin\s*!==\s*allowedOrigin/.test(
+    const cbStrictOrigin = /event\.origin\s*!==\s*(?:allowedOrigin|location\.origin)/.test(
       childBridge.body || '',
     );
-    const cbNoStarSend = /postMessage\(msg,\s*allowedOrigin\)/.test(
+    const cbNoStarSend = /postMessage\(msg,\s*(?:allowedOrigin|effectiveOrigin)\)/.test(
       childBridge.body || '',
     );
     const cbHasEmbedOrigin = /embed_origin/.test(childBridge.body || '');
