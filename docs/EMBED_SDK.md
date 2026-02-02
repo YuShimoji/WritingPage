@@ -63,8 +63,10 @@
 
 ## セキュリティ
 
-- クロスオリジン時は `targetOrigin` を厳密指定（`src` が絶対URLなら既定でその origin を利用）。親→子の postMessage 送信先 origin を固定
-- 親originを子へ伝えるため、`iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin === embed_origin` の場合のみ受理
+- **origin 自動判定**: `src` の URL から `sameOrigin` と `targetOrigin` を自動判定。相対パスや同一ホストなら `sameOrigin: true`、異なるホストなら `sameOrigin: false` かつ `targetOrigin` を自動設定
+- **クロスオリジン時**: `targetOrigin` を厳密指定（`src` が絶対URLなら既定でその origin を利用）。親→子の postMessage 送信先 origin を固定
+- **親originを子へ伝達**: `iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin` を検証し、一致しない場合はメッセージを破棄
+- **同一origin時**: `embed_origin` が未指定でも動作。子側は `location.origin` と `event.origin` の一致を検証
 - 許可するメッセージ `type` をホワイトリスト制御
 
 ## 軽量化（`?embed=1`）

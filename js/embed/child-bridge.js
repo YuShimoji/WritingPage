@@ -26,12 +26,17 @@
     }
   })();
 
+  // 同一originかどうかを判定（allowedOriginが空または自身のoriginと一致）
+  var isSameOrigin = !allowedOrigin || allowedOrigin === location.origin;
+  // 実際に使用するorigin（同一originの場合は自身のoriginを使用）
+  var effectiveOrigin = allowedOrigin || location.origin;
+
   function sendToParent(msg) {
     try {
       if (!window.parent) return;
-      // 許可 origin が特定できない場合は送信しない
-      if (!allowedOrigin) return;
-      window.parent.postMessage(msg, allowedOrigin);
+      // 常に厳密なoriginを指定（'*' は使用しない）
+      if (!effectiveOrigin) return;
+      window.parent.postMessage(msg, effectiveOrigin);
     } catch (_) { }
   }
 
@@ -48,8 +53,14 @@
   function onMessage(event) {
     // 親フレームからのメッセージのみ受理 + origin 検証
     if (event.source !== window.parent) return;
-    if (!allowedOrigin) return;
-    if (event.origin !== allowedOrigin) return;
+    // cross-originの場合は allowedOrigin と厳密一致を要求
+    // 同一originの場合は自身のoriginと一致するか確認
+    if (isSameOrigin) {
+      if (event.origin !== location.origin) return;
+    } else {
+      if (!allowedOrigin) return;
+      if (event.origin !== allowedOrigin) return;
+    }
     var data = (event && event.data) || {};
     if (!data || !data.type) return;
     var id = data.requestId;

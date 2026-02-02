@@ -182,9 +182,9 @@
       const suffix = action ? ` (${action})` : '';
       if (sameOrigin) {
         return new Error(
-          `ZenWriterEmbed: same-origin API access failed${suffix}. ` +
-          `Check if the embedded page correctly exposes ZenWriterAPI. ` +
-          `If this is actually a cross-origin embed, set 'sameOrigin: false'.`,
+          `ZenWriterEmbed: API access failed${suffix}. ` +
+          `Check if the embedded page correctly exposes ZenWriterAPI or ZenWriterEditor. ` +
+          `Ensure the iframe has finished loading and the editor is initialized.`,
         );
       }
       return new Error(

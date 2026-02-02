@@ -411,10 +411,10 @@ async function loadCssWithImports(url) {
     const cbStrictParent = /event\.source\s*!==\s*window\.parent/.test(
       childBridge.body || '',
     );
-    const cbStrictOrigin = /event\.origin\s*!==\s*allowedOrigin/.test(
+    const cbStrictOrigin = /event\.origin\s*!==\s*(?:allowedOrigin|location\.origin)/.test(
       childBridge.body || '',
     );
-    const cbNoStarSend = /postMessage\(msg,\s*allowedOrigin\)/.test(
+    const cbNoStarSend = /postMessage\(msg,\s*(?:allowedOrigin|effectiveOrigin)\)/.test(
       childBridge.body || '',
     );
     const cbHasEmbedOrigin = /embed_origin/.test(childBridge.body || '');
