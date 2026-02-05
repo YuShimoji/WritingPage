@@ -17,5 +17,5 @@ permissions:
 
 jobs:
   sync_issues:
-    uses: YuShimoji/shared-workflows/.github/workflows/sync-issues.yml@v0.1.0
+    uses: YuShimoji/shared-workflows/.github/workflows/sync-issues.yml@v2.0
     secrets: inherit

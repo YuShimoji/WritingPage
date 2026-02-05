@@ -5,7 +5,7 @@
 ## リポジトリ構成（中央ワークフロー採用）
 - 共有リポジトリ: `YuShimoji/shared-workflows`
   - 目的: 再利用可能な GitHub Actions ワークフローを提供
-  - 参照タグ: `v0.1.0`
+  - 参照タグ: `v2.0`
   - 提供ワークフロー:
     - `.github/workflows/ci-smoke.yml`（workflow_call）
     - `.github/workflows/sync-issues.yml`（workflow_call）
