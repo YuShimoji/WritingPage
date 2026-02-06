@@ -1,5 +1,6 @@
 // E2E: キーバインド編集機能の検証
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -9,24 +10,12 @@ async function waitKeybindsReady(page) {
       return !!window.ZenWriterKeybinds && !!window.ZWGadgets;
     } catch (_) { return false; }
   });
-  // サイドバーを開く
-  const sidebar = page.locator('.sidebar');
-  const toggleBtn = page.locator('#toggle-sidebar');
-  if (await toggleBtn.isVisible().catch(() => false)) {
-    const opened = await sidebar.evaluate((el) => el.classList.contains('open')).catch(() => false);
-    if (!opened) {
-      await toggleBtn.click();
-      await expect(sidebar).toHaveClass(/open/);
-    }
-  }
-  // assistタブをアクティブにしてキーバインドガジェットを表示
-  const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
-  if (await assistTab.isVisible().catch(() => false)) {
-    await assistTab.click();
-  }
+  // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
+  await enableAllGadgets(page);
+  // サイドバーを開いてassistグループをアクティブにする
+  await openSidebarGroup(page, 'assist');
   // ガジェットのレンダリングを待機
-  await page.waitForTimeout(500);
-  await page.waitForSelector('.keybinds-list', { state: 'attached' });
+  await page.waitForSelector('.keybinds-list', { state: 'attached', timeout: 10000 });
   return true;
 }
 

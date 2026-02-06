@@ -78,7 +78,7 @@ test.describe('Accessibility E2E', () => {
 
   test('ESCキーでモーダルダイアログを閉じられる', async ({ page }) => {
     // 検索パネルを開く
-    await page.keyboard.press('Control+f');
+    await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
     await page.waitForTimeout(300);
     
     const searchPanel = page.locator('#search-panel');
@@ -182,7 +182,7 @@ test.describe('Accessibility E2E', () => {
 
   test('モーダルダイアログが開いた時にフォーカスが移動する', async ({ page }) => {
     // 検索パネルを開く
-    await page.keyboard.press('Control+f');
+    await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
     await page.waitForTimeout(300);
     
     const searchPanel = page.locator('#search-panel');

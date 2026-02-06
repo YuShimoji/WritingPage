@@ -387,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
     const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
     const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
+    const toggleSpellCheckBtn = document.getElementById('toggle-spell-check');
 
     // サイドバーの開閉ボタン（ツールバー側のみ）
     if (toggleSidebarBtn) {
@@ -619,6 +620,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             return;
                         }
                         toggleToolbar();
+                        break;
+                        
+                    case 'command-palette.toggle':
+                        if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                            window.commandPalette.toggle();
+                        }
                         break;
                         
                     case 'search.toggle':

@@ -236,6 +236,9 @@
                 if (typeof manager.maybeAutoSnapshot === 'function') manager.maybeAutoSnapshot();
                 if (typeof manager.renderImagePreview === 'function') manager.renderImagePreview();
                 if (typeof manager.renderMarkdownPreview === 'function') manager.renderMarkdownPreview();
+                if (typeof manager.renderOverlayImages === 'function') {
+                    manager.renderOverlayImages(manager.inlineStamps || [], manager.editor.value);
+                }
             });
 
             // Tab key support

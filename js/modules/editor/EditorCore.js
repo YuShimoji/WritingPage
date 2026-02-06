@@ -12,13 +12,16 @@
         insertTextAtCursor(manager, text, options = {}) {
             const start = (options && typeof options.start === 'number') ? options.start : manager.editor.selectionStart;
             const end = (options && typeof options.end === 'number') ? options.end : manager.editor.selectionEnd;
+            const suffix = (options && typeof options.suffix === 'string') ? options.suffix : '';
+            const selected = manager.editor.value.substring(start, end);
+            const insertion = suffix ? (String(text) + selected + suffix) : String(text);
             try {
-                manager.editor.setRangeText(String(text), start, end, 'end');
+                manager.editor.setRangeText(insertion, start, end, 'end');
             } catch (_) {
                 const before = manager.editor.value.substring(0, start);
                 const after = manager.editor.value.substring(end, manager.editor.value.length);
-                manager.editor.value = before + String(text) + after;
-                const newPos = start + String(text).length;
+                manager.editor.value = before + insertion + after;
+                const newPos = start + insertion.length;
                 manager.editor.selectionStart = newPos;
                 manager.editor.selectionEnd = newPos;
             }
