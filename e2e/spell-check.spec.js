@@ -13,7 +13,7 @@ test.describe('Spell Checker', () => {
     await expect(toggleBtn).toBeVisible();
     
     // 初期状態を確認（無効）
-    const initialActive = await toggleBtn.evaluate(el => el.classList.contains('active'));
+    const _initialActive = await toggleBtn.evaluate(el => el.classList.contains('active'));
     
     // 有効化
     await toggleBtn.click();

@@ -207,7 +207,6 @@ async function loadCssWithImports(url) {
     const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
     const hasWikiPanel = /id="wiki-gadgets-panel"/i.test(index.body);
     const hasSidebarTabs = /class="sidebar-tabs"/i.test(index.body);
-    const hasGadgetGroup = /data-gadget-group="structure"/i.test(index.body);
     const gadgetsCoreJs = await get('/js/gadgets-core.js');
     const okGadgets = hasStructurePanel && hasTypographyPanel && hasAssistPanel && hasWikiPanel && hasSidebarTabs && gadgetsCoreJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {

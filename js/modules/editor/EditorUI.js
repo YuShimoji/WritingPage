@@ -218,7 +218,7 @@
             return card;
         },
 
-        updateCharCountStamps(manager) {
+        updateCharCountStamps(_manager) {
             // Not implemented yet
         },
 

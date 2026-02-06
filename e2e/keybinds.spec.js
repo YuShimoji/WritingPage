@@ -87,12 +87,12 @@ test.describe('Keybinds E2E', () => {
     // 最初のキーバインドを取得
     const firstItem = page.locator('.keybind-item').first();
     const firstKeyDisplay = firstItem.locator('.keybind-display');
-    const firstKeybind = await firstKeyDisplay.textContent();
+    const _firstKeybind = await firstKeyDisplay.textContent();
 
     // 2番目のキーバインドを取得
     const secondItem = page.locator('.keybind-item').nth(1);
     const secondKeyDisplay = secondItem.locator('.keybind-display');
-    const secondKeybind = await secondKeyDisplay.textContent();
+    const _secondKeybind = await secondKeyDisplay.textContent();
 
     // 最初のキーバインドを編集
     await firstKeyDisplay.click();

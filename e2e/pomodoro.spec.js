@@ -213,7 +213,7 @@ test.describe('Pomodoro Timer E2E', () => {
     await page.waitForTimeout(500);
 
     // HUD要素の存在確認（表示される可能性がある）
-    const hud = page.locator('.mini-hud');
+    const _hud = page.locator('.mini-hud');
     // HUDは一時的に表示される可能性があるため、存在確認のみ
     // 実際の表示はタイミングに依存するため、ここでは存在チェックのみ
   });

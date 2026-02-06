@@ -466,7 +466,7 @@
     /**
      * ハイライトを解除
      */
-    unhighlightElement(element) {
+    unhighlightElement(_element) {
       if (this.overlay) {
         this.overlay.style.display = 'none';
       }

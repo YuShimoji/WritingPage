@@ -231,7 +231,6 @@
     resume() {
       if (this.state !== 'paused') return;
       if (this.pausedAt) {
-        const pausedDuration = Date.now() - this.pausedAt;
         // 一時停止中の経過時間を補正しない（残り時間はそのまま）
       }
       this.startTime = Date.now() - (this.totalMs - this.remainingMs);
@@ -347,7 +346,6 @@
      * 統計を更新
      */
     updateStats() {
-      const now = Date.now();
       const todayStart = new Date();
       todayStart.setHours(0, 0, 0, 0);
       const todayStartMs = todayStart.getTime();

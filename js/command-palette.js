@@ -421,7 +421,7 @@
 
         const commandsDiv = document.createElement('div');
         commandsDiv.className = 'command-palette-commands';
-        grouped[category].forEach((cmd, index) => {
+        grouped[category].forEach((cmd, _index) => {
           const item = document.createElement('div');
           item.className = 'command-palette-item';
           item.setAttribute('role', 'option');

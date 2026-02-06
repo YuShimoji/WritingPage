@@ -449,7 +449,7 @@
     }
 
     _setupGadgetDragHandlers(wrapper, gadgetName, currentGroup) {
-      var self = this;
+      var _self = this;
       var gadgetEl = wrapper.querySelector('.gadget');
 
       // ドラッグ開始
@@ -466,7 +466,7 @@
       });
 
       // ドラッグ終了
-      wrapper.addEventListener('dragend', function (e) {
+      wrapper.addEventListener('dragend', function (_e) {
         try {
           if (gadgetEl) gadgetEl.classList.remove('is-dragging');
           // すべてのドロップゾーンのハイライトを解除

@@ -8,7 +8,7 @@
   /**
    * Pomodoroタイマーガジェット
    */
-  ZWGadgets.register('PomodoroTimer', function (el, api) {
+  ZWGadgets.register('PomodoroTimer', function (el, _api) {
     try {
       var timer = window.ZenWriterPomodoro;
       if (!timer) {
@@ -228,7 +228,7 @@
       };
 
       // イベントリスナー
-      var handleTimerEvent = function (e) {
+      var handleTimerEvent = function (_e) {
         updateDisplay();
       };
 
@@ -325,7 +325,7 @@
   /**
    * Pomodoro設定ガジェット
    */
-  ZWGadgets.registerSettings('PomodoroTimer', function (el, ctx) {
+  ZWGadgets.registerSettings('PomodoroTimer', function (el, _ctx) {
     try {
       var timer = window.ZenWriterPomodoro;
       if (!timer) {

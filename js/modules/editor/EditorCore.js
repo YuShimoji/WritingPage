@@ -210,7 +210,7 @@
             return `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
         },
 
-        getCurrentDocBaseName(manager) {
+        getCurrentDocBaseName(_manager) {
             let name = 'doc';
             if (window.ZenWriterStorage && typeof window.ZenWriterStorage.getCurrentDocName === 'function') {
                 name = window.ZenWriterStorage.getCurrentDocName() || 'doc';

@@ -11,16 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     logger.info('アプリケーション初期化開始');
 
     // キーボード/マウス操作の検出（フォーカス表示の制御用）
-    let isKeyboardUser = false;
+    let _isKeyboardUser = false;
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
-            isKeyboardUser = true;
+            _isKeyboardUser = true;
             document.body.classList.add('keyboard-user');
             document.body.classList.remove('mouse-user');
         }
     }, true);
     document.addEventListener('mousedown', () => {
-        isKeyboardUser = false;
+        _isKeyboardUser = false;
         document.body.classList.add('mouse-user');
         document.body.classList.remove('keyboard-user');
     }, true);

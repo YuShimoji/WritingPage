@@ -14,7 +14,6 @@
  */
 
 const fs = require('fs');
-const path = require('path');
 
 // 固定5セクション（順番厳守）
 const REQUIRED_SECTIONS = [

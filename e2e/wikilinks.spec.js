@@ -77,7 +77,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     // プレビューを確認
     await page.waitForTimeout(500); // プレビュー更新を待つ
     const preview = page.locator('#wiki-gadgets-panel .wiki-preview');
-    const previewContent = await preview.textContent();
+    const _previewContent = await preview.textContent();
     
     // Wikilinkがレンダリングされているか確認（リンクとして表示される）
     const previewHTML = await preview.innerHTML();
@@ -129,7 +129,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     // Link Graph gadgetが表示されているか確認
-    const linkGraphGadget = page.locator('#wiki-gadgets-panel .link-graph-container, #wiki-gadgets-panel .link-graph-toolbar');
+    const _linkGraphGadget = page.locator('#wiki-gadgets-panel .link-graph-container, #wiki-gadgets-panel .link-graph-toolbar');
     // gadgetがロードされるまで待つ
     await page.waitForTimeout(1000);
     

@@ -10,7 +10,7 @@
    */
 
   function ensure(fn) { try { return typeof fn === 'function'; } catch (_) { return false; } }
-  function byId(id) { return document.getElementById(id); }
+  function _byId(id) { return document.getElementById(id); }
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
 
   /**
@@ -357,7 +357,7 @@
   function registerGadget() {
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
 
-    window.ZWGadgets.register('LinkGraph', function (root, api) {
+    window.ZWGadgets.register('LinkGraph', function (root, _api) {
       var STORAGE = window.ZenWriterStorage;
       if (!STORAGE) { root.textContent = 'ストレージが利用できません'; return; }
 
