@@ -1,0 +1,23 @@
+{
+  "build": {
+    "content": [
+      {
+        "src": ".",
+        "files": ["README.md", "AI_CONTEXT.md"]
+      },
+      {
+        "src": "docs",
+        "files": ["**/*.md", "!test-reports/**"]
+      }
+    ],
+    "resource": [],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appTitle": "Zen Writer Docs",
+      "_appFooter": "© 2025 Zen Writer Project",
+      "_enableSearch": true,
+      "language": "ja-JP"
+    },
+    "template": ["default"]
+  }
+}

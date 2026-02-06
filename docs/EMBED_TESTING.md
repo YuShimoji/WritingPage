@@ -14,6 +14,7 @@
 
 1. ターミナルで開発サーバーを起動
    - `node scripts/dev-server.js`
+   - クロスオリジン検証や Playwright の E2E を実行する場合は `node scripts/run-two-servers.js` を利用すると、8081 → 8080 の順で起動し、HTTP レスポンスを監視して準備完了まで待機します。
 2. ブラウザで `embed-demo.html` を開く
    - ページタイトル: "Zen Writer Embed Demo"
    - 左側に iframe（埋め込みエディター）、右に操作パネルが表示される
@@ -86,14 +87,25 @@
   - `?embed=1` で強制的にツールバー非表示になっているか
   - `ZenWriterAPI` がウィンドウに公開されているか（`child.contentWindow.ZenWriterAPI`）
 - get/set/focus/takeSnapshot が失敗する
-  - 同一オリジンか（デモは同一オリジン）
-  - `js/app.js` が正しく読み込まれているか
-  - API 呼び出し前に `await sdk.<method>()` で準備を待っているか
 
 ## 回帰チェック
 
 - `css/style.css` や `index.html` に変更を加えた場合、埋め込みモードの最小UIが維持されること
 - `js/app.js` の内部構造が変わっても `ZenWriterAPI` のシグネチャは維持されること
+
+## 自動 E2E テスト（Playwright）
+
+- 目的
+  - `embed-demo.html`（同一オリジン）と `embed-xorigin-demo.html`（クロスオリジン）を自動で検証します。
+  - Node.js がインストール済みであること
+  - 初回のみ依存導入: `npm install`、ブラウザ導入: `npx playwright install`
+- 実行
+  - ローカル: `npm run test:e2e`
+  - CI 用（簡易レポーター）: `npm run test:e2e:ci`
+
+### 補足（自動検証）
+
+`node scripts/dev-check.js` は `index.html?embed=1` の軽量化を自動で検証します（上記の不要/必要スクリプト判定を含む）。
 
 ## パフォーマンス計測（埋め込み軽量化）
 
@@ -120,13 +132,7 @@
    - `js/app.js`
    - `js/embed/child-bridge.js`
 
-### 補足（自動検証）
-
-`node scripts/dev-check.js` は `index.html?embed=1` の軽量化を自動で検証します（上記の不要/必要スクリプト判定を含む）。
-
----
-
-更新履歴
+## 更新履歴
 
 - v1: 初版作成（同一オリジン向け）
 - v1.1: クロスオリジン時のセキュリティ注記と 2ポート（8080/8081）実機テスト手順を追加、dev-server の PORT 指定対応
@@ -134,7 +140,7 @@
 
 ## 付録: クロスオリジン実機テスト（2ポート）
 
-同一マシンで 2 つのローカルポートを使って、親(8080) → 子(8081) のクロスオリジン挙動を確認できます。
+同一マシンで 2 つのローカルポートを使って、親(8080) → 子(8081) のクロスオリジン挙動を確認できます。Playwright では `scripts/run-two-servers.js` がサーバーの起動順制御とヘルスチェックを自動化します。
 
 ### サーバー起動
 

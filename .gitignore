@@ -15,3 +15,22 @@ node_modules/
 # Temporary
 .tmp/
 .cache/
+tmp/
+
+# Local helper scripts / workflows
+scripts/gh-*.ps1
+shared-workflows/
+
+# DocFX build outputs
+_site/
+.docfx/
+
+# Playwright outputs
+test-results/
+playwright-report/
+
+# Temporary test output files
+*-out.txt
+*-out?.txt
+*-fail.txt
+test-*.txt

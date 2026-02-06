@@ -1,28 +1,28 @@
 // 高度なテーマバンドル（フォント/色の組み合わせ）
-(function(){
+(function () {
   const STORAGE_KEY = 'zenWriter_themeBundles';
 
-  function loadBundles(){
+  function loadBundles() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       return raw ? JSON.parse(raw) : { bundles: [], currentId: null };
-    } catch(e){
+    } catch (e) {
       console.error('テーマバンドル読込エラー', e);
       return { bundles: [], currentId: null };
     }
   }
 
-  function saveBundles(state){
+  function saveBundles(state) {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       return true;
-    } catch(e){
+    } catch (e) {
       console.error('テーマバンドル保存エラー', e);
       return false;
     }
   }
 
-  function getCurrentSettings(){
+  function getCurrentSettings() {
     const s = window.ZenWriterStorage.loadSettings();
     return {
       id: `bundle-${Date.now()}`,
@@ -33,30 +33,34 @@
       lineHeight: s.lineHeight,
       useCustomColors: !!s.useCustomColors,
       bgColor: s.bgColor,
-      textColor: s.textColor
+      textColor: s.textColor,
     };
   }
 
-  function applyBundle(bundle){
+  function applyBundle(bundle) {
     if (!bundle) return;
     window.ZenWriterTheme.applyTheme(bundle.theme || 'light');
-    if (bundle.useCustomColors && bundle.bgColor && bundle.textColor){
-      window.ZenWriterTheme.applyCustomColors(bundle.bgColor, bundle.textColor, true);
+    if (bundle.useCustomColors && bundle.bgColor && bundle.textColor) {
+      window.ZenWriterTheme.applyCustomColors(
+        bundle.bgColor,
+        bundle.textColor,
+        true,
+      );
     } else {
       window.ZenWriterTheme.clearCustomColors();
     }
     window.ZenWriterTheme.applyFontSettings(
       bundle.fontFamily,
       parseFloat(bundle.fontSize),
-      parseFloat(bundle.lineHeight)
+      parseFloat(bundle.lineHeight),
     );
   }
 
-  function renderSelect(state){
+  function renderSelect(state) {
     const sel = document.getElementById('theme-bundle-select');
     if (!sel) return;
     sel.innerHTML = '';
-    state.bundles.forEach(b => {
+    state.bundles.forEach((b) => {
       const opt = document.createElement('option');
       opt.value = b.id;
       opt.textContent = b.name || '(名称未設定)';
@@ -88,8 +92,8 @@
 
     applyBtn.addEventListener('click', () => {
       const id = sel.value;
-      const b = state.bundles.find(x => x.id === id);
-      if (b){
+      const b = state.bundles.find((x) => x.id === id);
+      if (b) {
         state.currentId = b.id;
         saveBundles(state);
         applyBundle(b);
@@ -98,9 +102,9 @@
 
     deleteBtn.addEventListener('click', () => {
       const id = sel.value;
-      const idx = state.bundles.findIndex(x => x.id === id);
-      if (idx >= 0){
-        state.bundles.splice(idx,1);
+      const idx = state.bundles.findIndex((x) => x.id === id);
+      if (idx >= 0) {
+        state.bundles.splice(idx, 1);
         state.currentId = state.bundles[0] ? state.bundles[0].id : null;
         saveBundles(state);
         renderSelect(state);

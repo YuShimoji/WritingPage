@@ -1,0 +1,72 @@
+- name: ホーム
+  href: README.md
+- name: AI コンテキスト
+  href: AI_CONTEXT.md
+- name: ガイド
+  items:
+    - name: 利用手順
+      href: docs/USAGE.md
+    - name: FAQ
+      href: docs/FAQ.md
+    - name: テーマ設定
+      href: docs/THEMES.md
+    - name: ガジェット
+      href: docs/GADGETS.md
+    - name: スナップショット
+      href: docs/SNAPSHOT_DESIGN.md
+- name: 開発プロトコル
+  items:
+    - name: 開発プロトコル
+      href: DEVELOPMENT_PROTOCOL.md
+    - name: DocFX概要
+      href: docs/docfx_overview.md
+    - name: ブランチ戦略
+      href: docs/BRANCHING.md
+    - name: コーディング規約
+      href: docs/CONVENTIONS.md
+    - name: ラベル運用
+      href: docs/LABELS.md
+    - name: ISSUE 運用
+      href: docs/ISSUES.md
+    - name: ROADMAP
+      href: docs/ROADMAP.md
+    - name: BACKLOG
+      href: docs/BACKLOG.md
+- name: 埋め込み/連携
+  items:
+    - name: Embed SDK
+      href: docs/EMBED_SDK.md
+    - name: Embed Testing
+      href: docs/EMBED_TESTING.md
+    - name: Embed セキュリティ
+      href: docs/KNOWN_ISSUES.md
+    - name: Choice Plugins
+      href: docs/choices-driven-development.md
+- name: デザイン資料
+  items:
+    - name: アプリ設計
+      href: docs/DESIGN.md
+    - name: デザインハブ
+      href: docs/DESIGN_HUB.md
+    - name: パレット設計
+      href: docs/PALETTE_DESIGN.md
+- name: テスト/運用
+  items:
+    - name: テスト方針
+      href: docs/TESTING.md
+    - name: デプロイ手順
+      href: docs/DEPLOY.md
+    - name: RELEASE ノート
+      href: docs/RELEASE.md
+    - name: Snapshot Reports
+      href: docs/test-reports/template.md
+- name: 付録
+  items:
+    - name: HUD/Editor 拡張
+      href: docs/EDITOR_EXTENSIONS.md
+    - name: Mission ルール
+      href: docs/Windsurf_AI_Collab_Rules_v1.1.md
+    - name: セキュリティポリシー
+      href: SECURITY.md
+    - name: 利用規約
+      href: CODE_OF_CONDUCT.md

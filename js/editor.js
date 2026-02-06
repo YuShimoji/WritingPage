@@ -1,369 +1,189 @@
-// エディタ管理クラス
+/**
+ * editor.js
+ * 
+ * Main Editor Management Module (Facade)
+ * Delegates functionality to EditorCore, EditorUI, EditorSearch, and other sub-modules.
+ */
 class EditorManager {
     constructor() {
+        window.ZenWriterEditor = this;
         this.editor = document.getElementById('editor');
         this.wordCountElement = document.querySelector('.word-count');
         this.goalProgressEl = document.getElementById('goal-progress');
         this.goalProgressBarEl = this.goalProgressEl ? this.goalProgressEl.querySelector('.goal-progress__bar') : null;
-        // 自動スナップショット用の状態
+
+        // Change tracking and snapshot state
         this._lastSnapTs = 0;
         this._lastSnapLen = 0;
-        this.SNAPSHOT_MIN_INTERVAL = 120000; // 2分
-        this.SNAPSHOT_MIN_DELTA = 300; // 300文字以上の変化
-        // 目標達成の一時フラグ（再達成の過剰通知を抑止）
+        this.SNAPSHOT_MIN_INTERVAL = 120000;
+        this.SNAPSHOT_MIN_DELTA = 300;
         this._goalReachedNotified = false;
-        this.setupEventListeners();
+        this.dropIndicatorClass = 'drop-ready';
+        this.editorOverlay = document.getElementById('editor-overlay');
+        this.editorMirror = document.getElementById('editor-mirror');
+        this.inlineStamps = [];
+        this.charCountStamps = [];
+        this.isCharCountStampsEnabled = true;
+
+        // Dirty Flag tracking
+        this._isDirty = false;
+        this._baselineHash = null;
+
+        // UI Panels and references
+        this.previewPanel = document.getElementById('editor-preview');
+        this.previewPanelBody = document.getElementById('editor-preview-body');
+        this.markdownPreviewPanel = document.getElementById('markdown-preview-panel');
+        this.imagesPreviewPanel = document.getElementById('images-preview-panel');
+        this.previewPanelToggle = document.getElementById('toggle-preview');
+        this._markdownRenderer = null;
+        this.fontDecorationPanel = document.getElementById('font-decoration-panel');
+        this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
+        this.closeFontDecorationBtn = document.getElementById('close-font-decoration-panel');
+        this.textAnimationPanel = document.getElementById('text-animation-panel');
+        this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
+        this.closeTextAnimationBtn = document.getElementById('close-text-animation-panel');
+        this.searchPanel = document.getElementById('search-panel');
+        this.closeSearchBtn = document.getElementById('close-search-panel');
+
+        // Other specialized managers
+        this.searchManager = (typeof SearchManager !== 'undefined') ? new SearchManager(this) : null;
+        if (typeof window.SpellChecker !== 'undefined') {
+            this.spellChecker = new window.SpellChecker(this);
+        }
+
+        // Timers and settings
+        this._wordCountDebounceTimer = null;
+        this._WORD_COUNT_DEBOUNCE_DELAY = 300;
+        this._markdownPreviewDebounceTimer = null;
+        this._MARKDOWN_PREVIEW_DEBOUNCE_DELAY = 100;
+        this._TYPEWRITER_SCROLL_DELAY_MS = 120;
+        this._TYPEWRITER_INITIAL_DELAY_MS = 50;
+        this._MANUAL_SCROLL_TIMEOUT_MS = 2000;
+        this._charStampTimer = null;
+
+        // High-frequency UI event listeners (selection, scroll)
+        if (this.editor) {
+            this.editor.addEventListener('scroll', () => {
+                this._isManualScrolling = true;
+                clearTimeout(this._manualScrollTimeout);
+                this._manualScrollTimeout = setTimeout(() => {
+                    this._isManualScrolling = false;
+                }, this._MANUAL_SCROLL_TIMEOUT_MS);
+            });
+
+            this.editor.addEventListener('selectionchange', () => {
+                this.updateWordCount();
+                if (this._charStampTimer) clearTimeout(this._charStampTimer);
+                this._charStampTimer = setTimeout(() => this.updateCharCountStamps(), 100);
+            });
+        }
+
+        // Initialize components and load content
+        this.setupImageHandlers();
+        this.setupPreviewPanel();
+        this.setupOverlaySupport();
         this.loadContent();
-        this.updateWordCount();
-    }
+        this._updateWordCountImmediate();
+        this.renderImagePreview();
+        this.setupEventListeners();
+        this.installTypewriterHandlers();
+        this.installFocusModeHandlers();
 
-    /**
-     * イベントリスナーを設定
-     */
-    setupEventListeners() {
-        // コンテンツ変更時の自動保存
-        this.editor.addEventListener('input', () => {
-            this.saveContent();
-            this.updateWordCount();
-            this.maybeAutoSnapshot();
-        });
+        // Visual overlay elements
+        if (this.editorOverlay) {
+            this._wrapGuideEl = document.createElement('div');
+            this._wrapGuideEl.className = 'editor-overlay__wrap-guide';
+            this.editorOverlay.appendChild(this._wrapGuideEl);
 
-        // タブキーでインデント
-        this.editor.addEventListener('keydown', (e) => {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                this.insertTextAtCursor('\t');
-            }
-        });
+            this._focusDimEl = document.createElement('div');
+            this._focusDimEl.className = 'editor-overlay__focus-dim';
+            this.editorOverlay.appendChild(this._focusDimEl);
 
-        // 保存ショートカット (Ctrl+S or Cmd+S)
-        document.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-                e.preventDefault();
-                this.saveContent();
-                this.showNotification('保存しました');
-            }
-
-            // フォントサイズ調整ショートカット
-            if (e.ctrlKey || e.metaKey) {
-                if (e.key === '+' || e.key === '=') {
-                    e.preventDefault();
-                    this.adjustGlobalFontSize(1);
-                } else if (e.key === '-') {
-                    e.preventDefault();
-                    this.adjustGlobalFontSize(-1);
-                } else if (e.key === '0') {
-                    e.preventDefault();
-                    const defaults = window.ZenWriterStorage.DEFAULT_SETTINGS;
-                    this.setGlobalFontSize(defaults.fontSize);
-                }
-            }
-        });
-    }
-
-    /**
-     * カーソル位置にテキストを挿入
-     * @param {string} text - 挿入するテキスト
-     */
-    insertTextAtCursor(text) {
-        const start = this.editor.selectionStart;
-        const end = this.editor.selectionEnd;
-        const before = this.editor.value.substring(0, start);
-        const after = this.editor.value.substring(end, this.editor.value.length);
-        
-        this.editor.value = before + text + after;
-        const newPos = start + text.length;
-        this.editor.selectionStart = newPos;
-        this.editor.selectionEnd = newPos;
-        this.editor.focus();
-        
-        this.saveContent();
-        this.updateWordCount();
-    }
-
-    /**
-     * コンテンツをローカルストレージに保存
-     */
-    saveContent() {
-        window.ZenWriterStorage.saveContent(this.editor.value);
-    }
-
-    maybeAutoSnapshot(){
-        if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
-        const now = Date.now();
-        const len = (this.editor.value || '').length;
-        if (this._lastSnapTs === 0) {
-            // 初回基準
-            this._lastSnapTs = now;
-            this._lastSnapLen = len;
-            return;
+            this._focusLineEl = document.createElement('div');
+            this._focusLineEl.className = 'editor-overlay__focus-line';
+            this.editorOverlay.appendChild(this._focusLineEl);
         }
-        const dt = now - this._lastSnapTs;
-        const dlen = Math.abs(len - this._lastSnapLen);
-        if (dt >= this.SNAPSHOT_MIN_INTERVAL && dlen >= this.SNAPSHOT_MIN_DELTA) {
-            window.ZenWriterStorage.addSnapshot(this.editor.value);
-            this._lastSnapTs = now;
-            this._lastSnapLen = len;
-            if (typeof this.showNotification === 'function') {
-                this.showNotification('自動バックアップを保存しました');
-            }
-        }
+        this.applyWordWrap();
     }
 
-    /**
-     * ローカルストレージからコンテンツを読み込み
-     */
-    loadContent() {
-        const savedContent = window.ZenWriterStorage.loadContent();
-        if (savedContent) {
-            this.editor.value = savedContent;
-        }
-    }
+    // ===== UI and Interaction Methods (Delegated to EditorUI.js) =====
+    setupEventListeners() { return window.EditorUI.setupEventListeners(this); }
+    updateWordCount() { return window.EditorUI.updateWordCount(this); }
+    _updateWordCountImmediate() { return window.EditorUI._updateWordCountImmediate(this); }
+    showNotification(msg, dur) { return window.EditorUI.showNotification(this, msg, dur); }
+    adjustGlobalFontSize(delta) { return window.EditorUI.adjustGlobalFontSize(this, delta); }
+    setGlobalFontSize(size) { return window.EditorUI.setGlobalFontSize(this, size); }
+    clampFontSize(px) { return window.EditorUI.clampFontSize(px); }
+    applyFontDecoration(tag) { return window.EditorUI.applyFontDecoration(this, tag); }
+    applyTextAnimation(tag) { return window.EditorUI.applyTextAnimation(this, tag); }
+    toggleFontDecorationPanel() { return window.EditorUI.toggleFontDecorationPanel(this); }
+    showFontDecorationPanel() { return window.EditorUI.showFontDecorationPanel(this); }
+    hideFontDecorationPanel() { return window.EditorUI.hideFontDecorationPanel(this); }
+    toggleTextAnimationPanel() { return window.EditorUI.toggleTextAnimationPanel(this); }
+    showTextAnimationPanel() { return window.EditorUI.showTextAnimationPanel(this); }
+    hideTextAnimationPanel() { return window.EditorUI.hideTextAnimationPanel(this); }
+    updateAnimationSpeed(val) { return window.EditorUI.updateAnimationSpeed(val); }
+    updateAnimationDuration(val) { return window.EditorUI.updateAnimationDuration(val); }
+    updateAnimationReduceMotion(val) { return window.EditorUI.updateAnimationReduceMotion(val); }
+    saveAnimationSettings(patch) { return window.EditorUI.saveAnimationSettings(patch); }
+    applyWidthMode(mode) { return window.EditorUI.applyWidthMode(mode); }
+    createPreviewCard(args) { return window.EditorUI.createPreviewCard(this, args); }
+    updateCharCountStamps() { return window.EditorUI.updateCharCountStamps(this); }
 
-    /**
-     * エディタ内容を置き換える（読み込み時など）
-     * @param {string} text
-     */
-    setContent(text) {
-        this.editor.value = text || '';
-        this.saveContent();
-        this.updateWordCount();
-    }
+    // ===== Core Editing and Data Methods (Delegated to EditorCore.js) =====
+    saveContent() { return window.EditorCore.saveContent(this); }
+    loadContent() { return window.EditorCore.loadContent(this); }
+    setContent(text) { return window.EditorCore.setContent(this, text); }
+    newDocument() { return window.EditorCore.newDocument(this); }
+    restoreLastSnapshot() { return window.EditorCore.restoreLastSnapshot(this); }
+    markDirty() { return window.EditorCore.markDirty(this); }
+    isDirty() { return this._isDirty; }
+    refreshDirtyBaseline() { return window.EditorCore.refreshDirtyBaseline(this); }
+    _computeContentHash(text) { return window.EditorCore._computeContentHash(text); }
+    maybeAutoSnapshot() { return window.EditorCore.maybeAutoSnapshot(this); }
+    exportAsText() { return window.EditorCore.exportAsText(this); }
+    exportAsMarkdown() { return window.EditorCore.exportAsMarkdown(this); }
+    insertTextAtCursor(text, opts) { return window.EditorCore.insertTextAtCursor(this, text, opts); }
+    getFormattedDate() { return window.EditorCore.getFormattedDate(this); }
+    getCurrentDocBaseName() { return window.EditorCore.getCurrentDocBaseName(this); }
+    sanitizeForFilename(s) { return window.EditorCore.sanitizeForFilename(s); }
+    insertCharacterStamp() { return window.EditorCore.insertCharacterStamp(this); }
+    getCursorPosition() { return window.EditorCore.getCursorPosition(this); }
+    getEditorValue() { return window.EditorCore.getEditorValue(this); }
+    escapeHtml(text) { return window.EditorCore.escapeHtml(text); }
+    processTextAnimations(text) { return window.EditorCore.processTextAnimations(text); }
+    processFontDecorations(text) { return window.EditorCore.processFontDecorations(text); }
+    persistAssetMeta(id, patch) { return window.EditorCore.persistAssetMeta(this, id, patch); }
+    getAsset(id) { return window.EditorCore.getAsset(id); }
+    applyAlignmentToImage(img, align) { return window.EditorCore.applyAlignmentToImage(img, align); }
+    updateStorageContentAfterMigration(c) { return window.EditorCore.updateStorageContentAfterMigration(c); }
 
-    /**
-     * 新しいドキュメントを作成
-     */
-    newDocument() {
-        if (confirm('現在の内容を破棄して新規ドキュメントを作成しますか？')) {
-            this.editor.value = '';
-            this.saveContent();
-            this.updateWordCount();
-        }
-    }
+    // ===== Search and Replace Methods (Delegated to EditorSearch.js) =====
+    toggleSearchPanel() { return window.EditorSearch.toggleSearchPanel(this); }
+    showSearchPanel() { return window.EditorSearch.showSearchPanel(this); }
+    hideSearchPanel() { return window.EditorSearch.hideSearchPanel(this); }
+    updateSearchMatches() { return window.EditorSearch.updateSearchMatches(this); }
+    navigateMatch(dir) { return window.EditorSearch.navigateMatch(this, dir); }
+    replaceSingle() { return window.EditorSearch.replaceSingle(this); }
+    replaceAll() { return window.EditorSearch.replaceAll(this); }
+    getTextPosition(s, e) { return window.EditorSearch.getTextPosition(this, s, e); }
+    clearSearchHighlights() { return window.EditorSearch.clearSearchHighlights(this); }
 
-    /**
-     * テキストとしてエクスポート
-     */
-    exportAsText() {
-        const content = this.editor.value || ' ';
-        const base = this.getCurrentDocBaseName();
-        const filename = `${base}_${this.getFormattedDate()}.txt`;
-        window.ZenWriterStorage.exportText(content, filename, 'text/plain');
-    }
-
-    /**
-     * Markdownとしてエクスポート
-     */
-    exportAsMarkdown() {
-        const content = this.editor.value || ' ';
-        const base = this.getCurrentDocBaseName();
-        const filename = `${base}_${this.getFormattedDate()}.md`;
-        window.ZenWriterStorage.exportText(content, filename, 'text/markdown');
-    }
-
-    /**
-     * 現在日時をフォーマット
-     * @returns {string} フォーマットされた日時文字列 (YYYYMMDD_HHMMSS)
-     */
-    getFormattedDate() {
-        const now = new Date();
-        const pad = (num) => num.toString().padStart(2, '0');
-        
-        const year = now.getFullYear();
-        const month = pad(now.getMonth() + 1);
-        const day = pad(now.getDate());
-        const hours = pad(now.getHours());
-        const minutes = pad(now.getMinutes());
-        const seconds = pad(now.getSeconds());
-        
-        return `${year}${month}${day}_${hours}${minutes}${seconds}`;
-    }
-
-    /**
-     * 現在選択中ドキュメントのファイル名ベースを取得（無効文字は置換）
-     * @returns {string}
-     */
-    getCurrentDocBaseName(){
-        try {
-            if (!window.ZenWriterStorage || !window.ZenWriterStorage.getCurrentDocId) return 'zenwriter';
-            const id = window.ZenWriterStorage.getCurrentDocId();
-            const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
-            const doc = docs.find(d => d && d.id === id);
-            const name = (doc && doc.name) ? String(doc.name) : 'zenwriter';
-            return this.sanitizeForFilename(name.trim() || 'zenwriter');
-        } catch(_) { return 'zenwriter'; }
-    }
-
-    /**
-     * ファイル名に使えない文字を安全なものに置換
-     * @param {string} s
-     * @returns {string}
-     */
-    sanitizeForFilename(s){
-        // Windows禁止文字 \ / : * ? " < > | と制御文字を置換し、連続空白を圧縮
-        return s
-            .replace(/[\\/:*?"<>|]/g, '_')
-            .replace(/[\x00-\x1F\x7F]/g, '_')
-            .replace(/\s+/g, ' ')
-            .slice(0, 60) // 長すぎる名前を抑制
-            || 'zenwriter';
-    }
-
-    /**
-     * 文字数を更新
-     */
-    updateWordCount() {
-        const text = this.editor.value;
-        const charCount = text.length;
-        const wordCount = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
-        // 執筆目標の進捗（任意）
-        const s = window.ZenWriterStorage.loadSettings();
-        const goal = (s && s.goal) || {};
-        let suffix = '';
-        if (goal && (parseInt(goal.target,10) || 0) > 0) {
-            const target = Math.max(0, parseInt(goal.target,10) || 0);
-            const ratio = target > 0 ? Math.min(1, charCount / target) : 0;
-            const pct = Math.floor(ratio * 100);
-            suffix += ` | 目標 ${target} (${pct}%)`;
-            // 進捗バーの表示と更新
-            if (this.goalProgressEl && this.goalProgressBarEl) {
-                this.goalProgressEl.style.display = 'inline-flex';
-                this.goalProgressEl.setAttribute('aria-hidden', 'false');
-                const w = Math.max(0, Math.min(100, pct));
-                this.goalProgressBarEl.style.width = `${w}%`;
-            }
-            // 締切日がある場合は残日数を併記
-            if (goal.deadline) {
-                const today = new Date();
-                const dl = new Date(`${goal.deadline}T00:00:00`);
-                const msPerDay = 24*60*60*1000;
-                const days = Math.ceil((dl - today) / msPerDay);
-                if (!isNaN(days)) {
-                    if (days >= 0) suffix += ` | 残り${days}日`;
-                    else suffix += ` | 期限超過${Math.abs(days)}日`;
-                }
-            }
-            // 目標達成時の通知（初回のみ）
-            if (charCount >= target) {
-                if (!this._goalReachedNotified) {
-                    this._goalReachedNotified = true;
-                    if (typeof this.showNotification === 'function') {
-                        this.showNotification('目標達成！お疲れさまです 🎉');
-                    }
-                    if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-                        window.ZenWriterHUD.publish('目標達成！', 1500);
-                    }
-                }
-            } else {
-                // 目標未達に戻った場合はフラグをリセット
-                this._goalReachedNotified = false;
-            }
-        } else {
-            // 目標未設定時はフラグをリセット
-            this._goalReachedNotified = false;
-            // 進捗バーを隠す
-            if (this.goalProgressEl) {
-                this.goalProgressEl.style.display = 'none';
-                this.goalProgressEl.setAttribute('aria-hidden', 'true');
-            }
-        }
-
-        this.wordCountElement.textContent = `${charCount} 文字 / ${wordCount} 語${suffix}`;
-        // ミニHUDに一時表示（ツールバー非表示時のみ）
-        if (window.ZenWriterHUD) {
-            const toolbarHidden = document.body.classList.contains('toolbar-hidden') ||
-                                  document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
-            if (toolbarHidden && typeof window.ZenWriterHUD.publish === 'function') {
-                // HUD 設定の既定時間に従う（durationを渡さない）
-                window.ZenWriterHUD.publish(`${charCount} 文字 / ${wordCount} 語`);
-            } else if (!toolbarHidden && typeof window.ZenWriterHUD.hide === 'function') {
-                window.ZenWriterHUD.hide();
-            }
-        }
-    }
-
-    /**
-     * 通知を表示
-     * @param {string} message - 表示するメッセージ
-     * @param {number} duration - 表示時間 (ミリ秒)
-     */
-    showNotification(message, duration = 2000) {
-        // 既存の通知を削除
-        const existingNotification = document.querySelector('.notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-
-        // 通知要素を作成
-        const notification = document.createElement('div');
-        notification.className = 'notification';
-        notification.textContent = message;
-        
-        // スタイルを適用
-        notification.style.position = 'fixed';
-        notification.style.bottom = '20px';
-        notification.style.right = '20px';
-        notification.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        notification.style.color = 'white';
-        notification.style.padding = '10px 20px';
-        notification.style.borderRadius = '4px';
-        notification.style.zIndex = '1000';
-        notification.style.transition = 'opacity 0.3s';
-        
-        // ドキュメントに追加
-        document.body.appendChild(notification);
-        
-        // アニメーション用に少し遅らせる
-        setTimeout(() => {
-            notification.style.opacity = '1';
-        }, 10);
-        
-        // 指定時間後に削除
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            setTimeout(() => {
-                notification.remove();
-            }, 300);
-        }, duration);
-    }
-
-    /**
-     * 現在の設定に対してフォントサイズを増減
-     * @param {number} delta 正または負の増分
-     */
-    adjustGlobalFontSize(delta) {
-        const settings = window.ZenWriterStorage.loadSettings();
-        const next = this.clampFontSize((settings.fontSize || 16) + delta);
-        this.setGlobalFontSize(next);
-    }
-
-    /**
-     * フォントサイズを指定値に設定し、関連UIを同期
-     * @param {number} sizePx
-     */
-    setGlobalFontSize(sizePx) {
-        const settings = window.ZenWriterStorage.loadSettings();
-        const next = this.clampFontSize(sizePx);
-        window.ZenWriterTheme.applyFontSettings(
-            settings.fontFamily,
-            next,
-            settings.lineHeight
-        );
-        // UI同期（存在する場合）
-        const sidebarRange = document.getElementById('font-size');
-        const sidebarValue = document.getElementById('font-size-value');
-        if (sidebarRange) sidebarRange.value = next;
-        if (sidebarValue) sidebarValue.textContent = next;
-        const panelRange = document.getElementById('global-font-size');
-        const panelNumber = document.getElementById('global-font-size-number');
-        if (panelRange) panelRange.value = next;
-        if (panelNumber) panelNumber.value = next;
-    }
-
-    clampFontSize(px) {
-        return Math.min(48, Math.max(12, Math.round(px)));
-    }
+    // ===== External Logic Delegations (Existing Separate Modules) =====
+    setupPreviewPanel() { return (typeof editorPreview_setupPreviewPanel === 'function') ? editorPreview_setupPreviewPanel(this) : null; }
+    togglePreview() { return (typeof editorPreview_togglePreview === 'function') ? editorPreview_togglePreview(this) : null; }
+    renderMarkdownPreview() { return (typeof editorPreview_renderMarkdownPreview === 'function') ? editorPreview_renderMarkdownPreview(this) : null; }
+    renderImagePreview() { return (typeof editorImages_renderImagePreview === 'function') ? editorImages_renderImagePreview(this) : null; }
+    convertLegacyImageEmbeds(content) { return (typeof editorImages_convertLegacyImageEmbeds === 'function') ? editorImages_convertLegacyImageEmbeds(this, content) : content; }
+    renderOverlayImages(entries, content) { return (typeof editorOverlays_renderOverlayImages === 'function') ? editorOverlays_renderOverlayImages(this, entries, content) : null; }
+    setupImageHandlers() { return (typeof editorImages_setupImageHandlers === 'function') ? editorImages_setupImageHandlers(this) : null; }
+    setupOverlaySupport() { return (typeof editorOverlays_setupOverlaySupport === 'function') ? editorOverlays_setupOverlaySupport(this) : null; }
+    applyWordWrap() { return (typeof editorOverlays_applyWordWrap === 'function') ? editorOverlays_applyWordWrap(this) : null; }
+    installTypewriterHandlers() { return (typeof typewriter_installHandlers === 'function') ? typewriter_installHandlers(this) : null; }
+    scheduleTypewriterUpdate() { return (typeof typewriter_scheduleUpdate === 'function') ? typewriter_scheduleUpdate(this) : null; }
+    installFocusModeHandlers() { return (typeof focusMode_installHandlers === 'function') ? focusMode_installHandlers(this) : null; }
+    setFocusModeLine(y) { return (typeof focusMode_setLine === 'function') ? focusMode_setLine(this, y) : null; }
 }
 
-// グローバルオブジェクトに追加
+// Global instantiation
 window.ZenWriterEditor = new EditorManager();

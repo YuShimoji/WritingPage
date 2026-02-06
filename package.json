@@ -1,29 +1,29 @@
 {
   "name": "writingpage",
-  "version": "1.0.0",
-  "description": "Zen Writer  ,   ,  .  ,  .  ,  .",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "version": "0.3.24",
+  "private": true,
   "scripts": {
-    "test": "npm run e2e",
-    "e2e": "playwright test",
-    "e2e:headed": "playwright test --headed",
-    "e2e:install": "playwright install --with-deps"
+    "dev": "node scripts/dev-server.js",
+    "dev:two": "node scripts/run-two-servers.js",
+    "test:smoke": "node scripts/dev-check.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ci": "playwright test --reporter=line",
+    "test:puppeteer": "node scripts/puppeteer-test.js",
+    "lint:js:check": "eslint .",
+    "lint:js:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:md": "markdownlint **/*.md",
+    "lint": "npm run lint:js:check && npm run lint:md",
+    "lint:fix": "npm run lint:js:fix",
+    "test": "npm run test:smoke && npm run test:e2e"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/YuShimoji/WritingPage.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/YuShimoji/WritingPage/issues"
-  },
-  "homepage": "https://github.com/YuShimoji/WritingPage#readme",
   "devDependencies": {
-    "@playwright/test": "^1.55.1"
-  }
+    "@playwright/test": "^1.46.0",
+    "eslint": "^8.57.0",
+    "markdownlint-cli": "^0.40.0",
+    "prettier": "^3.3.3",
+    "puppeteer": "^24.31.0"
+  },
+  "dependencies": {}
 }

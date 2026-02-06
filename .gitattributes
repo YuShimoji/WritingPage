@@ -2,6 +2,7 @@
 * text=auto
 
 # Enforce LF for cross-platform text files
+.gitmodules text eol=lf
 *.md text eol=lf
 *.html text eol=lf
 *.css text eol=lf

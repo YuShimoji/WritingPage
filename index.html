@@ -1,32 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zen Writer - 小説執筆ツール</title>
-    <script>
-      (function(){
-        // 埋め込みモード判定（?embed=1）
-        var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
-        if (isEmbed) {
-          document.documentElement.setAttribute('data-embed','true');
-        }
-        try {
-          var raw = localStorage.getItem('zenWriter_settings');
-          if (raw) {
-            var s = JSON.parse(raw);
-            if (s && s.toolbarVisible === false) {
-              document.documentElement.setAttribute('data-toolbar-hidden','true');
-            }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zen Writer - 小説執筆ツール</title>
+  <script>
+    (function () {
+      // 埋め込みモード判定（?embed=1）
+      var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
+      if (isEmbed) {
+        document.documentElement.setAttribute('data-embed', 'true');
+      }
+      try {
+        var raw = localStorage.getItem('zenWriter_settings');
+        if (raw) {
+          var s = JSON.parse(raw);
+          if (s && s.toolbarVisible === false) {
+            document.documentElement.setAttribute(
+              'data-toolbar-hidden',
+              'true',
+            );
           } else {
-            // 設定が未作成（初回起動）は非表示にする
-            document.documentElement.setAttribute('data-toolbar-hidden','true');
+            document.documentElement.setAttribute(
+              'data-toolbar-hidden',
+              'false',
+            );
           }
-        } catch(e) { /* ignore */ }
-        // 埋め込みモードではツールバーを強制的に隠す（最小UI）
-        if (isEmbed) {
-          document.documentElement.setAttribute('data-toolbar-hidden','true');
+        } else {
+          // 設定が未作成（初回起動）は表示にする
+          document.documentElement.setAttribute(
+            'data-toolbar-hidden',
+            'false',
+          );
         }
+<<<<<<< HEAD
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -244,15 +252,499 @@
     <script>
       // 非埋め込み時のみ Outline/高度テーマ/プラグインを動的ロード（埋め込みでの初期ロードを軽量化）
       (function(){
+=======
+      } catch (e) {
+        /* ignore */
+      }
+      // 埋め込みモードではツールバーを強制的に隠す（最小UI）
+      if (isEmbed) {
+        document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+      }
+    })();
+  </script>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    // 非埋め込み時のみ Google Fonts を動的に読み込む（preconnect 最適化込み）
+    (function () {
+      try {
+>>>>>>> origin/main
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
-        function load(src){ var s=document.createElement('script'); s.src=src; s.defer=true; document.body.appendChild(s); }
-        load('js/outline.js');
-        load('js/themes-advanced.js');
-        load('js/plugins/registry.js');
-        load('js/plugins/choice.js');
-        load('js/gadgets.js');
-      })();
-    </script>
+        var head = document.getElementsByTagName('head')[0];
+        var l1 = document.createElement('link');
+        l1.rel = 'preconnect';
+        l1.href = 'https://fonts.googleapis.com';
+        var l2 = document.createElement('link');
+        l2.rel = 'preconnect';
+        l2.href = 'https://fonts.gstatic.com';
+        l2.crossOrigin = '';
+        var css = document.createElement('link');
+        css.rel = 'stylesheet';
+        css.href =
+          'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
+        head.appendChild(l1);
+        head.appendChild(l2);
+        head.appendChild(css);
+      } catch (_) { }
+    })();
+  </script>
+</head>
+
+<body>
+  <!-- スキップリンク（キーボード操作の効率化） -->
+  <a href="#editor" class="skip-link">メインコンテンツへスキップ</a>
+  <div class="app-container">
+    <!-- サイドバー -->
+    <aside class="sidebar" id="sidebar" role="complementary" aria-label="設定パネル">
+      <div class="sidebar-header">
+        <h2 data-i18n="GADGET_SETTINGS"></h2>
+        <!-- ヘッダーの閉じるボタンを削除：ツールバー側に統一 -->
+      </div>
+
+      <div class="sidebar-top">
+        <!-- タブ切り替えUI -->
+        <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ"></div>
+      </div>
+
+      <div class="sidebar-groups">
+        <section class="sidebar-group active" data-group="structure" id="sidebar-group-structure" role="tabpanel"
+          aria-labelledby="sidebar-tab-structure">
+          <div class="sidebar-section">
+            <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット">
+            </div>
+          </div>
+        </section>
+
+        <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel"
+          aria-labelledby="sidebar-tab-typography" aria-hidden="true">
+          <div class="sidebar-section">
+            <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography"
+              aria-label="タイポグラフィガジェット"></div>
+          </div>
+        </section>
+
+        <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel"
+          aria-labelledby="sidebar-tab-assist" aria-hidden="true">
+          <div class="sidebar-section">
+            <h3 data-i18n="HELP_SECTION"></h3>
+            <div class="sidebar-help-links" role="group" aria-label="ヘルプ / リファレンス">
+              <button id="help-button" class="small" type="button" data-i18n="OPEN_WIKI_HELP"></button>
+              <button id="editor-help-button" class="small" type="button" data-i18n="EDITOR_GUIDE"></button>
+              <a id="ui-lab-link" class="small" href="docs/ui-lab.html" target="_blank" rel="noopener"
+                data-i18n="UI_LAB"></a>
+            </div>
+            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="支援ガジェット"></div>
+          </div>
+        </section>
+
+        <section class="sidebar-group" data-group="wiki" id="sidebar-group-wiki" role="tabpanel"
+          aria-labelledby="sidebar-tab-wiki" aria-hidden="true">
+          <div class="sidebar-section">
+            <div id="wiki-gadgets-panel" class="gadgets-panel" data-gadget-group="wiki" aria-label="Wikiガジェット"></div>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- メインコンテンツ -->
+    <main class="main-content">
+      <!-- ツールバー -->
+      <div class="toolbar" role="toolbar" aria-label="メインツールバー" id="toolbar">
+        <div class="sidebar-controls">
+          <button id="toggle-sidebar" class="icon-button iconified" aria-label="サイドバーを開閉" aria-expanded="false"
+            aria-controls="sidebar" title="メニュー">
+            <i data-lucide="menu" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="word-count" role="status" aria-live="polite" aria-atomic="true">0 文字</div>
+        <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display: none" role="progressbar"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="執筆目標の進捗">
+          <div class="goal-progress__track">
+            <div class="goal-progress__bar" style="width: 0%"></div>
+          </div>
+        </div>
+        <label for="goal-target" class="sr-only">目標文字数</label>
+        <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER" aria-hidden="true"
+          style="width: 100px; margin-right: 8px; display: none;" aria-label="目標文字数" />
+        <label for="goal-deadline" class="sr-only">締切日</label>
+        <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
+          style="margin-right: 8px; display: none;" />
+        <div class="toolbar-actions">
+          <label for="ui-mode-select" class="sr-only">表示モード</label>
+          <select id="ui-mode-select" aria-label="表示モード" title="表示モード"
+            style="margin-right: 8px; padding: 2px 4px; font-size: 12px;">
+            <option value="normal" data-i18n="MODE_NORMAL">通常モード</option>
+            <option value="focus" data-i18n="MODE_FOCUS">フォーカスモード</option>
+            <option value="blank" data-i18n="MODE_BLANK">ブランクモード</option>
+          </select>
+          <button id="toggle-text-animation" class="icon-button iconified" title="テキストアニメーション"
+            aria-label="テキストアニメーションパネルを開く">
+            <i data-lucide="sparkles" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
+            <i data-lucide="type" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-spell-check" class="icon-button iconified" title="スペルチェック" aria-label="スペルチェックを切り替え"
+            aria-pressed="false">
+            <i data-lucide="spell-check-2" aria-hidden="true"></i>
+          </button>
+          <button id="insert-stamp" class="icon-button iconified" title="文字数スタンプ挿入" aria-label="文字数スタンプを挿入">
+            <i data-lucide="stamp" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="テーマを切り替え">
+            <i data-lucide="palette" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-ui-editor" class="icon-button iconified" title="UIエディタ" aria-label="UIエディタを開く">
+            <i data-lucide="paintbrush" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉"
+            aria-expanded="false" aria-controls="editor-preview">
+            <i data-lucide="layout-template" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉"
+            aria-expanded="false" aria-controls="split-view-container">
+            <i data-lucide="columns" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え"
+            aria-label="リッチテキストエディタに切り替え" aria-pressed="false">
+            <i data-lucide="pen-tool" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" aria-expanded="true"
+            aria-controls="toolbar" title="ツールバー">
+            <i data-lucide="panel-top" aria-hidden="true"></i>
+          </button>
+          <button id="fullscreen" class="icon-button iconified" aria-label="フルスクリーン" title="フルスクリーン">
+            <i data-lucide="maximize" aria-hidden="true"></i>
+          </button>
+          <button id="feedback" class="icon-button iconified" aria-label="フィードバックを送信" title="フィードバック">
+            <i data-lucide="message-square" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- 分割ビューコンテナ -->
+      <div id="split-view-container" class="split-view-container" style="display: none;">
+        <div id="split-view-left" class="split-view-panel split-view-panel--left"></div>
+        <div id="split-view-resize-handle" class="split-view-resize-handle" role="separator" aria-label="分割ビューのリサイズハンドル"
+          aria-orientation="vertical" tabindex="0"></div>
+        <div id="split-view-right" class="split-view-panel split-view-panel--right"></div>
+      </div>
+
+      <!-- 分割ビューモード選択パネル -->
+      <div id="split-view-mode-panel" class="floating-panel" style="display: none;" role="dialog"
+        aria-labelledby="split-view-mode-panel-title" aria-modal="true">
+        <div class="panel-header">
+          <span id="split-view-mode-panel-title">分割ビューモード</span>
+          <button class="panel-close" id="close-split-view-mode-panel" aria-label="分割ビューモードパネルを閉じる">閉じる</button>
+        </div>
+        <div class="panel-body">
+          <div class="panel-row">
+            <button id="split-view-edit-preview" class="small" type="button">編集/プレビュー</button>
+            <button id="split-view-chapter-compare" class="small" type="button">章間比較</button>
+            <button id="split-view-snapshot-diff" class="small" type="button">スナップショット差分</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- エディタエリア -->
+      <div class="editor-container" role="region" aria-label="エディタ">
+        <textarea id="editor" data-i18n-placeholder="EDITOR_PLACEHOLDER" aria-label="テキストエディタ" role="textbox"
+          aria-multiline="true" tabindex="0"></textarea>
+        <!-- WYSIWYGエディタ -->
+        <div id="wysiwyg-editor" class="wysiwyg-editor" contenteditable="true" style="display: none;"
+          data-i18n-placeholder="EDITOR_PLACEHOLDER" role="textbox" aria-label="リッチテキストエディタ" aria-multiline="true">
+        </div>
+        <!-- WYSIWYGツールバー -->
+        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar"
+          aria-label="リッチテキスト編集ツールバー">
+          <button id="wysiwyg-bold" class="wysiwyg-btn" type="button" title="太字" aria-label="太字">
+            <i data-lucide="bold" aria-hidden="true"></i>
+          </button>
+          <button id="wysiwyg-italic" class="wysiwyg-btn" type="button" title="斜体" aria-label="斜体">
+            <i data-lucide="italic" aria-hidden="true"></i>
+          </button>
+          <button id="wysiwyg-underline" class="wysiwyg-btn" type="button" title="下線" aria-label="下線">
+            <i data-lucide="underline" aria-hidden="true"></i>
+          </button>
+          <div class="wysiwyg-separator"></div>
+          <button id="wysiwyg-link" class="wysiwyg-btn" type="button" title="リンク" aria-label="リンク">
+            <i data-lucide="link" aria-hidden="true"></i>
+          </button>
+          <div class="wysiwyg-separator"></div>
+          <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え"
+            aria-label="テキストエディタに切り替え">
+            <i data-lucide="code" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div id="editor-overlay" class="editor-overlay" aria-hidden="true"></div>
+        <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
+        <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite"
+          aria-label="プレビューパネル" role="region">
+          <div id="editor-preview-body" class="editor-preview__body">
+            <div id="markdown-preview-panel" class="markdown-preview-panel" role="article" aria-label="Markdownプレビュー">
+            </div>
+            <div id="images-preview-panel" class="images-preview-panel" role="region" aria-label="画像プレビュー"></div>
+          </div>
+        </div>
+        <div id="print-view" class="print-view" aria-hidden="true"></div>
+      </div>
+    </main>
+  </div>
+  <!-- ツールバー再表示用FAB -->
+  <button id="show-toolbar" class="fab-button fab-toggle-toolbar iconified" title="ツールバーを表示" aria-label="ツールバーを表示"
+    aria-controls="toolbar" style="display: none">
+    <i data-lucide="keyboard" aria-hidden="true"></i>
+  </button>
+  <!-- 追加機能用FAB -->
+  <button id="fab-tools" class="fab-button fab-tools iconified" title="ツール" aria-label="ツールパネルを開く" aria-expanded="false"
+    aria-controls="floating-font-panel">
+    <i data-lucide="settings" aria-hidden="true"></i>
+  </button>
+  <!-- クイックツールパネル -->
+  <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="floating-font-panel-title" aria-modal="true">
+    <div class="panel-header">
+      <span id="floating-font-panel-title" data-i18n="QUICK_TOOLS"></span>
+      <button class="panel-close" id="close-font-panel" data-i18n="CLOSE" aria-label="パネルを閉じる"></button>
+    </div>
+    <div class="panel-body">
+      <section class="panel-section">
+        <h4 class="panel-section__title" data-i18n="EDITOR_FONT"></h4>
+        <input type="range" id="global-font-size" min="12" max="48" value="16" />
+        <div class="panel-row">
+          <input type="number" id="global-font-size-number" min="12" max="48" value="16" style="width: 72px" />
+          px
+        </div>
+        <div class="panel-hint" data-i18n="HINT_FONT_SIZE_SHORTCUT"></div>
+      </section>
+
+      <section class="panel-section">
+        <h4 class="panel-section__title" data-i18n="HUD_CONTROL"></h4>
+        <div class="panel-row panel-row--wrap">
+          <button id="hud-toggle-visibility" class="small" type="button" data-i18n="HUD_TOGGLE">
+          </button>
+          <button id="hud-pin-toggle" class="small" type="button" data-i18n="HUD_PIN">
+          </button>
+        </div>
+        <div class="panel-row panel-row--wrap">
+          <button id="hud-refresh" class="small" type="button" data-i18n="HUD_REFRESH">
+          </button>
+        </div>
+        <div class="panel-hint" data-i18n="HINT_HUD_PIN">
+        </div>
+      </section>
+    </div>
+  </div>
+  <!-- 検索置換パネル -->
+  <div id="search-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="search-panel-title"
+    aria-modal="true">
+    <div class="panel-header">
+      <span id="search-panel-title" data-i18n="SEARCH_REPLACE"></span>
+      <button class="panel-close" id="close-search-panel" data-i18n="CLOSE" aria-label="検索パネルを閉じる"></button>
+    </div>
+    <div class="panel-body">
+      <label for="search-input" class="sr-only">検索語</label>
+      <input type="text" id="search-input" data-i18n-placeholder="SEARCH_PLACEHOLDER" aria-label="検索語を入力" />
+      <label for="replace-input" class="sr-only">置換語</label>
+      <input type="text" id="replace-input" data-i18n-placeholder="REPLACE_PLACEHOLDER" aria-label="置換語を入力" />
+      <div class="panel-row">
+        <label style="margin-right: 1rem"><input type="checkbox" id="search-case-sensitive" />
+          <span data-i18n="CASE_SENSITIVE"></span></label>
+        <label><input type="checkbox" id="search-regex" /> <span data-i18n="REGEX"></span></label>
+      </div>
+      <div class="panel-row">
+        <button id="replace-single" class="small" type="button" data-i18n="APPLY"></button>
+        <button id="replace-all" class="small" type="button" data-i18n="REPLACE_ALL">
+        </button>
+        <button id="search-prev" class="small" type="button" data-i18n="PREV"></button>
+        <button id="search-next" class="small" type="button" data-i18n="NEXT"></button>
+      </div>
+      <div class="panel-hint">
+        <span id="match-count" data-i18n="SEARCH_NO_RESULTS"></span><br />
+        <small data-i18n="HINT_SEARCH_SHORTCUT"></small>
+      </div>
+    </div>
+  </div>
+
+  <!-- フォント装飾パネル -->
+  <div id="font-decoration-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="font-decoration-panel-title" aria-modal="true">
+    <div class="panel-header">
+      <span id="font-decoration-panel-title" data-i18n="FONT_DECORATION"></span>
+      <button class="panel-close" id="close-font-decoration-panel" data-i18n="CLOSE"
+        aria-label="フォント装飾パネルを閉じる"></button>
+    </div>
+    <div class="panel-body">
+      <div class="panel-row">
+        <button id="decor-bold" class="decor-btn" data-tag="bold" data-i18n-title="DECOR_BOLD_TITLE">B</button>
+        <button id="decor-italic" class="decor-btn" data-tag="italic" data-i18n-title="DECOR_ITALIC_TITLE">I</button>
+        <button id="decor-underline" class="decor-btn" data-tag="underline"
+          data-i18n-title="DECOR_UNDERLINE_TITLE">U</button>
+        <button id="decor-strike" class="decor-btn" data-tag="strike" data-i18n-title="DECOR_STRIKE_TITLE">S</button>
+        <button id="decor-black" class="decor-btn" data-tag="black" data-i18n-title="DECOR_BLACK_TITLE">極</button>
+      </div>
+      <div class="panel-row">
+        <button id="decor-light" class="decor-btn" data-tag="light" data-i18n-title="DECOR_LIGHT_TITLE">細</button>
+        <button id="decor-smallcaps" class="decor-btn" data-tag="smallcaps"
+          data-i18n-title="DECOR_SMALLCAPS_TITLE">SC</button>
+        <button id="decor-shadow" class="decor-btn" data-tag="shadow" data-i18n-title="DECOR_SHADOW_TITLE">影</button>
+        <button id="decor-outline" class="decor-btn" data-tag="outline" data-i18n-title="DECOR_OUTLINE_TITLE">輪</button>
+        <button id="decor-glow" class="decor-btn" data-tag="glow" data-i18n-title="DECOR_GLOW_TITLE">光</button>
+      </div>
+      <div class="panel-row">
+        <button id="decor-uppercase" class="decor-btn" data-tag="uppercase"
+          data-i18n-title="DECOR_UPPERCASE_TITLE">大</button>
+        <button id="decor-lowercase" class="decor-btn" data-tag="lowercase"
+          data-i18n-title="DECOR_LOWERCASE_TITLE">小</button>
+        <button id="decor-capitalize" class="decor-btn" data-tag="capitalize"
+          data-i18n-title="DECOR_CAPITALIZE_TITLE">頭</button>
+        <button id="decor-wide" class="decor-btn" data-tag="wide" data-i18n-title="DECOR_WIDE_TITLE">広</button>
+        <button id="decor-narrow" class="decor-btn" data-tag="narrow" data-i18n-title="DECOR_NARROW_TITLE">狭</button>
+      </div>
+      <div class="panel-hint" data-i18n="HINT_DECORATION"></div>
+    </div>
+  </div>
+
+  <!-- テキストアニメーション パネル -->
+  <div id="text-animation-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="text-animation-panel-title" aria-modal="true">
+    <div class="panel-header">
+      <span id="text-animation-panel-title" data-i18n="TEXT_ANIMATION"></span>
+      <button class="panel-close" id="close-text-animation-panel" data-i18n="CLOSE"
+        aria-label="テキストアニメーションパネルを閉じる"></button>
+    </div>
+    <div class="panel-body">
+      <div class="panel-row">
+        <button id="anim-fade" class="decor-btn" data-tag="fade" data-i18n-title="ANIM_FADE_TITLE">フェード</button>
+        <button id="anim-slide" class="decor-btn" data-tag="slide" data-i18n-title="ANIM_SLIDE_TITLE">スライド</button>
+        <button id="anim-type" class="decor-btn" data-tag="type" data-i18n-title="ANIM_TYPE_TITLE">タイプ</button>
+        <button id="anim-pulse" class="decor-btn" data-tag="pulse" data-i18n-title="ANIM_PULSE_TITLE">パルス</button>
+      </div>
+      <div class="panel-row">
+        <button id="anim-shake" class="decor-btn" data-tag="shake" data-i18n-title="ANIM_SHAKE_TITLE">シェイク</button>
+        <button id="anim-bounce" class="decor-btn" data-tag="bounce" data-i18n-title="ANIM_BOUNCE_TITLE">バウンス</button>
+        <button id="anim-fadein" class="decor-btn" data-tag="fadein" data-i18n-title="ANIM_FADEIN_TITLE">遅フェード</button>
+      </div>
+      <section class="panel-section">
+        <h4 class="panel-section__title" data-i18n="ANIMATION_SETTINGS">アニメーション設定</h4>
+        <div class="panel-row">
+          <label for="anim-speed" data-i18n="ANIMATION_SPEED">速度:</label>
+          <input type="range" id="anim-speed" min="0.5" max="3" step="0.1" value="1" style="flex: 1; margin: 0 8px;" />
+          <span id="anim-speed-value">1.0x</span>
+        </div>
+        <div class="panel-row">
+          <label for="anim-duration" data-i18n="ANIMATION_DURATION">持続時間 (秒):</label>
+          <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5"
+            style="flex: 1; margin: 0 8px;" />
+          <span id="anim-duration-value">1.5s</span>
+        </div>
+        <div class="panel-row">
+          <label>
+            <input type="checkbox" id="anim-reduce-motion" />
+            <span data-i18n="REDUCE_MOTION">アニメーションを減らす（アクセシビリティ）</span>
+          </label>
+        </div>
+        <div class="panel-hint" data-i18n="HINT_ANIMATION_SETTINGS">設定は次回適用されるアニメーションに反映されます</div>
+      </section>
+      <div class="panel-hint" data-i18n="HINT_ANIMATION">テキストを選択してからアニメーションボタンをクリックしてください</div>
+    </div>
+  </div>
+
+  <script src="js/storage.js"></script>
+  <script src="js/theme-registry.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/ui-labels.js"></script>
+  <script src="js/visual-profile.js"></script>
+  <script src="js/ui-editor.js"></script>
+  <!-- Markdown renderer (browser) -->
+  <script src="https://unpkg.com/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+  <!-- Markdown to HTML converter (for WYSIWYG) -->
+  <script src="https://cdn.jsdelivr.net/npm/turndown@7.2.2/dist/turndown.js"></script>
+  <!-- DOM diff library for live preview -->
+  <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.2/dist/morphdom-umd.min.js"></script>
+  <script src="js/tools-registry.js"></script>
+  <script src="js/element-manager.js"></script>
+  <script src="js/sidebar-manager.js"></script>
+  <script src="js/settings-manager.js"></script>
+  <script src="js/search-manager.js"></script>
+  <!-- Gadgets system (modular) -->
+  <script src="js/loadouts-presets.js"></script>
+  <script src="js/gadgets-utils.js"></script>
+  <script src="js/gadgets-loadouts.js"></script>
+  <script src="js/gadgets-core.js"></script>
+  <script src="js/gadgets-builtin.js"></script>
+  <script src="js/gadgets-themes.js"></script>
+  <script src="js/gadgets-typography.js"></script>
+  <script src="js/gadgets-hud.js"></script>
+  <script src="js/gadgets-clock.js"></script>
+  <script src="js/gadgets-goal.js"></script>
+  <script src="js/gadgets-snapshot.js"></script>
+  <script src="js/gadgets-print.js"></script>
+  <script src="js/gadgets-choice.js"></script>
+  <script src="js/gadgets-images.js"></script>
+  <script src="js/gadgets-wiki.js"></script>
+  <script src="js/gadgets-layout.js"></script>
+  <script src="js/gadgets-help.js"></script>
+  <script src="js/gadgets-prefs.js"></script>
+  <script src="js/gadgets-visual-profile.js"></script>
+  <script src="js/gadgets-loadout.js"></script>
+  <script src="js/gadgets-samples.js"></script>
+  <script src="js/gadgets-editor-extras.js"></script>
+  <script src="js/pomodoro-timer.js"></script>
+  <script src="js/gadgets-pomodoro.js"></script>
+  <script src="js/keybind-editor.js"></script>
+  <script src="js/gadgets-keybinds.js"></script>
+  <script src="js/gadgets-init.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/tags.js"></script>
+  <script src="js/smart-folders.js"></script>
+  <script src="js/gadgets-registry.js"></script>
+  <script src="js/gadgets-tags-smart-folders.js"></script>
+  <script src="js/wiki.js"></script>
+  <script src="js/nodegraph.js"></script>
+  <script src="js/link-graph.js"></script>
+  <script src="js/hud.js"></script>
+  <script src="js/editor-preview.js"></script>
+  <script src="js/editor-images.js"></script>
+  <script src="js/editor-overlays.js"></script>
+  <script src="js/spell-checker.js"></script>
+  <!-- Editor Modules -->
+  <script src="js/modules/editor/EditorCore.js"></script>
+  <script src="js/modules/editor/EditorUI.js"></script>
+  <script src="js/modules/editor/EditorSearch.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/editor-wysiwyg.js"></script>
+  <script src="js/split-view.js"></script>
+  <script src="js/command-palette.js"></script>
+  <script src="js/app-editor-bridge.js"></script>
+  <script src="js/app.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script>
+    try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ icons: window.lucide.icons }); } } catch (_) { }
+  </script>
+  <!-- 埋め込み時のpostMessageブリッジ（?embed=1でREADY/RPC受信） -->
+  <script src="js/embed/child-bridge.js"></script>
+  <script>
+    // 非埋め込み時のみ Outline/高度テーマ/プラグインを動的ロード（埋め込みでの初期ロードを軽量化）
+    (function () {
+      var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
+      if (isEmbed) return;
+      function load(src) {
+        var s = document.createElement('script');
+        s.src = src;
+        s.defer = true;
+        document.body.appendChild(s);
+      }
+      load('js/outline.js');
+      load('js/themes-advanced.js');
+      load('js/plugins/registry.js');
+      load('js/plugins/choice.js');
+      load('js/images.js');
+      load('js/panels.js');
+    })();
+  </script>
 </body>
+
 </html>

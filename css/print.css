@@ -1,0 +1,203 @@
+/* ===== PRINT ===== */
+
+.print-view {
+  display: none;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1.5cm 1.5cm;
+  color: #000;
+  background: #fff;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12pt;
+  line-height: 1.5;
+}
+.print-view p {
+  margin: 0 0 1em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.print-view h1,
+.print-view h2,
+.print-view h3,
+.print-view h4,
+.print-view h5,
+.print-view h6 {
+  color: #000;
+  font-weight: var(--heading-h1-weight);
+  margin: var(--heading-h1-margin-top) 0 var(--heading-h1-margin-bottom);
+  page-break-after: avoid;
+}
+.print-view h1 {
+  font-size: var(--heading-h1-size);
+  border-bottom: var(--heading-h1-border-bottom);
+  padding-bottom: var(--heading-h1-padding-bottom);
+}
+.print-view h2 {
+  font-size: var(--heading-h2-size);
+}
+.print-view h3 {
+  font-size: var(--heading-h3-size);
+}
+.print-view h4,
+.print-view h5,
+.print-view h6 {
+  font-size: var(--heading-h4-size);
+}
+.print-view hr {
+  border: none;
+  border-top: 1px solid #000;
+  margin: 1em 0;
+}
+
+/* 印刷時のレイアウト */
+@media print {
+  /* 基本設定 */
+  body {
+    font-family: 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    margin: 0;
+    padding: 0;
+    color: black;
+    background: white;
+  }
+
+  /* エディタ領域 */
+  .editor-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  #editor {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  /* 見出しスタイル（CSS変数を使用） */
+  #editor h1,
+  #editor h2,
+  #editor h3,
+  #editor h4,
+  #editor h5,
+  #editor h6 {
+    font-size: var(--heading-font-size);
+  }
+
+  #editor p {
+    font-size: var(--body-font-size);
+  }
+
+  #editor h2 {
+    font-size: var(--heading-h2-size);
+    font-weight: var(--heading-h2-weight);
+    line-height: var(--heading-h2-line-height);
+    margin-top: var(--heading-h2-margin-top);
+    margin-bottom: var(--heading-h2-margin-bottom);
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  #editor h3 {
+    font-size: var(--heading-h3-size);
+    font-weight: var(--heading-h3-weight);
+    line-height: var(--heading-h3-line-height);
+    margin-top: var(--heading-h3-margin-top);
+    margin-bottom: var(--heading-h3-margin-bottom);
+    page-break-after: avoid;
+  }
+
+  #editor h4,
+  #editor h5,
+  #editor h6 {
+    font-size: var(--heading-h4-size);
+    font-weight: var(--heading-h4-weight);
+    line-height: var(--heading-h4-line-height);
+    margin-top: var(--heading-h4-margin-top);
+    margin-bottom: var(--heading-h4-margin-bottom);
+  }
+
+  /* 段落 */
+  #editor p {
+    margin-top: 0;
+    margin-bottom: 1em;
+    text-align: justify;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* リスト */
+  #editor ul,
+  #editor ol {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+  }
+
+  #editor li {
+    margin-bottom: 0.3em;
+  }
+
+  /* コードブロック */
+  #editor pre {
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+    line-height: 1.2;
+    margin: 1em 0;
+    padding: 0.5em;
+    background: #f5f5f5;
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  #editor code {
+    font-family: 'Courier New', monospace;
+    font-size: 10pt;
+  }
+
+  /* 引用 */
+  #editor blockquote {
+    margin: 1em 2em;
+    font-style: italic;
+    border-left: 4px solid #ccc;
+    padding-left: 1em;
+  }
+
+  /* 水平線 */
+  #editor hr {
+    border: none;
+    border-top: 1px solid #999;
+    margin: 2em 0;
+    page-break-after: avoid;
+  }
+
+  /* サイドバー非表示 */
+  .sidebar,
+  .gadgets-panel,
+  .sidebar-tabs,
+  .sidebar-groups {
+    display: none !important;
+  }
+
+  /* ツールバー非表示 */
+  .toolbar {
+    display: none !important;
+  }
+
+  /* ミニHUD非表示 */
+  .mini-hud {
+    display: none !important;
+  }
+
+  /* ページ区切り */
+  .page-break {
+    page-break-before: always;
+  }
+
+  /* 印刷時に隠す要素 */
+  .no-print {
+    display: none !important;
+  }
+}

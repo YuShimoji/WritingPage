@@ -1,0 +1,140 @@
+<instruction>
+あなたは分散開発チームの Worker です。割り当てられた 1 タスクだけを完遂し、証跡を残してください。
+</instruction>
+
+<context>
+<mission_log>
+作業開始時に `.cursor/MISSION_LOG.md` を読み込み、現在のフェーズと進捗を確認してください。
+現在のフェーズ: Phase 5（Worker起動用プロンプト生成）完了、次フェーズ: Phase 4（Worker完了）または Phase 6（Orchestrator Report）
+作業完了時に MISSION_LOG.md を更新し、進捗を記録してください。
+</mission_log>
+
+<ssot_reference>
+Phase 0: 参照と整備
+- SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+- 進捗: docs/HANDOVER.md
+- チケット: docs/tasks/TASK_015_orchestrator_audit_ci_integration.md
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+</ssot_reference>
+
+<preconditions>
+Phase 1: 前提の固定
+- Tier: 2
+- Branch: main
+- Report Target: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md
+- GitHubAutoApprove: true（docs/HANDOVER.md の記述を参照）
+- ブランチが異なる場合:
+  - `git status -sb` で未コミットが無いことを確認
+  - `git switch main` で切替を試す
+  - 破壊的操作が必要なら停止条件
+</preconditions>
+
+<boundaries>
+Phase 2: 境界
+- Focus Area: .github/workflows/（GitHub Actions ワークフローの作成・更新）、docs/（CI 統合のドキュメント化、必要に応じて）
+- Forbidden Area: .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）、scripts/orchestrator-audit.js（既存スクリプトの変更は本タスク対象外、CI 統合のみ）
+- DoD:
+  - [ ] orchestrator-audit.js を GitHub Actions の CI パイプラインに組み込み、PR作成時やマージ前に自動実行できるようにする
+  - [ ] CI 実行時のエラーや警告が適切に表示されることを確認
+  - [ ] 使用方法がドキュメント化されている（必要に応じて）
+  - [ ] docs/inbox/ にレポート（REPORT_...md）が作成されている
+  - [ ] 本チケットの Report 欄にレポートパスが追記されている
+</boundaries>
+</context>
+
+<workflow>
+<phase name="Phase 0: 参照と整備">
+<step>
+1. `.cursor/MISSION_LOG.md` を読み込み、現在のフェーズと進捗を確認。
+2. SSOT: .shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md（無ければ docs/ 配下を参照し、必ず `ensure-ssot.js` で取得を試す）
+3. 進捗: docs/HANDOVER.md
+4. チケット: docs/tasks/TASK_015_orchestrator_audit_ci_integration.md（**存在確認: `Test-Path docs/tasks/TASK_015_orchestrator_audit_ci_integration.md` または `ls docs/tasks/TASK_015_orchestrator_audit_ci_integration.md`**）
+5. SSOT 未整備・ensure-ssot.js 不在で解決できない場合は停止条件
+</step>
+</phase>
+
+<phase name="Phase 1: 前提の固定">
+<step>
+1. Tier: 2 を確認（機能実装、リファクタ）
+2. Branch: main を確認（`git status -sb` で現在のブランチを確認）
+3. Report Target: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md（YYYYMMDD_HHMM は現在日時）
+4. GitHubAutoApprove: docs/HANDOVER.md の記述を確認（GitHubAutoApprove: true の場合、PR作成後に自動マージを試みる）
+5. ブランチが異なる場合:
+   - `git status -sb` で未コミットが無いことを確認
+   - `git switch main` で切替を試す
+   - 破壊的操作が必要なら停止条件
+</step>
+</phase>
+
+<phase name="Phase 2: 境界確認">
+<step>
+1. Focus Area を確認:
+   - .github/workflows/（GitHub Actions ワークフローの作成・更新）
+   - docs/（CI 統合のドキュメント化、必要に応じて）
+2. Forbidden Area を確認:
+   - .shared-workflows/**（submodule内の変更は禁止、ただし既存スクリプトの使用は可能）
+   - scripts/orchestrator-audit.js（既存スクリプトの変更は本タスク対象外、CI 統合のみ）
+3. DoD を確認（チケットファイルの DoD セクションを参照）
+</step>
+</phase>
+
+<phase name="Phase 3: 実装">
+<step>
+1. orchestrator-audit.js の存在確認:
+   - `scripts/orchestrator-audit.js` の存在を確認
+   - `.shared-workflows/scripts/orchestrator-audit.js` の存在を確認（フォールバック）
+   - スクリプトの使用方法を調査（コマンドライン引数、終了コード、出力形式）
+2. 既存の CI ワークフローの確認:
+   - `.github/workflows/session-end-check.yml` の存在を確認（TASK_009 で作成）
+   - 既存ワークフローの構造を確認し、同様の構造で orchestrator-audit.yml を作成
+3. GitHub Actions ワークフローの作成:
+   - `.github/workflows/orchestrator-audit.yml` を作成
+   - PR作成時やマージ前に自動実行できるように設定
+   - エラーや警告が適切に表示されるように設定
+4. 動作確認:
+   - ワークフローの構文エラーがないことを確認（必要に応じて `act` や GitHub Actions の構文チェックを使用）
+   - 主要パスのみテスト（拡張テストは後続チケットへ分離）
+5. 使用方法のドキュメント化（必要に応じて）:
+   - docs/ に CI 統合の手順を記載
+   - 既存のドキュメントに追記するか、新規作成するか判断
+</step>
+</phase>
+
+<phase name="Phase 4: レポート作成">
+<step>
+1. レポートファイルを作成: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md
+2. レポート形式: REPORT_CONFIG.yml の standard スタイルに準拠
+   - 必須ヘッダー: 概要、現状、次のアクション
+   - その他の推奨ヘッダー: 実施内容、変更ファイル、DoD 達成状況、検証
+3. レポート検証: `node scripts/report-validator.js docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md REPORT_CONFIG.yml .`
+4. チケットの Report 欄にレポートパスを追記: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md
+5. チケットの Status を DONE に更新（DoD がすべて達成されている場合）
+</step>
+</phase>
+
+<phase name="Phase 5: コミットとプッシュ">
+<step>
+1. 変更をステージ: `git add <変更ファイル>`
+2. コミット: `git commit -m "feat: integrate orchestrator-audit.js into CI pipeline (TASK_015)"`
+3. プッシュ: `git push origin main`
+4. PR作成（Tier 2 の場合）:
+   - `gh pr create --title "feat: integrate orchestrator-audit.js into CI pipeline (TASK_015)" --body "TASK_015 の完了: orchestrator-audit.js を CI パイプラインに組み込み"`
+   - GitHubAutoApprove: true の場合、自動マージを試みる
+   - 自動マージが失敗した場合、手動マージを待つ
+</step>
+</phase>
+</workflow>
+
+<stop_conditions>
+- SSOT 未整備・ensure-ssot.js 不在で解決できない場合
+- ブランチ切替に破壊的操作が必要な場合
+- Forbidden Area に触れる必要がある場合
+- 仮定が3つ以上必要な場合
+- 前提を覆す変更が必要な場合
+</stop_conditions>
+
+<deliverables>
+- レポート: docs/inbox/REPORT_TASK_015_orchestrator_audit_ci_integration_YYYYMMDD_HHMM.md
+- CI ワークフロー: .github/workflows/orchestrator-audit.yml
+- ドキュメント: docs/（CI 統合のドキュメント化、必要に応じて）
+</deliverables>

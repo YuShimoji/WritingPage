@@ -1,32 +1,165 @@
 // アプリケーションの初期化
 document.addEventListener('DOMContentLoaded', () => {
+    // デバッグモード（開発環境でのみ有効）
+    const DEBUG = !!(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+    const logger = {
+        info: (msg, ...args) => DEBUG && console.log(`[Zen Writer] ${msg}`, ...args),
+        warn: (msg, ...args) => console.warn(`[Zen Writer] ${msg}`, ...args),
+        error: (msg, ...args) => console.error(`[Zen Writer] ${msg}`, ...args)
+    };
+
+    logger.info('アプリケーション初期化開始');
+
+    // キーボード/マウス操作の検出（フォーカス表示の制御用）
+    let _isKeyboardUser = false;
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Tab') {
+            _isKeyboardUser = true;
+            document.body.classList.add('keyboard-user');
+            document.body.classList.remove('mouse-user');
+        }
+    }, true);
+    document.addEventListener('mousedown', () => {
+        _isKeyboardUser = false;
+        document.body.classList.add('mouse-user');
+        document.body.classList.remove('keyboard-user');
+    }, true);
+
+    // UIラベルの適用
+    function applyUILabels() {
+        if (!window.UILabels) return;
+
+        // ユーザー設定（エディタプレースホルダなど）を取得
+        let editorPlaceholderOverride = null;
+        try {
+            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+                const s = window.ZenWriterStorage.loadSettings();
+                if (s && s.editor && typeof s.editor.placeholder === 'string') {
+                    const trimmed = s.editor.placeholder.trim();
+                    if (trimmed) editorPlaceholderOverride = trimmed;
+                }
+            }
+        } catch (_) { }
+
+        // data-i18n 属性を持つ要素を更新
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (window.UILabels[key]) {
+                el.textContent = window.UILabels[key];
+            }
+        });
+
+        // data-i18n-placeholder 属性を持つ要素を更新
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (key === 'EDITOR_PLACEHOLDER' && editorPlaceholderOverride) {
+                el.setAttribute('placeholder', editorPlaceholderOverride);
+            } else if (window.UILabels[key]) {
+                el.setAttribute('placeholder', window.UILabels[key]);
+            }
+        });
+
+        // data-i18n-title 属性を持つ要素を更新（ツールチップなど）
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (window.UILabels[key]) {
+                el.setAttribute('title', window.UILabels[key]);
+            }
+        });
+
+        // data-i18n-aria-label 属性を持つ要素を更新
+        document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+            const key = el.getAttribute('data-i18n-aria-label');
+            if (window.UILabels[key]) {
+                el.setAttribute('aria-label', window.UILabels[key]);
+            }
+        });
+    }
+
+    // 初期化時にラベル適用
+    applyUILabels();
+
     // グローバルオブジェクトが存在するか確認
     if (!window.ZenWriterStorage || !window.ZenWriterTheme || !window.ZenWriterEditor) {
-        console.error('必要なスクリプトが読み込まれていません');
+        logger.error('必要なスクリプトが読み込まれていません');
         return;
     }
 
+    // ElementManagerをグローバルに公開（他の関数からアクセスするため）
+    window.elementManager = new ElementManager();
+
+    // SidebarManagerを初期化
+    const sidebarManager = new SidebarManager(window.elementManager);
+    window.sidebarManager = sidebarManager;
+
+    // SettingsManagerを初期化
+    const settingsManager = new SettingsManager(window.elementManager);
+    window.settingsManager = settingsManager;
+    try {
+        window.addEventListener('ZenWriterSettingsChanged', () => {
+            if (window.settingsManager && typeof window.settingsManager.applySettingsToUI === 'function') {
+                window.settingsManager.applySettingsToUI();
+            }
+        });
+    } catch (_) { }
+
+    function syncToolbarHeightWithCSSVar() {
+        try {
+            const toolbarEl = document.querySelector('.toolbar');
+            if (!toolbarEl) return;
+            const root = document.documentElement;
+            const update = () => {
+                const rect = toolbarEl.getBoundingClientRect();
+                if (!rect || !rect.height) return;
+                const h = Math.round(rect.height);
+                root.style.setProperty('--toolbar-height', h + 'px');
+            };
+            update();
+            if (typeof ResizeObserver === 'function') {
+                const ro = new ResizeObserver(() => update());
+                ro.observe(toolbarEl);
+            } else {
+                window.addEventListener('resize', update);
+            }
+        } catch (_) { }
+    }
+
+    // タブボタンを動的に生成
+    function initializeSidebarTabs() {
+        if (sidebarManager && typeof sidebarManager.bootstrapTabs === 'function') {
+            sidebarManager.bootstrapTabs();
+        }
+    }
+
+    // 要素別フォントサイズを適用
+    applyElementFontSizes();
+
+    syncToolbarHeightWithCSSVar();
+
+    // タブ初期化
+    initializeSidebarTabs();
+
     // ------- 複数ドキュメント管理 -------
-    function ensureInitialDocument(){
+    function ensureInitialDocument() {
         if (!window.ZenWriterStorage) return;
         const docs = window.ZenWriterStorage.loadDocuments();
         let cur = window.ZenWriterStorage.getCurrentDocId();
-        if (!docs || docs.length === 0){
+        if (!docs || docs.length === 0) {
             // 既存の単一CONTENTを初回ドキュメントとして取り込む
             const initial = window.ZenWriterStorage.loadContent() || '';
             const created = window.ZenWriterStorage.createDocument('ドキュメント1', initial);
             window.ZenWriterStorage.setCurrentDocId(created.id);
             // エディタへ同期
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
                 window.ZenWriterEditor.setContent(initial);
             }
             updateDocumentTitle();
         } else {
             // カレントが無ければ先頭に設定
-            if (!cur || !docs.some(d => d && d.id === cur)){
+            if (!cur || !docs.some(d => d && d.id === cur)) {
                 const first = docs[0];
                 window.ZenWriterStorage.setCurrentDocId(first.id);
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
                     window.ZenWriterEditor.setContent(first.content || '');
                 }
                 updateDocumentTitle();
@@ -34,70 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function renderDocList(){
-        if (!docSelect || !window.ZenWriterStorage) return;
-        const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
-        const cur = window.ZenWriterStorage.getCurrentDocId();
-        docSelect.innerHTML = '';
-        if (!docs || docs.length === 0){
-            const opt = document.createElement('option');
-            opt.value = '';
-            opt.textContent = '(なし)';
-            docSelect.appendChild(opt);
-            if (docRenameBtn) docRenameBtn.disabled = true;
-            if (docDeleteBtn) docDeleteBtn.disabled = true;
-            return;
-        }
-        docs.forEach(d => {
-            const opt = document.createElement('option');
-            opt.value = d.id;
-            opt.textContent = d.name || '無題';
-            docSelect.appendChild(opt);
-        });
-        docSelect.value = cur || docs[0].id;
-        if (docRenameBtn) docRenameBtn.disabled = false;
-        if (docDeleteBtn) docDeleteBtn.disabled = false;
-    }
-
-    function switchDocument(id){
-        if (!id || !window.ZenWriterStorage) return;
-        const docs = window.ZenWriterStorage.loadDocuments();
-        const target = docs.find(d => d && d.id === id);
-        if (!target) return;
-        // 現在の内容を一度保存（現在ドキュメントに反映）
-        if (editor && typeof window.ZenWriterStorage.saveContent === 'function'){
-            window.ZenWriterStorage.saveContent(editor.value || '');
-        }
-        // カレント切替→内容適用（setContent 内で saveContent され、新カレントに反映）
-        window.ZenWriterStorage.setCurrentDocId(id);
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-            window.ZenWriterEditor.setContent(target.content || '');
-        }
-        if (docSelect) docSelect.value = id;
-        updateDocumentTitle();
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-            window.ZenWriterEditor.showNotification(`「${target.name || '無題'}」を開きました`, 1200);
-        }
-    }
-
     // タイトル更新（ドキュメント名 - Zen Writer）
-    function updateDocumentTitle(){
+    function updateDocumentTitle() {
         try {
             const docs = window.ZenWriterStorage.loadDocuments() || [];
             const cur = window.ZenWriterStorage.getCurrentDocId();
             const doc = docs.find(d => d && d.id === cur);
             const name = (doc && doc.name) ? doc.name : '';
             document.title = name ? `${name} - Zen Writer` : 'Zen Writer - 小説執筆ツール';
-        } catch(_) {
+        } catch (_) {
             document.title = 'Zen Writer - 小説執筆ツール';
         }
     }
 
     // 印刷処理
-    function printDocument(){
-        const pv = document.getElementById('print-view');
-        if (!pv || !editor) return;
-        const text = editor.value || '';
+    function _printDocument() {
+        const pv = elementManager.get('printView');
+        if (!pv || !elementManager.get('editor')) return;
+        const text = elementManager.get('editor').value || '';
         pv.innerHTML = '';
         const norm = text.replace(/\r\n/g, '\n');
         const blocks = norm.split(/\n{2,}/);
@@ -109,122 +196,94 @@ document.addEventListener('DOMContentLoaded', () => {
         window.print();
     }
 
-    // 要素を取得
-    const toggleSidebarBtn = document.getElementById('toggle-sidebar');
-    const closeSidebarBtn = document.getElementById('close-sidebar');
-    const sidebar = document.querySelector('.sidebar');
-    const toggleToolbarBtn = document.getElementById('toggle-toolbar');
-    const toolbar = document.querySelector('.toolbar');
-    const fullscreenBtn = document.getElementById('fullscreen');
-    const newDocumentBtn = document.getElementById('new-document');
-    const exportTxtBtn = document.getElementById('export-txt');
-    const exportMdBtn = document.getElementById('export-md');
-    const importBtn = document.getElementById('import-file');
-    const fileInput = document.getElementById('file-input');
-    const printBtn = document.getElementById('print-document');
-    // 複数ドキュメント管理 UI
-    const docSelect = document.getElementById('doc-select');
-    const docCreateBtn = document.getElementById('doc-create');
-    const docRenameBtn = document.getElementById('doc-rename');
-    const docDeleteBtn = document.getElementById('doc-delete');
-    const themePresets = document.querySelectorAll('.theme-preset');
-    const bgColorInput = document.getElementById('bg-color');
-    const textColorInput = document.getElementById('text-color');
-    const fontFamilySelect = document.getElementById('font-family');
-    const fontSizeInput = document.getElementById('font-size');
-    const fontSizeValue = document.getElementById('font-size-value');
-    const lineHeightInput = document.getElementById('line-height');
-    const lineHeightValue = document.getElementById('line-height-value');
-    const editor = document.getElementById('editor');
-    const showToolbarBtn = document.getElementById('show-toolbar');
-    const editorContainer = document.querySelector('.editor-container');
-    const resetColorsBtn = document.getElementById('reset-colors');
-    const toolsFab = document.getElementById('fab-tools');
-    const fontPanel = document.getElementById('floating-font-panel');
-    const closeFontPanelBtn = document.getElementById('close-font-panel');
-    const globalFontRange = document.getElementById('global-font-size');
-    const globalFontNumber = document.getElementById('global-font-size-number');
-    // HUD 設定UI
-    const hudPosSelect = document.getElementById('hud-position');
-    const hudDurationInput = document.getElementById('hud-duration');
-    const hudBgInput = document.getElementById('hud-bg');
-    const hudFgInput = document.getElementById('hud-fg');
-    const hudOpacityRange = document.getElementById('hud-opacity');
-    const hudOpacityValue = document.getElementById('hud-opacity-value');
-    const hudTestBtn = document.getElementById('hud-test');
-    // スナップショットUI
-    const snapNowBtn = document.getElementById('snapshot-now');
-    const snapListEl = document.getElementById('snapshot-list');
-    // 執筆目標
-    const goalTargetInput = document.getElementById('goal-target');
-    const goalDeadlineInput = document.getElementById('goal-deadline');
-    // プラグインパネル
-    const pluginsPanel = document.getElementById('plugins-panel');
-
-    function formatTs(ts){
-        const d = new Date(ts);
-        const p = (n)=> String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
-    }
-
-    function renderSnapshots(){
-        if (!snapListEl || !window.ZenWriterStorage || !window.ZenWriterStorage.loadSnapshots) return;
-        const list = window.ZenWriterStorage.loadSnapshots() || [];
-        snapListEl.innerHTML = '';
-        if (list.length === 0){
-            const empty = document.createElement('div');
-            empty.style.opacity = '0.7';
-            empty.textContent = 'バックアップはありません';
-            snapListEl.appendChild(empty);
+    function _forceSidebarState(open) {
+        const sidebar = elementManager.get('sidebar');
+        if (!sidebar) {
+            logger.error('サイドバー要素が見つかりません');
             return;
         }
-        list.forEach(s => {
-            const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.justifyContent = 'space-between';
-            row.style.alignItems = 'center';
-            row.style.gap = '6px';
-            row.style.margin = '4px 0';
-            const meta = document.createElement('div');
-            meta.textContent = `${formatTs(s.ts)} / ${s.len} 文字`;
-            const actions = document.createElement('div');
-            const restore = document.createElement('button');
-            restore.className = 'small';
-            restore.textContent = '復元';
-            restore.addEventListener('click', () => {
-                if (confirm('このバックアップで本文を置き換えます。よろしいですか？')){
-                    window.ZenWriterEditor.setContent(s.content || '');
-                    window.ZenWriterEditor.showNotification('バックアップから復元しました');
+
+        logger.info(`forceSidebarState(${open}) 実行開始`);
+        logger.info(`現在の状態: open=${sidebar.classList.contains('open')}, aria-hidden=${sidebar.getAttribute('aria-hidden')}`);
+
+        // 閉じる場合、サイドバー内のフォーカスを外部に移動してからaria-hiddenを設定
+        if (!open) {
+            const activeElement = document.activeElement;
+            // サイドバー内にフォーカスがある場合、エディタに移動
+            if (sidebar.contains(activeElement)) {
+                const editor = elementManager.get('editor');
+                if (editor) {
+                    // フォーカスを移動
+                    editor.focus();
+                    logger.info('サイドバー閉鎖のため、フォーカスをエディタに移動');
+                } else {
+                    // エディタがない場合はbodyにフォーカス
+                    document.body.focus();
+                    logger.info('サイドバー閉鎖のため、フォーカスをbodyに移動');
                 }
-            });
-            const del = document.createElement('button');
-            del.className = 'small';
-            del.textContent = '削除';
-            del.addEventListener('click', () => {
-                if (confirm('このバックアップを削除しますか？')){
-                    window.ZenWriterStorage.deleteSnapshot(s.id);
-                    renderSnapshots();
-                }
-            });
-            actions.appendChild(restore);
-            actions.appendChild(del);
-            row.appendChild(meta);
-            row.appendChild(actions);
-            snapListEl.appendChild(row);
+            }
+        }
+
+        // CSSクラスの更新
+        if (open) {
+            sidebar.classList.add('open');
+            document.documentElement.setAttribute('data-sidebar-open', 'true');
+            logger.info('サイドバーに .open クラスを追加');
+        } else {
+            sidebar.classList.remove('open');
+            document.documentElement.removeAttribute('data-sidebar-open');
+            logger.info('サイドバーから .open クラスを削除');
+        }
+
+        // ツールバー側の閉じるボタンの表示制御
+        const toolbarCloseSidebar = elementManager.get('toolbarCloseSidebar');
+        if (toolbarCloseSidebar) {
+            toolbarCloseSidebar.style.display = ''; // 常に表示
+            logger.info(`ツールバーの閉じるボタン: 表示`);
+        }
+
+        // aria-hiddenはフォーカス移動後に設定（requestAnimationFrameで次のフレームで実行）
+        requestAnimationFrame(() => {
+            sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
+            // toggle-sidebarボタンのaria-expanded属性も更新
+            const toggleBtn = elementManager.get('toggleSidebarBtn');
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-expanded', String(open));
+            }
+            logger.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
+            logger.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
         });
     }
 
+    // 要素別フォントサイズを適用
+    function applyElementFontSizes() {
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            const fs = (s && s.fontSizes) || {};
+            const root = document.documentElement;
+            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', fs.heading + 'px');
+            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', fs.body + 'px');
+        } catch (_) { }
+    }
+
+    // サイドバータブの表示方式を反映
+    window.sidebarManager.applyTabsPresentationUI();
+
+    function _formatTs(ts) {
+        const d = new Date(ts);
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+
     // プラグインを描画
-    function renderPlugins(){
+    function renderPlugins() {
+        const pluginsPanel = elementManager.get('pluginsPanel');
         if (!pluginsPanel || !window.ZenWriterPlugins) return;
         try {
             const list = window.ZenWriterPlugins.list ? (window.ZenWriterPlugins.list() || []) : [];
             pluginsPanel.innerHTML = '';
             if (!list.length) {
-                const empty = document.createElement('div');
-                empty.style.opacity = '0.7';
-                empty.textContent = '利用可能な拡張機能はありません';
-                pluginsPanel.appendChild(empty);
+                // メッセージを表示しない
                 return;
             }
             list.forEach(p => {
@@ -250,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.className = 'small';
                     btn.textContent = a.label || a.id;
                     btn.addEventListener('click', () => {
-                        try { if (a && typeof a.run === 'function') a.run(); } catch(e){ console.error(e); }
+                        try { if (a && typeof a.run === 'function') a.run(); } catch (e) { console.error(e); }
                     });
                     actionsWrap.appendChild(btn);
                 });
@@ -264,45 +323,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
-        sidebar.classList.toggle('open');
-    }
-
-    // ツールバー表示/非表示の適用（保存・レイアウト反映を含む）
-    function setToolbarVisibility(show) {
-        if (!toolbar) return;
-        // インライン style ではなく、ルート属性 + クラスで一元制御
-        // これにより computedStyle の不整合や一時的な二重描画を回避
-        if (showToolbarBtn) showToolbarBtn.style.display = show ? 'none' : 'inline-flex';
-        document.body.classList.toggle('toolbar-hidden', !show);
-        if (!show) {
-            document.documentElement.setAttribute('data-toolbar-hidden', 'true');
-        } else {
-            document.documentElement.removeAttribute('data-toolbar-hidden');
+        window.sidebarManager.toggleSidebar();
+        // ハンバーガーメニューボタンのaria-expanded属性を更新
+        const toggleBtn = elementManager.get('toggleSidebarBtn');
+        if (toggleBtn) {
+            const sidebar = elementManager.get('sidebar');
+            const isOpen = sidebar && sidebar.classList.contains('open');
+            toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         }
     }
 
     // ツールバーの表示/非表示を切り替え（状態保存）
-    let lastToolbarToggle = 0;
     function toggleToolbar() {
-        const now = Date.now();
-        if (now - lastToolbarToggle < 150) return; // debounce 二重発火防止
-        lastToolbarToggle = now;
-        // ルート属性（early-boot と setToolbarVisibility が管理）に基づき判定
-        const rootHidden = document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
-        const willShow = !!rootHidden;
-        setToolbarVisibility(willShow);
-        // 状態保存
-        const s = window.ZenWriterStorage.loadSettings();
-        s.toolbarVisible = willShow;
-        window.ZenWriterStorage.saveSettings(s);
-        // ツールバーを表示にしたらHUDを隠す
-        if (willShow && window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
-            window.ZenWriterHUD.hide();
+        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+        // ブランクモード時にツールバー操作が行われた場合は、
+        // まず通常モードへ戻してから処理する（脱出用エスケープ）
+        if (currentMode === 'blank') {
+            setUIMode('normal');
+            return;
+        }
+        window.sidebarManager.toggleToolbar();
+        // aria-expanded属性を更新
+        const toggleBtn = elementManager.get('toggleToolbarBtn');
+        const showBtn = elementManager.get('showToolbarBtn');
+        const toolbar = elementManager.get('toolbar');
+        const isVisible = toolbar && !document.documentElement.getAttribute('data-toolbar-hidden');
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', String(!!isVisible));
+        }
+        if (showBtn) {
+            showBtn.setAttribute('aria-expanded', String(!isVisible));
         }
     }
 
     // フルスクリーン切り替え
-    function toggleFullscreen() {
+    function _toggleFullscreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
                 console.error('フルスクリーンエラー:', err);
@@ -314,118 +369,750 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 設定をUIに反映
-    function applySettingsToUI() {
-        const settings = window.ZenWriterStorage.loadSettings();
-        
-        // テーマプリセットを選択
-        document.querySelectorAll('.theme-preset').forEach(btn => {
-            if (btn.dataset.theme === settings.theme) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        });
-        
-        // カラーピッカーを設定
-        if (bgColorInput) bgColorInput.value = settings.bgColor;
-        if (textColorInput) textColorInput.value = settings.textColor;
-        
-        // フォント設定を設定
-        if (fontFamilySelect) fontFamilySelect.value = settings.fontFamily;
-        if (fontSizeInput) {
-            fontSizeInput.value = settings.fontSize;
-            fontSizeValue.textContent = settings.fontSize;
-        }
-        if (lineHeightInput) {
-            lineHeightInput.value = settings.lineHeight;
-            lineHeightValue.textContent = settings.lineHeight;
-        }
-        // ツールバー表示状態
-        if (typeof settings.toolbarVisible !== 'undefined') {
-            setToolbarVisibility(!!settings.toolbarVisible);
-        }
-
-        // HUD 設定の初期反映
-        const hud = settings.hud || {};
-        if (hudPosSelect) hudPosSelect.value = hud.position || 'bottom-left';
-        if (hudDurationInput) hudDurationInput.value = hud.duration || 1200;
-        if (hudBgInput) hudBgInput.value = hud.bg || '#000000';
-        if (hudFgInput) hudFgInput.value = hud.fg || '#ffffff';
-        if (hudOpacityRange) hudOpacityRange.value = (typeof hud.opacity === 'number') ? hud.opacity : 0.75;
-        if (hudOpacityValue) hudOpacityValue.textContent = String((typeof hud.opacity === 'number') ? hud.opacity : 0.75);
-
-        // 執筆目標の初期反映
-        const goal = settings.goal || {};
-        if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
-        if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
+    function activateSidebarGroup(groupId) {
+        window.sidebarManager.activateSidebarGroup(groupId);
     }
 
     // イベントリスナーを設定
-    if (toggleSidebarBtn) toggleSidebarBtn.addEventListener('click', toggleSidebar);
-    if (closeSidebarBtn) closeSidebarBtn.addEventListener('click', toggleSidebar);
-    if (toggleToolbarBtn) toggleToolbarBtn.addEventListener('click', toggleToolbar);
-    if (showToolbarBtn) showToolbarBtn.addEventListener('click', toggleToolbar);
-    if (fullscreenBtn) fullscreenBtn.addEventListener('click', toggleFullscreen);
-    // キーボードショートカット: Alt+W でツールバー表示切替
-    document.addEventListener('keydown', (e) => {
-        const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
-        const inFormControl = ['input','select','textarea','button'].includes(targetTag);
-        if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
-            if (e.repeat) return; // 長押しの自動リピートで連続トグルしない
+    const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
+    const toolbarCloseSidebar = elementManager.get('toolbarCloseSidebar');
+    const toggleToolbarBtn = elementManager.get('toggleToolbarBtn');
+    const showToolbarBtn = elementManager.get('showToolbarBtn');
+    const fullscreenBtn = elementManager.get('fullscreenBtn');
+    const feedbackBtn = elementManager.get('feedbackBtn');
+    const toggleSplitViewBtn = document.getElementById('toggle-split-view');
+    const splitViewModePanel = document.getElementById('split-view-mode-panel');
+    const closeSplitViewModePanelBtn = document.getElementById('close-split-view-mode-panel');
+    const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
+    const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
+    const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
+    const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
+    const toggleSpellCheckBtn = document.getElementById('toggle-spell-check');
+
+    // サイドバーの開閉ボタン（ツールバー側のみ）
+    if (toggleSidebarBtn) {
+        toggleSidebarBtn.addEventListener('click', toggleSidebar);
+        // タッチイベントも対応
+        toggleSidebarBtn.addEventListener('touchend', (e) => {
             e.preventDefault();
-            toggleToolbar();
-        }
-    });
-    
-    // ドキュメント操作
-    if (newDocumentBtn) newDocumentBtn.addEventListener('click', () => {
-        const name = prompt('新しいドキュメント名を入力', '無題');
-        if (name === null) return;
-        const doc = window.ZenWriterStorage.createDocument(name || '無題', '');
-        window.ZenWriterStorage.setCurrentDocId(doc.id);
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-            window.ZenWriterEditor.setContent('');
-        }
-        renderDocList();
-        updateDocumentTitle();
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-            window.ZenWriterEditor.showNotification('新規ドキュメントを作成しました', 1200);
-        }
-    });
-    if (exportTxtBtn) exportTxtBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsText());
-    if (exportMdBtn) exportMdBtn.addEventListener('click', () => window.ZenWriterEditor.exportAsMarkdown());
-    if (importBtn && fileInput) {
-        importBtn.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = () => {
-                const text = reader.result || '';
-                window.ZenWriterEditor.setContent(text);
-                window.ZenWriterEditor.showNotification('ファイルを読み込みました');
-                // 使い終わったら値をクリアして同じファイルでも再度選択可能に
-                fileInput.value = '';
-            };
-            reader.onerror = () => {
-                console.error('ファイル読み込みエラー');
-                window.ZenWriterEditor.showNotification('読み込みに失敗しました');
-            };
-            reader.readAsText(file, 'utf-8');
+            toggleSidebar();
         });
     }
-    if (printBtn) {
-        printBtn.addEventListener('click', printDocument);
+    if (toolbarCloseSidebar) {
+        toolbarCloseSidebar.addEventListener('click', toggleSidebar);
+        toolbarCloseSidebar.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            toggleSidebar();
+        });
+    }
+
+    // サイドバーオーバーレイのクリック/タッチでサイドバーを閉じる（モバイル用）
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            if (window.sidebarManager) {
+                window.sidebarManager.forceSidebarState(false);
+            }
+        });
+        sidebarOverlay.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (window.sidebarManager) {
+                window.sidebarManager.forceSidebarState(false);
+            }
+        });
+    }
+
+    // サイドバーのスワイプ操作（モバイル用）
+    (function initSidebarSwipe() {
+        const sidebar = elementManager.get('sidebar');
+        if (!sidebar) return;
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        const SWIPE_THRESHOLD = 50; // スワイプ判定の最小距離（px）
+        const SWIPE_TIME_THRESHOLD = 300; // スワイプ判定の最大時間（ms）
+        const SWIPE_VERTICAL_THRESHOLD = 30; // 縦方向の許容範囲（px）
+
+        sidebar.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+
+        sidebar.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX;
+            const deltaY = Math.abs(touch.clientY - touchStartY);
+            
+            // 縦方向のスクロールが主な場合はスワイプ判定をスキップ
+            if (deltaY > SWIPE_VERTICAL_THRESHOLD && Math.abs(deltaX) < deltaY) {
+                return;
+            }
+            
+            // 左方向へのスワイプ（サイドバーを閉じる）
+            if (deltaX < -SWIPE_THRESHOLD && deltaY < SWIPE_VERTICAL_THRESHOLD) {
+                const elapsed = Date.now() - touchStartTime;
+                if (elapsed < SWIPE_TIME_THRESHOLD && window.sidebarManager) {
+                    window.sidebarManager.forceSidebarState(false);
+                }
+            }
+        }, { passive: true });
+    })();
+
+    // その他のボタン
+    if (toggleToolbarBtn) {
+        toggleToolbarBtn.addEventListener('click', toggleToolbar);
+        toggleToolbarBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleToolbar();
+            }
+        });
+    }
+    if (showToolbarBtn) {
+        showToolbarBtn.addEventListener('click', toggleToolbar);
+        showToolbarBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleToolbar();
+            }
+        });
+    }
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', _toggleFullscreen);
+        fullscreenBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                _toggleFullscreen();
+            }
+        });
+    }
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener('click', toggleFeedbackPanel);
+        feedbackBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFeedbackPanel();
+            }
+        });
     }
     
+    // スペルチェックのトグル
+    if (toggleSpellCheckBtn && window.ZenWriterEditor && window.ZenWriterEditor.spellChecker) {
+        toggleSpellCheckBtn.addEventListener('click', () => {
+            const spellChecker = window.ZenWriterEditor.spellChecker;
+            if (spellChecker.enabled) {
+                spellChecker.disable();
+                toggleSpellCheckBtn.classList.remove('active');
+            } else {
+                spellChecker.enable();
+                toggleSpellCheckBtn.classList.add('active');
+            }
+        });
+        
+        // 初期状態を反映
+        if (window.ZenWriterEditor.spellChecker.enabled) {
+            toggleSpellCheckBtn.classList.add('active');
+        }
+    }
+
+    // 分割ビューのイベントハンドラ
+    if (toggleSplitViewBtn) {
+        toggleSplitViewBtn.addEventListener('click', () => {
+            if (splitViewModePanel) {
+                const isVisible = splitViewModePanel.style.display !== 'none';
+                if (isVisible) {
+                    splitViewModePanel.style.display = 'none';
+                } else {
+                    splitViewModePanel.style.display = 'block';
+                }
+            }
+        });
+    }
+
+    // UIエディタのイベントハンドラ
+    if (toggleUIEditorBtn) {
+      toggleUIEditorBtn.addEventListener('click', () => {
+        if (window.uiVisualEditor) {
+          if (window.uiVisualEditor.isActive) {
+            window.uiVisualEditor.deactivate();
+          } else {
+            window.uiVisualEditor.activate();
+          }
+        }
+      });
+    }
+
+    if (closeSplitViewModePanelBtn) {
+        closeSplitViewModePanelBtn.addEventListener('click', () => {
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
+        splitViewEditPreviewBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('edit-preview');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
+        splitViewChapterCompareBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('chapter-compare');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
+        splitViewSnapshotDiffBtn.addEventListener('click', () => {
+            window.ZenWriterSplitView.toggle('snapshot-diff');
+            if (splitViewModePanel) {
+                splitViewModePanel.style.display = 'none';
+            }
+        });
+    }
+
+    // キーボードショートカット: カスタムキーバインド対応
+    // capture: trueで優先的に処理
+    document.addEventListener('keydown', (e) => {
+        // キーバインドシステムが利用可能な場合はそれを使用
+        if (window.ZenWriterKeybinds) {
+            const keybinds = window.ZenWriterKeybinds.load();
+            const keybindId = window.ZenWriterKeybinds.getKeybindIdForEvent(e, keybinds);
+            
+            if (keybindId) {
+                const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+                const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
+                
+                // フォームコントロール内では一部のショートカットのみ有効
+                const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle'];
+                
+                if (inFormControl && !allowInFormControl.includes(keybindId)) {
+                    // フォームコントロール内で無効なショートカットはスキップ
+                    return;
+                }
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // キーバインドIDに基づいてアクションを実行
+                switch (keybindId) {
+                    case 'sidebar.toggle':
+                        logger.info('キーボードショートカット: サイドバー開閉');
+                        toggleSidebar();
+                        break;
+                        
+                    case 'toolbar.toggle':
+                        if (e.repeat) return;
+                        // ブランクモードなら通常モードに戻す
+                        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+                        if (currentMode === 'blank') {
+                            setUIMode('normal');
+                            return;
+                        }
+                        toggleToolbar();
+                        break;
+                        
+                    case 'command-palette.toggle':
+                        if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                            window.commandPalette.toggle();
+                        }
+                        break;
+                        
+                    case 'search.toggle':
+                        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
+                            window.ZenWriterEditor.toggleSearchPanel();
+                        }
+                        break;
+                        
+                    case 'snapshot.restore':
+                        restoreLastSnapshot();
+                        break;
+                        
+                    case 'ui.mode.cycle':
+                        const mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+                        const modes = ['normal', 'focus', 'blank'];
+                        const currentIndex = modes.indexOf(mode);
+                        const nextIndex = (currentIndex + 1) % modes.length;
+                        setUIMode(modes[nextIndex]);
+                        break;
+                        
+                    case 'ui.mode.exit':
+                        const currentMode2 = document.documentElement.getAttribute('data-ui-mode');
+                        if (currentMode2 === 'blank' || currentMode2 === 'focus') {
+                            setUIMode('normal');
+                        }
+                        break;
+                        
+                    case 'editor.save':
+                    case 'editor.bold':
+                    case 'editor.italic':
+                    case 'editor.font.increase':
+                    case 'editor.font.decrease':
+                    case 'editor.font.reset':
+                        // editor.jsで処理される
+                        break;
+                }
+                return;
+            }
+        }
+        
+        // フォールバック: キーバインドシステムが利用できない場合は既存の処理を実行
+        // Alt + 1: サイドバーを開閉（タブは1つのみなので単純化）
+        if (e.altKey && e.key === '1') {
+            e.preventDefault();
+            e.stopPropagation();
+            logger.info('キーボードショートカット: Alt+1 → サイドバー開閉');
+            toggleSidebar();
+            return;
+        }
+
+        const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
+
+        // Alt+W: ツールバー切り替え
+        if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
+            if (e.repeat) return;
+            e.preventDefault();
+
+            // ブランクモードなら通常モードに戻す
+            const currentMode = document.documentElement.getAttribute('data-ui-mode');
+            if (currentMode === 'blank') {
+                setUIMode('normal');
+                return;
+            }
+
+            toggleToolbar();
+            return;
+        }
+
+        // Ctrl+P / Cmd+P: コマンドパレット
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                window.commandPalette.toggle();
+            }
+            return;
+        }
+
+        // Ctrl+F: 検索パネル
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
+                window.ZenWriterEditor.toggleSearchPanel();
+            }
+        }
+
+        // Ctrl+Shift+Z: 最後のスナップショットから復元
+        if (e.ctrlKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            restoreLastSnapshot();
+        }
+
+        // F2: UIモードサイクル切替 (normal → focus → blank → normal)
+        if (e.key === 'F2') {
+            e.preventDefault();
+            const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+            const modes = ['normal', 'focus', 'blank'];
+            const currentIndex = modes.indexOf(currentMode);
+            const nextIndex = (currentIndex + 1) % modes.length;
+            setUIMode(modes[nextIndex]);
+            return;
+        }
+
+        // Escape: Blankモードから Normal に戻る、またはモーダルを閉じる
+        if (e.key === 'Escape') {
+            // 開いているモーダルダイアログを閉じる
+            const openModals = document.querySelectorAll('[aria-modal="true"][aria-hidden="false"], [aria-modal="true"]:not([aria-hidden="true"])');
+            if (openModals.length > 0) {
+                const modal = openModals[openModals.length - 1];
+                const closeBtn = modal.querySelector('.panel-close, [aria-label*="閉じる"], [aria-label*="close"]');
+                if (closeBtn) {
+                    e.preventDefault();
+                    closeBtn.click();
+                    return;
+                }
+            }
+            
+            const currentMode = document.documentElement.getAttribute('data-ui-mode');
+            if (currentMode === 'blank' || currentMode === 'focus') {
+                e.preventDefault();
+                setUIMode('normal');
+                return;
+            }
+        }
+    }, true); // capture: trueで優先的に処理
+
+    /**
+     * 最後のスナップショットから復元（Ctrl+Shift+Z）
+     * 復元前に現在の内容を自動でスナップショット保存
+     */
+    function restoreLastSnapshot() {
+        const storage = window.ZenWriterStorage;
+        const editor = window.ZenWriterEditor;
+        if (!storage || !editor) return;
+
+        const snapshots = storage.loadSnapshots ? storage.loadSnapshots() : [];
+        if (!snapshots.length) {
+            if (editor.showNotification) {
+                editor.showNotification(
+                    (window.UILabels && window.UILabels.RESTORE_NO_BACKUPS) || '復元できるバックアップがありません',
+                    2000
+                );
+            }
+            return;
+        }
+
+        // 確認ダイアログ
+        const confirmMsg = (window.UILabels && window.UILabels.RESTORE_LAST_SNAPSHOT_CONFIRM) ||
+            '最後のスナップショットから復元しますか？\n現在の内容はスナップショットとして保存されます。';
+        if (!confirm(confirmMsg)) return;
+
+        // 復元前に現在の内容をスナップショット保存（安全策）
+        const currentContent = editor.editor ? editor.editor.value : '';
+        if (currentContent && storage.addSnapshot) {
+            storage.addSnapshot(currentContent);
+        }
+
+        // 最新のスナップショットを復元
+        const latest = snapshots[0]; // 新しい順にソート済み
+        if (editor.setContent) {
+            editor.setContent(latest.content || '');
+            if (editor.showNotification) {
+                editor.showNotification(
+                    (window.UILabels && window.UILabels.RESTORED) || 'バックアップから復元しました',
+                    1500
+                );
+            }
+        }
+    }
+
+    // ドキュメント操作
     // 初期: ドキュメント管理セットアップ
     ensureInitialDocument();
-    renderDocList();
     updateDocumentTitle();
     renderPlugins();
 
+    // サイドバー初期表示は設定しない（E2Eはボタンで開閉する前提）
+
+    // UI設定を適用（サイドバー幅やタブ表示方式、UIモード）
+    (function applyUISettings() {
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            const sidebar = elementManager.get('sidebar');
+            if (sidebar && s && s.ui) {
+                if (typeof s.ui.sidebarWidth === 'number') {
+                    const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
+                    sidebar.style.width = w + 'px';
+                    // CSS変数にも反映（main-content のオフセットと同期）
+                    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                }
+                if (s.ui.tabsPresentation) {
+                    sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));
+                }
+                // タブ配置を適用
+                if (window.sidebarManager && typeof window.sidebarManager.applyTabPlacement === 'function') {
+                    window.sidebarManager.applyTabPlacement();
+                }
+            }
+            // UIモード適用
+            if (s && s.ui && s.ui.uiMode) {
+                setUIMode(s.ui.uiMode, false); // 初回は保存しない
+            }
+            if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
+                window.sidebarManager.applyTabsPresentationUI();
+            }
+        } catch (_) { }
+    })();
+
+    // UIモード切り替え
+    function setUIMode(mode, save = true) {
+        const validModes = ['normal', 'focus', 'blank'];
+        const targetMode = validModes.includes(mode) ? mode : 'normal';
+
+        const currentMode = document.documentElement.getAttribute('data-ui-mode');
+
+        // ブランクモードに入るときは、ツールバーを一時的に隠して
+        // 再表示用FAB（show-toolbar）を出しておく
+        if (targetMode === 'blank') {
+            try {
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(false);
+                } else {
+                    document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+                }
+            } catch (_) { }
+        }
+
+        // ブランクモードから通常/フォーカスに戻る場合、ツールバー状態を復元
+        if (currentMode === 'blank' && targetMode !== 'blank') {
+            try {
+                const s = window.ZenWriterStorage.loadSettings();
+                const toolbarVisible = s.toolbarVisible !== false; // デフォルトは表示
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(toolbarVisible);
+                }
+            } catch (_) {
+                // エラー時はツールバーを表示状態に戻す
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(true);
+                } else {
+                    document.documentElement.removeAttribute('data-toolbar-hidden');
+                }
+            }
+        }
+
+        document.documentElement.setAttribute('data-ui-mode', targetMode);
+
+        const select = document.getElementById('ui-mode-select');
+        if (select && select.value !== targetMode) {
+            select.value = targetMode;
+        }
+
+        if (save) {
+            try {
+                const s = window.ZenWriterStorage.loadSettings();
+                if (!s.ui) s.ui = {};
+                s.ui.uiMode = targetMode;
+                window.ZenWriterStorage.saveSettings(s);
+            } catch (_) { }
+        }
+    }
+
+    const uiModeSelect = document.getElementById('ui-mode-select');
+    if (uiModeSelect) {
+        uiModeSelect.addEventListener('change', (e) => {
+            setUIMode(e.target.value);
+        });
+    }
+
+    // ガジェットの初期化（全パネル）
+    function initGadgetsWithRetry() {
+        let tries = 0;
+        const maxTries = 60; // ~3秒
+        function tick() {
+            tries++;
+            if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+                logger.info('ZWGadgets が利用可能になりました。初期化を開始します');
+                try {
+                    const panels = Array.from(document.querySelectorAll('.gadgets-panel[data-gadget-group]'))
+                        .map(panel => ({ selector: `#${panel.id}`, group: panel.dataset.gadgetGroup }))
+                        .filter(info => info.selector && info.group);
+
+                    if (!panels.length) {
+                        logger.warn('初期化対象のガジェットパネルが見つかりません');
+                    }
+
+                    const roots = window.ZWGadgets._roots || {};
+                    panels.forEach(info => {
+                        try {
+                            if (roots && roots[info.group]) return;
+                            window.ZWGadgets.init(info.selector, { group: info.group });
+                            logger.info(`ガジェット初期化完了: ${info.selector}`);
+                        } catch (initErr) {
+                            logger.error(`ガジェット初期化失敗: ${info.selector}`, initErr);
+                        }
+                    });
+
+                    if (typeof window.ZWGadgets.setActiveGroup === 'function') {
+                        const activeTab = document.querySelector('.sidebar-tab.active');
+                        const group = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                        window.ZWGadgets.setActiveGroup(group);
+                    }
+
+                    setTimeout(() => {
+                        if (typeof window.ZWGadgets._renderLast === 'function') {
+                            window.ZWGadgets._renderLast();
+                            logger.info('ガジェット初期レンダリング完了（全ガジェット登録済み）');
+                        }
+                    }, 300);
+                } catch (e) {
+                    logger.error('ガジェット初期化エラー:', e);
+                }
+                return;
+            }
+            if (tries < maxTries) {
+                setTimeout(tick, 50);
+            } else {
+                logger.error(`ZWGadgets の初期化に失敗しました（${maxTries}回試行）`);
+            }
+        }
+        tick();
+    }
+
+    // ロードアウトUI初期化
+    function initLoadoutUI() {
+        if (window.ZWLoadoutUI && typeof window.ZWLoadoutUI.refresh === 'function') {
+            try {
+                if (window.ZWGadgets && typeof window.ZWGadgets.getActiveLoadout === 'function') {
+                    window.ZWGadgets.getActiveLoadout();
+                }
+            } catch (_) { }
+            try { window.ZWLoadoutUI.refresh(); } catch (_) { }
+            return;
+        }
+        const loadoutSelect = document.getElementById('loadout-select');
+        const loadoutName = document.getElementById('loadout-name');
+        const loadoutSaveBtn = document.getElementById('loadout-save');
+        const loadoutDuplicateBtn = document.getElementById('loadout-duplicate');
+        const loadoutApplyBtn = document.getElementById('loadout-apply');
+        const loadoutDeleteBtn = document.getElementById('loadout-delete');
+
+        if (!loadoutSelect) return;
+
+        function refreshLoadoutList() {
+            if (!window.ZWGadgets) return;
+            const active = window.ZWGadgets.getActiveLoadout();
+            const data = window.ZWGadgets._ensureLoadouts();
+            loadoutSelect.innerHTML = '';
+            Object.keys(data.entries || {}).forEach(key => {
+                const entry = data.entries[key];
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = entry.label || key;
+                loadoutSelect.appendChild(opt);
+            });
+            loadoutSelect.value = active.name || '';
+            if (loadoutName) loadoutName.value = active.label || '';
+        }
+
+        if (loadoutSaveBtn) {
+            loadoutSaveBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value || ('preset-' + Date.now());
+                const label = loadoutName.value || name;
+                const captured = window.ZWGadgets.captureCurrentLoadout(label);
+                window.ZWGadgets.defineLoadout(name, captured);
+                // applyLoadoutを使用（activateLoadoutは存在しない）
+                if (window.ZWGadgets.applyLoadout) {
+                    window.ZWGadgets.applyLoadout(name);
+                }
+                refreshLoadoutList();
+                logger.info(`ロードアウト保存: ${label}`);
+            });
+        }
+
+        if (loadoutDuplicateBtn) {
+            loadoutDuplicateBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const current = window.ZWGadgets.getActiveLoadout();
+                const newName = 'preset-' + Date.now();
+                const newLabel = (loadoutName.value || current.label || '') + 'のコピー';
+                window.ZWGadgets.defineLoadout(newName, { label: newLabel, groups: current.entry.groups });
+                refreshLoadoutList();
+                logger.info(`ロードアウト複製: ${newLabel}`);
+            });
+        }
+
+        if (loadoutApplyBtn) {
+            loadoutApplyBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value;
+                // applyLoadoutを使用（activateLoadoutは存在しない）
+                if (name && window.ZWGadgets.applyLoadout && window.ZWGadgets.applyLoadout(name)) {
+                    refreshLoadoutList();
+                    logger.info(`ロードアウト適用: ${name}`);
+                }
+            });
+        }
+
+        if (loadoutDeleteBtn) {
+            loadoutDeleteBtn.addEventListener('click', () => {
+                if (!window.ZWGadgets) return;
+                const name = loadoutSelect.value;
+                // ZWGadgets.deleteLoadout() が内部で確認ダイアログを表示するため、ここでは confirm を呼ばない
+                if (name && window.ZWGadgets.deleteLoadout(name)) {
+                    refreshLoadoutList();
+                    logger.info(`ロードアウト削除: ${name}`);
+                }
+            });
+        }
+
+        if (loadoutSelect) {
+            loadoutSelect.addEventListener('change', () => {
+                const name = loadoutSelect.value;
+                const data = window.ZWGadgets._ensureLoadouts();
+                const entry = data.entries[name];
+                if (loadoutName && entry) loadoutName.value = entry.label || name;
+            });
+        }
+
+        // 初期リスト生成
+        setTimeout(() => {
+            refreshLoadoutList();
+        }, 500);
+    }
+
+    // Selection Tooltip は app-editor-bridge.js に抽出済み
+    function initSelectionTooltip() {
+        if (typeof window.appEditorBridge_initSelectionTooltip === 'function') {
+            window.appEditorBridge_initSelectionTooltip();
+        }
+    }
+
+    // ツールレジストリからのUI生成 (初期実装: Header Icons)
+    function initializeToolsRegistry() {
+        if (!window.WritingTools || typeof window.WritingTools.listTools !== 'function') return;
+
+        // 1. Header Icons
+        const headerTools = window.WritingTools.listTools({ entrypoint: 'headerIcon' });
+        const toolbarActions = document.querySelector('.toolbar-actions');
+
+        if (toolbarActions) {
+            headerTools.forEach(tool => {
+                if (!tool.domId) return;
+
+                let btn = document.getElementById(tool.domId);
+                // 既存ボタンがない場合は作成
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.id = tool.domId;
+                    btn.className = 'icon-button iconified';
+                    btn.title = tool.label;
+                    btn.setAttribute('aria-label', tool.label);
+                    // 挿入位置: 最後に追加
+                    toolbarActions.appendChild(btn);
+                    if (typeof logger !== 'undefined') logger.info(`Tool button created: ${tool.domId}`);
+                }
+
+                // アイコン同期
+                if (tool.icon) {
+                    let icon = btn.querySelector('i');
+                    if (!icon) {
+                        icon = document.createElement('i');
+                        icon.setAttribute('aria-hidden', 'true');
+                        btn.appendChild(icon);
+                    }
+                    // 既存のアイコンが異なる場合のみ更新（ちらつき防止）
+                    if (icon.getAttribute('data-lucide') !== tool.icon) {
+                        icon.setAttribute('data-lucide', tool.icon);
+                    }
+                }
+            });
+
+            // Lucideアイコンの再レンダリング
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+    }
+
+    initializeToolsRegistry();
+    initGadgetsWithRetry();
+    initLoadoutUI();
+    initSelectionTooltip();
+
     // テーマ設定
+    const themePresets = elementManager.getMultiple('themePresets');
     themePresets.forEach(btn => {
         btn.addEventListener('click', () => {
             window.ZenWriterTheme.applyTheme(btn.dataset.theme);
@@ -434,15 +1121,36 @@ document.addEventListener('DOMContentLoaded', () => {
             applySettingsToUI();
         });
     });
-    
+
+    const toggleThemeBtn = elementManager.get('toggleThemeBtn');
+    if (toggleThemeBtn) {
+        toggleThemeBtn.addEventListener('click', () => {
+            try {
+                const order = ['light', 'dark', 'sepia'];
+                const currentSettings = window.ZenWriterStorage.loadSettings();
+                const currentTheme = (currentSettings && currentSettings.theme) || 'light';
+                const currentIndex = order.indexOf(currentTheme);
+                const nextTheme = order[(currentIndex + 1 + order.length) % order.length];
+                window.ZenWriterTheme.applyTheme(nextTheme);
+                // テーマボタンからの切替時もカスタムカラーは一旦リセット
+                window.ZenWriterTheme.clearCustomColors();
+                applySettingsToUI();
+            } catch (_) { }
+        });
+    }
+
+    // forceSidebarState(false); // 設定反映に任せる
+
     // カラーピッカー
+    const bgColorInput = elementManager.get('bgColorInput');
+    const textColorInput = elementManager.get('textColorInput');
     if (bgColorInput) {
         bgColorInput.addEventListener('input', (e) => {
             const text = textColorInput ? textColorInput.value : '#333333';
             window.ZenWriterTheme.applyCustomColors(e.target.value, text, true);
         });
     }
-    
+
     if (textColorInput) {
         textColorInput.addEventListener('input', (e) => {
             const bg = bgColorInput ? bgColorInput.value : '#ffffff';
@@ -451,6 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // カスタム色リセット
+    const resetColorsBtn = elementManager.get('resetColorsBtn');
     if (resetColorsBtn) {
         resetColorsBtn.addEventListener('click', () => {
             window.ZenWriterTheme.clearCustomColors();
@@ -458,20 +1167,145 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // フィードバックパネル
+    let feedbackPanel = null;
+    function toggleFeedbackPanel() {
+        if (!feedbackPanel) {
+            feedbackPanel = document.createElement('div');
+            feedbackPanel.className = 'floating-panel';
+            feedbackPanel.id = 'feedback-panel';
+            feedbackPanel.setAttribute('role', 'dialog');
+            feedbackPanel.setAttribute('aria-labelledby', 'feedback-panel-title');
+            feedbackPanel.setAttribute('aria-modal', 'true');
+            feedbackPanel.style.display = 'none';
+            feedbackPanel.innerHTML = `
+                <div class="panel-header">
+                    <span id="feedback-panel-title">フィードバック</span>
+                    <button class="panel-close" id="close-feedback-panel" aria-label="フィードバックパネルを閉じる">閉じる</button>
+                </div>
+                <div class="panel-body">
+                    <p>問題報告や機能要望をお送りください。</p>
+                    <label for="feedback-text" class="sr-only">フィードバック内容</label>
+                    <textarea id="feedback-text" placeholder="詳細を記述してください..." rows="6" style="width:100%; margin:8px 0;" aria-label="フィードバック内容を入力"></textarea>
+                    <div style="display:flex; gap:8px;">
+                        <button id="submit-feedback" class="small">送信</button>
+                        <button id="cancel-feedback" class="small">キャンセル</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(feedbackPanel);
+            const closeBtn = document.getElementById('close-feedback-panel');
+            const cancelBtn = document.getElementById('cancel-feedback');
+            const submitBtn = document.getElementById('submit-feedback');
+            const textarea = document.getElementById('feedback-text');
+            
+            const closePanel = () => {
+                feedbackPanel.style.display = 'none';
+                feedbackPanel.setAttribute('aria-hidden', 'true');
+            };
+            
+            closeBtn.addEventListener('click', closePanel);
+            closeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closePanel();
+                }
+            });
+            cancelBtn.addEventListener('click', closePanel);
+            cancelBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    closePanel();
+                }
+            });
+            submitBtn.addEventListener('click', () => {
+                const text = textarea.value.trim();
+                if (text) {
+                    // GitHub Issue作成（仮）
+                    const url = `https://github.com/YuShimoji/WritingPage/issues/new?title=Feedback&body=${encodeURIComponent(text)}`;
+                    window.open(url, '_blank');
+                    closePanel();
+                    textarea.value = '';
+                }
+            });
+            submitBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    submitBtn.click();
+                }
+            });
+            
+            // ESCキーで閉じる
+            feedbackPanel.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closePanel();
+                }
+            });
+        }
+        const isVisible = feedbackPanel.style.display !== 'none';
+        feedbackPanel.style.display = isVisible ? 'none' : 'block';
+        feedbackPanel.setAttribute('aria-hidden', String(isVisible));
+        if (!isVisible) {
+            // パネルを開いたら最初の入力欄にフォーカス
+            const textarea = document.getElementById('feedback-text');
+            if (textarea) {
+                setTimeout(() => textarea.focus(), 100);
+            }
+        }
+    }
+
     // フローティングツール（フォントパネル）
     function toggleFontPanel(forceShow = null) {
+        const fontPanel = elementManager.get('fontPanel');
         if (!fontPanel) return;
         const willShow = forceShow !== null ? !!forceShow : fontPanel.style.display === 'none';
         fontPanel.style.display = willShow ? 'block' : 'none';
+        // aria-expanded属性を更新
+        const toolsFab = elementManager.get('toolsFab');
+        if (toolsFab) {
+            toolsFab.setAttribute('aria-expanded', String(willShow));
+        }
         if (willShow) {
             // 現在設定をUIへ反映
             const s = window.ZenWriterStorage.loadSettings();
+            const globalFontRange = elementManager.get('globalFontRange');
+            const globalFontNumber = elementManager.get('globalFontNumber');
             if (globalFontRange) globalFontRange.value = s.fontSize;
             if (globalFontNumber) globalFontNumber.value = s.fontSize;
+            syncHudQuickControls();
+            // フォーカスをパネル内の最初の要素に移動
+            const firstInput = fontPanel.querySelector('input, button, select');
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 100);
+            }
         }
     }
-    if (toolsFab) toolsFab.addEventListener('click', () => toggleFontPanel());
-    if (closeFontPanelBtn) closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+    const toolsFab = elementManager.get('toolsFab');
+    const closeFontPanelBtn = elementManager.get('closeFontPanelBtn');
+    const hudToggleVisibilityBtn = elementManager.get('hudToggleVisibility');
+    const hudPinToggleBtn = elementManager.get('hudPinToggle');
+    const hudRefreshBtn = elementManager.get('hudRefresh');
+    if (toolsFab) {
+        toolsFab.addEventListener('click', () => toggleFontPanel());
+        toolsFab.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFontPanel();
+            }
+        });
+    }
+    if (closeFontPanelBtn) {
+        closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
+        closeFontPanelBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleFontPanel(false);
+            }
+        });
+    }
+    if (hudToggleVisibilityBtn) hudToggleVisibilityBtn.addEventListener('click', () => toggleHudVisibility());
+    if (hudPinToggleBtn) hudPinToggleBtn.addEventListener('click', () => toggleHudPinned());
+    if (hudRefreshBtn) hudRefreshBtn.addEventListener('click', () => refreshHudFromSettings());
 
     // フォントパネルのコントロール
     function updateGlobalFontFrom(value) {
@@ -480,6 +1314,8 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZenWriterEditor.setGlobalFontSize(size);
         }
     }
+    const globalFontRange = elementManager.get('globalFontRange');
+    const globalFontNumber = elementManager.get('globalFontNumber');
     if (globalFontRange) {
         globalFontRange.addEventListener('input', (e) => {
             updateGlobalFontFrom(e.target.value);
@@ -491,81 +1327,108 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ドキュメント管理: イベント
-    if (docSelect){
-        docSelect.addEventListener('change', (e)=> switchDocument(e.target.value));
+    function loadHudSettings() {
+        try {
+            const s = window.ZenWriterStorage.loadSettings();
+            return (s && s.hud) ? Object.assign({}, s.hud) : {};
+        } catch (_) {
+            return {};
+        }
     }
-    if (docCreateBtn){
-        docCreateBtn.addEventListener('click', ()=>{
-            const name = prompt('新しいドキュメント名を入力', '無題');
-            if (name === null) return;
-            const doc = window.ZenWriterStorage.createDocument(name || '無題', '');
-            window.ZenWriterStorage.setCurrentDocId(doc.id);
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                window.ZenWriterEditor.setContent('');
-            }
-            renderDocList();
-            updateDocumentTitle();
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-                window.ZenWriterEditor.showNotification('ドキュメントを作成しました', 1200);
-            }
-        });
-    }
-    if (docRenameBtn){
-        docRenameBtn.addEventListener('click', ()=>{
-            const cur = window.ZenWriterStorage.getCurrentDocId();
-            if (!cur) return;
-            const docs = window.ZenWriterStorage.loadDocuments();
-            const d = docs.find(x => x && x.id === cur);
-            const name = prompt('ドキュメント名を変更', d ? (d.name || '無題') : '無題');
-            if (name === null) return;
-            window.ZenWriterStorage.renameDocument(cur, name || '無題');
-            renderDocList();
-            updateDocumentTitle();
-        });
-    }
-    if (docDeleteBtn){
-        docDeleteBtn.addEventListener('click', ()=>{
-            const cur = window.ZenWriterStorage.getCurrentDocId();
-            if (!cur) return;
-            if (!confirm('このドキュメントを削除しますか？この操作は元に戻せません。')) return;
-            window.ZenWriterStorage.deleteDocument(cur);
-            const docs = (window.ZenWriterStorage.loadDocuments() || []).slice().sort((a,b)=> (b.updatedAt||0) - (a.updatedAt||0));
-            if (docs.length > 0){
-                const next = docs[0];
-                window.ZenWriterStorage.setCurrentDocId(next.id);
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                    window.ZenWriterEditor.setContent(next.content || '');
-                }
-            } else {
-                const created = window.ZenWriterStorage.createDocument('ドキュメント1', '');
-                window.ZenWriterStorage.setCurrentDocId(created.id);
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function'){
-                    window.ZenWriterEditor.setContent('');
-                }
-            }
-            renderDocList();
-            updateDocumentTitle();
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function'){
-                window.ZenWriterEditor.showNotification('ドキュメントを削除しました', 1200);
+
+    function saveHudSettings(patch) {
+        updateSettingsPatch('hud', patch, () => {
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.applyConfig === 'function') {
+                const s = window.ZenWriterStorage.loadSettings();
+                window.ZenWriterHUD.applyConfig(s.hud || {});
             }
         });
     }
 
-    // スナップショット: 今すぐ保存
-    if (snapNowBtn) {
-        snapNowBtn.addEventListener('click', () => {
-            if (!window.ZenWriterStorage || !window.ZenWriterStorage.addSnapshot) return;
-            const content = editor ? (editor.value || '') : '';
-            window.ZenWriterStorage.addSnapshot(content);
-            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
-                window.ZenWriterEditor.showNotification('バックアップを保存しました');
-            }
-            renderSnapshots();
-        });
+    function hudElement() {
+        if (!window.ZenWriterHUD) return null;
+        try { return window.ZenWriterHUD.el || null; } catch (_) { return null; }
     }
-    
+
+    function syncHudQuickControls() {
+        const hudCfg = loadHudSettings();
+        const hudEl = hudElement();
+        const isVisible = !!(hudEl && hudEl.classList.contains('show'));
+        if (hudToggleVisibilityBtn) {
+            hudToggleVisibilityBtn.textContent = isVisible ?
+                (window.UILabels ? window.UILabels.HUD_HIDE : 'HUDを隠す') :
+                (window.UILabels ? window.UILabels.HUD_SHOW : 'HUDを表示');
+        }
+        if (hudPinToggleBtn) {
+            hudPinToggleBtn.textContent = hudCfg.pinned ?
+                (window.UILabels ? window.UILabels.HUD_PIN_OFF : 'HUDピン解除') :
+                (window.UILabels ? window.UILabels.HUD_PIN_ON : 'HUDピン固定');
+        }
+    }
+
+    function toggleHudVisibility(forceShow = null) {
+        if (!window.ZenWriterHUD) return;
+        const hudEl = hudElement();
+        const currentlyVisible = !!(hudEl && hudEl.classList.contains('show'));
+        const shouldShow = forceShow !== null ? !!forceShow : !currentlyVisible;
+        if (shouldShow) {
+            const cfg = loadHudSettings();
+            const message = cfg.message || window.ZenWriterHUD.defaultMessage || 'HUDを表示しました';
+            try {
+                window.ZenWriterHUD.publish(message, cfg.duration || null, { persistMessage: true });
+            } catch (_) { }
+            if (cfg.pinned && typeof window.ZenWriterHUD.pin === 'function') {
+                window.ZenWriterHUD.pin();
+            }
+        } else {
+            if (typeof window.ZenWriterHUD.hide === 'function') {
+                window.ZenWriterHUD.hide();
+            }
+        }
+        syncHudQuickControls();
+    }
+
+    function toggleHudPinned() {
+        const cfg = loadHudSettings();
+        const nextPinned = !cfg.pinned;
+        saveHudSettings({ pinned: nextPinned });
+        if (window.ZenWriterHUD) {
+            try {
+                if (nextPinned && typeof window.ZenWriterHUD.pin === 'function') {
+                    window.ZenWriterHUD.pin();
+                    toggleHudVisibility(true);
+                } else if (!nextPinned && typeof window.ZenWriterHUD.unpin === 'function') {
+                    window.ZenWriterHUD.unpin();
+                }
+            } catch (_) { }
+        }
+        syncHudQuickControls();
+    }
+
+    function refreshHudFromSettings() {
+        if (window.ZenWriterHUD) {
+            try {
+                if (typeof window.ZenWriterHUD.updateFromSettings === 'function') {
+                    window.ZenWriterHUD.updateFromSettings();
+                } else if (typeof window.ZenWriterHUD.refresh === 'function') {
+                    window.ZenWriterHUD.refresh();
+                }
+            } catch (_) { }
+        }
+        syncHudQuickControls();
+    }
+
+    syncHudQuickControls();
+
+    // スナップショット: 今すぐ保存
+    // 削除済み
+
     // フォント設定
+    const fontFamilySelect = elementManager.get('fontFamilySelect');
+    const fontSizeInput = elementManager.get('fontSizeInput');
+    const fontSizeValue = elementManager.get('fontSizeValue');
+    const lineHeightInput = elementManager.get('lineHeightInput');
+    const lineHeightValue = elementManager.get('lineHeightValue');
     if (fontFamilySelect) {
         fontFamilySelect.addEventListener('change', (e) => {
             window.ZenWriterTheme.applyFontSettings(
@@ -575,10 +1438,10 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
     }
-    
+
     if (fontSizeInput) {
         fontSizeInput.addEventListener('input', (e) => {
-            fontSizeValue.textContent = e.target.value;
+            if (fontSizeValue) fontSizeValue.textContent = e.target.value;
             window.ZenWriterTheme.applyFontSettings(
                 fontFamilySelect.value,
                 parseFloat(e.target.value),
@@ -586,10 +1449,10 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         });
     }
-    
+
     if (lineHeightInput) {
         lineHeightInput.addEventListener('input', (e) => {
-            lineHeightValue.textContent = e.target.value;
+            if (lineHeightValue) lineHeightValue.textContent = e.target.value;
             window.ZenWriterTheme.applyFontSettings(
                 fontFamilySelect.value,
                 parseFloat(fontSizeInput.value),
@@ -598,91 +1461,322 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ------- HUD 設定のイベント -------
-    function updateHudSettings(patch){
+    // ------- 設定更新用共通ヘルパー -------
+    /**
+     * 設定の部分更新を行う汎用ヘルパー
+     * @param {string} key - 設定キー (e.g., 'goal', 'typewriter')
+     * @param {Object} patch - マージする設定値
+     * @param {Function} [callback] - 保存後に実行するコールバック
+     */
+    function updateSettingsPatch(key, patch, callback) {
         const s = window.ZenWriterStorage.loadSettings();
-        s.hud = { ...(s.hud || {}), ...patch };
+        s[key] = { ...(s[key] || {}), ...patch };
         window.ZenWriterStorage.saveSettings(s);
-        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.updateFromSettings === 'function') {
-            window.ZenWriterHUD.updateFromSettings();
-        }
+        if (callback) callback();
     }
-    if (hudPosSelect) {
-        hudPosSelect.addEventListener('change', (e)=> updateHudSettings({ position: e.target.value }));
-    }
-    if (hudDurationInput) {
-        const clamp = (n)=> Math.max(300, Math.min(5000, parseInt(n,10)||1200));
-        hudDurationInput.addEventListener('input', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
-        hudDurationInput.addEventListener('change', (e)=> updateHudSettings({ duration: clamp(e.target.value) }));
-    }
-    if (hudBgInput) {
-        hudBgInput.addEventListener('change', (e)=> updateHudSettings({ bg: e.target.value }));
-    }
-    if (hudFgInput) {
-        hudFgInput.addEventListener('change', (e)=> updateHudSettings({ fg: e.target.value }));
-    }
-    if (hudOpacityRange) {
-        const setOpacity = (v)=>{
-            const val = Math.max(0, Math.min(1, parseFloat(v)));
-            if (hudOpacityValue) hudOpacityValue.textContent = String(val);
-            updateHudSettings({ opacity: val });
-        };
-        hudOpacityRange.addEventListener('input', (e)=> setOpacity(e.target.value));
-        hudOpacityRange.addEventListener('change', (e)=> setOpacity(e.target.value));
-    }
-    if (hudTestBtn) {
-        hudTestBtn.addEventListener('click', ()=>{
-            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
-                window.ZenWriterHUD.publish('テスト: 123 文字 / 45 語', 1200);
+
+    // ------- 執筆目標（goal） -------
+    function saveGoalPatch(patch) {
+        updateSettingsPatch('goal', patch, () => {
+            // 文字数表示を更新
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
+                window.ZenWriterEditor.updateWordCount();
             }
         });
     }
 
-    // ------- 執筆目標（goal） -------
-    function saveGoalPatch(patch){
+    // ------- Editor 設定（typewriter / snapshot / preview） -------
+    function saveTypewriterPatch(patch) {
+        updateSettingsPatch('typewriter', patch);
+    }
+    function saveSnapshotPatch(patch) {
+        updateSettingsPatch('snapshot', patch);
+    }
+    function savePreviewPatch(patch) {
+        updateSettingsPatch('preview', patch);
+    }
+
+    // リアルタイム自動保存設定
+    const autoSaveEnabled = elementManager.get('autoSaveEnabled');
+    const autoSaveDelay = elementManager.get('autoSaveDelay');
+    const currentSettings = window.ZenWriterStorage.loadSettings();
+    const currentAutoSave = (currentSettings && currentSettings.autoSave) || {};
+    if (autoSaveEnabled) autoSaveEnabled.checked = !!currentAutoSave.enabled;
+    if (autoSaveDelay) autoSaveDelay.value = String(currentAutoSave.delayMs || 2000);
+
+    // clamp helpers
+    const clamp = (val, min, max, def) => {
+        const n = typeof val === 'number' ? val : parseFloat(val);
+        if (isNaN(n)) return def;
+        return Math.max(min, Math.min(max, n));
+    };
+
+    // Typewriter handlers
+    const typewriterEnabled = elementManager.get('typewriterEnabled');
+    const typewriterAnchor = elementManager.get('typewriterAnchor');
+    const typewriterStickiness = elementManager.get('typewriterStickiness');
+    if (typewriterEnabled) {
+        typewriterEnabled.addEventListener('change', (e) => saveTypewriterPatch({ enabled: !!e.target.checked }));
+    }
+    if (typewriterAnchor) {
+        const onChange = (e) => saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
+        typewriterAnchor.addEventListener('input', onChange);
+        typewriterAnchor.addEventListener('change', onChange);
+    }
+    if (typewriterStickiness) {
+        const onChange = (e) => saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
+        typewriterStickiness.addEventListener('input', onChange);
+        typewriterStickiness.addEventListener('change', onChange);
+    }
+
+    // Snapshot handlers
+    const snapshotInterval = elementManager.get('snapshotInterval');
+    const snapshotDelta = elementManager.get('snapshotDelta');
+    const snapshotRetention = elementManager.get('snapshotRetention');
+    if (snapshotInterval) {
+        const onChange = (e) => saveSnapshotPatch({ intervalMs: Math.round(clamp(e.target.value, 30000, 300000, 120000)) });
+        snapshotInterval.addEventListener('input', onChange);
+        snapshotInterval.addEventListener('change', onChange);
+    }
+    if (snapshotDelta) {
+        const onChange = (e) => saveSnapshotPatch({ deltaChars: Math.round(clamp(e.target.value, 50, 1000, 300)) });
+        snapshotDelta.addEventListener('input', onChange);
+        snapshotDelta.addEventListener('change', onChange);
+    }
+    if (snapshotRetention) {
+        const onChange = (e) => saveSnapshotPatch({ retention: Math.round(clamp(e.target.value, 1, 50, 10)) });
+        snapshotRetention.addEventListener('input', onChange);
+        snapshotRetention.addEventListener('change', onChange);
+    }
+
+    // Preview handlers
+    const previewSyncScroll = elementManager.get('previewSyncScroll');
+    if (previewSyncScroll) {
+        previewSyncScroll.addEventListener('change', (e) => savePreviewPatch({ syncScroll: !!e.target.checked }));
+    }
+    const goalTargetInput = elementManager.get('goalTargetInput');
+    const goalDeadlineInput = elementManager.get('goalDeadlineInput');
+    // 初期値を設定から反映
+    try {
         const s = window.ZenWriterStorage.loadSettings();
-        s.goal = { ...(s.goal || {}), ...patch };
-        window.ZenWriterStorage.saveSettings(s);
-        // 文字数表示を更新
+        const g = (s && s.goal) || {};
+        if (goalTargetInput) goalTargetInput.value = (parseInt(g.target, 10) || 0) || '';
+        if (goalDeadlineInput) goalDeadlineInput.value = g.deadline || '';
+        // 文字数表示の初期更新（CSSゲーティングを反映）
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
             window.ZenWriterEditor.updateWordCount();
         }
+    } catch (_) { }
+    if (goalTargetInput) {
+        const clampTarget = (v) => Math.max(0, parseInt(v, 10) || 0);
+        goalTargetInput.addEventListener('input', (e) => saveGoalPatch({ target: clampTarget(e.target.value) }));
+        goalTargetInput.addEventListener('change', (e) => saveGoalPatch({ target: clampTarget(e.target.value) }));
     }
-    if (goalTargetInput){
-        const clampTarget = (v)=> Math.max(0, parseInt(v,10) || 0);
-        goalTargetInput.addEventListener('input', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));
-        goalTargetInput.addEventListener('change', (e)=> saveGoalPatch({ target: clampTarget(e.target.value) }));
+    if (goalDeadlineInput) {
+        goalDeadlineInput.addEventListener('change', (e) => saveGoalPatch({ deadline: (e.target.value || '') || null }));
     }
-    if (goalDeadlineInput){
-        goalDeadlineInput.addEventListener('change', (e)=> saveGoalPatch({ deadline: (e.target.value || '') || null }));
-    }
-    
-    // エディタにフォーカス（エディタ領域をクリックしたときのみ）
-    if (editor && editorContainer) {
-        editorContainer.addEventListener('click', () => {
-            editor.focus();
-        });
 
-        // 初期フォーカス
-        setTimeout(() => {
-            editor.focus();
-        }, 100);
+    // AutoSave handlers
+    function saveAutoSavePatch(patch) {
+        updateSettingsPatch('autoSave', patch);
     }
-    
-    // 設定をUIに反映
-    applySettingsToUI();
-    // バックアップ一覧
-    renderSnapshots();
+    if (autoSaveEnabled) {
+        autoSaveEnabled.addEventListener('change', (e) => saveAutoSavePatch({ enabled: !!e.target.checked }));
+    }
+    // エディタ設定保存関数
+    function saveEditorPatch(patch) {
+        const s = window.ZenWriterStorage.loadSettings();
+        s.editor = { ...(s.editor || {}), ...patch };
+        s.editor.wordWrap = { ...(s.editor.wordWrap || {}), ...(patch.wordWrap || {}) };
+        window.ZenWriterStorage.saveSettings(s);
+        // エディタに即時反映
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWordWrap === 'function') {
+            window.ZenWriterEditor.applyWordWrap();
+        }
+    }
+
+    // Editor settings handlers
+    const wordWrapEnabled = elementManager.get('wordWrapEnabled');
+    const wordWrapMaxChars = elementManager.get('wordWrapMaxChars');
+    if (wordWrapEnabled) {
+        wordWrapEnabled.addEventListener('change', (e) => saveEditorPatch({ wordWrap: { enabled: !!e.target.checked } }));
+    }
+    if (wordWrapMaxChars) {
+        const onChange = (e) => saveEditorPatch({ wordWrap: { maxChars: Math.round(clamp(e.target.value, 20, 200, 80)) } });
+        wordWrapMaxChars.addEventListener('input', onChange);
+        wordWrapMaxChars.addEventListener('change', onChange);
+    }
+
+    // Help button: 物語Wikiヘルプを別タブで開く
+    const helpButton = elementManager.get('helpButton');
+    if (helpButton) {
+        helpButton.addEventListener('click', function () {
+            try {
+                window.open('docs/wiki-help.html', '_blank', 'noopener');
+            } catch (e) {
+                console.error('Failed to open wiki help:', e);
+            }
+        });
+    }
+
+    const editorHelpButton = elementManager.get('editorHelpButton');
+    if (editorHelpButton) {
+        editorHelpButton.addEventListener('click', function () {
+            try {
+                window.open('docs/editor-help.html', '_blank', 'noopener');
+            } catch (e) {
+                console.error('Failed to open editor help:', e);
+            }
+        });
+    }
+
+    // リアルタイム自動保存機能
+    let autoSaveTimeout = null;
+    function _triggerAutoSave() {
+        if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+        const settings = window.ZenWriterStorage.loadSettings();
+        const autoSave = settings.autoSave || {};
+        if (!autoSave.enabled) return;
+        const delay = autoSave.delayMs || 2000;
+        autoSaveTimeout = setTimeout(() => {
+            const editor = elementManager.get('editor');
+            if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                try {
+                    window.ZenWriterStorage.saveContent(editor.value || '');
+                    // HUDに保存通知
+                    if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+                        window.ZenWriterHUD.show('自動保存されました', 1500, { bg: '#28a745', fg: '#fff' });
+                    }
+                } catch (e) {
+                    console.error('自動保存エラー:', e);
+                }
+            }
+        }, delay);
+    }
+    // オフライン検知と自動バックアップ
+    let isOnline = navigator.onLine;
+    function updateOnlineStatus() {
+        const wasOnline = isOnline;
+        isOnline = navigator.onLine;
+        if (wasOnline !== isOnline) {
+            if (!isOnline) {
+                // オフラインになった場合
+                if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+                    window.ZenWriterHUD.show('オフラインになりました。変更はローカルに保存されます。', 3000, { bg: '#ffc107', fg: '#000' });
+                }
+            } else {
+                // オンラインに戻った場合
+                if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+                    window.ZenWriterHUD.show('オンラインに戻りました。', 2000, { bg: '#28a745', fg: '#fff' });
+                }
+            }
+        }
+    }
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    // 自動バックアップ強化: ページを離れる前に保存
+    window.addEventListener('beforeunload', function (_e) {
+        const editor = elementManager.get('editor');
+        try {
+            if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                window.ZenWriterStorage.saveContent(editor.value || '');
+            }
+        } catch (_) { }
+        // メッセージは表示しない（ブラウザがデフォルト表示）
+    });
+
+    // 定期的なバックアップ（オンライン時のみ）
+    setInterval(function () {
+        if (!isOnline) return;
+        const editor = elementManager.get('editor');
+        try {
+            if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                window.ZenWriterStorage.addSnapshot(editor.value || '', 10); // 最大10件
+            }
+        } catch (_) { }
+    }, 5 * 60 * 1000); // 5分ごと
+    window.settingsManager.applySettingsToUI();
+
+    // 検索パネルのイベントリスナー
+    const _searchPanel = elementManager.get('searchPanel');
+    const closeSearchPanelBtn = elementManager.get('closeSearchPanelBtn');
+    const searchInput = elementManager.get('searchInput');
+    const _replaceInput = elementManager.get('replaceInput');
+    const replaceSingleBtn = elementManager.get('replaceSingleBtn');
+    const replaceAllBtn = elementManager.get('replaceAllBtn');
+    const searchPrevBtn = elementManager.get('searchPrevBtn');
+    const searchNextBtn = elementManager.get('searchNextBtn');
+
+    if (closeSearchPanelBtn) {
+        closeSearchPanelBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.hideSearchPanel === 'function') {
+                window.ZenWriterEditor.hideSearchPanel();
+            }
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
+                window.ZenWriterEditor.updateSearchMatches();
+            }
+        });
+    }
+
+    if (replaceSingleBtn) {
+        replaceSingleBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceSingle === 'function') {
+                window.ZenWriterEditor.replaceSingle();
+            }
+        });
+    }
+
+    if (replaceAllBtn) {
+        replaceAllBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceAll === 'function') {
+                window.ZenWriterEditor.replaceAll();
+            }
+        });
+    }
+
+    if (searchPrevBtn) {
+        searchPrevBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
+                window.ZenWriterEditor.navigateMatch(-1);
+            }
+        });
+    }
+
+    if (searchNextBtn) {
+        searchNextBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
+                window.ZenWriterEditor.navigateMatch(1);
+            }
+        });
+    }
+
+    // 検索オプションの変更時にも再検索
+    ['search-case-sensitive', 'search-regex'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => {
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
+                    window.ZenWriterEditor.updateSearchMatches();
+                }
+            });
+        }
+    });
 
     // 初期状態の整合性
     // applySettingsToUI() と head内の early-boot で反映済みのため、ここでの上書きは行わない
-    
+
     // ===== 埋め込み/外部制御用 安定APIブリッジ =====
     if (!window.ZenWriterAPI) {
         window.ZenWriterAPI = {
             /** 現在の本文を取得 */
             getContent() {
-                const el = document.getElementById('editor');
+                const el = elementManager.get('editor');
                 return el ? String(el.value || '') : '';
             },
             /** 本文を設定（保存とUI更新も実施） */
@@ -691,7 +1785,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.ZenWriterEditor.setContent(String(text || ''));
                     return true;
                 }
-                const el = document.getElementById('editor');
+                const el = elementManager.get('editor');
                 if (el) {
                     el.value = String(text || '');
                     if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
@@ -703,13 +1797,13 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             /** エディタにフォーカスを移動 */
             focus() {
-                const el = document.getElementById('editor');
+                const el = elementManager.get('editor');
                 if (el) { el.focus(); return true; }
                 return false;
             },
             /** 現在の本文でスナップショットを追加 */
             takeSnapshot() {
-                const el = document.getElementById('editor');
+                const el = elementManager.get('editor');
                 const content = el ? (el.value || '') : '';
                 if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
                     window.ZenWriterStorage.addSnapshot(content);
@@ -719,4 +1813,259 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
     }
+
+    // タブ管理API（リスト化・外部制御用）
+    const tabManager = {
+        // 利用可能なタブ一覧を取得
+        getAvailableTabs() {
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            return conf.map(tab => ({
+                id: tab.id,
+                label: tab.label,
+                icon: tab.icon,
+                description: tab.description,
+                isActive: document.querySelector(`.sidebar-tab[data-group="${tab.id}"]`)?.classList.contains('active') || false
+            }));
+        },
+
+        // 現在のアクティブタブを取得
+        getActiveTab() {
+            const activeTab = document.querySelector('.sidebar-tab.active');
+            if (!activeTab) return null;
+            const groupId = activeTab.dataset.group;
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            return conf.find(tab => tab.id === groupId) || null;
+        },
+
+        // タブをアクティブ化
+        activateTab(tabId) {
+            activateSidebarGroup(tabId);
+        },
+
+        // 次のタブに切り替え
+        nextTab() {
+            const current = this.getActiveTab();
+            if (!current) return;
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            const currentIndex = conf.findIndex(tab => tab.id === current.id);
+            const nextIndex = (currentIndex + 1) % conf.length;
+            this.activateTab(conf[nextIndex].id);
+        },
+
+        // 前のタブに切り替え
+        prevTab() {
+            const current = this.getActiveTab();
+            if (!current) return;
+            const conf = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
+            const currentIndex = conf.findIndex(tab => tab.id === current.id);
+            const prevIndex = currentIndex === 0 ? conf.length - 1 : currentIndex - 1;
+            this.activateTab(conf[prevIndex].id);
+        }
+    };
+
+    // タブ管理APIをグローバルに公開
+    window.ZenWriterTabs = tabManager;
+
+    // ===== ファイル管理機能 =====
+    const fileManager = {
+        // ドキュメントリストを更新
+        updateDocumentList() {
+            const select = elementManager.get('currentDocument');
+            if (!select) return;
+
+            // 既存のオプションをクリア（最初のプレースホルダーは残す）
+            while (select.options.length > 1) {
+                select.remove(1);
+            }
+
+            try {
+                const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
+                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+
+                docs.forEach(doc => {
+                    if (doc && doc.id && doc.name) {
+                        const option = document.createElement('option');
+                        option.value = doc.id;
+                        option.textContent = doc.name;
+                        option.selected = (doc.id === currentDocId);
+                        select.appendChild(option);
+                    }
+                });
+            } catch (e) {
+                console.warn('ドキュメントリスト更新エラー:', e);
+            }
+        },
+
+        // ドキュメントを切り替え
+        switchDocument(docId) {
+            if (!docId) return;
+
+            try {
+                // 自動保存設定を取得
+                const settings = window.ZenWriterStorage.loadSettings ? window.ZenWriterStorage.loadSettings() : {};
+                const autoSaveEnabled = settings.autoSave && settings.autoSave.enabled;
+
+                // 未保存変更の確認と退避（自動保存無効時のみダイアログ表示）
+                try {
+                    const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                        ? window.ZenWriterEditor.isDirty()
+                        : false;
+                    if (hasDirty) {
+                        // 自動保存が有効なら即座に保存してダイアログなしで切り替え
+                        if (autoSaveEnabled) {
+                            const editorEl = elementManager.get('editor');
+                            const content = editorEl ? (editorEl.value || '') : '';
+                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                                window.ZenWriterStorage.saveContent(content);
+                            }
+                        } else {
+                            // 自動保存が無効なら確認ダイアログを表示
+                            const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_SWITCH) || '未保存の変更があります。ファイルを切り替えますか？\n現在の内容はスナップショットとして自動退避します。';
+                            const ok = confirm(msg);
+                            if (!ok) {
+                                // セレクトを元に戻す
+                                const selectEl = elementManager.get('currentDocument');
+                                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                                if (selectEl && currentDocId) selectEl.value = currentDocId;
+                                return;
+                            }
+                            // 現在内容をスナップショットへ退避
+                            try {
+                                const editorEl = elementManager.get('editor');
+                                const content = editorEl ? (editorEl.value || '') : '';
+                                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                                    window.ZenWriterStorage.addSnapshot(content);
+                                }
+                            } catch (_) { }
+                        }
+                    }
+                } catch (_) { }
+
+                if (window.ZenWriterStorage.setCurrentDocId) {
+                    window.ZenWriterStorage.setCurrentDocId(docId);
+                }
+
+                // エディタの内容を更新
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.loadContent === 'function') {
+                    window.ZenWriterEditor.loadContent();
+                    window.ZenWriterEditor.updateWordCount();
+                }
+
+                // UIを更新
+                this.updateDocumentList();
+                try { updateDocumentTitle(); } catch (_) { }
+
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+                    window.ZenWriterEditor.showNotification('ファイルを切り替えました');
+                }
+            } catch (e) {
+                console.error('ドキュメント切り替えエラー:', e);
+            }
+        },
+
+        // 新規ドキュメントを作成
+        createNewDocument() {
+            const name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいファイルの名前を入力してください:');
+            if (!name || !name.trim()) return;
+
+            try {
+                if (window.ZenWriterStorage.createDocument) {
+                    const newDoc = window.ZenWriterStorage.createDocument(name.trim());
+                    if (newDoc && newDoc.id) {
+                        this.switchDocument(newDoc.id);
+                    }
+                }
+            } catch (e) {
+                console.error('新規ドキュメント作成エラー:', e);
+            }
+        },
+
+        // ドキュメント管理の初期化
+        initializeDocuments() {
+            try {
+                // ドキュメントが存在しない場合はデフォルトドキュメントを作成
+                const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
+                if (docs.length === 0) {
+                    // 現在のコンテンツを取得してデフォルトドキュメントを作成
+                    const currentContent = window.ZenWriterStorage.loadContent ? (window.ZenWriterStorage.loadContent() || '') : '';
+                    window.ZenWriterStorage.createDocument('デフォルト', currentContent);
+                }
+
+                // 現在ドキュメントが設定されていない場合は最初のドキュメントを設定
+                const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                if (!currentDocId && docs.length > 0) {
+                    window.ZenWriterStorage.setCurrentDocId(docs[0].id);
+                }
+            } catch (e) {
+                console.warn('ドキュメント初期化エラー:', e);
+            }
+        }
+    };
+
+    // ファイル管理イベントリスナー設定
+    const currentDocumentSelect = elementManager.get('currentDocument');
+    const newDocumentBtn = elementManager.get('newDocumentBtn');
+    const restoreFromSnapshotBtn = elementManager.get('restoreFromSnapshotBtn');
+
+    if (currentDocumentSelect) {
+        currentDocumentSelect.addEventListener('change', (e) => {
+            fileManager.switchDocument(e.target.value);
+        });
+    }
+
+    if (newDocumentBtn) {
+        newDocumentBtn.addEventListener('click', () => {
+            // 未保存変更の確認と退避
+            try {
+                const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                    ? window.ZenWriterEditor.isDirty()
+                    : false;
+                if (hasDirty) {
+                    const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
+                    const ok = confirm(msg);
+                    if (!ok) return;
+                    try {
+                        const editorEl = elementManager.get('editor');
+                        const content = editorEl ? (editorEl.value || '') : '';
+                        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                            window.ZenWriterStorage.addSnapshot(content);
+                        }
+                    } catch (_) { }
+                }
+            } catch (_) { }
+            fileManager.createNewDocument();
+        });
+    }
+
+    if (restoreFromSnapshotBtn) {
+        restoreFromSnapshotBtn.addEventListener('click', () => {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
+                window.ZenWriterEditor.restoreLastSnapshot();
+            }
+        });
+    }
+
+    // 初期ドキュメント初期化とファイルリスト更新
+    fileManager.initializeDocuments();
+    fileManager.updateDocumentList();
+
+    // 背景ビジュアルのスクロール連動
+    let scrollY = 0;
+    function updateBackgroundScroll() {
+        const newScrollY = window.scrollY || window.pageYOffset || 0;
+        if (Math.abs(newScrollY - scrollY) > 1) { // 1px以上の変化で更新
+            scrollY = newScrollY;
+            document.documentElement.style.setProperty('--scroll-y', scrollY + 'px');
+        }
+        requestAnimationFrame(updateBackgroundScroll);
+    }
+    updateBackgroundScroll();
+    window.addEventListener('beforeunload', (e) => {
+        try {
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function' && window.ZenWriterEditor.isDirty()) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        } catch (_) { }
+    });
 });

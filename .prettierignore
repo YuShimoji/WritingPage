@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+_site/
+.docfx/
+
+# Test outputs
+test-results/
+playwright-report/
+coverage/
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Temporary
+.tmp/
+.cache/
+tmp/
+
+# Submodules
+.shared-workflows/
+
+# Package manager
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+*.min.js
+*.min.css
+
+# Config files that should not be formatted
+.gitignore
+.gitmodules

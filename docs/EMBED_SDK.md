@@ -24,15 +24,15 @@
     src: '/index.html?embed=1',
     width: '100%',
     height: '100%',
-    sameOrigin: true, // クロスオリジンの場合は false
-    // クロスオリジン例:
-    // sameOrigin: false,
-    // targetOrigin: new URL('https://child.example.com/index.html?embed=1', location.href).origin
+    // sameOrigin は src の origin から自動判定（明示的に無効化したい場合のみ指定）
+    // sameOrigin: true,
+    // クロスオリジン例（src が絶対URLの場合は自動判定され、targetOrigin も推定されます）:
+    // src: 'https://other-domain.com/index.html?embed=1',
   });
 
   // 使用例
   sdk.setContent('# タイトル\n\n本文...').then(() => sdk.focus());
-  sdk.getContent().then(text => console.log(text));
+  sdk.getContent().then((text) => console.log(text));
   sdk.takeSnapshot();
 </script>
 ```
@@ -43,7 +43,8 @@
 - `options`:
   - `src`: 読み込むエディターのURL（既定: 現在の `index.html`）
   - `width`/`height`: `iframe` のサイズ（既定: `100%`）
-  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `true`）
+  - `sameOrigin`: 同一オリジン最適化を使うか（既定: `src` のURLから自動判定。相対パスや同一ホストなら `true`）
+  - `targetOrigin`: クロスオリジン時の postMessage 送信先 origin（既定: `src` の絶対URLから自動推定）
 
 戻り値（Promiseではなく同期オブジェクト）:
 
@@ -62,7 +63,7 @@
 
 ## セキュリティ
 
-- クロスオリジン時は `targetOrigin` を厳密指定（親→子の postMessage 送信先origin）
+- クロスオリジン時は `targetOrigin` を厳密指定（`src` が絶対URLなら既定でその origin を利用）。親→子の postMessage 送信先 origin を固定
 - 親originを子へ伝えるため、`iframe src` に `embed_origin=<親のorigin>` を自動付加（既定ON）。子側は `event.origin === embed_origin` の場合のみ受理
 - 許可するメッセージ `type` をホワイトリスト制御
 
@@ -82,7 +83,11 @@
 
 ```html
 <script>
-  const sdk = ZenWriterEmbed.create('#zw-container', { src: '/index.html?embed=1', width: '100%', height: '100%' });
+  const sdk = ZenWriterEmbed.create('#zw-container', {
+    src: '/index.html?embed=1',
+    width: '100%',
+    height: '100%',
+  });
   // 購読（解除関数が返る）
   const offContent = sdk.on('contentChanged', (p) => {
     console.log('contentChanged len=', (p && p.len) || 0);

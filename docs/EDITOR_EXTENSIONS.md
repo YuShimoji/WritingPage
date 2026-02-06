@@ -36,13 +36,15 @@
 ### 選択範囲の置換（擬似コード）
 
 ```js
-function wrapSelection(prefix, suffix = prefix){
+function wrapSelection(prefix, suffix = prefix) {
   const el = editor;
-  const s = el.selectionStart, e = el.selectionEnd;
+  const s = el.selectionStart,
+    e = el.selectionEnd;
   const text = el.value;
-  el.value = text.slice(0,s) + prefix + text.slice(s,e) + suffix + text.slice(e);
+  el.value =
+    text.slice(0, s) + prefix + text.slice(s, e) + suffix + text.slice(e);
   el.selectionStart = s + prefix.length;
-  el.selectionEnd   = e + prefix.length;
+  el.selectionEnd = e + prefix.length;
   el.focus();
   saveContent();
   updateWordCount();
@@ -56,6 +58,6 @@ function wrapSelection(prefix, suffix = prefix){
 
 ## 将来拡張
 
-- 絵文字ピッカー、脚注/注釈、引用（`> `）
+- 絵文字ピッカー、脚注/注釈、引用(`>`)
 - 文章校正APIとの連携（提案ハイライト→適用）
 - Markdown→HTML ルビのレンダリング（印刷時のみ）
