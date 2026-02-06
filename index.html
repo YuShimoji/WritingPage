@@ -71,7 +71,7 @@
   </script>
 </head>
 
-  <body>
+<body>
   <!-- スキップリンク（キーボード操作の効率化） -->
   <a href="#editor" class="skip-link">メインコンテンツへスキップ</a>
   <div class="app-container">
@@ -132,12 +132,14 @@
       <!-- ツールバー -->
       <div class="toolbar" role="toolbar" aria-label="メインツールバー" id="toolbar">
         <div class="sidebar-controls">
-          <button id="toggle-sidebar" class="icon-button iconified" aria-label="サイドバーを開閉" aria-expanded="false" aria-controls="sidebar" title="メニュー">
+          <button id="toggle-sidebar" class="icon-button iconified" aria-label="サイドバーを開閉" aria-expanded="false"
+            aria-controls="sidebar" title="メニュー">
             <i data-lucide="menu" aria-hidden="true"></i>
           </button>
         </div>
         <div class="word-count" role="status" aria-live="polite" aria-atomic="true">0 文字</div>
-        <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display: none" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="執筆目標の進捗">
+        <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display: none" role="progressbar"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="執筆目標の進捗">
           <div class="goal-progress__track">
             <div class="goal-progress__bar" style="width: 0%"></div>
           </div>
@@ -163,7 +165,8 @@
           <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
             <i data-lucide="type" aria-hidden="true"></i>
           </button>
-          <button id="toggle-spell-check" class="icon-button iconified" title="スペルチェック" aria-label="スペルチェックを切り替え" aria-pressed="false">
+          <button id="toggle-spell-check" class="icon-button iconified" title="スペルチェック" aria-label="スペルチェックを切り替え"
+            aria-pressed="false">
             <i data-lucide="spell-check-2" aria-hidden="true"></i>
           </button>
           <button id="insert-stamp" class="icon-button iconified" title="文字数スタンプ挿入" aria-label="文字数スタンプを挿入">
@@ -175,17 +178,20 @@
           <button id="toggle-ui-editor" class="icon-button iconified" title="UIエディタ" aria-label="UIエディタを開く">
             <i data-lucide="paintbrush" aria-hidden="true"></i>
           </button>
-          <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉" aria-expanded="false" aria-controls="editor-preview">
+          <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉"
+            aria-expanded="false" aria-controls="editor-preview">
             <i data-lucide="layout-template" aria-hidden="true"></i>
           </button>
-          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉" aria-expanded="false" aria-controls="split-view-container">
+          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉"
+            aria-expanded="false" aria-controls="split-view-container">
             <i data-lucide="columns" aria-hidden="true"></i>
           </button>
           <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え"
             aria-label="リッチテキストエディタに切り替え" aria-pressed="false">
             <i data-lucide="pen-tool" aria-hidden="true"></i>
           </button>
-          <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" aria-expanded="true" aria-controls="toolbar" title="ツールバー">
+          <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" aria-expanded="true"
+            aria-controls="toolbar" title="ツールバー">
             <i data-lucide="panel-top" aria-hidden="true"></i>
           </button>
           <button id="fullscreen" class="icon-button iconified" aria-label="フルスクリーン" title="フルスクリーン">
@@ -206,7 +212,8 @@
       </div>
 
       <!-- 分割ビューモード選択パネル -->
-      <div id="split-view-mode-panel" class="floating-panel" style="display: none;" role="dialog" aria-labelledby="split-view-mode-panel-title" aria-modal="true">
+      <div id="split-view-mode-panel" class="floating-panel" style="display: none;" role="dialog"
+        aria-labelledby="split-view-mode-panel-title" aria-modal="true">
         <div class="panel-header">
           <span id="split-view-mode-panel-title">分割ビューモード</span>
           <button class="panel-close" id="close-split-view-mode-panel" aria-label="分割ビューモードパネルを閉じる">閉じる</button>
@@ -222,10 +229,12 @@
 
       <!-- エディタエリア -->
       <div class="editor-container" role="region" aria-label="エディタ">
-        <textarea id="editor" data-i18n-placeholder="EDITOR_PLACEHOLDER" aria-label="テキストエディタ" role="textbox" aria-multiline="true" tabindex="0"></textarea>
+        <textarea id="editor" data-i18n-placeholder="EDITOR_PLACEHOLDER" aria-label="テキストエディタ" role="textbox"
+          aria-multiline="true" tabindex="0"></textarea>
         <!-- WYSIWYGエディタ -->
         <div id="wysiwyg-editor" class="wysiwyg-editor" contenteditable="true" style="display: none;"
-          data-i18n-placeholder="EDITOR_PLACEHOLDER" role="textbox" aria-label="リッチテキストエディタ" aria-multiline="true"></div>
+          data-i18n-placeholder="EDITOR_PLACEHOLDER" role="textbox" aria-label="リッチテキストエディタ" aria-multiline="true">
+        </div>
         <!-- WYSIWYGツールバー -->
         <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar"
           aria-label="リッチテキスト編集ツールバー">
@@ -250,9 +259,11 @@
         </div>
         <div id="editor-overlay" class="editor-overlay" aria-hidden="true"></div>
         <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
-        <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite" aria-label="プレビューパネル" role="region">
+        <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite"
+          aria-label="プレビューパネル" role="region">
           <div id="editor-preview-body" class="editor-preview__body">
-            <div id="markdown-preview-panel" class="markdown-preview-panel" role="article" aria-label="Markdownプレビュー"></div>
+            <div id="markdown-preview-panel" class="markdown-preview-panel" role="article" aria-label="Markdownプレビュー">
+            </div>
             <div id="images-preview-panel" class="images-preview-panel" role="region" aria-label="画像プレビュー"></div>
           </div>
         </div>
@@ -261,16 +272,18 @@
     </main>
   </div>
   <!-- ツールバー再表示用FAB -->
-  <button id="show-toolbar" class="fab-button fab-toggle-toolbar iconified" title="ツールバーを表示" aria-label="ツールバーを表示" aria-controls="toolbar"
-    style="display: none">
+  <button id="show-toolbar" class="fab-button fab-toggle-toolbar iconified" title="ツールバーを表示" aria-label="ツールバーを表示"
+    aria-controls="toolbar" style="display: none">
     <i data-lucide="keyboard" aria-hidden="true"></i>
   </button>
   <!-- 追加機能用FAB -->
-  <button id="fab-tools" class="fab-button fab-tools iconified" title="ツール" aria-label="ツールパネルを開く" aria-expanded="false" aria-controls="floating-font-panel">
+  <button id="fab-tools" class="fab-button fab-tools iconified" title="ツール" aria-label="ツールパネルを開く" aria-expanded="false"
+    aria-controls="floating-font-panel">
     <i data-lucide="settings" aria-hidden="true"></i>
   </button>
   <!-- クイックツールパネル -->
-  <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="floating-font-panel-title" aria-modal="true">
+  <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="floating-font-panel-title" aria-modal="true">
     <div class="panel-header">
       <span id="floating-font-panel-title" data-i18n="QUICK_TOOLS"></span>
       <button class="panel-close" id="close-font-panel" data-i18n="CLOSE" aria-label="パネルを閉じる"></button>
@@ -304,7 +317,8 @@
     </div>
   </div>
   <!-- 検索置換パネル -->
-  <div id="search-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="search-panel-title" aria-modal="true">
+  <div id="search-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="search-panel-title"
+    aria-modal="true">
     <div class="panel-header">
       <span id="search-panel-title" data-i18n="SEARCH_REPLACE"></span>
       <button class="panel-close" id="close-search-panel" data-i18n="CLOSE" aria-label="検索パネルを閉じる"></button>
@@ -334,10 +348,12 @@
   </div>
 
   <!-- フォント装飾パネル -->
-  <div id="font-decoration-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="font-decoration-panel-title" aria-modal="true">
+  <div id="font-decoration-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="font-decoration-panel-title" aria-modal="true">
     <div class="panel-header">
       <span id="font-decoration-panel-title" data-i18n="FONT_DECORATION"></span>
-      <button class="panel-close" id="close-font-decoration-panel" data-i18n="CLOSE" aria-label="フォント装飾パネルを閉じる"></button>
+      <button class="panel-close" id="close-font-decoration-panel" data-i18n="CLOSE"
+        aria-label="フォント装飾パネルを閉じる"></button>
     </div>
     <div class="panel-body">
       <div class="panel-row">
@@ -371,10 +387,12 @@
   </div>
 
   <!-- テキストアニメーション パネル -->
-  <div id="text-animation-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="text-animation-panel-title" aria-modal="true">
+  <div id="text-animation-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="text-animation-panel-title" aria-modal="true">
     <div class="panel-header">
       <span id="text-animation-panel-title" data-i18n="TEXT_ANIMATION"></span>
-      <button class="panel-close" id="close-text-animation-panel" data-i18n="CLOSE" aria-label="テキストアニメーションパネルを閉じる"></button>
+      <button class="panel-close" id="close-text-animation-panel" data-i18n="CLOSE"
+        aria-label="テキストアニメーションパネルを閉じる"></button>
     </div>
     <div class="panel-body">
       <div class="panel-row">
@@ -465,8 +483,11 @@
   <script src="js/editor-preview.js"></script>
   <script src="js/editor-images.js"></script>
   <script src="js/editor-overlays.js"></script>
-  <script src="js/editor-search.js"></script>
   <script src="js/spell-checker.js"></script>
+  <!-- Editor Modules -->
+  <script src="js/modules/editor/EditorCore.js"></script>
+  <script src="js/modules/editor/EditorUI.js"></script>
+  <script src="js/modules/editor/EditorSearch.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/editor-wysiwyg.js"></script>
   <script src="js/app-editor-bridge.js"></script>
