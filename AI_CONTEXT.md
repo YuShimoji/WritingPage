@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-01-30T13:55:00+09:00
-- **Worker完了ステータス**: TASK_001-030: completed (実装確認済み)
+- 最終更新: 2026-02-03T14:00:00+09:00
+- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
 
@@ -68,20 +68,18 @@
     `npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
   - 2025-12-17: PR #95 を作成。`npm run test:smoke` / `npm run test:e2e:ci` green
   - 2025-12-17: PR #95 を squash merge し main へ反映。`npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
+  - 2026-02-03: smoke test（dev-check.js）を最新UI（Typography/Wikiパネル、サイドバータブ、フローティングパネル）に対応。TASK_049 完了
+  - 2026-02-03: OpenSpec changes をアーカイブ・整理（add-gadgets-modularization, add-lucide-icons, ui-stability-and-cleanup）。TASK_050 完了
 - 次の中断可能点: 次タスク着手前
 
-## OpenSpec changes の分類（暫定）
-
-### アーカイブ済み（Issue #91）
+### アーカイブ済み（Issue #91, #今日）
 
 - add-ui-design-gadget-and-dynamic-tabs
 - polish-ui-feedback-response
 - ui-future-enhancements
-
-### アーカイブ候補（実装は完了、Follow-ups残）
-
-- add-gadgets-modularization（ユニットテスト/拡張APIドキュメント化）
-- add-lucide-icons（追加アイコン導入/ダークモード対応アイコン検討）
+- add-gadgets-modularization
+- add-lucide-icons
+- ui-stability-and-cleanup
 
 ### 継続（未完了）
 
@@ -91,10 +89,6 @@
 - polish-ui-from-test-feedback
 - story-wiki-implementation
 - ui-enhancements
-
-### 下書き/整備不足（タスク形式・粒度の再整理が必要）
-
-- ui-stability-and-cleanup（`openspec list` 上は No tasks）
 
 ## VERSION
 
@@ -220,9 +214,18 @@
 - [pending] ビジュアルUIエディタ実装 (ref: docs/tasks/TASK_033_visual_ui_editor.md, Status: CLOSED)
 - [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: CLOSED)
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
-- [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: OPEN)
+- [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: CLOSED)
 - [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: COMPLETED)
 - [pending] 柔軟なタブ配置システム (Flexible Tab Placement) (ref: docs/tasks/TASK_045_flexible_tab_placement.md, Status: OPEN)
+- [pending] editor.js Refactoring (ref: docs/tasks/TASK_046_refactor_editor_js.md, Status: OPEN)
+- [pending] app.js Refactoring (ref: docs/tasks/TASK_047_refactor_app_js.md, Status: OPEN)
+- [pending] Generic Floating Panel (ref: docs/tasks/TASK_048_generic_floating_panel.md, Status: OPEN)
+- [x] Audit Smoke Test Expectations (ref: docs/tasks/TASK_049_audit_smoke_expectations.md, Status: COMPLETED)
+- [x] Audit OpenSpec Triage (ref: docs/tasks/TASK_050_audit_openspec_triage.md, Status: COMPLETED)
+- [pending] Plugin System Design (ref: docs/tasks/TASK_051_plugin_system_design.md, Status: OPEN)
+- [pending] Gadget API Type Safety (ref: docs/tasks/TASK_052_gadget_api_type_safety.md, Status: OPEN)
+- [x] UI Stability and Cleanup (ref: docs/tasks/TASK_053_ui_stability_cleanup.md, Status: COMPLETED)
+- [pending] Graphic Novel Ruby Text (ref: docs/tasks/TASK_054_graphic_novel_ruby_text.md, Status: OPEN)
 
 ### Worker完了ステータス
 - **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed, TASK_044: completed
