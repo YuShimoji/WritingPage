@@ -148,10 +148,18 @@ async function loadCssWithImports(url) {
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body) &&
       /id=\"structure-gadgets-panel\"/i.test(index.body) &&
-      /data-gadget-group=\"structure\"/i.test(index.body) &&
+      /id=\"typography-gadgets-panel\"/i.test(index.body) &&
+      /id=\"assist-gadgets-panel\"/i.test(index.body) &&
+      /id=\"wiki-gadgets-panel\"/i.test(index.body) &&
+      /class=\"sidebar-tabs\"/i.test(index.body) &&
       /id=\"help-button\"/i.test(index.body) &&
       /id=\"editor-help-button\"/i.test(index.body) &&
-      /id=\"ui-lab-link\"/i.test(index.body);
+      /id=\"ui-lab-link\"/i.test(index.body) &&
+      /id=\"floating-font-panel\"/i.test(index.body) &&
+      /id=\"search-panel\"/i.test(index.body) &&
+      /id=\"font-decoration-panel\"/i.test(index.body) &&
+      /id=\"text-animation-panel\"/i.test(index.body) &&
+      /id=\"split-view-mode-panel\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await loadCssWithImports('/css/style.css');
@@ -195,14 +203,19 @@ async function loadCssWithImports(url) {
 
     // ガジェットの存在検証（新UI構造: structure/assist/wiki/typographyパネル）
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
+    const hasTypographyPanel = /id="typography-gadgets-panel"/i.test(index.body);
     const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
+    const hasWikiPanel = /id="wiki-gadgets-panel"/i.test(index.body);
+    const hasSidebarTabs = /class="sidebar-tabs"/i.test(index.body);
     const hasGadgetGroup = /data-gadget-group="structure"/i.test(index.body);
     const gadgetsCoreJs = await get('/js/gadgets-core.js');
-    const okGadgets = hasStructurePanel && hasAssistPanel && hasGadgetGroup && gadgetsCoreJs.status === 200;
+    const okGadgets = hasStructurePanel && hasTypographyPanel && hasAssistPanel && hasWikiPanel && hasSidebarTabs && gadgetsCoreJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
       hasStructurePanel,
+      hasTypographyPanel,
       hasAssistPanel,
-      hasGadgetGroup,
+      hasWikiPanel,
+      hasSidebarTabs,
       gadgets: gadgetsCoreJs.status,
     });
 
@@ -317,6 +330,21 @@ async function loadCssWithImports(url) {
         hasPrefsUiIds,
       },
     );
+
+    // フローティングパネルの存在検証
+    const hasFloatingFont = /id="floating-font-panel"/i.test(index.body);
+    const hasSearchPanel = /id="search-panel"/i.test(index.body);
+    const hasFontDecorPanel = /id="font-decoration-panel"/i.test(index.body);
+    const hasTextAnimPanel = /id="text-animation-panel"/i.test(index.body);
+    const hasSplitViewModePanel = /id="split-view-mode-panel"/i.test(index.body);
+    const okFloatingPanels = hasFloatingFont && hasSearchPanel && hasFontDecorPanel && hasTextAnimPanel && hasSplitViewModePanel;
+    console.log('CHECK floating panels ->', okFloatingPanels ? 'OK' : 'NG', {
+      hasFloatingFont,
+      hasSearchPanel,
+      hasFontDecorPanel,
+      hasTextAnimPanel,
+      hasSplitViewModePanel,
+    });
 
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
@@ -688,6 +716,7 @@ async function loadCssWithImports(url) {
         hasDocumentsGadget &&
         hasStructureInit &&
         okGadgetsImpExp &&
+        okFloatingPanels &&
         okRulesDoc &&
         okAIContext &&
         okEmbedDemo &&

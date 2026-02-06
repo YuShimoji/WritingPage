@@ -19,7 +19,7 @@ module.exports = defineConfig({
   webServer: {
     command: 'node scripts/run-two-servers.js 9080',
     url: 'http://127.0.0.1:9080/index.html',
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 60_000,
   },
 });
