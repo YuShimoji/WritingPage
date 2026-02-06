@@ -1,4 +1,4 @@
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: ZWGadgets Modularity
  The system MUST modularize the ZWGadgets implementation by separating responsibilities to improve maintainability and extensibility.
