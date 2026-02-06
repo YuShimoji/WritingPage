@@ -1,6 +1,6 @@
 # Sidebar Tab Switching Capability
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Sidebar Tab Switching
 The system MUST update the active tab state and the corresponding panel state when a sidebar tab is selected.
