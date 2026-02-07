@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  var STORAGE_KEYS = {
+  var _STORAGE_KEYS = {
     TAGS: 'zenWriter_tags',
     SMART_FOLDERS: 'zenWriter_smart_folders'
   };

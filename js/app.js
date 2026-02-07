@@ -11,16 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     logger.info('アプリケーション初期化開始');
 
     // キーボード/マウス操作の検出（フォーカス表示の制御用）
-    let isKeyboardUser = false;
+    let _isKeyboardUser = false;
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Tab') {
-            isKeyboardUser = true;
+            _isKeyboardUser = true;
             document.body.classList.add('keyboard-user');
             document.body.classList.remove('mouse-user');
         }
     }, true);
     document.addEventListener('mousedown', () => {
-        isKeyboardUser = false;
+        _isKeyboardUser = false;
         document.body.classList.add('mouse-user');
         document.body.classList.remove('keyboard-user');
     }, true);
@@ -387,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
     const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
     const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
+    const toggleSpellCheckBtn = document.getElementById('toggle-spell-check');
 
     // サイドバーの開閉ボタン（ツールバー側のみ）
     if (toggleSidebarBtn) {
@@ -619,6 +620,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             return;
                         }
                         toggleToolbar();
+                        break;
+                        
+                    case 'command-palette.toggle':
+                        if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                            window.commandPalette.toggle();
+                        }
                         break;
                         
                     case 'search.toggle':

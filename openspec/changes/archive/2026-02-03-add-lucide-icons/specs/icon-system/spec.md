@@ -16,7 +16,7 @@
 - WHEN ガジェット設定ボタンをクリック
 - THEN Settings アイコンが表示され、設定パネルを開く
 
-## MODIFIED Requirements
+## ADDED Requirements (Accessibility)
 
 ### Requirement: UI Accessibility
  UI elements MUST remain accessible when using icons.

@@ -1,4 +1,4 @@
-(function(){
+(function () {
   'use strict';
 
   /**
@@ -9,22 +9,22 @@
    * - 相互参照グラフの可視化
    */
 
-  function ensure(fn){ try{ return typeof fn === 'function'; } catch(_){ return false; } }
-  function byId(id){ return document.getElementById(id); }
-  function el(tag, cls){ var e=document.createElement(tag); if (cls) e.className=cls; return e; }
+  function ensure(fn) { try { return typeof fn === 'function'; } catch (_) { return false; } }
+  function _byId(id) { return document.getElementById(id); }
+  function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
 
   /**
    * `[[link]]`構文をパースしてリンク情報を抽出
    * @param {string} text - パース対象のテキスト
    * @returns {Array<{text: string, link: string, fullMatch: string}>} リンク情報の配列
    */
-  function parseWikilinks(text){
+  function parseWikilinks(text) {
     if (!text || typeof text !== 'string') return [];
     var links = [];
     // `[[link]]` または `[[link|display]]` 形式を検出
     var regex = /\[\[([^\]]+)\]\]/g;
     var match;
-    while ((match = regex.exec(text)) !== null){
+    while ((match = regex.exec(text)) !== null) {
       var content = match[1];
       var parts = content.split('|');
       var link = parts[0].trim();
@@ -44,13 +44,13 @@
    * @param {string} text - パース対象のテキスト
    * @returns {Array<{text: string, link: string, docId: string, section?: string}>} リンク情報の配列
    */
-  function parseDocLinks(text){
+  function parseDocLinks(text) {
     if (!text || typeof text !== 'string') return [];
     var links = [];
     // Markdown形式: [Label](doc://id#section) または [Label](doc://id)
     var markdownRegex = /\[([^\]]+)\]\(doc:\/\/([^\s)]+)(?:#([^\s)]+))?\)/g;
     var match;
-    while ((match = markdownRegex.exec(text)) !== null){
+    while ((match = markdownRegex.exec(text)) !== null) {
       var label = match[1];
       var docId = match[2];
       var section = match[3] || undefined;
@@ -64,7 +64,7 @@
     }
     // プレーンテキスト形式: doc://id#section または doc://id
     var plainRegex = /doc:\/\/([^\s\n]+)(?:#([^\s\n]+))?/g;
-    while ((match = plainRegex.exec(text)) !== null){
+    while ((match = plainRegex.exec(text)) !== null) {
       var docId2 = match[1];
       var section2 = match[2] || undefined;
       links.push({
@@ -83,8 +83,8 @@
    * @param {string} text - パース対象のテキスト
    * @returns {Array} すべてのリンク情報
    */
-  function parseAllLinks(text){
-    var wikilinks = parseWikilinks(text).map(function(link){
+  function parseAllLinks(text) {
+    var wikilinks = parseWikilinks(text).map(function (link) {
       return {
         type: 'wikilink',
         text: link.text,
@@ -93,7 +93,7 @@
         index: link.index
       };
     });
-    var docLinks = parseDocLinks(text).map(function(link){
+    var docLinks = parseDocLinks(text).map(function (link) {
       return {
         type: 'doclink',
         text: link.text,
@@ -113,23 +113,23 @@
    * @param {Object} storage - ストレージオブジェクト
    * @returns {Array<{source: string, sourceType: string, links: Array}>} バックリンク情報
    */
-  function findBacklinks(target, storage){
+  function findBacklinks(target, storage) {
     if (!target || !storage) return [];
     var backlinks = [];
-    
+
     // Wikiページから検索
     try {
-      if (ensure(storage.listWikiPages)){
+      if (ensure(storage.listWikiPages)) {
         var wikiPages = storage.listWikiPages();
-        for (var i = 0; i < wikiPages.length; i++){
+        for (var i = 0; i < wikiPages.length; i++) {
           var page = wikiPages[i];
           if (!page || !page.content) continue;
           var links = parseAllLinks(page.content);
-          var matchingLinks = links.filter(function(link){
-            return link.target === target || link.link === target || 
-                   (link.type === 'doclink' && link.docId === target);
+          var matchingLinks = links.filter(function (link) {
+            return link.target === target || link.link === target ||
+              (link.type === 'doclink' && link.docId === target);
           });
-          if (matchingLinks.length > 0){
+          if (matchingLinks.length > 0) {
             backlinks.push({
               source: page.id || page.title || 'unknown',
               sourceType: 'wiki',
@@ -139,22 +139,22 @@
           }
         }
       }
-    } catch(e){ void e; }
+    } catch (e) { void e; }
 
     // ドキュメントから検索
     try {
-      if (ensure(storage.loadDocuments)){
+      if (ensure(storage.loadDocuments)) {
         var docs = storage.loadDocuments();
-        if (Array.isArray(docs)){
-          for (var j = 0; j < docs.length; j++){
+        if (Array.isArray(docs)) {
+          for (var j = 0; j < docs.length; j++) {
             var doc = docs[j];
             if (!doc || !doc.content) continue;
             var docLinks = parseAllLinks(doc.content);
-            var matchingDocLinks = docLinks.filter(function(link){
+            var matchingDocLinks = docLinks.filter(function (link) {
               return link.target === target || link.link === target ||
-                     (link.type === 'doclink' && link.docId === target);
+                (link.type === 'doclink' && link.docId === target);
             });
-            if (matchingDocLinks.length > 0){
+            if (matchingDocLinks.length > 0) {
               backlinks.push({
                 source: doc.id || 'unknown',
                 sourceType: 'document',
@@ -165,23 +165,23 @@
           }
         }
       }
-    } catch(e){ void e; }
+    } catch (e) { void e; }
 
     // 現在のエディタコンテンツから検索
     try {
       var currentContent = '';
-      if (window.ZenWriterAPI && ensure(window.ZenWriterAPI.getContent)){
+      if (window.ZenWriterAPI && ensure(window.ZenWriterAPI.getContent)) {
         currentContent = String(window.ZenWriterAPI.getContent() || '');
-      } else if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.getContent)){
+      } else if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.getContent)) {
         currentContent = String(window.ZenWriterStorage.getContent() || '');
       }
-      if (currentContent){
+      if (currentContent) {
         var currentLinks = parseAllLinks(currentContent);
-        var matchingCurrentLinks = currentLinks.filter(function(link){
+        var matchingCurrentLinks = currentLinks.filter(function (link) {
           return link.target === target || link.link === target ||
-                 (link.type === 'doclink' && link.docId === target);
+            (link.type === 'doclink' && link.docId === target);
         });
-        if (matchingCurrentLinks.length > 0){
+        if (matchingCurrentLinks.length > 0) {
           backlinks.push({
             source: 'current',
             sourceType: 'current',
@@ -190,7 +190,7 @@
           });
         }
       }
-    } catch(e){ void e; }
+    } catch (e) { void e; }
 
     return backlinks;
   }
@@ -200,13 +200,13 @@
    * @param {Object} storage - ストレージオブジェクト
    * @returns {Object} {nodes: Array, edges: Array} グラフデータ
    */
-  function generateGraphData(storage){
+  function generateGraphData(storage) {
     if (!storage) return { nodes: [], edges: [] };
     var nodes = [];
     var edges = [];
     var nodeMap = {}; // ノードID -> ノードインデックス
 
-    function getOrCreateNode(id, label, type){
+    function getOrCreateNode(id, label, type) {
       if (nodeMap[id] !== undefined) return nodeMap[id];
       var node = {
         id: id,
@@ -223,18 +223,18 @@
 
     // Wikiページをノードとして追加
     try {
-      if (ensure(storage.listWikiPages)){
+      if (ensure(storage.listWikiPages)) {
         var wikiPages = storage.listWikiPages();
-        for (var i = 0; i < wikiPages.length; i++){
+        for (var i = 0; i < wikiPages.length; i++) {
           var page = wikiPages[i];
           if (!page) continue;
           var pageId = 'wiki:' + (page.id || page.title || 'unknown');
           getOrCreateNode(pageId, page.title || page.id, 'wiki');
-          
+
           // リンクを検出してエッジを作成
-          if (page.content){
+          if (page.content) {
             var links = parseAllLinks(page.content);
-            for (var j = 0; j < links.length; j++){
+            for (var j = 0; j < links.length; j++) {
               var link = links[j];
               var targetId = link.type === 'doclink' ? 'doc:' + link.docId : 'wiki:' + link.target;
               var targetNodeIndex = getOrCreateNode(targetId, link.text, link.type === 'doclink' ? 'document' : 'wiki');
@@ -248,23 +248,23 @@
           }
         }
       }
-    } catch(e){ void e; }
+    } catch (e) { void e; }
 
     // ドキュメントをノードとして追加
     try {
-      if (ensure(storage.loadDocuments)){
+      if (ensure(storage.loadDocuments)) {
         var docs = storage.loadDocuments();
-        if (Array.isArray(docs)){
-          for (var k = 0; k < docs.length; k++){
+        if (Array.isArray(docs)) {
+          for (var k = 0; k < docs.length; k++) {
             var doc = docs[k];
             if (!doc) continue;
             var docId = 'doc:' + (doc.id || 'unknown');
             getOrCreateNode(docId, doc.title || doc.id, 'document');
-            
+
             // リンクを検出してエッジを作成
-            if (doc.content){
+            if (doc.content) {
               var docLinks = parseAllLinks(doc.content);
-              for (var l = 0; l < docLinks.length; l++){
+              for (var l = 0; l < docLinks.length; l++) {
                 var docLink = docLinks[l];
                 var targetDocId = docLink.type === 'doclink' ? 'doc:' + docLink.docId : 'wiki:' + docLink.target;
                 var targetDocNodeIndex = getOrCreateNode(targetDocId, docLink.text, docLink.type === 'doclink' ? 'document' : 'wiki');
@@ -279,7 +279,7 @@
           }
         }
       }
-    } catch(e){ void e; }
+    } catch (e) { void e; }
 
     return { nodes: nodes, edges: edges };
   }
@@ -289,32 +289,32 @@
    * @param {HTMLElement} container - コンテナ要素
    * @param {Object} graphData - グラフデータ
    */
-  function renderGraph(container, graphData){
+  function renderGraph(container, graphData) {
     if (!container || !graphData) return;
     container.innerHTML = '';
-    
+
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.style.width = '100%';
     svg.style.height = '100%';
     svg.style.position = 'absolute';
     svg.style.top = '0';
     svg.style.left = '0';
-    
+
     var nodesLayer = el('div', 'link-graph-nodes');
     nodesLayer.style.position = 'relative';
     nodesLayer.style.width = '100%';
     nodesLayer.style.height = '100%';
-    
+
     container.appendChild(svg);
     container.appendChild(nodesLayer);
 
     // エッジを描画
-    for (var i = 0; i < graphData.edges.length; i++){
+    for (var i = 0; i < graphData.edges.length; i++) {
       var edge = graphData.edges[i];
       var fromNode = graphData.nodes[edge.from];
       var toNode = graphData.nodes[edge.to];
       if (!fromNode || !toNode) continue;
-      
+
       var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('x1', fromNode.x);
       line.setAttribute('y1', fromNode.y);
@@ -326,7 +326,7 @@
     }
 
     // ノードを描画
-    for (var j = 0; j < graphData.nodes.length; j++){
+    for (var j = 0; j < graphData.nodes.length; j++) {
       var node = graphData.nodes[j];
       var nodeEl = el('div', 'link-graph-node');
       nodeEl.style.position = 'absolute';
@@ -354,10 +354,10 @@
   };
 
   // Gadgetとして登録
-  function registerGadget(){
+  function registerGadget() {
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
 
-    window.ZWGadgets.register('LinkGraph', function(root, api){
+    window.ZWGadgets.register('LinkGraph', function (root, _api) {
       var STORAGE = window.ZenWriterStorage;
       if (!STORAGE) { root.textContent = 'ストレージが利用できません'; return; }
 
@@ -405,16 +405,16 @@
       root.appendChild(graphContainer);
       root.appendChild(backlinksPanel);
 
-      function refreshGraph(){
+      function refreshGraph() {
         var graphData = generateGraphData(STORAGE);
         renderGraph(graphContainer, graphData);
       }
 
-      function showBacklinks(target){
+      function showBacklinks(target) {
         if (!target) return;
         var backlinks = findBacklinks(target, STORAGE);
         backlinksPanel.innerHTML = '';
-        if (backlinks.length === 0){
+        if (backlinks.length === 0) {
           backlinksPanel.innerHTML = '<div style="padding:8px; color:#999;">バックリンクが見つかりませんでした</div>';
         } else {
           var title = el('div');
@@ -422,7 +422,7 @@
           title.style.fontWeight = '600';
           title.style.marginBottom = '8px';
           backlinksPanel.appendChild(title);
-          for (var i = 0; i < backlinks.length; i++){
+          for (var i = 0; i < backlinks.length; i++) {
             var bl = backlinks[i];
             var item = el('div');
             item.style.padding = '4px 0';
@@ -438,9 +438,9 @@
       }
 
       btnRefresh.addEventListener('click', refreshGraph);
-      btnBacklinks.addEventListener('click', function(){
+      btnBacklinks.addEventListener('click', function () {
         var target = searchInput.value.trim();
-        if (target){
+        if (target) {
           showBacklinks(target);
         }
       });
@@ -449,6 +449,16 @@
       refreshGraph();
     }, { title: 'Link Graph', groups: ['wiki', 'structure'] });
   }
+
+  // グローバルAPIを公開 (TASK_044)
+  window.LinkGraph = {
+    parseWikilinks: parseWikilinks,
+    parseDocLinks: parseDocLinks,
+    parseAllLinks: function (text) { return parseAllLinks(text); },
+    findBacklinks: function (target) {
+      return findBacklinks(target, window.ZenWriterStorage);
+    }
+  };
 
   // init when gadgets ready
   if (document.readyState === 'loading') {

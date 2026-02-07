@@ -28,3 +28,9 @@ _site/
 # Playwright outputs
 test-results/
 playwright-report/
+
+# Temporary test output files
+*-out.txt
+*-out?.txt
+*-fail.txt
+test-*.txt

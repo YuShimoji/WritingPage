@@ -461,7 +461,7 @@ class SidebarManager {
     applyTabsPresentationUI(options) {
         try {
             const opts = (options && typeof options === 'object') ? options : {};
-            const skipActivate = opts.skipActivate === true;
+            const _skipActivate = opts.skipActivate === true;
             const sb = document.getElementById('sidebar');
             if (!sb) return;
             const mode = sb.getAttribute('data-tabs-presentation') || 'tabs';

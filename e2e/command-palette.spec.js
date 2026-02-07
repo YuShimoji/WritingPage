@@ -3,6 +3,15 @@ const { test, expect } = require('@playwright/test');
 
 const pageUrl = '/index.html';
 
+// Helper: open command palette via JS (avoids browser print dialog interception)
+async function openCommandPalette(page) {
+  await page.evaluate(() => {
+    if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+      window.commandPalette.show();
+    }
+  });
+}
+
 test.describe('Command Palette E2E', () => {
   test('コマンドパレットがCtrl+Pで開く', async ({ page }) => {
     await page.goto(pageUrl);
@@ -11,8 +20,8 @@ test.describe('Command Palette E2E', () => {
     const palette = page.locator('#command-palette');
     await expect(palette).not.toBeVisible();
 
-    // Ctrl+Pでコマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    // コマンドパレットを開く（evaluate経由 — headlessではCtrl+Pがブラウザ印刷に横取りされるため）
+    await openCommandPalette(page);
     await expect(palette).toBeVisible();
   });
 
@@ -22,8 +31,8 @@ test.describe('Command Palette E2E', () => {
     const palette = page.locator('#command-palette');
     await expect(palette).not.toBeVisible();
 
-    // Meta+P（MacのCmd+P）でコマンドパレットを開く
-    await page.keyboard.press('Meta+p');
+    // コマンドパレットを開く（evaluate経由）
+    await openCommandPalette(page);
     await expect(palette).toBeVisible();
   });
 
@@ -31,7 +40,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // 検索入力フィールドに「検索」と入力
@@ -51,7 +60,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // 「検索」と入力
@@ -72,7 +81,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // 下矢印キーで選択が移動することを確認
@@ -99,7 +108,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // Escapeキーで閉じる
@@ -111,7 +120,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // カテゴリが表示されることを確認
@@ -129,7 +138,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // 「検索」と入力
@@ -147,7 +156,7 @@ test.describe('Command Palette E2E', () => {
     await page.goto(pageUrl);
     
     // コマンドパレットを開く
-    await page.keyboard.press('Control+p');
+    await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
 
     // 「構造」と入力

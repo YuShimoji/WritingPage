@@ -10,7 +10,7 @@ The system MUST NOT display an unrequested calendar element in the top menu.
 - **THEN** calendar element is removed
 - **AND** no unrequested calendar displays
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Writing goal visibility
 The system MUST show or hide writing goal elements in the top menu based on whether the WritingGoal gadget is enabled.

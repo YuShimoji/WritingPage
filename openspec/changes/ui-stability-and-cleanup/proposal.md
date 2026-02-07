@@ -3,15 +3,17 @@
 ## Summary
 Address UI stability issues and clean up hardcoded elements to improve user experience and maintainability.
 
-## Problem Statement
-- Sidebar tabs (Gadget and Wiki) cannot be switched.
-- Loadout is not gadgetized and cannot be saved.
-- Wiki help does not open.
-- Top menu has unrequested elements like calendar and hardcoded writing goals.
-- Writing goal UI has sudden color changes and emojis that should be user-controllable.
-- Word count display behavior needs documentation for future reference.
+## Why
+A stable and clean UI is essential for a focused writing experience. Removing hardcoded, unrequested features and providing clear mechanisms for UI interaction (tabs, gadgets) ensures the tool remains predictable and customizable.
 
-## Goals
+## Problem
+- Sidebar tabs (Gadget and Wiki) cannot be switched in the initial monolithic implementation.
+- Loadout is not gadgetized and cannot be saved/restored easily.
+- Wiki help content is missing or inaccessible.
+- Top menu has unnecessary elements like a calendar and non-optional writing goals.
+- Writing goal UI has non-customizable sudden color changes.
+
+## Goal
 - Implement functional tab switching in sidebar.
 - Gadgetize loadout management.
 - Add Wiki help functionality.
@@ -19,10 +21,10 @@ Address UI stability issues and clean up hardcoded elements to improve user expe
 - Improve UI feedback controls.
 - Document word count behavior.
 
-## Success Criteria
-- All sidebar tabs switch correctly.
-- Loadout can be saved and loaded via gadgets.
-- Wiki help opens when requested.
-- Top menu only shows requested elements.
-- UI changes are smooth and customizable.
-- Word count logic is documented.
+## What Changes
+- Refactored `SidebarManager.js` to handle dynamic tab switching and state preservation.
+- Created `gadgets-loadout.js` to manage UI presets.
+- Implemented `showHelp()` in `gadgets-wiki.js`.
+- Cleaned up `index.html` to remove calendar and unify toolbar structure.
+- Updated `app.js` and `gadgets-goal.js` for smoother goal UI transitions.
+- Added documentation for space-based word counting.

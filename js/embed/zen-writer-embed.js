@@ -5,42 +5,50 @@
       typeof target === 'string' ? document.querySelector(target) : target;
     if (!sel) throw new Error('ZenWriterEmbed: target not found');
     let src = options.src || '/index.html';
-    let computedOrigin = null;
     const width = options.width || '100%';
     const height = options.height || '100%';
 
     const iframe = document.createElement('iframe');
-    // 親originを子へ伝える embed_origin を付加し、cross-origin なら絶対URLを維持（child 側の許可origin判定に使用）
+    let computedOrigin = null;
+
+    // 1. Determine origin and absolute src
     try {
       const url = new URL(src, window.location.origin);
+      computedOrigin = url.origin;
+      const useAbs = computedOrigin !== window.location.origin;
+
+      // embed_origin optimization
       if (
         !url.searchParams.get('embed_origin') &&
         options.appendEmbedOrigin !== false
       ) {
         url.searchParams.set('embed_origin', window.location.origin);
       }
-      computedOrigin = url.origin;
-      const useAbs =
-        computedOrigin && computedOrigin !== window.location.origin;
+
       src = useAbs
         ? url.toString()
         : url.pathname + (url.search ? url.search : '') + (url.hash || '');
     } catch (_) {
       computedOrigin = null;
     }
+
+    // 2. Normalize sameOrigin and targetOrigin
     const sameOrigin =
       typeof options.sameOrigin === 'boolean'
         ? options.sameOrigin
         : computedOrigin
           ? computedOrigin === window.location.origin
           : false;
+
     const targetOrigin = sameOrigin
       ? window.location.origin
       : options.targetOrigin || computedOrigin || null;
-    if (!sameOrigin && !targetOrigin)
+
+    if (!sameOrigin && !targetOrigin) {
       throw new Error(
-        'ZenWriterEmbed: cross-origin mode requires targetOrigin or resolvable src origin',
+        'ZenWriterEmbed: cross-origin mode requires targetOrigin or absolute src URL',
       );
+    }
 
     iframe.src = src;
     iframe.style.border = '0';
@@ -68,7 +76,10 @@
     function onMessage(event) {
       if (!iframe.contentWindow || event.source !== iframe.contentWindow)
         return;
-      if (targetOrigin && event.origin !== targetOrigin) return;
+      // Strict origin validation
+      if (targetOrigin && event.origin !== targetOrigin) {
+        return;
+      }
       const data = event.data || {};
       if (data && data.type === 'ZW_EMBED_READY') {
         pmReady = true;
@@ -169,12 +180,16 @@
 
     function accessError(action) {
       const suffix = action ? ` (${action})` : '';
-      if (sameOrigin)
+      if (sameOrigin) {
         return new Error(
-          `ZenWriterEmbed: same-origin APIs unavailable${suffix}; ensure the embedded document exposes ZenWriterAPI`,
+          `ZenWriterEmbed: same-origin API access failed${suffix}. ` +
+          `The embedded page does not expose ZenWriterAPI or child-bridge.js is not loaded. ` +
+          `Ensure the iframe src includes '?embed=1' parameter.`,
         );
+      }
       return new Error(
-        `ZenWriterEmbed: cross-origin RPC unavailable${suffix}; ensure targetOrigin matches and child-bridge is enabled`,
+        `ZenWriterEmbed: cross-origin RPC failed${suffix}. ` +
+        `Ensure targetOrigin (${targetOrigin}) is correct and child-bridge.js is loaded in the iframe with ?embed=1.`,
       );
     }
 

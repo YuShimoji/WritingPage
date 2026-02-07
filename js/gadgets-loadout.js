@@ -8,7 +8,7 @@
 
   if (!window.ZWGadgets || !window.ZWGadgets.register) return;
 
-  ZWGadgets.register('LoadoutManager', function (el, api) {
+  ZWGadgets.register('LoadoutManager', function (el, _api) {
     // コンテナ作成（既存スタイル継承のため sidebar-loadout クラス付与）
     var container = document.createElement('div');
     container.className = 'sidebar-loadout gadget-loadout-manager';

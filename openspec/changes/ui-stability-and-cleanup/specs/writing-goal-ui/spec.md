@@ -1,6 +1,6 @@
 # Writing Goal UI Capability
 
-## MODIFIED Requirements
+## ADDED Requirements
 
 ### Requirement: Writing goal UI feedback and customization
 The system MUST avoid sudden default styling changes (e.g., blue bars) and MUST allow users to control goal UI appearance.

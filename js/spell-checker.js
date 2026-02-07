@@ -438,7 +438,6 @@
      * @returns {string[]}
      */
     getSuggestions(word) {
-      const suggestions = [];
       const lowerWord = word.toLowerCase();
       
       // 編集距離が小さい単語を提案

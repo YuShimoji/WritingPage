@@ -56,6 +56,14 @@
       metaKey: false,
       description: 'Focus/Blankモードから Normal に戻る'
     },
+    'command-palette.toggle': {
+      key: 'p',
+      altKey: false,
+      ctrlKey: true,
+      shiftKey: false,
+      metaKey: false,
+      description: 'コマンドパレット開閉'
+    },
     'editor.save': {
       key: 's',
       altKey: false,

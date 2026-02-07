@@ -1,795 +1,128 @@
-# 作業申し送り: Zen Writer リファクタリング作業中
+# 作業申し送り: Zen Writer
 
 ## 概要
 
-Zen Writerのストーリーエディタ・ライティングエディタ開発のための土台盤石化を目的として、コードベースのリファクタリングを進行中です。ガジェットアーキテクチャの安定化、テストの修正、コード整理を実施し、プロジェクト全体の品質向上を進めています。
-
-## 申し送り（2025-12-17）
-
-### 今回の目的
-
-- 監査（docs/openspec/code）で検出した「未実装/仮実装/不整合」を SSOT に集約し、日常的に参照されるドキュメント（ISSUES/BACKLOG/KNOWN_ISSUES）へ追跡導線を追加。
-- 次セッションで Issue 起票・実装着手できるよう、調査結果の入口と優先度を固定。
-
-### 反映済み（main / origin/main）
-
-- 監査SSOT: `docs/AUDIT_TASK_BREAKDOWN.md` を追加（優先度 P0/P1/P2、DoD、テスト観点、設計案比較つき）。
-- Issue導線: `docs/ISSUES.md` に監査SSOTへの入口を追加。
-- Backlog導線: `docs/BACKLOG.md` の「優先度: 低」に監査項目（SSOT参照）を追加。
-- 既知問題整合: `docs/KNOWN_ISSUES.md` の「改善済み」バージョン表記を現行 `0.3.18` に整合。
-- 追加申し送り: `docs/HANDOFF_PR95_graphic-novel-sample.md`（PR #95のハンドオフメモ）
-
-### 監査で確定した優先度（次の実装入口）
-
-- P0-1: Embed SDK の same-origin 判定と origin 検証の正規化（`docs/AUDIT_TASK_BREAKDOWN.md` 参照）
-- P1-4: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」混在の解消
-- P1-5: `scripts/dev-check.js` の期待値（未実装扱い）と現行実装の整合
-- P2-2: プラグインシステムの「UI有無」の明確化（ヘッドレス継続/露出/撤去）
-- P2-3: OpenSpec 未完了 change のトリアージ（重複統合 + Issue粒度への再分割）
-
-### 運用メモ
-
-- `git push` 時に出ていた `credential-manager-core` エラーは、`credential.helper` を `manager` に統一することで解消（以後 push のノイズ無し）。
-
-### 再開手順（最短）
-
-1. `git checkout main` → `git pull --ff-only`
-2. `npm ci`
-3. `npm run lint` / `npm run test:smoke`
-4. 入口: `docs/AUDIT_TASK_BREAKDOWN.md` → `docs/ISSUES.md` → Issue起票 → 実装
-
-### 最終確認（引き継ぎ時点）
-
-- `main` と `origin/main` が一致していること（`origin/main..HEAD` 差分ゼロ）を確認済み。
-
-## 申し送り（2025-12-16）
-
-### 今回の要点（調査/設計判断）
-
-- **Calendar/Clock 連携の扱い**
-  - OpenSpec `ui/spec.md` の Goal×Calendar/Clock 連携は、現状実装・優先度に照らして **Backlog（低優先）** へ降格。
-  - ここでの Calendar は **日付/予定ビューのカレンダー表示ガジェット想定**（現状未実装）。
-
-- **イベントの現状**
-  - `ZWGadgetsReady` は現行コード上で発火していないため、ドキュメント上の主要イベント表記から除外。
-  - 現行の主要イベント（`gadgets-core.js` / `gadgets-loadouts.js`）:
-    - `ZWLoadoutsChanged`, `ZWLoadoutDefined`, `ZWLoadoutApplied`, `ZWLoadoutDeleted`, `ZWLoadoutGroupChanged`
-
-- **責務の境界（現行）**
-  - `SidebarManager`（`js/sidebar-manager.js`）: タブ/パネルの表示制御、グループ切替時に `ZWGadgets.setActiveGroup(groupId)` を呼ぶ。
-  - `ZWGadgets`（`js/gadgets-core.js` 他）: ガジェット登録/レンダリング/ロードアウト/イベント。
-  - ロードアウトUI: `js/gadgets-loadout.js` が `.sidebar-loadout` に動的生成。
-  - ガジェット初期化: `js/gadgets-init.js` が `data-gadget-group` を基準に `ZWGadgets.init(panel,{group})` を実行。
-
-- **サイドバータブSSOT化（Plan A）**
-  - タブ生成/復元/切替は `SidebarManager` を SSOT とする方針を継続。
-  - `ZWGadgets.addTab()` の **DOM直操作フォールバックを撤去**し、`window.sidebarManager.addTab()` への委譲のみとした（シグネチャ互換のため引数は維持）。
-  - 調査メモ:
-    - 初期タブ生成は `SidebarManager.bootstrapTabs()` 経由に寄せており、`gadgets-init.js` からの `ZWGadgets.addTab()` 呼び出しは削除済み。
-    - `ZWGadgets.addTab()` は互換性のため残すが、タブDOM生成/クリックハンドラ設定などの責務は `SidebarManager` 側へ一本化する。
-
-### 今回の変更点（反映対象）
-
-- **OpenSpec**
-  - `openspec/specs/*/spec.md` の `Purpose` が `TBD` のまま残っていた 12 spec を、仕様拡張なしで目的文だけ現状に合わせて補完。
-  - `openspec/specs/ui/spec.md` の Goal×Calendar/Clock を Backlog 化（MUST→SHOULD 相当の扱いへ）。
-
-- **Docs 同期（現行実装へ整合）**
-  - `docs/GADGETS.md`: `ZWGadgetsReady`/`js/gadgets.js` 前提/イベント発火元などのズレを修正。
-  - `docs/ARCHITECTURE.md`: `gadgets-*.js` 構成と `index.html` 読み込み順に同期、ロードアウトAPI表記を `applyLoadout` へ修正。
-  - `docs/BACKLOG.md`: 未保存確認の記述を現行（`app.js` 主導）へ修正。
-  - `docs/TROUBLESHOOTING.md`: `gadgets.js` 前提を `gadgets-*.js` 前提に修正。
-
-- **Smoke テスト安定化（重要）**
-  - `scripts/dev-check.js`: 8080 が別プロセスに占有されている場合に誤判定して NG になる問題を修正。
-    - `index.html` の title が Zen Writer であることを確認し、違えば別ポート（18080〜）で自前 dev-server を起動して検査する。
-
-### 検証結果（ダブルチェック用）
-
-- **`npm run test:smoke`**: PASS（`ALL TESTS PASSED` を確認）
-- **`npm run lint`**: PASS
-- **`node scripts/dev-check.js`**: PASS（`ALL TESTS PASSED` を確認）
-- **`npm run test:e2e:ci`**: PASS（`46 passed` を確認）
-
-### 次のアクション（再開時の入口）
-
-- **引き続き総ざらい**
-  - 未実装/未修正の一覧化（docs/openspec/grep）を継続し、設計レベルのタスク分解を作る。
-- **運用**
-  - `npm run test:smoke` は dev-check のポート自動判定により、他サーバの 8080 占有があっても安定して通る。
-
-## 現在のプロジェクト状況
-
-### 目標
-
-- **ストーリーエディタ・ライティングエディタ開発の土台盤石化**
-- **コードベースの品質向上**: 単一責任、命名規則、モジュール分割、ハードコーディング除去、長すぎるスクリプトの分割
-- **テスト環境の安定化**: smoke/e2eテストの実行可能性確保
-- **将来機能追加の容易化**: 保守性・拡張性の高いアーキテクチャ構築
-
-### 実施済み作業
-
-#### 1. リモート更新の同期とコンフリクト解消
-
-- リモートからの最新更新を取得
-- merge conflictを解決し、ローカル環境を安定化
-- プロジェクト構造の確認とドキュメント更新
-
-#### 2. プロジェクト全体像の把握
-
-- 構造分析: 主要コンポーネントの依存関係理解
-- ドキュメント確認: GADGETS.md, wiki-help.html, editor-help.html
-- 既存Issueの棚卸しと優先度付け
-
-#### 3. 未実装機能・未修正の総ざらいと優先度付け
-
-- `gadgets.js` (2994行): → モジュール化完了、`js/_legacy/gadgets.js` にアーカイブ済み
-- Wiki/StoryWikiガジェットの重複実装問題
-- UI構造変更に伴うテストセレクタの不整合
-- ガジェットロードアウト処理の再確認が必要
-
-#### 4. コードベース分析とリファクタリング計画策定
-
-- `docs/REFACTORING_PLAN.md` に詳細な計画書を作成
-- 短期計画: gadgets.js分割 → 完了、ビルトインガジェット個別ファイル化 → 完了
-- 中期計画: editor.js/app.js整理、未実装機能の実装
-- 品質基準: テストカバレッジ80%以上、静的解析エラー0件
-
-#### 5. リファクタリング実行（第一段階）
-
-- **smoke test修正**: `scripts/dev-check.js` を現在のUI構造に合わせて更新
-  - pluginsパネルをオプション扱いに変更
-  - gadgetsパネルIDを `structure-gadgets-panel`, `assist-gadgets-panel` に統一
-  - import/export APIチェックをUI要素依存からAPI存在確認に変更
-
-- **重複コード削除**: `js/gadgets.js` からコメントアウトされたStoryWikiガジェット（約200行）を削除、最終的に `js/_legacy/gadgets.js` にアーカイブ
-
-- **テスト用ID追加**:
-  - `js/gadgets.js`: カラーピッカーに `#bg-color`, `#text-color`, テーマボタンに `data-theme-preset` 属性、リセットボタン `#reset-colors`
-  - `js/gadgets-editor-extras.js`: Typewriter/Snapshotガジェットのコントロールに適切なID付与
-
-#### 6. テスト実行と動作確認
-
-- **Smokeテスト**: ALL TESTS PASSED (全項目合格)
-- **E2Eテスト**: 39 passed, 7 failed (大幅改善: 32→39 passed)
-  - 残存失敗: theme-colors関連3件, editor-settings関連4件
-  - 主な原因: ガジェットレンダリングタイミング、ロードアウト設定による表示状態差異
-
-### 現在のテスト状況
-
-#### 合格項目 (39件)
-
-- Clockガジェット: 時間表示切替、設定永続化
-- HUD Settings: 設定UI表示、幅・フォントサイズ設定
-- Font Decoration: 基本装飾適用
-- Wikiガジェット: ページ作成、検索、編集
-- スナップショット管理: 設定保存・復元
-- UI設定: タブ表示モード切替
-- ドキュメント切替: 自動保存機能
-
-#### 失敗項目 (7件)
-
-1. **Theme Colors** (3件):
-   - テーマ切替時のカラーピッカー値不一致
-   - カスタム色適用・永続化
-   - 色リセット機能
-
-2. **Editor Settings** (4件):
-   - Typewriterモード設定・保存
-   - スナップショット設定調整
-   - Typewriterスクロール動作
-   - ドキュメント切替時の変更確認
-
-### 技術的発見と課題
-
-#### ガジェットアーキテクチャの現状
-
-- **ZWGadgets.register()**: 機能追加の標準API
-- **ロードアウトシステム**: `DEFAULT_LOADOUTS` でプリセット構成管理
-- **グループ化**: `structure`, `assist`, `typography`, `wiki` の4グループ
-- **動的レンダリング**: SidebarManager経由でのタブ/パネル管理
-
-#### 特定された問題
-
-- **gadgets.js肥大化**: 2994行の単一ファイル、複数の責任を担う
-- **ID重複**: 複数パネルに同一ガジェットがレンダリングされる場合のID競合
-- **レンダリングタイミング**: ガジェット初期化とUI要素表示の同期問題
-- **テストセレクタ**: UI構造変更に伴うテストコードの更新遅れ
-
-### 次の作業計画
-
-#### 短期（次のセッション）
-
-1. **gadgets.js分割開始**: core.js, loadouts.js, utils.js への分割
-2. **ビルトインガジェット個別化**: 各ガジェットを別ファイルに分離
-3. **残存e2eテスト修正**: 7件の失敗原因を特定し修正
-
-#### 中期
-
-1. **editor.js/app.js整理**: 責任分離とモジュール化
-2. **未実装機能の実装**: REFACTORING_PLAN.md記載の機能
-3. **ドキュメント更新**: API仕様、開発ガイドの充実
-
-#### 品質目標
-
-- **テストカバレッジ**: 最低80%、重要モジュール90%以上
-- **静的解析**: エラー0件
-- **パフォーマンス**: 起動時間改善、メモリ使用量最適化
-
-### 環境・ツール状況
-
-- **開発サーバー**: <http://127.0.0.1:8080> (正常動作)
-- **テスト環境**: Playwright e2e, 内部smokeテスト
-- **依存関係**: 既存パッケージに変更なし
-- **Git**: 最新コミット 0932f89, リモート同期済み
-
-### 懸念事項
-
-1. **e2eテストの不安定性**: タイミング依存の失敗が残存
-2. **ガジェットレンダリング**: 複数グループ間での状態同期
-3. **パフォーマンス**: 大規模リファクタリング中の動作確認
-
-### 完了基準
-
-- [ ] e2eテスト全合格 (現在39/46)
-- [ ] gadgets.jsのモジュール分割完了
-- [ ] 主要リファクタリング項目の実装
-- [ ] 新機能開発のための土台確立
-
----
-
-**最終更新**: 2025-12-16  
-**担当**: AI Assistant  
-**次回作業開始予定**: C-3 Step2（UI/エディタ配色レイヤ本格分離）と B-1（フローティングパネルUI改善）、A-1（editor-search.js 抽出）の優先度評価と着手
-
-### 9. UI アーキテクチャ仕様ドキュメント作成
-
-- `docs/UI_ARCHITECTURE.md` を新規作成
-- Region / Panel / Gadget / GadgetContainer / Scene / EditorArea の役割を定義
-- FAB Layer の統一管理方針、Scenes & Gradients の3レイヤ構造（Base/Pattern/Overlay）を設計
-- 将来の複数エディタ分割・動画背景・設定UI拡張を見据えた基盤仕様を整理
-
-### 10. SceneGradient ガジェット PoC 実装（Cステップ）
-
-- `js/gadgets-editor-extras.js` に `SceneGradient` ガジェットを追加
-- Base / Pattern / Overlay の3レイヤ構造で背景グラデーションを制御
-  - **Base Layer**: 単色 / 線形グラデーション / 放射グラデーション、角度・色・強度調整
-  - **Pattern Layer**: 繰り返しグラデーション（線形/放射）、角度・サイズ・色・強度調整
-  - **Overlay Layer**: vignette風の半透明オーバーレイ、タイプ・色・強度調整
-- `.editor-container` の `backgroundImage` に適用
-- 設定は `settings.scene` に保存
-- JS lint / smoke テスト全項目パス
-
-### 11. 物語WikiとReference Wikiの分離、およびサイドバー挙動の安定化（2025-11-20）
-
-- `css/style.css` の `.editor-container` レイアウトを調整し、サイドバー展開時に右側へ一瞬白い余白がアニメーション表示される問題を修正
-  - `width` のトランジションを廃止し、`margin-left` のみで押し出す方式に統一
-  - `body { overflow-x: hidden; }` を追加し、横スクロールバーの発生と画面端のチラつきを抑制
-- `js/wiki.js` の Wiki ガジェットを「物語Wiki」として整理
-  - ガジェットタイトルを `物語Wiki` に変更し、グループを `wiki` のみに統一
-  - Story 用ページとヘルプ用ページが混在していた一覧を見直し、デフォルトでは Story 用ページのみを表示
-  - ヘルプ系ページ（フォルダが「ヘルプ」、または `help` タグ付き）はフィルタ対象とし、Story Wiki からは事実上分離
-- 物語Wiki専用のヘルプドキュメント `docs/wiki-help.html` を新規作成
-  - 物語Wikiの概要・ページ構造・基本操作・AIを用いた自動生成・タグ/フォルダの使い分けを1ページに集約
-  - 技術的な詳細仕様は既存の `docs/GADGETS.md` の Story Wiki セクションを参照する形にし、重複を最小限に整理
-- Wikiヘルプ導線の統一
-  - `js/wiki.js` 内の「ヘルプ」ボタンを、内部の `help-wiki` ページではなく `docs/wiki-help.html` を別タブで開くよう変更
-  - `js/app.js` 内の Assist タブの「Wikiヘルプを開く」ボタンも同じく `docs/wiki-help.html` を別タブで開く実装に統一
-- 既存の Reference Wiki 相当のコンテンツは docs 配下に集約し、サイドバーの狭い領域には「物語用Wiki」だけを残す方針に更新
-
-### 12. 物語Wiki E2Eテスト安定化（2025-11-21）
-
-- `e2e/wiki.spec.js` を現行の `js/wiki.js` 実装に合わせて更新
-  - サイドバーの Wiki タブを開いてから `#wiki-gadgets-panel` を待機するよう前処理を修正
-  - 「新規ページ」「検索」「空状態」のテストを UI 構造に追従
-  - 「既存ページの編集」は DOM の再レンダリングに依存せず、`ZenWriterStorage` 経由で内容更新を検証
-- `npm run dev-check` および `npx playwright test e2e/wiki.spec.js` がローカルでグリーンであることを確認
-
-### 14. Markdownライブプレビュー性能改善（2025-12-02）
-
-- `js/editor.js` の `renderMarkdownPreview()` をデバウンス版と即時版に分離
-  - デバウンス版: 100msデバウンスでinputイベントの高頻度更新を抑制（パフォーマンス改善）
-  - 即時版: `_renderMarkdownPreviewImmediate()` で初期化時等の即時更新を保証
-  - 既存の `updateWordCount` デバウンスパターンを踏襲
-- BACKLOG.md にデバウンス適用を完了マーク、差分適用（morphdom等）を長期課題として残す
-- `node scripts/dev-check.js` 全項目パス
-
-### 15. UIモード実装 (Normal/Focus/Blank)（2025-12-03）
-
-- `css/style.css` に `html[data-ui-mode='focus']` / `html[data-ui-mode='blank']` のCSSルールを追加
-  - Focus: サイドバー・HUD・FABを非表示、ツールバーは残す
-  - Blank: すべてのUIを非表示、エディタのみ表示
-- `js/app.js` の `setUIMode(mode)` 関数を活用
-  - F2キー: UIモードサイクル切替 (normal → focus → blank → normal)
-  - Escキー: Focus/Blankモードから Normal に復帰
-- `settings.ui.uiMode` に保存し、起動時に復元
-- `docs/EDITOR_HELP.md` のショートカット一覧を更新
-- `node scripts/dev-check.js` 全項目パス
-
-### 16. Live Preview 差分適用 (morphdom)（2025-12-03）
-
-- `index.html` に morphdom CDN を追加
-- `js/editor.js` の `_renderMarkdownPreviewImmediate()` を morphdom 版に更新
-  - DOM差分適用でスクロール位置・フォーカスを保持
-  - morphdom 未ロード時は従来の innerHTML フォールバック
-- `docs/LIVE_PREVIEW_DIFF_DESIGN.md` に設計ドキュメントを作成
-- `node scripts/dev-check.js` 全項目パス
-
-### 17. Phase E: フローティングパネル PoC（2025-12-05）
-
-- `js/gadgets-editor-extras.js` の UISettings ガジェットに「構造パネルをフローティング表示 (PoC)」ボタンを追加
-  - `ZenWriterPanels.createDockablePanel()` を使用してフローティングパネルを生成
-  - パネル内に structure グループのガジェットをミラー表示
-  - ドッキング/フローティング切替、ドラッグ移動、閉じるボタンが動作
-- `css/style.css` にフローティングパネルの高さ制限（max-height: 80vh）を追加
-- 既存の `js/panels.js` の API をそのまま活用（新規コード最小化）
-- `node scripts/dev-check.js` 全項目パス
-
-## 現在の状態
-
-- 開発サーバー: `http://127.0.0.1:8080` で起動
-- エディタ全幅: デフォルトで全幅表示（余白なし、ベージュ背景は適用されない）
-- 余白背景: EditorLayout ガジェットで幅・余白を設定した場合のみベージュ適用
-- サイドバー: `structure`/`wiki` タブでガジェット表示。左サイドバー展開時の右側余白の一時的なチラつきは解消済み
-- HUD/FAB: 右下アイコンでクイックツールパネル開閉、HUD コントロール機能
-- ツールバー: 右上アイコンがプレビュー(`layout-template`)とツールバー(`panel-top`)で重複解消
-- FAB: 共通クラス `fab-button` で統一、サイズ・位置・色をCSS変数で制御
-- UIラボ: `docs/ui-lab.html` で Panel/GadgetContainer の挙動検証可能
-- SceneGradient: `SceneGradient` ガジェットで背景グラデーション3レイヤ制御可能
-- Wiki: サイドバーの Wiki タブには物語Wikiガジェットのみを表示し、Reference 系ヘルプは `docs/editor-help.html` / `docs/wiki-help.html` など docs 配下のドキュメントに集約
-
-## 次の作業
-
-### 完了: Phase E-2 フローティングパネル本実装（2025-12-05）
-
-- ✅ 状態保存（位置・サイズ・開閉状態）を settings に永続化
-- ✅ 初期表示位置の最適化（画面中央寄せ）
-- ✅ 全タブ対応（structure / typography / assist / wiki）
-- ✅ パネルタイトルのユーザー編集（ダブルクリックで変更・タイトル永続化）
-- 透明度調整UI・ショートカットキー（任意・次期対応）
-
-### 優先: UIアーキテクチャの詳細化
-
-- GadgetContainer の開閉・フローティング管理を強化（Phase E と連携）
-- EditorArea 分割・レイアウト保存形式の定義
-- FAB Layer の設定UIからの編集機能を追加
-
-### Wiki/ガジェットまわりの整理
-
-- 物語Wikiに混入している既存のヘルプ系Wikiページ（`help-*`）のストレージ整理
-
-### コード品質向上
-
-- 大きなファイルのリファクタリング（gadgets.js, app.js など）
-- ESLint/Prettier 導入検討
-- E2Eテストの現行実装対応修正（HUD, Wiki, Theme など）
-
-### 長期的な拡張
-
-- 動画背景・Canvasパターンの別ガジェット化
-- Typora風ツリーペイン（ドキュメント管理統合）
-- プラグイン拡張システム
-
-## 注意点
-
-- e2e テストで HUD 関連のテストが一部失敗しているため、HUD 機能の安定化が必要
-- ブラウザキャッシュクリアで最新変更が反映されることを確認
-- EditorLayout の背景適用は幅・余白が設定された場合のみ（デフォルト全幅時はベージュなし）
-- UIラボページは開発用なので、本番UIとは独立して挙動確認に使用
-
-## コミット情報
-
-変更ファイルをコミット・プッシュしてください。
-
-コミット済み:
-
-- `fix(ui): editor layout background and toolbar icons`
-  - `js/gadgets-editor-extras.js`: EditorLayout ガジェットの背景適用条件を修正
-  - `index.html`: ツールバーアイコン重複を解消
-- `feat(ui): add FAB unification, panels PoC, and UI architecture docs`
-  - `css/style.css`: FAB 共通クラス `fab-button` を導入
-  - `css/special.css`: FAB 定義を共通イメージに揃え
-  - `index.html`: FAB に共通クラス付与、UIラボページリンク追加
-  - `docs/ui-lab.html`: 新規作成（Panel/GadgetContainer PoC）
-  - `docs/UI_ARCHITECTURE.md`: 新規作成（UIアーキテクチャ仕様）
-- `fix(ui): sidebar overlay mode, dynamic toolbar height, assist tab fixes`
-  - サイドバーオーバーレイモード、動的ツールバー高さ、アシストタブ修正（リモートから統合）
-- `refactor(ui): gadget init and SceneGradient helpers`
-  - `js/gadgets-editor-extras.js`: SceneGradient ガジェットのリファクタリング（ヘルパー関数抽出）
-  - `js/app.js`: ガジェット初期化・ロードアウト初期化を関数化
-- `test(e2e): update sidebar layout specs for overlay tabs`
-  - `e2e/sidebar-layout.spec.js`: サイドバーオーバーレイ仕様対応とタブセレクタ修正
-- `feat(editor): Markdownライブプレビュー性能改善とドキュメント更新`
-  - `js/editor.js`: renderMarkdownPreview() をデバウンス版と即時版に分離（100msデバウンス）
-  - `docs/BACKLOG.md`: デバウンス適用完了マーク、差分適用を長期課題に
-  - `docs/HANDOVER.md`: 作業内容追加更新
-
-コミット予定:
-
-- `feat(ui): add SceneGradient gadget PoC`
-  - `js/gadgets-editor-extras.js`: SceneGradient ガジェット実装（Base/Pattern/Overlay 3レイヤ）
-  - `HANDOVER.md`: SceneGradient PoC 実装を追加
-
-## 追加仕様: UI モード (Normal / Focus / Blank)
-
-- Normal: 現在の標準 UI。ツールバー、サイドバー、HUD、FAB などが通常どおり表示される。
-- Focus: 既存の `data-toolbar-hidden` や HUD/FAB の設定を組み合わせ、執筆領域を優先した簡易 UI。必要最低限のコントロールのみ残す。
-- Blank: ヘッダー、サイドバー、HUD、FAB を含むすべての UI を隠し、エディタキャンバスのみを表示する完全な「まっさらなページ」モード。
-
-想定実装:
-
-- 設定: `settings.ui.mode` に `"normal" | "focus" | "blank"` を保存。
-- DOM: `<html data-ui-mode="normal|focus|blank">` 属性で現在のモードを表現し、CSS 側で一括制御する。
-- 戻り方: Blank モード時も、Esc キーや専用ショートカット（例: F2）で `normal` に戻せるようにする。将来的に画面端ホバーでヘッダー一時表示も検討。
-
-## 追加仕様: ツールレジストリとガジェット/ヘッダーアイコン整理
-
-- 新規ファイル `js/tools-registry.js` に、ツール定義レジストリ `window.WritingTools` を追加する。
-- ツールは次のような構造を持つ想定:
-
-  - `id`: `"text-decoration"` など、一意なツール ID
-  - `label`: ツール名（UI 表示用）
-  - `icon`: Lucide アイコン名（`"type"`, `"sparkles"` など）
-  - `group`: `"editor" | "structure" | "wiki" | "system"` など、ガジェットグループとの対応
-  - `gadgetId` (任意): 対応するガジェット ID（例: フォント装飾、テキストアニメーション、EditorLayout など）
-  - `entrypoints`: `{ headerIcon: boolean, sidebarGadget: boolean, fabMenu: boolean }` とし、「ヘッダーアイコン」「サイドバーのガジェット」「FAB メニュー」のどこからアクセスできるかを切り替え可能にする。
-
-- 目的:
-
-  - 右上ヘッダーアイコンとサイドバーガジェット、FAB でバラバラに管理されている機能を、「1 つのツール定義」から生成できるようにする。
-  - ユーザー設定から「ヘッダーアイコンとして出す」「ガジェットのみ」「両方」「FAB メニューにも出す」といった選択を行えるようにする。
-  - ガジェット内のヘッダーにも Lucide アイコンを表示できるようにし、ツールと UI の対応関係を分かりやすくする。
-
-- 現時点の状態:
-
-  - `js/tools-registry.js` はスケルトン実装として `window.WritingTools` を定義し、代表的なツール（テキスト装飾・テキストアニメーション・EditorLayout・HUD コントロールなど）を登録する。
-  - まだ既存のガジェットやボタンとは接続しておらず、「将来的にここから参照する」ための準備段階。
-  - HTML 側では `index.html` のスクリプトタグに `js/tools-registry.js` を追加し、今後の利用に備える。
-
-## 15. TypographyThemes ガジェット分割（2025-12-03）
-
-### 実施内容
-
-旧 `TypographyThemes` ガジェット（445行の単一ファイル）を、責務ごとに3つのガジェットに分割:
-
-1. **Themes ガジェット** (`js/gadgets-themes.js`, 244行)
-   - テーマプリセット（light/dark/sepia/high-contrast/solarized）
-   - カスタムカラー設定（背景色・文字色）
-   - 色リセット機能
-   - カスタム色プリセットの保存・適用
-
-2. **Typography ガジェット** (`js/gadgets-typography.js`, 218行)
-   - フォントファミリー選択（9種類のフォント）
-   - UIフォントサイズ設定
-   - エディタフォントサイズ設定
-   - 行間設定
-
-3. **Visual Profile ガジェット** (`js/gadgets-visual-profile.js`, 既存)
-   - 組み込みプロファイルの選択・適用
-   - ユーザー定義プロファイルの作成・編集・削除
-
-### 変更ファイル
-
-- `js/gadgets-themes.js`: 新規作成
-- `js/gadgets-typography.js`: フォント設定のみに縮小
-- `index.html`: `gadgets-themes.js` のスクリプト参照追加
-- `docs/BACKLOG.md`: 完了タスクとして記録
-
-### 検証結果
-
-- `node scripts/dev-check.js`: ALL TESTS PASSED
-- ブラウザでの動作確認: テーマ切替、カラー設定、フォント設定が独立して動作
-
-### 効果
-
-- 単一責任の原則に準拠し、各ガジェットの責務が明確化
-- 今後の機能拡張（テーマ追加、フォント追加など）が容易に
-- コードの可読性・保守性が向上
-
-## 16. テスト方法の再整理と現状の引き継ぎ（2025-12-03）
-
-### 自動テストと開発サーバーの関係
-
-- スモークテスト（`npm run test:smoke` → `node scripts/dev-check.js`）
-  - 前提: 別ターミナルで `npm run dev` を起動し、`http://127.0.0.1:8080` でアプリが応答していること。
-  - 内容: index.html/CSS/gadgets API/AI_CONTEXT.md などを HTTP 経由で取得し、HTML 構造やガジェット基盤、ルール文書の整合性を静的チェック。
-- E2E テスト（`npm run test:e2e`）
-  - Playwright の `webServer` 設定により、`node scripts/run-two-servers.js 9080` が自動起動。
-  - 同一/クロスオリジン用に 2 ポート構成（base=9080, child=9081）で dev-server を起動し、ガジェットや Embed のブラウザ操作を包括的に検証。
-- Puppeteer テスト（`npm run test:puppeteer`）
-  - 前提: `npm run dev` で 8080 ポートの dev-server が起動済み。
-  - 内容: 初期表示のスクリーンショット取得など、ビジュアル確認用の補助テスト。
-
-### index.html 直接オープンとの使い分け
-
-- `index.html` をブラウザで直接開く（`file://`）運用は、純粋なオフライン執筆用途としては引き続き有効。
-- ただし、`dev-check.js` や E2E/Puppeteer など **自動テストは HTTP 前提** のため、開発・検証作業では `npm run dev` または Playwright の `webServer` を前提にするのが標準。
-
-### 現在の状態と確認済み事項
-
-- `js/gadgets.js` のモジュール分割完了、`js/_legacy/gadgets.js` へのアーカイブ済み。
-- ガジェット基盤は `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` に分割され、`dev-check.js` も新構成に追従。
-- 旧 `TypographyThemes` ガジェットは `Themes` / `Typography` / `VisualProfile` の 3 ガジェットに分割され、ロードアウト・ヘルプ・ドキュメントの参照も更新済み。
-- `BACKLOG.md` と `AI_CONTEXT.md` を現在のモジュール構成・進捗に合わせて更新し、フェーズ C/D 完了および残タスク（editor.js/app.js の整理、Panel/Region 基盤設計など）を明示。
-- `node scripts/dev-check.js` 実行結果: **ALL TESTS PASSED** を確認済み。
-
-### 次回以降の推奨タスク（サマリ）
-
-1. TESTING.md の微修正  
-   - スモークテスト手順に「事前に `npm run dev` を起動する」ことを明記し、README の Quick Start との整合を取る。
-2. editor.js / app.js の分割計画策定  
-   - それぞれ 500 行以下を目標に、EditorCore/HUD/Snapshot/ショートカットなど責務ごとのモジュール構成を検討し、簡易設計メモを作成。
-3. Panel/GadgetContainer 抽象レイヤの拡張  
-   - 2025-12-09 時点で、左サイドバー向けの最小 PoC（`SidebarManager._ensureSidebarPanel` / `addTab` の導入）は完了。詳細はセクション 23 を参照。  
-   - 今後は Panel/GadgetContainer API の一般化と、他 Region（bottom ゾーンやフローティングパネル）への展開を検討。
-
-## 17. テーマプリセット調整とナイトテーマ追加（2025-12-04）
-
-### 実施内容
-
-- テーマプリセットのうち、ライト/ダークが他プリセット（セピア/高コントラスト等）に比べてボタン色の変化が分かりにくいという指摘を受け、配色設計を再確認。
-- ダークテーマのアクセント色を「濃い灰色」に変更し、ボタン・チェックボックス・スライダーなど UI コントロール全体で一貫したダークグレー基調となるよう調整。
-- 新しい暗色テーマ `night` を追加。`dark` より一段階明るいモノクロ寄りの暗色テーマとして定義し、背景/テキスト/ボタンすべてをグレー系で統一。
-- ThemeManager（`js/theme.js`）の `themeColors` に `night` を追加し、テーマ適用時の既定色およびカラーピッカー初期値と整合。
-- Themes ガジェット（`js/gadgets-themes.js`）に `night` プリセットボタンを追加し、既存の light/dark/sepia/high-contrast/solarized と並べて選択可能にした。
-- `js/ui-labels.js` に `THEME_NAME_NIGHT` ラベル（「ナイト」）を追加し、ローカライズ済みラベルから参照。
-- `docs/THEMES.md` のプリセット一覧に `night` を追記し、仕様レベルで新テーマを明示。
-- `docs/BACKLOG.md` に、テーマプリセット拡張のための集中管理機構、および UI 配色と執筆エリア配色の分離という 2 つの設計タスクを追加。
-
-### 影響ファイル
-
-- `css/style.css`  
-  - `[data-theme='dark']` の `--focus-color` を `#555555`（濃い灰色）に変更し、`--accent-color` を `var(--focus-color)` に統一。  
-  - 新テーマ `[data-theme='night']` を追加し、背景/テキスト/サイドバー/ツールバー/ボーダー/アクセント色をグレー系で定義。  
-- `js/theme.js`  
-  - `this.themeColors` に `night: { bgColor: '#262626', textColor: '#e5e5e5' }` を追加し、テーマ適用時の既定色に反映。  
-- `js/gadgets-themes.js`  
-  - `themePresets` に `night` を追加し、サイドバーの Themes ガジェットから選択可能にした。  
-  - `refreshState()` 内の `themeColors` に `night` を追加し、カラーピッカーの既定値（背景/文字色）がテーマと同期するようにした。  
-- `js/ui-labels.js`  
-  - Typography Themes 系ラベルに `THEME_NAME_NIGHT: 'ナイト'` を追加。  
-- `docs/THEMES.md`  
-  - プリセット一覧に `night` を追加し、「ダークより一段階明るいモノクロ暗色テーマ」として記載。  
-- `docs/BACKLOG.md`  
-  - 「テーマプリセット拡張のための集中管理機構」「UI配色と執筆エリア配色の分離」を中優先タスクとして追加。  
-
-### 検証
-
-- `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、**ALL TESTS PASSED** を確認。  
-- ブラウザ上で `Themes` ガジェットから以下を手動確認:  
-  - `light` → `dark` → `night` → `sepia` → `high-contrast` → `solarized` と順に切り替え、  
-    - ボタン・チェックボックス・スライダーのアクセント色が各テーマに応じて変化すること  
-    - 特に `dark` と `night` で「濃い灰色／やや明るい灰色」の差が視認できること  
-
-### 設計メモ / 今後の改善点
-
-- 現状の Themes ガジェットの「背景色」「文字色」カラーピッカーは `--bg-color` / `--text-color` を直接上書きしており、**UI と執筆エリアが同一レイヤーの配色**になっている。  
-- 本来は、  
-  - UI 全体の配色（ツールバー/サイドバー/ボタン等）  
-  - 執筆エリア（本文）の配色・装飾  
-  を別レイヤーとして扱い、テーマプリセットは主に UI 側のトーン/コントラストを制御し、本文のスタイルは Visual Profile や別ガジェット側で管理するのが望ましい。  
-- このため、`docs/BACKLOG.md` に「テーマプリセット拡張のための集中管理機構」「UI配色と執筆エリア配色の分離」を追加タスクとして明示し、今後の設計リファインで対応する方針。
-
-### 18. Selection Tooltip v1 実装（2025-12-05）
-
-- 目的: `textarea` ベースのエディタで、テキスト選択に連動した最小限の Markdown 装飾/挿入操作を Quick Actions として提供する。仕様は `docs/EDITOR_EXTENSIONS.md` に準拠。
-- 実装内容:
-  - `js/editor.js`
-    - 選択範囲ヘルパを追加: `getSelectionRange()`, `getSelectedText()`, `wrapSelection(prefix, suffix = prefix)`。
-    - 既存の `insertTextAtCursor()` と同様に、編集後に `saveContent()` と `updateWordCount()` を呼び出すことで、一貫した保存/カウント更新フローを維持。
-  - `js/app.js`
-    - `initSelectionTooltip()` を追加し、`window.ZenWriterEditor` と `getTextPosition()` を利用して選択範囲上部に `position: fixed` のツールチップを表示。
-    - v1 で提供するアクション: 太字/斜体/取り消し線（wrapSelection）、リンク/画像/区切り線/ルビ（簡易ダイアログ + Markdown テンプレート挿入）。
-    - 表示条件: `selectionStart !== selectionEnd` かつエディタにフォーカスがある場合のみツールチップを表示。選択解除/エディタ外クリック/Esc で非表示。
-    - キーボード操作: Esc でツールチップを閉じる、Tab/Shift+Tab でツールチップ内ボタンを循環フォーカス。
-  - `css/style.css`
-    - `.selection-tooltip` / `.selection-tooltip button` を追加し、既存ボタンスタイルと整合したミニマルなフローティングツールバーとして定義。z-index は `--z-tooltip` を使用。
-- 検証:
-  - `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、**ALL TESTS PASSED** を確認。
-  - 手動確認として、テキストを選択 → ツールチップ表示 → 各ボタン操作（太字/リンク/画像/ルビなど）で期待どおりの Markdown が挿入されること、および Esc/クリック/選択解除でツールチップが非表示になることを確認予定。
-
-### 19. editor.js モジュール分割 Phase A（2025-12-07〜2025-12-08）
-
-- `js/editor-preview.js` に Markdown ライブプレビュー処理を抽出し、EditorManager からは `editorPreview_renderMarkdownPreview*` 経由で委譲する構成に変更。
-- `js/editor-images.js` に画像ペースト/ドラッグ&ドロップ、画像挿入用 Markdown 生成、旧 `data:image` 埋め込みの Asset 化、および画像プレビュー描画処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
-- `js/editor-overlays.js` にエディタオーバーレイ（画像オーバーレイ・インライン文字数スタンプ）の描画、ドラッグ/リサイズ用インタラクション、および mirror HTML 構築処理を抽出し、EditorManager 側には薄いラッパーのみ残す構成に変更。
-- `index.html` のスクリプト読み込み順を更新し、`editor-preview.js` → `editor-images.js` → `editor-overlays.js` → `editor.js` → `app.js` の順でロードされるよう統一。
-- 各抽出ステップ後に `npm run test:smoke`（`node scripts/dev-check.js`）を実行し、最新状態で **ALL TESTS PASSED** を確認。
-
-### 20. ThemeRegistry 導入（テーマ集中管理 C-2）（2025-12-08）
-
-- 目的: テーマプリセット定義（ID、ラベル、色パレット）を単一レジストリで集中管理し、ThemeManager / Themes ガジェット / CSS / ドキュメント間の不整合を防止。
-- 実装内容:
-  - `js/theme-registry.js` を新規作成:
-    - `THEME_PRESETS` 配列にプリセット定義（id, labelKey, fallbackLabel, colors）を集約。
-    - `ThemeRegistry` オブジェクトを公開し、`listPresets()`, `getPreset()`, `getColors()`, `getLabel()`, `toThemeColorsMap()`, `isValidPreset()` を提供。
-  - `js/theme.js`:
-    - `ThemeManager.themeColors` を `ThemeRegistry.toThemeColorsMap()` から取得するよう変更（フォールバック付き）。
-  - `js/gadgets-themes.js`:
-    - `themePresets` を `ThemeRegistry.listPresets()` から動的生成に変更。
-    - `refreshState()` 内のテーマ色取得も `ThemeRegistry.getColors()` 経由に変更（フォールバック付き）。
-  - `index.html`:
-    - `theme-registry.js` を `theme.js` より前に読み込むよう追加。
-  - `docs/THEMES.md`:
-    - 設計メモに C-2 完了を反映。
-- 検証:
-  - `npm run test:smoke` を実行し、**ALL TESTS PASSED** を確認。
-- 次のステップ:
-  - C-3: UI/エディタ配色レイヤ分離（CSS 変数の追加とレジストリ拡張）
-  - B-1: フローティングパネル透明度・ショートカット・折りたたみ UI
-  - A-1: editor-search.js 抽出
-
-## 21. C-3: UI/エディタ配色レイヤ分離 Step1（2025-12-10）
-
-- 目的:
-  - エディタ本文エリアと UI 全体の配色レイヤを将来的に分離しつつ、現行テーマの見た目を維持したまま移行の土台を作る。
-- 実施内容:
-  - `css/style.css`:
-    - `:root` に `--editor-bg`, `--editor-text` を追加し、初期値はそれぞれ `var(--bg-color)`, `var(--text-color)` として alias 化。
-    - 各テーマプリセット (`[data-theme='dark']` など) にも `--editor-bg`, `--editor-text` を追加し、現時点では UI と同じ色を指すように定義。
-    - `#editor` / `.editor-preview` の背景色・文字色を `--editor-bg` / `--editor-text` 経由で参照するよう変更（フォールバックに従来の `--bg-color` / `--text-color` を維持）。
-  - `js/theme.js`:
-    - `ThemeManager.applyCustomColors()` で `--editor-bg`, `--editor-text` も同時に更新するよう変更。
-    - `ThemeManager.clearCustomColors()` で `--editor-bg`, `--editor-text` も削除し、現在のテーマ既定色からカラーピッカー値を再計算するように維持。
-  - ドキュメント:
-    - `docs/THEMES.md` に C-3 セクションを追加し、Step1 完了と Step2 以降の設計メモを追記。
-    - `AI_CONTEXT.md` の進捗に「C-3 Step1 完了」を追記し、次の中断可能点を「C-3 Step2 / B-1 / A-1」として更新。
-- 検証:
-  - `npm run test:smoke` を実行し、**ALL TESTS PASSED** を確認。
-- 備考:
-  - 現時点では UI とエディタ本文で同一の色を使用しており、ユーザーから見た見た目は従来テーマと完全に同一。
-  - C-3 Step2 以降で ThemeRegistry 側に UI 用/エディタ用の色レイヤ（`uiColors`/`editorColors`）を導入し、Themes ガジェットのカラーピッカーを「本文エリア優先」に再設計する予定。
-
-## 22. 最新セッション概要（2025-12-11）
-
-- C-3 Step2: CSS 全体で UI 要素を `--ui-bg` / `--ui-text`、エディタ要素を `--editor-bg` / `--editor-text` 経由で参照するように整理し、「見た目は変えずに論理レイヤのみ分離」。
-- A-1: `js/editor-search.js` を新規作成し、検索/置換ロジックを editor.js から抽出。EditorManager 側は薄い委譲メソッドのみ残す構成に変更。
-- B-1: `js/panels.js` にフローティングパネルの折りたたみボタン・透明度調整スライダーを追加し、状態（位置/サイズ/開閉/不透明度）を永続化。CSS に対応スタイルを追加。
-- ドキュメント同期: `docs/BACKLOG.md` / `docs/DEVELOPMENT_STATUS.md` / `docs/TESTING.md` / `docs/USAGE.md` / `docs/THEMES.md` / `AI_CONTEXT.md` を最新実装（ThemeRegistry / C-3 Step1/Step2 / フローティングパネル / Selection Tooltip / Visual Profile）に合わせて更新.
-
-## 23. Panel/GadgetContainer 抽象レイヤ PoC（左サイドバー）（2025-12-09）
-
-### 実施内容
-
-- 左サイドバーに対して、UI_ARCHITECTURE の Region/Panel/GadgetContainer モデルに沿った最小限の抽象レイヤ PoC を実装。
-- `js/sidebar-manager.js`
-  - `SidebarManager._ensureSidebarPanel(groupId, label)` を追加。
-    - `section.sidebar-group[data-group="<groupId>"]` を Panel、内部の `div.gadgets-panel[data-gadget-group="<groupId>"]` を GadgetContainer とみなし、両者をまとめて生成/確保するヘルパとして実装。
-  - `SidebarManager.addTab(id, label)` から `_ensureSidebarPanel` を利用するように変更し、タブ追加時に対応する Panel/GadgetContainer を一貫した経路で用意するようにした。
-  - 既存の DOM 構造（クラス/ID）と `ZWGadgets.init('#' + panel.id, { group: safeId })` の呼び出しタイミングは従来どおりで、挙動を変えない範囲に留めている。
-- ドキュメント更新
-  - `docs/UI_ARCHITECTURE.md`
-    - 「Panels & Layout PoC」に「Left Sidebar Runtime Mapping (PoC)」を追加し、
-      - Region: `#sidebar`（左サイドバー全体; `SIDEBAR_LEFT` ゾーン相当）
-      - Panel: `section.sidebar-group[data-group="<groupId>"]`
-      - GadgetContainer: `div.gadgets-panel[data-gadget-group="<groupId>"]`
-      の対応関係と、`_ensureSidebarPanel` / `addTab` の役割を明文化。
-  - `docs/ARCHITECTURE.md`
-    - 「新しいタブを追加する」に、実行時にタブを動的に追加する場合は `SidebarManager.addTab(id, label)` を用い、左サイドバー用の Panel/GadgetContainer 生成と `ZWGadgets.init` 呼び出しは SidebarManager 側で行う旨を追記。
-  - `docs/DEVELOPMENT_STATUS.md`
-    - 「現在の実装状況」に「左サイドバー向け Panel/GadgetContainer 薄い抽象レイヤ PoC（`SidebarManager._ensureSidebarPanel` / `addTab`）」を追加し、Phase E の進捗を反映。
-
-### テスト状況メモ
-
-- 本セッションの実行環境では、`node scripts/dev-check.js` 実行時に `Error: connect ECONNREFUSED 127.0.0.1:8080` が発生し、8080 ポート上の dev-server 非稼働によりスモークテストが失敗する状態だった。
-  - `scripts/dev-server.js` 自体には変更を加えておらず、単純な静的ファイルサーバー構成のまま。
-  - ローカル開発環境では、従来どおり **別ターミナルで `npm run dev` を起動したうえで `node scripts/dev-check.js` を実行する** 手順で確認すること。
-- 今回の変更はクライアントサイドの SidebarManager とドキュメントのみであり、サーバーサイド/ビルド設定には影響していない。
-
-### 今後の推奨タスク（Panel/GadgetContainer 関連）
-
-1. 左サイドバー初期タブ（structure/typography/wiki/assist）についても、`_ensureSidebarPanel` を経由して Panel/GadgetContainer を確保する方向への移行案を検討し、`app.js` の `initializeSidebarTabs` との責務境界を整理する。
-2. `js/panels.js` 側の Panel モデル（フローティング/ドッキング）との整合を取りつつ、`SIDEBAR_LEFT` 以外の Region（bottom ゾーンやフローティングパネル等）にも Panel/GadgetContainer 抽象レイヤを拡張するための設計メモを作成する。
-3. 将来的な Phase E-3/E-4（柔軟な配置システム）に向けて、
-   - Region → Panel → GadgetContainer → Gadget のチェーンをどのレイヤで管理するか
-   - ロードアウトや UI モード（Normal/Focus/Blank）との関係
-   を整理し、OpenSpec 側の UI アーキテクチャ仕様と整合させる。
-
-## 24. セッション 2025-12-11 作業サマリと引き継ぎメモ
-
-### 実施内容
-
-- リモート `origin/main` の最新状態を取得し、UI アーキテクチャ PoC 変更（左サイドバー Panel/GadgetContainer 抽象レイヤ）を含めて rebase を実施。
-- `HANDOVER.md` / `docs/DEVELOPMENT_STATUS.md` のコンフリクトを解消し、
-  - C-3 / フローティングパネル関連の既存記録
-  - Panel/GadgetContainer 抽象レイヤ PoC（セクション 23）
-  が両方とも失われない形で統合。
-- `node scripts/dev-check.js` を実行し、**ALL TESTS PASSED** を確認。
-- `feat(ui-arch): sidebar panel abstraction PoC and docs sync` コミットを含む最新の `main` ブランチを `origin/main` に push し、`git status -sb` でローカル/リモートの同期状態を確認。
-
-### 次回以降の推奨スタート地点
-
-- Panel/GadgetContainer 抽象レイヤ関連の設計・実装タスクは、セクション 23 の「今後の推奨タスク（Panel/GadgetContainer 関連）」および BACKLOG/REFACTORING_PLAN を参照。
-- 特に Plan A として、左サイドバー初期タブ（structure/typography/wiki/assist）を `_ensureSidebarPanel` 経由に寄せる設計・PoC 実装から着手するのが自然な流れ。
--## 最新の状況
-
-### REPORT_001 (TASK_001 完了)
-
-# REPORT_001: Embed SDK の origin 検証と same-origin 判定の正規化
-
-## Task Overview
-- **チケット**: docs/tasks/TASK_001_embed_sdk_origin_normalization.md
-- **Tier**: 2
-- **Branch**: feature/p0-embed-origin-normalization
-- **Status**: Completed
-- **作成日時**: 2025-12-20T22:40:00+09:00
-
-## Implementation Details
-
-### 変更内容
-`js/embed/zen-writer-embed.js` の `sameOrigin` 判定ロジックを正規化。
-- **動作確認**: `npm run test:smoke` で ALL TESTS PASSED を確認。
-- **ドキュメント更新**: `docs/THEMES.md` に C-3 Step3 完了を反映、`AI_CONTEXT.md` の進捗と次の中断可能点を更新。
-
-### 設計ポイント
-
-- 現時点では各プリセットの `uiColors` / `editorColors` は同一色を設定しており、見た目・挙動は従来と同一。
-- 将来的に「UI ダーク＋本文ライト」などの組み合わせが可能な基盤が整った。
-- カラーピッカーは主に Editor レイヤを操作し、UI 側のトーンはプリセット選択で決まる設計に寄せている。
-
-### 次回以降の推奨タスク
-
-- C-4: マイグレーションとテスト（既存設定を UI/Editor 二層構造に割り当て、TESTING.md にシナリオ追記）
-- E-3: 柔軟なタブ配置（Phase E-3/E-4 の仕様整理）
-- editor.js / app.js 分割続行（app-core.js / app-layout.js 抽出）
-
-## 26. セッション 2025-12-12 作業サマリと引き継ぎメモ
-
-### 実施内容
-
-- `git fetch origin` → `git pull --rebase origin main` により、`origin/main` の更新（C-3 Step3）をローカル `main` に取り込み。
-- Windows 環境で `.gitattributes` の `*.js text eol=lf` と作業ツリーの改行（CRLF）が不一致となり、`js/theme-registry.js` / `js/gadgets-themes.js` に意図しない「全行差分」が出る状態を確認。
-- `git add --renormalize` で LF 正規化し、`chore(eol): renormalize theme line endings` をコミット・push。
-- `git status -sb` が `## main...origin/main` であること、および `git diff origin/main` が空であることを確認。
-
-### 次回以降の注意点
-
-- Windows で同様の「全行差分」が出た場合は、まず `.gitattributes` を確認し、必要に応じて `git add --renormalize <files>` で正規化する。
-
-## 27. セッション 2025-12-15: Sidebar Tabs 責務統合 PoC と E2E Clock 欠落修正
-
-### 実施内容（目的）
-
-- 左サイドバーのタブ生成/復元/切替の責務を `SidebarManager` に集約し、`app.js` 側の直接DOM操作と重複イベントリスナーを削減するための PoC を実施。
-- `gadgets-init.js` から初期タブ追加の `ZWGadgets.addTab()` 呼び出しを撤去し、タブ生成は `SidebarManager.bootstrapTabs()` へ集約。
-
-### 調査メモ: E2E 失敗（assist パネルで Clock が見えない）
-
-- 失敗テスト: `e2e/gadgets.spec.js`（Clock gadget が `#assist-gadgets-panel` に表示されること）
-- 事象: `assist` タブ/パネル自体は表示され、複数ガジェットは描画されるが `Clock` のみ欠落。
-- 主要確認点:
-  - `js/gadgets-clock.js` にて `ZWGadgets.register('Clock', ...)` は存在。
-  - `js/loadouts-presets.js` の各プリセット `assist` グループに `Clock` が含まれる。
-  - `js/gadgets-utils.js` の `DEFAULT_LOADOUTS`（フォールバック）にも `assist: ['HUDSettings', 'Clock']` を含む。
-
-### 原因
-
-- `app.js` の `initLoadoutUI()` が `ZWLoadoutUI.refresh()` の存在時に早期 `return` しており、ロードアウト定義の適用（`ZWGadgets.getActiveLoadout()`）がスキップされる経路があった。
-- その結果、ロードアウトに基づくグループ割り当てが `ZWGadgets` 側へ反映されず、`assist` で `Clock` が許可リスト（allowedNames）に入らないケースが発生。
-
-### 対応（最小修正）
-
-- `app.js` の `initLoadoutUI()` で `ZWLoadoutUI.refresh()` を呼ぶ前に `ZWGadgets.getActiveLoadout()` を呼び、ロードアウト適用を確実化（try/catch で安全に実行）。
-
-### 影響ファイル
-
-- `js/sidebar-manager.js`
-  - `bootstrapTabs()` を追加し、静的タブ生成 + カスタムタブ復元を集約。
-  - `addTab(id, label, options)` に拡張し、復元時などは永続化を抑制可能に。
-- `js/app.js`
-  - タブ初期化を `SidebarManager.bootstrapTabs()` に委譲。
-  - `ZWLoadoutUI.refresh()` 経路でもロードアウト適用が行われるよう補強（Clock 欠落修正）。
-- `js/gadgets-init.js`
-  - 初期タブ追加の `ZWGadgets.addTab()` 呼び出しを削除。
-- `js/gadgets-core.js`
-  - `ZWGadgets.addTab()` は可能なら `SidebarManager.addTab()` へ委譲（フォールバック保持）。
-
-### 検証結果
-
-- `npm run lint`: OK
-- `node scripts/dev-check.js`: ALL TESTS PASSED
-- `npm run test:e2e:ci`: 46 passed
-
-### 次回以降の推奨スタート地点
-
-- Plan A 継続: 初期タブ（typography/wiki/assist）の `_ensureSidebarPanel` / `bootstrapTabs` パターンへの段階適用とリグレッション確認。
+Zen Writer — ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
+コードベースのリファクタリング・品質向上を進行中。
+
+- **バージョン**: 0.3.24
+- **最終更新**: 2026-02-06
+- **ブランチ**: main（origin/main と同期済み）
+
+## 再開手順
+
+```bash
+git checkout main && git pull --ff-only
+npm ci
+npm run test:smoke      # node scripts/dev-check.js
+npm run test:e2e:ci     # Playwright E2E (46 specs)
+```
+
+## 現在のプロジェクト状態
+
+### テスト状況
+
+| テスト | 状態 | コマンド |
+|--------|------|----------|
+| Smoke | ✅ ALL PASSED | `npm run test:smoke` |
+| E2E | ✅ 46 passed | `npm run test:e2e:ci` |
+| Lint | ⚠️ 多数エラー残存 | `npm run lint` |
+
+### アーキテクチャ概要
+
+- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js`
+- **サイドバー**: `SidebarManager`（SSOT）→ 4グループ: structure / typography / assist / wiki
+- **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み
+- **テーマ**: `ThemeRegistry` で集中管理（light/dark/night/sepia/high-contrast/solarized）
+- **フローティングパネル**: `js/panels.js` — ドッキング/フローティング切替、透明度、折りたたみ
+- **Embed SDK**: `js/embed/` — 同一/クロスオリジン対応
+
+### 主要ファイルサイズ（要リファクタリング）
+
+| ファイル | 行数 | 状態 |
+|----------|------|------|
+| `js/editor.js` | ~500行 | モジュール分割済み（EditorCore/UI/Search抽出後） |
+| `js/app.js` | ~1400行 | 未分割（HUD/ショートカット/初期化が混在） |
+
+## オープンタスク
+
+| タスク | 内容 | 優先度 |
+|--------|------|--------|
+| TASK_045 | 柔軟なタブ配置システム | P2 |
+| TASK_046 | editor.js リファクタリング | P1 |
+| TASK_047 | app.js リファクタリング | P1 |
+| TASK_048 | 汎用フローティングパネル | P1 |
+| TASK_051 | プラグインシステム設計 | P2 |
+| TASK_052 | ガジェットAPI型安全性 | P2 |
+| TASK_054 | グラフィックノベル ルビテキスト | P2 |
+
+詳細: `docs/tasks/TASK_***.md`
+
+## 完了済みマイルストーン
+
+- ✅ gadgets.js モジュール分割（core/utils/loadouts/init/builtin）
+- ✅ TypographyThemes → Themes/Typography/VisualProfile 3分割
+- ✅ ThemeRegistry 導入（テーマ集中管理）
+- ✅ UI/エディタ配色レイヤ分離（C-3/C-4完了）
+- ✅ editor.js Phase A 分割（preview/images/overlays/search 抽出）
+- ✅ editor.js Phase B 分割（EditorCore/EditorUI/EditorSearch モジュール化）
+- ✅ フローティングパネル PoC → 本実装（Phase E）
+- ✅ Selection Tooltip v1
+- ✅ Wikilinks/バックリンク/グラフ機能（TASK_044）
+- ✅ Embed SDK origin検証修正（TASK_039, PR #114）
+- ✅ ドキュメント整合監査（TASK_040）
+- ✅ smoke/dev-check監査（TASK_041, TASK_049）
+- ✅ OpenSpecトリアージ・アーカイブ（TASK_050）
+- ✅ GadgetPrefs Import/Export UI
+- ✅ UIモード（Normal/Focus/Blank）
+- ✅ Markdownライブプレビュー（morphdom差分適用）
+
+## OpenSpec
+
+### アーカイブ済み
+
+- add-ui-design-gadget-and-dynamic-tabs
+- polish-ui-feedback-response
+- ui-future-enhancements
+- add-gadgets-modularization
+- add-lucide-icons
+- ui-stability-and-cleanup
+
+### 継続中
+
+- add-modular-ui-wiki-nodegraph
+- graphic-novel-font-decoration
+- hud-customization-enhancement
+- polish-ui-from-test-feedback
+- story-wiki-implementation
+- ui-enhancements
+
+## 決定事項
+
+- 全機能はガジェットとして実装（「メモ帳以上はガジェット化」原則）
+- SidebarManager がタブ管理のSSOT
+- Lucide アイコンセット採用（CDN暫定、将来ローカルSVG）
+- CI成功PRはAI自動マージ（CI連携マージルール）
+- E2E は Playwright、`scripts/run-two-servers.js` で同一/クロスオリジン検証
+- CSS変数で UI/Editor 配色レイヤを分離（`--ui-*` / `--editor-*`）
+
+## ローカル検証
+
+| コマンド | 用途 |
+|----------|------|
+| `npm run dev` | 開発サーバー（8080） |
+| `npm run test:smoke` | smokeテスト（dev-check.js） |
+| `npm run test:e2e:ci` | Playwright E2E |
+| `npm run lint` | ESLint |
+| `node scripts/run-two-servers.js` | 2ポート同時起動（8080/8081） |
+
+## 参照ドキュメント
+
+- `AI_CONTEXT.md` — AI再開用コンテキスト
+- `docs/ARCHITECTURE.md` — アーキテクチャ概要
+- `docs/TESTING.md` — テスト方針
+- `docs/GADGETS.md` — ガジェットAPI仕様
+- `docs/THEMES.md` — テーマシステム
+- `docs/UI_ARCHITECTURE.md` — UIアーキテクチャ設計
+- `docs/AUDIT_TASK_BREAKDOWN.md` — 監査SSOT
+- `docs/BACKLOG.md` — バックログ

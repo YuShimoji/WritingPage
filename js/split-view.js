@@ -143,7 +143,7 @@
     /**
      * リサイズ開始
      */
-    startResize(e) {
+    startResize(_e) {
       this.isResizing = true;
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
@@ -536,7 +536,7 @@
       const contentEl = document.getElementById(contentId);
       if (!contentEl) return;
 
-      const html = paragraphs.map((para, idx) => {
+      const html = paragraphs.map((para, _idx) => {
         const exists = otherParagraphs.includes(para);
         const className = exists ? '' : 'split-view-diff-added';
         return `<div class="${className}">${this.escapeHtml(para)}</div>`;
