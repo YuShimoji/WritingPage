@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-02-03T14:00:00+09:00
-- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed (実装確認済み)
+- 最終更新: 2026-02-07T16:00:00+09:00
+- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed, TASK_053: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
 
@@ -156,35 +156,12 @@
 3. セーフガード
    - コンフリクトや手動解決が必要な場合は即時停止し、状況/推奨解を報告
 
-<<<<<<< HEAD
-  - テスト方針: `docs/TESTING.md`
-  - 利用手順: `docs/USAGE.md`
-  - 埋め込みSDK: `docs/EMBED_TESTING.md`
-  # AI Context
-
- - 最終更新: 2025-10-05T19:54:16+09:00
- - 現在のミッション: Mission 8 — E2E拡張とCI/CD最適化（Phase1/2 実装、PR提出済み）
- - ブランチ: feat/mission8-e2e-ci
- - 関連: Issue #74, PR #73
- - 進捗:
-   - Phase1: CI最適化（npm/Playwrightキャッシュ、PR時Pages公開）完了
-   - Phase2: HUD/テーマ/スナップショットのE2E追加 完了
-   - Phase3: DnD追加安定化・ドキュメント強化 進行中
- - 次の中断可能点: PR #73 の CI 結果確認 → マージ待ち
-フォローアップ（E2E: Issue #69）着手前
-
-  ## 決定事項
-
-- 全プロジェクトで「複合ミッション・ワークフロー」と「CI 連携マージ」を採用
-- リポジトリ直下で AI_CONTEXT.md を維持し、作業の区切りで更新
-=======
 ## 参考
 
 - テスト方針: `docs/TESTING.md`
 - 利用手順: `docs/USAGE.md`
 - 埋め込みSDK: `docs/EMBED_TESTING.md`
 
->>>>>>> origin/main
 ## リスク/懸念
 - ルール適用の浸透（コントリビュータ周知）
 

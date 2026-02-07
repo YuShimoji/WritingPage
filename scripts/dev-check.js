@@ -345,15 +345,6 @@ async function loadCssWithImports(url) {
       hasSplitViewModePanel,
     });
 
-    // ガジェット設定のインポート/エクスポートUIとAPI
-    const hasGadgetExportBtn = /id="gadget-export"/i.test(index.body || '');
-    const hasGadgetImportBtn = /id="gadget-import"/i.test(index.body || '');
-    const hasGadgetPrefsInput = /id="gadget-prefs-input"/i.test(index.body || '');
-    const hasExportApi = /exportPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
-    const hasImportApi = /importPrefs\s*:\s*function\s*\(/m.test(gadgetsSrc || '');
-    const okGadgetsImpExp = hasGadgetExportBtn && hasGadgetImportBtn && hasGadgetPrefsInput && hasExportApi && hasImportApi;
-    console.log('CHECK gadgets import/export ->', okGadgetsImpExp ? 'OK' : 'NG', { hasGadgetExportBtn, hasGadgetImportBtn, hasGadgetPrefsInput, hasExportApi, hasImportApi });
-
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
     const appPath = path.join(__dirname, '..', 'js', 'app.js');
     let appSrc = '';
