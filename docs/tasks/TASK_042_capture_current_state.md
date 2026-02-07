@@ -1,5 +1,6 @@
 # Task: 現状のスクリーンショット撮影と視覚的ドキュメント化
 Status: DONE
+Report: docs/reports/REPORT_TASK_042_capture_current_state_20260128.md
 Tier: 1
 Branch: feature/capture-current-state
 Created: 2026-01-28

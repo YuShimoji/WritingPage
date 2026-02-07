@@ -4,7 +4,7 @@ Tier: 2
 Branch: feature/audit-docs-consistency
 Created: 2026-01-20T03:05:00+09:00
 Completed: 2026-01-29T18:40:00+09:00
-Report: docs/inbox/REPORT_TASK_040_audit_docs_consistency_20260129.md
+Report: docs/reports/REPORT_TASK_040_audit_docs_consistency_20260129.md
 
 ## Objective
 プロジェクト内の主要ドキュメント（GADGETS.md, KNOWN_ISSUES.md, DESIGN_HUB.md）における「現行実装」と「未実装/提案」の混在や矛盾を解消する。

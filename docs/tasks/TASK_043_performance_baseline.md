@@ -1,5 +1,6 @@
 # Task: パフォーマンスベースラインの計測と記録
 Status: DONE
+Report: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md
 Tier: 2
 Branch: feature/perf-baseline
 Created: 2026-01-28
@@ -23,6 +24,6 @@ Report: docs/reports/REPORT_TASK_043_performance_baseline_20260128.md
 - 3回以上の試行平均を採用する。
 
 ## DoD
-- [ ] `scripts/perf-paste-test.js` の実行結果が記録されている
-- [ ] `scripts/perf-load-test.js` が作成され、実行結果が記録されている
-- [ ] パフォーマンスレポート `docs/reports/PERFORMANCE_BASELINE_20260128.md` が作成されている
+- [x] `scripts/perf-paste-test.js` の実行結果が記録されている
+- [x] `scripts/perf-load-test.js` が作成され、実行結果が記録されている
+- [x] パフォーマンスレポート `docs/reports/PERFORMANCE_BASELINE_20260128.md` が作成されている
