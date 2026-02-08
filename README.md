@@ -187,6 +187,8 @@ WritingPage/
 - `docs/ROADMAP.md`
 - `docs/RELEASE.md`
 - `docs/DEPLOY.md`
+- `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
+- `docs/tasks/README.md` - タスク管理インデックス
 - `docs/BACKLOG.md`
 - `docs/ISSUES.md`
 - `docs/KNOWN_ISSUES.md`

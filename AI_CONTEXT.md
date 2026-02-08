@@ -160,6 +160,8 @@
 
 ## 参考
 
+- プロジェクト健全性: `docs/PROJECT_HEALTH.md`
+- タスク管理: `docs/tasks/README.md`
 - テスト方針: `docs/TESTING.md`
 - 利用手順: `docs/USAGE.md`
 - 埋め込みSDK: `docs/EMBED_TESTING.md`
