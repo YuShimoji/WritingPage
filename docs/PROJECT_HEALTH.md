@@ -20,19 +20,19 @@
 
 | ID | 内容 | 状態 |
 |----|------|------|
-| P0-1 | Embed SDK の origin 検証正規化 | OPEN（`docs/AUDIT_TASK_BREAKDOWN.md` 参照） |
+| P0-1 | Embed SDK の origin 検証正規化 | ✅ DONE（TASK_039, TASK_001_embed_sdk） |
 
-- `sameOrigin` のデフォルトが `true` で自動判定なし
-- cross-origin 時の検証が弱い
-- 詳細: `docs/AUDIT_TASK_BREAKDOWN.md` P0-1
+- `sameOrigin` は `computedOrigin` から自動判定済み（手動設定依存を解消）
+- `child-bridge.js` は `embed_origin` パラメータ + `document.referrer` フォールバックで origin 検証
+- `targetOrigin` 必須化により cross-origin 時の検証も強化済み
 
 ### P1: ドキュメント整合性
 
 | ID | 内容 | 状態 |
 |----|------|------|
-| P1-1 | 設定ハブ（DESIGN_HUB）の扱い明確化 | OPEN |
-| P1-2 | Wiki 制限事項の SSOT 化 | OPEN |
-| P1-3 | KNOWN_ISSUES.md バージョン表記整合 | OPEN |
+| P1-1 | 設定ハブ（DESIGN_HUB）の扱い明確化 | ✅ DONE（既に「提案・未実装」と明記済み） |
+| P1-2 | Wiki 制限事項の SSOT 化 | ✅ DONE（GADGETS.md で SSOT 参照に整理済み） |
+| P1-3 | KNOWN_ISSUES.md バージョン表記整合 | ✅ DONE（0.3.24 との対応を明確化） |
 | P1-4 | GADGETS.md 現行/提案混在解消 | DONE（TASK_040） |
 | P1-5 | smoke/dev-check 期待値整合 | DONE（TASK_049） |
 
