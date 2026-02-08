@@ -73,7 +73,8 @@
   - 2026-02-07: index.html のマージコンフリクトマーカー（`<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main`）を解消。旧バージョン（古いサイドバー/エディタ HTML）を除去し origin/main のモダン UI を保持。全 JS エラー解消、サイト正常動作を確認
   - 2026-02-07: `scripts/capture-screenshots.js` を改修 — 日付別サブフォルダ出力（`YYYY-MM-DD/`）、タブ切替検証（`data-group`）、コンソールエラー検出、タブ名ファイル名含有。壊れたスクリーンショットを `2026-02-07-broken/` にアーカイブ
   - 2026-02-09: TASK_047 Phase 1 — app.js から app-shortcuts.js / app-hud.js / app-settings-handlers.js / app-file-manager.js を抽出（2072行 → 1377行）。smoke ALL PASSED
-- 次の中断可能点: TASK_047 Phase 2（さらなる分割）着手前
+  - 2026-02-09: TASK_047 Phase 2 — app-ui-events.js を抽出（1377行 → 919行）。smoke ALL PASSED。P0/P1 全解消確認済み
+- 次の中断可能点: TASK_047 Phase 3（500行以下へ）または次タスク着手前
 
 ### アーカイブ済み（Issue #91, #今日）
 
