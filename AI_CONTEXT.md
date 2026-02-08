@@ -74,7 +74,8 @@
   - 2026-02-07: `scripts/capture-screenshots.js` を改修 — 日付別サブフォルダ出力（`YYYY-MM-DD/`）、タブ切替検証（`data-group`）、コンソールエラー検出、タブ名ファイル名含有。壊れたスクリーンショットを `2026-02-07-broken/` にアーカイブ
   - 2026-02-09: TASK_047 Phase 1 — app.js から app-shortcuts.js / app-hud.js / app-settings-handlers.js / app-file-manager.js を抽出（2072行 → 1377行）。smoke ALL PASSED
   - 2026-02-09: TASK_047 Phase 2 — app-ui-events.js を抽出（1377行 → 919行）。smoke ALL PASSED。P0/P1 全解消確認済み
-- 次の中断可能点: TASK_047 Phase 3（500行以下へ）または次タスク着手前
+  - 2026-02-09: TASK_047 Phase 3 — app-gadgets-init.js / app-autosave-api.js 抽出 + 未使用関数削除（919行 → 462行、77.7%削減）。smoke ALL PASSED。TASK_047 完了
+- 次の中断可能点: 次タスク着手前
 
 ### アーカイブ済み（Issue #91, #今日）
 
