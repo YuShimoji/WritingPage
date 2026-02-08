@@ -373,6 +373,15 @@ document.addEventListener('DOMContentLoaded', () => {
         window.sidebarManager.activateSidebarGroup(groupId);
     }
 
+    // HUD管理（app-hud.js に委譲）— UIイベントより先に初期化
+    let appHud = null;
+    if (typeof window.initAppHud === 'function') {
+        appHud = window.initAppHud({ elementManager });
+    }
+    function syncHudQuickControls() {
+        if (appHud) appHud.syncHudQuickControls();
+    }
+
     // UIイベントリスナー（app-ui-events.js に委譲）
     let appUIEvents = null;
     if (typeof window.initAppUIEvents === 'function') {
@@ -381,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleSidebar,
             toggleToolbar,
             _toggleFullscreen,
-            syncHudQuickControls: () => { if (appHud) appHud.syncHudQuickControls(); }
+            syncHudQuickControls
         });
     }
     function toggleFeedbackPanel() {
@@ -759,16 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSelectionTooltip();
 
     // フィードバック/フォントパネル/検索パネルは app-ui-events.js で設定済み
-    // HUDボタンのイベントリスナーは app-hud.js で設定済み
-
-    // HUD管理（app-hud.js に委譲）
-    let appHud = null;
-    if (typeof window.initAppHud === 'function') {
-        appHud = window.initAppHud({ elementManager });
-    }
-    function syncHudQuickControls() {
-        if (appHud) appHud.syncHudQuickControls();
-    }
+    // HUD管理・ボタンのイベントリスナーは app-hud.js で設定済み（376行で初期化済み）
 
     // 設定UIハンドラ（app-settings-handlers.js に委譲）
     if (typeof window.initAppSettingsHandlers === 'function') {
