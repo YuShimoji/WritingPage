@@ -172,10 +172,19 @@
 
             // Escape: Blankモードから Normal に戻る、またはモーダルを閉じる
             if (e.key === 'Escape') {
-                const openModals = document.querySelectorAll('[aria-modal="true"][aria-hidden="false"], [aria-modal="true"]:not([aria-hidden="true"])');
+                const openModals = Array.from(document.querySelectorAll('[aria-modal="true"]')).filter((modal) => {
+                    try {
+                        const ariaHidden = modal.getAttribute('aria-hidden');
+                        const style = window.getComputedStyle(modal);
+                        const visible = style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+                        return ariaHidden !== 'true' && visible;
+                    } catch (_) {
+                        return false;
+                    }
+                });
                 if (openModals.length > 0) {
                     const modal = openModals[openModals.length - 1];
-                    const closeBtn = modal.querySelector('.panel-close, [aria-label*="閉じる"], [aria-label*="close"]');
+                    const closeBtn = modal.querySelector('.panel-close, .modal-close, [aria-label*="??"], [aria-label*="close"]');
                     if (closeBtn) {
                         e.preventDefault();
                         closeBtn.click();

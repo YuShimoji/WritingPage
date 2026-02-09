@@ -407,7 +407,85 @@
             }
         });
 
-        return { toggleFeedbackPanel, toggleFontPanel };
+        // ===== モーダルダイアログ =====
+        function toggleModal(modalId, show) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            if (show === undefined) {
+                show = modal.style.display === 'none';
+            }
+            modal.style.display = show ? 'flex' : 'none';
+            modal.setAttribute('aria-hidden', String(!show));
+            if (show) {
+                const closeBtn = modal.querySelector('.modal-close');
+                if (closeBtn) setTimeout(() => closeBtn.focus(), 100);
+            } else {
+                const editor = document.getElementById('editor');
+                if (editor) editor.focus();
+            }
+        }
+
+        // 設定モーダル
+        const toggleSettingsBtn = document.getElementById('toggle-settings');
+        const closeSettingsBtn = document.getElementById('close-settings-modal');
+        if (toggleSettingsBtn) {
+            toggleSettingsBtn.addEventListener('click', () => toggleModal('settings-modal', true));
+        }
+        if (closeSettingsBtn) {
+            closeSettingsBtn.addEventListener('click', () => toggleModal('settings-modal', false));
+        }
+
+        // ヘルプモーダル
+        const toggleHelpBtn = document.getElementById('toggle-help-modal');
+        const closeHelpBtn = document.getElementById('close-help-modal');
+        if (toggleHelpBtn) {
+            toggleHelpBtn.addEventListener('click', () => {
+                toggleModal('help-modal', true);
+                // ヘルプコンテンツの初期化（まだ未レンダリングの場合）
+                if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
+                    window.ZenWriterHelpModal.render();
+                }
+            });
+        }
+        if (closeHelpBtn) {
+            closeHelpBtn.addEventListener('click', () => toggleModal('help-modal', false));
+        }
+
+        // モーダルオーバーレイクリックで閉じる
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    toggleModal(overlay.id, false);
+                }
+            });
+        });
+
+        // ESCキーでモーダルを閉じる
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+
+            const openModal = Array.from(document.querySelectorAll('.modal-overlay')).find((modal) => {
+                const style = window.getComputedStyle(modal);
+                return style.display === 'flex';
+            });
+            if (openModal) {
+                toggleModal(openModal.id, false);
+                e.stopPropagation();
+                return;
+            }
+
+            const openFloatingPanel = Array.from(document.querySelectorAll('.floating-panel[aria-modal="true"]')).find((panel) => {
+                const style = window.getComputedStyle(panel);
+                return style.display !== 'none' && style.visibility !== 'hidden';
+            });
+            if (openFloatingPanel) {
+                openFloatingPanel.style.display = 'none';
+                openFloatingPanel.setAttribute('aria-hidden', 'true');
+                e.stopPropagation();
+            }
+        });
+
+        return { toggleFeedbackPanel, toggleFontPanel, toggleModal };
     }
 
     window.initAppUIEvents = initAppUIEvents;

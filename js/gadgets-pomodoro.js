@@ -318,7 +318,7 @@
       el.textContent = (window.UILabels && window.UILabels.POMODORO_INIT_FAILED) || 'タイマーガジェットの初期化に失敗しました';
     }
   }, {
-    groups: ['assist'],
+    groups: ['settings'],
     title: (window.UILabels && window.UILabels.GADGET_POMODORO_TITLE) || 'Pomodoro/集中タイマー'
   });
 

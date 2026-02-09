@@ -74,7 +74,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['assist'] });
+    }, { title: 'Typewriter', groups: ['settings'] });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function(root){
@@ -131,7 +131,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'Focus Mode', groups: ['assist'] });
+    }, { title: 'Focus Mode', groups: ['settings'] });
 
     // Snapshot Manager Gadget
     window.ZWGadgets.register('SnapshotManager', function(root){
@@ -163,7 +163,7 @@
         }
       });
       root.appendChild(btn);
-    }, { title: 'Snapshot Manager', groups: ['assist'] });
+    }, { title: 'Snapshot Manager', groups: ['settings'] });
 
     // Markdown Preview Gadget
     window.ZWGadgets.register('MarkdownPreview', function(root){
@@ -181,7 +181,7 @@
       sync.addEventListener('change', function(){ withStorage(function(cfg){ cfg.preview = cfg.preview||{}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['assist'] });
+    }, { title: 'Markdown Preview', groups: ['settings'] });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function(root){
@@ -554,7 +554,7 @@
       });
 
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
-    }, { title: 'UI Settings', groups: ['assist'] });
+    }, { title: 'UI Settings', groups: ['settings'] });
 
     // UI Design Gadget (background gradient)
     window.ZWGadgets.register('UIDesign', function(root, api){
@@ -600,7 +600,7 @@
 
       root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
       apply(g);
-    }, { title: 'UI Design', groups: ['structure'] });
+    }, { title: 'UI Design', groups: ['settings'] });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function(root){
@@ -614,7 +614,7 @@
         btns.forEach(function(btn){ btn.addEventListener('click', function(){ try{ if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration==='function'){ window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); }}catch(_){} }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
-    }, { title: 'Font Decoration', groups: ['structure'] });
+    }, { title: 'Font Decoration', groups: ['settings'] });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function(root){
@@ -627,7 +627,7 @@
         btns.forEach(function(btn){ btn.addEventListener('click', function(){ try{ if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration==='function'){ window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); }}catch(_){} }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['structure'] });
+    }, { title: 'Text Animation', groups: ['settings'] });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function(root){
@@ -696,7 +696,7 @@
       root.appendChild(paddingRow);
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
-    }, { title: 'Editor Layout', groups: ['structure'] });
+    }, { title: 'Editor Layout', groups: ['settings'] });
 
     // Scene Gradient Gadget (背景グラデーション 3レイヤ)
     window.ZWGadgets.register('SceneGradient', function(root, api){
@@ -829,7 +829,7 @@
       root.appendChild(applyBtn);
       
       applyScene();
-    }, { title: 'Scene Gradient', groups: ['structure'] });
+    }, { title: 'Scene Gradient', groups: ['settings'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

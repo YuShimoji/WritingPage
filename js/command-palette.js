@@ -254,38 +254,74 @@
       }
     },
     {
-      id: 'gadget-typography',
-      label: 'タイポグラフィガジェット',
-      description: 'タイポグラフィタブを開く',
+      id: 'open-settings',
+      label: '設定を開く',
+      description: '設定モーダルを表示',
       shortcut: '',
-      category: 'ガジェット',
+      category: 'UI操作',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('typography');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
+        const modal = document.getElementById('settings-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+          modal.setAttribute('aria-hidden', 'false');
+        }
+      }
+    },
+    {
+      id: 'open-help',
+      label: 'ヘルプを開く',
+      description: 'ヘルプモーダルを表示',
+      shortcut: '',
+      category: 'UI操作',
+      execute: () => {
+        const modal = document.getElementById('help-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+          modal.setAttribute('aria-hidden', 'false');
+          if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
+            window.ZenWriterHelpModal.render();
+          }
+        }
+      }
+    },
+    // WIP機能（実験的）
+    {
+      id: 'toggle-wysiwyg',
+      label: 'WYSIWYG エディタ',
+      description: 'WYSIWYG エディタを切り替え（実験的）',
+      shortcut: '',
+      category: '実験的機能',
+      execute: () => {
+        const btn = document.getElementById('toggle-wysiwyg');
+        if (btn) btn.click();
+      }
+    },
+    {
+      id: 'toggle-ui-editor',
+      label: 'UI エディタ',
+      description: 'UIビジュアルエディタを切り替え（実験的）',
+      shortcut: '',
+      category: '実験的機能',
+      execute: () => {
+        if (window.uiVisualEditor) {
+          if (window.uiVisualEditor.isActive) {
+            window.uiVisualEditor.deactivate();
+          } else {
+            window.uiVisualEditor.activate();
           }
         }
       }
     },
     {
-      id: 'gadget-assist',
-      label: '支援ガジェット',
-      description: '支援タブを開く',
+      id: 'toggle-split-view',
+      label: '分割ビュー',
+      description: '分割ビューを切り替え（実験的）',
       shortcut: '',
-      category: 'ガジェット',
+      category: '実験的機能',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('assist');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
+        const panel = document.getElementById('split-view-mode-panel');
+        if (panel) {
+          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
         }
       }
     },

@@ -1,4 +1,53 @@
-(function () {
+﻿(function () {
+  function setupPreviewPanel(editorManager) {
+    if (!editorManager) return;
+
+    var panel = editorManager.previewPanel;
+    var toggle = editorManager.previewPanelToggle;
+    if (!panel || !toggle) return;
+
+    function syncPreviewAria() {
+      var isCollapsed = panel.classList.contains('editor-preview--collapsed');
+      toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+      panel.setAttribute('aria-hidden', isCollapsed ? 'true' : 'false');
+    }
+
+    if (!toggle.__zwPreviewBound) {
+      toggle.addEventListener('click', function () {
+        togglePreview(editorManager);
+      });
+      toggle.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          togglePreview(editorManager);
+        }
+      });
+      toggle.__zwPreviewBound = true;
+    }
+
+    syncPreviewAria();
+  }
+
+  function togglePreview(editorManager) {
+    if (!editorManager || !editorManager.previewPanel || !editorManager.previewPanelToggle) {
+      return false;
+    }
+
+    var panel = editorManager.previewPanel;
+    var toggle = editorManager.previewPanelToggle;
+    var willOpen = panel.classList.contains('editor-preview--collapsed');
+
+    panel.classList.toggle('editor-preview--collapsed', !willOpen);
+    toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    panel.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+
+    if (willOpen) {
+      renderMarkdownPreview(editorManager);
+    }
+
+    return willOpen;
+  }
+
   function renderMarkdownPreview(editorManager) {
     if (!editorManager) return;
     if (editorManager._markdownPreviewDebounceTimer) {
@@ -20,7 +69,7 @@
           editorManager._markdownRenderer = window.markdownit({
             html: false,
             linkify: true,
-            breaks: true
+            breaks: true,
           });
         }
         html = editorManager._markdownRenderer.render(src);
@@ -31,12 +80,10 @@
           .replace(/>/g, '&gt;')
           .replace(/\n/g, '<br>');
       }
-    } catch (e) {
+    } catch (_) {
       html = '';
     }
 
-    // フォント装飾とテキストアニメーションを処理
-    // プレビューでは、Markdownレンダリング後のHTMLに対して装飾を適用する
     if (html && editorManager.processFontDecorations) {
       html = editorManager.processFontDecorations(html);
     }
@@ -44,22 +91,21 @@
       html = editorManager.processTextAnimations(html);
     }
 
-    // Wikilinks [[link]] または [[link|display]] を処理
     if (html) {
-      html = html.replace(/\[\[([^\]]+)\]\]/g, function (match, content) {
+      html = html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
         var parts = content.split('|');
         var link = parts[0].trim();
         var display = parts.length > 1 ? parts[1].trim() : link;
 
-        // 存在チェック (TASK_044)
         var exists = false;
         if (window.ZenWriterStorage && typeof window.ZenWriterStorage.listWikiPages === 'function') {
           var all = window.ZenWriterStorage.listWikiPages();
-          exists = all.some(function (p) { return (p.title || '') === link; });
+          exists = all.some(function (p) {
+            return (p.title || '') === link;
+          });
         }
         var brokenClass = exists ? '' : ' is-broken';
 
-        // data-wikilink 属性を付与してクリックイベントで拾えるようにする
         return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '" onclick="return false;">' + display + '</a>';
       });
     }
@@ -69,10 +115,9 @@
       tempContainer.innerHTML = html;
       try {
         window.morphdom(editorManager.markdownPreviewPanel, tempContainer, {
-          childrenOnly: true
+          childrenOnly: true,
         });
-      } catch (morphErr) {
-        console.warn('morphdom error, falling back to innerHTML:', morphErr);
+      } catch (_) {
         editorManager.markdownPreviewPanel.innerHTML = html;
       }
     } else {
@@ -80,6 +125,8 @@
     }
   }
 
+  window.editorPreview_setupPreviewPanel = setupPreviewPanel;
+  window.editorPreview_togglePreview = togglePreview;
   window.editorPreview_renderMarkdownPreview = renderMarkdownPreview;
   window.editorPreview_renderMarkdownPreviewImmediate = renderMarkdownPreviewImmediate;
 })();

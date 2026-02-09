@@ -59,6 +59,6 @@
       console.error('PrintSettings gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.PRINT_INIT_FAILED) || '印刷設定ガジェットの初期化に失敗しました。'; } catch (e2) { void e2; }
     }
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_EXPORT_TITLE) || 'エクスポート' });
+  }, { groups: ['settings'], title: (window.UILabels && window.UILabels.GADGET_EXPORT_TITLE) || 'エクスポート' });
 
 })();

@@ -178,7 +178,7 @@
     }
 
   }, {
-    groups: ['structure'], // Structureグループに配置
+    groups: ['settings'], // 設定モーダルに配置
     title: (window.UILabels && window.UILabels.GADGET_LOADOUT_TITLE) || 'ロードアウト管理',
     description: 'ロードアウトの保存・適用・管理を行います',
     icon: 'save'
