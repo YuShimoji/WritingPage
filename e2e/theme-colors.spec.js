@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets } = require('./helpers');
 
 /**
  * 現行UIではツールバーはデフォルトで表示されており、
@@ -9,8 +10,8 @@ const { test, expect } = require('@playwright/test');
  * data-theme-preset ボタン）を引き続き単一のテスト対象とする。
  */
 async function openSidebarAndThemePanel(page) {
-  // サイドバーを開く
   await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await enableAllGadgets(page);
 
   const isOpen = await page.evaluate(() => {
     const sb = document.getElementById('sidebar');

@@ -1,5 +1,6 @@
 // E2E: コラージュレイアウト機能の検証
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -17,21 +18,8 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
-  // サイドバーを確実に開く
-  const sidebar = page.locator('.sidebar');
-  const toggleBtn = page.locator('#toggle-sidebar');
-  if (await toggleBtn.isVisible().catch(() => false)) {
-    const opened = await sidebar.evaluate((el) => el.classList.contains('open')).catch(() => false);
-    if (!opened) {
-      await toggleBtn.click();
-      await expect(sidebar).toHaveClass(/open/);
-    }
-  }
-  // assistタブをアクティブにしてガジェットパネルを表示
-  const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
-  if (await assistTab.isVisible().catch(() => false)) {
-    await assistTab.click();
-  }
+  await enableAllGadgets(page);
+  await openSidebarGroup(page, 'assist');
   await page.waitForTimeout(500);
 }
 

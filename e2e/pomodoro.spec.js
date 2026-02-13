@@ -1,5 +1,6 @@
 // E2E: Pomodoro/集中タイマー機能の検証
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -9,24 +10,12 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
-  // サイドバーを確実に開く
-  const sidebar = page.locator('.sidebar');
-  const toggleBtn = page.locator('#toggle-sidebar');
-  if (await toggleBtn.isVisible().catch(() => false)) {
-    const opened = await sidebar.evaluate((el) => el.classList.contains('open')).catch(() => false);
-    if (!opened) {
-      await toggleBtn.click();
-      await expect(sidebar).toHaveClass(/open/);
-    }
-  }
-  // assistタブをアクティブにしてガジェットパネルを表示
-  const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
-  if (await assistTab.isVisible().catch(() => false)) {
-    await assistTab.click();
-  }
+  // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
+  await enableAllGadgets(page);
+  // サイドバーを開いてassistグループをアクティブにする
+  await openSidebarGroup(page, 'assist');
   // 初回レンダ後のガジェット要素を待機
-  await page.waitForTimeout(500);
-  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached' });
+  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   return true;
 }
 
