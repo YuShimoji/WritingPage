@@ -21,11 +21,14 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       const sidebar = page.locator('#sidebar');
       await expect(sidebar).toHaveClass(/open/);
       
-      // サイドバーが100%幅であることを確認
+      // サイドバーがビューポート幅と同等（100%相当）であることを確認
       const sidebarWidth = await sidebar.evaluate((el) => {
-        return window.getComputedStyle(el).width;
+        return parseFloat(window.getComputedStyle(el).width);
       });
-      expect(sidebarWidth).toBe('100%');
+      const viewportWidth = page.viewportSize().width;
+      // 100%幅はビューポート幅と同等（許容誤差5px）
+      expect(sidebarWidth).toBeGreaterThanOrEqual(viewportWidth - 5);
+      expect(sidebarWidth).toBeLessThanOrEqual(viewportWidth + 5);
       
       // サイドバーオーバーレイが表示されていることを確認
       const overlay = page.locator('#sidebar-overlay');

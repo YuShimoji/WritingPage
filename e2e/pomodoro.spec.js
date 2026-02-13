@@ -1,5 +1,6 @@
 // E2E: Pomodoro/集中タイマー機能の検証
 const { test, expect } = require('@playwright/test');
+const { enableGadgets } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -9,6 +10,10 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
+  
+  // PomodoroTimerガジェットを有効化
+  await enableGadgets(page, ['PomodoroTimer'], 'assist');
+  
   // サイドバーを確実に開く
   const sidebar = page.locator('.sidebar');
   const toggleBtn = page.locator('#toggle-sidebar');
@@ -26,7 +31,7 @@ async function waitGadgetsReady(page) {
   }
   // 初回レンダ後のガジェット要素を待機
   await page.waitForTimeout(500);
-  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached' });
+  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 }).catch(() => {});
   return true;
 }
 

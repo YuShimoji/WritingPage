@@ -1,5 +1,6 @@
 // E2E: コラージュレイアウト機能の検証
 const { test, expect } = require('@playwright/test');
+const { enableGadgets } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -17,6 +18,10 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
+  
+  // Imagesガジェットを有効化
+  await enableGadgets(page, ['Images'], 'assist');
+  
   // サイドバーを確実に開く
   const sidebar = page.locator('.sidebar');
   const toggleBtn = page.locator('#toggle-sidebar');
