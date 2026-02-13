@@ -1,9 +1,24 @@
-# AI_CONTEXT — 開発プロトコルと自律的再開のための前提情報
+﻿# AI_CONTEXT — 開発プロトコルと自律的再開のための前提情報
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-02-03T14:00:00+09:00
+- 最終更新: 2026-02-13T00:00:00+09:00
 - **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed (実装確認済み)
+## 再開ログ（2026-02-13）
+
+- `git pull --rebase origin main` 実施（親リポジトリは最新）
+- サブモジュール `.shared-workflows` を `origin/main` 最新へ更新（`3e62f33425eacd1c9959ffe1deab05cfa3b9f2d8`）
+- `npm ci` 実行済み
+- `npm run test:smoke` 成功（ALL TESTS PASSED）
+- `npm run test:e2e:ci` 再実行結果: `64 failed / 104 passed`（前回から横ばい）
+- 次タスク: `docs/tasks/TASK_055_e2e_remaining64_continuation.md`
+
+## Worker引き渡し（着手順）
+
+1. `responsive-ui.spec.js` と `accessibility.spec.js` の表示/フォーカス前提を共通ヘルパー化
+2. `ui-editor.spec.js` と `decorations.spec.js` の hidden 要素操作失敗を panel open wait で統一修正
+3. `collage.spec.js` と `image-position-size.spec.js` と `tags-smart-folders.spec.js` のガジェット前提をロードアウト準拠へ調整
+4. クラスターごとの局所再実行後、`npm run test:e2e:ci` で全体再測定
 
 ## 中央ルール参照（SSOT）
 
@@ -18,7 +33,7 @@
 - 運用ストレージ: `docs/HANDOVER.md`, `docs/tasks/`, `docs/inbox/`
 - async_mode: true
 
-- 現在のミッション: サイドバータブ/ガジェット基盤の安定化（customTabsグループ認識・登録先単一化）
+- 現在のミッション: Phase 1d-6（E2E残件64の失敗クラスター解消）
 - ブランチ: main
 - 関連PR: #95（Merged）
 - 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
@@ -229,3 +244,5 @@
 
 ### Worker完了ステータス
 - **Worker完了ステータス**: TASK_001: completed, TASK_005: completed, TASK_002: completed, TASK_003: completed, TASK_004: completed, TASK_006: completed, TASK_044: completed
+
+

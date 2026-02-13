@@ -1,4 +1,4 @@
-# Task: smoke/dev-check の期待値と現行実装の整合監査
+﻿# Task: smoke/dev-check の期待値と現行実装の整合監査
 Status: COMPLETED
 Tier: 2
 Branch: feature/audit-smoke-dev-check
@@ -23,3 +23,13 @@ Created: 2026-01-20T03:05:00+09:00
 ## DoD
 - [x] `scripts/dev-check.js` のコメントとチェック内容が現行実装の実態（GadgetPrefs UIの存在など）と矛盾しない
 - [x] `npm run test:smoke` が「何を保証しているか」が読み手に一意に伝わる状態になっている
+
+## Restart Log (2026-02-13)
+- [x] `git pull --rebase origin main` 実施（親リポジトリは最新）
+- [x] サブモジュール `.shared-workflows` を `origin/main` 最新へ更新
+- [x] `.shared-workflows` 現在値: `3e62f33425eacd1c9959ffe1deab05cfa3b9f2d8`
+- [x] `npm ci` で依存関係を再同期
+- [x] `npm run test:smoke` 成功（`ALL TESTS PASSED`）
+
+## Next Task
+- 継続作業は `docs/tasks/TASK_055_e2e_remaining64_continuation.md` を参照
