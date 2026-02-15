@@ -1,18 +1,15 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    const sidebar = page.locator('.sidebar');
-    const toggleBtn = page.locator('#toggle-sidebar');
-
-    await toggleBtn.waitFor({ timeout: 10000 });
-    const isOpen = await sidebar.evaluate(el => el.classList.contains('open')).catch(() => false);
-    if (!isOpen) {
-      await toggleBtn.click();
-      await expect(sidebar).toHaveClass(/open/);
-    }
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    });
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'wiki');
   });
 
   test('should parse [[wikilink]] syntax', async ({ page }) => {

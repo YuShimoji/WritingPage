@@ -1,23 +1,15 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 test.describe('Tags and Smart Folders', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
-    const sidebar = page.locator('.sidebar');
-    const toggleBtn = page.locator('#toggle-sidebar');
-
-    await toggleBtn.waitFor({ timeout: 10000 });
-    const isOpen = await sidebar.evaluate(el => el.classList.contains('open')).catch(() => false);
-    if (!isOpen) {
-      await toggleBtn.click();
-      await expect(sidebar).toHaveClass(/open/);
-    }
-
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
-
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    });
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'wiki');
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
   });
 

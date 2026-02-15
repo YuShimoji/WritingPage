@@ -1,9 +1,10 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
+const { enableAllGadgets } = require('./helpers');
 
 async function openSidebarAndAssistPanel(page) {
-  // サイドバーを開き、assist グループを SidebarManager 経由でアクティブ化する
   await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await enableAllGadgets(page);
 
   const isOpen = await page.evaluate(() => {
     const sb = document.getElementById('sidebar');
