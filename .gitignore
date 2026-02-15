@@ -34,3 +34,7 @@ playwright-report/
 *-out?.txt
 *-fail.txt
 test-*.txt
+
+# Tool-specific / AI generated
+.claude/
+test-artifacts/
