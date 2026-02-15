@@ -17,11 +17,20 @@
   - CI Smoke: push(main/develop/feat/\*\*), pull_request, workflow_dispatch
   - Sync Issues: `docs/ISSUES.md` 変更または workflow_dispatch
 
+### E2E テスト（Playwright）
+
+- 目的: ブラウザ上の実操作（クリック/ドラッグ/ダウンロード/ファイル選択）を自動検証
+- セットアップ: `npm install` → `npx playwright install`
+- 実行: `npm run test:e2e:ci`（ヘッドレス）/ `npx playwright test --headed`（画面表示）
+- 設定: `playwright.config.js`（`scripts/dev-server.js` を自動起動、既定ポート 8099）
+- レポート: 失敗時の `trace`/`screenshot`/`video` を `playwright-report/` / `test-results/` に保持
+
 ## 3. ローカルワークフロー
 
 - 開発サーバー: `node scripts/dev-server.js`（PORT 可変: `--port`/`-p`/`PORT`）
 - 2ポート起動: `node scripts/run-two-servers.js`（8080/8081）
 - スモーク: `node scripts/dev-check.js` → ALL TESTS PASSED が合格
+- クロスオリジン検証: `docs/EMBED_TESTING.md`（v1.1 付録参照）
 
 ## 4. 自律的再開プロトコル
 

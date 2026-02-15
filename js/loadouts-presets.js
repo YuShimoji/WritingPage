@@ -15,36 +15,54 @@
           structure: [
             'Documents',
             'Outline',
-            'OutlineQuick',
+            'SnapshotManager',
+            'TagsAndSmartFolders'
+          ],
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: [
+            'Themes',
+            'Typography',
+            'VisualProfile',
             'EditorLayout',
             'SceneGradient',
-            'ChoiceTools',
-            'PrintSettings',
-            'LoadoutManager'
-          ],
-          assist: [
-            'Typewriter',
-            'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
             'Clock',
+            'Typewriter',
             'MarkdownPreview',
             'UISettings',
+            'PrintSettings',
+            'ChoiceTools',
+            'LoadoutManager',
             'GadgetPrefs',
-            'Help'
-          ],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki']
+            'Keybinds'
+          ]
         }
       },
       'novel-minimal': {
         label: 'ミニマル',
         description: '最小限の機能で集中執筆',
         groups: {
-          structure: ['Documents', 'Outline', 'EditorLayout', 'SceneGradient'],
-          assist: ['HUDSettings', 'WritingGoal', 'Clock', 'Help'],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki']
+          structure: [
+            'Documents',
+            'Outline',
+            'SnapshotManager'
+          ],
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: [
+            'Themes',
+            'Typography',
+            'VisualProfile',
+            'EditorLayout',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock',
+            'GadgetPrefs'
+          ]
         }
       },
       'vn-layout': {
@@ -54,24 +72,29 @@
           structure: [
             'Documents',
             'Outline',
+            'SnapshotManager',
+            'TagsAndSmartFolders'
+          ],
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: [
+            'Themes',
+            'Typography',
+            'VisualProfile',
             'EditorLayout',
             'SceneGradient',
             'Images',
-            'ChoiceTools'
-          ],
-          assist: [
-            'Typewriter',
-            'SnapshotManager',
+            'ChoiceTools',
             'HUDSettings',
             'WritingGoal',
             'Clock',
+            'Typewriter',
             'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
-            'Help'
-          ],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki', 'StoryWiki']
+            'Keybinds'
+          ]
         }
       },
       'graphic-novel': {
@@ -81,27 +104,31 @@
           structure: [
             'Documents',
             'Outline',
-            'OutlineQuick',
+            'SnapshotManager',
+            'TagsAndSmartFolders'
+          ],
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: [
+            'Themes',
+            'Typography',
+            'VisualProfile',
             'EditorLayout',
             'SceneGradient',
             'Images',
             'FontDecoration',
-            'TextAnimation'
-          ],
-          assist: [
+            'TextAnimation',
             'Samples',
-            'Typewriter',
-            'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
             'Clock',
+            'Typewriter',
             'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
-            'Help'
-          ],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki', 'StoryWiki']
+            'Keybinds'
+          ]
         }
       },
       'screenplay': {
@@ -111,19 +138,24 @@
           structure: [
             'Documents',
             'Outline',
-            'EditorLayout',
-            'ChoiceTools'
+            'SnapshotManager'
           ],
-          assist: [
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: [
+            'Themes',
+            'Typography',
+            'VisualProfile',
+            'EditorLayout',
+            'ChoiceTools',
             'HUDSettings',
             'WritingGoal',
             'Clock',
             'UISettings',
             'GadgetPrefs',
-            'Help'
-          ],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki']
+            'Keybinds'
+          ]
         }
       }
     }

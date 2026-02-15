@@ -252,7 +252,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['typography'],
+    groups: ['settings'],
     title: (window.UILabels && window.UILabels.GADGET_THEMES_TITLE) || 'テーマ'
   });
 

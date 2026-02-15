@@ -210,6 +210,6 @@
         root.appendChild(container);
       } catch (_) {}
     },
-    { groups: ['assist'], title: 'サンプル' },
+    { groups: ['settings'], title: 'サンプル' },
   );
 })();

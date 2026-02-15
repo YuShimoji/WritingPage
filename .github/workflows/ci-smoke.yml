@@ -11,5 +11,5 @@ on:
 
 jobs:
   smoke:
-    uses: YuShimoji/shared-workflows/.github/workflows/ci-smoke.yml@v0.1.0
+    uses: YuShimoji/shared-workflows/.github/workflows/ci-smoke.yml@v2.0
     secrets: inherit

@@ -118,6 +118,8 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 
 ## 参照ドキュメント
 
+- `docs/PROJECT_HEALTH.md` — プロジェクト健全性レポート
+- `docs/tasks/README.md` — タスク管理インデックス
 - `AI_CONTEXT.md` — AI再開用コンテキスト
 - `docs/ARCHITECTURE.md` — アーキテクチャ概要
 - `docs/TESTING.md` — テスト方針

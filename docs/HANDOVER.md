@@ -1,19 +1,31 @@
 # Project Handover & Status
 
-**Timestamp**: 2026-01-12T03:25+09:00
-**Actor**: Orchestrator
+**Timestamp**: 2026-02-07T20:30+09:00
+**Actor**: Developer
 **Type**: Handover
-**Mode**: orchestrator
+**Mode**: maintenance
 
 ## 基本情報
-- **最終更新**: 2026-01-12T03:25+09:00
-- **更新者**: Orchestrator
+- **最終更新**: 2026-02-07T20:30+09:00
+- **更新者**: Developer (bugfix & tooling session)
 
 ## GitHubAutoApprove
 GitHubAutoApprove: true
 
 ## 現在の目標
-- 他プロジェクトへの shared-workflows 導入手順の標準化と最短化の完了。
+- プロジェクト安定化とリファクタリング（editor.js/app.js の分割、ガジェットAPI型安全性強化）
+- UI品質向上（グラフィックノベル対応、ルビテキスト、フローティングパネル汎用化）
+
+## OPENタスク一覧（2026-02-07時点）
+| Task | 概要 | Tier | Owner |
+|------|------|------|-------|
+| TASK_045 | 柔軟なタブ配置システム | 3 | Worker |
+| TASK_046 | editor.js リファクタリング | 2 | Worker |
+| TASK_047 | app.js リファクタリング | 2 | Worker |
+| TASK_048 | 汎用フローティングパネル | 3 | Worker |
+| TASK_051 | プラグインシステム設計 | 1 | Planner |
+| TASK_052 | ガジェットAPI型安全性 | 2 | Worker |
+| TASK_054 | グラフィックノベル ルビテキスト | 2 | Worker |
 
 ## 進捗
 - **REPORT_TASK_044_wikilinks_backlinks_20260130.md**: TASK_044（Wikilinks/バックリンク）を完了。`[[wikilinks]]` パース、バックリンク表示、Wiki API 実装。 (DONE)
@@ -53,6 +65,11 @@ GitHubAutoApprove: true
 
 ## ブロッカー
 - なし
+
+## 最新作業実績（2026-02-07 20:30）
+- **index.html マージコンフリクト解消**: `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` マーカーが残存し、旧版 HTML（古いサイドバー構造）と新版（モダンガジェットUI）が二重ロードされていた。旧版を削除し origin/main のモダンUIを保持。全 JS エラー解消、smoke test OK。
+- **スクリーンショット運用整備**: `capture-screenshots.js` を日付別サブフォルダ出力に改修。タブ切替検証・コンソールエラー検出機能追加。壊れたスクリーンショットを `2026-02-07-broken/` にアーカイブ。
+- **要望実現度**: BACKLOG.md ベースで 54項目中48完了（90%）。高優先度100%、中優先度97%、バグ100%。残りは主にアーキテクチャ改善（プラグインシステム、監査ログ等）。
 
 ## バックログ
 - グローバルMemoryに中央リポジトリ絶対パスを追加
@@ -158,9 +175,9 @@ GitHubAutoApprove: true
 - Summary: Wikilinks/バックリンク機能を実装。`[[wikilinks]]` のパース、存在チェック（is-broken）、バックリンク検出、および Wiki API 経由のエディタ連携を実現。
 
 ## Outlook
-- Short-term: 新規タスクが発生した場合、Phase 3〜5 に従ってチケット発行と Worker 起動。orchestrator-audit.js を CI パイプラインに組み込む検討。
-- Mid-term: orchestrator-audit.js を CI パイプラインに組み込み、DONEタスクのレポート欠損を自動検知。worker-monitor.js + AI_CONTEXT 自動更新、report-orch-cli の HANDOVER 同期を安定化し、他プロジェクトへ展開。
-- Long-term: Complete Gate の自動化、False Completion 防止ロジックと Outlook/Next/Proposals 必須化を CI に組み込み、報告～監査を完全自動化。
+- Short-term: TASK_046/047（editor.js/app.js リファクタリング）を優先。巨大ファイルを500行以下に分割し保守性を向上。
+- Mid-term: TASK_048（汎用フローティングパネル）と TASK_052（ガジェットAPI型安全性）で拡張基盤を強化。TASK_054（ルビテキスト）でグラフィックノベル対応を拡充。
+- Long-term: TASK_051（プラグインシステム設計）でユーザー定義ガジェットの仕組みを構築。CI自動化（orchestrator-audit, complete gate）の完全自動化。
 
 ## Proposals
 - AI_CONTEXT.md 初期化スクリプトを追加し、Worker 完了ステータス記録を自動化

@@ -96,28 +96,6 @@
           </div>
         </section>
 
-        <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel"
-          aria-labelledby="sidebar-tab-typography" aria-hidden="true">
-          <div class="sidebar-section">
-            <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography"
-              aria-label="タイポグラフィガジェット"></div>
-          </div>
-        </section>
-
-        <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel"
-          aria-labelledby="sidebar-tab-assist" aria-hidden="true">
-          <div class="sidebar-section">
-            <h3 data-i18n="HELP_SECTION"></h3>
-            <div class="sidebar-help-links" role="group" aria-label="ヘルプ / リファレンス">
-              <button id="help-button" class="small" type="button" data-i18n="OPEN_WIKI_HELP"></button>
-              <button id="editor-help-button" class="small" type="button" data-i18n="EDITOR_GUIDE"></button>
-              <a id="ui-lab-link" class="small" href="docs/ui-lab.html" target="_blank" rel="noopener"
-                data-i18n="UI_LAB"></a>
-            </div>
-            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="支援ガジェット"></div>
-          </div>
-        </section>
-
         <section class="sidebar-group" data-group="wiki" id="sidebar-group-wiki" role="tabpanel"
           aria-labelledby="sidebar-tab-wiki" aria-hidden="true">
           <div class="sidebar-section">
@@ -158,37 +136,45 @@
             <option value="focus" data-i18n="MODE_FOCUS">フォーカスモード</option>
             <option value="blank" data-i18n="MODE_BLANK">ブランクモード</option>
           </select>
-          <button id="toggle-text-animation" class="icon-button iconified" title="テキストアニメーション"
+          <!-- WIP: Phase 4 機能（非表示、コマンドパレットからアクセス可能） -->
+          <button id="toggle-text-animation" class="icon-button iconified wip-hidden" title="テキストアニメーション"
             aria-label="テキストアニメーションパネルを開く">
             <i data-lucide="sparkles" aria-hidden="true"></i>
           </button>
-          <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
+          <button id="toggle-font-decoration" class="icon-button iconified wip-hidden" title="フォント装飾" aria-label="フォント装飾パネルを開く">
             <i data-lucide="type" aria-hidden="true"></i>
           </button>
-          <button id="toggle-spell-check" class="icon-button iconified" title="スペルチェック" aria-label="スペルチェックを切り替え"
+          <button id="toggle-spell-check" class="icon-button iconified wip-hidden" title="スペルチェック" aria-label="スペルチェックを切り替え"
             aria-pressed="false">
             <i data-lucide="spell-check-2" aria-hidden="true"></i>
           </button>
-          <button id="insert-stamp" class="icon-button iconified" title="文字数スタンプ挿入" aria-label="文字数スタンプを挿入">
+          <button id="insert-stamp" class="icon-button iconified wip-hidden" title="文字数スタンプ挿入" aria-label="文字数スタンプを挿入">
             <i data-lucide="stamp" aria-hidden="true"></i>
           </button>
           <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="テーマを切り替え">
             <i data-lucide="palette" aria-hidden="true"></i>
           </button>
-          <button id="toggle-ui-editor" class="icon-button iconified" title="UIエディタ" aria-label="UIエディタを開く">
+          <button id="toggle-ui-editor" class="icon-button iconified wip-hidden" title="UIエディタ" aria-label="UIエディタを開く">
             <i data-lucide="paintbrush" aria-hidden="true"></i>
           </button>
           <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉"
             aria-expanded="false" aria-controls="editor-preview">
             <i data-lucide="layout-template" aria-hidden="true"></i>
           </button>
-          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉"
+          <button id="toggle-split-view" class="icon-button iconified wip-hidden" title="分割ビュー" aria-label="分割ビューを開閉"
             aria-expanded="false" aria-controls="split-view-container">
             <i data-lucide="columns" aria-hidden="true"></i>
           </button>
-          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え"
+          <button id="toggle-wysiwyg" class="icon-button iconified wip-hidden" title="リッチテキストエディタに切り替え"
             aria-label="リッチテキストエディタに切り替え" aria-pressed="false">
             <i data-lucide="pen-tool" aria-hidden="true"></i>
+          </button>
+          <!-- 設定・ヘルプ -->
+          <button id="toggle-settings" class="icon-button iconified" title="設定" aria-label="設定を開く">
+            <i data-lucide="settings" aria-hidden="true"></i>
+          </button>
+          <button id="toggle-help-modal" class="icon-button iconified" title="ヘルプ" aria-label="ヘルプを開く">
+            <i data-lucide="help-circle" aria-hidden="true"></i>
           </button>
           <button id="toggle-toolbar" class="icon-button iconified" aria-label="ツールバーを開閉" aria-expanded="true"
             aria-controls="toolbar" title="ツールバー">
@@ -197,7 +183,7 @@
           <button id="fullscreen" class="icon-button iconified" aria-label="フルスクリーン" title="フルスクリーン">
             <i data-lucide="maximize" aria-hidden="true"></i>
           </button>
-          <button id="feedback" class="icon-button iconified" aria-label="フィードバックを送信" title="フィードバック">
+          <button id="feedback" class="icon-button iconified wip-hidden" aria-label="フィードバックを送信" title="フィードバック">
             <i data-lucide="message-square" aria-hidden="true"></i>
           </button>
         </div>
@@ -271,6 +257,34 @@
       </div>
     </main>
   </div>
+
+  <!-- 設定モーダル -->
+  <div id="settings-modal" class="modal-overlay" style="display: none" role="dialog"
+    aria-labelledby="settings-modal-title" aria-modal="true">
+    <div class="modal-dialog modal-dialog--large">
+      <div class="modal-header">
+        <h2 id="settings-modal-title" data-i18n="SETTINGS_TITLE">設定</h2>
+        <button class="modal-close" id="close-settings-modal" aria-label="設定を閉じる">&#x2715;</button>
+      </div>
+      <div class="modal-body">
+        <div id="settings-gadgets-panel" class="gadgets-panel" data-gadget-group="settings"
+          aria-label="設定ガジェット"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ヘルプモーダル -->
+  <div id="help-modal" class="modal-overlay" style="display: none" role="dialog"
+    aria-labelledby="help-modal-title" aria-modal="true">
+    <div class="modal-dialog modal-dialog--large">
+      <div class="modal-header">
+        <h2 id="help-modal-title" data-i18n="HELP_TITLE">ヘルプ</h2>
+        <button class="modal-close" id="close-help-modal" aria-label="ヘルプを閉じる">&#x2715;</button>
+      </div>
+      <div class="modal-body" id="help-modal-body"></div>
+    </div>
+  </div>
+
   <!-- ツールバー再表示用FAB -->
   <button id="show-toolbar" class="fab-button fab-toggle-toolbar iconified" title="ツールバーを表示" aria-label="ツールバーを表示"
     aria-controls="toolbar" style="display: none">
@@ -498,6 +512,13 @@
   <script src="js/split-view.js"></script>
   <script src="js/command-palette.js"></script>
   <script src="js/app-editor-bridge.js"></script>
+  <script src="js/app-shortcuts.js"></script>
+  <script src="js/app-hud.js"></script>
+  <script src="js/app-settings-handlers.js"></script>
+  <script src="js/app-file-manager.js"></script>
+  <script src="js/app-ui-events.js"></script>
+  <script src="js/app-gadgets-init.js"></script>
+  <script src="js/app-autosave-api.js"></script>
   <script src="js/app.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>

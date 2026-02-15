@@ -318,80 +318,78 @@
     }
   ];
 
-  function register() {
-    if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;
+  var rendered = false;
 
-    window.ZWGadgets.register('Help', function (root) {
-      root.innerHTML = '';
-      root.style.display = 'flex';
-      root.style.flexDirection = 'column';
-      root.style.gap = '0';
-      root.style.maxHeight = '60vh';
+  function renderHelpModal() {
+    if (rendered) return;
+    var root = document.getElementById('help-modal-body');
+    if (!root) return;
 
-      // ナビゲーション部分
-      var nav = el('div', 'help-nav');
-      nav.style.display = 'flex';
-      nav.style.flexWrap = 'wrap';
-      nav.style.gap = '4px';
-      nav.style.marginBottom = '8px';
-      nav.style.paddingBottom = '8px';
-      nav.style.borderBottom = '1px solid var(--border-color)';
+    rendered = true;
+    root.innerHTML = '';
+    root.style.display = 'flex';
+    root.style.flexDirection = 'column';
+    root.style.gap = '0';
 
-      // コンテンツ表示部分
-      var contentArea = el('div', 'help-content');
-      contentArea.style.flex = '1';
-      contentArea.style.overflow = 'auto';
-      contentArea.style.fontSize = '13px';
-      contentArea.style.lineHeight = '1.6';
+    // ナビゲーション部分
+    var nav = el('div', 'help-nav');
+    nav.style.display = 'flex';
+    nav.style.flexWrap = 'wrap';
+    nav.style.gap = '4px';
+    nav.style.marginBottom = '8px';
+    nav.style.paddingBottom = '8px';
+    nav.style.borderBottom = '1px solid var(--border-color)';
 
-      var activeSection = null;
+    // コンテンツ表示部分
+    var contentArea = el('div', 'help-content');
+    contentArea.style.flex = '1';
+    contentArea.style.overflow = 'auto';
+    contentArea.style.fontSize = '13px';
+    contentArea.style.lineHeight = '1.6';
 
-      function showSection(section) {
-        if (activeSection === section.id) return;
-        activeSection = section.id;
+    var activeSection = null;
 
-        // ナビボタンのアクティブ状態を更新
-        nav.querySelectorAll('.help-nav-btn').forEach(function (btn) {
-          btn.classList.toggle('active', btn.dataset.section === section.id);
-        });
+    function showSection(section) {
+      if (activeSection === section.id) return;
+      activeSection = section.id;
 
-        // コンテンツを更新
-        contentArea.innerHTML = section.content();
-        try {
-          if (window.lucide && typeof window.lucide.createIcons === 'function') {
-            window.lucide.createIcons({ icons: window.lucide.icons, root: root });
-          }
-        } catch (_) { }
-        contentArea.scrollTop = 0;
-      }
-
-      // ナビゲーションボタンを生成
-      HELP_SECTIONS.forEach(function (section) {
-        var btn = el('button', 'help-nav-btn small');
-        btn.type = 'button';
-        btn.dataset.section = section.id;
-        btn.innerHTML = '<span class="help-nav-icon"><i data-lucide="' + section.icon + '" aria-hidden="true"></i></span><span class="help-nav-text">' + section.title + '</span>';
-        btn.title = section.title;
-        btn.addEventListener('click', function () {
-          showSection(section);
-        });
-        nav.appendChild(btn);
+      // ナビボタンのアクティブ状態を更新
+      nav.querySelectorAll('.help-nav-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.section === section.id);
       });
 
-      root.appendChild(nav);
-      root.appendChild(contentArea);
+      // コンテンツを更新
+      contentArea.innerHTML = section.content();
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons({ icons: window.lucide.icons, root: root });
+        }
+      } catch (_) { }
+      contentArea.scrollTop = 0;
+    }
 
-      // 初期表示
-      if (HELP_SECTIONS.length > 0) {
-        showSection(HELP_SECTIONS[0]);
-      }
-    }, { title: 'ヘルプ', groups: ['assist'] });
+    // ナビゲーションボタンを生成
+    HELP_SECTIONS.forEach(function (section) {
+      var btn = el('button', 'help-nav-btn small');
+      btn.type = 'button';
+      btn.dataset.section = section.id;
+      btn.innerHTML = '<span class="help-nav-icon"><i data-lucide="' + section.icon + '" aria-hidden="true"></i></span><span class="help-nav-text">' + section.title + '</span>';
+      btn.title = section.title;
+      btn.addEventListener('click', function () {
+        showSection(section);
+      });
+      nav.appendChild(btn);
+    });
+
+    root.appendChild(nav);
+    root.appendChild(contentArea);
+
+    // 初期表示
+    if (HELP_SECTIONS.length > 0) {
+      showSection(HELP_SECTIONS[0]);
+    }
   }
 
-  // 登録実行
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', register);
-  } else {
-    register();
-  }
+  // グローバルに公開（モーダル表示時にレンダリング）
+  window.ZenWriterHelpModal = { render: renderHelpModal };
 })();

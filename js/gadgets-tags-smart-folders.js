@@ -264,7 +264,7 @@
       el.textContent = 'タグ/スマートフォルダガジェットの初期化に失敗しました。';
     }
   }, { 
-    groups: ['wiki'], 
+    groups: ['structure'],
     title: 'タグ/スマートフォルダ' 
   });
 })();

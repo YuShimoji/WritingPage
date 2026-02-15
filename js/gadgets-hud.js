@@ -211,7 +211,7 @@
       console.error('HUDSettings gadget failed:', e);
       el.textContent = (window.UILabels && window.UILabels.HUD_INIT_FAILED) || 'HUD設定ガジェットの初期化に失敗しました。';
     }
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
+  }, { groups: ['settings'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
 
   // 登録後に再描画をトリガー
   if (window.ZWGadgets && typeof window.ZWGadgets._renderLast === 'function') {

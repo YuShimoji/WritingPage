@@ -32,7 +32,7 @@
   }, {
     // E2E が assist パネル上で Clock の存在を期待するため、既定は assist に配置する。
     // （過去はロードアウト/並び替えで移動できたが、既定配置は固定しておく）
-    groups: ['assist'],
+    groups: ['settings'],
     title: (window.UILabels && (window.UILabels.GADGET_CLOCK || window.UILabels.GADGET_CLOCK_TITLE)) || '時計',
   });
 

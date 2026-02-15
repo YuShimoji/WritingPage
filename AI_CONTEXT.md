@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-02-03T14:00:00+09:00
-- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed (実装確認済み)
+- 最終更新: 2026-02-07T20:30:00+09:00
+- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed, TASK_053: completed (実装確認済み)
 
 ## 中央ルール参照（SSOT）
 
@@ -70,6 +70,11 @@
   - 2025-12-17: PR #95 を squash merge し main へ反映。`npm run lint` / `npm run test:smoke` / `npm run test:e2e:ci` green
   - 2026-02-03: smoke test（dev-check.js）を最新UI（Typography/Wikiパネル、サイドバータブ、フローティングパネル）に対応。TASK_049 完了
   - 2026-02-03: OpenSpec changes をアーカイブ・整理（add-gadgets-modularization, add-lucide-icons, ui-stability-and-cleanup）。TASK_050 完了
+  - 2026-02-07: index.html のマージコンフリクトマーカー（`<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main`）を解消。旧バージョン（古いサイドバー/エディタ HTML）を除去し origin/main のモダン UI を保持。全 JS エラー解消、サイト正常動作を確認
+  - 2026-02-07: `scripts/capture-screenshots.js` を改修 — 日付別サブフォルダ出力（`YYYY-MM-DD/`）、タブ切替検証（`data-group`）、コンソールエラー検出、タブ名ファイル名含有。壊れたスクリーンショットを `2026-02-07-broken/` にアーカイブ
+  - 2026-02-09: TASK_047 Phase 1 — app.js から app-shortcuts.js / app-hud.js / app-settings-handlers.js / app-file-manager.js を抽出（2072行 → 1377行）。smoke ALL PASSED
+  - 2026-02-09: TASK_047 Phase 2 — app-ui-events.js を抽出（1377行 → 919行）。smoke ALL PASSED。P0/P1 全解消確認済み
+  - 2026-02-09: TASK_047 Phase 3 — app-gadgets-init.js / app-autosave-api.js 抽出 + 未使用関数削除（919行 → 462行、77.7%削減）。smoke ALL PASSED。TASK_047 完了
 - 次の中断可能点: 次タスク着手前
 
 ### アーカイブ済み（Issue #91, #今日）
@@ -117,7 +122,7 @@
 
 - 共有リポジトリ: `YuShimoji/shared-workflows`
   - 目的: 再利用可能な GitHub Actions ワークフローを提供
-  - 参照タグ: `v0.1.0`
+  - 参照タグ: `v2.0`
   - 提供ワークフロー:
     - `.github/workflows/ci-smoke.yml`（workflow_call）
 
@@ -158,12 +163,13 @@
 
 ## 参考
 
+- プロジェクト健全性: `docs/PROJECT_HEALTH.md`
+- タスク管理: `docs/tasks/README.md`
 - テスト方針: `docs/TESTING.md`
 - 利用手順: `docs/USAGE.md`
 - 埋め込みSDK: `docs/EMBED_TESTING.md`
 
 ## リスク/懸念
-
 - ルール適用の浸透（コントリビュータ周知）
 
 ## Backlog（将来提案）

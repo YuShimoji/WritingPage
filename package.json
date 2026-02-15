@@ -6,6 +6,8 @@
     "dev": "node scripts/dev-server.js",
     "dev:two": "node scripts/run-two-servers.js",
     "test:smoke": "node scripts/dev-check.js",
+    "test:ui:capture": "node scripts/capture-ui-verification.js",
+    "test:e2e:ui": "playwright test e2e/sidebar-layout.spec.js e2e/command-palette.spec.js e2e/gadgets.spec.js e2e/accessibility.spec.js",
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
     "test:puppeteer": "node scripts/puppeteer-test.js",

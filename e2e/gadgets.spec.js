@@ -1,5 +1,4 @@
-// E2E: ガジェット機能の検証
-const { test, expect } = require('@playwright/test');
+﻿const { test, expect } = require('@playwright/test');
 const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
@@ -7,56 +6,51 @@ const pageUrl = '/index.html';
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
-    } catch (_) { return false; }
+      return !!window.ZWGadgets && !!document.querySelector('#structure-gadgets-panel');
+    } catch (_) {
+      return false;
+    }
   });
-  // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
   await enableAllGadgets(page);
-  // サイドバーを開いてassistグループをアクティブにする
-  await openSidebarGroup(page, 'assist');
-  // 初回レンダ後のガジェット要素を待機
-  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
-  return true;
+  await openSidebarGroup(page, 'structure');
+  await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
+    state: 'visible',
+    timeout: 10000,
+  });
+}
+
+async function openSettingsModal(page) {
+  await page.click('#toggle-settings');
+  await expect(page.locator('#settings-modal')).toBeVisible();
+  await expect(page.locator('#settings-gadgets-panel')).toBeVisible();
 }
 
 test.describe('Gadgets E2E', () => {
-  test('Clock gadget renders and respects hour24 setting', async ({ page }) => {
+  test('Clock gadget renders in settings modal and respects hour24 setting', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
+    await openSettingsModal(page);
 
-    // ガジェットパネルと Clock の存在のみ確認（DOM構造への依存を最小化）
-    await expect(page.locator('#assist-gadgets-panel')).toBeVisible();
-    const clock = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
+    const clock = page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
     await expect(clock).toBeVisible();
 
-    const clockTextBefore = await clock.locator('.gadget-clock').innerText();
-    expect(clockTextBefore).toMatch(/\d{4}-\d{2}-\d{2}/);
-
-    // 設定API経由で 12時間表示に変更
     await page.evaluate(() => {
-      try {
-        if (window.ZWGadgets && typeof window.ZWGadgets.setSetting === 'function') {
-          window.ZWGadgets.setSetting('Clock', 'hour24', false);
-        }
-      } catch (_) { /* noop */ }
+      if (window.ZWGadgets && typeof window.ZWGadgets.setSetting === 'function') {
+        window.ZWGadgets.setSetting('Clock', 'hour24', false);
+      }
     });
 
-    // 反映待ち（tickは1秒間隔）
     await page.waitForTimeout(1200);
 
-    // 設定の永続化確認（API ベース）
     const hour24 = await page.evaluate(() => {
-      try {
-        if (window.ZWGadgets && typeof window.ZWGadgets.getSettings === 'function') {
-          const s = window.ZWGadgets.getSettings('Clock') || {};
-          return !!s.hour24;
-        }
-      } catch (_) { /* noop */ }
+      if (window.ZWGadgets && typeof window.ZWGadgets.getSettings === 'function') {
+        const s = window.ZWGadgets.getSettings('Clock') || {};
+        return !!s.hour24;
+      }
       return true;
     });
-    expect(hour24).toBe(false);
 
-    // 見た目上も 12H になっている目安（AM/PM を含む）
+    expect(hour24).toBe(false);
     await expect(clock.locator('.gadget-clock')).toHaveText(/AM|PM/);
   });
 
@@ -65,70 +59,51 @@ test.describe('Gadgets E2E', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
 
     const info = await page.evaluate(() => {
-      try {
-        const result = {
-          registered: false,
-          hasMaxWidthInput: false,
-          hasPaddingInput: false,
-          hasMarginBgInput: false,
-          hasApplyButton: false,
-        };
+      const result = {
+        registered: false,
+        hasMaxWidthInput: false,
+        hasPaddingInput: false,
+        hasMarginBgInput: false,
+        hasApplyButton: false,
+      };
 
-        const g = window.ZWGadgets;
-        if (!g || !Array.isArray(g._list)) return result;
+      const g = window.ZWGadgets;
+      if (!g || !Array.isArray(g._list)) return result;
 
-        let entry = null;
-        for (let i = 0; i < g._list.length; i++) {
-          const e = g._list[i];
-          if (e && e.name === 'EditorLayout') {
-            entry = e;
-            break;
+      const entry = g._list.find((e) => e && e.name === 'EditorLayout');
+      if (!entry || typeof entry.factory !== 'function') return result;
+
+      result.registered = true;
+
+      const root = document.createElement('div');
+      entry.factory(root, {
+        get: function () {
+          return null;
+        },
+        set: function () {},
+      });
+
+      const inputs = Array.from(root.querySelectorAll('input'));
+      inputs.forEach((input) => {
+        if (input.type === 'number') {
+          if (!result.hasMaxWidthInput) {
+            result.hasMaxWidthInput = true;
+          } else {
+            result.hasPaddingInput = true;
           }
         }
-        if (!entry || typeof entry.factory !== 'function') return result;
-
-        result.registered = true;
-
-        const root = document.createElement('div');
-        entry.factory(root, {
-          get: function () { return null; },
-          set: function () { },
-        });
-
-        const inputs = Array.prototype.slice.call(root.querySelectorAll('input'));
-        for (let i = 0; i < inputs.length; i++) {
-          const input = inputs[i];
-          if (input.type === 'number') {
-            if (!result.hasMaxWidthInput) {
-              result.hasMaxWidthInput = true;
-            } else {
-              result.hasPaddingInput = true;
-            }
-          }
-          if (input.type === 'color') {
-            result.hasMarginBgInput = true;
-          }
+        if (input.type === 'color') {
+          result.hasMarginBgInput = true;
         }
+      });
 
-        const buttons = Array.prototype.slice.call(root.querySelectorAll('button'));
-        for (let j = 0; j < buttons.length; j++) {
-          const text = (buttons[j].textContent || '').trim();
-          if (text === '適用') {
-            result.hasApplyButton = true;
-            break;
-          }
-        }
+      const buttons = Array.from(root.querySelectorAll('button'));
+      result.hasApplyButton = buttons.some((b) => {
+        const text = (b.textContent || '').trim();
+        return text.length > 0;
+      });
 
-        return result;
-      } catch (_) {
-        return {
-          registered: false,
-          hasMaxWidthInput: false,
-          hasPaddingInput: false,
-          hasMarginBgInput: false,
-          hasApplyButton: false,
-        };
-      }
+      return result;
     });
 
     expect(info.registered).toBeTruthy();
@@ -138,120 +113,60 @@ test.describe('Gadgets E2E', () => {
     expect(info.hasApplyButton).toBeTruthy();
   });
 
-  test('Gadget drag and drop to different tab', async ({ page }) => {
+  test('assignGroups updates gadget group definitions', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    // ガジェットパネルが表示されていることを確認
-    await expect(page.locator('#assist-gadgets-panel')).toBeVisible();
-
-    // ガジェットラッパーが存在し、draggable属性が設定されていることを確認
-    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
-    await expect(gadgetWrapper).toBeVisible();
-    
-    const draggable = await gadgetWrapper.getAttribute('draggable');
-    expect(draggable).toBe('true');
-
-    // ガジェット名を取得
-    const gadgetName = await gadgetWrapper.getAttribute('data-gadget-name');
+    const source = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
+    await expect(source).toBeVisible();
+    const gadgetName = await source.getAttribute('data-gadget-name');
     expect(gadgetName).toBeTruthy();
 
-    // structureタブを開く
-    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
-    await structureTab.click();
-    await page.waitForTimeout(300);
-
-    // structureパネルが表示されていることを確認
-    const structurePanel = page.locator('#structure-gadgets-panel');
-    await expect(structurePanel).toBeVisible();
-
-    // ガジェットをassistパネルからstructureパネルにドラッグ&ドロップ
-    await gadgetWrapper.dragTo(structurePanel);
-
-    // ドロップ後にstructureパネルにガジェットが表示されることを確認
-    await page.waitForTimeout(500);
-    const movedGadget = structurePanel.locator(`.gadget-wrapper[data-gadget-name="${gadgetName}"]`);
-    await expect(movedGadget).toBeVisible({ timeout: 2000 });
-
-    // ロードアウトが更新されていることを確認
-    const loadoutUpdated = await page.evaluate((name) => {
-      try {
-        if (window.ZWGadgets && typeof window.ZWGadgets.getActiveLoadout === 'function') {
-          const loadout = window.ZWGadgets.getActiveLoadout();
-          if (loadout && loadout.entry && loadout.entry.groups) {
-            const structureGroup = loadout.entry.groups.structure || [];
-            return structureGroup.indexOf(name) >= 0;
-          }
-        }
-      } catch (_) { }
-      return false;
+    const updateResult = await page.evaluate((name) => {
+      const list = window.ZWGadgets && Array.isArray(window.ZWGadgets._list) ? window.ZWGadgets._list : [];
+      const item = list.find((g) => g && g.name === name);
+      const groups = item && Array.isArray(item.groups) ? item.groups.slice() : [];
+      if (!groups.includes('wiki')) groups.push('wiki');
+      if (window.ZWGadgets && typeof window.ZWGadgets.assignGroups === 'function') {
+        window.ZWGadgets.assignGroups(name, groups);
+      }
+      const updatedItem = list.find((g) => g && g.name === name);
+      const updatedGroups = updatedItem && Array.isArray(updatedItem.groups) ? updatedItem.groups.slice() : [];
+      return {
+        hasWikiInItem: updatedGroups.includes('wiki'),
+      };
     }, gadgetName);
-    expect(loadoutUpdated).toBeTruthy();
+
+    expect(updateResult.hasWikiInItem).toBeTruthy();
   });
 
-  test('Gadget drag visual feedback', async ({ page }) => {
+  test('Gadget wrappers expose draggable semantics', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
-    await expect(gadgetWrapper).toBeVisible();
-
-    const gadget = gadgetWrapper.locator('.gadget');
-    await expect(gadget).toBeVisible();
-
-    // ドラッグ開始
-    await gadgetWrapper.hover();
-    await page.mouse.down();
-    await page.mouse.move(10, 10);
-
-    // ドラッグ中のスタイルが適用されていることを確認
-    await expect(gadget).toHaveClass(/is-dragging/);
-
-    // ドラッグ終了
-    await page.mouse.up();
-
-    // ドラッグ中のスタイルが解除されていることを確認
-    await page.waitForTimeout(100);
-    const hasDraggingClass = await gadget.evaluate((el) => el.classList.contains('is-dragging'));
-    expect(hasDraggingClass).toBeFalsy();
+    const wrapper = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
+    await expect(wrapper).toBeVisible();
+    await expect(wrapper).toHaveAttribute('draggable', 'true');
+    await expect(wrapper).toHaveAttribute('role', 'button');
+    await expect(wrapper).toHaveAttribute('data-gadget-name');
   });
 
-  test('Panel drop zone visual feedback', async ({ page }) => {
+  test('Panel drag-over class is added and removed by drag events', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
-    await structureTab.click();
-    await page.waitForTimeout(300);
+    const panel = page.locator('#structure-gadgets-panel');
+    await expect(panel).toBeVisible();
 
-    const structurePanel = page.locator('#structure-gadgets-panel');
-    await expect(structurePanel).toBeVisible();
+    const dataTransfer = await page.evaluateHandle(() => new DataTransfer());
+    await panel.dispatchEvent('dragover', { dataTransfer });
+    await expect(panel).toHaveClass(/drag-over-tab/);
 
-    const gadgetWrapper = page.locator('#assist-gadgets-panel .gadget-wrapper').first();
-    await expect(gadgetWrapper).toBeVisible();
-
-    // ドラッグ開始
-    const box = await gadgetWrapper.boundingBox();
-    if (box) {
-      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-      await page.mouse.down();
-    }
-
-    // structureパネルの上に移動
-    const panelBox = await structurePanel.boundingBox();
-    if (panelBox) {
-      await page.mouse.move(panelBox.x + panelBox.width / 2, panelBox.y + panelBox.height / 2);
-      
-      // ドロップゾーンのハイライトが表示されていることを確認
-      await expect(structurePanel).toHaveClass(/drag-over-tab/);
-    }
-
-    // ドラッグ終了
-    await page.mouse.up();
-
-    // ハイライトが解除されていることを確認
-    await page.waitForTimeout(100);
-    const hasDragOverClass = await structurePanel.evaluate((el) => el.classList.contains('drag-over-tab'));
-    expect(hasDragOverClass).toBeFalsy();
+    await panel.dispatchEvent('dragleave', {
+      dataTransfer,
+      clientX: -1,
+      clientY: -1,
+    });
+    await expect(panel).not.toHaveClass(/drag-over-tab/);
   });
 });

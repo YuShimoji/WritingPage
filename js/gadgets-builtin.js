@@ -507,7 +507,7 @@
       console.error('Documents gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
 
   // TypographyThemes gadget (個別ファイル化済み - gadgets-typography.js)
 

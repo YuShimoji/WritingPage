@@ -65,7 +65,7 @@
   // Constants
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
-  var KNOWN_GROUPS = ['structure', 'wiki', 'assist', 'typography'];
+  var KNOWN_GROUPS = ['structure', 'wiki', 'assist', 'typography', 'settings'];
 
   // ガジェットグループ定義（フェーズC-1: データ属性ベースの安定セレクタ）
   // グループ名→メタデータのマッピング
@@ -93,6 +93,12 @@
       label: 'アシスト',
       panelSelector: '[data-gadget-group="assist"]',
       sectionSelector: '[data-group="assist"]'
+    },
+    settings: {
+      id: 'settings',
+      label: '設定',
+      panelSelector: '[data-gadget-group="settings"]',
+      sectionSelector: '[data-group="settings"]'
     }
   };
 
@@ -153,10 +159,11 @@
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents', 'Outline', 'EditorLayout'],
-          assist: ['HUDSettings', 'Clock'],
-          typography: ['Themes', 'Typography', 'VisualProfile'],
-          wiki: ['Wiki']
+          structure: ['Documents', 'Outline', 'SnapshotManager', 'TagsAndSmartFolders'],
+          assist: [],
+          typography: [],
+          wiki: ['StoryWiki'],
+          settings: ['Themes', 'Typography', 'VisualProfile', 'EditorLayout', 'HUDSettings', 'Clock', 'WritingGoal']
         }
       }
     }

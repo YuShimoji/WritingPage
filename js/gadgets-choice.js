@@ -39,6 +39,6 @@
       wrap.appendChild(makeBtn((window.UILabels && window.UILabels.BTN_JUMP) || 'ジャンプ', insertJump));
       el.appendChild(wrap);
     } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.CHOICE_TOOL_INIT_FAILED) || '選択肢ツールの初期化に失敗しました。'; } catch (_) { } }
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_CHOICE_TITLE) || '選択肢' });
+  }, { groups: ['settings'], title: (window.UILabels && window.UILabels.GADGET_CHOICE_TITLE) || '選択肢' });
 
 })();

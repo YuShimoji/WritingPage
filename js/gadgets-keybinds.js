@@ -272,7 +272,7 @@
     }
   }, {
     title: (window.UILabels && window.UILabels.KEYBINDS_GADGET_TITLE) || 'キーボードショートカット',
-    groups: ['assist']
+    groups: ['settings']
   });
 
 })();

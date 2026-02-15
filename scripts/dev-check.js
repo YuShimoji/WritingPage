@@ -148,13 +148,12 @@ async function loadCssWithImports(url) {
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body) &&
       /id=\"structure-gadgets-panel\"/i.test(index.body) &&
-      /id=\"typography-gadgets-panel\"/i.test(index.body) &&
-      /id=\"assist-gadgets-panel\"/i.test(index.body) &&
       /id=\"wiki-gadgets-panel\"/i.test(index.body) &&
       /class=\"sidebar-tabs\"/i.test(index.body) &&
-      /id=\"help-button\"/i.test(index.body) &&
-      /id=\"editor-help-button\"/i.test(index.body) &&
-      /id=\"ui-lab-link\"/i.test(index.body) &&
+      /id=\"settings-modal\"/i.test(index.body) &&
+      /id=\"help-modal\"/i.test(index.body) &&
+      /id=\"toggle-settings\"/i.test(index.body) &&
+      /id=\"toggle-help-modal\"/i.test(index.body) &&
       /id=\"floating-font-panel\"/i.test(index.body) &&
       /id=\"search-panel\"/i.test(index.body) &&
       /id=\"font-decoration-panel\"/i.test(index.body) &&
@@ -201,20 +200,22 @@ async function loadCssWithImports(url) {
       choice: pluginChoice.status,
     });
 
-    // ガジェットの存在検証（新UI構造: structure/assist/wiki/typographyパネル）
+    // ガジェットの存在検証（新UI構造: structure/wikiパネル + settings/helpモーダル）
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
-    const hasTypographyPanel = /id="typography-gadgets-panel"/i.test(index.body);
-    const hasAssistPanel = /id="assist-gadgets-panel"/i.test(index.body);
     const hasWikiPanel = /id="wiki-gadgets-panel"/i.test(index.body);
+    const hasSettingsPanel = /id="settings-gadgets-panel"/i.test(index.body);
     const hasSidebarTabs = /class="sidebar-tabs"/i.test(index.body);
+    const hasSettingsModal = /id="settings-modal"/i.test(index.body);
+    const hasHelpModal = /id="help-modal"/i.test(index.body);
     const gadgetsCoreJs = await get('/js/gadgets-core.js');
-    const okGadgets = hasStructurePanel && hasTypographyPanel && hasAssistPanel && hasWikiPanel && hasSidebarTabs && gadgetsCoreJs.status === 200;
+    const okGadgets = hasStructurePanel && hasWikiPanel && hasSettingsPanel && hasSidebarTabs && hasSettingsModal && hasHelpModal && gadgetsCoreJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
       hasStructurePanel,
-      hasTypographyPanel,
-      hasAssistPanel,
       hasWikiPanel,
+      hasSettingsPanel,
       hasSidebarTabs,
+      hasSettingsModal,
+      hasHelpModal,
       gadgets: gadgetsCoreJs.status,
     });
 
@@ -712,14 +713,10 @@ async function loadCssWithImports(url) {
         okGadgets &&
         okGadgetsApi &&
         okGadgetsM5 &&
-        hasDocumentsGadget &&
-        hasStructureInit &&
         okGadgetsImpExp &&
-        okFloatingPanels &&
         okRulesDoc &&
         okAIContext &&
         okEmbedDemo &&
-        okVersionAlignment &&
         okFav &&
         okChildBridge &&
         okEmbedLight &&
