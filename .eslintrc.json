@@ -4,6 +4,11 @@
     "es2021": true
   },
   "extends": ["eslint:recommended"],
+  "ignorePatterns": [
+    ".shared-workflows/**",
+    "node_modules/**",
+    "*.min.js"
+  ],
   "parserOptions": {
     "ecmaVersion": 2021,
     "sourceType": "script"
@@ -11,8 +16,19 @@
   "rules": {
     "no-empty": ["error", { "allowEmptyCatch": true }],
     "no-inner-declarations": "off",
-    "no-unused-vars": ["error", { "args": "after-used", "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
-    "quotes": ["error", "single", { "avoidEscape": true, "allowTemplateLiterals": true }],
+    "no-unused-vars": [
+      "error",
+      {
+        "args": "after-used",
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "quotes": [
+      "error",
+      "single",
+      { "avoidEscape": true, "allowTemplateLiterals": true }
+    ],
     "semi": ["error", "always"]
   }
 }

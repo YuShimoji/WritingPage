@@ -1,0 +1,8 @@
+# Submodule - managed separately
+.shared-workflows/**
+
+# Dependencies
+node_modules/**
+
+# Minified files
+*.min.js
