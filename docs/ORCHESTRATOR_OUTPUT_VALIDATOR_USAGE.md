@@ -16,6 +16,7 @@
 Orchestratorのチャット出力が固定5セクション形式（現状、次のアクション、ガイド、メタプロンプト再投入条件、改善提案）を守っているか検証します。
 
 **検証項目**:
+
 - 必須セクションの存在確認（5セクションすべて）
 - セクションの順序確認
 - 「次のアクション」セクションにユーザー返信テンプレ（完了判定 + 選択肢1-3）が含まれているか
@@ -53,7 +54,9 @@ cat orchestrator-output.txt | node scripts/orchestrator-output-validator.js
 **使用例（Node.jsスクリプト内）**:
 
 ```javascript
-const { validateOrchestratorOutput } = require('./scripts/orchestrator-output-validator.js');
+const {
+  validateOrchestratorOutput,
+} = require('./scripts/orchestrator-output-validator.js');
 
 // Orchestrator出力を検証
 const output = `## 現状\n...\n## 次のアクション\n...`;
@@ -124,20 +127,22 @@ Orchestratorのチャット出力は、以下の5セクションをこの順番�
 既存のスクリプト（例: `orchestrator-audit.js`）と統合する場合:
 
 ```javascript
-const { validateOrchestratorOutput } = require('./scripts/orchestrator-output-validator.js');
+const {
+  validateOrchestratorOutput,
+} = require('./scripts/orchestrator-output-validator.js');
 const fs = require('fs');
 
 function validateOrchestratorReport(reportPath) {
   const content = fs.readFileSync(reportPath, 'utf8');
   const result = validateOrchestratorOutput(content);
-  
+
   if (!result.valid) {
     console.error('Orchestrator出力の検証に失敗しました');
-    result.errors.forEach(err => console.error(`  ERROR: ${err}`));
-    result.warnings.forEach(warn => console.warn(`  WARN: ${warn}`));
+    result.errors.forEach((err) => console.error(`  ERROR: ${err}`));
+    result.warnings.forEach((warn) => console.warn(`  WARN: ${warn}`));
     return false;
   }
-  
+
   return true;
 }
 ```
@@ -151,7 +156,8 @@ function validateOrchestratorReport(reportPath) {
 **ワークフローファイル**: `.github/workflows/orchestrator-output-validator.yml`
 
 **トリガー**:
-- `push`: main, develop, feat/** ブランチへの push
+
+- `push`: main, develop, feat/\*\* ブランチへの push
 - `pull_request`: PR 作成時
 - `workflow_dispatch`: 手動実行
 
@@ -170,6 +176,7 @@ function validateOrchestratorReport(reportPath) {
 **使用例（workflow_dispatch）**:
 
 GitHub Actions の UI から手動実行する場合:
+
 1. Actions タブを開く
 2. "Orchestrator Output Validator" ワークフローを選択
 3. "Run workflow" をクリック
@@ -189,6 +196,7 @@ GitHub Actions の UI から手動実行する場合:
 **権限**:
 
 ワークフローは以下の権限を使用します:
+
 - `pull-requests: read`: PR コメントを取得するため
 - `issues: read`: Issue コメントを取得するため（将来の拡張用）
 

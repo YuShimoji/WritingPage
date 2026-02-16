@@ -312,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             syncHudQuickControls
         });
     }
-    function toggleFeedbackPanel() {
+    function _toggleFeedbackPanel() {
         if (appUIEvents) appUIEvents.toggleFeedbackPanel();
     }
 

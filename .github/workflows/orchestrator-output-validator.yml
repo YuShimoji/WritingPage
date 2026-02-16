@@ -61,11 +61,11 @@ jobs:
               issue_number: context.issue.number,
               per_page: 100
             });
-            
+
             // 最新のコメントを取得（Orchestrator の出力として想定）
             // コメントが空の場合は null を返す
             const latestComment = comments.length > 0 ? comments[comments.length - 1].body : null;
-            
+
             if (latestComment) {
               // コメントを一時ファイルに保存
               const fs = require('fs');
@@ -76,7 +76,7 @@ jobs:
             } else {
               console.log('PR コメントが見つかりませんでした');
             }
-            
+
             return latestComment ? 'found' : 'not_found';
 
       - name: Run orchestrator-output-validator

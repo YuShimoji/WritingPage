@@ -1,4 +1,4 @@
-﻿# AI_CONTEXT — 開発プロトコルと自律的再開のための前提情報
+# AI_CONTEXT — 開発プロトコルと自律的再開のための前提情報
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
@@ -195,7 +195,7 @@
 
 - ✅ gadgets.js モジュール化完了（core/utils/loadouts/init/builtin に分割）
 - ✅ TypographyThemes ガジェットを Themes/Typography/VisualProfile に分割
-- ✅ 旧 gadgets.js を js/_legacy/ にアーカイブ
+- ✅ 旧 gadgets.js を js/\_legacy/ にアーカイブ
 - ✅ dev-check.js を新モジュール構造に対応
 - ✅ ドキュメント更新（GADGETS.md, VISUAL_PROFILE.md, REFACTORING_PLAN.md）
 - ✅ フェーズ C/D 完了（サイドバー構造安定化、HUD拡張）

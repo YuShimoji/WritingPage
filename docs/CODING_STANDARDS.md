@@ -27,6 +27,7 @@
 ESLintの設定は `.eslintrc.js` に記載されています。
 
 **主要な設定:**
+
 - 環境: Browser, ES2020, Node.js
 - 推奨ルール: `eslint:recommended` を継承
 - カスタムルール:
@@ -35,6 +36,7 @@ ESLintの設定は `.eslintrc.js` に記載されています。
   - 未使用変数の検出（`_`で始まる引数は除外）
 
 **除外パターン:**
+
 - `node_modules/`
 - `test-results/`
 - `playwright-report/`
@@ -45,6 +47,7 @@ ESLintの設定は `.eslintrc.js` に記載されています。
 Prettierの設定は `.prettierrc` に記載されています。
 
 **主要な設定:**
+
 - セミコロン: あり
 - クォート: シングルクォート
 - タブ幅: 2スペース

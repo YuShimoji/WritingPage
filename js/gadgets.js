@@ -1,13 +1,13 @@
-(function(){
+(function () {
   'use strict';
 
-  function ready(fn){
+  function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });
     else fn();
   }
 
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
-  function loadPrefs(){
+  function loadPrefs() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
       var p = raw ? JSON.parse(raw) : null;
@@ -16,104 +16,104 @@
       if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
       if (!p.settings || typeof p.settings !== 'object') p.settings = {};
       return p;
-    } catch(_) { return { order: [], collapsed: {}, settings: {} }; }
+    } catch (_) { return { order: [], collapsed: {}, settings: {} }; }
   }
-  function savePrefs(p){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p||{})); } catch(_) {}
+  function savePrefs(p) {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p || {})); } catch (_) { }
   }
 
   var ZWGadgets = {
     _list: [],
     _settings: {},
-    register: function(name, factory){
-      try { this._list.push({ name: String(name||''), factory: factory }); } catch(_) {}
+    register: function (name, factory) {
+      try { this._list.push({ name: String(name || ''), factory: factory }); } catch (_) { }
     },
-    registerSettings: function(name, factory){
-      try { this._settings[String(name||'')] = factory; } catch(_) {}
+    registerSettings: function (name, factory) {
+      try { this._settings[String(name || '')] = factory; } catch (_) { }
     },
-    getPrefs: function(){ return loadPrefs(); },
-    setPrefs: function(p){ savePrefs(p||{ order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch(_) {} },
-    getSettings: function(name){ try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch(_) { return {}; } },
-    setSetting: function(name, key, value){
+    getPrefs: function () { return loadPrefs(); },
+    setPrefs: function (p) { savePrefs(p || { order: [], collapsed: {}, settings: {} }); try { this._renderLast && this._renderLast(); } catch (_) { } },
+    getSettings: function (name) { try { var p = loadPrefs(); return (p.settings && p.settings[name]) || {}; } catch (_) { return {}; } },
+    setSetting: function (name, key, value) {
       try {
         var p = loadPrefs();
         p.settings = p.settings || {};
         var s = p.settings[name] = p.settings[name] || {};
         s[key] = value;
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
-      } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
+      } catch (_) { }
     },
-    exportPrefs: function(){
+    exportPrefs: function () {
       try {
         var p = loadPrefs();
         return JSON.stringify(p || { order: [], collapsed: {}, settings: {} }, null, 2);
-      } catch(_) { return '{}'; }
+      } catch (_) { return '{}'; }
     },
-    importPrefs: function(obj){
+    importPrefs: function (obj) {
       try {
         var p = obj;
-        if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch(e){ return false; } }
+        if (typeof obj === 'string') { try { p = JSON.parse(obj); } catch (e) { return false; } }
         if (!p || typeof p !== 'object') return false;
         if (!Array.isArray(p.order)) p.order = [];
         if (!p.collapsed || typeof p.collapsed !== 'object') p.collapsed = {};
         if (!p.settings || typeof p.settings !== 'object') p.settings = {};
         savePrefs({ order: p.order, collapsed: p.collapsed, settings: p.settings });
-        try { this._renderLast && this._renderLast(); } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
         return true;
-      } catch(_) { return false; }
+      } catch (_) { return false; }
     },
-    move: function(name, dir){
+    move: function (name, dir) {
       try {
         var p = loadPrefs();
-        var names = this._list.map(function(x){ return x.name||''; });
+        var names = this._list.map(function (x) { return x.name || ''; });
         // build effective order
         var eff = [];
-        for (var i=0;i<p.order.length;i++){ if (names.indexOf(p.order[i])>=0 && eff.indexOf(p.order[i])<0) eff.push(p.order[i]); }
-        for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
+        for (var i = 0; i < p.order.length; i++) { if (names.indexOf(p.order[i]) >= 0 && eff.indexOf(p.order[i]) < 0) eff.push(p.order[i]); }
+        for (var j = 0; j < names.length; j++) { if (eff.indexOf(names[j]) < 0) eff.push(names[j]); }
         var idx = eff.indexOf(name);
-        if (idx<0) return;
-        if (dir==='up' && idx>0){ var t=eff[idx-1]; eff[idx-1]=eff[idx]; eff[idx]=t; }
-        if (dir==='down' && idx<eff.length-1){ var t2=eff[idx+1]; eff[idx+1]=eff[idx]; eff[idx]=t2; }
+        if (idx < 0) return;
+        if (dir === 'up' && idx > 0) { var t = eff[idx - 1]; eff[idx - 1] = eff[idx]; eff[idx] = t; }
+        if (dir === 'down' && idx < eff.length - 1) { var t2 = eff[idx + 1]; eff[idx + 1] = eff[idx]; eff[idx] = t2; }
         p.order = eff;
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
-      } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
+      } catch (_) { }
     },
-    toggle: function(name){
+    toggle: function (name) {
       try {
         var p = loadPrefs();
         p.collapsed = p.collapsed || {};
         p.collapsed[name] = !p.collapsed[name];
         savePrefs(p);
-        try { this._renderLast && this._renderLast(); } catch(_) {}
-      } catch(_) {}
+        try { this._renderLast && this._renderLast(); } catch (_) { }
+      } catch (_) { }
     },
-    init: function(selector){
+    init: function (selector) {
       var self = this;
       var sel = selector || '#gadgets-panel';
       var root = document.querySelector(sel);
       if (!root) return;
 
-      function buildOrder(){
+      function buildOrder() {
         var p = loadPrefs();
-        var names = self._list.map(function(x){ return x.name||''; });
+        var names = self._list.map(function (x) { return x.name || ''; });
         var eff = [];
-        for (var i=0;i<p.order.length;i++){ if (names.indexOf(p.order[i])>=0 && eff.indexOf(p.order[i])<0) eff.push(p.order[i]); }
-        for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
+        for (var i = 0; i < p.order.length; i++) { if (names.indexOf(p.order[i]) >= 0 && eff.indexOf(p.order[i]) < 0) eff.push(p.order[i]); }
+        for (var j = 0; j < names.length; j++) { if (eff.indexOf(names[j]) < 0) eff.push(names[j]); }
         return { order: eff, prefs: p };
       }
 
-      function render(){
+      function render() {
         var state = buildOrder();
         var order = state.order, prefs = state.prefs;
         // clear
         while (root.firstChild) root.removeChild(root.firstChild);
         // render all
-        for (var k=0; k<order.length; k++){
+        for (var k = 0; k < order.length; k++) {
           var name = order[k];
           var g = null;
-          for (var t=0; t<self._list.length; t++){ if ((self._list[t].name||'')===name){ g=self._list[t]; break; } }
+          for (var t = 0; t < self._list.length; t++) { if ((self._list[t].name || '') === name) { g = self._list[t]; break; } }
           if (!g) continue;
           try {
             var wrap = document.createElement('section');
@@ -123,14 +123,14 @@
 
             var head = document.createElement('div');
             head.className = 'gadget-head';
-            var toggleBtn = document.createElement('button'); toggleBtn.type='button'; toggleBtn.className='gadget-toggle'; toggleBtn.textContent = (prefs.collapsed[name] ? '▶' : '▼');
-            var title = document.createElement('h4'); title.className='gadget-title'; title.textContent = name;
-            var upBtn = document.createElement('button'); upBtn.type='button'; upBtn.className='gadget-move-up small'; upBtn.textContent='↑'; upBtn.title='上へ';
-            var downBtn = document.createElement('button'); downBtn.type='button'; downBtn.className='gadget-move-down small'; downBtn.textContent='↓'; downBtn.title='下へ';
+            var toggleBtn = document.createElement('button'); toggleBtn.type = 'button'; toggleBtn.className = 'gadget-toggle'; toggleBtn.textContent = (prefs.collapsed[name] ? '▶' : '▼');
+            var title = document.createElement('h4'); title.className = 'gadget-title'; title.textContent = name;
+            var upBtn = document.createElement('button'); upBtn.type = 'button'; upBtn.className = 'gadget-move-up small'; upBtn.textContent = '↑'; upBtn.title = '上へ';
+            var downBtn = document.createElement('button'); downBtn.type = 'button'; downBtn.className = 'gadget-move-down small'; downBtn.textContent = '↓'; downBtn.title = '下へ';
             var settingsBtn = null;
-            if (self._settings[name]){
+            if (self._settings[name]) {
               settingsBtn = document.createElement('button');
-              settingsBtn.type='button'; settingsBtn.className='gadget-settings-btn small'; settingsBtn.title='設定'; settingsBtn.textContent='⚙';
+              settingsBtn.type = 'button'; settingsBtn.className = 'gadget-settings-btn small'; settingsBtn.title = '設定'; settingsBtn.textContent = '⚙';
             }
             head.appendChild(toggleBtn); head.appendChild(title);
             if (settingsBtn) head.appendChild(settingsBtn);
@@ -145,89 +145,93 @@
             if (typeof g.factory === 'function') {
               try {
                 var api = {
-                  get: function(key, d){ var s = self.getSettings(name); return (key in s) ? s[key] : d; },
-                  set: function(key, val){ self.setSetting(name, key, val); },
-                  prefs: function(){ return self.getPrefs(); },
-                  refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
+                  get: function (key, d) { var s = self.getSettings(name); return (key in s) ? s[key] : d; },
+                  set: function (key, val) { self.setSetting(name, key, val); },
+                  prefs: function () { return self.getPrefs(); },
+                  refresh: function () { try { self._renderLast && self._renderLast(); } catch (_) { } }
                 };
                 g.factory(body, api);
-              } catch(e){ /* ignore gadget error */ }
+              } catch (e) { /* ignore gadget error */ }
             }
 
             // events
-            toggleBtn.addEventListener('click', function(n, b, btn){ return function(){
-              try {
-                var p = loadPrefs(); p.collapsed = p.collapsed||{}; p.collapsed[n] = !p.collapsed[n]; savePrefs(p);
-                btn.textContent = (p.collapsed[n] ? '▶' : '▼');
-                b.style.display = p.collapsed[n] ? 'none' : '';
-              } catch(_) {}
-            }; }(name, body, toggleBtn));
+            toggleBtn.addEventListener('click', function (n, b, btn) {
+              return function () {
+                try {
+                  var p = loadPrefs(); p.collapsed = p.collapsed || {}; p.collapsed[n] = !p.collapsed[n]; savePrefs(p);
+                  btn.textContent = (p.collapsed[n] ? '▶' : '▼');
+                  b.style.display = p.collapsed[n] ? 'none' : '';
+                } catch (_) { }
+              };
+            }(name, body, toggleBtn));
 
-            upBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'up'); }; }(name));
-            downBtn.addEventListener('click', function(n){ return function(){ self.move(n, 'down'); }; }(name));
+            upBtn.addEventListener('click', function (n) { return function () { self.move(n, 'up'); }; }(name));
+            downBtn.addEventListener('click', function (n) { return function () { self.move(n, 'down'); }; }(name));
 
             // settings panel
-            if (settingsBtn){
-              var panel = document.createElement('div'); panel.className='gadget-settings'; panel.style.display='none';
+            if (settingsBtn) {
+              var panel = document.createElement('div'); panel.className = 'gadget-settings'; panel.style.display = 'none';
               wrap.appendChild(panel);
-              settingsBtn.addEventListener('click', function(n, p, btn){ return function(){
-                try {
-                  var visible = p.style.display !== 'none';
-                  p.style.display = visible ? 'none' : '';
-                  if (!visible){
-                    // render settings lazily
-                    try {
-                      p.innerHTML = '';
-                      var sApi = {
-                        get: function(key, d){ var s = self.getSettings(n); return (key in s) ? s[key] : d; },
-                        set: function(key, val){ self.setSetting(n, key, val); },
-                        prefs: function(){ return self.getPrefs(); },
-                        refresh: function(){ try { self._renderLast && self._renderLast(); } catch(_) {} }
-                      };
-                      self._settings[n](p, sApi);
-                    } catch(_) {}
-                  }
-                } catch(_) {}
-              }; }(name, panel, settingsBtn));
+              settingsBtn.addEventListener('click', function (n, p, _btn) {
+                return function () {
+                  try {
+                    var visible = p.style.display !== 'none';
+                    p.style.display = visible ? 'none' : '';
+                    if (!visible) {
+                      // render settings lazily
+                      try {
+                        p.innerHTML = '';
+                        var sApi = {
+                          get: function (key, d) { var s = self.getSettings(n); return (key in s) ? s[key] : d; },
+                          set: function (key, val) { self.setSetting(n, key, val); },
+                          prefs: function () { return self.getPrefs(); },
+                          refresh: function () { try { self._renderLast && self._renderLast(); } catch (_) { } }
+                        };
+                        self._settings[n](p, sApi);
+                      } catch (_) { }
+                    }
+                  } catch (_) { }
+                };
+              }(name, panel, settingsBtn));
             }
 
             // drag and drop reorder
-            wrap.addEventListener('dragstart', function(ev){ try { wrap.classList.add('is-dragging'); ev.dataTransfer.setData('text/gadget-name', name); ev.dataTransfer.effectAllowed='move'; } catch(_) {} });
-            wrap.addEventListener('dragend', function(){ try { wrap.classList.remove('is-dragging'); } catch(_) {} });
-            wrap.addEventListener('dragover', function(ev){ try { ev.preventDefault(); ev.dataTransfer.dropEffect='move'; wrap.classList.add('drag-over'); } catch(_) {} });
-            wrap.addEventListener('dragleave', function(){ try { wrap.classList.remove('drag-over'); } catch(_) {} });
-            wrap.addEventListener('drop', function(ev){
+            wrap.addEventListener('dragstart', function (ev) { try { wrap.classList.add('is-dragging'); ev.dataTransfer.setData('text/gadget-name', name); ev.dataTransfer.effectAllowed = 'move'; } catch (_) { } });
+            wrap.addEventListener('dragend', function () { try { wrap.classList.remove('is-dragging'); } catch (_) { } });
+            wrap.addEventListener('dragover', function (ev) { try { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; wrap.classList.add('drag-over'); } catch (_) { } });
+            wrap.addEventListener('dragleave', function () { try { wrap.classList.remove('drag-over'); } catch (_) { } });
+            wrap.addEventListener('drop', function (ev) {
               try {
                 ev.preventDefault();
                 wrap.classList.remove('drag-over');
                 var src = '';
-                try { src = ev && ev.dataTransfer && ev.dataTransfer.getData && ev.dataTransfer.getData('text/gadget-name') || ''; } catch(_) {}
+                try { src = ev && ev.dataTransfer && ev.dataTransfer.getData && ev.dataTransfer.getData('text/gadget-name') || ''; } catch (_) { }
                 // Fallback when DataTransfer is not populated (e.g., headless automation)
                 if (!src) {
                   try {
                     var dragging = root && root.querySelector ? root.querySelector('.gadget.is-dragging') : null;
                     if (dragging && dragging.dataset && dragging.dataset.name) src = dragging.dataset.name;
-                  } catch(_) {}
+                  } catch (_) { }
                 }
                 var dst = name;
-                if (!src || !dst || src===dst) return;
+                if (!src || !dst || src === dst) return;
                 var p = loadPrefs();
-                var names = self._list.map(function(x){ return x.name||''; });
+                var names = self._list.map(function (x) { return x.name || ''; });
                 var eff = [];
-                for (var i=0;i<p.order.length;i++){ if (names.indexOf(p.order[i])>=0 && eff.indexOf(p.order[i])<0) eff.push(p.order[i]); }
-                for (var j=0;j<names.length;j++){ if (eff.indexOf(names[j])<0) eff.push(names[j]); }
+                for (var i = 0; i < p.order.length; i++) { if (names.indexOf(p.order[i]) >= 0 && eff.indexOf(p.order[i]) < 0) eff.push(p.order[i]); }
+                for (var j = 0; j < names.length; j++) { if (eff.indexOf(names[j]) < 0) eff.push(names[j]); }
                 var sIdx = eff.indexOf(src), dIdx = eff.indexOf(dst);
-                if (sIdx<0 || dIdx<0) return;
+                if (sIdx < 0 || dIdx < 0) return;
                 // move src before dst
-                eff.splice(dIdx, 0, eff.splice(sIdx,1)[0]);
+                eff.splice(dIdx, 0, eff.splice(sIdx, 1)[0]);
                 p.order = eff;
                 savePrefs(p);
-                try { self._renderLast && self._renderLast(); } catch(_) {}
-              } catch(_) {}
+                try { self._renderLast && self._renderLast(); } catch (_) { }
+              } catch (_) { }
             });
 
             root.appendChild(wrap);
-          } catch(e) { /* ignore per gadget */ }
+          } catch (e) { /* ignore per gadget */ }
         }
       }
 
@@ -237,87 +241,87 @@
   };
 
   // expose
-  try { window.ZWGadgets = ZWGadgets; } catch(_) {}
+  try { window.ZWGadgets = ZWGadgets; } catch (_) { }
 
   // Default gadget: Clock
-  ZWGadgets.register('Clock', function(el, api){
+  ZWGadgets.register('Clock', function (el, api) {
     try {
       var time = document.createElement('div');
       time.className = 'gadget-clock';
       el.appendChild(time);
-      function tick(){
+      function tick() {
         try {
           var d = new Date();
-          var z = function(n){ return (n<10?'0':'')+n };
-          var hour24 = api && typeof api.get==='function' ? !!api.get('hour24', true) : true;
+          var z = function (n) { return (n < 10 ? '0' : '') + n; };
+          var hour24 = api && typeof api.get === 'function' ? !!api.get('hour24', true) : true;
           var h = d.getHours();
           var ap = '';
-          if (!hour24){ ap = (h>=12?' PM':' AM'); h = h%12; if (h===0) h = 12; }
-          var s = d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate()) + ' ' + (hour24? z(h) : (h<10?' '+h:h)) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()) + (hour24?'':ap);
+          if (!hour24) { ap = (h >= 12 ? ' PM' : ' AM'); h = h % 12; if (h === 0) h = 12; }
+          var s = d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + ' ' + (hour24 ? z(h) : (h < 10 ? ' ' + h : h)) + ':' + z(d.getMinutes()) + ':' + z(d.getSeconds()) + (hour24 ? '' : ap);
           time.textContent = s;
-        } catch(_) {}
+        } catch (_) { }
       }
       tick();
       var id = setInterval(tick, 1000);
-      try { el.addEventListener('removed', function(){ clearInterval(id); }); } catch(_) {}
-      try { window.addEventListener('beforeunload', function(){ clearInterval(id); }, { once: true }); } catch(_) {}
-    } catch(_) {}
+      try { el.addEventListener('removed', function () { clearInterval(id); }); } catch (_) { }
+      try { window.addEventListener('beforeunload', function () { clearInterval(id); }, { once: true }); } catch (_) { }
+    } catch (_) { }
   });
 
   // Clock settings UI
-  ZWGadgets.registerSettings('Clock', function(el, ctx){
+  ZWGadgets.registerSettings('Clock', function (el, ctx) {
     try {
-      var row = document.createElement('label'); row.style.display='flex'; row.style.alignItems='center'; row.style.gap='6px';
-      var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = !!ctx.get('hour24', true);
+      var row = document.createElement('label'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '6px';
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!ctx.get('hour24', true);
       var txt = document.createElement('span'); txt.textContent = '24時間表示';
-      cb.addEventListener('change', function(){ try { ctx.set('hour24', !!cb.checked); } catch(_) {} });
+      cb.addEventListener('change', function () { try { ctx.set('hour24', !!cb.checked); } catch (_) { } });
       row.appendChild(cb); row.appendChild(txt);
       el.appendChild(row);
-    } catch(_) {}
+    } catch (_) { }
   });
 
   // auto-init when DOM ready
-  ready(function(){
-    try { ZWGadgets.init('#gadgets-panel'); } catch(_) {}
+  ready(function () {
+    try { ZWGadgets.init('#gadgets-panel'); } catch (_) { }
     // Wire import/export controls if present
     try {
       var expBtn = document.getElementById('gadget-export');
       var impBtn = document.getElementById('gadget-import');
       var inp = document.getElementById('gadget-prefs-input');
       if (expBtn) {
-        expBtn.addEventListener('click', function(){
+        expBtn.addEventListener('click', function () {
           try {
             var json = ZWGadgets.exportPrefs();
             var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
             var d = new Date();
-            var pad = function(n){ return (n<10?'0':'')+n; };
-            var name = 'gadgets_prefs_' + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.json';
+            var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+            var name = 'gadgets_prefs_' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '_' + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds()) + '.json';
             a.href = url; a.download = name; document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(function(){ URL.revokeObjectURL(url); }, 0);
-          } catch(e) { /* ignore */ }
+            setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+          } catch (e) { /* ignore */ }
         });
       }
       if (impBtn && inp) {
-        impBtn.addEventListener('click', function(){ try { inp.click(); } catch(_) {} });
-        inp.addEventListener('change', function(ev){
+        impBtn.addEventListener('click', function () { try { inp.click(); } catch (_) { } });
+        inp.addEventListener('change', function (ev) {
           try {
             var file = ev.target && ev.target.files && ev.target.files[0];
             if (!file) return;
             var reader = new FileReader();
-            reader.onload = function(){
+            reader.onload = function () {
               try {
-                var ok = ZWGadgets.importPrefs(String(reader.result||''));
+                var ok = ZWGadgets.importPrefs(String(reader.result || ''));
                 if (!ok) { console.warn('Import failed: invalid file'); }
-              } catch(e) { console.warn('Import failed:', e); }
-              try { inp.value = ''; } catch(_) {}
+              } catch (e) { console.warn('Import failed:', e); }
+              try { inp.value = ''; } catch (_) { }
             };
-            reader.onerror = function(){ try { inp.value=''; } catch(_) {} };
+            reader.onerror = function () { try { inp.value = ''; } catch (_) { } };
             reader.readAsText(file, 'utf-8');
-          } catch(_) { try { inp.value=''; } catch(__) {} }
+          } catch (_) { try { inp.value = ''; } catch (__) { } }
         });
       }
-    } catch(_) {}
+    } catch (_) { }
   });
 })();

@@ -137,19 +137,22 @@
 
 /* ボタン共通スタイル（モダン化） */
 button,
-input[type="button"],
+input[type='button'],
 .button {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background-color: var(--ui-bg);
   color: var(--ui-text);
   cursor: pointer;
-  transition: background-color var(--transition-speed), border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    background-color var(--transition-speed),
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 button:hover,
-input[type="button"]:hover,
+input[type='button']:hover,
 .button:hover {
   background-color: var(--toolbar-bg);
   border-color: var(--ui-focus-color);
@@ -157,9 +160,9 @@ input[type="button"]:hover,
 }
 
 /* 入力要素モダン化 */
-input[type="text"],
-input[type="range"],
-input[type="number"],
+input[type='text'],
+input[type='range'],
+input[type='number'],
 textarea,
 select {
   border: 1px solid var(--border-color);
@@ -167,16 +170,19 @@ select {
   padding: 4px 8px;
   background-color: var(--ui-bg);
   color: var(--ui-text);
-  transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+  transition:
+    border-color var(--transition-speed),
+    box-shadow var(--transition-speed);
 }
 
-input[type="text"]:focus,
-input[type="range"]:focus,
-input[type="number"]:focus,
+input[type='text']:focus,
+input[type='range']:focus,
+input[type='number']:focus,
 textarea:focus,
 select:focus {
   border-color: var(--ui-focus-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
   outline: 2px solid var(--ui-focus-color);
   outline-offset: 2px;
 }
@@ -202,7 +208,8 @@ select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--ui-focus-color, #4a90e2);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--ui-focus-color, #4a90e2) 20%, transparent);
+  box-shadow: 0 0 0 4px
+    color-mix(in srgb, var(--ui-focus-color, #4a90e2) 20%, transparent);
 }
 
 /* キーボード操作時のフォーカス表示を強調 */
@@ -446,7 +453,9 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   background-color: var(--bg-color);
   /* 執筆エリアのベース色 */
   width: 100%;
-  transition: margin-left var(--transition-speed), width var(--transition-speed);
+  transition:
+    margin-left var(--transition-speed),
+    width var(--transition-speed);
 }
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
@@ -689,7 +698,9 @@ html[data-toolbar-hidden='true'] .editor-container {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   border: 2px solid #fff;
   z-index: 10;
-  transition: transform 0.1s ease, background-color 0.2s ease;
+  transition:
+    transform 0.1s ease,
+    background-color 0.2s ease;
 }
 
 .editor-overlay__image .overlay-handle:hover {
@@ -702,7 +713,7 @@ html[data-toolbar-hidden='true'] .editor-container {
 }
 
 .editor-overlay__image .overlay-handle::after {
-  content: "";
+  content: '';
   width: 0;
   height: 0;
   border-left: 6px solid transparent;
@@ -761,7 +772,8 @@ html[data-toolbar-hidden='true'] .editor-container {
 
 .editor-overlay__image.selected {
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.6);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-focus-color) 60%, transparent);
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--ui-focus-color) 60%, transparent);
 }
 
 .editor-overlay__image[data-alignment='left'] {
@@ -827,7 +839,10 @@ html[data-toolbar-hidden='true'] .editor-container {
   background: var(--ui-bg);
   color: var(--ui-text);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .collage-controls__mode-button:hover {
@@ -876,7 +891,9 @@ html[data-toolbar-hidden='true'] .editor-container {
   background: var(--ui-bg);
   color: var(--ui-text);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
 }
 
 .collage-controls__action-button:hover {
@@ -903,7 +920,8 @@ html[data-toolbar-hidden='true'] .editor-container {
 .editor-preview__header {
   border-color: var(--ui-focus-color);
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
 }
 
 /* ツールバー */
@@ -1110,20 +1128,20 @@ html[data-toolbar-hidden='true'] .sidebar {
 }
 
 /* Accordion mode: show all groups as details */
-[data-tabs-presentation="accordion"] .sidebar-tabs {
+[data-tabs-presentation='accordion'] .sidebar-tabs {
   display: none !important;
 }
 
-[data-tabs-presentation="accordion"] .sidebar-group {
+[data-tabs-presentation='accordion'] .sidebar-group {
   display: block;
   margin-bottom: 10px;
 }
 
-[data-tabs-presentation="accordion"] .sidebar-group.active {
+[data-tabs-presentation='accordion'] .sidebar-group.active {
   display: block;
 }
 
-[data-tabs-presentation="accordion"] .sidebar-group summary {
+[data-tabs-presentation='accordion'] .sidebar-group summary {
   cursor: pointer;
   font-weight: 600;
   padding: 10px;
@@ -1133,18 +1151,18 @@ html[data-toolbar-hidden='true'] .sidebar {
   margin-bottom: 4px;
 }
 
-[data-tabs-presentation="accordion"] .sidebar-group[aria-hidden="true"] {
+[data-tabs-presentation='accordion'] .sidebar-group[aria-hidden='true'] {
   display: none;
 }
 
 /* Buttons mode: show tabs as buttons */
-[data-tabs-presentation="buttons"] .sidebar-tabs {
+[data-tabs-presentation='buttons'] .sidebar-tabs {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-[data-tabs-presentation="buttons"] .sidebar-tab {
+[data-tabs-presentation='buttons'] .sidebar-tab {
   display: block;
   width: 100%;
   padding: 10px;
@@ -1154,7 +1172,7 @@ html[data-toolbar-hidden='true'] .sidebar {
   border-radius: 4px;
 }
 
-[data-tabs-presentation="buttons"] .sidebar-tab.active {
+[data-tabs-presentation='buttons'] .sidebar-tab.active {
   background: var(--ui-focus-color);
   color: white;
 }
@@ -1163,21 +1181,21 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 /* ===== タブ配置（上下左右） ===== */
 /* 左配置（デフォルト） */
-.sidebar[data-tab-placement="left"] .sidebar-tabs {
+.sidebar[data-tab-placement='left'] .sidebar-tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
 /* 右配置 */
-.sidebar[data-tab-placement="right"] .sidebar-tabs {
+.sidebar[data-tab-placement='right'] .sidebar-tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 
 /* 上配置 */
-.sidebar[data-tab-placement="top"] .sidebar-tabs {
+.sidebar[data-tab-placement='top'] .sidebar-tabs {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -1185,13 +1203,13 @@ html[data-toolbar-hidden='true'] .sidebar {
   justify-content: flex-start;
 }
 
-.sidebar[data-tab-placement="top"] .sidebar-tab {
+.sidebar[data-tab-placement='top'] .sidebar-tab {
   flex: 0 0 auto;
   min-width: 80px;
 }
 
 /* 下配置 */
-.sidebar[data-tab-placement="bottom"] .sidebar-tabs {
+.sidebar[data-tab-placement='bottom'] .sidebar-tabs {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -1199,16 +1217,15 @@ html[data-toolbar-hidden='true'] .sidebar {
   justify-content: flex-start;
 }
 
-.sidebar[data-tab-placement="bottom"] .sidebar-tab {
+.sidebar[data-tab-placement='bottom'] .sidebar-tab {
   flex: 0 0 auto;
   min-width: 80px;
 }
 
 /* レスポンシブ: 小画面では左配置にフォールバック */
 @media (max-width: 768px) {
-
-  .sidebar[data-tab-placement="top"] .sidebar-tabs,
-  .sidebar[data-tab-placement="bottom"] .sidebar-tabs {
+  .sidebar[data-tab-placement='top'] .sidebar-tabs,
+  .sidebar[data-tab-placement='bottom'] .sidebar-tabs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1305,7 +1322,12 @@ button.button-accent:active {
   stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  transition: color 0.2s, stroke 0.2s, stroke-width 0.2s, transform 0.1s, opacity 0.2s;
+  transition:
+    color 0.2s,
+    stroke 0.2s,
+    stroke-width 0.2s,
+    transform 0.1s,
+    opacity 0.2s;
 }
 
 /* テキストラベル非表示でもボタン自体は常時表示 */
@@ -1345,7 +1367,9 @@ html[data-writing-goal-enabled='true'] #goal-deadline {
 
 @media (prefers-reduced-motion: reduce) {
   .icon-button svg {
-    transition: color 0.2s, stroke 0.2s;
+    transition:
+      color 0.2s,
+      stroke 0.2s;
   }
 }
 
@@ -1387,7 +1411,11 @@ input[type='radio'] {
 /* Range slider styling (WebKit) */
 input[type='range']::-webkit-slider-runnable-track {
   height: 6px;
-  background: linear-gradient(90deg, var(--ui-accent-color), var(--ui-accent-color));
+  background: linear-gradient(
+    90deg,
+    var(--ui-accent-color),
+    var(--ui-accent-color)
+  );
   border-radius: 999px;
 }
 
@@ -1447,13 +1475,15 @@ input[type='color'] {
 .theme-preset:hover {
   border-color: var(--ui-focus-color);
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
 }
 
 .theme-preset.active {
   border-color: var(--ui-focus-color);
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 25%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--ui-focus-color) 25%, transparent);
 }
 
 /* =========================================
@@ -1662,7 +1692,7 @@ input[type='color'] {
 
   /* ハンバーガーアイコンのアニメーション（モバイル用） */
   @media (max-width: 768px) {
-    #toggle-sidebar[aria-expanded="true"] svg {
+    #toggle-sidebar[aria-expanded='true'] svg {
       transform: rotate(90deg);
       transition: transform 0.3s ease;
     }
@@ -1696,8 +1726,8 @@ input[type='color'] {
   }
 
   /* 入力要素の最適化 */
-  input[type="text"],
-  input[type="number"],
+  input[type='text'],
+  input[type='number'],
   textarea,
   select {
     font-size: 16px; /* iOSでのズーム防止 */
@@ -2026,7 +2056,7 @@ input[type='color'] {
   background: var(--ui-bg);
 }
 
-.sidebar details+details {
+.sidebar details + details {
   margin-top: 10px;
 }
 
@@ -2372,7 +2402,6 @@ input[type='color'] {
 
 /* 印刷時のレイアウト */
 @media print {
-
   /* 画面UIは隠す */
   .sidebar,
   .toolbar,
@@ -2420,7 +2449,6 @@ html[data-embed='true'] #editor {
 
 /* ===== 印刷用スタイル ===== */
 @media print {
-
   /* 基本設定 */
   body {
     font-family: 'Times New Roman', serif;
@@ -2580,18 +2608,17 @@ html[data-embed='true'] #editor {
 }
 
 /* アクセシビリティ: アニメーションを減らす設定 */
-[data-reduce-motion="true"] .anim-fade,
-[data-reduce-motion="true"] .anim-slide,
-[data-reduce-motion="true"] .anim-typewriter,
-[data-reduce-motion="true"] .anim-pulse,
-[data-reduce-motion="true"] .anim-shake,
-[data-reduce-motion="true"] .anim-bounce,
-[data-reduce-motion="true"] .anim-fade-in {
+[data-reduce-motion='true'] .anim-fade,
+[data-reduce-motion='true'] .anim-slide,
+[data-reduce-motion='true'] .anim-typewriter,
+[data-reduce-motion='true'] .anim-pulse,
+[data-reduce-motion='true'] .anim-shake,
+[data-reduce-motion='true'] .anim-bounce,
+[data-reduce-motion='true'] .anim-fade-in {
   animation: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   .anim-fade,
   .anim-slide,
   .anim-typewriter,
@@ -2604,7 +2631,8 @@ html[data-embed='true'] #editor {
 }
 
 .anim-fade {
-  animation: fade-in calc(var(--anim-duration, 1.5s) / var(--anim-speed, 1)) ease-in-out;
+  animation: fade-in calc(var(--anim-duration, 1.5s) / var(--anim-speed, 1))
+    ease-in-out;
 }
 
 @keyframes fade-in {
@@ -2618,7 +2646,8 @@ html[data-embed='true'] #editor {
 }
 
 .anim-slide {
-  animation: slide-in calc(var(--anim-duration, 1s) / var(--anim-speed, 1)) ease-out;
+  animation: slide-in calc(var(--anim-duration, 1s) / var(--anim-speed, 1))
+    ease-out;
 }
 
 @keyframes slide-in {
@@ -2634,7 +2663,8 @@ html[data-embed='true'] #editor {
 }
 
 .anim-typewriter {
-  animation: typewriter calc(var(--anim-duration, 2s) / var(--anim-speed, 1)) steps(40, end);
+  animation: typewriter calc(var(--anim-duration, 2s) / var(--anim-speed, 1))
+    steps(40, end);
   overflow: hidden;
   white-space: nowrap;
   border-right: 2px solid var(--editor-text, var(--text-color));
@@ -2742,11 +2772,11 @@ html[data-embed='true'] #editor {
 
 /* ===== テキストアニメーション効果 ===== */
 .anim-pulse {
-  animation: pulse calc(var(--anim-duration, 2s) / var(--anim-speed, 1)) infinite;
+  animation: pulse calc(var(--anim-duration, 2s) / var(--anim-speed, 1))
+    infinite;
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     transform: scale(1);
@@ -2762,7 +2792,6 @@ html[data-embed='true'] #editor {
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -2789,7 +2818,6 @@ html[data-embed='true'] #editor {
 }
 
 @keyframes bounce {
-
   0%,
   20%,
   50%,
@@ -2808,7 +2836,8 @@ html[data-embed='true'] #editor {
 }
 
 .anim-fade-in {
-  animation: fade-in-slow calc(var(--anim-duration, 2s) / var(--anim-speed, 1)) ease-in;
+  animation: fade-in-slow calc(var(--anim-duration, 2s) / var(--anim-speed, 1))
+    ease-in;
 }
 
 @keyframes fade-in-slow {
@@ -2851,7 +2880,9 @@ html[data-embed='true'] #editor {
   pointer-events: none;
   opacity: 0;
   transform: translateY(-5px);
-  transition: opacity 0.2s, transform 0.2s;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
   max-width: 300px;
   word-wrap: break-word;
   white-space: normal;
@@ -2941,7 +2972,7 @@ html[data-embed='true'] #editor {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.panel-opacity-slider input[type="range"] {
+.panel-opacity-slider input[type='range'] {
   width: 100px;
   margin: 0;
 }
@@ -3062,7 +3093,8 @@ html[data-embed='true'] #editor {
 }
 
 .wiki-preview code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
   background: #f0f0f0;
   padding: 2px 4px;
   border-radius: 3px;
@@ -3143,50 +3175,50 @@ html[data-embed='true'] #editor {
    ========================================= */
 
 /* Focus Mode: Sidebar hidden, Toolbar visible */
-html[data-ui-mode="focus"] .sidebar {
+html[data-ui-mode='focus'] .sidebar {
   display: none !important;
 }
 
-html[data-ui-mode="focus"] .main-content {
+html[data-ui-mode='focus'] .main-content {
   margin-left: 0 !important;
 }
 
-html[data-ui-mode="focus"] .editor-container {
+html[data-ui-mode='focus'] .editor-container {
   margin-left: 0 !important;
   width: 100% !important;
 }
 
 /* Hide sidebar toggle in focus mode */
-html[data-ui-mode="focus"] #toggle-sidebar-btn,
-html[data-ui-mode="focus"] #toolbar-close-sidebar {
+html[data-ui-mode='focus'] #toggle-sidebar-btn,
+html[data-ui-mode='focus'] #toolbar-close-sidebar {
   display: none !important;
 }
 
 /* Blank Mode: Sidebar and Toolbar hidden（本文のみ + 脱出用FAB） */
-html[data-ui-mode="blank"] .sidebar {
+html[data-ui-mode='blank'] .sidebar {
   display: none !important;
 }
 
-html[data-ui-mode="blank"] .toolbar {
+html[data-ui-mode='blank'] .toolbar {
   display: none !important;
 }
 
-html[data-ui-mode="blank"] .main-content {
+html[data-ui-mode='blank'] .main-content {
   margin-left: 0 !important;
 }
 
-html[data-ui-mode="blank"] .editor-container {
+html[data-ui-mode='blank'] .editor-container {
   margin-left: 0 !important;
   width: 100% !important;
   height: 100vh !important;
 }
 
-html[data-ui-mode="blank"] #editor {
+html[data-ui-mode='blank'] #editor {
   padding-top: 2rem !important;
 }
 
 /* ブランクモード中もツールバー再表示用FABだけは表示しておく */
-html[data-ui-mode="blank"] .fab-toggle-toolbar {
+html[data-ui-mode='blank'] .fab-toggle-toolbar {
   display: inline-flex !important;
 }
 
@@ -3329,7 +3361,7 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   user-select: none;
 }
 
-.toggle-switch input[type="checkbox"] {
+.toggle-switch input[type='checkbox'] {
   position: relative;
   width: 36px;
   height: 20px;
@@ -3342,7 +3374,7 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   margin: 0;
 }
 
-.toggle-switch input[type="checkbox"]::before {
+.toggle-switch input[type='checkbox']::before {
   content: '';
   position: absolute;
   top: 2px;
@@ -3355,36 +3387,36 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.toggle-switch input[type="checkbox"]:checked {
+.toggle-switch input[type='checkbox']:checked {
   background: var(--ui-accent-color);
 }
 
-.toggle-switch input[type="checkbox"]:checked::before {
+.toggle-switch input[type='checkbox']:checked::before {
   transform: translateX(16px);
 }
 
-.toggle-switch input[type="checkbox"]:focus {
+.toggle-switch input[type='checkbox']:focus {
   outline: 2px solid var(--ui-focus-color);
   outline-offset: 2px;
 }
 
 /* コンパクトトグル（ラベルなし） */
-.toggle-compact input[type="checkbox"] {
+.toggle-compact input[type='checkbox'] {
   width: 32px;
   height: 18px;
 }
 
-.toggle-compact input[type="checkbox"]::before {
+.toggle-compact input[type='checkbox']::before {
   width: 14px;
   height: 14px;
 }
 
-.toggle-compact input[type="checkbox"]:checked::before {
+.toggle-compact input[type='checkbox']:checked::before {
   transform: translateX(14px);
 }
 
 /* チェックボックスの青色を控えめに */
-input[type="checkbox"] {
+input[type='checkbox'] {
   accent-color: var(--ui-accent-color);
 }
 
@@ -3414,16 +3446,16 @@ input[type="checkbox"] {
   gap: 8px;
 }
 
-.gadget-wrapper[draggable="true"] {
+.gadget-wrapper[draggable='true'] {
   cursor: grab;
 }
 
-.gadget-wrapper[draggable="true"]:active {
+.gadget-wrapper[draggable='true']:active {
   cursor: grabbing;
 }
 
 /* ガジェット内のフォーム要素の間隔統一 */
-.gadget-wrapper>div {
+.gadget-wrapper > div {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -3459,7 +3491,7 @@ input[type="checkbox"] {
   gap: 4px;
 }
 
-.gadget-slider-row input[type="range"] {
+.gadget-slider-row input[type='range'] {
   width: 100%;
 }
 
@@ -3471,26 +3503,26 @@ input[type="checkbox"] {
 }
 
 /* ===== アイコン/テキスト切替対応 ===== */
-[data-ui-style="icons-only"] .btn-text,
-[data-ui-style="icons-only"] .help-nav-text {
+[data-ui-style='icons-only'] .btn-text,
+[data-ui-style='icons-only'] .help-nav-text {
   display: none;
 }
 
-[data-ui-style="icons-only"] .help-nav-btn {
+[data-ui-style='icons-only'] .help-nav-btn {
   padding: 6px;
 }
 
-[data-ui-style="text-only"] .btn-icon,
-[data-ui-style="text-only"] .help-nav-icon {
+[data-ui-style='text-only'] .btn-icon,
+[data-ui-style='text-only'] .help-nav-icon {
   display: none;
 }
 
 /* ===== ダークテーマでのヘルプ表示調整 ===== */
-[data-theme="dark"] .help-content code {
+[data-theme='dark'] .help-content code {
   background: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"] .help-content kbd {
+[data-theme='dark'] .help-content kbd {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
 }
@@ -3604,7 +3636,9 @@ html[data-focus-mode='enabled'] #editor::after {
   pointer-events: none;
   z-index: 2;
   transform: translateY(var(--focus-line-top, 0px));
-  transition: transform 0.15s ease, height 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    height 0.15s ease;
 }
 
 /* フォーカスモード：現在行以外をぼかし */
@@ -3906,11 +3940,11 @@ a.wikilink:visited {
   transform: translateY(-2px);
 }
 
-.link-graph-node[data-type="document"] {
+.link-graph-node[data-type='document'] {
   border-color: #27ae60;
 }
 
-.link-graph-node[data-type="wiki"] {
+.link-graph-node[data-type='wiki'] {
   border-color: #4a90e2;
 }
 
@@ -3942,7 +3976,7 @@ a.wikilink:visited {
   border-color: #4a90e2;
 }
 
-[data-theme='dark'] .link-graph-node[data-type="document"] {
+[data-theme='dark'] .link-graph-node[data-type='document'] {
   border-color: #27ae60;
 }
 
@@ -3993,7 +4027,7 @@ a.wikilink:visited {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.keybind-item[data-editing="true"] {
+.keybind-item[data-editing='true'] {
   border-color: var(--focus-color, #4a90e2);
   border-width: 2px;
   background: var(--ui-bg, #f5f5f5);
@@ -4021,7 +4055,7 @@ a.wikilink:visited {
   border-color: var(--focus-color, #4a90e2);
 }
 
-.keybind-display[data-editing="true"] {
+.keybind-display[data-editing='true'] {
   background: var(--focus-color, #4a90e2);
   color: #fff;
   border-color: var(--focus-color, #4a90e2);
@@ -4029,7 +4063,6 @@ a.wikilink:visited {
 }
 
 @keyframes keybind-pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -4176,7 +4209,7 @@ body.ui-editor-active .editor-preview {
   font-size: 0.85rem;
 }
 
-.ui-editor-row input[type="color"] {
+.ui-editor-row input[type='color'] {
   width: 100%;
   height: 36px;
   border: 1px solid var(--border-color);
@@ -4403,7 +4436,7 @@ body.ui-editor-preview {
   overflow: hidden;
 }
 
-[aria-live="polite"]:not(.word-count):not(#editor-preview) {
+[aria-live='polite']:not(.word-count):not(#editor-preview) {
   position: absolute;
   left: -10000px;
   width: 1px;
@@ -4412,11 +4445,11 @@ body.ui-editor-preview {
 }
 
 /* フォーカストラップ（モーダルダイアログ内） */
-[aria-modal="true"] {
+[aria-modal='true'] {
   position: relative;
 }
 
-[aria-modal="true"]:focus-within {
+[aria-modal='true']:focus-within {
   outline: none;
 }
 /* Wikilinks & Backlinks (TASK_044) */

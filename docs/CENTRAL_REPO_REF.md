@@ -14,10 +14,10 @@ node .shared-workflows/scripts/ensure-ssot.js --project-root .
 
 ## 参照先 (SSOT)
 
-| ファイル | 役割 |
-|----------|------|
-| `docs/Windsurf_AI_Collab_Rules_latest.md` | 中央ルール (SSOT) |
-| `docs/windsurf_workflow/OPEN_HERE.md` | 運用者の入口 (まずここを読む) |
+| ファイル                                         | 役割                            |
+| ------------------------------------------------ | ------------------------------- |
+| `docs/Windsurf_AI_Collab_Rules_latest.md`        | 中央ルール (SSOT)               |
+| `docs/windsurf_workflow/OPEN_HERE.md`            | 運用者の入口 (まずここを読む)   |
 | `prompts/every_time/ORCHESTRATOR_METAPROMPT.txt` | Orchestrator起動用 (毎回コピペ) |
 
 ## 参照の確実性

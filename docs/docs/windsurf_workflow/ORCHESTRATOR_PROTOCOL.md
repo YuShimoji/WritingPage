@@ -6,13 +6,14 @@
 
 ## 運用概要
 
-| 用途 | プロンプト | 使用頻度 |
-|------|-----------|---------|
+| 用途                             | プロンプト              | 使用頻度                           |
+| -------------------------------- | ----------------------- | ---------------------------------- |
 | オーケストレーション（コピペ用） | Orchestrator Metaprompt | 毎回（Orchestratorスレッド起動時） |
-| オーケストレーション | Orchestrator Protocol | 毎回（作業開始/統合時） |
-| 作業実行 | Worker Protocol | 毎回（各スレッド起動時） |
+| オーケストレーション             | Orchestrator Protocol   | 毎回（作業開始/統合時）            |
+| 作業実行                         | Worker Protocol         | 毎回（各スレッド起動時）           |
 
 **フロー:**
+
 ```
 1. Orchestratorスレッド起動 -> inbox回収 -> タスクチケット発行
 2. Workerスレッド起動（N個）-> チケット取得 -> 作業 -> inbox納品
@@ -232,13 +233,13 @@ docs/
 
 ## 4. クイックリファレンス
 
-| 操作 | コマンド/ファイル |
-|------|------------------|
-| 作業開始 | docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md を投入 |
-| Worker起動 | 新規スレッドに「Worker Protocol」を投入 |
-| 進捗確認 | docs/HANDOVER.md 参照 |
-| 未完了タスク | docs/tasks/ で Status: OPEN を検索 |
-| 納品物確認 | docs/inbox/ 参照 |
+| 操作         | コマンド/ファイル                                        |
+| ------------ | -------------------------------------------------------- |
+| 作業開始     | docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md を投入 |
+| Worker起動   | 新規スレッドに「Worker Protocol」を投入                  |
+| 進捗確認     | docs/HANDOVER.md 参照                                    |
+| 未完了タスク | docs/tasks/ で Status: OPEN を検索                       |
+| 納品物確認   | docs/inbox/ 参照                                         |
 
 ---
 

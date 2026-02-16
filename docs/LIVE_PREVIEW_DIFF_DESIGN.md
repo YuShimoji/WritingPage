@@ -91,17 +91,17 @@ _renderMarkdownPreviewImmediate() {
 
 ```javascript
 morphdom(fromNode, toNode, {
-    childrenOnly: true,  // コンテナ自体は変更しない
-    onBeforeElUpdated: (fromEl, toEl) => {
-        // 特定の要素の更新をスキップする条件を指定可能
-        return true;  // true を返すと更新を続行
-    },
-    onNodeAdded: (node) => {
-        // 新しいノードが追加されたときの処理
-    },
-    onNodeDiscarded: (node) => {
-        // ノードが削除されたときの処理
-    }
+  childrenOnly: true, // コンテナ自体は変更しない
+  onBeforeElUpdated: (fromEl, toEl) => {
+    // 特定の要素の更新をスキップする条件を指定可能
+    return true; // true を返すと更新を続行
+  },
+  onNodeAdded: (node) => {
+    // 新しいノードが追加されたときの処理
+  },
+  onNodeDiscarded: (node) => {
+    // ノードが削除されたときの処理
+  },
 });
 ```
 

@@ -71,7 +71,7 @@ class ElementManager {
         this.elements = {};
         this.initialize();
     }
-    
+
     get(name) { ... }        // 単一要素を取得
     getMultiple(name) { ... } // 複数要素を配列で取得
 }
@@ -122,22 +122,26 @@ Zen Writerは「メモ帳以上の機能はすべてガジェット化」とい�
 #### ガジェット登録例
 
 ```javascript
-window.ZWGadgets.register('MyGadget', function(root, api) {
+window.ZWGadgets.register(
+  'MyGadget',
+  function (root, api) {
     // UIを構築
     root.innerHTML = '<button>Click me</button>';
-    
+
     // 設定の読み書き
     const value = api.get('myKey', 'defaultValue');
     api.set('myKey', 'newValue');
-}, {
+  },
+  {
     title: 'My Gadget',
-    groups: ['structure'] // 所属グループ
-});
+    groups: ['structure'], // 所属グループ
+  },
+);
 ```
 
 #### タブ切り替えフロー
 
-```text
+````text
 ユーザーがタブをクリック
   ↓
 activateSidebarGroup(groupId)
@@ -164,7 +168,7 @@ function forceSidebarState(open) {
     sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
     toolbarCloseSidebar.style.display = open ? '' : 'none';
 }
-```
+````
 
 ### 4. ガジェット初期化とレンダリング
 

@@ -1,4 +1,5 @@
 <!-- OPENSPEC:START -->
+
 # OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
@@ -16,4 +17,5 @@ Use `@/openspec/AGENTS.md` to learn:
 - Project structure and guidelines
 
 Keep this managed block so 'openspec update' can refresh the instructions.
+
 <!-- OPENSPEC:END -->

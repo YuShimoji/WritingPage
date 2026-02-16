@@ -1,6 +1,6 @@
 # GADGETS — サイドバーのガジェット化
 
- 本書は `.gadgets-panel[data-gadget-group]` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
+本書は `.gadgets-panel[data-gadget-group]` に小型ウィジェット（ガジェット）を配置する仕組みの設計と実装指針を示します。
 
 ## このドキュメントの読み方
 
@@ -8,9 +8,9 @@
   いま使える UI / 実装 / テスト情報を網羅。作業や検証はまずここを参照してください。
 - [提案・未実装 / 旧メモ](#reference-future)  
   将来案や残課題を一覧化。詳細な優先度・タスクは `docs/BACKLOG.md` および OpenSpec (`openspec/changes/*`) で管理します。
-- 関連資料  
-  - `docs/ARCHITECTURE.md` … Zen Writer 全体アーキテクチャとガジェット基盤の位置付け  
-  - `docs/BACKLOG.md` … ガジェット領域の未実装/検討中タスク  
+- 関連資料
+  - `docs/ARCHITECTURE.md` … Zen Writer 全体アーキテクチャとガジェット基盤の位置付け
+  - `docs/BACKLOG.md` … ガジェット領域の未実装/検討中タスク
   - `docs/AUDIT_TASK_BREAKDOWN.md` … 監査観点（P1-4）と受け入れ条件
 
 ---
@@ -152,7 +152,11 @@
 
 ```html
 <!-- index.html（抜粋） -->
-<div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist"></div>
+<div
+  id="assist-gadgets-panel"
+  class="gadgets-panel"
+  data-gadget-group="assist"
+></div>
 <script src="js/gadgets-utils.js"></script>
 <script src="js/gadgets-loadouts.js"></script>
 <script src="js/gadgets-core.js"></script>
@@ -240,8 +244,8 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 ```json
 {
   "order": ["Clock"],
-  "collapsed": {"Clock": false},
-  "settings": {"Clock": {"hour24": true}}
+  "collapsed": { "Clock": false },
+  "settings": { "Clock": { "hour24": true } }
 }
 ```
 
@@ -412,7 +416,7 @@ const hudConfig = {
   bg: '#ff0000',
   fg: '#ffffff',
   width: 300,
-  fontSize: 16
+  fontSize: 16,
 };
 
 if (window.ZenWriterHUD && window.ZenWriterHUD.applyConfig) {
@@ -465,7 +469,7 @@ window.ZenWriterStorage.saveSettings(settings);
 Wikiページ作成時に以下のテンプレートを使用することを推奨：
 
 - **キャラクター**: 外見、性格、背景、動機などの情報
-- **場所**: 地理的特徴、雰囲気、重要性などの情報  
+- **場所**: 地理的特徴、雰囲気、重要性などの情報
 - **アイテム**: 外見、効果、使用方法などの情報
 - **プロット**: 出来事の時系列、因果関係などの情報
 
@@ -476,7 +480,7 @@ Wikiページ作成時に以下のテンプレートを使用することを推�
 const newPage = window.ZenWriterStorage.createWikiPage({
   title: '魔法の剣',
   content: '古代の魔法が込められた剣。敵を一撃で倒す力を持つ。',
-  tags: ['item', 'weapon', 'magic']
+  tags: ['item', 'weapon', 'magic'],
 });
 
 // Wikiページを検索
@@ -484,7 +488,7 @@ const results = window.ZenWriterStorage.searchWikiPages('魔法');
 
 // Wikiページを更新
 window.ZenWriterStorage.updateWikiPage(pageId, {
-  content: '更新された説明...'
+  content: '更新された説明...',
 });
 
 // Wikiページを削除
@@ -509,18 +513,18 @@ WikiデータはlocalStorageに保存されるため、ブラウザの設定か�
 
 ### ガジェット/パネル設計の将来タスク (将来案)
 
-1. **柔軟なタブ配置とガジェット動的割当**（`docs/BACKLOG.md` フェーズE-3/E-4）  
-   - タブを上下左右へ配置するレイアウト拡張や、ガジェットをドラッグで他タブへ移動する体験を計画中。  
+1. **柔軟なタブ配置とガジェット動的割当**（`docs/BACKLOG.md` フェーズE-3/E-4）
+   - タブを上下左右へ配置するレイアウト拡張や、ガジェットをドラッグで他タブへ移動する体験を計画中。
    - OpenSpec: `openspec/changes/add-modular-ui-wiki-nodegraph/` にプレゼンテーション切替・複数パネル設計が記述されています。
-2. **HUD 拡張とカスタマイズ深化**  
+2. **HUD 拡張とカスタマイズ深化**
    - `openspec/changes/hud-customization-enhancement/` に従い、HUDSettings ガジェットへフォント/幅調整UIなどを段階的に追加済み。残項目は tasks.md を参照。
-3. **Wiki / ノードグラフ連携**  
-   - Wiki ノードグラフ化やAIリンク生成は OpenSpec `add-modular-ui-wiki-nodegraph` と `story-wiki-implementation` で仕様化済みだが、実装は未着手。  
+3. **Wiki / ノードグラフ連携**
+   - Wiki ノードグラフ化やAIリンク生成は OpenSpec `add-modular-ui-wiki-nodegraph` と `story-wiki-implementation` で仕様化済みだが、実装は未着手。
    - 進める際は `docs/ARCHITECTURE.md` の「ガジェットベースアーキテクチャ」と整合を取る。
-4. **Embed / SDK 連携の拡張**  
+4. **Embed / SDK 連携の拡張**
    - Embed時のロードアウト反映や HUD の軽量化は `docs/BACKLOG.md`（P0-1 / Embed SDK 監査）で追跡。`docs/EMBED_SDK.md` を併読してください。
 
 ### 参照ガイド
 
-- 監査観点（P1-4）: `docs/AUDIT_TASK_BREAKDOWN.md` — 現行/提案の区別と受け入れ条件を定義。  
+- 監査観点（P1-4）: `docs/AUDIT_TASK_BREAKDOWN.md` — 現行/提案の区別と受け入れ条件を定義。
 - 将来仕様の詳細: `openspec/changes/` ディレクトリを参照し、進行中の change に紐づく tasks.md を最新化してください。
