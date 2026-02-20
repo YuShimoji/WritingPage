@@ -78,9 +78,26 @@
             let touchStartX = 0;
             let touchStartY = 0;
             let touchStartTime = 0;
+            let mouseStartX = 0;
+            let mouseStartY = 0;
+            let mouseStartTime = 0;
+            let mouseDragging = false;
             const SWIPE_THRESHOLD = 50;
             const SWIPE_TIME_THRESHOLD = 300;
             const SWIPE_VERTICAL_THRESHOLD = 30;
+
+            const shouldCloseBySwipe = (deltaX, deltaY, elapsed) => {
+                if (Math.abs(deltaY) > SWIPE_VERTICAL_THRESHOLD && Math.abs(deltaX) < Math.abs(deltaY)) {
+                    return false;
+                }
+                return deltaX < -SWIPE_THRESHOLD && elapsed < SWIPE_TIME_THRESHOLD;
+            };
+
+            const closeSidebar = () => {
+                if (window.sidebarManager) {
+                    window.sidebarManager.forceSidebarState(false);
+                }
+            };
 
             sidebar.addEventListener('touchstart', (e) => {
                 if (e.touches.length !== 1) return;
@@ -93,19 +110,31 @@
                 if (e.touches.length !== 1) return;
                 const touch = e.touches[0];
                 const deltaX = touch.clientX - touchStartX;
-                const deltaY = Math.abs(touch.clientY - touchStartY);
-
-                if (deltaY > SWIPE_VERTICAL_THRESHOLD && Math.abs(deltaX) < deltaY) {
-                    return;
-                }
-
-                if (deltaX < -SWIPE_THRESHOLD && deltaY < SWIPE_VERTICAL_THRESHOLD) {
-                    const elapsed = Date.now() - touchStartTime;
-                    if (elapsed < SWIPE_TIME_THRESHOLD && window.sidebarManager) {
-                        window.sidebarManager.forceSidebarState(false);
-                    }
+                const deltaY = touch.clientY - touchStartY;
+                const elapsed = Date.now() - touchStartTime;
+                if (shouldCloseBySwipe(deltaX, deltaY, elapsed)) {
+                    closeSidebar();
                 }
             }, { passive: true });
+
+            sidebar.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                mouseDragging = true;
+                mouseStartX = e.clientX;
+                mouseStartY = e.clientY;
+                mouseStartTime = Date.now();
+            });
+
+            document.addEventListener('mouseup', (e) => {
+                if (!mouseDragging) return;
+                mouseDragging = false;
+                const deltaX = e.clientX - mouseStartX;
+                const deltaY = e.clientY - mouseStartY;
+                const elapsed = Date.now() - mouseStartTime;
+                if (shouldCloseBySwipe(deltaX, deltaY, elapsed)) {
+                    closeSidebar();
+                }
+            });
         })();
 
         // その他のボタン

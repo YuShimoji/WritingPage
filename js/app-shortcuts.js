@@ -1,12 +1,9 @@
-// app-shortcuts.js — キーボードショートカット処理
-// app.js から分離。DOMContentLoaded 後に initAppShortcuts(deps) を呼び出す。
-(function () {
+// app-shortcuts.js  Eキーボ�EドショートカチE��処琁E// app.js から刁E��、EOMContentLoaded 後に initAppShortcuts(deps) を呼び出す、E(function () {
     'use strict';
 
     /**
-     * キーボードショートカットを初期化
-     * @param {Object} deps - 依存オブジェクト
-     * @param {Function} deps.toggleSidebar
+     * キーボ�EドショートカチE��を�E期化
+     * @param {Object} deps - 依存オブジェクチE     * @param {Function} deps.toggleSidebar
      * @param {Function} deps.toggleToolbar
      * @param {Function} deps.setUIMode
      * @param {Function} deps.restoreLastSnapshot
@@ -21,9 +18,8 @@
             logger
         } = deps;
 
-        // capture: trueで優先的に処理
-        document.addEventListener('keydown', (e) => {
-            // キーバインドシステムが利用可能な場合はそれを使用
+        // capture: trueで優先的に処琁E        document.addEventListener('keydown', (e) => {
+            // キーバインドシスチE��が利用可能な場合�Eそれを使用
             if (window.ZenWriterKeybinds) {
                 const keybinds = window.ZenWriterKeybinds.load();
                 const keybindId = window.ZenWriterKeybinds.getKeybindIdForEvent(e, keybinds);
@@ -32,7 +28,7 @@
                     const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
                     const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
 
-                    // フォームコントロール内では一部のショートカットのみ有効
+                    // フォームコントロール冁E��は一部のショートカチE��のみ有効
                     const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle'];
 
                     if (inFormControl && !allowInFormControl.includes(keybindId)) {
@@ -44,7 +40,7 @@
 
                     switch (keybindId) {
                         case 'sidebar.toggle':
-                            logger.info('キーボードショートカット: サイドバー開閉');
+                            logger.info('キーボ�EドショートカチE��: サイドバー開閉');
                             toggleSidebar();
                             break;
 
@@ -96,24 +92,44 @@
                             break;
 
                         case 'editor.save':
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.saveContent === 'function') {
+                                window.ZenWriterEditor.saveContent();
+                            }
+                            break;
                         case 'editor.bold':
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') {
+                                window.ZenWriterEditor.applyFontDecoration('bold');
+                            }
+                            break;
                         case 'editor.italic':
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') {
+                                window.ZenWriterEditor.applyFontDecoration('italic');
+                            }
+                            break;
                         case 'editor.font.increase':
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.adjustGlobalFontSize === 'function') {
+                                window.ZenWriterEditor.adjustGlobalFontSize(1);
+                            }
+                            break;
                         case 'editor.font.decrease':
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.adjustGlobalFontSize === 'function') {
+                                window.ZenWriterEditor.adjustGlobalFontSize(-1);
+                            }
+                            break;
                         case 'editor.font.reset':
-                            // editor.jsで処理される
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setGlobalFontSize === 'function') {
+                                window.ZenWriterEditor.setGlobalFontSize(16);
+                            }
                             break;
                     }
                     return;
                 }
             }
 
-            // フォールバック: キーバインドシステムが利用できない場合
-            // Alt + 1: サイドバーを開閉
-            if (e.altKey && e.key === '1') {
+            // フォールバック: キーバインドシスチE��が利用できなぁE��吁E            // Alt + 1: サイドバーを開閁E            if (e.altKey && e.key === '1') {
                 e.preventDefault();
                 e.stopPropagation();
-                logger.info('キーボードショートカット: Alt+1 → サイドバー開閉');
+                logger.info('キーボ�EドショートカチE��: Alt+1 ↁEサイドバー開閉');
                 toggleSidebar();
                 return;
             }
@@ -121,8 +137,7 @@
             const targetTag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
             const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
 
-            // Alt+W: ツールバー切り替え
-            if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
+            // Alt+W: チE�Eルバ�E刁E��替ぁE            if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
                 if (e.repeat) return;
                 e.preventDefault();
 
@@ -136,7 +151,7 @@
                 return;
             }
 
-            // Ctrl+P / Cmd+P: コマンドパレット
+            // Ctrl+P / Cmd+P: コマンドパレチE��
             if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
                 e.preventDefault();
                 if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
@@ -153,13 +168,12 @@
                 }
             }
 
-            // Ctrl+Shift+Z: 最後のスナップショットから復元
-            if (e.ctrlKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+            // Ctrl+Shift+Z: 最後�EスナップショチE��から復允E            if (e.ctrlKey && e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
                 e.preventDefault();
                 restoreLastSnapshot();
             }
 
-            // F2: UIモードサイクル切替
+            // F2: UIモードサイクル刁E��
             if (e.key === 'F2') {
                 e.preventDefault();
                 const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
@@ -170,7 +184,7 @@
                 return;
             }
 
-            // Escape: Blankモードから Normal に戻る、またはモーダルを閉じる
+            // Escape: BlankモードかめENormal に戻る、また�Eモーダルを閉じる
             if (e.key === 'Escape') {
                 const openModals = Array.from(document.querySelectorAll('[aria-modal="true"]')).filter((modal) => {
                     try {

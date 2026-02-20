@@ -100,8 +100,9 @@ class SettingsManager {
         const maxW = typeof layout.maxWidth === 'number' ? layout.maxWidth : 0;
         const pad = typeof layout.padding === 'number' ? layout.padding : 0;
         if (editorEl) {
-            editorEl.style.maxWidth = maxW > 0 ? maxW + 'px' : 'none';
-            editorEl.style.padding = pad + 'px';
+            // 0 は「カスタム未適用」とみなし、CSSデフォルト値を尊重する
+            editorEl.style.maxWidth = maxW > 0 ? maxW + 'px' : '';
+            editorEl.style.padding = pad > 0 ? pad + 'px' : '';
         }
         if (containerEl) {
             if ((maxW > 0 || pad > 0) && layout.marginBgColor) {

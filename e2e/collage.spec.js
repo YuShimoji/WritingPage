@@ -5,21 +5,52 @@ const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 const pageUrl = '/index.html';
 
 async function waitImagesAPIReady(page) {
+  await page.evaluate(async () => {
+    try {
+      if (window.ZenWriterImages && typeof window.ZenWriterImages.addFromDataURL === 'function') {
+        return;
+      }
+      await new Promise((resolve) => {
+        var existing = document.querySelector('script[src$="js/images.js"]');
+        if (existing) {
+          if (window.ZenWriterImages) {
+            resolve();
+            return;
+          }
+          existing.addEventListener('load', resolve, { once: true });
+          existing.addEventListener('error', resolve, { once: true });
+          setTimeout(resolve, 5000);
+          return;
+        }
+        var s = document.createElement('script');
+        s.src = 'js/images.js';
+        s.defer = true;
+        s.onload = resolve;
+        s.onerror = resolve;
+        document.body.appendChild(s);
+        setTimeout(resolve, 5000);
+      });
+    } catch (_) { /* noop */ }
+  });
+
   await page.waitForFunction(() => {
     try {
-      return !!window.ZenWriterImages && typeof window.ZenWriterImages.addFromDataURL === 'function';
+      return !!window.ZenWriterImages && (
+        typeof window.ZenWriterImages.addFromDataURL === 'function' ||
+        typeof window.ZenWriterImages.addFromUrl === 'function'
+      );
     } catch (_) { return false; }
-  });
+  }, null, { timeout: 15000 });
 }
 
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
+      return !!window.ZWGadgets && !!document.querySelector('#settings-gadgets-panel');
     } catch (_) { return false; }
   });
   await enableAllGadgets(page);
-  await openSidebarGroup(page, 'assist');
+  await openSidebarGroup(page, 'settings');
   await page.waitForTimeout(500);
 }
 
@@ -130,9 +161,16 @@ test.describe('Collage Layout E2E', () => {
     // テスト用の画像を追加
     const testImageId = await page.evaluate(() => {
       try {
-        if (window.ZenWriterImages && typeof window.ZenWriterImages.addFromDataURL === 'function') {
+        if (window.ZenWriterImages && (
+          typeof window.ZenWriterImages.addFromDataURL === 'function' ||
+          typeof window.ZenWriterImages.addFromUrl === 'function'
+        )) {
           const testDataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-          window.ZenWriterImages.addFromDataURL(testDataUrl, { left: 100, top: 100, width: 200 });
+          if (typeof window.ZenWriterImages.addFromDataURL === 'function') {
+            window.ZenWriterImages.addFromDataURL(testDataUrl, { left: 100, top: 100, width: 200 });
+          } else {
+            window.ZenWriterImages.addFromUrl(testDataUrl, { left: 100, top: 100, width: 200 });
+          }
           const images = window.ZenWriterImages.list();
           return images && images.length > 0 ? images[images.length - 1].id : null;
         }
@@ -234,7 +272,7 @@ test.describe('Collage Layout E2E', () => {
     await waitGadgetsReady(page);
 
     // Imagesガジェットを探す
-    const imagesGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="Images"]');
+    const imagesGadget = page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="Images"]');
     await expect(imagesGadget).toBeVisible({ timeout: 5000 });
 
     // コラージュレイアウトセクションが存在するか確認

@@ -154,13 +154,26 @@
         },
 
         updateAnimationReduceMotion(reduceMotion) {
-            if (reduceMotion) document.body.classList.add('reduce-motion');
-            else document.body.classList.remove('reduce-motion');
+            if (reduceMotion) {
+                document.body.classList.add('reduce-motion');
+                document.documentElement.setAttribute('data-reduce-motion', 'true');
+            } else {
+                document.body.classList.remove('reduce-motion');
+                document.documentElement.removeAttribute('data-reduce-motion');
+            }
         },
 
         saveAnimationSettings(patch) {
             if (window.ZenWriterStorage && window.ZenWriterStorage.saveSettings) {
-                window.ZenWriterStorage.saveSettings({ animation: patch });
+                const current = (window.ZenWriterStorage.loadSettings && window.ZenWriterStorage.loadSettings()) || {};
+                const next = {
+                    ...current,
+                    animation: {
+                        ...(current.animation || {}),
+                        ...(patch || {})
+                    }
+                };
+                window.ZenWriterStorage.saveSettings(next);
             }
         },
 
@@ -243,6 +256,26 @@
 
             // Tab key support
             manager.editor.addEventListener('keydown', (e) => {
+                const key = (e.key || '').toLowerCase();
+                // 装飾ショートカット（プレーンエディタでも統一して利用できるようにする）
+                if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey) {
+                    if (key === 'b') {
+                        e.preventDefault();
+                        if (typeof manager.applyFontDecoration === 'function') manager.applyFontDecoration('bold');
+                        return;
+                    }
+                    if (key === 'i') {
+                        e.preventDefault();
+                        if (typeof manager.applyFontDecoration === 'function') manager.applyFontDecoration('italic');
+                        return;
+                    }
+                    if (key === 'u') {
+                        e.preventDefault();
+                        if (typeof manager.applyFontDecoration === 'function') manager.applyFontDecoration('underline');
+                        return;
+                    }
+                }
+
                 if (e.key === 'Tab') {
                     e.preventDefault();
                     if (typeof manager.insertTextAtCursor === 'function') {
@@ -279,6 +312,59 @@
             if (manager.closeTextAnimationBtn) {
                 manager.closeTextAnimationBtn.addEventListener('click', () => this.hideTextAnimationPanel(manager));
             }
+
+            // Animation settings controls
+            const animSpeedInput = document.getElementById('anim-speed');
+            const animSpeedValue = document.getElementById('anim-speed-value');
+            const animDurationInput = document.getElementById('anim-duration');
+            const animDurationValue = document.getElementById('anim-duration-value');
+            const animReduceMotionInput = document.getElementById('anim-reduce-motion');
+
+            const settings = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings)
+                ? window.ZenWriterStorage.loadSettings()
+                : {};
+            const animationSettings = (settings && settings.animation) || {};
+
+            if (animSpeedInput && typeof animationSettings.speed === 'number') {
+                animSpeedInput.value = String(animationSettings.speed);
+            }
+            if (animDurationInput && typeof animationSettings.duration === 'number') {
+                animDurationInput.value = String(animationSettings.duration);
+            }
+            if (animReduceMotionInput && typeof animationSettings.reduceMotion === 'boolean') {
+                animReduceMotionInput.checked = animationSettings.reduceMotion;
+            }
+
+            const applyAnimSpeed = () => {
+                if (!animSpeedInput) return;
+                const speed = parseFloat(animSpeedInput.value) || 1;
+                if (animSpeedValue) animSpeedValue.textContent = speed.toFixed(1) + 'x';
+                if (typeof manager.updateAnimationSpeed === 'function') manager.updateAnimationSpeed(speed);
+                if (typeof manager.saveAnimationSettings === 'function') manager.saveAnimationSettings({ speed: speed });
+            };
+
+            const applyAnimDuration = () => {
+                if (!animDurationInput) return;
+                const duration = parseFloat(animDurationInput.value) || 1.5;
+                if (animDurationValue) animDurationValue.textContent = duration.toFixed(1) + 's';
+                if (typeof manager.updateAnimationDuration === 'function') manager.updateAnimationDuration(duration);
+                if (typeof manager.saveAnimationSettings === 'function') manager.saveAnimationSettings({ duration: duration });
+            };
+
+            const applyReduceMotion = () => {
+                if (!animReduceMotionInput) return;
+                const reduceMotion = !!animReduceMotionInput.checked;
+                if (typeof manager.updateAnimationReduceMotion === 'function') manager.updateAnimationReduceMotion(reduceMotion);
+                if (typeof manager.saveAnimationSettings === 'function') manager.saveAnimationSettings({ reduceMotion: reduceMotion });
+            };
+
+            if (animSpeedInput) animSpeedInput.addEventListener('input', applyAnimSpeed);
+            if (animDurationInput) animDurationInput.addEventListener('input', applyAnimDuration);
+            if (animReduceMotionInput) animReduceMotionInput.addEventListener('change', applyReduceMotion);
+
+            applyAnimSpeed();
+            applyAnimDuration();
+            applyReduceMotion();
         }
     };
 })();

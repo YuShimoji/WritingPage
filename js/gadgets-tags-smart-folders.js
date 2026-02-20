@@ -15,7 +15,7 @@
       var STORAGE = window.ZenWriterStorage;
       var Tags = window.ZenWriterTags;
       var SmartFolders = window.ZenWriterSmartFolders;
-      
+
       if (!STORAGE || !Tags || !SmartFolders) {
         el.textContent = 'タグ/スマートフォルダ機能を利用できません。';
         return;
@@ -73,7 +73,7 @@
 
       function renderTree() {
         treeContainer.innerHTML = '';
-        
+
         if (state.currentView === 'tags') {
           renderTagsTree();
         } else {
@@ -84,7 +84,7 @@
       function renderTagsTree() {
         var allTags = Tags.getAllTags();
         var tagCounts = Tags.getTagCounts();
-        
+
         if (!allTags.length) {
           var empty = document.createElement('div');
           empty.style.padding = '8px';
@@ -101,14 +101,14 @@
             state.selectedFolder = null;
             renderTree();
             dispatchSelectionChange();
-          });
+          }, tag === state.selectedTag);
           treeContainer.appendChild(item);
         });
       }
 
       function renderFoldersTree() {
         var folders = SmartFolders.loadSmartFolders();
-        
+
         folders.forEach(function (folder) {
           var pages = SmartFolders.getPagesForSmartFolder(folder.id);
           var count = pages.length;
@@ -124,7 +124,7 @@
 
       function createTreeItem(type, label, count, onClick, isSelected) {
         var item = document.createElement('div');
-        item.className = 'tree-item tree-item-' + type;
+        item.className = 'tree-item tree-item-' + type + ' ' + type + '-item';
         item.style.display = 'flex';
         item.style.alignItems = 'center';
         item.style.justifyContent = 'space-between';
@@ -132,8 +132,9 @@
         item.style.cursor = 'pointer';
         item.style.borderRadius = '4px';
         item.style.marginBottom = '2px';
-        
+
         if (isSelected) {
+          item.classList.add('selected');
           item.style.background = 'var(--focus-color)';
           item.style.color = '#fff';
         } else {
@@ -211,7 +212,7 @@
         if (queryType === '1') {
           var tagsInput = prompt('タグをカンマ区切りで入力:');
           if (tagsInput) {
-            var tags = Tags.parseTags ? Tags.parseTags(tagsInput) : tagsInput.split(',').map(function(t) { return t.trim(); }).filter(Boolean);
+            var tags = Tags.parseTags ? Tags.parseTags(tagsInput) : tagsInput.split(',').map(function (t) { return t.trim(); }).filter(Boolean);
             var matchAll = confirm('すべてのタグが一致する必要がありますか？');
             query = { tags: tags, matchAll: matchAll };
           }
@@ -263,8 +264,8 @@
       console.error('TagsAndSmartFolders gadget failed:', e);
       el.textContent = 'タグ/スマートフォルダガジェットの初期化に失敗しました。';
     }
-  }, { 
-    groups: ['structure'],
-    title: 'タグ/スマートフォルダ' 
+  }, {
+    groups: ['wiki'],
+    title: 'タグ/スマートフォルダ'
   });
 })();

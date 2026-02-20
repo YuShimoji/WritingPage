@@ -385,11 +385,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const s = window.ZenWriterStorage.loadSettings();
             const sidebar = elementManager.get('sidebar');
             if (sidebar && s && s.ui) {
+                const isCompactViewport = !!(window.matchMedia && window.matchMedia('(max-width: 1024px)').matches);
                 if (typeof s.ui.sidebarWidth === 'number') {
                     const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
-                    sidebar.style.width = w + 'px';
-                    // CSS変数にも反映（main-content のオフセットと同期）
-                    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                    if (isCompactViewport) {
+                        // モバイル/タブレットではレスポンシブCSSを優先する
+                        sidebar.style.width = '';
+                        document.documentElement.style.removeProperty('--sidebar-width');
+                    } else {
+                        sidebar.style.width = w + 'px';
+                        // CSS変数にも反映（main-content のオフセットと同期）
+                        document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                    }
                 }
                 if (s.ui.tabsPresentation) {
                     sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));

@@ -104,6 +104,8 @@
         </section>
       </div>
     </aside>
+    <!-- サイドバーオーバーレイ（モバイルでサイドバー開閉時の背景暗転） -->
+    <div id="sidebar-overlay" class="sidebar-overlay" aria-hidden="true"></div>
 
     <!-- メインコンテンツ -->
     <main class="main-content">
@@ -137,15 +139,15 @@
             <option value="blank" data-i18n="MODE_BLANK">ブランクモード</option>
           </select>
           <!-- WIP: Phase 4 機能（非表示、コマンドパレットからアクセス可能） -->
-          <button id="toggle-text-animation" class="icon-button iconified wip-hidden" title="テキストアニメーション"
+          <button id="toggle-text-animation" class="icon-button iconified" title="テキストアニメーション"
             aria-label="テキストアニメーションパネルを開く">
             <i data-lucide="sparkles" aria-hidden="true"></i>
           </button>
-          <button id="toggle-font-decoration" class="icon-button iconified wip-hidden" title="フォント装飾" aria-label="フォント装飾パネルを開く">
+          <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
             <i data-lucide="type" aria-hidden="true"></i>
           </button>
-          <button id="toggle-spell-check" class="icon-button iconified wip-hidden" title="スペルチェック" aria-label="スペルチェックを切り替え"
-            aria-pressed="false">
+          <button id="toggle-spell-check" class="icon-button iconified wip-hidden" title="スペルチェック"
+            aria-label="スペルチェックを切り替え" aria-pressed="false">
             <i data-lucide="spell-check-2" aria-hidden="true"></i>
           </button>
           <button id="insert-stamp" class="icon-button iconified wip-hidden" title="文字数スタンプ挿入" aria-label="文字数スタンプを挿入">
@@ -154,18 +156,18 @@
           <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="テーマを切り替え">
             <i data-lucide="palette" aria-hidden="true"></i>
           </button>
-          <button id="toggle-ui-editor" class="icon-button iconified wip-hidden" title="UIエディタ" aria-label="UIエディタを開く">
+          <button id="toggle-ui-editor" class="icon-button iconified" title="UIエディタ" aria-label="UIエディタを開く">
             <i data-lucide="paintbrush" aria-hidden="true"></i>
           </button>
           <button id="toggle-preview" class="icon-button iconified" title="プレビューパネル" aria-label="プレビューパネルを開閉"
             aria-expanded="false" aria-controls="editor-preview">
             <i data-lucide="layout-template" aria-hidden="true"></i>
           </button>
-          <button id="toggle-split-view" class="icon-button iconified wip-hidden" title="分割ビュー" aria-label="分割ビューを開閉"
+          <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを開閉"
             aria-expanded="false" aria-controls="split-view-container">
             <i data-lucide="columns" aria-hidden="true"></i>
           </button>
-          <button id="toggle-wysiwyg" class="icon-button iconified wip-hidden" title="リッチテキストエディタに切り替え"
+          <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキストエディタに切り替え"
             aria-label="リッチテキストエディタに切り替え" aria-pressed="false">
             <i data-lucide="pen-tool" aria-hidden="true"></i>
           </button>
@@ -267,15 +269,14 @@
         <button class="modal-close" id="close-settings-modal" aria-label="設定を閉じる">&#x2715;</button>
       </div>
       <div class="modal-body">
-        <div id="settings-gadgets-panel" class="gadgets-panel" data-gadget-group="settings"
-          aria-label="設定ガジェット"></div>
+        <div id="settings-gadgets-panel" class="gadgets-panel" data-gadget-group="settings" aria-label="設定ガジェット"></div>
       </div>
     </div>
   </div>
 
   <!-- ヘルプモーダル -->
-  <div id="help-modal" class="modal-overlay" style="display: none" role="dialog"
-    aria-labelledby="help-modal-title" aria-modal="true">
+  <div id="help-modal" class="modal-overlay" style="display: none" role="dialog" aria-labelledby="help-modal-title"
+    aria-modal="true">
     <div class="modal-dialog modal-dialog--large">
       <div class="modal-header">
         <h2 id="help-modal-title" data-i18n="HELP_TITLE">ヘルプ</h2>
@@ -502,6 +503,7 @@
   <script src="js/editor-preview.js"></script>
   <script src="js/editor-images.js"></script>
   <script src="js/editor-overlays.js"></script>
+  <script src="js/images.js"></script>
   <script src="js/spell-checker.js"></script>
   <!-- Editor Modules -->
   <script src="js/modules/editor/EditorCore.js"></script>
@@ -542,7 +544,6 @@
       load('js/themes-advanced.js');
       load('js/plugins/registry.js');
       load('js/plugins/choice.js');
-      load('js/images.js');
       load('js/panels.js');
     })();
   </script>

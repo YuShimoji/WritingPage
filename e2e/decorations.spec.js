@@ -1,63 +1,17 @@
 const { test, expect } = require('@playwright/test');
-
-async function _openSidebarAndStructurePanel(page) {
-  // サイドバーを開き、structure グループを正式なAPI経由でアクティブにする
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
-  // SidebarManager に委譲して structure タブをアクティブ化
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('structure');
-      }
-    } catch (_) { /* noop */ }
-  });
-}
-
-async function openSidebarAndAssistPanel(page) {
-  // サイドバーを開き、assist グループをアクティブにする
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('assist');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('assist');
-      }
-    } catch (_) { /* noop */ }
-  });
-
-  // ガジェットがレンダリングされるまで待機
-  await page.waitForTimeout(500);
-}
+const {
+  enableAllGadgets,
+  openSidebarGroup,
+  exposeWipToolbarControls,
+  ensurePreviewOpen,
+} = require('./helpers');
 
 test.describe('Font Decoration System', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // Wait for editor to load
     await page.waitForSelector('#editor', { timeout: 10000 });
+    await exposeWipToolbarControls(page, ['toggle-font-decoration', 'toggle-text-animation']);
   });
 
   test('should render basic font decorations', async ({ page }) => {
@@ -171,8 +125,8 @@ test.describe('Font Decoration System', () => {
 
   test('should render font decorations in preview panel', async ({ page }) => {
     // Open preview panel
-    await page.click('#toggle-preview');
-    await page.waitForSelector('#markdown-preview-panel', { state: 'visible', timeout: 5000 });
+    await ensurePreviewOpen(page);
+    await page.waitForSelector('#editor-preview:not(.editor-preview--collapsed)', { timeout: 5000 });
 
     // Type text with decorations
     await page.fill('#editor', '[bold]太字テキスト[/bold]\n[italic]斜体テキスト[/italic]\n[underline]下線テキスト[/underline]');
@@ -189,8 +143,8 @@ test.describe('Font Decoration System', () => {
 
   test('should render text animations in preview panel', async ({ page }) => {
     // Open preview panel
-    await page.click('#toggle-preview');
-    await page.waitForSelector('#markdown-preview-panel', { state: 'visible', timeout: 5000 });
+    await ensurePreviewOpen(page);
+    await page.waitForSelector('#editor-preview:not(.editor-preview--collapsed)', { timeout: 5000 });
 
     // Type text with animations
     await page.fill('#editor', '[pulse]パルス[/pulse]\n[shake]シェイク[/shake]');
@@ -332,13 +286,14 @@ test.describe('HUD Settings', () => {
 
     await page.reload();
 
-    // HUDSettings は assist グループのガジェットとして描画される
-    await openSidebarAndAssistPanel(page);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'settings');
+    await page.waitForSelector('#settings-gadgets-panel', { state: 'visible', timeout: 10000 });
   });
 
   test('should display HUD settings gadget', async ({ page }) => {
-    // HUDSettings gadget should be available in assist group
-    const hudGadgets = await page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
+    // HUDSettings gadget should be available in settings group
+    const hudGadgets = await page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -346,7 +301,7 @@ test.describe('HUD Settings', () => {
   test('should update HUD width setting', async ({ page }) => {
     // HUDSettings ガジェットを対象とする
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const widthInput = hudGadget.locator('input[type="number"][min="120"]').first();
@@ -358,7 +313,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD font size setting', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const fsInput = hudGadget.locator('input[type="number"][min="10"]').first();
@@ -370,7 +325,7 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD colors', async ({ page }) => {
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const firstColorInput = hudGadget.locator('input[type="color"]').first();

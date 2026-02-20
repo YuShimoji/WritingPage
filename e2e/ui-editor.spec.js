@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { exposeWipToolbarControls } = require('./helpers');
 
 /**
  * UIエディタのE2Eテスト
@@ -10,6 +11,8 @@ test.describe('UI Visual Editor', () => {
     await page.goto('/');
     // ページが完全に読み込まれるまで待機
     await page.waitForLoadState('networkidle');
+    await exposeWipToolbarControls(page, ['toggle-ui-editor']);
+    await page.waitForSelector('#toggle-ui-editor', { state: 'visible', timeout: 10000 });
   });
 
   test('should activate and deactivate UI editor', async ({ page }) => {
@@ -189,7 +192,7 @@ test.describe('UI Visual Editor', () => {
 
     // エディタモードのチェックボックスを無効化
     const enableCheckbox = page.locator('#ui-editor-enable');
-    await enableCheckbox.uncheck();
+    await enableCheckbox.click();
 
     // パネルが閉じられることを確認
     const panel = page.locator('#ui-editor-panel');
@@ -197,7 +200,9 @@ test.describe('UI Visual Editor', () => {
 
     // 再度有効化
     await page.locator('#toggle-ui-editor').click();
-    await enableCheckbox.check();
+    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    const enableCheckboxAfterReopen = page.locator('#ui-editor-enable');
+    await expect(enableCheckboxAfterReopen).toBeChecked();
 
     // パネルが表示されることを確認
     await expect(panel).toBeVisible();

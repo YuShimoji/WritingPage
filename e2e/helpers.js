@@ -68,9 +68,44 @@ async function openSidebarGroup(page, group) {
   await page.waitForTimeout(500);
 }
 
+async function exposeWipToolbarControls(page, ids) {
+  const defaultIds = [
+    'toggle-font-decoration',
+    'toggle-text-animation',
+    'toggle-ui-editor',
+    'toggle-split-view',
+    'toggle-wysiwyg',
+  ];
+  const targetIds = Array.isArray(ids) && ids.length > 0 ? ids : defaultIds;
+
+  await page.evaluate((controlIds) => {
+    (controlIds || []).forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('wip-hidden');
+      if (el.style && el.style.display === 'none') {
+        el.style.display = '';
+      }
+    });
+  }, targetIds);
+}
+
+async function ensurePreviewOpen(page) {
+  await page.evaluate(() => {
+    const preview = document.getElementById('editor-preview');
+    const isCollapsed = preview && preview.classList.contains('editor-preview--collapsed');
+    if (isCollapsed && window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+      window.ZenWriterEditor.togglePreview();
+    }
+  });
+  await page.waitForTimeout(200);
+}
+
 module.exports = {
   openCommandPalette,
   openSearchPanel,
   enableAllGadgets,
   openSidebarGroup,
+  exposeWipToolbarControls,
+  ensurePreviewOpen,
 };

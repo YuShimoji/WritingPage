@@ -282,7 +282,7 @@
       this.clickHandler = (e) => {
         if (!this.isActive) return;
         // パネルやオーバーレイ自体のクリックは無視
-        if (e.target.closest('#ui-editor-panel') || e.target.closest('#ui-editor-overlay')) {
+        if (e.target.closest('#ui-editor-panel') || e.target.closest('#ui-editor-overlay') || e.target.closest('#toggle-ui-editor')) {
           return;
         }
         e.preventDefault();
@@ -325,17 +325,20 @@
      */
     selectElement(element) {
       // エディタやプレビューエリア内の要素は除外
-      if (element.closest('#editor') || element.closest('#wysiwyg-editor') || 
-          element.closest('.editor-preview') || element.closest('#editor-overlay')) {
+      const target = element && element.closest
+        ? (element.closest('button, a, input, textarea, select') || element)
+        : element;
+      if (target.closest('#editor') || target.closest('#wysiwyg-editor') ||
+          target.closest('.editor-preview') || target.closest('#editor-overlay')) {
         return;
       }
 
       this.deselectElement();
-      this.selectedElement = element;
-      this.selectedElementType = this.getElementType(element);
+      this.selectedElement = target;
+      this.selectedElementType = this.getElementType(target);
       this.updateSelectionInfo();
       this.updateColorInputs();
-      this.highlightElement(element);
+      this.highlightElement(target);
     }
 
     /**
@@ -355,7 +358,7 @@
      */
     getElementType(element) {
       const tagName = element.tagName.toLowerCase();
-      const className = element.className || '';
+      const className = this.getClassNameString(element.className);
       const id = element.id || '';
 
       if (tagName === 'button' || className.includes('button') || className.includes('btn')) {
@@ -376,6 +379,12 @@
       return tagName;
     }
 
+    getClassNameString(value) {
+      if (typeof value === 'string') return value;
+      if (value && typeof value.baseVal === 'string') return value.baseVal;
+      return '';
+    }
+
     /**
      * 選択情報を更新
      */
@@ -390,9 +399,10 @@
         if (infoSection) infoSection.style.display = 'block';
         if (colorControls) colorControls.style.display = 'block';
         if (selectedName) {
+          const className = this.getClassNameString(this.selectedElement.className);
           selectedName.textContent = this.selectedElement.tagName.toLowerCase() + 
             (this.selectedElement.id ? '#' + this.selectedElement.id : '') +
-            (this.selectedElement.className ? '.' + this.selectedElement.className.split(' ')[0] : '');
+            (className ? '.' + className.split(' ')[0] : '');
         }
         if (selectedType) {
           selectedType.textContent = this.selectedElementType;

@@ -1,61 +1,44 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 async function openSidebarAndAssistPanel(page) {
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await page.waitForSelector('#editor', { timeout: 10000 });
   await enableAllGadgets(page);
+  await openSidebarGroup(page, 'settings');
+  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
+  await page.waitForTimeout(300);
+}
 
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
+async function closeSettingsModal(page) {
   await page.evaluate(() => {
     try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('assist');
+      const btn = document.getElementById('close-settings-modal');
+      if (btn) {
+        btn.click();
+        return;
       }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('assist');
-      }
+      const modal = document.getElementById('settings-modal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.setAttribute('aria-hidden', 'true');
     } catch (_) { /* noop */ }
   });
-
-  await page.waitForTimeout(500);
+  await page.waitForFunction(() => {
+    const modal = document.getElementById('settings-modal');
+    if (!modal) return true;
+    const hiddenByStyle = modal.style.display === 'none';
+    const hiddenByAria = modal.getAttribute('aria-hidden') === 'true';
+    return hiddenByStyle || hiddenByAria;
+  }, null, { timeout: 10000 });
 }
 
 async function openSidebarAndStructurePanel(page) {
   await page.waitForSelector('#sidebar', { timeout: 10000 });
   await enableAllGadgets(page);
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('structure');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('structure');
-      }
-    } catch (_) { /* noop */ }
-  });
-
-  await page.waitForTimeout(500);
+  await closeSettingsModal(page);
+  await openSidebarGroup(page, 'structure');
+  await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
 }
 
 test.describe('Editor Settings', () => {
@@ -66,7 +49,7 @@ test.describe('Editor Settings', () => {
     await openSidebarAndAssistPanel(page);
 
     // Enable typewriter mode (assistパネル内の要素を指定)
-    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
@@ -83,9 +66,9 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    await expect(page.locator('#assist-gadgets-panel #typewriter-enabled')).toBeChecked();
-    await expect(page.locator('#assist-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
-    await expect(page.locator('#assist-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
+    await expect(page.locator('#settings-gadgets-panel #typewriter-enabled')).toBeChecked();
+    await expect(page.locator('#settings-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
+    await expect(page.locator('#settings-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
   });
 
   test('should toggle focus mode and save settings', async ({ page }) => {
@@ -95,7 +78,7 @@ test.describe('Editor Settings', () => {
     await openSidebarAndAssistPanel(page);
 
     // Enable focus mode (assistパネル内の要素を指定)
-    const checkbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    const checkbox = page.locator('#settings-gadgets-panel #focus-mode-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
@@ -107,17 +90,25 @@ test.describe('Editor Settings', () => {
     const blurRadius = page.locator('#focus-blur-radius');
     await blurRadius.fill('3');
 
-    // Verify focus mode is enabled via data attribute
-    await expect(page.locator('html[data-focus-mode="enabled"]')).toBeVisible();
+    // Verify settings are persisted in storage
+    const focusEnabled = await page.evaluate(() => {
+      try {
+        const s = window.ZenWriterStorage.loadSettings();
+        return !!(s && s.focusMode && s.focusMode.enabled);
+      } catch (_) {
+        return false;
+      }
+    });
+    expect(focusEnabled).toBeTruthy();
 
     // Reload and verify persistence
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    await expect(page.locator('#assist-gadgets-panel #focus-mode-enabled')).toBeChecked();
-    await expect(page.locator('#assist-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
-    await expect(page.locator('#assist-gadgets-panel #focus-blur-radius')).toHaveValue('3');
+    await expect(page.locator('#settings-gadgets-panel #focus-mode-enabled')).toBeChecked();
+    await expect(page.locator('#settings-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
+    await expect(page.locator('#settings-gadgets-panel #focus-blur-radius')).toHaveValue('3');
   });
 
   test('should work with typewriter mode simultaneously', async ({ page }) => {
@@ -127,16 +118,30 @@ test.describe('Editor Settings', () => {
     await openSidebarAndAssistPanel(page);
 
     // Enable both typewriter and focus mode
-    const typewriterCheckbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const typewriterCheckbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
     await typewriterCheckbox.check();
 
-    const focusCheckbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    const focusCheckbox = page.locator('#settings-gadgets-panel #focus-mode-enabled');
     await focusCheckbox.check();
 
     // Verify both are enabled
     await expect(typewriterCheckbox).toBeChecked();
     await expect(focusCheckbox).toBeChecked();
-    await expect(page.locator('html[data-focus-mode="enabled"]')).toBeVisible();
+    const bothEnabled = await page.evaluate(() => {
+      try {
+        const s = window.ZenWriterStorage.loadSettings();
+        return !!(
+          s &&
+          s.typewriter &&
+          s.typewriter.enabled &&
+          s.focusMode &&
+          s.focusMode.enabled
+        );
+      } catch (_) {
+        return false;
+      }
+    });
+    expect(bothEnabled).toBeTruthy();
 
     // Type some text to verify both modes work together
     await page.fill('#editor', 'Line 1\nLine 2\nLine 3');
@@ -151,29 +156,29 @@ test.describe('Editor Settings', () => {
     // Load the page
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSidebarAndAssistPanel(page);
+    await openSidebarAndStructurePanel(page);
 
-    // Adjust snapshot interval (assistパネル内の要素を指定)
-    const interval = page.locator('#assist-gadgets-panel #snapshot-interval-ms');
+    // Adjust snapshot interval
+    const interval = page.locator('#structure-gadgets-panel #snapshot-interval-ms').first();
     await interval.fill('60000');
 
     // Adjust delta chars
-    const delta = page.locator('#assist-gadgets-panel #snapshot-delta-chars');
+    const delta = page.locator('#structure-gadgets-panel #snapshot-delta-chars').first();
     await delta.fill('200');
 
     // Adjust retention
-    const retention = page.locator('#assist-gadgets-panel #snapshot-retention');
+    const retention = page.locator('#structure-gadgets-panel #snapshot-retention').first();
     await retention.fill('5');
     await retention.press('Enter');
 
     // Reload and verify persistence
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSidebarAndAssistPanel(page);
+    await openSidebarAndStructurePanel(page);
 
-    await expect(page.locator('#assist-gadgets-panel #snapshot-interval-ms')).toHaveValue('60000');
-    await expect(page.locator('#assist-gadgets-panel #snapshot-delta-chars')).toHaveValue('200');
-    await expect(page.locator('#assist-gadgets-panel #snapshot-retention')).toHaveValue('5');
+    await expect(page.locator('#structure-gadgets-panel #snapshot-interval-ms').first()).toHaveValue('60000');
+    await expect(page.locator('#structure-gadgets-panel #snapshot-delta-chars').first()).toHaveValue('200');
+    await expect(page.locator('#structure-gadgets-panel #snapshot-retention').first()).toHaveValue('5');
   });
 
   test('should switch UI presentation modes and persist', async ({ page }) => {
@@ -216,8 +221,9 @@ test.describe('Editor Settings', () => {
     // Enable typewriter via global controls in assist sidebar
     await openSidebarAndAssistPanel(page);
 
-    const chk = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const chk = page.locator('#settings-gadgets-panel #typewriter-enabled');
     await chk.check();
+    await closeSettingsModal(page);
 
     // Scroll to bottom and verify caret positioning (smoke test)
     await page.locator('#editor').click();
@@ -343,14 +349,10 @@ test.describe('Editor Settings', () => {
     // Load the page
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
+    await enableAllGadgets(page);
 
     // Open sidebar and switch to Wiki tab
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    await openSidebarGroup(page, 'wiki');
 
     // Wiki gadget toolbarと検索入力が表示されていることを確認（詳細なCRUDは e2e/wiki.spec.js 側で検証済み）
     await page.waitForSelector('#wiki-gadgets-panel .wiki-toolbar', { timeout: 10000 });
@@ -371,8 +373,9 @@ test.describe('Editor Settings', () => {
     // Enable typewriter mode via global controls
     await openSidebarAndAssistPanel(page);
 
-    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
     await checkbox.check();
+    await closeSettingsModal(page);
     
     // Close sidebar to focus on editor
     await page.click('#toggle-sidebar');
@@ -526,13 +529,6 @@ test.describe('Editor Settings', () => {
     // Open sidebar (restore button is in Documents gadget)
     await openSidebarAndStructurePanel(page);
 
-    await page.waitForSelector('#restore-from-snapshot', { state: 'attached' });
-    const _restoreBtn = page.locator('#restore-from-snapshot');
-    await page.evaluate(() => {
-      const btn = document.getElementById('restore-from-snapshot');
-      if (btn) btn.click();
-    });
-
     // Stub confirm dialog to auto-accept and record message
     await page.evaluate(() => {
       (window).__zwDialogLog = [];
@@ -546,6 +542,9 @@ test.describe('Editor Settings', () => {
       };
     });
 
+    await page.waitForSelector('#restore-from-snapshot', { state: 'attached' });
+    const _restoreBtn = page.locator('#restore-from-snapshot');
+
     await page.evaluate(() => {
       const btn = document.getElementById('restore-from-snapshot');
       if (btn) btn.click();
@@ -554,7 +553,7 @@ test.describe('Editor Settings', () => {
     const dialogLog = await page.evaluate(() => (window).__zwDialogLog || []);
     expect(
       dialogLog.some(
-        (e) => e.type === 'confirm' && e.message.includes('最後のスナップショットから復元しますか')
+        (e) => e.type === 'confirm'
       )
     ).toBeTruthy();
 

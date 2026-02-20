@@ -644,6 +644,8 @@
   var API = {
     init: init,
     render: renderOverlay,
+    // Backward compatibility for E2E/tests and legacy callers.
+    addFromDataURL: addFromDataURL,
     addFromFile: addFromFile,
     addFromUrl: addFromUrl,
     remove: remove,
