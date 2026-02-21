@@ -25,3 +25,21 @@ Target modules: `AppCore`, `AppUI`, `AppEvents`.
 - [ ] Event listeners isolated in `AppEvents.js`.
 - [ ] UI setup code isolated in `AppUI.js`.
 - [ ] `npm run test:smoke` passes.
+
+## Test Phase
+Stable
+
+## Test Plan
+- テスト対象: `window.app` の公開参照維持、`AppCore`/`AppUI`/`AppEvents` 分割後の初期化フロー
+- テスト種別: Unit（推奨）, Smoke（必須）, E2E（推奨）, Build（推奨）
+- 期待結果:
+  - 起動時に `window.app` が既存仕様どおり利用可能
+  - `npm run test:smoke` が成功
+  - 主要E2Eシナリオで初期化失敗が発生しない
+
+## Milestone
+- SG-1（Batch 1 の実装着手順序を確定）
+- MG-1（リファクタリングと型安全化の完了）
+
+## 停止条件
+- 初期化順序変更により既存機能の広範な回帰が避けられない場合は停止し、段階移行案へ切り替える。

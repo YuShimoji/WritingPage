@@ -29,3 +29,21 @@ Target modules: `EditorCore`, `EditorSearch`, `EditorUI`.
 - [ ] Core editing logic remains in `js/modules/editor/EditorCore.js`.
 - [ ] `npm run test:smoke` passes.
 - [ ] `npm run test:e2e` passes.
+
+## Test Phase
+Stable
+
+## Test Plan
+- テスト対象: `EditorManager` の公開インターフェース互換性、`EditorCore`/`EditorSearch`/`EditorUI` の分割後連携
+- テスト種別: Unit（推奨）, E2E（必須）, Smoke（必須）, Build（推奨）
+- 期待結果:
+  - 既存呼び出し側から `EditorManager` 利用時に破壊的変更がない
+  - `npm run test:smoke` が成功
+  - `npm run test:e2e` が成功
+
+## Milestone
+- SG-1（Batch 1 の実装着手順序を確定）
+- MG-1（リファクタリングと型安全化の完了）
+
+## 停止条件
+- `EditorManager` の外部互換を維持できない構造変更が必要と判明した場合は停止し、設計見直しを要求する。

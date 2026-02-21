@@ -238,16 +238,12 @@
 - [pending] レスポンシブUI改善（モバイル/タブレット対応） (ref: docs/tasks/TASK_036_responsive_ui_improvement.md, Status: CLOSED)
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
 - [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: CLOSED)
-- [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: COMPLETED)
 - [pending] 柔軟なタブ配置システム (Flexible Tab Placement) (ref: docs/tasks/TASK_045_flexible_tab_placement.md, Status: OPEN)
 - [pending] editor.js Refactoring (ref: docs/tasks/TASK_046_refactor_editor_js.md, Status: OPEN)
 - [pending] app.js Refactoring (ref: docs/tasks/TASK_047_refactor_app_js.md, Status: OPEN)
 - [pending] Generic Floating Panel (ref: docs/tasks/TASK_048_generic_floating_panel.md, Status: OPEN)
-- [x] Audit Smoke Test Expectations (ref: docs/tasks/TASK_049_audit_smoke_expectations.md, Status: COMPLETED)
-- [x] Audit OpenSpec Triage (ref: docs/tasks/TASK_050_audit_openspec_triage.md, Status: COMPLETED)
 - [pending] Plugin System Design (ref: docs/tasks/TASK_051_plugin_system_design.md, Status: OPEN)
 - [pending] Gadget API Type Safety (ref: docs/tasks/TASK_052_gadget_api_type_safety.md, Status: OPEN)
-- [x] UI Stability and Cleanup (ref: docs/tasks/TASK_053_ui_stability_cleanup.md, Status: COMPLETED)
 - [pending] Graphic Novel Ruby Text (ref: docs/tasks/TASK_054_graphic_novel_ruby_text.md, Status: OPEN)
 
 ### Worker完了ステータス

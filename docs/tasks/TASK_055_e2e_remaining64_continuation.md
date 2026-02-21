@@ -67,3 +67,21 @@ Updated: 2026-02-13T00:00:00+09:00
 - [ ] 高頻度クラスターに対する修正を実装済み
 - [ ] `npm run test:e2e:ci` 再実行で失敗件数を前回（64）より削減
 - [x] 変更内容と残課題を `AI_CONTEXT.md` に記録
+
+## Test Phase
+Hardening
+
+## Test Plan
+- テスト対象: 失敗クラスター（responsive-ui / tags-smart-folders / decorations / ui-editor / collage）
+- テスト種別: E2E（必須）, Smoke（必須）, Build（推奨）
+- 期待結果:
+  - `npm run test:e2e:ci` の failed 件数が 64 未満に減少
+  - 修正クラスターの局所再実行で安定して再現/成功する
+  - `npm run test:smoke` が成功
+
+## Milestone
+- SG-1（Batch 1 の実装着手順序を確定）
+- MG-2（UI強化タスク群の収束）
+
+## 停止条件
+- 失敗要因が環境依存（CI/実行基盤）に偏り、アプリ側修正では収束不能と判定した場合は停止して環境チケットへ分離する。

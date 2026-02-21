@@ -1733,3 +1733,135 @@ ode scripts/todo-sync.js �����s���AAI_CONTEXT.md ���X�V�B
 ## Phase 5: Worker �N���p�v�����v�g�����i���� 2026-02-03�j
 - Batch 1 (Worker 1, 2, 3) �p�̃v�����v�g�𐶐��B
 - ���[�U�[�Ɋe Worker �̋N�����˗��B
+
+## Phase 2: 状況把握（2026-02-22 再開セッション）
+
+### 追記時刻
+- 2026-02-22T06:03:52+09:00
+
+### 実施内容
+- `.shared-workflows` を `origin/main` に同期（Behind 2 → 0）。
+- `docs/HANDOVER.md` から現況を抽出。
+  - Current Objective: プロジェクト安定化とリファクタリング、UI品質向上
+  - Blockers: なし
+  - OPEN候補: TASK_045/046/047/048/051/052/054
+- `docs/tasks/` を棚卸しし、`OPEN: 7 / READY: 1 / DONE系: 45 / CLOSED: 6` を確認。
+- `docs/MILESTONE_PLAN.md` が未作成だったため、テンプレートから新規作成。
+- `node scripts/todo-sync.js` を実行し、`AI_CONTEXT.md` を同期。
+
+### In-progress
+- なし（次フェーズで Worker 割当戦略を作成）
+
+### Blockers
+- 重大ブロッカーなし
+- 注意: `MISSION_LOG.md is stale` 警告（運用上の鮮度問題）
+
+### 次タスク
+- TASK_046_refactor_editor_js.md
+- TASK_047_refactor_app_js.md
+- TASK_052_gadget_api_type_safety.md
+- TASK_055_e2e_remaining64_continuation.md（Status: READY）
+
+### 次フェーズ
+- P2.5（発散思考）
+
+## Phase 2.5: 発散思考（2026-02-22）
+
+### モード判定
+- Stable 以降モードを採用（既存UI/エディタの公開インターフェースが継続利用されているため）
+
+### 3案比較（3段階尺度）
+- 案A: 先に基盤（TASK_046/047/052）を固め、その後 UI機能（TASK_048/054/045）へ進む
+  - 推奨度: ★★★
+  - 理由: 依存逆流を防ぎ、後続UIタスクの手戻りを最小化できる
+- 案B: UI価値先行（TASK_054/048）を先に実装し、基盤整理は後追い
+  - 推奨度: ★★☆
+  - 理由: 体験価値は早いが、API変更時の再修正リスクが高い
+- 案C: READYタスク（TASK_055）単独先行でE2E安定化のみ実施
+  - 推奨度: ★☆☆
+  - 理由: 品質確認には有効だが、OPEN主要課題の消化が進まない
+
+### Impact Radar（要点）
+- コード: `js/editor.js` `js/app.js` `js/gadgets-*` へ中〜高影響
+- テスト: E2Eケース更新とスモーク期待値調整が必要
+- パフォーマンス: 初期化フロー分割で改善余地あり
+- UX: フローティングパネル/ルビ表示の仕様変更が直接影響
+- 連携: Wiki/Sidebar/Gadget連携で回帰リスクあり
+
+### Devil's Advocate
+- リスク: 案Aは短期でユーザー可視成果が薄く見える
+- 軽減策: TASK_055を並行で最小実施し、回帰可視化を先行提供する
+
+### 収束結果
+- 推奨アプローチ: 案A（基盤先行）
+- 選択理由: 中期目標MG-1の達成が最短で、UI系タスクの再実装コストを最小化できるため
+
+### 次フェーズ
+- P3（分割と戦略）
+
+## Phase 3: 分割と戦略（2026-02-22）
+
+### 追記時刻
+- 2026-02-22T06:03:52+09:00
+
+### タスク分類
+- Tier 1: TASK_055（E2E収束）, TASK_051（Plugin設計）
+- Tier 2: TASK_046, TASK_047, TASK_052, TASK_054
+- Tier 3: TASK_045, TASK_048
+
+### Worker 割当（最大3）
+- Worker-1（基盤リファクタ）: TASK_046 + TASK_047
+  - Focus: `js/editor.js`, `js/modules/editor/`, `js/app.js`, `js/modules/app/`
+  - Forbidden: `js/gadgets-core.js`, `.shared-workflows/**`
+- Worker-2（型安全化）: TASK_052
+  - Focus: `js/gadgets-core.js`
+  - Forbidden: `.shared-workflows/**`, `js/editor.js`, `js/app.js` の破壊的変更
+- Worker-3（品質収束）: TASK_055
+  - Focus: `e2e/**/*.spec.js`, `e2e/helpers.js`
+  - Forbidden: `.shared-workflows/**`, 期待値緩和のみの対症療法
+
+### テスト戦略
+- Test Phase: Stable（TASK_046/047/052）, Hardening（TASK_055）
+- 必須テスト:
+  - TASK_046: smoke + e2e
+  - TASK_047: smoke + 主要e2e
+  - TASK_052: unit + smoke
+  - TASK_055: e2e:ci + smoke
+
+### リスク軽減策
+- リスク: 基盤先行により成果可視化が遅れる
+- 軽減: TASK_055 を並行し、failed件数の定量改善を同時に提示する
+- フォールバック: 046/047 が難航した場合、052 と 055 を先行完了して MG-1 リスクを圧縮
+
+### マイルストーン紐付け
+- SG-1: TASK_046/047/052/055
+- MG-1: TASK_046/047/052
+- MG-2: TASK_055（前倒し検証）
+
+### 次フェーズ
+- P4（チケット整備）
+
+## Phase 4: チケット整備（2026-02-22）
+
+### 実施内容
+- 既存OPEN/READYチケットのうち優先4件をP4要件へ更新:
+  - `docs/tasks/TASK_046_refactor_editor_js.md`
+  - `docs/tasks/TASK_047_refactor_app_js.md`
+  - `docs/tasks/TASK_052_gadget_api_type_safety.md`
+  - `docs/tasks/TASK_055_e2e_remaining64_continuation.md`
+- 追記項目: `Test Phase`, `Test Plan`, `Milestone`, `停止条件`
+
+### 次フェーズ
+- P5（Worker起動用プロンプト生成）
+
+## Phase 5: Worker起動用プロンプト生成（2026-02-22）
+
+### 実施内容
+- 以下の Worker Prompt を生成:
+  - `docs/inbox/WORKER_PROMPT_TASK_046_refactor_editor_js.md`
+  - `docs/inbox/WORKER_PROMPT_TASK_047_refactor_app_js.md`
+  - `docs/inbox/WORKER_PROMPT_TASK_052_gadget_api_type_safety.md`
+  - `docs/inbox/WORKER_PROMPT_TASK_055_e2e_remaining64_continuation.md`
+
+### 次フェーズ
+- P6（Orchestrator Report）または Worker 実行開始
