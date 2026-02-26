@@ -113,3 +113,27 @@ Hardening
 1. ガジェット表示タイミングの統一（helpers.js の改善）
 2. decorations/collage 等の個別ガジェット修正
 3. E2E失敗を50件以下に削減
+
+---
+
+## 追加引き継ぎ（2026-02-26）
+
+本タスク継続中に派生した UI/リッチテキストの不具合対応について、追跡可能な引き継ぎ資料を追加した。
+
+- 追跡レポート:
+  - `docs/reports/REPORT_TASK_055_followup_tracking_20260226.md`
+- 直近修正コミット:
+  - `ad75267`（distビルド導線）
+  - `02b93f8`（Documents gadget + Start Menu導線）
+  - `e6f2f50`（リッチテキストUX改善）
+  - `48cf0da`（表示崩れ/パネル見切れ/ドラッグ不可/タグ正規化の修正）
+
+### 引き継ぎ時の最小確認セット
+1. `npm run lint:js:check`
+2. `npm run test:smoke`
+3. `npm run app:install`
+4. スタートメニュー `Zen Writer` で起動し、以下を目視確認
+   - ヘッダーに `??` が出ない
+   - フォント装飾/クイックツールが見切れずドラッグ移動できる
+   - WYSIWYG装飾が選択範囲に適用される
+   - 装飾タグが `\[bold]` のようにエスケープ化しない

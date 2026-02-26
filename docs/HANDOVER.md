@@ -256,6 +256,34 @@ node scripts/flush-reports.js --force
 
 ---
 
+## 追加引き継ぎ（2026-02-26 UI崩れ/リッチテキスト対応）
+
+### 目的
+- ユーザー報告の懸念点（表示崩れ、パネル見切れ、ドラッグ不可、リッチテキスト不整合）が本当に解消されたかを再確認可能にする
+
+### 追跡資料
+- `docs/reports/REPORT_TASK_055_followup_tracking_20260226.md`
+
+### 対象コミット
+- `ad75267`（distビルド導線）
+- `02b93f8`（Documents gadget + Start Menu導線）
+- `e6f2f50`（リッチテキストUX改善）
+- `48cf0da`（表示崩れ/パネルドラッグ/タグ正規化修正）
+
+### 再確認コマンド
+1. `npm run lint:js:check`
+2. `npm run test:smoke`
+3. `npm run app:install`
+
+### 目視チェック
+- スタートメニュー `Zen Writer` から起動できる
+- ヘッダーに `??` 表示がない
+- フォント装飾パネルとクイックツールがドラッグ移動でき、画面外へはみ出さない
+- WYSIWYG装飾が選択範囲に適用される
+- `[bold]...[/bold]` が `\[bold]` に化けない
+
+---
+
 ## 追加引き継ぎ（作業途中・2026-02-25T13:52:05+09:00）
 
 ### 現在の状態（未コミット）
@@ -282,4 +310,3 @@ node scripts/flush-reports.js --force
 1. npm run test:smoke を実行して回帰確認
 2. 必要なら npm run test:e2e:ci を実行
 3. 問題なければ git add -A && git commit で v0.3.25 の中間確定
-
