@@ -5,8 +5,8 @@
 Zen Writer — ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
 コードベースのリファクタリング・品質向上を進行中。
 
-- **バージョン**: 0.3.24
-- **最終更新**: 2026-02-06
+- **バージョン**: 0.3.25
+- **最終更新**: 2026-02-26
 - **ブランチ**: main（origin/main と同期済み）
 
 ## 再開手順
@@ -25,13 +25,13 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 | テスト | 状態 | コマンド |
 |--------|------|----------|
 | Smoke | ✅ ALL PASSED | `npm run test:smoke` |
-| E2E | ✅ 46 passed | `npm run test:e2e:ci` |
-| Lint | ⚠️ 多数エラー残存 | `npm run lint` |
+| E2E | ⚠️ 63 passed / 21 skipped / 83 failed | `npm run test:e2e:ci` |
+| Lint | ✅ ALL PASSED | `npm run lint` |
 
 ### アーキテクチャ概要
 
 - **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js`
-- **サイドバー**: `SidebarManager`（SSOT）→ 4グループ: structure / typography / assist / wiki
+- **サイドバー**: `SidebarManager`（SSOT）→ 3グループ: structure / wiki / assist (v0.3.25でtypographyタブを削減)
 - **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み
 - **テーマ**: `ThemeRegistry` で集中管理（light/dark/night/sepia/high-contrast/solarized）
 - **フローティングパネル**: `js/panels.js` — ドッキング/フローティング切替、透明度、折りたたみ
@@ -46,15 +46,17 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 
 ## オープンタスク
 
-| タスク | 内容 | 優先度 |
-|--------|------|--------|
-| TASK_045 | 柔軟なタブ配置システム | P2 |
-| TASK_046 | editor.js リファクタリング | P1 |
-| TASK_047 | app.js リファクタリング | P1 |
-| TASK_048 | 汎用フローティングパネル | P1 |
-| TASK_051 | プラグインシステム設計 | P2 |
-| TASK_052 | ガジェットAPI型安全性 | P2 |
-| TASK_054 | グラフィックノベル ルビテキスト | P2 |
+| タスク | 内容 | 優先度 | 状態 |
+|--------|------|--------|------|
+| TASK_045 | 柔軟なタブ配置システム | P2 | OPEN |
+| TASK_046 | editor.js リファクタリング | P1 | OPEN |
+| TASK_047 | app.js リファクタリング | P1 | OPEN |
+| TASK_048 | 汎用フローティングパネル | P1 | OPEN |
+| TASK_051 | プラグインシステム設計 | P2 | OPEN |
+| TASK_052 | ガジェットAPI型安全性 | P2 | OPEN |
+| TASK_054 | グラフィックノベル ルビテキスト | P2 | OPEN |
+| TASK_055 | E2E残件64の失敗パターン分析・修正 | P1 | COMPLETED |
+| TASK_057 | サイドバー再設計 | P1 | COMPLETED |
 
 詳細: `docs/tasks/TASK_***.md`
 
