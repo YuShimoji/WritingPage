@@ -40,7 +40,7 @@ class SidebarManager {
                 id: 'settings',
                 label: '設定',
                 description: 'アプリ設定',
-                panelId: 'settings-gadgets-panel'
+                panelId: 'sidebar-settings-gadgets-panel'
             }
         ];
     }
@@ -95,7 +95,7 @@ class SidebarManager {
 
             orderedTabs.forEach(tab => {
                 try {
-                    this.addTab(tab.id, tab.label, { persist: false });
+                    this.addTab(tab.id, tab.label, { persist: false, panelId: tab.panelId });
                 } catch (_) { }
             });
 
@@ -251,7 +251,7 @@ class SidebarManager {
         }
     }
 
-    _ensureSidebarPanel(groupId, label) {
+    _ensureSidebarPanel(groupId, label, panelId) {
         try {
             const groupsContainer = document.querySelector('.sidebar-groups');
             if (!groupsContainer || !groupId) return null;
@@ -260,6 +260,7 @@ class SidebarManager {
             const safeLabel = String(label || safeId);
 
             const expectedSectionId = 'sidebar-group-' + safeId;
+            const expectedPanelId = String(panelId || (safeId + '-gadgets-panel'));
             let section = document.getElementById(expectedSectionId);
             if (!section) {
                 section = groupsContainer.querySelector('.sidebar-group[data-group="' + safeId + '"], [data-group="' + safeId + '"]');
@@ -283,14 +284,13 @@ class SidebarManager {
                 if (!panel) {
                     const wrapper = section.querySelector('.sidebar-section') || section;
                     panel = document.createElement('div');
-                    panel.id = safeId + '-gadgets-panel';
+                    panel.id = expectedPanelId;
                     panel.className = 'gadgets-panel';
                     panel.dataset.gadgetGroup = safeId;
                     panel.setAttribute('aria-label', safeLabel + 'ガジェット');
                     wrapper.appendChild(panel);
                 } else {
                     try {
-                        const expectedPanelId = safeId + '-gadgets-panel';
                         panel.classList.add('gadgets-panel');
                         panel.dataset.gadgetGroup = safeId;
                         if (!panel.id || (panel.id !== expectedPanelId && !document.getElementById(expectedPanelId))) {
@@ -312,7 +312,7 @@ class SidebarManager {
                 wrapper.className = 'sidebar-section';
 
                 panel = document.createElement('div');
-                panel.id = safeId + '-gadgets-panel';
+                panel.id = expectedPanelId;
                 panel.className = 'gadgets-panel';
                 panel.dataset.gadgetGroup = safeId;
                 panel.setAttribute('aria-label', safeLabel + 'ガジェット');
@@ -334,16 +334,18 @@ class SidebarManager {
             var safeLabel = String(label || safeId);
             var opts = (options && typeof options === 'object') ? options : {};
             var persist = opts.persist !== false;
+            var panelId = String(opts.panelId || (safeId + '-gadgets-panel'));
             try {
                 if (window.ZWGadgetsUtils && typeof window.ZWGadgetsUtils.registerGroup === 'function') {
                     safeId = window.ZWGadgetsUtils.registerGroup(safeId, safeLabel) || safeId;
                 }
             } catch (_) { }
+            panelId = String(opts.panelId || (safeId + '-gadgets-panel'));
             if (!this.sidebarTabConfig.find(function (t) { return t.id === safeId; })) {
-                this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
+                this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: panelId });
             }
 
-            var created = this._ensureSidebarPanel(safeId, safeLabel);
+            var created = this._ensureSidebarPanel(safeId, safeLabel, panelId);
             var panel = created && created.panel;
 
             var tabsContainer = document.querySelector('.sidebar-tabs');

@@ -216,3 +216,11 @@ WritingPage/
 
 `npm run build` で `dist/` を生成できます。
 生成後は `dist/index.html` をブラウザで直接開いて、サーバー起動なしで動作確認できます。
+
+## Start Menu Registration (Windows)
+
+`npm run app:install` を実行すると、`dist/` を生成したうえで
+Windows のスタートメニューに `Zen Writer` ショートカット（`.url`）を作成します。
+
+作成先:
+- `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Zen Writer.url`
