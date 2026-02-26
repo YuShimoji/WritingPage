@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "dev:two": "node scripts/run-two-servers.js",
+    "build": "node scripts/build-dist.js",
     "test:smoke": "node scripts/dev-check.js",
     "test:ui:capture": "node scripts/capture-ui-verification.js",
     "test:e2e:ui": "playwright test e2e/sidebar-layout.spec.js e2e/command-palette.spec.js e2e/gadgets.spec.js e2e/accessibility.spec.js",
