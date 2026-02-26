@@ -182,7 +182,7 @@
       }
 
       var editorManager = window.ZenWriterEditor;
-      var selectId = 'zw-doc-select-' + Math.random().toString(36).slice(2);
+      var _selectId = 'zw-doc-select-' + Math.random().toString(36).slice(2);
       var state = { docs: [], currentId: null };
 
       function notify(message, duration) {
@@ -329,157 +329,204 @@
         } else {
           storage.saveContent('');
         }
-        refreshOptions(doc.id);
+        refreshUI();
         updateDocumentTitle();
         notify((window.UILabels && window.UILabels.DOC_CREATED_MSG) || 'ドキュメントを作成しました');
         dispatchChanged();
       }
 
-      function renameDocument() {
-        var cur = storage.getCurrentDocId();
-        if (!cur) return;
+      function renameDocument(id) {
         var docs = storage.loadDocuments() || [];
-        var doc = docs.find(function (d) { return d && d.id === cur; });
-        var name = prompt((window.UILabels && window.UILabels.RENAME_DOC_PROMPT) || 'ドキュメント名を変更', doc ? (doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題')) : ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題'));
+        var doc = docs.find(function (d) { return d && d.id === id; });
+        if (!doc) return;
+        var name = prompt((window.UILabels && window.UILabels.RENAME_DOC_PROMPT) || 'ドキュメント名を変更', doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題'));
         if (name === null) return;
-        storage.renameDocument(cur, name || '無題');
-        refreshOptions(cur);
+        storage.renameDocument(id, name || '無題');
+        refreshUI();
         updateDocumentTitle();
         notify('ドキュメント名を更新しました');
         dispatchChanged();
       }
 
-      function deleteDocument() {
-        var cur = storage.getCurrentDocId();
-        if (!cur) return;
+      function deleteDocument(id) {
         if (!confirm((window.UILabels && window.UILabels.DELETE_DOC_CONFIRM) || 'このドキュメントを削除しますか？この操作は元に戻せません。')) return;
-        storage.deleteDocument(cur);
+        storage.deleteDocument(id);
         ensureDocuments();
-        var next = storage.getCurrentDocId();
+        var nextId = storage.getCurrentDocId();
         if (editorManager && typeof editorManager.setContent === 'function') {
           var docs = storage.loadDocuments() || [];
-          var doc = docs.find(function (d) { return d && d.id === next; });
+          var doc = docs.find(function (d) { return d && d.id === nextId; });
           editorManager.setContent(doc && doc.content ? doc.content : '');
-        } else {
-          var doc2 = storage.loadDocuments().find(function (d) { return d && d.id === next; });
-          storage.saveContent(doc2 ? doc2.content || '' : '');
         }
-        refreshOptions(next);
+        refreshUI();
         updateDocumentTitle();
         notify((window.UILabels && window.UILabels.DOC_DELETED_MSG) || 'ドキュメントを削除しました');
         dispatchChanged();
       }
 
-      function importFile(files) {
-        if (!files || !files.length) return;
-        var file = files[0];
-        var reader = new FileReader();
-        reader.onload = function () {
-          try {
-            var text = String(reader.result || '');
-            if (editorManager && typeof editorManager.setContent === 'function') {
-              editorManager.setContent(text);
-            } else {
-              storage.saveContent(text);
+      function refreshUI() {
+        var docs = sortedDocs();
+        var curId = storage.getCurrentDocId();
+        listContainer.innerHTML = '';
+
+        docs.forEach(function (doc) {
+          var item = document.createElement('div');
+          item.className = 'doc-item' + (doc.id === curId ? ' active' : '');
+          item.style.display = 'flex';
+          item.style.justifyContent = 'space-between';
+          item.style.alignItems = 'center';
+          item.style.padding = '6px 8px';
+          item.style.borderRadius = '4px';
+          item.style.cursor = 'pointer';
+          item.style.fontSize = '0.9rem';
+          item.style.transition = 'background 0.2s';
+
+          var nameSpan = document.createElement('span');
+          nameSpan.className = 'doc-name';
+          nameSpan.textContent = doc.name || (window.UILabels && window.UILabels.UNTITLED_DOC) || '無題';
+          nameSpan.style.flex = '1';
+          nameSpan.style.overflow = 'hidden';
+          nameSpan.style.textOverflow = 'ellipsis';
+          nameSpan.style.whiteSpace = 'nowrap';
+          item.appendChild(nameSpan);
+
+          item.addEventListener('click', function () {
+            if (doc.id !== storage.getCurrentDocId()) {
+              switchDocument(doc.id);
             }
-            refreshOptions(storage.getCurrentDocId());
-            notify((window.UILabels && window.UILabels.FILE_IMPORTED_MSG) || 'ファイルを読み込みました');
-            dispatchChanged();
-          } catch (e) { console.error(e); }
-        };
-        reader.onerror = function () { console.error((window.UILabels && window.UILabels.FILE_IMPORT_ERROR) || 'ファイル読み込みエラー'); };
-        reader.readAsText(file, 'utf-8');
-      }
+          });
 
-      function exportCurrent(asMarkdown) {
-        if (editorManager) {
-          if (asMarkdown && typeof editorManager.exportAsMarkdown === 'function') return editorManager.exportAsMarkdown();
-          if (!asMarkdown && typeof editorManager.exportAsText === 'function') return editorManager.exportAsText();
+          // ホバー時のみ表示するアクション
+          var actions = document.createElement('div');
+          actions.className = 'doc-actions';
+          actions.style.display = 'none';
+          actions.style.gap = '4px';
+
+          function makeIconButton(iconName, title, color, handler) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'icon-button-mini';
+            b.innerHTML = `<i data-lucide="${iconName}"></i>`;
+            b.title = title;
+            b.style.padding = '2px';
+            b.style.display = 'flex';
+            b.style.alignItems = 'center';
+            b.style.justifyContent = 'center';
+            b.style.background = 'transparent';
+            b.style.border = 'none';
+            b.style.cursor = 'pointer';
+            b.style.color = color || 'inherit';
+            b.style.opacity = '0.6';
+            b.addEventListener('mouseenter', function () { b.style.opacity = '1'; });
+            b.addEventListener('mouseleave', function () { b.style.opacity = '0.6'; });
+            b.addEventListener('click', function (e) {
+              e.stopPropagation();
+              handler();
+            });
+            return b;
+          }
+
+          var editBtn = makeIconButton('edit-2', '改名', '', function () { renameDocument(doc.id); });
+          var delBtn = makeIconButton('trash-2', '削除', '#ff4d4f', function () { deleteDocument(doc.id); });
+
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          item.appendChild(actions);
+
+          item.addEventListener('mouseenter', function () { actions.style.display = 'flex'; });
+          item.addEventListener('mouseleave', function () { actions.style.display = 'none'; });
+
+          listContainer.appendChild(item);
+        });
+
+        // Lucide アイコン反映
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          setTimeout(window.lucide.createIcons, 0);
         }
-        try {
-          var text = storage.loadContent() || '';
-          var docId = storage.getCurrentDocId();
-          var docs = storage.loadDocuments() || [];
-          var doc = docs.find(function (d) { return d && d.id === docId; });
-          var base = doc && doc.name ? doc.name : 'zenwriter';
-          var filename = base + (asMarkdown ? '.md' : '.txt');
-          storage.exportText(text, filename, asMarkdown ? 'text/markdown' : 'text/plain');
-        } catch (_) { }
       }
 
-      function printCurrent() {
-        if (window.ZenWriterApp && typeof window.ZenWriterApp.printDocument === 'function') {
-          window.ZenWriterApp.printDocument();
-        } else {
-          window.print();
-        }
-      }
+      var listContainer = document.createElement('div');
+      listContainer.className = 'docs-list';
+      listContainer.style.display = 'flex';
+      listContainer.style.flexDirection = 'column';
+      listContainer.style.gap = '2px';
+      listContainer.style.maxHeight = '300px';
+      listContainer.style.overflowY = 'auto';
+      listContainer.style.border = '1px solid var(--border-color)';
+      listContainer.style.borderRadius = '6px';
+      listContainer.style.padding = '4px';
 
-      var elements = {};
       var container = document.createElement('div');
       container.className = 'gadget-documents';
       container.style.display = 'flex';
       container.style.flexDirection = 'column';
       container.style.gap = '10px';
 
-      var label = document.createElement('label');
-      label.setAttribute('for', selectId);
-      label.textContent = (window.UILabels && window.UILabels.DOC_LIST_LABEL) || 'ドキュメント一覧';
-      label.style.fontWeight = '600';
+      var header = document.createElement('div');
+      header.style.display = 'flex';
+      header.style.justifyContent = 'space-between';
+      header.style.alignItems = 'center';
 
-      var select = document.createElement('select');
-      select.id = selectId;
-      select.addEventListener('change', function (ev) { switchDocument(ev.target.value); });
-      elements.select = select;
+      var label = document.createElement('label');
+      label.textContent = (window.UILabels && window.UILabels.DOC_LIST_LABEL) || 'ドキュメント';
+      label.style.fontWeight = '600';
+      label.style.fontSize = '0.85rem';
+      label.style.opacity = '0.7';
+
+      var btnCreate = document.createElement('button');
+      btnCreate.type = 'button';
+      btnCreate.className = 'icon-button-mini';
+      btnCreate.id = 'new-document-btn';
+      btnCreate.innerHTML = '<i data-lucide="plus"></i>';
+      btnCreate.title = '新規作成';
+      btnCreate.addEventListener('click', createDocument);
+
+      header.appendChild(label);
+      header.appendChild(btnCreate);
+
+      // 下部の「その他アクション」を details にまとめる
+      var moreDetails = document.createElement('details');
+      moreDetails.style.fontSize = '0.85rem';
+      var moreSum = document.createElement('summary');
+      moreSum.textContent = '入出力・復元';
+      moreSum.style.cursor = 'pointer';
+      moreSum.style.opacity = '0.7';
+      moreSum.style.padding = '4px 0';
+
+      var secondaryRow = document.createElement('div');
+      secondaryRow.style.display = 'flex';
+      secondaryRow.style.flexWrap = 'wrap';
+      secondaryRow.style.gap = '6px';
+      secondaryRow.style.padding = '8px 4px';
 
       function makeSmallButton(text, handler) {
         var btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'small';
         btn.textContent = text;
+        btn.style.fontSize = '0.75rem';
         btn.addEventListener('click', handler);
         return btn;
       }
 
-      var primaryRow = document.createElement('div');
-      primaryRow.style.display = 'flex';
-      primaryRow.style.flexWrap = 'wrap';
-      primaryRow.style.gap = '6px';
-      var btnCreate = makeSmallButton((window.UILabels && window.UILabels.CREATE) || '作成', createDocument);
-      btnCreate.id = 'new-document-btn';
-      var btnRename = makeSmallButton((window.UILabels && window.UILabels.RENAME) || '改名', renameDocument);
-      var btnDelete = makeSmallButton((window.UILabels && window.UILabels.DELETE) || '削除', deleteDocument);
-      elements.renameBtn = btnRename;
-      elements.deleteBtn = btnDelete;
-      primaryRow.appendChild(btnCreate);
-      primaryRow.appendChild(btnRename);
-      primaryRow.appendChild(btnDelete);
-
-      var secondaryRow = document.createElement('div');
-      secondaryRow.style.display = 'flex';
-      secondaryRow.style.flexWrap = 'wrap';
-      secondaryRow.style.gap = '6px';
-      var btnImport = makeSmallButton((window.UILabels && window.UILabels.IMPORT_FILE) || 'ファイルを読み込む', function () { hiddenInput.click(); });
-      var btnExportTxt = makeSmallButton((window.UILabels && window.UILabels.EXPORT_TEXT) || 'テキストで保存', function () { exportCurrent(false); });
-      var btnExportMd = makeSmallButton((window.UILabels && window.UILabels.EXPORT_MARKDOWN) || 'Markdownで保存', function () { exportCurrent(true); });
-      var btnPrint = makeSmallButton((window.UILabels && window.UILabels.PRINT) || '印刷', printCurrent);
-      var btnPdfExport = makeSmallButton((window.UILabels && window.UILabels.EXPORT_PDF) || 'PDFエクスポート', function () {
-        try {
-          window.print();
-        } catch (e) { console.error('PDF export failed', e); }
-      });
-      var btnRestoreSnapshot = makeSmallButton((window.UILabels && window.UILabels.RESTORE_FROM_BACKUP) || '復元', function () {
+      var btnImport = makeSmallButton((window.UILabels && window.UILabels.IMPORT_FILE) || '読込', function () { hiddenInput.click(); });
+      var btnExportTxt = makeSmallButton('TXT', function () { exportCurrent(false); });
+      var btnExportMd = makeSmallButton('MD', function () { exportCurrent(true); });
+      var btnPrint = makeSmallButton('印刷', printCurrent);
+      var btnRestoreSnapshot = makeSmallButton('復元', function () {
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
           window.ZenWriterEditor.restoreLastSnapshot();
         }
       });
       btnRestoreSnapshot.id = 'restore-from-snapshot';
+
       secondaryRow.appendChild(btnImport);
       secondaryRow.appendChild(btnExportTxt);
       secondaryRow.appendChild(btnExportMd);
       secondaryRow.appendChild(btnPrint);
-      secondaryRow.appendChild(btnPdfExport);
       secondaryRow.appendChild(btnRestoreSnapshot);
+      moreDetails.appendChild(moreSum);
+      moreDetails.appendChild(secondaryRow);
 
       var hiddenInput = document.createElement('input');
       hiddenInput.type = 'file';
@@ -489,20 +536,19 @@
         try { importFile(ev.target.files); } finally { ev.target.value = ''; }
       });
 
-      container.appendChild(label);
-      container.appendChild(select);
-      container.appendChild(primaryRow);
-      container.appendChild(secondaryRow);
+      container.appendChild(header);
+      container.appendChild(listContainer);
+      container.appendChild(moreDetails);
       container.appendChild(hiddenInput);
 
       el.appendChild(container);
 
-      refreshOptions();
+      refreshUI();
       updateDocumentTitle();
 
-      window.addEventListener('ZWLoadoutsChanged', function () { refreshOptions(storage.getCurrentDocId()); });
-      window.addEventListener('ZWLoadoutApplied', function () { refreshOptions(storage.getCurrentDocId()); });
-      window.addEventListener('ZWDocumentsChanged', function () { refreshOptions(storage.getCurrentDocId()); });
+      window.addEventListener('ZWLoadoutsChanged', function () { refreshUI(); });
+      window.addEventListener('ZWLoadoutApplied', function () { refreshUI(); });
+      window.addEventListener('ZWDocumentsChanged', function () { refreshUI(); });
     } catch (e) {
       console.error('Documents gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }

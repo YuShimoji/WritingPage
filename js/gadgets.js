@@ -170,7 +170,7 @@
             if (settingsBtn){
               var panel = document.createElement('div'); panel.className='gadget-settings'; panel.style.display='none';
               wrap.appendChild(panel);
-              settingsBtn.addEventListener('click', function(n, p, btn){ return function(){
+              settingsBtn.addEventListener('click', function(n, p, _btn){ return function(){
                 try {
                   var visible = p.style.display !== 'none';
                   p.style.display = visible ? 'none' : '';
@@ -248,7 +248,7 @@
       function tick(){
         try {
           var d = new Date();
-          var z = function(n){ return (n<10?'0':'')+n };
+          var z = function(n){ return (n<10?'0':'')+n; };
           var hour24 = api && typeof api.get==='function' ? !!api.get('hour24', true) : true;
           var h = d.getHours();
           var ap = '';

@@ -302,9 +302,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // UIイベントリスナー（app-ui-events.js に委譲）
-    let appUIEvents = null;
+    let _appUIEvents = null;
     if (typeof window.initAppUIEvents === 'function') {
-        appUIEvents = window.initAppUIEvents({
+        _appUIEvents = window.initAppUIEvents({
             elementManager,
             toggleSidebar,
             toggleToolbar,
@@ -312,10 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
             syncHudQuickControls
         });
     }
-    function toggleFeedbackPanel() {
-        if (appUIEvents) appUIEvents.toggleFeedbackPanel();
-    }
-
     // キーボードショートカット（app-shortcuts.js に委譲）
     if (typeof window.initAppShortcuts === 'function') {
         window.initAppShortcuts({

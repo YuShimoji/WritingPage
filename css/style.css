@@ -1462,6 +1462,7 @@ input[type='color'] {
 
 /* タブレット向けスタイル（max-width: 1024px） */
 @media (max-width: 1024px) {
+
   /* サイドバー幅を調整 */
   :root {
     --sidebar-width: 280px;
@@ -1619,7 +1620,8 @@ input[type='color'] {
   #wysiwyg-editor {
     --editor-padding-x: 1rem;
     --editor-padding-y: 1.5rem;
-    font-size: 16px; /* モバイルでの最小フォントサイズ */
+    font-size: 16px;
+    /* モバイルでの最小フォントサイズ */
     -webkit-text-size-adjust: 100%;
   }
 
@@ -1682,7 +1684,8 @@ input[type='color'] {
   .sidebar-tab {
     padding: 0.75rem 0.5rem;
     font-size: 0.85rem;
-    min-height: 44px; /* タッチ操作に最適化 */
+    min-height: 44px;
+    /* タッチ操作に最適化 */
     touch-action: manipulation;
   }
 
@@ -1690,7 +1693,8 @@ input[type='color'] {
   button,
   .button,
   .icon-button {
-    min-height: 44px; /* iOS推奨のタッチターゲットサイズ */
+    min-height: 44px;
+    /* iOS推奨のタッチターゲットサイズ */
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
@@ -1700,7 +1704,8 @@ input[type='color'] {
   input[type="number"],
   textarea,
   select {
-    font-size: 16px; /* iOSでのズーム防止 */
+    font-size: 16px;
+    /* iOSでのズーム防止 */
     padding: 8px 12px;
     min-height: 44px;
   }
@@ -1765,6 +1770,7 @@ input[type='color'] {
 
 /* タッチデバイス向けの最適化（pointer: coarse で判定） */
 @media (pointer: coarse) {
+
   /* ホバー効果を無効化（タッチデバイスでは不要） */
   button:hover,
   .button:hover,
@@ -4419,6 +4425,7 @@ body.ui-editor-preview {
 [aria-modal="true"]:focus-within {
   outline: none;
 }
+
 /* Wikilinks & Backlinks (TASK_044) */
 .wikilink {
   color: var(--focus-color);
@@ -4531,7 +4538,138 @@ body.ui-editor-preview {
   flex: 1;
 }
 
-/* ===== WIP機能非表示 ===== */
+/* Sidebar Typography & Sections */
+.sidebar h2 {
+  font-size: 1rem;
+  margin-bottom: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  opacity: 0.8;
+}
+
+.sidebar-tab {
+  font-size: 0.85rem;
+  font-weight: 500;
+  opacity: 0.7;
+  transition: all 0.2s;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.sidebar-tab.active {
+  opacity: 1;
+  font-weight: 600;
+  background: var(--ui-bg);
+  border-bottom: 2px solid var(--ui-focus-color);
+}
+
+/* Documents Gadget Explorer View */
+.gadget-documents {
+  user-select: none;
+}
+
+.docs-list {
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  margin: 8px 0;
+}
+
+[data-theme="dark"] .docs-list {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.doc-item {
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  color: var(--ui-text);
+  padding: 8px 12px !important;
+}
+
+.doc-item:last-child {
+  border-bottom: none;
+}
+
+.doc-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .doc-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.doc-item.active {
+  background: var(--ui-focus-color) !important;
+  color: #fff !important;
+}
+
+.doc-item.active .doc-name {
+  font-weight: 600;
+}
+
+.doc-item.active .doc-actions i {
+  color: #fff !important;
+}
+
+.doc-actions {
+  padding-left: 8px;
+}
+
+.icon-button-mini {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.icon-button-mini:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .icon-button-mini:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.icon-button-mini svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* Details/Summary for secondary actions */
+details summary {
+  outline: none;
+  font-weight: 600;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+details[open] summary {
+  margin-bottom: 8px;
+}
+
+/* Gadget Styling refinement */
+.gadget-wrapper {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.gadget h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+/* ツールバーのWIP機能隠し */
 .wip-hidden {
   display: none !important;
 }
