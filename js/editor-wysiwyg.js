@@ -46,6 +46,9 @@
       }
 
       this.init();
+      if (this.editorManager) {
+        this.editorManager.richTextEditor = this;
+      }
       console.log('[RichTextEditor] Initialized');
     }
 
@@ -206,7 +209,7 @@
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
       const selectedText = selection.toString().trim();
-      const url = prompt('Enter link URL:', selectedText ? 'https://' : '');
+      const url = prompt('リンクURLを入力してください:', selectedText ? 'https://' : '');
       if (!url) return;
 
       const link = document.createElement('a');
@@ -231,7 +234,7 @@
     notifySelectionRequired() {
       try {
         if (this.editorManager && typeof this.editorManager.showNotification === 'function') {
-          this.editorManager.showNotification('Select text first.', 1400);
+          this.editorManager.showNotification('先にテキストを選択してください', 1400);
         }
       } catch (_) { }
     }
@@ -315,20 +318,32 @@
     markdownToHtml(markdown) {
       if (!markdown) return '';
 
+      let html = '';
       if (this.markdownRenderer) {
         try {
-          return this.markdownRenderer.render(markdown);
+          html = this.markdownRenderer.render(markdown);
         } catch (e) {
           console.warn('Markdown to HTML conversion failed:', e);
         }
       }
 
-      // フォールバック: 基本的なエスケープ
-      return markdown
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
+      if (!html) {
+        // フォールバック: 基本的なエスケープ
+        html = markdown
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+      }
+
+      if (this.editorManager && typeof this.editorManager.processFontDecorations === 'function') {
+        html = this.editorManager.processFontDecorations(html);
+      }
+      if (this.editorManager && typeof this.editorManager.processTextAnimations === 'function') {
+        html = this.editorManager.processTextAnimations(html);
+      }
+
+      return html;
     }
 
     /**
@@ -339,7 +354,8 @@
 
       if (this.turndownService) {
         try {
-          return this.turndownService.turndown(html);
+          const markdown = this.turndownService.turndown(html);
+          return this.normalizeCustomTagEscapes(markdown);
         } catch (e) {
           console.warn('HTML to Markdown conversion failed:', e);
         }
@@ -369,7 +385,15 @@
       // 連続する改行を整理
       markdown = markdown.replace(/\n{3,}/g, '\n\n');
 
-      return markdown;
+      return this.normalizeCustomTagEscapes(markdown);
+    }
+
+    normalizeCustomTagEscapes(markdown) {
+      if (!markdown) return '';
+      return markdown.replace(
+        /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein))\\\]/gi,
+        '[$1]'
+      );
     }
 
     /**
@@ -410,12 +434,18 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       if (window.ZenWriterEditor) {
-        window.richTextEditor = new RichTextEditor(window.ZenWriterEditor);
+        const instance = new RichTextEditor(window.ZenWriterEditor);
+        window.richTextEditor = instance;
+        if (window.ZenWriterEditor) {
+          window.ZenWriterEditor.richTextEditor = instance;
+        }
       }
     });
   } else {
     if (window.ZenWriterEditor) {
-      window.richTextEditor = new RichTextEditor(window.ZenWriterEditor);
+      const instance = new RichTextEditor(window.ZenWriterEditor);
+      window.richTextEditor = instance;
+      window.ZenWriterEditor.richTextEditor = instance;
     }
   }
 })();

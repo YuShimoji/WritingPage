@@ -144,6 +144,9 @@
             if (manager.fontDecorationPanel) {
                 manager.fontDecorationPanel.style.display = 'block';
                 if (manager.textAnimationPanel) manager.textAnimationPanel.style.display = 'none';
+                if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
+                    window.ZenWriterFloatingPanels.preparePanel(manager.fontDecorationPanel);
+                }
             }
         },
 
@@ -161,6 +164,9 @@
             if (manager.textAnimationPanel) {
                 manager.textAnimationPanel.style.display = 'block';
                 if (manager.fontDecorationPanel) manager.fontDecorationPanel.style.display = 'none';
+                if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
+                    window.ZenWriterFloatingPanels.preparePanel(manager.textAnimationPanel);
+                }
             }
         },
 

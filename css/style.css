@@ -1916,12 +1916,15 @@ input[type='color'] {
   right: 16px;
   bottom: 128px;
   width: 260px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 96px);
   background: var(--ui-bg);
   color: var(--ui-text);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   z-index: 1600;
+  overflow: hidden;
 }
 
 .floating-panel .panel-header {
@@ -1933,10 +1936,14 @@ input[type='color'] {
   border-bottom: 1px solid var(--border-color);
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  cursor: move;
+  user-select: none;
 }
 
 .floating-panel .panel-body {
   padding: 10px;
+  max-height: calc(100vh - 156px);
+  overflow: auto;
 }
 
 .floating-panel .panel-row {
@@ -1958,6 +1965,10 @@ input[type='color'] {
   color: inherit;
   font-size: 16px;
   cursor: pointer;
+}
+
+body.dragging-floating-panel {
+  user-select: none;
 }
 
 /* コマンドパレット */
