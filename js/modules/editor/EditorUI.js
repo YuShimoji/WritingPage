@@ -97,12 +97,35 @@
          * Font decoration application
          */
         applyFontDecoration(manager, tag) {
+            const rich = manager && manager.richTextEditor;
+            if (rich && rich.isWysiwygMode) {
+                const commandMap = {
+                    bold: 'bold',
+                    italic: 'italic',
+                    underline: 'underline',
+                    strike: 'strikeThrough'
+                };
+                const cmd = commandMap[tag];
+                if (cmd && typeof rich.executeCommand === 'function') {
+                    rich.executeCommand(cmd);
+                } else if (typeof manager.showNotification === 'function') {
+                    manager.showNotification('この装飾はテキストモードで利用してください', 1400);
+                }
+                return;
+            }
             if (typeof manager.insertTextAtCursor === 'function') {
                 manager.insertTextAtCursor(`[${tag}]`, { suffix: `[/${tag}]` });
             }
         },
 
         applyTextAnimation(manager, tag) {
+            const rich = manager && manager.richTextEditor;
+            if (rich && rich.isWysiwygMode) {
+                if (typeof manager.showNotification === 'function') {
+                    manager.showNotification('アニメーションタグはテキストモードで利用してください', 1600);
+                }
+                return;
+            }
             if (typeof manager.insertTextAtCursor === 'function') {
                 manager.insertTextAtCursor(`[${tag}]`, { suffix: `[/${tag}]` });
             }

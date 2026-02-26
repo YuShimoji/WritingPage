@@ -224,3 +224,6 @@ Windows のスタートメニューに `Zen Writer` ショートカット（`.url`）を作成します。
 
 作成先:
 - `%APPDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Zen Writer.url`
+
+`npm run app:open` でビルド済みの `dist/index.html` を既定ブラウザで開けます。
+`npm run app:install:open` を使うと、スタートメニュー登録と起動を一度に実行できます。
