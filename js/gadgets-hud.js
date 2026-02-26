@@ -105,6 +105,7 @@
       var widthLabel = document.createElement('label');
       widthLabel.textContent = (window.UILabels && window.UILabels.HUD_WIDTH) || '幅 (px):';
       var widthInput = document.createElement('input');
+      widthInput.id = 'hud-width';
       widthInput.type = 'number';
       widthInput.min = '120';
       widthInput.max = '800';
@@ -119,6 +120,7 @@
       var fsLabel = document.createElement('label');
       fsLabel.textContent = (window.UILabels && window.UILabels.HUD_FONT_SIZE) || 'フォントサイズ (px):';
       var fsInput = document.createElement('input');
+      fsInput.id = 'hud-font-size';
       fsInput.type = 'number';
       fsInput.min = '10';
       fsInput.max = '24';
@@ -211,7 +213,7 @@
       console.error('HUDSettings gadget failed:', e);
       el.textContent = (window.UILabels && window.UILabels.HUD_INIT_FAILED) || 'HUD設定ガジェットの初期化に失敗しました。';
     }
-  }, { groups: ['settings'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_HUD_TITLE) || 'HUD設定' });
 
   // 登録後に再描画をトリガー
   if (window.ZWGadgets && typeof window.ZWGadgets._renderLast === 'function') {

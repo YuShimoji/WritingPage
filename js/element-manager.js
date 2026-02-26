@@ -106,7 +106,7 @@ class ElementManager {
                 this.elements[key] = multipleElementKeys.includes(key) ? [] : null;
             }
         });
-        
+
         // 初期化状態をログ出力（開発環境のみ）
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             console.log('[ElementManager] 初期化完了:', {

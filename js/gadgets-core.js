@@ -92,10 +92,43 @@
       return names;
     }
 
+    /**
+     * @typedef {Object} GadgetApi
+     * @property {function(string, *): *} get - Get a setting value
+     * @property {function(string, *): void} set - Set a setting value
+     */
+
+    /**
+     * @callback GadgetFactory
+     * @param {HTMLElement} el - The container element for the gadget
+     * @param {GadgetApi} api - The gadget API
+     */
+
+    /**
+     * @typedef {Object} GadgetOptions
+     * @property {string} [title] - The display title of the gadget
+     * @property {string[]} [groups] - The groups this gadget belongs to
+     */
+
+    /**
+     * ガジェットを登録する
+     * @param {string} name - ガジェットの一意識別名
+     * @param {GadgetFactory} factory - ガジェットの生成関数
+     * @param {GadgetOptions} [options] - オプション設定
+     */
     register(name, factory, options) {
       try {
         var safeName = String(name || '');
-        if (!safeName) return;
+        if (!safeName) {
+          console.error('[ZWGadgets] Gadget name is required for registration.');
+          return;
+        }
+
+        if (typeof factory !== 'function') {
+          console.error('[ZWGadgets] Gadget factory must be a function for "' + safeName + '".');
+          return;
+        }
+
         var opts = options && typeof options === 'object' ? options : {};
         var entry = {
           name: safeName,
@@ -106,7 +139,9 @@
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
-      } catch (_) { }
+      } catch (e) {
+        console.error('[ZWGadgets] Registration failed for "' + name + '":', e);
+      }
     }
 
     registerSettings(name, factory) {

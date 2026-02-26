@@ -52,7 +52,7 @@ class SettingsManager {
         const goal = settings.goal || {};
         const goalTargetInput = this.elementManager.get('goalTargetInput');
         const goalDeadlineInput = this.elementManager.get('goalDeadlineInput');
-        if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target,10) || 0);
+        if (goalTargetInput) goalTargetInput.value = (typeof goal.target === 'number' ? goal.target : parseInt(goal.target, 10) || 0);
         if (goalDeadlineInput) goalDeadlineInput.value = goal.deadline || '';
 
         // Typewriter 設定の初期反映
@@ -110,6 +110,29 @@ class SettingsManager {
                 // デフォルトはテーマ側の背景色に任せる
                 containerEl.style.backgroundColor = '';
             }
+        }
+
+        // アニメーション設定の初期反映
+        const anim = settings.animation || {};
+        const animSpeed = document.getElementById('anim-speed');
+        const animSpeedValue = document.getElementById('anim-speed-value');
+        const animDuration = document.getElementById('anim-duration');
+        const animDurationValue = document.getElementById('anim-duration-value');
+        const animReduceMotion = document.getElementById('anim-reduce-motion');
+
+        if (animSpeed) {
+            animSpeed.value = anim.speed || 1;
+            if (animSpeedValue) animSpeedValue.textContent = (anim.speed || 1) + 'x';
+            if (window.EditorUI) window.EditorUI.updateAnimationSpeed(animSpeed.value);
+        }
+        if (animDuration) {
+            animDuration.value = anim.duration || 1.5;
+            if (animDurationValue) animDurationValue.textContent = (anim.duration || 1.5) + 's';
+            if (window.EditorUI) window.EditorUI.updateAnimationDuration(animDuration.value);
+        }
+        if (animReduceMotion) {
+            animReduceMotion.checked = !!anim.reduceMotion;
+            if (window.EditorUI) window.EditorUI.updateAnimationReduceMotion(animReduceMotion.checked);
         }
     }
 }

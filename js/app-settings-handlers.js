@@ -66,43 +66,80 @@
         if (autoSaveEnabled) autoSaveEnabled.checked = !!currentAutoSave.enabled;
         if (autoSaveDelay) autoSaveDelay.value = String(currentAutoSave.delayMs || 2000);
 
-        // Typewriter handlers
-        const typewriterEnabled = elementManager.get('typewriterEnabled');
-        const typewriterAnchor = elementManager.get('typewriterAnchor');
-        const typewriterStickiness = elementManager.get('typewriterStickiness');
-        if (typewriterEnabled) {
-            typewriterEnabled.addEventListener('change', (e) => saveTypewriterPatch({ enabled: !!e.target.checked }));
-        }
-        if (typewriterAnchor) {
-            const onChange = (e) => saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
-            typewriterAnchor.addEventListener('input', onChange);
-            typewriterAnchor.addEventListener('change', onChange);
-        }
-        if (typewriterStickiness) {
-            const onChange = (e) => saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
-            typewriterStickiness.addEventListener('input', onChange);
-            typewriterStickiness.addEventListener('change', onChange);
-        }
+        // =========================================================
+        // Event delegation for dynamically-rendered gadget elements
+        // (typewriter, focus mode, snapshot, preview, auto-save)
+        // These elements are created by ZWGadgets after this module
+        // runs, so we attach listeners to document instead.
+        // =========================================================
+        document.addEventListener('change', function (e) {
+            const id = e.target && e.target.id;
+            if (!id) return;
 
-        // Snapshot handlers
-        const snapshotInterval = elementManager.get('snapshotInterval');
-        const snapshotDelta = elementManager.get('snapshotDelta');
-        const snapshotRetention = elementManager.get('snapshotRetention');
-        if (snapshotInterval) {
-            const onChange = (e) => saveSnapshotPatch({ intervalMs: Math.round(clamp(e.target.value, 30000, 300000, 120000)) });
-            snapshotInterval.addEventListener('input', onChange);
-            snapshotInterval.addEventListener('change', onChange);
-        }
-        if (snapshotDelta) {
-            const onChange = (e) => saveSnapshotPatch({ deltaChars: Math.round(clamp(e.target.value, 50, 1000, 300)) });
-            snapshotDelta.addEventListener('input', onChange);
-            snapshotDelta.addEventListener('change', onChange);
-        }
-        if (snapshotRetention) {
-            const onChange = (e) => saveSnapshotPatch({ retention: Math.round(clamp(e.target.value, 1, 50, 10)) });
-            snapshotRetention.addEventListener('input', onChange);
-            snapshotRetention.addEventListener('change', onChange);
-        }
+            // Typewriter
+            if (id === 'typewriter-enabled') {
+                saveTypewriterPatch({ enabled: !!e.target.checked });
+                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch (_) { }
+                return;
+            }
+            if (id === 'typewriter-anchor-ratio') {
+                saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
+                return;
+            }
+            if (id === 'typewriter-stickiness') {
+                saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
+                return;
+            }
+
+            // Focus Mode
+            if (id === 'focus-mode-enabled') {
+                updateSettingsPatch('focusMode', { enabled: !!e.target.checked });
+                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.scheduleFocusModeUpdate === 'function') window.ZenWriterEditor.scheduleFocusModeUpdate(); } catch (_) { }
+                return;
+            }
+
+            // Snapshot
+            if (id === 'snapshot-interval-ms') {
+                saveSnapshotPatch({ intervalMs: Math.round(clamp(e.target.value, 30000, 300000, 120000)) });
+                return;
+            }
+            if (id === 'snapshot-delta-chars') {
+                saveSnapshotPatch({ deltaChars: Math.round(clamp(e.target.value, 50, 1000, 300)) });
+                return;
+            }
+            if (id === 'snapshot-retention') {
+                saveSnapshotPatch({ retention: Math.round(clamp(e.target.value, 1, 50, 10)) });
+                return;
+            }
+
+            // Auto-save (also dynamically rendered)
+            if (id === 'auto-save-enabled') {
+                saveAutoSavePatch({ enabled: !!e.target.checked });
+                return;
+            }
+            if (id === 'auto-save-delay-ms') {
+                const val = parseInt(e.target.value, 10);
+                if (!isNaN(val)) saveAutoSavePatch({ delayMs: Math.max(500, Math.min(30000, val)) });
+                return;
+            }
+        });
+
+        // input event delegation (for range sliders)
+        document.addEventListener('input', function (e) {
+            const id = e.target && e.target.id;
+            if (!id) return;
+            if (id === 'typewriter-anchor-ratio') {
+                saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
+            } else if (id === 'typewriter-stickiness') {
+                saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
+            } else if (id === 'snapshot-interval-ms') {
+                saveSnapshotPatch({ intervalMs: Math.round(clamp(e.target.value, 30000, 300000, 120000)) });
+            } else if (id === 'snapshot-delta-chars') {
+                saveSnapshotPatch({ deltaChars: Math.round(clamp(e.target.value, 50, 1000, 300)) });
+            } else if (id === 'snapshot-retention') {
+                saveSnapshotPatch({ retention: Math.round(clamp(e.target.value, 1, 50, 10)) });
+            }
+        });
 
         // Preview handlers
         const previewSyncScroll = elementManager.get('previewSyncScroll');

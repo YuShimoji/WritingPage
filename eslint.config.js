@@ -1,7 +1,7 @@
 module.exports = [
   {
     files: ['**/*.js'],
-    ignores: ['node_modules/**', 'dist/**', 'test-results/**', 'playwright-report/**'],
+    ignores: ['node_modules/**', 'dist/**', 'test-results/**', 'playwright-report/**', '.shared-workflows/**'],
     languageOptions: {
       ecmaVersion: 2021,
       sourceType: 'script',

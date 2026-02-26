@@ -338,74 +338,22 @@
         const globalFontRange = elementManager.get('globalFontRange');
         const globalFontNumber = elementManager.get('globalFontNumber');
         if (globalFontRange) {
-            globalFontRange.addEventListener('input', (e) => { updateGlobalFontFrom(e.target.value); });
+            globalFontRange.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (globalFontNumber) globalFontNumber.value = val;
+                updateGlobalFontFrom(val);
+            });
         }
         if (globalFontNumber) {
-            globalFontNumber.addEventListener('input', (e) => { updateGlobalFontFrom(e.target.value); });
+            globalFontNumber.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (globalFontRange) globalFontRange.value = val;
+                updateGlobalFontFrom(val);
+            });
         }
 
         // ===== 検索パネルのイベントリスナー =====
-        const closeSearchPanelBtn = elementManager.get('closeSearchPanelBtn');
-        const searchInput = elementManager.get('searchInput');
-        const replaceSingleBtn = elementManager.get('replaceSingleBtn');
-        const replaceAllBtn = elementManager.get('replaceAllBtn');
-        const searchPrevBtn = elementManager.get('searchPrevBtn');
-        const searchNextBtn = elementManager.get('searchNextBtn');
-
-        if (closeSearchPanelBtn) {
-            closeSearchPanelBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.hideSearchPanel === 'function') {
-                    window.ZenWriterEditor.hideSearchPanel();
-                }
-            });
-        }
-        if (searchInput) {
-            searchInput.addEventListener('input', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
-                    window.ZenWriterEditor.updateSearchMatches();
-                }
-            });
-        }
-        if (replaceSingleBtn) {
-            replaceSingleBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceSingle === 'function') {
-                    window.ZenWriterEditor.replaceSingle();
-                }
-            });
-        }
-        if (replaceAllBtn) {
-            replaceAllBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceAll === 'function') {
-                    window.ZenWriterEditor.replaceAll();
-                }
-            });
-        }
-        if (searchPrevBtn) {
-            searchPrevBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
-                    window.ZenWriterEditor.navigateMatch(-1);
-                }
-            });
-        }
-        if (searchNextBtn) {
-            searchNextBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
-                    window.ZenWriterEditor.navigateMatch(1);
-                }
-            });
-        }
-
-        // 検索オプションの変更時にも再検索
-        ['search-case-sensitive', 'search-regex'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('change', () => {
-                    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
-                        window.ZenWriterEditor.updateSearchMatches();
-                    }
-                });
-            }
-        });
+        // (Moved to EditorUI.setupEventListeners to consolidate editor logic)
 
         // ===== モーダルダイアログ =====
         function toggleModal(modalId, show) {

@@ -46,7 +46,6 @@ class EditorManager {
         this.closeSearchBtn = document.getElementById('close-search-panel');
 
         // Other specialized managers
-        this.searchManager = (typeof SearchManager !== 'undefined') ? new SearchManager(this) : null;
         if (typeof window.SpellChecker !== 'undefined') {
             this.spellChecker = new window.SpellChecker(this);
         }
@@ -61,22 +60,6 @@ class EditorManager {
         this._MANUAL_SCROLL_TIMEOUT_MS = 2000;
         this._charStampTimer = null;
 
-        // High-frequency UI event listeners (selection, scroll)
-        if (this.editor) {
-            this.editor.addEventListener('scroll', () => {
-                this._isManualScrolling = true;
-                clearTimeout(this._manualScrollTimeout);
-                this._manualScrollTimeout = setTimeout(() => {
-                    this._isManualScrolling = false;
-                }, this._MANUAL_SCROLL_TIMEOUT_MS);
-            });
-
-            this.editor.addEventListener('selectionchange', () => {
-                this.updateWordCount();
-                if (this._charStampTimer) clearTimeout(this._charStampTimer);
-                this._charStampTimer = setTimeout(() => this.updateCharCountStamps(), 100);
-            });
-        }
 
         // Initialize components and load content
         this.setupImageHandlers();
@@ -85,7 +68,7 @@ class EditorManager {
         this.loadContent();
         this._updateWordCountImmediate();
         this.renderImagePreview();
-        this.setupEventListeners();
+        // this.setupEventListeners(); // Calls EditorUI.setupEventListeners(this)
         this.installTypewriterHandlers();
         this.installFocusModeHandlers();
 
@@ -104,6 +87,8 @@ class EditorManager {
             this.editorOverlay.appendChild(this._focusLineEl);
         }
         this.applyWordWrap();
+        // Initialize modules with this manager instance
+        window.EditorUI.setupEventListeners(this);
     }
 
     // ===== UI and Interaction Methods (Delegated to EditorUI.js) =====

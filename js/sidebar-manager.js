@@ -35,6 +35,12 @@ class SidebarManager {
                 label: '支援',
                 description: '執筆支援ツール',
                 panelId: 'assist-gadgets-panel'
+            },
+            {
+                id: 'settings',
+                label: '設定',
+                description: 'アプリ設定',
+                panelId: 'settings-gadgets-panel'
             }
         ];
     }

@@ -159,15 +159,16 @@
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents', 'Outline', 'SnapshotManager', 'TagsAndSmartFolders'],
-          assist: [],
+          structure: ['Documents', 'Outline', 'TagsAndSmartFolders'],
+          assist: ['Typewriter', 'FocusMode', 'SnapshotManager', 'HUDSettings', 'WritingGoal', 'Clock'],
           typography: [],
           wiki: ['StoryWiki'],
-          settings: ['Themes', 'Typography', 'VisualProfile', 'EditorLayout', 'HUDSettings', 'Clock', 'WritingGoal']
+          settings: ['Themes', 'Typography', 'VisualProfile', 'EditorLayout']
         }
       }
     }
   };
+
 
   // Export utilities
   try {
