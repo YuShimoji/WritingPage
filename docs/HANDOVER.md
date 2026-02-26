@@ -1,4 +1,4 @@
-# Project Handover & Status
+﻿# Project Handover & Status
 
 **Timestamp**: 2026-02-07T20:30+09:00
 **Actor**: Developer
@@ -253,3 +253,33 @@ node scripts/flush-reports.js --force
 ## 所要時間
 - 本フェーズ作業（テンプレ整備・スクリプト強化・監査対応）: 約 2.0h
 - 最新作業（2025-12-23 ReportAudit）: 約 0.8h（docs/inbox 整合確認・validator 実行・HANDOVER 更新）
+
+---
+
+## 追加引き継ぎ（作業途中・2026-02-25T13:52:05+09:00）
+
+### 現在の状態（未コミット）
+- ブランチ: main（origin/main との差分あり）
+- 変更ファイル: .shared-workflows, AI_CONTEXT.md, css/style.css, docs/BACKLOG.md, docs/tasks/TASK_057_sidebar_redesign.md, index.html, js/gadgets-builtin.js, js/gadgets-clock.js, js/gadgets-goal.js, js/sidebar-manager.js, package.json, package-lock.json, smoke_result.txt
+- 差分規模: 12 files changed, 375 insertions(+), 233 deletions(-)
+
+### 今回反映済みの主変更
+- バージョン更新: package.json を 0.3.24 から 0.3.25 へ更新
+- TASK更新: TASK_057_sidebar_redesign を COMPLETED に更新
+- バックログ更新: v0.3.25 (REDESIGN) の実施内容を追記
+- サイドバー再設計: タブ構成を structure / wiki / assist に整理（typography タブを削減）
+- ドキュメントガジェット刷新（js/gadgets-builtin.js）: Explorer 風ドキュメント一覧UIへ変更
+- ガジェット配置調整: Clock と 執筆目標 を assist にも表示（settings との複数所属）
+- ツールバー整理（index.html）: 非表示WIP操作を整理し主要操作中心へ簡素化
+- スタイル調整（css/style.css）: サイドバー/ドキュメント一覧/ミニアイコンボタンのスタイルを追加
+
+### 注意点
+- .shared-workflows が def2c99 を指しており、サブモジュール更新差分あり
+- AI_CONTEXT.md は先頭BOM除去のみ（内容変更なし）
+- smoke_result.txt は未追跡ファイル
+
+### 次アクション（推奨）
+1. npm run test:smoke を実行して回帰確認
+2. 必要なら npm run test:e2e:ci を実行
+3. 問題なければ git add -A && git commit で v0.3.25 の中間確定
+

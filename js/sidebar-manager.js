@@ -21,25 +21,19 @@ class SidebarManager {
             {
                 id: 'structure',
                 label: '構造',
-                description: 'ドキュメント構造・ガジェット管理',
+                description: 'ドキュメント構造・アウトライン',
                 panelId: 'structure-gadgets-panel'
-            },
-            {
-                id: 'typography',
-                label: 'テーマ・フォント',
-                description: 'タイポグラフィ設定',
-                panelId: 'typography-gadgets-panel'
             },
             {
                 id: 'wiki',
                 label: 'Wiki',
-                description: '物語Wiki',
+                description: '物語設定資料',
                 panelId: 'wiki-gadgets-panel'
             },
             {
                 id: 'assist',
-                label: 'アシスト',
-                description: '支援ツール',
+                label: '支援',
+                description: '執筆支援ツール',
                 panelId: 'assist-gadgets-panel'
             }
         ];
@@ -127,12 +121,12 @@ class SidebarManager {
             console.error('サイドバー要素が見つかりません');
             return;
         }
-        
+
         if (this._isDevMode()) {
             console.info(`forceSidebarState(${open}) 実行開始`);
             console.info(`現在の状態: open=${sidebar.classList.contains('open')}, aria-hidden=${sidebar.getAttribute('aria-hidden')}`);
         }
-        
+
         // 閉じる場合、サイドバー内のフォーカスを外部に移動してからaria-hiddenを設定
         if (!open) {
             const activeElement = document.activeElement;
@@ -150,7 +144,7 @@ class SidebarManager {
                 }
             }
         }
-        
+
         // アニメーション完了を待つためのPromise
         const waitForTransition = () => {
             return new Promise((resolve) => {
@@ -165,7 +159,7 @@ class SidebarManager {
                 setTimeout(resolve, SidebarManager.TRANSITION_TIMEOUT_MS);
             });
         };
-        
+
         // CSSクラスの更新
         if (open) {
             sidebar.classList.add('open');
@@ -192,14 +186,14 @@ class SidebarManager {
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
-        
+
         // ツールバー側の閉じるボタンの表示制御
         // const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
         // if (toolbarCloseSidebar) {
         //     toolbarCloseSidebar.style.display = ''; // 常に表示
         //     console.info('ツールバーの閉じるボタン: 表示');
         // }
-        
+
         // transition完了を待ってからaria-hiddenを設定
         waitForTransition().then(() => {
             sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
@@ -339,7 +333,7 @@ class SidebarManager {
                     safeId = window.ZWGadgetsUtils.registerGroup(safeId, safeLabel) || safeId;
                 }
             } catch (_) { }
-            if (!this.sidebarTabConfig.find(function(t){ return t.id === safeId; })) {
+            if (!this.sidebarTabConfig.find(function (t) { return t.id === safeId; })) {
                 this.sidebarTabConfig.push({ id: safeId, label: safeLabel, description: '', panelId: safeId + '-gadgets-panel' });
             }
 
@@ -347,68 +341,68 @@ class SidebarManager {
             var panel = created && created.panel;
 
             var tabsContainer = document.querySelector('.sidebar-tabs');
-            if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')){
-            var btn = document.createElement('button');
-            btn.className = 'sidebar-tab';
-            btn.type = 'button';
-            btn.dataset.group = safeId;
-            btn.id = 'sidebar-tab-' + safeId;
-            btn.setAttribute('aria-controls', 'sidebar-group-' + safeId);
-            btn.setAttribute('aria-selected', 'false');
-            btn.setAttribute('role', 'tab');
-            btn.textContent = safeLabel;
-            btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
-            // キーボード操作対応（Enter/Space）
-            btn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.activateSidebarGroup(safeId);
-                } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                    // 矢印キーでタブを切り替え
-                    e.preventDefault();
-                    const tabs = Array.from(document.querySelectorAll('.sidebar-tab'));
-                    const currentIndex = tabs.indexOf(btn);
-                    let nextIndex;
-                    if (e.key === 'ArrowRight') {
-                        nextIndex = (currentIndex + 1) % tabs.length;
-                    } else {
-                        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+            if (tabsContainer && !document.querySelector('.sidebar-tab[data-group="' + safeId + '"]')) {
+                var btn = document.createElement('button');
+                btn.className = 'sidebar-tab';
+                btn.type = 'button';
+                btn.dataset.group = safeId;
+                btn.id = 'sidebar-tab-' + safeId;
+                btn.setAttribute('aria-controls', 'sidebar-group-' + safeId);
+                btn.setAttribute('aria-selected', 'false');
+                btn.setAttribute('role', 'tab');
+                btn.textContent = safeLabel;
+                btn.addEventListener('click', () => this.activateSidebarGroup(safeId));
+                // キーボード操作対応（Enter/Space）
+                btn.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        this.activateSidebarGroup(safeId);
+                    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                        // 矢印キーでタブを切り替え
+                        e.preventDefault();
+                        const tabs = Array.from(document.querySelectorAll('.sidebar-tab'));
+                        const currentIndex = tabs.indexOf(btn);
+                        let nextIndex;
+                        if (e.key === 'ArrowRight') {
+                            nextIndex = (currentIndex + 1) % tabs.length;
+                        } else {
+                            nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                        }
+                        tabs[nextIndex].focus();
+                        this.activateSidebarGroup(tabs[nextIndex].dataset.group);
                     }
-                    tabs[nextIndex].focus();
-                    this.activateSidebarGroup(tabs[nextIndex].dataset.group);
-                }
-            });
-            tabsContainer.appendChild(btn);
+                });
+                tabsContainer.appendChild(btn);
             }
 
             if (panel) {
-                try { if (window.ZWGadgets && typeof window.ZWGadgets.init==='function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch(_) {}
+                try { if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') window.ZWGadgets.init('#' + panel.id, { group: safeId }); } catch (_) { }
             }
             try {
-                if (window.elementManager && typeof window.elementManager.initialize==='function') window.elementManager.initialize();
-            } catch(_) {}
+                if (window.elementManager && typeof window.elementManager.initialize === 'function') window.elementManager.initialize();
+            } catch (_) { }
             if (persist) {
                 try {
                     var s = window.ZenWriterStorage.loadSettings();
                     s.ui = s.ui || {};
                     var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
-                    if (!list.some(function(t){ return t && String(t.id || '').trim().toLowerCase() === String(safeId || '').trim().toLowerCase(); })) {
+                    if (!list.some(function (t) { return t && String(t.id || '').trim().toLowerCase() === String(safeId || '').trim().toLowerCase(); })) {
                         list.push({ id: safeId, label: safeLabel });
                     }
                     s.ui.customTabs = list;
                     window.ZenWriterStorage.saveSettings(s);
-                } catch(_) {}
+                } catch (_) { }
             }
             return safeId;
-        } catch(_) { return null; }
+        } catch (_) { return null; }
     }
 
     removeTab(id) {
         try {
             var rawId = String(id || '').trim();
             var nid = rawId.toLowerCase();
-            var idx = this.sidebarTabConfig.findIndex(function(t){ return t && String(t.id || '').trim() === rawId; });
-            if (idx < 0) idx = this.sidebarTabConfig.findIndex(function(t){ return t && String(t.id || '').trim().toLowerCase() === nid; });
+            var idx = this.sidebarTabConfig.findIndex(function (t) { return t && String(t.id || '').trim() === rawId; });
+            if (idx < 0) idx = this.sidebarTabConfig.findIndex(function (t) { return t && String(t.id || '').trim().toLowerCase() === nid; });
             if (idx >= 0) this.sidebarTabConfig.splice(idx, 1);
             var btn = document.querySelector('.sidebar-tab[data-group="' + rawId + '"]') || document.querySelector('.sidebar-tab[data-group="' + nid + '"]');
             if (btn && btn.parentNode) btn.parentNode.removeChild(btn);
@@ -417,16 +411,16 @@ class SidebarManager {
             try {
                 var s = window.ZenWriterStorage.loadSettings();
                 s.ui = s.ui || {};
-                s.ui.customTabs = (Array.isArray(s.ui.customTabs) ? s.ui.customTabs : []).filter(function(t){
+                s.ui.customTabs = (Array.isArray(s.ui.customTabs) ? s.ui.customTabs : []).filter(function (t) {
                     var tid = t && String(t.id || '').trim();
                     if (!tid) return false;
                     return tid !== rawId && tid.toLowerCase() !== nid;
                 });
                 window.ZenWriterStorage.saveSettings(s);
-            } catch(_) {}
+            } catch (_) { }
             var fallback = (this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) || 'structure';
             this.activateSidebarGroup(fallback);
-        } catch(_) {}
+        } catch (_) { }
     }
 
     renameTab(id, newLabel) {
@@ -435,8 +429,8 @@ class SidebarManager {
             var nid = rawId.toLowerCase();
             var label = String(newLabel || '');
             if (!label) return;
-            var conf = this.sidebarTabConfig.find(function(t){ return t && String(t.id || '').trim() === rawId; });
-            if (!conf) conf = this.sidebarTabConfig.find(function(t){ return t && String(t.id || '').trim().toLowerCase() === nid; });
+            var conf = this.sidebarTabConfig.find(function (t) { return t && String(t.id || '').trim() === rawId; });
+            if (!conf) conf = this.sidebarTabConfig.find(function (t) { return t && String(t.id || '').trim().toLowerCase() === nid; });
             if (conf) conf.label = label;
             var btn = document.querySelector('.sidebar-tab[data-group="' + rawId + '"]') || document.querySelector('.sidebar-tab[data-group="' + nid + '"]');
             if (btn) btn.textContent = label;
@@ -444,9 +438,9 @@ class SidebarManager {
                 var s = window.ZenWriterStorage.loadSettings();
                 s.ui = s.ui || {};
                 var list = Array.isArray(s.ui.customTabs) ? s.ui.customTabs : [];
-                for (var i=0;i<list.length;i++){
+                for (var i = 0; i < list.length; i++) {
                     var tid = list[i] && String(list[i].id || '').trim();
-                    if (tid && (tid === rawId || tid.toLowerCase() === nid)){
+                    if (tid && (tid === rawId || tid.toLowerCase() === nid)) {
                         list[i].id = nid;
                         list[i].label = label;
                         break;
@@ -454,8 +448,8 @@ class SidebarManager {
                 }
                 s.ui.customTabs = list;
                 window.ZenWriterStorage.saveSettings(s);
-            } catch(_) {}
-        } catch(_) {}
+            } catch (_) { }
+        } catch (_) { }
     }
 
     applyTabsPresentationUI(options) {
@@ -489,7 +483,7 @@ class SidebarManager {
                     dd.addEventListener('change', () => this.activateSidebarGroup(dd.value));
                     if (top) top.insertBefore(dd, top.firstChild);
                 }
-                
+
                 // オプションを常に再構築（タブの増減に対応）
                 dd.innerHTML = '';
                 const tabs = document.querySelectorAll('.sidebar-tab');
@@ -512,13 +506,13 @@ class SidebarManager {
                 document.querySelectorAll('.sidebar-group').forEach(sec => {
                     sec.classList.add('active');
                     sec.setAttribute('aria-hidden', 'false');
-                    sec.style.display = 'block'; 
+                    sec.style.display = 'block';
                 });
             } else {
                 // 通常（Tabs）または Dropdown モード（選択されたものだけ表示）
                 const activeTab = document.querySelector('.sidebar-tab.active');
                 const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
-                
+
                 // 表示状態のリセットと更新
                 document.querySelectorAll('.sidebar-group').forEach(sec => {
                     const isActive = sec.getAttribute('data-group') === gid;
@@ -534,8 +528,8 @@ class SidebarManager {
 
     formatTs(ts) {
         const d = new Date(ts);
-        const p = (n)=> String(n).padStart(2,'0');
-        return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+        const p = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
     activateSidebarGroup(groupId, options) {
