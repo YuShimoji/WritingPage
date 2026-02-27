@@ -1,0 +1,18 @@
+{
+  "name": "Zen Writer",
+  "short_name": "ZenWriter",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f5f3ee",
+  "theme_color": "#2f6b4f",
+  "description": "執筆に集中するためのエディタ",
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

@@ -290,6 +290,36 @@
         }
 
         // ===== フローティングツール（フォントパネル） =====
+        function positionFloatingPanel(panel, trigger) {
+            if (!panel) return;
+            const margin = 12;
+            const triggerRect = trigger ? trigger.getBoundingClientRect() : null;
+            const panelRect = panel.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            let left = triggerRect ? triggerRect.left : viewportWidth - panelRect.width - margin;
+            let top = triggerRect ? (triggerRect.bottom + 8) : (viewportHeight - panelRect.height - margin);
+
+            if (left + panelRect.width > viewportWidth - margin) {
+                left = viewportWidth - panelRect.width - margin;
+            }
+            if (left < margin) left = margin;
+
+            if (top + panelRect.height > viewportHeight - margin && triggerRect) {
+                top = triggerRect.top - panelRect.height - 8;
+            }
+            if (top < margin) top = margin;
+
+            panel.style.position = 'fixed';
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+            panel.style.left = Math.round(left) + 'px';
+            panel.style.top = Math.round(top) + 'px';
+            panel.style.maxHeight = `calc(100vh - ${margin * 2}px)`;
+            panel.style.overflowY = 'auto';
+        }
+
         function toggleFontPanel(forceShow) {
             if (forceShow === undefined) forceShow = null;
             const fontPanel = elementManager.get('fontPanel');
@@ -307,6 +337,7 @@
                 if (globalFontRange) globalFontRange.value = s.fontSize;
                 if (globalFontNumber) globalFontNumber.value = s.fontSize;
                 syncHudQuickControls();
+                positionFloatingPanel(fontPanel, elementManager.get('toolsFab'));
                 const firstInput = fontPanel.querySelector('input, button, select');
                 if (firstInput) {
                     setTimeout(() => firstInput.focus(), 100);

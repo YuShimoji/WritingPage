@@ -101,7 +101,8 @@ class SettingsManager {
         const pad = typeof layout.padding === 'number' ? layout.padding : 0;
         if (editorEl) {
             editorEl.style.maxWidth = maxW > 0 ? maxW + 'px' : 'none';
-            editorEl.style.padding = pad + 'px';
+            if (pad > 0) editorEl.style.padding = pad + 'px';
+            else editorEl.style.removeProperty('padding');
         }
         if (containerEl) {
             if ((maxW > 0 || pad > 0) && layout.marginBgColor) {

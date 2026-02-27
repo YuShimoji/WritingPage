@@ -184,10 +184,16 @@
             const toolbarActions = document.querySelector('.toolbar-actions');
 
             if (toolbarActions) {
+                const groupTargets = {
+                    editor: toolbarActions.querySelector('.toolbar-group[data-group="editor"]'),
+                    system: toolbarActions.querySelector('.toolbar-group[data-group="window"]'),
+                };
+
                 headerTools.forEach(tool => {
                     if (!tool.domId) return;
 
                     let btn = document.getElementById(tool.domId);
+                    const targetGroup = groupTargets[tool.group] || toolbarActions;
                     // 既存ボタンがない場合は作成
                     if (!btn) {
                         btn = document.createElement('button');
@@ -195,9 +201,15 @@
                         btn.className = 'icon-button iconified';
                         btn.title = tool.label;
                         btn.setAttribute('aria-label', tool.label);
+                        if (tool.group) btn.dataset.toolGroup = tool.group;
                         // 挿入位置: 最後に追加
-                        toolbarActions.appendChild(btn);
+                        targetGroup.appendChild(btn);
                         logger.info(`Tool button created: ${tool.domId}`);
+                    } else if (tool.group) {
+                        btn.dataset.toolGroup = tool.group;
+                        if (targetGroup && btn.parentElement !== targetGroup) {
+                            targetGroup.appendChild(btn);
+                        }
                     }
 
                     // アイコン同期

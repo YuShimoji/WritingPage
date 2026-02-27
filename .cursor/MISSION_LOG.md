@@ -1733,3 +1733,62 @@ ode scripts/todo-sync.js ‚ğÀs‚µAAI_CONTEXT.md ‚ğXVB
 ## Phase 5: Worker ‹N“®—pƒvƒƒ“ƒvƒg¶¬iŠ®—¹ 2026-02-03j
 - Batch 1 (Worker 1, 2, 3) —p‚Ìƒvƒƒ“ƒvƒg‚ğ¶¬B
 - ƒ†[ƒU[‚ÉŠe Worker ‚Ì‹N“®‚ğˆË—ŠB
+
+## Phase 1-2: Sync + Focus Audit (2026-02-27)
+
+### è¿½è¨˜æ™‚åˆ»
+- 2026-02-27T13:58:00+09:00
+
+### å®Ÿæ–½å†…å®¹
+- git pull --rebase --autostash origin main ã‚’å®Ÿè¡Œã—ã€Already up to date ã‚’ç¢ºèªï¼ˆãƒªãƒ¢ãƒ¼ãƒˆçµ±åˆå®Œäº†ï¼‰ã€‚
+- WYSIWYGã€è£…é£¾ãƒ‘ãƒãƒ«ã€FABãƒ‘ãƒãƒ«ã€ãƒ„ãƒ¼ãƒ«ãƒãƒ¼å†åˆ†é¡ã€PWAå°å…¥ã®å·®åˆ†ã‚’é‡ç‚¹ç›£æŸ»ã€‚
+- æœ€å°æ¤œè¨¼ã‚’å®Ÿæ–½:
+  - npm run lint:js:check (pass)
+  - npm run test:smoke (pass)
+  - npx playwright test e2e/decorations.spec.js -g "should open font decoration panel|should apply decoration via button click|should open text animation panel" (pass)
+  - npx playwright test e2e/decorations.spec.js -g "should handle keyboard shortcuts" (pass)
+- è¿½åŠ ã®è‡ªå‹•æ¤œè¨¼ã‚’å®Ÿæ–½:
+  - desktop/mobile ã§ font-decoration-panel, text-animation-panel, floating-font-panel ãŒ viewport å†…ã«åã¾ã‚‹ã“ã¨ã‚’ç¢ºèªã€‚
+  - WYSIWYG ã§ã€Œæœªé¸æŠæ™‚ã¯å…¨ä½“é©ç”¨ã—ãªã„ã€ã€Œé¸æŠç¯„å›²ã®ã¿é©ç”¨ã€ã‚’ç¢ºèªã€‚
+  - [bold]...[/bold], [fade]...[/fade] ãŒ WYSIWYG ã§ãƒªãƒƒãƒè¡¨ç¤ºã•ã‚Œã€textarea å¾©å¸°æ™‚ã«ã‚¿ã‚°ã¸å¾€å¾©ã§ãã‚‹ã“ã¨ã‚’ç¢ºèªã€‚
+
+### ç¾åœ¨ã®è©•ä¾¡ï¼ˆ3æ®µéšï¼‰
+- å®Ÿè£…å®‰å®šåº¦: é«˜
+- ãƒ¦ãƒ¼ã‚¶ãƒ¼å½±éŸ¿ä¸å…·åˆã®æ®‹å­˜: ä¸­ï¼ˆåºƒç¯„å›² E2E æœªåæŸã®æ—¢å­˜èª²é¡Œã‚ã‚Šï¼‰
+- æ¬¡ãƒ•ã‚§ãƒ¼ã‚ºæº–å‚™åº¦: é«˜
+
+### æ¬¡ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ï¼ˆæœ€çŸ­ï¼‰
+1. TASK_055 ã‚’ã€ŒWYSIWYG/è£…é£¾å°ç·šã®ç¢ºèªå®Œäº†ã€ã¨ã—ã¦æ›´æ–°ã—ã€æ®‹ã‚Šã‚’ E2E ã‚¯ãƒ©ã‚¹ã‚¿ãƒ¼ï¼ˆdecorations ä»¥å¤–ï¼‰ã«é™å®šã€‚
+2. æœ€å°å›å¸°ã¨ã—ã¦ã€é–¢é€£ spec ã®ã¿ï¼ˆdecorations/editor-settingsï¼‰ã‚’æ®µéšå®Ÿè¡Œã€‚
+3. å•é¡Œãªã‘ã‚Œã°ç¾åœ¨ã®å·®åˆ†ã‚’1ã‚³ãƒŸãƒƒãƒˆã«æ•´ç†ã—ã¦ pushã€‚
+
+## Phase 2.5: Divergei2026-02-27 ˆÀ’èƒrƒ‹ƒh“±ü‚Ìû‘©j
+
+### ’Ç‹L
+- 2026-02-27T14:50:00+09:00
+
+### À{“à—e
+- ƒŠƒ‚[ƒg“¯Šú‚ğŠm”Fi`git pull --rebase --autostash origin main` -> `Already up to date`j
+- ¸”sƒNƒ‰ƒXƒ^[‚ğÅ’Z‚Åû‘©
+  - `e2e/tags-smart-folders.spec.js` ‚ğŒ»sÀ‘•€‹’‚ÖC³i8/8 passj
+  - `e2e/editor-settings.spec.js` ‚ğ settings ƒ‚[ƒ_ƒ‹‘O’ñ‚ÉÄ\’zi12/12 passj
+  - `js/images.js` ‚É `addFromDataURL` ‚ğŒöŠJ‚µ‚Ä collage ‘O’ñ‚ğ–‚½‚·
+  - `js/gadgets-builtin.js` ‚Ì Documents ‰Šú‰»¸”si`printCurrent` –¢’è‹`j‚ğ‰ğÁ
+- ˆÀ’èŠm”F—pƒXƒNƒŠƒvƒg‚ğ’Ç‰Á
+  - `test:e2e:stable`
+  - `test:build:stable`
+
+### ŒŸØŒ‹‰Ê
+- `npm run test:build:stable` -> PASS
+  - lint: PASS
+  - smoke: PASS
+  - e2e stable: PASSi26 passedj
+
+### c‰Û‘è
+- `e2e/decorations.spec.js` ‚ÍŒ»sUI‚Æ‚Ì·•ª‚É‚æ‚è•¡”¸”sipreview•\¦/animation/HUDj
+- –{ƒtƒF[ƒY‚Å‚ÍuÅ’Z‚ÅˆÀ’èŠm”F‰Â”\‚Èƒrƒ‹ƒh“±üv‚ğ—Dæ‚µAstableƒQ[ƒg‚©‚çœŠO
+
+### ŸƒAƒNƒVƒ‡ƒ“
+1. `decorations.spec.js` ‚ğ settingsƒOƒ‹[ƒv‘O’ñ‚Ö‘S–ÊˆÚsiassistˆË‘¶‚ğœ‹j
+2. `npm run test:e2e:ci` ‚ğÄÀs‚µ‚Ä‘S‘Ì¸”sŒ”‚ğÄ‘ª’è
+3. TASK_055 ‚Ì Status ‚ğŒ‹‰Ê‚É‰‚¶‚Ä DONE ‚©ŸŒp‘±ƒ`ƒPƒbƒg‚Ö•ªŠò

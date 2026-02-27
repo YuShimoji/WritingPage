@@ -32,6 +32,7 @@ const mime = {
   '.gif': 'image/gif',
   '.ico': 'image/x-icon',
   '.json': 'application/json; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
 };
 
 function sendFile(res, fp) {

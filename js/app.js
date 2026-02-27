@@ -382,10 +382,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const sidebar = elementManager.get('sidebar');
             if (sidebar && s && s.ui) {
                 if (typeof s.ui.sidebarWidth === 'number') {
-                    const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
-                    sidebar.style.width = w + 'px';
-                    // CSS変数にも反映（main-content のオフセットと同期）
-                    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                    const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+                    if (isDesktop) {
+                        const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
+                        sidebar.style.width = w + 'px';
+                        // CSS変数にも反映（main-content のオフセットと同期）
+                        document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                    } else {
+                        sidebar.style.removeProperty('width');
+                        document.documentElement.style.removeProperty('--sidebar-width');
+                    }
                 }
                 if (s.ui.tabsPresentation) {
                     sidebar.setAttribute('data-tabs-presentation', String(s.ui.tabsPresentation));

@@ -644,6 +644,7 @@
   var API = {
     init: init,
     render: renderOverlay,
+    addFromDataURL: addFromDataURL,
     addFromFile: addFromFile,
     addFromUrl: addFromUrl,
     remove: remove,

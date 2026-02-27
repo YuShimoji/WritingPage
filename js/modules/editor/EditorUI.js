@@ -97,15 +97,55 @@
          * Font decoration application
          */
         applyFontDecoration(manager, tag) {
+            const rich = manager && (manager.richTextEditor || window.richTextEditor);
+            if (rich && rich.isWysiwygMode && typeof rich.applyTag === 'function') {
+                rich.applyTag(tag, 'decor');
+                return;
+            }
             if (typeof manager.insertTextAtCursor === 'function') {
                 manager.insertTextAtCursor(`[${tag}]`, { suffix: `[/${tag}]` });
             }
         },
 
         applyTextAnimation(manager, tag) {
+            const rich = manager && (manager.richTextEditor || window.richTextEditor);
+            if (rich && rich.isWysiwygMode && typeof rich.applyTag === 'function') {
+                rich.applyTag(tag, 'anim');
+                return;
+            }
             if (typeof manager.insertTextAtCursor === 'function') {
                 manager.insertTextAtCursor(`[${tag}]`, { suffix: `[/${tag}]` });
             }
+        },
+
+        positionFloatingPanel(panel, trigger) {
+            if (!panel) return;
+            const margin = 12;
+            const triggerRect = trigger ? trigger.getBoundingClientRect() : null;
+            const panelRect = panel.getBoundingClientRect();
+            const viewportWidth = window.innerWidth;
+            const viewportHeight = window.innerHeight;
+
+            let left = triggerRect ? triggerRect.left : viewportWidth - panelRect.width - margin;
+            let top = triggerRect ? (triggerRect.bottom + 8) : (viewportHeight - panelRect.height - margin);
+
+            if (left + panelRect.width > viewportWidth - margin) {
+                left = viewportWidth - panelRect.width - margin;
+            }
+            if (left < margin) left = margin;
+
+            if (top + panelRect.height > viewportHeight - margin && triggerRect) {
+                top = triggerRect.top - panelRect.height - 8;
+            }
+            if (top < margin) top = margin;
+
+            panel.style.position = 'fixed';
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+            panel.style.left = `${Math.round(left)}px`;
+            panel.style.top = `${Math.round(top)}px`;
+            panel.style.maxHeight = `calc(100vh - ${margin * 2}px)`;
+            panel.style.overflowY = 'auto';
         },
 
         /**
@@ -121,6 +161,7 @@
             if (manager.fontDecorationPanel) {
                 manager.fontDecorationPanel.style.display = 'block';
                 if (manager.textAnimationPanel) manager.textAnimationPanel.style.display = 'none';
+                this.positionFloatingPanel(manager.fontDecorationPanel, manager.toggleFontDecorationBtn);
             }
         },
 
@@ -138,6 +179,7 @@
             if (manager.textAnimationPanel) {
                 manager.textAnimationPanel.style.display = 'block';
                 if (manager.fontDecorationPanel) manager.fontDecorationPanel.style.display = 'none';
+                this.positionFloatingPanel(manager.textAnimationPanel, manager.toggleTextAnimationBtn);
             }
         },
 
@@ -227,6 +269,19 @@
          */
         setupEventListeners(manager) {
             if (!manager || !manager.editor) return;
+            const handleEditorShortcuts = (e) => {
+                if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+                    const k = String(e.key || '').toLowerCase();
+                    if (k === 'b' || k === 'i' || k === 'u') {
+                        e.preventDefault();
+                        if (typeof manager.applyFontDecoration === 'function') {
+                            if (k === 'b') manager.applyFontDecoration('bold');
+                            if (k === 'i') manager.applyFontDecoration('italic');
+                            if (k === 'u') manager.applyFontDecoration('underline');
+                        }
+                    }
+                }
+            };
 
             // Simple input event
             manager.editor.addEventListener('input', () => {
@@ -243,13 +298,20 @@
 
             // Tab key support
             manager.editor.addEventListener('keydown', (e) => {
+                if (e.defaultPrevented) return;
                 if (e.key === 'Tab') {
                     e.preventDefault();
                     if (typeof manager.insertTextAtCursor === 'function') {
                         manager.insertTextAtCursor('\t');
                     }
+                    return;
                 }
+                handleEditorShortcuts(e);
             });
+            document.addEventListener('keydown', (e) => {
+                if (e.defaultPrevented) return;
+                if (document.activeElement === manager.editor) handleEditorShortcuts(e);
+            }, true);
 
             // Decor buttons (delegated common logic)
             const decorButtons = document.querySelectorAll('.decor-btn');
