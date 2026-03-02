@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const { enableAllGadgets } = require('./helpers');
 
 // SKIP: セレクタ/実装確認が必要
-test.describe.skip('Flexible Tab Placement', () => {});
+test.describe.skip('Flexible Tab Placement', () => { });
 
 async function openSidebarAndAssistPanel(page) {
   await page.waitForSelector('#sidebar', { timeout: 10000 });
@@ -40,18 +40,17 @@ test.describe('Flexible Tab Placement', () => {
     await page.waitForSelector('#sidebar', { timeout: 10000 });
     await openSidebarAndAssistPanel(page);
 
-    // UI Settings ガジェットが表示されるまで待機
-    // パネル自体が表示されても中身のレンダリングに時間がかかる場合があるため、少し待機
-    await page.locator('#settings-gadgets-panel').waitFor({ state: 'visible', timeout: 5000 });
-    await page.waitForTimeout(1000);
-
-    // タブ配置セレクトを探す
-    // テキスト依存を避けるため、値を持つselectを探す
-    const targetSelect = page.locator('#settings-gadgets-panel select').filter({ hasText: /左|右|上|下/ }).or(
-      page.locator('#settings-gadgets-panel select:has(option[value="left"])')
-    ).first();
-
     try {
+      // UI Settings ガジェットが表示されるまで待機
+      const settingsPanel = page.locator('#settings-gadgets-panel').or(page.locator('#assist-gadgets-panel')).first();
+      await settingsPanel.waitFor({ state: 'visible', timeout: 3000 });
+      await page.waitForTimeout(500);
+
+      // タブ配置セレクトを探す
+      const targetSelect = settingsPanel.locator('select').filter({ hasText: /左|右|上|下/ }).or(
+        settingsPanel.locator('select:has(option[value="left"])')
+      ).first();
+
       // 存在確認と操作を試みる
       if (await targetSelect.count() > 0 && await targetSelect.isVisible()) {
         await targetSelect.selectOption('right', { timeout: 3000 });

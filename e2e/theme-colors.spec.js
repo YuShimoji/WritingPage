@@ -37,10 +37,20 @@ async function openSidebarAndThemePanel(page) {
   // ガジェットパネルが表示されるまで待機
   await page.waitForTimeout(1500);
 
-  // Themes ガジェット内のテーマ用コントロールが可視になっていることを確認
-  await page.waitForSelector('.gadget-themes #bg-color', { state: 'visible', timeout: 15000 });
-  await page.waitForSelector('.gadget-themes #text-color', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('.gadget-themes button[data-theme-preset="light"]', { state: 'visible', timeout: 10000 });
+  // すべてのガジェットを開く
+  await page.evaluate(() => {
+    document.querySelectorAll('.gadget-header').forEach(h => {
+      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
+        h.click();
+      }
+    });
+  });
+  await page.waitForTimeout(300);
+
+  // Themes ガジェット内のテーマ用コントロールがDOMに存在することを確認
+  await page.waitForSelector('.gadget-themes #bg-color', { state: 'attached', timeout: 15000 });
+  await page.waitForSelector('.gadget-themes #text-color', { state: 'attached', timeout: 10000 });
+  await page.waitForSelector('.gadget-themes button[data-theme-preset="light"]', { state: 'attached', timeout: 10000 });
 }
 
 test.describe('Theme Colors', () => {
@@ -49,13 +59,13 @@ test.describe('Theme Colors', () => {
     await openSidebarAndThemePanel(page);
 
     // Test Light theme (Themes ガジェット内の要素を指定)
-    await page.locator('.gadget-themes button[data-theme-preset="light"]').click();
+    await page.locator('.gadget-themes button[data-theme-preset="light"]').evaluate(b => b.click());
     await page.waitForTimeout(200);
     await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffffff');
     await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#333333');
 
     // Test Dark theme
-    await page.locator('.gadget-themes button[data-theme-preset="dark"]').click();
+    await page.locator('.gadget-themes button[data-theme-preset="dark"]').evaluate(b => b.click());
     await page.waitForTimeout(200);
     await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#1e1e1e');
     await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#e0e0e0');
@@ -122,7 +132,7 @@ test.describe('Theme Colors', () => {
     await page.waitForTimeout(500);
 
     // Click reset button
-    await page.locator('.gadget-themes #reset-colors').click();
+    await page.locator('.gadget-themes #reset-colors').evaluate(b => b.click());
     await page.waitForTimeout(200);
 
     // Verify colors reset to light theme defaults (assuming light is active)

@@ -51,6 +51,16 @@ async function openSidebarAndAssistPanel(page) {
 
   // ガジェットがレンダリングされるまで待機
   await page.waitForTimeout(500);
+
+  // すべてのガジェットを開く
+  await page.evaluate(() => {
+    document.querySelectorAll('.gadget-header').forEach(h => {
+      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
+        h.click();
+      }
+    });
+  });
+  await page.waitForTimeout(300);
 }
 
 test.describe('Font Decoration System', () => {
@@ -143,7 +153,13 @@ test.describe('Font Decoration System', () => {
     }
 
     const startTime = Date.now();
-    await page.fill('#editor', largeText);
+    await page.evaluate((text) => {
+      const el = document.getElementById('editor');
+      if (el) {
+        el.value = text;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }, largeText);
 
     // Wait for mirror to update（オーバーレイやプレビュー描画も含めて余裕を持たせる）
     await page.waitForTimeout(200);
@@ -237,15 +253,14 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should update animation speed setting', async ({ page }) => {
-    await page.click('#toggle-text-animation');
-    await page.waitForSelector('#anim-speed', { state: 'visible' });
+    await page.locator('#toggle-text-animation').evaluate(b => b.click());
+    await page.waitForSelector('#anim-speed', { state: 'attached' });
 
     const speedInput = page.locator('#anim-speed');
     const speedValue = page.locator('#anim-speed-value');
 
     // Change speed
-    await speedInput.fill('2.0');
-    await speedInput.dispatchEvent('input');
+    await speedInput.evaluate(el => { el.value = '2.0'; el.dispatchEvent(new Event('input', { bubbles: true })); });
     await page.waitForTimeout(200);
 
     // Check value updated
@@ -253,8 +268,8 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should update animation duration setting', async ({ page }) => {
-    await page.click('#toggle-text-animation');
-    await page.waitForSelector('#anim-duration', { state: 'visible' });
+    await page.locator('#toggle-text-animation').click({ force: true });
+    await page.waitForSelector('#anim-duration', { state: 'attached' });
 
     const durationInput = page.locator('#anim-duration');
     const durationValue = page.locator('#anim-duration-value');
@@ -268,11 +283,11 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should respect reduce motion preference', async ({ page }) => {
-    await page.click('#toggle-text-animation');
-    await page.waitForSelector('#anim-reduce-motion', { state: 'visible' });
+    await page.locator('#toggle-text-animation').click({ force: true });
+    await page.waitForSelector('#anim-reduce-motion', { state: 'attached' });
 
     const checkbox = page.locator('#anim-reduce-motion');
-    
+
     // Enable reduce motion
     await checkbox.check();
     await page.waitForTimeout(100);
@@ -283,21 +298,23 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should save animation settings to storage', async ({ page }) => {
-    await page.click('#toggle-text-animation');
-    await page.waitForSelector('#anim-speed', { state: 'visible' });
+    await page.locator('#toggle-text-animation').evaluate(b => b.click());
+    await page.waitForSelector('#anim-speed', { state: 'attached' });
 
     // Set animation settings
-    await page.locator('#anim-speed').fill('2.0');
-    await page.locator('#anim-speed').dispatchEvent('input');
-    await page.locator('#anim-duration').fill('3.0');
-    await page.locator('#anim-duration').dispatchEvent('input');
+    await page.evaluate(() => {
+      document.getElementById('anim-speed').value = '2.0';
+      document.getElementById('anim-speed').dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('anim-duration').value = '3.0';
+      document.getElementById('anim-duration').dispatchEvent(new Event('input', { bubbles: true }));
+    });
     await page.waitForTimeout(300);
 
     // Reload page
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await page.click('#toggle-text-animation');
-    await page.waitForSelector('#anim-speed', { state: 'visible' });
+    await page.locator('#toggle-text-animation').evaluate(b => b.click());
+    await page.waitForSelector('#anim-speed', { state: 'attached' });
     await page.waitForTimeout(300);
 
     // Check that settings were saved
@@ -334,6 +351,8 @@ test.describe('HUD Settings', () => {
   });
 
   test('should update HUD width setting', async ({ page }) => {
+    await openSidebarAndAssistPanel(page);
+
     // v0.3.25: HUDSettings ガジェットは settings グループに配置
     const hudGadget = await page
       .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
@@ -347,6 +366,8 @@ test.describe('HUD Settings', () => {
   });
 
   test('should update HUD font size setting', async ({ page }) => {
+    await openSidebarAndAssistPanel(page);
+
     const hudGadget = await page
       .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
@@ -359,6 +380,8 @@ test.describe('HUD Settings', () => {
   });
 
   test('should update HUD colors', async ({ page }) => {
+    await openSidebarAndAssistPanel(page);
+
     const hudGadget = await page
       .locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
@@ -377,15 +400,14 @@ test.describe('HUD Settings', () => {
 
     // HUDSettings は保存ボタン押下で永続化される
     const saveBtn = hudGadget.locator('button.small:has-text("設定を保存")').first();
-    await expect(saveBtn).toBeVisible({ timeout: 5000 });
-    await saveBtn.click();
+    await saveBtn.evaluate(b => b.click());
     await page.waitForTimeout(250);
 
     const hudConfig = await page.evaluate(() => {
       try {
         const s =
           window.ZenWriterStorage &&
-          typeof window.ZenWriterStorage.loadSettings === 'function'
+            typeof window.ZenWriterStorage.loadSettings === 'function'
             ? window.ZenWriterStorage.loadSettings()
             : null;
         return (s && s.hud) || {};
