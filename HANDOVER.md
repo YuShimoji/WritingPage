@@ -5,7 +5,7 @@
 Zen Writer — ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
 コードベースのリファクタリング・品質向上を進行中。
 
-- **バージョン**: 0.3.25
+- **バージョン**: 0.3.26
 - **最終更新**: 2026-03-02
 - **ブランチ**: main（origin/main と同期済み）
 
@@ -25,7 +25,7 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 | テスト | 状態 | コマンド |
 |--------|------|----------|
 | Smoke | ✅ ALL PASSED | `npm run test:smoke` |
-| E2E | ⚠️ 95 passed / 42 skipped / 30 failed | `npm run test:e2e:ci` |
+| E2E | ⚠️ 67 passed / 42 skipped / 58 failed | `npm run test:e2e:ci` |
 | Lint | ✅ ALL PASSED | `npm run lint` |
 
 ### アーキテクチャ概要
@@ -53,7 +53,7 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 | TASK_047 | app.js リファクタリング | P1 | COMPLETED |
 | TASK_048 | 汎用フローティングパネル | P1 | OPEN |
 | TASK_051 | プラグインシステム設計 | P2 | OPEN |
-| TASK_052 | ガジェットAPI型安全性 | P2 | OPEN |
+| TASK_052 | ガジェットAPI型安全性 | P2 | COMPLETED |
 | TASK_054 | グラフィックノベル ルビテキスト | P2 | OPEN |
 | TASK_055 | E2E残件64の失敗パターン分析・修正 | P1 | COMPLETED |
 | TASK_057 | サイドバー再設計 | P1 | COMPLETED |
@@ -81,6 +81,7 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 - ✅ GadgetPrefs Import/Export UI
 - ✅ UIモード（Normal/Focus/Blank）
 - ✅ Markdownライブプレビュー（morphdom差分適用）
+- ✅ ガジェットAPI型安全性（TASK_052: TypeScript型定義、JSDoc追加）
 
 ## OpenSpec
 
