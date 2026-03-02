@@ -201,8 +201,12 @@
         },
 
         saveAnimationSettings(patch) {
-            if (window.ZenWriterStorage && window.ZenWriterStorage.saveSettings) {
-                window.ZenWriterStorage.saveSettings({ animation: patch });
+            if (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings && window.ZenWriterStorage.saveSettings) {
+                const settings = window.ZenWriterStorage.loadSettings();
+                const currentAnim = settings.animation || {};
+                const updatedAnim = Object.assign({}, currentAnim, patch);
+                settings.animation = updatedAnim;
+                window.ZenWriterStorage.saveSettings(settings);
             }
         },
 
@@ -340,6 +344,60 @@
             }
             if (manager.closeTextAnimationBtn) {
                 manager.closeTextAnimationBtn.addEventListener('click', () => this.hideTextAnimationPanel(manager));
+            }
+
+            // Animation settings controls
+            const animSpeedInput = document.getElementById('anim-speed');
+            const animSpeedValue = document.getElementById('anim-speed-value');
+            const animDurationInput = document.getElementById('anim-duration');
+            const animDurationValue = document.getElementById('anim-duration-value');
+            const animReduceMotion = document.getElementById('anim-reduce-motion');
+
+            // Load saved animation settings
+            if (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings) {
+                const settings = window.ZenWriterStorage.loadSettings();
+                const anim = settings.animation || {};
+                
+                if (animSpeedInput && anim.speed !== undefined) {
+                    animSpeedInput.value = anim.speed;
+                    if (animSpeedValue) animSpeedValue.textContent = anim.speed + 'x';
+                    this.updateAnimationSpeed(anim.speed);
+                }
+                if (animDurationInput && anim.duration !== undefined) {
+                    animDurationInput.value = anim.duration;
+                    if (animDurationValue) animDurationValue.textContent = anim.duration + 's';
+                    this.updateAnimationDuration(anim.duration);
+                }
+                if (animReduceMotion && anim.reduceMotion !== undefined) {
+                    animReduceMotion.checked = anim.reduceMotion;
+                    this.updateAnimationReduceMotion(anim.reduceMotion);
+                }
+            }
+
+            if (animSpeedInput) {
+                animSpeedInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value) || 1.0;
+                    if (animSpeedValue) animSpeedValue.textContent = val.toFixed(1) + 'x';
+                    this.updateAnimationSpeed(val);
+                    this.saveAnimationSettings({ speed: val });
+                });
+            }
+
+            if (animDurationInput) {
+                animDurationInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value) || 1.5;
+                    if (animDurationValue) animDurationValue.textContent = val.toFixed(1) + 's';
+                    this.updateAnimationDuration(val);
+                    this.saveAnimationSettings({ duration: val });
+                });
+            }
+
+            if (animReduceMotion) {
+                animReduceMotion.addEventListener('change', (e) => {
+                    const checked = e.target.checked;
+                    this.updateAnimationReduceMotion(checked);
+                    this.saveAnimationSettings({ reduceMotion: checked });
+                });
             }
         }
     };
