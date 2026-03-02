@@ -2,14 +2,29 @@
   'use strict';
 
   // Utility functions
+  /**
+   * Deep clone an object via JSON serialization
+   * @param {Object} obj - Object to clone
+   * @returns {Object} Cloned object
+   */
   function clone(obj) {
     try { return JSON.parse(JSON.stringify(obj)); } catch (_) { return {}; }
   }
 
+  /**
+   * Add item to array if not already present
+   * @param {Array} arr - Target array
+   * @param {*} item - Item to add
+   */
   function uniquePush(arr, item) {
     if (arr.indexOf(item) < 0) arr.push(item);
   }
 
+  /**
+   * Normalize and validate a group name
+   * @param {string} name - Group name to normalize
+   * @returns {string} Normalized group name or empty string if invalid
+   */
   function normalizeGroupName(name) {
     var trimmed = typeof name === 'string' ? name.trim() : '';
     if (!trimmed) return '';
@@ -20,6 +35,11 @@
     return '';
   }
 
+  /**
+   * Normalize a list of group names
+   * @param {Array<string>} list - List of group names
+   * @returns {Array<string>} Normalized group names
+   */
   function normalizeGroupList(list) {
     var out = [];
     if (!Array.isArray(list)) return out;
@@ -31,6 +51,11 @@
     return out;
   }
 
+  /**
+   * Normalize a list of strings (trim and deduplicate)
+   * @param {Array<string>} list - List of strings
+   * @returns {Array<string>} Normalized strings
+   */
   function normalizeList(list) {
     var out = [];
     if (!Array.isArray(list)) return out;
@@ -44,6 +69,11 @@
     return out;
   }
 
+  /**
+   * Normalize groups object (ensure all known groups are present)
+   * @param {Object} groups - Groups object
+   * @returns {Object} Normalized groups object
+   */
   function normaliseGroups(groups) {
     var g = groups && typeof groups === 'object' ? groups : {};
     var out = {};
@@ -53,10 +83,19 @@
     return out;
   }
 
+  /**
+   * Emit a custom event
+   * @param {string} eventName - Event name
+   * @param {Object} [detail] - Event detail data
+   */
   function emit(eventName, detail) {
     try { window.dispatchEvent(new CustomEvent(eventName, { detail: detail || {} })); } catch (_) { }
   }
 
+  /**
+   * Execute function when DOM is ready
+   * @param {Function} fn - Function to execute
+   */
   function ready(fn) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn, { once: true });
     else fn();
@@ -103,9 +142,9 @@
   };
 
   /**
-   * グループ名からパネル要素を取得（データ属性ベース）
-   * @param {string} groupName
-   * @returns {Element|null}
+   * Get panel element for a group (data attribute based)
+   * @param {string} groupName - Group name
+   * @returns {Element|null} Panel element or null
    */
   function getGroupPanel(groupName) {
     var group = GADGET_GROUPS[groupName];
@@ -117,9 +156,9 @@
   }
 
   /**
-   * グループ名からセクション要素を取得（データ属性ベース）
-   * @param {string} groupName
-   * @returns {Element|null}
+   * Get section element for a group (data attribute based)
+   * @param {string} groupName - Group name
+   * @returns {Element|null} Section element or null
    */
   function getGroupSection(groupName) {
     var group = GADGET_GROUPS[groupName];
@@ -128,14 +167,20 @@
   }
 
   /**
-   * グループ名のバリデーション
-   * @param {string} groupName
-   * @returns {boolean}
+   * Validate a group name
+   * @param {string} groupName - Group name to validate
+   * @returns {boolean} Whether the group name is valid
    */
   function isValidGroup(groupName) {
     return GADGET_GROUPS.hasOwnProperty(groupName);
   }
 
+  /**
+   * Register a new group
+   * @param {string} groupId - Group identifier
+   * @param {string} label - Group label
+   * @returns {string} Registered group ID
+   */
   function registerGroup(groupId, label) {
     var id = typeof groupId === 'string' ? groupId.trim().toLowerCase() : '';
     if (!id) return '';

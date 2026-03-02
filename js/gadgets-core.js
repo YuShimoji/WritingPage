@@ -92,6 +92,18 @@
       return names;
     }
 
+    /**
+     * Register a new gadget
+     * @param {string} name - Unique identifier for the gadget
+     * @param {Function} factory - Function that renders the gadget (container, options) => void
+     * @param {Object} [options] - Configuration options
+     * @param {string} [options.title] - Display title of the gadget
+     * @param {string[]} [options.groups] - Groups this gadget belongs to
+     * @param {string} [options.icon] - Icon identifier (Lucide icon name)
+     * @param {boolean} [options.defaultEnabled] - Whether enabled by default
+     * @param {string} [options.className] - Custom CSS class
+     * @param {boolean} [options.floatable] - Whether this gadget can be detached
+     */
     register(name, factory, options) {
       try {
         var safeName = String(name || '');
@@ -206,6 +218,10 @@
       };
     }
 
+    /**
+     * Set the active group
+     * @param {string} group - Group name to set as active
+     */
     setActiveGroup(group) {
       var self = this;
       if (!group) return;
@@ -227,6 +243,10 @@
       });
     }
 
+    /**
+     * Get preferences
+     * @returns {Object} Preferences data
+     */
     getPrefs() {
       try {
         var raw = localStorage.getItem(STORAGE_KEY);
@@ -239,10 +259,19 @@
       } catch (_) { return { order: [], collapsed: {}, settings: {} }; }
     }
 
-    setPrefs(p) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p || {})); } catch (_) { }
+    /**
+     * Set preferences
+     * @param {Object} prefs - Preferences data
+     */
+    setPrefs(prefs) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs || {})); } catch (_) { }
     }
 
+    /**
+     * Get settings for a gadget
+     * @param {string} name - Unique identifier for the gadget
+     * @returns {Object} Settings data
+     */
     getSettings(name) {
       try {
         var p = this.getPrefs();
@@ -250,6 +279,13 @@
       } catch (_) { return {}; }
     }
 
+    /**
+     * Get a setting for a gadget
+     * @param {string} name - Unique identifier for the gadget
+     * @param {string} key - Setting key
+     * @param {*} def - Default value
+     * @returns {*} Setting value
+     */
     getSetting(name, key, def) {
       try {
         var s = this.getSettings(name) || {};
@@ -257,6 +293,12 @@
       } catch (_) { return def; }
     }
 
+    /**
+     * Set a setting for a gadget
+     * @param {string} name - Unique identifier for the gadget
+     * @param {string} key - Setting key
+     * @param {*} value - Setting value
+     */
     setSetting(name, key, value) {
       try {
         var p = loadPrefs();
@@ -270,6 +312,10 @@
       } catch (_) { }
     }
 
+    /**
+     * Export preferences
+     * @returns {string} Preferences data as JSON string
+     */
     exportPrefs() {
       try {
         var p = loadPrefs();
@@ -277,6 +323,11 @@
       } catch (_) { return '{}'; }
     }
 
+    /**
+     * Import preferences
+     * @param {Object|string} obj - Preferences data or JSON string
+     * @returns {boolean} Whether the import was successful
+     */
     importPrefs(obj) {
       try {
         var p = obj;
@@ -291,6 +342,12 @@
       } catch (_) { return false; }
     }
 
+    /**
+     * Add a tab
+     * @param {string} group - Group name
+     * @param {string} label - Tab label
+     * @param {string} _panelId - Panel ID
+     */
     addTab(group, label, _panelId) {
       try {
         if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
@@ -301,6 +358,11 @@
       }
     }
 
+    /**
+     * Move a gadget
+     * @param {string} name - Unique identifier for the gadget
+     * @param {string} dir - Direction to move (up or down)
+     */
     move(name, dir) {
       try {
         var p = loadPrefs();
@@ -318,6 +380,10 @@
       } catch (_) { }
     }
 
+    /**
+     * Toggle a gadget
+     * @param {string} name - Unique identifier for the gadget
+     */
     toggle(name) {
       try {
         var p = loadPrefs();
@@ -328,7 +394,13 @@
       } catch (_) { }
     }
 
-    init(selector, options) {
+    /**
+     * Initialize gadgets in a container
+     * @param {string|HTMLElement} selector - DOM element or selector to render gadgets in
+     * @param {Object} [config] - Configuration
+     * @param {string} [config.group] - Group name to filter gadgets
+     */
+    init(selector, config) {
       var self = this;
       var opts = options && typeof options === 'object' ? options : {};
       var sel = selector || '#gadgets-panel';
