@@ -12,8 +12,8 @@ async function waitKeybindsReady(page) {
   });
   // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
   await enableAllGadgets(page);
-  // サイドバーを開いてassistグループをアクティブにする
-  await openSidebarGroup(page, 'assist');
+  // サイドバーを開いてsettingsグループをアクティブにする（v0.3.25: Keybindsはsettingsグループに配置）
+  await openSidebarGroup(page, 'settings');
   // ガジェットのレンダリングを待機
   await page.waitForSelector('.keybinds-list', { state: 'attached', timeout: 10000 });
   return true;

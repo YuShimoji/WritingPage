@@ -3,11 +3,9 @@ const { test, expect } = require('@playwright/test');
 const { enableAllGadgets } = require('./helpers');
 
 /**
- * 現行UIではツールバーはデフォルトで表示されており、
- * Typography タブはサイドバータブ構成から外れているため、
- * テスト側でサイドバーを開きつつ typography セクションを強制的に表示する。
- * こうすることで、index.html 内のテーマカラーUI（#bg-color / #text-color と
- * data-theme-preset ボタン）を引き続き単一のテスト対象とする。
+ * v0.3.25: Typography タブは削除され、テーマ設定は settings グループの Themes ガジェットに移動。
+ * サイドバーを開き、settings タブをアクティブにして Themes ガジェット内の
+ * テーマプリセットボタンとカラーピッカーにアクセスする。
  */
 async function openSidebarAndThemePanel(page) {
   await page.waitForSelector('#sidebar', { timeout: 10000 });
@@ -23,11 +21,11 @@ async function openSidebarAndThemePanel(page) {
     await page.click('#toggle-sidebar');
   }
 
-  // SidebarManager 経由で typography タブをアクティブにする
+  // SidebarManager 経由で settings タブをアクティブにする
   await page.evaluate(() => {
     try {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('typography');
+        window.sidebarManager.activateSidebarGroup('settings');
       }
     } catch (_) { /* noop */ }
   });
@@ -35,10 +33,10 @@ async function openSidebarAndThemePanel(page) {
   // ガジェットパネルが表示されるまで待機
   await page.waitForTimeout(1000);
 
-  // テーマ用コントロールが可視になっていることを確認
-  await page.waitForSelector('#typography-gadgets-panel #bg-color', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#typography-gadgets-panel #text-color', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#typography-gadgets-panel button[data-theme-preset="light"]', { state: 'visible', timeout: 10000 });
+  // Themes ガジェット内のテーマ用コントロールが可視になっていることを確認
+  await page.waitForSelector('.gadget-themes #bg-color', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('.gadget-themes #text-color', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('.gadget-themes button[data-theme-preset="light"]', { state: 'visible', timeout: 10000 });
 }
 
 test.describe('Theme Colors', () => {
@@ -46,33 +44,35 @@ test.describe('Theme Colors', () => {
     await page.goto('/');
     await openSidebarAndThemePanel(page);
 
-    // Test Light theme (typographyパネル内の要素を指定)
-    await page.locator('#typography-gadgets-panel button[data-theme-preset="light"]').click();
+    // Test Light theme (Themes ガジェット内の要素を指定)
+    await page.locator('.gadget-themes button[data-theme-preset="light"]').click();
     await page.waitForTimeout(200);
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#ffffff');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#333333');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffffff');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#333333');
 
     // Test Dark theme
-    await page.locator('#typography-gadgets-panel button[data-theme-preset="dark"]').click();
+    await page.locator('.gadget-themes button[data-theme-preset="dark"]').click();
     await page.waitForTimeout(200);
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#1e1e1e');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#e0e0e0');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#1e1e1e');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#e0e0e0');
 
     // Test Sepia theme
-    await page.locator('#typography-gadgets-panel button[data-theme-preset="sepia"]').click();
+    await page.locator('.gadget-themes button[data-theme-preset="sepia"]').click();
     await page.waitForTimeout(200);
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#f4ecd8');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#5b4636');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#f4ecd8');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#5b4636');
   });
 
   test('should apply custom colors and persist after reload', async ({ page }) => {
     await page.goto('/');
     await openSidebarAndThemePanel(page);
 
-    // Set custom colors (typographyパネル内の要素を指定)
+    // Set custom colors (Themes ガジェット内の要素を指定)
     await page.evaluate(() => {
-      const bgInput = document.getElementById('bg-color');
-      const textInput = document.getElementById('text-color');
+      const themesGadget = document.querySelector('.gadget-themes');
+      if (!themesGadget) return;
+      const bgInput = themesGadget.querySelector('#bg-color');
+      const textInput = themesGadget.querySelector('#text-color');
       if (bgInput) {
         bgInput.value = '#ffcccc';
         bgInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -85,25 +85,27 @@ test.describe('Theme Colors', () => {
     await page.waitForTimeout(500);
 
     // Verify color pickers have the custom values
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#ffcccc');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#003300');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffcccc');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#003300');
 
     // Reload and verify persistence
     await page.reload();
     await openSidebarAndThemePanel(page);
 
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#ffcccc');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#003300');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffcccc');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#003300');
   });
 
   test('should reset custom colors to theme defaults', async ({ page }) => {
     await page.goto('/');
     await openSidebarAndThemePanel(page);
 
-    // Set custom colors (typographyパネル内の要素を指定)
+    // Set custom colors (Themes ガジェット内の要素を指定)
     await page.evaluate(() => {
-      const bgInput = document.getElementById('bg-color');
-      const textInput = document.getElementById('text-color');
+      const themesGadget = document.querySelector('.gadget-themes');
+      if (!themesGadget) return;
+      const bgInput = themesGadget.querySelector('#bg-color');
+      const textInput = themesGadget.querySelector('#text-color');
       if (bgInput) {
         bgInput.value = '#112233';
         bgInput.dispatchEvent(new Event('change', { bubbles: true }));
@@ -116,13 +118,13 @@ test.describe('Theme Colors', () => {
     await page.waitForTimeout(500);
 
     // Click reset button
-    await page.locator('#typography-gadgets-panel #reset-colors').click();
+    await page.locator('.gadget-themes #reset-colors').click();
     await page.waitForTimeout(200);
 
     // Verify colors reset to light theme defaults (assuming light is active)
-    await page.locator('#typography-gadgets-panel button[data-theme-preset="light"]').click();
+    await page.locator('.gadget-themes button[data-theme-preset="light"]').click();
     await page.waitForTimeout(200);
-    await expect(page.locator('#typography-gadgets-panel #bg-color')).toHaveValue('#ffffff');
-    await expect(page.locator('#typography-gadgets-panel #text-color')).toHaveValue('#333333');
+    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffffff');
+    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#333333');
   });
 });
