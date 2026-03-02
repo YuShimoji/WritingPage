@@ -231,7 +231,7 @@ async function loadCssWithImports(url) {
     }
     const hasStorageKey = /zenWriter_gadgets:prefs/.test(gadgetsSrc);
     const hasGetPrefs = /getPrefs\s*\(\)\s*\{/m.test(gadgetsSrc);
-    const hasSetPrefs = /setPrefs\s*\(\s*p\s*\)\s*\{/m.test(gadgetsSrc);
+    const hasSetPrefs = /setPrefs\s*\(\s*prefs\s*\)\s*\{/m.test(gadgetsSrc);
     const hasMove = /move\s*\(\s*name,\s*dir\s*\)\s*\{/m.test(gadgetsSrc);
     const hasToggle = /toggle\s*\(\s*name\s*\)\s*\{/m.test(gadgetsSrc);
     const hasRegisterSettings = /registerSettings\s*\(\s*name,\s*factory\s*\)\s*\{/m.test(

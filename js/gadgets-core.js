@@ -400,7 +400,7 @@
      * @param {Object} [config] - Configuration
      * @param {string} [config.group] - Group name to filter gadgets
      */
-    init(selector, config) {
+    init(selector, _config) {
       var self = this;
       var opts = options && typeof options === 'object' ? options : {};
       var sel = selector || '#gadgets-panel';
