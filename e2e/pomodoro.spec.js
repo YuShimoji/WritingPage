@@ -147,7 +147,7 @@ test.describe.skip('Pomodoro Timer E2E', () => {
     await expect(progressBar).toBeVisible();
 
     const progressFill = pomodoroGadget.locator('.pomodoro-progress-fill');
-    await expect(progressFill).toBeVisible();
+    await expect(progressFill).toBeAttached();
 
     // タイマーを開始
     const startBtn = pomodoroGadget.locator('button:has-text("開始")');

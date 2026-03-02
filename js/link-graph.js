@@ -450,14 +450,18 @@
     }, { title: 'Link Graph', groups: ['wiki', 'structure'] });
   }
 
-  // グローバルAPIを公開 (TASK_044)
+  // グローバルAPIを公開 (TASK_044) — 全メソッドを含む完全版
   window.LinkGraph = {
     parseWikilinks: parseWikilinks,
     parseDocLinks: parseDocLinks,
-    parseAllLinks: function (text) { return parseAllLinks(text); },
-    findBacklinks: function (target) {
-      return findBacklinks(target, window.ZenWriterStorage);
-    }
+    parseAllLinks: parseAllLinks,
+    findBacklinks: function (target, storage) {
+      return findBacklinks(target, storage || window.ZenWriterStorage);
+    },
+    generateGraphData: function (storage) {
+      return generateGraphData(storage || window.ZenWriterStorage);
+    },
+    renderGraph: renderGraph
   };
 
   // init when gadgets ready

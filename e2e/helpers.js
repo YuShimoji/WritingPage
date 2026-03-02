@@ -45,12 +45,7 @@ async function enableAllGadgets(page) {
 
 async function openSidebarGroup(page, group) {
   await page.evaluate((g) => {
-    if (g === 'settings') {
-      var settingsBtn = document.getElementById('toggle-settings');
-      if (settingsBtn) settingsBtn.click();
-      return;
-    }
-
+    // Sidebar settings tab requires sidebarManager (not the floating settings modal)
     var toggleBtn = document.getElementById('toggle-sidebar');
     var sidebar = document.getElementById('sidebar');
     if (sidebar && !sidebar.classList.contains('open') && toggleBtn) {

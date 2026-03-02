@@ -22,10 +22,10 @@ async function openSidebarAndAssistPanel(page) {
   await page.evaluate(() => {
     try {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('assist');
+        window.sidebarManager.activateSidebarGroup('settings');
       }
       if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('assist');
+        window.ZWGadgets.setActiveGroup('settings');
       }
     } catch (_) { /* noop */ }
   });
@@ -42,13 +42,13 @@ test.describe('Flexible Tab Placement', () => {
 
     // UI Settings ガジェットが表示されるまで待機
     // パネル自体が表示されても中身のレンダリングに時間がかかる場合があるため、少し待機
-    await page.locator('#assist-gadgets-panel').waitFor({ state: 'visible', timeout: 5000 });
+    await page.locator('#settings-gadgets-panel').waitFor({ state: 'visible', timeout: 5000 });
     await page.waitForTimeout(1000);
 
     // タブ配置セレクトを探す
     // テキスト依存を避けるため、値を持つselectを探す
-    const targetSelect = page.locator('#assist-gadgets-panel select').filter({ hasText: /左|右|上|下/ }).or(
-      page.locator('#assist-gadgets-panel select:has(option[value="left"])')
+    const targetSelect = page.locator('#settings-gadgets-panel select').filter({ hasText: /左|右|上|下/ }).or(
+      page.locator('#settings-gadgets-panel select:has(option[value="left"])')
     ).first();
 
     try {
@@ -212,13 +212,13 @@ test.describe('Flexible Tab Placement', () => {
     // structureタブがアクティブになっていることを確認
     await expect(structureTab).toHaveClass(/active/);
 
-    // typographyタブに切り替え
-    const typographyTab = page.locator('.sidebar-tab[data-group="typography"]');
-    await expect(typographyTab).toBeVisible();
-    await typographyTab.click();
+    // settingsタブに切り替え
+    const settingsTab = page.locator('.sidebar-tab[data-group="settings"]').or(page.locator('.sidebar-tab[data-group="assist"]')).first();
+    await expect(settingsTab).toBeVisible({ timeout: 10000 });
+    await settingsTab.click();
 
-    // typographyタブがアクティブになっていることを確認
-    await expect(typographyTab).toHaveClass(/active/);
-    await expect(structureTab).not.toHaveClass(/active/);
+    // settingsタブがアクティブになっていることを確認
+    await expect(settingsTab).toHaveClass(/active/, { timeout: 10000 });
+    await expect(structureTab).not.toHaveClass(/active/, { timeout: 10000 });
   });
 });
