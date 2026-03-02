@@ -5,7 +5,7 @@ Tier: 1
 Branch: main
 Owner: Worker
 Created: 2026-01-03T23:00:00+09:00
-Report: docs/reports/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md 
+Report: docs/reports/REPORT_TASK_008_report_orch_cli_cross_project_template_20260104_1238.md
 
 ## Objective
 

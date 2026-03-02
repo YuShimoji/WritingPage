@@ -9,10 +9,12 @@
 **Changes**: docs/KNOWN_ISSUES.md と package.json のバージョン整合を監査し、レポートとチケット設定を最新化
 
 ## 概要
+
 - `docs/KNOWN_ISSUES.md` に記載されているバージョン表記・改善済みラベルが、現行バージョン `0.3.18`（`package.json`）および実装履歴と矛盾しないことを確認した。
 - 本タスク専用の Worker レポート（本ファイル）を作成し、チケット `TASK_003` の Report 欄を本レポートに更新した。
 
 ## 現状
+
 - バージョン情報の SSOT
   - `package.json`: `"version": "0.3.18"`（行 3）
   - `AI_CONTEXT.md` VERSION 節: `VERSION` と `package.json` がともに `0.3.18` で同期済み（行 94-99）。
@@ -32,6 +34,7 @@
   - 本レポート（20251225）は、そのフォローとして実際のバージョン整合監査の証跡を提供する位置づけ。
 
 ## 次のアクション
+
 - 今回の監査時点では `docs/KNOWN_ISSUES.md` の内容とバージョン表記に矛盾が無いため、ドキュメント本文の修正は行っていない。
 - 将来 `0.3.19` 以降で新たな既知の問題が解消された場合は、次の運用を推奨:
   - 対応コミット/PR に `CHANGELOG.md` 追記と `docs/KNOWN_ISSUES.md` のラベル更新（例: `[改善済み v0.3.19]`）をセットで含める。
@@ -41,10 +44,13 @@
   - 既存の `docs/reports/REPORT_TASK_003_known_issues_version_alignment_20251224.md` は、監査経緯のアーカイブとして残置し、内容の重複は発生していない。
 
 ## Tests
+
 - `npm run test:smoke`: 未実行（本タスクはドキュメント整合確認が主であり、最新の AI_CONTEXT では直近の smoke/e2e が green であることが確認できているため、追加のテスト実行は任意と判断）。
 
 ## Risk
+
 - 現在の `docs/KNOWN_ISSUES.md` と実装は整合しているが、将来のリリースで Known Issues 更新忘れがあると再度乖離が生じるリスクがある。
 
 ## Proposals
+
 - バージョン付きで既知の問題を解消する場合は、`CHANGELOG.md` と `docs/KNOWN_ISSUES.md` を同一 PR で更新するルールを CONTRIBUTING に明示する。

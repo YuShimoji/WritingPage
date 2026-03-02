@@ -55,6 +55,7 @@ node .shared-workflows/scripts/worker-monitor.js path/to/AI_CONTEXT.md
 ```
 
 **動作**:
+
 - AI_CONTEXT.md の Worker完了ステータスを1分間隔で監視
 - すべての critical Worker が完了した場合、監視を自動停止（async_mode が false の場合）
 - Ctrl+C で手動停止

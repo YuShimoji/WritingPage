@@ -5,6 +5,7 @@
 **Branch**: feature/perf-baseline
 
 ## 1. Load Time (Initial Page Load)
+
 | Metric | Value (ms) |
 | :--- | :--- |
 | Average | **377** |
@@ -14,6 +15,7 @@
 *Samples: 841, 157, 132*
 
 ## 2. Paste Performance (Large Text)
+
 | Char Count | Duration (ms) | Speed (chars/ms) |
 | :--- | :--- | :--- |
 | 1,000 | 506 | 2 |
@@ -23,5 +25,6 @@
 | 100,000 | 504 | 199 |
 
 ## 3. Analysis
+
 - **Load Time**: < 1000ms is good. Current: 377ms.
 - **Editor Limit**: 50k chars should allow smooth typing. Check 50k result.

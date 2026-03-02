@@ -33,10 +33,12 @@
 ### 3. UI要素の追加
 
 #### ツールバー (`index.html`)
+
 - スペルチェックのトグルボタンを追加（`#toggle-spell-check`）
 - Lucide アイコン `spell-check` を使用
 
 #### スタイル (`css/style.css`)
+
 - `.spell-check-highlight`: スペルミスのハイライトスタイル
 - `.spell-check-suggestions`: 提案パネルのスタイル
 - `.spell-check-suggestion`: 提案ボタンのスタイル
@@ -44,6 +46,7 @@
 - ダークテーマ対応
 
 #### イベントハンドラ (`js/app.js`)
+
 - スペルチェックのトグルボタンのイベントハンドラを追加
 - 有効/無効の状態をボタンの `active` クラスで表示
 

@@ -1,6 +1,7 @@
 # REPORT_TASK_SETUP_shared-workflows_20251228
 
 ## Summary
+
 - shared-workflows サブモジュールは `.shared-workflows/` に導入済みで、`git submodule status --recursive` 上は `def2c995382333250dbf5752c5badbc3882ee345 (.shared-workflows v0.1.0-9-gdef2c99)` を指している。
 - プロジェクト側にはすでに以下が存在し、SSOT/テンプレ/CLI の最低限セットは揃っている:
   - `docs/Windsurf_AI_Collab_Rules_v2.0.md`
@@ -16,6 +17,7 @@
 - このため、指示にある `node .shared-workflows/scripts/sw-doctor.js --profile shared-orch-bootstrap --format text` を本日時点の環境では実行できない。
 
 ## Tried Commands
+
 - 状態確認:
   - `git status -sb`
   - `git submodule status --recursive`
@@ -31,6 +33,7 @@
     - 結果: `MODULE_NOT_FOUND` (`.shared-workflows/scripts/sw-doctor.js` が存在しない)
 
 ## Current State
+
 - プロジェクト側 SSOT:
   - `docs/Windsurf_AI_Collab_Rules_v2.0.md` / `docs/Windsurf_AI_Collab_Rules_latest.md` は存在し、WINDSURF_GLOBAL_RULES の指す v2.0 ルールはローカルで参照可能。
 - 運用ストレージ:
@@ -41,6 +44,7 @@
   - `.shared-workflows/scripts/sw-doctor.js` がサブモジュールにも共有クローンにも存在せず、`sw-doctor` 系の Complete Gate チェックは現状スキップせざるを得ない。
 
 ## Next Required Input
+
 - `sw-doctor.js` の正式な入手元と配置ポリシーの決定:
   - 例: `YuShimoji/shared-workflows` 側で `sw-doctor.js` を公開し、サブモジュール更新で取得する運用に統一する。
   - あるいは中央クローン（例: `../shared-workflows-1`）に `scripts/sw-doctor.js` を追加し、プロジェクト側 `scripts/` にコピーして `node scripts/sw-doctor.js` で運用するポリシーを明示する。

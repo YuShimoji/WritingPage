@@ -1,10 +1,12 @@
 # TASK_006: Site Status Screenshot
 
 ## Background
+
 The user wants to know the current state of the site.
 Need to capture screenshots of key pages.
 
 ## Objectives
+
 1. Open the local development server (or production URL if specified).
 2. Take screenshots of:
    - Homepage
@@ -16,4 +18,5 @@ Need to capture screenshots of key pages.
 - Just observe and report.
 
 ## Status
+
 - [ ] DONE (2026-01-15) - Screenshots captured.

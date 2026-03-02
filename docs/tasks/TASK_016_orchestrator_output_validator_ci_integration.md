@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-04T23:00:00+09:00
 Report: docs/reports/REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md
+
 ## Objective
 
 - orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにする

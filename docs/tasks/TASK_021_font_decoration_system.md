@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_021.md
+
 ## Objective
 
 - フォント装飾システム（[bold], [italic], [underline] 等のMarkdown拡張構文）を実装する

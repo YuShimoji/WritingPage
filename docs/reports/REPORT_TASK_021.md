@@ -21,6 +21,7 @@
 - プレビューパネルでフォント装飾が正しく表示されるようになりました
 
 **変更内容**:
+
 ```javascript
 // フォント装飾とテキストアニメーションを処理
 // プレビューでは、Markdownレンダリング後のHTMLに対して装飾を適用する
@@ -40,6 +41,7 @@ if (html && editorManager.processTextAnimations) {
 - プレビューパネルでのテキストアニメーション表示を検証するテストを追加
 
 **追加テスト**:
+
 - `should render font decorations in preview panel`: プレビューでフォント装飾が正しく表示されることを確認
 - `should render text animations in preview panel`: プレビューでテキストアニメーションが正しく表示されることを確認
 

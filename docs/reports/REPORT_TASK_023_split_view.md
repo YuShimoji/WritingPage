@@ -25,6 +25,7 @@
 - レスポンシブデザイン対応（モバイルでは縦分割）
 
 **主要機能**:
+
 - `showEditPreview()`: 編集/プレビューモードを有効化
 - `showChapterCompare()`: 章間比較モードを有効化
 - `showSnapshotDiff()`: スナップショット差分モードを有効化
@@ -51,6 +52,7 @@
 - レスポンシブ対応（768px以下で縦分割に切り替え）
 
 **追加スタイル**:
+
 - `.split-view-container`: 分割ビューコンテナ
 - `.split-view-panel`: 左右パネル
 - `.split-view-resize-handle`: リサイズハンドル

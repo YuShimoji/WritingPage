@@ -6,17 +6,21 @@
 **Mode**: maintenance
 
 ## 基本情報
+
 - **最終更新**: 2026-02-07T20:30+09:00
 - **更新者**: Developer (bugfix & tooling session)
 
 ## GitHubAutoApprove
+
 GitHubAutoApprove: true
 
 ## 現在の目標
+
 - プロジェクト安定化とリファクタリング（editor.js/app.js の分割、ガジェットAPI型安全性強化）
 - UI品質向上（グラフィックノベル対応、ルビテキスト、フローティングパネル汎用化）
 
 ## OPENタスク一覧（2026-02-07時点）
+
 | Task | 概要 | Tier | Owner |
 |------|------|------|-------|
 | TASK_045 | 柔軟なタブ配置システム | 3 | Worker |
@@ -28,6 +32,7 @@ GitHubAutoApprove: true
 | TASK_054 | グラフィックノベル ルビテキスト | 2 | Worker |
 
 ## 進捗
+
 - **REPORT_TASK_044_wikilinks_backlinks_20260130.md**: TASK_044（Wikilinks/バックリンク）を完了。`[[wikilinks]]` パース、バックリンク表示、Wiki API 実装。 (DONE)
 - **REPORT_TASK_043_performance_baseline_20260128.md**: TASK_043（パフォーマンス計測）を完了。`scripts/run-perf-baseline.js` を作成し、ロード時間（平均377ms）と貼り付け応答速度のベースラインを `docs/reports/` に記録。 (DONE)
 - **REPORT_TASK_042_capture_current_state_20260128.md**: TASK_042（現状キャプチャ）を完了。`scripts/capture-current-state.js` を作成し、4パターン以上のスクリーンショットを `docs/evidence/` に保存、`docs/PROJECT_STATUS.md` を更新。 (DONE)
@@ -64,20 +69,24 @@ GitHubAutoApprove: true
 - **REPORT_TASK_038_code_style_standardization_20260118_1735.md**: コード規約の明文化（ESLint/Prettier導入）を完了。`.prettierignore`の作成、`package.json`の更新、`docs/CODING_STANDARDS.md`の作成、`.eslintrc.js`の更新を実施。
 
 ## ブロッカー
+
 - なし
 
 ## 最新作業実績（2026-02-07 20:30）
+
 - **index.html マージコンフリクト解消**: `<<<<<<< HEAD` / `=======` / `>>>>>>> origin/main` マーカーが残存し、旧版 HTML（古いサイドバー構造）と新版（モダンガジェットUI）が二重ロードされていた。旧版を削除し origin/main のモダンUIを保持。全 JS エラー解消、smoke test OK。
 - **スクリーンショット運用整備**: `capture-screenshots.js` を日付別サブフォルダ出力に改修。タブ切替検証・コンソールエラー検出機能追加。壊れたスクリーンショットを `2026-02-07-broken/` にアーカイブ。
 - **要望実現度**: BACKLOG.md ベースで 54項目中48完了（90%）。高優先度100%、中優先度97%、バグ100%。残りは主にアーキテクチャ改善（プラグインシステム、監査ログ等）。
 
 ## バックログ
+
 - グローバルMemoryに中央リポジトリ絶対パスを追加
 - worker-monitor.js 導入と AI_CONTEXT.md 初期化スクリプトの検討
 - REPORT_ORCH CLI 完了後、他プロジェクトへの横展開テンプレ作成
 - 旧 REPORT_ORCH を Progress/Latest へ統合後に自動削除する運用（`flush-reports` 的スクリプト）を検討
 
 ## 統合レポート
+
 - docs/reports/REPORT_TASK_044_wikilinks_backlinks_20260130.md
   - Ticket: docs/tasks/TASK_044_wikilinks_backlinks.md
   - Changes: Wikilinks/バックリンク/グラフ機能実装。Markdownパーサー拡張、Wiki API、バックリンク表示エリア追加。
@@ -140,7 +149,7 @@ GitHubAutoApprove: true
 
 - docs/reports/REPORT_TASK_010_global_memory_central_repo_path_20260104_1238.md
   - Changes: `AI_CONTEXT.md`: 「中央ルール参照（SSOT）」セクションに「中央リポジトリ（shared-workflows）」項目を追加
-;   - GitHub URL: `https://gi
+;   - GitHub URL: `<https://gi>
   - TASK_010 完了。AI_CONTEXT.md と docs/HANDOVER.md に中央リポジトリの絶対パス（GitHub URL とローカルパス）を追加済み。
   - 次タスク（TASK_011）に進む。
 
@@ -167,29 +176,35 @@ GitHubAutoApprove: true
 - REPORT_TASK_016_orchestrator_output_validator_ci_integration_20260104_2347.md: orchestrator-output-validator.js を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。
 
 ## Latest Orchestrator Report
+
 - File: docs/reports/REPORT_ORCH_20260129_1345.md
 - Summary: TASK_039 (Audit Embed SDK) の起動準備を完了。現状の各ドキュメント（PROJECT_STATUS.md, AI_CONTEXT.md）を最新進捗（38/41完了）に同期しました。
 
 ## Latest Worker Report
+
 - File: docs/reports/REPORT_TASK_044_wikilinks_backlinks_20260130.md
 - Summary: Wikilinks/バックリンク機能を実装。`[[wikilinks]]` のパース、存在チェック（is-broken）、バックリンク検出、および Wiki API 経由のエディタ連携を実現。
 
 ## Outlook
+
 - Short-term: TASK_046/047（editor.js/app.js リファクタリング）を優先。巨大ファイルを500行以下に分割し保守性を向上。
 - Mid-term: TASK_048（汎用フローティングパネル）と TASK_052（ガジェットAPI型安全性）で拡張基盤を強化。TASK_054（ルビテキスト）でグラフィックノベル対応を拡充。
 - Long-term: TASK_051（プラグインシステム設計）でユーザー定義ガジェットの仕組みを構築。CI自動化（orchestrator-audit, complete gate）の完全自動化。
 
 ## Proposals
+
 - AI_CONTEXT.md 初期化スクリプトを追加し、Worker 完了ステータス記録を自動化
 - orchestrator-audit.js を CI パイプラインに組み込み、HANDOVER 乖離を自動通知
 - REPORT_ORCH CLI に `--sync-handover` オプションを追加し、Latest Orchestrator Report 欄の更新を半自動化
 - ~~docs/reports の REPORT_* を HANDOVER 取り込み後に自動削除するコマンドを追加~~（完了: `scripts/flush-reports.js`）
 
 ## リスク
+
 - docs/reports へ移管したアーカイブは orchestrator-audit の集計対象外のため、運用ルール（参照先の統一）が崩れると見落としが起きる可能性
 - REPORT_ORCH CLI 導入前に手動保存を行うと検証漏れ・フォーマット逸脱が再発する可能性
 
 ## セットアップ状況（2025-12-29）
+
 - **中央リポジトリ（shared-workflows）**:
   - GitHub URL: `https://github.com/YuShimoji/shared-workflows`
   - ローカルパス（submodule）: `.shared-workflows/`
@@ -251,6 +266,7 @@ node scripts/flush-reports.js --force
 - レポートの削除は不可逆的な操作です
 
 ## 所要時間
+
 - 本フェーズ作業（テンプレ整備・スクリプト強化・監査対応）: 約 2.0h
 - 最新作業（2025-12-23 ReportAudit）: 約 0.8h（docs/inbox 整合確認・validator 実行・HANDOVER 更新）
 
@@ -259,11 +275,13 @@ node scripts/flush-reports.js --force
 ## 追加引き継ぎ（作業途中・2026-02-25T13:52:05+09:00）
 
 ### 現在の状態（未コミット）
+
 - ブランチ: main（origin/main との差分あり）
 - 変更ファイル: .shared-workflows, AI_CONTEXT.md, css/style.css, docs/BACKLOG.md, docs/tasks/TASK_057_sidebar_redesign.md, index.html, js/gadgets-builtin.js, js/gadgets-clock.js, js/gadgets-goal.js, js/sidebar-manager.js, package.json, package-lock.json, smoke_result.txt
 - 差分規模: 12 files changed, 375 insertions(+), 233 deletions(-)
 
 ### 今回反映済みの主変更
+
 - バージョン更新: package.json を 0.3.24 から 0.3.25 へ更新
 - TASK更新: TASK_057_sidebar_redesign を COMPLETED に更新
 - バックログ更新: v0.3.25 (REDESIGN) の実施内容を追記
@@ -274,12 +292,13 @@ node scripts/flush-reports.js --force
 - スタイル調整（css/style.css）: サイドバー/ドキュメント一覧/ミニアイコンボタンのスタイルを追加
 
 ### 注意点
+
 - .shared-workflows が def2c99 を指しており、サブモジュール更新差分あり
 - AI_CONTEXT.md は先頭BOM除去のみ（内容変更なし）
 - smoke_result.txt は未追跡ファイル
 
 ### 次アクション（推奨）
+
 1. npm run test:smoke を実行して回帰確認
 2. 必要なら npm run test:e2e:ci を実行
 3. 問題なければ git add -A && git commit で v0.3.25 の中間確定
-

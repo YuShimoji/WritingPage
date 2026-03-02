@@ -38,17 +38,20 @@ structure: [
 ブラウザテストを実施し、以下を確認しました：
 
 ✅ **LoadoutManager ガジェットの表示確認**
+
 - `http://localhost:8080` にアクセス
 - サイドバーに「ロードアウト管理」ガジェットが正常に表示されることを確認
 - JavaScript で `ZWLoadoutPresets.entries['novel-standard']` の内部状態を検証し、`LoadoutManager` が正しく含まれていることを確認
 
 ✅ **ロードアウト切り替え機能の動作確認**
+
 - 「小説・長編」から「ミニマル」ロードアウトに切り替え → LoadoutManager が非表示になることを確認
 - LocalStorage をクリアして再読み込み → デフォルトの「小説・長編」に戻り、LoadoutManager が再表示されることを確認
 
 ### 3. 検証結果
 
 **JavaScript 内部状態の確認**:
+
 ```javascript
 window.ZWLoadoutPresets.entries['novel-standard']
 // => {
@@ -63,7 +66,7 @@ window.ZWLoadoutPresets.entries['novel-standard']
 //    }
 ```
 
-**スクリーンショット証跡**: 
+**スクリーンショット証跡**:
 ![LoadoutManager表示確認](file:///C:/Users/PLANNER007/.gemini/antigravity/brain/c5ed0056-42d6-4ae2-91f6-0bffae09dedd/.system_generated/click_feedback/click_feedback_1768798403023.png)
 
 **ブラウザ操作レコーディング**:

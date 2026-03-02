@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_023_split_view.md
+
 ## Objective
 
 - 分割ビュー機能（編集/プレビュー、章間比較、スナップショット差分）を実装する

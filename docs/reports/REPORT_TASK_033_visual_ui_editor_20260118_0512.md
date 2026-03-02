@@ -118,11 +118,13 @@ class UIVisualEditor {
 ## ファイル変更一覧
 
 ### 新規作成
+
 - `js/ui-editor.js`: UIエディタのコア実装
 - `e2e/ui-editor.spec.js`: E2Eテスト
 - `docs/inbox/REPORT_TASK_033_visual_ui_editor_20260118_0512.md`: 本レポート
 
 ### 変更
+
 - `index.html`: UIエディタボタンとスクリプト読み込みを追加
 - `css/style.css`: UIエディタ用スタイルを追加
 - `js/app.js`: UIエディタボタンのイベントハンドラーを追加

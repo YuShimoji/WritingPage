@@ -6,6 +6,7 @@
 - **Status**: Completed with Findings
 
 ## Overview
+
 Performed site verification using Puppeteer script (`scripts/verification-task-031.js`) on the local development server. Captured 7 required screenshots and compared against `docs/GADGETS.md`.
 
 ## Verification Results
@@ -21,9 +22,10 @@ Performed site verification using Puppeteer script (`scripts/verification-task-0
 | 7 | `loadout_menu.png` | Loadout menu expanded | **FAIL/PARTIAL** | **Discrepancy**: `LoadoutManager` gadget is **not** present in the default `novel-standard` loadout defined in `js/loadouts-presets.js`. Attempted to force-enable it via `ZWGadgets.assignGroups` but element `#loadout-select` could not be focused within timeout. Screenshot was taken of the Structure panel. |
 
 ## Discrepancies & Issues
+
 1. **Loadout Manager Missing**: The `LoadoutManager` gadget (switch/save loadouts) is not included in the default `novel-standard` loadout configuration (`js/loadouts-presets.js`). It is defined in `js/gadgets-loadout.js` but inactive by default. This prevents users from switching loadouts unless they manually edit local storage or use console.
    - **Recommendation**: Add `'LoadoutManager'` to `structure` group in `js/loadouts-presets.js`.
 
 ## Artifacts
-- Screenshots stored in: `docs/archive/screenshots/verification_20260119/`
 
+- Screenshots stored in: `docs/archive/screenshots/verification_20260119/`

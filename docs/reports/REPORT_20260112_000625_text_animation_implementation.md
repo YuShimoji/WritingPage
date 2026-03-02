@@ -19,6 +19,7 @@
 - フォント装飾パネルとテキストアニメーションパネルを区別して処理
 
 **変更内容**:
+
 - `setupEventListeners`メソッド内で、`.decor-btn`のクリックイベントハンドラーを拡張
 - パネルの親要素を確認して、テキストアニメーションパネル内のボタンの場合は`applyTextAnimation`を呼び出すように変更
 
@@ -30,6 +31,7 @@
 - 選択されたテキストまたはカーソル位置にアニメーションタグ（`[fade]`, `[slide]`, `[type]`, `[pulse]`, `[shake]`, `[bounce]`, `[fadein]`）を挿入
 
 **実装したメソッド**:
+
 ```javascript
 applyTextAnimation(tag) {
   // 選択範囲またはカーソル位置にアニメーションタグを挿入
@@ -46,6 +48,7 @@ applyTextAnimation(tag) {
 - アニメーションを減らすオプション（アクセシビリティ対応）
 
 **実装したメソッド**:
+
 - `updateAnimationSpeed(speed)`: CSS変数`--anim-speed`を更新
 - `updateAnimationDuration(duration)`: CSS変数`--anim-duration`を更新
 - `updateAnimationReduceMotion(reduceMotion)`: `data-reduce-motion`属性を設定
@@ -59,6 +62,7 @@ applyTextAnimation(tag) {
 - アクセシビリティ対応として、`data-reduce-motion`属性と`prefers-reduced-motion`メディアクエリを追加
 
 **実装したアニメーション**:
+
 - `.anim-fade`: フェードイン効果
 - `.anim-slide`: 左からスライドイン効果
 - `.anim-typewriter`: タイピングアニメーション効果
@@ -68,6 +72,7 @@ applyTextAnimation(tag) {
 - `.anim-fade-in`: 遅いフェードイン効果
 
 **CSS変数**:
+
 - `--anim-speed`: アニメーション速度倍率（デフォルト: 1）
 - `--anim-duration`: アニメーション持続時間（デフォルト: 1.5s）
 
@@ -81,11 +86,13 @@ applyTextAnimation(tag) {
 ### 6. アクセシビリティ対応
 
 **実装内容**:
+
 - `data-reduce-motion`属性によるアニメーション無効化
 - `prefers-reduced-motion`メディアクエリによる自動無効化
 - アニメーション設定UIに「アニメーションを減らす」チェックボックスを追加
 
 **実装箇所**:
+
 - `css/style.css`: メディアクエリと属性セレクタによるアニメーション無効化
 - `js/editor.js`: 設定UIと連動した属性設定
 
@@ -94,6 +101,7 @@ applyTextAnimation(tag) {
 **ファイル**: `e2e/decorations.spec.js`
 
 **追加したテスト**:
+
 - アニメーションボタンクリックによるタグ挿入のテスト
 - すべてのアニメーションタイプのレンダリングテスト
 - アニメーション設定UIの表示テスト
@@ -135,6 +143,7 @@ applyTextAnimation(tag) {
 ### テスト結果
 
 E2Eテストを追加し、以下の項目を検証:
+
 - アニメーションボタンによるタグ挿入
 - すべてのアニメーションタイプのレンダリング
 - アニメーション設定UIの動作

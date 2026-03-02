@@ -6,7 +6,9 @@
 - Date: 2026-01-15
 
 ## Results
+
 Screenshots captured and saved to `docs/archive/screenshots/`:
+
 - `homepage.png`
 - `sidebar_open.png`
 - `theme_font_tab.png`
@@ -15,5 +17,6 @@ Screenshots captured and saved to `docs/archive/screenshots/`:
 - `ui_lab_page.png`
 
 ## Verification
+
 - Development server accessed successfully.
 - Screenshots visually confirmed.

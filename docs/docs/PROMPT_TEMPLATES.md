@@ -7,6 +7,7 @@
 ## 1. レポート形式
 
 ### Standard
+
 ```
 目的: <goal>
 現状: <current_state>
@@ -15,6 +16,7 @@
 ```
 
 ### Concise
+
 ```
 要点: <highlights>
 次のアクション: <next>

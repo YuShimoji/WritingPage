@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_028_keybind_editor.md
+
 ## Objective
 
 - キーバインド編集機能（ショートカットの再割当）を実装する

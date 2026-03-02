@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-04T20:45:00+09:00
 Report: docs/reports/REPORT_TASK_014_worker_report_required_headers_auto_complete_20260104_2156.md
+
 ## Objective
 
 - Worker完了レポートの必須ヘッダー（'概要' と '次のアクション'）を自動補完する機能を追加する

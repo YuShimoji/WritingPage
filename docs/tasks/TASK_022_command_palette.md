@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_022_command_palette.md
+
 ## Objective
 
 - コマンドパレット機能を実装し、ショートカットと合わせて操作を可視化する

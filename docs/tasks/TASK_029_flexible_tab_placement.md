@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-12T01:00:00+09:00
 Report: docs/reports/REPORT_TASK_029_flexible_tab_placement_20260112_0254.md
+
 ## Objective
 
 - タブを上下左右に配置可能にする機能を実装する

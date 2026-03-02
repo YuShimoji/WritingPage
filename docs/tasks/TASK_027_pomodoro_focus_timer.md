@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_027_pomodoro_focus_timer.md
+
 ## Objective
 
 - Pomodoro/集中タイマー機能（HUD連携のセッション管理）を実装する

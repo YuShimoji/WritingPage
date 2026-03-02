@@ -27,7 +27,7 @@
 ## Changes
 
 - `js/storage.js`: デフォルト設定に `tabPlacement` と `tabOrder` を追加
-- `js/sidebar-manager.js`: 
+- `js/sidebar-manager.js`:
   - `bootstrapTabs()` を拡張し、タブ順序を考慮したタブ生成を実装
   - `applyTabPlacement()` メソッドを追加（タブ配置の適用）
   - `saveTabOrder()` メソッドを追加（タブ順序の保存）

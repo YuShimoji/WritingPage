@@ -3,6 +3,7 @@
 > Orchestratorスレッド開始時に貼り付ける、コピペ用メタプロンプト。
 
 コピペ用（推奨）:
+
 - `prompts/every_time/ORCHESTRATOR_METAPROMPT.txt`（shared-workflows サブモジュールを使う場合は `.shared-workflows/prompts/every_time/ORCHESTRATOR_METAPROMPT.txt`）
 
 ```text

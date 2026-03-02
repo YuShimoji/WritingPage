@@ -14,6 +14,7 @@
 **Zen Writer** は、ミニマルな操作体験とスタイリッシュなレイアウトで小説・ビジュアルノベル執筆を支援するWebアプリケーションです。
 
 **主要な特徴**:
+
 - サーバー不要・オフライン対応
 - ガジェットベースアーキテクチャ（完全モジュラー設計）
 - 動的タブシステム
@@ -66,6 +67,7 @@ WritingPage/
 ### 1.4 既存機能（実装済み）
 
 #### コア機能
+
 - ✅ シンプルな `textarea` ベースのエディタ
 - ✅ LocalStorageによる自動保存
 - ✅ 文字数・語数カウンタ
@@ -74,6 +76,7 @@ WritingPage/
 - ✅ 印刷用レイアウト（UI非表示）
 
 #### テーマ・カスタマイズ
+
 - ✅ プリセット（ライト/ダーク/セピア）
 - ✅ カラーピッカー
 - ✅ フォント種別・サイズ・行間の調整
@@ -81,6 +84,7 @@ WritingPage/
 - ✅ テーマごとのボタン/リンクアクセントカラー一括制御
 
 #### ガジェットシステム
+
 - ✅ ガジェット登録・レンダリングシステム
 - ✅ ロードアウトの保存・適用機能
 - ✅ 動的タブ追加・削除のAPI
@@ -88,6 +92,7 @@ WritingPage/
 - ✅ ガジェット設定のImport/Export UI
 
 #### エディタ拡張機能
+
 - ✅ タイプライターモード（ミラーDOM計測、精度向上）
 - ✅ Markdown機能（ショートカット、リスト継続、ライブプレビュー）
 - ✅ スナップショット機能（間隔/差分/保持数調整、復元機能）
@@ -95,6 +100,7 @@ WritingPage/
 - ✅ Selection Tooltip v1（テキスト選択に連動した装飾/挿入ツールチップ）
 
 #### その他
+
 - ✅ 複数ドキュメント管理（作成/一覧/切替/改名/削除）
 - ✅ 執筆目標（文字数/締切）と進捗バー
 - ✅ HUD設定（位置/時間/背景色/文字色/不透明度）
@@ -110,6 +116,7 @@ WritingPage/
 #### P0: セキュリティ/境界条件
 
 **P0-1: Embed SDK の same-origin 判定と origin 検証の正規化**
+
 - **現状**: `js/embed/zen-writer-embed.js` の `sameOrigin` デフォルトが `true` で、`src` の origin から自動判定していない
 - **影響範囲**: `js/embed/zen-writer-embed.js`, `js/embed/child-bridge.js`, `docs/EMBED_SDK.md`
 - **受け入れ条件**:
@@ -121,25 +128,30 @@ WritingPage/
 #### P1: 実装/ドキュメント整合
 
 **P1-1: 設定ハブ（DESIGN_HUB）を Backlog/Change へ正式に落とす**
+
 - **現状**: `docs/DESIGN_HUB.md` は提案のみで、`<dialog id="settings-hub">` は `index.html` に未配置
 - **方針**: OpenSpec change に昇格 or `docs/BACKLOG.md` に統合
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-1
 
 **P1-2: Wiki の「制限事項」表記の SSOT 化**
+
 - **現状**: `docs/GADGETS.md` の Wiki 節に「リンク/AI/画像添付 未実装」がある
 - **方針**: 実装済み/未実装を `docs/DEVELOPMENT_STATUS.md` または OpenSpec へ集約
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-2
 
 **P1-3: `docs/KNOWN_ISSUES.md` のバージョン表記と実態の整合**
+
 - **現状**: `KNOWN_ISSUES.md` に `v0.3.19` などの表記があるが、現行 `package.json` と整合しているか監査が必要
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-3
 
 **P1-4: `docs/GADGETS.md` の「現行実装」と「将来案/旧メモ」の混在を解消**
+
 - **現状**: 冒頭に「現行実装の説明」と「将来設計/未実装案」が混在
 - **方針**: 節単位でステータスを明確化（`（現行）` / `（提案・未実装）`）
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-4
 
 **P1-5: smoke/dev-check の期待値（「未実装扱い」）と現行実装の整合**
+
 - **現状**: `scripts/dev-check.js` に「ガジェット設定のインポート/エクスポート API（UIは未実装のためAPIのみチェック）」という記述があるが、実際には UI が存在する
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P1-5
 
@@ -148,16 +160,19 @@ WritingPage/
 #### P2: 技術的負債
 
 **P2-1: ツールレジストリ（WritingTools）と UI 入口の接続方針を決める**
+
 - **現状**: `js/tools-registry.js` はツール定義を持つが、FAB/ツールバー/ガジェットとの接続が限定的
 - **設計論点**: SSOT を明確化（案A: WritingTools をSSOT / 案B: 個別UIをSSOT / 案C: ガジェット登録に統合）
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P2-1
 
 **P2-2: プラグインシステムの「UI有無」を明確化**
+
 - **現状**: `js/plugins/registry.js` / `choice.js` と `app.js: renderPlugins()` はあるが、`plugins-panel` は `index.html` に存在しない
 - **設計論点**: 案A（UI追加）/ 案B（ヘッドレスとして明記）/ 案C（一旦撤去）
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P2-2
 
 **P2-3: OpenSpec 未完了 change のトリアージ（重複統合 + Issue粒度への再分割）**
+
 - **現状**: OpenSpec 上で「継続（未完了）」の change が複数あり、特に `Wiki/タブ/拡張` 領域でタスクが重複
 - **方針**: Capability/領域ごとに 1 change へ統合（案A推奨）
 - **参照**: `docs/AUDIT_TASK_BREAKDOWN.md` P2-3
@@ -165,6 +180,7 @@ WritingPage/
 ### 2.3 OpenSpec 変更提案（継続中）
 
 #### `ui-stability-and-cleanup`
+
 - **状態**: 下書き/整備不足（`openspec list` 上は No tasks）
 - **タスク**:
   - [ ] サイドバータブ切り替えの実装
@@ -175,6 +191,7 @@ WritingPage/
   - [ ] 文字数表示動作のドキュメント化
 
 #### `add-modular-ui-wiki-nodegraph`
+
 - **状態**: 継続（未完了）
 - **主要タスク**:
   - [ ] UI Presentation: Sidebar tabs presentation strategies (buttons|tabs|dropdown|accordion)
@@ -188,6 +205,7 @@ WritingPage/
   - [ ] Help as Wiki — seed help pages, link from Help button; expose specs and feature guides
 
 #### `story-wiki-implementation`
+
 - **状態**: 継続（未完了）
 - **主要タスク**:
   - [ ] StoryWiki gadget の構造作成
@@ -198,6 +216,7 @@ WritingPage/
   - [ ] E2Eテスト
 
 #### `polish-ui-from-test-feedback`
+
 - **状態**: 継続（未完了）
 - **主要タスク**:
   - [ ] パネルレイアウト修正（左サイドバー展開時のメインエリア隠れ）
@@ -209,6 +228,7 @@ WritingPage/
   - [ ] 破棄確認・復元機能強化
 
 #### `graphic-novel-font-decoration`
+
 - **状態**: 継続（未完了）
 - **主要タスク**:
   - [ ] 装飾構文（タグ）の確定
@@ -216,18 +236,21 @@ WritingPage/
   - [ ] E2E: 装飾が保存/再読込で保持されること
 
 #### `hud-customization-enhancement`
+
 - **状態**: 継続（未完了）
 - **実装差分トリアージ必要**: 現行実装が既に存在する可能性があるため、未完了なのか tasks.md 未更新なのかを判定
 
 ### 2.4 バックログ項目（優先度: 中）
 
 #### UI/UX改善
+
 - [ ] ビジュアルUIエディタ（クリックで要素選択、個別またはタイプ別の一括色変更）
 - [ ] 柔軟なタブ配置システム（上下左右への配置、サイドバー内での順序変更）
 - [ ] タブへのガジェット動的割り当て完全実装（ドラッグ&ドロップでガジェットをタブに追加）
 - [ ] スペルチェック（基本的なスペル提案）
 
 #### パフォーマンス最適化
+
 - [x] updateWordCount デバウンス（300msデバウンスでinputイベント最適化完了）
 - [x] typewriter scroll requestAnimationFrame適用（スクロール振動解消）
 - [x] live previewデバウンス適用（100msデバウンスで高頻度入力時のパフォーマンス改善）
@@ -237,10 +260,12 @@ WritingPage/
 ### 2.5 バックログ項目（優先度: 低）
 
 #### 監査タスク
+
 - [ ] 監査ログ（JSON）の保存先・運用手順を整備
 - [ ] コード規約の明文化（ESLint/Prettier導入検討）
 
 #### 長期課題
+
 - [ ] プラグイン拡張システム（ユーザー定義ガジェット）
 - [ ] レスポンシブUI改善（モバイル/タブレット対応）
 - [ ] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応）
@@ -249,10 +274,12 @@ WritingPage/
 ### 2.6 コード品質改善
 
 #### リファクタリング必要ファイル
+
 - `js/editor.js` (1763行 → 500行以下を目標)
 - `js/app.js` (1437行 → 500行以下を目標)
 
 #### 技術的負債
+
 - ガジェット登録APIの型安全性強化
 - 汎用フローティングパネル機能（任意ガジェットの切り離し）
 - ガジェットD&D機能の実装（将来機能）
@@ -385,17 +412,20 @@ Phase 4: コード品質改善
 ### 4.2 コード品質基準
 
 #### テストカバレッジ
+
 - **Smoke Test**: 必須（`npm run test:smoke`）
 - **E2E Test**: 新機能追加時は必須（`npm run test:e2e:ci`）
 - **Lint**: 必須（`npm run lint`）
 
 #### パフォーマンス指標
+
 - 長文貼り付け: 5k-50k文字で約300ms以内（許容範囲）
 - 文字数更新: デバウンス300ms
 - ライブプレビュー: デバウンス100ms
 - タイプライタースクロール: `requestAnimationFrame` 使用
 
 #### コード品質
+
 - ファイルサイズ: 1ファイル300行以下を目標（500行超は分割検討）
 - 命名規則: 一貫性を保つ
 - コメント: 公開APIにはDoxygenコメントを記述
@@ -403,16 +433,19 @@ Phase 4: コード品質改善
 ### 4.3 定期的な進捗確認と優先順位の見直しメカニズム
 
 #### 週次レビュー
+
 - 完了タスクの確認
 - 未完了タスクの進捗確認
 - 優先順位の見直し
 
 #### 月次レビュー
+
 - バックログの整理
 - 技術的負債の評価
 - ロードマップの更新
 
 #### 実装完了時の確認事項
+
 - [ ] すべてのテストが通過
 - [ ] ドキュメントが更新されている
 - [ ] OpenSpec が更新されている（該当する場合）
@@ -528,8 +561,5 @@ npm test
 ---
 
 **更新履歴**:
+
 - 2025-01-19: 初版作成
-
-
-
-

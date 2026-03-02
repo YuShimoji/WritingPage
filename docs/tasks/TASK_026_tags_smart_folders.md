@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_026.md
+
 ## Objective
 
 - タグ/スマートフォルダ機能（ツリーペインにタグ軸、保存された検索、仮想フォルダ）を実装する

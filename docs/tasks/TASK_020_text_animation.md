@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_20260112_000625_text_animation_implementation.md
+
 ## Objective
 
 - テキストアニメーション機能（タイピング、フェードイン/アウト等）を実装する

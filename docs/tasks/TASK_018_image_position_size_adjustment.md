@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_018.md
+
 ## Objective
 
 - ドラッグ操作による画像の位置・サイズ変更機能を実装する

@@ -5,7 +5,7 @@ Tier: 2
 Branch: main
 Owner: Worker
 Created: 2026-01-18T05:30:00+09:00
-Report: docs/reports/REPORT_TASK_037_accessibility_improvement_20260118_1736.md 
+Report: docs/reports/REPORT_TASK_037_accessibility_improvement_20260118_1736.md
 
 ## Objective
 

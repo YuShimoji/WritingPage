@@ -8,13 +8,16 @@
 **Changes**: CI ワークフロー 1 ファイル追加、ドキュメント 1 ファイル更新
 
 ## 概要
+
 `orchestrator-output-validator.js` を GitHub Actions の CI パイプラインに組み込み、Orchestratorのチャット出力（固定5セクション形式）を自動検証できるようにした。これにより、PR作成時やマージ前に Orchestrator の出力品質を継続的に検証できるようになった。
 
 ## 現状
+
 - 作業前の状態: CI パイプラインへの組み込みが未実施、手動実行のみ
 - 作業後の状態: CI パイプラインに orchestrator-output-validator.js の実行ステップが追加され、PR コメントの自動検証機能を実装
 
 ## Changes
+
 - `.github/workflows/orchestrator-output-validator.yml`: 新規作成
   - orchestrator-output-validator.js を実行する GitHub Actions ワークフローを追加
   - トリガー: `push`（main, develop, feat/** ブランチ）、`pull_request`、`workflow_dispatch`
@@ -27,6 +30,7 @@
   - GitHub Actions での使用方法、トリガー、動作、権限を記載
 
 ## Decisions
+
 - 既存の `session-end-check.yml` や `orchestrator-audit.yml` に統合せず、独立したワークフローとして作成
   - 理由: Orchestrator の出力検証は独立した責務であり、他のCIジョブとは分離することで、実行タイミングや失敗時の影響範囲を明確化できる
 - `pull_request` イベントで PR コメントを自動取得して検証
@@ -38,10 +42,12 @@
   - 理由: push イベントでは Orchestrator の出力を取得する方法が明確でないため、将来の拡張用として準備のみ
 
 ## Verification
+
 - `node scripts/orchestrator-output-validator.js`: 正常動作を確認（exit code 1 で検証失敗を検知、期待通りの動作）
 - ワークフローファイルの構文チェック: エラーなし
 - ドキュメント更新: CI 統合の情報を追加
 
 ## 次のアクション
+
 - [ ] CI 実行時の動作確認（実際の PR で検証）
 - [ ] Issue コメントの検証機能を追加するか検討（将来的な拡張）

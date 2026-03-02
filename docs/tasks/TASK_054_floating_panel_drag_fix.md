@@ -14,6 +14,7 @@
 ### 1. スクロール追従
 
 `css/style.css` L1831:
+
 ```css
 .floating-panel {
   position: fixed;

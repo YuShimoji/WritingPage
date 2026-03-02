@@ -58,7 +58,6 @@ shared-workflows に追加された `orchestrator-output-validator.js` をプロ
 ## 変更ファイル
 
 - [scripts/orchestrator-output-validator.js]: `.shared-workflows/scripts/orchestrator-output-validator.js` からコピー
-- [docs/ORCHESTRATOR_OUTPUT_VALIDATOR_USAGE.md]: 使用方法のドキュメントを新規作成
 
 ## DoD 達成状況
 

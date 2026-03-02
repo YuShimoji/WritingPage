@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-12T01:00:00+09:00
 Report: docs/reports/REPORT_TASK_030_dynamic_gadget_assignment_20260112_0255.md
+
 ## Objective
 
 - ドラッグ&ドロップでガジェットをタブに追加する機能を実装する

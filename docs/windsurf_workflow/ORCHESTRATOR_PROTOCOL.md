@@ -5,7 +5,7 @@
 > Worker用プロンプトは Orchestrator がチケット内容（Tier/Focus/Forbidden 等）に合わせて動的生成し、`.shared-workflows/docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md` をベースとして扱う。
 
 ---
- 
+
 ## 運用概要
 
 | 用途 | プロンプト | 使用頻度 |
@@ -230,6 +230,7 @@ node .shared-workflows/scripts/report-orch-cli.js \
 異常があれば、最小の修正（追記/ステータス修正/タスク化）を行い、根拠を残す。
 
 任意で、監査を機械化する（推奨。ローカル安全コマンド）:
+
 - `node .shared-workflows/scripts/orchestrator-audit.js`（Submoduleが無い場合は `node scripts/orchestrator-audit.js`）
 
 Worker レポート内の `## Proposals` は、次回タスクの候補として回収し、必要なら `docs/tasks/` に新規チケットを起票する。
@@ -237,13 +238,13 @@ Worker レポート内の `## Proposals` は、次回タスクの候補として
 ---
 
 ## 2. Worker Protocol
- 
+
  通常、Workerスレッドには Orchestrator が生成した「チケット専用の最小プロンプト」を投入する。本セクションの Worker Protocol は、その生成のベース（参考文面）として扱う。
 
 Worker Prompt の生成ベース（テンプレ）は以下:
 
 - `.shared-workflows/docs/windsurf_workflow/WORKER_PROMPT_TEMPLATE.md`
- 
+
  ```text
  # Worker Protocol
  

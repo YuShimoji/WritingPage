@@ -9,4 +9,5 @@
 - `prompts/every_time/ORCHESTRATOR_DRIVER.txt`
 
 禁止:
+
 - 本ファイルの内容を「巨大メタプロンプト」として貼り付けて運用すること

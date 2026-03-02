@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_025.md
+
 ## Objective
 
 - Wikilinks/バックリンク/グラフ機能（`[[link]]` 構文や `doc://` の可視化・相互参照グラフ）を実装する

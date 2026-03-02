@@ -58,6 +58,7 @@
 ### 5. E2Eテスト (`e2e/tags-smart-folders.spec.js`)
 
 以下のテストケースを実装:
+
 - タグ/スマートフォルダガジェットの表示
 - タグ軸ビューの表示
 - タグ付きWikiページの作成
@@ -69,6 +70,7 @@
 ## Files Created/Modified
 
 ### Created
+
 - `js/tags.js` - タグ管理機能
 - `js/smart-folders.js` - スマートフォルダ機能
 - `js/gadgets-tags-smart-folders.js` - タグ/スマートフォルダガジェット
@@ -76,6 +78,7 @@
 - `docs/inbox/REPORT_TASK_026.md` - 本レポート
 
 ### Modified
+
 - `index.html` - 新しいスクリプトを追加
 - `css/style.css` - タグ/スマートフォルダ用スタイルを追加
 
@@ -93,14 +96,17 @@
 ## Technical Notes
 
 ### データ保存
+
 - タグデータ: Wikiページの`tags`フィールドに保存（既存機能を利用）
 - スマートフォルダ: LocalStorageの`zenWriter_smart_folders`キーに保存
 
 ### パフォーマンス考慮
+
 - タグの収集は必要時に実行（キャッシュなし）
 - 多数のタグがある場合でも、ツリービューは仮想スクロールを検討可能
 
 ### 既存機能との統合
+
 - Wikiガジェットと独立して動作
 - 既存のWikiページのタグ機能と連携
 - フォールバック: タグ/スマートフォルダが無効な場合、通常のWiki表示にフォールバック
@@ -108,6 +114,7 @@
 ## Testing
 
 E2Eテストを実行:
+
 ```bash
 npm test -- e2e/tags-smart-folders.spec.js
 ```

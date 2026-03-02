@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_017_rich_text_editor_wysiwyg.md
+
 ## Objective
 
 - contenteditableベースのWYSIWYGエディタを実装し、Markdownとの双方向変換を提供する

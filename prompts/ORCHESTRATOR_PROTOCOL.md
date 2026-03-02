@@ -13,6 +13,7 @@
 | 作業実行 | Worker Protocol | 毎回（各スレッド起動時） |
 
 **フロー:**
+
 ```
 1. Orchestratorスレッド起動 -> inbox回収 -> タスクチケット発行
 2. Workerスレッド起動（N個）-> チケット取得 -> 作業 -> inbox納品

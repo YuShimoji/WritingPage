@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_FOCUS_MODE_20260112_0006.md
+
 ## Objective
 
 - フォーカスモード機能（現在行以外を減光/ぼかし）を実装する

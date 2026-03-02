@@ -6,6 +6,7 @@ Branch: main
 Owner: Worker
 Created: 2026-01-05T00:00:00+09:00
 Report: docs/reports/REPORT_TASK_019.md
+
 ## Objective
 
 - 複数画像の配置・レイアウト機能（コラージュレイアウト）を実装する

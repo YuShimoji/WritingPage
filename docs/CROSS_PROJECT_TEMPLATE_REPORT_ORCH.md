@@ -37,6 +37,7 @@ node .shared-workflows/scripts/report-orch-cli.js \
 ```
 
 このコマンドは以下を実行します:
+
 - `docs/inbox/REPORT_ORCH_YYYYMMDD_HHMM.md` をテンプレートから生成
 - `REPORT_CONFIG.yml` に基づき自動検証を実行
 - `docs/HANDOVER.md` の Latest Orchestrator Report セクションを自動更新
@@ -164,6 +165,7 @@ node scripts/report-validator.js <report_path> REPORT_CONFIG.yml .
 **原因**: `.shared-workflows/` が submodule として導入されていない、またはパスが間違っている
 
 **解決策**:
+
 1. `.shared-workflows/` が存在するか確認: `Test-Path .shared-workflows`（PowerShell）または `test -d .shared-workflows`（Linux/macOS）
 2. submodule が正しく初期化されているか確認: `git submodule status`
 3. submodule を更新: `git submodule update --init --recursive`
@@ -173,6 +175,7 @@ node scripts/report-validator.js <report_path> REPORT_CONFIG.yml .
 **原因**: レポートのフォーマットが `REPORT_CONFIG.yml` の要件を満たしていない
 
 **解決策**:
+
 1. 検証エラーの詳細を確認
 2. 必須ヘッダー（例: `## 概要`, `## 現状`, `## 次のアクション`）が含まれているか確認
 3. エラー内容に従って修正
@@ -182,6 +185,7 @@ node scripts/report-validator.js <report_path> REPORT_CONFIG.yml .
 **原因**: `docs/HANDOVER.md` に「## Latest Orchestrator Report」セクションが存在しない
 
 **解決策**:
+
 1. `docs/HANDOVER.md` を確認
 2. 「## Latest Orchestrator Report」セクションを追加
 3. または `--handover-path` で正しいパスを指定

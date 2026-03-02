@@ -4,7 +4,7 @@
 
 補足（参照用）:
 
-- 中央リポジトリ版: https://github.com/YuShimoji/shared-workflows/blob/main/docs/Windsurf_AI_Collab_Rules_v1.1.md
+- 中央リポジトリ版: <https://github.com/YuShimoji/shared-workflows/blob/main/docs/Windsurf_AI_Collab_Rules_v1.1.md>
 
 ## 0. 起動シーケンス（プロジェクト抽象化）
 

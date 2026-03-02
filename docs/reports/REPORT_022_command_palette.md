@@ -37,10 +37,12 @@
 ## 実装ファイル
 
 ### 新規作成
+
 - `js/command-palette.js`: コマンドパレット機能の実装
 - `e2e/command-palette.spec.js`: E2Eテスト
 
 ### 修正
+
 - `index.html`: コマンドパレットスクリプトの読み込みを追加
 - `css/style.css`: コマンドパレットのスタイルを追加
 - `js/app.js`: Ctrl+P/Cmd+Pショートカットを追加
@@ -93,6 +95,7 @@ class CommandPalette {
 ### スタイリング
 
 既存の`floating-panel`スタイルを継承し、コマンドパレット専用のスタイルを追加:
+
 - 中央配置（`left: 50%; transform: translateX(-50%)`）
 - 最大幅600px、最大高さ70vh
 - カテゴリごとのグループ化表示
