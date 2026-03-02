@@ -110,6 +110,13 @@
       });
     }
 
+    if (html) {
+      // Ruby Text support: {Kanji|Kana} -> <ruby>Kanji<rt>Kana</rt></ruby>
+      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
+        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
+      });
+    }
+
     if (window.morphdom) {
       var tempContainer = document.createElement('div');
       tempContainer.innerHTML = html;

@@ -47,6 +47,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/editor-decorations.css" />
   <script>
     // 非埋め込み時のみ Google Fonts を動的に読み込む（preconnect 最適化込み）
     (function () {
@@ -142,38 +143,42 @@
           </select>
           <div class="toolbar-group" data-group="editor" role="group" aria-label="編集ツール">
             <!-- プレビュー -->
-            <button id="toggle-preview" class="icon-button iconified" data-tool-group="editor" title="プレビューパネル" aria-label="プレビューパネルを開閉"
-              aria-expanded="false" aria-controls="editor-preview">
+            <button id="toggle-preview" class="icon-button iconified" data-tool-group="editor" title="プレビューパネル"
+              aria-label="プレビューパネルを開閉" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
-            <button id="toggle-font-decoration" class="icon-button iconified" data-tool-group="editor" title="文字装飾パネル" aria-label="文字装飾パネルを開閉">
+            <button id="toggle-font-decoration" class="icon-button iconified" data-tool-group="editor" title="文字装飾パネル"
+              aria-label="文字装飾パネルを開閉">
               <i data-lucide="type" aria-hidden="true"></i>
             </button>
-            <button id="toggle-text-animation" class="icon-button iconified" data-tool-group="editor" title="テキストアニメーションパネル"
-              aria-label="テキストアニメーションパネルを開閉">
+            <button id="toggle-text-animation" class="icon-button iconified" data-tool-group="editor"
+              title="テキストアニメーションパネル" aria-label="テキストアニメーションパネルを開閉">
               <i data-lucide="sparkles" aria-hidden="true"></i>
             </button>
-            <button id="toggle-wysiwyg" class="icon-button iconified" data-tool-group="editor" title="WYSIWYGモード" aria-label="WYSIWYGモードを切り替え"
-              aria-pressed="false">
+            <button id="toggle-wysiwyg" class="icon-button iconified" data-tool-group="editor" title="WYSIWYGモード"
+              aria-label="WYSIWYGモードを切り替え" aria-pressed="false">
               <i data-lucide="pencil-line" aria-hidden="true"></i>
             </button>
           </div>
           <span class="toolbar-separator" aria-hidden="true"></span>
           <div class="toolbar-group" data-group="support" role="group" aria-label="設定とヘルプ">
-            <button id="toggle-settings" class="icon-button iconified" data-tool-group="support" title="設定" aria-label="設定を開く">
+            <button id="toggle-settings" class="icon-button iconified" data-tool-group="support" title="設定"
+              aria-label="設定を開く">
               <i data-lucide="settings" aria-hidden="true"></i>
             </button>
-            <button id="toggle-help-modal" class="icon-button iconified" data-tool-group="support" title="ヘルプ" aria-label="ヘルプを開く">
+            <button id="toggle-help-modal" class="icon-button iconified" data-tool-group="support" title="ヘルプ"
+              aria-label="ヘルプを開く">
               <i data-lucide="help-circle" aria-hidden="true"></i>
             </button>
           </div>
           <span class="toolbar-separator" aria-hidden="true"></span>
           <div class="toolbar-group" data-group="window" role="group" aria-label="表示と画面">
-            <button id="toggle-toolbar" class="icon-button iconified" data-tool-group="window" aria-label="ツールバーを開閉" aria-expanded="true"
-              aria-controls="toolbar" title="ツールバー">
+            <button id="toggle-toolbar" class="icon-button iconified" data-tool-group="window" aria-label="ツールバーを開閉"
+              aria-expanded="true" aria-controls="toolbar" title="ツールバー">
               <i data-lucide="chevron-up" aria-hidden="true"></i>
             </button>
-            <button id="fullscreen" class="icon-button iconified" data-tool-group="window" aria-label="フルスクリーン" title="フルスクリーン">
+            <button id="fullscreen" class="icon-button iconified" data-tool-group="window" aria-label="フルスクリーン"
+              title="フルスクリーン">
               <i data-lucide="maximize" aria-hidden="true"></i>
             </button>
           </div>
@@ -534,6 +539,7 @@
       load('js/plugins/choice.js');
       load('js/images.js');
       load('js/panels.js');
+      load('js/plugin-api.js');
     })();
   </script>
   <script>

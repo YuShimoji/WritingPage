@@ -99,6 +99,9 @@ class SidebarManager {
             // タブ配置を適用
             this.applyTabPlacement();
 
+            // タブD&Dを初期化
+            this._setupTabDragAndDrop();
+
             try {
                 if (this.elementManager && typeof this.elementManager.initialize === 'function') {
                     this.elementManager.initialize();
@@ -373,6 +376,8 @@ class SidebarManager {
                     }
                 });
                 tabsContainer.appendChild(btn);
+                // D&Dを再初期化（新タブ追加後）
+                try { this._setupTabDragAndDrop(); } catch (_) { }
             }
 
             if (panel) {
@@ -656,6 +661,97 @@ class SidebarManager {
             window.ZenWriterStorage.saveSettings(s);
             this.applyTabPlacement();
         } catch (_) { }
+    }
+
+    /**
+     * タブドラッグ&ドロップを初期化（タブ順序入替）
+     */
+    _setupTabDragAndDrop() {
+        try {
+            const self = this;
+            const tabsContainer = document.querySelector('.sidebar-tabs');
+            if (!tabsContainer) return;
+
+            const tabs = Array.from(tabsContainer.querySelectorAll('.sidebar-tab'));
+            tabs.forEach(tab => {
+                // 既にD&D設定済みならスキップ
+                if (tab._dndSetup) return;
+                tab._dndSetup = true;
+                tab.draggable = true;
+
+                tab.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', tab.dataset.group);
+                    tab.classList.add('tab-dragging');
+                    tabsContainer.classList.add('tabs-dnd-active');
+                });
+
+                tab.addEventListener('dragend', () => {
+                    tab.classList.remove('tab-dragging');
+                    tabsContainer.classList.remove('tabs-dnd-active');
+                    tabsContainer.querySelectorAll('.sidebar-tab').forEach(t => {
+                        t.classList.remove('tab-drag-over');
+                    });
+                });
+
+                tab.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    const draggingId = e.dataTransfer.getData('text/plain');
+                    if (!draggingId || draggingId === tab.dataset.group) return;
+                    tabsContainer.querySelectorAll('.sidebar-tab').forEach(t => {
+                        t.classList.remove('tab-drag-over');
+                    });
+                    tab.classList.add('tab-drag-over');
+                });
+
+                tab.addEventListener('dragleave', () => {
+                    tab.classList.remove('tab-drag-over');
+                });
+
+                tab.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    tab.classList.remove('tab-drag-over');
+                    const sourceId = e.dataTransfer.getData('text/plain');
+                    if (!sourceId || sourceId === tab.dataset.group) return;
+                    self._reorderTabsDOM(sourceId, tab.dataset.group);
+                });
+            });
+        } catch (e) {
+            console.error('Tab D&D setup error:', e);
+        }
+    }
+
+    /**
+     * タブ順序をDOM上で入れ替え、localStorageに保存
+     * @param {string} sourceId - 移動するタブのID
+     * @param {string} targetId - 挿入先タブのID
+     */
+    _reorderTabsDOM(sourceId, targetId) {
+        try {
+            const tabsContainer = document.querySelector('.sidebar-tabs');
+            if (!tabsContainer) return;
+
+            const sourceTab = tabsContainer.querySelector(`.sidebar-tab[data-group="${sourceId}"]`);
+            const targetTab = tabsContainer.querySelector(`.sidebar-tab[data-group="${targetId}"]`);
+            if (!sourceTab || !targetTab) return;
+
+            // ソースをターゲットの前に挿入
+            tabsContainer.insertBefore(sourceTab, targetTab);
+
+            // 新しい順序を取得して保存
+            const newOrder = Array.from(tabsContainer.querySelectorAll('.sidebar-tab'))
+                .map(t => t.dataset.group)
+                .filter(id => id);
+            this.saveTabOrder(newOrder);
+
+            // イベント発火
+            try {
+                window.dispatchEvent(new CustomEvent('ZWSidebarTabsReordered', { detail: { order: newOrder } }));
+            } catch (_) { }
+        } catch (e) {
+            console.error('Tab reorder error:', e);
+        }
     }
 
     /**

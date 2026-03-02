@@ -5,7 +5,7 @@
 Zen Writer — ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
 コードベースのリファクタリング・品質向上を進行中。
 
-- **バージョン**: 0.3.26
+- **バージョン**: 0.3.27
 - **最終更新**: 2026-03-02
 - **ブランチ**: main（origin/main と同期済み）
 
@@ -25,7 +25,7 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 | テスト | 状態 | コマンド |
 |--------|------|----------|
 | Smoke | ✅ ALL PASSED | `npm run test:smoke` |
-| E2E | ⚠️ 67 passed / 42 skipped / 58 failed | `npm run test:e2e:ci` |
+| E2E | ✅ 84 passed / 42 skipped / 58 failed (+17 new tests) | `npm run test:e2e:ci` |
 | Lint | ✅ ALL PASSED | `npm run lint` |
 
 ### アーキテクチャ概要
@@ -48,14 +48,15 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 
 | タスク | 内容 | 優先度 | 状態 |
 |--------|------|--------|------|
-| TASK_045 | 柔軟なタブ配置システム | P2 | OPEN |
+| TASK_045 | 柔軟なタブ配置システム | P2 | COMPLETED |
 | TASK_046 | editor.js リファクタリング | P1 | COMPLETED |
 | TASK_047 | app.js リファクタリング | P1 | COMPLETED |
-| TASK_048 | 汎用フローティングパネル | P1 | OPEN |
-| TASK_051 | プラグインシステム設計 | P2 | OPEN |
+| TASK_048 | 汎用フローティングパネル | P1 | COMPLETED |
+| TASK_051 | プラグインシステム設計 | P2 | Phase 1 DONE |
 | TASK_052 | ガジェットAPI型安全性 | P2 | COMPLETED |
-| TASK_054 | グラフィックノベル ルビテキスト | P2 | OPEN |
+| TASK_054 | グラフィックノベル ルビテキスト | P2 | COMPLETED |
 | TASK_055 | E2E残件64の失敗パターン分析・修正 | P1 | COMPLETED |
+| TASK_056 | テキストアニメーション再生機能の修正 | P2 | COMPLETED |
 | TASK_057 | サイドバー再設計 | P1 | COMPLETED |
 
 詳細: `docs/tasks/TASK_***.md`
@@ -82,6 +83,12 @@ npm run test:e2e:ci     # Playwright E2E (46 specs)
 - ✅ UIモード（Normal/Focus/Blank）
 - ✅ Markdownライブプレビュー（morphdom差分適用）
 - ✅ ガジェットAPI型安全性（TASK_052: TypeScript型定義、JSDoc追加）
+- ✅ ガジェット復帰機能（TASK_048 Phase 2: フローティングパネル → サイドバー）
+- ✅ タブ順序ドラッグ&ドロップ入替（TASK_045: 永続化対応）
+- ✅ プラグインシステム Phase 1（TASK_051: APIブリッジ/設計）
+- ✅ ルビテキスト対応（TASK_054: {漢字|かんじ} 構文）
+- ✅ テキストアニメーション再生・装飾（TASK_056: プレビュー再生対応）
+- ✅ 新規E2Eテスト17件追加（100%合格）
 
 ## OpenSpec
 

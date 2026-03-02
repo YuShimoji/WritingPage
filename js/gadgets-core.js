@@ -402,7 +402,7 @@
      */
     init(selector, _config) {
       var self = this;
-      var opts = options && typeof options === 'object' ? options : {};
+      var opts = _config && typeof _config === 'object' ? _config : {};
       var sel = selector || '#gadgets-panel';
       var root = typeof sel === 'string' ? document.querySelector(sel) : sel;
       if (!root) return;
@@ -448,27 +448,27 @@
             // ガジェットヘッダーを作成
             var header = document.createElement('div');
             header.className = 'gadget-header';
-            
+
             var titleEl = document.createElement('span');
             titleEl.className = 'gadget-title';
             titleEl.textContent = entry.title || entry.name;
             header.appendChild(titleEl);
-            
+
             var controls = document.createElement('div');
             controls.className = 'gadget-controls';
-            
+
             // 切り離しボタン
             var detachBtn = document.createElement('button');
             detachBtn.className = 'gadget-detach-btn';
             detachBtn.textContent = '⇱';
             detachBtn.title = 'フローティングパネルとして切り離し';
             detachBtn.setAttribute('aria-label', 'ガジェットを切り離す');
-            detachBtn.addEventListener('click', function(e) {
+            detachBtn.addEventListener('click', function (e) {
               e.stopPropagation();
               self.detachGadget(entry.name, group);
             });
             controls.appendChild(detachBtn);
-            
+
             header.appendChild(controls);
             wrapper.appendChild(header);
 
@@ -555,7 +555,7 @@
     detachGadget(name, group) {
       var self = this;
       if (!window.ZenWriterPanels || typeof window.ZenWriterPanels.createDockablePanel !== 'function') {
-        alert('フローティングパネル機能が利用できません');
+        console.warn('フローティングパネル機能が利用できません');
         return;
       }
 
@@ -571,6 +571,7 @@
       var panelId = 'floating-gadget-' + name;
       var existingPanel = document.getElementById(panelId);
       if (existingPanel) {
+        existingPanel.style.display = '';
         window.ZenWriterPanels.showPanel(panelId);
         return;
       }
@@ -598,13 +599,45 @@
         { width: 320, height: 400 }
       );
 
+      // 「元に戻す」ボタンをパネルコントロールに追加
+      var panelControls = panel.querySelector('.panel-controls');
+      if (panelControls) {
+        var restoreBtn = document.createElement('button');
+        restoreBtn.className = 'panel-control panel-restore-gadget';
+        restoreBtn.textContent = '⇲';
+        restoreBtn.title = 'サイドバーに戻す';
+        restoreBtn.setAttribute('aria-label', 'ガジェットをサイドバーに戻す');
+        restoreBtn.setAttribute('data-gadget-name', name);
+        restoreBtn.setAttribute('data-gadget-group', group);
+        restoreBtn.addEventListener('click', function () {
+          self.restoreGadget(name, panelId);
+        });
+        // 閉じるボタンの前に挿入
+        var closeBtn = panelControls.querySelector('.panel-close');
+        if (closeBtn) {
+          panelControls.insertBefore(restoreBtn, closeBtn);
+        } else {
+          panelControls.appendChild(restoreBtn);
+        }
+      }
+
+      // 閉じるボタンのクリックで状態をクリア
+      var closeBtn2 = panel.querySelector('.panel-close');
+      if (closeBtn2) {
+        closeBtn2.addEventListener('click', function () {
+          self._clearDetachedState(name);
+        });
+      }
+
       var floatingContainer = document.getElementById('floating-panels');
       if (!floatingContainer) {
         floatingContainer = document.createElement('div');
         floatingContainer.id = 'floating-panels';
+        floatingContainer.className = 'floating-panels';
         document.body.appendChild(floatingContainer);
       }
       floatingContainer.appendChild(panel);
+      panel.classList.add('floating');
 
       window.ZenWriterPanels.showPanel(panelId);
 
@@ -613,6 +646,64 @@
       prefs.detached = prefs.detached || {};
       prefs.detached[name] = { group: group, floating: true };
       this.setPrefs(prefs);
+
+      // 切り離しイベント発火
+      try { emit('ZWGadgetDetached', { name: name, group: group, panelId: panelId }); } catch (_) { }
+    }
+
+    /**
+     * Restore a gadget from floating panel back to sidebar
+     * @param {string} name - Gadget name
+     * @param {string} panelId - Floating panel ID
+     */
+    restoreGadget(name, panelId) {
+      var self = this;
+      // パネルを非表示にする
+      var panel = document.getElementById(panelId || ('floating-gadget-' + name));
+      if (panel) {
+        panel.style.display = 'none';
+      }
+
+      // 状態をクリア
+      self._clearDetachedState(name);
+
+      // 元グループで再レンダリング
+      try { self._renderLast && self._renderLast(); } catch (_) { }
+
+      // 復帰イベント発火
+      try { emit('ZWGadgetRestored', { name: name, panelId: panelId }); } catch (_) { }
+    }
+
+    /**
+     * Clear detached state for a gadget
+     * @param {string} name - Gadget name
+     */
+    _clearDetachedState(name) {
+      var prefs = this.getPrefs();
+      if (prefs.detached && prefs.detached[name]) {
+        delete prefs.detached[name];
+        this.setPrefs(prefs);
+      }
+    }
+
+    /**
+     * Resume detached gadgets from saved state (called on startup)
+     */
+    resumeDetachedGadgets() {
+      var self = this;
+      try {
+        var prefs = this.getPrefs();
+        var detached = prefs.detached || {};
+        Object.keys(detached).forEach(function (name) {
+          var state = detached[name];
+          if (state && state.floating) {
+            // 少し遅延してDOMが安定してから復元
+            setTimeout(function () {
+              try { self.detachGadget(name, state.group || 'structure'); } catch (_) { }
+            }, 500);
+          }
+        });
+      } catch (_) { }
     }
 
     _setupGadgetDragHandlers(wrapper, gadgetName, currentGroup) {

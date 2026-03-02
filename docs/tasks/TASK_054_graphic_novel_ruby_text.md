@@ -1,6 +1,6 @@
 # Task: Graphic Novel Ruby Text
 
-Status: OPEN
+Status: COMPLETED
 Tier: 2
 Branch: feat/ruby-text
 Owner: Worker
@@ -22,6 +22,6 @@ Implement Ruby Text (`{kanji|kana}`) support for Mission 13 / Graphic Novel.
 
 ## DoD
 
-- [ ] Support `{Kanji|Kana}` or similar syntax.
-- [ ] Render as `<ruby>Kanji<rt>Kana</rt></ruby>` in preview.
+- [x] Support `{Kanji|Kana}` or similar syntax.
+- [x] Render as `<ruby>Kanji<rt>Kana</rt></ruby>` in preview.
 - [ ] E2E test for rendering.

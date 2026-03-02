@@ -36,6 +36,19 @@
 2. Markdown プレビュー時にカスタムタグを保持してレンダリング
 3. アニメーション速度・持続時間設定の反映
 
+## 実施事項
+
+- [x] カスタムタグの CSS アニメーション定義を追加 (`css/editor-decorations.css`)
+- [x] Markdown プレビュー時にカスタムタグを保持してレンダリング (`js/editor-preview.js`)
+- [x] アニメーション速度・持続時間設定の反映
+- [x] E2E テストによる検証 (`e2e/animations-decorations.spec.js`)
+
+### 修正内容
+
+1. **css/editor-decorations.css** — アニメーション（fade, slide, typewriter, pulse, shake, bounce）と装飾（bold, italic, glow等）のスタイルを新規作成
+2. **index.html** — `editor-decorations.css` をロードするように変更
+3. **e2e/animations-decorations.spec.js** — レンダリングと設定連動を検証するテストを追加
+
 ### Phase 2（Phase 4 ロードマップ連携）
 
 1. WYSIWYG エディタ内でのリアルタイムアニメーションプレビュー

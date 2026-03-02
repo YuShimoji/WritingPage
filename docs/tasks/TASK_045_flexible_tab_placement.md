@@ -1,6 +1,6 @@
 # Task: 柔軟なタブ配置システム (Flexible Tab Placement)
 
-Status: OPEN
+Status: COMPLETED
 Tier: 3
 Branch: feat/flexible-tabs
 Owner: Worker

@@ -27,6 +27,11 @@
     if (window.ZWLoadoutUI && typeof window.ZWLoadoutUI.refresh === 'function') {
       window.ZWLoadoutUI.refresh();
     }
+
+    // 切り離し済みガジェットの状態を復元
+    if (window.ZWGadgets && typeof window.ZWGadgets.resumeDetachedGadgets === 'function') {
+      window.ZWGadgets.resumeDetachedGadgets();
+    }
   });
 
 })();

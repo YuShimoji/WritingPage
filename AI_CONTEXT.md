@@ -2,8 +2,8 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-02-16T03:50:00+09:00
-- **Worker完了ステータス**: TASK_001-030: completed, TASK_049: completed, TASK_050: completed, TASK_053: completed (実装確認済み)
+- 最終更新: 2026-03-02T16:22:00+09:00
+- **Worker完了ステータス**: TASK_001-030: completed, TASK_044-050: completed, TASK_052-054: completed, TASK_056-057: completed (実装・検証済み)
 
 ## 再開ログ（2026-02-13）
 
@@ -113,8 +113,8 @@
 
 ## VERSION
 
-- `VERSION`: 0.3.24
-- `package.json`: 0.3.24
+- `VERSION`: 0.3.27
+- `package.json`: 0.3.27
 - バージョンは現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
 - 2026-01-29: VERSION と package.json を 0.3.24 に同期
 
@@ -206,11 +206,11 @@
 
 ### 残存課題
 
-- editor.js (1763行) / app.js (1437行) の整理（各 500行以下を目標）
-- Typora風ツリーペインの実装（ドキュメント管理の階層化）
-- 汎用フローティングパネル機能（任意ガジェットの切り離し）
-- ガジェットD&D機能の実装（将来機能）
-- ガジェット登録APIの型安全性強化
+- ✅ ガジェット復帰機能（フローティングパネル切り離し・復帰）
+- ✅ 柔軟なタブ配置システム（ドラッグ&ドロップ順序入替）
+- ✅ ルビテキスト対応（{漢字|かんじ}）
+- ✅ プラグインシステム Phase 1 (APIブリッジ)
+- ✅ ガジェットAPI型安全性強化 (TASK_052)
 
 ### 将来機能
 
@@ -239,16 +239,17 @@
 - [pending] アクセシビリティ向上（キーボード操作、スクリーンリーダー対応） (ref: docs/tasks/TASK_037_accessibility_improvement.md, Status: CLOSED)
 - [pending] Embed SDK の same-origin 判定と origin 検証の正規化 (ref: docs/tasks/TASK_039_audit_embed_sdk.md, Status: CLOSED)
 - [pending] smoke/dev-check の期待値と現行実装の整合監査 (ref: docs/tasks/TASK_041_audit_smoke_dev_check.md, Status: COMPLETED)
-- [pending] 柔軟なタブ配置システム (Flexible Tab Placement) (ref: docs/tasks/TASK_045_flexible_tab_placement.md, Status: OPEN)
-- [pending] editor.js Refactoring (ref: docs/tasks/TASK_046_refactor_editor_js.md, Status: OPEN)
-- [pending] app.js Refactoring (ref: docs/tasks/TASK_047_refactor_app_js.md, Status: OPEN)
-- [pending] Generic Floating Panel (ref: docs/tasks/TASK_048_generic_floating_panel.md, Status: OPEN)
+- [x] 柔軟なタブ配置システム (Flexible Tab Placement) (ref: docs/tasks/TASK_045_flexible_tab_placement.md, Status: COMPLETED)
+- [x] editor.js Refactoring (ref: docs/tasks/TASK_046_refactor_editor_js.md, Status: COMPLETED)
+- [x] app.js Refactoring (ref: docs/tasks/TASK_047_refactor_app_js.md, Status: COMPLETED)
+- [x] Generic Floating Panel (ref: docs/tasks/TASK_048_generic_floating_panel.md, Status: COMPLETED)
 - [x] Audit Smoke Test Expectations (ref: docs/tasks/TASK_049_audit_smoke_expectations.md, Status: COMPLETED)
 - [x] Audit OpenSpec Triage (ref: docs/tasks/TASK_050_audit_openspec_triage.md, Status: COMPLETED)
-- [pending] Plugin System Design (ref: docs/tasks/TASK_051_plugin_system_design.md, Status: OPEN)
-- [pending] Gadget API Type Safety (ref: docs/tasks/TASK_052_gadget_api_type_safety.md, Status: OPEN)
+- [x] Plugin System Design (ref: docs/tasks/TASK_051_plugin_system_design.md, Status: Phase 1 DONE)
+- [x] Gadget API Type Safety (ref: docs/tasks/TASK_052_gadget_api_type_safety.md, Status: COMPLETED)
 - [x] UI Stability and Cleanup (ref: docs/tasks/TASK_053_ui_stability_cleanup.md, Status: COMPLETED)
-- [pending] Graphic Novel Ruby Text (ref: docs/tasks/TASK_054_graphic_novel_ruby_text.md, Status: OPEN)
+- [x] Graphic Novel Ruby Text (ref: docs/tasks/TASK_054_graphic_novel_ruby_text.md, Status: COMPLETED)
+- [x] Text Animation Playback (ref: docs/tasks/TASK_056_text_animation_playback.md, Status: COMPLETED)
 
 ### Worker完了ステータス
 

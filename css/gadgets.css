@@ -3,6 +3,7 @@
 .gadgets-panel {
   display: block;
 }
+
 .gadget {
   border: 1px solid var(--border-color);
   border-radius: 6px;
@@ -14,16 +15,20 @@
     transform 0.1s ease,
     box-shadow 0.1s ease;
 }
+
 .gadget:hover {
   border-color: var(--focus-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
 .gadget.moving-up {
   transform: translateY(-10px);
 }
+
 .gadget.moving-down {
   transform: translateY(10px);
 }
+
 .gadget-head {
   display: flex;
   align-items: center;
@@ -31,14 +36,17 @@
   margin-bottom: 4px;
   cursor: grab;
 }
+
 .gadget-head:active {
   cursor: grabbing;
 }
+
 .gadget-title {
   font-size: 0.95rem;
   font-weight: 600;
   margin: 0;
 }
+
 .gadget-toggle {
   background: transparent;
   color: inherit;
@@ -47,6 +55,7 @@
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
+
 .gadget-move-up,
 .gadget-move-down {
   background: transparent;
@@ -56,11 +65,13 @@
   border-radius: 4px;
   transition: all 0.2s ease;
 }
+
 .gadget-move-up:hover,
 .gadget-move-down:hover {
   background: rgba(0, 0, 0, 0.05);
   transform: translateY(-1px);
 }
+
 .gadget-clock {
   font-size: 14px;
   font-family:
@@ -72,6 +83,7 @@
     Arial,
     sans-serif;
 }
+
 .gadget-settings-btn {
   background: transparent;
   color: inherit;
@@ -82,9 +94,11 @@
   font-size: 12px;
   transition: all 0.2s ease;
 }
+
 .gadget-settings-btn:hover {
   background: rgba(0, 0, 0, 0.05);
 }
+
 .gadget-settings {
   margin-top: 6px;
   padding: 6px 8px;
@@ -156,13 +170,48 @@
   border: none;
   border-radius: 0;
 }
+
 .gadget.drag-over {
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;
   background: rgba(74, 144, 226, 0.05);
 }
+
 .gadgets-panel.drag-over-tab {
   background: rgba(74, 144, 226, 0.06);
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;
+}
+
+/* ===== タブD&D ===== */
+.sidebar-tab[draggable="true"] {
+  cursor: grab;
+}
+
+.sidebar-tab.tab-dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.sidebar-tab.tab-drag-over {
+  background: rgba(74, 144, 226, 0.15);
+  outline: 2px solid var(--focus-color, #4a90e2);
+  outline-offset: -1px;
+  transform: scale(1.05);
+  transition: transform 0.1s ease, background 0.1s ease;
+}
+
+.sidebar-tabs.tabs-dnd-active .sidebar-tab:not(.tab-dragging) {
+  transition: transform 0.15s ease;
+}
+
+/* ===== ガジェット復帰ボタン ===== */
+.panel-restore-gadget {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.panel-restore-gadget:hover {
+  background: rgba(74, 144, 226, 0.15);
+  color: var(--focus-color, #4a90e2);
 }

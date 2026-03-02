@@ -1,6 +1,6 @@
 # Task: Generic Floating Panel
 
-Status: OPEN
+Status: COMPLETED
 Tier: 3
 Branch: feat/generic-floating-panel
 Owner: Worker
