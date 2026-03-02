@@ -1,6 +1,6 @@
 # Task: editor.js Refactoring
 
-Status: OPEN
+Status: COMPLETED
 Tier: 2
 Branch: refactor/editor-js
 Owner: Worker
