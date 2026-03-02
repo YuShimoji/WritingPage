@@ -98,6 +98,64 @@
   transform: rotate(2deg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* ガジェットラッパー（ヘッダー対応） */
+.gadget-wrapper {
+  margin-bottom: 0.5rem;
+  border: 1px solid var(--ui-border, #ddd);
+  border-radius: 4px;
+  background: var(--ui-bg, #fff);
+  overflow: hidden;
+}
+
+/* ガジェットヘッダー */
+.gadget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--ui-bg-secondary, #f5f5f5);
+  border-bottom: 1px solid var(--ui-border, #ddd);
+}
+
+.gadget-header .gadget-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ui-text, #333);
+}
+
+.gadget-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.gadget-detach-btn {
+  background: transparent;
+  border: 1px solid var(--ui-border, #ddd);
+  border-radius: 3px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--ui-text-secondary, #666);
+  transition: all 0.2s;
+}
+
+.gadget-detach-btn:hover {
+  background: var(--accent-color, #4a90e2);
+  color: white;
+  border-color: var(--accent-color, #4a90e2);
+}
+
+.gadget-detach-btn:active {
+  transform: scale(0.95);
+}
+
+/* ガジェット本体（ヘッダーがある場合はパディング調整） */
+.gadget-wrapper .gadget {
+  margin-bottom: 0;
+  border: none;
+  border-radius: 0;
+}
 .gadget.drag-over {
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;

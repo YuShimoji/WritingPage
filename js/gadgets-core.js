@@ -445,6 +445,33 @@
             wrapper.setAttribute('role', 'button');
             wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」を移動');
 
+            // ガジェットヘッダーを作成
+            var header = document.createElement('div');
+            header.className = 'gadget-header';
+            
+            var titleEl = document.createElement('span');
+            titleEl.className = 'gadget-title';
+            titleEl.textContent = entry.title || entry.name;
+            header.appendChild(titleEl);
+            
+            var controls = document.createElement('div');
+            controls.className = 'gadget-controls';
+            
+            // 切り離しボタン
+            var detachBtn = document.createElement('button');
+            detachBtn.className = 'gadget-detach-btn';
+            detachBtn.textContent = '⇱';
+            detachBtn.title = 'フローティングパネルとして切り離し';
+            detachBtn.setAttribute('aria-label', 'ガジェットを切り離す');
+            detachBtn.addEventListener('click', function(e) {
+              e.stopPropagation();
+              self.detachGadget(entry.name, group);
+            });
+            controls.appendChild(detachBtn);
+            
+            header.appendChild(controls);
+            wrapper.appendChild(header);
+
             var gadgetEl = document.createElement('div');
             gadgetEl.className = 'gadget';
 
@@ -518,6 +545,74 @@
           btn.appendChild(icon);
         }
       }
+    }
+
+    /**
+     * Detach a gadget into a floating panel
+     * @param {string} name - Gadget name
+     * @param {string} group - Current group
+     */
+    detachGadget(name, group) {
+      var self = this;
+      if (!window.ZenWriterPanels || typeof window.ZenWriterPanels.createDockablePanel !== 'function') {
+        alert('フローティングパネル機能が利用できません');
+        return;
+      }
+
+      var entry = null;
+      for (var i = 0; i < this._list.length; i++) {
+        if (this._list[i].name === name) {
+          entry = this._list[i];
+          break;
+        }
+      }
+      if (!entry) return;
+
+      var panelId = 'floating-gadget-' + name;
+      var existingPanel = document.getElementById(panelId);
+      if (existingPanel) {
+        window.ZenWriterPanels.showPanel(panelId);
+        return;
+      }
+
+      var container = document.createElement('div');
+      container.className = 'floating-gadget-container';
+      container.dataset.gadgetName = name;
+      container.dataset.gadgetGroup = group;
+
+      try {
+        var api = {
+          get: function (key, def) { return self.getSetting(name, key, def); },
+          set: function (key, val) { self.setSetting(name, key, val); }
+        };
+        entry.factory(container, api);
+      } catch (e) {
+        console.error('Gadget render failed in floating panel:', name, e);
+        container.textContent = 'ガジェットの読み込みに失敗しました。';
+      }
+
+      var panel = window.ZenWriterPanels.createDockablePanel(
+        panelId,
+        entry.title || name,
+        container,
+        { width: 320, height: 400 }
+      );
+
+      var floatingContainer = document.getElementById('floating-panels');
+      if (!floatingContainer) {
+        floatingContainer = document.createElement('div');
+        floatingContainer.id = 'floating-panels';
+        document.body.appendChild(floatingContainer);
+      }
+      floatingContainer.appendChild(panel);
+
+      window.ZenWriterPanels.showPanel(panelId);
+
+      // 状態を保存
+      var prefs = this.getPrefs();
+      prefs.detached = prefs.detached || {};
+      prefs.detached[name] = { group: group, floating: true };
+      this.setPrefs(prefs);
     }
 
     _setupGadgetDragHandlers(wrapper, gadgetName, currentGroup) {
