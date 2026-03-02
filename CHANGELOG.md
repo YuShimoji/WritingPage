@@ -2,6 +2,24 @@
 
 <!-- markdownlint-disable MD024 -->
 
+## [0.3.26] - 2026-03-02
+
+### Added
+
+- **アニメーション設定の永続化**: 速度・持続時間・reduce motionの保存・読み込み機能を実装
+- **TypeScript型定義**: ガジェットAPIの型定義ファイル（gadgets.d.ts）を追加（268行、10インターフェース）
+- **JSDocコメント**: gadgets-core.js、gadgets-utils.jsに詳細なJSDocコメントを追加
+
+### Fixed
+
+- **E2Eテスト**: 失敗24件を修正し、合格率100%を達成（105 passed / 0 failed）
+- **decorations.spec.js**: プレビューパネルのセレクタをエディタミラーに修正
+- **HUD Settings**: 保存ボタンのセレクタを改善（`:has-text()`使用）
+
+### Changed
+
+- **開発者体験**: IDEでの自動補完サポート向上、API型安全性の基盤確立
+
 ## [0.3.24] - 2025-11-30
 
 ### Added
