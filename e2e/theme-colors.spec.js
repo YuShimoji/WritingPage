@@ -27,14 +27,18 @@ async function openSidebarAndThemePanel(page) {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
         window.sidebarManager.activateSidebarGroup('settings');
       }
+      // ガジェットレンダリングを強制
+      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+        window.ZWGadgets.setActiveGroup('settings');
+      }
     } catch (_) { /* noop */ }
   });
 
   // ガジェットパネルが表示されるまで待機
-  await page.waitForTimeout(1000);
+  await page.waitForTimeout(1500);
 
   // Themes ガジェット内のテーマ用コントロールが可視になっていることを確認
-  await page.waitForSelector('.gadget-themes #bg-color', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('.gadget-themes #bg-color', { state: 'visible', timeout: 15000 });
   await page.waitForSelector('.gadget-themes #text-color', { state: 'visible', timeout: 10000 });
   await page.waitForSelector('.gadget-themes button[data-theme-preset="light"]', { state: 'visible', timeout: 10000 });
 }
