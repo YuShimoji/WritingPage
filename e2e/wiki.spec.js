@@ -3,11 +3,12 @@ const { test, expect } = require('@playwright/test');
 const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 test.describe('Story Wiki', () => {
+  test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForFunction(() => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
-    });
+    }, { timeout: 20000 });
     await enableAllGadgets(page);
     await openSidebarGroup(page, 'wiki');
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });

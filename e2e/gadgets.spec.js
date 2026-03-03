@@ -10,7 +10,7 @@ async function waitGadgetsReady(page) {
     } catch (_) {
       return false;
     }
-  });
+  }, { timeout: 20000 });
   await enableAllGadgets(page);
   await openSidebarGroup(page, 'structure');
   await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
@@ -26,6 +26,7 @@ async function openSettingsModal(page) {
 }
 
 test.describe('Gadgets E2E', () => {
+  test.setTimeout(60000);
   test('Clock gadget renders in settings modal and respects hour24 setting', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);

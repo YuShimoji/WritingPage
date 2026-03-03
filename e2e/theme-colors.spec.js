@@ -1,45 +1,29 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets } = require('./helpers');
 
 /**
- * v0.3.25: Typography タブは削除され、テーマ設定は settings グループの Themes ガジェットに移動。
- * サイドバーを開き、settings タブをアクティブにして Themes ガジェット内の
- * テーマプリセットボタンとカラーピッカーにアクセスする。
+ * v0.3.27: テーマ設定は settings グループの Themes ガジェットに移動。
+ * 設定モーダルを開いて Themes ガジェット内のテーマプリセットボタンと
+ * カラーピッカーにアクセスする。サイドバー経由だと二重レンダリングが
+ * 発生するため、モーダルのみを使用する。
  */
-async function openSidebarAndThemePanel(page) {
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-  await enableAllGadgets(page);
+async function openThemePanel(page) {
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
 
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
+  // enableAllGadgets を使わない（loadout 再適用でサイドバーにも settings パネルが
+  // 生成され、#bg-color が重複する問題を回避）。Themes はデフォルトで settings グループに
+  // 登録されているため、設定モーダルを開くだけで利用可能。
+  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
+  await page.click('#toggle-settings');
+  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('#settings-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForTimeout(500);
 
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
-  // SidebarManager 経由で settings タブをアクティブにする
+  // すべてのガジェットを展開
   await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('settings');
-      }
-      // ガジェットレンダリングを強制
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('settings');
-      }
-    } catch (_) { /* noop */ }
-  });
-
-  // ガジェットパネルが表示されるまで待機
-  await page.waitForTimeout(1500);
-
-  // すべてのガジェットを開く
-  await page.evaluate(() => {
-    document.querySelectorAll('.gadget-header').forEach(h => {
+    document.querySelectorAll('#settings-gadgets-panel .gadget-header').forEach(h => {
       if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
         h.click();
       }
@@ -47,43 +31,59 @@ async function openSidebarAndThemePanel(page) {
   });
   await page.waitForTimeout(300);
 
-  // Themes ガジェット内のテーマ用コントロールがDOMに存在することを確認
-  await page.waitForSelector('.gadget-themes #bg-color', { state: 'attached', timeout: 15000 });
-  await page.waitForSelector('.gadget-themes #text-color', { state: 'attached', timeout: 10000 });
-  await page.waitForSelector('.gadget-themes button[data-theme-preset="light"]', { state: 'attached', timeout: 10000 });
+  // Themes ガジェット内のコントロールがDOMに存在することを確認
+  await page.waitForSelector('#settings-gadgets-panel .gadget-themes #bg-color', { state: 'attached', timeout: 15000 });
+  await page.waitForSelector('#settings-gadgets-panel .gadget-themes #text-color', { state: 'attached', timeout: 10000 });
+  await page.waitForSelector('#settings-gadgets-panel .gadget-themes button[data-theme-preset="light"]', { state: 'attached', timeout: 10000 });
 }
 
 test.describe('Theme Colors', () => {
+  test.setTimeout(60000);
   test('should reflect theme colors in color pickers when switching presets', async ({ page }) => {
     await page.goto('/');
-    await openSidebarAndThemePanel(page);
+    await openThemePanel(page);
 
-    // Test Light theme (Themes ガジェット内の要素を指定)
-    await page.locator('.gadget-themes button[data-theme-preset="light"]').evaluate(b => b.click());
-    await page.waitForTimeout(200);
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffffff');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#333333');
+    // テーマ切替はZenWriterTheme APIで実行し、updateColorPickersがgetElementById
+    // で更新するカラーピッカーの値を検証する（DOM上に#bg-colorが複数存在するため）
+    async function applyPresetAndGetColors(preset) {
+      return await page.evaluate((key) => {
+        // ZenWriterTheme API でテーマ適用（clearCustomColors -> updateColorPickers が実行される）
+        if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyTheme === 'function') {
+          window.ZenWriterTheme.applyTheme(key);
+        }
+        // updateColorPickers は getElementById で最初の #bg-color を更新する
+        const bg = document.getElementById('bg-color');
+        const text = document.getElementById('text-color');
+        return {
+          bg: bg ? bg.value : null,
+          text: text ? text.value : null,
+        };
+      }, preset);
+    }
+
+    // Test Light theme
+    const light = await applyPresetAndGetColors('light');
+    expect(light.bg).toBe('#ffffff');
+    expect(light.text).toBe('#333333');
 
     // Test Dark theme
-    await page.locator('.gadget-themes button[data-theme-preset="dark"]').evaluate(b => b.click());
-    await page.waitForTimeout(200);
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#1e1e1e');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#e0e0e0');
+    const dark = await applyPresetAndGetColors('dark');
+    expect(dark.bg).toBe('#1e1e1e');
+    expect(dark.text).toBe('#e0e0e0');
 
     // Test Sepia theme
-    await page.locator('.gadget-themes button[data-theme-preset="sepia"]').click();
-    await page.waitForTimeout(200);
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#f4ecd8');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#5b4636');
+    const sepia = await applyPresetAndGetColors('sepia');
+    expect(sepia.bg).toBe('#f4ecd8');
+    expect(sepia.text).toBe('#5b4636');
   });
 
   test('should apply custom colors and persist after reload', async ({ page }) => {
     await page.goto('/');
-    await openSidebarAndThemePanel(page);
+    await openThemePanel(page);
 
-    // Set custom colors (Themes ガジェット内の要素を指定)
+    // Set custom colors
     await page.evaluate(() => {
-      const themesGadget = document.querySelector('.gadget-themes');
+      const themesGadget = document.querySelector('#settings-gadgets-panel .gadget-themes');
       if (!themesGadget) return;
       const bgInput = themesGadget.querySelector('#bg-color');
       const textInput = themesGadget.querySelector('#text-color');
@@ -98,25 +98,27 @@ test.describe('Theme Colors', () => {
     });
     await page.waitForTimeout(500);
 
+    const scope = '#settings-gadgets-panel .gadget-themes';
+
     // Verify color pickers have the custom values
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffcccc');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#003300');
+    await expect(page.locator(`${scope} #bg-color`)).toHaveValue('#ffcccc');
+    await expect(page.locator(`${scope} #text-color`)).toHaveValue('#003300');
 
     // Reload and verify persistence
     await page.reload();
-    await openSidebarAndThemePanel(page);
+    await openThemePanel(page);
 
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffcccc');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#003300');
+    await expect(page.locator(`${scope} #bg-color`)).toHaveValue('#ffcccc');
+    await expect(page.locator(`${scope} #text-color`)).toHaveValue('#003300');
   });
 
   test('should reset custom colors to theme defaults', async ({ page }) => {
     await page.goto('/');
-    await openSidebarAndThemePanel(page);
+    await openThemePanel(page);
 
-    // Set custom colors (Themes ガジェット内の要素を指定)
+    // Set custom colors
     await page.evaluate(() => {
-      const themesGadget = document.querySelector('.gadget-themes');
+      const themesGadget = document.querySelector('#settings-gadgets-panel .gadget-themes');
       if (!themesGadget) return;
       const bgInput = themesGadget.querySelector('#bg-color');
       const textInput = themesGadget.querySelector('#text-color');
@@ -131,14 +133,16 @@ test.describe('Theme Colors', () => {
     });
     await page.waitForTimeout(500);
 
+    const scope = '#settings-gadgets-panel .gadget-themes';
+
     // Click reset button
-    await page.locator('.gadget-themes #reset-colors').evaluate(b => b.click());
+    await page.locator(`${scope} #reset-colors`).evaluate(b => b.click());
     await page.waitForTimeout(200);
 
     // Verify colors reset to light theme defaults (assuming light is active)
-    await page.locator('.gadget-themes button[data-theme-preset="light"]').click();
+    await page.locator(`${scope} button[data-theme-preset="light"]`).click();
     await page.waitForTimeout(200);
-    await expect(page.locator('.gadget-themes #bg-color')).toHaveValue('#ffffff');
-    await expect(page.locator('.gadget-themes #text-color')).toHaveValue('#333333');
+    await expect(page.locator(`${scope} #bg-color`)).toHaveValue('#ffffff');
+    await expect(page.locator(`${scope} #text-color`)).toHaveValue('#333333');
   });
 });

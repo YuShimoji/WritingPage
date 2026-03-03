@@ -77,10 +77,13 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
     test('Animation settings are reflected in CSS variables', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await page.waitForFunction(() => {
+            try { return !!window.ZenWriterEditor; } catch (_) { return false; }
+        }, { timeout: 15000 });
 
         // Open animation panel
         await page.click('#toggle-text-animation');
-        await page.waitForSelector('#text-animation-panel', { state: 'visible' });
+        await page.waitForSelector('#text-animation-panel', { state: 'visible', timeout: 5000 });
 
         // Change speed
         const speedInput = page.locator('#anim-speed');
@@ -101,7 +104,7 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
         const reduceMotionInput = page.locator('#anim-reduce-motion');
         await reduceMotionInput.evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change')); });
 
-        const hasClass = await page.evaluate(() => document.body.classList.contains('reduce-motion'));
-        expect(hasClass).toBeTruthy();
+        const hasAttr = await page.evaluate(() => document.documentElement.getAttribute('data-reduce-motion') === 'true');
+        expect(hasAttr).toBeTruthy();
     });
 });

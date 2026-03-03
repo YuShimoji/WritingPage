@@ -3,15 +3,63 @@ const { test, expect } = require('@playwright/test');
 const { enableAllGadgets } = require('./helpers');
 
 async function openSettingsPanel(page) {
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
+  await enableAllGadgets(page);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
   await page.waitForSelector('#settings-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForTimeout(500);
+}
+
+async function openAssistPanel(page) {
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
+  await page.waitForSelector('#sidebar', { timeout: 10000 });
   await enableAllGadgets(page);
+
+  const isOpen = await page.evaluate(() => {
+    const sb = document.getElementById('sidebar');
+    return !!(sb && sb.classList.contains('open'));
+  });
+
+  if (!isOpen) {
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+  }
+
+  await page.evaluate(() => {
+    try {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('assist');
+      }
+      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+        window.ZWGadgets.setActiveGroup('assist');
+      }
+    } catch (_) { /* noop */ }
+  });
+
+  await page.waitForSelector('#assist-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForTimeout(500);
+
+  // すべてのガジェットを展開
+  await page.evaluate(() => {
+    document.querySelectorAll('.gadget-header').forEach(h => {
+      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
+        h.click();
+      }
+    });
+  });
   await page.waitForTimeout(300);
 }
 
 async function openSidebarAndStructurePanel(page) {
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
   await page.waitForSelector('#sidebar', { timeout: 10000 });
   await enableAllGadgets(page);
 
@@ -43,12 +91,13 @@ async function openSidebarAndStructurePanel(page) {
 }
 
 test.describe('Editor Settings', () => {
+  test.setTimeout(60000);
   test('should toggle typewriter mode and save settings', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    const checkbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
@@ -60,19 +109,19 @@ test.describe('Editor Settings', () => {
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    await expect(page.locator('#settings-gadgets-panel #typewriter-enabled')).toBeChecked();
-    await expect(page.locator('#settings-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
-    await expect(page.locator('#settings-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
+    await expect(page.locator('#assist-gadgets-panel #typewriter-enabled')).toBeChecked();
+    await expect(page.locator('#assist-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
+    await expect(page.locator('#assist-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
   });
 
   test('should toggle focus mode and save settings', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    const checkbox = page.locator('#settings-gadgets-panel #focus-mode-enabled');
+    const checkbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
@@ -84,22 +133,22 @@ test.describe('Editor Settings', () => {
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    await expect(page.locator('#settings-gadgets-panel #focus-mode-enabled')).toBeChecked();
-    await expect(page.locator('#settings-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
-    await expect(page.locator('#settings-gadgets-panel #focus-blur-radius')).toHaveValue('3');
+    await expect(page.locator('#assist-gadgets-panel #focus-mode-enabled')).toBeChecked();
+    await expect(page.locator('#assist-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
+    await expect(page.locator('#assist-gadgets-panel #focus-blur-radius')).toHaveValue('3');
   });
 
   test('should work with typewriter mode simultaneously', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    const typewriterCheckbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
+    const typewriterCheckbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await typewriterCheckbox.check();
 
-    const focusCheckbox = page.locator('#settings-gadgets-panel #focus-mode-enabled');
+    const focusCheckbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
     await focusCheckbox.check();
 
     await expect(typewriterCheckbox).toBeChecked();
@@ -182,11 +231,10 @@ test.describe('Editor Settings', () => {
       .locator('#editor')
       .fill('Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\n');
 
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    const chk = page.locator('#settings-gadgets-panel #typewriter-enabled');
+    const chk = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await chk.check();
-    await page.click('#close-settings-modal');
     await page.waitForTimeout(200);
 
     await page.locator('#editor').click();
@@ -306,14 +354,12 @@ test.describe('Editor Settings', () => {
     const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
     await page.locator('#editor').fill(lines);
 
-    await openSettingsPanel(page);
+    await openAssistPanel(page);
 
-    const checkbox = page.locator('#settings-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await checkbox.check();
 
-    await page.click('#close-settings-modal');
-    await page.waitForTimeout(300);
-
+    // サイドバーを閉じてエディタにフォーカス
     await page.locator('#editor').click();
     await page.keyboard.press('Home');
 

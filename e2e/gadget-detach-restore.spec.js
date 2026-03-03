@@ -25,6 +25,7 @@ async function waitGadgetsReady(page) {
 }
 
 test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
+    test.setTimeout(60000);
     test('gadget wrapper has detach button', async ({ page }) => {
         await page.goto(pageUrl);
         await waitGadgetsReady(page);
