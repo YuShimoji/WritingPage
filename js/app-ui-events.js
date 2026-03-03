@@ -21,6 +21,124 @@
             _toggleFullscreen,
             syncHudQuickControls
         } = deps;
+        const FLOATING_PANEL_MARGIN = 12;
+        let floatingPanelZIndex = 1650;
+
+        function bringPanelToFront(panel) {
+            if (!panel) return;
+            floatingPanelZIndex += 1;
+            panel.style.zIndex = String(floatingPanelZIndex);
+        }
+
+        function clampPanelToViewport(panel) {
+            if (!panel) return;
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+            if (!viewportWidth || !viewportHeight) return;
+
+            const maxWidth = Math.max(220, viewportWidth - FLOATING_PANEL_MARGIN * 2);
+            if (panel.offsetWidth > maxWidth) {
+                panel.style.width = `${Math.round(maxWidth)}px`;
+            }
+
+            const rect = panel.getBoundingClientRect();
+            let nextLeft = rect.left;
+            let nextTop = rect.top;
+
+            if (rect.right > viewportWidth - FLOATING_PANEL_MARGIN) {
+                nextLeft = viewportWidth - rect.width - FLOATING_PANEL_MARGIN;
+            }
+            if (rect.left < FLOATING_PANEL_MARGIN) {
+                nextLeft = FLOATING_PANEL_MARGIN;
+            }
+            if (rect.bottom > viewportHeight - FLOATING_PANEL_MARGIN) {
+                nextTop = viewportHeight - rect.height - FLOATING_PANEL_MARGIN;
+            }
+            if (rect.top < FLOATING_PANEL_MARGIN) {
+                nextTop = FLOATING_PANEL_MARGIN;
+            }
+
+            panel.style.left = `${Math.round(nextLeft)}px`;
+            panel.style.top = `${Math.round(nextTop)}px`;
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+        }
+
+        function prepareFloatingPanel(panel) {
+            if (!panel) return;
+            enableFloatingPanelDrag(panel);
+            bringPanelToFront(panel);
+
+            if (!panel.dataset.zwPositioned) {
+                const rect = panel.getBoundingClientRect();
+                const left = Math.max(FLOATING_PANEL_MARGIN, window.innerWidth - rect.width - 16);
+                const top = Math.max(72, Math.min(window.innerHeight - rect.height - 120, window.innerHeight - rect.height - FLOATING_PANEL_MARGIN));
+                panel.style.left = `${Math.round(left)}px`;
+                panel.style.top = `${Math.round(top)}px`;
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+                panel.dataset.zwPositioned = 'true';
+            }
+
+            clampPanelToViewport(panel);
+        }
+
+        function enableFloatingPanelDrag(panel) {
+            if (!panel || panel.dataset.zwDragReady === 'true') return;
+            const handle = panel.querySelector('.panel-header');
+            if (!handle) return;
+
+            panel.dataset.zwDragReady = 'true';
+            let startX = 0;
+            let startY = 0;
+            let startLeft = 0;
+            let startTop = 0;
+            let dragging = false;
+
+            const onMouseMove = (ev) => {
+                if (!dragging) return;
+                const dx = ev.clientX - startX;
+                const dy = ev.clientY - startY;
+                panel.style.left = `${Math.round(startLeft + dx)}px`;
+                panel.style.top = `${Math.round(startTop + dy)}px`;
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+            };
+
+            const onMouseUp = () => {
+                if (!dragging) return;
+                dragging = false;
+                document.body.classList.remove('dragging-floating-panel');
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                clampPanelToViewport(panel);
+            };
+
+            handle.addEventListener('mousedown', (ev) => {
+                if (ev.button !== 0) return;
+                if (ev.target.closest('button, input, select, textarea, a, label')) return;
+                ev.preventDefault();
+                prepareFloatingPanel(panel);
+
+                const rect = panel.getBoundingClientRect();
+                startX = ev.clientX;
+                startY = ev.clientY;
+                startLeft = rect.left;
+                startTop = rect.top;
+                dragging = true;
+                document.body.classList.add('dragging-floating-panel');
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            panel.addEventListener('mousedown', () => bringPanelToFront(panel));
+        }
+
+        window.ZenWriterFloatingPanels = {
+            preparePanel: prepareFloatingPanel,
+            clampPanel: clampPanelToViewport,
+            enableDrag: enableFloatingPanelDrag
+        };
 
         // ===== ボタンイベントリスナー =====
         const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
@@ -170,6 +288,9 @@
                 if (splitViewModePanel) {
                     const isVisible = splitViewModePanel.style.display !== 'none';
                     splitViewModePanel.style.display = isVisible ? 'none' : 'block';
+                    if (!isVisible) {
+                        prepareFloatingPanel(splitViewModePanel);
+                    }
                 }
             });
         }
@@ -277,11 +398,13 @@
                 feedbackPanel.addEventListener('keydown', (e) => {
                     if (e.key === 'Escape') { closePanel(); }
                 });
+                enableFloatingPanelDrag(feedbackPanel);
             }
             const isVisible = feedbackPanel.style.display !== 'none';
             feedbackPanel.style.display = isVisible ? 'none' : 'block';
             feedbackPanel.setAttribute('aria-hidden', String(isVisible));
             if (!isVisible) {
+                prepareFloatingPanel(feedbackPanel);
                 const textarea = document.getElementById('feedback-text');
                 if (textarea) {
                     setTimeout(() => textarea.focus(), 100);
@@ -331,6 +454,7 @@
                 toolsFab.setAttribute('aria-expanded', String(willShow));
             }
             if (willShow) {
+                prepareFloatingPanel(fontPanel);
                 const s = window.ZenWriterStorage.loadSettings();
                 const globalFontRange = elementManager.get('globalFontRange');
                 const globalFontNumber = elementManager.get('globalFontNumber');
@@ -344,6 +468,20 @@
                 }
             }
         }
+        ['floating-font-panel', 'font-decoration-panel', 'text-animation-panel', 'search-panel', 'split-view-mode-panel'].forEach((id) => {
+            const panel = document.getElementById(id);
+            if (panel) {
+                enableFloatingPanelDrag(panel);
+            }
+        });
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.floating-panel').forEach((panel) => {
+                const style = window.getComputedStyle(panel);
+                if (style.display !== 'none' && style.visibility !== 'hidden') {
+                    clampPanelToViewport(panel);
+                }
+            });
+        });
         const toolsFab = elementManager.get('toolsFab');
         const closeFontPanelBtn = elementManager.get('closeFontPanelBtn');
         if (toolsFab) {
@@ -369,74 +507,22 @@
         const globalFontRange = elementManager.get('globalFontRange');
         const globalFontNumber = elementManager.get('globalFontNumber');
         if (globalFontRange) {
-            globalFontRange.addEventListener('input', (e) => { updateGlobalFontFrom(e.target.value); });
+            globalFontRange.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (globalFontNumber) globalFontNumber.value = val;
+                updateGlobalFontFrom(val);
+            });
         }
         if (globalFontNumber) {
-            globalFontNumber.addEventListener('input', (e) => { updateGlobalFontFrom(e.target.value); });
+            globalFontNumber.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if (globalFontRange) globalFontRange.value = val;
+                updateGlobalFontFrom(val);
+            });
         }
 
         // ===== 検索パネルのイベントリスナー =====
-        const closeSearchPanelBtn = elementManager.get('closeSearchPanelBtn');
-        const searchInput = elementManager.get('searchInput');
-        const replaceSingleBtn = elementManager.get('replaceSingleBtn');
-        const replaceAllBtn = elementManager.get('replaceAllBtn');
-        const searchPrevBtn = elementManager.get('searchPrevBtn');
-        const searchNextBtn = elementManager.get('searchNextBtn');
-
-        if (closeSearchPanelBtn) {
-            closeSearchPanelBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.hideSearchPanel === 'function') {
-                    window.ZenWriterEditor.hideSearchPanel();
-                }
-            });
-        }
-        if (searchInput) {
-            searchInput.addEventListener('input', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
-                    window.ZenWriterEditor.updateSearchMatches();
-                }
-            });
-        }
-        if (replaceSingleBtn) {
-            replaceSingleBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceSingle === 'function') {
-                    window.ZenWriterEditor.replaceSingle();
-                }
-            });
-        }
-        if (replaceAllBtn) {
-            replaceAllBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.replaceAll === 'function') {
-                    window.ZenWriterEditor.replaceAll();
-                }
-            });
-        }
-        if (searchPrevBtn) {
-            searchPrevBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
-                    window.ZenWriterEditor.navigateMatch(-1);
-                }
-            });
-        }
-        if (searchNextBtn) {
-            searchNextBtn.addEventListener('click', () => {
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.navigateMatch === 'function') {
-                    window.ZenWriterEditor.navigateMatch(1);
-                }
-            });
-        }
-
-        // 検索オプションの変更時にも再検索
-        ['search-case-sensitive', 'search-regex'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) {
-                el.addEventListener('change', () => {
-                    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateSearchMatches === 'function') {
-                        window.ZenWriterEditor.updateSearchMatches();
-                    }
-                });
-            }
-        });
+        // (Moved to EditorUI.setupEventListeners to consolidate editor logic)
 
         // ===== モーダルダイアログ =====
         function toggleModal(modalId, show) {

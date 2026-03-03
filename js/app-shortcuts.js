@@ -184,7 +184,7 @@
                 });
                 if (openModals.length > 0) {
                     const modal = openModals[openModals.length - 1];
-                    const closeBtn = modal.querySelector('.panel-close, .modal-close, [aria-label*="??"], [aria-label*="close"]');
+                    const closeBtn = modal.querySelector('.panel-close, .modal-close, [aria-label*="閉じる"], [aria-label*="close"]');
                     if (closeBtn) {
                         e.preventDefault();
                         closeBtn.click();

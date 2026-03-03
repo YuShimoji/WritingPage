@@ -13,6 +13,9 @@
             if (!panel) return;
             panel.style.display = 'block';
             panel.setAttribute('aria-hidden', 'false');
+            if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
+                window.ZenWriterFloatingPanels.preparePanel(panel);
+            }
 
             // 他のパネルを隠す
             if (typeof manager.hideFontDecorationPanel === 'function') manager.hideFontDecorationPanel();

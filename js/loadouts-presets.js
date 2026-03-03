@@ -15,10 +15,16 @@
           structure: [
             'Documents',
             'Outline',
-            'SnapshotManager',
             'TagsAndSmartFolders'
           ],
-          assist: [],
+          assist: [
+            'Typewriter',
+            'FocusMode',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock'
+          ],
           typography: [],
           wiki: ['StoryWiki'],
           settings: [
@@ -27,10 +33,6 @@
             'VisualProfile',
             'EditorLayout',
             'SceneGradient',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
-            'Typewriter',
             'MarkdownPreview',
             'UISettings',
             'PrintSettings',
@@ -47,10 +49,16 @@
         groups: {
           structure: [
             'Documents',
-            'Outline',
-            'SnapshotManager'
+            'Outline'
           ],
-          assist: [],
+          assist: [
+            'Typewriter',
+            'FocusMode',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock'
+          ],
           typography: [],
           wiki: ['StoryWiki'],
           settings: [
@@ -58,9 +66,6 @@
             'Typography',
             'VisualProfile',
             'EditorLayout',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
             'GadgetPrefs'
           ]
         }
@@ -72,10 +77,16 @@
           structure: [
             'Documents',
             'Outline',
-            'SnapshotManager',
             'TagsAndSmartFolders'
           ],
-          assist: [],
+          assist: [
+            'Typewriter',
+            'FocusMode',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock'
+          ],
           typography: [],
           wiki: ['StoryWiki'],
           settings: [
@@ -86,10 +97,6 @@
             'SceneGradient',
             'Images',
             'ChoiceTools',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
-            'Typewriter',
             'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
@@ -104,10 +111,16 @@
           structure: [
             'Documents',
             'Outline',
-            'SnapshotManager',
             'TagsAndSmartFolders'
           ],
-          assist: [],
+          assist: [
+            'Typewriter',
+            'FocusMode',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock'
+          ],
           typography: [],
           wiki: ['StoryWiki'],
           settings: [
@@ -120,10 +133,6 @@
             'FontDecoration',
             'TextAnimation',
             'Samples',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
-            'Typewriter',
             'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
@@ -137,10 +146,16 @@
         groups: {
           structure: [
             'Documents',
-            'Outline',
-            'SnapshotManager'
+            'Outline'
           ],
-          assist: [],
+          assist: [
+            'Typewriter',
+            'FocusMode',
+            'SnapshotManager',
+            'HUDSettings',
+            'WritingGoal',
+            'Clock'
+          ],
           typography: [],
           wiki: ['StoryWiki'],
           settings: [
@@ -149,9 +164,6 @@
             'VisualProfile',
             'EditorLayout',
             'ChoiceTools',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock',
             'UISettings',
             'GadgetPrefs',
             'Keybinds'

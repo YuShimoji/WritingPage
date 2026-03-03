@@ -93,21 +93,46 @@
     }
 
     /**
+     * @typedef {Object} GadgetApi
+     * @property {function(string, *): *} get - Get a setting value
+     * @property {function(string, *): void} set - Set a setting value
+     */
+
+    /**
+     * @callback GadgetFactory
+     * @param {HTMLElement} el - The container element for the gadget
+     * @param {GadgetApi} api - The gadget API
+     */
+
+    /**
+     * @typedef {Object} GadgetOptions
+     * @property {string} [title] - Display title of the gadget
+     * @property {string[]} [groups] - Groups this gadget belongs to
+     * @property {string} [icon] - Icon identifier (Lucide icon name)
+     * @property {boolean} [defaultEnabled] - Whether enabled by default
+     * @property {string} [className] - Custom CSS class
+     * @property {boolean} [floatable] - Whether this gadget can be detached
+     */
+
+    /**
      * Register a new gadget
      * @param {string} name - Unique identifier for the gadget
-     * @param {Function} factory - Function that renders the gadget (container, options) => void
-     * @param {Object} [options] - Configuration options
-     * @param {string} [options.title] - Display title of the gadget
-     * @param {string[]} [options.groups] - Groups this gadget belongs to
-     * @param {string} [options.icon] - Icon identifier (Lucide icon name)
-     * @param {boolean} [options.defaultEnabled] - Whether enabled by default
-     * @param {string} [options.className] - Custom CSS class
-     * @param {boolean} [options.floatable] - Whether this gadget can be detached
+     * @param {GadgetFactory} factory - Function that renders the gadget
+     * @param {GadgetOptions} [options] - Configuration options
      */
     register(name, factory, options) {
       try {
         var safeName = String(name || '');
-        if (!safeName) return;
+        if (!safeName) {
+          console.error('[ZWGadgets] Gadget name is required for registration.');
+          return;
+        }
+
+        if (typeof factory !== 'function') {
+          console.error('[ZWGadgets] Gadget factory must be a function for "' + safeName + '".');
+          return;
+        }
+
         var opts = options && typeof options === 'object' ? options : {};
         var entry = {
           name: safeName,
@@ -118,7 +143,9 @@
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
-      } catch (_) { }
+      } catch (e) {
+        console.error('[ZWGadgets] Registration failed for "' + name + '":', e);
+      }
     }
 
     registerSettings(name, factory) {

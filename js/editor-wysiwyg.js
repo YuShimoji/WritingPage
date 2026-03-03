@@ -8,41 +8,12 @@
   class RichTextEditor {
     constructor(editorManager) {
       this.editorManager = editorManager;
-      if (this.editorManager) {
-        this.editorManager.richTextEditor = this;
-      }
       this.textareaEditor = document.getElementById('editor');
       this.wysiwygEditor = document.getElementById('wysiwyg-editor');
       this.wysiwygToolbar = document.getElementById('wysiwyg-toolbar');
       this.toggleWysiwygBtn = document.getElementById('toggle-wysiwyg');
       this.switchToTextareaBtn = document.getElementById('wysiwyg-switch-to-textarea');
       this.isWysiwygMode = false;
-      this.decorTagToClass = {
-        bold: 'decor-bold',
-        italic: 'decor-italic',
-        underline: 'decor-underline',
-        strike: 'decor-strikethrough',
-        smallcaps: 'decor-smallcaps',
-        light: 'decor-light',
-        shadow: 'decor-shadow',
-        black: 'decor-black',
-        uppercase: 'decor-uppercase',
-        lowercase: 'decor-lowercase',
-        capitalize: 'decor-capitalize',
-        outline: 'decor-outline',
-        glow: 'decor-glow',
-        wide: 'decor-wide',
-        narrow: 'decor-narrow',
-      };
-      this.animTagToClass = {
-        fade: 'anim-fade',
-        slide: 'anim-slide',
-        type: 'anim-typewriter',
-        pulse: 'anim-pulse',
-        shake: 'anim-shake',
-        bounce: 'anim-bounce',
-        fadein: 'anim-fade-in',
-      };
 
       // Turndownインスタンス（HTML → Markdown変換）
       this.turndownService = null;
@@ -63,7 +34,6 @@
           strongDelimiter: '**'
         });
       }
-      this.installTurndownRules();
 
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
       this.markdownRenderer = null;
@@ -76,116 +46,10 @@
       }
 
       this.init();
-      console.log('[RichTextEditor] Initialized');
-    }
-
-    installTurndownRules() {
-      if (!this.turndownService) return;
-      const classToTag = {};
-      Object.keys(this.decorTagToClass).forEach((tag) => {
-        classToTag[this.decorTagToClass[tag]] = tag;
-      });
-      Object.keys(this.animTagToClass).forEach((tag) => {
-        classToTag[this.animTagToClass[tag]] = tag;
-      });
-
-      this.turndownService.addRule('zwDecorAnimSpan', {
-        filter(node) {
-          return (
-            node &&
-            node.nodeName === 'SPAN' &&
-            typeof node.getAttribute === 'function' &&
-            !!node.getAttribute('class')
-          );
-        },
-        replacement(content, node) {
-          const className = String(node.getAttribute('class') || '')
-            .split(/\s+/)
-            .find((c) => !!classToTag[c]);
-          if (!className) return content;
-          const tag = classToTag[className];
-          return `[${tag}]${content}[/${tag}]`;
-        },
-      });
-
-      this.turndownService.addRule('zwUnderlineTag', {
-        filter: 'u',
-        replacement(content) {
-          return `[underline]${content}[/underline]`;
-        },
-      });
-    }
-
-    notifyEditorChanged() {
-      this.syncToMarkdown();
       if (this.editorManager) {
-        this.editorManager.markDirty();
-        this.editorManager.saveContent();
-        this.editorManager.updateWordCount();
-        this.editorManager.renderMarkdownPreview();
+        this.editorManager.richTextEditor = this;
       }
-    }
-
-    notifySelectionRequired() {
-      if (
-        this.editorManager &&
-        typeof this.editorManager.showNotification === 'function'
-      ) {
-        this.editorManager.showNotification('適用したいテキストを選択してください', 1800);
-      }
-    }
-
-    getSelectionRangeInEditor() {
-      const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return null;
-      const range = selection.getRangeAt(0);
-      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return null;
-      return range;
-    }
-
-    applyClassToSelection(className) {
-      if (!this.wysiwygEditor || !this.isWysiwygMode || !className) return false;
-      this.wysiwygEditor.focus();
-
-      const selection = window.getSelection();
-      const range = this.getSelectionRangeInEditor();
-      if (!range) {
-        this.notifySelectionRequired();
-        return false;
-      }
-
-      const selectedContent = range.extractContents();
-      const wrapper = document.createElement('span');
-      wrapper.className = className;
-      wrapper.appendChild(selectedContent);
-      range.insertNode(wrapper);
-
-      if (selection) {
-        selection.removeAllRanges();
-        const newRange = document.createRange();
-        newRange.setStartAfter(wrapper);
-        newRange.collapse(true);
-        selection.addRange(newRange);
-      }
-
-      this.wysiwygEditor.focus();
-      this.notifyEditorChanged();
-      return true;
-    }
-
-    applyTag(tag, kind = 'decor') {
-      if (!this.isWysiwygMode) return false;
-
-      if (kind === 'anim') {
-        const animClass = this.animTagToClass[tag];
-        return this.applyClassToSelection(animClass);
-      }
-
-      if (tag === 'bold' || tag === 'italic' || tag === 'underline') {
-        return this.executeCommand(tag);
-      }
-      const decorClass = this.decorTagToClass[tag];
-      return this.applyClassToSelection(decorClass);
+      console.log('[RichTextEditor] Initialized');
     }
 
     /**
@@ -315,130 +179,66 @@
     executeCommand(command, value = null) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
-      // エディタにフォーカスを確保
       this.wysiwygEditor.focus();
-
       const selection = window.getSelection();
-      const range = this.getSelectionRangeInEditor();
-      if (!range) {
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
         this.notifySelectionRequired();
-        return false;
+        return;
       }
 
-      // 選択範囲の内容を取得
-      const selectedContent = range.extractContents();
-      
-      // コマンドに応じたタグを作成
-      let wrapper;
-      switch (command) {
-        case 'bold':
-          wrapper = document.createElement('strong');
-          break;
-        case 'italic':
-          wrapper = document.createElement('em');
-          break;
-        case 'underline':
-          wrapper = document.createElement('u');
-          break;
-        default:
-          // 未知のコマンドの場合はexecCommandにフォールバック
-          document.execCommand(command, false, value);
-          this.wysiwygEditor.focus();
-          this.notifyEditorChanged();
-          return true;
-      }
+      const range = selection.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
-      // 選択範囲の内容をラッパーで囲む
-      wrapper.appendChild(selectedContent);
-      range.insertNode(wrapper);
-
-      // 選択範囲をクリアして、挿入した要素の後にカーソルを移動
-      if (selection) {
-        selection.removeAllRanges();
-        const newRange = document.createRange();
-        newRange.setStartAfter(wrapper);
-        newRange.collapse(true);
-        selection.addRange(newRange);
-      }
-
+      // Apply only to selected text and allow toggle-off by re-running the command.
+      document.execCommand(command, false, value);
       this.wysiwygEditor.focus();
-      this.notifyEditorChanged();
-      return true;
+      this.syncToMarkdown();
     }
-    /**
-     * リンクを挿入
-     * document.execCommandの代わりに、手動でリンクタグを挿入する実装
-     */
+
     insertLink() {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
-      // エディタにフォーカスを確保
       this.wysiwygEditor.focus();
-
       const selection = window.getSelection();
-      let range;
-      let selectedText = '';
-
-      // 選択範囲を取得
-      if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
-        range = selection.getRangeAt(0);
-        // 選択範囲がエディタ内にあることを確認
-        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
-          selectedText = selection.toString().trim();
-        } else {
-          range = null;
-        }
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        this.notifySelectionRequired();
+        return;
       }
 
-      // 選択範囲がない場合は、カーソル位置を取得
-      if (!range) {
-        range = document.createRange();
-        range.setStart(this.wysiwygEditor, 0);
-        range.collapse(true);
-        if (selection) {
-          selection.removeAllRanges();
-          selection.addRange(range);
-        }
-      }
+      const range = selection.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
-      const url = prompt('リンクのURLを入力してください:', selectedText ? 'https://' : '');
-
+      const selectedText = selection.toString().trim();
+      const url = prompt('リンクURLを入力してください:', selectedText ? 'https://' : '');
       if (!url) return;
 
-      const linkText = selectedText || url;
-
-      // リンク要素を作成
       const link = document.createElement('a');
       link.href = url;
-      link.textContent = linkText;
+      link.textContent = selectedText || url;
       link.target = '_blank';
       link.rel = 'noopener noreferrer';
 
-      // 選択範囲がある場合は、その範囲をリンクに置き換え
-      if (selectedText && !range.collapsed) {
-        range.deleteContents();
-        range.insertNode(link);
-      } else {
-        // 選択範囲がない場合は、カーソル位置にリンクを挿入
-        range.insertNode(link);
-      }
+      range.deleteContents();
+      range.insertNode(link);
 
-      // 選択範囲をクリアして、リンクの後にカーソルを移動
-      if (selection) {
-        selection.removeAllRanges();
-        const newRange = document.createRange();
-        newRange.setStartAfter(link);
-        newRange.collapse(true);
-        selection.addRange(newRange);
-      }
+      selection.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.setStartAfter(link);
+      newRange.collapse(true);
+      selection.addRange(newRange);
 
       this.wysiwygEditor.focus();
-      this.notifyEditorChanged();
+      this.syncToMarkdown();
     }
 
-    /**
-     * WYSIWYGモードに切り替え
-     */
+    notifySelectionRequired() {
+      try {
+        if (this.editorManager && typeof this.editorManager.showNotification === 'function') {
+          this.editorManager.showNotification('先にテキストを選択してください', 1400);
+        }
+      } catch (_) { }
+    }
+
     switchToWysiwyg() {
       console.log('[RichTextEditor] switchToWysiwyg called', { isWysiwygMode: this.isWysiwygMode });
       if (this.isWysiwygMode) return;
@@ -517,36 +317,32 @@
      */
     markdownToHtml(markdown) {
       if (!markdown) return '';
-      const normalized = this.expandCustomTagsToHtml(markdown);
 
+      let html = '';
       if (this.markdownRenderer) {
         try {
-          return this.markdownRenderer.render(normalized);
+          html = this.markdownRenderer.render(markdown);
         } catch (e) {
           console.warn('Markdown to HTML conversion failed:', e);
         }
       }
 
-      // フォールバック: 基本的なエスケープ
-      return normalized
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
-    }
+      if (!html) {
+        // フォールバック: 基本的なエスケープ
+        html = markdown
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/\n/g, '<br>');
+      }
 
-    expandCustomTagsToHtml(markdown) {
-      let html = String(markdown || '');
-      Object.keys(this.decorTagToClass).forEach((tag) => {
-        const klass = this.decorTagToClass[tag];
-        const re = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, 'gi');
-        html = html.replace(re, `<span class="${klass}">$1</span>`);
-      });
-      Object.keys(this.animTagToClass).forEach((tag) => {
-        const klass = this.animTagToClass[tag];
-        const re = new RegExp(`\\[${tag}\\]([\\s\\S]*?)\\[\\/${tag}\\]`, 'gi');
-        html = html.replace(re, `<span class="${klass}">$1</span>`);
-      });
+      if (this.editorManager && typeof this.editorManager.processFontDecorations === 'function') {
+        html = this.editorManager.processFontDecorations(html);
+      }
+      if (this.editorManager && typeof this.editorManager.processTextAnimations === 'function') {
+        html = this.editorManager.processTextAnimations(html);
+      }
+
       return html;
     }
 
@@ -558,7 +354,8 @@
 
       if (this.turndownService) {
         try {
-          return this.turndownService.turndown(html).replace(/\n{3,}/g, '\n\n').trim();
+          const markdown = this.turndownService.turndown(html);
+          return this.normalizeCustomTagEscapes(markdown);
         } catch (e) {
           console.warn('HTML to Markdown conversion failed:', e);
         }
@@ -570,30 +367,8 @@
         .replace(/<b>(.*?)<\/b>/gi, '**$1**')
         .replace(/<em>(.*?)<\/em>/gi, '*$1*')
         .replace(/<i>(.*?)<\/i>/gi, '*$1*')
-        .replace(/<u>(.*?)<\/u>/gi, '[underline]$1[/underline]')
+        .replace(/<u>(.*?)<\/u>/gi, '<u>$1</u>') // 下線はMarkdown標準ではサポートされていないためHTMLタグのまま
         .replace(/<a href="([^"]*)"[^>]*>(.*?)<\/a>/gi, '[$2]($1)')
-        .replace(/<span[^>]*class="[^"]*decor-bold[^"]*"[^>]*>(.*?)<\/span>/gi, '[bold]$1[/bold]')
-        .replace(/<span[^>]*class="[^"]*decor-italic[^"]*"[^>]*>(.*?)<\/span>/gi, '[italic]$1[/italic]')
-        .replace(/<span[^>]*class="[^"]*decor-underline[^"]*"[^>]*>(.*?)<\/span>/gi, '[underline]$1[/underline]')
-        .replace(/<span[^>]*class="[^"]*decor-strikethrough[^"]*"[^>]*>(.*?)<\/span>/gi, '[strike]$1[/strike]')
-        .replace(/<span[^>]*class="[^"]*decor-smallcaps[^"]*"[^>]*>(.*?)<\/span>/gi, '[smallcaps]$1[/smallcaps]')
-        .replace(/<span[^>]*class="[^"]*decor-light[^"]*"[^>]*>(.*?)<\/span>/gi, '[light]$1[/light]')
-        .replace(/<span[^>]*class="[^"]*decor-shadow[^"]*"[^>]*>(.*?)<\/span>/gi, '[shadow]$1[/shadow]')
-        .replace(/<span[^>]*class="[^"]*decor-black[^"]*"[^>]*>(.*?)<\/span>/gi, '[black]$1[/black]')
-        .replace(/<span[^>]*class="[^"]*decor-uppercase[^"]*"[^>]*>(.*?)<\/span>/gi, '[uppercase]$1[/uppercase]')
-        .replace(/<span[^>]*class="[^"]*decor-lowercase[^"]*"[^>]*>(.*?)<\/span>/gi, '[lowercase]$1[/lowercase]')
-        .replace(/<span[^>]*class="[^"]*decor-capitalize[^"]*"[^>]*>(.*?)<\/span>/gi, '[capitalize]$1[/capitalize]')
-        .replace(/<span[^>]*class="[^"]*decor-outline[^"]*"[^>]*>(.*?)<\/span>/gi, '[outline]$1[/outline]')
-        .replace(/<span[^>]*class="[^"]*decor-glow[^"]*"[^>]*>(.*?)<\/span>/gi, '[glow]$1[/glow]')
-        .replace(/<span[^>]*class="[^"]*decor-wide[^"]*"[^>]*>(.*?)<\/span>/gi, '[wide]$1[/wide]')
-        .replace(/<span[^>]*class="[^"]*decor-narrow[^"]*"[^>]*>(.*?)<\/span>/gi, '[narrow]$1[/narrow]')
-        .replace(/<span[^>]*class="[^"]*anim-fade[^"]*"[^>]*>(.*?)<\/span>/gi, '[fade]$1[/fade]')
-        .replace(/<span[^>]*class="[^"]*anim-slide[^"]*"[^>]*>(.*?)<\/span>/gi, '[slide]$1[/slide]')
-        .replace(/<span[^>]*class="[^"]*anim-typewriter[^"]*"[^>]*>(.*?)<\/span>/gi, '[type]$1[/type]')
-        .replace(/<span[^>]*class="[^"]*anim-pulse[^"]*"[^>]*>(.*?)<\/span>/gi, '[pulse]$1[/pulse]')
-        .replace(/<span[^>]*class="[^"]*anim-shake[^"]*"[^>]*>(.*?)<\/span>/gi, '[shake]$1[/shake]')
-        .replace(/<span[^>]*class="[^"]*anim-bounce[^"]*"[^>]*>(.*?)<\/span>/gi, '[bounce]$1[/bounce]')
-        .replace(/<span[^>]*class="[^"]*anim-fade-in[^"]*"[^>]*>(.*?)<\/span>/gi, '[fadein]$1[/fadein]')
         .replace(/<br\s*\/?>/gi, '\n')
         .replace(/<\/p>/gi, '\n\n')
         .replace(/<p[^>]*>/gi, '')
@@ -610,7 +385,15 @@
       // 連続する改行を整理
       markdown = markdown.replace(/\n{3,}/g, '\n\n');
 
-      return markdown;
+      return this.normalizeCustomTagEscapes(markdown);
+    }
+
+    normalizeCustomTagEscapes(markdown) {
+      if (!markdown) return '';
+      return markdown.replace(
+        /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein))\\\]/gi,
+        '[$1]'
+      );
     }
 
     /**
@@ -651,12 +434,18 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       if (window.ZenWriterEditor) {
-        window.richTextEditor = new RichTextEditor(window.ZenWriterEditor);
+        const instance = new RichTextEditor(window.ZenWriterEditor);
+        window.richTextEditor = instance;
+        if (window.ZenWriterEditor) {
+          window.ZenWriterEditor.richTextEditor = instance;
+        }
       }
     });
   } else {
     if (window.ZenWriterEditor) {
-      window.richTextEditor = new RichTextEditor(window.ZenWriterEditor);
+      const instance = new RichTextEditor(window.ZenWriterEditor);
+      window.richTextEditor = instance;
+      window.ZenWriterEditor.richTextEditor = instance;
     }
   }
 })();

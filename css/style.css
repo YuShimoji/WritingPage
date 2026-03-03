@@ -556,34 +556,32 @@ html[data-toolbar-hidden='true'] .editor-container {
   overflow-wrap: break-word;
 }
 
-#wysiwyg-toolbar {
+.wysiwyg-toolbar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-toolbar, 1100) + 5);
   display: none;
   align-items: center;
   gap: 6px;
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--border-color);
+  max-width: calc(100% - 24px);
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
   background: var(--toolbar-bg);
-  flex-wrap: wrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .wysiwyg-btn {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  height: 32px;
-  padding: 0 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  width: auto;
-  margin-bottom: 0;
-}
-
-.wysiwyg-btn svg {
-  width: 16px;
-  height: 16px;
 }
 
 .wysiwyg-separator {
@@ -591,6 +589,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   height: 20px;
   background: var(--border-color);
   opacity: 0.8;
+  flex: 0 0 auto;
 }
 
 .markdown-preview-panel {
@@ -977,29 +976,39 @@ html[data-writing-goal-enabled='true'] .word-count {
 
 .toolbar-actions {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .toolbar-group {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  padding: 4px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--ui-bg) 92%, transparent);
 }
 
-.toolbar-separator {
-  width: 1px;
-  height: 24px;
-  background: var(--border-color);
-  opacity: 0.7;
+.toolbar-group-label {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.75;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
-.toolbar select,
-.toolbar input[type='number'],
-.toolbar input[type='date'] {
-  width: auto;
-  margin-bottom: 0;
+.toolbar-group--mode select {
+  min-width: 110px;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+
+.toolbar-group .icon-button {
+  min-width: 34px;
+  height: 34px;
+  padding: 0 6px;
 }
 
 /* 目標進捗バー */
@@ -1342,7 +1351,6 @@ button.button-accent:active {
   border-radius: 4px;
   white-space: nowrap;
   /* 縦並び防止 */
-  flex: 0 0 auto;
 }
 
 /* テキストラベルの代わりにアイコン表示するための枠組み */
@@ -1528,10 +1536,6 @@ input[type='color'] {
     --sidebar-width: 280px;
   }
 
-  .sidebar {
-    width: 280px !important;
-  }
-
   /* ツールバーのアイコンサイズを調整 */
   .toolbar-actions {
     gap: 0.4rem;
@@ -1602,10 +1606,6 @@ input[type='color'] {
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
   }
 
-  .sidebar {
-    width: 100% !important;
-  }
-
   html[data-toolbar-hidden='true'] .sidebar {
     top: 0;
     height: 100vh;
@@ -1623,7 +1623,7 @@ input[type='color'] {
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 2000;
+    z-index: calc(var(--z-sidebar, 1000) - 1);
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -1657,15 +1657,15 @@ input[type='color'] {
     gap: 0.3rem;
     flex-wrap: wrap;
     justify-content: flex-end;
-    align-items: center;
   }
 
   .toolbar-group {
+    padding: 3px 4px;
     gap: 0.25rem;
   }
 
-  .toolbar-separator {
-    display: none;
+  .toolbar-group-label {
+    font-size: 10px;
   }
 
   .icon-button {
@@ -1795,11 +1795,6 @@ input[type='color'] {
     font-size: 13px;
   }
 
-  .icon-button-mini {
-    min-width: 40px;
-    min-height: 40px;
-  }
-
   /* 検索パネルの最適化 */
   #search-panel {
     width: calc(100vw - 32px);
@@ -1921,13 +1916,14 @@ input[type='color'] {
   right: 16px;
   bottom: 128px;
   width: 260px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 96px);
   background: var(--ui-bg);
   color: var(--ui-text);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   z-index: 1600;
-  max-height: calc(100vh - 24px);
   overflow: hidden;
 }
 
@@ -1940,12 +1936,14 @@ input[type='color'] {
   border-bottom: 1px solid var(--border-color);
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  cursor: move;
+  user-select: none;
 }
 
 .floating-panel .panel-body {
   padding: 10px;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
+  max-height: calc(100vh - 156px);
+  overflow: auto;
 }
 
 .floating-panel .panel-row {
@@ -1967,6 +1965,10 @@ input[type='color'] {
   color: inherit;
   font-size: 16px;
   cursor: pointer;
+}
+
+body.dragging-floating-panel {
+  user-select: none;
 }
 
 /* コマンドパレット */
@@ -4758,24 +4760,4 @@ details[open] summary {
 /* ツールバーのWIP機能隠し */
 .wip-hidden {
   display: none !important;
-}
-
-/* Responsive touch hardening for E2E baseline */
-@media (max-width: 768px) {
-  .sidebar-tab {
-    min-height: 40px !important;
-  }
-
-  .gadget select,
-  .sidebar select,
-  #ui-mode-select {
-    font-size: 16px !important;
-    min-height: 40px;
-  }
-
-  .gadget button,
-  .sidebar .loadout-actions button,
-  .icon-button-mini {
-    min-height: 40px !important;
-  }
 }

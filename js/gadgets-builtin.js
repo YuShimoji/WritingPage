@@ -231,34 +231,6 @@
         return docs.slice().sort(function (a, b) { return (b.updatedAt || 0) - (a.updatedAt || 0); });
       }
 
-      function refreshOptions(preferredId) {
-        ensureDocuments();
-        var docs = sortedDocs();
-        var select = elements.select;
-        select.innerHTML = '';
-        if (!docs.length) {
-          var empty = document.createElement('option');
-          empty.value = '';
-          empty.textContent = (window.UILabels && window.UILabels.NO_DOCUMENTS) || '(なし)';
-          select.appendChild(empty);
-          select.disabled = true;
-          elements.renameBtn.disabled = true;
-          elements.deleteBtn.disabled = true;
-          return;
-        }
-        select.disabled = false;
-        docs.forEach(function (doc) {
-          var opt = document.createElement('option');
-          opt.value = doc.id;
-          opt.textContent = doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題');
-          select.appendChild(opt);
-        });
-        var cur = preferredId || storage.getCurrentDocId();
-        if (cur) select.value = cur;
-        elements.renameBtn.disabled = !cur;
-        elements.deleteBtn.disabled = !cur;
-      }
-
       function saveCurrentContent() {
         try {
           if (editorManager && editorManager.editor && typeof storage.saveContent === 'function') {
@@ -295,11 +267,60 @@
         } else {
           storage.saveContent(doc.content || '');
         }
-        refreshOptions(id);
+        refreshUI();
         updateDocumentTitle();
         var msg = (window.UILabels && window.UILabels.DOC_OPENED_MSG) || '「{0}」を開きました';
         notify(msg.replace('{0}', doc.name || ((window.UILabels && window.UILabels.UNTITLED_DOC) || '無題')));
         dispatchChanged();
+      }
+
+      function importFile(files) {
+        if (!files || !files.length) return;
+        var file = files[0];
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            var text = String(reader.result || '');
+            if (editorManager && typeof editorManager.setContent === 'function') {
+              editorManager.setContent(text);
+            } else {
+              storage.saveContent(text);
+            }
+            refreshUI();
+            notify((window.UILabels && window.UILabels.FILE_IMPORTED_MSG) || 'ファイルを読み込みました');
+            dispatchChanged();
+          } catch (e) {
+            console.error(e);
+          }
+        };
+        reader.onerror = function () {
+          console.error((window.UILabels && window.UILabels.FILE_IMPORT_ERROR) || 'ファイル読み込みエラー');
+        };
+        reader.readAsText(file, 'utf-8');
+      }
+
+      function exportCurrent(asMarkdown) {
+        if (editorManager) {
+          if (asMarkdown && typeof editorManager.exportAsMarkdown === 'function') return editorManager.exportAsMarkdown();
+          if (!asMarkdown && typeof editorManager.exportAsText === 'function') return editorManager.exportAsText();
+        }
+        try {
+          var text = storage.loadContent() || '';
+          var docId = storage.getCurrentDocId();
+          var docs = storage.loadDocuments() || [];
+          var doc = docs.find(function (d) { return d && d.id === docId; });
+          var base = doc && doc.name ? doc.name : 'zenwriter';
+          var filename = base + (asMarkdown ? '.md' : '.txt');
+          storage.exportText(text, filename, asMarkdown ? 'text/markdown' : 'text/plain');
+        } catch (_) { }
+      }
+
+      function printCurrent() {
+        if (window.ZenWriterApp && typeof window.ZenWriterApp.printDocument === 'function') {
+          window.ZenWriterApp.printDocument();
+        } else {
+          window.print();
+        }
       }
 
       function createDocument() {

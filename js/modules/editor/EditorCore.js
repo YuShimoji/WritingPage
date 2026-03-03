@@ -240,9 +240,18 @@
             return (text || '').replace(/[&<>"']/g, (ch) => map[ch] || ch);
         },
 
+        normalizeCustomTagEscapes(text) {
+            if (!text) return text;
+            return String(text).replace(
+                /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein))\\\]/gi,
+                '[$1]'
+            );
+        },
+
         processTextAnimations(text) {
             if (!text) return text;
-            return text
+            const normalized = this.normalizeCustomTagEscapes(text);
+            return normalized
                 .replace(/\[fade\](.*?)\[\/fade\]/gi, '<span class="anim-fade">$1</span>')
                 .replace(/\[slide\](.*?)\[\/slide\]/gi, '<span class="anim-slide">$1</span>')
                 .replace(/\[type\](.*?)\[\/type\]/gi, '<span class="anim-typewriter">$1</span>')
@@ -254,7 +263,8 @@
 
         processFontDecorations(text) {
             if (!text) return text;
-            return text
+            const normalized = this.normalizeCustomTagEscapes(text);
+            return normalized
                 .replace(/\[bold\](.*?)\[\/bold\]/gi, '<span class="decor-bold">$1</span>')
                 .replace(/\[italic\](.*?)\[\/italic\]/gi, '<span class="decor-italic">$1</span>')
                 .replace(/\[underline\](.*?)\[\/underline\]/gi, '<span class="decor-underline">$1</span>')
