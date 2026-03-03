@@ -1,11 +1,14 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
 
-// SKIP: Spell Checker UIセレクタ要更新（TASK_034実装済みだがUI変更あり）
-test.describe.skip('Spell Checker', () => {
+test.describe('Spell Checker', () => {
+  test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    }, { timeout: 20000 });
   });
 
   test('should toggle spell check on/off', async ({ page }) => {

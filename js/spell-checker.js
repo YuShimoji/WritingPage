@@ -20,7 +20,7 @@
       
       // 基本的な英語辞書（簡易版）
       this.dictionary = new Set([
-        // よく使われる単語（100語程度）
+        // よく使われる単語
         'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'i',
         'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 'do', 'at',
         'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she',
@@ -31,6 +31,9 @@
         'than', 'then', 'now', 'look', 'only', 'come', 'its', 'over', 'think', 'also',
         'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 'well', 'way',
         'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us',
+        'is', 'are', 'was', 'were', 'has', 'had', 'been', 'am', 'did', 'does',
+        'should', 'may', 'might', 'must', 'shall', 'each', 'every', 'much', 'many', 'more',
+        'very', 'still', 'here', 'where', 'why', 'words', 'thing', 'things', 'said', 'made',
         'hello', 'world', 'test', 'example', 'sample', 'text', 'word', 'sentence', 'paragraph', 'document'
       ]);
 

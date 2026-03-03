@@ -459,8 +459,8 @@
       // 右パネル: スナップショット選択と表示
       this.rightPanel.innerHTML = '';
       const rightSelect = document.createElement('select');
-      rightSelect.className = 'split-view-chapter-select';
-      rightSelect.innerHTML = '<option value="">章を選択...</option>';
+      rightSelect.className = 'split-view-snapshot-select';
+      rightSelect.innerHTML = '<option value="">スナップショットを選択...</option>';
       snapshots.forEach((snap, idx) => {
         const opt = document.createElement('option');
         const date = new Date(snap.ts);

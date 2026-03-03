@@ -2,8 +2,6 @@
 const { test, expect } = require('@playwright/test');
 const { enableAllGadgets } = require('./helpers');
 
-// SKIP: セレクタ/実装確認が必要
-test.describe.skip('Flexible Tab Placement', () => { });
 
 async function openSidebarAndAssistPanel(page) {
   await page.waitForSelector('#sidebar', { timeout: 10000 });
@@ -35,6 +33,7 @@ async function openSidebarAndAssistPanel(page) {
 }
 
 test.describe('Flexible Tab Placement', () => {
+  test.setTimeout(60000);
   test('should change tab placement to right and persist', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#sidebar', { timeout: 10000 });

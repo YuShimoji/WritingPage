@@ -1,11 +1,14 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
 
-// SKIP: Split View UIセレクタ要更新（TASK_023実装済みだがUI変更あり）
-test.describe.skip('Split View', () => {
+test.describe('Split View', () => {
+  test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    }, { timeout: 20000 });
   });
 
   test('should toggle split view mode panel', async ({ page }) => {
