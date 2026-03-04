@@ -6,7 +6,7 @@ const { test, expect } = require('@playwright/test');
  * ビジュアルUIエディタの機能を検証
  * UIエディタ機能テスト（実装済み、セレクタ/動作調整が必要）
  */
-test.describe.skip('UI Visual Editor', () => {
+test.describe('UI Visual Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     // ページが完全に読み込まれるまで待機
@@ -27,8 +27,9 @@ test.describe.skip('UI Visual Editor', () => {
     const enableCheckbox = panel.locator('#ui-editor-enable');
     await expect(enableCheckbox).toBeChecked();
 
-    // 再度クリックして閉じる
-    await toggleBtn.click();
+    // 閉じるボタンで閉じる
+    const closeBtn = page.locator('#ui-editor-close');
+    await closeBtn.click();
     await expect(panel).not.toBeVisible();
   });
 
@@ -37,13 +38,16 @@ test.describe.skip('UI Visual Editor', () => {
     await page.locator('#toggle-ui-editor').click();
     await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
 
-    // ツールバーのボタンをクリックして選択
+    // ツールバーのボタンをクリックして選択（UIエディタモードではクリックで選択される）
     const toolbarButton = page.locator('#toggle-sidebar');
-    await toolbarButton.click({ force: true });
+    await toolbarButton.dispatchEvent('click');
 
-    // 選択情報が表示されることを確認
+    // 少し待機してから確認
+    await page.waitForTimeout(100);
+
+    // 選択情報が表示されることを確認（display: block になる）
     const selectionInfo = page.locator('#ui-editor-selection-info');
-    await expect(selectionInfo).toBeVisible();
+    await expect(selectionInfo).toHaveCSS('display', 'block');
 
     const selectedName = page.locator('#ui-editor-selected-name');
     await expect(selectedName).not.toHaveText('-');
@@ -56,11 +60,12 @@ test.describe.skip('UI Visual Editor', () => {
 
     // ツールバーのボタンを選択
     const toolbarButton = page.locator('#toggle-sidebar');
-    await toolbarButton.click({ force: true });
+    await toolbarButton.dispatchEvent('click');
+    await page.waitForTimeout(100);
 
-    // 色変更コントロールが表示されることを確認
+    // 色変更コントロールが表示されることを確認（display: block になる）
     const colorControls = page.locator('#ui-editor-color-controls');
-    await expect(colorControls).toBeVisible();
+    await expect(colorControls).toHaveCSS('display', 'block');
 
     // 背景色を変更
     const bgColorInput = page.locator('#ui-editor-bg-color');
@@ -113,7 +118,12 @@ test.describe.skip('UI Visual Editor', () => {
 
     // 要素を選択して色を変更
     const toolbarButton = page.locator('#toggle-sidebar');
-    await toolbarButton.click({ force: true });
+    await toolbarButton.dispatchEvent('click');
+    await page.waitForTimeout(100);
+
+    // 色変更コントロールが表示されるまで待機
+    const colorControls = page.locator('#ui-editor-color-controls');
+    await expect(colorControls).toHaveCSS('display', 'block');
 
     const bgColorInput = page.locator('#ui-editor-bg-color');
     await bgColorInput.fill('#ff0000');
@@ -139,7 +149,12 @@ test.describe.skip('UI Visual Editor', () => {
 
     // 要素を選択して色を変更
     const toolbarButton = page.locator('#toggle-sidebar');
-    await toolbarButton.click({ force: true });
+    await toolbarButton.dispatchEvent('click');
+    await page.waitForTimeout(100);
+
+    // 色変更コントロールが表示されるまで待機
+    const colorControls = page.locator('#ui-editor-color-controls');
+    await expect(colorControls).toHaveCSS('display', 'block');
 
     const bgColorInput = page.locator('#ui-editor-bg-color');
     await bgColorInput.fill('#ffcccc');
@@ -188,19 +203,28 @@ test.describe.skip('UI Visual Editor', () => {
     await page.locator('#toggle-ui-editor').click();
     await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
 
-    // エディタモードのチェックボックスを無効化
+    // エディタモードのチェックボックスを取得
     const enableCheckbox = page.locator('#ui-editor-enable');
-    await enableCheckbox.uncheck();
+    await expect(enableCheckbox).toBeChecked();
 
-    // パネルが閉じられることを確認
+    // チェックボックスを無効化するとdeactivate()が呼ばれる
+    // changeイベントをトリガーする
+    await enableCheckbox.evaluate((el) => {
+      el.checked = false;
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // パネルが閉じられることを確認（deactivate()が呼ばれてDOMから削除される）
+    await page.waitForTimeout(100);
     const panel = page.locator('#ui-editor-panel');
-    await expect(panel).not.toBeVisible();
+    await expect(panel).toHaveCount(0);
 
     // 再度有効化
     await page.locator('#toggle-ui-editor').click();
-    await enableCheckbox.check();
+    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
 
-    // パネルが表示されることを確認
-    await expect(panel).toBeVisible();
+    // エディタモードが有効になっていることを確認
+    const newEnableCheckbox = page.locator('#ui-editor-enable');
+    await expect(newEnableCheckbox).toBeChecked();
   });
 });

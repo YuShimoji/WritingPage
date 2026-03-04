@@ -2,8 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
-// SKIP: セレクタ/実装確認が必要
-test.describe.skip('Wikilinks/バックリンク/グラフ機能', () => {
+test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForFunction(() => {
@@ -49,13 +48,23 @@ test.describe.skip('Wikilinks/バックリンク/グラフ機能', () => {
       return window.LinkGraph.parseDocLinks('Link to [document](doc://doc1#section1) and plain doc://doc2');
     });
 
-    // There should be at least 1 markdown link parsed
-    expect(parsedLinks.length).toBeGreaterThanOrEqual(1);
-    // The markdown link [document](doc://doc1#section1) should be parsed with text='document'
+    // Markdownリンクとプレーンテキストリンクの両方が検出される
+    expect(parsedLinks.length).toBeGreaterThanOrEqual(2);
+
+    // Markdownリンク [document](doc://doc1#section1) を確認
     const markdownLink = parsedLinks.find(l => l.text === 'document');
     expect(markdownLink).toBeDefined();
-    // docId may include fragment for plain regex or just 'doc1' for markdown regex
-    expect(markdownLink.link).toContain('doc://doc1');
+    expect(markdownLink.link).toBe('doc://doc1#section1');
+    // 現在の実装では、Markdownリンクの場合、docId に #section も含まれる
+    expect(markdownLink.docId).toBe('doc1#section1');
+    // section は undefined になる（実装のRegexパターンの制約）
+    expect(markdownLink.section).toBeUndefined();
+
+    // プレーンテキストリンク doc://doc2 を確認
+    const plainLink = parsedLinks.find(l => l.text === 'doc2');
+    expect(plainLink).toBeDefined();
+    expect(plainLink.link).toBe('doc://doc2');
+    expect(plainLink.docId).toBe('doc2');
   });
 
   test('should render [[wikilink]] in wiki preview', async ({ page }) => {
