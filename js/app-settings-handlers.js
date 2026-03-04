@@ -233,24 +233,6 @@
             });
         });
 
-        const toggleThemeBtn = elementManager.get('toggleThemeBtn');
-        if (toggleThemeBtn) {
-            toggleThemeBtn.addEventListener('click', () => {
-                try {
-                    const order = ['light', 'dark', 'sepia'];
-                    const cs = window.ZenWriterStorage.loadSettings();
-                    const currentTheme = (cs && cs.theme) || 'light';
-                    const currentIndex = order.indexOf(currentTheme);
-                    const nextTheme = order[(currentIndex + 1 + order.length) % order.length];
-                    window.ZenWriterTheme.applyTheme(nextTheme);
-                    window.ZenWriterTheme.clearCustomColors();
-                    if (window.settingsManager && typeof window.settingsManager.applySettingsToUI === 'function') {
-                        window.settingsManager.applySettingsToUI();
-                    }
-                } catch (_) { }
-            });
-        }
-
         // カラーピッカー
         const bgColorInput = elementManager.get('bgColorInput');
         const textColorInput = elementManager.get('textColorInput');

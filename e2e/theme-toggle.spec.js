@@ -11,31 +11,6 @@ test.describe('テーマ切り替え機能', () => {
     await page.waitForLoadState('networkidle');
     // テーママネージャーが初期化されるまで待機
     await page.waitForFunction(() => !!window.ZenWriterTheme, { timeout: 5000 });
-
-    // テーマ切り替えのイベントハンドラーを手動で追加（app-ui-events.jsが動作しない場合の回避策）
-    await page.evaluate(() => {
-      const btn = document.getElementById('toggle-theme');
-      if (btn && window.ZenWriterTheme && !btn.dataset.themeHandlerAdded) {
-        btn.dataset.themeHandlerAdded = 'true';
-        const updateIcon = () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const icon = btn.querySelector('[data-lucide]');
-          if (icon) {
-            icon.setAttribute('data-lucide', currentTheme === 'dark' ? 'sun' : 'moon');
-            if (window.lucide) {
-              window.lucide.createIcons();
-            }
-          }
-        };
-        btn.addEventListener('click', () => {
-          const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-          window.ZenWriterTheme.applyTheme(newTheme);
-          updateIcon();
-        });
-        updateIcon();
-      }
-    });
   });
 
   test('デフォルトでダークモードが適用されている', async ({ page }) => {
