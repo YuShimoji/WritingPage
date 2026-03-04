@@ -263,10 +263,10 @@
    * @returns {string} HTML文字列
    */
   function highlightMatch(text, matchText) {
+    // text, matchText 共にescapeHtml済みの安全な文字列に対して操作
     const escaped = escapeHtml(text);
     const escapedMatch = escapeHtml(matchText);
 
-    // 大文字小文字を区別しない置換
     const regex = new RegExp(escapedMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
     return escaped.replace(regex, match =>
       `<mark style="background-color: #f39c12; padding: 2px 4px; border-radius: 2px;">${match}</mark>`

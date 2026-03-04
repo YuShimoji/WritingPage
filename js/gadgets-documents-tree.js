@@ -169,7 +169,7 @@
 
     // 新しいアクティブアイテムにクラスを追加
     if (activeId) {
-      const active = container.querySelector(`.tree-item[data-id="${activeId}"] .tree-item-row`);
+      const active = container.querySelector(`.tree-item[data-id="${CSS.escape(activeId)}"] .tree-item-row`);
       if (active) {
         active.classList.add('active');
         active.style.backgroundColor = 'var(--accent-color, #4a90e2)';

@@ -27,6 +27,12 @@
     let flags = 'g';
     if (!caseSensitive) flags += 'i';
 
+    // ReDoS対策: 正規表現モード時はクエリ長を制限
+    if (useRegex && query.length > 200) {
+      console.warn('正規表現クエリが長すぎます（200文字以内）');
+      return null;
+    }
+
     try {
       return useRegex
         ? new RegExp(query, flags)
