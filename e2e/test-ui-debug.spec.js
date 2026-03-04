@@ -1,7 +1,8 @@
 // @ts-check
 const { test } = require('@playwright/test');
 
-test('UI Debug - スクリーンショット撮影', async ({ page }) => {
+// デバッグ専用ユーティリティ - 通常テストでは実行しない
+test.skip('UI Debug - スクリーンショット撮影', async ({ page }) => {
   await page.goto('http://localhost:8080?reset=1');
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(2000); // UI初期化を待つ

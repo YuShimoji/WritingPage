@@ -1,4 +1,5 @@
-const CACHE_NAME = 'zenwriter-shell-v2';
+const APP_VERSION = '0.3.28';
+const CACHE_NAME = `zenwriter-shell-v${APP_VERSION}`;
 const CORE_ASSETS = [
   '/',
   '/index.html',
