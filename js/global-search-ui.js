@@ -153,7 +153,7 @@
    * @param {string} query - 検索クエリ
    * @returns {HTMLElement}
    */
-  function createResultCard(result, query) {
+  function createResultCard(result, _query) {
     const card = document.createElement('div');
     card.className = 'global-search-result-card';
     card.style.cssText = `

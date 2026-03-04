@@ -82,9 +82,7 @@
   }
 
   // パネル位置を画面内に制限
-  function constrainPanelPosition(left, top, width, height) {
-    const w = width || 320;
-    const h = height || 400;
+  function constrainPanelPosition(left, top, _width, _height) {
     const minVisible = 50; // 最低限表示される領域
 
     return {
