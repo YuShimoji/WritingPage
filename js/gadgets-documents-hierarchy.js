@@ -84,6 +84,23 @@
       }
 
       function createDocument(parentId) {
+        try {
+          var hasDirty = (editorManager && typeof editorManager.isDirty === 'function')
+            ? editorManager.isDirty()
+            : false;
+          if (hasDirty) {
+            var msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
+            var ok = confirm(msg);
+            if (!ok) return;
+            try {
+              var content = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : '';
+              if (storage && typeof storage.addSnapshot === 'function') {
+                storage.addSnapshot(content);
+              }
+            } catch (_) { }
+          }
+        } catch (_) { }
+
         var name = prompt('新しいドキュメント名を入力', '無題');
         if (name === null) return;
 
@@ -174,6 +191,7 @@
 
       var newDocBtn = document.createElement('button');
       newDocBtn.type = 'button';
+      newDocBtn.id = 'new-document-btn'; // E2Eテスト互換性のため追加
       newDocBtn.textContent = '+ 新規';
       newDocBtn.title = 'ルートに新規ドキュメント作成';
       newDocBtn.addEventListener('click', function () { createDocument(null); });
@@ -184,8 +202,21 @@
       newFolderBtn.title = 'ルートに新規フォルダ作成';
       newFolderBtn.addEventListener('click', function () { createFolder(null); });
 
+      // スナップショット復元ボタン
+      var restoreBtn = document.createElement('button');
+      restoreBtn.type = 'button';
+      restoreBtn.id = 'restore-from-snapshot'; // E2Eテスト互換性のため追加
+      restoreBtn.textContent = '📜 復元';
+      restoreBtn.title = '最後のスナップショットから復元';
+      restoreBtn.addEventListener('click', function () {
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
+          window.ZenWriterEditor.restoreLastSnapshot();
+        }
+      });
+
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(newFolderBtn);
+      toolbar.appendChild(restoreBtn);
 
       // ツリーコンテナ
       var treeContainer = document.createElement('div');

@@ -8,7 +8,9 @@ const filesToCopy = [
   'index.html',
   'embed-demo.html',
   'embed-xorigin-demo.html',
-  'favicon.svg'
+  'favicon.svg',
+  'manifest.webmanifest',
+  'sw.js'
 ];
 
 const dirsToCopy = ['css', 'js'];

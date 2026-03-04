@@ -3,8 +3,8 @@
   "short_name": "ZenWriter",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#f5f3ee",
-  "theme_color": "#2f6b4f",
+  "background_color": "#1e1e1e",
+  "theme_color": "#252526",
   "description": "執筆に集中するためのエディタ",
   "lang": "ja",
   "icons": [
