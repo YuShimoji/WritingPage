@@ -8,6 +8,17 @@
   <title>Zen Writer - 小説執筆ツール</title>
   <script>
     (function () {
+      // ?reset=1でlocalStorageをクリア
+      if (/(?:^|[?&])reset=1(?:&|$)/.test(location.search)) {
+        try {
+          localStorage.clear();
+          // クエリパラメータを削除してリロード
+          var url = location.origin + location.pathname;
+          location.replace(url);
+          return;
+        } catch (e) { /* ignore */ }
+      }
+
       // 埋め込みモード判定（?embed=1）
       var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
       if (isEmbed) {
@@ -15,28 +26,25 @@
       }
       try {
         var raw = localStorage.getItem('zenWriter_settings');
+        var settings = null;
         if (raw) {
-          var s = JSON.parse(raw);
-          if (s && s.toolbarVisible === false) {
-            document.documentElement.setAttribute(
-              'data-toolbar-hidden',
-              'true',
-            );
-          } else {
-            document.documentElement.setAttribute(
-              'data-toolbar-hidden',
-              'false',
-            );
-          }
+          settings = JSON.parse(raw);
+        }
+
+        // テーマ設定（デフォルト: dark）
+        var theme = settings && settings.theme ? settings.theme : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // ツールバー設定
+        if (settings && settings.toolbarVisible === false) {
+          document.documentElement.setAttribute('data-toolbar-hidden', 'true');
         } else {
-          // 設定が未作成（初回起動）は表示にする
-          document.documentElement.setAttribute(
-            'data-toolbar-hidden',
-            'false',
-          );
+          document.documentElement.setAttribute('data-toolbar-hidden', 'false');
         }
       } catch (e) {
-        /* ignore */
+        // エラー時はデフォルトでダークモード
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.documentElement.setAttribute('data-toolbar-hidden', 'false');
       }
       // 埋め込みモードではツールバーを強制的に隠す（最小UI）
       if (isEmbed) {
@@ -618,6 +626,30 @@
     // PWA install support (localhost / https only)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
+        // 開発モード判定
+        var isDev = location.hostname === 'localhost' ||
+                    location.hostname === '127.0.0.1' ||
+                    location.protocol === 'file:';
+
+        // ?clearCache=1 でService Workerのキャッシュをクリア
+        if (isDev && /(?:^|[?&])clearCache=1(?:&|$)/.test(location.search)) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(registration) {
+              registration.unregister();
+            });
+          });
+          caches.keys().then(function(names) {
+            names.forEach(function(name) {
+              caches.delete(name);
+            });
+          }).then(function() {
+            // クエリパラメータを削除してリロード
+            var url = location.origin + location.pathname;
+            location.replace(url);
+          });
+          return;
+        }
+
         navigator.serviceWorker.register('/sw.js').catch(function () { });
       });
     }

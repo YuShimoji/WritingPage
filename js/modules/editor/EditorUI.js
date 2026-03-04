@@ -144,8 +144,12 @@
             if (manager.fontDecorationPanel) {
                 manager.fontDecorationPanel.style.display = 'block';
                 if (manager.textAnimationPanel) manager.textAnimationPanel.style.display = 'none';
-                if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
-                    window.ZenWriterFloatingPanels.preparePanel(manager.fontDecorationPanel);
+
+                // パネルを表示した後、位置を画面内に制限
+                if (window.appUIEventsAPI && typeof window.appUIEventsAPI.prepareFloatingPanel === 'function') {
+                    window.appUIEventsAPI.prepareFloatingPanel(manager.fontDecorationPanel);
+                } else if (window.appUIEventsAPI && typeof window.appUIEventsAPI.clampPanelToViewport === 'function') {
+                    window.appUIEventsAPI.clampPanelToViewport(manager.fontDecorationPanel);
                 }
             }
         },
@@ -164,8 +168,12 @@
             if (manager.textAnimationPanel) {
                 manager.textAnimationPanel.style.display = 'block';
                 if (manager.fontDecorationPanel) manager.fontDecorationPanel.style.display = 'none';
-                if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
-                    window.ZenWriterFloatingPanels.preparePanel(manager.textAnimationPanel);
+
+                // パネルを表示した後、位置を画面内に制限
+                if (window.appUIEventsAPI && typeof window.appUIEventsAPI.prepareFloatingPanel === 'function') {
+                    window.appUIEventsAPI.prepareFloatingPanel(manager.textAnimationPanel);
+                } else if (window.appUIEventsAPI && typeof window.appUIEventsAPI.clampPanelToViewport === 'function') {
+                    window.appUIEventsAPI.clampPanelToViewport(manager.textAnimationPanel);
                 }
             }
         },

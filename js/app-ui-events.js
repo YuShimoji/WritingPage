@@ -638,7 +638,13 @@
             }
         });
 
-        return { toggleFeedbackPanel, toggleFontPanel, toggleModal };
+        return {
+            toggleFeedbackPanel,
+            toggleFontPanel,
+            toggleModal,
+            prepareFloatingPanel,
+            clampPanelToViewport
+        };
     }
 
     window.initAppUIEvents = initAppUIEvents;

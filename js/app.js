@@ -321,6 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
             _toggleFullscreen,
             syncHudQuickControls
         });
+        // APIをグローバルに公開（フローティングパネルの位置管理用）
+        window.appUIEventsAPI = _appUIEvents;
     }
     // キーボードショートカット（app-shortcuts.js に委譲）
     if (typeof window.initAppShortcuts === 'function') {

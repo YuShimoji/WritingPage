@@ -81,6 +81,18 @@
     };
   }
 
+  // パネル位置を画面内に制限
+  function constrainPanelPosition(left, top, width, height) {
+    const w = width || 320;
+    const h = height || 400;
+    const minVisible = 50; // 最低限表示される領域
+
+    return {
+      left: Math.max(0, Math.min(window.innerWidth - minVisible, left)),
+      top: Math.max(0, Math.min(window.innerHeight - minVisible, top))
+    };
+  }
+
   // パネル作成関数
   function createDockablePanel(id, title, content, options = {}) {
     const panel = document.createElement('div');
@@ -93,7 +105,13 @@
     let initialPos;
 
     if (savedState && savedState.left !== undefined && savedState.top !== undefined) {
-      initialPos = { left: savedState.left, top: savedState.top };
+      // 保存された位置を画面内に制限
+      initialPos = constrainPanelPosition(
+        savedState.left,
+        savedState.top,
+        savedState.width || defaultSize.width,
+        savedState.height || defaultSize.height
+      );
     } else if (options.centered !== false) {
       initialPos = getCenteredPosition(defaultSize.width, defaultSize.height);
     } else {
@@ -256,10 +274,18 @@
           } else {
             // フローティングに留める
             ensureFloating(panel);
-            // 位置を保存
+            // 位置を画面内に制限してから保存
+            const constrainedPos = constrainPanelPosition(
+              rect.left,
+              rect.top,
+              rect.width,
+              rect.height
+            );
+            panel.style.left = constrainedPos.left + 'px';
+            panel.style.top = constrainedPos.top + 'px';
             savePanelState(panel.id, {
-              left: rect.left,
-              top: rect.top,
+              left: constrainedPos.left,
+              top: constrainedPos.top,
               width: rect.width,
               height: rect.height
             });

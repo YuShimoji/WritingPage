@@ -1,4 +1,4 @@
-const CACHE_NAME = 'zenwriter-shell-v1';
+const CACHE_NAME = 'zenwriter-shell-v2';
 const CORE_ASSETS = [
   '/',
   '/index.html',
@@ -6,6 +6,11 @@ const CORE_ASSETS = [
   '/manifest.webmanifest',
   '/favicon.svg',
 ];
+
+// 開発環境の検出（localhost または file:// プロトコル）
+const isDev = self.location.hostname === 'localhost' ||
+              self.location.hostname === '127.0.0.1' ||
+              self.location.protocol === 'file:';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -31,17 +36,33 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req)
+  // 開発モードではネットワーク優先、本番モードではキャッシュ優先
+  if (isDev) {
+    // ネットワーク優先戦略（開発用）
+    event.respondWith(
+      fetch(req)
         .then((res) => {
           if (!res || res.status !== 200 || res.type !== 'basic') return res;
           const copy = res.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => caches.match('/index.html'));
-    })
-  );
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
+    );
+  } else {
+    // キャッシュ優先戦略（本番用）
+    event.respondWith(
+      caches.match(req).then((cached) => {
+        if (cached) return cached;
+        return fetch(req)
+          .then((res) => {
+            if (!res || res.status !== 200 || res.type !== 'basic') return res;
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+            return res;
+          })
+          .catch(() => caches.match('/index.html'));
+      })
+    );
+  }
 });
