@@ -19,8 +19,8 @@ async function waitGadgetsReady(page) {
   return true;
 }
 
-// SKIP: Pomodoro Timer機能は未実装（TASK_027で計画中）
-test.describe.skip('Pomodoro Timer E2E', () => {
+// Pomodoro Timer機能テスト（TASK_027実装済み）
+test.describe('Pomodoro Timer E2E', () => {
   test('PomodoroTimer gadget renders and displays initial state', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);

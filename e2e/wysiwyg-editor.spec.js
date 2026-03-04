@@ -1,8 +1,8 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
 
-// NOTE: WYSIWYGエディタ機能は未実装のため全テストをスキップ
-test.describe.skip('WYSIWYG Editor', () => {
+// WYSIWYGエディタ機能テスト（実装済み）
+test.describe('WYSIWYG Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');

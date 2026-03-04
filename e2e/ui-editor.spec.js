@@ -4,7 +4,7 @@ const { test, expect } = require('@playwright/test');
 /**
  * UIエディタのE2Eテスト
  * ビジュアルUIエディタの機能を検証
- * NOTE: UIエディタ機能は未実装のため全テストをスキップ
+ * UIエディタ機能テスト（実装済み、セレクタ/動作調整が必要）
  */
 test.describe.skip('UI Visual Editor', () => {
   test.beforeEach(async ({ page }) => {
