@@ -4761,3 +4761,165 @@ details[open] summary {
 .wip-hidden {
   display: none !important;
 }
+
+
+/* ==========================================
+   階層ドキュメントツリーUI
+   ========================================== */
+
+.documents-hierarchy {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.documents-toolbar {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.documents-toolbar button {
+  flex: 1;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  background: var(--ui-bg);
+  color: var(--ui-text);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.documents-toolbar button:hover {
+  background: var(--sidebar-bg);
+}
+
+.documents-tree-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px;
+}
+
+/* ツリーアイテム */
+.tree-item {
+  margin-bottom: 2px;
+}
+
+.tree-item-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.tree-item-row:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.tree-item-row.active {
+  background: var(--accent-color, #4a90e2);
+  color: #ffffff;
+}
+
+.tree-item-row.dragging {
+  opacity: 0.5;
+}
+
+.tree-item-row.drag-over {
+  background: rgba(74, 144, 226, 0.2);
+  border: 2px dashed var(--accent-color);
+}
+
+.tree-toggle {
+  margin-right: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+  display: inline-block;
+  width: 12px;
+  text-align: center;
+}
+
+.tree-icon {
+  margin-right: 6px;
+  font-size: 1em;
+}
+
+.tree-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-children {
+  margin-left: 0;
+}
+
+/* ルートドロップゾーン */
+.tree-root-drop-zone {
+  padding: 8px;
+  margin: 4px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  text-align: center;
+  color: #999;
+  font-size: 0.9rem;
+  display: none;
+  transition: all 0.2s;
+}
+
+.tree-root-drop-zone:hover {
+  border-color: var(--accent-color);
+  background: rgba(74, 144, 226, 0.1);
+}
+
+/* コンテキストメニュー */
+.context-menu {
+  position: fixed;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 10000;
+  min-width: 150px;
+  padding: 4px 0;
+}
+
+.context-menu button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.context-menu button:hover {
+  background: #f0f0f0;
+}
+
+/* ダークモード対応 */
+[data-theme="dark"] .documents-toolbar button {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .tree-item-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .context-menu {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+[data-theme="dark"] .context-menu button:hover {
+  background: #3a3a3a;
+}

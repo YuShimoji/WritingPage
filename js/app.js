@@ -10,6 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logger.info('アプリケーション初期化開始');
 
+    // 階層ドキュメントへのデータ移行
+    try {
+        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.migrateDocumentsToHierarchy === 'function') {
+            window.ZenWriterStorage.migrateDocumentsToHierarchy();
+            logger.info('ドキュメントデータの階層化移行完了');
+        }
+    } catch (e) {
+        logger.error('ドキュメントデータ移行エラー:', e);
+    }
+
     // キーボード/マウス操作の検出（フォーカス表示の制御用）
     let _isKeyboardUser = false;
     document.addEventListener('keydown', (e) => {

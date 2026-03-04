@@ -376,12 +376,190 @@ function setCurrentDocId(id) {
     } catch (e) { return false; }
 }
 
-function createDocument(name = '新規ドキュメント', content = '') {
+function createDocument(name = '新規ドキュメント', content = '', parentId = null) {
     const docs = loadDocuments();
-    const doc = { id: 'doc_' + Date.now(), name: String(name || '新規ドキュメント'), content: String(content || ''), createdAt: Date.now(), updatedAt: Date.now() };
+    const doc = {
+        id: 'doc_' + Date.now(),
+        type: 'document',
+        name: String(name || '新規ドキュメント'),
+        content: String(content || ''),
+        parentId: parentId || null,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    };
     docs.push(doc);
     saveDocuments(docs);
     return doc;
+}
+
+/**
+ * フォルダを作成
+ * @param {string} name - フォルダ名
+ * @param {string|null} parentId - 親フォルダID
+ * @returns {Object} 作成されたフォルダ
+ */
+function createFolder(name = '新規フォルダ', parentId = null) {
+    const docs = loadDocuments();
+    const folder = {
+        id: 'folder_' + Date.now(),
+        type: 'folder',
+        name: String(name || '新規フォルダ'),
+        parentId: parentId || null,
+        collapsed: false,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+    };
+    docs.push(folder);
+    saveDocuments(docs);
+    return folder;
+}
+
+/**
+ * アイテム（ドキュメントまたはフォルダ）を移動
+ * @param {string} itemId - 移動するアイテムのID
+ * @param {string|null} newParentId - 新しい親フォルダID
+ * @returns {boolean} 成功したかどうか
+ */
+function moveItem(itemId, newParentId = null) {
+    const docs = loadDocuments();
+    const idx = docs.findIndex(d => d && d.id === itemId);
+    if (idx < 0) return false;
+
+    // 循環参照チェック
+    if (newParentId && isDescendant(docs, itemId, newParentId)) {
+        console.error('循環参照: フォルダを自分自身の子孫に移動できません');
+        return false;
+    }
+
+    docs[idx].parentId = newParentId || null;
+    docs[idx].updatedAt = Date.now();
+    saveDocuments(docs);
+    return true;
+}
+
+/**
+ * フォルダの折りたたみ状態を切り替え
+ * @param {string} folderId - フォルダID
+ * @param {boolean|undefined} collapsed - 折りたたみ状態（未指定の場合はトグル）
+ * @returns {boolean} 成功したかどうか
+ */
+function toggleFolderCollapsed(folderId, collapsed) {
+    const docs = loadDocuments();
+    const idx = docs.findIndex(d => d && d.id === folderId && d.type === 'folder');
+    if (idx < 0) return false;
+
+    docs[idx].collapsed = collapsed !== undefined ? collapsed : !docs[idx].collapsed;
+    docs[idx].updatedAt = Date.now();
+    saveDocuments(docs);
+    return true;
+}
+
+/**
+ * 階層構造を取得
+ * @param {string|null} parentId - 親フォルダID（nullの場合はルート）
+ * @returns {Array} 指定された親の子アイテム
+ */
+function getChildren(parentId = null) {
+    const docs = loadDocuments();
+    return docs.filter(d => d && (d.parentId === parentId || (!d.parentId && !parentId)));
+}
+
+/**
+ * ツリー構造を構築
+ * @returns {Array} ルートアイテムのツリー構造
+ */
+function buildTree() {
+    const docs = loadDocuments();
+    const tree = [];
+    const idMap = new Map();
+
+    // まず全アイテムをマップに登録
+    docs.forEach(doc => {
+        if (!doc) return;
+        // 後方互換性: typeがない場合はdocumentとして扱う
+        if (!doc.type) doc.type = 'document';
+        idMap.set(doc.id, { ...doc, children: [] });
+    });
+
+    // 親子関係を構築
+    docs.forEach(doc => {
+        if (!doc) return;
+        const item = idMap.get(doc.id);
+        if (doc.parentId && idMap.has(doc.parentId)) {
+            idMap.get(doc.parentId).children.push(item);
+        } else {
+            // 親がない場合はルートに追加
+            tree.push(item);
+        }
+    });
+
+    // フォルダを先に、ドキュメントを後にソート
+    const sortItems = (items) => {
+        return items.sort((a, b) => {
+            if (a.type === 'folder' && b.type !== 'folder') return -1;
+            if (a.type !== 'folder' && b.type === 'folder') return 1;
+            return (b.updatedAt || 0) - (a.updatedAt || 0);
+        });
+    };
+
+    const sortTreeRecursive = (items) => {
+        sortItems(items);
+        items.forEach(item => {
+            if (item.children && item.children.length > 0) {
+                sortTreeRecursive(item.children);
+            }
+        });
+    };
+
+    sortTreeRecursive(tree);
+    return tree;
+}
+
+/**
+ * 子孫かどうかをチェック（循環参照防止用）
+ * @param {Array} docs - 全ドキュメントリスト
+ * @param {string} ancestorId - 祖先候補のID
+ * @param {string} descendantId - 子孫候補のID
+ * @returns {boolean} descendantIdがancestorIdの子孫である場合true
+ */
+function isDescendant(docs, ancestorId, descendantId) {
+    if (ancestorId === descendantId) return true;
+
+    const idMap = new Map();
+    docs.forEach(d => { if (d) idMap.set(d.id, d); });
+
+    let current = idMap.get(descendantId);
+    while (current && current.parentId) {
+        if (current.parentId === ancestorId) return true;
+        current = idMap.get(current.parentId);
+    }
+    return false;
+}
+
+/**
+ * データ移行: 既存のドキュメントに type と parentId を追加
+ */
+function migrateDocumentsToHierarchy() {
+    const docs = loadDocuments();
+    let migrated = false;
+
+    docs.forEach(doc => {
+        if (!doc) return;
+        if (!doc.type) {
+            doc.type = 'document';
+            migrated = true;
+        }
+        if (doc.parentId === undefined) {
+            doc.parentId = null;
+            migrated = true;
+        }
+    });
+
+    if (migrated) {
+        saveDocuments(docs);
+        console.log('ドキュメントを階層構造に移行しました');
+    }
+    return migrated;
 }
 
 function updateDocumentContent(id, content) {
@@ -410,9 +588,55 @@ function renameDocument(id, name) {
 
 function deleteDocument(id) {
     const docs = loadDocuments();
+    const item = docs.find(d => d && d.id === id);
+
+    // フォルダの場合、子アイテムをルートに移動
+    if (item && item.type === 'folder') {
+        docs.forEach(d => {
+            if (d && d.parentId === id) {
+                d.parentId = item.parentId || null;
+            }
+        });
+    }
+
     const next = docs.filter(d => d && d.id !== id);
     saveDocuments(next);
     if (getCurrentDocId() === id) setCurrentDocId(null);
+    return true;
+}
+
+/**
+ * フォルダとその中身を再帰的に削除
+ * @param {string} folderId - フォルダID
+ * @returns {boolean} 成功したかどうか
+ */
+function deleteFolderRecursive(folderId) {
+    const docs = loadDocuments();
+    const toDelete = new Set([folderId]);
+
+    // 削除対象の子孫を収集
+    const collectDescendants = (parentId) => {
+        docs.forEach(d => {
+            if (d && d.parentId === parentId) {
+                toDelete.add(d.id);
+                if (d.type === 'folder') {
+                    collectDescendants(d.id);
+                }
+            }
+        });
+    };
+
+    collectDescendants(folderId);
+
+    // 削除対象を除外
+    const next = docs.filter(d => d && !toDelete.has(d.id));
+    saveDocuments(next);
+
+    // 現在のドキュメントが削除対象なら解除
+    if (toDelete.has(getCurrentDocId())) {
+        setCurrentDocId(null);
+    }
+
     return true;
 }
 
@@ -649,6 +873,14 @@ if (typeof module !== 'undefined' && module.exports) {
         updateDocumentContent,
         renameDocument,
         deleteDocument,
+        // hierarchy
+        createFolder,
+        moveItem,
+        toggleFolderCollapsed,
+        getChildren,
+        buildTree,
+        deleteFolderRecursive,
+        migrateDocumentsToHierarchy,
         // wiki
         loadWikiPages,
         saveWikiPages,
@@ -689,6 +921,14 @@ if (typeof module !== 'undefined' && module.exports) {
         updateDocumentContent,
         renameDocument,
         deleteDocument,
+        // hierarchy
+        createFolder,
+        moveItem,
+        toggleFolderCollapsed,
+        getChildren,
+        buildTree,
+        deleteFolderRecursive,
+        migrateDocumentsToHierarchy,
         // wiki
         loadWikiPages,
         saveWikiPages,

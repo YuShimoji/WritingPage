@@ -168,7 +168,8 @@
     }
   }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_OUTLINE_TITLE) || 'アウトライン' });
 
-  // Documents gadget
+  // Documents gadget - 階層対応版は gadgets-documents-hierarchy.js に移行
+  /* DISABLED - Using hierarchy version
   ZWGadgetsInstance.register('Documents', function (el) {
     try {
       var storage = window.ZenWriterStorage;
@@ -573,6 +574,7 @@
       try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }
     }
   }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
+  END OF DISABLED DOCUMENTS GADGET */
 
   // TypographyThemes gadget (個別ファイル化済み - gadgets-typography.js)
 
