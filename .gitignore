@@ -28,6 +28,7 @@ _site/
 # Playwright outputs
 test-results/
 playwright-report/
+debug-screenshot-*.png
 
 # Temporary test output files
 *-out.txt
