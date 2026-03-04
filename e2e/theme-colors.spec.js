@@ -69,7 +69,7 @@ test.describe('Theme Colors', () => {
     // Test Dark theme
     const dark = await applyPresetAndGetColors('dark');
     expect(dark.bg).toBe('#1e1e1e');
-    expect(dark.text).toBe('#e0e0e0');
+    expect(dark.text).toBe('#cccccc'); // Updated to match new dark theme color
 
     // Test Sepia theme
     const sepia = await applyPresetAndGetColors('sepia');
