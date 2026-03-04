@@ -3284,6 +3284,62 @@ html[data-ui-mode="blank"] .fab-toggle-toolbar {
   display: inline-flex !important;
 }
 
+/* ===== Ultra-minimal mode (Electron / distraction-free) ===== */
+html[data-ui-mode="minimal"] .sidebar,
+html[data-ui-mode="minimal"] .toolbar,
+html[data-ui-mode="minimal"] .mini-hud,
+html[data-ui-mode="minimal"] .fab-button,
+html[data-ui-mode="minimal"] .fab-toggle-toolbar,
+html[data-ui-mode="minimal"] #quick-tools-panel,
+html[data-ui-mode="minimal"] #settings-modal,
+html[data-ui-mode="minimal"] #split-view-container,
+html[data-ui-mode="minimal"] .status-bar {
+  display: none !important;
+}
+
+html[data-ui-mode="minimal"] .main-content {
+  margin-left: 0 !important;
+}
+
+html[data-ui-mode="minimal"] .editor-container {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-ui-mode="minimal"] #editor {
+  padding: 3rem 2rem !important;
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  height: 100vh !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Escape hint for minimal mode */
+html[data-ui-mode="minimal"]::after {
+  content: 'Esc\3000\901A\5E38\8868\793A\306B\623B\308B';
+  position: fixed;
+  bottom: 8px;
+  right: 12px;
+  font-size: 11px;
+  color: var(--text-secondary, #888);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+html[data-ui-mode="minimal"]:hover::after {
+  opacity: 0.6;
+}
+
 /* Mode switching transition */
 .sidebar,
 .toolbar,
