@@ -363,6 +363,7 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
+            contentSecurityPolicy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'",
         },
     });
 
@@ -406,10 +407,14 @@ app.whenReady().then(() => {
     setupIPC();
     createWindow();
     setupAutoUpdater();
+}).catch((err) => {
+    console.error('App initialization error:', err);
 });
 
 app.on('window-all-closed', () => {
-    app.quit();
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });
 
 app.on('activate', () => {
