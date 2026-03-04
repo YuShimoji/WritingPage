@@ -70,17 +70,23 @@
             bringPanelToFront(panel);
 
             if (!panel.dataset.zwPositioned) {
-                const rect = panel.getBoundingClientRect();
-                const left = Math.max(FLOATING_PANEL_MARGIN, window.innerWidth - rect.width - 16);
-                const top = Math.max(72, Math.min(window.innerHeight - rect.height - 120, window.innerHeight - rect.height - FLOATING_PANEL_MARGIN));
-                panel.style.left = `${Math.round(left)}px`;
-                panel.style.top = `${Math.round(top)}px`;
-                panel.style.right = 'auto';
-                panel.style.bottom = 'auto';
-                panel.dataset.zwPositioned = 'true';
+                // レンダリング後にサイズを取得して位置計算する
+                requestAnimationFrame(() => {
+                    const rect = panel.getBoundingClientRect();
+                    const panelH = Math.max(rect.height, 100);
+                    const panelW = Math.max(rect.width, 200);
+                    const left = Math.max(FLOATING_PANEL_MARGIN, window.innerWidth - panelW - 16);
+                    const top = Math.max(72, (window.innerHeight - panelH) / 2);
+                    panel.style.left = `${Math.round(left)}px`;
+                    panel.style.top = `${Math.round(top)}px`;
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                    panel.dataset.zwPositioned = 'true';
+                    clampPanelToViewport(panel);
+                });
+            } else {
+                clampPanelToViewport(panel);
             }
-
-            clampPanelToViewport(panel);
         }
 
         function enableFloatingPanelDrag(panel) {

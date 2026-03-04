@@ -3502,6 +3502,52 @@ input[type="checkbox"] {
   gap: 12px;
 }
 
+/* ガジェットヘッダー (gadgets-core.js) */
+.gadget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 0;
+  padding: 0;
+  margin-bottom: 2px;
+}
+
+.gadget-header .gadget-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gadget-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.gadget-detach-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: inherit;
+  font-size: 0.75rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.gadget-detach-btn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .gadget-wrapper {
   display: flex;
   flex-direction: column;
