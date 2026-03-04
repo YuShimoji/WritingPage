@@ -6,7 +6,7 @@ class ThemeManager {
       ? window.ThemeRegistry.toThemeColorsMap()
       : {
           light: { bgColor: '#ffffff', textColor: '#333333' },
-          dark: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
+          dark: { bgColor: '#1e1e1e', textColor: '#cccccc' },
           night: { bgColor: '#262626', textColor: '#e5e5e5' },
           sepia: { bgColor: '#f4ecd8', textColor: '#5b4636' },
           'high-contrast': { bgColor: '#000000', textColor: '#ffffff' },

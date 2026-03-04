@@ -70,3 +70,25 @@
   --hover-bg-color: rgba(0, 0, 0, 0.05);
   --active-bg-color: rgba(0, 0, 0, 0.1);
 }
+
+/* ダークモードテーマ（VS Code / Notion風） */
+[data-theme="dark"] {
+  --bg-color: #1e1e1e;
+  --text-color: #cccccc;
+  --app-bg: #1a1a1a;
+  --editor-bg: #1e1e1e;
+  --editor-text: #cccccc;
+  --sidebar-bg: #252526;
+  --sidebar-text: #cccccc;
+  --toolbar-bg: #2d2d30;
+  --toolbar-text: #cccccc;
+  --border-color: #3e3e42;
+  --focus-color: #4a90e2;
+  --accent-color: #569cd6;
+  --ui-focus-color: #4a90e2;
+  --ui-accent-color: #569cd6;
+  --hover-bg-color: rgba(255, 255, 255, 0.1);
+  --active-bg-color: rgba(255, 255, 255, 0.15);
+  --heading-h1-border-bottom: 1px solid #cccccc;
+  --bg-gradient: linear-gradient(135deg, #1e1e1e 0%, #252526 100%);
+}

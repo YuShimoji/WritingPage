@@ -12,12 +12,12 @@ const STORAGE_KEYS = {
 
 // デフォルト設定
 const DEFAULT_SETTINGS = {
-    theme: 'light',
+    theme: 'dark',
     fontFamily: '"Noto Serif JP", serif',
     fontSize: 16,
     lineHeight: 1.6,
-    bgColor: '#ffffff',
-    textColor: '#333333',
+    bgColor: '#1e1e1e',
+    textColor: '#cccccc',
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
     useCustomColors: false,
     // ツールバー（文字数バー含む）の表示状態（初回は非表示）

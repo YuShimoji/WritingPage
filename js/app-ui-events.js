@@ -254,6 +254,42 @@
                 }
             });
         }
+
+        // テーマ切り替えボタン
+        const toggleThemeBtn = elementManager.get('toggleThemeBtn');
+        if (toggleThemeBtn && window.ZenWriterTheme) {
+            const updateThemeIcon = () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const icon = toggleThemeBtn.querySelector('[data-lucide]');
+                if (icon) {
+                    icon.setAttribute('data-lucide', currentTheme === 'dark' ? 'sun' : 'moon');
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                }
+            };
+
+            toggleThemeBtn.addEventListener('click', () => {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                window.ZenWriterTheme.applyTheme(newTheme);
+                updateThemeIcon();
+            });
+
+            toggleThemeBtn.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+                    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                    window.ZenWriterTheme.applyTheme(newTheme);
+                    updateThemeIcon();
+                }
+            });
+
+            // 初期アイコンを設定
+            updateThemeIcon();
+        }
+
         if (feedbackBtn) {
             feedbackBtn.addEventListener('click', toggleFeedbackPanel);
             feedbackBtn.addEventListener('keydown', (e) => {

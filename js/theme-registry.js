@@ -35,9 +35,9 @@
       id: 'dark',
       labelKey: 'THEME_NAME_DARK',
       fallbackLabel: 'ダーク',
-      colors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
-      uiColors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' },
-      editorColors: { bgColor: '#1e1e1e', textColor: '#e0e0e0' }
+      colors: { bgColor: '#1e1e1e', textColor: '#cccccc' },
+      uiColors: { bgColor: '#1e1e1e', textColor: '#cccccc' },
+      editorColors: { bgColor: '#1e1e1e', textColor: '#cccccc' }
     },
     {
       id: 'night',
