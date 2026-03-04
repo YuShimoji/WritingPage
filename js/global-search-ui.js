@@ -320,20 +320,24 @@
     // 最初のマッチ位置にスクロール（オプション）
     if (firstMatch && editorManager.editor) {
       setTimeout(() => {
-        const lines = (doc.content || '').split('\n');
-        let charPosition = 0;
-        for (let i = 0; i < firstMatch.lineNumber - 1; i++) {
-          charPosition += lines[i].length + 1; // +1 for newline
+        try {
+          const lines = (doc.content || '').split('\n');
+          let charPosition = 0;
+          for (let i = 0; i < firstMatch.lineNumber - 1; i++) {
+            charPosition += lines[i].length + 1; // +1 for newline
+          }
+          charPosition += firstMatch.matchStart;
+
+          editorManager.editor.focus();
+          editorManager.editor.setSelectionRange(charPosition, charPosition + firstMatch.matchText.length);
+
+          // スクロール
+          const lineHeight = parseFloat(getComputedStyle(editorManager.editor).lineHeight) || 20;
+          const y = (firstMatch.lineNumber - 1) * lineHeight;
+          editorManager.editor.scrollTop = Math.max(0, y - editorManager.editor.clientHeight / 2);
+        } catch (err) {
+          console.warn('検索結果へのスクロールに失敗:', err);
         }
-        charPosition += firstMatch.matchStart;
-
-        editorManager.editor.focus();
-        editorManager.editor.setSelectionRange(charPosition, charPosition + firstMatch.matchText.length);
-
-        // スクロール
-        const lineHeight = parseFloat(getComputedStyle(editorManager.editor).lineHeight) || 20;
-        const y = (firstMatch.lineNumber - 1) * lineHeight;
-        editorManager.editor.scrollTop = Math.max(0, y - editorManager.editor.clientHeight / 2);
       }, 100);
     }
 

@@ -759,6 +759,10 @@ function saveWikiPages(pages) {
  * @returns {Object} 作成されたページ
  */
 function createWikiPage(pageData) {
+    if (!pageData || typeof pageData !== 'object') {
+        console.error('createWikiPage: 無効なページデータ');
+        return null;
+    }
     const pages = loadWikiPages();
     const page = {
         id: 'wiki_' + Date.now(),
@@ -795,9 +799,11 @@ function updateWikiPage(pageId, updates) {
     const index = pages.findIndex(p => p.id === pageId);
     if (index === -1) return false;
 
+    // id, createdAt は上書き禁止
+    const { id: _id, createdAt: _ca, ...safeUpdates } = updates || {};
     pages[index] = {
         ...pages[index],
-        ...updates,
+        ...safeUpdates,
         updatedAt: Date.now()
     };
     return saveWikiPages(pages);

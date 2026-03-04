@@ -33,6 +33,23 @@
         } catch (_) { }
       }
 
+      // 循環参照チェック: targetIdがparentIdの子孫である場合trueを返す
+      function isDescendant(docs, parentId, targetId) {
+        if (!parentId || !targetId || parentId === targetId) return false;
+
+        var target = docs.find(function (d) { return d && d.id === targetId; });
+        if (!target) return false;
+
+        var currentId = target.parentId;
+        while (currentId) {
+          if (currentId === parentId) return true;
+          var current = docs.find(function (d) { return d && d.id === currentId; });
+          if (!current) break;
+          currentId = current.parentId;
+        }
+        return false;
+      }
+
       function updateDocumentTitle() {
         try {
           var docs = storage.loadDocuments() || [];
@@ -238,6 +255,17 @@
           refreshUI();
         },
         onDropItem: function (draggedId, targetFolderId) {
+          // 循環参照チェック: ドラッグ元がフォルダで、ドロップ先がその子孫の場合は禁止
+          var docs = storage.loadDocuments() || [];
+          var draggedItem = docs.find(function (d) { return d && d.id === draggedId; });
+
+          if (draggedItem && draggedItem.type === 'folder' && targetFolderId) {
+            if (isDescendant(docs, draggedId, targetFolderId)) {
+              notify('フォルダをその子孫フォルダに移動することはできません', 2000);
+              return;
+            }
+          }
+
           storage.moveItem(draggedId, targetFolderId);
           refreshUI();
           notify('移動しました');
