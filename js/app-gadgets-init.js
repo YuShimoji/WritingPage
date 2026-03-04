@@ -212,17 +212,25 @@
                         }
                     }
 
-                    // アイコン同期
+                    // アイコン同期 (Lucide変換後のSVGも検出)
                     if (tool.icon) {
-                        let icon = btn.querySelector('i');
-                        if (!icon) {
-                            icon = document.createElement('i');
-                            icon.setAttribute('aria-hidden', 'true');
-                            btn.appendChild(icon);
-                        }
-                        // 既存のアイコンが異なる場合のみ更新（ちらつき防止）
-                        if (icon.getAttribute('data-lucide') !== tool.icon) {
-                            icon.setAttribute('data-lucide', tool.icon);
+                        const existingSvg = btn.querySelector(`svg[data-lucide="${tool.icon}"]`);
+                        if (existingSvg) {
+                            // 既にLucide変換済みの正しいアイコンがある場合はスキップ
+                        } else {
+                            let icon = btn.querySelector('i[data-lucide]');
+                            if (!icon) {
+                                // SVGもiも無い場合のみ新規作成
+                                const anySvg = btn.querySelector('svg[data-lucide]');
+                                if (!anySvg) {
+                                    icon = document.createElement('i');
+                                    icon.setAttribute('aria-hidden', 'true');
+                                    btn.appendChild(icon);
+                                }
+                            }
+                            if (icon && icon.getAttribute('data-lucide') !== tool.icon) {
+                                icon.setAttribute('data-lucide', tool.icon);
+                            }
                         }
                     }
                 });

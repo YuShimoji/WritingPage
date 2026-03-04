@@ -60,7 +60,7 @@
           </ul>
           
           <h4>フォント装飾</h4>
-          <p>ツールバーの <span class="help-inline-icon"><i data-lucide="type" aria-hidden="true"></i></span> ボタンで装飾パネルを開きます。</p>
+          <p>ツールバーの <span class="help-inline-icon"><i data-lucide="highlighter" aria-hidden="true"></i></span> ボタンで装飾パネルを開きます。</p>
           <ul>
             <li><code>[bold]テキスト[/bold]</code> — 太字</li>
             <li><code>[italic]テキスト[/italic]</code> — 斜体</li>

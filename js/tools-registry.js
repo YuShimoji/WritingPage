@@ -3,7 +3,7 @@
     {
       id: 'text-decoration',
       label: 'Text Decoration',
-      icon: 'type',
+      icon: 'highlighter',
       group: 'editor',
       gadgetId: 'font-decoration',
       domId: 'toggle-font-decoration',
