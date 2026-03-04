@@ -32,6 +32,14 @@
       metaKey: false,
       description: '検索パネル開閉'
     },
+    'search.global.toggle': {
+      key: 'f',
+      altKey: false,
+      ctrlKey: true,
+      shiftKey: true,
+      metaKey: false,
+      description: '全文検索パネル開閉'
+    },
     'snapshot.restore': {
       key: 'z',
       altKey: false,

@@ -33,7 +33,7 @@
                     const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
 
                     // フォームコントロール内では一部のショートカットのみ有効
-                    const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle'];
+                    const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle', 'search.global.toggle'];
 
                     if (inFormControl && !allowInFormControl.includes(keybindId)) {
                         return;
@@ -69,6 +69,12 @@
                         case 'search.toggle':
                             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
                                 window.ZenWriterEditor.toggleSearchPanel();
+                            }
+                            break;
+
+                        case 'search.global.toggle':
+                            if (window.GlobalSearchUI && typeof window.GlobalSearchUI.showPanel === 'function') {
+                                window.GlobalSearchUI.showPanel();
                             }
                             break;
 

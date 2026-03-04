@@ -470,7 +470,47 @@
     </div>
   </div>
 
+  <!-- 全文検索パネル -->
+  <div id="global-search-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="global-search-panel-title" aria-modal="true">
+    <div class="panel-header">
+      <span id="global-search-panel-title">全文検索</span>
+      <button class="panel-close" id="close-global-search-panel" aria-label="全文検索パネルを閉じる">閉じる</button>
+    </div>
+    <div class="panel-body">
+      <div class="panel-row">
+        <input type="text" id="global-search-input" placeholder="全ドキュメントを検索..."
+          aria-label="検索クエリを入力" style="flex: 1;" />
+        <button id="global-search-btn" class="small" type="button">検索</button>
+      </div>
+      <div class="panel-row">
+        <label style="margin-right: 1rem">
+          <input type="checkbox" id="global-search-case" />
+          <span>大文字小文字を区別</span>
+        </label>
+        <label>
+          <input type="checkbox" id="global-search-regex" />
+          <span>正規表現</span>
+        </label>
+      </div>
+      <div class="panel-row">
+        <label for="global-search-history" style="margin-right: 0.5rem">履歴:</label>
+        <select id="global-search-history" style="flex: 1;">
+          <option value="">検索履歴...</option>
+        </select>
+      </div>
+      <div id="global-search-status" class="panel-hint" style="margin: 0.5rem 0;">
+        <!-- 検索状態メッセージ -->
+      </div>
+      <div id="global-search-results" style="max-height: 400px; overflow-y: auto; margin-top: 0.5rem;">
+        <!-- 検索結果がここに表示される -->
+      </div>
+    </div>
+  </div>
+
   <script src="js/storage.js"></script>
+  <script src="js/search-global.js"></script>
+  <script src="js/global-search-ui.js"></script>
   <script src="js/theme-registry.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/ui-labels.js"></script>
