@@ -3562,8 +3562,8 @@ input[type="checkbox"] {
   cursor: grabbing;
 }
 
-/* ガジェット内のフォーム要素の間隔統一 */
-.gadget-wrapper>div {
+/* ガジェット内のフォーム要素の間隔統一 (ヘッダーは除外) */
+.gadget-wrapper>div:not(.gadget-header) {
   display: flex;
   flex-direction: column;
   gap: 6px;

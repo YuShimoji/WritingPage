@@ -66,25 +66,17 @@
 
         function prepareFloatingPanel(panel) {
             if (!panel) return;
+            // position: fixed を明示的に保証
+            panel.style.position = 'fixed';
             enableFloatingPanelDrag(panel);
             bringPanelToFront(panel);
 
             if (!panel.dataset.zwPositioned) {
-                // レンダリング後にサイズを取得して位置計算する
-                requestAnimationFrame(() => {
-                    const rect = panel.getBoundingClientRect();
-                    const panelH = Math.max(rect.height, 100);
-                    const panelW = Math.max(rect.width, 200);
-                    const left = Math.max(FLOATING_PANEL_MARGIN, window.innerWidth - panelW - 16);
-                    const top = Math.max(72, (window.innerHeight - panelH) / 2);
-                    panel.style.left = `${Math.round(left)}px`;
-                    panel.style.top = `${Math.round(top)}px`;
-                    panel.style.right = 'auto';
-                    panel.style.bottom = 'auto';
-                    panel.dataset.zwPositioned = 'true';
-                    clampPanelToViewport(panel);
-                });
-            } else {
+                // 初回表示: CSSのデフォルト位置を尊重
+                // left/top/right/bottomを上書きしない
+                panel.dataset.zwPositioned = 'true';
+            } else if (panel.dataset.zwDragged) {
+                // ドラッグ後の再表示時のみビューポート内に制限
                 clampPanelToViewport(panel);
             }
         }
@@ -114,6 +106,7 @@
             const onMouseUp = () => {
                 if (!dragging) return;
                 dragging = false;
+                panel.dataset.zwDragged = 'true';
                 document.body.classList.remove('dragging-floating-panel');
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
