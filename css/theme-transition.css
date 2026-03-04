@@ -1,0 +1,99 @@
+/* テーマ切り替えアニメーション */
+
+/* ルート要素のトランジション */
+html {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out);
+}
+
+/* Body要素のトランジション */
+body {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out);
+}
+
+/* 主要UI要素のトランジション */
+.sidebar,
+.toolbar,
+.editor-container,
+.app-container {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    border-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out);
+}
+
+/* ボタンとインプット要素 */
+button,
+input,
+textarea,
+select {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    border-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out);
+}
+
+/* アイコンボタンのトランジション */
+.icon-button {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    opacity 0.2s ease-in-out,
+    transform 0.2s ease-in-out;
+}
+
+/* テーマアイコンの回転アニメーション */
+#toggle-theme svg {
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+#toggle-theme:active svg {
+  transform: rotate(180deg);
+}
+
+/* モーダルとパネル */
+.modal-overlay,
+.floating-panel,
+.panel {
+  transition:
+    background-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out),
+    border-color var(--theme-transition-duration, 0.3s) var(--theme-transition-timing, ease-in-out);
+}
+
+/* アニメーション無効化のユーティリティクラス（必要時） */
+.no-theme-transition,
+.no-theme-transition * {
+  transition: none !important;
+}
+
+/* プリント時はアニメーション無効 */
+@media print {
+  * {
+    transition: none !important;
+  }
+}
+
+/* モーションを減らす設定に対応 */
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body,
+  .sidebar,
+  .toolbar,
+  .editor-container,
+  .app-container,
+  button,
+  input,
+  textarea,
+  select,
+  .icon-button,
+  #toggle-theme svg,
+  .modal-overlay,
+  .floating-panel,
+  .panel {
+    transition-duration: 0.01s !important;
+  }
+}
