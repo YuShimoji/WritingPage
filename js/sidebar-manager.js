@@ -215,7 +215,9 @@ class SidebarManager {
      * @returns {boolean} 開発環境の場合はtrue
      */
     _isDevMode() {
-        return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        return window.location.hostname === 'localhost' ||
+               window.location.hostname === '127.0.0.1' ||
+               window.location.protocol === 'file:';
     }
 
     forceSidebarState(open, callback) {
@@ -569,6 +571,23 @@ class SidebarManager {
                 window.ZenWriterStorage.saveSettings(s);
             } catch (_) { }
         } catch (_) { }
+    }
+
+    /**
+     * @deprecated アコーディオンシステムではタブ順序管理は非対応。固定のカテゴリ順序を使用します。
+     * @returns {string[]} 固定のアコーディオンカテゴリ順序
+     */
+    getTabOrder() {
+        console.warn('getTabOrder() is deprecated. The accordion system uses a fixed category order.');
+        // アコーディオンカテゴリの固定順序を返す
+        return this.accordionCategories.map(function(cat) { return cat.id; });
+    }
+
+    /**
+     * @deprecated アコーディオンシステムではタブ順序変更は非対応。
+     */
+    saveTabOrder(order) {
+        console.warn('saveTabOrder() is deprecated and does not work with the accordion system. Tab order is fixed.');
     }
 
     applyTabsPresentationUI(options) {
