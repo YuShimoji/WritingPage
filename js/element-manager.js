@@ -18,7 +18,6 @@ class ElementManager {
             // ツールバー関連
             toggleToolbarBtn: 'toggle-toolbar',
             toolbar: '.toolbar',
-            showToolbarBtn: 'show-toolbar',
             fullscreenBtn: 'fullscreen',
             feedbackBtn: 'feedback',
 
@@ -35,7 +34,6 @@ class ElementManager {
             fontSizeValue: 'font-size-value',
             lineHeightInput: 'line-height',
             lineHeightValue: 'line-height-value',
-            toolsFab: 'fab-tools',
             fontPanel: 'floating-font-panel',
             closeFontPanelBtn: 'close-font-panel',
             globalFontRange: 'global-font-size',

@@ -178,12 +178,6 @@
             <button id="toggle-text-animation" class="icon-button iconified" title="テキストアニメーション" aria-label="テキストアニメーションパネルを開く">
               <i data-lucide="sparkles" aria-hidden="true"></i>
             </button>
-            <button id="toggle-spell-check" class="icon-button iconified" title="スペルチェック" aria-label="スペルチェックを切り替え" aria-pressed="false">
-              <i data-lucide="spell-check-2" aria-hidden="true"></i>
-            </button>
-            <button id="insert-stamp" class="icon-button iconified" title="文字数スタンプを挿入" aria-label="文字数スタンプを挿入">
-              <i data-lucide="stamp" aria-hidden="true"></i>
-            </button>
           </div>
 
           <div class="toolbar-group toolbar-group--editor" aria-label="編集">
@@ -197,9 +191,6 @@
             <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキスト編集" aria-label="リッチテキスト編集を切り替え" aria-pressed="false">
               <i data-lucide="pen-tool" aria-hidden="true"></i>
             </button>
-            <button id="toggle-ui-editor" class="icon-button iconified" title="UIエディタ" aria-label="UIエディタを開く">
-              <i data-lucide="paintbrush" aria-hidden="true"></i>
-            </button>
           </div>
 
           <div class="toolbar-group toolbar-group--system" aria-label="環境と表示">
@@ -210,17 +201,11 @@
             <button id="toggle-help-modal" class="icon-button iconified" title="ヘルプ" aria-label="ヘルプを開く">
               <i data-lucide="help-circle" aria-hidden="true"></i>
             </button>
-            <button id="toggle-toolbar" class="icon-button iconified" title="ツールバー表示を切り替え" aria-label="ツールバー表示を切り替え" aria-expanded="true" aria-controls="toolbar">
-              <i data-lucide="panel-top" aria-hidden="true"></i>
-            </button>
             <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="ライト/ダークモードを切り替え">
               <i data-lucide="moon" aria-hidden="true"></i>
             </button>
             <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
               <i data-lucide="maximize" aria-hidden="true"></i>
-            </button>
-            <button id="feedback" class="icon-button iconified wip-hidden" title="フィードバック" aria-label="フィードバックを開く">
-              <i data-lucide="message-square" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -322,16 +307,6 @@
     </div>
   </div>
 
-  <!-- ツールバー再表示用FAB -->
-  <button id="show-toolbar" class="fab-button fab-toggle-toolbar iconified" title="ツールバーを表示" aria-label="ツールバーを表示"
-    aria-controls="toolbar" style="display: none">
-    <i data-lucide="keyboard" aria-hidden="true"></i>
-  </button>
-  <!-- 追加機能用FAB -->
-  <button id="fab-tools" class="fab-button fab-tools iconified" title="ツール" aria-label="ツールパネルを開く" aria-expanded="false"
-    aria-controls="floating-font-panel">
-    <i data-lucide="settings" aria-hidden="true"></i>
-  </button>
   <!-- クイックツールパネル -->
   <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog"
     aria-labelledby="floating-font-panel-title" aria-modal="true">
