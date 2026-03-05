@@ -1288,6 +1288,130 @@ html[data-toolbar-hidden='true'] .sidebar {
   display: none;
 }
 
+/* ===== アコーディオンスタイル ===== */
+/* アコーディオンコンテナ */
+.sidebar-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+/* カテゴリセクション */
+.accordion-category {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--sidebar-bg);
+  transition: border-color 0.2s;
+}
+
+.accordion-category:hover {
+  border-color: var(--ui-focus-color);
+}
+
+/* アコーディオンヘッダー */
+.accordion-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  text-align: left;
+}
+
+.accordion-header:hover {
+  background: var(--toolbar-bg);
+}
+
+.accordion-header:focus-visible {
+  outline: 2px solid var(--ui-focus-color);
+  outline-offset: -2px;
+  background: var(--toolbar-bg);
+}
+
+.accordion-header i:first-child {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.accordion-header span {
+  flex: 1;
+}
+
+.accordion-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.accordion-header[aria-expanded="true"] .accordion-icon {
+  transform: rotate(180deg);
+}
+
+/* アコーディオンコンテンツ */
+.accordion-content {
+  padding: 0 12px 12px 12px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.2s;
+}
+
+.accordion-content[aria-hidden="true"] {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.accordion-content[aria-hidden="false"] {
+  max-height: 10000px;
+  opacity: 1;
+}
+
+/* ガジェットパネル */
+.accordion-content .gadgets-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .accordion-header {
+    padding: 10px;
+    font-size: 0.9rem;
+    min-height: 48px;
+  }
+
+  .accordion-content {
+    padding: 0 10px 10px 10px;
+  }
+}
+
+/* タッチ操作最適化 */
+.accordion-header {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+/* ダークモード対応 */
+[data-theme="dark"] .accordion-category {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .accordion-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .sidebar-section {
   margin-bottom: 1.5rem;
 }

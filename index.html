@@ -87,42 +87,64 @@
   <div class="app-container">
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar" role="complementary" aria-label="設定パネル">
-      <!-- サイドバーヘッダーを削除：よりシンプルなUIに -->
-
-      <div class="sidebar-top">
-        <!-- タブ切り替えUI -->
-        <div class="sidebar-tabs" role="tablist" aria-label="設定カテゴリ"></div>
-      </div>
-
-      <div class="sidebar-groups">
-        <section class="sidebar-group active" data-group="structure" id="sidebar-group-structure" role="tabpanel"
-          aria-labelledby="sidebar-tab-structure">
-          <div class="sidebar-section">
-            <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット">
-            </div>
+      <div class="sidebar-accordion">
+        <!-- structure カテゴリ -->
+        <section class="accordion-category" data-category="structure">
+          <button class="accordion-header" aria-expanded="true" aria-controls="accordion-structure">
+            <i data-lucide="file-text" aria-hidden="true"></i>
+            <span>構造</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-structure" aria-hidden="false">
+            <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
           </div>
         </section>
 
-        <section class="sidebar-group" data-group="wiki" id="sidebar-group-wiki" role="tabpanel"
-          aria-labelledby="sidebar-tab-wiki" aria-hidden="true">
-          <div class="sidebar-section">
-            <div id="wiki-gadgets-panel" class="gadgets-panel" data-gadget-group="wiki" aria-label="Wikiガジェット"></div>
+        <!-- edit カテゴリ -->
+        <section class="accordion-category" data-category="edit">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-edit">
+            <i data-lucide="edit" aria-hidden="true"></i>
+            <span>編集</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-edit" aria-hidden="true" style="display: none;">
+            <div id="edit-gadgets-panel" class="gadgets-panel" data-gadget-group="edit" aria-label="編集ガジェット"></div>
           </div>
         </section>
 
-        <section class="sidebar-group" data-group="assist" id="sidebar-group-assist" role="tabpanel"
-          aria-labelledby="sidebar-tab-assist" aria-hidden="true">
-          <div class="sidebar-section">
-            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="アシストガジェット">
-            </div>
+        <!-- theme カテゴリ -->
+        <section class="accordion-category" data-category="theme">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-theme">
+            <i data-lucide="palette" aria-hidden="true"></i>
+            <span>テーマ</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-theme" aria-hidden="true" style="display: none;">
+            <div id="theme-gadgets-panel" class="gadgets-panel" data-gadget-group="theme" aria-label="テーマガジェット"></div>
           </div>
         </section>
 
-        <section class="sidebar-group" data-group="typography" id="sidebar-group-typography" role="tabpanel"
-          aria-labelledby="sidebar-tab-typography" aria-hidden="true">
-          <div class="sidebar-section">
-            <div id="typography-gadgets-panel" class="gadgets-panel" data-gadget-group="typography"
-              aria-label="タイポグラフィガジェット"></div>
+        <!-- assist カテゴリ -->
+        <section class="accordion-category" data-category="assist">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-assist">
+            <i data-lucide="zap" aria-hidden="true"></i>
+            <span>補助</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-assist" aria-hidden="true" style="display: none;">
+            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="補助ガジェット"></div>
+          </div>
+        </section>
+
+        <!-- advanced カテゴリ -->
+        <section class="accordion-category" data-category="advanced">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-advanced">
+            <i data-lucide="settings" aria-hidden="true"></i>
+            <span>詳細設定</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-advanced" aria-hidden="true" style="display: none;">
+            <div id="advanced-gadgets-panel" class="gadgets-panel" data-gadget-group="advanced" aria-label="詳細設定ガジェット"></div>
           </div>
         </section>
       </div>

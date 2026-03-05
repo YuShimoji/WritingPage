@@ -104,40 +104,81 @@
   // Constants
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
-  var KNOWN_GROUPS = ['structure', 'wiki', 'assist', 'typography', 'settings'];
+  var KNOWN_GROUPS = ['structure', 'edit', 'theme', 'assist', 'advanced'];
 
-  // ガジェットグループ定義（フェーズC-1: データ属性ベースの安定セレクタ）
+  // ガジェットグループ定義（アコーディオン形式対応）
   // グループ名→メタデータのマッピング
   var GADGET_GROUPS = {
     structure: {
       id: 'structure',
       label: '構造',
+      icon: 'file-text',
+      description: 'ドキュメント構造・アウトライン',
       panelSelector: '[data-gadget-group="structure"]',
-      sectionSelector: '[data-group="structure"]'
+      sectionSelector: '[data-category="structure"]'
     },
-    typography: {
-      id: 'typography',
-      label: 'テーマ・フォント',
-      panelSelector: '[data-gadget-group="typography"]',
-      sectionSelector: '[data-group="typography"]'
+    edit: {
+      id: 'edit',
+      label: '編集',
+      icon: 'edit',
+      description: '編集支援ツール',
+      panelSelector: '[data-gadget-group="edit"]',
+      sectionSelector: '[data-category="edit"]'
     },
-    wiki: {
-      id: 'wiki',
-      label: 'Wiki',
-      panelSelector: '[data-gadget-group="wiki"]',
-      sectionSelector: '[data-group="wiki"]'
+    theme: {
+      id: 'theme',
+      label: 'テーマ',
+      icon: 'palette',
+      description: '見た目のカスタマイズ',
+      panelSelector: '[data-gadget-group="theme"]',
+      sectionSelector: '[data-category="theme"]'
     },
     assist: {
       id: 'assist',
-      label: 'アシスト',
+      label: '補助',
+      icon: 'zap',
+      description: '執筆支援ツール',
       panelSelector: '[data-gadget-group="assist"]',
-      sectionSelector: '[data-group="assist"]'
+      sectionSelector: '[data-category="assist"]'
+    },
+    advanced: {
+      id: 'advanced',
+      label: '詳細設定',
+      icon: 'settings',
+      description: '高度な設定と管理',
+      panelSelector: '[data-gadget-group="advanced"]',
+      sectionSelector: '[data-category="advanced"]'
+    },
+    // 旧グループ名の互換性マッピング
+    wiki: {
+      id: 'wiki',
+      label: 'Wiki（旧）',
+      icon: 'book',
+      description: '旧Wiki（editに統合）',
+      panelSelector: '[data-gadget-group="edit"]',
+      sectionSelector: '[data-category="edit"]',
+      deprecated: true,
+      migratesTo: 'edit'
+    },
+    typography: {
+      id: 'typography',
+      label: 'テーマ・フォント（旧）',
+      icon: 'type',
+      description: '旧Typography（themeに統合）',
+      panelSelector: '[data-gadget-group="theme"]',
+      sectionSelector: '[data-category="theme"]',
+      deprecated: true,
+      migratesTo: 'theme'
     },
     settings: {
       id: 'settings',
-      label: '設定',
-      panelSelector: '[data-gadget-group="settings"]',
-      sectionSelector: '[data-group="settings"]'
+      label: '設定（旧）',
+      icon: 'settings',
+      description: '旧Settings（advancedに統合）',
+      panelSelector: '[data-gadget-group="advanced"]',
+      sectionSelector: '[data-category="advanced"]',
+      deprecated: true,
+      migratesTo: 'advanced'
     }
   };
 
@@ -197,18 +238,18 @@
   }
 
   // ロードアウトプリセットは loadouts-presets.js から読み込み
-  // フォールバック用の最小定義のみ保持
+  // フォールバック用の最小定義のみ保持（新カテゴリ対応）
   var DEFAULT_LOADOUTS = window.ZWLoadoutPresets || {
     active: 'novel-standard',
     entries: {
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents', 'Outline', 'TagsAndSmartFolders'],
-          assist: ['Typewriter', 'FocusMode', 'SnapshotManager', 'HUDSettings', 'WritingGoal', 'Clock'],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: ['Themes', 'Typography', 'VisualProfile', 'EditorLayout']
+          structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager'],
+          edit: ['StoryWiki'],
+          theme: ['Themes', 'Typography', 'VisualProfile'],
+          assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'Clock'],
+          advanced: ['EditorLayout', 'Keybinds', 'LoadoutManager']
         }
       }
     }

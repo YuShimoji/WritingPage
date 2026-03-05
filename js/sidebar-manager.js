@@ -16,36 +16,172 @@ class SidebarManager {
 
     constructor(elementManager) {
         this.elementManager = elementManager;
-        // サイドバータブ設定の統一管理
-        this.sidebarTabConfig = [
+        // アコーディオンカテゴリ設定の統一管理
+        this.accordionCategories = [
             {
                 id: 'structure',
                 label: '構造',
+                icon: 'file-text',
                 description: 'ドキュメント構造・アウトライン',
-                panelId: 'structure-gadgets-panel'
+                panelId: 'structure-gadgets-panel',
+                defaultExpanded: true
             },
             {
-                id: 'wiki',
-                label: 'Wiki',
-                description: '物語設定資料',
-                panelId: 'wiki-gadgets-panel'
+                id: 'edit',
+                label: '編集',
+                icon: 'edit',
+                description: '編集支援ツール',
+                panelId: 'edit-gadgets-panel',
+                defaultExpanded: false
+            },
+            {
+                id: 'theme',
+                label: 'テーマ',
+                icon: 'palette',
+                description: '見た目のカスタマイズ',
+                panelId: 'theme-gadgets-panel',
+                defaultExpanded: false
             },
             {
                 id: 'assist',
-                label: '支援',
+                label: '補助',
+                icon: 'zap',
                 description: '執筆支援ツール',
-                panelId: 'assist-gadgets-panel'
+                panelId: 'assist-gadgets-panel',
+                defaultExpanded: false
             },
             {
-                id: 'settings',
-                label: '設定',
-                description: 'アプリ設定',
-                panelId: 'sidebar-settings-gadgets-panel'
+                id: 'advanced',
+                label: '詳細設定',
+                icon: 'settings',
+                description: '高度な設定と管理',
+                panelId: 'advanced-gadgets-panel',
+                defaultExpanded: false
             }
         ];
+        // 旧タブ設定（互換性のため）
+        this.sidebarTabConfig = this.accordionCategories;
     }
 
     bootstrapTabs() {
+        // アコーディオンモードにリダイレクト
+        return this.bootstrapAccordion();
+    }
+
+    bootstrapAccordion() {
+        try {
+            // localStorageから展開状態を読み込み
+            const savedState = this._loadAccordionState();
+
+            // 各カテゴリのアコーディオンヘッダーにイベントリスナーを設定
+            this.accordionCategories.forEach(category => {
+                const header = document.querySelector(
+                    `.accordion-header[aria-controls="accordion-${category.id}"]`
+                );
+                const content = document.getElementById(`accordion-${category.id}`);
+
+                if (!header || !content) return;
+
+                // 保存された状態または初期状態を適用
+                const isExpanded = savedState[category.id] !== undefined
+                    ? savedState[category.id]
+                    : category.defaultExpanded;
+
+                this._setAccordionState(category.id, isExpanded);
+
+                // クリックイベント
+                header.addEventListener('click', () => {
+                    const currentState = header.getAttribute('aria-expanded') === 'true';
+                    this._toggleAccordion(category.id, !currentState);
+                });
+
+                // キーボードイベント（Enter/Space）
+                header.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const currentState = header.getAttribute('aria-expanded') === 'true';
+                        this._toggleAccordion(category.id, !currentState);
+                    }
+                });
+
+                // ガジェット初期化
+                const panel = document.getElementById(category.panelId);
+                if (panel && window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+                    try {
+                        window.ZWGadgets.init(`#${category.panelId}`, { group: category.id });
+                    } catch (e) {
+                        console.error(`ガジェット初期化失敗: ${category.id}`, e);
+                    }
+                }
+            });
+
+            // Lucideアイコンの初期化
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+
+            try {
+                if (this.elementManager && typeof this.elementManager.initialize === 'function') {
+                    this.elementManager.initialize();
+                }
+            } catch (_) { }
+        } catch (e) {
+            console.error('アコーディオン初期化エラー:', e);
+        }
+    }
+
+    _toggleAccordion(categoryId, expand) {
+        this._setAccordionState(categoryId, expand);
+        this._saveAccordionState();
+    }
+
+    _setAccordionState(categoryId, expand) {
+        const header = document.querySelector(
+            `.accordion-header[aria-controls="accordion-${categoryId}"]`
+        );
+        const content = document.getElementById(`accordion-${categoryId}`);
+
+        if (!header || !content) return;
+
+        header.setAttribute('aria-expanded', expand ? 'true' : 'false');
+        content.setAttribute('aria-hidden', expand ? 'false' : 'true');
+        content.style.display = expand ? 'block' : 'none';
+    }
+
+    _loadAccordionState() {
+        try {
+            const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+                ? window.ZenWriterStorage.loadSettings()
+                : null;
+            return (s && s.ui && s.ui.accordionState) || {};
+        } catch (e) {
+            return {};
+        }
+    }
+
+    _saveAccordionState() {
+        try {
+            const state = {};
+            this.accordionCategories.forEach(category => {
+                const header = document.querySelector(
+                    `.accordion-header[aria-controls="accordion-${category.id}"]`
+                );
+                if (header) {
+                    state[category.id] = header.getAttribute('aria-expanded') === 'true';
+                }
+            });
+
+            const s = window.ZenWriterStorage.loadSettings();
+            if (!s.ui) s.ui = {};
+            s.ui.accordionState = state;
+            window.ZenWriterStorage.saveSettings(s);
+        } catch (e) {
+            console.error('アコーディオン状態保存エラー:', e);
+        }
+    }
+
+    // 旧bootstrapTabs()の互換性メソッド（削除予定）
+    _legacyBootstrapTabs() {
         try {
             const tabsContainer = document.querySelector('.sidebar-tabs');
             if (!tabsContainer) return;
