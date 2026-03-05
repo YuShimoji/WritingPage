@@ -284,14 +284,7 @@ body {
   left: 0;
 }
 
-.sidebar-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
-}
+/* .sidebar-header はcss/style.cssで定義 */
 
 .sidebar-top {
   display: flex;
