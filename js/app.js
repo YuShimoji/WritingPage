@@ -149,6 +149,24 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ初期化
     initializeSidebarTabs();
 
+    // ツールバーの初期表示を保証（ブランクモードでない限り表示）
+    try {
+        const settings = window.ZenWriterStorage.loadSettings();
+        const uiMode = document.documentElement.getAttribute('data-ui-mode') || settings.uiMode || 'normal';
+
+        // ブランクモードでない場合、ツールバーを表示
+        if (uiMode !== 'blank') {
+            const toolbarVisible = settings.toolbarVisible !== false; // デフォルトはtrue
+            if (toolbarVisible && document.documentElement.getAttribute('data-toolbar-hidden') === 'true') {
+                // LocalStorageでは表示設定だが、DOM属性で非表示になっている場合は修正
+                document.documentElement.removeAttribute('data-toolbar-hidden');
+                logger.info('ツールバーの初期表示を復元しました');
+            }
+        }
+    } catch (e) {
+        logger.warn('ツールバー初期化エラー:', e);
+    }
+
     // ------- 複数ドキュメント管理 -------
     function ensureInitialDocument() {
         if (!window.ZenWriterStorage) return;

@@ -106,12 +106,26 @@ class SidebarManager {
 
                 // ガジェット初期化
                 const panel = document.getElementById(category.panelId);
+                if (this._isDevMode()) {
+                    console.log(`[Accordion] カテゴリ ${category.id} の初期化:`, {
+                        panelId: category.panelId,
+                        panelFound: !!panel,
+                        ZWGadgetsAvailable: !!(window.ZWGadgets && window.ZWGadgets.init),
+                        isExpanded: isExpanded
+                    });
+                }
                 if (panel && window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
                     try {
                         window.ZWGadgets.init(`#${category.panelId}`, { group: category.id });
+                        if (this._isDevMode()) {
+                            console.log(`[Accordion] ガジェット初期化成功: ${category.id}`);
+                        }
                     } catch (e) {
                         console.error(`ガジェット初期化失敗: ${category.id}`, e);
                     }
+                } else {
+                    if (!panel) console.warn(`[Accordion] パネルが見つかりません: ${category.panelId}`);
+                    if (!window.ZWGadgets) console.warn(`[Accordion] ZWGadgetsが利用できません`);
                 }
             });
 
@@ -131,6 +145,9 @@ class SidebarManager {
     }
 
     _toggleAccordion(categoryId, expand) {
+        if (this._isDevMode()) {
+            console.log(`[Accordion] トグル: ${categoryId} → ${expand ? '展開' : '折りたたみ'}`);
+        }
         this._setAccordionState(categoryId, expand);
         this._saveAccordionState();
 
@@ -138,6 +155,9 @@ class SidebarManager {
         if (expand && window.ZWGadgets && typeof window.ZWGadgets._renderGroup === 'function') {
             try {
                 window.ZWGadgets._renderGroup(categoryId);
+                if (this._isDevMode()) {
+                    console.log(`[Accordion] ガジェット再レンダリング成功: ${categoryId}`);
+                }
             } catch (e) {
                 console.error(`ガジェット再レンダリング失敗: ${categoryId}`, e);
             }
