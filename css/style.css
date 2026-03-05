@@ -1001,8 +1001,10 @@ html[data-writing-goal-enabled='true'] .word-count {
 
 .toolbar-group--mode select {
   min-width: 110px;
+  height: 34px;
   font-size: 12px;
   padding: 2px 6px;
+  vertical-align: middle;
 }
 
 .toolbar-group .icon-button {
@@ -1233,14 +1235,14 @@ html[data-toolbar-hidden='true'] .sidebar {
 /* 左配置（デフォルト） */
 .sidebar[data-tab-placement="left"] .sidebar-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
 }
 
 /* 右配置 */
 .sidebar[data-tab-placement="right"] .sidebar-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
 }
 
@@ -4821,14 +4823,19 @@ details[open] summary {
 
 .documents-toolbar {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   margin-bottom: 8px;
 }
 
 .documents-toolbar button {
-  flex: 1;
-  padding: 6px 12px;
-  font-size: 0.9rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border: 1px solid var(--border-color);
   background: var(--ui-bg);
   color: var(--ui-text);

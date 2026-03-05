@@ -15,6 +15,14 @@ module.exports = defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'off',
+    // E2Eテストではtextareaモードをデフォルトにする (WYSIWYGテストは個別に有効化)
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: 'http://127.0.0.1:9080',
+        localStorage: [{ name: 'zenwriter-wysiwyg-mode', value: 'false' }],
+      }],
+    },
   },
   webServer: {
     command: 'node scripts/run-two-servers.js 9080',

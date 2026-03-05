@@ -58,11 +58,15 @@
     init() {
       if (!this.wysiwygEditor || !this.textareaEditor) return;
 
-      // エディタ切り替えボタンのイベント
+      // エディタ切り替えボタン: 双方向トグル
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
-          this.switchToWysiwyg();
+          if (this.isWysiwygMode) {
+            this.switchToTextarea();
+          } else {
+            this.switchToWysiwyg();
+          }
         });
       }
 
@@ -79,8 +83,25 @@
       // WYSIWYGエディタのイベント
       this.setupWysiwygEditorEvents();
 
-      // 初期状態はtextareaモード
+      // 初期状態はtextareaモード (autoEnableで切り替え)
       this.isWysiwygMode = false;
+
+      // localStorageからWYSIWYGモード設定を読み込み (デフォルト: true)
+      this.autoEnableWysiwyg();
+    }
+
+    /**
+     * 起動時にWYSIWYGモードを自動有効化
+     * localStorageに明示的にfalseが保存されている場合のみtextareaモード
+     */
+    autoEnableWysiwyg() {
+      const saved = localStorage.getItem('zenwriter-wysiwyg-mode');
+      // デフォルトはWYSIWYG ON (savedがnullまたは'true'の場合)
+      const shouldEnable = saved !== 'false';
+      if (shouldEnable) {
+        // textareaにコンテンツが読み込まれた後に切り替え
+        requestAnimationFrame(() => this.switchToWysiwyg());
+      }
     }
 
     /**
@@ -262,11 +283,15 @@
       // ツールバーボタンの状態を更新
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.setAttribute('aria-pressed', 'true');
+        this.toggleWysiwygBtn.title = 'ソース表示に切り替え';
       }
+
+      // 設定を保存
+      try { localStorage.setItem('zenwriter-wysiwyg-mode', 'true'); } catch (_) { /* noop */ }
     }
 
     /**
-     * textareaモードに切り替え
+     * textareaモードに切り替え (ソース表示)
      */
     switchToTextarea() {
       console.log('[RichTextEditor] switchToTextarea called', { isWysiwygMode: this.isWysiwygMode });
@@ -298,7 +323,11 @@
       // ツールバーボタンの状態を更新
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.setAttribute('aria-pressed', 'false');
+        this.toggleWysiwygBtn.title = 'リッチテキスト編集';
       }
+
+      // 設定を保存
+      try { localStorage.setItem('zenwriter-wysiwyg-mode', 'false'); } catch (_) { /* noop */ }
     }
 
     /**

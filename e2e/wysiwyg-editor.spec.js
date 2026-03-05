@@ -1,45 +1,74 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
 
-// WYSIWYGエディタ機能テスト（実装済み）
+// WYSIWYGエディタ機能テスト (WYSIWYGがデフォルトモード)
 test.describe('WYSIWYG Editor', () => {
+  // playwright.config の storageState (wysiwyg-mode=false) を上書きし、
+  // localStorage未設定状態にすることでWYSIWYGデフォルト動作を得る
+  test.use({
+    storageState: {
+      cookies: [],
+      origins: [{
+        origin: 'http://127.0.0.1:9080',
+        localStorage: [],
+      }],
+    },
+  });
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await page.waitForSelector('#editor', { timeout: 10000 });
+    // WYSIWYGがデフォルトで有効になるのを待つ
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
     await page.waitForSelector('#toggle-wysiwyg', { state: 'visible' });
   });
 
-  test('should switch between textarea and WYSIWYG modes', async ({ page }) => {
-    // 初期状態はtextareaモード
+  /** textareaモードに切り替えるヘルパー */
+  async function switchToTextarea(page) {
+    const switchBtn = page.locator('#wysiwyg-switch-to-textarea');
+    await switchBtn.dispatchEvent('mousedown');
+    await expect(page.locator('#editor')).toBeVisible();
+  }
+
+  test('should start in WYSIWYG mode by default', async ({ page }) => {
+    const textarea = page.locator('#editor');
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    const wysiwygToolbar = page.locator('#wysiwyg-toolbar');
+
+    // デフォルトでWYSIWYGモード
+    await expect(wysiwygEditor).toBeVisible();
+    await expect(wysiwygToolbar).toBeVisible();
+    await expect(textarea).not.toBeVisible();
+  });
+
+  test('should switch between WYSIWYG and textarea modes', async ({ page }) => {
     const textarea = page.locator('#editor');
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     const wysiwygToolbar = page.locator('#wysiwyg-toolbar');
     const toggleBtn = page.locator('#toggle-wysiwyg');
 
-    await expect(textarea).toBeVisible();
-    await expect(wysiwygEditor).not.toBeVisible();
-    await expect(wysiwygToolbar).not.toBeVisible();
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
+    // 初期状態: WYSIWYGモード
     await expect(wysiwygEditor).toBeVisible();
 
-    await expect(textarea).not.toBeVisible();
-    await expect(wysiwygToolbar).toBeVisible();
-
-    // textareaモードに戻す
-    const switchToTextareaBtn = page.locator('#wysiwyg-switch-to-textarea');
-    await switchToTextareaBtn.dispatchEvent('mousedown');
+    // toggle: WYSIWYG → textarea
+    await toggleBtn.dispatchEvent('mousedown');
     await expect(textarea).toBeVisible();
-
     await expect(wysiwygEditor).not.toBeVisible();
     await expect(wysiwygToolbar).not.toBeVisible();
+
+    // toggle: textarea → WYSIWYG
+    await toggleBtn.dispatchEvent('mousedown');
+    await expect(wysiwygEditor).toBeVisible();
+    await expect(textarea).not.toBeVisible();
+    await expect(wysiwygToolbar).toBeVisible();
   });
 
   test('should convert Markdown to HTML when switching to WYSIWYG', async ({ page }) => {
     const textarea = page.locator('#editor');
     const toggleBtn = page.locator('#toggle-wysiwyg');
+
+    // まずtextareaモードに切り替え
+    await switchToTextarea(page);
 
     // Markdownテキストを入力
     await textarea.fill('**太字**と*斜体*のテキスト');
@@ -50,32 +79,24 @@ test.describe('WYSIWYG Editor', () => {
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     const content = await wysiwygEditor.innerHTML();
 
-    // 太字と斜体がHTMLに変換されている
     expect(content).toContain('<strong>');
     expect(content).toContain('<em>');
   });
 
   test('should convert HTML to Markdown when switching to textarea', async ({ page }) => {
     const textarea = page.locator('#editor');
-    const toggleBtn = page.locator('#toggle-wysiwyg');
-    const switchToTextareaBtn = page.locator('#wysiwyg-switch-to-textarea');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
 
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     await wysiwygEditor.click();
 
-    // WYSIWYGエディタに直接HTMLを入力（太字と斜体）
+    // WYSIWYGエディタに直接HTMLを入力
     await page.evaluate(() => {
       const editor = document.getElementById('wysiwyg-editor');
       editor.innerHTML = '<p><strong>太字</strong>と<em>斜体</em>のテキスト</p>';
     });
 
     // textareaモードに戻す
-    await switchToTextareaBtn.dispatchEvent('mousedown');
-    await expect(textarea).toBeVisible();
+    await switchToTextarea(page);
 
     // Markdownに変換されていることを確認
     const markdown = await textarea.inputValue();
@@ -84,18 +105,13 @@ test.describe('WYSIWYG Editor', () => {
   });
 
   test('should apply bold formatting in WYSIWYG mode', async ({ page }) => {
-    const toggleBtn = page.locator('#toggle-wysiwyg');
     const boldBtn = page.locator('#wysiwyg-bold');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
-
     const wysiwygEditor = page.locator('#wysiwyg-editor');
+
     await wysiwygEditor.click();
     await wysiwygEditor.fill('太字にするテキスト');
 
-    // テキストを選択 (evaluateを使用)
+    // テキストを選択
     await page.evaluate(() => {
       const editor = document.getElementById('wysiwyg-editor');
       const range = document.createRange();
@@ -105,28 +121,19 @@ test.describe('WYSIWYG Editor', () => {
       sel.addRange(range);
     });
 
-    // 太字ボタンをクリック
     await boldBtn.dispatchEvent('mousedown');
-    // await page.waitForTimeout(100);
 
-    // 太字が適用されていることを確認
     const content = await wysiwygEditor.innerHTML();
     expect(content).toMatch(/<(strong|b)>/);
   });
 
   test('should apply italic formatting in WYSIWYG mode', async ({ page }) => {
-    const toggleBtn = page.locator('#toggle-wysiwyg');
     const italicBtn = page.locator('#wysiwyg-italic');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
-
     const wysiwygEditor = page.locator('#wysiwyg-editor');
+
     await wysiwygEditor.click();
     await wysiwygEditor.fill('斜体にするテキスト');
 
-    // テキストを選択
     await page.evaluate(() => {
       const editor = document.getElementById('wysiwyg-editor');
       const range = document.createRange();
@@ -136,28 +143,19 @@ test.describe('WYSIWYG Editor', () => {
       sel.addRange(range);
     });
 
-    // 斜体ボタンをクリック
     await italicBtn.dispatchEvent('mousedown');
-    // await page.waitForTimeout(100);
 
-    // 斜体が適用されていることを確認
     const content = await wysiwygEditor.innerHTML();
     expect(content).toMatch(/<(em|i)>/);
   });
 
   test('should apply underline formatting in WYSIWYG mode', async ({ page }) => {
-    const toggleBtn = page.locator('#toggle-wysiwyg');
     const underlineBtn = page.locator('#wysiwyg-underline');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
-
     const wysiwygEditor = page.locator('#wysiwyg-editor');
+
     await wysiwygEditor.click();
     await wysiwygEditor.fill('下線を引くテキスト');
 
-    // テキストを選択
     await page.evaluate(() => {
       const editor = document.getElementById('wysiwyg-editor');
       const range = document.createRange();
@@ -167,28 +165,19 @@ test.describe('WYSIWYG Editor', () => {
       sel.addRange(range);
     });
 
-    // 下線ボタンをクリック
     await underlineBtn.dispatchEvent('mousedown');
-    // await page.waitForTimeout(100);
 
-    // 下線が適用されていることを確認
     const content = await wysiwygEditor.innerHTML();
-    expect(content).toContain('<u>'); // u is usually standard, but keeping toContain is fine if no ambiguity
+    expect(content).toContain('<u>');
   });
 
   test('should insert link in WYSIWYG mode', async ({ page }) => {
-    const toggleBtn = page.locator('#toggle-wysiwyg');
     const linkBtn = page.locator('#wysiwyg-link');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
-
     const wysiwygEditor = page.locator('#wysiwyg-editor');
+
     await wysiwygEditor.click();
     await wysiwygEditor.fill('リンクテキスト');
 
-    // テキストを選択
     await page.evaluate(() => {
       const editor = document.getElementById('wysiwyg-editor');
       const range = document.createRange();
@@ -198,18 +187,13 @@ test.describe('WYSIWYG Editor', () => {
       sel.addRange(range);
     });
 
-    // ダイアログハンドリングを先に設定
     page.once('dialog', async dialog => {
       expect(dialog.type()).toBe('prompt');
       await dialog.accept('https://example.com');
     });
 
-    // リンクボタンをクリック (mousedownでイベントを設定しているため、直接イベントを発火)
     await linkBtn.dispatchEvent('mousedown');
 
-    // await page.waitForTimeout(100);
-
-    // リンクが挿入されていることを確認
     const content = await wysiwygEditor.innerHTML();
     expect(content).toContain('<a');
     expect(content).toContain('href');
@@ -217,47 +201,46 @@ test.describe('WYSIWYG Editor', () => {
 
   test('should sync content between modes', async ({ page }) => {
     const textarea = page.locator('#editor');
-    const toggleBtn = page.locator('#toggle-wysiwyg');
-
-    // textareaにテキストを入力
-    await textarea.fill('テストコンテンツ');
-
-    // WYSIWYGモードに切り替え
-    await toggleBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#wysiwyg-editor')).toBeVisible();
-
     const wysiwygEditor = page.locator('#wysiwyg-editor');
-    const wysiwygContent = await wysiwygEditor.textContent();
-    expect(wysiwygContent).toContain('テストコンテンツ');
+    const toggleBtn = page.locator('#toggle-wysiwyg');
 
     // WYSIWYGで編集
     await wysiwygEditor.click();
     await wysiwygEditor.fill('編集されたコンテンツ');
-    // await page.waitForTimeout(300);
 
     // textareaモードに戻す
-    const switchToTextareaBtn = page.locator('#wysiwyg-switch-to-textarea');
-    await switchToTextareaBtn.dispatchEvent('mousedown');
-    await expect(textarea).toBeVisible();
+    await switchToTextarea(page);
 
     // 編集内容が同期されていることを確認
     const textareaContent = await textarea.inputValue();
     expect(textareaContent).toContain('編集されたコンテンツ');
+
+    // textareaで入力
+    await textarea.fill('テストコンテンツ');
+
+    // WYSIWYGモードに切り替え
+    await toggleBtn.dispatchEvent('mousedown');
+    await expect(wysiwygEditor).toBeVisible();
+
+    const wysiwygContent = await wysiwygEditor.textContent();
+    expect(wysiwygContent).toContain('テストコンテンツ');
   });
 
   test('should preserve content when switching modes multiple times', async ({ page }) => {
     const textarea = page.locator('#editor');
     const toggleBtn = page.locator('#toggle-wysiwyg');
-    const switchToTextareaBtn = page.locator('#wysiwyg-switch-to-textarea');
 
-    // 初期テキスト
+    // まずtextareaに切り替え
+    await switchToTextarea(page);
+
+    // Markdown入力
     await textarea.fill('**太字**と*斜体*');
 
-    // WYSIWYG → textarea → WYSIWYG と切り替え
+    // textarea → WYSIWYG → textarea → WYSIWYG
     await toggleBtn.dispatchEvent('mousedown');
     await expect(page.locator('#wysiwyg-editor')).toBeVisible();
 
-    await switchToTextareaBtn.dispatchEvent('mousedown');
+    await toggleBtn.dispatchEvent('mousedown');
     await expect(textarea).toBeVisible();
 
     await toggleBtn.dispatchEvent('mousedown');
