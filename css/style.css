@@ -5167,3 +5167,29 @@ details[open] summary {
 [data-theme="dark"] .context-menu button:hover {
   background: #3a3a3a;
 }
+
+/* ===== ミニマルツールバー（新規） ===== */
+
+/* デフォルトでミニマル表示（サイドバーボタン+文字数カウントのみ） */
+.toolbar-actions {
+  display: none;
+}
+
+/* toolbar-group-labelも非表示 */
+.toolbar-group-label {
+  display: none;
+}
+
+/* ツールバー自体の表示/非表示制御 */
+[data-toolbar-hidden="true"] .toolbar {
+  display: none;
+}
+
+/* フルツールバーモード（オプション：設定で有効化可能） */
+[data-toolbar-mode="full"] .toolbar-actions {
+  display: flex;
+}
+
+[data-toolbar-mode="full"] .toolbar-group-label {
+  display: inline;
+}
