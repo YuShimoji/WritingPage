@@ -133,6 +133,15 @@ class SidebarManager {
     _toggleAccordion(categoryId, expand) {
         this._setAccordionState(categoryId, expand);
         this._saveAccordionState();
+
+        // カテゴリ展開時にガジェットを再レンダリング
+        if (expand && window.ZWGadgets && typeof window.ZWGadgets._renderGroup === 'function') {
+            try {
+                window.ZWGadgets._renderGroup(categoryId);
+            } catch (e) {
+                console.error(`ガジェット再レンダリング失敗: ${categoryId}`, e);
+            }
+        }
     }
 
     _setAccordionState(categoryId, expand) {

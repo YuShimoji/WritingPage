@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Info</title>
+</head>
+<body>
+    <h1>Gadget Debug</h1>
+    <script>
+        setTimeout(() => {
+            console.log('=== Gadget Groups ===');
+            if (window.ZWGadgetsUtils) {
+                console.log('KNOWN_GROUPS:', window.ZWGadgetsUtils.KNOWN_GROUPS);
+                console.log('GADGET_GROUPS:', window.ZWGadgetsUtils.GADGET_GROUPS);
+            }
+            
+            console.log('=== Registered Gadgets ===');
+            if (window.ZWGadgets) {
+                const registry = window.ZWGadgets._registry || {};
+                Object.keys(registry).forEach(name => {
+                    const gadget = registry[name];
+                    console.log(`${name}:`, gadget.groups);
+                });
+            }
+            
+            console.log('=== Theme Panel ===');
+            const themePanel = document.getElementById('theme-gadgets-panel');
+            console.log('Theme panel exists:', !!themePanel);
+            if (themePanel) {
+                console.log('Theme panel children:', themePanel.children.length);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
