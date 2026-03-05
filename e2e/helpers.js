@@ -1,4 +1,4 @@
-﻿// Shared helpers for Playwright E2E tests.
+// Shared helpers for Playwright E2E tests.
 
 async function openCommandPalette(page) {
   await page.evaluate(() => {
@@ -8,12 +8,39 @@ async function openCommandPalette(page) {
   });
 }
 
+/**
+ * ツールバーをフル表示モードに切り替える。
+ * ミニマル化により非表示になっているボタンを全て表示する。
+ */
+async function showFullToolbar(page) {
+  await page.evaluate(() => {
+    document.documentElement.setAttribute('data-toolbar-mode', 'full');
+    document.documentElement.removeAttribute('data-toolbar-hidden');
+  });
+}
+
+/**
+ * 検索パネルを開く（メインハブパネルの検索タブ）。
+ */
 async function openSearchPanel(page) {
   await page.evaluate(() => {
     if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
       window.ZenWriterEditor.toggleSearchPanel();
     }
   });
+  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 }).catch(() => {});
+}
+
+/**
+ * 全文検索パネルを開く（メインハブパネルの全文検索タブ）。
+ */
+async function openGlobalSearchPanel(page) {
+  await page.evaluate(() => {
+    if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
+      window.MainHubPanel.toggle('global-search');
+    }
+  });
+  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 }).catch(() => {});
 }
 
 async function enableAllGadgets(page) {
@@ -43,9 +70,11 @@ async function enableAllGadgets(page) {
   });
 }
 
+/**
+ * サイドバーを開き、指定カテゴリのアコーディオンを展開する。
+ */
 async function openSidebarGroup(page, group) {
   await page.evaluate((g) => {
-    // Sidebar settings tab requires sidebarManager (not the floating settings modal)
     var toggleBtn = document.getElementById('toggle-sidebar');
     var sidebar = document.getElementById('sidebar');
     if (sidebar && !sidebar.classList.contains('open') && toggleBtn) {
@@ -63,9 +92,40 @@ async function openSidebarGroup(page, group) {
   await page.waitForTimeout(500);
 }
 
+/**
+ * アコーディオンカテゴリを展開する。
+ * @param {import('@playwright/test').Page} page
+ * @param {string} categoryId - structure, edit, theme, assist, advanced
+ */
+async function expandAccordion(page, categoryId) {
+  await page.evaluate((id) => {
+    var header = document.querySelector(
+      '.accordion-header[aria-controls="accordion-' + id + '"]'
+    );
+    if (header && header.getAttribute('aria-expanded') !== 'true') {
+      header.click();
+    }
+  }, categoryId);
+  await page.waitForTimeout(300);
+}
+
+/**
+ * 設定モーダルを開く（ツールバーのボタン経由）。
+ */
+async function openSettingsModal(page) {
+  await showFullToolbar(page);
+  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 5000 });
+  await page.click('#toggle-settings');
+  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 5000 });
+}
+
 module.exports = {
   openCommandPalette,
   openSearchPanel,
+  openGlobalSearchPanel,
+  showFullToolbar,
   enableAllGadgets,
   openSidebarGroup,
+  expandAccordion,
+  openSettingsModal,
 };

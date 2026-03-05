@@ -67,37 +67,37 @@ test.describe('Sidebar Layout', () => {
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
 
-    const structureHeader = page.locator('.accordion-header[data-group="structure"]');
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
-    const assistHeader = page.locator('.accordion-header[data-group="assist"]');
+    const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
+    const editHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
+    const assistHeader = page.locator('.accordion-header[aria-controls="accordion-assist"]');
 
-    const structurePanel = page.locator('.accordion-panel[data-group="structure"]');
-    const wikiPanel = page.locator('.accordion-panel[data-group="wiki"]');
-    const assistPanel = page.locator('.accordion-panel[data-group="assist"]');
+    const structurePanel = page.locator('#accordion-structure');
+    const editPanel = page.locator('#accordion-edit');
+    const assistPanel = page.locator('#accordion-assist');
 
     await expect(structureHeader).toBeVisible();
-    await expect(wikiHeader).toBeVisible();
+    await expect(editHeader).toBeVisible();
     await expect(assistHeader).toBeVisible();
 
-    // Switch between existing accordions multiple times (structure / wiki / assist)
+    // Switch between existing accordions multiple times (structure / edit / assist)
     await structureHeader.click();
-    await expect(structurePanel).toHaveClass(/expanded/);
+    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
 
-    await wikiHeader.click();
-    await expect(wikiPanel).toHaveClass(/expanded/);
+    await editHeader.click();
+    await expect(editHeader).toHaveAttribute('aria-expanded', 'true');
 
     await assistHeader.click();
-    await expect(assistPanel).toHaveClass(/expanded/);
+    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
 
     await structureHeader.click();
-    await expect(structurePanel).toHaveClass(/expanded/);
+    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
 
     await assistHeader.click();
-    await expect(assistPanel).toHaveClass(/expanded/);
+    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
 
     // Verify final accordion is expanded
-    await expect(assistHeader).toHaveClass(/expanded/);
-    await expect(assistPanel).toHaveClass(/expanded/);
+    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
+    await expect(assistPanel).toHaveAttribute('aria-hidden', 'false');
   });
 
   test('should maintain sidebar state after reload', async ({ page }) => {
@@ -108,8 +108,8 @@ test.describe('Sidebar Layout', () => {
     await page.waitForTimeout(400);
 
     // Expand assist accordion
-    await page.locator('.accordion-header[data-group="assist"]').waitFor();
-    await page.click('.accordion-header[data-group="assist"]');
+    await page.locator('.accordion-header[aria-controls="accordion-assist"]').waitFor();
+    await page.click('.accordion-header[aria-controls="accordion-assist"]');
 
     // Reload page
     await page.reload();

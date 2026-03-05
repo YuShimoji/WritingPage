@@ -170,7 +170,12 @@ class SidebarManager {
         );
         const content = document.getElementById(`accordion-${categoryId}`);
 
-        if (!header || !content) return;
+        if (!header || !content) {
+            if (this._isDevMode()) {
+                console.warn(`[Accordion] _setAccordionState: 要素未検出 categoryId=${categoryId}`, { header: !!header, content: !!content });
+            }
+            return;
+        }
 
         header.setAttribute('aria-expanded', expand ? 'true' : 'false');
         content.setAttribute('aria-hidden', expand ? 'false' : 'true');
@@ -201,6 +206,7 @@ class SidebarManager {
             });
 
             const s = window.ZenWriterStorage.loadSettings();
+            if (!s) return;
             if (!s.ui) s.ui = {};
             s.ui.accordionState = state;
             window.ZenWriterStorage.saveSettings(s);

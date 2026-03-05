@@ -3,7 +3,7 @@
  * ツールバーアイコン、フローティングパネル位置、ガジェットヘッダーレイアウトを検証
  */
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { showFullToolbar, enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -11,6 +11,7 @@ test.describe('Toolbar icon rendering', () => {
     test('font decoration button renders as SVG icon, not text', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
+        await showFullToolbar(page);
 
         const btn = page.locator('#toggle-font-decoration');
         await expect(btn).toBeVisible();
@@ -36,6 +37,7 @@ test.describe('Toolbar icon rendering', () => {
     test('all toolbar icons render as SVG', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
+        await showFullToolbar(page);
 
         // .iconified ボタン内の <i data-lucide> が全て SVG に変換されているか
         const iconButtons = page.locator('.toolbar-actions .icon-button.iconified');
@@ -59,6 +61,7 @@ test.describe('Floating panel position', () => {
     test('font decoration panel appears within viewport, not at page bottom', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
+        await showFullToolbar(page);
 
         // フォント装飾ボタンをクリックしてパネルを表示
         const btn = page.locator('#toggle-font-decoration');
@@ -84,6 +87,7 @@ test.describe('Floating panel position', () => {
     test('floating panel does not stretch editor area', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
+        await showFullToolbar(page);
 
         // パネル表示前のエディタの高さを取得
         const editorHeightBefore = await page.evaluate(() => {
@@ -113,6 +117,7 @@ test.describe('Floating panel position', () => {
     test('floating panel uses position:fixed', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
+        await showFullToolbar(page);
 
         await page.locator('#toggle-font-decoration').click();
         const panel = page.locator('#font-decoration-panel');

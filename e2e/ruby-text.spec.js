@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 test.describe('Ruby Text E2E (TASK_054)', () => {
     const pageUrl = '/index.html';
@@ -6,6 +7,7 @@ test.describe('Ruby Text E2E (TASK_054)', () => {
     test('Ruby text {Kanji|Kana} is rendered correctly in preview', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
 
         // Type ruby text syntax
         await page.fill('#editor', '{漢字|かんじ} is ruby text.');
@@ -32,6 +34,7 @@ test.describe('Ruby Text E2E (TASK_054)', () => {
     test('Multiple ruby texts are rendered correctly', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
 
         await page.fill('#editor', '{蒼|あお}い{空|そら}');
         await page.waitForTimeout(500);

@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 test.describe('Spell Checker', () => {
   test.setTimeout(60000);
@@ -9,6 +10,7 @@ test.describe('Spell Checker', () => {
     await page.waitForFunction(() => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
+    await showFullToolbar(page);
   });
 
   test('should toggle spell check on/off', async ({ page }) => {

@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 test.describe('テーマ切り替え機能', () => {
   test.beforeEach(async ({ page }) => {
@@ -27,6 +28,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('テーマ切り替えボタンが存在する', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
     await expect(toggleBtn).toBeVisible();
 
@@ -37,6 +39,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('ボタンをクリックするとライトモードに切り替わる', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
 
     // 初期状態はダークモード
@@ -62,6 +65,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('ボタンを2回クリックするとダークモードに戻る', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
 
     // 1回目のクリック（ライトモードへ）
@@ -89,6 +93,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('テーマ設定がlocalStorageに保存される', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
 
     // ライトモードに切り替え
@@ -113,6 +118,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('キーボード操作でテーマを切り替えられる', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
 
     // ボタンにフォーカス

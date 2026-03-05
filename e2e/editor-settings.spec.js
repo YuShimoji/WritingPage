@@ -1,12 +1,13 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets } = require('./helpers');
+const { enableAllGadgets, showFullToolbar, expandAccordion } = require('./helpers');
 
 async function openSettingsPanel(page) {
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
   await enableAllGadgets(page);
+  await showFullToolbar(page);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
@@ -42,6 +43,7 @@ async function openAssistPanel(page) {
     } catch (_) { /* noop */ }
   });
 
+  await expandAccordion(page, 'assist');
   await page.waitForSelector('#assist-gadgets-panel', { state: 'visible', timeout: 10000 });
   await page.waitForTimeout(500);
 
@@ -339,12 +341,12 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
 
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    const wikiHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
     await wikiHeader.waitFor({ timeout: 10000 });
     await wikiHeader.click();
 
-    await page.waitForSelector('#wiki-gadgets-panel .gadget-wiki', { timeout: 10000 });
-    await expect(page.locator('#wiki-gadgets-panel .gadget-wiki input[type="text"]').first()).toBeVisible();
+    await page.waitForSelector('#edit-gadgets-panel .gadget-wiki', { timeout: 10000 });
+    await expect(page.locator('#edit-gadgets-panel .gadget-wiki input[type="text"]').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {

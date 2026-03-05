@@ -10,19 +10,19 @@ test.describe('Story Wiki', () => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'wiki');
-    await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
+    await openSidebarGroup(page, 'edit');
+    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
   });
 
   test('should display Story Wiki gadget', async ({ page }) => {
-    // Story Wiki gadget should be available in wiki tab
-    const wikiToolbar = page.locator('#wiki-gadgets-panel .wiki-toolbar');
+    // Story Wiki gadget should be available in edit category
+    const wikiToolbar = page.locator('#edit-gadgets-panel .wiki-toolbar');
     await expect(wikiToolbar).toBeVisible();
   });
 
   test('should create new wiki page', async ({ page }) => {
     // Wiki gadget UI is already visible in beforeEach
-    const createButtonSelector = '#wiki-gadgets-panel button:has-text("新規ページ")';
+    const createButtonSelector = '#edit-gadgets-panel button:has-text("新規ページ")';
 
     // Wait for gadget to load
     await page.waitForSelector(createButtonSelector, { timeout: 5000 });
@@ -31,23 +31,23 @@ test.describe('Story Wiki', () => {
     await page.click(createButtonSelector);
 
     // Wait for dialog
-    await page.waitForSelector('#wiki-gadgets-panel input[placeholder="タイトル"]', { timeout: 5000 });
+    await page.waitForSelector('#edit-gadgets-panel input[placeholder="タイトル"]', { timeout: 5000 });
 
     // Fill form
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Test Character');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
-    await page.fill('#wiki-gadgets-panel input[placeholder^="タグ"]', 'character, test');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Test Character');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
+    await page.fill('#edit-gadgets-panel input[placeholder^="タグ"]', 'character, test');
 
     // Save
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
 
     // Check that page appears in list
-    const createdRow = page.locator('#wiki-gadgets-panel .wiki-row', { hasText: 'Test Character' });
+    const createdRow = page.locator('#edit-gadgets-panel .wiki-row', { hasText: 'Test Character' });
     await expect(createdRow).toBeVisible();
   });
 
   test('should search wiki pages', async ({ page }) => {
-    const searchInputSelector = '#wiki-gadgets-panel input[placeholder="検索 (タイトル/本文/タグ)"]';
+    const searchInputSelector = '#edit-gadgets-panel input[placeholder="検索 (タイトル/本文/タグ)"]';
 
     // Wait for search input
     await page.waitForSelector(searchInputSelector, { timeout: 5000 });
@@ -62,18 +62,18 @@ test.describe('Story Wiki', () => {
 
   test('should edit existing wiki page', async ({ page }) => {
     // 事前にページを1件作成しておく
-    const createButtonSelector = '#wiki-gadgets-panel button:has-text("新規ページ")';
+    const createButtonSelector = '#edit-gadgets-panel button:has-text("新規ページ")';
     await page.waitForSelector(createButtonSelector, { timeout: 5000 });
     await page.click(createButtonSelector);
-    await page.waitForSelector('#wiki-gadgets-panel input[placeholder="タイトル"]', { timeout: 5000 });
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Test Character');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
-    await page.fill('#wiki-gadgets-panel input[placeholder^="タグ"]', 'character, test');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.waitForSelector('#edit-gadgets-panel input[placeholder="タイトル"]', { timeout: 5000 });
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Test Character');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
+    await page.fill('#edit-gadgets-panel input[placeholder^="タグ"]', 'character, test');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
 
     // 既存ページの内容を編集
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Updated test character page with more details.');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Updated test character page with more details.');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
 
     // ストレージから内容が更新されていることを検証
     const updated = await page.evaluate(() => {
@@ -94,7 +94,7 @@ test.describe('Story Wiki', () => {
   test('should handle empty wiki', async ({ page }) => {
     // Clear localStorage first (this would need to be done differently in real test)
     // For now, just check that empty state message appears when no pages exist
-    await page.waitForSelector('#wiki-gadgets-panel button:has-text("新規ページ")', { timeout: 5000 });
+    await page.waitForSelector('#edit-gadgets-panel button:has-text("新規ページ")', { timeout: 5000 });
 
     // Check empty state message
     const emptyMessage = await page.locator('text=ページがありません。新規作成ボタンから作成してください。');

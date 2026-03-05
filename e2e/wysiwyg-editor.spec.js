@@ -1,5 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 // WYSIWYGエディタ機能テスト (WYSIWYGがデフォルトモード)
 test.describe('WYSIWYG Editor', () => {
@@ -20,6 +21,7 @@ test.describe('WYSIWYG Editor', () => {
     await page.waitForLoadState('domcontentloaded');
     // WYSIWYGがデフォルトで有効になるのを待つ
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+    await showFullToolbar(page);
     await page.waitForSelector('#toggle-wysiwyg', { state: 'visible' });
   });
 

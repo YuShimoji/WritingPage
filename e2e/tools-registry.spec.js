@@ -1,10 +1,12 @@
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 const pageUrl = '/index.html';
 
 test.describe('Tools Registry Integration', () => {
     test('Header icons match registry definitions', async ({ page }) => {
         await page.goto(pageUrl);
+        await showFullToolbar(page);
 
         // Get verify tool definitions from browser
         const tools = await page.evaluate(() => {

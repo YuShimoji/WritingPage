@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup, showFullToolbar, openSettingsModal } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -12,6 +12,7 @@ async function waitGadgetsReady(page) {
     }
   }, { timeout: 20000 });
   await enableAllGadgets(page);
+  await showFullToolbar(page);
   await openSidebarGroup(page, 'structure');
   await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
     state: 'visible',
@@ -19,11 +20,6 @@ async function waitGadgetsReady(page) {
   });
 }
 
-async function openSettingsModal(page) {
-  await page.click('#toggle-settings');
-  await expect(page.locator('#settings-modal')).toBeVisible();
-  await expect(page.locator('#settings-gadgets-panel')).toBeVisible();
-}
 
 test.describe('Gadgets E2E', () => {
   test.setTimeout(60000);

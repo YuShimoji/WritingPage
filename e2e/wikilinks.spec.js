@@ -9,7 +9,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'wiki');
+    await openSidebarGroup(page, 'edit');
   });
 
   test('should parse [[wikilink]] syntax', async ({ page }) => {
@@ -68,24 +68,24 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should render [[wikilink]] in wiki preview', async ({ page }) => {
-    // Wikiタブを開く
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
-    await wikiHeader.waitFor({ timeout: 10000 });
-    await wikiHeader.click();
-    await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
+    // Editカテゴリを開く
+    const editHeader = page.locator('.accordion-header[data-group="edit"]');
+    await editHeader.waitFor({ timeout: 10000 });
+    await editHeader.click();
+    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     // 新しいWikiページを作成
-    const createButton = page.locator('#wiki-gadgets-panel button:has-text("新規ページ")');
+    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
     await createButton.click();
 
     // Wikilinkを含むコンテンツを入力
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Test Page');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This page links to [[Another Page]] and [[Third Page|display]].');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Test Page');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This page links to [[Another Page]] and [[Third Page|display]].');
 
     // プレビューを確認
     await page.waitForTimeout(500); // プレビュー更新を待つ
-    const preview = page.locator('#wiki-gadgets-panel .wiki-preview');
+    const preview = page.locator('#edit-gadgets-panel .wiki-preview');
     const _previewContent = await preview.textContent();
 
     // Wikilinkがレンダリングされているか確認（リンクとして表示される）
@@ -97,26 +97,26 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should find backlinks', async ({ page }) => {
     // Wikiページを作成
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
-    await wikiHeader.waitFor({ timeout: 10000 });
-    await wikiHeader.click();
-    await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
+    const editHeader = page.locator('.accordion-header[data-group="edit"]');
+    await editHeader.waitFor({ timeout: 10000 });
+    await editHeader.click();
+    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
 
-    const createButton = page.locator('#wiki-gadgets-panel button:has-text("新規ページ")');
+    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
 
     // ターゲットページを作成
     await createButton.click();
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Target Page');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is the target page.');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Target Page');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is the target page.');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
     await page.waitForTimeout(300);
 
     // リンク元ページを作成
     await createButton.click();
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Source Page');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This links to [[Target Page]].');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Source Page');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This links to [[Target Page]].');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
     await page.waitForTimeout(300);
 
     // バックリンクを検索
@@ -131,14 +131,14 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should display link graph gadget', async ({ page }) => {
-    // Wikiタブを開く
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
-    await wikiHeader.waitFor({ timeout: 10000 });
-    await wikiHeader.click();
-    await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
+    // Editカテゴリを開く
+    const editHeader = page.locator('.accordion-header[data-group="edit"]');
+    await editHeader.waitFor({ timeout: 10000 });
+    await editHeader.click();
+    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     // Link Graph gadgetが表示されているか確認
-    const _linkGraphGadget = page.locator('#wiki-gadgets-panel .link-graph-container, #wiki-gadgets-panel .link-graph-toolbar');
+    const _linkGraphGadget = page.locator('#edit-gadgets-panel .link-graph-container, #edit-gadgets-panel .link-graph-toolbar');
     // gadgetがロードされるまで待つ
     await page.waitForTimeout(1000);
 
@@ -151,26 +151,26 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should generate graph data from links', async ({ page }) => {
     // Wikiページを2つ作成してリンク関係を作る
-    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
-    await wikiHeader.waitFor({ timeout: 10000 });
-    await wikiHeader.click();
-    await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
+    const editHeader = page.locator('.accordion-header[data-group="edit"]');
+    await editHeader.waitFor({ timeout: 10000 });
+    await editHeader.click();
+    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
 
-    const createButton = page.locator('#wiki-gadgets-panel button:has-text("新規ページ")');
+    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
 
     // ページ1
     await createButton.click();
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Page A');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page B]].');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Page A');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page B]].');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
     await page.waitForTimeout(300);
 
     // ページ2
     await createButton.click();
-    await page.fill('#wiki-gadgets-panel input[placeholder="タイトル"]', 'Page B');
-    await page.fill('#wiki-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page A]].');
-    await page.click('#wiki-gadgets-panel button:has-text("保存")');
+    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Page B');
+    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page A]].');
+    await page.click('#edit-gadgets-panel button:has-text("保存")');
     await page.waitForTimeout(300);
 
     // グラフデータを生成

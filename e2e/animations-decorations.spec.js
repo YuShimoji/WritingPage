@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 test.describe('Animations and Decorations E2E (TASK_056)', () => {
     const pageUrl = '/index.html';
@@ -6,6 +7,7 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
     test('Font decorations are rendered correctly in preview', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
 
         // Type decoration tags
         await page.fill('#editor', '[bold]Bold[/bold] [italic]Italic[/italic] [glow]Glow[/glow]');
@@ -45,6 +47,7 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
     test('Text animations use correct classes', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
 
         await page.fill('#editor', '[fade]Fade[/fade] [type]Type[/type] [bounce]Bounce[/bounce]');
 
@@ -77,6 +80,7 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
     test('Animation settings are reflected in CSS variables', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
         await page.waitForFunction(() => {
             try { return !!window.ZenWriterEditor; } catch (_) { return false; }
         }, { timeout: 15000 });

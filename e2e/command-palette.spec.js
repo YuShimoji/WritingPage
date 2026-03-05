@@ -58,7 +58,7 @@ test.describe('Command Palette E2E', () => {
 
   test('コマンドパレットでコマンドを実行できる', async ({ page }) => {
     await page.goto(pageUrl);
-    
+
     // コマンドパレットを開く
     await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
@@ -66,13 +66,13 @@ test.describe('Command Palette E2E', () => {
     // 「検索」と入力
     const input = page.locator('#command-palette-input');
     await input.fill('検索');
-    
+
     // 検索コマンドを選択してEnterで実行
     await page.keyboard.press('Enter');
-    
+
     // 検索パネルが開くことを確認
-    await expect(page.locator('#search-panel')).toBeVisible();
-    
+    await expect(page.locator('#main-hub-panel')).toBeVisible();
+
     // コマンドパレットが閉じることを確認
     await expect(page.locator('#command-palette')).not.toBeVisible();
   });
@@ -154,7 +154,7 @@ test.describe('Command Palette E2E', () => {
 
   test('コマンドパレットでガジェット操作が実行できる', async ({ page }) => {
     await page.goto(pageUrl);
-    
+
     // コマンドパレットを開く
     await openCommandPalette(page);
     await expect(page.locator('#command-palette')).toBeVisible();
@@ -162,16 +162,16 @@ test.describe('Command Palette E2E', () => {
     // 「構造」と入力
     const input = page.locator('#command-palette-input');
     await input.fill('構造');
-    
+
     // 構造ガジェットコマンドを選択して実行
     await page.keyboard.press('Enter');
-    
+
     // サイドバーが開き、構造タブがアクティブになることを確認
     await page.waitForTimeout(300);
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
-    
-    const structureHeader = page.locator('.accordion-header[data-group="structure"]');
-    await expect(structureHeader).toHaveClass(/expanded/);
+
+    const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
+    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
   });
 });

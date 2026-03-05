@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 async function _openSidebarAndStructurePanel(page) {
   // サイドバーを開き、structure グループを正式なAPI経由でアクティブにする
@@ -97,6 +98,8 @@ test.describe('Font Decoration System', () => {
     await page.goto('/');
     // Wait for editor to load
     await page.waitForSelector('#editor', { timeout: 10000 });
+    // Show full toolbar to access hidden buttons
+    await showFullToolbar(page);
   });
 
   test('should render basic font decorations', async ({ page }) => {
@@ -470,8 +473,8 @@ test.describe('Search and Replace', () => {
     // Press Ctrl+F
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
 
-    // Check search panel is visible
-    const searchPanel = await page.locator('#search-panel');
+    // Check main hub panel is visible
+    const searchPanel = await page.locator('#main-hub-panel');
     await expect(searchPanel).toBeVisible();
 
     // Check search input is focused
@@ -484,7 +487,7 @@ test.describe('Search and Replace', () => {
 
     // Open search panel
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
 
     // Type search term
     await page.fill('#search-input', 'fox');
@@ -502,7 +505,7 @@ test.describe('Search and Replace', () => {
 
     // Open search and search for "match"
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
     await page.fill('#search-input', 'match');
     await page.waitForTimeout(300);
 
@@ -528,7 +531,7 @@ test.describe('Search and Replace', () => {
 
     // Open search and search for "hello"
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
     await page.fill('#search-input', 'hello');
     await page.fill('#replace-input', 'hi');
     await page.waitForTimeout(300);
@@ -545,7 +548,7 @@ test.describe('Search and Replace', () => {
 
     // Open search and setup replace
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
     await page.fill('#search-input', 'test');
     await page.fill('#replace-input', 'example');
     await page.waitForTimeout(300);
@@ -563,7 +566,7 @@ test.describe('Search and Replace', () => {
 
     // Open search with case sensitivity
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
     await page.fill('#search-input', 'Hello');
 
     const caseCheckbox = page.locator('#search-case-sensitive');
@@ -581,13 +584,13 @@ test.describe('Search and Replace', () => {
   test('should close search panel', async ({ page }) => {
     // Open search panel
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
-    await page.waitForSelector('#search-panel', { timeout: 5000 });
+    await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
 
-    // Click close button
-    await page.click('#close-search-panel');
+    // Click close button (use panel close button)
+    await page.click('#main-hub-panel .panel-close-btn');
 
     // Check panel is hidden
-    const searchPanel = await page.locator('#search-panel');
+    const searchPanel = await page.locator('#main-hub-panel');
     await expect(searchPanel).not.toBeVisible();
   });
 });

@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { openGlobalSearchPanel } = require('./helpers');
 
 const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
@@ -53,26 +54,21 @@ test.beforeEach(async ({ page }) => {
 
 // Helper function to open panel
 async function openPanel(page) {
-  await page.evaluate(() => {
-    if (window.GlobalSearchUI && typeof window.GlobalSearchUI.showPanel === 'function') {
-      window.GlobalSearchUI.showPanel();
-    }
-  });
+  await openGlobalSearchPanel(page);
   await wait(100);
 }
 
 test.describe('全文検索機能', () => {
   test('パネルを開くことができる', async ({ page }) => {
-    const panel = page.locator('#global-search-panel');
+    const panel = page.locator('#main-hub-panel');
 
     // 初期状態は非表示
-    await expect(panel).toHaveCSS('display', 'none');
+    await expect(panel).not.toBeVisible();
 
     // パネルを開く
     await openPanel(page);
 
     // パネルが表示される
-    await expect(panel).toHaveCSS('display', 'block');
     await expect(panel).toBeVisible();
   });
 
@@ -141,8 +137,8 @@ test.describe('全文検索機能', () => {
     await wait(1000);
 
     // パネルが閉じる
-    const panel = page.locator('#global-search-panel');
-    await expect(panel).toHaveCSS('display', 'none');
+    const panel = page.locator('#main-hub-panel');
+    await expect(panel).not.toBeVisible();
 
     // エディタに正しいコンテンツがロードされる
     const currentDocId = await page.evaluate(() => window.ZenWriterStorage.getCurrentDocId());
@@ -195,27 +191,27 @@ test.describe('全文検索機能', () => {
   });
 
   test('ESC キーでパネルを閉じる', async ({ page }) => {
-    const panel = page.locator('#global-search-panel');
+    const panel = page.locator('#main-hub-panel');
 
     await openPanel(page);
-    await expect(panel).toHaveCSS('display', 'block');
+    await expect(panel).toBeVisible();
 
     // ESC で閉じる
     await page.keyboard.press('Escape');
     await wait(200);
-    await expect(panel).toHaveCSS('display', 'none');
+    await expect(panel).not.toBeVisible();
   });
 
   test('閉じるボタンでパネルを閉じる', async ({ page }) => {
-    const panel = page.locator('#global-search-panel');
-    const closeBtn = page.locator('#close-global-search-panel');
+    const panel = page.locator('#main-hub-panel');
+    const closeBtn = page.locator('#close-main-hub-panel');
 
     await openPanel(page);
-    await expect(panel).toHaveCSS('display', 'block');
+    await expect(panel).toBeVisible();
 
     await closeBtn.click();
     await wait(200);
-    await expect(panel).toHaveCSS('display', 'none');
+    await expect(panel).not.toBeVisible();
   });
 
   test('大文字小文字を区別する検索', async ({ page }) => {

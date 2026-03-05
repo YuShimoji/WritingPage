@@ -1,6 +1,6 @@
 // E2E: Pomodoro/集中タイマー機能の検証
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup, showFullToolbar } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -12,6 +12,7 @@ async function waitGadgetsReady(page) {
   });
   // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
   await enableAllGadgets(page);
+  await showFullToolbar(page);
   // サイドバーを開いてassistグループをアクティブにする
   await openSidebarGroup(page, 'assist');
   // 初回レンダ後のガジェット要素を待機

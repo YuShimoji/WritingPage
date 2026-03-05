@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 /**
  * v0.3.27: テーマ設定は settings グループの Themes ガジェットに移動。
@@ -15,6 +16,7 @@ async function openThemePanel(page) {
   // enableAllGadgets を使わない（loadout 再適用でサイドバーにも settings パネルが
   // 生成され、#bg-color が重複する問題を回避）。Themes はデフォルトで settings グループに
   // 登録されているため、設定モーダルを開くだけで利用可能。
+  await showFullToolbar(page);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });

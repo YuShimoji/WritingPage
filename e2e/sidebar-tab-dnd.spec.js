@@ -23,14 +23,13 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
         const headers = page.locator('.accordion-header');
         const firstHeader = headers.first();
-        const firstPanel = page.locator('.accordion-panel').first();
 
         await firstHeader.click();
         await page.waitForTimeout(300);
 
         // パネルが展開されたことを確認
-        const isExpanded = await firstPanel.evaluate(el => el.classList.contains('expanded'));
-        expect(isExpanded).toBe(true);
+        const isExpanded = await firstHeader.getAttribute('aria-expanded');
+        expect(isExpanded).toBe('true');
     });
 
     test('sidebarManager exists and has accordion configuration', async ({ page }) => {
@@ -51,33 +50,34 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
         // アコーディオンを展開
         const firstHeader = page.locator('.accordion-header').first();
-        const groupId = await firstHeader.evaluate(el => el.dataset.group);
+        const ariaControls = await firstHeader.getAttribute('aria-controls');
+        const categoryId = ariaControls ? ariaControls.replace('accordion-', '') : null;
 
         await firstHeader.click();
         await page.waitForTimeout(300);
 
         // localStorage確認
-        const expandedState = await page.evaluate((groupId) => {
+        const expandedState = await page.evaluate((categoryId) => {
             try {
                 const settings = window.ZenWriterStorage?.loadSettings() || {};
-                return settings.ui?.expandedAccordions?.[groupId];
+                return settings.ui?.expandedAccordions?.[categoryId];
             } catch (_) {
                 return null;
             }
-        }, groupId);
+        }, categoryId);
 
         // アコーディオンの状態が何らかの形で保存されていることを確認
         await page.reload();
         await page.waitForSelector('.accordion-header', { timeout: 10000 });
 
-        const loaded = await page.evaluate((groupId) => {
+        const loaded = await page.evaluate((categoryId) => {
             try {
-                const header = document.querySelector(`.accordion-header[data-group="${groupId}"]`);
-                return header ? header.classList.contains('expanded') : false;
+                const header = document.querySelector(`.accordion-header[aria-controls="accordion-${categoryId}"]`);
+                return header ? header.getAttribute('aria-expanded') === 'true' : false;
             } catch (_) {
                 return false;
             }
-        }, groupId);
+        }, categoryId);
 
         // 状態が何らかの形で反映されていることを確認
         expect(typeof loaded).toBe('boolean');
@@ -103,10 +103,10 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
         await secondHeader.click();
         await page.waitForTimeout(300);
 
-        const firstExpanded = await firstHeader.evaluate(el => el.classList.contains('expanded'));
-        const secondExpanded = await secondHeader.evaluate(el => el.classList.contains('expanded'));
+        const firstExpanded = await firstHeader.getAttribute('aria-expanded');
+        const secondExpanded = await secondHeader.getAttribute('aria-expanded');
 
-        expect(typeof firstExpanded).toBe('boolean');
-        expect(typeof secondExpanded).toBe('boolean');
+        expect(typeof firstExpanded).toBe('string');
+        expect(typeof secondExpanded).toBe('string');
     });
 });

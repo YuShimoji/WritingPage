@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 /**
  * UIエディタのE2Eテスト
@@ -11,6 +12,8 @@ test.describe('UI Visual Editor', () => {
     await page.goto('/');
     // ページが完全に読み込まれるまで待機
     await page.waitForLoadState('networkidle');
+    // Show full toolbar to access hidden buttons
+    await showFullToolbar(page);
   });
 
   test('should activate and deactivate UI editor', async ({ page }) => {
