@@ -181,7 +181,7 @@
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['settings'] });
+    }, { title: 'Markdown Preview', groups: ['edit'] });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function (root) {
@@ -554,7 +554,7 @@
       });
 
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
-    }, { title: 'UI Settings', groups: ['settings'] });
+    }, { title: 'UI Settings', groups: ['advanced'] });
 
     // UI Design Gadget (background gradient)
     window.ZWGadgets.register('UIDesign', function (root, api) {
@@ -600,7 +600,7 @@
 
       root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
       apply(g);
-    }, { title: 'UI Design', groups: ['settings'] });
+    }, { title: 'UI Design', groups: ['advanced'] });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -614,7 +614,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
-    }, { title: 'Font Decoration', groups: ['settings'] });
+    }, { title: 'Font Decoration', groups: ['edit'] });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
@@ -627,7 +627,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['settings'] });
+    }, { title: 'Text Animation', groups: ['edit'] });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {
@@ -696,7 +696,7 @@
       root.appendChild(paddingRow);
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
-    }, { title: 'Editor Layout', groups: ['settings'] });
+    }, { title: 'Editor Layout', groups: ['advanced'] });
 
     // Scene Gradient Gadget (背景グラデーション 3レイヤ)
     window.ZWGadgets.register('SceneGradient', function (root, api) {
@@ -829,7 +829,7 @@
       root.appendChild(applyBtn);
 
       applyScene();
-    }, { title: 'Scene Gradient', groups: ['settings'] });
+    }, { title: 'Scene Gradient', groups: ['theme'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

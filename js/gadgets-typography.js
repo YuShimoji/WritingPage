@@ -210,7 +210,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['settings'],
+    groups: ['theme'],
     title: (window.UILabels && window.UILabels.GADGET_TYPOGRAPHY_TITLE) || 'フォント'
   });
 

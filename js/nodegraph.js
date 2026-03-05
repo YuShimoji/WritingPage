@@ -269,7 +269,7 @@
         }
         commit();
       });
-    }, { title: 'Node Graph', groups: ['structure','assist'] });
+    }, { title: 'Node Graph', groups: ['advanced'] });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerGadget); else registerGadget();

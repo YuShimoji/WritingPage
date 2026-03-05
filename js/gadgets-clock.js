@@ -30,7 +30,7 @@
       try { window.addEventListener('beforeunload', function () { clearInterval(id); }, { once: true }); } catch (_) { }
     } catch (_) { }
   }, {
-    groups: ['assist', 'settings'],
+    groups: ['assist'],
     title: (window.UILabels && (window.UILabels.GADGET_CLOCK || window.UILabels.GADGET_CLOCK_TITLE)) || '時計'
   });
 

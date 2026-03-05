@@ -447,7 +447,7 @@
 
       // 初期表示
       refreshGraph();
-    }, { title: 'Link Graph', groups: ['wiki', 'structure'] });
+    }, { title: 'Link Graph', groups: ['advanced'] });
   }
 
   // グローバルAPIを公開 (TASK_044) — 全メソッドを含む完全版

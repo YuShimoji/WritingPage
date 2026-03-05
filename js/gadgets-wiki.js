@@ -274,6 +274,6 @@
       console.error('StoryWiki gadget failed:', e);
       el.textContent = (window.UILabels && window.UILabels.WIKI_INIT_FAILED) || 'Wikiガジェットの初期化に失敗しました。';
     }
-  }, { groups: ['wiki'], title: (window.UILabels && window.UILabels.GADGET_WIKI_TITLE) || '物語Wiki' });
+  }, { groups: ['edit'], title: (window.UILabels && window.UILabels.GADGET_WIKI_TITLE) || '物語Wiki' });
 
 })();

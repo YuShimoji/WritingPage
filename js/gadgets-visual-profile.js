@@ -180,7 +180,7 @@
       root.appendChild(btnRow);
       root.appendChild(infoDiv);
 
-    }, { title: 'Visual Profile', groups: ['settings'] });
+    }, { title: 'Visual Profile', groups: ['theme'] });
   }
 
   // 登録実行

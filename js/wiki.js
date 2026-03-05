@@ -506,7 +506,7 @@
         }
       };
 
-    }, { title: '\u7269\u8a9eWiki', groups: ['wiki'] });
+    }, { title: '\u7269\u8a9eWiki', groups: ['edit'] });
   }
 
   // init when gadgets ready
