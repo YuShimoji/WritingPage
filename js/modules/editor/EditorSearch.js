@@ -329,6 +329,12 @@
          * @param {EditorManager} manager
          */
         toggleSearchPanel(manager) {
+            // 統合メインハブパネルを優先的に使用
+            if (window.MainHubPanel) {
+                window.MainHubPanel.toggle('search');
+                return;
+            }
+            // フォールバック: 従来の検索パネルを使用
             const panel = document.getElementById('search-panel');
             if (!panel) return;
             const isVisible = panel.style.display !== 'none';

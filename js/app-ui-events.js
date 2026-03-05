@@ -317,10 +317,13 @@
             }
         }
 
-        // 分割ビューのイベントハンドラ
+        // 分割ビューのイベントハンドラ - 統合メインハブパネルを使用
         if (toggleSplitViewBtn) {
             toggleSplitViewBtn.addEventListener('click', () => {
-                if (splitViewModePanel) {
+                if (window.MainHubPanel) {
+                    window.MainHubPanel.toggle('split-view');
+                } else if (splitViewModePanel) {
+                    // フォールバック: 従来のパネルを使用
                     const isVisible = splitViewModePanel.style.display !== 'none';
                     splitViewModePanel.style.display = isVisible ? 'none' : 'block';
                     if (!isVisible) {
@@ -354,21 +357,39 @@
         if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
             splitViewEditPreviewBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('edit-preview');
-                if (splitViewModePanel) splitViewModePanel.style.display = 'none';
+                // メインハブパネルまたは従来の分割ビューパネルを閉じる
+                const mainHubPanel = document.getElementById('main-hub-panel');
+                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
+                    mainHubPanel.style.display = 'none';
+                } else if (splitViewModePanel) {
+                    splitViewModePanel.style.display = 'none';
+                }
             });
         }
 
         if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
             splitViewChapterCompareBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('chapter-compare');
-                if (splitViewModePanel) splitViewModePanel.style.display = 'none';
+                // メインハブパネルまたは従来の分割ビューパネルを閉じる
+                const mainHubPanel = document.getElementById('main-hub-panel');
+                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
+                    mainHubPanel.style.display = 'none';
+                } else if (splitViewModePanel) {
+                    splitViewModePanel.style.display = 'none';
+                }
             });
         }
 
         if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
             splitViewSnapshotDiffBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('snapshot-diff');
-                if (splitViewModePanel) splitViewModePanel.style.display = 'none';
+                // メインハブパネルまたは従来の分割ビューパネルを閉じる
+                const mainHubPanel = document.getElementById('main-hub-panel');
+                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
+                    mainHubPanel.style.display = 'none';
+                } else if (splitViewModePanel) {
+                    splitViewModePanel.style.display = 'none';
+                }
             });
         }
 
@@ -503,7 +524,8 @@
                 }
             }
         }
-        ['floating-font-panel', 'font-decoration-panel', 'text-animation-panel', 'search-panel', 'split-view-mode-panel'].forEach((id) => {
+        // フローティングパネルのドラッグ有効化（統合メインハブパネルを含む）
+        ['floating-font-panel', 'font-decoration-panel', 'text-animation-panel', 'search-panel', 'split-view-mode-panel', 'main-hub-panel'].forEach((id) => {
             const panel = document.getElementById(id);
             if (panel) {
                 enableFloatingPanelDrag(panel);

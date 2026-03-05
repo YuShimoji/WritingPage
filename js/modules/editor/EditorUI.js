@@ -435,15 +435,29 @@
                 }
             });
 
-            // Built-in panel toggles
+            // Built-in panel toggles - 統合メインハブパネルを使用
             if (manager.toggleFontDecorationBtn) {
-                manager.toggleFontDecorationBtn.addEventListener('click', () => this.toggleFontDecorationPanel(manager));
+                manager.toggleFontDecorationBtn.addEventListener('click', () => {
+                    if (window.MainHubPanel) {
+                        window.MainHubPanel.toggle('decoration');
+                    } else {
+                        // フォールバック: 従来のパネルを使用
+                        this.toggleFontDecorationPanel(manager);
+                    }
+                });
             }
             if (manager.closeFontDecorationBtn) {
                 manager.closeFontDecorationBtn.addEventListener('click', () => this.hideFontDecorationPanel(manager));
             }
             if (manager.toggleTextAnimationBtn) {
-                manager.toggleTextAnimationBtn.addEventListener('click', () => this.toggleTextAnimationPanel(manager));
+                manager.toggleTextAnimationBtn.addEventListener('click', () => {
+                    if (window.MainHubPanel) {
+                        window.MainHubPanel.toggle('animation');
+                    } else {
+                        // フォールバック: 従来のパネルを使用
+                        this.toggleTextAnimationPanel(manager);
+                    }
+                });
             }
             if (manager.closeTextAnimationBtn) {
                 manager.closeTextAnimationBtn.addEventListener('click', () => this.hideTextAnimationPanel(manager));

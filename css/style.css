@@ -1973,6 +1973,92 @@ body.dragging-floating-panel {
   user-select: none;
 }
 
+/* 統合メインハブパネル */
+.main-hub-panel {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+}
+
+.main-hub-panel .panel-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.main-hub-panel .panel-tab {
+  flex: 1 1 auto;
+  min-width: 80px;
+  padding: 6px 10px;
+  font-size: 13px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--ui-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.main-hub-panel .panel-tab:hover {
+  background: var(--ui-bg);
+  border-color: var(--border-color);
+}
+
+.main-hub-panel .panel-tab.active {
+  background: var(--ui-bg);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.main-hub-panel .panel-body {
+  max-height: calc(100vh - 220px);
+}
+
+.main-hub-panel .tab-content {
+  display: none;
+}
+
+.main-hub-panel .tab-content.active {
+  display: block;
+}
+
+.main-hub-panel .panel-section {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.main-hub-panel .panel-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.main-hub-panel .panel-section__title {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ui-text);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .main-hub-panel {
+    width: calc(100vw - 32px);
+    max-width: none;
+  }
+
+  .main-hub-panel .panel-tab {
+    flex: 1 1 45%;
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+}
+
 /* コマンドパレット */
 .command-palette {
   width: 600px;

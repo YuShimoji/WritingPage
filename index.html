@@ -219,7 +219,8 @@
         <div id="split-view-right" class="split-view-panel split-view-panel--right"></div>
       </div>
 
-      <!-- 分割ビューモード選択パネル -->
+      <!-- 分割ビューモード選択パネル（統合メインハブパネルに移行したためコメントアウト） -->
+      <!--
       <div id="split-view-mode-panel" class="floating-panel" style="display: none;" role="dialog"
         aria-labelledby="split-view-mode-panel-title" aria-modal="true">
         <div class="panel-header">
@@ -234,6 +235,7 @@
           </div>
         </div>
       </div>
+      -->
 
       <!-- エディタエリア -->
       <div class="editor-container" role="region" aria-label="エディタ">
@@ -307,193 +309,191 @@
     </div>
   </div>
 
-  <!-- クイックツールパネル -->
-  <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog"
-    aria-labelledby="floating-font-panel-title" aria-modal="true">
+  <!-- 統合メインハブパネル -->
+  <div id="main-hub-panel" class="floating-panel main-hub-panel" style="display: none" role="dialog"
+    aria-labelledby="main-hub-panel-title" aria-modal="true">
     <div class="panel-header">
-      <span id="floating-font-panel-title" data-i18n="QUICK_TOOLS"></span>
-      <button class="panel-close" id="close-font-panel" data-i18n="CLOSE" aria-label="パネルを閉じる"></button>
+      <span id="main-hub-panel-title">ツールパネル</span>
+      <button class="panel-close" id="close-main-hub-panel" aria-label="ツールパネルを閉じる">閉じる</button>
+    </div>
+    <div class="panel-tabs" role="tablist" aria-label="ツールタブ">
+      <button class="panel-tab active" data-tab="quick-tools" role="tab" aria-selected="true" aria-controls="tab-quick-tools">クイックツール</button>
+      <button class="panel-tab" data-tab="search" role="tab" aria-selected="false" aria-controls="tab-search">検索</button>
+      <button class="panel-tab" data-tab="decoration" role="tab" aria-selected="false" aria-controls="tab-decoration">装飾</button>
+      <button class="panel-tab" data-tab="animation" role="tab" aria-selected="false" aria-controls="tab-animation">アニメーション</button>
+      <button class="panel-tab" data-tab="global-search" role="tab" aria-selected="false" aria-controls="tab-global-search">全文検索</button>
+      <button class="panel-tab" data-tab="split-view" role="tab" aria-selected="false" aria-controls="tab-split-view">分割ビュー</button>
     </div>
     <div class="panel-body">
-      <section class="panel-section">
-        <h4 class="panel-section__title" data-i18n="EDITOR_FONT"></h4>
-        <input type="range" id="global-font-size" min="12" max="48" value="16" />
-        <div class="panel-row">
-          <input type="number" id="global-font-size-number" min="12" max="48" value="16" style="width: 72px" />
-          px
-        </div>
-        <div class="panel-hint" data-i18n="HINT_FONT_SIZE_SHORTCUT"></div>
-      </section>
+      <!-- クイックツールタブ -->
+      <div id="tab-quick-tools" class="tab-content active" role="tabpanel" aria-labelledby="tab-quick-tools">
+        <section class="panel-section">
+          <h4 class="panel-section__title" data-i18n="EDITOR_FONT">エディタフォント</h4>
+          <input type="range" id="global-font-size" min="12" max="48" value="16" />
+          <div class="panel-row">
+            <input type="number" id="global-font-size-number" min="12" max="48" value="16" style="width: 72px" />
+            px
+          </div>
+          <div class="panel-hint" data-i18n="HINT_FONT_SIZE_SHORTCUT">Ctrl+Plus/Minus でも調整可能</div>
+        </section>
+        <section class="panel-section">
+          <h4 class="panel-section__title" data-i18n="HUD_CONTROL">HUD制御</h4>
+          <div class="panel-row panel-row--wrap">
+            <button id="hud-toggle-visibility" class="small" type="button" data-i18n="HUD_TOGGLE">HUD表示切替</button>
+            <button id="hud-pin-toggle" class="small" type="button" data-i18n="HUD_PIN">HUDピン</button>
+          </div>
+          <div class="panel-row panel-row--wrap">
+            <button id="hud-refresh" class="small" type="button" data-i18n="HUD_REFRESH">HUD更新</button>
+          </div>
+          <div class="panel-hint" data-i18n="HINT_HUD_PIN">HUDをピン留めして常時表示できます</div>
+        </section>
+      </div>
 
-      <section class="panel-section">
-        <h4 class="panel-section__title" data-i18n="HUD_CONTROL"></h4>
-        <div class="panel-row panel-row--wrap">
-          <button id="hud-toggle-visibility" class="small" type="button" data-i18n="HUD_TOGGLE">
-          </button>
-          <button id="hud-pin-toggle" class="small" type="button" data-i18n="HUD_PIN">
-          </button>
+      <!-- 検索タブ -->
+      <div id="tab-search" class="tab-content" role="tabpanel" aria-labelledby="tab-search" style="display: none">
+        <label for="search-input" class="sr-only">検索語</label>
+        <input type="text" id="search-input" data-i18n-placeholder="SEARCH_PLACEHOLDER" placeholder="検索..." aria-label="検索語を入力" />
+        <label for="replace-input" class="sr-only">置換語</label>
+        <input type="text" id="replace-input" data-i18n-placeholder="REPLACE_PLACEHOLDER" placeholder="置換..." aria-label="置換語を入力" />
+        <div class="panel-row">
+          <label style="margin-right: 1rem"><input type="checkbox" id="search-case-sensitive" />
+            <span data-i18n="CASE_SENSITIVE">大文字小文字を区別</span></label>
+          <label><input type="checkbox" id="search-regex" /> <span data-i18n="REGEX">正規表現</span></label>
         </div>
-        <div class="panel-row panel-row--wrap">
-          <button id="hud-refresh" class="small" type="button" data-i18n="HUD_REFRESH">
-          </button>
+        <div class="panel-row">
+          <button id="replace-single" class="small" type="button" data-i18n="APPLY">適用</button>
+          <button id="replace-all" class="small" type="button" data-i18n="REPLACE_ALL">すべて置換</button>
+          <button id="search-prev" class="small" type="button" data-i18n="PREV">前へ</button>
+          <button id="search-next" class="small" type="button" data-i18n="NEXT">次へ</button>
         </div>
-        <div class="panel-hint" data-i18n="HINT_HUD_PIN">
+        <div class="panel-hint">
+          <span id="match-count" data-i18n="SEARCH_NO_RESULTS">結果なし</span><br />
+          <small data-i18n="HINT_SEARCH_SHORTCUT">Ctrl+F で検索を開く</small>
         </div>
-      </section>
-    </div>
-  </div>
-  <!-- 検索置換パネル -->
-  <div id="search-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="search-panel-title"
-    aria-modal="true">
-    <div class="panel-header">
-      <span id="search-panel-title" data-i18n="SEARCH_REPLACE"></span>
-      <button class="panel-close" id="close-search-panel" data-i18n="CLOSE" aria-label="検索パネルを閉じる"></button>
-    </div>
-    <div class="panel-body">
-      <label for="search-input" class="sr-only">検索語</label>
-      <input type="text" id="search-input" data-i18n-placeholder="SEARCH_PLACEHOLDER" aria-label="検索語を入力" />
-      <label for="replace-input" class="sr-only">置換語</label>
-      <input type="text" id="replace-input" data-i18n-placeholder="REPLACE_PLACEHOLDER" aria-label="置換語を入力" />
-      <div class="panel-row">
-        <label style="margin-right: 1rem"><input type="checkbox" id="search-case-sensitive" />
-          <span data-i18n="CASE_SENSITIVE"></span></label>
-        <label><input type="checkbox" id="search-regex" /> <span data-i18n="REGEX"></span></label>
       </div>
-      <div class="panel-row">
-        <button id="replace-single" class="small" type="button" data-i18n="APPLY"></button>
-        <button id="replace-all" class="small" type="button" data-i18n="REPLACE_ALL">
-        </button>
-        <button id="search-prev" class="small" type="button" data-i18n="PREV"></button>
-        <button id="search-next" class="small" type="button" data-i18n="NEXT"></button>
-      </div>
-      <div class="panel-hint">
-        <span id="match-count" data-i18n="SEARCH_NO_RESULTS"></span><br />
-        <small data-i18n="HINT_SEARCH_SHORTCUT"></small>
-      </div>
-    </div>
-  </div>
 
-  <!-- フォント装飾パネル -->
-  <div id="font-decoration-panel" class="floating-panel" style="display: none" role="dialog"
-    aria-labelledby="font-decoration-panel-title" aria-modal="true">
-    <div class="panel-header">
-      <span id="font-decoration-panel-title" data-i18n="FONT_DECORATION"></span>
-      <button class="panel-close" id="close-font-decoration-panel" data-i18n="CLOSE"
-        aria-label="フォント装飾パネルを閉じる"></button>
-    </div>
-    <div class="panel-body">
-      <div class="panel-row">
-        <button id="decor-bold" class="decor-btn" data-tag="bold" data-i18n-title="DECOR_BOLD_TITLE">B</button>
-        <button id="decor-italic" class="decor-btn" data-tag="italic" data-i18n-title="DECOR_ITALIC_TITLE">I</button>
-        <button id="decor-underline" class="decor-btn" data-tag="underline"
-          data-i18n-title="DECOR_UNDERLINE_TITLE">U</button>
-        <button id="decor-strike" class="decor-btn" data-tag="strike" data-i18n-title="DECOR_STRIKE_TITLE">S</button>
-        <button id="decor-black" class="decor-btn" data-tag="black" data-i18n-title="DECOR_BLACK_TITLE">極</button>
+      <!-- 装飾タブ -->
+      <div id="tab-decoration" class="tab-content" role="tabpanel" aria-labelledby="tab-decoration" style="display: none">
+        <div class="panel-row">
+          <button id="decor-bold" class="decor-btn" data-tag="bold" data-i18n-title="DECOR_BOLD_TITLE" title="太字">B</button>
+          <button id="decor-italic" class="decor-btn" data-tag="italic" data-i18n-title="DECOR_ITALIC_TITLE" title="斜体">I</button>
+          <button id="decor-underline" class="decor-btn" data-tag="underline" data-i18n-title="DECOR_UNDERLINE_TITLE" title="下線">U</button>
+          <button id="decor-strike" class="decor-btn" data-tag="strike" data-i18n-title="DECOR_STRIKE_TITLE" title="取り消し線">S</button>
+          <button id="decor-black" class="decor-btn" data-tag="black" data-i18n-title="DECOR_BLACK_TITLE" title="極太">極</button>
+        </div>
+        <div class="panel-row">
+          <button id="decor-light" class="decor-btn" data-tag="light" data-i18n-title="DECOR_LIGHT_TITLE" title="細字">細</button>
+          <button id="decor-smallcaps" class="decor-btn" data-tag="smallcaps" data-i18n-title="DECOR_SMALLCAPS_TITLE" title="スモールキャップス">SC</button>
+          <button id="decor-shadow" class="decor-btn" data-tag="shadow" data-i18n-title="DECOR_SHADOW_TITLE" title="影">影</button>
+          <button id="decor-outline" class="decor-btn" data-tag="outline" data-i18n-title="DECOR_OUTLINE_TITLE" title="輪郭">輪</button>
+          <button id="decor-glow" class="decor-btn" data-tag="glow" data-i18n-title="DECOR_GLOW_TITLE" title="光彩">光</button>
+        </div>
+        <div class="panel-row">
+          <button id="decor-uppercase" class="decor-btn" data-tag="uppercase" data-i18n-title="DECOR_UPPERCASE_TITLE" title="大文字">大</button>
+          <button id="decor-lowercase" class="decor-btn" data-tag="lowercase" data-i18n-title="DECOR_LOWERCASE_TITLE" title="小文字">小</button>
+          <button id="decor-capitalize" class="decor-btn" data-tag="capitalize" data-i18n-title="DECOR_CAPITALIZE_TITLE" title="先頭大文字">頭</button>
+          <button id="decor-wide" class="decor-btn" data-tag="wide" data-i18n-title="DECOR_WIDE_TITLE" title="字間広げる">広</button>
+          <button id="decor-narrow" class="decor-btn" data-tag="narrow" data-i18n-title="DECOR_NARROW_TITLE" title="字間狭める">狭</button>
+        </div>
+        <div class="panel-hint" data-i18n="HINT_DECORATION">テキストを選択してから装飾ボタンをクリック</div>
       </div>
-      <div class="panel-row">
-        <button id="decor-light" class="decor-btn" data-tag="light" data-i18n-title="DECOR_LIGHT_TITLE">細</button>
-        <button id="decor-smallcaps" class="decor-btn" data-tag="smallcaps"
-          data-i18n-title="DECOR_SMALLCAPS_TITLE">SC</button>
-        <button id="decor-shadow" class="decor-btn" data-tag="shadow" data-i18n-title="DECOR_SHADOW_TITLE">影</button>
-        <button id="decor-outline" class="decor-btn" data-tag="outline" data-i18n-title="DECOR_OUTLINE_TITLE">輪</button>
-        <button id="decor-glow" class="decor-btn" data-tag="glow" data-i18n-title="DECOR_GLOW_TITLE">光</button>
-      </div>
-      <div class="panel-row">
-        <button id="decor-uppercase" class="decor-btn" data-tag="uppercase"
-          data-i18n-title="DECOR_UPPERCASE_TITLE">大</button>
-        <button id="decor-lowercase" class="decor-btn" data-tag="lowercase"
-          data-i18n-title="DECOR_LOWERCASE_TITLE">小</button>
-        <button id="decor-capitalize" class="decor-btn" data-tag="capitalize"
-          data-i18n-title="DECOR_CAPITALIZE_TITLE">頭</button>
-        <button id="decor-wide" class="decor-btn" data-tag="wide" data-i18n-title="DECOR_WIDE_TITLE">広</button>
-        <button id="decor-narrow" class="decor-btn" data-tag="narrow" data-i18n-title="DECOR_NARROW_TITLE">狭</button>
-      </div>
-      <div class="panel-hint" data-i18n="HINT_DECORATION"></div>
-    </div>
-  </div>
 
-  <!-- テキストアニメーション パネル -->
-  <div id="text-animation-panel" class="floating-panel" style="display: none" role="dialog"
-    aria-labelledby="text-animation-panel-title" aria-modal="true">
-    <div class="panel-header">
-      <span id="text-animation-panel-title" data-i18n="TEXT_ANIMATION"></span>
-      <button class="panel-close" id="close-text-animation-panel" data-i18n="CLOSE"
-        aria-label="テキストアニメーションパネルを閉じる"></button>
-    </div>
-    <div class="panel-body">
-      <div class="panel-row">
-        <button id="anim-fade" class="decor-btn" data-tag="fade" data-i18n-title="ANIM_FADE_TITLE">フェード</button>
-        <button id="anim-slide" class="decor-btn" data-tag="slide" data-i18n-title="ANIM_SLIDE_TITLE">スライド</button>
-        <button id="anim-type" class="decor-btn" data-tag="type" data-i18n-title="ANIM_TYPE_TITLE">タイプ</button>
-        <button id="anim-pulse" class="decor-btn" data-tag="pulse" data-i18n-title="ANIM_PULSE_TITLE">パルス</button>
-      </div>
-      <div class="panel-row">
-        <button id="anim-shake" class="decor-btn" data-tag="shake" data-i18n-title="ANIM_SHAKE_TITLE">シェイク</button>
-        <button id="anim-bounce" class="decor-btn" data-tag="bounce" data-i18n-title="ANIM_BOUNCE_TITLE">バウンス</button>
-        <button id="anim-fadein" class="decor-btn" data-tag="fadein" data-i18n-title="ANIM_FADEIN_TITLE">遅フェード</button>
-      </div>
-      <section class="panel-section">
-        <h4 class="panel-section__title" data-i18n="ANIMATION_SETTINGS">アニメーション設定</h4>
+      <!-- アニメーションタブ -->
+      <div id="tab-animation" class="tab-content" role="tabpanel" aria-labelledby="tab-animation" style="display: none">
         <div class="panel-row">
-          <label for="anim-speed" data-i18n="ANIMATION_SPEED">速度:</label>
-          <input type="range" id="anim-speed" min="0.5" max="3" step="0.1" value="1" style="flex: 1; margin: 0 8px;" />
-          <span id="anim-speed-value">1.0x</span>
+          <button id="anim-fade" class="decor-btn" data-tag="fade" data-i18n-title="ANIM_FADE_TITLE" title="フェード">フェード</button>
+          <button id="anim-slide" class="decor-btn" data-tag="slide" data-i18n-title="ANIM_SLIDE_TITLE" title="スライド">スライド</button>
+          <button id="anim-type" class="decor-btn" data-tag="type" data-i18n-title="ANIM_TYPE_TITLE" title="タイプライター">タイプ</button>
+          <button id="anim-pulse" class="decor-btn" data-tag="pulse" data-i18n-title="ANIM_PULSE_TITLE" title="パルス">パルス</button>
         </div>
         <div class="panel-row">
-          <label for="anim-duration" data-i18n="ANIMATION_DURATION">持続時間 (秒):</label>
-          <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5"
-            style="flex: 1; margin: 0 8px;" />
-          <span id="anim-duration-value">1.5s</span>
+          <button id="anim-shake" class="decor-btn" data-tag="shake" data-i18n-title="ANIM_SHAKE_TITLE" title="シェイク">シェイク</button>
+          <button id="anim-bounce" class="decor-btn" data-tag="bounce" data-i18n-title="ANIM_BOUNCE_TITLE" title="バウンス">バウンス</button>
+          <button id="anim-fadein" class="decor-btn" data-tag="fadein" data-i18n-title="ANIM_FADEIN_TITLE" title="遅延フェード">遅フェード</button>
+        </div>
+        <section class="panel-section">
+          <h4 class="panel-section__title" data-i18n="ANIMATION_SETTINGS">アニメーション設定</h4>
+          <div class="panel-row">
+            <label for="anim-speed" data-i18n="ANIMATION_SPEED">速度:</label>
+            <input type="range" id="anim-speed" min="0.5" max="3" step="0.1" value="1" style="flex: 1; margin: 0 8px;" />
+            <span id="anim-speed-value">1.0x</span>
+          </div>
+          <div class="panel-row">
+            <label for="anim-duration" data-i18n="ANIMATION_DURATION">持続時間 (秒):</label>
+            <input type="range" id="anim-duration" min="0.5" max="5" step="0.1" value="1.5" style="flex: 1; margin: 0 8px;" />
+            <span id="anim-duration-value">1.5s</span>
+          </div>
+          <div class="panel-row">
+            <label>
+              <input type="checkbox" id="anim-reduce-motion" />
+              <span data-i18n="REDUCE_MOTION">アニメーションを減らす（アクセシビリティ）</span>
+            </label>
+          </div>
+          <div class="panel-hint" data-i18n="HINT_ANIMATION_SETTINGS">設定は次回適用されるアニメーションに反映されます</div>
+        </section>
+        <div class="panel-hint" data-i18n="HINT_ANIMATION">テキストを選択してからアニメーションボタンをクリック</div>
+      </div>
+
+      <!-- 全文検索タブ -->
+      <div id="tab-global-search" class="tab-content" role="tabpanel" aria-labelledby="tab-global-search" style="display: none">
+        <div class="panel-row">
+          <input type="text" id="global-search-input" placeholder="全ドキュメントを検索..." aria-label="検索クエリを入力" style="flex: 1;" />
+          <button id="global-search-btn" class="small" type="button">検索</button>
         </div>
         <div class="panel-row">
+          <label style="margin-right: 1rem">
+            <input type="checkbox" id="global-search-case" />
+            <span>大文字小文字を区別</span>
+          </label>
           <label>
-            <input type="checkbox" id="anim-reduce-motion" />
-            <span data-i18n="REDUCE_MOTION">アニメーションを減らす（アクセシビリティ）</span>
+            <input type="checkbox" id="global-search-regex" />
+            <span>正規表現</span>
           </label>
         </div>
-        <div class="panel-hint" data-i18n="HINT_ANIMATION_SETTINGS">設定は次回適用されるアニメーションに反映されます</div>
-      </section>
-      <div class="panel-hint" data-i18n="HINT_ANIMATION">テキストを選択してからアニメーションボタンをクリックしてください</div>
+        <div class="panel-row">
+          <label for="global-search-history" style="margin-right: 0.5rem">履歴:</label>
+          <select id="global-search-history" style="flex: 1;">
+            <option value="">検索履歴...</option>
+          </select>
+        </div>
+        <div id="global-search-status" class="panel-hint" style="margin: 0.5rem 0;"></div>
+        <div id="global-search-results" style="max-height: 400px; overflow-y: auto; margin-top: 0.5rem;"></div>
+      </div>
+
+      <!-- 分割ビュータブ -->
+      <div id="tab-split-view" class="tab-content" role="tabpanel" aria-labelledby="tab-split-view" style="display: none">
+        <div class="panel-row">
+          <button id="split-view-edit-preview" class="small" type="button">編集/プレビュー</button>
+          <button id="split-view-chapter-compare" class="small" type="button">章間比較</button>
+          <button id="split-view-snapshot-diff" class="small" type="button">スナップショット差分</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- 全文検索パネル -->
+  <!-- 既存の個別パネル（後方互換性のためコメントアウトで保持） -->
+  <!--
+  <div id="floating-font-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="floating-font-panel-title" aria-modal="true">
+    ...
+  </div>
+  <div id="search-panel" class="floating-panel" style="display: none" role="dialog" aria-labelledby="search-panel-title"
+    aria-modal="true">
+    ...
+  </div>
+  <div id="font-decoration-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="font-decoration-panel-title" aria-modal="true">
+    ...
+  </div>
+  <div id="text-animation-panel" class="floating-panel" style="display: none" role="dialog"
+    aria-labelledby="text-animation-panel-title" aria-modal="true">
+    ...
+  </div>
   <div id="global-search-panel" class="floating-panel" style="display: none" role="dialog"
     aria-labelledby="global-search-panel-title" aria-modal="true">
-    <div class="panel-header">
-      <span id="global-search-panel-title">全文検索</span>
-      <button class="panel-close" id="close-global-search-panel" aria-label="全文検索パネルを閉じる">閉じる</button>
-    </div>
-    <div class="panel-body">
-      <div class="panel-row">
-        <input type="text" id="global-search-input" placeholder="全ドキュメントを検索..."
-          aria-label="検索クエリを入力" style="flex: 1;" />
-        <button id="global-search-btn" class="small" type="button">検索</button>
-      </div>
-      <div class="panel-row">
-        <label style="margin-right: 1rem">
-          <input type="checkbox" id="global-search-case" />
-          <span>大文字小文字を区別</span>
-        </label>
-        <label>
-          <input type="checkbox" id="global-search-regex" />
-          <span>正規表現</span>
-        </label>
-      </div>
-      <div class="panel-row">
-        <label for="global-search-history" style="margin-right: 0.5rem">履歴:</label>
-        <select id="global-search-history" style="flex: 1;">
-          <option value="">検索履歴...</option>
-        </select>
-      </div>
-      <div id="global-search-status" class="panel-hint" style="margin: 0.5rem 0;">
-        <!-- 検索状態メッセージ -->
-      </div>
-      <div id="global-search-results" style="max-height: 400px; overflow-y: auto; margin-top: 0.5rem;">
-        <!-- 検索結果がここに表示される -->
-      </div>
-    </div>
+    ...
   </div>
+  -->
 
   <script src="js/storage.js"></script>
   <script src="js/search-global.js"></script>
@@ -597,6 +597,7 @@
       load('js/plugins/choice.js');
       load('js/images.js');
       load('js/panels.js');
+      load('js/main-hub-panel.js');
       load('js/plugin-api.js');
     })();
   </script>
