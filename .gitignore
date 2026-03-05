@@ -30,6 +30,9 @@ test-results/
 playwright-report/
 debug-screenshot-*.png
 debug-*.md
+debug-*.html
+temp-*.html
+quick-fix*
 
 # Temporary test output files
 *-out.txt

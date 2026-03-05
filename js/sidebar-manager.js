@@ -592,7 +592,7 @@ class SidebarManager {
     /**
      * @deprecated アコーディオンシステムではタブ順序変更は非対応。
      */
-    saveTabOrder(order) {
+    saveTabOrder(_order) {
         console.warn('saveTabOrder() is deprecated and does not work with the accordion system. Tab order is fixed.');
     }
 

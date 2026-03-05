@@ -57,7 +57,7 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
         await page.waitForTimeout(300);
 
         // localStorage確認
-        const expandedState = await page.evaluate((categoryId) => {
+        await page.evaluate((categoryId) => {
             try {
                 const settings = window.ZenWriterStorage?.loadSettings() || {};
                 return settings.ui?.expandedAccordions?.[categoryId];

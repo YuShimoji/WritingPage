@@ -71,8 +71,6 @@ test.describe('Sidebar Layout', () => {
     const editHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
     const assistHeader = page.locator('.accordion-header[aria-controls="accordion-assist"]');
 
-    const structurePanel = page.locator('#accordion-structure');
-    const editPanel = page.locator('#accordion-edit');
     const assistPanel = page.locator('#accordion-assist');
 
     await expect(structureHeader).toBeVisible();

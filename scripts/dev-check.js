@@ -148,8 +148,7 @@ async function loadCssWithImports(url) {
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body) &&
       /id=\"structure-gadgets-panel\"/i.test(index.body) &&
-      /id=\"wiki-gadgets-panel\"/i.test(index.body) &&
-      /class=\"sidebar-tabs\"/i.test(index.body) &&
+      /class=\"sidebar-accordion\"/i.test(index.body) &&
       /id=\"settings-modal\"/i.test(index.body) &&
       /id=\"help-modal\"/i.test(index.body) &&
       /id=\"toggle-settings\"/i.test(index.body) &&
@@ -200,20 +199,18 @@ async function loadCssWithImports(url) {
       choice: pluginChoice.status,
     });
 
-    // ガジェットの存在検証（新UI構造: structure/wikiパネル + settings/helpモーダル）
+    // ガジェットの存在検証（アコーディオンUI: structure/settingsパネル + accordion + settings/helpモーダル）
     const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
-    const hasWikiPanel = /id="wiki-gadgets-panel"/i.test(index.body);
     const hasSettingsPanel = /id="settings-gadgets-panel"/i.test(index.body);
-    const hasSidebarTabs = /class="sidebar-tabs"/i.test(index.body);
+    const hasAccordion = /class="sidebar-accordion"/i.test(index.body);
     const hasSettingsModal = /id="settings-modal"/i.test(index.body);
     const hasHelpModal = /id="help-modal"/i.test(index.body);
     const gadgetsCoreJs = await get('/js/gadgets-core.js');
-    const okGadgets = hasStructurePanel && hasWikiPanel && hasSettingsPanel && hasSidebarTabs && hasSettingsModal && hasHelpModal && gadgetsCoreJs.status === 200;
+    const okGadgets = hasStructurePanel && hasSettingsPanel && hasAccordion && hasSettingsModal && hasHelpModal && gadgetsCoreJs.status === 200;
     console.log('CHECK gadgets ->', okGadgets ? 'OK' : 'NG', {
       hasStructurePanel,
-      hasWikiPanel,
       hasSettingsPanel,
-      hasSidebarTabs,
+      hasAccordion,
       hasSettingsModal,
       hasHelpModal,
       gadgets: gadgetsCoreJs.status,
