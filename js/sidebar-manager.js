@@ -1,14 +1,14 @@
 /**
  * SidebarManager: サイドバーとツールバーの管理
  *
- * 責務（フェーズC-2で明確化）:
+ * 責務:
  * - サイドバーの開閉制御（forceSidebarState, toggleSidebar）
  * - ツールバーの表示/非表示制御（setToolbarVisibility, toggleToolbar）
- * - タブの追加/削除/名前変更（addTab, removeTab, renameTab）
+ * - アコーディオンカテゴリの管理（bootstrapAccordion）
  * - サイドバーグループの切り替え（activateSidebarGroup）
  *
  * ZWGadgets との連携:
- * - addTab でパネル作成時に ZWGadgets.init を呼び出し
+ * - bootstrapAccordion でパネル作成時に ZWGadgets.init を呼び出し
  * - ガジェットのレンダリング・設定管理は ZWGadgets が担当
  */
 class SidebarManager {
@@ -189,77 +189,6 @@ class SidebarManager {
         }
     }
 
-    // 旧bootstrapTabs()の互換性メソッド（削除予定）
-    _legacyBootstrapTabs() {
-        try {
-            const tabsContainer = document.querySelector('.sidebar-tabs');
-            if (!tabsContainer) return;
-
-            tabsContainer.innerHTML = '';
-
-            try {
-                const dd = document.getElementById('tabs-dropdown-select');
-                if (dd && dd.parentNode) dd.parentNode.removeChild(dd);
-            } catch (_) { }
-
-            // タブ順序を取得（設定があれば使用、なければデフォルト順序）
-            const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
-                ? window.ZenWriterStorage.loadSettings()
-                : null;
-            const tabOrder = (s && s.ui && Array.isArray(s.ui.tabOrder) && s.ui.tabOrder.length > 0)
-                ? s.ui.tabOrder
-                : this.sidebarTabConfig.map(tab => tab.id);
-
-            // 順序に従ってタブを追加
-            const allTabs = [...this.sidebarTabConfig];
-            try {
-                const list = (s && s.ui && Array.isArray(s.ui.customTabs)) ? s.ui.customTabs : [];
-                list.forEach(t => {
-                    if (!t || !t.id) return;
-                    if (!allTabs.find(existing => existing.id === t.id)) {
-                        allTabs.push({ id: t.id, label: t.label, description: '', panelId: t.id + '-gadgets-panel' });
-                    }
-                });
-            } catch (_) { }
-
-            // 順序に従ってタブを追加（順序にないタブは末尾に追加）
-            const orderedTabs = [];
-            const addedIds = new Set();
-            tabOrder.forEach(tabId => {
-                const tab = allTabs.find(t => t.id === tabId);
-                if (tab) {
-                    orderedTabs.push(tab);
-                    addedIds.add(tab.id);
-                }
-            });
-            allTabs.forEach(tab => {
-                if (!addedIds.has(tab.id)) {
-                    orderedTabs.push(tab);
-                }
-            });
-
-            orderedTabs.forEach(tab => {
-                try {
-                    this.addTab(tab.id, tab.label, { persist: false, panelId: tab.panelId });
-                } catch (_) { }
-            });
-
-            const firstId = orderedTabs.length > 0 ? orderedTabs[0].id : ((this.sidebarTabConfig[0] && this.sidebarTabConfig[0].id) ? this.sidebarTabConfig[0].id : 'structure');
-            this.activateSidebarGroup(firstId);
-
-            // タブ配置を適用
-            this.applyTabPlacement();
-
-            // タブD&Dを初期化
-            this._setupTabDragAndDrop();
-
-            try {
-                if (this.elementManager && typeof this.elementManager.initialize === 'function') {
-                    this.elementManager.initialize();
-                }
-            } catch (_) { }
-        } catch (_) { }
-    }
 
     /**
      * 開発環境かどうかを判定
@@ -476,7 +405,11 @@ class SidebarManager {
         }
     }
 
+    /**
+     * @deprecated アコーディオンシステムでは動的タブ追加は非対応。このメソッドは互換性のために残されていますが、機能しません。
+     */
     addTab(id, label, options) {
+        console.warn('addTab() is deprecated and does not work with the accordion system. Dynamic tab creation is no longer supported.');
         try {
             var safeId = String(id || ('custom-' + Date.now()));
             var safeLabel = String(label || safeId);
@@ -555,7 +488,11 @@ class SidebarManager {
         } catch (_) { return null; }
     }
 
+    /**
+     * @deprecated アコーディオンシステムでは動的タブ削除は非対応。このメソッドは互換性のために残されていますが、機能しません。
+     */
     removeTab(id) {
+        console.warn('removeTab() is deprecated and does not work with the accordion system. Dynamic tab removal is no longer supported.');
         try {
             var rawId = String(id || '').trim();
             var nid = rawId.toLowerCase();
@@ -581,7 +518,11 @@ class SidebarManager {
         } catch (_) { }
     }
 
+    /**
+     * @deprecated アコーディオンシステムでは動的タブ名変更は非対応。このメソッドは互換性のために残されていますが、機能しません。
+     */
     renameTab(id, newLabel) {
+        console.warn('renameTab() is deprecated and does not work with the accordion system. Dynamic tab renaming is no longer supported.');
         try {
             var rawId = String(id || '').trim();
             var nid = rawId.toLowerCase();
@@ -771,154 +712,6 @@ class SidebarManager {
         }
     }
 
-    /**
-     * タブ配置を適用（上下左右）
-     */
-    applyTabPlacement() {
-        try {
-            const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
-                ? window.ZenWriterStorage.loadSettings()
-                : null;
-            const placement = (s && s.ui && s.ui.tabPlacement) ? s.ui.tabPlacement : 'left';
-            const sidebar = this.elementManager.get('sidebar');
-            if (sidebar) {
-                sidebar.setAttribute('data-tab-placement', placement);
-            }
-        } catch (_) { }
-    }
-
-    /**
-     * タブ順序を保存
-     * @param {string[]} order - タブIDの配列
-     */
-    saveTabOrder(order) {
-        try {
-            const s = window.ZenWriterStorage.loadSettings();
-            if (!s.ui) s.ui = {};
-            s.ui.tabOrder = Array.isArray(order) ? [...order] : [];
-            window.ZenWriterStorage.saveSettings(s);
-        } catch (_) { }
-    }
-
-    /**
-     * タブ配置を保存
-     * @param {string} placement - 'left' | 'right' | 'top' | 'bottom'
-     */
-    saveTabPlacement(placement) {
-        try {
-            const validPlacements = ['left', 'right', 'top', 'bottom'];
-            if (!validPlacements.includes(placement)) placement = 'left';
-            const s = window.ZenWriterStorage.loadSettings();
-            if (!s.ui) s.ui = {};
-            s.ui.tabPlacement = placement;
-            window.ZenWriterStorage.saveSettings(s);
-            this.applyTabPlacement();
-        } catch (_) { }
-    }
-
-    /**
-     * タブドラッグ&ドロップを初期化（タブ順序入替）
-     */
-    _setupTabDragAndDrop() {
-        try {
-            const self = this;
-            const tabsContainer = document.querySelector('.sidebar-tabs');
-            if (!tabsContainer) return;
-
-            const tabs = Array.from(tabsContainer.querySelectorAll('.sidebar-tab'));
-            tabs.forEach(tab => {
-                // 既にD&D設定済みならスキップ
-                if (tab._dndSetup) return;
-                tab._dndSetup = true;
-                tab.draggable = true;
-
-                tab.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', tab.dataset.group);
-                    tab.classList.add('tab-dragging');
-                    tabsContainer.classList.add('tabs-dnd-active');
-                });
-
-                tab.addEventListener('dragend', () => {
-                    tab.classList.remove('tab-dragging');
-                    tabsContainer.classList.remove('tabs-dnd-active');
-                    tabsContainer.querySelectorAll('.sidebar-tab').forEach(t => {
-                        t.classList.remove('tab-drag-over');
-                    });
-                });
-
-                tab.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                    const draggingId = e.dataTransfer.getData('text/plain');
-                    if (!draggingId || draggingId === tab.dataset.group) return;
-                    tabsContainer.querySelectorAll('.sidebar-tab').forEach(t => {
-                        t.classList.remove('tab-drag-over');
-                    });
-                    tab.classList.add('tab-drag-over');
-                });
-
-                tab.addEventListener('dragleave', () => {
-                    tab.classList.remove('tab-drag-over');
-                });
-
-                tab.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    tab.classList.remove('tab-drag-over');
-                    const sourceId = e.dataTransfer.getData('text/plain');
-                    if (!sourceId || sourceId === tab.dataset.group) return;
-                    self._reorderTabsDOM(sourceId, tab.dataset.group);
-                });
-            });
-        } catch (e) {
-            console.error('Tab D&D setup error:', e);
-        }
-    }
-
-    /**
-     * タブ順序をDOM上で入れ替え、localStorageに保存
-     * @param {string} sourceId - 移動するタブのID
-     * @param {string} targetId - 挿入先タブのID
-     */
-    _reorderTabsDOM(sourceId, targetId) {
-        try {
-            const tabsContainer = document.querySelector('.sidebar-tabs');
-            if (!tabsContainer) return;
-
-            const sourceTab = tabsContainer.querySelector(`.sidebar-tab[data-group="${sourceId}"]`);
-            const targetTab = tabsContainer.querySelector(`.sidebar-tab[data-group="${targetId}"]`);
-            if (!sourceTab || !targetTab) return;
-
-            // ソースをターゲットの前に挿入
-            tabsContainer.insertBefore(sourceTab, targetTab);
-
-            // 新しい順序を取得して保存
-            const newOrder = Array.from(tabsContainer.querySelectorAll('.sidebar-tab'))
-                .map(t => t.dataset.group)
-                .filter(id => id);
-            this.saveTabOrder(newOrder);
-
-            // イベント発火
-            try {
-                window.dispatchEvent(new CustomEvent('ZWSidebarTabsReordered', { detail: { order: newOrder } }));
-            } catch (_) { }
-        } catch (e) {
-            console.error('Tab reorder error:', e);
-        }
-    }
-
-    /**
-     * 現在のタブ順序を取得
-     * @returns {string[]} タブIDの配列
-     */
-    getTabOrder() {
-        try {
-            const tabs = Array.from(document.querySelectorAll('.sidebar-tab'));
-            return tabs.map(tab => tab.dataset.group).filter(id => id);
-        } catch (_) {
-            return this.sidebarTabConfig.map(tab => tab.id);
-        }
-    }
 }
 
 SidebarManager.TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer
