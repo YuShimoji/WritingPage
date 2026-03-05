@@ -339,9 +339,9 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
 
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    await wikiHeader.waitFor({ timeout: 10000 });
+    await wikiHeader.click();
 
     await page.waitForSelector('#wiki-gadgets-panel .gadget-wiki', { timeout: 10000 });
     await expect(page.locator('#wiki-gadgets-panel .gadget-wiki input[type="text"]').first()).toBeVisible();

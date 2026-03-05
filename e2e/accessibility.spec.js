@@ -52,18 +52,25 @@ test.describe('Accessibility E2E', () => {
     await expect(searchPanel).not.toBeVisible();
   });
 
-  test('arrow keys switch between sidebar tabs', async ({ page }) => {
+  test('Enter/Space keys activate accordion headers', async ({ page }) => {
     await page.locator('#toggle-sidebar').click();
 
-    const firstTab = page.locator('.sidebar-tab').first();
-    const secondTab = page.locator('.sidebar-tab').nth(1);
+    const firstHeader = page.locator('.accordion-header').first();
+    await firstHeader.focus();
+    await expect(firstHeader).toBeFocused();
 
-    await firstTab.focus();
-    await page.keyboard.press('ArrowRight');
-    await expect(secondTab).toBeFocused();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
 
-    await page.keyboard.press('ArrowLeft');
-    await expect(firstTab).toBeFocused();
+    // Accordion should be expanded after Enter
+    const firstPanel = firstHeader.locator('..').locator('.accordion-panel').first();
+    await expect(firstPanel).toHaveClass(/expanded/);
+
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(300);
+
+    // Accordion should be collapsed after Space
+    await expect(firstPanel).not.toHaveClass(/expanded/);
   });
 
   test('ARIA attributes exist on key regions and controls', async ({ page }) => {
@@ -72,9 +79,9 @@ test.describe('Accessibility E2E', () => {
     await expect(page.locator('#editor')).toHaveAttribute('role', 'textbox');
     await expect(page.locator('#toggle-sidebar')).toHaveAttribute('aria-expanded');
 
-    const firstTab = page.locator('.sidebar-tab').first();
-    await expect(firstTab).toHaveAttribute('role', 'tab');
-    await expect(firstTab).toHaveAttribute('aria-selected');
+    const firstHeader = page.locator('.accordion-header').first();
+    await expect(firstHeader).toHaveAttribute('role', 'button');
+    await expect(firstHeader).toHaveAttribute('aria-expanded');
   });
 
   test('focus-visible style is applied for keyboard users', async ({ page }) => {

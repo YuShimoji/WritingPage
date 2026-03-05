@@ -171,7 +171,7 @@ test.describe('Command Palette E2E', () => {
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
     
-    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
-    await expect(structureTab).toHaveClass(/active/);
+    const structureHeader = page.locator('.accordion-header[data-group="structure"]');
+    await expect(structureHeader).toHaveClass(/expanded/);
   });
 });

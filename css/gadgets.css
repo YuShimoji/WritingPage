@@ -183,27 +183,6 @@
   outline-offset: 2px;
 }
 
-/* ===== タブD&D ===== */
-.sidebar-tab[draggable="true"] {
-  cursor: grab;
-}
-
-.sidebar-tab.tab-dragging {
-  opacity: 0.5;
-  cursor: grabbing;
-}
-
-.sidebar-tab.tab-drag-over {
-  background: rgba(74, 144, 226, 0.15);
-  outline: 2px solid var(--focus-color, #4a90e2);
-  outline-offset: -1px;
-  transform: scale(1.05);
-  transition: transform 0.1s ease, background 0.1s ease;
-}
-
-.sidebar-tabs.tabs-dnd-active .sidebar-tab:not(.tab-dragging) {
-  transition: transform 0.15s ease;
-}
 
 /* ===== ガジェット復帰ボタン ===== */
 .panel-restore-gadget {

@@ -69,9 +69,9 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should render [[wikilink]] in wiki preview', async ({ page }) => {
     // Wikiタブを開く
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    await wikiHeader.waitFor({ timeout: 10000 });
+    await wikiHeader.click();
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     // 新しいWikiページを作成
@@ -97,9 +97,9 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should find backlinks', async ({ page }) => {
     // Wikiページを作成
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    await wikiHeader.waitFor({ timeout: 10000 });
+    await wikiHeader.click();
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     const createButton = page.locator('#wiki-gadgets-panel button:has-text("新規ページ")');
@@ -132,9 +132,9 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should display link graph gadget', async ({ page }) => {
     // Wikiタブを開く
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    await wikiHeader.waitFor({ timeout: 10000 });
+    await wikiHeader.click();
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     // Link Graph gadgetが表示されているか確認
@@ -151,9 +151,9 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should generate graph data from links', async ({ page }) => {
     // Wikiページを2つ作成してリンク関係を作る
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    await wikiTab.waitFor({ timeout: 10000 });
-    await wikiTab.click();
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    await wikiHeader.waitFor({ timeout: 10000 });
+    await wikiHeader.click();
     await page.waitForSelector('#wiki-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     const createButton = page.locator('#wiki-gadgets-panel button:has-text("新規ページ")');

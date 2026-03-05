@@ -59,7 +59,7 @@ test.describe('Sidebar Layout', () => {
     expect(leftClosed).toBe('-320px');
   });
 
-  test('should handle multiple tab switches without issues', async ({ page }) => {
+  test('should handle multiple accordion switches without issues', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -67,37 +67,37 @@ test.describe('Sidebar Layout', () => {
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
 
-    const structureTab = page.locator('.sidebar-tab[data-group="structure"]');
-    const wikiTab = page.locator('.sidebar-tab[data-group="wiki"]');
-    const assistTab = page.locator('.sidebar-tab[data-group="assist"]');
+    const structureHeader = page.locator('.accordion-header[data-group="structure"]');
+    const wikiHeader = page.locator('.accordion-header[data-group="wiki"]');
+    const assistHeader = page.locator('.accordion-header[data-group="assist"]');
 
-    const structurePanel = page.locator('.sidebar-group[data-group="structure"]');
-    const wikiPanel = page.locator('.sidebar-group[data-group="wiki"]');
-    const assistPanel = page.locator('.sidebar-group[data-group="assist"]');
+    const structurePanel = page.locator('.accordion-panel[data-group="structure"]');
+    const wikiPanel = page.locator('.accordion-panel[data-group="wiki"]');
+    const assistPanel = page.locator('.accordion-panel[data-group="assist"]');
 
-    await expect(structureTab).toBeVisible();
-    await expect(wikiTab).toBeVisible();
-    await expect(assistTab).toBeVisible();
+    await expect(structureHeader).toBeVisible();
+    await expect(wikiHeader).toBeVisible();
+    await expect(assistHeader).toBeVisible();
 
-    // Switch between existing tabs multiple times (structure / wiki / assist)
-    await structureTab.click();
-    await expect(structurePanel).toHaveClass(/active/);
+    // Switch between existing accordions multiple times (structure / wiki / assist)
+    await structureHeader.click();
+    await expect(structurePanel).toHaveClass(/expanded/);
 
-    await wikiTab.click();
-    await expect(wikiPanel).toHaveClass(/active/);
+    await wikiHeader.click();
+    await expect(wikiPanel).toHaveClass(/expanded/);
 
-    await assistTab.click();
-    await expect(assistPanel).toHaveClass(/active/);
+    await assistHeader.click();
+    await expect(assistPanel).toHaveClass(/expanded/);
 
-    await structureTab.click();
-    await expect(structurePanel).toHaveClass(/active/);
+    await structureHeader.click();
+    await expect(structurePanel).toHaveClass(/expanded/);
 
-    await assistTab.click();
-    await expect(assistPanel).toHaveClass(/active/);
+    await assistHeader.click();
+    await expect(assistPanel).toHaveClass(/expanded/);
 
-    // Verify final tab is active
-    await expect(assistTab).toHaveClass(/active/);
-    await expect(assistPanel).toHaveClass(/active/);
+    // Verify final accordion is expanded
+    await expect(assistHeader).toHaveClass(/expanded/);
+    await expect(assistPanel).toHaveClass(/expanded/);
   });
 
   test('should maintain sidebar state after reload', async ({ page }) => {
@@ -106,24 +106,24 @@ test.describe('Sidebar Layout', () => {
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
     await page.waitForTimeout(400);
-    
-    // Switch to assist tab (current implementation)
-    await page.locator('.sidebar-tab[data-group="assist"]').waitFor();
-    await page.click('.sidebar-tab[data-group="assist"]');
-    
+
+    // Expand assist accordion
+    await page.locator('.accordion-header[data-group="assist"]').waitFor();
+    await page.click('.accordion-header[data-group="assist"]');
+
     // Reload page
     await page.reload();
-    
-    // Sidebar should remember it was open and on typography tab
+
+    // Sidebar should remember it was open
     const sidebar = page.locator('#sidebar');
     await page.waitForTimeout(500);
-    
+
     // Note: Depending on implementation, sidebar state might not persist
     // This test validates current behavior
     const isOpen = await sidebar.evaluate((el) => {
       return el.classList.contains('open');
     });
-    
+
     // Either open or closed is acceptable, just ensure no crash
     expect(typeof isOpen).toBe('boolean');
   });

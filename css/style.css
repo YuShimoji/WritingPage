@@ -238,9 +238,6 @@ html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
 }
 
-html[data-ui-mode='focus'] .fab-button {
-  display: none !important;
-}
 
 html[data-ui-mode='focus'] #quick-tools-panel {
   display: none !important;
@@ -263,9 +260,6 @@ html[data-ui-mode='blank'] .mini-hud {
   display: none !important;
 }
 
-html[data-ui-mode='blank'] .fab-button {
-  display: none !important;
-}
 
 html[data-ui-mode='blank'] #quick-tools-panel {
   display: none !important;
@@ -1105,40 +1099,6 @@ html[data-toolbar-hidden='true'] .sidebar {
   margin-bottom: 1rem;
 }
 
-.sidebar-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-  position: sticky;
-  top: var(--sidebar-sticky-offset);
-  background: var(--sidebar-bg);
-  padding: 4px 0;
-  z-index: 1;
-}
-
-.sidebar-tab {
-  padding: 0.6rem 0.5rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: inherit;
-  font-weight: 600;
-  white-space: nowrap;
-  /* タブ名の折返し防止 */
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s;
-}
-
-.sidebar-tab.active,
-.sidebar-tab:focus-visible {
-  background: var(--toolbar-bg);
-  border-color: var(--ui-focus-color);
-  color: var(--ui-focus-color);
-  outline: 2px solid var(--ui-focus-color);
-  outline-offset: 2px;
-}
 
 .sidebar-loadout label {
   display: block;
@@ -1179,110 +1139,9 @@ html[data-toolbar-hidden='true'] .sidebar {
   display: block;
 }
 
-/* Accordion mode: show all groups as details */
-[data-tabs-presentation="accordion"] .sidebar-tabs {
-  display: none !important;
-}
-
-[data-tabs-presentation="accordion"] .sidebar-group {
-  display: block;
-  margin-bottom: 10px;
-}
-
-[data-tabs-presentation="accordion"] .sidebar-group.active {
-  display: block;
-}
-
-[data-tabs-presentation="accordion"] .sidebar-group summary {
-  cursor: pointer;
-  font-weight: 600;
-  padding: 10px;
-  background: var(--toolbar-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  margin-bottom: 4px;
-}
-
-[data-tabs-presentation="accordion"] .sidebar-group[aria-hidden="true"] {
-  display: none;
-}
-
-/* Buttons mode: show tabs as buttons */
-[data-tabs-presentation="buttons"] .sidebar-tabs {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-[data-tabs-presentation="buttons"] .sidebar-tab {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  text-align: center;
-  background: var(--ui-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-}
-
-[data-tabs-presentation="buttons"] .sidebar-tab.active {
-  background: var(--ui-focus-color);
-  color: white;
-}
 
 /* Dropdown mode handled in JS */
 
-/* ===== タブ配置（上下左右） ===== */
-/* 左配置（デフォルト） */
-.sidebar[data-tab-placement="left"] .sidebar-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-/* 右配置 */
-.sidebar[data-tab-placement="right"] .sidebar-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-/* 上配置 */
-.sidebar[data-tab-placement="top"] .sidebar-tabs {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-start;
-}
-
-.sidebar[data-tab-placement="top"] .sidebar-tab {
-  flex: 0 0 auto;
-  min-width: 80px;
-}
-
-/* 下配置 */
-.sidebar[data-tab-placement="bottom"] .sidebar-tabs {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-start;
-}
-
-.sidebar[data-tab-placement="bottom"] .sidebar-tab {
-  flex: 0 0 auto;
-  min-width: 80px;
-}
-
-/* レスポンシブ: 小画面では左配置にフォールバック */
-@media (max-width: 768px) {
-
-  .sidebar[data-tab-placement="top"] .sidebar-tabs,
-  .sidebar[data-tab-placement="bottom"] .sidebar-tabs {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
 .sidebar-group[aria-hidden='true'] {
   display: none;
@@ -1845,13 +1704,6 @@ input[type='color'] {
     left: auto;
   }
 
-  /* FABボタンのサイズ調整 */
-  .fab-button {
-    --fab-size: 56px;
-    --fab-icon-size: 28px;
-    right: 20px;
-    bottom: 20px;
-  }
 
   /* ハンバーガーメニューボタンのスタイル */
   #toggle-sidebar {
@@ -1878,19 +1730,6 @@ input[type='color'] {
     }
   }
 
-  /* サイドバータブの最適化 */
-  .sidebar-tabs {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
-  }
-
-  .sidebar-tab {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.85rem;
-    min-height: 44px;
-    /* タッチ操作に最適化 */
-    touch-action: manipulation;
-  }
 
   /* ボタンのタッチ最適化 */
   button,
@@ -1998,33 +1837,6 @@ input[type='color'] {
   }
 }
 
-/* フローティングアクションボタン共通スタイル */
-.fab-button {
-  position: fixed;
-  right: 16px;
-  bottom: var(--fab-bottom, 16px);
-  width: var(--fab-size, 64px);
-  height: var(--fab-size, 64px);
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--fab-bg, var(--toolbar-text));
-  color: var(--fab-fg, var(--bg-color));
-  border: 1px solid var(--border-color);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  z-index: 1500;
-}
-
-.fab-button svg {
-  width: var(--fab-icon-size, 40px);
-  height: var(--fab-icon-size, 40px);
-}
-
-.fab-button:hover {
-  opacity: 0.95;
-}
 
 /* フローティングアクションボタン（ツールバー再表示） */
 .fab-toggle-toolbar {
@@ -2852,7 +2664,6 @@ html[data-embed='true'] #editor {
   /* サイドバー非表示 */
   .sidebar,
   .gadgets-panel,
-  .sidebar-tabs,
   .sidebar-groups {
     display: none !important;
   }
@@ -3889,11 +3700,6 @@ input[type="checkbox"] {
   margin-top: 6px;
 }
 
-/* サイドバータブのコンパクト化 */
-.sidebar-tab {
-  font-size: 12px;
-  padding: 6px 4px;
-}
 
 /* ロードアウトセクションのコンパクト化 */
 .sidebar-loadout {
@@ -4874,20 +4680,6 @@ body.ui-editor-preview {
   opacity: 0.8;
 }
 
-.sidebar-tab {
-  font-size: 0.85rem;
-  font-weight: 500;
-  opacity: 0.7;
-  transition: all 0.2s;
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.sidebar-tab.active {
-  opacity: 1;
-  font-weight: 600;
-  background: var(--ui-bg);
-  border-bottom: 2px solid var(--ui-focus-color);
-}
 
 /* Documents Gadget Explorer View */
 .gadget-documents {

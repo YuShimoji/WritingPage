@@ -176,7 +176,6 @@
   /* サイドバー非表示 */
   .sidebar,
   .gadgets-panel,
-  .sidebar-tabs,
   .sidebar-groups {
     display: none !important;
   }

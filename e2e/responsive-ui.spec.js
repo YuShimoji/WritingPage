@@ -300,7 +300,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
         '#toggle-sidebar',
         '.toolbar .icon-button',
         '.gadget button',
-        '.sidebar-tab'
+        '.accordion-header'
       ];
 
       for (const selector of buttons) {
