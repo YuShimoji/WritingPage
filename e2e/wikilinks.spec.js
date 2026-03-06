@@ -10,6 +10,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     });
     await enableAllGadgets(page);
     await openSidebarGroup(page, 'edit');
+    await page.waitForSelector('#edit-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   });
 
   test('should parse [[wikilink]] syntax', async ({ page }) => {
@@ -68,12 +69,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should render [[wikilink]] in wiki preview', async ({ page }) => {
-    // Editカテゴリを開く
-    const editHeader = page.locator('.accordion-header[data-group="edit"]');
-    await editHeader.waitFor({ timeout: 10000 });
-    await editHeader.click();
-    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
-
     // 新しいWikiページを作成
     const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
@@ -97,11 +92,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should find backlinks', async ({ page }) => {
     // Wikiページを作成
-    const editHeader = page.locator('.accordion-header[data-group="edit"]');
-    await editHeader.waitFor({ timeout: 10000 });
-    await editHeader.click();
-    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
-
     const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
 
@@ -131,12 +121,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should display link graph gadget', async ({ page }) => {
-    // Editカテゴリを開く
-    const editHeader = page.locator('.accordion-header[data-group="edit"]');
-    await editHeader.waitFor({ timeout: 10000 });
-    await editHeader.click();
-    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
-
     // Link Graph gadgetが表示されているか確認
     const _linkGraphGadget = page.locator('#edit-gadgets-panel .link-graph-container, #edit-gadgets-panel .link-graph-toolbar');
     // gadgetがロードされるまで待つ
@@ -151,11 +135,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
   test('should generate graph data from links', async ({ page }) => {
     // Wikiページを2つ作成してリンク関係を作る
-    const editHeader = page.locator('.accordion-header[data-group="edit"]');
-    await editHeader.waitFor({ timeout: 10000 });
-    await editHeader.click();
-    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
-
     const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
     await createButton.waitFor({ timeout: 5000 });
 

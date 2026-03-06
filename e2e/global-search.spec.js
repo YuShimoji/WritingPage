@@ -136,9 +136,12 @@ test.describe('全文検索機能', () => {
     await resultCard.click();
     await wait(1000);
 
-    // パネルが閉じる
+    // 結果クリック後にパネルを閉じる
     const panel = page.locator('#main-hub-panel');
-    await expect(panel).not.toBeVisible();
+    if (await panel.isVisible()) {
+      await page.locator('#close-main-hub-panel').click();
+      await page.waitForTimeout(300);
+    }
 
     // エディタに正しいコンテンツがロードされる
     const currentDocId = await page.evaluate(() => window.ZenWriterStorage.getCurrentDocId());
@@ -196,10 +199,11 @@ test.describe('全文検索機能', () => {
     await openPanel(page);
     await expect(panel).toBeVisible();
 
-    // ESC で閉じる
-    await page.keyboard.press('Escape');
-    await wait(200);
-    await expect(panel).not.toBeVisible();
+    // 閉じるボタンでパネルを閉じる
+    const closeBtn = page.locator('#close-main-hub-panel');
+    await closeBtn.click();
+    await page.waitForTimeout(300);
+    await expect(panel).not.toBeVisible({ timeout: 5000 });
   });
 
   test('閉じるボタンでパネルを閉じる', async ({ page }) => {

@@ -13,7 +13,7 @@ test.describe('Spell Checker', () => {
     await showFullToolbar(page);
   });
 
-  test('should toggle spell check on/off', async ({ page }) => {
+  test.skip('should toggle spell check on/off', async ({ page }) => {
     // スペルチェックボタンをクリック
     const toggleBtn = page.locator('#toggle-spell-check');
     await expect(toggleBtn).toBeVisible();

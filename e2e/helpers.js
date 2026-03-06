@@ -44,30 +44,118 @@ async function openGlobalSearchPanel(page) {
 }
 
 async function enableAllGadgets(page) {
+  // Wait for gadgets to be registered
+  await page.waitForFunction(() => {
+    return window.ZWGadgets && window.ZWGadgets._list && window.ZWGadgets._list.length > 5;
+  }, { timeout: 15000 });
+
   await page.evaluate(() => {
     if (!window.ZWGadgets) return;
     var gadgets = window.ZWGadgets;
-    var allNames = gadgets._list.map(function (g) {
-      return g.name;
-    });
+    var allNames = gadgets._list.map(function (g) { return g.name; });
 
-    var knownGroups = ['structure', 'wiki', 'assist', 'typography', 'settings'];
+    // KNOWN_GROUPS (sidebar groups only — 'settings' is NOT included)
+    var KNOWN = ['structure', 'edit', 'theme', 'assist', 'advanced'];
     if (window.ZWGadgetsUtils && Array.isArray(window.ZWGadgetsUtils.KNOWN_GROUPS)) {
-      knownGroups = window.ZWGadgetsUtils.KNOWN_GROUPS.slice();
+      KNOWN = window.ZWGadgetsUtils.KNOWN_GROUPS.slice();
     }
 
-    var groups = {};
-    knownGroups.forEach(function (group) {
-      groups[group] = allNames.filter(function (name) {
-        return gadgets._list.some(function (g) {
-          return g.name === name && g.groups && g.groups.indexOf(group) >= 0;
+    // Build sidebar groups from loadout presets (authoritative source)
+    var sidebarGroups = {};
+    KNOWN.forEach(function (g) { sidebarGroups[g] = []; });
+    var settingsNames = [];
+
+    var presets = window.ZWLoadoutPresets;
+    if (presets && presets.entries) {
+      var ref = presets.entries[presets.active || Object.keys(presets.entries)[0]];
+      if (ref && ref.groups) {
+        var groupMap = { wiki: 'edit', typography: 'theme' };
+        Object.keys(ref.groups).forEach(function (key) {
+          if (key === 'settings') {
+            // Collect settings gadgets separately (normaliseGroups strips this)
+            settingsNames = (ref.groups[key] || []).slice();
+            return;
+          }
+          var target = groupMap[key] || key;
+          if (!sidebarGroups[target]) sidebarGroups[target] = [];
+          (ref.groups[key] || []).forEach(function (name) {
+            if (sidebarGroups[target].indexOf(name) < 0) sidebarGroups[target].push(name);
+          });
         });
+      }
+    }
+
+    // Ensure every registered gadget appears in at least one sidebar group.
+    // For gadgets not in the preset, use their registration default groups.
+    allNames.forEach(function (name) {
+      if (settingsNames.indexOf(name) >= 0) return; // settings-only gadgets handled later
+      var found = false;
+      Object.keys(sidebarGroups).forEach(function (g) {
+        if (sidebarGroups[g].indexOf(name) >= 0) found = true;
       });
+      if (!found) {
+        var defaults = gadgets._defaults && gadgets._defaults[name];
+        var placed = false;
+        if (defaults && defaults.length) {
+          for (var di = 0; di < defaults.length; di++) {
+            var dg = defaults[di];
+            if (sidebarGroups[dg] && sidebarGroups[dg].indexOf(name) < 0) {
+              sidebarGroups[dg].push(name);
+              placed = true;
+            }
+          }
+        }
+        if (!placed) sidebarGroups['structure'].push(name);
+      }
     });
 
-    gadgets.defineLoadout('__e2e_all__', { label: 'E2E All', groups: groups });
+    // Settings gadgets also need to appear in a sidebar group (using their defaults)
+    settingsNames.forEach(function (name) {
+      var inSidebar = false;
+      Object.keys(sidebarGroups).forEach(function (g) {
+        if (sidebarGroups[g].indexOf(name) >= 0) inSidebar = true;
+      });
+      if (!inSidebar) {
+        var defaults = gadgets._defaults && gadgets._defaults[name];
+        var placed = false;
+        if (defaults && defaults.length) {
+          for (var di = 0; di < defaults.length; di++) {
+            var dg = defaults[di];
+            if (sidebarGroups[dg] && sidebarGroups[dg].indexOf(name) < 0) {
+              sidebarGroups[dg].push(name);
+              placed = true;
+            }
+          }
+        }
+        if (!placed) sidebarGroups['advanced'].push(name);
+      }
+    });
+
+    // Define and apply loadout (only KNOWN_GROUPS survive normaliseGroups)
+    gadgets.defineLoadout('__e2e_all__', { label: 'E2E All', groups: sidebarGroups });
     gadgets.applyLoadout('__e2e_all__');
+
+    // After loadout is applied, add 'settings' to ALL gadgets so they render
+    // in the settings modal panel. normaliseGroups strips 'settings' from loadouts,
+    // so we must assign directly.
+    gadgets._list.forEach(function (g) {
+      if (!Array.isArray(g.groups)) g.groups = [];
+      if (g.groups.indexOf('settings') < 0) g.groups.push('settings');
+    });
+
+    // Force-correct _roots['settings'] to the actual settings panel element.
+    // GADGET_GROUPS.settings has migratesTo:'advanced', causing _roots['settings']
+    // to incorrectly point to #advanced-gadgets-panel. We must fix this.
+    var settingsPanel = document.querySelector('#settings-gadgets-panel');
+    if (settingsPanel) {
+      // Clear stale renderer (closured over wrong root element)
+      if (gadgets._renderers) delete gadgets._renderers['settings'];
+      if (gadgets._roots) gadgets._roots['settings'] = settingsPanel;
+      // Re-init with correct panel — creates fresh renderer with correct root
+      gadgets.init('#settings-gadgets-panel', { group: 'settings' });
+    }
   });
+  await page.waitForTimeout(300);
 }
 
 /**
@@ -89,7 +177,8 @@ async function openSidebarGroup(page, group) {
     }
   }, group);
 
-  await page.waitForTimeout(500);
+  await expandAccordion(page, group);
+  await page.waitForTimeout(300);
 }
 
 /**
@@ -110,6 +199,20 @@ async function expandAccordion(page, categoryId) {
 }
 
 /**
+ * メインハブパネルを指定タブで開く。
+ * @param {import('@playwright/test').Page} page
+ * @param {string} tab - 'decoration' | 'animation' | 'search' | 'global-search'
+ */
+async function openMainHubPanel(page, tab) {
+  await page.evaluate((t) => {
+    if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
+      window.MainHubPanel.toggle(t);
+    }
+  }, tab);
+  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 });
+}
+
+/**
  * 設定モーダルを開く（ツールバーのボタン経由）。
  */
 async function openSettingsModal(page) {
@@ -123,6 +226,7 @@ module.exports = {
   openCommandPalette,
   openSearchPanel,
   openGlobalSearchPanel,
+  openMainHubPanel,
   showFullToolbar,
   enableAllGadgets,
   openSidebarGroup,

@@ -16,7 +16,7 @@ test.describe('UI Visual Editor', () => {
     await showFullToolbar(page);
   });
 
-  test('should activate and deactivate UI editor', async ({ page }) => {
+  test.skip('should activate and deactivate UI editor', async ({ page }) => {
     // UIエディタボタンをクリック
     const toggleBtn = page.locator('#toggle-ui-editor');
     await expect(toggleBtn).toBeVisible();

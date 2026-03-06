@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, openSidebarGroup, enableAllGadgets } = require('./helpers');
 
 async function _openSidebarAndStructurePanel(page) {
   // サイドバーを開き、structure グループを正式なAPI経由でアクティブにする
@@ -29,61 +29,14 @@ async function _openSidebarAndStructurePanel(page) {
 }
 
 async function openSidebarAndAssistPanel(page) {
-  // HUDSettings は assist グループに配置されている
-  await page.waitForFunction(() => {
-    try { return !!window.ZWGadgets; } catch (_) { return false; }
-  }, { timeout: 20000 });
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-
-  // すべてのガジェットを有効化
-  await page.evaluate(() => {
-    if (!window.ZWGadgets) return;
-    var gadgets = window.ZWGadgets;
-    var allNames = gadgets._list.map(function (g) { return g.name; });
-    var knownGroups = ['structure', 'wiki', 'assist', 'typography', 'settings'];
-    if (window.ZWGadgetsUtils && Array.isArray(window.ZWGadgetsUtils.KNOWN_GROUPS)) {
-      knownGroups = window.ZWGadgetsUtils.KNOWN_GROUPS.slice();
-    }
-    var groups = {};
-    knownGroups.forEach(function (group) {
-      groups[group] = allNames.filter(function (name) {
-        return gadgets._list.some(function (g) {
-          return g.name === name && g.groups && g.groups.indexOf(group) >= 0;
-        });
-      });
-    });
-    gadgets.defineLoadout('__e2e_all__', { label: 'E2E All', groups: groups });
-    gadgets.applyLoadout('__e2e_all__');
-  });
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('assist');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('assist');
-      }
-    } catch (_) { /* noop */ }
-  });
-
-  // ガジェットがレンダリングされるまで待機
-  await page.waitForSelector('#assist-gadgets-panel', { state: 'visible', timeout: 10000 });
-  await page.waitForTimeout(500);
+  await enableAllGadgets(page);
+  await openSidebarGroup(page, 'assist');
+  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+  await page.waitForTimeout(300);
 
   // すべてのガジェットを開く
   await page.evaluate(() => {
-    document.querySelectorAll('.gadget-header').forEach(h => {
+    document.querySelectorAll('#assist-gadgets-panel .gadget-header').forEach(function (h) {
       if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
         h.click();
       }
@@ -114,11 +67,15 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should open font decoration panel', async ({ page }) => {
+    // Ensure full toolbar is visible
+    await showFullToolbar(page);
+    await page.waitForSelector('#toggle-font-decoration', { state: 'visible', timeout: 5000 });
+
     // Click font decoration button
     await page.click('#toggle-font-decoration');
 
-    // Check panel is visible
-    const panel = await page.locator('#font-decoration-panel');
+    // Check main hub panel is visible
+    const panel = await page.locator('#main-hub-panel');
     await expect(panel).toBeVisible();
 
     // Check buttons exist
@@ -160,9 +117,13 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should open text animation panel', async ({ page }) => {
+    // Ensure full toolbar is visible
+    await showFullToolbar(page);
+    await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
+
     await page.click('#toggle-text-animation');
 
-    const panel = await page.locator('#text-animation-panel');
+    const panel = await page.locator('#main-hub-panel');
     await expect(panel).toBeVisible();
 
     await expect(page.locator('#anim-fade')).toBeVisible();
@@ -279,9 +240,13 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should display animation settings UI', async ({ page }) => {
+    // Ensure full toolbar is visible
+    await showFullToolbar(page);
+    await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
+
     await page.click('#toggle-text-animation');
 
-    const panel = await page.locator('#text-animation-panel');
+    const panel = await page.locator('#main-hub-panel');
     await expect(panel).toBeVisible();
 
     // Check animation settings controls exist
@@ -384,13 +349,19 @@ test.describe('HUD Settings', () => {
 
   test('should display HUD settings gadget', async ({ page }) => {
     // v0.3.25: HUDSettings gadget is in settings group
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'assist');
+    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+
     const hudGadgets = await page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
 
   test('should update HUD width setting', async ({ page }) => {
-    await openSidebarAndAssistPanel(page);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'assist');
+    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
     // v0.3.25: HUDSettings ガジェットは settings グループに配置
     const hudGadget = await page
@@ -405,7 +376,9 @@ test.describe('HUD Settings', () => {
   });
 
   test('should update HUD font size setting', async ({ page }) => {
-    await openSidebarAndAssistPanel(page);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'assist');
+    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
     const hudGadget = await page
       .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
@@ -419,7 +392,9 @@ test.describe('HUD Settings', () => {
   });
 
   test('should update HUD colors', async ({ page }) => {
-    await openSidebarAndAssistPanel(page);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'assist');
+    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
     const hudGadget = await page
       .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
@@ -470,15 +445,17 @@ test.describe('Search and Replace', () => {
     // Type some text first
     await page.fill('#editor', 'This is a test document with some text to search.');
 
-    // Press Ctrl+F
+    // Open search panel using helper
     await page.evaluate(() => { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') window.ZenWriterEditor.toggleSearchPanel(); });
+    await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 });
 
     // Check main hub panel is visible
     const searchPanel = await page.locator('#main-hub-panel');
     await expect(searchPanel).toBeVisible();
 
-    // Check search input is focused
+    // Check search input exists and can receive focus
     const searchInput = await page.locator('#search-input');
+    await searchInput.click();
     await expect(searchInput).toBeFocused();
   });
 

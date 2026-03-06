@@ -17,10 +17,11 @@ async function openThemePanel(page) {
   // 生成され、#bg-color が重複する問題を回避）。Themes はデフォルトで settings グループに
   // 登録されているため、設定モーダルを開くだけで利用可能。
   await showFullToolbar(page);
+  await page.waitForTimeout(200);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#settings-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 15000 });
   await page.waitForTimeout(500);
 
   // すべてのガジェットを展開

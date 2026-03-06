@@ -11,7 +11,7 @@ test.describe('Story Wiki', () => {
     }, { timeout: 20000 });
     await enableAllGadgets(page);
     await openSidebarGroup(page, 'edit');
-    await page.waitForSelector('#edit-gadgets-panel', { state: 'visible', timeout: 10000 });
+    await page.waitForSelector('#edit-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   });
 
   test('should display Story Wiki gadget', async ({ page }) => {
@@ -38,8 +38,8 @@ test.describe('Story Wiki', () => {
     await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
     await page.fill('#edit-gadgets-panel input[placeholder^="タグ"]', 'character, test');
 
-    // Save
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
+    // Save (text-is で正確にマッチ。has-text だと「レイアウト保存」にも誤マッチする)
+    await page.click('#edit-gadgets-panel button:text-is("保存")');
 
     // Check that page appears in list
     const createdRow = page.locator('#edit-gadgets-panel .wiki-row', { hasText: 'Test Character' });
@@ -69,11 +69,11 @@ test.describe('Story Wiki', () => {
     await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Test Character');
     await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is a test character page.');
     await page.fill('#edit-gadgets-panel input[placeholder^="タグ"]', 'character, test');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
+    await page.click('#edit-gadgets-panel button:text-is("保存")');
 
     // 既存ページの内容を編集
     await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Updated test character page with more details.');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
+    await page.click('#edit-gadgets-panel button:text-is("保存")');
 
     // ストレージから内容が更新されていることを検証
     const updated = await page.evaluate(() => {

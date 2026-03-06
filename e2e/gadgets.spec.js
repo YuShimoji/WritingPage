@@ -27,9 +27,11 @@ test.describe('Gadgets E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
     await openSettingsModal(page);
+    await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await page.waitForTimeout(500);
 
     const clock = page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
-    await expect(clock).toBeVisible();
+    await expect(clock).toBeVisible({ timeout: 10000 });
 
     await page.evaluate(() => {
       if (window.ZWGadgets && typeof window.ZWGadgets.setSetting === 'function') {

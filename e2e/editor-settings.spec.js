@@ -8,10 +8,11 @@ async function openSettingsPanel(page) {
   }, { timeout: 20000 });
   await enableAllGadgets(page);
   await showFullToolbar(page);
+  await page.waitForTimeout(200);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#settings-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(500);
 }
 

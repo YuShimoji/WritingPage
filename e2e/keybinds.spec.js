@@ -1,5 +1,6 @@
 // E2E: キーバインド編集機能の検証
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar, enableAllGadgets } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -12,11 +13,14 @@ async function openKeybindsPanel(page) {
     try { return !!window.ZenWriterKeybinds && !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
 
-  // 設定モーダルを開く
+  // enableAllGadgets を呼んでから設定モーダルを開く（settings ガジェットをレンダリング）
+  await enableAllGadgets(page);
+  await showFullToolbar(page);
+  await page.waitForTimeout(200);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector(scope, { state: 'visible', timeout: 10000 });
+  await page.waitForSelector(scope + ' .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(500);
 
   // ガジェットを展開

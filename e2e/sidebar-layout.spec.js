@@ -63,6 +63,7 @@ test.describe('Sidebar Layout', () => {
     await page.goto('/');
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
+    await page.waitForTimeout(300);
 
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
@@ -77,23 +78,32 @@ test.describe('Sidebar Layout', () => {
     await expect(editHeader).toBeVisible();
     await expect(assistHeader).toBeVisible();
 
-    // Switch between existing accordions multiple times (structure / edit / assist)
+    // structure is expanded by default, so first close it then open another
     await structureHeader.click();
-    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
+    await page.waitForTimeout(300);
+    await expect(structureHeader).toHaveAttribute('aria-expanded', 'false');
 
+    // Switch between existing accordions multiple times (edit / assist / structure)
     await editHeader.click();
+    await page.waitForTimeout(300);
     await expect(editHeader).toHaveAttribute('aria-expanded', 'true');
 
     await assistHeader.click();
+    await page.waitForTimeout(300);
     await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
 
     await structureHeader.click();
+    await page.waitForTimeout(300);
     await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
 
+    // assist was already expanded (step 3), clicking toggles it closed
     await assistHeader.click();
-    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
+    await page.waitForTimeout(300);
+    await expect(assistHeader).toHaveAttribute('aria-expanded', 'false');
 
-    // Verify final accordion is expanded
+    // Re-open assist to verify final state
+    await assistHeader.click();
+    await page.waitForTimeout(300);
     await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
     await expect(assistPanel).toHaveAttribute('aria-hidden', 'false');
   });

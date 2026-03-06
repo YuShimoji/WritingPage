@@ -85,9 +85,13 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
             try { return !!window.ZenWriterEditor; } catch (_) { return false; }
         }, { timeout: 15000 });
 
+        // Ensure full toolbar is visible and button is accessible
+        await showFullToolbar(page);
+        await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
+
         // Open animation panel
         await page.click('#toggle-text-animation');
-        await page.waitForSelector('#text-animation-panel', { state: 'visible', timeout: 5000 });
+        await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 });
 
         // Change speed
         const speedInput = page.locator('#anim-speed');

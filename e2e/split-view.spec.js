@@ -19,14 +19,14 @@ test.describe('Split View', () => {
     await expect(toggleBtn).toBeVisible();
     await toggleBtn.click();
 
-    // モード選択パネルが表示される
-    const modePanel = page.locator('#split-view-mode-panel');
-    await expect(modePanel).toBeVisible();
+    // MainHubPanel（統合パネル）が表示される
+    const panel = page.locator('#main-hub-panel');
+    await expect(panel).toBeVisible();
 
     // 閉じるボタンでパネルを閉じる
-    const closeBtn = page.locator('#close-split-view-mode-panel');
+    const closeBtn = page.locator('#close-main-hub-panel');
     await closeBtn.click();
-    await expect(modePanel).not.toBeVisible();
+    await expect(panel).not.toBeVisible();
   });
 
   test('should show edit/preview split view', async ({ page }) => {

@@ -68,7 +68,7 @@ test.describe('Floating panel position', () => {
         await expect(btn).toBeVisible();
         await btn.click();
 
-        const panel = page.locator('#font-decoration-panel');
+        const panel = page.locator('#main-hub-panel');
         await expect(panel).toBeVisible({ timeout: 5000 });
 
         // パネルの位置がビューポート内に収まっていることを確認
@@ -99,7 +99,7 @@ test.describe('Floating panel position', () => {
 
         // フォント装飾パネルを表示
         await page.locator('#toggle-font-decoration').click();
-        await page.locator('#font-decoration-panel').waitFor({ state: 'visible' });
+        await page.locator('#main-hub-panel').waitFor({ state: 'visible' });
         await page.waitForTimeout(300); // レイアウト安定待ち
 
         // パネル表示後のエディタの高さを取得
@@ -120,7 +120,7 @@ test.describe('Floating panel position', () => {
         await showFullToolbar(page);
 
         await page.locator('#toggle-font-decoration').click();
-        const panel = page.locator('#font-decoration-panel');
+        const panel = page.locator('#main-hub-panel');
         await expect(panel).toBeVisible({ timeout: 5000 });
 
         const position = await panel.evaluate((el) =>
