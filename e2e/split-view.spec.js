@@ -35,7 +35,7 @@ test.describe('Split View', () => {
 
     // 分割ビューボタンをクリック
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // 編集/プレビューモードを選択
     await page.click('#split-view-edit-preview');
@@ -69,7 +69,7 @@ test.describe('Split View', () => {
 
     // 分割ビューボタンをクリック
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // 章間比較モードを選択
     await page.click('#split-view-chapter-compare');
@@ -113,7 +113,7 @@ test.describe('Split View', () => {
 
     // 分割ビューボタンをクリック
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // スナップショット差分モードを選択
     await page.click('#split-view-snapshot-diff');
@@ -146,7 +146,7 @@ test.describe('Split View', () => {
 
     // 編集/プレビューモードを開く
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
     await page.click('#split-view-edit-preview');
 
     // リサイズハンドルが存在する
@@ -169,7 +169,7 @@ test.describe('Split View', () => {
   test('should hide split view and show normal editor', async ({ page }) => {
     // 編集/プレビューモードを開く
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
     await page.click('#split-view-edit-preview');
 
     // 分割ビューが表示されている
@@ -178,7 +178,7 @@ test.describe('Split View', () => {
 
     // 再度ボタンをクリックして閉じる（モードパネルを開く）
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // 同じモードを再度選択して閉じる
     await page.click('#split-view-edit-preview');
@@ -194,7 +194,7 @@ test.describe('Split View', () => {
 
     // 分割ビューボタンをクリック
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // 章間比較モードを選択
     await page.click('#split-view-chapter-compare');
@@ -215,7 +215,7 @@ test.describe('Split View', () => {
 
     // 分割ビューボタンをクリック
     await page.click('#toggle-split-view');
-    await page.waitForSelector('#split-view-mode-panel', { state: 'visible' });
+    await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // スナップショット差分モードを選択
     await page.click('#split-view-snapshot-diff');

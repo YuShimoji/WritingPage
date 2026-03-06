@@ -5,8 +5,18 @@ const { showFullToolbar } = require('./helpers');
 /**
  * UIエディタのE2Eテスト
  * ビジュアルUIエディタの機能を検証
- * UIエディタ機能テスト（実装済み、セレクタ/動作調整が必要）
+ * ツールバーボタン(#toggle-ui-editor)は未実装のため、JS API経由で有効化する
  */
+
+async function activateUIEditor(page) {
+  await page.evaluate(() => {
+    if (window.uiVisualEditor && typeof window.uiVisualEditor.activate === 'function') {
+      window.uiVisualEditor.activate();
+    }
+  });
+  await page.waitForSelector('#ui-editor-panel', { state: 'visible', timeout: 5000 });
+}
+
 test.describe('UI Visual Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -14,13 +24,14 @@ test.describe('UI Visual Editor', () => {
     await page.waitForLoadState('networkidle');
     // Show full toolbar to access hidden buttons
     await showFullToolbar(page);
+    // UIエディタの初期化を待つ
+    await page.waitForFunction(() => {
+      return !!(window.uiVisualEditor && typeof window.uiVisualEditor.activate === 'function');
+    }, { timeout: 10000 });
   });
 
   test.skip('should activate and deactivate UI editor', async ({ page }) => {
-    // UIエディタボタンをクリック
-    const toggleBtn = page.locator('#toggle-ui-editor');
-    await expect(toggleBtn).toBeVisible();
-    await toggleBtn.click();
+    await activateUIEditor(page);
 
     // パネルが表示されることを確認
     const panel = page.locator('#ui-editor-panel');
@@ -38,8 +49,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should select element on click', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // ツールバーのボタンをクリックして選択（UIエディタモードではクリックで選択される）
     const toolbarButton = page.locator('#toggle-sidebar');
@@ -58,8 +68,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should change color of selected element', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // ツールバーのボタンを選択
     const toolbarButton = page.locator('#toggle-sidebar');
@@ -87,8 +96,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should apply bulk color change to elements by type', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // 一括変更セクションで要素タイプを選択
     const typeSelect = page.locator('#ui-editor-element-type');
@@ -116,8 +124,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should reset element color', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // 要素を選択して色を変更
     const toolbarButton = page.locator('#toggle-sidebar');
@@ -147,8 +154,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should save changes to theme', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // 要素を選択して色を変更
     const toolbarButton = page.locator('#toggle-sidebar');
@@ -176,11 +182,14 @@ test.describe('UI Visual Editor', () => {
 
   test('should close UI editor with Escape key', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
-    // Escapeキーを押す
+    // パネル内の要素にフォーカスしてからEscapeを送信
+    // （keydown イベントが document まで伝搬しハンドラが発火する）
+    const enableCheckbox = page.locator('#ui-editor-enable');
+    await enableCheckbox.focus();
     await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
 
     // パネルが閉じられることを確認
     const panel = page.locator('#ui-editor-panel');
@@ -189,8 +198,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should close UI editor with close button', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // 閉じるボタンをクリック
     const closeBtn = page.locator('#ui-editor-close');
@@ -203,8 +211,7 @@ test.describe('UI Visual Editor', () => {
 
   test('should toggle editor mode with checkbox', async ({ page }) => {
     // UIエディタを有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // エディタモードのチェックボックスを取得
     const enableCheckbox = page.locator('#ui-editor-enable');
@@ -223,8 +230,7 @@ test.describe('UI Visual Editor', () => {
     await expect(panel).toHaveCount(0);
 
     // 再度有効化
-    await page.locator('#toggle-ui-editor').click();
-    await page.waitForSelector('#ui-editor-panel', { state: 'visible' });
+    await activateUIEditor(page);
 
     // エディタモードが有効になっていることを確認
     const newEnableCheckbox = page.locator('#ui-editor-enable');

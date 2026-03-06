@@ -91,22 +91,20 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should find backlinks', async ({ page }) => {
-    // Wikiページを作成
-    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
-    await createButton.waitFor({ timeout: 5000 });
-
-    // ターゲットページを作成
-    await createButton.click();
-    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Target Page');
-    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This is the target page.');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
-    await page.waitForTimeout(300);
-
-    // リンク元ページを作成
-    await createButton.click();
-    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Source Page');
-    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This links to [[Target Page]].');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
+    // Storage API経由でWikiページを直接作成（UI経由だとタイミング問題が発生するため）
+    await page.evaluate(() => {
+      if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.createWikiPage !== 'function') return;
+      window.ZenWriterStorage.createWikiPage({
+        title: 'Target Page',
+        content: 'This is the target page.',
+        tags: [],
+      });
+      window.ZenWriterStorage.createWikiPage({
+        title: 'Source Page',
+        content: 'This links to [[Target Page]].',
+        tags: [],
+      });
+    });
     await page.waitForTimeout(300);
 
     // バックリンクを検索

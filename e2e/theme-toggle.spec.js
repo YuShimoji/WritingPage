@@ -166,6 +166,7 @@ test.describe('テーマ切り替え機能', () => {
   });
 
   test('ライトモードのCSS変数が正しく適用される', async ({ page }) => {
+    await showFullToolbar(page);
     const toggleBtn = page.locator('#toggle-theme');
 
     // ライトモードに切り替え

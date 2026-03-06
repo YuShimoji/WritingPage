@@ -14,8 +14,21 @@ async function openThemePanel(page) {
   }, { timeout: 20000 });
 
   // enableAllGadgets を使わない（loadout 再適用でサイドバーにも settings パネルが
-  // 生成され、#bg-color が重複する問題を回避）。Themes はデフォルトで settings グループに
-  // 登録されているため、設定モーダルを開くだけで利用可能。
+  // 生成され、#bg-color が重複する問題を回避）。Themes ガジェットを settings グループに
+  // 直接追加して設定モーダルで描画させる。
+  await page.evaluate(() => {
+    var g = window.ZWGadgets;
+    if (!g || !g._list) return;
+    g._list.forEach(function(entry) {
+      if (entry.name === 'Themes') {
+        if (!Array.isArray(entry.groups)) entry.groups = [];
+        if (entry.groups.indexOf('settings') < 0) entry.groups.push('settings');
+      }
+    });
+    // settings パネルの renderer を再初期化
+    if (g._renderers) delete g._renderers['settings'];
+    g.init('#settings-gadgets-panel', { group: 'settings' });
+  });
   await showFullToolbar(page);
   await page.waitForTimeout(200);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });

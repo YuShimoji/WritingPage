@@ -104,10 +104,10 @@ test.describe('Editor Settings', () => {
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
-    const anchor = page.locator('#typewriter-anchor-ratio');
+    const anchor = page.locator('#assist-gadgets-panel #typewriter-anchor-ratio');
     await anchor.fill('0.7');
 
-    const stickiness = page.locator('#typewriter-stickiness');
+    const stickiness = page.locator('#assist-gadgets-panel #typewriter-stickiness');
     await stickiness.fill('0.8');
 
     await page.reload();
@@ -128,10 +128,10 @@ test.describe('Editor Settings', () => {
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
-    const dimOpacity = page.locator('#focus-dim-opacity');
+    const dimOpacity = page.locator('#assist-gadgets-panel #focus-dim-opacity');
     await dimOpacity.fill('0.5');
 
-    const blurRadius = page.locator('#focus-blur-radius');
+    const blurRadius = page.locator('#assist-gadgets-panel #focus-blur-radius');
     await blurRadius.fill('3');
 
     await page.reload();

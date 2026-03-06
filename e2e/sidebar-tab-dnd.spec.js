@@ -19,15 +19,24 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
     test('accordion panels are togglable', async ({ page }) => {
         await page.goto(pageUrl);
-        await page.waitForSelector('.accordion-header', { timeout: 10000 });
+        await page.waitForSelector('#toggle-sidebar', { state: 'visible', timeout: 10000 });
+        await page.click('#toggle-sidebar');
+        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
 
         const headers = page.locator('.accordion-header');
         const firstHeader = headers.first();
 
+        // 初期状態が展開済みの場合は一度折り畳む
+        const initialState = await firstHeader.getAttribute('aria-expanded');
+        if (initialState === 'true') {
+            await firstHeader.click();
+            await page.waitForTimeout(300);
+        }
+
+        // クリックで展開されることを確認
         await firstHeader.click();
         await page.waitForTimeout(300);
 
-        // パネルが展開されたことを確認
         const isExpanded = await firstHeader.getAttribute('aria-expanded');
         expect(isExpanded).toBe('true');
     });
@@ -46,6 +55,8 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
     test('accordion header state persists in localStorage', async ({ page }) => {
         await page.goto(pageUrl);
+        await page.waitForSelector('#toggle-sidebar', { state: 'visible', timeout: 10000 });
+        await page.click('#toggle-sidebar');
         await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
 
         // アコーディオンを展開
@@ -68,7 +79,9 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
         // アコーディオンの状態が何らかの形で保存されていることを確認
         await page.reload();
-        await page.waitForSelector('.accordion-header', { timeout: 10000 });
+        await page.waitForSelector('#toggle-sidebar', { state: 'visible', timeout: 10000 });
+        await page.click('#toggle-sidebar');
+        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
 
         const loaded = await page.evaluate((categoryId) => {
             try {
@@ -85,6 +98,8 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
 
     test('multiple accordions can be expanded independently', async ({ page }) => {
         await page.goto(pageUrl);
+        await page.waitForSelector('#toggle-sidebar', { state: 'visible', timeout: 10000 });
+        await page.click('#toggle-sidebar');
         await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
 
         const headers = page.locator('.accordion-header');

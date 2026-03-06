@@ -564,7 +564,7 @@ test.describe('Search and Replace', () => {
     await page.waitForSelector('#main-hub-panel', { timeout: 5000 });
 
     // Click close button (use panel close button)
-    await page.click('#main-hub-panel .panel-close-btn');
+    await page.click('#close-main-hub-panel');
 
     // Check panel is hidden
     const searchPanel = await page.locator('#main-hub-panel');

@@ -1,6 +1,6 @@
 // E2E: コラージュレイアウト機能の検証
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { enableAllGadgets, openSettingsModal } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -31,7 +31,15 @@ async function waitGadgetsReady(page) {
     } catch (_) { return false; }
   });
   await enableAllGadgets(page);
-  await openSidebarGroup(page, 'settings');
+  await openSettingsModal(page);
+  // 設定モーダル内のガジェットを展開
+  await page.evaluate(() => {
+    document.querySelectorAll('#settings-gadgets-panel .gadget-header').forEach(h => {
+      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
+        h.click();
+      }
+    });
+  });
   await page.waitForTimeout(500);
 }
 
