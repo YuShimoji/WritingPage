@@ -49,7 +49,6 @@
       if (this.editorManager) {
         this.editorManager.richTextEditor = this;
       }
-      console.log('[RichTextEditor] Initialized');
     }
 
     /**
@@ -261,7 +260,6 @@
     }
 
     switchToWysiwyg() {
-      console.log('[RichTextEditor] switchToWysiwyg called', { isWysiwygMode: this.isWysiwygMode });
       if (this.isWysiwygMode) return;
 
       // textareaの内容を取得してMarkdownからHTMLに変換
@@ -294,7 +292,6 @@
      * textareaモードに切り替え (ソース表示)
      */
     switchToTextarea() {
-      console.log('[RichTextEditor] switchToTextarea called', { isWysiwygMode: this.isWysiwygMode });
       if (!this.isWysiwygMode) return;
 
       // WYSIWYGの内容を取得してHTMLからMarkdownに変換

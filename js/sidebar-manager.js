@@ -298,13 +298,6 @@ class SidebarManager {
             toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
 
-        // ツールバー側の閉じるボタンの表示制御
-        // const toolbarCloseSidebar = this.elementManager.get('toolbarCloseSidebar');
-        // if (toolbarCloseSidebar) {
-        //     toolbarCloseSidebar.style.display = ''; // 常に表示
-        //     console.info('ツールバーの閉じるボタン: 表示');
-        // }
-
         // transition完了を待ってからaria-hiddenを設定
         waitForTransition().then(() => {
             sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');

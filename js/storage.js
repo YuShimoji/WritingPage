@@ -557,7 +557,6 @@ function migrateDocumentsToHierarchy() {
 
     if (migrated) {
         saveDocuments(docs);
-        console.log('ドキュメントを階層構造に移行しました');
     }
     return migrated;
 }

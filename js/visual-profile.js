@@ -115,8 +115,6 @@ function applyVisualProfile(profile) {
       console.warn('Failed to dispatch visual profile applied event:', e);
     }
 
-    console.log('Visual Profile applied:', profile.label, profile);
-
   } catch (error) {
     console.error('Failed to apply visual profile:', error, profile);
   }
