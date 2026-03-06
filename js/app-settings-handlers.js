@@ -79,7 +79,7 @@
             // Typewriter
             if (id === 'typewriter-enabled') {
                 saveTypewriterPatch({ enabled: !!e.target.checked });
-                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch (_) { }
+                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch (e) { console.warn('タイプライターモード適用エラー:', e); }
                 return;
             }
             if (id === 'typewriter-anchor-ratio') {
@@ -94,7 +94,7 @@
             // Focus Mode
             if (id === 'focus-mode-enabled') {
                 updateSettingsPatch('focusMode', { enabled: !!e.target.checked });
-                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.scheduleFocusModeUpdate === 'function') window.ZenWriterEditor.scheduleFocusModeUpdate(); } catch (_) { }
+                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.scheduleFocusModeUpdate === 'function') window.ZenWriterEditor.scheduleFocusModeUpdate(); } catch (e) { console.warn('フォーカスモード更新エラー:', e); }
                 return;
             }
 
@@ -158,7 +158,7 @@
             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.updateWordCount === 'function') {
                 window.ZenWriterEditor.updateWordCount();
             }
-        } catch (_) { }
+        } catch (e) { console.warn('目標設定の初期化エラー:', e); }
         if (goalTargetInput) {
             const clampTarget = (v) => Math.max(0, parseInt(v, 10) || 0);
             goalTargetInput.addEventListener('input', (e) => saveGoalPatch({ target: clampTarget(e.target.value) }));

@@ -76,7 +76,7 @@
       wrap.appendChild(insertBox);
       el.appendChild(wrap);
 
-      function save() { try { STORAGE.saveOutline(state); } catch (_) { } }
+      function save() { try { STORAGE.saveOutline(state); } catch (e) { console.error('アウトライン保存エラー:', e); } }
       function currentSet() {
         var s = state.sets.find(function (x) { return x && x.id === state.currentSetId; });
         return s || state.sets[0];
