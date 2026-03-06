@@ -89,6 +89,6 @@ Branch: feat/task-nnn-description
 
 ## 参照
 
-- `docs/PROJECT_HEALTH.md` -- プロジェクト健全性レポート
 - `docs/ROADMAP.md` -- 機能強化ロードマップ
-- `docs/BACKLOG.md` -- バックログ
+- `docs/ARCHITECTURE.md` -- アーキテクチャ
+- `docs/TESTING.md` -- テスト方針

@@ -344,7 +344,36 @@ window.ZenWriterTabs = {
 3. `window.elementManager.elements`で要素の取得状態を確認
 4. `window.ZenWriterTabs.getAvailableTabs()`でタブの状態を確認
 
+## 設計原則（詳細）
+
+### アーキテクチャ哲学
+
+- **SRP/SoC**: 各ファイルは単一責務。`storage.js` は永続化、`theme.js` はテーマ適用、`editor.js` は入力制御
+- **KISS/YAGNI**: フレームワーク不使用、DOM API ベース。必要になるまで抽象化しない
+- **DRY**: CSS 変数とユーティリティ関数で重複低減
+
+### UIデザイン指針（Zen Writer x ノートアプリ折衷）
+
+- Zen ライクな「白い紙の前に座る」感覚を維持しつつ、Obsidian/Scrivener 風のサイドバー型情報整理力を取り込む
+- レイアウト基本構造: 左サイドバー + 中央エディタ（主役）。右パネルはガジェット/フローティングで段階的に補完
+- 表示モード:
+  - 通常モード: サイドバー/ヘッダー表示、ノートアプリ的な情報整理ビュー
+  - フォーカスモード: 補助 UI を抑え、本文への集中を高める
+  - ブランクモード: ほぼ本文のみの Zen ライクな状態
+- Visual Profile は「見た目プリセット」、UIモードは「レイアウト構造の切り替え」として分離
+
+### Region / Panel / Gadget 概念モデル
+
+- **Region**: 画面レイアウト上の「場所」（left, right, floating 等）
+- **Panel**: ユーザーに見える「枠」。Region にドッキングまたはフローティング
+- **GadgetContainer**: Panel 内に配置、複数の Gadget をまとめる箱
+- **Gadget**: 機能の最小単位。UI ロジックと状態はガジェット内に閉じる
+- 現在の左サイドバーでは:
+  - Region: `#sidebar`
+  - Panel: `section.sidebar-group[data-group="<id>"]`
+  - GadgetContainer: `div.gadgets-panel[data-gadget-group="<id>"]`
+
 ---
 
-**更新日**: 2025-01-04  
-**バージョン**: 0.3.14+
+**更新日**: 2026-03-06
+**バージョン**: 0.3.28

@@ -95,7 +95,7 @@ Zen Writer v0.3.28
 |  | Clock | 時計 |
 |  | Pomodoro | 集中タイマー |
 
-**ガジェット総数：** 26個
+**ガジェット総数：** 28個
 
 ### 4. 装飾・アニメーション
 
@@ -139,8 +139,7 @@ Zen Writer v0.3.28
 
 ### サイドバー
 
-**タブ構成：** 4タブ（structure/wiki/assist/typography）
-**注：** v0.3.29で1タブに統合予定
+**表示方式：** アコーディオン形式（5カテゴリ: structure/edit/theme/assist/advanced）
 
 ### メインハブパネル（フローティングパネル統合）
 
@@ -163,7 +162,7 @@ Zen Writer v0.3.28
 | フレームワーク | なし（バニラJS） |
 | CSS設計 | CSS変数、Flexbox |
 | ストレージ | LocalStorage |
-| テスト | Playwright E2E（212件） |
+| テスト | Playwright E2E（201件） |
 | Lint | ESLint、Prettier、Markdownlint |
 
 ### コードベース
@@ -173,7 +172,7 @@ Zen Writer v0.3.28
 | JavaScriptファイル | 84ファイル |
 | 主要JSコード | 約15,000行 |
 | CSSファイル | 複数（style.css等） |
-| E2Eテスト | 31ファイル、212テスト |
+| E2Eテスト | 31ファイル、201テスト |
 
 ### パフォーマンス
 
@@ -283,6 +282,5 @@ Zen Writer v0.3.28
 ## 関連ドキュメント
 
 - [起動手順書](APP_LAUNCH_GUIDE.md)
-- [UI改修履歴](UI_REFACTORING_2026_03_05.md)
-- [開発ガイド](DEVELOPMENT.md)
-- [プロジェクト健全性](PROJECT_HEALTH.md)
+- [アーキテクチャ](ARCHITECTURE.md)
+- [ロードマップ](ROADMAP.md)

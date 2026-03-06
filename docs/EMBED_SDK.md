@@ -105,7 +105,28 @@
 - `embed_origin` は親の `origin` を子へ伝えるために `iframe src` に付与されます（既定ON）。
 - デモ: `embed-demo.html` ではイベントログ（右ペイン下部）で受信内容を確認できます。
 
+## テスト
+
+### 自動テスト
+
+- E2E: `npm run test:e2e` (Playwright) で `embed-demo.html` と `embed-xorigin-demo.html` を自動検証
+- クロスオリジンテストは `node scripts/run-two-servers.js` で 8080/8081 の2サーバー起動が必要
+
+### 手動検証手順
+
+1. `node scripts/dev-server.js` で開発サーバー起動
+2. `http://127.0.0.1:8080/embed-demo.html` を開く
+3. 右ペインのボタンで setContent/getContent/focus/takeSnapshot を実行
+4. クロスオリジンは `embed-xorigin-demo.html` (8081→8080) で確認
+
+### 確認ポイント
+
+- iframe が READY になること
+- 各 API が正常動作すること
+- イベント(`contentChanged`/`snapshotCreated`)が右ペインに表示されること
+- `?embed=1` でサイドバー/ツールバーが非表示の最小 UI であること
+
 ## 今後
 
-- `index.html` に `?embed=1` で軽量UI（サイドバー/ツールバー最小化、HUDのみ）
 - ドキュメント間管理/エクスポート等のAPI拡張
+- Embed SDK v2（イベントストリーム、状態同期）

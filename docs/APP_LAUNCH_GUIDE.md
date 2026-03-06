@@ -18,11 +18,11 @@ Zen Writer v0.3.28
 最も簡単な起動方法です。ブラウザでアクセスします。
 
 ```bash
-# 開発サーバーを起動（ポート9080）
+# 開発サーバーを起動（ポート8080）
 npm run dev
 
 # ブラウザで開く
-# http://localhost:9080
+# http://localhost:8080
 ```
 
 **特徴：**
@@ -90,7 +90,7 @@ npm run app:install:open
    npm run dev
    ```
 
-2. Chrome/Edgeで `http://localhost:9080` を開く
+2. Chrome/Edgeで `http://localhost:8080` を開く
 
 3. アドレスバー右端の「インストール」アイコンをクリック
 
@@ -136,11 +136,11 @@ PWAは通常HTTPSが必要ですが、localhostは例外です。本番環境で
 
 ### Q: 開発サーバーが起動しない
 
-**A:** ポート9080が既に使用されている可能性があります。
+**A:** ポート8080が既に使用されている可能性があります。
 
 ```bash
 # Windowsでポート使用状況を確認
-netstat -ano | findstr :9080
+netstat -ano | findstr :8080
 
 # プロセスを終了
 taskkill /PID <プロセスID> /F
@@ -168,7 +168,7 @@ npm ci
 **A:** URLパラメータでキャッシュをクリアできます。
 
 ```
-http://localhost:9080?clearCache=1
+http://localhost:8080?clearCache=1
 ```
 
 または、開発者ツールでUnregisterします：
@@ -181,7 +181,7 @@ http://localhost:9080?clearCache=1
 **A:** URLパラメータでリセットできます。
 
 ```
-http://localhost:9080?reset=1
+http://localhost:8080?reset=1
 ```
 
 ---
@@ -190,7 +190,7 @@ http://localhost:9080?reset=1
 
 | スクリプト | 説明 |
 |-----------|------|
-| `npm run dev` | 開発サーバー起動（ポート9080） |
+| `npm run dev` | 開発サーバー起動（ポート8080） |
 | `npm run dev:two` | 2サーバー起動（8080、8081） |
 | `npm run electron:dev` | Electronアプリ起動（開発モード） |
 | `npm run electron:build` | Electronアプリビルド（dir出力） |
@@ -213,4 +213,4 @@ http://localhost:9080?reset=1
 ## 次のステップ
 
 - [アプリ仕様書](APP_SPECIFICATION.md) - 機能一覧と動作環境
-- [UI改修履歴](UI_REFACTORING_2026_03_05.md) - 本日実施したUI整理の詳細
+- [アーキテクチャ](ARCHITECTURE.md) - 技術的な詳細
