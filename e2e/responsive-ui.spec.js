@@ -9,7 +9,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
   const tabletViewport = { width: 768, height: 1024 };
 
   test.describe('Mobile Viewport (max-width: 768px)', () => {
-    test.use({ viewport: mobileViewport });
+    test.use({ viewport: mobileViewport, hasTouch: true });
 
     test('サイドバーがフルスクリーンオーバーレイとして表示される', async ({ page }) => {
       await page.goto('/');
@@ -148,7 +148,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       expect(parseFloat(padding.left)).toBeGreaterThanOrEqual(0);
     });
 
-    test.skip('サイドバーのスワイプ操作で閉じることができる', async ({ page }) => {
+    test('サイドバーのスワイプ操作で閉じることができる', async ({ page }) => {
       await page.goto('/');
       await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
 
@@ -159,27 +159,32 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       const sidebar = page.locator('#sidebar');
       await expect(sidebar).toHaveClass(/open/);
 
-      // サイドバーを左方向にスワイプ
-      const sidebarBox = await sidebar.boundingBox();
-      if (sidebarBox) {
-        const startX = sidebarBox.x + sidebarBox.width - 10;
-        const startY = sidebarBox.y + sidebarBox.height / 2;
-        const endX = startX - 100; // 左方向に100pxスワイプ
+      // サイドバーを左方向にスワイプ（TouchEvent を直接ディスパッチ）
+      await page.evaluate(() => {
+        const el = document.getElementById('sidebar');
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const startX = rect.right - 10;
+        const startY = rect.top + rect.height / 2;
 
-        await page.touchscreen.tap(startX, startY);
-        await page.mouse.move(startX, startY);
-        await page.mouse.down();
-        await page.mouse.move(endX, startY);
-        await page.mouse.up();
+        // touchstart
+        const touchStart = new Touch({ identifier: 1, target: el, clientX: startX, clientY: startY });
+        el.dispatchEvent(new TouchEvent('touchstart', { touches: [touchStart], changedTouches: [touchStart], bubbles: true }));
 
-        await page.waitForTimeout(400);
+        // touchmove（左方向に100px）
+        const touchMove = new Touch({ identifier: 1, target: el, clientX: startX - 100, clientY: startY });
+        el.dispatchEvent(new TouchEvent('touchmove', { touches: [touchMove], changedTouches: [touchMove], bubbles: true }));
 
-        // サイドバーが閉じていることを確認
-        const hasOpenClass = await sidebar.evaluate((el) => {
-          return el.classList.contains('open');
-        });
-        expect(hasOpenClass).toBe(false);
-      }
+        // touchend
+        el.dispatchEvent(new TouchEvent('touchend', { touches: [], changedTouches: [touchMove], bubbles: true }));
+      });
+      await page.waitForTimeout(400);
+
+      // サイドバーが閉じていることを確認
+      const hasOpenClass = await sidebar.evaluate((el) => {
+        return el.classList.contains('open');
+      });
+      expect(hasOpenClass).toBe(false);
     });
 
     // FABボタン (#fab-tools) は削除済みのため、このテストは廃止
