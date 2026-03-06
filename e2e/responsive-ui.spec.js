@@ -182,28 +182,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       }
     });
 
-    test.skip('フローティングパネルがモバイル画面に適切に表示される', async ({ page }) => {
-      await page.goto('/');
-
-      // フォントパネルを開く（FABボタンをクリック）
-      const fabTools = page.locator('#fab-tools');
-      if (await fabTools.isVisible()) {
-        await fabTools.click();
-        await page.waitForTimeout(300);
-
-        const fontPanel = page.locator('#floating-font-panel');
-        if (await fontPanel.isVisible()) {
-          // パネルが画面内に収まっていることを確認
-          const panelBox = await fontPanel.boundingBox();
-          const viewport = page.viewportSize();
-
-          if (panelBox && viewport) {
-            expect(panelBox.x + panelBox.width).toBeLessThanOrEqual(viewport.width);
-            expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(viewport.height);
-          }
-        }
-      }
-    });
+    // FABボタン (#fab-tools) は削除済みのため、このテストは廃止
   });
 
   test.describe('Tablet Viewport (max-width: 1024px)', () => {
@@ -257,35 +236,36 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       expect(padding).toBeGreaterThanOrEqual(0);
     });
 
-    test.skip('分割ビューが縦並びで表示される', async ({ page }) => {
+    test('分割ビューが縦並びで表示される', async ({ page }) => {
       await page.goto('/');
+      await page.waitForLoadState('networkidle');
+      const { showFullToolbar, openMainHubPanel } = require('./helpers');
+      await showFullToolbar(page);
 
       // 分割ビューボタンをクリック
       const splitViewBtn = page.locator('#toggle-split-view');
-      if (await splitViewBtn.isVisible()) {
-        await splitViewBtn.click();
-        await page.waitForTimeout(300);
+      if (!(await splitViewBtn.isVisible())) return;
+      await splitViewBtn.click();
+      await page.waitForTimeout(300);
 
-        // モード選択パネルが表示されることを確認
-        const modePanel = page.locator('#split-view-mode-panel');
-        if (await modePanel.isVisible()) {
-          // 編集/プレビューモードを選択
-          const editPreviewBtn = page.locator('#split-view-edit-preview');
-          if (await editPreviewBtn.isVisible()) {
-            await editPreviewBtn.click();
-            await page.waitForTimeout(400);
+      // Main Hub Panel内のsplit-viewタブ
+      const modePanel = page.locator('#tab-split-view');
+      if (!(await modePanel.isVisible())) return;
 
-            const splitContainer = page.locator('#split-view-container');
-            if (await splitContainer.isVisible()) {
-              // コンテナが縦並び（flex-direction: column）であることを確認
-              const flexDirection = await splitContainer.evaluate((el) => {
-                return window.getComputedStyle(el).flexDirection;
-              });
-              expect(flexDirection).toBe('column');
-            }
-          }
-        }
-      }
+      // 編集/プレビューモードを選択
+      const editPreviewBtn = page.locator('#split-view-edit-preview');
+      if (!(await editPreviewBtn.isVisible())) return;
+      await editPreviewBtn.click();
+      await page.waitForTimeout(400);
+
+      const splitContainer = page.locator('#split-view-container');
+      if (!(await splitContainer.isVisible())) return;
+
+      // タブレットビューポートではコンテナが縦並び（flex-direction: column）であることを確認
+      const flexDirection = await splitContainer.evaluate((el) => {
+        return window.getComputedStyle(el).flexDirection;
+      });
+      expect(flexDirection).toBe('column');
     });
   });
 

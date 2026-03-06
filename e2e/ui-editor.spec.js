@@ -30,7 +30,7 @@ test.describe('UI Visual Editor', () => {
     }, { timeout: 10000 });
   });
 
-  test.skip('should activate and deactivate UI editor', async ({ page }) => {
+  test('should activate and deactivate UI editor', async ({ page }) => {
     await activateUIEditor(page);
 
     // パネルが表示されることを確認

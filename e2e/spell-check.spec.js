@@ -34,7 +34,7 @@ test.describe('Spell Checker', () => {
     }, { timeout: 10000 });
   });
 
-  test.skip('should toggle spell check on/off', async ({ page }) => {
+  test('should toggle spell check on/off', async ({ page }) => {
     // スペルチェックを有効化
     await enableSpellCheck(page);
 
