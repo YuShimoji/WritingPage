@@ -3,12 +3,9 @@ contact_links:
   - name: ドキュメント（README）
     url: https://github.com/YuShimoji/WritingPage/blob/main/README.md
     about: まずはこちらをご覧ください
-  - name: AI_CONTEXT.md（作業再開の前提情報）
-    url: https://github.com/YuShimoji/WritingPage/blob/main/AI_CONTEXT.md
+  - name: CLAUDE.md（プロジェクトルール）
+    url: https://github.com/YuShimoji/WritingPage/blob/main/CLAUDE.md
+    about: プロジェクトルールと開発方針
+  - name: HANDOVER.md（作業申し送り）
+    url: https://github.com/YuShimoji/WritingPage/blob/main/HANDOVER.md
     about: 作業の区切りと再開手順の要点
-  - name: DEVELOPMENT_PROTOCOL.md（開発プロトコル）
-    url: https://github.com/YuShimoji/WritingPage/blob/main/DEVELOPMENT_PROTOCOL.md
-    about: ブランチ/PR/中央ワークフローの運用指針
-  - name: ルール v1.1（Windsurf_AI_Collab_Rules_v1.1.md）
-    url: https://github.com/YuShimoji/WritingPage/blob/main/docs/Windsurf_AI_Collab_Rules_v1.1.md
-    about: 複合ミッション・CI連携マージの基本ルール

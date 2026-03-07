@@ -20,9 +20,8 @@ vendor/fonts/
 .cache/
 tmp/
 
-# Local helper scripts / workflows
+# Local helper scripts
 scripts/gh-*.ps1
-shared-workflows/
 
 # DocFX build outputs
 _site/

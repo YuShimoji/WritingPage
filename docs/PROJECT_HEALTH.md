@@ -12,7 +12,7 @@
 | Smoke テスト | ✅ PASSED |
 | E2E テスト | ✅ 203 cases (197 passed / 5 flaky / 1 skipped) |
 | Lint | ✅ ALL PASSED (0 errors) |
-| ガジェット | 31個登録済み |
+| ガジェット | 29個登録済み |
 | 技術的負債 | 低（app.js 462行に削減済み） |
 
 ## 未解決課題（優先度別）
@@ -96,7 +96,7 @@
 
 ### 中期（計画的に）
 
-3. **ガジェット整理** — 31個の統合・使用頻度分析（ROADMAP Priority C）
+3. **ガジェット整理** — 29個の統合・使用頻度分析（ROADMAP Priority C）
 4. **TASK_051: プラグインシステム Phase 2+** — ユーザー定義ガジェットの動的ロード
 5. **エクスポート刷新** — PDF/EPUB/DOCX（ROADMAP Priority D）
 
@@ -107,9 +107,8 @@
 
 ## 参照
 
-- `docs/tasks/README.md` — タスク管理インデックス
-- `docs/AUDIT_TASK_BREAKDOWN.md` — 監査SSOT（詳細分析）
+- `docs/ROADMAP.md` — ロードマップ
 - `docs/BACKLOG.md` — バックログ
 - `docs/KNOWN_ISSUES.md` — 既知の問題
 - `HANDOVER.md` — 作業申し送り
-- `AI_CONTEXT.md` — AI再開用コンテキスト
+- `CLAUDE.md` — プロジェクトルール

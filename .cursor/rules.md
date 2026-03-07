@@ -10,8 +10,8 @@
 ## 参照先
 
 - プロジェクトルール: `CLAUDE.md`
-- 作業の前提と再開手順: `AI_CONTEXT.md`
-- 開発プロトコル: `DEVELOPMENT_PROTOCOL.md`
+- 作業申し送り: `HANDOVER.md`
+- ロードマップ: `docs/ROADMAP.md`
 
 ## 中間報告ルール（長大作業の安定化）
 

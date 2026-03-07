@@ -20,6 +20,6 @@ module.exports = {
     'test-results/',
     'playwright-report/',
     'dist/',
-    '.shared-workflows/',
+    'vendor/',
   ],
 };

@@ -14,7 +14,7 @@
 
 - テンプレートの「中断可能点」を必ず記載（どこで安全に止められるか）
 - 「CI 連携マージ」を遵守（CI 成功後に Squash Merge）
-- 参照: `AI_CONTEXT.md`, `DEVELOPMENT_PROTOCOL.md`
+- 参照: `CLAUDE.md`, `HANDOVER.md`
 
 ## コーディング方針
 

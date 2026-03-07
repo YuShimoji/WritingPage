@@ -33,7 +33,7 @@ assignees: ''
 
 ## 参考リンク
 
-- AI_CONTEXT.md
-- DEVELOPMENT_PROTOCOL.md
+- CLAUDE.md
+- HANDOVER.md
 
 ## 追加情報

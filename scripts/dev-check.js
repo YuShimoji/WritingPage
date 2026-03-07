@@ -451,78 +451,13 @@ async function loadCssWithImports(url) {
       okChildBridge ? 'OK' : 'NG',
     );
 
-    // ルール文書と AI_CONTEXT の存在/内容チェック
-    const rulesPath = path.join(
-      __dirname,
-      '..',
-      'docs',
-      'Windsurf_AI_Collab_Rules_v1.1.md',
-    );
-    let rulesSrc = '';
-    try {
-      rulesSrc = fs.readFileSync(rulesPath, 'utf-8');
-    } catch (e) {
-      console.error('READ FAIL:', rulesPath, e.message);
-    }
-    const rHasComposite = /複合ミッション/m.test(rulesSrc || '');
-    const rHasAIContext = /AI_CONTEXT\.md/m.test(rulesSrc || '');
-    const rHasCIMerge = /CI\s*連携マージ/m.test(rulesSrc || '');
-    const rHasSelfPR = /自己\s*PR\s*は\s*Approve\s*不可|承認を省略/m.test(
-      rulesSrc || '',
-    );
-    const rHasTemplate = /付録\s*A:\s*AI_CONTEXT\.md\s*テンプレート/m.test(
-      rulesSrc || '',
-    );
-    const rHasCentralLink =
-      /github\.com\/YuShimoji\/shared-workflows\/blob\/main\/docs\/Windsurf_AI_Collab_Rules_v1\.1\.md/m.test(
-        rulesSrc || '',
-      ) ||
-      /shared-workflows.*Windsurf_AI_Collab_Rules_v1\.1\.md/m.test(
-        rulesSrc || '',
-      );
-    const okRulesDoc =
-      !!rulesSrc &&
-      (rHasCentralLink ||
-        (rHasComposite &&
-          rHasAIContext &&
-          rHasCIMerge &&
-          rHasSelfPR &&
-          rHasTemplate));
-    console.log('CHECK rules v1.1 ->', okRulesDoc ? 'OK' : 'NG', {
-      rHasCentralLink,
-      rHasComposite,
-      rHasAIContext,
-      rHasCIMerge,
-      rHasSelfPR,
-      rHasTemplate,
-    });
-
-    const ctxPath = path.join(__dirname, '..', 'AI_CONTEXT.md');
-    let ctxSrc = '';
-    try {
-      ctxSrc = fs.readFileSync(ctxPath, 'utf-8');
-    } catch (e) {
-      console.error('READ FAIL:', ctxPath, e.message);
-    }
-    const cHasH1 = /^#\s*(AI\s+Context|AI_CONTEXT)/m.test(ctxSrc || '');
-    const cHasUpdated = /最終更新\s*:/m.test(ctxSrc || '');
-    const cHasMission = /現在のミッション\s*:/m.test(ctxSrc || '');
-    const cHasBranch = /ブランチ\s*:/m.test(ctxSrc || '');
-    const cHasNext = /次の中断可能点\s*:/m.test(ctxSrc || '');
-    const okAIContext =
-      !!ctxSrc &&
-      cHasH1 &&
-      cHasUpdated &&
-      cHasMission &&
-      cHasBranch &&
-      cHasNext;
-    console.log('CHECK AI_CONTEXT.md ->', okAIContext ? 'OK' : 'NG', {
-      cHasH1,
-      cHasUpdated,
-      cHasMission,
-      cHasBranch,
-      cHasNext,
-    });
+    // プロジェクトルール文書の存在チェック
+    const claudeMdPath = path.join(__dirname, '..', 'CLAUDE.md');
+    const handoverPath = path.join(__dirname, '..', 'HANDOVER.md');
+    const okClaudeMd = fs.existsSync(claudeMdPath);
+    const okHandover = fs.existsSync(handoverPath);
+    console.log('CHECK CLAUDE.md ->', okClaudeMd ? 'OK' : 'NG');
+    console.log('CHECK HANDOVER.md ->', okHandover ? 'OK' : 'NG');
 
     // VERSION と package.json の version 整合チェック（運用ズレの早期検知）
     const versionPath = path.join(__dirname, '..', 'VERSION');
@@ -600,38 +535,30 @@ async function loadCssWithImports(url) {
     const prHasStop = /##\s*中断可能点/.test(prTpl);
     const prHasRefs =
       /##\s*参考リンク/.test(prTpl) &&
-      /AI_CONTEXT\.md/.test(prTpl) &&
-      /DEVELOPMENT_PROTOCOL\.md/.test(prTpl);
-    const bugHasStop = /##\s*中断可能点/.test(bugTpl);
+      /CLAUDE\.md/.test(prTpl) &&
+      /HANDOVER\.md/.test(prTpl);
     const bugHasRefs =
-      /##\s*参考リンク/.test(bugTpl) &&
-      /AI_CONTEXT\.md/.test(bugTpl) &&
-      /DEVELOPMENT_PROTOCOL\.md/.test(bugTpl);
-    const featHasStop = /##\s*中断可能点/.test(featTpl);
+      /CLAUDE\.md/.test(bugTpl) &&
+      /HANDOVER\.md/.test(bugTpl);
     const featHasRefs =
-      /##\s*参考リンク/.test(featTpl) &&
-      /AI_CONTEXT\.md/.test(featTpl) &&
-      /DEVELOPMENT_PROTOCOL\.md/.test(featTpl);
-    const cfgHasCtx = /AI_CONTEXT\.md/.test(issueCfg);
-    const cfgHasProto = /DEVELOPMENT_PROTOCOL\.md/.test(issueCfg);
+      /CLAUDE\.md/.test(featTpl) &&
+      /HANDOVER\.md/.test(featTpl);
+    const cfgHasClaude = /CLAUDE\.md/.test(issueCfg);
+    const cfgHasHandover = /HANDOVER\.md/.test(issueCfg);
     const okTemplates =
       prHasStop &&
       prHasRefs &&
-      bugHasStop &&
       bugHasRefs &&
-      featHasStop &&
       featHasRefs &&
-      cfgHasCtx &&
-      cfgHasProto;
+      cfgHasClaude &&
+      cfgHasHandover;
     console.log('CHECK templates ->', okTemplates ? 'OK' : 'NG', {
       prHasStop,
       prHasRefs,
-      bugHasStop,
       bugHasRefs,
-      featHasStop,
       featHasRefs,
-      cfgHasCtx,
-      cfgHasProto,
+      cfgHasClaude,
+      cfgHasHandover,
     });
 
     // 簡易Markdownlint（基本ルール）
@@ -670,8 +597,8 @@ async function loadCssWithImports(url) {
     };
 
     const mdTargets = [
-      path.join(__dirname, '..', 'AI_CONTEXT.md'),
-      path.join(__dirname, '..', 'DEVELOPMENT_PROTOCOL.md'),
+      path.join(__dirname, '..', 'CLAUDE.md'),
+      path.join(__dirname, '..', 'HANDOVER.md'),
       path.join(__dirname, '..', 'README.md'),
       path.join(__dirname, '..', 'CONTRIBUTING.md'),
     ];

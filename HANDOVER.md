@@ -6,7 +6,7 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.29
-- **最終更新**: 2026-03-07
+- **最終更新**: 2026-03-08
 - **ブランチ**: main（origin/main と同期済み）
 
 ## 再開手順
@@ -31,7 +31,7 @@ npm run lint              # ESLint
 
 ### アーキテクチャ概要
 
-- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` -- 31個登録済み
+- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` -- 29個登録済み
 - **サイドバー**: `SidebarManager`(SSOT) -- 5カテゴリアコーディオン: structure / edit / theme / assist / advanced
 - **ツールバー**: コンテキストベース (Layer 1-4) -- ミニマルヘッダー / フローティング装飾バー / サイドバー / エッジホバーUI
 - **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み
@@ -62,13 +62,9 @@ npm run lint              # ESLint
 | `js/gadgets-core.js` | 584 | 適正 |
 | `js/gadgets-editor-extras.js` | ~700 | 10ガジェット統合ファイル |
 
-## オープンタスク
+## 既知の課題
 
-| タスク | 内容 | 優先度 | 状態 |
-|--------|------|--------|------|
-| TASK_051 | プラグインシステム設計 | Low | Phase 1 DONE, Phase 2+ OPEN |
-
-全57件の完了済みタスクは `docs/archive/completed-tasks/` に格納。
+-> `docs/ROADMAP.md` に統合
 
 ## 決定事項
 
@@ -99,5 +95,4 @@ npm run lint              # ESLint
 - `docs/GADGETS.md` -- ガジェットAPI仕様
 - `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
 - `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
-- `docs/tasks/README.md` -- タスク管理インデックス
-- `AI_CONTEXT.md` -- AI再開用コンテキスト
+- `CLAUDE.md` -- AI再開用コンテキスト
