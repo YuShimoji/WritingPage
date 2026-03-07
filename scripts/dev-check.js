@@ -638,8 +638,8 @@ async function loadCssWithImports(url) {
         okGadgetsApi &&
         okGadgetsM5 &&
         okGadgetsImpExp &&
-        okRulesDoc &&
-        okAIContext &&
+        okClaudeMd &&
+        okHandover &&
         okEmbedDemo &&
         okFav &&
         okChildBridge &&
