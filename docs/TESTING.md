@@ -8,7 +8,7 @@
 npm run test:e2e
 ```
 
-- 201 passed / 0 failed / 2 skipped (2026-03-06 時点)
+- 203 test cases (30 spec files) -- 197 passed / 5 flaky timeout / 1 skipped (2026-03-07 時点)
 - 失敗時は `test-results/` にスクリーンショットとトレースが保存される
 - CI: `.github/workflows/ci-e2e.yml` で push/PR 時に自動実行
 

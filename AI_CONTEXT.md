@@ -2,42 +2,23 @@
 
 この文書は、エージェント/開発者が作業を中断/再開する際に必要な前提情報をコンパクトに提供します。
 
-- 最終更新: 2026-03-02T16:22:00+09:00
-- **Worker完了ステータス**: TASK_001-030: completed, TASK_044-050: completed, TASK_052-054: completed, TASK_056-057: completed (実装・検証済み)
+- 最終更新: 2026-03-07
+- **Worker完了ステータス**: TASK_001-057: 全完了 (TASK_051のみPhase 2+ OPEN)
 
-## 再開ログ（2026-02-13）
+## 現在の状態（2026-03-07）
 
-- `git pull --rebase origin main` 実施（親リポジトリは最新）
-- サブモジュール `.shared-workflows` を `origin/main` 最新へ更新（`3e62f33425eacd1c9959ffe1deab05cfa3b9f2d8`）
-- `npm ci` 実行済み
-- `npm run test:smoke` 成功（ALL TESTS PASSED）
-- `npm run test:e2e:ci` 再実行結果: `64 failed / 104 passed`（前回から横ばい）
-- 次タスク: `docs/tasks/TASK_055_e2e_remaining64_continuation.md`
+- v0.3.29: コンテキストベースツールバー + エッジホバーUI + CDNバンドル化
+- E2E: 203 test cases (197 passed / 5 flaky timeout / 1 skipped)
+- Lint: ALL PASSED (0 errors)
+- ガジェット: 31個登録済み
+- Electron: オフライン完全対応 (vendor/ ローカルバンドル)
+- shared-workflows サブモジュルは削除済み -- CLAUDE.md に集約
 
-## Worker引き渡し（着手順）
+## 運用ストレージ
 
-1. `responsive-ui.spec.js` と `accessibility.spec.js` の表示/フォーカス前提を共通ヘルパー化
-2. `ui-editor.spec.js` と `decorations.spec.js` の hidden 要素操作失敗を panel open wait で統一修正
-3. `collage.spec.js` と `image-position-size.spec.js` と `tags-smart-folders.spec.js` のガジェット前提をロードアウト準拠へ調整
-4. クラスターごとの局所再実行後、`npm run test:e2e:ci` で全体再測定
-
-## 中央ルール参照（SSOT）
-
-- **中央リポジトリ（shared-workflows）**:
-  - GitHub URL: `https://github.com/YuShimoji/shared-workflows`
-  - ローカルパス（submodule）: `.shared-workflows/`
-  - 参照方法: Git Submodule として導入済み（`.shared-workflows/` 配下）
-- SSOT（latest）: `.shared-workflows/docs/Windsurf_AI_Collab_Rules_latest.md`
-- 運用者の入口: `.shared-workflows/docs/windsurf_workflow/OPEN_HERE.md`
-- オーケストレーション（毎回コピペ）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_METAPROMPT.md`
-- オーケストレーション手順（参照）: `.shared-workflows/docs/windsurf_workflow/ORCHESTRATOR_PROTOCOL.md`
-- 運用ストレージ: `docs/HANDOVER.md`, `docs/tasks/`, `docs/inbox/`
-- async_mode: true
-
-- 現在のミッション: Phase 1d-6（E2E残件64の失敗クラスター解消）
-- ブランチ: main
-- 関連PR: #95（Merged）
-- 関連: gadgets.jsモジュール化、TypographyThemes分割、ThemeRegistry導入、ドキュメント整理
+- `HANDOVER.md` -- 作業申し送り
+- `docs/tasks/` -- タスク管理
+- `docs/ROADMAP.md` -- ロードマップ
 - 進捗:
   - gadgets.js→_legacy移動
   - TypographyThemes→Themes/Typography/VisualProfile分割
@@ -129,30 +110,15 @@
 - CSS変数 `--app-bg-gradient` を導入し、背景グラデーションはガジェットから制御
 - SidebarManager に `addTab/removeTab/renameTab` を追加し、UI Settings ガジェットから操作・永続化（`settings.ui.customTabs`）
 - OpenSpec 変更票は `openspec/changes/add-ui-design-gadget-and-dynamic-tabs/` に配置（proposal/tasks/specs）
-- Lucide アイコンセットを導入し、最小サブセット（Eye, EyeOff, Settings）でUIテキストラベルを置き換え
+- Lucide アイコンセットを採用（ローカル vendor/lucide.min.js）
 - dev-check.js を現行UI構造（multi-panel）に対応し、プラグイン廃止・ガジェット構造チェックを更新
 - マジックナンバーを定数化（SidebarManager.TRANSITION_TIMEOUT_MS, EditorManager タイマー関連定数）
 - 重複コード削減のため updateSettingsPatch() ヘルパーを導入し、設定更新パターンを統一
 
-## リポジトリ構成（中央ワークフロー採用）
-
-- 共有リポジトリ: `YuShimoji/shared-workflows`
-  - 目的: 再利用可能な GitHub Actions ワークフローを提供
-  - 参照タグ: `v2.0`
-  - 提供ワークフロー:
-    - `.github/workflows/ci-smoke.yml`（workflow_call）
-
 ## ブランチ戦略
 
-- `main`: 安定ブランチ。PRは基本 Squash Merge。
-- `develop`: 統合ブランチ。`feat/**`, `chore/**`, `docs/**`, `fix/**` からの集約。
+- `main`: 安定ブランチ。trunk-based 開発。
 - 命名規則: `feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>`。
-
-## CI/Sync 運用
-
-- CI Smoke: push（`main`, `develop`, `feat/**`）、pull_request、workflow_dispatch で起動。
-- Sync Issues: `docs/ISSUES.md` 変更で起動、または手動実行。
-- 共有ワークフローは `secrets: inherit` で呼び出し。
 
 ## ローカル検証
 
