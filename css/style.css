@@ -5176,3 +5176,44 @@ details[open] summary {
 [data-edge-hover-top="true"] .toolbar::before {
   opacity: 0.6;
 }
+
+/* ===== ミニマルモード (Electron / 超ミニマル) ===== */
+/* transform方式: エッジホバーによるスライドイン復帰と互換 */
+
+html[data-ui-mode="minimal"] .toolbar {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+html[data-ui-mode="minimal"] .sidebar {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+html[data-ui-mode="minimal"] .sidebar.open {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-ui-mode="minimal"] #char-count {
+  display: none;
+}
+
+/* エッジホバーでミニマルモード中でもUI復帰可能 */
+html[data-ui-mode="minimal"][data-edge-hover-top="true"] .toolbar {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar,
+html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}

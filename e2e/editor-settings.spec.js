@@ -346,8 +346,9 @@ test.describe('Editor Settings', () => {
     await wikiHeader.waitFor({ timeout: 10000 });
     await wikiHeader.click();
 
-    await page.waitForSelector('#edit-gadgets-panel .gadget-wiki', { timeout: 10000 });
-    await expect(page.locator('#edit-gadgets-panel .gadget-wiki input[type="text"]').first()).toBeVisible();
+    // 物語Wiki (wiki.js) は input[type="search"] を使用
+    await page.waitForSelector('#edit-gadgets-panel input[type="search"]', { timeout: 10000 });
+    await expect(page.locator('#edit-gadgets-panel input[type="search"]').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {
