@@ -133,37 +133,7 @@
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
     }, { title: 'Focus Mode', groups: ['assist'] });
 
-    // Snapshot Manager Gadget
-    window.ZWGadgets.register('SnapshotManager', function (root) {
-      var s = window.ZenWriterStorage.loadSettings();
-      var snap = (s && s.snapshot) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '6px';
-
-      function addNumber(label, id, min, max, step, val, onChange) {
-        var row = el('div'); row.style.display = 'grid'; row.style.gridTemplateColumns = 'auto 1fr'; row.style.gap = '6px';
-        var l = el('label'); l.textContent = label; l.setAttribute('for', id);
-        var input = el('input'); input.type = 'number'; input.id = id; input.min = String(min); input.max = String(max); input.step = String(step); input.value = String(val);
-        input.addEventListener('change', function () { onChange(toInt(input.value, val)); });
-        row.appendChild(l); row.appendChild(input); root.appendChild(row);
-      }
-
-      addNumber('間隔(ms)', 'snapshot-interval-ms', 30000, 300000, 30000, (snap.intervalMs || 120000), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.intervalMs = Math.max(30000, Math.min(300000, v)); }); });
-      addNumber('差分文字数', 'snapshot-delta-chars', 50, 1000, 50, (snap.deltaChars || 300), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.deltaChars = Math.max(50, Math.min(1000, v)); }); });
-      addNumber('保持数', 'snapshot-retention', 1, 50, 1, (snap.retention || 10), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.retention = Math.max(1, Math.min(50, v)); }); });
-
-      var btn = el('button', 'small'); btn.textContent = '今すぐスナップショット';
-      btn.addEventListener('click', function () {
-        if (window.ZenWriterAPI && typeof window.ZenWriterAPI.takeSnapshot === 'function') { window.ZenWriterAPI.takeSnapshot(); }
-        else {
-          try {
-            var elEditor = document.getElementById('editor');
-            var content = elEditor ? (elEditor.value || '') : '';
-            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') window.ZenWriterStorage.addSnapshot(content);
-          } catch (_) { }
-        }
-      });
-      root.appendChild(btn);
-    }, { title: 'Snapshot Manager', groups: ['assist'] });
+    // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 
     // Markdown Preview Gadget
     window.ZWGadgets.register('MarkdownPreview', function (root) {
