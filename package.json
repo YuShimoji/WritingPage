@@ -6,6 +6,7 @@
   "private": true,
   "main": "electron/main.js",
   "scripts": {
+    "postinstall": "node scripts/copy-vendor.js",
     "dev": "node scripts/dev-server.js",
     "dev:two": "node scripts/run-two-servers.js",
     "build": "node scripts/build-dist.js",
@@ -42,6 +43,7 @@
       "index.html",
       "css/**/*",
       "js/**/*",
+      "vendor/**/*",
       "favicon.svg",
       "manifest.webmanifest",
       "sw.js",
@@ -62,5 +64,11 @@
     "prettier": "^3.3.3",
     "puppeteer": "^24.31.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@fontsource/noto-serif-jp": "^5.0.0",
+    "lucide": "^0.577.0",
+    "markdown-it": "^14.1.0",
+    "morphdom": "^2.7.2",
+    "turndown": "^7.2.2"
+  }
 }

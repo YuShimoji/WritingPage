@@ -13,7 +13,7 @@ const filesToCopy = [
   'sw.js'
 ];
 
-const dirsToCopy = ['css', 'js'];
+const dirsToCopy = ['css', 'js', 'vendor'];
 
 function ensureCleanDir(dir) {
   fs.rmSync(dir, { recursive: true, force: true });

@@ -58,26 +58,39 @@
   <link rel="stylesheet" href="css/editor-decorations.css" />
   <link rel="stylesheet" href="css/theme-transition.css" />
   <script>
-    // 非埋め込み時のみ Google Fonts を動的に読み込む（preconnect 最適化込み）
+    // フォント読み込み: Electron=ローカル(vendor/fonts/) / ブラウザ=Google Fonts CDN / embed=スキップ
     (function () {
       try {
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
         var head = document.getElementsByTagName('head')[0];
-        var l1 = document.createElement('link');
-        l1.rel = 'preconnect';
-        l1.href = 'https://fonts.googleapis.com';
-        var l2 = document.createElement('link');
-        l2.rel = 'preconnect';
-        l2.href = 'https://fonts.gstatic.com';
-        l2.crossOrigin = '';
-        var css = document.createElement('link');
-        css.rel = 'stylesheet';
-        css.href =
-          'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
-        head.appendChild(l1);
-        head.appendChild(l2);
-        head.appendChild(css);
+        if (window.electronAPI) {
+          // Electron: ローカルフォントファイルを使用（オフライン対応）
+          var f400 = document.createElement('link');
+          f400.rel = 'stylesheet';
+          f400.href = 'vendor/fonts/400.css';
+          var f700 = document.createElement('link');
+          f700.rel = 'stylesheet';
+          f700.href = 'vendor/fonts/700.css';
+          head.appendChild(f400);
+          head.appendChild(f700);
+        } else {
+          // ブラウザ: Google Fonts CDN（preconnect 最適化込み）
+          var l1 = document.createElement('link');
+          l1.rel = 'preconnect';
+          l1.href = 'https://fonts.googleapis.com';
+          var l2 = document.createElement('link');
+          l2.rel = 'preconnect';
+          l2.href = 'https://fonts.gstatic.com';
+          l2.crossOrigin = '';
+          var css = document.createElement('link');
+          css.rel = 'stylesheet';
+          css.href =
+            'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
+          head.appendChild(l1);
+          head.appendChild(l2);
+          head.appendChild(css);
+        }
       } catch (_) { }
     })();
   </script>
@@ -582,12 +595,10 @@
   <script src="js/ui-labels.js"></script>
   <script src="js/visual-profile.js"></script>
   <script src="js/ui-editor.js"></script>
-  <!-- Markdown renderer (browser) -->
-  <script src="https://unpkg.com/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
-  <!-- Markdown to HTML converter (for WYSIWYG) -->
-  <script src="https://cdn.jsdelivr.net/npm/turndown@7.2.2/dist/turndown.js"></script>
-  <!-- DOM diff library for live preview -->
-  <script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.2/dist/morphdom-umd.min.js"></script>
+  <!-- Vendor libraries (local bundle) -->
+  <script src="vendor/markdown-it.min.js"></script>
+  <script src="vendor/turndown.js"></script>
+  <script src="vendor/morphdom-umd.min.js"></script>
   <script src="js/tools-registry.js"></script>
   <script src="js/element-manager.js"></script>
   <script src="js/sidebar-manager.js"></script>
@@ -655,7 +666,7 @@
   <script src="js/electron-bridge.js"></script>
   <script src="js/app.js"></script>
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@0.577.0/dist/umd/lucide.min.js"></script>
+  <script src="vendor/lucide.min.js"></script>
   <script>
     try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ icons: window.lucide.icons }); } } catch (_) { }
   </script>
