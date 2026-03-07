@@ -113,10 +113,10 @@
 
 ## VERSION
 
-- `VERSION`: 0.3.28
-- `package.json`: 0.3.28
+- `VERSION`: 0.3.29
+- `package.json`: 0.3.29
 - バージョンは現状、実装/CI では参照されておらず（docs の運用・リリース手順で参照）、差分は主にリリース運用上の不一致
-- 2026-01-29: VERSION と package.json を 0.3.24 に同期
+- 2026-03-07: VERSION / package.json を 0.3.29 に同期
 
 ## 決定事項
 

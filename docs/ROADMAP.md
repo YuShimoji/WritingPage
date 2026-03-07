@@ -1,10 +1,10 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-03-06 / v0.3.28
+> 最終更新: 2026-03-07 / v0.3.29
 
 ## 現在の状態
 
-- E2E: 201 passed / 0 failed / 2 skipped
+- E2E: 202 passed / 0 failed / 1 skipped
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録済み
