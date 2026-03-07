@@ -91,19 +91,19 @@
 
 ### 即座に着手可能（高優先度）
 
-1. **エクスポート刷新** — PDF/EPUB/DOCX エクスポート（ROADMAP Priority A）
-2. **ガジェット整理** — 31個の統合・使用頻度分析（ROADMAP Priority B）
+1. **UI/UX 磨き上げ** — 操作感・視覚的洗練（ROADMAP Priority A）
+2. **中途半端な機能の完成** — Wiki/画像管理の仕上げ（ROADMAP Priority B）
 
 ### 中期（計画的に）
 
-3. **TASK_051: プラグインシステム Phase 2+** — ユーザー定義ガジェットの動的ロード
-4. **Wiki/グラフビュー完成** — バックリンクUI統合、wikilink自動パース
-5. **IndexedDB移行** — localStorage制限の解消
+3. **ガジェット整理** — 31個の統合・使用頻度分析（ROADMAP Priority C）
+4. **TASK_051: プラグインシステム Phase 2+** — ユーザー定義ガジェットの動的ロード
+5. **エクスポート刷新** — PDF/EPUB/DOCX（ROADMAP Priority D）
 
 ### 長期
 
-6. **AI連携** — 要約、シーンアイデア生成
-7. **TypeScript段階移行**
+6. **IndexedDB移行** — localStorage制限の解消
+7. **AI連携** — 要約、シーンアイデア生成
 
 ## 参照
 
