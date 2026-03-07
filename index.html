@@ -108,6 +108,17 @@
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
           <div class="accordion-content" id="accordion-edit" aria-hidden="true" style="display: none;">
+            <div class="sidebar-editor-controls" role="group" aria-label="エディタ操作">
+              <button class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false" title="プレビュー">
+                <i data-lucide="layout-template" aria-hidden="true"></i><span>プレビュー</span>
+              </button>
+              <button class="sidebar-control-btn" id="sidebar-toggle-split" aria-pressed="false" title="分割ビュー">
+                <i data-lucide="columns" aria-hidden="true"></i><span>分割ビュー</span>
+              </button>
+              <button class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false" title="リッチテキスト">
+                <i data-lucide="pen-tool" aria-hidden="true"></i><span>リッチテキスト</span>
+              </button>
+            </div>
             <div id="edit-gadgets-panel" class="gadgets-panel" data-gadget-group="edit" aria-label="編集ガジェット"></div>
           </div>
         </section>
@@ -144,6 +155,11 @@
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
           <div class="accordion-content" id="accordion-advanced" aria-hidden="true" style="display: none;">
+            <div class="sidebar-editor-controls" role="group" aria-label="システム操作">
+              <button class="sidebar-control-btn" id="sidebar-toggle-help" title="ヘルプ">
+                <i data-lucide="help-circle" aria-hidden="true"></i><span>ヘルプ</span>
+              </button>
+            </div>
             <div id="advanced-gadgets-panel" class="gadgets-panel" data-gadget-group="advanced" aria-label="詳細設定ガジェット"></div>
           </div>
         </section>
@@ -176,19 +192,32 @@
         <label for="goal-deadline" class="sr-only">締切日</label>
         <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
           style="margin-right: 8px; display: none;" />
-        <div class="toolbar-actions">
-          <div class="toolbar-group toolbar-group--mode" aria-label="表示モード">
-            <span class="toolbar-group-label" data-i18n="MODE_TITLE">表示</span>
-            <label for="ui-mode-select" class="sr-only">表示モード</label>
-            <select id="ui-mode-select" aria-label="表示モード" title="表示モード">
-              <option value="normal" data-i18n="MODE_NORMAL">通常モード</option>
-              <option value="focus" data-i18n="MODE_FOCUS">フォーカスモード</option>
-              <option value="blank" data-i18n="MODE_BLANK">ブランクモード</option>
-            </select>
+        <!-- 常時表示クイックアクション -->
+        <div class="toolbar-quick-actions" role="group" aria-label="クイックアクション">
+          <div class="mode-switch" role="radiogroup" aria-label="表示モード">
+            <button class="mode-switch-btn" data-mode="normal" aria-pressed="true" title="通常モード">
+              <i data-lucide="layout" aria-hidden="true"></i>
+            </button>
+            <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
+              <i data-lucide="crosshair" aria-hidden="true"></i>
+            </button>
+            <button class="mode-switch-btn" data-mode="blank" aria-pressed="false" title="ブランクモード">
+              <i data-lucide="square" aria-hidden="true"></i>
+            </button>
           </div>
-
+          <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
+            <i data-lucide="maximize" aria-hidden="true"></i>
+          </button>
+        </div>
+        <!-- 非表示: 後方互換用セレクト -->
+        <select id="ui-mode-select" aria-hidden="true" style="display:none;">
+          <option value="normal">通常モード</option>
+          <option value="focus">フォーカスモード</option>
+          <option value="blank">ブランクモード</option>
+        </select>
+        <!-- 旧ツールバーアクション (Phase 2-3で段階移行) -->
+        <div class="toolbar-actions">
           <div class="toolbar-group toolbar-group--decorate" aria-label="装飾">
-            <span class="toolbar-group-label">装飾</span>
             <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
               <i data-lucide="highlighter" aria-hidden="true"></i>
             </button>
@@ -198,7 +227,6 @@
           </div>
 
           <div class="toolbar-group toolbar-group--editor" aria-label="編集">
-            <span class="toolbar-group-label">編集</span>
             <button id="toggle-preview" class="icon-button iconified" title="プレビュー" aria-label="プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
@@ -211,7 +239,6 @@
           </div>
 
           <div class="toolbar-group toolbar-group--system" aria-label="環境と表示">
-            <span class="toolbar-group-label">環境/表示</span>
             <button id="toggle-settings" class="icon-button iconified" title="設定" aria-label="設定を開く">
               <i data-lucide="settings" aria-hidden="true"></i>
             </button>
@@ -220,9 +247,6 @@
             </button>
             <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="ライト/ダークモードを切り替え">
               <i data-lucide="moon" aria-hidden="true"></i>
-            </button>
-            <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
-              <i data-lucide="maximize" aria-hidden="true"></i>
             </button>
           </div>
         </div>
@@ -263,7 +287,7 @@
           data-i18n-placeholder="EDITOR_PLACEHOLDER" role="textbox" aria-label="リッチテキストエディタ" aria-multiline="true">
         </div>
         <!-- WYSIWYGツールバー -->
-        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar" style="display: none;" role="toolbar"
+        <div id="wysiwyg-toolbar" class="wysiwyg-toolbar wysiwyg-toolbar--floating" role="toolbar"
           aria-label="リッチテキスト編集ツールバー">
           <button id="wysiwyg-bold" class="wysiwyg-btn" type="button" title="太字" aria-label="太字">
             <i data-lucide="bold" aria-hidden="true"></i>
@@ -274,10 +298,48 @@
           <button id="wysiwyg-underline" class="wysiwyg-btn" type="button" title="下線" aria-label="下線">
             <i data-lucide="underline" aria-hidden="true"></i>
           </button>
+          <button id="wysiwyg-strike" class="wysiwyg-btn" type="button" title="取り消し線" aria-label="取り消し線">
+            <i data-lucide="strikethrough" aria-hidden="true"></i>
+          </button>
           <div class="wysiwyg-separator"></div>
           <button id="wysiwyg-link" class="wysiwyg-btn" type="button" title="リンク" aria-label="リンク">
             <i data-lucide="link" aria-hidden="true"></i>
           </button>
+          <div class="wysiwyg-separator"></div>
+          <!-- 装飾ドロップダウン -->
+          <div class="wysiwyg-dropdown" data-dropdown="decor">
+            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="フォント装飾" aria-label="フォント装飾" aria-expanded="false">
+              <i data-lucide="highlighter" aria-hidden="true"></i>
+            </button>
+            <div class="wysiwyg-dropdown-menu" role="menu">
+              <button role="menuitem" data-decor="smallcaps">スモールキャップス</button>
+              <button role="menuitem" data-decor="shadow">シャドウ</button>
+              <button role="menuitem" data-decor="glow">グロー</button>
+              <button role="menuitem" data-decor="outline">アウトライン</button>
+              <button role="menuitem" data-decor="wide">ワイド</button>
+              <button role="menuitem" data-decor="narrow">ナロー</button>
+              <button role="menuitem" data-decor="light">ライト</button>
+              <button role="menuitem" data-decor="black">ボールド</button>
+              <button role="menuitem" data-decor="uppercase">大文字</button>
+              <button role="menuitem" data-decor="lowercase">小文字</button>
+              <button role="menuitem" data-decor="capitalize">先頭大文字</button>
+            </div>
+          </div>
+          <!-- アニメーションドロップダウン -->
+          <div class="wysiwyg-dropdown" data-dropdown="anim">
+            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="テキストアニメーション" aria-label="テキストアニメーション" aria-expanded="false">
+              <i data-lucide="sparkles" aria-hidden="true"></i>
+            </button>
+            <div class="wysiwyg-dropdown-menu" role="menu">
+              <button role="menuitem" data-anim="fade">フェード</button>
+              <button role="menuitem" data-anim="slide">スライド</button>
+              <button role="menuitem" data-anim="type">タイプライター</button>
+              <button role="menuitem" data-anim="pulse">パルス</button>
+              <button role="menuitem" data-anim="shake">シェイク</button>
+              <button role="menuitem" data-anim="bounce">バウンス</button>
+              <button role="menuitem" data-anim="fadein">フェードイン</button>
+            </div>
+          </div>
           <div class="wysiwyg-separator"></div>
           <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え"
             aria-label="テキストエディタに切り替え">
@@ -589,6 +651,7 @@
   <script src="js/app-ui-events.js"></script>
   <script src="js/app-gadgets-init.js"></script>
   <script src="js/app-autosave-api.js"></script>
+  <script src="js/edge-hover.js"></script>
   <script src="js/app.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@0.577.0/dist/umd/lucide.min.js"></script>

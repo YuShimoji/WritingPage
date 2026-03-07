@@ -485,6 +485,11 @@ document.addEventListener('DOMContentLoaded', () => {
             select.value = targetMode;
         }
 
+        // モードスイッチボタンの状態を同期
+        document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
+        });
+
         if (save) {
             try {
                 const s = window.ZenWriterStorage.loadSettings();
@@ -501,6 +506,14 @@ document.addEventListener('DOMContentLoaded', () => {
             setUIMode(e.target.value);
         });
     }
+
+    // モードスイッチボタンのクリックハンドラ
+    document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const mode = this.getAttribute('data-mode');
+            if (mode) setUIMode(mode);
+        });
+    });
 
     // ガジェット初期化・ロードアウトUI・ツールレジストリ（app-gadgets-init.js に委譲）
     if (typeof window.initAppGadgets === 'function') {

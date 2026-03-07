@@ -35,6 +35,32 @@
         });
       }
 
+      // カスタム装飾span → [tag]...[/tag] 逆変換ルール
+      if (this.turndownService) {
+        this.turndownService.addRule('fontDecorations', {
+          filter: function (node) {
+            return node.nodeName === 'SPAN' && node.className && /^decor-/.test(node.className);
+          },
+          replacement: function (content, node) {
+            var tag = node.className.replace('decor-', '');
+            return '[' + tag + ']' + content + '[/' + tag + ']';
+          }
+        });
+        var animClassToTag = {
+          'anim-fade': 'fade', 'anim-slide': 'slide', 'anim-typewriter': 'type',
+          'anim-pulse': 'pulse', 'anim-shake': 'shake', 'anim-bounce': 'bounce', 'anim-fade-in': 'fadein'
+        };
+        this.turndownService.addRule('textAnimations', {
+          filter: function (node) {
+            return node.nodeName === 'SPAN' && node.className && /^anim-/.test(node.className);
+          },
+          replacement: function (content, node) {
+            var tag = animClassToTag[node.className] || node.className.replace('anim-', '');
+            return '[' + tag + ']' + content + '[/' + tag + ']';
+          }
+        });
+      }
+
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
       this.markdownRenderer = null;
       if (window.markdownit) {
@@ -112,6 +138,7 @@
       const boldBtn = document.getElementById('wysiwyg-bold');
       const italicBtn = document.getElementById('wysiwyg-italic');
       const underlineBtn = document.getElementById('wysiwyg-underline');
+      const strikeBtn = document.getElementById('wysiwyg-strike');
       const linkBtn = document.getElementById('wysiwyg-link');
 
       if (boldBtn) {
@@ -135,12 +162,145 @@
         });
       }
 
+      if (strikeBtn) {
+        strikeBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          this.executeCommand('strikeThrough');
+        });
+      }
+
       if (linkBtn) {
         linkBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.insertLink();
         });
       }
+
+      // 装飾ドロップダウン
+      this.setupDropdowns();
+
+      // フローティングツールバー
+      this.setupFloatingToolbar();
+    }
+
+    /**
+     * ドロップダウンメニュー (装飾/アニメーション) の初期化
+     */
+    setupDropdowns() {
+      if (!this.wysiwygToolbar) return;
+      var self = this;
+
+      // ドロップダウントグル
+      this.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown-toggle').forEach(function (toggle) {
+        toggle.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          var dropdown = toggle.closest('.wysiwyg-dropdown');
+          var isOpen = dropdown.getAttribute('data-open') === 'true';
+          // 他のドロップダウンを閉じる
+          self.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
+            d.setAttribute('data-open', 'false');
+          });
+          dropdown.setAttribute('data-open', isOpen ? 'false' : 'true');
+          toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+        });
+      });
+
+      // 装飾メニュー項目
+      this.wysiwygToolbar.querySelectorAll('[data-decor]').forEach(function (btn) {
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          var tag = btn.getAttribute('data-decor');
+          if (tag) self.wrapSelectionWithSpan('decor-' + tag);
+          btn.closest('.wysiwyg-dropdown').setAttribute('data-open', 'false');
+        });
+      });
+
+      // アニメーションメニュー項目
+      this.wysiwygToolbar.querySelectorAll('[data-anim]').forEach(function (btn) {
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          var tag = btn.getAttribute('data-anim');
+          var classMap = { fade: 'anim-fade', slide: 'anim-slide', type: 'anim-typewriter', pulse: 'anim-pulse', shake: 'anim-shake', bounce: 'anim-bounce', fadein: 'anim-fade-in' };
+          if (tag && classMap[tag]) self.wrapSelectionWithSpan(classMap[tag]);
+          btn.closest('.wysiwyg-dropdown').setAttribute('data-open', 'false');
+        });
+      });
+
+      // ドロップダウン外クリックで閉じる
+      document.addEventListener('mousedown', function (e) {
+        if (!e.target.closest('.wysiwyg-dropdown')) {
+          self.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
+            d.setAttribute('data-open', 'false');
+          });
+        }
+      });
+    }
+
+    /**
+     * フローティングツールバーの選択連動表示
+     */
+    setupFloatingToolbar() {
+      if (!this.wysiwygEditor || !this.wysiwygToolbar) return;
+      var self = this;
+      this._floatingVisible = false;
+
+      document.addEventListener('selectionchange', function () {
+        if (!self.isWysiwygMode) return;
+        var sel = window.getSelection();
+        if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+          self._hideFloatingToolbar();
+          return;
+        }
+        var range = sel.getRangeAt(0);
+        if (!self.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          self._hideFloatingToolbar();
+          return;
+        }
+        self._showFloatingToolbar(range);
+      });
+
+      // ツールバー上のマウスダウンで非表示を防止
+      this.wysiwygToolbar.addEventListener('mousedown', function (e) {
+        // ボタン以外のツールバー領域クリック時も選択を保持
+        if (!e.target.closest('button')) e.preventDefault();
+      });
+    }
+
+    /** @private フローティングツールバーを選択範囲の近くに表示 */
+    _showFloatingToolbar(range) {
+      var rect = range.getBoundingClientRect();
+      var container = this.wysiwygEditor.closest('.editor-container');
+      if (!container) return;
+      var cRect = container.getBoundingClientRect();
+
+      var toolbarH = 44; // おおよそのツールバー高さ
+      var gap = 8;
+      var top, left;
+
+      // 選択範囲の上に余白があれば上、なければ下
+      if (rect.top - cRect.top > toolbarH + gap) {
+        top = rect.top - cRect.top - toolbarH - gap;
+      } else {
+        top = rect.bottom - cRect.top + gap;
+      }
+      left = rect.left - cRect.left + rect.width / 2;
+
+      this.wysiwygToolbar.style.top = top + 'px';
+      this.wysiwygToolbar.style.left = left + 'px';
+      this.wysiwygToolbar.style.transform = 'translateX(-50%)';
+      this.wysiwygToolbar.setAttribute('data-visible', 'true');
+      this._floatingVisible = true;
+    }
+
+    /** @private フローティングツールバーを非表示 */
+    _hideFloatingToolbar() {
+      if (!this._floatingVisible) return;
+      this.wysiwygToolbar.setAttribute('data-visible', 'false');
+      // ドロップダウンも閉じる
+      this.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
+        d.setAttribute('data-open', 'false');
+      });
+      this._floatingVisible = false;
     }
 
     /**
@@ -215,6 +375,48 @@
       this.syncToMarkdown();
     }
 
+    /**
+     * 選択テキストを指定CSSクラスのspanで囲む（トグル対応）。
+     * execCommandで対応できないカスタム装飾（decor-smallcaps等）に使用。
+     */
+    wrapSelectionWithSpan(className) {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+
+      this.wysiwygEditor.focus();
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+        this.notifySelectionRequired();
+        return;
+      }
+
+      const range = selection.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
+
+      // トグル: 選択範囲の親が同クラスのspanならアンラップ
+      const ancestor = range.commonAncestorContainer;
+      const parentEl = ancestor.nodeType === Node.TEXT_NODE ? ancestor.parentElement : ancestor;
+      if (parentEl && parentEl.tagName === 'SPAN' && parentEl.classList.contains(className)) {
+        const fragment = document.createDocumentFragment();
+        while (parentEl.firstChild) fragment.appendChild(parentEl.firstChild);
+        parentEl.parentNode.replaceChild(fragment, parentEl);
+      } else {
+        try {
+          const span = document.createElement('span');
+          span.className = className;
+          range.surroundContents(span);
+        } catch (_) {
+          // surroundContentsは部分選択で失敗する場合がある
+          const span = document.createElement('span');
+          span.className = className;
+          span.appendChild(range.extractContents());
+          range.insertNode(span);
+        }
+      }
+
+      this.wysiwygEditor.focus();
+      this.syncToMarkdown();
+    }
+
     insertLink() {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
@@ -272,7 +474,7 @@
       // 表示を切り替え
       this.textareaEditor.style.display = 'none';
       this.wysiwygEditor.style.display = 'block';
-      this.wysiwygToolbar.style.display = 'flex';
+      // フローティングモード: ツールバーはテキスト選択時に自動表示
       this.isWysiwygMode = true;
 
       // フォーカスを移動
@@ -303,7 +505,8 @@
 
       // 表示を切り替え
       this.wysiwygEditor.style.display = 'none';
-      this.wysiwygToolbar.style.display = 'none';
+      this._hideFloatingToolbar();
+      this.wysiwygToolbar.removeAttribute('data-visible');
       this.textareaEditor.style.display = 'block';
       this.isWysiwygMode = false;
 
