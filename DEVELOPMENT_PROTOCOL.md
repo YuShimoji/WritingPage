@@ -8,14 +8,7 @@
 - 作業単位を小さく、こまめなコミット（Husky/lint-staged 推奨）
 - PR は GitHub CLI(gh) で作成し、基本 Squash Merge
 
-## 2. CI/Sync の中央化
-
-- 共有リポジトリ: `YuShimoji/shared-workflows`
-  - 参照タグ: `v0.1.0`
-  - `.github/workflows/ci-smoke.yml` / `.github/workflows/sync-issues.yml` を `uses: ...@v0.1.0` で呼び出し
-- 本リポジトリのトリガー
-  - CI Smoke: push(main/develop/feat/\*\*), pull_request, workflow_dispatch
-  - Sync Issues: `docs/ISSUES.md` 変更または workflow_dispatch
+## 2. CI/テスト
 
 ### E2E テスト（Playwright）
 

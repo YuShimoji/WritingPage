@@ -131,8 +131,7 @@
 
 1. 状況把握
    - `git status -sb` で未コミット/見慣れないブランチ有無を確認
-   - ワークフローが共有版を参照しているか（`uses: YuShimoji/shared-workflows/...@v0.1.0`）
-   - 共有リポジトリが参照可能か（`gh repo view YuShimoji/shared-workflows`）
+   - CI ワークフローが正常か（`.github/workflows/` を確認）
 
 2. 計画
    - 完了済みの作業はスキップし、未着手/未完了のタスクのみを実行
