@@ -119,7 +119,7 @@
   border: 1px solid var(--ui-border, #ddd);
   border-radius: 4px;
   background: var(--ui-bg, #fff);
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ガジェットヘッダー */

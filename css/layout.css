@@ -295,33 +295,6 @@ body {
   margin-bottom: 1rem;
 }
 
-.sidebar-tabs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
-}
-
-.sidebar-tab {
-  padding: 0.6rem 0.5rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: inherit;
-  font-weight: 600;
-  transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s;
-}
-
-.sidebar-tab.active,
-.sidebar-tab:focus-visible {
-  background: var(--toolbar-bg);
-  border-color: var(--focus-color);
-  color: var(--focus-color);
-  outline: none;
-}
-
 .sidebar-loadout label {
   display: block;
   font-size: 0.85rem;
@@ -360,11 +333,7 @@ body {
   display: block;
 }
 
-/* Accordion mode: show all groups as details */
-[data-tabs-presentation="accordion"] .sidebar-tabs {
-  display: none !important;
-}
-
+/* Accordion mode: show all groups */
 [data-tabs-presentation="accordion"] .sidebar-group {
   display: block;
   margin-bottom: 10px;
