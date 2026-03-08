@@ -436,8 +436,10 @@
 
     _isGadgetCollapsed(name) {
       var state = this._loadGadgetCollapseState();
-      // デフォルトは折りたたみ (true)
-      return state[name] !== undefined ? !state[name] : true;
+      if (state[name] !== undefined) return !state[name];
+      // 初回起動時はドキュメント一覧を展開して、セクションへ即アクセスできるようにする
+      var defaultExpanded = { Documents: true };
+      return !defaultExpanded[name];
     }
 
     _setGadgetCollapsed(name, collapsed, wrapperEl, skipSave) {
@@ -493,7 +495,27 @@
               .map(function (entry) { return entry.name; });
           }
 
+          var listByName = {};
           self._list.forEach(function (entry) {
+            if (!entry || !entry.name) return;
+            listByName[entry.name] = entry;
+          });
+
+          var orderedEntries = [];
+          allowedNames.forEach(function (name) {
+            var entry = listByName[name];
+            if (!entry || !entry.groups || entry.groups.indexOf(group) === -1) return;
+            orderedEntries.push(entry);
+          });
+
+          self._list.forEach(function (entry) {
+            if (!entry || !entry.groups || entry.groups.indexOf(group) === -1) return;
+            if (allowedNames.indexOf(entry.name) === -1) return;
+            if (orderedEntries.indexOf(entry) !== -1) return;
+            orderedEntries.push(entry);
+          });
+
+          orderedEntries.forEach(function (entry) {
             if (!entry || !entry.groups || entry.groups.indexOf(group) === -1) return;
             if (allowedNames.indexOf(entry.name) === -1) return;
 

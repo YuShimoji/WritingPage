@@ -219,6 +219,35 @@
       newFolderBtn.title = 'ルートに新規フォルダ作成';
       newFolderBtn.addEventListener('click', function () { createFolder(null); });
 
+      var saveBtn = document.createElement('button');
+      saveBtn.type = 'button';
+      saveBtn.textContent = '💾 ' + (((window.UILabels && window.UILabels.SAVE) || '保存'));
+      saveBtn.title = '現在の内容を保存';
+      saveBtn.addEventListener('click', function () {
+        saveCurrentContent();
+        if (editorManager && typeof editorManager.refreshDirtyBaseline === 'function') {
+          editorManager.refreshDirtyBaseline();
+        }
+        notify((window.UILabels && window.UILabels.SAVED) || '保存しました');
+      });
+
+      var exportBtn = document.createElement('button');
+      exportBtn.type = 'button';
+      exportBtn.textContent = '⬇ ' + (((window.UILabels && window.UILabels.TXT_EXPORT) || 'TXTエクスポート'));
+      exportBtn.title = '現在の内容をテキストで書き出し';
+      exportBtn.addEventListener('click', function () {
+        saveCurrentContent();
+        if (editorManager && typeof editorManager.exportAsText === 'function') {
+          editorManager.exportAsText();
+        } else if (storage && typeof storage.exportText === 'function') {
+          var text = '';
+          try {
+            text = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : (storage.loadContent ? storage.loadContent() : '');
+          } catch (_) { }
+          storage.exportText(text || '', 'document.txt', 'text/plain');
+        }
+      });
+
       // スナップショット復元ボタン
       var restoreBtn = document.createElement('button');
       restoreBtn.type = 'button';
@@ -233,6 +262,8 @@
 
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(newFolderBtn);
+      toolbar.appendChild(saveBtn);
+      toolbar.appendChild(exportBtn);
       toolbar.appendChild(restoreBtn);
 
       // ツリーコンテナ
