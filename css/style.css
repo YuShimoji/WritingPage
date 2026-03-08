@@ -3717,8 +3717,17 @@ input[type="checkbox"] {
 /* ===== ガジェットUX改善 ===== */
 
 /* ガジェット個別折りたたみ */
+/* ガジェット折りたたみアニメーション */
+.gadget-wrapper .gadget {
+  overflow: hidden;
+  transition: max-height 0.2s ease-out, opacity 0.15s ease-out;
+  max-height: 2000px; /* 十分大きな値 */
+  opacity: 1;
+}
 .gadget-wrapper[data-gadget-collapsed="true"] .gadget {
-  display: none;
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 .gadget-wrapper[data-gadget-collapsed="true"] .gadget-help {
   display: none;

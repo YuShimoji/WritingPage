@@ -445,8 +445,7 @@
         wrapperEl.setAttribute('data-gadget-collapsed', collapsed ? 'true' : 'false');
         var header = wrapperEl.querySelector('.gadget-header');
         if (header) header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-        var gadgetEl = wrapperEl.querySelector('.gadget');
-        if (gadgetEl) gadgetEl.style.display = collapsed ? 'none' : '';
+        // max-height アニメーションは CSS で制御 (display 操作不要)
       }
       if (!skipSave) {
         var state = this._loadGadgetCollapseState();
