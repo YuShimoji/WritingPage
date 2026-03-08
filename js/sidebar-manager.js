@@ -16,6 +16,7 @@ class SidebarManager {
 
     constructor(elementManager) {
         this.elementManager = elementManager;
+        this._initializedAccordionGroups = new Set();
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
             {
@@ -66,6 +67,36 @@ class SidebarManager {
     bootstrapTabs() {
         // アコーディオンモードにリダイレクト
         return this.bootstrapAccordion();
+    }
+
+    _ensureAccordionGadgetInitialized(categoryId) {
+        try {
+            const category = this.accordionCategories.find(c => c && c.id === categoryId);
+            if (!category) return false;
+
+            const panel = document.getElementById(category.panelId);
+            if (!panel) return false;
+
+            if (this._initializedAccordionGroups.has(categoryId)) return true;
+
+            const roots = window.ZWGadgets && window.ZWGadgets._roots;
+            if (roots && roots[categoryId] === panel) {
+                this._initializedAccordionGroups.add(categoryId);
+                return true;
+            }
+
+            if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+                window.ZWGadgets.init(`#${category.panelId}`, { group: categoryId });
+                this._initializedAccordionGroups.add(categoryId);
+                if (this._isDevMode()) {
+                    console.log(`[Accordion] ガジェット初期化成功: ${categoryId}`);
+                }
+                return true;
+            }
+        } catch (e) {
+            console.error(`ガジェット初期化失敗: ${categoryId}`, e);
+        }
+        return false;
     }
 
     bootstrapAccordion() {
@@ -151,18 +182,10 @@ class SidebarManager {
                         isExpanded: isExpanded
                     });
                 }
-                if (panel && window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
-                    try {
-                        window.ZWGadgets.init(`#${category.panelId}`, { group: category.id });
-                        if (this._isDevMode()) {
-                            console.log(`[Accordion] ガジェット初期化成功: ${category.id}`);
-                        }
-                    } catch (e) {
-                        console.error(`ガジェット初期化失敗: ${category.id}`, e);
-                    }
-                } else {
-                    if (!panel) console.warn(`[Accordion] パネルが見つかりません: ${category.panelId}`);
-                    if (!window.ZWGadgets) console.warn(`[Accordion] ZWGadgetsが利用できません`);
+                if (isExpanded) {
+                    this._ensureAccordionGadgetInitialized(category.id);
+                } else if (!panel) {
+                    console.warn(`[Accordion] パネルが見つかりません: ${category.panelId}`);
                 }
             });
 
@@ -189,9 +212,13 @@ class SidebarManager {
         this._saveAccordionState();
 
         // カテゴリ展開時にガジェットを再レンダリング
-        if (expand && window.ZWGadgets && typeof window.ZWGadgets._renderGroup === 'function') {
+        if (expand) {
             try {
-                window.ZWGadgets._renderGroup(categoryId);
+                this._ensureAccordionGadgetInitialized(categoryId);
+                const renderers = window.ZWGadgets && window.ZWGadgets._renderers;
+                if (renderers && typeof renderers[categoryId] === 'function') {
+                    renderers[categoryId]();
+                }
                 if (this._isDevMode()) {
                     console.log(`[Accordion] ガジェット再レンダリング成功: ${categoryId}`);
                 }

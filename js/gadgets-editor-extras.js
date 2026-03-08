@@ -242,7 +242,16 @@
       function refreshTabOrderList() {
         try {
           orderList.innerHTML = '';
-          var tabs = window.sidebarManager ? window.sidebarManager.getTabOrder() : [];
+          var tabs = [];
+          if (window.sidebarManager) {
+            if (Array.isArray(window.sidebarManager.accordionCategories) && window.sidebarManager.accordionCategories.length) {
+              tabs = window.sidebarManager.accordionCategories
+                .map(function (cat) { return cat && cat.id; })
+                .filter(Boolean);
+            } else if (typeof window.sidebarManager.getTabOrder === 'function') {
+              tabs = window.sidebarManager.getTabOrder();
+            }
+          }
           if (tabs.length === 0) {
             var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '12px'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
             return;

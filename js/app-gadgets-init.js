@@ -10,8 +10,23 @@
      */
     function initAppGadgets(deps) {
         const { logger } = deps;
+        const initialGroups = new Set(['settings']);
+        let hasExpandedAccordion = false;
+        document.querySelectorAll('.accordion-header[aria-controls]').forEach(header => {
+            if (header.getAttribute('aria-expanded') !== 'true') return;
+            const controls = header.getAttribute('aria-controls') || '';
+            if (!controls.startsWith('accordion-')) return;
+            const groupId = controls.slice('accordion-'.length);
+            if (groupId) {
+                initialGroups.add(groupId);
+                hasExpandedAccordion = true;
+            }
+        });
+        if (!hasExpandedAccordion) {
+            initialGroups.add('structure');
+        }
 
-        // ===== ガジェットの初期化（全パネル） =====
+        // ===== ガジェットの初期化（初回は必要グループのみ） =====
         function initGadgetsWithRetry() {
             let tries = 0;
             const maxTries = 60; // ~3秒
@@ -22,7 +37,7 @@
                     try {
                         const panels = Array.from(document.querySelectorAll('.gadgets-panel[data-gadget-group]'))
                             .map(panel => ({ selector: `#${panel.id}`, group: panel.dataset.gadgetGroup }))
-                            .filter(info => info.selector && info.group);
+                            .filter(info => info.selector && info.group && initialGroups.has(info.group));
 
                         if (!panels.length) {
                             logger.warn('初期化対象のガジェットパネルが見つかりません');

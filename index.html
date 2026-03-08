@@ -59,24 +59,23 @@
   <link rel="stylesheet" href="css/theme-transition.css" />
   <link rel="stylesheet" href="css/graphic-novel.css" />
   <script>
-    // フォント読み込み: Electron=ローカル(vendor/fonts/) / ブラウザ=Google Fonts CDN / embed=スキップ
+    // フォント読み込み: ローカル優先、失敗時のみ Google Fonts へフォールバック
     (function () {
       try {
         var isEmbed = /(?:^|[?&])embed=1(?:&|$)/.test(location.search);
         if (isEmbed) return;
         var head = document.getElementsByTagName('head')[0];
-        if (window.electronAPI) {
-          // Electron: ローカルフォントファイルを使用（オフライン対応）
-          var f400 = document.createElement('link');
-          f400.rel = 'stylesheet';
-          f400.href = 'vendor/fonts/400.css';
-          var f700 = document.createElement('link');
-          f700.rel = 'stylesheet';
-          f700.href = 'vendor/fonts/700.css';
-          head.appendChild(f400);
-          head.appendChild(f700);
-        } else {
-          // ブラウザ: Google Fonts CDN（preconnect 最適化込み）
+        function appendStylesheet(href, onError) {
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          if (typeof onError === 'function') link.onerror = onError;
+          head.appendChild(link);
+          return link;
+        }
+        function appendGoogleFonts() {
+          if (head.getAttribute('data-fonts-cdn') === '1') return;
+          head.setAttribute('data-fonts-cdn', '1');
           var l1 = document.createElement('link');
           l1.rel = 'preconnect';
           l1.href = 'https://fonts.googleapis.com';
@@ -86,12 +85,24 @@
           l2.crossOrigin = '';
           var css = document.createElement('link');
           css.rel = 'stylesheet';
-          css.href =
-            'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
+          css.href = 'https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&display=swap';
           head.appendChild(l1);
           head.appendChild(l2);
           head.appendChild(css);
         }
+        // ?fonts=cdn でCDNを明示利用
+        if (/(?:^|[?&])fonts=cdn(?:&|$)/.test(location.search)) {
+          appendGoogleFonts();
+          return;
+        }
+        var fallbackTriggered = false;
+        function fallbackToCdn() {
+          if (fallbackTriggered) return;
+          fallbackTriggered = true;
+          appendGoogleFonts();
+        }
+        appendStylesheet('vendor/fonts/400.css', fallbackToCdn);
+        appendStylesheet('vendor/fonts/700.css', fallbackToCdn);
       } catch (_) { }
     })();
   </script>
@@ -221,6 +232,18 @@
           </div>
           <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
             <i data-lucide="maximize" aria-hidden="true"></i>
+          </button>
+        </div>
+        <!-- Electron: ウィンドウ操作ボタン (フレームレス時のみ表示) -->
+        <div class="window-controls electron-only" role="group" aria-label="ウィンドウ操作">
+          <button class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
+            <i data-lucide="x" aria-hidden="true"></i>
           </button>
         </div>
         <!-- 非表示: 後方互換用セレクト -->
@@ -373,6 +396,11 @@
         <div id="print-view" class="print-view" aria-hidden="true"></div>
       </div>
     </main>
+    <!-- ツールバー復元FAB (ツールバー非表示時のみ表示) -->
+    <button id="show-toolbar" class="show-toolbar-fab" type="button"
+      aria-label="ツールバーを表示" title="ツールバーを表示 (Alt+W)" style="display: none;">
+      <i data-lucide="chevron-down" aria-hidden="true"></i>
+    </button>
   </div>
 
   <!-- 設定モーダル -->
@@ -588,95 +616,103 @@
   </div>
   -->
 
-  <script src="js/storage.js"></script>
-  <script src="js/search-global.js"></script>
-  <script src="js/global-search-ui.js"></script>
-  <script src="js/theme-registry.js"></script>
-  <script src="js/theme.js"></script>
-  <script src="js/ui-labels.js"></script>
-  <script src="js/visual-profile.js"></script>
-  <script src="js/ui-editor.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/search-global.js"></script>
+  <script defer src="js/global-search-ui.js"></script>
+  <script defer src="js/theme-registry.js"></script>
+  <script defer src="js/theme.js"></script>
+  <script defer src="js/ui-labels.js"></script>
+  <script defer src="js/visual-profile.js"></script>
+  <script defer src="js/ui-editor.js"></script>
   <!-- Vendor libraries (local bundle) -->
-  <script src="vendor/markdown-it.min.js"></script>
-  <script src="vendor/turndown.js"></script>
-  <script src="vendor/morphdom-umd.min.js"></script>
-  <script src="js/tools-registry.js"></script>
-  <script src="js/element-manager.js"></script>
-  <script src="js/sidebar-manager.js"></script>
-  <script src="js/settings-manager.js"></script>
+  <script defer src="vendor/markdown-it.min.js"></script>
+  <script defer src="vendor/turndown.js"></script>
+  <script defer src="vendor/morphdom-umd.min.js"></script>
+  <script defer src="js/tools-registry.js"></script>
+  <script defer src="js/element-manager.js"></script>
+  <script defer src="js/sidebar-manager.js"></script>
+  <script defer src="js/settings-manager.js"></script>
   <!-- Gadgets system (modular) -->
-  <script src="js/loadouts-presets.js"></script>
-  <script src="js/gadgets-utils.js"></script>
-  <script src="js/gadgets-loadouts.js"></script>
-  <script src="js/gadgets-core.js"></script>
-  <script src="js/gadgets-documents-tree.js"></script>
-  <script src="js/gadgets-builtin.js"></script>
-  <script src="js/gadgets-documents-hierarchy.js"></script>
-  <script src="js/gadgets-themes.js"></script>
-  <script src="js/gadgets-typography.js"></script>
-  <script src="js/gadgets-hud.js"></script>
-  <script src="js/gadgets-clock.js"></script>
-  <script src="js/gadgets-goal.js"></script>
-  <script src="js/gadgets-snapshot.js"></script>
-  <script src="js/gadgets-print.js"></script>
-  <script src="js/gadgets-choice.js"></script>
-  <script src="js/gadgets-images.js"></script>
-  <script src="js/story-wiki.js"></script>
-  <script src="js/gadgets-layout.js"></script>
-  <script src="js/gadgets-help.js"></script>
-  <script src="js/gadgets-prefs.js"></script>
-  <script src="js/gadgets-visual-profile.js"></script>
-  <script src="js/gadgets-loadout.js"></script>
-  <script src="js/gadgets-samples.js"></script>
-  <script src="js/gadgets-editor-extras.js"></script>
-  <script src="js/pomodoro-timer.js"></script>
-  <script src="js/gadgets-pomodoro.js"></script>
-  <script src="js/keybind-editor.js"></script>
-  <script src="js/gadgets-keybinds.js"></script>
-  <script src="js/modules/graphic-novel/gn-core.js"></script>
-  <script src="js/modules/graphic-novel/gn-animators.js"></script>
-  <script src="js/modules/graphic-novel/gn-renderers.js"></script>
-  <script src="js/modules/graphic-novel/gn-engine.js"></script>
-  <script src="js/gadgets-graphic-novel.js"></script>
-  <script src="js/gadgets-init.js"></script>
-  <script src="js/icons.js"></script>
-  <script src="js/tags.js"></script>
-  <script src="js/smart-folders.js"></script>
-  <script src="js/gadgets-registry.js"></script>
-  <script src="js/gadgets-tags-smart-folders.js"></script>
-  <script src="js/nodegraph.js"></script>
-  <script src="js/link-graph.js"></script>
-  <script src="js/hud.js"></script>
-  <script src="js/editor-preview.js"></script>
-  <script src="js/editor-images.js"></script>
-  <script src="js/editor-overlays.js"></script>
-  <script src="js/spell-checker.js"></script>
+  <script defer src="js/loadouts-presets.js"></script>
+  <script defer src="js/gadgets-utils.js"></script>
+  <script defer src="js/gadgets-loadouts.js"></script>
+  <script defer src="js/gadgets-core.js"></script>
+  <script defer src="js/gadgets-documents-tree.js"></script>
+  <script defer src="js/gadgets-builtin.js"></script>
+  <script defer src="js/gadgets-documents-hierarchy.js"></script>
+  <script defer src="js/gadgets-themes.js"></script>
+  <script defer src="js/gadgets-typography.js"></script>
+  <script defer src="js/gadgets-hud.js"></script>
+  <script defer src="js/gadgets-clock.js"></script>
+  <script defer src="js/gadgets-goal.js"></script>
+  <script defer src="js/gadgets-snapshot.js"></script>
+  <script defer src="js/gadgets-print.js"></script>
+  <script defer src="js/gadgets-choice.js"></script>
+  <script defer src="js/gadgets-images.js"></script>
+  <script defer src="js/story-wiki.js"></script>
+  <script defer src="js/gadgets-layout.js"></script>
+  <script defer src="js/gadgets-help.js"></script>
+  <script defer src="js/gadgets-prefs.js"></script>
+  <script defer src="js/gadgets-visual-profile.js"></script>
+  <script defer src="js/gadgets-loadout.js"></script>
+  <script defer src="js/gadgets-samples.js"></script>
+  <script defer src="js/gadgets-editor-extras.js"></script>
+  <script defer src="js/pomodoro-timer.js"></script>
+  <script defer src="js/gadgets-pomodoro.js"></script>
+  <script defer src="js/keybind-editor.js"></script>
+  <script defer src="js/gadgets-keybinds.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-core.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-animators.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-renderers.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-engine.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-presets.js"></script>
+  <script defer src="js/modules/graphic-novel/gn-parser.js"></script>
+  <script defer src="js/gadgets-graphic-novel.js"></script>
+  <script defer src="js/gadgets-init.js"></script>
+  <script defer src="js/icons.js"></script>
+  <script defer src="js/tags.js"></script>
+  <script defer src="js/smart-folders.js"></script>
+  <script defer src="js/gadgets-registry.js"></script>
+  <script defer src="js/gadgets-tags-smart-folders.js"></script>
+  <script defer src="js/nodegraph.js"></script>
+  <script defer src="js/link-graph.js"></script>
+  <script defer src="js/hud.js"></script>
+  <script defer src="js/editor-preview.js"></script>
+  <script defer src="js/editor-images.js"></script>
+  <script defer src="js/editor-overlays.js"></script>
+  <script defer src="js/spell-checker.js"></script>
   <!-- Editor Modules -->
-  <script src="js/modules/editor/EditorCore.js"></script>
-  <script src="js/modules/editor/EditorUI.js"></script>
-  <script src="js/modules/editor/EditorSearch.js"></script>
-  <script src="js/editor.js"></script>
-  <script src="js/editor-wysiwyg.js"></script>
-  <script src="js/split-view.js"></script>
-  <script src="js/command-palette.js"></script>
-  <script src="js/app-editor-bridge.js"></script>
-  <script src="js/app-shortcuts.js"></script>
-  <script src="js/app-hud.js"></script>
-  <script src="js/app-settings-handlers.js"></script>
-  <script src="js/app-file-manager.js"></script>
-  <script src="js/app-ui-events.js"></script>
-  <script src="js/app-gadgets-init.js"></script>
-  <script src="js/app-autosave-api.js"></script>
-  <script src="js/edge-hover.js"></script>
-  <script src="js/electron-bridge.js"></script>
-  <script src="js/app.js"></script>
+  <script defer src="js/modules/editor/EditorCore.js"></script>
+  <script defer src="js/modules/editor/EditorUI.js"></script>
+  <script defer src="js/modules/editor/EditorSearch.js"></script>
+  <script defer src="js/editor.js"></script>
+  <script defer src="js/editor-wysiwyg.js"></script>
+  <script defer src="js/split-view.js"></script>
+  <script defer src="js/command-palette.js"></script>
+  <script defer src="js/app-editor-bridge.js"></script>
+  <script defer src="js/app-shortcuts.js"></script>
+  <script defer src="js/app-hud.js"></script>
+  <script defer src="js/app-settings-handlers.js"></script>
+  <script defer src="js/app-file-manager.js"></script>
+  <script defer src="js/app-ui-events.js"></script>
+  <script defer src="js/app-gadgets-init.js"></script>
+  <script defer src="js/app-autosave-api.js"></script>
+  <script defer src="js/edge-hover.js"></script>
+  <script defer src="js/electron-bridge.js"></script>
+  <script defer src="js/app.js"></script>
   <!-- Lucide Icons -->
-  <script src="vendor/lucide.min.js"></script>
+  <script defer src="vendor/lucide.min.js"></script>
   <script>
-    try { if (window.lucide && typeof window.lucide.createIcons === 'function') { window.lucide.createIcons({ icons: window.lucide.icons }); } } catch (_) { }
+    document.addEventListener('DOMContentLoaded', function () {
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons({ icons: window.lucide.icons });
+        }
+      } catch (_) { }
+    });
   </script>
   <!-- 埋め込み時のpostMessageブリッジ（?embed=1でREADY/RPC受信） -->
-  <script src="js/embed/child-bridge.js"></script>
+  <script defer src="js/embed/child-bridge.js"></script>
   <script>
     // 非埋め込み時のみ Outline/高度テーマ/プラグインを動的ロード（埋め込みでの初期ロードを軽量化）
     (function () {
@@ -685,17 +721,20 @@
       function load(src) {
         var s = document.createElement('script');
         s.src = src;
-        s.defer = true;
+        // 動的 script は async=false で挿入順の実行を保証
+        s.async = false;
         document.body.appendChild(s);
       }
-      load('js/outline.js');
-      load('js/themes-advanced.js');
-      load('js/plugins/registry.js');
-      load('js/plugins/choice.js');
-      load('js/images.js');
-      load('js/panels.js');
-      load('js/main-hub-panel.js');
-      load('js/plugin-api.js');
+      document.addEventListener('DOMContentLoaded', function () {
+        load('js/outline.js');
+        load('js/themes-advanced.js');
+        load('js/plugins/registry.js');
+        load('js/plugins/choice.js');
+        load('js/images.js');
+        load('js/panels.js');
+        load('js/main-hub-panel.js');
+        load('js/plugin-api.js');
+      }, { once: true });
     })();
   </script>
   <script>
@@ -723,6 +762,17 @@
             var url = location.origin + location.pathname;
             location.replace(url);
           });
+          return;
+        }
+
+        // 開発時は Service Worker を登録しない（キャッシュ汚染防止）
+        var forceSW = /(?:^|[?&])useSW=1(?:&|$)/.test(location.search);
+        if (isDev && !forceSW) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(registration) {
+              registration.unregister();
+            });
+          }).catch(function () { });
           return;
         }
 

@@ -391,19 +391,19 @@ async function loadCssWithImports(url) {
     const embedIndex = await get('/index.html?embed=1');
     const ei = embedIndex.body || '';
     const eiStatus = embedIndex.status === 200;
-    const eiNoOutline = !/<script\s+src=["']js\/outline\.js["']/.test(ei);
-    const eiNoThemesAdv = !/<script\s+src=["']js\/themes-advanced\.js["']/.test(
+    const eiNoOutline = !/<script\b[^>]*\bsrc=["']js\/outline\.js["']/.test(ei);
+    const eiNoThemesAdv = !/<script\b[^>]*\bsrc=["']js\/themes-advanced\.js["']/.test(
       ei,
     );
     const eiNoPluginReg =
-      !/<script\s+src=["']js\/plugins\/registry\.js["']/.test(ei);
+      !/<script\b[^>]*\bsrc=["']js\/plugins\/registry\.js["']/.test(ei);
     const eiNoPluginChoice =
-      !/<script\s+src=["']js\/plugins\/choice\.js["']/.test(ei);
-    const eiHasApp = /<script\s+src=["']js\/app\.js["']/.test(ei);
+      !/<script\b[^>]*\bsrc=["']js\/plugins\/choice\.js["']/.test(ei);
+    const eiHasApp = /<script\b[^>]*\bsrc=["']js\/app\.js["']/.test(ei);
     const eiHasChildBridge =
-      /<script\s+src=["']js\/embed\/child-bridge\.js["']/.test(ei);
+      /<script\b[^>]*\bsrc=["']js\/embed\/child-bridge\.js["']/.test(ei);
     const eiHasEmbedFlag = /setAttribute\(\s*['"]data-embed['"],\s*['"]true['"]\)/.test(ei);
-    const eiNoGadgetsStatic = !/<script\s+src=["']js\/gadgets\.js["']/.test(ei);
+    const eiNoGadgetsStatic = !/<script\b[^>]*\bsrc=["']js\/gadgets\.js["']/.test(ei);
     const okEmbedLight =
       eiStatus &&
       eiNoOutline &&
