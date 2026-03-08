@@ -137,6 +137,7 @@
         var entry = {
           name: safeName,
           title: opts.title || safeName,
+          description: opts.description || '',
           factory: factory,
           groups: normalizeGroupList(opts.groups || ['structure'])
         };
@@ -421,6 +422,39 @@
       } catch (_) { }
     }
 
+    // ガジェット折りたたみ状態管理
+    _loadGadgetCollapseState() {
+      try {
+        var raw = localStorage.getItem('zenwriter-gadget-collapsed');
+        return raw ? JSON.parse(raw) : {};
+      } catch(e) { return {}; }
+    }
+
+    _saveGadgetCollapseState(state) {
+      try { localStorage.setItem('zenwriter-gadget-collapsed', JSON.stringify(state)); } catch(e) {}
+    }
+
+    _isGadgetCollapsed(name) {
+      var state = this._loadGadgetCollapseState();
+      // デフォルトは折りたたみ (true)
+      return state[name] !== undefined ? !state[name] : true;
+    }
+
+    _setGadgetCollapsed(name, collapsed, wrapperEl, skipSave) {
+      if (wrapperEl) {
+        wrapperEl.setAttribute('data-gadget-collapsed', collapsed ? 'true' : 'false');
+        var header = wrapperEl.querySelector('.gadget-header');
+        if (header) header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        var gadgetEl = wrapperEl.querySelector('.gadget');
+        if (gadgetEl) gadgetEl.style.display = collapsed ? 'none' : '';
+      }
+      if (!skipSave) {
+        var state = this._loadGadgetCollapseState();
+        state[name] = !collapsed; // true = 展開
+        this._saveGadgetCollapseState(state);
+      }
+    }
+
     /**
      * Initialize gadgets in a container
      * @param {string|HTMLElement} selector - DOM element or selector to render gadgets in
@@ -481,8 +515,45 @@
             titleEl.textContent = entry.title || entry.name;
             header.appendChild(titleEl);
 
+            // ヘルプアイコン (descriptionがある場合のみ)
+            if (entry.description) {
+              var helpBtn = document.createElement('button');
+              helpBtn.className = 'gadget-help-btn';
+              helpBtn.title = 'ヘルプ';
+              helpBtn.setAttribute('aria-label', entry.title + 'のヘルプ');
+              var helpIcon = document.createElement('i');
+              helpIcon.setAttribute('data-lucide', 'help-circle');
+              helpIcon.setAttribute('aria-hidden', 'true');
+              helpBtn.appendChild(helpIcon);
+              helpBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var existing = wrapper.querySelector('.gadget-help');
+                if (existing) {
+                  existing.remove();
+                } else {
+                  var helpDiv = document.createElement('div');
+                  helpDiv.className = 'gadget-help';
+                  helpDiv.textContent = entry.description;
+                  header.insertAdjacentElement('afterend', helpDiv);
+                }
+              });
+              // ヘルプ表示設定を確認
+              var helpVisible = localStorage.getItem('zenwriter-gadget-help-visible');
+              if (helpVisible === 'false') {
+                helpBtn.style.display = 'none';
+              }
+              header.appendChild(helpBtn);
+            }
+
             var controls = document.createElement('div');
             controls.className = 'gadget-controls';
+
+            // chevron アイコン
+            var chevron = document.createElement('i');
+            chevron.setAttribute('data-lucide', 'chevron-down');
+            chevron.setAttribute('aria-hidden', 'true');
+            chevron.className = 'gadget-chevron';
+            controls.appendChild(chevron);
 
             // 切り離しボタン
             var detachBtn = document.createElement('button');
@@ -497,6 +568,23 @@
             controls.appendChild(detachBtn);
 
             header.appendChild(controls);
+
+            // ヘッダーをクリック可能にし、折りたたみイベント追加
+            header.setAttribute('role', 'button');
+            header.setAttribute('tabindex', '0');
+            header.addEventListener('click', function(e) {
+              if (e.target.closest('.gadget-detach-btn') || e.target.closest('.gadget-help-btn')) return;
+              var collapsed = wrapper.getAttribute('data-gadget-collapsed') === 'true';
+              self._setGadgetCollapsed(entry.name, !collapsed, wrapper);
+            });
+            header.addEventListener('keydown', function(e) {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                var collapsed = wrapper.getAttribute('data-gadget-collapsed') === 'true';
+                self._setGadgetCollapsed(entry.name, !collapsed, wrapper);
+              }
+            });
+
             wrapper.appendChild(header);
 
             var gadgetEl = document.createElement('div');
@@ -517,6 +605,11 @@
             self._setupGadgetDragHandlers(wrapper, entry.name, group);
 
             wrapper.appendChild(gadgetEl);
+
+            // 折りたたみ状態を復元
+            var isCollapsed = self._isGadgetCollapsed(entry.name);
+            self._setGadgetCollapsed(entry.name, isCollapsed, wrapper, true); // true = skipSave
+
             root.appendChild(wrapper);
           });
 
@@ -524,6 +617,11 @@
           self._setupPanelDropHandlers(root, group);
 
           self.replaceGadgetSettingsWithIcons();
+
+          // Lucideアイコンを初期化
+          if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            window.lucide.createIcons();
+          }
         } catch (e) {
           console.error('Renderer error for group:', group, e);
         }

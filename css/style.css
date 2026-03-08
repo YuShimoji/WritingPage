@@ -268,6 +268,10 @@ html[data-ui-mode='blank'] #quick-tools-panel {
   display: none !important;
 }
 
+html[data-ui-mode='blank'] .show-toolbar-fab {
+  display: none !important;
+}
+
 html[data-ui-mode='blank'] .editor-container {
   margin-left: 0 !important;
   height: 100vh;
@@ -443,6 +447,8 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   background-color: var(--bg-color);
   /* 執筆エリアのベース色 */
   width: 100%;
+  cursor: text;
+  /* エディタ外の空きスペースでもテキスト入力を示唆 */
   transition: margin-left var(--transition-speed), width var(--transition-speed);
 }
 
@@ -741,7 +747,8 @@ html[data-toolbar-hidden='true'] .editor-container {
   /* padding-left + padding-rightの分を調整 */
   width: 1px;
   height: 100%;
-  background-color: rgba(255, 0, 0, 0.3);
+  background-color: var(--border-color);
+  opacity: 0.3;
   pointer-events: none;
   z-index: 1;
 }
@@ -753,7 +760,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   left: -4px;
   width: 9px;
   height: 1px;
-  background-color: rgba(255, 0, 0, 0.3);
+  background-color: var(--border-color);
 }
 
 .editor-overlay__wrap-guide::after {
@@ -763,7 +770,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   left: -4px;
   width: 9px;
   height: 1px;
-  background-color: rgba(255, 0, 0, 0.3);
+  background-color: var(--border-color);
 }
 
 .editor-overlay__image img {
@@ -1322,7 +1329,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 /* アコーディオンコンテンツ */
 .accordion-content {
-  padding: 0 12px 12px 12px;
+  padding: 0 8px 8px 8px;
   overflow: visible;
   transition: max-height 0.3s ease-out, opacity 0.2s;
 }
@@ -1343,7 +1350,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 .accordion-content .gadgets-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 4px;
 }
 
 /* レスポンシブ対応 */
@@ -2263,24 +2270,17 @@ body.dragging-floating-panel {
 
 /* ===== ガジェット（サイドバー） ===== */
 .gadgets-panel {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .gadget {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
   padding: 6px 8px;
-  background: var(--ui-bg);
-  margin-bottom: 10px;
   transition:
     all 0.2s ease,
     transform 0.1s ease,
     box-shadow 0.1s ease;
-}
-
-.gadget:hover {
-  border-color: var(--ui-focus-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .gadget.moving-up {
@@ -3622,11 +3622,7 @@ input[type="checkbox"] {
 }
 
 /* ===== ガジェット改行・レイアウト改善 ===== */
-.gadgets-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* (.gadgets-panel は L2272 で統合定義済み) */
 
 /* ガジェットヘッダー (gadgets-core.js) */
 .gadget-header {
@@ -3636,7 +3632,7 @@ input[type="checkbox"] {
   gap: 4px;
   min-height: 0;
   padding: 0;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .gadget-header .gadget-title {
@@ -3677,7 +3673,15 @@ input[type="checkbox"] {
 .gadget-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* ガジェット間の区切り線 */
+.gadget-wrapper + .gadget-wrapper {
+  border-top: 1px solid var(--border-color);
+  padding-top: 4px;
 }
 
 .gadget-wrapper[draggable="true"] {
@@ -3708,6 +3712,88 @@ input[type="checkbox"] {
   padding-top: 8px;
   margin-top: 8px;
   border-top: 1px solid var(--border-color);
+}
+
+/* ===== ガジェットUX改善 ===== */
+
+/* ガジェット個別折りたたみ */
+.gadget-wrapper[data-gadget-collapsed="true"] .gadget {
+  display: none;
+}
+.gadget-wrapper[data-gadget-collapsed="true"] .gadget-help {
+  display: none;
+}
+.gadget-chevron {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+.gadget-wrapper[data-gadget-collapsed="false"] .gadget-chevron,
+.gadget-wrapper:not([data-gadget-collapsed]) .gadget-chevron {
+  transform: rotate(180deg);
+}
+.gadget-header[role="button"] {
+  cursor: pointer;
+}
+.gadget-header[role="button"]:hover .gadget-title {
+  opacity: 0.8;
+}
+
+/* ガジェットヘルプアイコン */
+.gadget-help-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.gadget-help-btn:hover {
+  opacity: 1;
+}
+.gadget-help-btn i {
+  width: 14px;
+  height: 14px;
+}
+
+/* ガジェットヘルプ表示 */
+.gadget-help {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  background: rgba(128, 128, 128, 0.1);
+  border-radius: 4px;
+  margin-top: 2px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* カテゴリ一括操作ボタン */
+.gadget-bulk-toggle-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+.gadget-bulk-toggle-btn:hover {
+  opacity: 1;
+}
+.gadget-bulk-toggle-btn i {
+  width: 16px;
+  height: 16px;
 }
 
 /* ラベルのスタイル統一 */
@@ -4876,11 +4962,7 @@ details[open] summary {
 }
 
 /* Gadget Styling refinement */
-.gadget-wrapper {
-  margin-bottom: 24px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
+/* (.gadget-wrapper は L3684 で統合定義済み) */
 
 .gadget h4 {
   font-size: 0.75rem;
@@ -5128,6 +5210,37 @@ details[open] summary {
   opacity: 0;
   pointer-events: none;
   transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* ツールバー復元FAB */
+.show-toolbar-fab {
+  position: fixed;
+  top: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1200;
+  width: 32px;
+  height: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 8px 8px;
+  background: var(--toolbar-bg, var(--ui-bg));
+  color: var(--toolbar-text, var(--text-color));
+  cursor: pointer;
+  padding: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.show-toolbar-fab:hover {
+  opacity: 1;
+}
+
+.show-toolbar-fab svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* フルツールバーモード（E2Eテスト/オプション用） */
@@ -5792,4 +5905,99 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
   opacity: 0.7;
   font-size: 12px;
   line-height: 1.4;
+}
+
+/* ===== Electron frameless window ===== */
+
+/* Electron以外では非表示 */
+.electron-only {
+  display: none !important;
+}
+
+body.is-electron .electron-only {
+  display: flex !important;
+}
+
+/* ドラッグ領域: body全体をドラッグ可能にし、インタラクティブ要素を除外 */
+body.is-electron {
+  -webkit-app-region: drag;
+}
+
+body.is-electron .toolbar,
+body.is-electron .sidebar,
+body.is-electron #editor,
+body.is-electron #wysiwyg-editor,
+body.is-electron .editor-preview,
+body.is-electron .mini-hud,
+body.is-electron .window-controls,
+body.is-electron .command-palette-overlay,
+body.is-electron .modal-overlay,
+body.is-electron button,
+body.is-electron input,
+body.is-electron select,
+body.is-electron textarea,
+body.is-electron [contenteditable="true"],
+body.is-electron a {
+  -webkit-app-region: no-drag;
+}
+
+/* ウィンドウ操作ボタン */
+.window-controls {
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+  -webkit-app-region: no-drag;
+}
+
+.window-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: var(--toolbar-height, 60px);
+  border: none;
+  background: transparent;
+  color: var(--toolbar-text, var(--text-color));
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  padding: 0;
+}
+
+.window-control-btn:hover {
+  background-color: var(--hover-bg, rgba(128, 128, 128, 0.2));
+}
+
+.window-control-btn:active {
+  background-color: var(--hover-bg, rgba(128, 128, 128, 0.3));
+}
+
+.window-control-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* 閉じるボタン: 赤ホバー */
+.window-control-btn--close:hover {
+  background-color: #e81123;
+  color: #fff;
+}
+
+.window-control-btn--close:active {
+  background-color: #c50f1f;
+  color: #fff;
+}
+
+/* blankモード: Electron時はtransform方式にしてエッジホバーで復帰可能にする */
+html.is-electron[data-ui-mode="blank"] .toolbar {
+  display: flex !important;
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+html.is-electron[data-ui-mode="blank"][data-edge-hover-top="true"] .toolbar {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }

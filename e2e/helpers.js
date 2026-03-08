@@ -155,7 +155,40 @@ async function enableAllGadgets(page) {
       gadgets.init('#settings-gadgets-panel', { group: 'settings' });
     }
   });
+  // デフォルト折りたたみ状態を全展開にする (localStorage にも保存して再レンダリング時も展開)
+  await page.evaluate(() => {
+    if (!window.ZWGadgets) return;
+    var state = {};
+    window.ZWGadgets._list.forEach(function(g) {
+      state[g.name] = true; // true = 展開
+    });
+    localStorage.setItem('zenwriter-gadget-collapsed', JSON.stringify(state));
+    // 現在のDOMも展開
+    document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+      var name = w.getAttribute('data-gadget-name');
+      if (name && window.ZWGadgets._setGadgetCollapsed) {
+        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
+      }
+    });
+  });
   await page.waitForTimeout(300);
+}
+
+/**
+ * 指定パネル内の全ガジェットを展開する。
+ */
+async function expandAllGadgets(page, panelSelector) {
+  await page.evaluate((sel) => {
+    var panel = sel ? document.querySelector(sel) : document;
+    if (!panel) return;
+    panel.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+      var name = w.getAttribute('data-gadget-name');
+      if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
+      }
+    });
+  }, panelSelector || null);
+  await page.waitForTimeout(200);
 }
 
 /**
@@ -229,6 +262,7 @@ module.exports = {
   openMainHubPanel,
   showFullToolbar,
   enableAllGadgets,
+  expandAllGadgets,
   openSidebarGroup,
   expandAccordion,
   openSettingsModal,

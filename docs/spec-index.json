@@ -250,5 +250,14 @@
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
     "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手"
+  },
+  {
+    "id": "SP-051",
+    "title": "ガジェットUX改善 仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-gadget-ux.md",
+    "summary": "サイドバーガジェットのコンパクト化・個別折りたたみ・ヘルプアイコン・一括操作。余白削減+二重ボックス解消、デフォルト折りたたみ+localStorage保存、Phase 2でアニメーション"
   }
 ]

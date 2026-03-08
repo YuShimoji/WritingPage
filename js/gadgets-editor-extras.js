@@ -523,7 +523,63 @@
         }
       });
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
+      // ガジェットUX設定
+      var gadgetUXRow = el('div');
+      gadgetUXRow.style.display = 'grid';
+      gadgetUXRow.style.gap = '6px';
+
+      var gadgetUXLabel = el('div');
+      gadgetUXLabel.textContent = 'ガジェット表示';
+      gadgetUXLabel.style.fontSize = '12px';
+      gadgetUXLabel.style.fontWeight = 'bold';
+
+      // ヘルプアイコン表示トグル
+      var helpIconRow = el('label');
+      helpIconRow.style.display = 'flex';
+      helpIconRow.style.alignItems = 'center';
+      helpIconRow.style.gap = '6px';
+      var helpIconCheck = el('input');
+      helpIconCheck.type = 'checkbox';
+      helpIconCheck.checked = localStorage.getItem('zenwriter-gadget-help-visible') !== 'false';
+      var helpIconText = el('span');
+      helpIconText.textContent = 'ガジェットヘルプアイコンを表示';
+      helpIconRow.appendChild(helpIconCheck);
+      helpIconRow.appendChild(helpIconText);
+
+      helpIconCheck.addEventListener('change', function() {
+        localStorage.setItem('zenwriter-gadget-help-visible', helpIconCheck.checked ? 'true' : 'false');
+        // 即座に反映
+        document.querySelectorAll('.gadget-help-btn').forEach(function(btn) {
+          btn.style.display = helpIconCheck.checked ? '' : 'none';
+        });
+      });
+
+      // 一括操作ボタン表示トグル
+      var bulkToggleRow = el('label');
+      bulkToggleRow.style.display = 'flex';
+      bulkToggleRow.style.alignItems = 'center';
+      bulkToggleRow.style.gap = '6px';
+      var bulkToggleCheck = el('input');
+      bulkToggleCheck.type = 'checkbox';
+      bulkToggleCheck.checked = localStorage.getItem('zenwriter-gadget-bulk-toggle-visible') !== 'false';
+      var bulkToggleText = el('span');
+      bulkToggleText.textContent = '一括折りたたみボタンを表示';
+      bulkToggleRow.appendChild(bulkToggleCheck);
+      bulkToggleRow.appendChild(bulkToggleText);
+
+      bulkToggleCheck.addEventListener('change', function() {
+        localStorage.setItem('zenwriter-gadget-bulk-toggle-visible', bulkToggleCheck.checked ? 'true' : 'false');
+        // 即座に反映
+        document.querySelectorAll('.gadget-bulk-toggle-btn').forEach(function(btn) {
+          btn.style.display = bulkToggleCheck.checked ? '' : 'none';
+        });
+      });
+
+      gadgetUXRow.appendChild(gadgetUXLabel);
+      gadgetUXRow.appendChild(helpIconRow);
+      gadgetUXRow.appendChild(bulkToggleRow);
+
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
     }, { title: 'UI Settings', groups: ['advanced'] });
 
     // UI Design Gadget (background gradient)

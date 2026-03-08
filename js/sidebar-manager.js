@@ -104,6 +104,43 @@ class SidebarManager {
                     }
                 });
 
+                // 一括折りたたみ/展開ボタン
+                const bulkToggleVisible = localStorage.getItem('zenwriter-gadget-bulk-toggle-visible');
+                if (bulkToggleVisible !== 'false') {
+                    const bulkBtn = document.createElement('button');
+                    bulkBtn.className = 'gadget-bulk-toggle-btn';
+                    bulkBtn.title = 'ガジェットを全て展開/折りたたみ';
+                    bulkBtn.setAttribute('aria-label', 'ガジェットを全て展開/折りたたみ');
+                    const bulkIcon = document.createElement('i');
+                    bulkIcon.setAttribute('data-lucide', 'chevrons-down-up');
+                    bulkIcon.setAttribute('aria-hidden', 'true');
+                    bulkBtn.appendChild(bulkIcon);
+
+                    bulkBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // 現在のカテゴリ内の全ガジェットの状態を確認
+                        const panel = document.getElementById(category.panelId);
+                        if (!panel) return;
+                        const wrappers = panel.querySelectorAll('.gadget-wrapper');
+                        const allCollapsed = Array.from(wrappers).every(w => {
+                            return w.getAttribute('data-gadget-collapsed') === 'true';
+                        });
+                        // 全て折りたたみなら全展開、それ以外なら全折りたたみ
+                        wrappers.forEach(w => {
+                            const name = w.getAttribute('data-gadget-name');
+                            if (name && window.ZWGadgets) {
+                                window.ZWGadgets._setGadgetCollapsed(name, !allCollapsed, w);
+                            }
+                        });
+                    });
+
+                    // chevron-downアイコンの前に挿入
+                    const accordionChevron = header.querySelector('.accordion-icon');
+                    if (accordionChevron) {
+                        header.insertBefore(bulkBtn, accordionChevron);
+                    }
+                }
+
                 // ガジェット初期化
                 const panel = document.getElementById(category.panelId);
                 if (this._isDevMode()) {
