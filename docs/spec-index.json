@@ -135,15 +135,6 @@
     "summary": "ユーザー定義ガジェット/プラグイン拡張の設計書 (Draft)"
   },
   {
-    "id": "SP-030",
-    "title": "使い方ガイド",
-    "status": "done",
-    "pct": 100,
-    "cat": "user",
-    "file": "docs/USAGE.md",
-    "summary": "起動・操作・設定・ショートカットのクイックリファレンス"
-  },
-  {
     "id": "SP-031",
     "title": "ユーザーガイド",
     "status": "done",

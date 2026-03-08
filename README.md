@@ -212,7 +212,7 @@ WritingPage/
 
 ## 関連ドキュメント
 
-- `docs/USAGE.md`
+- `docs/USER_GUIDE.md`
 - `docs/TESTING.md`
 - `docs/DESIGN.md`
 - `docs/THEMES.md`
