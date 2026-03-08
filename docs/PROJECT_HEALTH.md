@@ -108,7 +108,7 @@
 ## 参照
 
 - `docs/ROADMAP.md` — ロードマップ
-- `docs/BACKLOG.md` — バックログ
+- `docs/CODING_STANDARDS.md` — コーディング規約
 - `docs/KNOWN_ISSUES.md` — 既知の問題
 - `HANDOVER.md` — 作業申し送り
 - `CLAUDE.md` — プロジェクトルール

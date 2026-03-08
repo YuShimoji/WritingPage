@@ -220,13 +220,9 @@ WritingPage/
 - `docs/RELEASE.md`
 - `docs/DEPLOY.md`
 - `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
-- `docs/tasks/README.md` - タスク管理インデックス
-- `docs/BACKLOG.md`
-- `docs/ISSUES.md`
 - `docs/KNOWN_ISSUES.md`
-- `docs/CONVENTIONS.md`
+- `docs/CODING_STANDARDS.md` - コーディング規約
 - `docs/LABELS.md`
-- `docs/PALETTE_DESIGN.md`
 - `docs/EMBED_SDK.md`
 - `docs/SNAPSHOT_DESIGN.md`
 - `docs/EDITOR_EXTENSIONS.md`

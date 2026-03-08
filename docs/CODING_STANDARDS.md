@@ -29,11 +29,13 @@ ESLintの設定は `.eslintrc.js` に記載されています。
 **主要な設定:**
 
 - 環境: Browser, ES2020, Node.js
-- 推奨ルール: `eslint:recommended` を継承
+- 推奨ルール: `eslint:recommended` は使用しない（明示的ルールのみ）
 - カスタムルール:
-  - セミコロン必須 (`semi: 'always'`)
-  - シングルクォート使用 (`quotes: 'single'`)
-  - 未使用変数の検出（`_`で始まる引数は除外）
+  - `no-empty`: 空ブロック禁止（空catchは許可）
+  - `no-inner-declarations`: 無効
+  - `no-unused-vars`: 未使用変数検出（`_`で始まる引数・変数は除外）
+  - `semi`: セミコロン必須
+  - `quotes`: シングルクォート（テンプレートリテラル許可）
 
 **除外パターン:**
 
@@ -41,6 +43,7 @@ ESLintの設定は `.eslintrc.js` に記載されています。
 - `test-results/`
 - `playwright-report/`
 - `dist/`
+- `vendor/`
 
 ### Prettier
 
@@ -287,13 +290,32 @@ PrettierとESLintの競合を避けるため、以下の設定を推奨します
 - **ESLint**: `.eslintrc.js`の`ignorePatterns`に追加
 - **Prettier**: `.prettierignore`に追加
 
+## ブランチ命名
+
+- 機能: `feat/<topic>`
+- 修正: `fix/<topic>`
+- ドキュメント: `docs/<topic>`
+- 雑務: `chore/<topic>`
+
+## コミットメッセージ
+
+- `feat: 概要`
+- `fix: 概要`
+- `docs: 概要`
+- `chore: 概要`
+- `refactor: 概要`
+
+## 非採用/仕様外
+
+- 『賞/メタ情報』は非採用（仕様外）。UI・コード・ドキュメントに含めない。
+
 ## 参考資料
 
 - [ESLint公式ドキュメント](https://eslint.org/)
 - [Prettier公式ドキュメント](https://prettier.io/)
-- [プロジェクト規約（CONVENTIONS.md）](./CONVENTIONS.md)
 - [コントリビューションガイド（CONTRIBUTING.md）](../CONTRIBUTING.md)
 
 ## 更新履歴
 
+- 2026-03-08: CONVENTIONS.md を統合、ESLint設定を実態に合わせて更新
 - 2026-01-18: 初版作成（ESLint/Prettier導入）
