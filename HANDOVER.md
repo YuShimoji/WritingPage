@@ -31,7 +31,7 @@ npm run lint              # ESLint
 
 ### アーキテクチャ概要
 
-- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` -- 28個登録済み
+- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` -- 27個登録済み
 - **サイドバー**: `SidebarManager`(SSOT) -- 5カテゴリアコーディオン: structure / edit / theme / assist / advanced
 - **ツールバー**: コンテキストベース (Layer 1-4) -- ミニマルヘッダー / フローティング装飾バー / サイドバー / エッジホバーUI
 - **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み

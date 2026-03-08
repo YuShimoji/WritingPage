@@ -75,11 +75,11 @@ npx playwright test   # E2E (197+ passed を維持)
 
 ### スコープ
 
-ROADMAP.md の Priority C を担当。28個のガジェットの分析・統合。
+ROADMAP.md の Priority C を担当。27個のガジェットの分析・統合。
 
 ### コンテキスト
 
-- 28個のガジェットが `ZWGadgets.register()` で登録
+- 27個のガジェットが `ZWGadgets.register()` で登録
 - ロードアウト (プリセット): gadgets-loadout.js で管理
 - SidebarManager: 5カテゴリ (structure/edit/theme/assist/advanced)
 - HUMAN_AUTHORITY: ガジェット統合・削除の方針は承認が必要

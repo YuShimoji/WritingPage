@@ -84,7 +84,7 @@ Zen Writer v0.3.29
 |  | Documents | ドキュメント階層 |
 |  | Snapshot | バックアップ管理 |
 |  | Tags/SmartFolders | タグ・フォルダ管理 |
-| **編集** | StoryWiki | 物語Wiki |
+| **編集** | StoryWiki | 物語Wiki（カテゴリ分類・ツリー+詳細ペイン） |
 |  | Images | 画像管理 |
 |  | ChoiceTools | 選択肢ツール |
 | **テーマ** | Themes | テーマ切り替え |
@@ -95,7 +95,7 @@ Zen Writer v0.3.29
 |  | Clock | 時計 |
 |  | Pomodoro | 集中タイマー |
 
-**ガジェット総数：** 28個
+**ガジェット総数：** 27個
 
 ### 4. 装飾・アニメーション
 

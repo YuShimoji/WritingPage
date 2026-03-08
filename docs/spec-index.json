@@ -33,7 +33,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/GADGETS.md",
-    "summary": "28個のガジェットの一覧・API・登録方法・将来タスク"
+    "summary": "27個のガジェットの一覧・API・登録方法・将来タスク"
   },
   {
     "id": "SP-005",
@@ -241,5 +241,14 @@
     "cat": "infra",
     "file": "docs/KNOWN_ISSUES.md",
     "summary": "既知の問題・回避策・未対応監査項目"
+  },
+  {
+    "id": "SP-050",
+    "title": "Story Wiki 仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "core",
+    "file": "docs/specs/spec-story-wiki.md",
+    "summary": "用語集Wiki。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携"
   }
 ]

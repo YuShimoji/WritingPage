@@ -40,7 +40,7 @@ WritingPage/
 │   ├── hud.js                # ヘッドアップディスプレイ
 │   ├── sidebar-manager.js     # サイドバー（タブ/パネル）管理
 │   ├── gadgets-*.js           # ガジェットシステム（モジュール分割）
-│   ├── wiki.js                # Wiki機能
+│   ├── story-wiki.js           # Story Wiki (用語集Wiki)
 │   ├── images.js              # 画像管理
 │   └── plugins/              # プラグイン
 ├── docs/                     # ドキュメント

@@ -80,6 +80,10 @@
                     content = manager.richTextEditor.getContent();
                 }
                 window.ZenWriterStorage.saveContent(content);
+                // Story Wiki 自動検出フック
+                try {
+                    document.dispatchEvent(new CustomEvent('zen-content-saved', { detail: { content: content } }));
+                } catch (_e) { /* イベント発火失敗は無視 */ }
             } catch (_) { }
         },
 

@@ -14,11 +14,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should parse [[wikilink]] syntax', async ({ page }) => {
-    // エディタにWikilink構文を入力
-    const editor = page.locator('#editor');
-    await editor.waitFor({ timeout: 5000 });
-    await editor.fill('This is a [[test link]] and another [[link|display text]].');
-
     // LinkGraph APIが利用可能か確認
     const hasLinkGraph = await page.evaluate(() => {
       return typeof window.LinkGraph !== 'undefined' &&
@@ -40,10 +35,6 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should parse doc:// links', async ({ page }) => {
-    const editor = page.locator('#editor');
-    await editor.waitFor({ timeout: 5000 });
-    await editor.fill('Link to [document](doc://doc1#section1) and plain doc://doc2');
-
     const parsedLinks = await page.evaluate(() => {
       if (!window.LinkGraph) return [];
       return window.LinkGraph.parseDocLinks('Link to [document](doc://doc1#section1) and plain doc://doc2');
@@ -56,9 +47,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     const markdownLink = parsedLinks.find(l => l.text === 'document');
     expect(markdownLink).toBeDefined();
     expect(markdownLink.link).toBe('doc://doc1#section1');
-    // 現在の実装では、Markdownリンクの場合、docId に #section も含まれる
     expect(markdownLink.docId).toBe('doc1#section1');
-    // section は undefined になる（実装のRegexパターンの制約）
     expect(markdownLink.section).toBeUndefined();
 
     // プレーンテキストリンク doc://doc2 を確認
@@ -68,42 +57,24 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     expect(plainLink.docId).toBe('doc2');
   });
 
-  test('should render [[wikilink]] in wiki preview', async ({ page }) => {
-    // 新しいWikiページを作成
-    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
-    await createButton.waitFor({ timeout: 5000 });
-    await createButton.click();
-
-    // Wikilinkを含むコンテンツを入力
-    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Test Page');
-    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'This page links to [[Another Page]] and [[Third Page|display]].');
-
-    // プレビューを確認
-    await page.waitForTimeout(500); // プレビュー更新を待つ
-    const preview = page.locator('#edit-gadgets-panel .wiki-preview');
-    const _previewContent = await preview.textContent();
-
-    // Wikilinkがレンダリングされているか確認（リンクとして表示される）
-    const previewHTML = await preview.innerHTML();
-    expect(previewHTML).toContain('wikilink');
-    expect(previewHTML).toContain('Another Page');
-    expect(previewHTML).toContain('display');
-  });
-
   test('should find backlinks', async ({ page }) => {
-    // Storage API経由でWikiページを直接作成（UI経由だとタイミング問題が発生するため）
+    // Storage API経由でWikiページを作成（新StoryWiki API使用）
     await page.evaluate(() => {
-      if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.createWikiPage !== 'function') return;
-      window.ZenWriterStorage.createWikiPage({
-        title: 'Target Page',
-        content: 'This is the target page.',
-        tags: [],
-      });
-      window.ZenWriterStorage.createWikiPage({
-        title: 'Source Page',
-        content: 'This links to [[Target Page]].',
-        tags: [],
-      });
+      var s = window.ZenWriterStorage;
+      if (!s) return;
+      // 旧API（link-graph.js互換のため）
+      if (typeof s.createWikiPage === 'function') {
+        s.createWikiPage({
+          title: 'Target Page',
+          content: 'This is the target page.',
+          tags: [],
+        });
+        s.createWikiPage({
+          title: 'Source Page',
+          content: 'This links to [[Target Page]].',
+          tags: [],
+        });
+      }
     });
     await page.waitForTimeout(300);
 
@@ -118,12 +89,7 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
     expect(sourceBacklink).toBeDefined();
   });
 
-  test('should display link graph gadget', async ({ page }) => {
-    // Link Graph gadgetが表示されているか確認
-    const _linkGraphGadget = page.locator('#edit-gadgets-panel .link-graph-container, #edit-gadgets-panel .link-graph-toolbar');
-    // gadgetがロードされるまで待つ
-    await page.waitForTimeout(1000);
-
+  test('should display link graph API', async ({ page }) => {
     // LinkGraph APIが利用可能か確認
     const hasLinkGraph = await page.evaluate(() => {
       return typeof window.LinkGraph !== 'undefined';
@@ -132,22 +98,21 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
   });
 
   test('should generate graph data from links', async ({ page }) => {
-    // Wikiページを2つ作成してリンク関係を作る
-    const createButton = page.locator('#edit-gadgets-panel button:has-text("新規ページ")');
-    await createButton.waitFor({ timeout: 5000 });
-
-    // ページ1
-    await createButton.click();
-    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Page A');
-    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page B]].');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
-    await page.waitForTimeout(300);
-
-    // ページ2
-    await createButton.click();
-    await page.fill('#edit-gadgets-panel input[placeholder="タイトル"]', 'Page B');
-    await page.fill('#edit-gadgets-panel textarea[placeholder="本文（Markdown 可）"]', 'Links to [[Page A]].');
-    await page.click('#edit-gadgets-panel button:has-text("保存")');
+    // Storage API経由でページを作成
+    await page.evaluate(() => {
+      var s = window.ZenWriterStorage;
+      if (!s || typeof s.createWikiPage !== 'function') return;
+      s.createWikiPage({
+        title: 'Page A',
+        content: 'Links to [[Page B]].',
+        tags: [],
+      });
+      s.createWikiPage({
+        title: 'Page B',
+        content: 'Links to [[Page A]].',
+        tags: [],
+      });
+    });
     await page.waitForTimeout(300);
 
     // グラフデータを生成
@@ -158,14 +123,12 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
 
     expect(graphData).not.toBeNull();
     expect(graphData.nodes.length).toBeGreaterThan(0);
-    // リンク関係がある場合はエッジも存在する
     if (graphData.nodes.length >= 2) {
       expect(graphData.edges.length).toBeGreaterThan(0);
     }
   });
 
   test('should handle empty graph gracefully', async ({ page }) => {
-    // リンクがない状態でグラフを生成
     const graphData = await page.evaluate(() => {
       if (!window.LinkGraph || !window.ZenWriterStorage) return null;
       return window.LinkGraph.generateGraphData(window.ZenWriterStorage);

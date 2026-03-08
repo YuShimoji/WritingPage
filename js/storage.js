@@ -7,7 +7,10 @@ const STORAGE_KEYS = {
     DOCS: 'zenWriter_docs',
     CURRENT_DOC_ID: 'zenWriter_currentDocId',
     ASSETS: 'zenWriter_assets',
-    WIKI_PAGES: 'zenWriter_wiki_pages'
+    WIKI_PAGES: 'zenWriter_wiki_pages',
+    STORY_WIKI: 'zenWriter_story_wiki',
+    STORY_WIKI_CATEGORIES: 'zenWriter_story_wiki_categories',
+    STORY_WIKI_SETTINGS: 'zenWriter_story_wiki_settings'
 };
 
 // デフォルト設定
@@ -847,6 +850,183 @@ function searchWikiPages(query) {
         return inTitle || inBody || inTags || inFolder;
     });
 }
+
+// ─── Story Wiki (新設計) ───────────────────────────
+
+const STORY_WIKI_PRESET_CATEGORIES = [
+    { id: 'character', label: 'キャラクター', icon: 'user', isPreset: true },
+    { id: 'location', label: '場所', icon: 'map-pin', isPreset: true },
+    { id: 'item', label: 'アイテム', icon: 'gem', isPreset: true },
+    { id: 'organization', label: '組織', icon: 'users', isPreset: true },
+    { id: 'term', label: '用語', icon: 'book-open', isPreset: true },
+    { id: 'event', label: 'イベント', icon: 'calendar', isPreset: true },
+    { id: 'concept', label: '概念', icon: 'lightbulb', isPreset: true }
+];
+
+function loadStoryWiki() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI);
+        return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+        console.error('StoryWiki読込エラー:', e);
+        return [];
+    }
+}
+
+function saveStoryWiki(entries) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.STORY_WIKI, JSON.stringify(entries || []));
+        return true;
+    } catch (e) {
+        console.error('StoryWiki保存エラー:', e);
+        return false;
+    }
+}
+
+function loadStoryWikiCategories() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI_CATEGORIES);
+        const custom = raw ? JSON.parse(raw) : [];
+        return STORY_WIKI_PRESET_CATEGORIES.concat(custom);
+    } catch (e) {
+        console.error('StoryWikiカテゴリ読込エラー:', e);
+        return STORY_WIKI_PRESET_CATEGORIES.slice();
+    }
+}
+
+function saveStoryWikiCustomCategories(categories) {
+    try {
+        const custom = (categories || []).filter(function (c) { return !c.isPreset; });
+        localStorage.setItem(STORAGE_KEYS.STORY_WIKI_CATEGORIES, JSON.stringify(custom));
+        return true;
+    } catch (e) {
+        console.error('StoryWikiカテゴリ保存エラー:', e);
+        return false;
+    }
+}
+
+function loadStoryWikiSettings() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI_SETTINGS);
+        var defaults = { autoDetect: true, ignoredTerms: [] };
+        if (!raw) return defaults;
+        var parsed = JSON.parse(raw);
+        return Object.assign(defaults, parsed);
+    } catch (e) {
+        return { autoDetect: true, ignoredTerms: [] };
+    }
+}
+
+function saveStoryWikiSettings(settings) {
+    try {
+        localStorage.setItem(STORAGE_KEYS.STORY_WIKI_SETTINGS, JSON.stringify(settings || {}));
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+function createStoryWikiEntry(data) {
+    if (!data || typeof data !== 'object') return null;
+    var entries = loadStoryWiki();
+    var entry = {
+        id: 'swiki_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+        title: data.title || '無題',
+        category: data.category || 'term',
+        aliases: Array.isArray(data.aliases) ? data.aliases : [],
+        content: data.content || '',
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        relatedIds: Array.isArray(data.relatedIds) ? data.relatedIds : [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        source: data.source || 'manual'
+    };
+    entries.push(entry);
+    saveStoryWiki(entries);
+    return entry;
+}
+
+function getStoryWikiEntry(entryId) {
+    var entries = loadStoryWiki();
+    return entries.find(function (e) { return e.id === entryId; }) || null;
+}
+
+function updateStoryWikiEntry(entryId, updates) {
+    var entries = loadStoryWiki();
+    var idx = entries.findIndex(function (e) { return e.id === entryId; });
+    if (idx === -1) return null;
+    var entry = entries[idx];
+    if (updates.title !== undefined) entry.title = updates.title;
+    if (updates.category !== undefined) entry.category = updates.category;
+    if (updates.aliases !== undefined) entry.aliases = updates.aliases;
+    if (updates.content !== undefined) entry.content = updates.content;
+    if (updates.tags !== undefined) entry.tags = updates.tags;
+    if (updates.relatedIds !== undefined) entry.relatedIds = updates.relatedIds;
+    entry.updatedAt = Date.now();
+    entries[idx] = entry;
+    saveStoryWiki(entries);
+    return entry;
+}
+
+function deleteStoryWikiEntry(entryId) {
+    var entries = loadStoryWiki();
+    var filtered = entries.filter(function (e) { return e.id !== entryId; });
+    if (filtered.length === entries.length) return false;
+    saveStoryWiki(filtered);
+    return true;
+}
+
+function searchStoryWiki(query) {
+    var entries = loadStoryWiki();
+    if (!query || typeof query !== 'string') return entries;
+    var lq = query.toLowerCase();
+    return entries.filter(function (e) {
+        var inTitle = String(e.title || '').toLowerCase().includes(lq);
+        var inAliases = Array.isArray(e.aliases) && e.aliases.some(function (a) { return String(a).toLowerCase().includes(lq); });
+        var inContent = String(e.content || '').toLowerCase().includes(lq);
+        var inTags = Array.isArray(e.tags) && e.tags.some(function (t) { return String(t).toLowerCase().includes(lq); });
+        return inTitle || inAliases || inContent || inTags;
+    });
+}
+
+function getStoryWikiByCategory(categoryId) {
+    var entries = loadStoryWiki();
+    if (!categoryId) return entries;
+    return entries.filter(function (e) { return e.category === categoryId; });
+}
+
+function getStoryWikiCategoryCounts() {
+    var entries = loadStoryWiki();
+    var counts = {};
+    entries.forEach(function (e) {
+        var cat = e.category || 'term';
+        counts[cat] = (counts[cat] || 0) + 1;
+    });
+    return counts;
+}
+
+function migrateOldWikiToStoryWiki() {
+    var existing = loadStoryWiki();
+    if (existing.length > 0) return false; // 既にデータがある場合はスキップ
+    var oldPages = loadWikiPages();
+    if (!oldPages || oldPages.length === 0) return false;
+    var migrated = oldPages.map(function (page) {
+        return {
+            id: 'swiki_migrated_' + (page.id || Date.now() + '_' + Math.random().toString(36).slice(2, 8)),
+            title: page.title || '無題',
+            category: 'term',
+            aliases: [],
+            content: page.content || '',
+            tags: Array.isArray(page.tags) ? page.tags : [],
+            relatedIds: [],
+            createdAt: page.createdAt || Date.now(),
+            updatedAt: page.updatedAt || Date.now(),
+            source: 'manual'
+        };
+    });
+    saveStoryWiki(migrated);
+    return true;
+}
 if (typeof module !== 'undefined' && module.exports) {
     // Node.js環境
     module.exports = {
@@ -894,7 +1074,23 @@ if (typeof module !== 'undefined' && module.exports) {
         updateWikiPage,
         deleteWikiPage,
         listWikiPages,
-        searchWikiPages
+        searchWikiPages,
+        // story wiki
+        loadStoryWiki,
+        saveStoryWiki,
+        loadStoryWikiCategories,
+        saveStoryWikiCustomCategories,
+        loadStoryWikiSettings,
+        saveStoryWikiSettings,
+        createStoryWikiEntry,
+        getStoryWikiEntry,
+        updateStoryWikiEntry,
+        deleteStoryWikiEntry,
+        searchStoryWiki,
+        getStoryWikiByCategory,
+        getStoryWikiCategoryCounts,
+        migrateOldWikiToStoryWiki,
+        STORY_WIKI_PRESET_CATEGORIES
     };
 } else {
     // ブラウザ環境
@@ -942,6 +1138,22 @@ if (typeof module !== 'undefined' && module.exports) {
         updateWikiPage,
         deleteWikiPage,
         listWikiPages,
-        searchWikiPages
+        searchWikiPages,
+        // story wiki
+        loadStoryWiki,
+        saveStoryWiki,
+        loadStoryWikiCategories,
+        saveStoryWikiCustomCategories,
+        loadStoryWikiSettings,
+        saveStoryWikiSettings,
+        createStoryWikiEntry,
+        getStoryWikiEntry,
+        updateStoryWikiEntry,
+        deleteStoryWikiEntry,
+        searchStoryWiki,
+        getStoryWikiByCategory,
+        getStoryWikiCategoryCounts,
+        migrateOldWikiToStoryWiki,
+        STORY_WIKI_PRESET_CATEGORIES
     };
 }

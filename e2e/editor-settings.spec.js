@@ -337,7 +337,10 @@ test.describe('Editor Settings', () => {
 
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    }, { timeout: 20000 });
+    await enableAllGadgets(page);
 
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -346,9 +349,9 @@ test.describe('Editor Settings', () => {
     await wikiHeader.waitFor({ timeout: 10000 });
     await wikiHeader.click();
 
-    // 物語Wiki (wiki.js) は input[type="search"] を使用
-    await page.waitForSelector('#edit-gadgets-panel input[type="search"]', { timeout: 10000 });
-    await expect(page.locator('#edit-gadgets-panel input[type="search"]').first()).toBeVisible();
+    // Story Wiki (story-wiki.js) は input[type="text"] を使用
+    await page.waitForSelector('#edit-gadgets-panel .swiki-search-input', { timeout: 10000 });
+    await expect(page.locator('#edit-gadgets-panel .swiki-search-input').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {
