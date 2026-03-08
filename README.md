@@ -12,7 +12,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 ### エディタ機能
 
-- シンプルな `textarea` ベースのエディタとブラウザ LocalStorage による自動保存
+- `textarea` / WYSIWYG (contenteditable) の切り替え可能なハイブリッドエディタ。ブラウザ LocalStorage による自動保存
 - 文字数・語数カウンタと折りたたみ可能なサイドバー/ツールバー
 - テキスト/Markdown のインポート・エクスポート、印刷用レイアウト（UI 非表示）
 - フローティングツール（⚙️）による全体フォントサイズ調整、アウトラインテンプレート
@@ -227,6 +227,7 @@ WritingPage/
 - `docs/SNAPSHOT_DESIGN.md`
 - `docs/EDITOR_EXTENSIONS.md`
 - `docs/BRANCHING.md`
+- `docs/spec-index.json` - 仕様インデックス (全ドキュメントのステータス・実装率)
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`
