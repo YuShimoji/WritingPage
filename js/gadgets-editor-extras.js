@@ -74,7 +74,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['assist'] });
+    }, { title: 'Typewriter', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。' });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -131,7 +131,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'Focus Mode', groups: ['assist'] });
+    }, { title: 'Focus Mode', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。' });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 
@@ -151,7 +151,7 @@
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['edit'] });
+    }, { title: 'Markdown Preview', groups: ['edit'], description: 'Markdownのリアルタイムプレビュー表示とスクロール同期。' });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function (root) {
@@ -580,7 +580,7 @@
       gadgetUXRow.appendChild(bulkToggleRow);
 
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
-    }, { title: 'UI Settings', groups: ['advanced'] });
+    }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
 
     // UI Design Gadget (background gradient)
     window.ZWGadgets.register('UIDesign', function (root, api) {
@@ -626,7 +626,7 @@
 
       root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
       apply(g);
-    }, { title: 'UI Design', groups: ['advanced'] });
+    }, { title: 'UI Design', groups: ['advanced'], description: '背景グラデーションの設定。色、角度、強度をカスタマイズ。' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -640,7 +640,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
-    }, { title: 'Font Decoration', groups: ['edit'] });
+    }, { title: 'Font Decoration', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
@@ -653,7 +653,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['edit'] });
+    }, { title: 'Text Animation', groups: ['edit'], description: 'テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {
@@ -722,7 +722,7 @@
       root.appendChild(paddingRow);
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
-    }, { title: 'Editor Layout', groups: ['advanced'] });
+    }, { title: 'Editor Layout', groups: ['advanced'], description: 'エディタの最大幅、内余白、余白背景色を調整。' });
 
     // Scene Gradient Gadget (背景グラデーション 3レイヤ)
     window.ZWGadgets.register('SceneGradient', function (root, api) {
@@ -855,7 +855,7 @@
       root.appendChild(applyBtn);
 
       applyScene();
-    }, { title: 'Scene Gradient', groups: ['theme'] });
+    }, { title: 'Scene Gradient', groups: ['theme'], description: 'シーンに合わせた3層グラデーション背景。雰囲気を視覚的に演出。' });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

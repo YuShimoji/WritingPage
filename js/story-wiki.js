@@ -769,7 +769,7 @@
 
     renderCompact();
 
-  }, { title: 'Story Wiki', groups: ['structure'] });
+  }, { title: 'Story Wiki', groups: ['structure'], description: 'Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。' });
 
 })();
 

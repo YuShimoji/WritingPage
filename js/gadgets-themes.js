@@ -253,7 +253,8 @@
     }
   }, {
     groups: ['theme'],
-    title: (window.UILabels && window.UILabels.GADGET_THEMES_TITLE) || 'テーマ'
+    title: (window.UILabels && window.UILabels.GADGET_THEMES_TITLE) || 'テーマ',
+    description: 'テーマプリセットとカスタムカラーの設定。'
   });
 
 })();

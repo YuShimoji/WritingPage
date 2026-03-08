@@ -31,7 +31,8 @@
     } catch (_) { }
   }, {
     groups: ['assist'],
-    title: (window.UILabels && (window.UILabels.GADGET_CLOCK || window.UILabels.GADGET_CLOCK_TITLE)) || '時計'
+    title: (window.UILabels && (window.UILabels.GADGET_CLOCK || window.UILabels.GADGET_CLOCK_TITLE)) || '時計',
+    description: '現在時刻をリアルタイム表示。'
   });
 
   // Clock settings UI

@@ -180,7 +180,7 @@
       root.appendChild(btnRow);
       root.appendChild(infoDiv);
 
-    }, { title: 'Visual Profile', groups: ['theme'] });
+    }, { title: 'Visual Profile', groups: ['theme'], description: 'テーマ・フォント・レイアウトをまとめた複合プロファイルの管理・適用。' });
   }
 
   // 登録実行

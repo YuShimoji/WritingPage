@@ -210,6 +210,6 @@
         root.appendChild(container);
       } catch (_) {}
     },
-    { groups: ['settings'], title: 'サンプル' },
+    { groups: ['settings'], title: 'サンプル', description: 'サンプルドキュメントの読み込みと管理。' },
   );
 })();

@@ -404,7 +404,8 @@
     }
   }, {
     groups: ['structure'],
-    title: 'ドキュメント'
+    title: 'ドキュメント',
+    description: 'ドキュメントの階層ツリー表示と管理。'
   });
 
   // グローバルに公開
