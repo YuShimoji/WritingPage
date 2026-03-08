@@ -245,10 +245,10 @@
   {
     "id": "SP-050",
     "title": "Story Wiki 仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 70,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "用語集Wiki。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携"
+    "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手"
   }
 ]

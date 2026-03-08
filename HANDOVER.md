@@ -26,7 +26,7 @@ npm run lint              # ESLint
 | テスト | 状態 | コマンド |
 |--------|------|----------|
 | Smoke | ✅ ALL PASSED | `npm run test:smoke` |
-| E2E | ✅ 203 cases (197 passed / 5 flaky / 1 skipped) | `npx playwright test` |
+| E2E | ✅ 210+ cases (Wiki 19/19 passed) | `npx playwright test` |
 | Lint | ✅ ALL PASSED (0 errors) | `npm run lint` |
 
 ### アーキテクチャ概要
@@ -61,6 +61,7 @@ npm run lint              # ESLint
 | `js/editor.js` | 189 | ✅ モジュール分割済み |
 | `js/gadgets-core.js` | 584 | 適正 |
 | `js/gadgets-editor-extras.js` | ~700 | 10ガジェット統合ファイル |
+| `js/story-wiki.js` | 988 | Phase 1 完了 (新規) |
 
 ## 既知の課題
 
@@ -95,4 +96,5 @@ npm run lint              # ESLint
 - `docs/GADGETS.md` -- ガジェットAPI仕様
 - `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
 - `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
+- `docs/specs/spec-story-wiki.md` -- Story Wiki 仕様書
 - `CLAUDE.md` -- AI再開用コンテキスト
