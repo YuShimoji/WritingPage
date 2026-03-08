@@ -254,8 +254,8 @@
   {
     "id": "SP-051",
     "title": "ガジェットUX改善 仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "completed",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-gadget-ux.md",
     "summary": "サイドバーガジェットのコンパクト化・個別折りたたみ・ヘルプアイコン・一括操作。余白削減+二重ボックス解消、デフォルト折りたたみ+localStorage保存、Phase 2でアニメーション"
