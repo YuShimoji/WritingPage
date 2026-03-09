@@ -447,7 +447,7 @@
 
       // 初期表示
       refreshGraph();
-    }, { title: 'Link Graph', groups: ['advanced'] });
+    }, { title: 'Link Graph', groups: ['advanced'], description: 'Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。' });
   }
 
   // グローバルAPIを公開 (TASK_044) — 全メソッドを含む完全版

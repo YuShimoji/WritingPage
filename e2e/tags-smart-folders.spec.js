@@ -35,11 +35,12 @@ test.describe('Tags and Smart Folders', () => {
     await enableAllGadgets(page);
     await openSidebarGroup(page, 'structure');
     await page.waitForSelector(PANEL, { state: 'visible', timeout: 10000 });
-    // ガジェットヘッダーをクリックして全て展開
+    // ガジェットを全て展開 (data-gadget-collapsed 属性で制御)
     await page.evaluate((panel) => {
-      document.querySelectorAll(panel + ' .gadget-header').forEach(h => {
-        if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
-          h.click();
+      document.querySelectorAll(panel + ' .gadget-wrapper').forEach(function(w) {
+        var name = w.getAttribute('data-gadget-name');
+        if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+          window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
         }
       });
     }, PANEL);

@@ -1,6 +1,6 @@
 # アプリケーション仕様書
 
-Zen Writer v0.3.28
+Zen Writer v0.3.29
 
 ## 目次
 
@@ -16,7 +16,7 @@ Zen Writer v0.3.28
 ## 概要
 
 **製品名：** Zen Writer
-**バージョン：** 0.3.28
+**バージョン：** 0.3.29
 **種別：** デスクトップアプリ / PWA
 **ライセンス：** Private
 **開発言語：** JavaScript（バニラJS）
@@ -84,7 +84,7 @@ Zen Writer v0.3.28
 |  | Documents | ドキュメント階層 |
 |  | Snapshot | バックアップ管理 |
 |  | Tags/SmartFolders | タグ・フォルダ管理 |
-| **編集** | StoryWiki | 物語Wiki |
+| **編集** | StoryWiki | 物語Wiki（カテゴリ分類・ツリー+詳細ペイン） |
 |  | Images | 画像管理 |
 |  | ChoiceTools | 選択肢ツール |
 | **テーマ** | Themes | テーマ切り替え |
@@ -95,7 +95,7 @@ Zen Writer v0.3.28
 |  | Clock | 時計 |
 |  | Pomodoro | 集中タイマー |
 
-**ガジェット総数：** 28個
+**ガジェット総数：** 27個
 
 ### 4. 装飾・アニメーション
 
@@ -139,7 +139,8 @@ Zen Writer v0.3.28
 
 ### サイドバー
 
-**表示方式：** アコーディオン形式（5カテゴリ: structure/edit/theme/assist/advanced）
+**タブ構成：** 4タブ（structure/wiki/assist/typography）
+**注：** v0.3.29で1タブに統合予定
 
 ### メインハブパネル（フローティングパネル統合）
 
@@ -162,7 +163,7 @@ Zen Writer v0.3.28
 | フレームワーク | なし（バニラJS） |
 | CSS設計 | CSS変数、Flexbox |
 | ストレージ | LocalStorage |
-| テスト | Playwright E2E（201件） |
+| テスト | Playwright E2E（212件） |
 | Lint | ESLint、Prettier、Markdownlint |
 
 ### コードベース
@@ -172,7 +173,7 @@ Zen Writer v0.3.28
 | JavaScriptファイル | 84ファイル |
 | 主要JSコード | 約15,000行 |
 | CSSファイル | 複数（style.css等） |
-| E2Eテスト | 31ファイル、201テスト |
+| E2Eテスト | 31ファイル、212テスト |
 
 ### パフォーマンス
 
@@ -282,5 +283,6 @@ Zen Writer v0.3.28
 ## 関連ドキュメント
 
 - [起動手順書](APP_LAUNCH_GUIDE.md)
-- [アーキテクチャ](ARCHITECTURE.md)
-- [ロードマップ](ROADMAP.md)
+- [UI改修履歴](UI_REFACTORING_2026_03_05.md)
+- [開発ガイド](DEVELOPMENT.md)
+- [プロジェクト健全性](PROJECT_HEALTH.md)

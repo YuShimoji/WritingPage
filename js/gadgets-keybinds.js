@@ -272,7 +272,8 @@
     }
   }, {
     title: (window.UILabels && window.UILabels.KEYBINDS_GADGET_TITLE) || 'キーボードショートカット',
-    groups: ['advanced']
+    groups: ['advanced'],
+    description: 'キーボードショートカットの一覧表示とカスタマイズ。'
   });
 
 })();

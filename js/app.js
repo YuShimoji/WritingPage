@@ -353,6 +353,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // editor-container の空き領域クリック時にエディタへフォーカス転送
+    {
+        const ec = elementManager.get('editorContainer');
+        if (ec) {
+            ec.addEventListener('click', function (e) {
+                if (e.target !== ec) return; // 子要素クリックは無視
+                const wysiwyg = document.getElementById('wysiwyg-editor');
+                const textarea = document.getElementById('editor');
+                if (wysiwyg && wysiwyg.style.display !== 'none') {
+                    wysiwyg.focus();
+                } else if (textarea) {
+                    textarea.focus();
+                }
+            });
+        }
+    }
+
     /**
      * 最後のスナップショットから復元（Ctrl+Shift+Z）
      * 復元前に現在の内容を自動でスナップショット保存
@@ -485,6 +502,11 @@ document.addEventListener('DOMContentLoaded', () => {
             select.value = targetMode;
         }
 
+        // モードスイッチボタンの状態を同期
+        document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
+        });
+
         if (save) {
             try {
                 const s = window.ZenWriterStorage.loadSettings();
@@ -501,6 +523,14 @@ document.addEventListener('DOMContentLoaded', () => {
             setUIMode(e.target.value);
         });
     }
+
+    // モードスイッチボタンのクリックハンドラ
+    document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const mode = this.getAttribute('data-mode');
+            if (mode) setUIMode(mode);
+        });
+    });
 
     // ガジェット初期化・ロードアウトUI・ツールレジストリ（app-gadgets-init.js に委譲）
     if (typeof window.initAppGadgets === 'function') {

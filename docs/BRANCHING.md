@@ -26,7 +26,7 @@
 - `main` へマージする前に以下を確認
   - 変更が小さな単位に分割されている
   - `docs/TESTING.md` に沿った手動テストを実施
-  - ドキュメント更新（`USAGE.md`, `CHANGELOG.md` など）
+  - ドキュメント更新（`USER_GUIDE.md`, `CHANGELOG.md` など）
 
 ## リリース
 

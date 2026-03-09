@@ -1,4 +1,4 @@
-const APP_VERSION = '0.3.28';
+const APP_VERSION = '0.3.29';
 const CACHE_NAME = `zenwriter-shell-v${APP_VERSION}`;
 const CORE_ASSETS = [
   '/',
@@ -36,6 +36,14 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  let url;
+  try {
+    url = new URL(req.url);
+  } catch (_) {
+    return;
+  }
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+  if (url.origin !== self.location.origin) return;
 
   // 開発モードではネットワーク優先、本番モードではキャッシュ優先
   if (isDev) {
@@ -45,7 +53,7 @@ self.addEventListener('fetch', (event) => {
         .then((res) => {
           if (!res || res.status !== 200 || res.type !== 'basic') return res;
           const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
           return res;
         })
         .catch(() => caches.match(req).then((cached) => cached || caches.match('/index.html')))
@@ -59,7 +67,7 @@ self.addEventListener('fetch', (event) => {
           .then((res) => {
             if (!res || res.status !== 200 || res.type !== 'basic') return res;
             const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
             return res;
           })
           .catch(() => caches.match('/index.html'));

@@ -16,6 +16,8 @@
     // フェーズC-1: データ属性ベースの安定セレクタを使用
     // Initialize gadget panels using data-gadget-group selectors
     Object.keys(GADGET_GROUPS).forEach(function (groupName) {
+      // deprecated グループはスキップ（同パネルを空で上書きしてしまうため）
+      if (GADGET_GROUPS[groupName] && GADGET_GROUPS[groupName].deprecated) return;
       var panel = getGroupPanel(groupName);
       if (panel) {
         ZWGadgets.init(panel, { group: groupName });

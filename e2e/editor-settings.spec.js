@@ -48,11 +48,12 @@ async function openAssistPanel(page) {
   await page.waitForSelector('#assist-gadgets-panel', { state: 'visible', timeout: 10000 });
   await page.waitForTimeout(500);
 
-  // すべてのガジェットを展開
+  // すべてのガジェットを展開 (data-gadget-collapsed 属性で制御)
   await page.evaluate(() => {
-    document.querySelectorAll('.gadget-header').forEach(h => {
-      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
-        h.click();
+    document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+      var name = w.getAttribute('data-gadget-name');
+      if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
       }
     });
   });
@@ -337,7 +338,10 @@ test.describe('Editor Settings', () => {
 
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
-    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      try { return !!window.ZWGadgets; } catch (_) { return false; }
+    }, { timeout: 20000 });
+    await enableAllGadgets(page);
 
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -346,8 +350,9 @@ test.describe('Editor Settings', () => {
     await wikiHeader.waitFor({ timeout: 10000 });
     await wikiHeader.click();
 
-    await page.waitForSelector('#edit-gadgets-panel .gadget-wiki', { timeout: 10000 });
-    await expect(page.locator('#edit-gadgets-panel .gadget-wiki input[type="text"]').first()).toBeVisible();
+    // Story Wiki (story-wiki.js) は input[type="text"] を使用
+    await page.waitForSelector('#edit-gadgets-panel .swiki-search-input', { timeout: 10000 });
+    await expect(page.locator('#edit-gadgets-panel .swiki-search-input').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {

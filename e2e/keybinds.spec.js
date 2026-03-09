@@ -23,11 +23,14 @@ async function openKeybindsPanel(page) {
   await page.waitForSelector(scope + ' .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(500);
 
-  // ガジェットを展開
+  // ガジェットを展開 (data-gadget-collapsed 属性で制御)
   await page.evaluate((s) => {
-    document.querySelectorAll(s + ' .gadget-header').forEach(h => {
-      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
-        h.click();
+    var panel = document.querySelector(s);
+    if (!panel) return;
+    panel.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+      var name = w.getAttribute('data-gadget-name');
+      if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
       }
     });
   }, scope);

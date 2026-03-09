@@ -8,7 +8,7 @@
 
 ## 手順
 
-1. `docs/test-reports/` にスモークテストレポートを作成し、主要チェック項目を実施
+1. Playwright E2E テストを実行し、全テストがパスすることを確認
 2. 変更点の最終確認（README/USAGE/THEMES/TESTING の差分）
 3. `CHANGELOG.md` 更新、`VERSION` 更新、`package.json` の `version` 同期
 4. Gitコミット（`chore(release): vX.Y.Z`）

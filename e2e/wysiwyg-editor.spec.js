@@ -39,7 +39,8 @@ test.describe('WYSIWYG Editor', () => {
 
     // デフォルトでWYSIWYGモード
     await expect(wysiwygEditor).toBeVisible();
-    await expect(wysiwygToolbar).toBeVisible();
+    // ツールバーはフローティング化により選択時のみ表示（DOMには存在）
+    await expect(wysiwygToolbar).toBeAttached();
     await expect(textarea).not.toBeVisible();
   });
 
@@ -62,7 +63,8 @@ test.describe('WYSIWYG Editor', () => {
     await toggleBtn.dispatchEvent('mousedown');
     await expect(wysiwygEditor).toBeVisible();
     await expect(textarea).not.toBeVisible();
-    await expect(wysiwygToolbar).toBeVisible();
+    // ツールバーはフローティング化により選択時のみ表示（DOMには存在）
+    await expect(wysiwygToolbar).toBeAttached();
   });
 
   test('should convert Markdown to HTML when switching to WYSIWYG', async ({ page }) => {

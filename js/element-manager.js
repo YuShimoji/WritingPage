@@ -17,6 +17,7 @@ class ElementManager {
 
             // ツールバー関連
             toggleToolbarBtn: 'toggle-toolbar',
+            showToolbarBtn: 'show-toolbar',
             toolbar: '.toolbar',
             fullscreenBtn: 'fullscreen',
             feedbackBtn: 'feedback',

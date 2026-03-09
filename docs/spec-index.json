@@ -1,0 +1,272 @@
+[
+  {
+    "id": "SP-001",
+    "title": "アプリケーション仕様書",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/APP_SPECIFICATION.md",
+    "summary": "Zen Writer v0.3.29 の全体仕様。機能一覧・データモデル・操作フロー"
+  },
+  {
+    "id": "SP-002",
+    "title": "アーキテクチャドキュメント",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/ARCHITECTURE.md",
+    "summary": "システム構成・主要コンポーネント・ガジェット基盤の位置付け"
+  },
+  {
+    "id": "SP-003",
+    "title": "設計方針",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/DESIGN.md",
+    "summary": "Zenライクな執筆体験の設計原則・技術選択・制約"
+  },
+  {
+    "id": "SP-004",
+    "title": "ガジェットリファレンス",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/GADGETS.md",
+    "summary": "27個のガジェットの一覧・API・登録方法・将来タスク"
+  },
+  {
+    "id": "SP-005",
+    "title": "ロードマップ",
+    "status": "partial",
+    "pct": 30,
+    "cat": "core",
+    "file": "docs/ROADMAP.md",
+    "summary": "Priority A-E の開発計画。UI/UX磨き上げが最優先"
+  },
+  {
+    "id": "SP-006",
+    "title": "プロジェクト健全性レポート",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/PROJECT_HEALTH.md",
+    "summary": "実装率・テスト結果・未解決課題のスナップショット"
+  },
+  {
+    "id": "SP-010",
+    "title": "コンテキストツールバー仕様",
+    "status": "done",
+    "pct": 100,
+    "cat": "ui",
+    "file": "docs/spec-context-toolbar.md",
+    "summary": "Layer 1-4のミニマルUI仕様。ヘッダー/装飾バー/サイドバー/エッジホバー"
+  },
+  {
+    "id": "SP-011",
+    "title": "装飾/選択ツールチップ仕様 v1",
+    "status": "done",
+    "pct": 100,
+    "cat": "ui",
+    "file": "docs/EDITOR_EXTENSIONS.md",
+    "summary": "テキスト選択連動の装飾/挿入ツールチップ (Quick Actions)"
+  },
+  {
+    "id": "SP-012",
+    "title": "Visual Profile 仕様",
+    "status": "partial",
+    "pct": 70,
+    "cat": "ui",
+    "file": "docs/VISUAL_PROFILE.md",
+    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A/B実装済み"
+  },
+  {
+    "id": "SP-013",
+    "title": "テーマ仕様",
+    "status": "done",
+    "pct": 100,
+    "cat": "ui",
+    "file": "docs/THEMES.md",
+    "summary": "6テーマのプリセット一覧・ThemeRegistry・カスタムカラー・拡張指針"
+  },
+  {
+    "id": "SP-014",
+    "title": "UI構造設計",
+    "status": "todo",
+    "pct": 10,
+    "cat": "ui",
+    "file": "docs/UI_ARCHITECTURE.md",
+    "summary": "パネル/ガジェット/シーンの抽象レイヤ定義 (Draft)"
+  },
+  {
+    "id": "SP-015",
+    "title": "スナップショット設計 v1→v2",
+    "status": "partial",
+    "pct": 50,
+    "cat": "data",
+    "file": "docs/SNAPSHOT_DESIGN.md",
+    "summary": "v1実装済み。v2要件: ドキュメントID紐付け・タグ/メモ・差分プレビュー・IndexedDB"
+  },
+  {
+    "id": "SP-020",
+    "title": "Embed SDK仕様 v1",
+    "status": "done",
+    "pct": 100,
+    "cat": "system",
+    "file": "docs/EMBED_SDK.md",
+    "summary": "他サイトへの埋め込みエディター SDK 設計"
+  },
+  {
+    "id": "SP-021",
+    "title": "Embed SDK検証手順",
+    "status": "done",
+    "pct": 100,
+    "cat": "system",
+    "file": "docs/EMBED_TESTING.md",
+    "summary": "embed-demo.htmlとZenWriterEmbed SDKの体系的検証テンプレート"
+  },
+  {
+    "id": "SP-022",
+    "title": "プラグインシステム設計",
+    "status": "todo",
+    "pct": 20,
+    "cat": "system",
+    "file": "docs/design/PLUGIN_SYSTEM.md",
+    "summary": "ユーザー定義ガジェット/プラグイン拡張の設計書 (Draft)"
+  },
+  {
+    "id": "SP-031",
+    "title": "ユーザーガイド",
+    "status": "done",
+    "pct": 100,
+    "cat": "user",
+    "file": "docs/USER_GUIDE.md",
+    "summary": "全機能の詳細ガイド。テーマ・検索・ガジェット・設定"
+  },
+  {
+    "id": "SP-032",
+    "title": "FAQ",
+    "status": "done",
+    "pct": 100,
+    "cat": "user",
+    "file": "docs/FAQ.md",
+    "summary": "よくある質問 (サーバー不要・データ保存先・テーマ追加等)"
+  },
+  {
+    "id": "SP-033",
+    "title": "エディタ機能ヘルプ",
+    "status": "done",
+    "pct": 100,
+    "cat": "user",
+    "file": "docs/EDITOR_HELP.md",
+    "summary": "アプリ内ヘルプガジェットのソースコンテンツ"
+  },
+  {
+    "id": "SP-034",
+    "title": "トラブルシューティング",
+    "status": "done",
+    "pct": 100,
+    "cat": "user",
+    "file": "docs/TROUBLESHOOTING.md",
+    "summary": "よくある問題と解決方法 (開発者向け)"
+  },
+  {
+    "id": "SP-040",
+    "title": "コーディング規約",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/CODING_STANDARDS.md",
+    "summary": "ESLint/Prettier設定・命名規則・ブランチ/コミット規約"
+  },
+  {
+    "id": "SP-041",
+    "title": "テスト実行方法",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/TESTING.md",
+    "summary": "Playwright E2E・スモークテスト・CI実行手順"
+  },
+  {
+    "id": "SP-042",
+    "title": "配布手順",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/DEPLOY.md",
+    "summary": "GitHub Pagesへのデプロイ手順"
+  },
+  {
+    "id": "SP-043",
+    "title": "リリース手順",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/RELEASE.md",
+    "summary": "バージョニング・リリースフロー・判定基準"
+  },
+  {
+    "id": "SP-044",
+    "title": "ブランチ運用指針",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/BRANCHING.md",
+    "summary": "trunk-based開発のブランチ戦略"
+  },
+  {
+    "id": "SP-045",
+    "title": "ラベル設計",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/LABELS.md",
+    "summary": "GitHub Issueラベルの命名・分類体系"
+  },
+  {
+    "id": "SP-046",
+    "title": "起動手順書",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/APP_LAUNCH_GUIDE.md",
+    "summary": "開発サーバー・Electron・PWA各モードの起動方法"
+  },
+  {
+    "id": "SP-047",
+    "title": "既知の問題",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/KNOWN_ISSUES.md",
+    "summary": "既知の問題・回避策・未対応監査項目"
+  },
+  {
+    "id": "SP-050",
+    "title": "Story Wiki 仕様",
+    "status": "partial",
+    "pct": 70,
+    "cat": "core",
+    "file": "docs/specs/spec-story-wiki.md",
+    "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手"
+  },
+  {
+    "id": "SP-051",
+    "title": "ガジェットUX改善 仕様",
+    "status": "completed",
+    "pct": 100,
+    "cat": "ui",
+    "file": "docs/specs/spec-gadget-ux.md",
+    "summary": "サイドバーガジェットのコンパクト化・個別折りたたみ・ヘルプアイコン・一括操作。余白削減+二重ボックス解消、デフォルト折りたたみ+localStorage保存、Phase 2でアニメーション"
+  },
+  {
+    "id": "SP-052",
+    "title": "セクションツリー/話ナビゲーション 仕様",
+    "status": "todo",
+    "pct": 10,
+    "cat": "ui",
+    "file": "docs/specs/spec-sections-navigation.md",
+    "summary": "左サイド最上段にセクションカテゴリを新設。見出しツリー選択で話へジャンプ編集、エディタ最下部に前後話/見出し移動ナビを常設する。"
+  }
+]

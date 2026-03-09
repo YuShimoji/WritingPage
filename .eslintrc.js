@@ -1,25 +1,25 @@
 module.exports = {
   env: {
     browser: true,
-    es2020: true,
+    es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended'],
   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+    ecmaVersion: 2021,
+    sourceType: 'script',
   },
   rules: {
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    'no-console': 'off',
+    'no-empty': ['error', { allowEmptyCatch: true }],
+    'no-inner-declarations': 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     semi: ['error', 'always'],
-    quotes: ['error', 'single'],
+    quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
   },
   ignorePatterns: [
     'node_modules/',
     'test-results/',
     'playwright-report/',
     'dist/',
-    '.shared-workflows/',
+    'vendor/',
   ],
 };

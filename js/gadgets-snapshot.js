@@ -238,6 +238,6 @@
         el.textContent = (window.UILabels && window.UILabels.SNAPSHOT_INIT_FAILED) || 'スナップショットの初期化に失敗しました。';
       } catch (_) { }
     }
-  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_BACKUP_TITLE) || 'バックアップ' });
+  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_BACKUP_TITLE) || 'バックアップ', description: 'スナップショットの保存・復元・履歴管理。自動バックアップ設定も。' });
 
 })();

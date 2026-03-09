@@ -244,7 +244,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
     test('分割ビューが縦並びで表示される', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
-      const { showFullToolbar, openMainHubPanel } = require('./helpers');
+      const { showFullToolbar } = require('./helpers');
       await showFullToolbar(page);
 
       // 分割ビューボタンをクリック

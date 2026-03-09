@@ -33,7 +33,13 @@
                     const inFormControl = ['input', 'select', 'textarea', 'button'].includes(targetTag);
 
                     // フォームコントロール内では一部のショートカットのみ有効
-                    const allowInFormControl = ['editor.save', 'editor.bold', 'editor.italic', 'search.toggle', 'search.global.toggle'];
+                    // 注: ui.mode.exit (Escape) は除外 — モーダル/パネルのEscape処理を妨げないため
+                    const allowInFormControl = [
+                        'editor.save', 'editor.bold', 'editor.italic',
+                        'search.toggle', 'search.global.toggle',
+                        'toolbar.toggle', 'sidebar.toggle',
+                        'ui.mode.cycle', 'command-palette.toggle'
+                    ];
 
                     if (inFormControl && !allowInFormControl.includes(keybindId)) {
                         return;

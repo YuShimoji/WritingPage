@@ -12,7 +12,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 ### エディタ機能
 
-- シンプルな `textarea` ベースのエディタとブラウザ LocalStorage による自動保存
+- `textarea` / WYSIWYG (contenteditable) の切り替え可能なハイブリッドエディタ。ブラウザ LocalStorage による自動保存
 - 文字数・語数カウンタと折りたたみ可能なサイドバー/ツールバー
 - テキスト/Markdown のインポート・エクスポート、印刷用レイアウト（UI 非表示）
 - フローティングツール（⚙️）による全体フォントサイズ調整、アウトラインテンプレート
@@ -36,7 +36,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 - モジュラー設計による拡張可能なアーキテクチャ
 - ベータ版 Embed SDK（`docs/EMBED_SDK.md`）による `iframe` 埋め込みサポート
 
-## 開発中・優先課題（2025-10 現在版、OpenSpec `ui-future-enhancements` 参照）
+## 開発中・優先課題（詳細: `docs/ROADMAP.md`）
 
 - ドラッグ&ドロップした画像の位置調整・サイズ変更・コラージュレイアウト
 - 選択範囲に追従するフローティング装飾ツールバーとアニメーション対応テキストスタイル
@@ -44,7 +44,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 - 埋め込み先からの双方向通信強化（クロスオリジン安全性、外部ワークフロー連携）
 - インタラクティブ要素（シーン分岐、ビューワーモード切替）の設計と UI プロトタイピング
 
-### UI将来強化計画（段階導入、詳細: `openspec/changes/ui-future-enhancements/`）
+### UI将来強化計画（段階導入）
 
 - **ツリーペイン・フォルダ構造**: ガジェットを階層化・拡張可能レジストリ連携
 - **Markdown対応**: Typoraライクなライブプレビュー、ショートカット、インライン画像互換
@@ -194,26 +194,13 @@ WritingPage/
 
 - 選択肢駆動（Choices-Driven Development）で意思決定をドキュメント化し、`docs/ROADMAP.md` にフェーズを反映
 - 機能はガジェット/プラグイン単位で疎結合化し、埋め込みモードとの互換性を常に検証
-- タスクは小さく分割してコミットし、`AI_CONTEXT.md` で中断可能点を共有
+- タスクは小さく分割してコミットし、`HANDOVER.md` で中断可能点を共有
 - ブランチ運用指針は `docs/BRANCHING.md`、埋め込み運用は `docs/EMBED_SDK.md` を参照
 
-## 開発プロトコルと中央ワークフロー
+## 開発プロトコル
 
-- 本リポジトリは、中央リポジトリの再利用可能ワークフローを参照します。
-  - CI Smoke / Issues Sync は `uses: YuShimoji/shared-workflows/.github/workflows/*.yml@v0.1.0` を利用
-- ルール/プロトコル
-  - 作業の前提と再開手順: `AI_CONTEXT.md`
-  - 開発プロトコル（ブランチ/PR/CI連携マージ）: `DEVELOPMENT_PROTOCOL.md`
-  - ルール本文: `docs/Windsurf_AI_Collab_Rules_v1.1.md`
-
-## 開発プロトコルと中央ワークフロー
-
-- 本リポジトリは、中央リポジトリの再利用可能ワークフローを参照します。
-  - CI Smoke / Issues Sync は `uses: YuShimoji/shared-workflows/.github/workflows/*.yml@v0.1.0` を利用
-- ルール/プロトコル
-  - 作業の前提と再開手順: `AI_CONTEXT.md`
-  - 開発プロトコル（ブランチ/PR/CI連携マージ）: `DEVELOPMENT_PROTOCOL.md`
-  - ルール本文: `docs/Windsurf_AI_Collab_Rules_v1.1.md`
+- 作業の前提と再開手順: `HANDOVER.md`
+- プロジェクトルール: `CLAUDE.md`
 
 ## テスト手順
 
@@ -225,7 +212,7 @@ WritingPage/
 
 ## 関連ドキュメント
 
-- `docs/USAGE.md`
+- `docs/USER_GUIDE.md`
 - `docs/TESTING.md`
 - `docs/DESIGN.md`
 - `docs/THEMES.md`
@@ -233,20 +220,14 @@ WritingPage/
 - `docs/RELEASE.md`
 - `docs/DEPLOY.md`
 - `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
-- `docs/tasks/README.md` - タスク管理インデックス
-- `docs/BACKLOG.md`
-- `docs/ISSUES.md`
 - `docs/KNOWN_ISSUES.md`
-- `docs/PROJECT_ANALYSIS_REPORT.md` - プロジェクト徹底分析レポート
-- `docs/IMPLEMENTATION_PLAN.md` - 実装計画書
-- `docs/CONVENTIONS.md`
+- `docs/CODING_STANDARDS.md` - コーディング規約
 - `docs/LABELS.md`
-- `docs/PALETTE_DESIGN.md`
 - `docs/EMBED_SDK.md`
 - `docs/SNAPSHOT_DESIGN.md`
 - `docs/EDITOR_EXTENSIONS.md`
-- `docs/DESIGN_HUB.md`
 - `docs/BRANCHING.md`
+- `docs/spec-index.json` - 仕様インデックス (全ドキュメントのステータス・実装率)
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`

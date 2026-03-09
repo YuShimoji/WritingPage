@@ -269,7 +269,7 @@
         }
         commit();
       });
-    }, { title: 'Node Graph', groups: ['advanced'] });
+    }, { title: 'Node Graph', groups: ['advanced'], description: 'ノードベースのビジュアルグラフエディタ。ストーリー構造を視覚化。' });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', registerGadget); else registerGadget();

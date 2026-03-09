@@ -74,7 +74,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['assist'] });
+    }, { title: 'Typewriter', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。' });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -131,39 +131,9 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'Focus Mode', groups: ['assist'] });
+    }, { title: 'Focus Mode', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。' });
 
-    // Snapshot Manager Gadget
-    window.ZWGadgets.register('SnapshotManager', function (root) {
-      var s = window.ZenWriterStorage.loadSettings();
-      var snap = (s && s.snapshot) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '6px';
-
-      function addNumber(label, id, min, max, step, val, onChange) {
-        var row = el('div'); row.style.display = 'grid'; row.style.gridTemplateColumns = 'auto 1fr'; row.style.gap = '6px';
-        var l = el('label'); l.textContent = label; l.setAttribute('for', id);
-        var input = el('input'); input.type = 'number'; input.id = id; input.min = String(min); input.max = String(max); input.step = String(step); input.value = String(val);
-        input.addEventListener('change', function () { onChange(toInt(input.value, val)); });
-        row.appendChild(l); row.appendChild(input); root.appendChild(row);
-      }
-
-      addNumber('間隔(ms)', 'snapshot-interval-ms', 30000, 300000, 30000, (snap.intervalMs || 120000), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.intervalMs = Math.max(30000, Math.min(300000, v)); }); });
-      addNumber('差分文字数', 'snapshot-delta-chars', 50, 1000, 50, (snap.deltaChars || 300), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.deltaChars = Math.max(50, Math.min(1000, v)); }); });
-      addNumber('保持数', 'snapshot-retention', 1, 50, 1, (snap.retention || 10), function (v) { withStorage(function (cfg) { cfg.snapshot = cfg.snapshot || {}; cfg.snapshot.retention = Math.max(1, Math.min(50, v)); }); });
-
-      var btn = el('button', 'small'); btn.textContent = '今すぐスナップショット';
-      btn.addEventListener('click', function () {
-        if (window.ZenWriterAPI && typeof window.ZenWriterAPI.takeSnapshot === 'function') { window.ZenWriterAPI.takeSnapshot(); }
-        else {
-          try {
-            var elEditor = document.getElementById('editor');
-            var content = elEditor ? (elEditor.value || '') : '';
-            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') window.ZenWriterStorage.addSnapshot(content);
-          } catch (_) { }
-        }
-      });
-      root.appendChild(btn);
-    }, { title: 'Snapshot Manager', groups: ['assist'] });
+    // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 
     // Markdown Preview Gadget
     window.ZWGadgets.register('MarkdownPreview', function (root) {
@@ -181,7 +151,7 @@
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['edit'] });
+    }, { title: 'Markdown Preview', groups: ['edit'], description: 'Markdownのリアルタイムプレビュー表示とスクロール同期。' });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function (root) {
@@ -272,7 +242,16 @@
       function refreshTabOrderList() {
         try {
           orderList.innerHTML = '';
-          var tabs = window.sidebarManager ? window.sidebarManager.getTabOrder() : [];
+          var tabs = [];
+          if (window.sidebarManager) {
+            if (Array.isArray(window.sidebarManager.accordionCategories) && window.sidebarManager.accordionCategories.length) {
+              tabs = window.sidebarManager.accordionCategories
+                .map(function (cat) { return cat && cat.id; })
+                .filter(Boolean);
+            } else if (typeof window.sidebarManager.getTabOrder === 'function') {
+              tabs = window.sidebarManager.getTabOrder();
+            }
+          }
           if (tabs.length === 0) {
             var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '12px'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
             return;
@@ -553,8 +532,64 @@
         }
       });
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow);
-    }, { title: 'UI Settings', groups: ['advanced'] });
+      // ガジェットUX設定
+      var gadgetUXRow = el('div');
+      gadgetUXRow.style.display = 'grid';
+      gadgetUXRow.style.gap = '6px';
+
+      var gadgetUXLabel = el('div');
+      gadgetUXLabel.textContent = 'ガジェット表示';
+      gadgetUXLabel.style.fontSize = '12px';
+      gadgetUXLabel.style.fontWeight = 'bold';
+
+      // ヘルプアイコン表示トグル
+      var helpIconRow = el('label');
+      helpIconRow.style.display = 'flex';
+      helpIconRow.style.alignItems = 'center';
+      helpIconRow.style.gap = '6px';
+      var helpIconCheck = el('input');
+      helpIconCheck.type = 'checkbox';
+      helpIconCheck.checked = localStorage.getItem('zenwriter-gadget-help-visible') !== 'false';
+      var helpIconText = el('span');
+      helpIconText.textContent = 'ガジェットヘルプアイコンを表示';
+      helpIconRow.appendChild(helpIconCheck);
+      helpIconRow.appendChild(helpIconText);
+
+      helpIconCheck.addEventListener('change', function() {
+        localStorage.setItem('zenwriter-gadget-help-visible', helpIconCheck.checked ? 'true' : 'false');
+        // 即座に反映
+        document.querySelectorAll('.gadget-help-btn').forEach(function(btn) {
+          btn.style.display = helpIconCheck.checked ? '' : 'none';
+        });
+      });
+
+      // 一括操作ボタン表示トグル
+      var bulkToggleRow = el('label');
+      bulkToggleRow.style.display = 'flex';
+      bulkToggleRow.style.alignItems = 'center';
+      bulkToggleRow.style.gap = '6px';
+      var bulkToggleCheck = el('input');
+      bulkToggleCheck.type = 'checkbox';
+      bulkToggleCheck.checked = localStorage.getItem('zenwriter-gadget-bulk-toggle-visible') !== 'false';
+      var bulkToggleText = el('span');
+      bulkToggleText.textContent = '一括折りたたみボタンを表示';
+      bulkToggleRow.appendChild(bulkToggleCheck);
+      bulkToggleRow.appendChild(bulkToggleText);
+
+      bulkToggleCheck.addEventListener('change', function() {
+        localStorage.setItem('zenwriter-gadget-bulk-toggle-visible', bulkToggleCheck.checked ? 'true' : 'false');
+        // 即座に反映
+        document.querySelectorAll('.gadget-bulk-toggle-btn').forEach(function(btn) {
+          btn.style.display = bulkToggleCheck.checked ? '' : 'none';
+        });
+      });
+
+      gadgetUXRow.appendChild(gadgetUXLabel);
+      gadgetUXRow.appendChild(helpIconRow);
+      gadgetUXRow.appendChild(bulkToggleRow);
+
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
+    }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
 
     // UI Design Gadget (background gradient)
     window.ZWGadgets.register('UIDesign', function (root, api) {
@@ -600,7 +635,7 @@
 
       root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
       apply(g);
-    }, { title: 'UI Design', groups: ['advanced'] });
+    }, { title: 'UI Design', groups: ['advanced'], description: '背景グラデーションの設定。色、角度、強度をカスタマイズ。' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -614,7 +649,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
-    }, { title: 'Font Decoration', groups: ['edit'] });
+    }, { title: 'Font Decoration', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
@@ -627,7 +662,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['edit'] });
+    }, { title: 'Text Animation', groups: ['edit'], description: 'テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {
@@ -696,7 +731,7 @@
       root.appendChild(paddingRow);
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
-    }, { title: 'Editor Layout', groups: ['advanced'] });
+    }, { title: 'Editor Layout', groups: ['advanced'], description: 'エディタの最大幅、内余白、余白背景色を調整。' });
 
     // Scene Gradient Gadget (背景グラデーション 3レイヤ)
     window.ZWGadgets.register('SceneGradient', function (root, api) {
@@ -829,7 +864,7 @@
       root.appendChild(applyBtn);
 
       applyScene();
-    }, { title: 'Scene Gradient', groups: ['theme'] });
+    }, { title: 'Scene Gradient', groups: ['theme'], description: 'シーンに合わせた3層グラデーション背景。雰囲気を視覚的に演出。' });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

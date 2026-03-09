@@ -659,6 +659,42 @@
             }
         });
 
+        // サイドバー内エディタ制御ボタン
+        const sidebarPreviewBtn = document.getElementById('sidebar-toggle-preview');
+        const sidebarSplitBtn = document.getElementById('sidebar-toggle-split');
+        const sidebarWysiwygBtn = document.getElementById('sidebar-toggle-wysiwyg');
+        const sidebarHelpBtn = document.getElementById('sidebar-toggle-help');
+
+        if (sidebarPreviewBtn) {
+            sidebarPreviewBtn.addEventListener('click', () => {
+                const toolbarBtn = document.getElementById('toggle-preview');
+                if (toolbarBtn) toolbarBtn.click();
+            });
+        }
+
+        if (sidebarSplitBtn) {
+            sidebarSplitBtn.addEventListener('click', () => {
+                const toolbarBtn = document.getElementById('toggle-split-view');
+                if (toolbarBtn) toolbarBtn.click();
+            });
+        }
+
+        if (sidebarWysiwygBtn) {
+            sidebarWysiwygBtn.addEventListener('click', () => {
+                const toolbarBtn = document.getElementById('toggle-wysiwyg');
+                if (toolbarBtn) toolbarBtn.click();
+            });
+        }
+
+        if (sidebarHelpBtn) {
+            sidebarHelpBtn.addEventListener('click', () => {
+                toggleModal('help-modal', true);
+                if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
+                    window.ZenWriterHelpModal.render();
+                }
+            });
+        }
+
         return {
             toggleFeedbackPanel,
             toggleFontPanel,

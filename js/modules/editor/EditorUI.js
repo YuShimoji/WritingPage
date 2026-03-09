@@ -99,6 +99,7 @@
         applyFontDecoration(manager, tag) {
             const rich = manager && manager.richTextEditor;
             if (rich && rich.isWysiwygMode) {
+                // execCommand対応の基本4種
                 const commandMap = {
                     bold: 'bold',
                     italic: 'italic',
@@ -108,8 +109,12 @@
                 const cmd = commandMap[tag];
                 if (cmd && typeof rich.executeCommand === 'function') {
                     rich.executeCommand(cmd);
-                } else if (typeof manager.showNotification === 'function') {
-                    manager.showNotification('この装飾はテキストモードで利用してください', 1400);
+                    return;
+                }
+                // span wrapping で残りの装飾タイプに対応
+                if (typeof rich.wrapSelectionWithSpan === 'function') {
+                    rich.wrapSelectionWithSpan(`decor-${tag}`);
+                    return;
                 }
                 return;
             }
