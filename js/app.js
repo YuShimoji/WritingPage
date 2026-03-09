@@ -353,6 +353,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // editor-container の空き領域クリック時にエディタへフォーカス転送
+    {
+        const ec = elementManager.get('editorContainer');
+        if (ec) {
+            ec.addEventListener('click', function (e) {
+                if (e.target !== ec) return; // 子要素クリックは無視
+                const wysiwyg = document.getElementById('wysiwyg-editor');
+                const textarea = document.getElementById('editor');
+                if (wysiwyg && wysiwyg.style.display !== 'none') {
+                    wysiwyg.focus();
+                } else if (textarea) {
+                    textarea.focus();
+                }
+            });
+        }
+    }
+
     /**
      * 最後のスナップショットから復元（Ctrl+Shift+Z）
      * 復元前に現在の内容を自動でスナップショット保存

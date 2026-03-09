@@ -285,6 +285,25 @@
       }
       left = rect.left - cRect.left + rect.width / 2;
 
+      // ツールバー幅を取得して境界クランプ
+      var tbRect = this.wysiwygToolbar.getBoundingClientRect();
+      var tbW = tbRect.width || 300; // 非表示時のフォールバック
+      var containerW = cRect.width;
+      var margin = 12;
+
+      // 左端クランプ: translateX(-50%) を考慮
+      if (left - tbW / 2 < margin) {
+        left = tbW / 2 + margin;
+      }
+      // 右端クランプ
+      if (left + tbW / 2 > containerW - margin) {
+        left = containerW - tbW / 2 - margin;
+      }
+      // 上端クランプ
+      if (top < 0) {
+        top = gap;
+      }
+
       this.wysiwygToolbar.style.top = top + 'px';
       this.wysiwygToolbar.style.left = left + 'px';
       this.wysiwygToolbar.style.transform = 'translateX(-50%)';

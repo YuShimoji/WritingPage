@@ -287,6 +287,9 @@ function setupIPC() {
     ipcMain.on('window:close', () => mainWindow?.close());
     ipcMain.on('window:set-title', (_event, title) => mainWindow?.setTitle(title));
 
+    // Window maximized state query
+    ipcMain.handle('window:is-maximized', () => mainWindow?.isMaximized() ?? false);
+
     // Frameless mode toggle
     ipcMain.on('window:toggle-frameless', (_event, frameless) => {
         // Note: changing frame requires recreating the window in Electron
@@ -356,6 +359,7 @@ function createWindow() {
         height: state.height || 800,
         minWidth: 600,
         minHeight: 400,
+        frame: false,
         title: 'Zen Writer',
         icon: path.join(__dirname, '..', 'favicon.svg'),
         show: false,
@@ -382,6 +386,10 @@ function createWindow() {
     } else {
         mainWindow.loadFile(path.join(__dirname, '..', 'index.html'));
     }
+
+    // Notify renderer of maximize/unmaximize
+    mainWindow.on('maximize', () => sendToRenderer('window:maximized-changed', true));
+    mainWindow.on('unmaximize', () => sendToRenderer('window:maximized-changed', false));
 
     // Save window state on resize/move
     ['resize', 'move'].forEach(evt => {

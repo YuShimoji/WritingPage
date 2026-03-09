@@ -5,6 +5,9 @@
 
     if (!window.electronAPI || !window.electronAPI.isElectron) return;
 
+    document.documentElement.classList.add('is-electron');
+    document.body.classList.add('is-electron');
+
     const api = window.electronAPI;
 
     /* ---------- Menu command routing ---------- */
@@ -215,6 +218,44 @@
         } else {
             console.info('[Zen Writer]', message, type || '');
         }
+    }
+
+    /* ---------- Frameless window controls ---------- */
+    function setupWindowControls() {
+        const btnMin = document.getElementById('win-minimize');
+        const btnMax = document.getElementById('win-maximize');
+        const btnClose = document.getElementById('win-close');
+
+        if (btnMin) btnMin.addEventListener('click', () => api.minimize());
+        if (btnMax) btnMax.addEventListener('click', () => api.maximize());
+        if (btnClose) btnClose.addEventListener('click', () => api.close());
+
+        // Update maximize/restore icon
+        async function updateMaxIcon() {
+            if (!btnMax) return;
+            const maximized = await api.isMaximized();
+            const icon = btnMax.querySelector('i');
+            if (icon) {
+                icon.setAttribute('data-lucide', maximized ? 'copy' : 'square');
+                if (window.lucide) window.lucide.createIcons({ nodes: [icon] });
+            }
+            btnMax.title = maximized ? '元に戻す' : '最大化';
+            btnMax.setAttribute('aria-label', maximized ? '元に戻す' : '最大化');
+        }
+
+        updateMaxIcon();
+        api.onMaximizedChanged(() => updateMaxIcon());
+    }
+
+    setupWindowControls();
+
+    /* ---------- Double-click toolbar to maximize/restore ---------- */
+    const toolbar = document.querySelector('.toolbar');
+    if (toolbar) {
+        toolbar.addEventListener('dblclick', (e) => {
+            if (e.target.closest('button, input, select, a, [contenteditable]')) return;
+            api.maximize();
+        });
     }
 
     console.info('[Electron Bridge] initialized');

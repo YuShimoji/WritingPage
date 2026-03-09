@@ -259,5 +259,14 @@
     "cat": "ui",
     "file": "docs/specs/spec-gadget-ux.md",
     "summary": "サイドバーガジェットのコンパクト化・個別折りたたみ・ヘルプアイコン・一括操作。余白削減+二重ボックス解消、デフォルト折りたたみ+localStorage保存、Phase 2でアニメーション"
+  },
+  {
+    "id": "SP-052",
+    "title": "セクションツリー/話ナビゲーション 仕様",
+    "status": "todo",
+    "pct": 10,
+    "cat": "ui",
+    "file": "docs/specs/spec-sections-navigation.md",
+    "summary": "左サイド最上段にセクションカテゴリを新設。見出しツリー選択で話へジャンプ編集、エディタ最下部に前後話/見出し移動ナビを常設する。"
   }
 ]
