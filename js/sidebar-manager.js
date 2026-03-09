@@ -17,6 +17,10 @@ class SidebarManager {
     constructor(elementManager) {
         this.elementManager = elementManager;
         this._initializedAccordionGroups = new Set();
+        this._writingFocusInitialized = false;
+        this._writingFocusRenderTimer = null;
+        this._writingFocusObserver = null;
+        this._writingFocusSettingsOpen = false;
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
             {
@@ -199,6 +203,7 @@ class SidebarManager {
                     this.elementManager.initialize();
                 }
             } catch (_) { }
+            this._initWritingFocusSidebar();
         } catch (e) {
             console.error('アコーディオン初期化エラー:', e);
         }
@@ -277,6 +282,485 @@ class SidebarManager {
         } catch (e) {
             console.error('アコーディオン状態保存エラー:', e);
         }
+    }
+
+    _loadSidebarUISettings() {
+        try {
+            if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function') return null;
+            return window.ZenWriterStorage.loadSettings();
+        } catch (_) {
+            return null;
+        }
+    }
+
+    _saveSidebarUISettingsPatch(patch) {
+        try {
+            if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function' || typeof window.ZenWriterStorage.saveSettings !== 'function') return false;
+            const settings = window.ZenWriterStorage.loadSettings() || {};
+            settings.ui = settings.ui || {};
+            Object.keys(patch || {}).forEach((k) => {
+                settings.ui[k] = patch[k];
+            });
+            return !!window.ZenWriterStorage.saveSettings(settings);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    _initWritingFocusSidebar() {
+        try {
+            if (this._writingFocusInitialized) return;
+            const accordion = document.querySelector('.sidebar-accordion');
+            if (!accordion) return;
+
+            const settings = this._loadSidebarUISettings();
+            this._writingFocusSettingsOpen = !!(settings && settings.ui && settings.ui.sidebarSettingsOpen);
+
+            let rail = document.getElementById('writing-focus-rail');
+            if (!rail) {
+                rail = document.createElement('section');
+                rail.id = 'writing-focus-rail';
+                rail.className = 'writing-focus-rail';
+                rail.innerHTML = `
+                    <h3 id="writing-focus-title" class="writing-focus-title">ドキュメント</h3>
+                    <div class="writing-focus-section-head">
+                      <span>セクション</span>
+                      <button id="writing-focus-add-section" class="writing-focus-add" type="button" title="セクション追加">+ 追加</button>
+                    </div>
+                    <div id="writing-focus-nav" class="writing-focus-nav" aria-live="polite"></div>
+                `;
+                accordion.insertBefore(rail, accordion.firstChild);
+            }
+
+            let footer = document.getElementById('writing-focus-footer');
+            if (!footer) {
+                footer = document.createElement('section');
+                footer.id = 'writing-focus-footer';
+                footer.className = 'writing-focus-footer';
+                footer.innerHTML = `<button id="writing-focus-settings-btn" class="writing-focus-settings-btn" type="button">設定</button>`;
+                accordion.appendChild(footer);
+            }
+
+            const settingsBtn = document.getElementById('writing-focus-settings-btn');
+            if (settingsBtn) {
+                settingsBtn.addEventListener('click', () => {
+                    this._writingFocusSettingsOpen = !this._writingFocusSettingsOpen;
+                    this._saveSidebarUISettingsPatch({ sidebarSettingsOpen: this._writingFocusSettingsOpen });
+                    this._applyWritingFocusSidebar();
+                });
+            }
+
+            const addSectionBtn = document.getElementById('writing-focus-add-section');
+            if (addSectionBtn) {
+                addSectionBtn.addEventListener('click', () => {
+                    this._insertQuickSection();
+                });
+            }
+
+            const editor = document.getElementById('editor');
+            if (editor) {
+                const onEditorChanged = () => this._scheduleWritingFocusRender();
+                editor.addEventListener('input', onEditorChanged);
+                editor.addEventListener('click', onEditorChanged);
+                editor.addEventListener('keyup', onEditorChanged);
+            }
+            window.addEventListener('ZWDocumentsChanged', () => this._scheduleWritingFocusRender());
+            window.addEventListener('ZWBottomNavNavigate', (ev) => {
+                const action = ev && ev.detail ? ev.detail.action : '';
+                if (!action) return;
+                this.navigateWritingFocus(action);
+            });
+
+            this._writingFocusObserver = new MutationObserver(() => this._scheduleWritingFocusRender());
+            this._writingFocusObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-ui-mode'] });
+
+            this._writingFocusInitialized = true;
+            this._applyWritingFocusSidebar();
+            this._renderWritingFocusNavigator();
+        } catch (e) {
+            console.error('執筆集中サイドバー初期化エラー:', e);
+        }
+    }
+
+    _isWritingFocusSidebarEffective() {
+        return true;
+    }
+
+    _applyWritingFocusSidebar() {
+        const effective = this._isWritingFocusSidebarEffective();
+        document.documentElement.setAttribute('data-writing-sidebar-focus', effective ? 'true' : 'false');
+        document.documentElement.setAttribute('data-writing-settings-open', effective && this._writingFocusSettingsOpen ? 'true' : 'false');
+        const settingsBtn = document.getElementById('writing-focus-settings-btn');
+        if (settingsBtn) {
+            const opened = effective && this._writingFocusSettingsOpen;
+            settingsBtn.setAttribute('aria-pressed', opened ? 'true' : 'false');
+            settingsBtn.textContent = opened ? '執筆へ戻る' : '設定';
+        }
+
+        const categories = document.querySelectorAll('.accordion-category[data-category]');
+        categories.forEach((section) => {
+            const categoryId = section.getAttribute('data-category');
+            if (effective && !this._writingFocusSettingsOpen && categoryId !== 'structure') {
+                section.style.display = 'none';
+                section.setAttribute('aria-hidden', 'true');
+                this._setAccordionState(categoryId, false);
+            } else {
+                section.style.display = '';
+                section.setAttribute('aria-hidden', 'false');
+            }
+        });
+
+        if (effective) {
+            this._setAccordionState('structure', true);
+            this._ensureAccordionGadgetInitialized('structure');
+            if (this._writingFocusSettingsOpen) {
+                // 設定表示はノイズ削減のため structure のみ初期展開
+                this.accordionCategories.forEach((category) => {
+                    if (category.id !== 'structure') this._setAccordionState(category.id, false);
+                });
+            }
+            const structurePanel = document.getElementById('structure-gadgets-panel');
+            if (structurePanel) {
+                structurePanel.style.display = this._writingFocusSettingsOpen ? '' : 'none';
+            }
+            return;
+        }
+
+        const savedState = this._loadAccordionState();
+        const hasAnyExpanded = this.accordionCategories.some((category) => !!savedState[category.id]);
+        this.accordionCategories.forEach((category) => {
+            const isExpanded = savedState[category.id] !== undefined
+                ? savedState[category.id]
+                : category.defaultExpanded;
+            this._setAccordionState(category.id, isExpanded);
+        });
+        if (!hasAnyExpanded) {
+            this._setAccordionState('structure', true);
+        }
+    }
+
+    _scheduleWritingFocusRender() {
+        if (this._writingFocusRenderTimer) clearTimeout(this._writingFocusRenderTimer);
+        this._writingFocusRenderTimer = setTimeout(() => {
+            this._applyWritingFocusSidebar();
+            this._renderWritingFocusNavigator();
+        }, 80);
+    }
+
+    _parseMarkdownHeadings(text) {
+        const source = String(text || '');
+        const headingPattern = /^(#{1,6})\s+(.+)$/gm;
+        const headings = [];
+        let m;
+        while ((m = headingPattern.exec(source)) !== null) {
+            headings.push({
+                level: m[1].length,
+                title: String(m[2] || '').trim(),
+                index: m.index
+            });
+        }
+        if (!headings.length) return { chapterLevel: 2, sceneLevel: 3, headings: [], chapters: [], sourceLength: source.length };
+
+        const levels = headings.map((h) => h.level);
+        const chapterLevel = levels.includes(2) ? 2 : Math.min.apply(null, levels);
+        const sceneLevel = Math.min(chapterLevel + 1, 6);
+        const chapters = [];
+        let currentChapter = null;
+
+        headings.forEach((h) => {
+            if (h.level === chapterLevel) {
+                currentChapter = { title: h.title, index: h.index, endIndex: source.length, scenes: [] };
+                chapters.push(currentChapter);
+                return;
+            }
+            if (h.level === sceneLevel && currentChapter) {
+                currentChapter.scenes.push({ title: h.title, index: h.index, endIndex: source.length });
+            }
+        });
+
+        chapters.forEach((chapter, idx) => {
+            const nextChapter = chapters[idx + 1];
+            chapter.endIndex = nextChapter ? nextChapter.index : source.length;
+            chapter.scenes.forEach((scene, sceneIdx) => {
+                const nextScene = chapter.scenes[sceneIdx + 1];
+                scene.endIndex = nextScene ? nextScene.index : chapter.endIndex;
+            });
+        });
+
+        return { chapterLevel, sceneLevel, headings, chapters, sourceLength: source.length };
+    }
+
+    _getWritingFocusContext(editor, parsed) {
+        const sourceParsed = parsed || this._parseMarkdownHeadings(editor && editor.value ? editor.value : '');
+        const chapters = sourceParsed.chapters || [];
+        const cursor = editor && typeof editor.selectionStart === 'number' ? editor.selectionStart : 0;
+
+        let activeChapterIndex = -1;
+        for (let i = 0; i < chapters.length; i += 1) {
+            if (cursor >= chapters[i].index) activeChapterIndex = i;
+        }
+        const activeChapter = activeChapterIndex >= 0 ? chapters[activeChapterIndex] : null;
+
+        let activeSceneIndex = -1;
+        const scenes = activeChapter ? (activeChapter.scenes || []) : [];
+        for (let i = 0; i < scenes.length; i += 1) {
+            if (cursor >= scenes[i].index) activeSceneIndex = i;
+        }
+
+        const allScenes = [];
+        chapters.forEach((chapter, chapterIndex) => {
+            (chapter.scenes || []).forEach((scene, sceneIndex) => {
+                allScenes.push({
+                    chapterIndex,
+                    sceneIndex,
+                    title: scene.title,
+                    index: scene.index
+                });
+            });
+        });
+
+        let currentGlobalScenePos = -1;
+        for (let i = 0; i < allScenes.length; i += 1) {
+            if (cursor >= allScenes[i].index) currentGlobalScenePos = i;
+        }
+
+        return {
+            parsed: sourceParsed,
+            cursor,
+            chapters,
+            activeChapterIndex,
+            activeChapter,
+            activeSceneIndex,
+            allScenes,
+            currentGlobalScenePos
+        };
+    }
+
+    _moveEditorCaretTo(index) {
+        const editor = document.getElementById('editor');
+        if (!editor) return;
+        const target = Math.max(0, Math.min(Number(index) || 0, editor.value.length));
+        editor.focus();
+        editor.selectionStart = target;
+        editor.selectionEnd = target;
+        const before = editor.value.slice(0, target);
+        const lines = (before.match(/\n/g) || []).length;
+        const lineHeight = parseFloat(window.getComputedStyle(editor).lineHeight) || 24;
+        editor.scrollTop = Math.max(0, lines * lineHeight - editor.clientHeight * 0.35);
+        this._scheduleWritingFocusRender();
+    }
+
+    moveWritingFocusChapter(step) {
+        const editor = document.getElementById('editor');
+        if (!editor) return false;
+        const context = this._getWritingFocusContext(editor);
+        const chapters = context.chapters;
+        if (!chapters.length) return false;
+
+        let targetIndex = context.activeChapterIndex;
+        if (targetIndex < 0) {
+            targetIndex = step > 0 ? 0 : chapters.length - 1;
+        } else {
+            targetIndex += step;
+        }
+        if (targetIndex < 0 || targetIndex >= chapters.length) return false;
+        this._moveEditorCaretTo(chapters[targetIndex].index);
+        return true;
+    }
+
+    moveWritingFocusScene(step) {
+        const editor = document.getElementById('editor');
+        if (!editor) return false;
+        const context = this._getWritingFocusContext(editor);
+        const scenes = context.allScenes;
+        if (!scenes.length) return false;
+
+        let targetPos = -1;
+        if (step > 0) {
+            targetPos = context.currentGlobalScenePos + 1;
+        } else {
+            targetPos = context.currentGlobalScenePos >= 0 ? context.currentGlobalScenePos - 1 : -1;
+        }
+        if (targetPos < 0 || targetPos >= scenes.length) return false;
+        this._moveEditorCaretTo(scenes[targetPos].index);
+        return true;
+    }
+
+    navigateWritingFocus(action) {
+        switch (action) {
+            case 'prevScene':
+                return this.moveWritingFocusScene(-1);
+            case 'nextScene':
+                return this.moveWritingFocusScene(1);
+            case 'prevChapter':
+                return this.moveWritingFocusChapter(-1);
+            case 'nextChapter':
+                return this.moveWritingFocusChapter(1);
+            case 'openSections':
+                this.forceSidebarState(true);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    _insertQuickSection() {
+        const editor = document.getElementById('editor');
+        if (!editor) return;
+        const parsed = this._parseMarkdownHeadings(editor.value || '');
+        const context = this._getWritingFocusContext(editor, parsed);
+        const currentChapter = context.activeChapter;
+        const insideChapter = !!(currentChapter && context.cursor >= currentChapter.index && context.cursor < currentChapter.endIndex);
+        const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
+        const marks = '#'.repeat(level);
+        const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';
+        const label = `${marks} ${sectionLabel}`;
+        const start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
+        const needsLeadingBreak = start > 0 && editor.value.charAt(start - 1) !== '\n';
+        const insertion = `${needsLeadingBreak ? '\n' : ''}${label}\n\n`;
+        const before = editor.value.slice(0, start);
+        const after = editor.value.slice(start);
+        editor.value = before + insertion + after;
+        const nextCaret = before.length + insertion.length;
+        editor.focus();
+        editor.selectionStart = nextCaret;
+        editor.selectionEnd = nextCaret;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+        this._scheduleWritingFocusRender();
+    }
+
+    _escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    _renderWritingFocusNavigator() {
+        const title = document.getElementById('writing-focus-title');
+        const nav = document.getElementById('writing-focus-nav');
+        if (!title || !nav) return;
+
+        const effective = this._isWritingFocusSidebarEffective();
+        if (!effective) {
+            title.textContent = 'ドキュメント';
+            nav.innerHTML = '';
+            return;
+        }
+
+        const editor = document.getElementById('editor');
+        if (!editor) {
+            title.textContent = 'ドキュメント';
+            nav.innerHTML = '';
+            return;
+        }
+
+        let docName = '無題ドキュメント';
+        try {
+            const storage = window.ZenWriterStorage;
+            const docs = storage && typeof storage.loadDocuments === 'function' ? (storage.loadDocuments() || []) : [];
+            const cur = storage && typeof storage.getCurrentDocId === 'function' ? storage.getCurrentDocId() : null;
+            const doc = docs.find((d) => d && d.id === cur);
+            if (doc && doc.name) docName = doc.name;
+        } catch (_) { }
+
+        const parsed = this._parseMarkdownHeadings(editor.value || '');
+        const context = this._getWritingFocusContext(editor, parsed);
+        const chapters = context.chapters || [];
+        if (!chapters.length) {
+            title.textContent = docName;
+            nav.innerHTML = '<p class="writing-focus-empty">見出し（## 章タイトル）を作成すると章ナビが表示されます。</p>';
+            this._emitWritingFocusLocationChanged({
+                docName,
+                chapterTitle: '',
+                chapterIndex: -1,
+                chapterCount: 0,
+                sceneTitle: '',
+                sceneIndex: -1,
+                sceneCount: 0
+            });
+            return;
+        }
+
+        const activeChapterIndex = context.activeChapterIndex >= 0 ? context.activeChapterIndex : 0;
+        const activeChapter = chapters[activeChapterIndex];
+        title.textContent = docName;
+        const safeDocName = this._escapeHtml(docName);
+
+        const chapterButtons = chapters.map((ch, idx) => {
+            const activeClass = idx === activeChapterIndex ? ' is-active' : '';
+            return `<button type="button" class="writing-focus-chip${activeClass}" data-wf-chapter-index="${idx}">${this._escapeHtml(ch.title)}</button>`;
+        }).join('');
+        const scenes = activeChapter.scenes || [];
+        const activeSceneIndex = context.activeChapterIndex === activeChapterIndex ? context.activeSceneIndex : -1;
+        const hasPrevScene = activeSceneIndex > 0;
+        const hasNextScene = activeSceneIndex >= 0 && activeSceneIndex < scenes.length - 1;
+        const sceneButtons = scenes.map((scene, idx) => {
+            const activeClass = idx === activeSceneIndex ? ' is-active' : '';
+            return `<button type="button" class="writing-focus-scene${activeClass}" data-wf-jump="${scene.index}"># ${this._escapeHtml(scene.title)}</button>`;
+        }).join('');
+
+        nav.innerHTML = `
+            <div class="writing-focus-seek">
+              <button type="button" class="writing-focus-seek-btn" data-wf-prev-scene ${hasPrevScene ? '' : 'disabled'}>前のシーン</button>
+              <button type="button" class="writing-focus-seek-btn" data-wf-next-scene ${hasNextScene ? '' : 'disabled'}>次のシーン</button>
+            </div>
+            <div class="writing-focus-chips" aria-label="${safeDocName} 章一覧">${chapterButtons}</div>
+            <div class="writing-focus-scenes">
+              ${sceneButtons || '<p class="writing-focus-empty">この章にはシーン見出し（###）がありません。</p>'}
+            </div>
+        `;
+
+        nav.querySelectorAll('[data-wf-chapter-index]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const idx = Number(btn.getAttribute('data-wf-chapter-index'));
+                const chapter = chapters[idx];
+                if (chapter) this._moveEditorCaretTo(chapter.index);
+            });
+        });
+        nav.querySelectorAll('[data-wf-jump]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                this._moveEditorCaretTo(Number(btn.getAttribute('data-wf-jump')));
+            });
+        });
+        const prevBtn = nav.querySelector('[data-wf-prev-scene]');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (!hasPrevScene) return;
+                this._moveEditorCaretTo(scenes[activeSceneIndex - 1].index);
+            });
+        }
+        const nextBtn = nav.querySelector('[data-wf-next-scene]');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (!hasNextScene) return;
+                this._moveEditorCaretTo(scenes[activeSceneIndex + 1].index);
+            });
+        }
+
+        this._emitWritingFocusLocationChanged({
+            docName,
+            chapterTitle: activeChapter && activeChapter.title ? activeChapter.title : '',
+            chapterIndex: activeChapterIndex,
+            chapterCount: chapters.length,
+            sceneTitle: activeSceneIndex >= 0 && scenes[activeSceneIndex] ? scenes[activeSceneIndex].title : '',
+            sceneIndex: activeSceneIndex,
+            sceneCount: scenes.length
+        });
+    }
+
+    _emitWritingFocusLocationChanged(payload) {
+        try {
+            const chapterTitle = payload && payload.chapterTitle ? payload.chapterTitle : '';
+            document.querySelectorAll('#section-nav-current-title, #chapter-nav-current-title, [data-bottom-chapter-title]').forEach((el) => {
+                el.textContent = chapterTitle;
+            });
+            window.dispatchEvent(new CustomEvent('ZWWritingFocusLocationChanged', {
+                detail: Object.assign({ source: 'sidebar' }, payload || {})
+            }));
+        } catch (_) { }
     }
 
 

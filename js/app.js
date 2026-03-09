@@ -349,7 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleToolbar,
             setUIMode,
             restoreLastSnapshot,
-            logger
+            logger,
+            sidebarManager
         });
     }
 

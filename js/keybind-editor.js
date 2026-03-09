@@ -119,6 +119,38 @@
       shiftKey: false,
       metaKey: false,
       description: 'フォントサイズをリセット'
+    },
+    'writing.scene.prev': {
+      key: 'ArrowUp',
+      altKey: true,
+      ctrlKey: false,
+      shiftKey: false,
+      metaKey: false,
+      description: '前のシーンへ移動'
+    },
+    'writing.scene.next': {
+      key: 'ArrowDown',
+      altKey: true,
+      ctrlKey: false,
+      shiftKey: false,
+      metaKey: false,
+      description: '次のシーンへ移動'
+    },
+    'writing.chapter.prev': {
+      key: 'ArrowUp',
+      altKey: true,
+      ctrlKey: false,
+      shiftKey: true,
+      metaKey: false,
+      description: '前の章へ移動'
+    },
+    'writing.chapter.next': {
+      key: 'ArrowDown',
+      altKey: true,
+      ctrlKey: false,
+      shiftKey: true,
+      metaKey: false,
+      description: '次の章へ移動'
     }
   };
 

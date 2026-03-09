@@ -1,0 +1,9 @@
+{
+  "plugins": [
+    {
+      "id": "choice-actions",
+      "src": "js/plugins/choice.js",
+      "enabled": true
+    }
+  ]
+}

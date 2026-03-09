@@ -268,5 +268,14 @@
     "cat": "ui",
     "file": "docs/specs/spec-sections-navigation.md",
     "summary": "左サイド最上段にセクションカテゴリを新設。見出しツリー選択で話へジャンプ編集、エディタ最下部に前後話/見出し移動ナビを常設する。"
+  },
+  {
+    "id": "SP-053",
+    "title": "執筆集中サイドバー 仕様",
+    "status": "partial",
+    "pct": 85,
+    "cat": "ui",
+    "file": "docs/specs/spec-writing-focus-sidebar.md",
+    "summary": "Focus連動で章/シーン遷移をサイドバー先頭に集約。現在章/シーンの細いアクセント強調、+追加の自然レベル挿入、Altショートカット、下部ナビ同期方針まで定義。"
   }
 ]

@@ -18,7 +18,8 @@
             toggleToolbar,
             setUIMode,
             restoreLastSnapshot,
-            logger
+            logger,
+            sidebarManager
         } = deps;
 
         // capture: trueで優先的に処理
@@ -38,7 +39,9 @@
                         'editor.save', 'editor.bold', 'editor.italic',
                         'search.toggle', 'search.global.toggle',
                         'toolbar.toggle', 'sidebar.toggle',
-                        'ui.mode.cycle', 'command-palette.toggle'
+                        'ui.mode.cycle', 'command-palette.toggle',
+                        'writing.scene.prev', 'writing.scene.next',
+                        'writing.chapter.prev', 'writing.chapter.next'
                     ];
 
                     if (inFormControl && !allowInFormControl.includes(keybindId)) {
@@ -115,6 +118,38 @@
                         case 'editor.font.reset':
                             // editor.jsで処理される
                             break;
+
+                        case 'writing.scene.prev':
+                            if (sidebarManager && typeof sidebarManager.moveWritingFocusScene === 'function') {
+                                sidebarManager.moveWritingFocusScene(-1);
+                            } else if (window.sidebarManager && typeof window.sidebarManager.moveWritingFocusScene === 'function') {
+                                window.sidebarManager.moveWritingFocusScene(-1);
+                            }
+                            break;
+
+                        case 'writing.scene.next':
+                            if (sidebarManager && typeof sidebarManager.moveWritingFocusScene === 'function') {
+                                sidebarManager.moveWritingFocusScene(1);
+                            } else if (window.sidebarManager && typeof window.sidebarManager.moveWritingFocusScene === 'function') {
+                                window.sidebarManager.moveWritingFocusScene(1);
+                            }
+                            break;
+
+                        case 'writing.chapter.prev':
+                            if (sidebarManager && typeof sidebarManager.moveWritingFocusChapter === 'function') {
+                                sidebarManager.moveWritingFocusChapter(-1);
+                            } else if (window.sidebarManager && typeof window.sidebarManager.moveWritingFocusChapter === 'function') {
+                                window.sidebarManager.moveWritingFocusChapter(-1);
+                            }
+                            break;
+
+                        case 'writing.chapter.next':
+                            if (sidebarManager && typeof sidebarManager.moveWritingFocusChapter === 'function') {
+                                sidebarManager.moveWritingFocusChapter(1);
+                            } else if (window.sidebarManager && typeof window.sidebarManager.moveWritingFocusChapter === 'function') {
+                                window.sidebarManager.moveWritingFocusChapter(1);
+                            }
+                            break;
                     }
                     return;
                 }
@@ -145,6 +180,26 @@
                 }
 
                 toggleToolbar();
+                return;
+            }
+
+            // Alt+↑/↓: 前後シーン移動
+            if (e.altKey && !e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                const manager = sidebarManager || window.sidebarManager;
+                if (manager && typeof manager.moveWritingFocusScene === 'function') {
+                    manager.moveWritingFocusScene(e.key === 'ArrowUp' ? -1 : 1);
+                }
+                return;
+            }
+
+            // Alt+Shift+↑/↓: 前後章移動
+            if (e.altKey && e.shiftKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+                e.preventDefault();
+                const manager = sidebarManager || window.sidebarManager;
+                if (manager && typeof manager.moveWritingFocusChapter === 'function') {
+                    manager.moveWritingFocusChapter(e.key === 'ArrowUp' ? -1 : 1);
+                }
                 return;
             }
 

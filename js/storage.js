@@ -73,6 +73,7 @@ const DEFAULT_SETTINGS = {
     ui: {
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
         sidebarWidth: 320,
+        sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
         uiMode: 'normal', // 'normal' | 'focus' | 'blank'
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'

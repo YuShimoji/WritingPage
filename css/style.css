@@ -1264,6 +1264,8 @@ html[data-toolbar-hidden='true'] .sidebar {
   flex-direction: column;
   gap: 8px;
   padding: 8px 0;
+  flex: 1;
+  min-height: 0;
 }
 
 /* カテゴリセクション */
@@ -1351,6 +1353,145 @@ html[data-toolbar-hidden='true'] .sidebar {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* ===== 執筆集中サイドバー（Novlrライクな簡素UI） ===== */
+.writing-focus-rail {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 10px 8px;
+  background: color-mix(in srgb, var(--sidebar-bg) 88%, #000 12%);
+  display: grid;
+  gap: 10px;
+}
+
+.writing-focus-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.writing-focus-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--sidebar-text);
+  word-break: break-word;
+}
+
+.writing-focus-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  opacity: 0.88;
+}
+
+.writing-focus-add {
+  font-size: 11px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  line-height: 1.2;
+}
+
+.writing-focus-footer {
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.writing-focus-settings-btn {
+  width: 100%;
+  font-size: 12px;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.writing-focus-settings-btn[aria-pressed="true"] {
+  border-color: var(--ui-focus-color);
+}
+
+.writing-focus-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.writing-focus-chip {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sidebar-text);
+}
+
+.writing-focus-chip.is-active {
+  border-color: color-mix(in srgb, var(--ui-focus-color) 62%, transparent);
+  box-shadow: inset 0 -1px 0 var(--ui-focus-color);
+}
+
+.writing-focus-scenes {
+  display: grid;
+  gap: 4px;
+}
+
+.writing-focus-seek {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.writing-focus-seek-btn {
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 8px;
+}
+
+.writing-focus-seek-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.writing-focus-scene {
+  text-align: left;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--sidebar-text);
+}
+
+.writing-focus-scene:hover {
+  border-color: var(--ui-focus-color);
+}
+
+.writing-focus-scene.is-active {
+  border-color: color-mix(in srgb, var(--ui-focus-color) 58%, transparent);
+  box-shadow: inset 2px 0 0 var(--ui-focus-color);
+}
+
+.writing-focus-empty {
+  margin: 0;
+  font-size: 11px;
+  opacity: 0.75;
+  line-height: 1.4;
+}
+
+html[data-writing-sidebar-focus="true"] .sidebar-accordion {
+  gap: 10px;
+}
+
+html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] #structure-gadgets-panel {
+  display: none;
+}
+
+html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] .accordion-category[data-category="structure"] {
+  display: none;
 }
 
 /* レスポンシブ対応 */

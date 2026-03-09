@@ -729,11 +729,18 @@
         load('js/outline.js');
         load('js/themes-advanced.js');
         load('js/plugins/registry.js');
-        load('js/plugins/choice.js');
         load('js/images.js');
         load('js/panels.js');
         load('js/main-hub-panel.js');
         load('js/plugin-api.js');
+        load('js/plugin-manager.js');
+        setTimeout(function () {
+          try {
+            if (window.ZWPluginManager && typeof window.ZWPluginManager.bootstrap === 'function') {
+              window.ZWPluginManager.bootstrap();
+            }
+          } catch (_) { }
+        }, 0);
       }, { once: true });
     })();
   </script>

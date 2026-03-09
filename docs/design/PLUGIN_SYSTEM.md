@@ -143,14 +143,15 @@ interface ZWPluginAPI {
 
 ### Phase 1 (v1) — 現実装可能
 
-- [ ] `js/plugin-api.js` 作成（`window.ZWPlugin` 公開）
-- [ ] `ZWPlugin.register()` → `window.ZWGadgets.register()` へのブリッジ
-- [ ] `ZWPlugin.events` → `CustomEvent` ラッパー
-- [ ] `ZWPlugin.storage` → `localStorage` ラッパー（`zw_plugin_<id>_` プレフィックス）
-- [ ] ドキュメント: `docs/PLUGIN_GUIDE.md`
+- [x] `js/plugin-api.js` 作成（`window.ZWPlugin` 公開）
+- [x] `ZWPlugin.register()` → `window.ZWGadgets.register()` へのブリッジ
+- [x] `ZWPlugin.events` → `CustomEvent` ラッパー
+- [x] `ZWPlugin.storage` → `localStorage` ラッパー（`zw_plugin_<id>_` プレフィックス）
+- [x] ドキュメント: `docs/PLUGIN_GUIDE.md`
 
 ### Phase 2 (v2) — 将来
 
+- [x] マニフェスト駆動のローカルプラグインローダー（`js/plugin-manager.js` + `js/plugins/manifest.json`）
 - [ ] プラグインマネージャーUI
 - [ ] リモートプラグインのsandbox対応
 - [ ] 公式プラグインリポジトリ
