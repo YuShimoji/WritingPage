@@ -374,8 +374,8 @@
   {
     "id": "SP-062",
     "title": "テキスト表現アーキテクチャ仕様",
-    "status": "in-progress",
-    "pct": 60,
+    "status": "partial",
+    "pct": 95,
     "cat": "ui",
     "file": "docs/specs/spec-text-expression-architecture.md",
     "summary": "Text Effect / Animation / Ornament / preset sugar / projection の責務分離と Tier 1 の縮退規則を定義する SSOT。"
