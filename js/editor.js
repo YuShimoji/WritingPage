@@ -182,7 +182,7 @@ class EditorManager {
         const canvasSettings = editorSettings && editorSettings.canvas ? editorSettings.canvas : {};
         const defaultCanvas = (window.ZenWriterStorage && window.ZenWriterStorage.DEFAULT_SETTINGS && window.ZenWriterStorage.DEFAULT_SETTINGS.editor)
             ? window.ZenWriterStorage.DEFAULT_SETTINGS.editor.canvas
-            : { betaEnabled: true, enabled: false, panX: 0, panY: 0, zoom: 1 };
+            : { betaEnabled: false, enabled: false, panX: 0, panY: 0, zoom: 1 };
 
         this.canvasSettings = { ...defaultCanvas, ...canvasSettings };
         const betaEnabled = this.canvasSettings.betaEnabled !== false;

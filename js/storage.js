@@ -89,7 +89,7 @@ const DEFAULT_SETTINGS = {
             maxChars: 80 // 折り返し文字数
         },
         canvas: {
-            betaEnabled: true,
+            betaEnabled: false,
             enabled: false,
             panX: 0,
             panY: 0,
@@ -739,6 +739,8 @@ function normalizeSettingsShape(raw) {
     merged.editor = { ...defaults.editor, ...(parsed.editor || {}) };
     merged.editor.wordWrap = { ...defaults.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
     merged.editor.canvas = { ...defaults.editor.canvas, ...(parsed.editor?.canvas || {}) };
+    // Canvas Mode は Phase 1 (30%) のためデフォルト OFF に強制
+    merged.editor.canvas.betaEnabled = defaults.editor.canvas.betaEnabled;
     merged.editor.extendedTextbox = normalizeExtendedTextboxSettings(parsed.editor?.extendedTextbox || {}, merged);
     merged.editor.textExpression = { ...defaults.editor.textExpression, ...(parsed.editor?.textExpression || {}) };
     if (merged.editor.textExpression.fallbackMode !== 'backlog') {

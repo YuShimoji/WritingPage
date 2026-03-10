@@ -12,9 +12,56 @@ function parseMatrixTranslate(transformText) {
   };
 }
 
+/**
+ * Canvas Mode は betaEnabled:false (デフォルトOFF) のため、
+ * テスト用にランタイムで有効化する。setupCanvasMode() の再実行相当。
+ */
+async function enableCanvasBeta(page) {
+  await page.evaluate(() => {
+    const editor = window.ZenWriterEditor;
+    if (!editor) return;
+
+    // betaEnabled フラグを有効化しボタンを表示
+    editor.canvasSettings.betaEnabled = true;
+    const btn = document.getElementById('toggle-canvas-mode');
+    if (btn) btn.style.display = '';
+
+    // CanvasViewportController が未初期化の場合のみ生成
+    if (!editor.canvasViewportController && typeof window.CanvasViewportController !== 'undefined') {
+      const container = editor.editorContainer;
+      const target = editor.editorClassicLayer;
+      const stage = editor.canvasStage;
+      const hud = editor.canvasHud;
+      if (container && target) {
+        editor.canvasViewportController = new window.CanvasViewportController({
+          containerEl: container,
+          targetEl: target,
+          syncTargets: stage ? [stage] : [],
+          hudEl: hud,
+          initialState: { panX: 0, panY: 0, zoom: 1 },
+          onChange: (next) => {
+            editor.canvasSettings.panX = next.panX;
+            editor.canvasSettings.panY = next.panY;
+            editor.canvasSettings.zoom = next.zoom;
+          }
+        });
+
+        // ズームボタンのリスナー接続
+        const zoomIn = document.getElementById('canvas-zoom-in');
+        const zoomOut = document.getElementById('canvas-zoom-out');
+        const zoomReset = document.getElementById('canvas-zoom-reset');
+        if (zoomIn) zoomIn.addEventListener('click', () => editor.canvasViewportController.zoomBy(0.1));
+        if (zoomOut) zoomOut.addEventListener('click', () => editor.canvasViewportController.zoomBy(-0.1));
+        if (zoomReset) zoomReset.addEventListener('click', () => editor.canvasViewportController.resetView());
+      }
+    }
+  });
+}
+
 test.describe('Canvas Mode (beta)', () => {
   test('toggle enables canvas root and updates aria state', async ({ page }) => {
     await page.goto('/');
+    await enableCanvasBeta(page);
 
     const toggle = page.locator('#toggle-canvas-mode');
     await expect(toggle).toBeVisible();
@@ -31,6 +78,7 @@ test.describe('Canvas Mode (beta)', () => {
 
   test('hud zoom controls work for Canvas Mode', async ({ page }) => {
     await page.goto('/');
+    await enableCanvasBeta(page);
 
     await page.click('#toggle-canvas-mode');
     await expect(page.locator('#canvas-zoom-label')).toHaveText('100%');
@@ -48,6 +96,7 @@ test.describe('Canvas Mode (beta)', () => {
 
   test('space+drag pan and ctrl+wheel zoom persist settings', async ({ page }) => {
     await page.goto('/');
+    await enableCanvasBeta(page);
 
     await page.click('#toggle-canvas-mode');
     const editor = page.locator('#editor');
