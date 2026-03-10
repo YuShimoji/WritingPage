@@ -20,11 +20,11 @@
   {
     "id": "SP-003",
     "title": "設計方針",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "core",
     "file": "docs/DESIGN.md",
-    "summary": "Zenライクな執筆体験の設計原則・技術選択・制約"
+    "summary": "削除済み。設計原則はARCHITECTURE.mdに統合"
   },
   {
     "id": "SP-004",
@@ -47,11 +47,11 @@
   {
     "id": "SP-006",
     "title": "プロジェクト健全性レポート",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "core",
     "file": "docs/PROJECT_HEALTH.md",
-    "summary": "実装率・テスト結果・未解決課題のスナップショット"
+    "summary": "削除済み。スナップショット情報はROADMAP.mdに統合"
   },
   {
     "id": "SP-010",
@@ -92,11 +92,11 @@
   {
     "id": "SP-014",
     "title": "UI構造設計",
-    "status": "todo",
-    "pct": 10,
+    "status": "legacy",
+    "pct": 0,
     "cat": "ui",
     "file": "docs/UI_ARCHITECTURE.md",
-    "summary": "パネル/ガジェット/シーンの抽象レイヤ定義 (Draft)"
+    "summary": "削除済み。UI構造はARCHITECTURE.mdとspec-context-toolbar.mdに分散"
   },
   {
     "id": "SP-016",
@@ -110,11 +110,11 @@
   {
     "id": "SP-015",
     "title": "スナップショット設計 v1→v2",
-    "status": "partial",
-    "pct": 50,
+    "status": "legacy",
+    "pct": 0,
     "cat": "data",
     "file": "docs/SNAPSHOT_DESIGN.md",
-    "summary": "v1実装済み。v2要件: ドキュメントID紐付け・タグ/メモ・差分プレビュー・IndexedDB"
+    "summary": "削除済み。v1実装済み、v2はPriority Eで再設計予定"
   },
   {
     "id": "SP-020",
@@ -128,11 +128,11 @@
   {
     "id": "SP-021",
     "title": "Embed SDK検証手順",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "system",
     "file": "docs/EMBED_TESTING.md",
-    "summary": "embed-demo.htmlとZenWriterEmbed SDKの体系的検証テンプレート"
+    "summary": "削除済み。検証手順はTESTING.mdに統合"
   },
   {
     "id": "SP-022",
@@ -146,20 +146,20 @@
   {
     "id": "SP-031",
     "title": "ユーザーガイド",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "user",
     "file": "docs/USER_GUIDE.md",
-    "summary": "全機能の詳細ガイド。テーマ・検索・ガジェット・設定"
+    "summary": "削除済み。アプリ内ヘルプとEDITOR_HELP.mdに統合"
   },
   {
     "id": "SP-032",
     "title": "FAQ",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "user",
     "file": "docs/FAQ.md",
-    "summary": "よくある質問 (サーバー不要・データ保存先・テーマ追加等)"
+    "summary": "削除済み。内容はTROUBLESHOOTING.mdとアプリ内ヘルプに統合"
   },
   {
     "id": "SP-033",
@@ -246,11 +246,11 @@
   {
     "id": "SP-047",
     "title": "既知の問題",
-    "status": "done",
-    "pct": 100,
+    "status": "legacy",
+    "pct": 0,
     "cat": "infra",
     "file": "docs/KNOWN_ISSUES.md",
-    "summary": "既知の問題・回避策・未対応監査項目"
+    "summary": "削除済み。既知の問題はTROUBLESHOOTING.mdに統合"
   },
   {
     "id": "SP-048",

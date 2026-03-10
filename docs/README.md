@@ -1,6 +1,6 @@
 # docs/ -- Zen Writer ドキュメント目次
 
-v0.3.28 / 2026-03-06
+v0.3.29 / 2026-03-11
 
 ## はじめに
 
@@ -8,7 +8,6 @@ v0.3.28 / 2026-03-06
 |-------------|------|
 | [APP_SPECIFICATION](APP_SPECIFICATION.md) | アプリ仕様書（機能一覧・技術仕様・制限事項） |
 | [APP_LAUNCH_GUIDE](APP_LAUNCH_GUIDE.md) | 起動手順書（Web/Electron/PWA） |
-| [USAGE](USAGE.md) | 使い方ガイド（ユーザー向け操作説明） |
 
 ## アーキテクチャ・設計
 
@@ -27,7 +26,6 @@ v0.3.28 / 2026-03-06
 | ドキュメント | 内容 |
 |-------------|------|
 | [CODING_STANDARDS](CODING_STANDARDS.md) | コーディング規約 |
-| [CONVENTIONS](CONVENTIONS.md) | プロジェクト規約（命名・構成ルール） |
 | [TESTING](TESTING.md) | テスト方針・E2Eテストガイド |
 | [TROUBLESHOOTING](TROUBLESHOOTING.md) | トラブルシューティング集 |
 | [BRANCHING](BRANCHING.md) | ブランチ運用ルール |
@@ -39,26 +37,13 @@ v0.3.28 / 2026-03-06
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-D の開発計画） |
-| [choices-driven-development](choices-driven-development.md) | 開発方針メモ |
-
-## インフラ
-
-| ドキュメント | 内容 |
-|-------------|------|
-| [docfx_overview](docfx_overview.md) | DocFX ドキュメントサイト構成 |
-
-## タスク仕様 (tasks/)
-
-個別タスクの詳細仕様。[tasks/README.md](tasks/README.md) を参照。
+| [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-E の開発計画） |
 
 ## アーカイブ (archive/)
 
-過去のドキュメントは `archive/` 配下にカテゴリ別に保管:
+過去のドキュメントは `archive/` 配下に保管:
 
-- `archive/stale-management/` -- 旧管理系（BACKLOG, HANDOVER, PROJECT_HEALTH 等）
-- `archive/design-drafts/` -- 旧設計ドラフト（DESIGN, UI_ARCHITECTURE 等）
-- `archive/windsurf-legacy/` -- Windsurf時代のドキュメント
-- `archive/status-snapshots/` -- 過去のステータススナップショット
-- `archive/reports-legacy/` -- 旧レポート
-- `archive/completed-tasks/` -- 完了タスク
+- BACKLOG.md, ISSUES.md -- 旧管理系
+- choices-driven-development.md -- 旧開発方針メモ
+- LIVE_PREVIEW_DIFF_DESIGN.md, PALETTE_DESIGN.md, MISSION12_GADGETS.md -- 旧設計ドラフト
+- screenshots/ -- 過去のスクリーンショット
