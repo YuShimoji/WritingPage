@@ -215,6 +215,96 @@
       placeholderRow.appendChild(placeholderLabel);
       placeholderRow.appendChild(placeholderInput);
 
+      // Extended Textbox 設定
+      var textboxCfg = editorCfg.extendedTextbox || {};
+      var textboxRow = el('div');
+      textboxRow.style.display = 'grid';
+      textboxRow.style.gap = '6px';
+      textboxRow.style.padding = '8px';
+      textboxRow.style.border = '1px solid var(--border-color, #444)';
+      textboxRow.style.borderRadius = '6px';
+
+      var textboxTitle = el('div');
+      textboxTitle.textContent = 'TextBox Effects';
+      textboxTitle.style.fontSize = '12px';
+      textboxTitle.style.fontWeight = 'bold';
+
+      var textboxEnabledRow = el('label');
+      textboxEnabledRow.style.display = 'flex';
+      textboxEnabledRow.style.alignItems = 'center';
+      textboxEnabledRow.style.gap = '6px';
+      var textboxEnabled = el('input');
+      textboxEnabled.type = 'checkbox';
+      textboxEnabled.checked = textboxCfg.enabled !== false;
+      var textboxEnabledText = el('span');
+      textboxEnabledText.textContent = '機能を有効化';
+      textboxEnabledRow.appendChild(textboxEnabled);
+      textboxEnabledRow.appendChild(textboxEnabledText);
+
+      var textboxPresetRow = el('div');
+      var textboxPresetLabel = el('label');
+      textboxPresetLabel.textContent = '既定プリセット';
+      textboxPresetLabel.style.display = 'block';
+      var textboxPresetSelect = el('select');
+      textboxPresetSelect.style.width = '100%';
+      var textboxPresets = (window.TextboxPresetRegistry && typeof window.TextboxPresetRegistry.list === 'function')
+        ? window.TextboxPresetRegistry.list(s)
+        : [];
+      textboxPresets.forEach(function (preset) {
+        var opt = el('option');
+        opt.value = preset.id;
+        opt.textContent = preset.label || preset.id;
+        textboxPresetSelect.appendChild(opt);
+      });
+      if (textboxPresetSelect.options.length === 0) {
+        var fallbackOpt = el('option');
+        fallbackOpt.value = 'inner-voice';
+        fallbackOpt.textContent = '心の声';
+        textboxPresetSelect.appendChild(fallbackOpt);
+      }
+      textboxPresetSelect.value = textboxCfg.defaultPreset || 'inner-voice';
+      textboxPresetRow.appendChild(textboxPresetLabel);
+      textboxPresetRow.appendChild(textboxPresetSelect);
+
+      var textboxSfxRow = el('label');
+      textboxSfxRow.style.display = 'flex';
+      textboxSfxRow.style.alignItems = 'center';
+      textboxSfxRow.style.gap = '6px';
+      var textboxShowSfx = el('input');
+      textboxShowSfx.type = 'checkbox';
+      textboxShowSfx.checked = textboxCfg.showSfxField !== false;
+      var textboxShowSfxText = el('span');
+      textboxShowSfxText.textContent = 'sfx フィールド表示';
+      textboxSfxRow.appendChild(textboxShowSfx);
+      textboxSfxRow.appendChild(textboxShowSfxText);
+
+      function saveTextboxSettings(patch) {
+        withStorage(function (cfg) {
+          cfg.editor = cfg.editor || {};
+          cfg.editor.extendedTextbox = cfg.editor.extendedTextbox || {};
+          cfg.editor.extendedTextbox = {
+            ...cfg.editor.extendedTextbox,
+            ...patch
+          };
+        });
+        try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) { }
+      }
+
+      textboxEnabled.addEventListener('change', function () {
+        saveTextboxSettings({ enabled: !!textboxEnabled.checked });
+      });
+      textboxPresetSelect.addEventListener('change', function () {
+        saveTextboxSettings({ defaultPreset: String(textboxPresetSelect.value || 'inner-voice') });
+      });
+      textboxShowSfx.addEventListener('change', function () {
+        saveTextboxSettings({ showSfxField: !!textboxShowSfx.checked });
+      });
+
+      textboxRow.appendChild(textboxTitle);
+      textboxRow.appendChild(textboxEnabledRow);
+      textboxRow.appendChild(textboxPresetRow);
+      textboxRow.appendChild(textboxSfxRow);
+
       // タブ配置（上下左右）
       var placementRow = el('div');
       var placementSel = el('select');
@@ -588,7 +678,7 @@
       gadgetUXRow.appendChild(helpIconRow);
       gadgetUXRow.appendChild(bulkToggleRow);
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
     }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
 
     // UI Design Gadget (background gradient)

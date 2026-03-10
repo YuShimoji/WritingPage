@@ -135,6 +135,75 @@
   height: 24px;
 }
 
+.zw-textbox {
+  display: block;
+  margin: 0.4rem 0;
+  padding: 0.45rem 0.6rem;
+  border-left: 3px solid color-mix(in srgb, var(--ui-focus-color, #4a90e2) 55%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ui-focus-color, #4a90e2) 10%, transparent);
+  transform-origin: left center;
+}
+
+.zw-textbox__content {
+  display: block;
+}
+
+.zw-textbox--inner-voice {
+  opacity: 0.9;
+}
+
+.zw-textbox--se-animal-fade {
+  letter-spacing: 0.03em;
+  background: color-mix(in srgb, var(--ui-focus-color, #4a90e2) 14%, transparent);
+}
+
+.zw-textbox--typing-sequence {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+.zw-textbox--plain {
+  border-left-style: dashed;
+  background: color-mix(in srgb, var(--border-color, #999) 10%, transparent);
+}
+
+.zw-textbox--backlog {
+  border-left-color: color-mix(in srgb, #d17a00 70%, var(--border-color, #999));
+}
+
+.zw-textbox__fallback-note {
+  margin-top: 0.35rem;
+  font-size: 0.78em;
+  opacity: 0.75;
+}
+
+.zw-ornament-soft {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ui-focus-color, #4a90e2) 12%, transparent);
+}
+
+.zw-ornament-burst {
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ui-focus-color, #4a90e2) 18%, transparent);
+}
+
+.zw-ornament-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+.zw-textbox--motion-reduced,
+[data-reduce-motion="true"] .zw-textbox,
+[data-reduce-motion="true"] .zw-textbox * {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zw-textbox,
+  .zw-textbox * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 /* ボタン共通スタイル（モダン化） */
 button,
 input[type="button"],
@@ -450,6 +519,106 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   cursor: text;
   /* エディタ外の空きスペースでもテキスト入力を示唆 */
   transition: margin-left var(--transition-speed), width var(--transition-speed);
+}
+
+.editor-classic-layer {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: stretch;
+  z-index: 1;
+  transform-origin: center center;
+}
+
+.editor-canvas-root {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.editor-canvas-viewport {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.editor-canvas-stage {
+  position: absolute;
+  inset: 0;
+}
+
+.editor-canvas-node {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(900px, calc(100% - 64px));
+  height: min(1200px, calc(100% - 64px));
+  transform: translate(-50%, -50%);
+  border: 1px dashed color-mix(in srgb, var(--border-color) 70%, transparent);
+  border-radius: 10px;
+  opacity: 0.5;
+}
+
+.editor-canvas-node__label {
+  position: absolute;
+  top: -1.4rem;
+  left: 0;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: color-mix(in srgb, var(--text-color) 70%, transparent);
+  text-transform: uppercase;
+}
+
+.editor-canvas-hud {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--toolbar-bg) 92%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  pointer-events: auto;
+}
+
+.editor-canvas-hud__label {
+  min-width: 48px;
+  text-align: center;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.editor-container[data-canvas-mode='true'] .editor-canvas-root {
+  display: block;
+}
+
+.editor-container[data-canvas-mode='true'] .editor-classic-layer {
+  transition: transform 0.06s linear;
+  will-change: transform;
+}
+
+.editor-container[data-canvas-mode='true'] .editor-canvas-node {
+  opacity: 0.7;
+}
+
+.editor-container.canvas-pan-ready,
+.editor-container.canvas-pan-active {
+  cursor: grab;
+}
+
+.editor-container.canvas-pan-active {
+  cursor: grabbing;
+}
+
+#toggle-canvas-mode[aria-pressed='true'] {
+  border-color: var(--focus-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-color) 25%, transparent);
 }
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */

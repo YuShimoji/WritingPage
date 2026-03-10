@@ -511,11 +511,7 @@
             }
             if (willShow) {
                 prepareFloatingPanel(fontPanel);
-                const s = window.ZenWriterStorage.loadSettings();
-                const globalFontRange = elementManager.get('globalFontRange');
-                const globalFontNumber = elementManager.get('globalFontNumber');
-                if (globalFontRange) globalFontRange.value = s.fontSize;
-                if (globalFontNumber) globalFontNumber.value = s.fontSize;
+                syncQuickFontSizeInputs();
                 syncHudQuickControls();
                 positionFloatingPanel(fontPanel, elementManager.get('toolsFab'));
                 const firstInput = fontPanel.querySelector('input, button, select');
@@ -561,6 +557,20 @@
                 window.ZenWriterEditor.setGlobalFontSize(size);
             }
         }
+
+        function syncQuickFontSizeInputs() {
+            try {
+                const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+                    ? window.ZenWriterStorage.loadSettings()
+                    : {};
+                const editorSize = Math.round((s && (s.editorFontSize || s.fontSize)) || 16);
+                const globalFontRange = elementManager.get('globalFontRange');
+                const globalFontNumber = elementManager.get('globalFontNumber');
+                if (globalFontRange) globalFontRange.value = String(editorSize);
+                if (globalFontNumber) globalFontNumber.value = String(editorSize);
+            } catch (_) { /* noop */ }
+        }
+
         const globalFontRange = elementManager.get('globalFontRange');
         const globalFontNumber = elementManager.get('globalFontNumber');
         if (globalFontRange) {
@@ -570,6 +580,8 @@
                 updateGlobalFontFrom(val);
             });
         }
+        window.addEventListener('ZenWriterSettingsChanged', syncQuickFontSizeInputs);
+        syncQuickFontSizeInputs();
         if (globalFontNumber) {
             globalFontNumber.addEventListener('input', (e) => {
                 const val = e.target.value;

@@ -32,6 +32,10 @@ npm run lint
 
 以下は自動テストでカバーしきれない体験的な検証項目。
 
+- 実行ガイド: `docs/MANUAL_TEST_GUIDE.md` を参照
+- 推奨運用: 日次は「A. クイック確認」、PR前は「B. 回帰確認」
+- 関連仕様: `docs/spec-index.json` の `SP-041` / `SP-048` / `SP-050`
+
 ### 印刷
 
 - 「印刷」ボタンでブラウザの印刷ダイアログが開く
@@ -45,6 +49,34 @@ npm run lint
 ### 大容量テキスト
 
 - 大容量テキストはブラウザの LocalStorage 制限の影響を受ける (約 5MB)
+
+## Playwright 画面証跡（手動確認補助）
+
+最短導線:
+
+```bash
+cd /home/planner007/code/WritingPage
+npm run test:ui:capture:build
+```
+
+- `npm run build` 相当で `dist/` を再生成
+- `dist/` をローカルHTTP配信して画面証跡を取得
+- 出力先は `output/playwright/manual-verification-.../`
+
+```bash
+cd /home/planner007/code/WritingPage
+OUT="output/playwright/manual-verification-$(date +%Y%m%d-%H%M%S)"
+node scripts/capture-ui-verification.js --build --dist --port 19080 --out "$OUT"
+```
+
+- 取得先: `output/playwright/`
+- 開発中の未ビルド状態を確認したい場合のみ `node scripts/capture-ui-verification.js --project` を使う
+- 代表画像: メイン画面 / 設定 / ヘルプ / デスクトップサイドバー / コマンドパレット / モバイルサイドバー
+
+## 運用メモ
+
+- 現行サイドバーはタブUIではなくアコーディオンUI。旧 `wiki` グループは `edit` へ統合済み。
+- ヘッドレス環境ではシステム日本語フォントが不足しやすいため、画面証跡ではバンドル済み `Noto Serif JP` を優先して表示を安定化している。
 
 ## テスト追加方針
 

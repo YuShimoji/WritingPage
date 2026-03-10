@@ -18,6 +18,8 @@ const DEFAULT_SETTINGS = {
     theme: 'dark',
     fontFamily: '"Noto Serif JP", serif',
     fontSize: 16,
+    uiFontSize: 16,
+    editorFontSize: 16,
     lineHeight: 1.6,
     bgColor: '#1e1e1e',
     textColor: '#cccccc',
@@ -81,9 +83,29 @@ const DEFAULT_SETTINGS = {
     },
     // エディタ設定
     editor: {
+        richtextEnhanced: true,
         wordWrap: {
             enabled: false,
             maxChars: 80 // 折り返し文字数
+        },
+        canvas: {
+            betaEnabled: true,
+            enabled: false,
+            panX: 0,
+            panY: 0,
+            zoom: 1
+        },
+        extendedTextbox: {
+            enabled: true,
+            defaultPreset: 'inner-voice',
+            showSfxField: true,
+            userPresets: []
+        },
+        textExpression: {
+            enabled: true,
+            tier: 1,
+            fallbackMode: 'plain',
+            realtimePreview: true
         },
         placeholder: ''
     },
@@ -643,13 +665,167 @@ function deleteFolderRecursive(folderId) {
     return true;
 }
 
+function normalizeExtendedTextboxSettings(raw, rootSettings) {
+    const defaults = DEFAULT_SETTINGS.editor.extendedTextbox;
+    const next = { ...defaults, ...(raw || {}) };
+    next.enabled = typeof next.enabled === 'boolean' ? next.enabled : defaults.enabled;
+    next.showSfxField = typeof next.showSfxField === 'boolean' ? next.showSfxField : defaults.showSfxField;
+    next.defaultPreset = typeof next.defaultPreset === 'string' ? next.defaultPreset : defaults.defaultPreset;
+    next.userPresets = Array.isArray(next.userPresets) ? next.userPresets : [];
+
+    const hasWindow = typeof window !== 'undefined';
+    if (hasWindow && window.TextboxPresetRegistry && typeof window.TextboxPresetRegistry.list === 'function') {
+        const list = window.TextboxPresetRegistry.list(rootSettings || {});
+        const validIds = new Set(list.map(p => p.id));
+        if (!validIds.has(next.defaultPreset)) {
+            next.defaultPreset = defaults.defaultPreset;
+        }
+    }
+    if (hasWindow && window.TextboxPresetRegistry && typeof window.TextboxPresetRegistry.MAX_USER_PRESETS === 'number') {
+        const max = window.TextboxPresetRegistry.MAX_USER_PRESETS;
+        next.userPresets = next.userPresets.slice(0, max);
+    }
+    return next;
+}
+
+function createDefaultSettingsSnapshot() {
+    return {
+        ...DEFAULT_SETTINGS,
+        goal: { ...DEFAULT_SETTINGS.goal },
+        hud: { ...DEFAULT_SETTINGS.hud },
+        typewriter: { ...DEFAULT_SETTINGS.typewriter },
+        focusMode: { ...DEFAULT_SETTINGS.focusMode },
+        snapshot: { ...DEFAULT_SETTINGS.snapshot },
+        preview: { ...DEFAULT_SETTINGS.preview },
+        autoSave: { ...DEFAULT_SETTINGS.autoSave },
+        ui: {
+            ...DEFAULT_SETTINGS.ui,
+            tabOrder: Array.isArray(DEFAULT_SETTINGS.ui.tabOrder) ? DEFAULT_SETTINGS.ui.tabOrder.slice() : []
+        },
+        editor: {
+            ...DEFAULT_SETTINGS.editor,
+            wordWrap: { ...DEFAULT_SETTINGS.editor.wordWrap },
+            canvas: { ...DEFAULT_SETTINGS.editor.canvas },
+            extendedTextbox: normalizeExtendedTextboxSettings({ ...DEFAULT_SETTINGS.editor.extendedTextbox }),
+            textExpression: { ...DEFAULT_SETTINGS.editor.textExpression }
+        },
+        editorLayout: { ...DEFAULT_SETTINGS.editorLayout },
+        pomodoro: { ...DEFAULT_SETTINGS.pomodoro }
+    };
+}
+
+function isPlainObject(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function hasOwn(obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+function normalizeSettingsShape(raw) {
+    const parsed = isPlainObject(raw) ? raw : {};
+    const defaults = createDefaultSettingsSnapshot();
+    const merged = { ...defaults, ...parsed };
+    merged.goal = { ...defaults.goal, ...(parsed.goal || {}) };
+    merged.hud = { ...defaults.hud, ...(parsed.hud || {}) };
+    merged.typewriter = { ...defaults.typewriter, ...(parsed.typewriter || {}) };
+    merged.focusMode = { ...defaults.focusMode, ...(parsed.focusMode || {}) };
+    merged.snapshot = { ...defaults.snapshot, ...(parsed.snapshot || {}) };
+    merged.preview = { ...defaults.preview, ...(parsed.preview || {}) };
+    merged.autoSave = { ...defaults.autoSave, ...(parsed.autoSave || {}) };
+    merged.ui = { ...defaults.ui, ...(parsed.ui || {}) };
+    if (!merged.ui.tabPlacement) merged.ui.tabPlacement = defaults.ui.tabPlacement;
+    if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];
+    merged.editor = { ...defaults.editor, ...(parsed.editor || {}) };
+    merged.editor.wordWrap = { ...defaults.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
+    merged.editor.canvas = { ...defaults.editor.canvas, ...(parsed.editor?.canvas || {}) };
+    merged.editor.extendedTextbox = normalizeExtendedTextboxSettings(parsed.editor?.extendedTextbox || {}, merged);
+    merged.editor.textExpression = { ...defaults.editor.textExpression, ...(parsed.editor?.textExpression || {}) };
+    if (merged.editor.textExpression.fallbackMode !== 'backlog') {
+        merged.editor.textExpression.fallbackMode = 'plain';
+    }
+    merged.editor.textExpression.tier = 1;
+    merged.editor.textExpression.enabled = merged.editor.textExpression.enabled !== false;
+    merged.editor.textExpression.realtimePreview = merged.editor.textExpression.realtimePreview !== false;
+    merged.editorLayout = { ...defaults.editorLayout, ...(parsed.editorLayout || {}) };
+    merged.pomodoro = { ...defaults.pomodoro, ...(parsed.pomodoro || {}) };
+
+    // Font settings normalization (backward compatibility)
+    if (typeof merged.fontSize !== 'number' || Number.isNaN(merged.fontSize)) {
+        merged.fontSize = defaults.fontSize;
+    }
+    const hasParsedEditorFontSize = hasOwn(parsed, 'editorFontSize');
+    const hasParsedUiFontSize = hasOwn(parsed, 'uiFontSize');
+    if (!hasParsedEditorFontSize || typeof merged.editorFontSize !== 'number' || Number.isNaN(merged.editorFontSize)) {
+        merged.editorFontSize = merged.fontSize;
+    }
+    if (!hasParsedUiFontSize || typeof merged.uiFontSize !== 'number' || Number.isNaN(merged.uiFontSize)) {
+        merged.uiFontSize = merged.fontSize;
+    }
+
+    // Optional custom colors are removable from persisted settings.
+    if (!hasOwn(parsed, 'bgColor')) delete merged.bgColor;
+    if (!hasOwn(parsed, 'textColor')) delete merged.textColor;
+
+    return merged;
+}
+
+function mergeSettings(base, patch) {
+    const current = normalizeSettingsShape(base);
+    if (!isPlainObject(patch)) {
+        return current;
+    }
+
+    const merged = { ...current, ...patch };
+    if (isPlainObject(patch.goal)) merged.goal = { ...current.goal, ...patch.goal };
+    if (isPlainObject(patch.hud)) merged.hud = { ...current.hud, ...patch.hud };
+    if (isPlainObject(patch.typewriter)) merged.typewriter = { ...current.typewriter, ...patch.typewriter };
+    if (isPlainObject(patch.focusMode)) merged.focusMode = { ...current.focusMode, ...patch.focusMode };
+    if (isPlainObject(patch.snapshot)) merged.snapshot = { ...current.snapshot, ...patch.snapshot };
+    if (isPlainObject(patch.preview)) merged.preview = { ...current.preview, ...patch.preview };
+    if (isPlainObject(patch.autoSave)) merged.autoSave = { ...current.autoSave, ...patch.autoSave };
+    if (isPlainObject(patch.ui)) merged.ui = { ...current.ui, ...patch.ui };
+    if (isPlainObject(patch.editorLayout)) merged.editorLayout = { ...current.editorLayout, ...patch.editorLayout };
+    if (isPlainObject(patch.pomodoro)) merged.pomodoro = { ...current.pomodoro, ...patch.pomodoro };
+
+    if (isPlainObject(patch.editor)) {
+        merged.editor = { ...current.editor, ...patch.editor };
+        if (isPlainObject(patch.editor.wordWrap)) {
+            merged.editor.wordWrap = { ...current.editor.wordWrap, ...patch.editor.wordWrap };
+        }
+        if (isPlainObject(patch.editor.canvas)) {
+            merged.editor.canvas = { ...current.editor.canvas, ...patch.editor.canvas };
+        }
+        if (isPlainObject(patch.editor.extendedTextbox)) {
+            merged.editor.extendedTextbox = { ...current.editor.extendedTextbox, ...patch.editor.extendedTextbox };
+        }
+        if (isPlainObject(patch.editor.textExpression)) {
+            merged.editor.textExpression = { ...current.editor.textExpression, ...patch.editor.textExpression };
+        }
+    }
+
+    return normalizeSettingsShape(merged);
+}
+
+function isFullSettingsSnapshot(settings) {
+    return isPlainObject(settings)
+        && hasOwn(settings, 'theme')
+        && hasOwn(settings, 'fontFamily')
+        && hasOwn(settings, 'fontSize')
+        && isPlainObject(settings.ui)
+        && isPlainObject(settings.editor);
+}
+
 /**
  * 設定をローカルストレージに保存
  * @param {Object} settings - 保存する設定オブジェクト
  */
 function saveSettings(settings) {
     try {
-        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+        const next = isFullSettingsSnapshot(settings)
+            ? normalizeSettingsShape(settings)
+            : mergeSettings(loadSettings(), settings);
+        localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(next));
         return true;
     } catch (e) {
         console.error('設定の保存中にエラーが発生しました:', e);
@@ -665,39 +841,13 @@ function loadSettings() {
     try {
         const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (savedSettings) {
-            // 既存保存データに新規キーが無い場合へ配慮しデフォルトをマージ
             const parsed = JSON.parse(savedSettings);
-            const merged = { ...DEFAULT_SETTINGS, ...parsed };
-            merged.goal = { ...DEFAULT_SETTINGS.goal, ...(parsed.goal || {}) };
-            merged.hud = { ...DEFAULT_SETTINGS.hud, ...(parsed.hud || {}) };
-            merged.typewriter = { ...DEFAULT_SETTINGS.typewriter, ...(parsed.typewriter || {}) };
-            merged.focusMode = { ...DEFAULT_SETTINGS.focusMode, ...(parsed.focusMode || {}) };
-            merged.snapshot = { ...DEFAULT_SETTINGS.snapshot, ...(parsed.snapshot || {}) };
-            merged.preview = { ...DEFAULT_SETTINGS.preview, ...(parsed.preview || {}) };
-            merged.autoSave = { ...DEFAULT_SETTINGS.autoSave, ...(parsed.autoSave || {}) };
-            merged.ui = { ...DEFAULT_SETTINGS.ui, ...(parsed.ui || {}) };
-            // タブ配置と順序のデフォルト値確保
-            if (!merged.ui.tabPlacement) merged.ui.tabPlacement = DEFAULT_SETTINGS.ui.tabPlacement;
-            if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];
-            merged.editor = { ...DEFAULT_SETTINGS.editor, ...(parsed.editor || {}) };
-            merged.editor.wordWrap = { ...DEFAULT_SETTINGS.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
-            return merged;
+            return normalizeSettingsShape(parsed);
         }
     } catch (e) {
         console.error('設定の読み込み中にエラーが発生しました:', e);
     }
-    return {
-        ...DEFAULT_SETTINGS,
-        goal: { ...DEFAULT_SETTINGS.goal },
-        hud: { ...DEFAULT_SETTINGS.hud },
-        typewriter: { ...DEFAULT_SETTINGS.typewriter },
-        focusMode: { ...DEFAULT_SETTINGS.focusMode },
-        snapshot: { ...DEFAULT_SETTINGS.snapshot },
-        preview: { ...DEFAULT_SETTINGS.preview },
-        autoSave: { ...DEFAULT_SETTINGS.autoSave },
-        ui: { ...DEFAULT_SETTINGS.ui },
-        editor: { ...DEFAULT_SETTINGS.editor }
-    };
+    return createDefaultSettingsSnapshot();
 }
 
 /**

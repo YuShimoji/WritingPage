@@ -252,9 +252,31 @@
             );
         },
 
+        processTextboxDsl(text) {
+            if (!text) return text;
+            if (!(window.TextboxDslParser && typeof window.TextboxDslParser.toHtml === 'function')) {
+                return text;
+            }
+            try {
+                const settings = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function')
+                    ? window.ZenWriterStorage.loadSettings()
+                    : {};
+                const enabled = !!(settings && settings.editor && settings.editor.extendedTextbox && settings.editor.extendedTextbox.enabled);
+                if (!enabled) return text;
+                const options = {
+                    settings,
+                    registry: window.TextboxPresetRegistry || null
+                };
+                return window.TextboxDslParser.toHtml(String(text), options);
+            } catch (_) {
+                return text;
+            }
+        },
+
         processTextAnimations(text) {
             if (!text) return text;
-            const normalized = this.normalizeCustomTagEscapes(text);
+            const withTextbox = this.processTextboxDsl(text);
+            const normalized = this.normalizeCustomTagEscapes(withTextbox);
             return normalized
                 .replace(/\[fade\](.*?)\[\/fade\]/gi, '<span class="anim-fade">$1</span>')
                 .replace(/\[slide\](.*?)\[\/slide\]/gi, '<span class="anim-slide">$1</span>')

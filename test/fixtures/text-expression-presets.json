@@ -1,0 +1,29 @@
+{
+  "inner-voice": {
+    "preset": "inner-voice",
+    "role": "monologue",
+    "layers": {
+      "textEffects": ["italic"],
+      "animations": ["fadein"],
+      "ornaments": ["soft"]
+    }
+  },
+  "se-animal-fade": {
+    "preset": "se-animal-fade",
+    "role": "sfx",
+    "layers": {
+      "textEffects": ["black", "outline"],
+      "animations": ["shake", "fade"],
+      "ornaments": ["burst"]
+    }
+  },
+  "typing-sequence": {
+    "preset": "typing-sequence",
+    "role": "system",
+    "layers": {
+      "textEffects": [],
+      "animations": ["type"],
+      "ornaments": ["mono"]
+    }
+  }
+}

@@ -7,6 +7,7 @@
 
 - ガジェット名: `StoryWiki` (新規設計、レガシー2ガジェットを置換)
 - 置換対象: `wiki.js` (Wiki) + `gadgets-wiki.js` (StoryWiki)
+- 現行UI注記: 専用の `wiki` タブは廃止済み。旧 `wiki` グループは `edit` アコーディオンへ互換統合して扱う。
 
 ## Phase 構成
 

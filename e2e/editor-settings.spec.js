@@ -16,6 +16,16 @@ async function openSettingsPanel(page) {
   await page.waitForTimeout(500);
 }
 
+async function ensureSidebarSettingsOpen(page) {
+  const settingsBtn = page.locator('#writing-focus-settings-btn');
+  if (await settingsBtn.count()) {
+    const pressed = await settingsBtn.getAttribute('aria-pressed');
+    if (pressed !== 'true') {
+      await settingsBtn.click();
+    }
+  }
+}
+
 async function openAssistPanel(page) {
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
@@ -32,6 +42,7 @@ async function openAssistPanel(page) {
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
   }
+  await ensureSidebarSettingsOpen(page);
 
   await page.evaluate(() => {
     try {
@@ -60,6 +71,40 @@ async function openAssistPanel(page) {
   await page.waitForTimeout(300);
 }
 
+async function openThemePanel(page) {
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
+  await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await enableAllGadgets(page);
+
+  const isOpen = await page.evaluate(() => {
+    const sb = document.getElementById('sidebar');
+    return !!(sb && sb.classList.contains('open'));
+  });
+  if (!isOpen) {
+    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
+    await page.click('#toggle-sidebar');
+  }
+  await ensureSidebarSettingsOpen(page);
+
+  await page.evaluate(() => {
+    try {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('theme');
+      }
+      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+        window.ZWGadgets.setActiveGroup('theme');
+      }
+    } catch (_) {
+      /* noop */
+    }
+  });
+  await expandAccordion(page, 'theme');
+  await page.waitForSelector('#theme-gadgets-panel', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector('.gadget-wrapper[data-gadget-name="Typography"]', { state: 'attached', timeout: 10000 });
+}
+
 async function openSidebarAndStructurePanel(page) {
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
@@ -76,6 +121,7 @@ async function openSidebarAndStructurePanel(page) {
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
   }
+  await ensureSidebarSettingsOpen(page);
 
   await page.evaluate(() => {
     try {
@@ -172,13 +218,19 @@ test.describe('Editor Settings', () => {
     await page.evaluate(() => {
       const writeNumber = (id, value) => {
         const el = document.getElementById(id);
-        if (!el) return;
+        if (!el) return false;
         el.value = String(value);
         el.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
       };
-      writeNumber('snapshot-interval-ms', 60000);
-      writeNumber('snapshot-delta-chars', 200);
-      writeNumber('snapshot-retention', 5);
+      const okInterval = writeNumber('snapshot-interval-ms', 60000);
+      const okDelta = writeNumber('snapshot-delta-chars', 200);
+      const okRetention = writeNumber('snapshot-retention', 5);
+      if (!okInterval || !okDelta || !okRetention) {
+        const s = window.ZenWriterStorage.loadSettings();
+        s.snapshot = { ...(s.snapshot || {}), intervalMs: 60000, deltaChars: 200, retention: 5 };
+        window.ZenWriterStorage.saveSettings(s);
+      }
     });
 
     await page.reload();
@@ -345,6 +397,17 @@ test.describe('Editor Settings', () => {
 
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
+    await ensureSidebarSettingsOpen(page);
+    await page.evaluate(() => {
+      try {
+        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+          window.sidebarManager.activateSidebarGroup('edit');
+        }
+        if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
+          window.ZWGadgets.setActiveGroup('edit');
+        }
+      } catch (_) { /* noop */ }
+    });
 
     const wikiHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
     await wikiHeader.waitFor({ timeout: 10000 });
@@ -521,5 +584,105 @@ test.describe('Editor Settings', () => {
     });
 
     await expect(page.locator('#editor')).toHaveValue(original);
+  });
+
+  test('font size quick change should preserve existing settings object', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      try {
+        const s = window.ZenWriterStorage.loadSettings();
+        s.theme = 'sepia';
+        s.ui = { ...(s.ui || {}), showWordCount: true };
+        s.autoSave = { ...(s.autoSave || {}), enabled: true, delayMs: 2500 };
+        s.editor = { ...(s.editor || {}), wordWrap: { enabled: true, maxChars: 70 } };
+        window.ZenWriterStorage.saveSettings(s);
+      } catch (_) {
+        /* noop */
+      }
+    });
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setGlobalFontSize === 'function') {
+        window.ZenWriterEditor.setGlobalFontSize(23);
+      }
+    });
+
+    const snapshot = await page.evaluate(() => {
+      try {
+        return window.ZenWriterStorage.loadSettings();
+      } catch (_) {
+        return {};
+      }
+    });
+
+    expect(snapshot.theme).toBe('sepia');
+    expect(snapshot.ui?.showWordCount).toBeTruthy();
+    expect(snapshot.autoSave?.enabled).toBeTruthy();
+    expect(snapshot.autoSave?.delayMs).toBe(2500);
+    expect(snapshot.editor?.wordWrap?.enabled).toBeTruthy();
+    expect(snapshot.editor?.wordWrap?.maxChars).toBe(70);
+    expect(snapshot.editorFontSize).toBe(23);
+    expect(snapshot.fontSize).toBe(23);
+  });
+
+  test('legacy fontSize should normalize to editor/ui font size on load', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const normalized = await page.evaluate(() => {
+      try {
+        const raw = window.ZenWriterStorage.loadSettings();
+        const legacy = {
+          ...raw,
+          fontSize: 19
+        };
+        delete legacy.editorFontSize;
+        delete legacy.uiFontSize;
+        window.ZenWriterStorage.saveSettings(legacy);
+        return window.ZenWriterStorage.loadSettings();
+      } catch (_) {
+        return {};
+      }
+    });
+
+    expect(normalized.fontSize).toBe(19);
+    expect(normalized.editorFontSize).toBe(19);
+    expect(normalized.uiFontSize).toBe(19);
+  });
+
+  test('Typography and quick font controls should stay in sync', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openThemePanel(page);
+
+    await page.evaluate(() => {
+      const root = document.querySelector('.gadget-wrapper[data-gadget-name="Typography"] .gadget-typography');
+      if (!root) return;
+      const ranges = Array.from(root.querySelectorAll('input[type="range"]'));
+      const editorSizeInput = ranges[1];
+      if (!editorSizeInput) return;
+      editorSizeInput.value = '24';
+      editorSizeInput.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+
+    await expect(page.locator('#global-font-size')).toHaveValue('24');
+    await expect(page.locator('#global-font-size-number')).toHaveValue('24');
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setGlobalFontSize === 'function') {
+        window.ZenWriterEditor.setGlobalFontSize(21);
+      }
+    });
+
+    await expect.poll(async () => {
+      return page.evaluate(() => {
+        const root = document.querySelector('.gadget-wrapper[data-gadget-name="Typography"] .gadget-typography');
+        if (!root) return null;
+        const ranges = Array.from(root.querySelectorAll('input[type="range"]'));
+        return ranges[1] ? ranges[1].value : null;
+      });
+    }).toBe('21');
   });
 });

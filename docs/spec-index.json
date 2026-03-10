@@ -99,6 +99,15 @@
     "summary": "パネル/ガジェット/シーンの抽象レイヤ定義 (Draft)"
   },
   {
+    "id": "SP-016",
+    "title": "拡張テキストボックス機能仕様",
+    "status": "todo",
+    "pct": 10,
+    "cat": "ui",
+    "file": "docs/specs/spec-extended-textbox.md",
+    "summary": "テキスト/ボックス単位の演出拡張（プリセット、傾き・拡縮・アニメ、WYSIWYG連携）"
+  },
+  {
     "id": "SP-015",
     "title": "スナップショット設計 v1→v2",
     "status": "partial",
@@ -186,7 +195,8 @@
     "pct": 100,
     "cat": "infra",
     "file": "docs/TESTING.md",
-    "summary": "Playwright E2E・スモークテスト・CI実行手順"
+    "summary": "Playwright E2E・スモークテスト・CI実行手順",
+    "related": ["SP-048", "SP-050"]
   },
   {
     "id": "SP-042",
@@ -243,18 +253,29 @@
     "summary": "既知の問題・回避策・未対応監査項目"
   },
   {
+    "id": "SP-048",
+    "title": "手動テストガイド",
+    "status": "done",
+    "pct": 100,
+    "cat": "infra",
+    "file": "docs/MANUAL_TEST_GUIDE.md",
+    "summary": "手動テスト観点・推奨運用・Playwright画面証跡の取得手順",
+    "related": ["SP-041", "SP-050"]
+  },
+  {
     "id": "SP-050",
     "title": "Story Wiki 仕様",
     "status": "partial",
     "pct": 70,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手"
+    "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手",
+    "related": ["SP-041", "SP-048"]
   },
   {
     "id": "SP-051",
     "title": "ガジェットUX改善 仕様",
-    "status": "completed",
+    "status": "done",
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-gadget-ux.md",
@@ -277,5 +298,86 @@
     "cat": "ui",
     "file": "docs/specs/spec-writing-focus-sidebar.md",
     "summary": "Focus連動で章/シーン遷移をサイドバー先頭に集約。現在章/シーンの細いアクセント強調、+追加の自然レベル挿入、Altショートカット、下部ナビ同期方針まで定義。"
+  },
+  {
+    "id": "SP-054",
+    "title": "フォント切り替え 仕様",
+    "status": "partial",
+    "pct": 45,
+    "cat": "ui",
+    "file": "docs/specs/spec-font-switching.md",
+    "summary": "Typography/Quick Tools/Command Paletteに分散したフォント操作を整理し、保存処理の破壊的更新を防ぐ。本文フォント・UIサイズ・本文サイズ・行間の責務分離と移行ルールを定義。"
+  },
+  {
+    "id": "SP-055",
+    "title": "リッチテキスト強化 仕様",
+    "status": "todo",
+    "pct": 20,
+    "cat": "ui",
+    "file": "docs/specs/spec-richtext-enhancement.md",
+    "summary": "WYSIWYGを常用レベルへ強化。コマンド層の標準化、ブロック編集、スマートペースト、Markdown往復品質、運用イベントを段階導入で定義。"
+  },
+  {
+    "id": "SP-056",
+    "title": "拡張スクロール（キャンバス）仕様",
+    "status": "todo",
+    "pct": 20,
+    "cat": "ui",
+    "file": "docs/specs/spec-extended-scroll-canvas.md",
+    "summary": "ドラッグで見渡せるキャンバス編集。縦横パン/ズーム/回転、固定文字サイズ、リッチテキスト連携、段階導入を定義。"
+  },
+  {
+    "id": "SP-057",
+    "title": "本文マイクロタイポグラフィ仕様",
+    "status": "todo",
+    "pct": 15,
+    "cat": "ui",
+    "file": "docs/specs/spec-micro-typography.md",
+    "summary": "字間・段落間・字下げ・禁則寄り設定をTypography中心で段階導入し、RichText/Canvasと競合しにくい読み心地改善を定義。"
+  },
+  {
+    "id": "SP-058",
+    "title": "見出しタイポグラフィ仕様",
+    "status": "todo",
+    "pct": 15,
+    "cat": "ui",
+    "file": "docs/specs/spec-heading-typography.md",
+    "summary": "H1-H6のサイズ/太さ/行間/字間を設定化し、見出しプリセットとOutline整合を段階導入で定義。"
+  },
+  {
+    "id": "SP-059",
+    "title": "日本語組版・ルビ拡張仕様",
+    "status": "todo",
+    "pct": 15,
+    "cat": "ui",
+    "file": "docs/specs/spec-japanese-typesetting-ruby.md",
+    "summary": "ルビサイズ/位置、傍点・圏点など日本語組版補助をレンダリング中心で拡張する方針を定義。"
+  },
+  {
+    "id": "SP-060",
+    "title": "装飾プリセット統合仕様",
+    "status": "todo",
+    "pct": 15,
+    "cat": "ui",
+    "file": "docs/specs/spec-decoration-semantic-presets.md",
+    "summary": "decor/animの単発運用をsemantic preset化し、Textbox連携とround-trip保証を整理する。"
+  },
+  {
+    "id": "SP-061",
+    "title": "Visual Profile Typography Pack 仕様",
+    "status": "todo",
+    "pct": 15,
+    "cat": "ui",
+    "file": "docs/specs/spec-visual-profile-typography-pack.md",
+    "summary": "静かな執筆・資料読み・校正・演出確認など作業シーン別のTypography PackをVisual Profileに接続する。"
+  },
+  {
+    "id": "SP-062",
+    "title": "テキスト表現アーキテクチャ仕様",
+    "status": "in-progress",
+    "pct": 60,
+    "cat": "ui",
+    "file": "docs/specs/spec-text-expression-architecture.md",
+    "summary": "Text Effect / Animation / Ornament / preset sugar / projection の責務分離と Tier 1 の縮退規則を定義する SSOT。"
   }
 ]

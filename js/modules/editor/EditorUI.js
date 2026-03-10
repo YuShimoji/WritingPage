@@ -62,17 +62,41 @@
          */
         adjustGlobalFontSize(manager, delta) {
             const s = (window.ZenWriterStorage && window.ZenWriterStorage.loadSettings) ? window.ZenWriterStorage.loadSettings() : {};
-            let size = (s && s.fontSize) || 18;
+            const defaults = (window.ZenWriterStorage && window.ZenWriterStorage.DEFAULT_SETTINGS) ? window.ZenWriterStorage.DEFAULT_SETTINGS : {};
+            let size = (s && (s.editorFontSize || s.fontSize))
+                || defaults.editorFontSize
+                || defaults.fontSize
+                || 16;
             size = this.clampFontSize(size + delta);
             this.setGlobalFontSize(manager, size);
         },
 
         setGlobalFontSize(manager, sizePx) {
             const size = this.clampFontSize(sizePx);
-            document.documentElement.style.setProperty('--editor-font-size', size + 'px');
-            if (window.ZenWriterStorage && window.ZenWriterStorage.saveSettings) {
-                window.ZenWriterStorage.saveSettings({ fontSize: size });
+            const storage = window.ZenWriterStorage;
+            const defaults = storage && storage.DEFAULT_SETTINGS ? storage.DEFAULT_SETTINGS : {};
+            const current = (storage && storage.loadSettings) ? (storage.loadSettings() || {}) : {};
+
+            if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyFontSettings === 'function') {
+                window.ZenWriterTheme.applyFontSettings(
+                    current.fontFamily || defaults.fontFamily || '"Noto Serif JP", serif',
+                    size,
+                    current.lineHeight || defaults.lineHeight || 1.6,
+                    current.uiFontSize || current.fontSize || defaults.uiFontSize || size,
+                    size
+                );
+                return;
             }
+
+            document.documentElement.style.setProperty('--editor-font-size', size + 'px');
+            document.documentElement.style.setProperty('--font-size', size + 'px');
+            if (storage && storage.saveSettings) {
+                storage.saveSettings({
+                    editorFontSize: size,
+                    fontSize: size
+                });
+            }
+            try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) { /* noop */ }
         },
 
         clampFontSize(px) {

@@ -18,6 +18,7 @@
     "electron:dist": "electron-builder --win",
     "test:smoke": "node scripts/dev-check.js",
     "test:ui:capture": "node scripts/capture-ui-verification.js",
+    "test:ui:capture:build": "node scripts/capture-ui-verification.js --build --dist",
     "test:e2e:ui": "playwright test e2e/sidebar-layout.spec.js e2e/command-palette.spec.js e2e/gadgets.spec.js e2e/accessibility.spec.js",
     "test:e2e:stable": "playwright test e2e/collage.spec.js e2e/editor-settings.spec.js e2e/tags-smart-folders.spec.js --workers=1",
     "test:e2e": "playwright test",

@@ -35,7 +35,11 @@
       { id: 'link', label: 'Link', run: () => makeLink() },
       { id: 'image', label: 'Img', run: () => makeImage() },
       { id: 'hr', label: '---', run: () => insertHr() },
-      { id: 'ruby', label: 'ルビ', run: () => insertRuby() }
+      { id: 'ruby', label: 'ルビ', run: () => insertRuby() },
+      { id: 'textbox-default', label: 'TB', run: () => applyTextboxPreset() },
+      { id: 'textbox-inner-voice', label: '声', run: () => applyTextboxPreset('inner-voice') },
+      { id: 'textbox-se-animal-fade', label: 'SE', run: () => applyTextboxPreset('se-animal-fade') },
+      { id: 'textbox-typing-sequence', label: 'Type', run: () => applyTextboxPreset('typing-sequence') }
     ];
 
     actions.forEach(act => {
@@ -80,6 +84,14 @@
       const y = Math.max(8, top - tooltipRect.height - 8);
       tooltip.style.left = x + 'px';
       tooltip.style.top = y + 'px';
+
+      const textboxEnabled = isTextboxFeatureEnabled();
+      buttons.forEach((btn) => {
+        if (!btn || !btn.dataset || !btn.dataset.action) return;
+        if (btn.dataset.action.indexOf('textbox-') === 0) {
+          btn.style.display = textboxEnabled ? '' : 'none';
+        }
+      });
       visible = true;
     }
 
@@ -217,6 +229,55 @@
       editorEl.selectionEnd = newEnd;
       editorManager.saveContent();
       editorManager.updateWordCount();
+      editorEl.focus();
+      hideTooltip();
+    }
+
+    function isTextboxFeatureEnabled() {
+      try {
+        const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+          ? window.ZenWriterStorage.loadSettings()
+          : {};
+        return !!(settings && settings.editor && settings.editor.extendedTextbox && settings.editor.extendedTextbox.enabled);
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function applyTextboxPreset(presetId) {
+      if (!isTextboxFeatureEnabled()) return;
+      const start = editorEl.selectionStart || 0;
+      const end = editorEl.selectionEnd || 0;
+      if (start === end) return;
+      if (!(window.TextboxDslParser && typeof window.TextboxDslParser.wrap === 'function')) return;
+
+      const selected = editorManager.getSelectedText();
+      if (!selected) return;
+
+      const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings()
+        : {};
+
+      const registry = window.TextboxPresetRegistry;
+      const preset = (registry && typeof registry.resolve === 'function')
+        ? registry.resolve(presetId, settings)
+        : { id: presetId || 'inner-voice', role: 'custom' };
+
+      const wrapped = window.TextboxDslParser.wrap(selected, {
+        preset: preset.id,
+        role: preset.role || 'custom',
+        anim: preset.anim || '',
+        tilt: typeof preset.tilt === 'number' ? preset.tilt : undefined,
+        scale: typeof preset.scale === 'number' ? preset.scale : undefined,
+        sfx: preset.sfx || ''
+      });
+
+      editorEl.setRangeText(wrapped, start, end, 'select');
+      editorManager.saveContent();
+      editorManager.updateWordCount();
+      if (typeof editorManager.renderMarkdownPreview === 'function') {
+        editorManager.renderMarkdownPreview();
+      }
       editorEl.focus();
       hideTooltip();
     }

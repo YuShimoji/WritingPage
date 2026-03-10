@@ -25,11 +25,21 @@ class ThemeManager {
     );
   }
 
+  refreshSettings() {
+    if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+      this.settings = window.ZenWriterStorage.loadSettings() || this.settings || {};
+    } else if (!this.settings) {
+      this.settings = {};
+    }
+    return this.settings;
+  }
+
   /**
    * テーマを適用
    * @param {string} theme - テーマ名 (light, dark, sepia)
    */
   applyTheme(theme) {
+    this.refreshSettings();
     theme = theme || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     this.settings.theme = theme;
@@ -72,6 +82,7 @@ class ThemeManager {
    * @param {string} options.uiTextColor - UI レイヤの文字色（省略時は textColor を使用）
    */
   applyCustomColors(bgColor, textColor, enable = true, options = {}) {
+    this.refreshSettings();
     const root = document.documentElement;
 
     // C-4: UI/Editor 分離
@@ -130,6 +141,7 @@ class ThemeManager {
    * @param {string} buttonColor - ボタン色
    */
   applyButtonColor(buttonColor) {
+    this.refreshSettings();
     const root = document.documentElement;
     root.style.setProperty('--button-color', buttonColor);
     this.settings.buttonColor = buttonColor;
@@ -142,6 +154,7 @@ class ThemeManager {
    * C-3 Step3: ThemeRegistry 経由で Editor レイヤの既定色を取得
    */
   clearCustomColors() {
+    this.refreshSettings();
     const root = document.documentElement;
     root.style.removeProperty('--bg-color');
     root.style.removeProperty('--text-color');
@@ -184,6 +197,7 @@ class ThemeManager {
     uiFontSize,
     editorFontSize,
   ) {
+    this.refreshSettings();
     const root = document.documentElement;
     root.style.setProperty('--font-family', fontFamily);
     root.style.setProperty('--font-size', `${fontSize}px`);
@@ -213,6 +227,7 @@ class ThemeManager {
    * @param {number} options.blur - ぼかし量
    */
   setBackgroundVisual(options = {}) {
+    this.refreshSettings();
     const root = document.documentElement;
     
     if (options.gradient !== undefined) {

@@ -44,6 +44,23 @@ test.describe('WYSIWYG Editor', () => {
     await expect(textarea).not.toBeVisible();
   });
 
+  test('should initialize richtextEnhanced setting and command adapter', async ({ page }) => {
+    await page.waitForFunction(() => !!(window.richTextEditor && window.richTextEditor.commandAdapter));
+
+    const state = await page.evaluate(() => {
+      const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings()
+        : {};
+      return {
+        richtextEnhanced: !!(settings && settings.editor && settings.editor.richtextEnhanced),
+        hasAdapter: !!(window.richTextEditor && window.richTextEditor.commandAdapter)
+      };
+    });
+
+    expect(state.richtextEnhanced).toBe(true);
+    expect(state.hasAdapter).toBe(true);
+  });
+
   test('should switch between WYSIWYG and textarea modes', async ({ page }) => {
     const textarea = page.locator('#editor');
     const wysiwygEditor = page.locator('#wysiwyg-editor');
@@ -128,6 +145,79 @@ test.describe('WYSIWYG Editor', () => {
     await boldBtn.dispatchEvent('mousedown');
 
     const content = await wysiwygEditor.innerHTML();
+    expect(content).toMatch(/<(strong|b)>/);
+  });
+
+  test('should route formatting command through command adapter', async ({ page }) => {
+    await page.waitForFunction(() => !!(window.richTextEditor && window.richTextEditor.commandAdapter));
+
+    const boldBtn = page.locator('#wysiwyg-bold');
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+
+    await page.evaluate(() => {
+      window.__adapterExecCount = 0;
+      const rich = window.richTextEditor;
+      if (!rich || !rich.commandAdapter || typeof rich.commandAdapter.execute !== 'function') return;
+      const original = rich.commandAdapter.execute.bind(rich.commandAdapter);
+      rich.commandAdapter.execute = function () {
+        window.__adapterExecCount += 1;
+        return original.apply(rich.commandAdapter, arguments);
+      };
+    });
+
+    await wysiwygEditor.click();
+    await wysiwygEditor.fill('adapter経由で太字');
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    await boldBtn.dispatchEvent('mousedown');
+
+    const calls = await page.evaluate(() => window.__adapterExecCount || 0);
+    expect(calls).toBeGreaterThan(0);
+  });
+
+  test('should bypass adapter when richtextEnhanced rollback flag is false', async ({ page }) => {
+    await page.waitForFunction(() => !!(window.richTextEditor && window.richTextEditor.commandAdapter));
+
+    await page.evaluate(() => {
+      const s = window.ZenWriterStorage.loadSettings();
+      s.editor = { ...(s.editor || {}), richtextEnhanced: false };
+      window.ZenWriterStorage.saveSettings(s);
+      window.__adapterCalledWhenRollback = false;
+      const rich = window.richTextEditor;
+      const original = rich.commandAdapter.execute.bind(rich.commandAdapter);
+      rich.commandAdapter.execute = function () {
+        window.__adapterCalledWhenRollback = true;
+        return original.apply(rich.commandAdapter, arguments);
+      };
+    });
+
+    const boldBtn = page.locator('#wysiwyg-bold');
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await wysiwygEditor.click();
+    await wysiwygEditor.fill('rollback');
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    await boldBtn.dispatchEvent('mousedown');
+
+    const adapterCalled = await page.evaluate(() => !!window.__adapterCalledWhenRollback);
+    const content = await wysiwygEditor.innerHTML();
+    expect(adapterCalled).toBeFalsy();
     expect(content).toMatch(/<(strong|b)>/);
   });
 

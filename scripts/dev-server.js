@@ -30,6 +30,8 @@ const mime = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
   '.ico': 'image/x-icon',
   '.json': 'application/json; charset=utf-8',
   '.webmanifest': 'application/manifest+json; charset=utf-8',

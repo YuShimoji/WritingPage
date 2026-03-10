@@ -288,9 +288,9 @@
     {
       id: 'toggle-wysiwyg',
       label: 'WYSIWYG エディタ',
-      description: 'WYSIWYG エディタを切り替え（実験的）',
+      description: 'WYSIWYG エディタを切り替え',
       shortcut: '',
-      category: '実験的機能',
+      category: '編集',
       execute: () => {
         const btn = document.getElementById('toggle-wysiwyg');
         if (btn) btn.click();

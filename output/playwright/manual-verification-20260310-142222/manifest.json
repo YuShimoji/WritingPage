@@ -1,0 +1,12 @@
+{
+  "createdAt": "2026-03-10T05:22:26.524Z",
+  "baseUrl": "http://127.0.0.1:19080",
+  "screenshots": [
+    "01-main-desktop.png",
+    "02-settings-modal.png",
+    "03-help-modal.png",
+    "04-wiki-tab.png",
+    "05-command-palette.png",
+    "06-mobile-sidebar-open.png"
+  ]
+}

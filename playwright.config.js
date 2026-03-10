@@ -1,5 +1,23 @@
 // @ts-check
 const { defineConfig } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+
+const chromiumLibDir = path.join(
+  process.env.HOME || '',
+  '.cache',
+  'ms-playwright',
+  'chromium_headless_shell-1200',
+  'chrome-headless-shell-linux64',
+);
+
+// WSL等でOS依存ライブラリをroot権限なしで同梱した場合も、Chromium起動時に解決できるようにする。
+if (process.platform === 'linux' && fs.existsSync(chromiumLibDir)) {
+  process.env.LD_LIBRARY_PATH = [
+    chromiumLibDir,
+    process.env.LD_LIBRARY_PATH || '',
+  ].filter(Boolean).join(':');
+}
 
 module.exports = defineConfig({
   testDir: './e2e',

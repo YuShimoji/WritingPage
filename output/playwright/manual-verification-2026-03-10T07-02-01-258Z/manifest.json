@@ -1,0 +1,14 @@
+{
+  "createdAt": "2026-03-10T07:02:05.373Z",
+  "baseUrl": "http://127.0.0.1:19080",
+  "mode": "dist",
+  "rootDir": "/home/planner007/code/WritingPage/dist",
+  "screenshots": [
+    "01-main-desktop.png",
+    "02-settings-modal.png",
+    "03-help-modal.png",
+    "04-edit-accordion.png",
+    "05-command-palette.png",
+    "06-mobile-sidebar-open.png"
+  ]
+}

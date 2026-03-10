@@ -61,6 +61,9 @@
   function renderMarkdownPreviewImmediate(editorManager) {
     if (!editorManager || !editorManager.markdownPreviewPanel || !editorManager.editor) return;
     var src = editorManager.editor.value || '';
+    var settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+      ? window.ZenWriterStorage.loadSettings()
+      : {};
 
     var html = '';
     try {
@@ -82,6 +85,13 @@
       }
     } catch (_) {
       html = '';
+    }
+
+    if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
+      html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
+        settings: settings,
+        target: 'preview'
+      });
     }
 
     if (html && editorManager.processFontDecorations) {

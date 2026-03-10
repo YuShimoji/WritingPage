@@ -51,6 +51,15 @@
 - 形態素解析による自動ルビ付与
 - ルビ表示/非表示切り替え
 
+### Typography進化トラック（RichText/Canvas非競合優先）
+
+- Phase 0: SP-054 フォント切り替え仕様の完了（保存安全化と責務分離）
+- Phase 1: SP-058 見出しタイポグラフィ（H1-H6調整と見出しプリセット）
+- Phase 2: SP-057 本文マイクロタイポグラフィ（字間/段落間/字下げ/禁則寄り設定）
+- Phase 3: SP-059 日本語組版・ルビ拡張（ルビサイズ/位置、傍点・圏点）
+- Phase 4: SP-060 装飾プリセット統合（semantic preset化、Textbox連携）
+- Phase 5: SP-061 Visual Profile Typography Pack（作業シーン別一括切替）
+
 ### サイドバー Phase 2-3
 
 - ドラッグ&ドロップによるガジェット並び替え

@@ -567,6 +567,9 @@
       if (!markdown) return '';
 
       let html = '';
+      const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings()
+        : {};
       if (this.markdownRenderer) {
         try {
           html = this.markdownRenderer.render(markdown);
@@ -582,6 +585,13 @@
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
           .replace(/\n/g, '<br>');
+      }
+
+      if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
+        html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
+          settings,
+          target: 'wysiwyg'
+        });
       }
 
       if (this.editorManager && typeof this.editorManager.processFontDecorations === 'function') {
@@ -600,17 +610,30 @@
     htmlToMarkdown(html) {
       if (!html) return '';
 
+      let serializedHtml = html;
+      let textboxPlaceholders = [];
+      if (window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.serializeHtml === 'function') {
+        const bridged = window.TextboxRichTextBridge.serializeHtml(html, {
+          serializeFragment: (fragmentHtml) => this.htmlFragmentToMarkdown(fragmentHtml)
+        });
+        serializedHtml = bridged && typeof bridged.html === 'string' ? bridged.html : html;
+        textboxPlaceholders = bridged && Array.isArray(bridged.placeholders) ? bridged.placeholders : [];
+      }
+
       if (this.turndownService) {
         try {
-          const markdown = this.turndownService.turndown(html);
-          return this.normalizeCustomTagEscapes(markdown);
+          const markdown = this.turndownService.turndown(serializedHtml);
+          const restored = window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.restoreSerializedBlocks === 'function'
+            ? window.TextboxRichTextBridge.restoreSerializedBlocks(markdown, textboxPlaceholders)
+            : markdown;
+          return this.normalizeCustomTagEscapes(restored);
         } catch (e) {
           console.warn('HTML to Markdown conversion failed:', e);
         }
       }
 
       // フォールバック: 基本的な変換
-      let markdown = html
+      let markdown = serializedHtml
         .replace(/<strong>(.*?)<\/strong>/gi, '**$1**')
         .replace(/<b>(.*?)<\/b>/gi, '**$1**')
         .replace(/<em>(.*?)<\/em>/gi, '*$1*')
@@ -633,7 +656,26 @@
       // 連続する改行を整理
       markdown = markdown.replace(/\n{3,}/g, '\n\n');
 
+      if (window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.restoreSerializedBlocks === 'function') {
+        markdown = window.TextboxRichTextBridge.restoreSerializedBlocks(markdown, textboxPlaceholders);
+      }
+
       return this.normalizeCustomTagEscapes(markdown);
+    }
+
+    htmlFragmentToMarkdown(html) {
+      if (!html) return '';
+      if (this.turndownService) {
+        try {
+          return this.normalizeCustomTagEscapes(this.turndownService.turndown(html));
+        } catch (_) { }
+      }
+      return String(html)
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<p[^>]*>/gi, '')
+        .replace(/<[^>]+>/g, '')
+        .trim();
     }
 
     normalizeCustomTagEscapes(markdown) {
