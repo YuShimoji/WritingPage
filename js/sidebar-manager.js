@@ -607,25 +607,45 @@ class SidebarManager {
     _insertQuickSection() {
         const editor = document.getElementById('editor');
         if (!editor) return;
+
+        // WYSIWYG mode: sync content to textarea before operating
+        const rte = window.richTextEditor || (window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor);
+        const isWysiwyg = rte && rte.isWysiwygMode;
+        if (isWysiwyg && typeof rte.syncToMarkdown === 'function') {
+            rte.syncToMarkdown();
+        }
+
         const parsed = this._parseMarkdownHeadings(editor.value || '');
         const context = this._getWritingFocusContext(editor, parsed);
         const currentChapter = context.activeChapter;
-        const insideChapter = !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
+        // WYSIWYG mode: cursor position unreliable, insert at end (chapter level)
+        const insideChapter = isWysiwyg
+            ? false
+            : !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
         const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
         const marks = '#'.repeat(level);
         const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';
         const label = `${marks} ${sectionLabel}`;
-        const start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
+        const start = isWysiwyg
+            ? editor.value.length
+            : (typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length);
         const needsLeadingBreak = start > 0 && editor.value.charAt(start - 1) !== '\n';
         const insertion = `${needsLeadingBreak ? '\n' : ''}${label}\n\n`;
         const before = editor.value.slice(0, start);
         const after = editor.value.slice(start);
         editor.value = before + insertion + after;
         const nextCaret = before.length + insertion.length;
-        editor.focus();
         editor.selectionStart = nextCaret;
         editor.selectionEnd = nextCaret;
         editor.dispatchEvent(new Event('input', { bubbles: true }));
+
+        // WYSIWYG mode: sync textarea back to WYSIWYG editor
+        if (isWysiwyg && typeof rte.setContent === 'function') {
+            rte.setContent(editor.value);
+        } else {
+            editor.focus();
+        }
+
         this._scheduleWritingFocusRender();
     }
 

@@ -437,8 +437,8 @@
     _isGadgetCollapsed(name) {
       var state = this._loadGadgetCollapseState();
       if (state[name] !== undefined) return !state[name];
-      // 初回起動時はドキュメント一覧を展開して、セクションへ即アクセスできるようにする
-      var defaultExpanded = { Documents: true };
+      // 初回起動時はドキュメント一覧とテーマを展開して即アクセスできるようにする
+      var defaultExpanded = { Documents: true, Themes: true };
       return !defaultExpanded[name];
     }
 
