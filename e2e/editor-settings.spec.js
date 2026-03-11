@@ -685,4 +685,79 @@ test.describe('Editor Settings', () => {
       });
     }).toBe('21');
   });
+
+  test('font family change should persist after reload', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const targetFont = '"BIZ UDMincho", serif';
+    await page.evaluate((font) => {
+      try {
+        if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyFontSettings === 'function') {
+          const s = window.ZenWriterStorage.loadSettings();
+          window.ZenWriterTheme.applyFontSettings(
+            font,
+            s.fontSize || 16,
+            s.lineHeight || 1.6,
+            s.uiFontSize || 16,
+            s.editorFontSize || 16,
+          );
+        }
+      } catch (_) { /* noop */ }
+    }, targetFont);
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const cssFont = await page.evaluate(() => {
+      return getComputedStyle(document.documentElement).getPropertyValue('--font-family').trim();
+    });
+    expect(cssFont).toBe(targetFont);
+
+    const stored = await page.evaluate(() => {
+      try { return window.ZenWriterStorage.loadSettings().fontFamily; } catch (_) { return ''; }
+    });
+    expect(stored).toBe(targetFont);
+  });
+
+  test('font family change via Typography should preserve other settings', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      try {
+        const s = window.ZenWriterStorage.loadSettings();
+        s.theme = 'night';
+        s.autoSave = { ...(s.autoSave || {}), enabled: true, delayMs: 3000 };
+        s.editor = { ...(s.editor || {}), wordWrap: { enabled: true, maxChars: 80 } };
+        window.ZenWriterStorage.saveSettings(s);
+      } catch (_) { /* noop */ }
+    });
+
+    await page.evaluate(() => {
+      try {
+        if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyFontSettings === 'function') {
+          const s = window.ZenWriterStorage.loadSettings();
+          window.ZenWriterTheme.applyFontSettings(
+            '"BIZ UDMincho", serif',
+            s.fontSize || 16,
+            s.lineHeight || 1.6,
+            s.uiFontSize || 16,
+            s.editorFontSize || 16,
+          );
+        }
+      } catch (_) { /* noop */ }
+    });
+
+    const snapshot = await page.evaluate(() => {
+      try { return window.ZenWriterStorage.loadSettings(); } catch (_) { return {}; }
+    });
+
+    expect(snapshot.theme).toBe('night');
+    expect(snapshot.autoSave?.enabled).toBeTruthy();
+    expect(snapshot.autoSave?.delayMs).toBe(3000);
+    expect(snapshot.editor?.wordWrap?.enabled).toBeTruthy();
+    expect(snapshot.editor?.wordWrap?.maxChars).toBe(80);
+    expect(snapshot.fontFamily).toBe('"BIZ UDMincho", serif');
+  });
 });

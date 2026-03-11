@@ -197,7 +197,6 @@ class ThemeManager {
     uiFontSize,
     editorFontSize,
   ) {
-    this.refreshSettings();
     const root = document.documentElement;
     root.style.setProperty('--font-family', fontFamily);
     root.style.setProperty('--font-size', `${fontSize}px`);
@@ -208,12 +207,16 @@ class ThemeManager {
     );
     root.style.setProperty('--line-height', lineHeight);
 
-    this.settings.fontFamily = fontFamily;
-    this.settings.fontSize = fontSize; // 後方互換
-    this.settings.uiFontSize = uiFontSize || fontSize;
-    this.settings.editorFontSize = editorFontSize || fontSize;
-    this.settings.lineHeight = lineHeight;
-    window.ZenWriterStorage.saveSettings(this.settings);
+    // マージ保存: フォント関連キーのみのパッチで他設定を破壊しない
+    var patch = {
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      uiFontSize: uiFontSize || fontSize,
+      editorFontSize: editorFontSize || fontSize,
+      lineHeight: lineHeight,
+    };
+    window.ZenWriterStorage.saveSettings(patch);
+    this.refreshSettings();
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
   }
 

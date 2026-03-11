@@ -303,7 +303,7 @@
     "id": "SP-054",
     "title": "フォント切り替え 仕様",
     "status": "partial",
-    "pct": 60,
+    "pct": 90,
     "cat": "ui",
     "file": "docs/specs/spec-font-switching.md",
     "summary": "Typography/Quick Tools/Command Paletteに分散したフォント操作を整理し、保存処理の破壊的更新を防ぐ。本文フォント・UIサイズ・本文サイズ・行間の責務分離と移行ルールを定義。"
