@@ -339,10 +339,10 @@
     "id": "SP-058",
     "title": "見出しタイポグラフィ仕様",
     "status": "partial",
-    "pct": 75,
+    "pct": 90,
     "cat": "ui",
     "file": "docs/specs/spec-heading-typography.md",
-    "summary": "H1-H6のサイズ/太さ/行間/字間を設定化し、見出しプリセットとOutline整合を段階導入で定義。"
+    "summary": "H1-H6のサイズ/太さ/行間/字間を設定化。Phase 1-3完了（プリセット/UI/H4-H6/詳細プロパティ）。Phase 4: Outline連携/ユーザープリセット。"
   },
   {
     "id": "SP-059",

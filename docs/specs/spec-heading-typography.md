@@ -124,15 +124,43 @@ H1-H6 各レベルに以下のCSS変数を提供:
 2. H1 sizeスライダー操作でカスタムオーバーライドが保存される
 3. リセットボタンでプリセット値に復帰する
 
-## Phase 3（未着手）— 拡張
+## Phase 3（完了）— H4-H6 + 詳細プロパティ
+
+### 実装内容
+
+**H1-H3 詳細プロパティ追加:**
+
+- `lineHeight` スライダー: 1.0 - 2.5（step 0.05）
+- `letterSpacing` スライダー: -0.05em - 0.2em（step 0.01em）
+- H1-H3 各レベルに4コントロール（size/weight/lineHeight/letterSpacing）
+
+**H4-H6 簡易調整セクション:**
+
+- 折りたたみ式（`localStorage: zenwriter-heading-h46-open`）
+- `size` スライダーのみ: 0.8em - 2em（step 0.05）
+
+**プレビュー拡張:**
+
+- H1-H6 全レベルのミニプレビュー（fontSize/fontWeight/letterSpacing/lineHeight 反映）
+
+**印刷連携:**
+
+- `print.css` は同一CSS変数を使用済み → 追加コード不要で印刷にも自動反映
+
+### E2Eテスト（4件追加、計10件）
+
+1. H1 lineHeight カスタムでCSS変数が変わる
+2. H1 letterSpacing カスタムでCSS変数が変わる
+3. H4 size カスタムでCSS変数が変わり、リロード後も復元される
+4. H4-H6 size スライダーと H1 lineHeight/letterSpacing スライダーがUI上に存在する
+
+## Phase 4（未着手）— 将来拡張
 
 ### 計画内容
 
-- H4-H6 の個別調整UI（簡易版）
-- `line-height` / `margin-top` / `margin-bottom` / `letter-spacing` スライダー追加
 - Outline（SP-052）との見出しレベル整合チェック
-- 印刷プレビュー（`print.css`）への反映確認UI
 - プリセットのユーザー定義・保存
+- margin-top / margin-bottom の UI 化（需要に応じて）
 
 ## 優先順位
 
@@ -147,7 +175,7 @@ H1-H6 各レベルに以下のCSS変数を提供:
 
 ## 受け入れ基準
 
-1. H1-H6 の調整値が編集画面と印刷プレビューで一致する。
+1. H1-H6 の調整値が編集画面と印刷プレビューで一致する。 **[Phase 3 達成: CSS変数共有]**
 2. 見出しプリセット適用後、個別微調整が可能。 **[Phase 2 達成]**
 3. 見出し設定変更が本文フォント設定を破壊しない。 **[Phase 1 達成]**
 4. 設定 JSON に未設定レベルがあっても既定値フォールバックで崩れない。 **[Phase 1 達成]**

@@ -1,7 +1,7 @@
 /**
  * gadgets-heading.js
- * 見出しタイポグラフィ設定ガジェット (SP-058 Phase 2)
- * 責務: 見出しプリセット選択、ミニプレビュー、H1-H3 個別調整
+ * 見出しタイポグラフィ設定ガジェット (SP-058 Phase 2+3)
+ * 責務: 見出しプリセット選択、ミニプレビュー、H1-H6 個別調整
  */
 (function () {
   'use strict';
@@ -9,6 +9,23 @@
   var utils = window.ZWGadgetsUtils;
   var ZWGadgets = window.ZWGadgets;
   if (!utils || !ZWGadgets) return;
+
+  var DETAIL_LEVELS = ['h1', 'h2', 'h3'];
+  var SIMPLE_LEVELS = ['h4', 'h5', 'h6'];
+  var ALL_LEVELS = DETAIL_LEVELS.concat(SIMPLE_LEVELS);
+  var LEVEL_LABELS = {
+    h1: '見出し1', h2: '見出し2', h3: '見出し3',
+    h4: '見出し4', h5: '見出し5', h6: '見出し6'
+  };
+  var WEIGHT_OPTIONS = [
+    { value: 'normal', label: '標準' },
+    { value: '500', label: '中太' },
+    { value: '600', label: 'やや太' },
+    { value: 'bold', label: '太字' },
+    { value: '800', label: '極太' },
+    { value: '900', label: '最太' }
+  ];
+  var H46_STORAGE_KEY = 'zenwriter-heading-h46-open';
 
   ZWGadgets.register('HeadingStyles', function (el) {
     try {
@@ -76,7 +93,7 @@
       previewBox.style.gap = '2px';
 
       var previewLines = {};
-      ['h1', 'h2', 'h3'].forEach(function (level) {
+      ALL_LEVELS.forEach(function (level) {
         var line = document.createElement('div');
         line.style.fontWeight = 'bold';
         line.style.lineHeight = '1.3';
@@ -90,24 +107,13 @@
       presetSection.appendChild(previewBox);
       wrap.appendChild(presetSection);
 
-      // --- セクション3: H1-H3 個別調整 ---
-      var DETAIL_LEVELS = ['h1', 'h2', 'h3'];
-      var LEVEL_LABELS = { h1: '見出し1', h2: '見出し2', h3: '見出し3' };
-      var WEIGHT_OPTIONS = [
-        { value: 'normal', label: '標準' },
-        { value: '500', label: '中太' },
-        { value: '600', label: 'やや太' },
-        { value: 'bold', label: '太字' },
-        { value: '800', label: '極太' },
-        { value: '900', label: '最太' }
-      ];
-
+      // --- セクション3: H1-H3 個別調整（詳細） ---
       var currentCustom = headingSettings.custom && typeof headingSettings.custom === 'object'
         ? JSON.parse(JSON.stringify(headingSettings.custom))
         : {};
       var levelControls = {};
 
-      var adjustSection = makeSection('個別調整');
+      var adjustSection = makeSection('個別調整 (H1-H3)');
 
       DETAIL_LEVELS.forEach(function (level) {
         var levelWrap = document.createElement('div');
@@ -126,31 +132,10 @@
         levelLabel.textContent = LEVEL_LABELS[level];
         levelWrap.appendChild(levelLabel);
 
+        var ctrl = {};
+
         // size slider
-        var sizeRow = document.createElement('div');
-        sizeRow.style.display = 'flex';
-        sizeRow.style.flexDirection = 'column';
-        sizeRow.style.gap = '2px';
-
-        var sizeLabel = document.createElement('div');
-        sizeLabel.style.fontSize = '0.8rem';
-        sizeLabel.style.opacity = '0.8';
-
-        var sizeInput = document.createElement('input');
-        sizeInput.type = 'range';
-        sizeInput.min = '0.8';
-        sizeInput.max = '3';
-        sizeInput.step = '0.05';
-        sizeInput.setAttribute('data-level', level);
-        sizeInput.setAttribute('data-prop', 'size');
-
-        sizeInput.addEventListener('input', function () {
-          sizeLabel.textContent = 'サイズ: ' + sizeInput.value + 'em';
-          onCustomChange(level, 'size', sizeInput.value + 'em');
-        });
-
-        sizeRow.appendChild(sizeLabel);
-        sizeRow.appendChild(sizeInput);
+        var sizeRow = makeSliderRow('サイズ', 0.8, 3, 0.05, 'em', level, 'size', ctrl);
         levelWrap.appendChild(sizeRow);
 
         // weight select
@@ -158,13 +143,11 @@
         weightRow.style.display = 'flex';
         weightRow.style.alignItems = 'center';
         weightRow.style.gap = '6px';
-
         var weightLabel = document.createElement('span');
         weightLabel.style.fontSize = '0.8rem';
         weightLabel.style.opacity = '0.8';
         weightLabel.style.minWidth = '32px';
         weightLabel.textContent = '太さ:';
-
         var weightSelect = document.createElement('select');
         weightSelect.setAttribute('data-level', level);
         weightSelect.setAttribute('data-prop', 'weight');
@@ -175,17 +158,24 @@
           opt.textContent = w.label;
           weightSelect.appendChild(opt);
         });
-
         weightSelect.addEventListener('change', function () {
           onCustomChange(level, 'weight', weightSelect.value);
         });
-
         weightRow.appendChild(weightLabel);
         weightRow.appendChild(weightSelect);
         levelWrap.appendChild(weightRow);
+        ctrl.weightSelect = weightSelect;
+
+        // lineHeight slider
+        var lhRow = makeSliderRow('行間', 1.0, 2.5, 0.05, '', level, 'lineHeight', ctrl);
+        levelWrap.appendChild(lhRow);
+
+        // letterSpacing slider
+        var lsRow = makeSliderRow('字間', -0.05, 0.2, 0.01, 'em', level, 'letterSpacing', ctrl);
+        levelWrap.appendChild(lsRow);
 
         adjustSection.appendChild(levelWrap);
-        levelControls[level] = { sizeInput: sizeInput, sizeLabel: sizeLabel, weightSelect: weightSelect };
+        levelControls[level] = ctrl;
       });
 
       // リセットボタン
@@ -199,9 +189,106 @@
         applyAndRefreshUI();
       });
       adjustSection.appendChild(resetBtn);
-
       wrap.appendChild(adjustSection);
+
+      // --- セクション4: H4-H6 簡易調整（折りたたみ） ---
+      var h46Section = document.createElement('div');
+      h46Section.className = 'heading-section';
+
+      var h46Header = document.createElement('div');
+      h46Header.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:4px;font-size:0.9rem;font-weight:600;user-select:none;';
+      var h46Arrow = document.createElement('span');
+      h46Arrow.style.cssText = 'font-size:0.7rem;width:12px;display:inline-block;transition:transform 0.15s;';
+      var h46Title = document.createElement('span');
+      h46Title.textContent = 'H4-H6 調整';
+      h46Header.appendChild(h46Arrow);
+      h46Header.appendChild(h46Title);
+      h46Section.appendChild(h46Header);
+
+      var h46Content = document.createElement('div');
+      h46Content.style.display = 'flex';
+      h46Content.style.flexDirection = 'column';
+      h46Content.style.gap = '4px';
+      h46Content.style.paddingLeft = '4px';
+
+      SIMPLE_LEVELS.forEach(function (level) {
+        var levelWrap = document.createElement('div');
+        levelWrap.style.display = 'flex';
+        levelWrap.style.flexDirection = 'column';
+        levelWrap.style.gap = '4px';
+        levelWrap.style.paddingTop = '4px';
+        if (level !== 'h4') {
+          levelWrap.style.borderTop = '1px solid var(--border-color)';
+          levelWrap.style.marginTop = '4px';
+        }
+
+        var levelLabel = document.createElement('div');
+        levelLabel.style.fontSize = '0.85rem';
+        levelLabel.style.fontWeight = '600';
+        levelLabel.textContent = LEVEL_LABELS[level];
+        levelWrap.appendChild(levelLabel);
+
+        var ctrl = {};
+
+        // size slider only
+        var sizeRow = makeSliderRow('サイズ', 0.8, 2, 0.05, 'em', level, 'size', ctrl);
+        levelWrap.appendChild(sizeRow);
+
+        h46Content.appendChild(levelWrap);
+        levelControls[level] = ctrl;
+      });
+
+      h46Section.appendChild(h46Content);
+
+      // H4-H6 collapse logic
+      var h46Open = false;
+      try { h46Open = localStorage.getItem(H46_STORAGE_KEY) === 'true'; } catch (_) {}
+      function setH46Open(open) {
+        h46Open = open;
+        h46Arrow.textContent = open ? '\u25BC' : '\u25B6';
+        h46Content.style.display = open ? 'flex' : 'none';
+        try { localStorage.setItem(H46_STORAGE_KEY, open ? 'true' : 'false'); } catch (_) {}
+      }
+      h46Header.addEventListener('click', function () { setH46Open(!h46Open); });
+      setH46Open(h46Open);
+
+      wrap.appendChild(h46Section);
       el.appendChild(wrap);
+
+      // --- ヘルパー: スライダー行を生成 ---
+      function makeSliderRow(label, min, max, step, unit, level, prop, ctrlObj) {
+        var row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.flexDirection = 'column';
+        row.style.gap = '2px';
+
+        var lbl = document.createElement('div');
+        lbl.style.fontSize = '0.8rem';
+        lbl.style.opacity = '0.8';
+
+        var input = document.createElement('input');
+        input.type = 'range';
+        input.min = String(min);
+        input.max = String(max);
+        input.step = String(step);
+        input.setAttribute('data-level', level);
+        input.setAttribute('data-prop', prop);
+
+        input.addEventListener('input', function () {
+          lbl.textContent = label + ': ' + input.value + unit;
+          onCustomChange(level, prop, input.value + unit);
+        });
+
+        row.appendChild(lbl);
+        row.appendChild(input);
+
+        ctrlObj[prop + 'Input'] = input;
+        ctrlObj[prop + 'Label'] = lbl;
+        ctrlObj[prop + 'Unit'] = unit;
+        ctrlObj[prop + 'LabelText'] = label;
+
+        return row;
+      }
 
       // --- 内部関数 ---
 
@@ -209,7 +296,7 @@
         var presetId = presetSelect.value || 'default';
         var presetValues = registry.getValues(presetId);
         var merged = {};
-        DETAIL_LEVELS.forEach(function (level) {
+        ALL_LEVELS.forEach(function (level) {
           var base = presetValues[level] || {};
           var custom = currentCustom[level] || {};
           merged[level] = Object.assign({}, base, custom);
@@ -219,26 +306,49 @@
 
       function updatePreview() {
         var merged = getMergedValues();
-        DETAIL_LEVELS.forEach(function (level) {
+        ALL_LEVELS.forEach(function (level) {
           var line = previewLines[level];
           if (!line) return;
           var val = merged[level] || {};
           line.style.fontSize = val.size || '1em';
           line.style.fontWeight = val.weight || 'bold';
           line.style.letterSpacing = val.letterSpacing || '0em';
+          line.style.lineHeight = val.lineHeight || '1.3';
         });
       }
 
       function updateControls() {
         var merged = getMergedValues();
-        DETAIL_LEVELS.forEach(function (level) {
+        ALL_LEVELS.forEach(function (level) {
           var ctrl = levelControls[level];
           if (!ctrl) return;
           var val = merged[level] || {};
-          var sizeNum = parseFloat(val.size) || 1;
-          ctrl.sizeInput.value = sizeNum;
-          ctrl.sizeLabel.textContent = 'サイズ: ' + sizeNum + 'em';
-          ctrl.weightSelect.value = val.weight || 'bold';
+
+          // size (all levels)
+          if (ctrl.sizeInput) {
+            var sizeNum = parseFloat(val.size) || 1;
+            ctrl.sizeInput.value = sizeNum;
+            ctrl.sizeLabel.textContent = ctrl.sizeLabelText + ': ' + sizeNum + ctrl.sizeUnit;
+          }
+
+          // weight (H1-H3 only)
+          if (ctrl.weightSelect) {
+            ctrl.weightSelect.value = val.weight || 'bold';
+          }
+
+          // lineHeight (H1-H3 only)
+          if (ctrl.lineHeightInput) {
+            var lhNum = parseFloat(val.lineHeight) || 1.3;
+            ctrl.lineHeightInput.value = lhNum;
+            ctrl.lineHeightLabel.textContent = ctrl.lineHeightLabelText + ': ' + lhNum + ctrl.lineHeightUnit;
+          }
+
+          // letterSpacing (H1-H3 only)
+          if (ctrl.letterSpacingInput) {
+            var lsNum = parseFloat(val.letterSpacing) || 0;
+            ctrl.letterSpacingInput.value = lsNum;
+            ctrl.letterSpacingLabel.textContent = ctrl.letterSpacingLabelText + ': ' + lsNum + ctrl.letterSpacingUnit;
+          }
         });
       }
 
@@ -290,7 +400,7 @@
   }, {
     groups: ['theme'],
     title: '見出しスタイル',
-    description: '見出しプリセット選択とH1-H3の個別サイズ・太さ調整。'
+    description: '見出しプリセット選択とH1-H6の個別調整。'
   });
 
 })();

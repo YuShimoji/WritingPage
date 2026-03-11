@@ -277,3 +277,108 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
     expect(h1Size).toBe('1.5em');
   });
 });
+
+test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/?reset=1');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('H1 lineHeightスライダーでCSS変数が変わる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // lineHeight を API 経由でカスタム適用
+    await page.evaluate(() => {
+      window.ZenWriterTheme.applyHeadingSettings('default', { h1: { lineHeight: '1.8' } });
+    });
+    await page.waitForTimeout(100);
+
+    const h1LineHeight = await page.evaluate(() => {
+      return getComputedStyle(document.documentElement).getPropertyValue('--heading-h1-line-height').trim();
+    });
+    expect(h1LineHeight).toBe('1.8');
+
+    // 設定に保存されていることを確認
+    const saved = await page.evaluate(() => {
+      return window.ZenWriterStorage.loadSettings().heading.custom;
+    });
+    expect(saved.h1.lineHeight).toBe('1.8');
+  });
+
+  test('H1 letterSpacingスライダーでCSS変数が変わる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.evaluate(() => {
+      window.ZenWriterTheme.applyHeadingSettings('default', { h1: { letterSpacing: '0.1em' } });
+    });
+    await page.waitForTimeout(100);
+
+    const h1LetterSpacing = await page.evaluate(() => {
+      return getComputedStyle(document.documentElement).getPropertyValue('--heading-h1-letter-spacing').trim();
+    });
+    expect(h1LetterSpacing).toBe('0.1em');
+  });
+
+  test('H4 sizeカスタムでCSS変数が変わる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // H4 サイズをカスタムオーバーライド
+    await page.evaluate(() => {
+      window.ZenWriterTheme.applyHeadingSettings('default', { h4: { size: '1.3em' } });
+    });
+    await page.waitForTimeout(100);
+
+    const h4Size = await page.evaluate(() => {
+      return getComputedStyle(document.documentElement).getPropertyValue('--heading-h4-size').trim();
+    });
+    expect(h4Size).toBe('1.3em');
+
+    // リロード後も復元される
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    const h4SizeAfter = await page.evaluate(() => {
+      return getComputedStyle(document.documentElement).getPropertyValue('--heading-h4-size').trim();
+    });
+    expect(h4SizeAfter).toBe('1.3em');
+  });
+
+  test('H4-H6 sizeスライダーがUI上に存在する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(200);
+    const settingsBtn = page.locator('#writing-focus-settings-btn');
+    if (await settingsBtn.isVisible()) {
+      await settingsBtn.click();
+      await page.waitForTimeout(200);
+    }
+    await page.evaluate(() => {
+      const header = document.querySelector('.accordion-header[aria-controls="accordion-theme"]');
+      if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
+    });
+    await page.waitForTimeout(300);
+
+    // H4 sizeスライダーが存在すること（折りたたみ内だが DOM には存在）
+    const h4Exists = await page.evaluate(() => {
+      return !!document.querySelector('input[type="range"][data-level="h4"][data-prop="size"]');
+    });
+    expect(h4Exists).toBe(true);
+
+    // H1 lineHeight スライダーが存在すること
+    const h1LhExists = await page.evaluate(() => {
+      return !!document.querySelector('input[type="range"][data-level="h1"][data-prop="lineHeight"]');
+    });
+    expect(h1LhExists).toBe(true);
+
+    // H1 letterSpacing スライダーが存在すること
+    const h1LsExists = await page.evaluate(() => {
+      return !!document.querySelector('input[type="range"][data-level="h1"][data-prop="letterSpacing"]');
+    });
+    expect(h1LsExists).toBe(true);
+  });
+});
