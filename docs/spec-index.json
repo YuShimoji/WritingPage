@@ -379,5 +379,14 @@
     "cat": "ui",
     "file": "docs/specs/spec-text-expression-architecture.md",
     "summary": "Text Effect / Animation / Ornament / preset sugar / projection の責務分離と Tier 1 の縮退規則を定義する SSOT。"
+  },
+  {
+    "id": "SP-063",
+    "title": "Markdownリファレンス",
+    "status": "done",
+    "pct": 100,
+    "cat": "user",
+    "file": "docs/specs/spec-markdown-reference.md",
+    "summary": "Markdown記法・ショートカット・アプリ固有拡張の参照ガジェット。カテゴリ別折りたたみ+検索フィルタ付き。"
   }
 ]
