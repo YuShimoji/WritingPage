@@ -6368,6 +6368,12 @@ html.is-electron[data-ui-mode="blank"][data-edge-hover-top="true"] .toolbar {
   flex-shrink: 0;
 }
 
+.sections-level-warning {
+  color: #e8a838;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
 .sections-node-title {
   overflow: hidden;
   text-overflow: ellipsis;

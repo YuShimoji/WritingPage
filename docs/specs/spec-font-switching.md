@@ -225,12 +225,13 @@
   1. `font family change should persist after reload` - フォント永続化の確認
   2. `font family change via Typography should preserve other settings` - 設定非破壊の確認
 
-### Phase 3（E2E追加と既存テスト更新）: 未完了
+### Phase 3（E2E追加と既存テスト更新）: 完了（2026-03-11）
 
-- Typography / Quick Tools の双方向同期ケースをE2Eで追加。
-- UIラベルの役割明示（「本文サイズクイック調整」）を実装へ反映。
+- `e2e/editor-settings.spec.js` に Typography/Quick Tools 双方向同期テスト追加済み。
+- `index.html` Quick Tools セクションタイトルを「本文サイズ（クイック）」に更新済み。
+- 合計5件のフォント関連E2Eテストケースが稼働中。
 
-### Phase 4（ドキュメント更新）: 未完了
+### Phase 4（ドキュメント更新）: 完了（2026-03-11）
 
-- `docs/EDITOR_HELP.md` へのフォント切り替え操作ガイド追加。
-- `docs/TESTING.md` へのフォント関連テストケース記載。
+- `docs/EDITOR_HELP.md` セクション7にフォント4軸の詳細ガイドを追加。
+- `docs/TESTING.md` にフォント関連テストケース一覧を追加。

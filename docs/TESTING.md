@@ -78,6 +78,18 @@ node scripts/capture-ui-verification.js --build --dist --port 19080 --out "$OUT"
 - 現行サイドバーはタブUIではなくアコーディオンUI。旧 `wiki` グループは `edit` へ統合済み。
 - ヘッドレス環境ではシステム日本語フォントが不足しやすいため、画面証跡ではバンドル済み `Noto Serif JP` を優先して表示を安定化している。
 
+## フォント切り替え関連テスト (SP-054)
+
+`e2e/editor-settings.spec.js` に以下のケースが実装済み:
+
+| ケース | 検証内容 |
+|--------|---------|
+| font size quick change should preserve existing settings object | Quick Toolsでサイズ変更時に他の設定が消えない |
+| legacy fontSize should normalize to editor/ui font size on load | 旧`fontSize`のみの設定を正規化して読み込む |
+| Typography and quick font controls should stay in sync | Typography変更→Quick Tools反映、逆方向も同期 |
+| font family change should persist after reload | フォントファミリー変更がリロード後も維持される |
+| font family change via Typography should preserve other settings | フォント変更時に他設定(theme, autoSave等)が消えない |
+
 ## テスト追加方針
 
 - E2E テストを優先。手動テストは最小限に。

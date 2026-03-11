@@ -68,19 +68,87 @@
       var presetSection = makeSection('プリセット');
       var presetSelect = document.createElement('select');
       presetSelect.id = 'heading-preset-select';
-      var presets = registry.listPresets();
-      presets.forEach(function (p) {
-        var opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.label;
-        presetSelect.appendChild(opt);
-      });
-      presetSelect.value = headingSettings.preset || 'default';
+
+      function rebuildPresetSelect(selectedId) {
+        presetSelect.innerHTML = '';
+        var latest = storage.loadSettings() || {};
+        var all = registry.listAllPresets(latest);
+        var builtInGroup = document.createElement('optgroup');
+        builtInGroup.label = '組み込み';
+        var userGroup = null;
+        all.forEach(function (p) {
+          var opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.label;
+          if (p.builtIn) {
+            builtInGroup.appendChild(opt);
+          } else {
+            if (!userGroup) {
+              userGroup = document.createElement('optgroup');
+              userGroup.label = 'カスタム';
+            }
+            opt.setAttribute('data-user-defined', 'true');
+            userGroup.appendChild(opt);
+          }
+        });
+        presetSelect.appendChild(builtInGroup);
+        if (userGroup) presetSelect.appendChild(userGroup);
+        presetSelect.value = selectedId || 'default';
+        updateDeleteBtnVisibility();
+      }
+
+      rebuildPresetSelect(headingSettings.preset || 'default');
       presetSelect.addEventListener('change', function () {
         currentCustom = {};
         applyAndRefreshUI();
+        updateDeleteBtnVisibility();
       });
       presetSection.appendChild(presetSelect);
+
+      // 保存/削除ボタン行
+      var presetBtnRow = document.createElement('div');
+      presetBtnRow.style.cssText = 'display:flex;gap:6px;align-items:center;';
+
+      var savePresetBtn = document.createElement('button');
+      savePresetBtn.type = 'button';
+      savePresetBtn.className = 'small';
+      savePresetBtn.textContent = '現在の設定を保存';
+      savePresetBtn.addEventListener('click', function () {
+        var name = prompt('プリセット名を入力:');
+        if (!name || !name.trim()) return;
+        var merged = getMergedValues();
+        var entry = registry.saveUserPreset(storage, name.trim(), merged);
+        if (!entry) { alert('保存に失敗しました（上限に達している可能性があります）'); return; }
+        rebuildPresetSelect(entry.id);
+        presetSelect.value = entry.id;
+        currentCustom = {};
+        applyAndRefreshUI();
+        try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) {}
+      });
+      presetBtnRow.appendChild(savePresetBtn);
+
+      var deletePresetBtn = document.createElement('button');
+      deletePresetBtn.type = 'button';
+      deletePresetBtn.className = 'small';
+      deletePresetBtn.textContent = '削除';
+      deletePresetBtn.style.display = 'none';
+      deletePresetBtn.addEventListener('click', function () {
+        var id = presetSelect.value;
+        if (!registry.isUserPreset(id)) return;
+        if (!confirm('このプリセットを削除しますか？')) return;
+        registry.deleteUserPreset(storage, id);
+        currentCustom = {};
+        rebuildPresetSelect('default');
+        applyAndRefreshUI();
+        try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) {}
+      });
+      presetBtnRow.appendChild(deletePresetBtn);
+      presetSection.appendChild(presetBtnRow);
+
+      function updateDeleteBtnVisibility() {
+        if (!deletePresetBtn) return;
+        deletePresetBtn.style.display = registry.isUserPreset(presetSelect.value) ? 'inline-block' : 'none';
+      }
 
       // --- セクション2: ミニプレビュー ---
       var previewBox = document.createElement('div');
@@ -294,7 +362,8 @@
 
       function getMergedValues() {
         var presetId = presetSelect.value || 'default';
-        var presetValues = registry.getValues(presetId);
+        var latest = storage.loadSettings() || {};
+        var presetValues = registry.getValues(presetId, latest);
         var merged = {};
         ALL_LEVELS.forEach(function (level) {
           var base = presetValues[level] || {};
@@ -372,7 +441,8 @@
         try {
           var latest = storage.loadSettings();
           if (!latest || !latest.heading) return;
-          presetSelect.value = latest.heading.preset || 'default';
+          var pid = latest.heading.preset || 'default';
+          rebuildPresetSelect(pid);
           currentCustom = latest.heading.custom && typeof latest.heading.custom === 'object'
             ? JSON.parse(JSON.stringify(latest.heading.custom))
             : {};

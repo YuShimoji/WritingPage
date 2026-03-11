@@ -239,7 +239,7 @@ class ThemeManager {
       return;
     }
 
-    const presetValues = registry.getValues(presetId || 'default');
+    const presetValues = registry.getValues(presetId || 'default', this.settings);
     const levels = registry.LEVELS || ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
     const root = document.documentElement;
 
@@ -270,11 +270,13 @@ class ThemeManager {
       });
     });
 
-    // 設定を保存
+    // 設定を保存 (userPresets を保全)
+    const currentHeading = this.settings.heading || {};
     const patch = {
       heading: {
         preset: presetId || 'default',
-        custom: customOverrides || {}
+        custom: customOverrides || {},
+        userPresets: currentHeading.userPresets || []
       }
     };
     window.ZenWriterStorage.saveSettings(patch);

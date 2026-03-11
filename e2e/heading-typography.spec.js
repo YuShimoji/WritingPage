@@ -382,3 +382,94 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
     expect(h1LsExists).toBe(true);
   });
 });
+
+test.describe('SP-058 Heading Typography Phase 4 - User Presets', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/?reset=1');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('ユーザープリセット保存でlistAllPresetsに含まれる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // カスタム値を適用してからユーザープリセットとして保存
+    const result = await page.evaluate(() => {
+      var values = { h1: { size: '2.2em', weight: '800' }, h2: { size: '1.6em' } };
+      var entry = window.HeadingPresetRegistry.saveUserPreset(window.ZenWriterStorage, 'My Novel', values);
+      if (!entry) return null;
+      var all = window.HeadingPresetRegistry.listAllPresets(window.ZenWriterStorage.loadSettings());
+      return { entryId: entry.id, allIds: all.map(function (p) { return p.id; }) };
+    });
+
+    expect(result).not.toBeNull();
+    expect(result.entryId).toMatch(/^user-/);
+    expect(result.allIds).toContain(result.entryId);
+  });
+
+  test('ユーザープリセット削除でlistAllPresetsから消える', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const result = await page.evaluate(() => {
+      var values = { h1: { size: '2em' } };
+      var entry = window.HeadingPresetRegistry.saveUserPreset(window.ZenWriterStorage, 'Temp', values);
+      if (!entry) return null;
+
+      // 削除
+      var deleted = window.HeadingPresetRegistry.deleteUserPreset(window.ZenWriterStorage, entry.id);
+      var all = window.HeadingPresetRegistry.listAllPresets(window.ZenWriterStorage.loadSettings());
+      var ids = all.map(function (p) { return p.id; });
+      return { deleted: deleted, stillContains: ids.indexOf(entry.id) >= 0 };
+    });
+
+    expect(result).not.toBeNull();
+    expect(result.deleted).toBe(true);
+    expect(result.stillContains).toBe(false);
+  });
+
+  test('ユーザープリセットがリロード後も保持される', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // 保存
+    const savedId = await page.evaluate(() => {
+      var values = { h1: { size: '1.9em', weight: '600' } };
+      var entry = window.HeadingPresetRegistry.saveUserPreset(window.ZenWriterStorage, 'Persist Test', values);
+      return entry ? entry.id : null;
+    });
+    expect(savedId).not.toBeNull();
+
+    // リロード
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+
+    // リロード後も存在確認
+    const found = await page.evaluate((id) => {
+      var all = window.HeadingPresetRegistry.listAllPresets(window.ZenWriterStorage.loadSettings());
+      return all.some(function (p) { return p.id === id; });
+    }, savedId);
+    expect(found).toBe(true);
+  });
+
+  test('組み込みプリセットは削除不可', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    const result = await page.evaluate(() => {
+      var r1 = window.HeadingPresetRegistry.deleteUserPreset(window.ZenWriterStorage, 'default');
+      var r2 = window.HeadingPresetRegistry.deleteUserPreset(window.ZenWriterStorage, 'chapter-title');
+      var r3 = window.HeadingPresetRegistry.deleteUserPreset(window.ZenWriterStorage, 'body-emphasis');
+      var all = window.HeadingPresetRegistry.listAllPresets(window.ZenWriterStorage.loadSettings());
+      var builtInIds = all.filter(function (p) { return p.builtIn; }).map(function (p) { return p.id; });
+      return { r1: r1, r2: r2, r3: r3, builtInIds: builtInIds };
+    });
+
+    expect(result.r1).toBe(false);
+    expect(result.r2).toBe(false);
+    expect(result.r3).toBe(false);
+    expect(result.builtInIds).toContain('default');
+    expect(result.builtInIds).toContain('chapter-title');
+    expect(result.builtInIds).toContain('body-emphasis');
+  });
+});

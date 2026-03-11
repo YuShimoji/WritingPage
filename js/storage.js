@@ -124,7 +124,8 @@ const DEFAULT_SETTINGS = {
     // 見出しタイポグラフィ設定
     heading: {
         preset: 'default',
-        custom: {}
+        custom: {},
+        userPresets: []
     }
 };
 
@@ -760,6 +761,9 @@ function normalizeSettingsShape(raw) {
     merged.heading = { ...defaults.heading, ...(parsed.heading || {}) };
     if (!merged.heading.custom || typeof merged.heading.custom !== 'object') {
         merged.heading.custom = {};
+    }
+    if (!Array.isArray(merged.heading.userPresets)) {
+        merged.heading.userPresets = [];
     }
 
     // Font settings normalization (backward compatibility)

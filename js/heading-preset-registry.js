@@ -49,14 +49,43 @@
     }
   ];
 
+  var MAX_USER_PRESETS = 20;
+
+  function getUserPresets(settings) {
+    var h = settings && settings.heading;
+    return (h && Array.isArray(h.userPresets)) ? h.userPresets : [];
+  }
+
   var HeadingPresetRegistry = {
+    MAX_USER_PRESETS: MAX_USER_PRESETS,
+
     listPresets: function () {
       return HEADING_PRESETS.map(function (p) { return { id: p.id, label: p.label }; });
     },
 
-    getPreset: function (id) {
+    listAllPresets: function (settings) {
+      var all = HEADING_PRESETS.map(function (p) {
+        return { id: p.id, label: p.label, builtIn: true };
+      });
+      var user = getUserPresets(settings);
+      for (var i = 0; i < user.length && i < MAX_USER_PRESETS; i++) {
+        var u = user[i];
+        if (u && u.id && u.label && u.values) {
+          all.push({ id: u.id, label: u.label, builtIn: false });
+        }
+      }
+      return all;
+    },
+
+    getPreset: function (id, settings) {
       for (var i = 0; i < HEADING_PRESETS.length; i++) {
         if (HEADING_PRESETS[i].id === id) return HEADING_PRESETS[i];
+      }
+      if (settings) {
+        var user = getUserPresets(settings);
+        for (var j = 0; j < user.length; j++) {
+          if (user[j] && user[j].id === id) return user[j];
+        }
       }
       return null;
     },
@@ -65,13 +94,50 @@
       return HEADING_PRESETS[0].values;
     },
 
-    isValidPreset: function (id) {
+    isValidPreset: function (id, settings) {
+      if (HEADING_PRESETS.some(function (p) { return p.id === id; })) return true;
+      if (settings) {
+        return getUserPresets(settings).some(function (p) { return p && p.id === id; });
+      }
+      return false;
+    },
+
+    isUserPreset: function (id) {
+      return typeof id === 'string' && id.indexOf('user-') === 0;
+    },
+
+    isBuiltInPreset: function (id) {
       return HEADING_PRESETS.some(function (p) { return p.id === id; });
     },
 
-    getValues: function (id) {
-      var preset = this.getPreset(id);
+    getValues: function (id, settings) {
+      var preset = this.getPreset(id, settings);
       return preset ? preset.values : this.getDefaultValues();
+    },
+
+    saveUserPreset: function (storage, label, values) {
+      if (!storage || !label || !values) return null;
+      var settings = storage.loadSettings();
+      var heading = settings.heading || { preset: 'default', custom: {} };
+      var userPresets = Array.isArray(heading.userPresets) ? heading.userPresets.slice() : [];
+      if (userPresets.length >= MAX_USER_PRESETS) return null;
+      var id = 'user-' + Date.now();
+      var entry = { id: id, label: label, values: values };
+      userPresets.push(entry);
+      storage.saveSettings({ heading: { preset: heading.preset, custom: heading.custom, userPresets: userPresets } });
+      return entry;
+    },
+
+    deleteUserPreset: function (storage, id) {
+      if (!storage || !id || !this.isUserPreset(id)) return false;
+      var settings = storage.loadSettings();
+      var heading = settings.heading || { preset: 'default', custom: {} };
+      var userPresets = Array.isArray(heading.userPresets) ? heading.userPresets.slice() : [];
+      var filtered = userPresets.filter(function (p) { return p && p.id !== id; });
+      if (filtered.length === userPresets.length) return false;
+      var newPreset = heading.preset === id ? 'default' : heading.preset;
+      storage.saveSettings({ heading: { preset: newPreset, custom: heading.custom, userPresets: filtered } });
+      return true;
     },
 
     LEVELS: HEADING_LEVELS

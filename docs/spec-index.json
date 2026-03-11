@@ -302,7 +302,7 @@
   {
     "id": "SP-054",
     "title": "フォント切り替え 仕様",
-    "status": "partial",
+    "status": "done",
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-font-switching.md",
@@ -338,11 +338,11 @@
   {
     "id": "SP-058",
     "title": "見出しタイポグラフィ仕様",
-    "status": "partial",
-    "pct": 90,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-heading-typography.md",
-    "summary": "H1-H6のサイズ/太さ/行間/字間を設定化。Phase 1-3完了（プリセット/UI/H4-H6/詳細プロパティ）。Phase 4: Outline連携/ユーザープリセット。"
+    "summary": "H1-H6のサイズ/太さ/行間/字間を設定化。Phase 1-4完了（プリセット/UI/H4-H6/詳細プロパティ/ユーザープリセット/レベル飛び警告）。14 E2Eテスト。"
   },
   {
     "id": "SP-059",

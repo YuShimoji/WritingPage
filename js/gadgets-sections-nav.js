@@ -155,6 +155,7 @@
         for (var k = 0; k < currentHeadings.length; k++) {
           if (currentHeadings[k].level < minLevel) minLevel = currentHeadings[k].level;
         }
+        var prevLevel = 0;
         currentHeadings.forEach(function (h, idx) {
           var node = document.createElement('button');
           node.type = 'button';
@@ -169,6 +170,13 @@
           var levelBadge = document.createElement('span');
           levelBadge.className = 'sections-level-badge';
           levelBadge.textContent = 'H' + h.level;
+
+          // Level-skip warning
+          if (prevLevel > 0 && h.level - prevLevel > 1) {
+            levelBadge.classList.add('sections-level-warning');
+            levelBadge.title = 'H' + prevLevel + ' \u2192 H' + h.level + ': \u30EC\u30D9\u30EB\u304C\u98DB\u3093\u3067\u3044\u307E\u3059';
+          }
+          prevLevel = h.level;
 
           var titleSpan = document.createElement('span');
           titleSpan.className = 'sections-node-title';
