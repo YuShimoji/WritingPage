@@ -338,8 +338,8 @@
   {
     "id": "SP-058",
     "title": "見出しタイポグラフィ仕様",
-    "status": "todo",
-    "pct": 25,
+    "status": "partial",
+    "pct": 50,
     "cat": "ui",
     "file": "docs/specs/spec-heading-typography.md",
     "summary": "H1-H6のサイズ/太さ/行間/字間を設定化し、見出しプリセットとOutline整合を段階導入で定義。"

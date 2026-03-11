@@ -12,7 +12,7 @@ class ThemeManager {
           'high-contrast': { bgColor: '#000000', textColor: '#ffffff' },
           solarized: { bgColor: '#fdf6e3', textColor: '#586e75' }
         };
-    
+
     this.settings = window.ZenWriterStorage.loadSettings();
     // 最初にテーマを適用
     this.applyTheme(this.settings.theme);
@@ -23,6 +23,8 @@ class ThemeManager {
       this.settings.uiFontSize,
       this.settings.editorFontSize,
     );
+    // 見出しタイポグラフィを適用
+    this.applyHeadingSettings(this.settings.heading.preset, this.settings.heading.custom);
   }
 
   refreshSettings() {
@@ -42,18 +44,20 @@ class ThemeManager {
     this.refreshSettings();
     theme = theme || 'light';
     document.documentElement.setAttribute('data-theme', theme);
-    this.settings.theme = theme;
-    
+
     // テーマの既定色を取得
     const themeColor = this.themeColors[theme] || this.themeColors.light;
-    
+
     // カスタムカラー無効時はテーマの既定色を使うため、上書きをクリア
     if (!this.settings.useCustomColors) {
+      // theme を設定に保存してから clearCustomColors を呼ぶ
+      window.ZenWriterStorage.saveSettings({ theme: theme });
       this.clearCustomColors();
       return;
     }
 
     // useCustomColors 有効時: Editor のカスタム色を維持しつつ、UI レイヤはテーマ既定色を優先する
+    this.settings.theme = theme;
     const bg = this.settings.bgColor || themeColor.bgColor;
     const text = this.settings.textColor || themeColor.textColor;
     this.applyCustomColors(bg, text, true);
@@ -214,6 +218,64 @@ class ThemeManager {
       uiFontSize: uiFontSize || fontSize,
       editorFontSize: editorFontSize || fontSize,
       lineHeight: lineHeight,
+    };
+    window.ZenWriterStorage.saveSettings(patch);
+    this.refreshSettings();
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * 見出しタイポグラフィ設定を適用
+   * @param {string} presetId - プリセットID
+   * @param {Object} customOverrides - カスタムオーバーライド
+   */
+  applyHeadingSettings(presetId, customOverrides) {
+    this.refreshSettings();
+
+    // HeadingPresetRegistry からプリセット値を取得
+    const registry = window.HeadingPresetRegistry;
+    if (!registry) {
+      console.warn('HeadingPresetRegistry not found');
+      return;
+    }
+
+    const presetValues = registry.getValues(presetId || 'default');
+    const levels = registry.LEVELS || ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+    const root = document.documentElement;
+
+    // CSS変数名のマッピング
+    const propertyMap = {
+      size: 'size',
+      weight: 'weight',
+      lineHeight: 'line-height',
+      marginTop: 'margin-top',
+      marginBottom: 'margin-bottom',
+      letterSpacing: 'letter-spacing'
+    };
+
+    // 各レベルに対して設定を適用
+    levels.forEach(level => {
+      const presetLevel = presetValues[level] || {};
+      const customLevel = (customOverrides && customOverrides[level]) || {};
+
+      // プリセット値にカスタムオーバーライドをマージ
+      const merged = { ...presetLevel, ...customLevel };
+
+      // CSS変数を設定
+      Object.keys(propertyMap).forEach(key => {
+        if (merged[key] !== undefined) {
+          const cssVarName = `--heading-${level}-${propertyMap[key]}`;
+          root.style.setProperty(cssVarName, merged[key]);
+        }
+      });
+    });
+
+    // 設定を保存
+    const patch = {
+      heading: {
+        preset: presetId || 'default',
+        custom: customOverrides || {}
+      }
     };
     window.ZenWriterStorage.saveSettings(patch);
     this.refreshSettings();

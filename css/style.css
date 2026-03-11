@@ -762,6 +762,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-size: var(--heading-h1-size);
   margin: var(--heading-h1-margin-top) 0 var(--heading-h1-margin-bottom);
   line-height: var(--heading-h1-line-height);
+  letter-spacing: var(--heading-h1-letter-spacing);
   border-bottom: var(--heading-h1-border-bottom);
   padding-bottom: var(--heading-h1-padding-bottom);
 }
@@ -771,6 +772,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-weight: var(--heading-h2-weight);
   margin: var(--heading-h2-margin-top) 0 var(--heading-h2-margin-bottom);
   line-height: var(--heading-h2-line-height);
+  letter-spacing: var(--heading-h2-letter-spacing);
 }
 
 #wysiwyg-editor h3 {
@@ -778,6 +780,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-weight: var(--heading-h3-weight);
   margin: var(--heading-h3-margin-top) 0 var(--heading-h3-margin-bottom);
   line-height: var(--heading-h3-line-height);
+  letter-spacing: var(--heading-h3-letter-spacing);
 }
 
 #wysiwyg-editor h4,
@@ -787,6 +790,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-weight: var(--heading-h4-weight);
   margin: var(--heading-h4-margin-top) 0 var(--heading-h4-margin-bottom);
   line-height: var(--heading-h4-line-height);
+  letter-spacing: var(--heading-h4-letter-spacing);
 }
 
 .wysiwyg-toolbar {
@@ -2898,22 +2902,26 @@ body.dragging-floating-panel {
 
 .print-view h1 {
   font-size: var(--heading-h1-size);
+  letter-spacing: var(--heading-h1-letter-spacing);
   border-bottom: var(--heading-h1-border-bottom);
   padding-bottom: var(--heading-h1-padding-bottom);
 }
 
 .print-view h2 {
   font-size: var(--heading-h2-size);
+  letter-spacing: var(--heading-h2-letter-spacing);
 }
 
 .print-view h3 {
   font-size: var(--heading-h3-size);
+  letter-spacing: var(--heading-h3-letter-spacing);
 }
 
 .print-view h4,
 .print-view h5,
 .print-view h6 {
   font-size: var(--heading-h4-size);
+  letter-spacing: var(--heading-h4-letter-spacing);
 }
 
 .print-view hr {

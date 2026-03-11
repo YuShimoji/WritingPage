@@ -120,6 +120,11 @@ const DEFAULT_SETTINGS = {
         workMinutes: 25,      // 作業時間（分）
         breakMinutes: 5,       // 休憩時間（分）
         customMinutes: 25      // カスタム時間のデフォルト（分）
+    },
+    // 見出しタイポグラフィ設定
+    heading: {
+        preset: 'default',
+        custom: {}
     }
 };
 
@@ -710,7 +715,8 @@ function createDefaultSettingsSnapshot() {
             textExpression: { ...DEFAULT_SETTINGS.editor.textExpression }
         },
         editorLayout: { ...DEFAULT_SETTINGS.editorLayout },
-        pomodoro: { ...DEFAULT_SETTINGS.pomodoro }
+        pomodoro: { ...DEFAULT_SETTINGS.pomodoro },
+        heading: { ...DEFAULT_SETTINGS.heading }
     };
 }
 
@@ -751,6 +757,10 @@ function normalizeSettingsShape(raw) {
     merged.editor.textExpression.realtimePreview = merged.editor.textExpression.realtimePreview !== false;
     merged.editorLayout = { ...defaults.editorLayout, ...(parsed.editorLayout || {}) };
     merged.pomodoro = { ...defaults.pomodoro, ...(parsed.pomodoro || {}) };
+    merged.heading = { ...defaults.heading, ...(parsed.heading || {}) };
+    if (!merged.heading.custom || typeof merged.heading.custom !== 'object') {
+        merged.heading.custom = {};
+    }
 
     // Font settings normalization (backward compatibility)
     if (typeof merged.fontSize !== 'number' || Number.isNaN(merged.fontSize)) {
@@ -789,6 +799,7 @@ function mergeSettings(base, patch) {
     if (isPlainObject(patch.ui)) merged.ui = { ...current.ui, ...patch.ui };
     if (isPlainObject(patch.editorLayout)) merged.editorLayout = { ...current.editorLayout, ...patch.editorLayout };
     if (isPlainObject(patch.pomodoro)) merged.pomodoro = { ...current.pomodoro, ...patch.pomodoro };
+    if (isPlainObject(patch.heading)) merged.heading = { ...current.heading, ...patch.heading };
 
     if (isPlainObject(patch.editor)) {
         merged.editor = { ...current.editor, ...patch.editor };
