@@ -77,6 +77,7 @@ test.describe('Sidebar Writing Focus', () => {
       editor.selectionEnd = 0;
       editor.dispatchEvent(new Event('keyup', { bubbles: true }));
     });
+    await page.waitForTimeout(200);
     await page.click('#writing-focus-add-section');
 
     const afterChapterInsert = await page.evaluate(() => {
@@ -84,5 +85,113 @@ test.describe('Sidebar Writing Focus', () => {
       return editor ? editor.value : '';
     });
     expect(afterChapterInsert).toContain('## 新しい章');
+  });
+
+  test('章チップクリックでジャンプ (基準#4)', async ({ page }) => {
+    await page.goto('/');
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(300);
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      if (!editor) return;
+      editor.value = '## 第一章\n本文A\n## 第二章\n本文B';
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.waitForTimeout(200);
+
+    const chipsCount = await page.evaluate(() => {
+      return document.querySelectorAll('.writing-focus-chip').length;
+    });
+    expect(chipsCount).toBe(2);
+
+    await page.evaluate(() => {
+      const chips = document.querySelectorAll('.writing-focus-chip');
+      if (chips[1]) chips[1].click();
+    });
+    await page.waitForTimeout(100);
+
+    const cursorPosition = await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      return editor ? editor.selectionStart : -1;
+    });
+
+    const expectedPosition = await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      if (!editor) return -1;
+      return editor.value.indexOf('## 第二章');
+    });
+
+    expect(cursorPosition).toBeGreaterThanOrEqual(expectedPosition);
+    expect(cursorPosition).toBeLessThan(expectedPosition + 10);
+  });
+
+  test('前/次シーンボタン (基準#5)', async ({ page }) => {
+    await page.goto('/');
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(300);
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      if (!editor) return;
+      editor.value = '## 第一章\n### シーン1\n本文1\n### シーン2\n本文2';
+      const scene1Pos = editor.value.indexOf('本文1');
+      editor.selectionStart = scene1Pos;
+      editor.selectionEnd = scene1Pos;
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+      editor.dispatchEvent(new Event('keyup', { bubbles: true }));
+    });
+    await page.waitForTimeout(200);
+
+    const seekButtonsCount = await page.evaluate(() => {
+      return document.querySelectorAll('.writing-focus-seek-btn').length;
+    });
+    expect(seekButtonsCount).toBe(2);
+
+    await page.evaluate(() => {
+      const seekButtons = document.querySelectorAll('.writing-focus-seek-btn');
+      if (seekButtons[1]) seekButtons[1].click();
+    });
+    await page.waitForTimeout(100);
+
+    const cursorAfterSeek = await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      return editor ? editor.selectionStart : -1;
+    });
+
+    const scene2Position = await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      if (!editor) return -1;
+      return editor.value.indexOf('### シーン2');
+    });
+
+    expect(cursorAfterSeek).toBeGreaterThanOrEqual(scene2Position);
+    expect(cursorAfterSeek).toBeLessThan(scene2Position + 20);
+  });
+
+  test('空ドキュメント (エッジケース)', async ({ page }) => {
+    await page.goto('/');
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(300);
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      if (!editor) return;
+      editor.value = '';
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.waitForTimeout(200);
+
+    await expect(page.locator('.writing-focus-empty')).toBeVisible();
+
+    await page.click('#writing-focus-add-section');
+    await page.waitForTimeout(100);
+
+    const editorValue = await page.evaluate(() => {
+      const editor = document.getElementById('editor');
+      return editor ? editor.value : '';
+    });
+
+    expect(editorValue).toContain('## 新しい章');
   });
 });

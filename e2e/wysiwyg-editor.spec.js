@@ -346,4 +346,213 @@ test.describe('WYSIWYG Editor', () => {
     expect(content).toContain('太字');
     expect(content).toContain('斜体');
   });
+
+  test('should apply heading H2 block formatting in WYSIWYG mode', async ({ page }) => {
+    // richtextEnhanced フラグを有効化
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.editor = { ...(settings.editor || {}), richtextEnhanced: true };
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await wysiwygEditor.click();
+    await wysiwygEditor.fill('見出しにするテキスト');
+
+    // テキストを選択
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    // 見出しドロップダウンを開く
+    const headingDropdown = page.locator('.wysiwyg-dropdown[data-dropdown="block-heading"]');
+    await headingDropdown.waitFor({ state: 'visible' });
+
+    // H2ボタンをクリック
+    const h2Button = headingDropdown.locator('[data-block="h2"]');
+    await h2Button.dispatchEvent('mousedown');
+
+    // H2要素が存在することを確認
+    const h2Element = wysiwygEditor.locator('h2');
+    await expect(h2Element).toBeAttached();
+  });
+
+  test('should apply unordered list UL block formatting in WYSIWYG mode', async ({ page }) => {
+    // richtextEnhanced フラグを有効化
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.editor = { ...(settings.editor || {}), richtextEnhanced: true };
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await wysiwygEditor.click();
+    await wysiwygEditor.fill('リストにするテキスト');
+
+    // テキストを選択
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+
+    // リストドロップダウンを開く
+    const listDropdown = page.locator('.wysiwyg-dropdown[data-dropdown="block-list"]');
+    await listDropdown.waitFor({ state: 'visible' });
+
+    // ULボタンをクリック
+    const ulButton = listDropdown.locator('[data-block="ul"]');
+    await ulButton.dispatchEvent('mousedown');
+
+    // UL要素が存在することを確認
+    const ulElement = wysiwygEditor.locator('ul');
+    await expect(ulElement).toBeAttached();
+  });
+
+  test('should sanitize dangerous elements in smart paste', async ({ page }) => {
+    // richtextEnhanced フラグを有効化
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.editor = { ...(settings.editor || {}), richtextEnhanced: true };
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await wysiwygEditor.click();
+
+    // エディタにフォーカスし、カーソルを配置（テキストを入力して削除でカーソルを確保）
+    await wysiwygEditor.fill('init');
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    await page.keyboard.press('Delete');
+
+    // ClipboardEvent をディスパッチ
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const dt = new DataTransfer();
+      dt.setData('text/html', '<p>Safe</p><script>alert("xss")</script><p onclick="evil()">Bad</p>');
+      dt.setData('text/plain', 'Safe Bad');
+      const evt = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true });
+      editor.dispatchEvent(evt);
+    });
+
+    // エディタの innerHTML を確認
+    const html = await wysiwygEditor.innerHTML();
+    const text = await wysiwygEditor.textContent();
+
+    // 危険な要素が除去されていることを確認
+    expect(html).not.toContain('<script>');
+    expect(html).not.toContain('onclick');
+    // Safeテキストが含まれることを確認
+    expect(text).toContain('Safe');
+  });
+
+  test('should convert HTML to plain text in plain paste mode', async ({ page }) => {
+    // richtextEnhanced フラグを有効化
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.editor = { ...(settings.editor || {}), richtextEnhanced: true };
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    // プレーンペーストモードを設定
+    await page.evaluate(() => {
+      localStorage.setItem('zenwriter-wysiwyg-paste-mode', 'plain');
+    });
+
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await wysiwygEditor.click();
+
+    // エディタにフォーカスし、カーソルを配置
+    await wysiwygEditor.fill('init');
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const range = document.createRange();
+      range.selectNodeContents(editor);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    await page.keyboard.press('Delete');
+
+    // HTMLを含むClipboardEventをディスパッチ
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const dt = new DataTransfer();
+      dt.setData('text/html', '<p><strong>Bold</strong> and <em>Italic</em></p>');
+      dt.setData('text/plain', 'Bold and Italic');
+      const evt = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true });
+      editor.dispatchEvent(evt);
+    });
+
+    // エディタの HTML を確認
+    const html = await wysiwygEditor.innerHTML();
+
+    // HTMLタグが含まれないことを確認（プレーンテキストのみ）
+    expect(html).not.toContain('<strong>');
+    expect(html).not.toContain('<em>');
+    // プレーンテキストが含まれることを確認
+    const text = await wysiwygEditor.textContent();
+    expect(text).toContain('Bold and Italic');
+  });
+
+  test('should preserve block structure in Markdown round-trip', async ({ page }) => {
+    // richtextEnhanced フラグを有効化
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.editor = { ...(settings.editor || {}), richtextEnhanced: true };
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    const textarea = page.locator('#editor');
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    const toggleBtn = page.locator('#toggle-wysiwyg');
+
+    // まずtextareaモードに切り替え
+    await switchToTextarea(page);
+
+    // ブロック要素を含むMarkdownを入力
+    const markdownInput = `## 見出し2
+
+- リスト項目1
+- リスト項目2
+
+> 引用テキスト`;
+
+    await textarea.fill(markdownInput);
+
+    // WYSIWYGモードに切り替え
+    await toggleBtn.dispatchEvent('mousedown');
+    await expect(wysiwygEditor).toBeVisible();
+
+    // WYSIWYGエディタ内にブロック要素が含まれることを確認
+    const wysiwygContent = await wysiwygEditor.innerHTML();
+    expect(wysiwygContent).toContain('<h2>');
+    expect(wysiwygContent).toContain('<ul>');
+    expect(wysiwygContent).toContain('<li>');
+    expect(wysiwygContent).toContain('<blockquote>');
+
+    // テキストエリアモードに戻す
+    await switchToTextarea(page);
+
+    // textareaの内容を確認
+    const textareaContent = await textarea.inputValue();
+    expect(textareaContent).toContain('## 見出し2');
+    expect(textareaContent).toMatch(/- +リスト項目/); // スペースの数は変わる可能性があるため正規表現を使用
+    expect(textareaContent).toContain('> 引用テキスト');
+  });
 });

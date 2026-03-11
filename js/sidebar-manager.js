@@ -610,7 +610,7 @@ class SidebarManager {
         const parsed = this._parseMarkdownHeadings(editor.value || '');
         const context = this._getWritingFocusContext(editor, parsed);
         const currentChapter = context.activeChapter;
-        const insideChapter = !!(currentChapter && context.cursor >= currentChapter.index && context.cursor < currentChapter.endIndex);
+        const insideChapter = !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
         const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
         const marks = '#'.repeat(level);
         const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';

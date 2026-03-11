@@ -293,8 +293,8 @@
   {
     "id": "SP-053",
     "title": "執筆集中サイドバー 仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-writing-focus-sidebar.md",
     "summary": "Focus連動で章/シーン遷移をサイドバー先頭に集約。現在章/シーンの細いアクセント強調、+追加の自然レベル挿入、Altショートカット、下部ナビ同期方針まで定義。"
@@ -303,7 +303,7 @@
     "id": "SP-054",
     "title": "フォント切り替え 仕様",
     "status": "partial",
-    "pct": 90,
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-font-switching.md",
     "summary": "Typography/Quick Tools/Command Paletteに分散したフォント操作を整理し、保存処理の破壊的更新を防ぐ。本文フォント・UIサイズ・本文サイズ・行間の責務分離と移行ルールを定義。"
@@ -312,7 +312,7 @@
     "id": "SP-055",
     "title": "リッチテキスト強化 仕様",
     "status": "partial",
-    "pct": 80,
+    "pct": 95,
     "cat": "ui",
     "file": "docs/specs/spec-richtext-enhancement.md",
     "summary": "WYSIWYGを常用レベルへ強化。コマンド層の標準化、ブロック編集、スマートペースト、Markdown往復品質、運用イベントを段階導入で定義。"

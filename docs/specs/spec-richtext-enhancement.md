@@ -112,12 +112,12 @@
 
 ## 段階導入（推奨）
 
-| Phase | 内容 | 判定 |
-|------|------|------|
-| Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須 |
-| Phase 2 | ブロック編集UI追加、変換ルール拡張 | 必須 |
-| Phase 3 | スマートペースト実装、設定UI連携 | 必須 |
-| Phase 4 | 品質改善（選択範囲維持、Undo粒度最適化） | 推奨 |
+| Phase | 内容 | 判定 | 状態 |
+| ------ | ------ | ------ | ------ |
+| Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須 | 完了 |
+| Phase 2 | ブロック編集UI追加、変換ルール拡張 | 必須 | 完了 |
+| Phase 3 | スマートペースト実装、設定UI連携 | 必須 | 完了 |
+| Phase 4 | 品質改善（選択範囲維持、Undo粒度最適化） | 推奨 | 未着手 |
 
 ---
 
@@ -126,3 +126,78 @@
 - D1. `img` は Phase 1-3 のスマートペースト許可対象に含めない
 - D2. 見出し操作は H1-H3 に限定して開始する
 - D3. ペースト初期モードは `smart` とする
+
+---
+
+## 実装進捗
+
+### Phase 1: コマンドAdapter導入（完了）
+
+**実装日**: 2026-03-11以前
+**主要ファイル**: `js/richtext-command-adapter.js`, `js/richtext-enhanced-runtime.js`
+
+#### 完了内容
+
+- `RichTextCommandAdapter` クラス実装
+  - `toggleInline(type)`: bold, italic, underline, strikethrough に対応
+  - `wrapWithClass(className)`: span 装飾クラス適用
+  - `insertLink(url, text)`: リンク挿入
+  - `insertText(text)`: テキスト挿入
+  - `removeFormat()`: 書式解除
+  - `execute(command, ...args)`: 統一実行インターフェース
+- `RichTextEnhancedRuntime` による既存メソッドのフック化
+  - `richtextEnhanced` フラグで拡張機能の有効化制御
+  - 既存 WYSIWYG エディタとの互換性維持
+
+### Phase 2: ブロック編集UI（完了）
+
+**実装日**: 2026-03-11
+**主要ファイル**: `js/richtext-command-adapter.js`, `js/editor-wysiwyg.js`
+
+#### 完了内容
+
+- `applyBlock(blockType)` メソッド実装
+  - 対応ブロックタイプ: h1, h2, h3, p, ul, ol, blockquote
+  - Selection/Range API ベースの実装
+  - リスト（ul/ol）では `<li>` 要素の自動生成
+- WYSIWYG ツールバーへの UI 追加
+  - 見出しドロップダウン（H2/H3/段落）
+  - リストドロップダウン（箇条書き/番号付き）
+  - 引用ボタン
+  - 既存の `data-block` 属性パターンと統一したUI設計
+- E2E テスト追加（2件）
+  - H2 見出し適用テスト
+  - UL 箇条書き適用テスト
+
+### Phase 3: スマートペースト（完了）
+
+**実装日**: 2026-03-11
+**主要ファイル**: `js/richtext-command-adapter.js`, `js/editor-wysiwyg.js`
+
+#### 完了内容
+
+- `sanitizeHtml(html)` メソッド実装
+  - DOMParser + TreeWalker ベースの安全なHTMLサニタイズ
+  - 許可タグ: `p, br, strong, em, u, s, a, h1, h2, h3, ul, ol, li, blockquote, span`
+  - `span` の許可クラス: `decor-*`, `anim-*` のみ
+  - `a` の許可URLスキーム: `http`, `https`, `mailto` のみ
+  - `on*` イベント属性の除去
+- `insertHtml(html)` メソッド実装
+  - `execCommand('insertHTML')` + Range API フォールバック
+  - サニタイズ済みHTML挿入
+- ペーストハンドラ実装
+  - `localStorage('zenwriter-wysiwyg-paste-mode')` による設定保存（`smart` | `plain`）
+  - スマートペーストモード: サニタイズ処理適用
+  - プレーンテキストモード: テキストのみ抽出
+  - `Ctrl+Shift+V`: プレーンテキスト強制ペースト
+- E2E テスト追加（2件）
+  - スマートペースト動作テスト
+  - プレーンテキストペースト動作テスト
+
+### Phase 4: 品質改善（未着手）
+
+#### 計画内容
+
+- 選択範囲の維持改善
+- Undo 粒度の最適化
+- その他のUX改善項目

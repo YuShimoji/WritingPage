@@ -208,13 +208,29 @@
 - 4は SP-016/055 との仕様境界を調整する必要があり、後段が安全
 - 5は上位統合のため、個別仕様を先に固めたほうが移行コストを下げられる
 
-## 実装進捗（2026-03-10時点）
+## 実装進捗
 
-1. Phase 1（保存処理の安全化）: 部分完了
+### Phase 1（保存処理の安全化）: 完了（2026-03-10）
+
 - `EditorUI.setGlobalFontSize` をマージ保存へ変更し、`editorFontSize` と `fontSize` を同期。
 - Quick Tools の初期値読み込みを `editorFontSize` 優先に統一。
 - E2E に「フォント変更時に他設定が消えない」回帰ケースを追加。
 
-2. 未完了項目
+### Phase 2（UI責務分離）: 完了（2026-03-11）
+
+- `theme.js` の `applyFontSettings` をパッチベースのマージ保存に変更。
+  - `saveSettings(patch)` 呼び出しで `mergeSettings` パスを使用。
+  - 保存後に `refreshSettings()` を移動し、`this.settings` を最新化。
+- E2E テスト2件追加（`e2e/editor-settings.spec.js`）:
+  1. `font family change should persist after reload` - フォント永続化の確認
+  2. `font family change via Typography should preserve other settings` - 設定非破壊の確認
+
+### Phase 3（E2E追加と既存テスト更新）: 未完了
+
 - Typography / Quick Tools の双方向同期ケースをE2Eで追加。
 - UIラベルの役割明示（「本文サイズクイック調整」）を実装へ反映。
+
+### Phase 4（ドキュメント更新）: 未完了
+
+- `docs/EDITOR_HELP.md` へのフォント切り替え操作ガイド追加。
+- `docs/TESTING.md` へのフォント関連テストケース記載。

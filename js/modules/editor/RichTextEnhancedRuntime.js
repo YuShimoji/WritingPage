@@ -104,13 +104,41 @@
       instance.wysiwygEditor.addEventListener('paste', function (e) {
         if (!getFlagValue()) return;
         if (!instance.isWysiwygMode) return;
-        if (!instance.commandAdapter || typeof instance.commandAdapter.insertText !== 'function') return;
+        if (!instance.commandAdapter) return;
         e.preventDefault();
         e.stopImmediatePropagation();
-        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-        instance.commandAdapter.insertText(text);
+        var forcePlain = e._forcePlain;
+        var mode = 'smart';
+        try { mode = localStorage.getItem('zenwriter-wysiwyg-paste-mode') || 'smart'; } catch (_) { /* noop */ }
+        var clipboard = e.clipboardData || window.clipboardData;
+        var html = clipboard.getData('text/html');
+        var text = clipboard.getData('text/plain');
+        if (forcePlain || mode === 'plain' || !html) {
+          instance.commandAdapter.insertText(text);
+        } else if (typeof instance.commandAdapter.sanitizeHtml === 'function' && typeof instance.commandAdapter.insertHtml === 'function') {
+          var clean = instance.commandAdapter.sanitizeHtml(html);
+          instance.commandAdapter.insertHtml(clean);
+        } else {
+          instance.commandAdapter.insertText(text);
+        }
         if (typeof instance.syncToMarkdown === 'function') instance.syncToMarkdown();
       }, true);
+
+      instance.wysiwygEditor.addEventListener('keydown', function (e) {
+        if (!getFlagValue() || !instance.isWysiwygMode) return;
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'v' || e.key === 'V')) {
+          e.preventDefault();
+          if (navigator.clipboard && typeof navigator.clipboard.readText === 'function') {
+            navigator.clipboard.readText().then(function (text) {
+              if (text && instance.commandAdapter) {
+                instance.commandAdapter.insertText(text);
+                if (typeof instance.syncToMarkdown === 'function') instance.syncToMarkdown();
+              }
+            }).catch(function () { /* clipboard permission denied */ });
+          }
+        }
+      });
+
       instance.__richTextEnhancedPasteCaptureInstalled = true;
     }
 

@@ -362,6 +362,31 @@
             <i data-lucide="link" aria-hidden="true"></i>
           </button>
           <div class="wysiwyg-separator"></div>
+          <!-- ブロック編集 -->
+          <div class="wysiwyg-dropdown" data-dropdown="block-heading">
+            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="見出し" aria-label="見出し" aria-expanded="false">
+              <i data-lucide="heading" aria-hidden="true"></i>
+            </button>
+            <div class="wysiwyg-dropdown-menu" role="menu">
+              <button role="menuitem" data-block="h1">見出し 1</button>
+              <button role="menuitem" data-block="h2">見出し 2</button>
+              <button role="menuitem" data-block="h3">見出し 3</button>
+              <button role="menuitem" data-block="p">段落</button>
+            </div>
+          </div>
+          <div class="wysiwyg-dropdown" data-dropdown="block-list">
+            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="リスト" aria-label="リスト" aria-expanded="false">
+              <i data-lucide="list" aria-hidden="true"></i>
+            </button>
+            <div class="wysiwyg-dropdown-menu" role="menu">
+              <button role="menuitem" data-block="ul">箇条書き</button>
+              <button role="menuitem" data-block="ol">番号付きリスト</button>
+            </div>
+          </div>
+          <button class="wysiwyg-btn" type="button" title="引用" aria-label="引用" data-block="blockquote">
+            <i data-lucide="quote" aria-hidden="true"></i>
+          </button>
+          <div class="wysiwyg-separator"></div>
           <!-- 装飾ドロップダウン -->
           <div class="wysiwyg-dropdown" data-dropdown="decor">
             <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="フォント装飾" aria-label="フォント装飾" aria-expanded="false">

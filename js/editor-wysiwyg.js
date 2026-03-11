@@ -226,6 +226,17 @@
         });
       });
 
+      // ブロック操作（見出し/リスト/引用）
+      this.wysiwygToolbar.querySelectorAll('[data-block]').forEach(function (btn) {
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          var block = btn.getAttribute('data-block');
+          if (block) self.executeCommand(block);
+          var dd = btn.closest('.wysiwyg-dropdown');
+          if (dd) dd.setAttribute('data-open', 'false');
+        });
+      });
+
       // ドロップダウン外クリックで閉じる
       document.addEventListener('mousedown', function (e) {
         if (!e.target.closest('.wysiwyg-dropdown')) {
