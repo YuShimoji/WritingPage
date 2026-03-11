@@ -7,7 +7,7 @@
 - E2E: 203 test cases (30 spec files) -- 197 passed / 5 flaky timeout / 1 skipped
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 27個登録済み
+- ガジェット: 30個登録済み
 
 ---
 
@@ -72,7 +72,7 @@
 
 ## Priority C: ガジェット整理
 
-27個は多すぎる可能性。類似機能の統合、使用頻度の低いものの廃止を検討。
+30個は多すぎる可能性。類似機能の統合、使用頻度の低いものの廃止を検討。
 
 - ガジェット利用状況分析 -- 実際の使用頻度を計測する仕組みの導入
 - 類似ガジェット統合 -- Typography + FontDecoration、UISettings + UIDesign 等

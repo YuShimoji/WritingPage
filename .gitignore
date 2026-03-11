@@ -30,6 +30,7 @@ _site/
 # Playwright outputs
 test-results/
 playwright-report/
+.tmp-playwright-libs/
 debug-screenshot-*.png
 debug-*.md
 debug-*.html

@@ -310,13 +310,22 @@ html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
 }
 
-
 html[data-ui-mode='focus'] #quick-tools-panel {
   display: none !important;
 }
 
+html[data-ui-mode='focus'] .main-content {
+  margin-left: 0 !important;
+}
+
 html[data-ui-mode='focus'] .editor-container {
   margin-left: 0 !important;
+  width: 100% !important;
+}
+
+html[data-ui-mode='focus'] #toggle-sidebar-btn,
+html[data-ui-mode='focus'] #toolbar-close-sidebar {
+  display: none !important;
 }
 
 /* Blank モード: すべてのUIを隠し、エディタのみ表示 */
@@ -341,13 +350,23 @@ html[data-ui-mode='blank'] .show-toolbar-fab {
   display: none !important;
 }
 
+html[data-ui-mode='blank'] .main-content {
+  margin-left: 0 !important;
+}
+
 html[data-ui-mode='blank'] .editor-container {
   margin-left: 0 !important;
-  height: 100vh;
+  width: 100% !important;
+  height: 100vh !important;
 }
 
 html[data-ui-mode='blank'] #editor {
-  padding-top: 1rem;
+  padding-top: 2rem !important;
+}
+
+/* ブランクモード中もツールバー再表示用FABだけは表示しておく */
+html[data-ui-mode='blank'] .fab-toggle-toolbar {
+  display: inline-flex !important;
 }
 
 /* ダークテーマ
@@ -1406,7 +1425,9 @@ html[data-toolbar-hidden='true'] .sidebar {
 .sidebar-groups {
   flex: 1;
   overflow: visible;
-  /* ネストスクロールを避ける */
+  min-height: 0;
+  /* ネストスクロールを避ける: overflow:visible のまま
+     min-height:0 で flex child が親のスクロールに委譲 */
   padding-right: 4px;
 }
 
@@ -1513,7 +1534,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 }
 
 .accordion-content[aria-hidden="false"] {
-  max-height: 10000px;
+  max-height: none;
   opacity: 1;
 }
 
@@ -3669,56 +3690,8 @@ html[data-embed='true'] #editor {
 }
 
 /* =========================================
-   UI Modes
+   UI Modes (統合済み: 正規定義は上部 L302~ にあり)
    ========================================= */
-
-/* Focus Mode: Sidebar hidden, Toolbar visible */
-html[data-ui-mode="focus"] .sidebar {
-  display: none !important;
-}
-
-html[data-ui-mode="focus"] .main-content {
-  margin-left: 0 !important;
-}
-
-html[data-ui-mode="focus"] .editor-container {
-  margin-left: 0 !important;
-  width: 100% !important;
-}
-
-/* Hide sidebar toggle in focus mode */
-html[data-ui-mode="focus"] #toggle-sidebar-btn,
-html[data-ui-mode="focus"] #toolbar-close-sidebar {
-  display: none !important;
-}
-
-/* Blank Mode: Sidebar and Toolbar hidden（本文のみ + 脱出用FAB） */
-html[data-ui-mode="blank"] .sidebar {
-  display: none !important;
-}
-
-html[data-ui-mode="blank"] .toolbar {
-  display: none !important;
-}
-
-html[data-ui-mode="blank"] .main-content {
-  margin-left: 0 !important;
-}
-
-html[data-ui-mode="blank"] .editor-container {
-  margin-left: 0 !important;
-  width: 100% !important;
-  height: 100vh !important;
-}
-
-html[data-ui-mode="blank"] #editor {
-  padding-top: 2rem !important;
-}
-
-/* ブランクモード中もツールバー再表示用FABだけは表示しておく */
-html[data-ui-mode="blank"] .fab-toggle-toolbar {
-  display: inline-flex !important;
-}
 
 /* Mode switching transition */
 .sidebar,
