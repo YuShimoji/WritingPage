@@ -185,6 +185,34 @@
 
 | Phase | 内容 | 状態 |
 |------|------|------|
-| Phase 1 | セクションカテゴリ追加、見出しツリー、下部ナビ、前後移動 | todo |
+| Phase 1 | セクションカテゴリ追加、見出しツリー、下部ナビ、前後移動 | 完了 |
 | Phase 2 | 話フォーカス編集（部分表示/部分保存） | todo |
 | Phase 3 | 話単位メタ情報（ステータス/進捗/タグ） | todo |
+
+## Phase 1 実装詳細（完了）
+
+### 実装ファイル
+
+| ファイル | 変更内容 |
+| --------- | --------- |
+| `js/gadgets-sections-nav.js` | SectionsNavigator ガジェット（見出しツリー + 下部ナビ制御） |
+| `js/gadgets-utils.js` | `sections` グループ定義追加（GADGET_GROUPS先頭） |
+| `js/loadouts-presets.js` | 全3プリセットに `sections: ['SectionsNavigator']` 追加 |
+| `js/sidebar-manager.js` | sections アコーディオンカテゴリ登録 + Writing Focus表示許可 |
+| `index.html` | sections アコーディオン + `#editor-bottom-nav` + script タグ |
+| `css/style.css` | `.sections-tree-node`, `.sections-level-badge`, `.editor-bottom-nav` スタイル |
+
+### 技術的な注意点
+
+- **WYSIWYGモード対応**: `getEditorText()` で `richTextEditor.syncToMarkdown()` を呼び出してからtextarea値を読む
+- **イベントリスナー**: textarea `input` + WYSIWYG `input` + `document` `zen-content-saved` + `window` `ZWDocumentsChanged`
+- **デバウンス**: 120ms でheading再解析（`scheduleRender`）
+- **スクリプト読み込み順**: `gadgets-builtin.js`（`window.ZWGadgets` 生成）の後に配置が必須
+
+### E2Eテスト（5件）
+
+1. セクションカテゴリがサイドバーに存在し最上段にある
+2. 見出しツリーが正しくレンダリングされる（4ノード、タイトル一致）
+3. ツリーノードクリックでエディタカーソルがジャンプする
+4. エディタ下部ナビ（prev/next/title）が表示される
+5. 下部ナビにアクティブセクション名が表示される

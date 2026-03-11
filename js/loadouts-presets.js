@@ -12,6 +12,9 @@
         label: '小説・長編',
         description: '長編小説向けの標準構成',
         groups: {
+          sections: [
+            'SectionsNavigator'
+          ],
           structure: [
             'Documents',
             'Outline',
@@ -47,6 +50,9 @@
         label: 'ミニマル',
         description: '最小限の機能で集中執筆',
         groups: {
+          sections: [
+            'SectionsNavigator'
+          ],
           structure: [
             'Documents',
             'Outline'
@@ -74,6 +80,9 @@
         label: 'ビジュアルノベル',
         description: 'VN・ゲームシナリオ向け',
         groups: {
+          sections: [
+            'SectionsNavigator'
+          ],
           structure: [
             'Documents',
             'Outline',

@@ -109,6 +109,14 @@
   // ガジェットグループ定義（アコーディオン形式対応）
   // グループ名→メタデータのマッピング
   var GADGET_GROUPS = {
+    sections: {
+      id: 'sections',
+      label: 'セクション',
+      icon: 'list-tree',
+      description: '見出しツリーと話ナビゲーション',
+      panelSelector: '[data-gadget-group="sections"]',
+      sectionSelector: '[data-category="sections"]'
+    },
     structure: {
       id: 'structure',
       label: '構造',

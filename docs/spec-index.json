@@ -284,8 +284,8 @@
   {
     "id": "SP-052",
     "title": "セクションツリー/話ナビゲーション 仕様",
-    "status": "todo",
-    "pct": 10,
+    "status": "partial",
+    "pct": 70,
     "cat": "ui",
     "file": "docs/specs/spec-sections-navigation.md",
     "summary": "左サイド最上段にセクションカテゴリを新設。見出しツリー選択で話へジャンプ編集、エディタ最下部に前後話/見出し移動ナビを常設する。"

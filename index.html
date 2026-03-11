@@ -113,6 +113,18 @@
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar" role="complementary" aria-label="設定パネル">
       <div class="sidebar-accordion">
+        <!-- sections カテゴリ (SP-052) -->
+        <section class="accordion-category" data-category="sections">
+          <button class="accordion-header" aria-expanded="true" aria-controls="accordion-sections">
+            <i data-lucide="list-tree" aria-hidden="true"></i>
+            <span>セクション</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-sections" aria-hidden="false">
+            <div id="sections-gadgets-panel" class="gadgets-panel" data-gadget-group="sections" aria-label="セクションガジェット"></div>
+          </div>
+        </section>
+
         <!-- structure カテゴリ -->
         <section class="accordion-category" data-category="structure">
           <button class="accordion-header" aria-expanded="true" aria-controls="accordion-structure">
@@ -439,6 +451,20 @@
         </div>
         <div id="print-view" class="print-view" aria-hidden="true"></div>
         </div>
+        <!-- SP-052: エディタ下部ナビ -->
+        <nav id="editor-bottom-nav" class="editor-bottom-nav" aria-label="セクションナビゲーション">
+          <button id="bottom-nav-prev" class="bottom-nav-btn" type="button" title="前のセクション" disabled>
+            <i data-lucide="chevron-left" aria-hidden="true"></i>
+            <span>前へ</span>
+          </button>
+          <button id="bottom-nav-title" class="bottom-nav-title" type="button" title="見出しへ移動">
+            <span id="bottom-nav-title-text">---</span>
+          </button>
+          <button id="bottom-nav-next" class="bottom-nav-btn" type="button" title="次のセクション" disabled>
+            <span>次へ</span>
+            <i data-lucide="chevron-right" aria-hidden="true"></i>
+          </button>
+        </nav>
       </div>
     </main>
     <!-- ツールバー復元FAB (ツールバー非表示時のみ表示) -->
@@ -686,6 +712,7 @@
   <script defer src="js/gadgets-documents-tree.js"></script>
   <script defer src="js/gadgets-builtin.js"></script>
   <script defer src="js/gadgets-documents-hierarchy.js"></script>
+  <script defer src="js/gadgets-sections-nav.js"></script>
   <script defer src="js/gadgets-themes.js"></script>
   <script defer src="js/gadgets-heading.js"></script>
   <script defer src="js/gadgets-typography.js"></script>

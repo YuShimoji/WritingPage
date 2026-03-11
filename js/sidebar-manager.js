@@ -24,6 +24,14 @@ class SidebarManager {
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
             {
+                id: 'sections',
+                label: 'セクション',
+                icon: 'list-tree',
+                description: '見出しツリーと話ナビゲーション',
+                panelId: 'sections-gadgets-panel',
+                defaultExpanded: true
+            },
+            {
                 id: 'structure',
                 label: '構造',
                 icon: 'file-text',
@@ -400,7 +408,7 @@ class SidebarManager {
         const categories = document.querySelectorAll('.accordion-category[data-category]');
         categories.forEach((section) => {
             const categoryId = section.getAttribute('data-category');
-            if (effective && !this._writingFocusSettingsOpen && categoryId !== 'structure') {
+            if (effective && !this._writingFocusSettingsOpen && categoryId !== 'structure' && categoryId !== 'sections') {
                 section.style.display = 'none';
                 section.setAttribute('aria-hidden', 'true');
                 this._setAccordionState(categoryId, false);
@@ -412,7 +420,9 @@ class SidebarManager {
 
         if (effective) {
             this._setAccordionState('structure', true);
+            this._setAccordionState('sections', true);
             this._ensureAccordionGadgetInitialized('structure');
+            this._ensureAccordionGadgetInitialized('sections');
             if (this._writingFocusSettingsOpen) {
                 // 設定表示はノイズ削減のため structure のみ初期展開
                 this.accordionCategories.forEach((category) => {
