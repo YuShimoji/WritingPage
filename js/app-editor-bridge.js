@@ -221,7 +221,7 @@
       if (!reading) return;
       const before = text.slice(0, start);
       const after = text.slice(end);
-      const insertion = `|${base}《${reading}》`;
+      const insertion = `{${base}|${reading}}`;
       editorEl.value = before + insertion + after;
       const newStart = before.length;
       const newEnd = newStart + insertion.length;

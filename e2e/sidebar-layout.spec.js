@@ -2,8 +2,19 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Sidebar Layout', () => {
-  test('should not hide main content when sidebar is open', async ({ page }) => {
+  // 全カテゴリを操作するため執筆集中IAを解除
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+      document.querySelectorAll('.accordion-category[data-category]').forEach(cat => {
+        cat.style.display = '';
+        cat.setAttribute('aria-hidden', 'false');
+      });
+    });
+  });
+
+  test('should not hide main content when sidebar is open', async ({ page }) => {
     // Open sidebar
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -34,7 +45,6 @@ test.describe('Sidebar Layout', () => {
   });
 
   test('should animate sidebar open and close smoothly', async ({ page }) => {
-    await page.goto('/');
     const sidebar = page.locator('#sidebar');
     
     // Open sidebar
@@ -60,7 +70,6 @@ test.describe('Sidebar Layout', () => {
   });
 
   test('should handle multiple accordion switches without issues', async ({ page }) => {
-    await page.goto('/');
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
     await page.waitForTimeout(300);
@@ -109,7 +118,6 @@ test.describe('Sidebar Layout', () => {
   });
 
   test('should maintain sidebar state after reload', async ({ page }) => {
-    await page.goto('/');
     // Open sidebar
     await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
     await page.click('#toggle-sidebar');
@@ -121,6 +129,13 @@ test.describe('Sidebar Layout', () => {
 
     // Reload page
     await page.reload();
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+      document.querySelectorAll('.accordion-category[data-category]').forEach(cat => {
+        cat.style.display = '';
+        cat.setAttribute('aria-hidden', 'false');
+      });
+    });
 
     // Sidebar should remember it was open
     const sidebar = page.locator('#sidebar');

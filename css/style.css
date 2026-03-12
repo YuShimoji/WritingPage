@@ -4050,8 +4050,8 @@ input[type="checkbox"] {
   pointer-events: none;
 }
 /* Outline/Sections Nav は内容量が可変のため max-height 制約を解除 */
-.gadget-wrapper[data-gadget-name="Outline"] .gadget,
-.gadget-wrapper[data-gadget-name="SectionsNavigator"] .gadget {
+.gadget-wrapper[data-gadget-name="Outline"]:not([data-gadget-collapsed="true"]) .gadget,
+.gadget-wrapper[data-gadget-name="SectionsNavigator"]:not([data-gadget-collapsed="true"]) .gadget {
   max-height: none;
   overflow: visible;
 }
@@ -6414,6 +6414,26 @@ html.is-electron[data-ui-mode="blank"][data-edge-hover-top="true"] .toolbar {
   white-space: nowrap;
   flex: 1;
   min-width: 0;
+}
+
+/* --- ルビ (ruby/rt) --- */
+ruby {
+  ruby-align: center;
+}
+
+rt {
+  font-size: 0.5em;
+  line-height: 1;
+  letter-spacing: 0.05em;
+  color: var(--text-color, inherit);
+  opacity: 0.85;
+}
+
+/* 印刷時もルビを保持 */
+@media print {
+  rt {
+    font-size: 0.5em;
+  }
 }
 
 /* --- エディタ下部ナビ --- */

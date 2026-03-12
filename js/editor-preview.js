@@ -125,6 +125,10 @@
       html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
         return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
       });
+      // Legacy ruby format: |漢字《かな》 -> <ruby>漢字<rt>かな</rt></ruby>
+      html = html.replace(/\|([^|《》]+)《([^《》]+)》/g, function (_match, kanji, kana) {
+        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
+      });
     }
 
     if (window.morphdom) {

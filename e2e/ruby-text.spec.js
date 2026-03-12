@@ -49,4 +49,19 @@ test.describe('Ruby Text E2E (TASK_054)', () => {
         expect(rubyHtml).toContain('<ruby>蒼<rt>あお</rt></ruby>');
         expect(rubyHtml).toContain('<ruby>空<rt>そら</rt></ruby>');
     });
+
+    test('Legacy ruby notation |漢字《かな》 is rendered correctly', async ({ page }) => {
+        await page.goto(pageUrl);
+        await page.waitForSelector('#editor', { timeout: 10000 });
+        await showFullToolbar(page);
+
+        await page.fill('#editor', '|漢字《かんじ》のテスト');
+        await page.waitForTimeout(500);
+
+        await page.click('#toggle-preview');
+
+        const panel = page.locator('#markdown-preview-panel');
+        const rubyHtml = await panel.innerHTML();
+        expect(rubyHtml).toContain('<ruby>漢字<rt>かんじ</rt></ruby>');
+    });
 });
