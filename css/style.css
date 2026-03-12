@@ -6416,6 +6416,62 @@ html.is-electron[data-ui-mode="blank"][data-edge-hover-top="true"] .toolbar {
   min-width: 0;
 }
 
+/* --- SP-052 Phase 2: セクションコラプス --- */
+
+.sections-expand-all-btn {
+  display: block;
+  width: 100%;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  border: 1px dashed var(--border-color, #ccc);
+  background: transparent;
+  color: var(--text-color, #333);
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.sections-expand-all-btn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+/* 折りたたまれた要素 */
+#wysiwyg-editor [data-collapsed="true"] {
+  display: none;
+}
+
+/* 省略マーカー */
+.section-collapse-more {
+  padding: 6px 0 10px;
+  color: var(--text-muted, #999);
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0.45;
+  letter-spacing: 0.2em;
+  border-bottom: 1px dashed var(--border-color, #ddd);
+  margin-bottom: 8px;
+  transition: opacity 0.15s;
+}
+.section-collapse-more:hover {
+  opacity: 0.75;
+}
+
+/* アクティブセクションの見出し左アクセント */
+#wysiwyg-editor [data-section-active="true"] {
+  position: relative;
+}
+#wysiwyg-editor [data-section-active="true"]::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 3px;
+  background: var(--accent-color, #4285f4);
+  border-radius: 2px;
+}
+
 /* --- ルビ (ruby/rt) --- */
 ruby {
   ruby-align: center;

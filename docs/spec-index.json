@@ -285,10 +285,10 @@
     "id": "SP-052",
     "title": "セクションツリー/話ナビゲーション 仕様",
     "status": "partial",
-    "pct": 70,
+    "pct": 90,
     "cat": "ui",
     "file": "docs/specs/spec-sections-navigation.md",
-    "summary": "左サイド最上段にセクションカテゴリを新設。見出しツリー選択で話へジャンプ編集、エディタ最下部に前後話/見出し移動ナビを常設する。"
+    "summary": "Phase 1: 見出しツリー+下部ナビ。Phase 2: WYSIWYGセクションコラプス（先頭2段落+省略マーカー、ツリー選択で自動折りたたみ）。Phase 3: 話単位メタ情報は未着手。"
   },
   {
     "id": "SP-053",
@@ -323,8 +323,8 @@
     "status": "deferred",
     "pct": 30,
     "cat": "ui",
-    "file": null,
-    "summary": "betaEnabled:false で非公開中。Phase 1 (30%) 未完了。仕様書は未作成。完成度が上がるまで延期 (DECISION LOG 2026-03-11)。"
+    "file": "docs/specs/spec-extended-scroll-canvas.md",
+    "summary": "betaEnabled:false で非公開中。Phase 1 (30%) 未完了。完成度が上がるまで延期 (DECISION LOG 2026-03-11)。"
   },
   {
     "id": "SP-057",
@@ -388,5 +388,15 @@
     "cat": "user",
     "file": "docs/specs/spec-markdown-reference.md",
     "summary": "Markdown記法・ショートカット・アプリ固有拡張の参照ガジェット。カテゴリ別折りたたみ+検索フィルタ付き。"
+  },
+  {
+    "id": "SP-064",
+    "title": "フォント切り替え影響マップ",
+    "status": "done",
+    "pct": 100,
+    "cat": "ui",
+    "file": "docs/specs/spec-font-switching-impact-map.md",
+    "summary": "SP-054 フォント切り替え実装時の影響範囲分析。変更対象ファイル・関連度・安全な作業順序を整理。",
+    "related": ["SP-054"]
   }
 ]

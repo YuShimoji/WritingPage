@@ -186,7 +186,7 @@
 | Phase | 内容 | 状態 |
 |------|------|------|
 | Phase 1 | セクションカテゴリ追加、見出しツリー、下部ナビ、前後移動 | 完了 |
-| Phase 2 | 話フォーカス編集（部分表示/部分保存） | todo |
+| Phase 2 | 軽量セクションコラプス（WYSIWYG 先頭2段落 + 省略マーカー） | 完了 |
 | Phase 3 | 話単位メタ情報（ステータス/進捗/タグ） | todo |
 
 ## Phase 1 実装詳細（完了）
@@ -216,3 +216,45 @@
 3. ツリーノードクリックでエディタカーソルがジャンプする
 4. エディタ下部ナビ（prev/next/title）が表示される
 5. 下部ナビにアクティブセクション名が表示される
+
+## Phase 2 実装詳細（完了）
+
+### 概要
+
+WYSIWYG モードで見出しツリーからセクションを選択すると、
+他セクションを自動的に折りたたみ（先頭2段落 + 省略マーカー）、
+選択したセクションのみ全文表示する軽量コラプス機能。
+
+### 設計決定
+
+| 項目 | 決定 | 理由 |
+| ------ | ------ | ------ |
+| 対象モード | WYSIWYG のみ | textarea はデバッグ用途。DOM 操作でコラプス可能 |
+| 折りたたみ表現 | 見出し + 先頭2段落 + 「...」省略マーカー | 文脈を少し残しつつコンパクト化 |
+| 発動タイミング | ツリー選択で自動 | ツリーがナビゲーション起点なので自然な導線 |
+| 解除方法 | 「全展開」ボタン / 折りたたみ見出しクリック | 複数の解除経路で操作感を確保 |
+
+### ユーザー操作フロー
+
+1. WYSIWYG モードで長編を開く
+2. 左サイドの見出しツリーで章をクリック
+3. エディタがその章にスクロール、他の全章が自動折りたたみ
+4. 折りたたまれた章: 見出し + 先頭2段落 + 薄い「...」マーカー
+5. 折りたたみ章の見出しや「...」クリック → その章に切替
+6. ツリー上部「全展開」ボタン → コラプス解除
+7. 下部ナビ prev/next でもコラプスが追従
+
+### 実装ファイル
+
+| ファイル | 変更内容 |
+| --------- | --------- |
+| `js/gadgets-sections-nav.js` | WYSIWYG DOM解析、コラプス適用/解除、jumpToHeading WYSIWYG対応、「全展開」ボタン |
+| `js/editor-wysiwyg.js` | `syncToMarkdown()` / `switchToTextarea()` にコラプスクリーンアップフック追加 |
+| `css/style.css` | `.section-collapse-more`, `[data-collapsed]`, `[data-section-active]`, `.sections-expand-all-btn` |
+
+### 技術的な注意点
+
+- **syncToMarkdown 整合**: コラプスマーカー (`div.section-collapse-more`) は `syncToMarkdown()` 前に除去し、変換後に再適用。`window.ZWSectionCollapse.clear()` / `.reapply()` で制御
+- **FocusMode との共存**: FocusMode は `#editor-overlay` 層の opacity 制御、コラプスは WYSIWYG DOM の `display` 制御。独立した仕組みで競合しない
+- **ドキュメント切替**: `ZWDocumentsChanged` イベントでコラプスを自動解除し、新文書のツリーを再構築
+- **WYSIWYG ヘッダー解析**: `parseWysiwygHeadings()` で DOM から直接 h1-h6 を取得。`syncToMarkdown()` 呼び出しを回避しパフォーマンス向上

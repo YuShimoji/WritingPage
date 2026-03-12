@@ -4,7 +4,7 @@
 
 ## 現在の状態
 
-- E2E: 259 test cases (38 spec files) (2026-03-12 時点)
+- E2E: 262 test cases (38 spec files) (2026-03-12 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)

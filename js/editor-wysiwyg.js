@@ -526,6 +526,10 @@
     switchToTextarea() {
       if (!this.isWysiwygMode) return;
 
+      // SP-052 Phase 2: コラプスをクリアしてから変換
+      var sc = window.ZWSectionCollapse;
+      if (sc && sc.clear) sc.clear();
+
       // WYSIWYGの内容を取得してHTMLからMarkdownに変換
       const html = this.wysiwygEditor.innerHTML || '';
       const markdown = this.htmlToMarkdown(html);
@@ -566,9 +570,17 @@
     syncToMarkdown() {
       if (!this.isWysiwygMode || !this.textareaEditor) return;
 
+      // SP-052 Phase 2: コラプスマーカーを一時除去してから変換
+      var sc = window.ZWSectionCollapse;
+      var wasActive = sc && sc.isActive && sc.isActive();
+      if (wasActive && sc.clear) sc.clear();
+
       const html = this.wysiwygEditor.innerHTML || '';
       const markdown = this.htmlToMarkdown(html);
       this.textareaEditor.value = markdown;
+
+      // コラプス状態を復元
+      if (wasActive && sc && sc.reapply) sc.reapply();
     }
 
     /**
