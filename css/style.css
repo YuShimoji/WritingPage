@@ -686,6 +686,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-family: var(--font-family);
   font-size: var(--editor-font-size);
   line-height: var(--line-height);
+  letter-spacing: var(--body-letter-spacing, 0em);
   padding: 1rem 1.5rem;
   outline: none;
   overflow-y: auto;
@@ -696,6 +697,11 @@ html[data-toolbar-hidden='true'] .editor-container {
 
 .editor-preview--collapsed {
   display: none;
+}
+
+.editor-preview p {
+  margin-bottom: var(--paragraph-spacing, 1em);
+  text-indent: var(--paragraph-indent, 0em);
 }
 
 #editor {
@@ -711,6 +717,7 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: var(--line-height);
+  letter-spacing: var(--body-letter-spacing, 0em);
   resize: none;
   transition:
     color var(--transition-speed),
@@ -723,6 +730,21 @@ html[data-toolbar-hidden='true'] .editor-container {
   max-width: var(--wrap-ch);
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+#editor p,
+#editor div.paragraph {
+  margin-bottom: var(--paragraph-spacing, 1em);
+  text-indent: var(--paragraph-indent, 0em);
+}
+
+/* 禁則処理: strict-ja モード (SP-057) */
+html[data-line-break-mode='strict-ja'] #editor,
+html[data-line-break-mode='strict-ja'] #wysiwyg-editor,
+html[data-line-break-mode='strict-ja'] .editor-preview {
+  word-break: normal;
+  overflow-wrap: break-word;
+  line-break: strict;
 }
 
 #wysiwyg-editor {
@@ -739,12 +761,18 @@ html[data-toolbar-hidden='true'] .editor-container {
   font-family: var(--font-family);
   font-size: var(--font-size);
   line-height: var(--line-height);
+  letter-spacing: var(--body-letter-spacing, 0em);
   overflow: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
   max-width: var(--wrap-ch);
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+#wysiwyg-editor p {
+  margin-bottom: var(--paragraph-spacing, 1em);
+  text-indent: var(--paragraph-indent, 0em);
 }
 
 /* ===== WYSIWYG見出しスタイル ===== */

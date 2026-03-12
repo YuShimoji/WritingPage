@@ -163,7 +163,121 @@
       fontSection.appendChild(lineHeightRow);
 
       wrap.appendChild(fontSection);
+
+      // ===== 本文マイクロタイポグラフィ (SP-057) =====
+      var microSection = makeSection((window.UILabels && window.UILabels.MICRO_TYPO_SECTION) || '本文');
+      var micro = settings.microTypography || {};
+
+      // 字間 (letterSpacing)
+      var letterSpacingInput = document.createElement('input');
+      letterSpacingInput.type = 'range';
+      letterSpacingInput.min = '-0.02';
+      letterSpacingInput.max = '0.12';
+      letterSpacingInput.step = '0.01';
+      letterSpacingInput.value = typeof micro.letterSpacing === 'number' ? micro.letterSpacing : 0;
+
+      var letterSpacingLabel = document.createElement('div');
+      letterSpacingLabel.style.fontSize = '0.85rem';
+      letterSpacingLabel.style.opacity = '0.8';
+      letterSpacingLabel.textContent = ((window.UILabels && window.UILabels.LETTER_SPACING_PREFIX) || '字間: ') + letterSpacingInput.value + 'em';
+
+      letterSpacingInput.addEventListener('input', function (e) {
+        letterSpacingLabel.textContent = ((window.UILabels && window.UILabels.LETTER_SPACING_PREFIX) || '字間: ') + e.target.value + 'em';
+        applyMicroSettings();
+      });
+
+      var letterSpacingRow = document.createElement('div');
+      letterSpacingRow.style.display = 'flex';
+      letterSpacingRow.style.flexDirection = 'column';
+      letterSpacingRow.style.gap = '4px';
+      letterSpacingRow.appendChild(letterSpacingLabel);
+      letterSpacingRow.appendChild(letterSpacingInput);
+      microSection.appendChild(letterSpacingRow);
+
+      // 段落間 (paragraphSpacing)
+      var paragraphSpacingInput = document.createElement('input');
+      paragraphSpacingInput.type = 'range';
+      paragraphSpacingInput.min = '0';
+      paragraphSpacingInput.max = '3';
+      paragraphSpacingInput.step = '0.1';
+      paragraphSpacingInput.value = typeof micro.paragraphSpacing === 'number' ? micro.paragraphSpacing : 1;
+
+      var paragraphSpacingLabel = document.createElement('div');
+      paragraphSpacingLabel.style.fontSize = '0.85rem';
+      paragraphSpacingLabel.style.opacity = '0.8';
+      paragraphSpacingLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_SPACING_PREFIX) || '段落間: ') + paragraphSpacingInput.value + 'em';
+
+      paragraphSpacingInput.addEventListener('input', function (e) {
+        paragraphSpacingLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_SPACING_PREFIX) || '段落間: ') + e.target.value + 'em';
+        applyMicroSettings();
+      });
+
+      var paragraphSpacingRow = document.createElement('div');
+      paragraphSpacingRow.style.display = 'flex';
+      paragraphSpacingRow.style.flexDirection = 'column';
+      paragraphSpacingRow.style.gap = '4px';
+      paragraphSpacingRow.appendChild(paragraphSpacingLabel);
+      paragraphSpacingRow.appendChild(paragraphSpacingInput);
+      microSection.appendChild(paragraphSpacingRow);
+
+      // 字下げ (paragraphIndent)
+      var paragraphIndentInput = document.createElement('input');
+      paragraphIndentInput.type = 'range';
+      paragraphIndentInput.min = '0';
+      paragraphIndentInput.max = '3';
+      paragraphIndentInput.step = '0.5';
+      paragraphIndentInput.value = typeof micro.paragraphIndent === 'number' ? micro.paragraphIndent : 0;
+
+      var paragraphIndentLabel = document.createElement('div');
+      paragraphIndentLabel.style.fontSize = '0.85rem';
+      paragraphIndentLabel.style.opacity = '0.8';
+      paragraphIndentLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_INDENT_PREFIX) || '字下げ: ') + paragraphIndentInput.value + 'em';
+
+      paragraphIndentInput.addEventListener('input', function (e) {
+        paragraphIndentLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_INDENT_PREFIX) || '字下げ: ') + e.target.value + 'em';
+        applyMicroSettings();
+      });
+
+      var paragraphIndentRow = document.createElement('div');
+      paragraphIndentRow.style.display = 'flex';
+      paragraphIndentRow.style.flexDirection = 'column';
+      paragraphIndentRow.style.gap = '4px';
+      paragraphIndentRow.appendChild(paragraphIndentLabel);
+      paragraphIndentRow.appendChild(paragraphIndentInput);
+      microSection.appendChild(paragraphIndentRow);
+
+      // 禁則モード (lineBreakMode)
+      var lineBreakSelect = document.createElement('select');
+      var lineBreakModes = [
+        { value: 'normal', label: (window.UILabels && window.UILabels.LINE_BREAK_NORMAL) || '標準' },
+        { value: 'strict-ja', label: (window.UILabels && window.UILabels.LINE_BREAK_STRICT_JA) || '和文禁則' }
+      ];
+      lineBreakModes.forEach(function (m) {
+        var opt = document.createElement('option');
+        opt.value = m.value;
+        opt.textContent = m.label;
+        lineBreakSelect.appendChild(opt);
+      });
+      lineBreakSelect.value = micro.lineBreakMode || 'normal';
+      lineBreakSelect.addEventListener('change', function () {
+        applyMicroSettings();
+      });
+      microSection.appendChild(makeRow((window.UILabels && window.UILabels.LINE_BREAK_MODE) || '禁則処理', lineBreakSelect));
+
+      wrap.appendChild(microSection);
       el.appendChild(wrap);
+
+      function applyMicroSettings() {
+        try {
+          var ls = parseFloat(letterSpacingInput.value);
+          var ps = parseFloat(paragraphSpacingInput.value);
+          var pi = parseFloat(paragraphIndentInput.value);
+          var lbm = lineBreakSelect.value;
+          theme.applyMicroTypographySettings({ letterSpacing: ls, paragraphSpacing: ps, paragraphIndent: pi, lineBreakMode: lbm });
+        } catch (e) {
+          console.error('applyMicroSettings failed', e);
+        }
+      }
 
       function applyFontSettings() {
         try {
@@ -192,6 +306,18 @@
 
           lineHeightInput.value = latest.lineHeight || 1.6;
           lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
+
+          var latestMicro = latest.microTypography || {};
+          letterSpacingInput.value = typeof latestMicro.letterSpacing === 'number' ? latestMicro.letterSpacing : 0;
+          letterSpacingLabel.textContent = ((window.UILabels && window.UILabels.LETTER_SPACING_PREFIX) || '字間: ') + letterSpacingInput.value + 'em';
+
+          paragraphSpacingInput.value = typeof latestMicro.paragraphSpacing === 'number' ? latestMicro.paragraphSpacing : 1;
+          paragraphSpacingLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_SPACING_PREFIX) || '段落間: ') + paragraphSpacingInput.value + 'em';
+
+          paragraphIndentInput.value = typeof latestMicro.paragraphIndent === 'number' ? latestMicro.paragraphIndent : 0;
+          paragraphIndentLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_INDENT_PREFIX) || '字下げ: ') + paragraphIndentInput.value + 'em';
+
+          lineBreakSelect.value = latestMicro.lineBreakMode || 'normal';
         } catch (e) {
           console.error('refreshState failed', e);
         }

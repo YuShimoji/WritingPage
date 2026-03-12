@@ -126,6 +126,13 @@ const DEFAULT_SETTINGS = {
         preset: 'default',
         custom: {},
         userPresets: []
+    },
+    // 本文マイクロタイポグラフィ設定 (SP-057)
+    microTypography: {
+        letterSpacing: 0,        // em (-0.02 ~ 0.12)
+        paragraphSpacing: 1,     // em (段落末尾マージン)
+        paragraphIndent: 0,      // em (段落頭字下げ, 和文向け既定1em)
+        lineBreakMode: 'normal'  // 'normal' | 'strict-ja'
     }
 };
 
@@ -717,7 +724,8 @@ function createDefaultSettingsSnapshot() {
         },
         editorLayout: { ...DEFAULT_SETTINGS.editorLayout },
         pomodoro: { ...DEFAULT_SETTINGS.pomodoro },
-        heading: { ...DEFAULT_SETTINGS.heading }
+        heading: { ...DEFAULT_SETTINGS.heading },
+        microTypography: { ...DEFAULT_SETTINGS.microTypography }
     };
 }
 
@@ -765,6 +773,7 @@ function normalizeSettingsShape(raw) {
     if (!Array.isArray(merged.heading.userPresets)) {
         merged.heading.userPresets = [];
     }
+    merged.microTypography = { ...defaults.microTypography, ...(parsed.microTypography || {}) };
 
     // Font settings normalization (backward compatibility)
     if (typeof merged.fontSize !== 'number' || Number.isNaN(merged.fontSize)) {
@@ -804,6 +813,7 @@ function mergeSettings(base, patch) {
     if (isPlainObject(patch.editorLayout)) merged.editorLayout = { ...current.editorLayout, ...patch.editorLayout };
     if (isPlainObject(patch.pomodoro)) merged.pomodoro = { ...current.pomodoro, ...patch.pomodoro };
     if (isPlainObject(patch.heading)) merged.heading = { ...current.heading, ...patch.heading };
+    if (isPlainObject(patch.microTypography)) merged.microTypography = { ...current.microTypography, ...patch.microTypography };
 
     if (isPlainObject(patch.editor)) {
         merged.editor = { ...current.editor, ...patch.editor };

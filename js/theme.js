@@ -25,6 +25,8 @@ class ThemeManager {
     );
     // 見出しタイポグラフィを適用
     this.applyHeadingSettings(this.settings.heading.preset, this.settings.heading.custom);
+    // 本文マイクロタイポグラフィを適用
+    this.applyMicroTypographySettings(this.settings.microTypography);
   }
 
   refreshSettings() {
@@ -279,6 +281,31 @@ class ThemeManager {
         userPresets: currentHeading.userPresets || []
       }
     };
+    window.ZenWriterStorage.saveSettings(patch);
+    this.refreshSettings();
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * 本文マイクロタイポグラフィ設定を適用 (SP-057)
+   * @param {Object} micro - { letterSpacing, paragraphSpacing, paragraphIndent, lineBreakMode }
+   */
+  applyMicroTypographySettings(micro) {
+    this.refreshSettings();
+    const root = document.documentElement;
+    const m = micro || {};
+
+    const ls = typeof m.letterSpacing === 'number' ? m.letterSpacing : 0;
+    const ps = typeof m.paragraphSpacing === 'number' ? m.paragraphSpacing : 1;
+    const pi = typeof m.paragraphIndent === 'number' ? m.paragraphIndent : 0;
+    const lbm = m.lineBreakMode || 'normal';
+
+    root.style.setProperty('--body-letter-spacing', ls + 'em');
+    root.style.setProperty('--paragraph-spacing', ps + 'em');
+    root.style.setProperty('--paragraph-indent', pi + 'em');
+    root.setAttribute('data-line-break-mode', lbm);
+
+    var patch = { microTypography: { letterSpacing: ls, paragraphSpacing: ps, paragraphIndent: pi, lineBreakMode: lbm } };
     window.ZenWriterStorage.saveSettings(patch);
     this.refreshSettings();
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }

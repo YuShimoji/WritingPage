@@ -329,11 +329,11 @@
   {
     "id": "SP-057",
     "title": "本文マイクロタイポグラフィ仕様",
-    "status": "todo",
-    "pct": 10,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-micro-typography.md",
-    "summary": "字間・段落間・字下げ・禁則寄り設定をTypography中心で段階導入し、RichText/Canvasと競合しにくい読み心地改善を定義。"
+    "summary": "字間・段落間・字下げ・禁則処理をTypographyガジェットで統合管理。CSS変数+data属性で即時反映、リロード後復元、E2Eテスト2件。"
   },
   {
     "id": "SP-058",

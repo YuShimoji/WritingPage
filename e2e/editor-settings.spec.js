@@ -760,4 +760,99 @@ test.describe('Editor Settings', () => {
     expect(snapshot.editor?.wordWrap?.maxChars).toBe(80);
     expect(snapshot.fontFamily).toBe('"BIZ UDMincho", serif');
   });
+
+  test('micro-typography settings should apply CSS variables and persist (SP-057)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      try {
+        if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyMicroTypographySettings === 'function') {
+          window.ZenWriterTheme.applyMicroTypographySettings({
+            letterSpacing: 0.05,
+            paragraphSpacing: 1.5,
+            paragraphIndent: 1,
+            lineBreakMode: 'strict-ja'
+          });
+        }
+      } catch (_) { /* noop */ }
+    });
+
+    const cssVars = await page.evaluate(() => {
+      var root = document.documentElement;
+      var cs = getComputedStyle(root);
+      return {
+        letterSpacing: cs.getPropertyValue('--body-letter-spacing').trim(),
+        paragraphSpacing: cs.getPropertyValue('--paragraph-spacing').trim(),
+        paragraphIndent: cs.getPropertyValue('--paragraph-indent').trim(),
+        lineBreakMode: root.getAttribute('data-line-break-mode')
+      };
+    });
+
+    expect(cssVars.letterSpacing).toBe('0.05em');
+    expect(cssVars.paragraphSpacing).toBe('1.5em');
+    expect(cssVars.paragraphIndent).toBe('1em');
+    expect(cssVars.lineBreakMode).toBe('strict-ja');
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const restored = await page.evaluate(() => {
+      try {
+        var s = window.ZenWriterStorage.loadSettings();
+        return s.microTypography || {};
+      } catch (_) { return {}; }
+    });
+
+    expect(restored.letterSpacing).toBe(0.05);
+    expect(restored.paragraphSpacing).toBe(1.5);
+    expect(restored.paragraphIndent).toBe(1);
+    expect(restored.lineBreakMode).toBe('strict-ja');
+
+    const restoredCss = await page.evaluate(() => {
+      var root = document.documentElement;
+      var cs = getComputedStyle(root);
+      return {
+        letterSpacing: cs.getPropertyValue('--body-letter-spacing').trim(),
+        lineBreakMode: root.getAttribute('data-line-break-mode')
+      };
+    });
+
+    expect(restoredCss.letterSpacing).toBe('0.05em');
+    expect(restoredCss.lineBreakMode).toBe('strict-ja');
+  });
+
+  test('micro-typography should not destroy other settings (SP-057)', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      try {
+        var s = window.ZenWriterStorage.loadSettings();
+        s.theme = 'sepia';
+        s.autoSave = { ...(s.autoSave || {}), enabled: true };
+        window.ZenWriterStorage.saveSettings(s);
+      } catch (_) { /* noop */ }
+    });
+
+    await page.evaluate(() => {
+      try {
+        if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyMicroTypographySettings === 'function') {
+          window.ZenWriterTheme.applyMicroTypographySettings({
+            letterSpacing: 0.03,
+            paragraphIndent: 1
+          });
+        }
+      } catch (_) { /* noop */ }
+    });
+
+    const snapshot = await page.evaluate(() => {
+      try { return window.ZenWriterStorage.loadSettings(); } catch (_) { return {}; }
+    });
+
+    expect(snapshot.theme).toBe('sepia');
+    expect(snapshot.autoSave?.enabled).toBeTruthy();
+    expect(snapshot.microTypography?.letterSpacing).toBe(0.03);
+    expect(snapshot.microTypography?.paragraphIndent).toBe(1);
+  });
 });
