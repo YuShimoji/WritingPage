@@ -56,7 +56,7 @@
 - `Alt + W` でツールバーを隠した際もカテゴリタブは `focus-within` に応じてフェード表示。
 - Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist` 系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### 登録ガジェット一覧（30個）
+#### 登録ガジェット一覧（33個）
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -90,6 +90,9 @@
 | 28 | LoadoutManager | ロードアウト管理 | advanced | ロードアウトの保存・適用・管理を行います。 | gadgets-loadout.js |
 | 29 | Keybinds | キーボードショートカット | advanced | キーボードショートカットの一覧表示とカスタマイズ。 | gadgets-keybinds.js |
 | 30 | PrintSettings | エクスポート | advanced | PDF・テキスト・HTML形式でのエクスポートと印刷設定。 | gadgets-print.js |
+| 31 | HeadingStyles | 見出しスタイル | theme | 見出し(H1-H6)のフォント・サイズ・色をプリセットで管理・適用。 | gadgets-heading.js |
+| 32 | MarkdownReference | Markdownリファレンス | assist | Markdown構文のクイックリファレンス表示。 | gadgets-markdown-ref.js |
+| 33 | SectionsNavigator | セクションナビ | sections | 見出しツリーとキーボードナビゲーション。長編の章移動を効率化。 | gadgets-sections-nav.js |
 
 > 注: `Samples` ガジェット（groups: settings）は開発者向けで通常UIには表示されません。
 
@@ -99,9 +102,10 @@
 |-------|----|----------|
 | structure | 5 | 文書構造・ナビゲーション |
 | edit | 5 | 編集・装飾・プレビュー |
-| theme | 4 | テーマ・フォント・視覚設定 |
-| assist | 6 | 執筆支援・タイマー・集中 |
+| theme | 5 | テーマ・フォント・視覚設定 |
+| assist | 7 | 執筆支援・タイマー・集中・リファレンス |
 | advanced | 10 | UI設定・グラフ・管理ツール |
+| sections | 1 | セクションナビゲーション (SP-052) |
 
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
 - `ZWGadgets.addTab(name, label)`: 新しいタブを動的に追加可能。ガジェットグループを拡張。

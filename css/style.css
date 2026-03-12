@@ -4021,6 +4021,12 @@ input[type="checkbox"] {
   opacity: 0;
   pointer-events: none;
 }
+/* Outline/Sections Nav は内容量が可変のため max-height 制約を解除 */
+.gadget-wrapper[data-gadget-name="Outline"] .gadget,
+.gadget-wrapper[data-gadget-name="SectionsNavigator"] .gadget {
+  max-height: none;
+  overflow: visible;
+}
 .gadget-wrapper[data-gadget-collapsed="true"] .gadget-help {
   display: none;
 }

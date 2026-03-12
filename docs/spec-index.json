@@ -33,7 +33,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/GADGETS.md",
-    "summary": "30個のガジェットの一覧・API・登録方法・将来タスク"
+    "summary": "33個のガジェットの一覧・API・登録方法・将来タスク"
   },
   {
     "id": "SP-005",
@@ -320,11 +320,11 @@
   {
     "id": "SP-056",
     "title": "拡張スクロール（キャンバス）仕様",
-    "status": "partial",
+    "status": "deferred",
     "pct": 30,
     "cat": "ui",
-    "file": "docs/specs/spec-extended-scroll-canvas.md",
-    "summary": "ドラッグで見渡せるキャンバス編集。縦横パン/ズーム/回転、固定文字サイズ、リッチテキスト連携、段階導入を定義。"
+    "file": null,
+    "summary": "betaEnabled:false で非公開中。Phase 1 (30%) 未完了。仕様書は未作成。完成度が上がるまで延期 (DECISION LOG 2026-03-11)。"
   },
   {
     "id": "SP-057",

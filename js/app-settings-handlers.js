@@ -76,27 +76,9 @@
             const id = e.target && e.target.id;
             if (!id) return;
 
-            // Typewriter
-            if (id === 'typewriter-enabled') {
-                saveTypewriterPatch({ enabled: !!e.target.checked });
-                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch (e) { console.warn('タイプライターモード適用エラー:', e); }
-                return;
-            }
-            if (id === 'typewriter-anchor-ratio') {
-                saveTypewriterPatch({ anchorRatio: clamp(e.target.value, 0.05, 0.95, 0.5) });
-                return;
-            }
-            if (id === 'typewriter-stickiness') {
-                saveTypewriterPatch({ stickiness: clamp(e.target.value, 0, 1, 0.9) });
-                return;
-            }
-
-            // Focus Mode
-            if (id === 'focus-mode-enabled') {
-                updateSettingsPatch('focusMode', { enabled: !!e.target.checked });
-                try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.scheduleFocusModeUpdate === 'function') window.ZenWriterEditor.scheduleFocusModeUpdate(); } catch (e) { console.warn('フォーカスモード更新エラー:', e); }
-                return;
-            }
+            // Typewriter / Focus Mode:
+            // 直接リスナーが gadgets-editor-extras.js で登録済みのため
+            // ここでの委譲ハンドラーは削除 (二重実行防止)
 
             // Snapshot
             if (id === 'snapshot-interval-ms') {
