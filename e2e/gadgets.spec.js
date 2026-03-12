@@ -13,7 +13,28 @@ async function waitGadgetsReady(page) {
   }, { timeout: 20000 });
   await enableAllGadgets(page);
   await showFullToolbar(page);
+  // 執筆集中IAモードを解除し全カテゴリを表示 + structure展開を強制
+  await page.evaluate(() => {
+    document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+    // structure カテゴリと gadgets-panel を確実に表示
+    var cat = document.querySelector('.accordion-category[data-category="structure"]');
+    if (cat) cat.style.display = '';
+    var panel = document.getElementById('structure-gadgets-panel');
+    if (panel) panel.style.display = '';
+  });
   await openSidebarGroup(page, 'structure');
+  // expandAccordion が aria-expanded=true で skip する場合があるため直接クリック
+  await page.click('.accordion-header[aria-controls="accordion-structure"]');
+  await page.waitForTimeout(200);
+  // まだ閉じている場合は再クリック
+  const isHidden = await page.evaluate(() => {
+    var c = document.getElementById('accordion-structure');
+    return c && c.getAttribute('aria-hidden') === 'true';
+  });
+  if (isHidden) {
+    await page.click('.accordion-header[aria-controls="accordion-structure"]');
+    await page.waitForTimeout(200);
+  }
   await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
     state: 'visible',
     timeout: 10000,
