@@ -265,7 +265,86 @@
       microSection.appendChild(makeRow((window.UILabels && window.UILabels.LINE_BREAK_MODE) || '禁則処理', lineBreakSelect));
 
       wrap.appendChild(microSection);
+
+      // ===== ルビ設定 (SP-059 Phase 2) =====
+      var rubySection = makeSection('ルビ');
+      var ruby = settings.ruby || {};
+
+      // ルビサイズ比 (sizeRatio) - slider
+      var rubySizeInput = document.createElement('input');
+      rubySizeInput.type = 'range';
+      rubySizeInput.min = '0.3';
+      rubySizeInput.max = '0.7';
+      rubySizeInput.step = '0.05';
+      rubySizeInput.value = typeof ruby.sizeRatio === 'number' ? ruby.sizeRatio : 0.5;
+
+      var rubySizeLabel = document.createElement('div');
+      rubySizeLabel.style.fontSize = '0.85rem';
+      rubySizeLabel.style.opacity = '0.8';
+      rubySizeLabel.textContent = 'ルビサイズ: ' + rubySizeInput.value + 'em';
+
+      rubySizeInput.addEventListener('input', function (e) {
+        rubySizeLabel.textContent = 'ルビサイズ: ' + e.target.value + 'em';
+        applyRubySettings();
+      });
+
+      var rubySizeRow = document.createElement('div');
+      rubySizeRow.style.display = 'flex';
+      rubySizeRow.style.flexDirection = 'column';
+      rubySizeRow.style.gap = '4px';
+      rubySizeRow.appendChild(rubySizeLabel);
+      rubySizeRow.appendChild(rubySizeInput);
+      rubySection.appendChild(rubySizeRow);
+
+      // ルビ位置 (position) - select
+      var rubyPositionSelect = document.createElement('select');
+      var rubyPositions = [
+        { value: 'over', label: '上付き (over)' },
+        { value: 'under', label: '下付き (under)' }
+      ];
+      rubyPositions.forEach(function (p) {
+        var opt = document.createElement('option');
+        opt.value = p.value;
+        opt.textContent = p.label;
+        rubyPositionSelect.appendChild(opt);
+      });
+      rubyPositionSelect.value = ruby.position || 'over';
+      rubyPositionSelect.addEventListener('change', function () {
+        applyRubySettings();
+      });
+      rubySection.appendChild(makeRow('ルビ位置', rubyPositionSelect));
+
+      // ルビ表示/非表示 (visible) - checkbox
+      var rubyVisibleCheckbox = document.createElement('input');
+      rubyVisibleCheckbox.type = 'checkbox';
+      rubyVisibleCheckbox.checked = ruby.visible !== false;
+      rubyVisibleCheckbox.style.width = 'auto';
+      rubyVisibleCheckbox.addEventListener('change', function () {
+        applyRubySettings();
+      });
+
+      var rubyVisibleRow = document.createElement('label');
+      rubyVisibleRow.style.display = 'flex';
+      rubyVisibleRow.style.alignItems = 'center';
+      rubyVisibleRow.style.gap = '8px';
+      rubyVisibleRow.style.cursor = 'pointer';
+      rubyVisibleRow.appendChild(rubyVisibleCheckbox);
+      rubyVisibleRow.appendChild(document.createTextNode('ルビを表示'));
+      rubySection.appendChild(rubyVisibleRow);
+
+      wrap.appendChild(rubySection);
       el.appendChild(wrap);
+
+      function applyRubySettings() {
+        try {
+          var sr = parseFloat(rubySizeInput.value);
+          var pos = rubyPositionSelect.value;
+          var vis = rubyVisibleCheckbox.checked;
+          theme.applyRubySettings({ sizeRatio: sr, position: pos, visible: vis });
+        } catch (e) {
+          console.error('applyRubySettings failed', e);
+        }
+      }
 
       function applyMicroSettings() {
         try {
@@ -318,6 +397,12 @@
           paragraphIndentLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_INDENT_PREFIX) || '字下げ: ') + paragraphIndentInput.value + 'em';
 
           lineBreakSelect.value = latestMicro.lineBreakMode || 'normal';
+
+          var latestRuby = latest.ruby || {};
+          rubySizeInput.value = typeof latestRuby.sizeRatio === 'number' ? latestRuby.sizeRatio : 0.5;
+          rubySizeLabel.textContent = 'ルビサイズ: ' + rubySizeInput.value + 'em';
+          rubyPositionSelect.value = latestRuby.position || 'over';
+          rubyVisibleCheckbox.checked = latestRuby.visible !== false;
         } catch (e) {
           console.error('refreshState failed', e);
         }

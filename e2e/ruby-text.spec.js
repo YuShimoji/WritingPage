@@ -64,4 +64,65 @@ test.describe('Ruby Text E2E (TASK_054)', () => {
         const rubyHtml = await panel.innerHTML();
         expect(rubyHtml).toContain('<ruby>漢字<rt>かんじ</rt></ruby>');
     });
+
+    // SP-059 Phase 2: ルビ表示設定テスト
+    test('ruby size setting changes rt font-size via CSS variable', async ({ page }) => {
+        await page.goto(pageUrl);
+        await page.waitForSelector('#editor', { timeout: 10000 });
+
+        // ルビサイズを変更
+        await page.evaluate(() => {
+            if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyRubySettings === 'function') {
+                window.ZenWriterTheme.applyRubySettings({ sizeRatio: 0.4, position: 'over', visible: true });
+            }
+        });
+
+        const cssValue = await page.evaluate(() => {
+            return document.documentElement.style.getPropertyValue('--ruby-size-ratio').trim();
+        });
+        expect(cssValue).toBe('0.4em');
+    });
+
+    test('ruby visibility toggle hides rt elements', async ({ page }) => {
+        await page.goto(pageUrl);
+        await page.waitForSelector('#editor', { timeout: 10000 });
+
+        // ルビを非表示に設定
+        await page.evaluate(() => {
+            if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyRubySettings === 'function') {
+                window.ZenWriterTheme.applyRubySettings({ sizeRatio: 0.5, position: 'over', visible: false });
+            }
+        });
+
+        const hidden = await page.evaluate(() => {
+            return document.documentElement.getAttribute('data-ruby-hidden');
+        });
+        expect(hidden).toBe('true');
+
+        // 再表示
+        await page.evaluate(() => {
+            window.ZenWriterTheme.applyRubySettings({ sizeRatio: 0.5, position: 'over', visible: true });
+        });
+
+        const notHidden = await page.evaluate(() => {
+            return document.documentElement.getAttribute('data-ruby-hidden');
+        });
+        expect(notHidden).toBeNull();
+    });
+
+    test('ruby position setting applies css variable', async ({ page }) => {
+        await page.goto(pageUrl);
+        await page.waitForSelector('#editor', { timeout: 10000 });
+
+        await page.evaluate(() => {
+            if (window.ZenWriterTheme && typeof window.ZenWriterTheme.applyRubySettings === 'function') {
+                window.ZenWriterTheme.applyRubySettings({ sizeRatio: 0.5, position: 'under', visible: true });
+            }
+        });
+
+        const cssValue = await page.evaluate(() => {
+            return document.documentElement.style.getPropertyValue('--ruby-position').trim();
+        });
+        expect(cssValue).toBe('under');
+    });
 });

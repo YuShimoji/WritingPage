@@ -348,10 +348,10 @@
     "id": "SP-059",
     "title": "日本語組版・ルビ拡張仕様",
     "status": "partial",
-    "pct": 65,
+    "pct": 85,
     "cat": "ui",
     "file": "docs/specs/spec-japanese-typesetting-ruby.md",
-    "summary": "Phase 1完了: ルビ記法{漢字|かな}統一、レガシー|漢字《かな》互換変換、ruby/rt CSS。Phase 2未着手: 表示設定・傍点・圏点。"
+    "summary": "Phase 1完了: ルビ記法統一+CSS。Phase 2完了: ルビサイズ/位置/表示切替をTypographyガジェットに統合。Phase 3未着手: 傍点・圏点。"
   },
   {
     "id": "SP-060",

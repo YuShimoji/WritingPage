@@ -6472,23 +6472,37 @@ html.is-electron[data-ui-mode="blank"][data-edge-hover-top="true"] .toolbar {
   border-radius: 2px;
 }
 
-/* --- ルビ (ruby/rt) --- */
+/* --- ルビ (ruby/rt) SP-059 --- */
 ruby {
   ruby-align: center;
+  ruby-position: var(--ruby-position, over);
 }
 
 rt {
-  font-size: 0.5em;
+  font-size: var(--ruby-size-ratio, 0.5em);
   line-height: 1;
   letter-spacing: 0.05em;
   color: var(--text-color, inherit);
   opacity: 0.85;
 }
 
+/* ルビ非表示 (SP-059 Phase 2) */
+html[data-ruby-hidden='true'] rt {
+  visibility: hidden;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: 0;
+}
+
 /* 印刷時もルビを保持 */
 @media print {
   rt {
-    font-size: 0.5em;
+    font-size: var(--ruby-size-ratio, 0.5em);
+  }
+  html[data-ruby-hidden='true'] rt {
+    visibility: hidden;
+    font-size: 0;
+    line-height: 0;
   }
 }
 

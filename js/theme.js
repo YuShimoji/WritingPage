@@ -27,6 +27,8 @@ class ThemeManager {
     this.applyHeadingSettings(this.settings.heading.preset, this.settings.heading.custom);
     // 本文マイクロタイポグラフィを適用
     this.applyMicroTypographySettings(this.settings.microTypography);
+    // ルビ表示設定を適用
+    this.applyRubySettings(this.settings.ruby);
   }
 
   refreshSettings() {
@@ -306,6 +308,34 @@ class ThemeManager {
     root.setAttribute('data-line-break-mode', lbm);
 
     var patch = { microTypography: { letterSpacing: ls, paragraphSpacing: ps, paragraphIndent: pi, lineBreakMode: lbm } };
+    window.ZenWriterStorage.saveSettings(patch);
+    this.refreshSettings();
+    try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
+  }
+
+  /**
+   * ルビ表示設定を適用 (SP-059 Phase 2)
+   * @param {Object} ruby - { sizeRatio, position, visible }
+   */
+  applyRubySettings(ruby) {
+    this.refreshSettings();
+    const root = document.documentElement;
+    const r = ruby || {};
+
+    const sizeRatio = typeof r.sizeRatio === 'number' ? r.sizeRatio : 0.5;
+    const position = r.position === 'under' ? 'under' : 'over';
+    const visible = r.visible !== false;
+
+    root.style.setProperty('--ruby-size-ratio', sizeRatio + 'em');
+    root.style.setProperty('--ruby-position', position);
+
+    if (visible) {
+      root.removeAttribute('data-ruby-hidden');
+    } else {
+      root.setAttribute('data-ruby-hidden', 'true');
+    }
+
+    var patch = { ruby: { sizeRatio: sizeRatio, position: position, visible: visible } };
     window.ZenWriterStorage.saveSettings(patch);
     this.refreshSettings();
     try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch(e) { void e; }
