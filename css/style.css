@@ -6505,62 +6505,67 @@ html[data-ruby-hidden='true'] rt {
   }
 }
 
-/* --- エディタ下部ナビ --- */
-.editor-bottom-nav {
+/* --- ステータスバー (セクションナビ) --- */
+.editor-status-bar {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 4px 8px;
+  padding: 2px 8px;
   border-top: 1px solid var(--border-color, #e0e0e0);
   background: var(--bg-color, #fff);
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   flex-shrink: 0;
 }
 
-.bottom-nav-btn {
+html[data-ui-mode='focus'] .editor-status-bar,
+html[data-ui-mode='blank'] .editor-status-bar {
+  display: none;
+}
+
+.status-bar-nav-btn {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border: 1px solid var(--border-color, #ddd);
-  border-radius: 4px;
+  border-radius: 3px;
   background: transparent;
   color: var(--text-color, #333);
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   transition: background 0.1s;
   flex-shrink: 0;
 }
 
-.bottom-nav-btn:hover:not(:disabled) {
+.status-bar-nav-btn:hover:not(:disabled) {
   background: rgba(128, 128, 128, 0.1);
 }
 
-.bottom-nav-btn:disabled {
+.status-bar-nav-btn:disabled {
   opacity: 0.3;
   cursor: default;
 }
 
-.bottom-nav-btn svg {
-  width: 14px;
-  height: 14px;
+.status-bar-nav-btn svg {
+  width: 12px;
+  height: 12px;
 }
 
-.bottom-nav-title {
+.status-bar-title {
   flex: 1;
   min-width: 0;
-  padding: 3px 8px;
+  padding: 2px 6px;
   border: none;
   background: transparent;
   color: var(--text-color, #333);
   cursor: pointer;
   text-align: center;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.bottom-nav-title:hover {
+.status-bar-title:hover {
   text-decoration: underline;
 }

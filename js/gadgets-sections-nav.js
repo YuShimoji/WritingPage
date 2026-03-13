@@ -315,6 +315,7 @@
       if (state.activeIndex > 0) {
         var newIdx = state.activeIndex - 1;
         jumpToHeading(state.headings[newIdx], newIdx);
+        scheduleRender();
       }
     });
 
@@ -322,6 +323,7 @@
       if (state.activeIndex < state.headings.length - 1) {
         var newIdx = state.activeIndex + 1;
         jumpToHeading(state.headings[newIdx], newIdx);
+        scheduleRender();
       }
     });
 
