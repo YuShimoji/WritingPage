@@ -190,7 +190,7 @@
       if (!this.wysiwygToolbar) return;
       var self = this;
 
-      // ドロップダウントグル
+      // ドロップダウントグル (position: fixed で overflow clipping を回避)
       this.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown-toggle').forEach(function (toggle) {
         toggle.addEventListener('mousedown', function (e) {
           e.preventDefault();
@@ -200,6 +200,15 @@
           self.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
             d.setAttribute('data-open', 'false');
           });
+          if (!isOpen) {
+            var menu = dropdown.querySelector('.wysiwyg-dropdown-menu');
+            if (menu) {
+              var btnRect = toggle.getBoundingClientRect();
+              menu.style.top = (btnRect.bottom + 4) + 'px';
+              menu.style.left = (btnRect.left + btnRect.width / 2) + 'px';
+              menu.style.transform = 'translateX(-50%)';
+            }
+          }
           dropdown.setAttribute('data-open', isOpen ? 'false' : 'true');
           toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         });
@@ -277,29 +286,35 @@
       });
     }
 
-    /** @private フローティングツールバーを選択範囲の近くに表示 */
+    /** @private フローティングツールバーを選択範囲の近くに表示 (position: fixed) */
     _showFloatingToolbar(range) {
       var rect = range.getBoundingClientRect();
-      var container = this.wysiwygEditor.closest('.editor-container');
-      if (!container) return;
-      var cRect = container.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
 
-      var toolbarH = 44; // おおよそのツールバー高さ
+      // ツールバー幅を正確に測定するため、一旦画面外に表示
+      if (!this._floatingVisible) {
+        this.wysiwygToolbar.style.top = '-9999px';
+        this.wysiwygToolbar.style.left = '-9999px';
+        this.wysiwygToolbar.setAttribute('data-visible', 'true');
+      }
+
+      var toolbarH = 44;
       var gap = 8;
       var top, left;
+      var vpW = window.innerWidth;
 
-      // 選択範囲の上に余白があれば上、なければ下
-      if (rect.top - cRect.top > toolbarH + gap) {
-        top = rect.top - cRect.top - toolbarH - gap;
-      } else {
-        top = rect.bottom - cRect.top + gap;
-      }
-      left = rect.left - cRect.left + rect.width / 2;
-
-      // ツールバー幅を取得して境界クランプ
       var tbRect = this.wysiwygToolbar.getBoundingClientRect();
-      var tbW = tbRect.width || 300; // 非表示時のフォールバック
-      var containerW = cRect.width;
+      var tbW = tbRect.width || 300;
+      toolbarH = tbRect.height || toolbarH;
+
+      // 選択範囲の上にビューポート余白があれば上、なければ下
+      if (rect.top > toolbarH + gap) {
+        top = rect.top - toolbarH - gap;
+      } else {
+        top = rect.bottom + gap;
+      }
+      left = rect.left + rect.width / 2;
+
       var margin = 12;
 
       // 左端クランプ: translateX(-50%) を考慮
@@ -307,8 +322,8 @@
         left = tbW / 2 + margin;
       }
       // 右端クランプ
-      if (left + tbW / 2 > containerW - margin) {
-        left = containerW - tbW / 2 - margin;
+      if (left + tbW / 2 > vpW - margin) {
+        left = vpW - tbW / 2 - margin;
       }
       // 上端クランプ
       if (top < 0) {

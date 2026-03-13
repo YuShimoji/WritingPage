@@ -842,9 +842,11 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 
 /* フローティングモード: テキスト選択時に選択範囲の近くに表示 */
 .wysiwyg-toolbar--floating {
+  position: fixed;
   top: auto;
   left: auto;
   transform: none;
+  max-width: calc(100vw - 24px);
   transition: opacity 0.12s;
   pointer-events: auto;
 }
@@ -878,17 +880,14 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 
 .wysiwyg-dropdown-menu {
   display: none;
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
+  position: fixed;
   min-width: 140px;
   padding: 4px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   background: var(--toolbar-bg, #2a2a2a);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 1;
+  z-index: calc(var(--z-toolbar, 1100) + 10);
   flex-direction: column;
   gap: 2px;
 }
