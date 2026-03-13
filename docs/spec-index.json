@@ -284,11 +284,11 @@
   {
     "id": "SP-052",
     "title": "セクションツリー/話ナビゲーション 仕様",
-    "status": "partial",
-    "pct": 90,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-sections-navigation.md",
-    "summary": "Phase 1: 見出しツリー+下部ナビ。Phase 2: WYSIWYGセクションコラプス（先頭2段落+省略マーカー、ツリー選択で自動折りたたみ）。Phase 3: 話単位メタ情報は未着手。"
+    "summary": "Phase 1: 見出しツリー+下部ナビ+ステータスバー統合。Phase 2: WYSIWYGセクションコラプス（先頭2段落+省略マーカー、ツリー選択で自動折りたたみ）。E2E 11件。Phase 3(話単位メタ情報)は将来タスク。"
   },
   {
     "id": "SP-053",
