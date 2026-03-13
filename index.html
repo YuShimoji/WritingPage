@@ -820,13 +820,7 @@
         load('js/main-hub-panel.js');
         load('js/plugin-api.js');
         load('js/plugin-manager.js');
-        setTimeout(function () {
-          try {
-            if (window.ZWPluginManager && typeof window.ZWPluginManager.bootstrap === 'function') {
-              window.ZWPluginManager.bootstrap();
-            }
-          } catch (_) { }
-        }, 0);
+        // bootstrap は plugin-manager.js 内で自動実行
       }, { once: true });
     })();
   </script>

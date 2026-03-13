@@ -37,11 +37,12 @@ async function openThemePanel(page) {
   await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 15000 });
   await page.waitForTimeout(500);
 
-  // すべてのガジェットを展開
+  // すべてのガジェットを展開 (data-gadget-collapsed 属性で制御)
   await page.evaluate(() => {
-    document.querySelectorAll('#settings-gadgets-panel .gadget-header').forEach(h => {
-      if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
-        h.click();
+    document.querySelectorAll('#settings-gadgets-panel .gadget-wrapper').forEach(function(w) {
+      var name = w.getAttribute('data-gadget-name');
+      if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
       }
     });
   });

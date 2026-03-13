@@ -652,6 +652,11 @@ class SidebarManager {
         // WYSIWYG mode: sync textarea back to WYSIWYG editor
         if (isWysiwyg && typeof rte.setContent === 'function') {
             rte.setContent(editor.value);
+            // 新セクションへジャンプ (コラプス適用 + スクロール)
+            var sc = window.ZWSectionCollapse;
+            if (sc && typeof sc.jumpToIndex === 'function') {
+                sc.jumpToIndex(-1); // 末尾 = 新しく追加したセクション
+            }
         } else {
             editor.focus();
         }

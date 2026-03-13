@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { openSearchPanel } = require('./helpers');
+const { openSearchPanel, disableWritingFocus } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -58,9 +58,26 @@ test.describe('Accessibility E2E', () => {
   test('Enter/Space keys activate accordion headers', async ({ page }) => {
     await page.locator('#toggle-sidebar').click();
     await page.waitForTimeout(300);
+    await disableWritingFocus(page);
+    // writing-focus 再適用を確実に停止 (_isWritingFocusSidebarEffective を無効化)
+    await page.evaluate(() => {
+      if (window.sidebarManager) {
+        window.sidebarManager._isWritingFocusSidebarEffective = function() { return false; };
+        if (window.sidebarManager._writingFocusRenderTimer) {
+          clearTimeout(window.sidebarManager._writingFocusRenderTimer);
+        }
+      }
+    });
+    await page.waitForTimeout(100);
 
-    // 2番目のヘッダーを使う（初期状態でcollapsed）
-    const header = page.locator('.accordion-header').nth(1);
+    // 安定したロケーター: 特定のアコーディオンヘッダーを aria-controls で固定
+    const targetId = await page.evaluate(() => {
+      var headers = document.querySelectorAll('.accordion-header[aria-expanded="false"]');
+      return headers.length > 0 ? headers[0].getAttribute('aria-controls') : null;
+    });
+    expect(targetId).toBeTruthy();
+    const header = page.locator(`.accordion-header[aria-controls="${targetId}"]`);
+
     await header.focus();
     await expect(header).toBeFocused();
 

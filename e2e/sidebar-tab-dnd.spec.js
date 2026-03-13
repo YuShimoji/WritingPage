@@ -4,6 +4,7 @@
  * 注意: アコーディオンシステムでの順序入替え機能実装待機中
  */
 const { test, expect } = require('@playwright/test');
+const { disableWritingFocus } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -101,6 +102,8 @@ test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
         await page.waitForSelector('#toggle-sidebar', { state: 'visible', timeout: 10000 });
         await page.click('#toggle-sidebar');
         await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
+        await disableWritingFocus(page);
+        await page.waitForTimeout(100);
 
         const headers = page.locator('.accordion-header');
         const count = await headers.count();

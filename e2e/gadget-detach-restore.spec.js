@@ -4,7 +4,7 @@
  * サイドバーに戻す機能をテスト
  */
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup, disableWritingFocus } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -40,6 +40,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
 
     test('detachGadget API exists on ZWGadgets', async ({ page }) => {
         await page.goto(pageUrl);
+        await disableWritingFocus(page);
         await page.waitForSelector('#structure-gadgets-panel', { timeout: 10000 });
 
         const hasDetach = await page.evaluate(() => {
@@ -50,6 +51,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
 
     test('restoreGadget API exists on ZWGadgets', async ({ page }) => {
         await page.goto(pageUrl);
+        await disableWritingFocus(page);
         await page.waitForSelector('#structure-gadgets-panel', { timeout: 10000 });
 
         const hasRestore = await page.evaluate(() => {

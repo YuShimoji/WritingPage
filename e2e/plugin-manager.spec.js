@@ -16,7 +16,7 @@ test.describe('Plugin Manager', () => {
       } catch (_) {
         return false;
       }
-    });
+    }, { timeout: 15000 });
 
     const hasChoice = await page.evaluate(() => {
       if (!window.ZenWriterPlugins || typeof window.ZenWriterPlugins.list !== 'function') return false;

@@ -144,4 +144,10 @@
     try {
         window.ZWPluginManager = ZWPluginManager;
     } catch (_) { }
+
+    // 非埋め込みモード時は自動 bootstrap
+    // (動的 <script async=false> ロード後に確実に実行するため self-bootstrap)
+    if (!/(?:^|[?&])embed=1(?:&|$)/.test(location.search)) {
+        bootstrap();
+    }
 })();

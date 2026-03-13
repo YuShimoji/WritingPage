@@ -201,7 +201,7 @@
     collapseActive = false;
   }
 
-  // グローバル公開 (syncToMarkdown フック用)
+  // グローバル公開 (syncToMarkdown フック用 + sidebar-manager 連携)
   window.ZWSectionCollapse = {
     clear: clearSectionCollapse,
     reapply: function () {
@@ -209,7 +209,15 @@
         applySectionCollapse(lastCollapseIndex);
       }
     },
-    isActive: function () { return collapseActive; }
+    isActive: function () { return collapseActive; },
+    /** 指定インデックスのセクションへジャンプしコラプス適用 (-1 で末尾) */
+    jumpToIndex: function (index) {
+      var headings = parseWysiwygHeadings();
+      if (headings.length === 0) return;
+      var target = index < 0 ? headings.length - 1 : Math.min(index, headings.length - 1);
+      jumpToHeading(headings[target], target);
+      scheduleRender();
+    }
   };
 
   // =========================================================

@@ -155,6 +155,18 @@ async function enableAllGadgets(page) {
       gadgets.init('#settings-gadgets-panel', { group: 'settings' });
     }
   });
+  // 執筆集中モードを無効化 (全ガジェットパネルを表示可能にする)
+  await page.evaluate(() => {
+    document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+    document.documentElement.setAttribute('data-writing-settings-open', 'false');
+    var sp = document.getElementById('structure-gadgets-panel');
+    if (sp) sp.style.display = '';
+    document.querySelectorAll('.accordion-category[data-category]').forEach(function(s) {
+      s.style.display = '';
+      s.setAttribute('aria-hidden', 'false');
+    });
+  });
+
   // デフォルト折りたたみ状態を全展開にする (localStorage にも保存して再レンダリング時も展開)
   await page.evaluate(() => {
     if (!window.ZWGadgets) return;
@@ -255,6 +267,26 @@ async function openSettingsModal(page) {
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 5000 });
 }
 
+/**
+ * 執筆集中サイドバーモードを無効化する。
+ * writing-focus が有効だと structure-gadgets-panel や assist/edit 等のカテゴリが非表示になるため、
+ * ガジェット操作テストでは事前に呼び出す。
+ */
+async function disableWritingFocus(page) {
+  await page.evaluate(() => {
+    document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+    document.documentElement.setAttribute('data-writing-settings-open', 'false');
+    // CSS非表示を解除: structure-gadgets-panel
+    var sp = document.getElementById('structure-gadgets-panel');
+    if (sp) sp.style.display = '';
+    // JS非表示を解除: 全アコーディオンカテゴリ
+    document.querySelectorAll('.accordion-category[data-category]').forEach(function(s) {
+      s.style.display = '';
+      s.setAttribute('aria-hidden', 'false');
+    });
+  });
+}
+
 module.exports = {
   openCommandPalette,
   openSearchPanel,
@@ -266,4 +298,5 @@ module.exports = {
   openSidebarGroup,
   expandAccordion,
   openSettingsModal,
+  disableWritingFocus,
 };
