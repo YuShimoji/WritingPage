@@ -1483,8 +1483,8 @@ html[data-toolbar-hidden='true'] .sidebar {
 .sidebar-accordion {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 8px 0;
+  gap: 4px;
+  padding: 4px 0;
   flex: 1;
   min-height: 0;
   overflow-y: auto;
@@ -1509,7 +1509,8 @@ html[data-toolbar-hidden='true'] .sidebar {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px;
+  padding: 8px 10px;
+  min-height: 32px;
   background: transparent;
   border: none;
   color: inherit;
@@ -1553,7 +1554,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 
 /* アコーディオンコンテンツ */
 .accordion-content {
-  padding: 0 8px 8px 8px;
+  padding: 0 6px 4px 6px;
   overflow: visible;
   transition: max-height 0.3s ease-out, opacity 0.2s;
 }
@@ -1574,7 +1575,7 @@ html[data-toolbar-hidden='true'] .sidebar {
 .accordion-content .gadgets-panel {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 /* ===== 執筆集中サイドバー（Novlrライクな簡素UI） ===== */
@@ -1731,7 +1732,6 @@ html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] .acc
 
 /* タッチ操作最適化 */
 .accordion-header {
-  min-height: 44px;
   touch-action: manipulation;
 }
 
@@ -3980,8 +3980,17 @@ input[type="checkbox"] {
   border-radius: 3px;
   cursor: pointer;
   line-height: 1;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.15s, width 0.15s;
+}
+
+.gadget-wrapper:hover .gadget-detach-btn,
+.gadget-header:focus-within .gadget-detach-btn {
   opacity: 0.6;
-  transition: opacity 0.2s;
+  width: auto;
+  overflow: visible;
 }
 
 .gadget-detach-btn:hover {
@@ -3993,14 +4002,14 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding-top: 6px;
-  padding-bottom: 6px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 /* ガジェット間の区切り線 */
 .gadget-wrapper + .gadget-wrapper {
   border-top: 1px solid var(--border-color);
-  padding-top: 4px;
+  padding-top: 2px;
 }
 
 .gadget-wrapper[draggable="true"] {
@@ -4084,10 +4093,18 @@ input[type="checkbox"] {
   padding: 0;
   display: flex;
   align-items: center;
-  opacity: 0.5;
-  transition: opacity 0.2s;
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+  transition: opacity 0.15s, width 0.15s;
   flex-shrink: 0;
   margin-left: 4px;
+}
+.gadget-wrapper:hover .gadget-help-btn,
+.gadget-header:focus-within .gadget-help-btn {
+  opacity: 0.5;
+  width: auto;
+  overflow: visible;
 }
 .gadget-help-btn:hover {
   opacity: 1;
@@ -4095,6 +4112,14 @@ input[type="checkbox"] {
 .gadget-help-btn i {
   width: 14px;
   height: 14px;
+}
+
+/* 単一ガジェットカテゴリ: タイトル重複解消 */
+.accordion-category--single .gadget-wrapper {
+  padding-top: 0;
+}
+.accordion-category--single .gadget-wrapper .gadget-header {
+  display: none;
 }
 
 /* ガジェットヘルプ表示 */

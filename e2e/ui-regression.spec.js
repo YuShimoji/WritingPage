@@ -142,13 +142,13 @@ test.describe('Gadget header layout', () => {
         await enableAllGadgets(page);
         await openSidebarGroup(page, 'structure');
 
-        // ガジェットヘッダーが表示されるまで待機
-        await page.waitForSelector('.gadget-header', {
+        // ガジェットヘッダーが表示されるまで待機 (structureパネル内を指定 — 単一ガジェットカテゴリのヘッダーは非表示)
+        await page.waitForSelector('#structure-gadgets-panel .gadget-header', {
             state: 'visible',
             timeout: 10000,
         });
 
-        const header = page.locator('.gadget-header').first();
+        const header = page.locator('#structure-gadgets-panel .gadget-header').first();
         await expect(header).toBeVisible();
 
         // ヘッダーの高さが1行分 (40px以下) であること
@@ -172,12 +172,12 @@ test.describe('Gadget header layout', () => {
         await enableAllGadgets(page);
         await openSidebarGroup(page, 'structure');
 
-        await page.waitForSelector('.gadget-header', {
+        await page.waitForSelector('#structure-gadgets-panel .gadget-header', {
             state: 'visible',
             timeout: 10000,
         });
 
-        const header = page.locator('.gadget-header').first();
+        const header = page.locator('#structure-gadgets-panel .gadget-header').first();
         const detachBtn = header.locator('.gadget-detach-btn');
         const hasDetachBtn = (await detachBtn.count()) > 0;
 

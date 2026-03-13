@@ -637,6 +637,23 @@
           // パネルにドロップハンドラーを設定
           self._setupPanelDropHandlers(root, group);
 
+          // 単一ガジェットカテゴリ: ガジェットヘッダーを隠してタイトル重複を解消
+          var categoryEl = root.closest('.accordion-category');
+          if (categoryEl) {
+            var wrapperCount = root.querySelectorAll('.gadget-wrapper').length;
+            var isSingle = wrapperCount === 1;
+            categoryEl.classList.toggle('accordion-category--single', isSingle);
+            if (isSingle) {
+              var singleHeader = root.querySelector('.gadget-wrapper .gadget-header');
+              if (singleHeader) singleHeader.style.display = 'none';
+              // 単一ガジェットは常に展開 (アコーディオンchevronが代わりに制御)
+              var singleWrapper = root.querySelector('.gadget-wrapper');
+              if (singleWrapper) {
+                self._setGadgetCollapsed(singleWrapper.getAttribute('data-gadget-name'), false, singleWrapper, true);
+              }
+            }
+          }
+
           self.replaceGadgetSettingsWithIcons();
 
           // Lucideアイコンを初期化
