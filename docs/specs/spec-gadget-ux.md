@@ -135,6 +135,36 @@
 | ガジェットヘルプ表示 | `zenwriter-gadget-help-visible` | `true` | ヘルプアイコンの表示/非表示 |
 | 一括折りたたみボタン表示 | `zenwriter-gadget-bulk-toggle-visible` | `true` | カテゴリヘッダーの一括ボタン表示/非表示 |
 
+## Phase 3: サイドバー品質改善 (2026-03-14 完了)
+
+### 3.1 情報密度改善
+
+| 変更 | 内容 |
+|------|------|
+| 余白圧縮 | accordion gap 8→4px, header padding 12→8px 10px, content padding 0 6px 4px 6px, gadgets-panel gap 4→2px |
+| コントロール hover 化 | detach/help ボタンを `opacity:0; width:0` にし、hover/focus-within で表示 |
+| 単一ガジェットヘッダー統合 | 1カテゴリ=1ガジェットの場合、ガジェットヘッダーを非表示。`.accordion-category--single` クラス |
+
+### 3.2 アコーディオンアニメーション対称化
+
+- 展開: `scrollHeight` → `max-height` アニメーション → 完了後 `max-height: none`
+- 折りたたみ: `scrollHeight` → `max-height: 0` アニメーション
+- `transitionend` + 400ms フォールバックタイムアウト
+- インライン `style="display:none"` を HTML から除去、JS 管理に統一
+
+### 3.3 スクロール見切れ修正
+
+- `.sidebar-accordion`: `overflow-y: auto` → `overflow: visible` (親 `.sidebar` に委譲)
+- `.accordion-category`: `overflow: hidden` → `overflow: visible`
+
+### 3.4 テキスト切り詰め
+
+- `.accordion-header > span`: `text-overflow: ellipsis; white-space: nowrap; overflow: hidden`
+
+### 3.5 トランジション統一
+
+- サイドバーオーバーレイ: `transition: opacity 0.3s` → `var(--transition-speed, 0.3s)`
+
 ## 非スコープ
 
 - ガジェットの並び替え (既存のドラッグ&ドロップで対応済み)

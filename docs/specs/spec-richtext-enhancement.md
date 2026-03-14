@@ -194,10 +194,17 @@
   - スマートペースト動作テスト
   - プレーンテキストペースト動作テスト
 
-### Phase 4: 品質改善（未着手）
+### Phase 4: 入力体験改善（2026-03-14 完了）
 
-#### 計画内容
+#### 実装済み
 
-- 選択範囲の維持改善
+- **フローティングツールバーのサイドバー考慮** — `_showFloatingToolbar()` が `.sidebar.open` の右端を左端クランプの基準に使用
+- **装飾適用後の選択範囲復元** — `wrapSelectionWithSpan()` で DOM 操作後に `selection.addRange()` で再選択。ラップ時は span 内容、アンラップ時は展開テキスト全体を再選択
+- **プリフォーマット対応** — `executeCommand()` の `isCollapsed` ガード除去 (execCommand 標準動作でプリフォーマット)。`wrapSelectionWithSpan()` で選択なし時にゼロ幅スペース付き空 SPAN を挿入+トグル OFF 対応
+- **タイプライターモード** — カーソル行をビューポートのアンカー位置に維持するスクロール制御。anchorRatio/stickiness 設定、input/keyup/click で requestAnimationFrame 経由の追従。WYSIWYG 専用
+- **ドロップダウンメニューのビューポートクランプ** — 画面端でメニューが見切れる問題を修正
+
+#### 未着手
+
 - Undo 粒度の最適化
-- その他のUX改善項目
+- カーソル位置の下部固定問題（コンテンツが少ない場合）
