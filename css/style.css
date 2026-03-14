@@ -1521,6 +1521,14 @@ html[data-toolbar-hidden='true'] .sidebar {
   text-align: left;
 }
 
+.accordion-header > span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .accordion-header:hover {
   background: var(--toolbar-bg);
 }
@@ -1555,21 +1563,22 @@ html[data-toolbar-hidden='true'] .sidebar {
 /* アコーディオンコンテンツ */
 .accordion-content {
   padding: 0 6px 4px 6px;
-  overflow: visible;
-  transition: max-height 0.3s ease-out, opacity 0.2s;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out, opacity 0.2s, padding 0.3s ease-out;
 }
 
 .accordion-content[aria-hidden="true"] {
-  max-height: 0;
+  max-height: 0 !important;
   opacity: 0;
   padding-top: 0;
   padding-bottom: 0;
 }
 
 .accordion-content[aria-hidden="false"] {
-  max-height: none;
   opacity: 1;
 }
+
+/* JS が max-height を scrollHeight ベースで管理。展開完了後に none に設定 */
 
 /* ガジェットパネル */
 .accordion-content .gadgets-panel {
@@ -2084,7 +2093,7 @@ input[type='color'] {
     z-index: calc(var(--z-sidebar, 1000) - 1);
     display: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transition: opacity var(--transition-speed, 0.3s) ease;
   }
 
   html[data-sidebar-open='true'] .sidebar-overlay {

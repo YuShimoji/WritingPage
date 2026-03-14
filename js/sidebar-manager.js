@@ -255,8 +255,33 @@ class SidebarManager {
         }
 
         header.setAttribute('aria-expanded', expand ? 'true' : 'false');
-        content.setAttribute('aria-hidden', expand ? 'false' : 'true');
-        content.style.display = expand ? 'block' : 'none';
+
+        if (expand) {
+            // 展開: まずdisplay確保、scrollHeightを取得してアニメーション開始
+            content.style.display = 'block';
+            content.setAttribute('aria-hidden', 'false');
+            var targetH = content.scrollHeight;
+            content.style.maxHeight = '0px';
+            // 次フレームで目標高さを設定してアニメーション開始
+            requestAnimationFrame(function () {
+                content.style.maxHeight = targetH + 'px';
+                // アニメーション完了後に max-height: none で自由伸縮可能に
+                var onEnd = function () {
+                    content.removeEventListener('transitionend', onEnd);
+                    if (content.getAttribute('aria-hidden') !== 'true') {
+                        content.style.maxHeight = 'none';
+                    }
+                };
+                content.addEventListener('transitionend', onEnd);
+            });
+        } else {
+            // 折りたたみ: scrollHeight → 0 のアニメーション
+            content.style.maxHeight = content.scrollHeight + 'px';
+            requestAnimationFrame(function () {
+                content.setAttribute('aria-hidden', 'true');
+                // display は CSS の max-height: 0 + overflow: hidden で視覚的に非表示
+            });
+        }
     }
 
     _loadAccordionState() {
