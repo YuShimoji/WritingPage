@@ -257,7 +257,7 @@ class SidebarManager {
         header.setAttribute('aria-expanded', expand ? 'true' : 'false');
 
         if (expand) {
-            // 展開: まずdisplay確保、scrollHeightを取得してアニメーション開始
+            // 展開: scrollHeightを取得してアニメーション開始
             content.style.display = 'block';
             content.setAttribute('aria-hidden', 'false');
             var targetH = content.scrollHeight;
@@ -265,21 +265,25 @@ class SidebarManager {
             // 次フレームで目標高さを設定してアニメーション開始
             requestAnimationFrame(function () {
                 content.style.maxHeight = targetH + 'px';
+                var cleared = false;
                 // アニメーション完了後に max-height: none で自由伸縮可能に
-                var onEnd = function () {
-                    content.removeEventListener('transitionend', onEnd);
+                var clearMaxHeight = function () {
+                    if (cleared) return;
+                    cleared = true;
+                    content.removeEventListener('transitionend', clearMaxHeight);
                     if (content.getAttribute('aria-hidden') !== 'true') {
                         content.style.maxHeight = 'none';
                     }
                 };
-                content.addEventListener('transitionend', onEnd);
+                content.addEventListener('transitionend', clearMaxHeight);
+                // フォールバック: transitionendが発火しない場合に備える
+                setTimeout(clearMaxHeight, 400);
             });
         } else {
             // 折りたたみ: scrollHeight → 0 のアニメーション
             content.style.maxHeight = content.scrollHeight + 'px';
             requestAnimationFrame(function () {
                 content.setAttribute('aria-hidden', 'true');
-                // display は CSS の max-height: 0 + overflow: hidden で視覚的に非表示
             });
         }
     }

@@ -1485,16 +1485,17 @@ html[data-toolbar-hidden='true'] .sidebar {
   flex-direction: column;
   gap: 4px;
   padding: 4px 0;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
-  overflow-y: auto;
+  /* 親 .sidebar の overflow-y:auto にスクロールを委譲 */
+  overflow: visible;
 }
 
 /* カテゴリセクション */
 .accordion-category {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  overflow: hidden;
+  overflow: visible;
   background: var(--sidebar-bg);
   transition: border-color 0.2s;
 }
