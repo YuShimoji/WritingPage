@@ -355,6 +355,90 @@
       this._floatingVisible = false;
     }
 
+    // ─── Typewriter Mode ──────────────────────────────────
+    /** @private タイプライター設定を読み込む */
+    _getTypewriterConfig() {
+      var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings();
+      var tw = (s && s.typewriter) || {};
+      return {
+        enabled: !!tw.enabled,
+        anchorRatio: typeof tw.anchorRatio === 'number' ? tw.anchorRatio : 0.5,
+        stickiness: typeof tw.stickiness === 'number' ? tw.stickiness : 0.9,
+      };
+    }
+
+    /** タイプライターモードを有効化/無効化する (ガジェットから呼ばれる) */
+    applyTypewriterIfEnabled() {
+      var cfg = this._getTypewriterConfig();
+      if (cfg.enabled && this.isWysiwygMode) {
+        this._enableTypewriter(cfg);
+      } else {
+        this._disableTypewriter();
+      }
+    }
+
+    /** @private タイプライターモードを有効化 */
+    _enableTypewriter(cfg) {
+      if (this._twEnabled) return; // 既に有効
+      this._twEnabled = true;
+      this._twCfg = cfg;
+      var self = this;
+
+      this._twHandler = function () {
+        requestAnimationFrame(function () { self._scrollCursorToAnchor(); });
+      };
+      this.wysiwygEditor.addEventListener('input', this._twHandler);
+      this.wysiwygEditor.addEventListener('keyup', this._twHandler);
+      this.wysiwygEditor.addEventListener('click', this._twHandler);
+
+      // 上下余白を追加してカーソルがアンカー位置に到達できるようにする
+      this.wysiwygEditor.style.paddingBottom = 'calc(100% * ' + cfg.anchorRatio + ')';
+      this.wysiwygEditor.setAttribute('data-typewriter', 'true');
+    }
+
+    /** @private タイプライターモードを無効化 */
+    _disableTypewriter() {
+      if (!this._twEnabled) return;
+      this._twEnabled = false;
+      if (this._twHandler) {
+        this.wysiwygEditor.removeEventListener('input', this._twHandler);
+        this.wysiwygEditor.removeEventListener('keyup', this._twHandler);
+        this.wysiwygEditor.removeEventListener('click', this._twHandler);
+        this._twHandler = null;
+      }
+      this.wysiwygEditor.style.paddingBottom = '';
+      this.wysiwygEditor.removeAttribute('data-typewriter');
+    }
+
+    /** @private カーソル行をアンカー位置にスクロール */
+    _scrollCursorToAnchor() {
+      if (!this._twEnabled || !this.wysiwygEditor) return;
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+
+      var range = sel.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
+
+      // カーソル位置の座標を取得
+      var rects = range.getClientRects();
+      var cursorRect = rects.length > 0 ? rects[rects.length - 1] : range.getBoundingClientRect();
+      if (!cursorRect || (cursorRect.height === 0 && cursorRect.width === 0)) return;
+
+      var editorRect = this.wysiwygEditor.getBoundingClientRect();
+      var viewH = editorRect.height;
+      var anchorY = viewH * this._twCfg.anchorRatio;
+
+      // カーソルのエディタ内相対Y座標
+      var cursorRelY = cursorRect.top - editorRect.top + cursorRect.height / 2;
+      var delta = cursorRelY - anchorY;
+
+      if (Math.abs(delta) < 2) return; // 微小差は無視
+
+      var stickiness = this._twCfg.stickiness;
+      var scrollDelta = delta * stickiness;
+      this.wysiwygEditor.scrollTop += scrollDelta;
+    }
+
     /**
      * WYSIWYGエディタのイベント設定
      */
@@ -560,6 +644,9 @@
 
       // 設定を保存
       try { localStorage.setItem('zenwriter-wysiwyg-mode', 'true'); } catch (_) { /* noop */ }
+
+      // タイプライターモードの状態を同期
+      this.applyTypewriterIfEnabled();
     }
 
     /**
@@ -604,6 +691,9 @@
 
       // 設定を保存
       try { localStorage.setItem('zenwriter-wysiwyg-mode', 'false'); } catch (_) { /* noop */ }
+
+      // タイプライターモードを無効化
+      this._disableTypewriter();
     }
 
     /**
