@@ -317,9 +317,16 @@
 
       var margin = 12;
 
+      // サイドバーが開いている場合、左端をサイドバー右端に制限
+      var sidebarEl = document.querySelector('.sidebar.open');
+      var leftBound = margin;
+      if (sidebarEl) {
+        leftBound = sidebarEl.getBoundingClientRect().right + margin;
+      }
+
       // 左端クランプ: translateX(-50%) を考慮
-      if (left - tbW / 2 < margin) {
-        left = tbW / 2 + margin;
+      if (left - tbW / 2 < leftBound) {
+        left = tbW / 2 + leftBound;
       }
       // 右端クランプ
       if (left + tbW / 2 > vpW - margin) {
@@ -440,21 +447,41 @@
       // トグル: 選択範囲の親が同クラスのspanならアンラップ
       const ancestor = range.commonAncestorContainer;
       const parentEl = ancestor.nodeType === Node.TEXT_NODE ? ancestor.parentElement : ancestor;
+      var targetNode = null; // 操作後に選択を復元するためのノード
       if (parentEl && parentEl.tagName === 'SPAN' && parentEl.classList.contains(className)) {
         const fragment = document.createDocumentFragment();
         while (parentEl.firstChild) fragment.appendChild(parentEl.firstChild);
+        targetNode = fragment.firstChild;
+        var lastChild = fragment.lastChild;
         parentEl.parentNode.replaceChild(fragment, parentEl);
+        // アンラップしたテキスト全体を再選択
+        if (targetNode && lastChild) {
+          const newRange = document.createRange();
+          newRange.setStartBefore(targetNode);
+          newRange.setEndAfter(lastChild);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
       } else {
         try {
           const span = document.createElement('span');
           span.className = className;
           range.surroundContents(span);
+          targetNode = span;
         } catch (_) {
           // surroundContentsは部分選択で失敗する場合がある
           const span = document.createElement('span');
           span.className = className;
           span.appendChild(range.extractContents());
           range.insertNode(span);
+          targetNode = span;
+        }
+        // ラップしたspan内のテキストを選択状態に復元
+        if (targetNode) {
+          const newRange = document.createRange();
+          newRange.selectNodeContents(targetNode);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
         }
       }
 
