@@ -497,15 +497,12 @@
 
       this.wysiwygEditor.focus();
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-        this.notifySelectionRequired();
-        return;
-      }
+      if (!selection || selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
-      // Apply only to selected text and allow toggle-off by re-running the command.
+      // execCommand は選択なし (collapsed) でもプリフォーマットとして機能する
       document.execCommand(command, false, value);
       this.wysiwygEditor.focus();
       this.syncToMarkdown();
@@ -520,13 +517,36 @@
 
       this.wysiwygEditor.focus();
       const selection = window.getSelection();
-      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
-        this.notifySelectionRequired();
-        return;
-      }
+      if (!selection || selection.rangeCount === 0) return;
 
       const range = selection.getRangeAt(0);
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
+
+      // プリフォーマット: 選択なしの場合、空SPANを挿入してカーソルを中に配置
+      if (selection.isCollapsed) {
+        // カーソル位置の親が同クラスSPANなら、SPANの外にカーソルを移動（トグルOFF）
+        const curNode = range.startContainer;
+        const curEl = curNode.nodeType === Node.TEXT_NODE ? curNode.parentElement : curNode;
+        if (curEl && curEl.tagName === 'SPAN' && curEl.classList.contains(className)) {
+          const afterRange = document.createRange();
+          afterRange.setStartAfter(curEl);
+          afterRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(afterRange);
+        } else {
+          const span = document.createElement('span');
+          span.className = className;
+          span.textContent = '\u200B'; // ゼロ幅スペース
+          range.insertNode(span);
+          const innerRange = document.createRange();
+          innerRange.setStart(span.firstChild, 1);
+          innerRange.collapse(true);
+          selection.removeAllRanges();
+          selection.addRange(innerRange);
+        }
+        this.wysiwygEditor.focus();
+        return;
+      }
 
       // トグル: 選択範囲の親が同クラスのspanならアンラップ
       const ancestor = range.commonAncestorContainer;
