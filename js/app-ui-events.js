@@ -48,8 +48,15 @@
             if (rect.right > viewportWidth - FLOATING_PANEL_MARGIN) {
                 nextLeft = viewportWidth - rect.width - FLOATING_PANEL_MARGIN;
             }
-            if (rect.left < FLOATING_PANEL_MARGIN) {
-                nextLeft = FLOATING_PANEL_MARGIN;
+            // サイドバーが開いている場合、左端をサイドバー右端に制限
+            var sidebarEl = document.querySelector('.sidebar.open');
+            var leftBound = FLOATING_PANEL_MARGIN;
+            if (sidebarEl) {
+                var sidebarRight = sidebarEl.getBoundingClientRect().right;
+                if (sidebarRight > leftBound) leftBound = sidebarRight + FLOATING_PANEL_MARGIN;
+            }
+            if (rect.left < leftBound) {
+                nextLeft = leftBound;
             }
             if (rect.bottom > viewportHeight - FLOATING_PANEL_MARGIN) {
                 nextTop = viewportHeight - rect.height - FLOATING_PANEL_MARGIN;

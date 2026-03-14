@@ -204,9 +204,21 @@
             var menu = dropdown.querySelector('.wysiwyg-dropdown-menu');
             if (menu) {
               var btnRect = toggle.getBoundingClientRect();
+              var menuLeft = btnRect.left + btnRect.width / 2;
               menu.style.top = (btnRect.bottom + 4) + 'px';
-              menu.style.left = (btnRect.left + btnRect.width / 2) + 'px';
+              menu.style.left = menuLeft + 'px';
               menu.style.transform = 'translateX(-50%)';
+              // ビューポートクランプ（表示後に位置補正）
+              requestAnimationFrame(function () {
+                var menuRect = menu.getBoundingClientRect();
+                var margin = 8;
+                if (menuRect.left < margin) {
+                  menu.style.left = (menuRect.width / 2 + margin) + 'px';
+                }
+                if (menuRect.right > window.innerWidth - margin) {
+                  menu.style.left = (window.innerWidth - menuRect.width / 2 - margin) + 'px';
+                }
+              });
             }
           }
           dropdown.setAttribute('data-open', isOpen ? 'false' : 'true');
@@ -392,7 +404,7 @@
       this.wysiwygEditor.addEventListener('click', this._twHandler);
 
       // 上下余白を追加してカーソルがアンカー位置に到達できるようにする
-      this.wysiwygEditor.style.paddingBottom = 'calc(100% * ' + cfg.anchorRatio + ')';
+      this.wysiwygEditor.style.paddingBottom = 'calc(100vh * ' + cfg.anchorRatio + ')';
       this.wysiwygEditor.setAttribute('data-typewriter', 'true');
     }
 
