@@ -1,11 +1,21 @@
 # セクションツリー/話ナビゲーション 仕様書
 
+> **モード適用範囲 (SP-070 連動)**
+> - SectionsNavigator ガジェット (左サイドツリー): **Editor モード専用**。
+>   Focus モードでは SP-071 の ChapterList が同等の役割を担う。
+> - エディタ下部ナビ: **全モード共通** (Focus / Blank でも利用可能)。
+> - SectionsNavigator と ChapterList はデータソース (見出し解析結果) を共有する。
+>   Editor で見出しを変更すると、Focus の ChapterList にも反映される。
+
 ## 概要
 
-部・章・節（および話数）を「挿入するだけ」で終わらせず、  
+部・章・節（および話数）を「挿入するだけ」で終わらせず、
 左サイドでツリー管理し、選択した話を編集の主対象として扱える導線を追加する。
 
-関連仕様: `docs/specs/spec-writing-focus-sidebar.md`（執筆集中表示と章/シーン遷移）
+関連仕様:
+- `docs/specs/spec-mode-architecture.md` (SP-070: モード別の適用範囲)
+- `docs/specs/spec-chapter-management.md` (SP-071: Focus モードの ChapterList)
+- `docs/specs/spec-writing-focus-sidebar.md` (SP-053: superseded、設計意図の参照用)
 
 合わせて、エディタ最下部に「前の話 / 次の話 / 見出しへ移動」ナビを常設し、
 長編執筆時の移動コストを下げる。

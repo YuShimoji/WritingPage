@@ -390,15 +390,6 @@
     var currentActiveIndex = -1;
     var debounceTimer = null;
 
-    function getEditorText() {
-      var rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
-      if (rte && rte.isWysiwygMode && typeof rte.syncToMarkdown === 'function') {
-        rte.syncToMarkdown();
-      }
-      var editor = document.getElementById('editor');
-      return editor ? (editor.value || '') : '';
-    }
-
     function render() {
       var wysiwyg = isWysiwygMode();
 

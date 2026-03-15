@@ -293,11 +293,12 @@
   {
     "id": "SP-053",
     "title": "執筆集中サイドバー 仕様",
-    "status": "done",
+    "status": "superseded",
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-writing-focus-sidebar.md",
-    "summary": "Focus連動で章/シーン遷移をサイドバー先頭に集約。現在章/シーンの細いアクセント強調、+追加の自然レベル挿入、Altショートカット、下部ナビ同期方針まで定義。"
+    "summary": "SP-070 (モードアーキテクチャ) + SP-071 (チャプター管理再設計) に包含された。3段構成→Focusモード、セクション領域→ChapterList、設定表示→オーバーレイ。設計意図の参照用として保存。",
+    "supersededBy": ["SP-070", "SP-071"]
   },
   {
     "id": "SP-054",
@@ -398,5 +399,73 @@
     "file": "docs/specs/spec-font-switching-impact-map.md",
     "summary": "SP-054 フォント切り替え実装時の影響範囲分析。変更対象ファイル・関連度・安全な作業順序を整理。",
     "related": ["SP-054"]
+  },
+  {
+    "id": "SP-070",
+    "title": "モードアーキテクチャ仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "core",
+    "file": "docs/specs/spec-mode-architecture.md",
+    "summary": "Editor/Focus/Blankの3モード分離。ガジェット過多とサイドバー混雑を構造的に解決。オーバーレイによるモード横断アクセス。"
+  },
+  {
+    "id": "SP-071",
+    "title": "チャプター管理再設計仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-chapter-management.md",
+    "summary": "Novlr式2ペイン章管理。Focusモードの主要UI。章の独立管理単位化、ドラッグ並び替え、目次自動生成。SP-070依存。",
+    "related": ["SP-070", "SP-052", "SP-053"]
+  },
+  {
+    "id": "SP-072",
+    "title": "セクションリンク & インタラクティブナビ仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-section-links.md",
+    "summary": "章末ナビ自動挿入(前へ/目次/次へ)、chapter://リンクによるゲームブック的章間ジャンプ、ページ公開設定(visible/draft/hidden)。WYSIWYG+読者向けHTML両対応。",
+    "related": ["SP-070", "SP-071"]
+  },
+  {
+    "id": "SP-073",
+    "title": "パステキスト仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-path-text.md",
+    "summary": "ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。WYSIWYG上で制御点ハンドルによるインタラクティブ編集。",
+    "related": ["SP-016", "SP-062"]
+  },
+  {
+    "id": "SP-074",
+    "title": "Web小説演出統合仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-web-novel-effects.md",
+    "summary": "テクスチャオーバーレイ・タイピング演出・ダイアログボックス(顔アイコン)・SE・スクロール連動。SP-062基盤上に構築。ADV/Web小説/ホラー等ジャンルプリセット対応。",
+    "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
+  },
+  {
+    "id": "SP-075",
+    "title": "Google Keep双方向連携仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "system",
+    "file": "docs/specs/spec-google-keep-integration.md",
+    "summary": "Google Takeoutベースのインポート(Phase 1)、テキストエクスポート(Phase 2)、将来のAPI連携(Phase 3)。ラベル単位フィルタリング、章/素材メモとしての取り込み。"
+  },
+  {
+    "id": "SP-076",
+    "title": "ドックパネルシステム仕様",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/specs/spec-dock-panel.md",
+    "summary": "上下左右へのパネルドッキング。タブグループ化、フローティング切り離し、プリセット配置。Editorモード専用。SP-070依存。",
+    "related": ["SP-070", "SP-051", "SP-071"]
   }
 ]
