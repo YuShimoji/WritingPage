@@ -387,24 +387,97 @@ function replaceAssetPlaceholders(text, mode = 'data-url') {
 }
 
 // ===== 複数ドキュメント管理 =====
+
+// SP-077: メモリキャッシュ (IndexedDB が利用可能ならキャッシュ経由)
+var _docsCache = null;
+var _docsCacheDirty = false;
+var _idbFlushTimer = null;
+
+function _flushDocsToIDB() {
+    if (!_docsCacheDirty || !_docsCache) return;
+    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+        var docs = _docsCache.slice();
+        _docsCacheDirty = false;
+        // 全件 put (単純だが小規模では十分)
+        var tx = Promise.resolve();
+        for (var i = 0; i < docs.length; i++) {
+            (function (doc) {
+                tx = tx.then(function () { return window.ZenWriterIDB.putDoc(doc); });
+            })(docs[i]);
+        }
+        tx.catch(function (e) {
+            console.warn('[IDB] Flush error:', e);
+            _docsCacheDirty = true; // リトライのためフラグを戻す
+        });
+    }
+}
+
+function _scheduleIDBFlush() {
+    if (_idbFlushTimer) clearTimeout(_idbFlushTimer);
+    _idbFlushTimer = setTimeout(_flushDocsToIDB, 2000);
+}
+
+/**
+ * SP-077: IDB 初期化 — アプリ起動時に呼ぶ
+ * IndexedDB を開き、localStorage からの移行を実行し、キャッシュを初期化する。
+ * @returns {Promise<boolean>} IDB が利用可能かどうか
+ */
+function _initIDB() {
+    if (!window.ZenWriterIDB) return Promise.resolve(false);
+    return window.ZenWriterIDB.open()
+        .then(function (opened) {
+            if (!opened) return false;
+            return window.ZenWriterIDB.migrateFromLocalStorage()
+                .then(function (result) {
+                    if (result.migrated) {
+                        console.log('[Storage] IDB migration complete:', result.counts);
+                    }
+                    // IDB からドキュメントキャッシュを初期化
+                    return window.ZenWriterIDB.getAllDocs();
+                })
+                .then(function (docs) {
+                    if (docs && docs.length > 0) {
+                        _docsCache = docs;
+                    }
+                    return true;
+                });
+        })
+        .catch(function (e) {
+            console.warn('[Storage] IDB init failed, using localStorage:', e);
+            return false;
+        });
+}
+
 function loadDocuments() {
+    // キャッシュがあればそこから返す
+    if (_docsCache !== null) return _docsCache;
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
-        return raw ? JSON.parse(raw) : [];
+        _docsCache = raw ? JSON.parse(raw) : [];
+        return _docsCache;
     } catch (e) {
         console.error('ドキュメント読込エラー:', e);
+        _docsCache = [];
         return [];
     }
 }
 
 function saveDocuments(list) {
+    _docsCache = list || [];
+    _docsCacheDirty = true;
     try {
-        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(list || []));
-        return true;
+        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(_docsCache));
     } catch (e) {
-        console.error('ドキュメント保存エラー:', e);
-        return false;
+        // localStorage 容量超過 — IDB があれば IDB のみに保存
+        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+            console.warn('[Storage] localStorage quota exceeded, using IDB only');
+        } else {
+            console.error('ドキュメント保存エラー:', e);
+            return false;
+        }
     }
+    _scheduleIDBFlush();
+    return true;
 }
 
 function getCurrentDocId() {
@@ -1309,6 +1382,8 @@ if (typeof module !== 'undefined' && module.exports) {
         updateDocumentContent,
         renameDocument,
         deleteDocument,
+        // SP-077: IDB 初期化
+        initIDB: _initIDB,
         // hierarchy
         createFolder,
         moveItem,

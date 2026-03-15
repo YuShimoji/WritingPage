@@ -10,6 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logger.info('アプリケーション初期化開始');
 
+    // SP-077: IndexedDB 初期化 (非ブロッキング)
+    if (window.ZenWriterStorage && typeof window.ZenWriterStorage.initIDB === 'function') {
+        window.ZenWriterStorage.initIDB().then(function (ok) {
+            if (ok) logger.info('IndexedDB 初期化完了');
+        });
+    }
+
     // 階層ドキュメントへのデータ移行
     try {
         if (window.ZenWriterStorage && typeof window.ZenWriterStorage.migrateDocumentsToHierarchy === 'function') {

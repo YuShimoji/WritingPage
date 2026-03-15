@@ -467,5 +467,15 @@
     "file": "docs/specs/spec-dock-panel.md",
     "summary": "上下左右へのパネルドッキング。タブグループ化、フローティング切り離し、プリセット配置。Editorモード専用。SP-070依存。",
     "related": ["SP-070", "SP-051", "SP-071"]
+  },
+  {
+    "id": "SP-077",
+    "title": "IndexedDB ストレージ移行仕様",
+    "status": "partial",
+    "pct": 40,
+    "cat": "system",
+    "file": "docs/specs/spec-indexeddb-migration.md",
+    "summary": "Phase 1実装: IDBラッパー(storage-idb.js) + ドキュメント移行 + メモリキャッシュ統合。起動時に自動移行。残: アセット/スナップショット/Wiki/ノードグラフ移行。",
+    "related": ["SP-071"]
   }
 ]
