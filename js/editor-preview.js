@@ -121,6 +121,11 @@
     }
 
     if (html) {
+      // Kenten (傍点) support: {kenten|text} -> <span class="kenten">text</span>
+      // Must run before ruby to avoid {kenten|...} being parsed as ruby
+      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_match, text) {
+        return '<span class="kenten">' + text.trim() + '</span>';
+      });
       // Ruby Text support: {Kanji|Kana} -> <ruby>Kanji<rt>Kana</rt></ruby>
       html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
         return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';

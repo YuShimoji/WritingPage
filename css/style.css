@@ -3633,6 +3633,14 @@ html[data-embed='true'] #editor {
   letter-spacing: -0.05em;
 }
 
+/* ===== 傍点・圏点 (SP-059 Phase 3) ===== */
+.kenten {
+  -webkit-text-emphasis: filled sesame;
+  text-emphasis: filled sesame;
+  -webkit-text-emphasis-position: over right;
+  text-emphasis-position: over right;
+}
+
 /* ===== テキストアニメーション効果 ===== */
 .anim-pulse {
   animation: pulse calc(var(--anim-duration, 2s) / var(--anim-speed, 1)) infinite;

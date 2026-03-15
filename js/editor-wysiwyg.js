@@ -58,6 +58,15 @@
           'anim-fade': 'fade', 'anim-slide': 'slide', 'anim-typewriter': 'type',
           'anim-pulse': 'pulse', 'anim-shake': 'shake', 'anim-bounce': 'bounce', 'anim-fade-in': 'fadein'
         };
+        // 傍点 span.kenten → {kenten|...} 逆変換
+        this.turndownService.addRule('kenten', {
+          filter: function (node) {
+            return node.nodeName === 'SPAN' && node.className === 'kenten';
+          },
+          replacement: function (content) {
+            return '{kenten|' + content + '}';
+          }
+        });
         this.turndownService.addRule('textAnimations', {
           filter: function (node) {
             return node.nodeName === 'SPAN' && node.className && /^anim-/.test(node.className);
@@ -821,6 +830,11 @@
       if (this.editorManager && typeof this.editorManager.processTextAnimations === 'function') {
         html = this.editorManager.processTextAnimations(html);
       }
+
+      // SP-059 Phase 3: {kenten|text} → <span class="kenten">text</span>
+      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_m, text) {
+        return '<span class="kenten">' + text.trim() + '</span>';
+      });
 
       return html;
     }

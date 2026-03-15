@@ -734,11 +734,12 @@
       var row1 = el('div'); row1.appendChild(mkBtn('bold', 'B')); row1.appendChild(mkBtn('italic', 'I')); row1.appendChild(mkBtn('underline', 'U')); row1.appendChild(mkBtn('strike', 'S')); row1.appendChild(mkBtn('black', '極'));
       var row2 = el('div'); row2.appendChild(mkBtn('light', '細')); row2.appendChild(mkBtn('smallcaps', 'SC')); row2.appendChild(mkBtn('shadow', '影')); row2.appendChild(mkBtn('outline', '輪')); row2.appendChild(mkBtn('glow', '光'));
       var row3 = el('div'); row3.appendChild(mkBtn('uppercase', '大')); row3.appendChild(mkBtn('lowercase', '小')); row3.appendChild(mkBtn('capitalize', '頭')); row3.appendChild(mkBtn('wide', '広')); row3.appendChild(mkBtn('narrow', '狭'));
+      var row4 = el('div'); row4.appendChild(mkBtn('kenten', '傍点'));
       function bind(container) {
         var btns = container.querySelectorAll('.decor-btn');
-        btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
+        btns.forEach(function (btn) { btn.addEventListener('click', function () { try { var tag = btn.dataset.tag; if (tag === 'kenten') { var rich = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor; if (rich && rich.isWysiwygMode && typeof rich.wrapSelectionWithSpan === 'function') { rich.wrapSelectionWithSpan('kenten'); } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') { window.ZenWriterEditor.insertTextAtCursor('{kenten|', { suffix: '}' }); } } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(tag); } } catch (_) { } }); });
       }
-      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); bind(root);
+      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); bind(root);
     }, { title: 'Font Decoration', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
 
     // Text Animation Gadget (パネルのミラー)
