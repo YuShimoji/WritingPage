@@ -312,11 +312,11 @@
   {
     "id": "SP-055",
     "title": "リッチテキスト強化 仕様",
-    "status": "partial",
-    "pct": 98,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-richtext-enhancement.md",
-    "summary": "WYSIWYGを常用レベルへ強化。Phase 1-3完了+Phase 4入力体験改善(ツールバー位置/選択復元/プリフォーマット/タイプライター/ドロップダウンクランプ)完了。残: Undo粒度最適化。"
+    "summary": "WYSIWYGを常用レベルへ強化。Phase 1-4完了。Undo粒度最適化: カスタムスタック+デバウンス(500ms)+アトミックスナップショット実装済み。"
   },
   {
     "id": "SP-056",
@@ -375,11 +375,11 @@
   {
     "id": "SP-062",
     "title": "テキスト表現アーキテクチャ仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-text-expression-architecture.md",
-    "summary": "Text Effect / Animation / Ornament / preset sugar / projection の責務分離と Tier 1 の縮退規則を定義する SSOT。"
+    "summary": "Text Effect / Animation / Ornament / preset sugar / projection の責務分離と Tier 1 の縮退規則を定義する SSOT。Tier 1 完了（受入基準5項目すべて合格）。Block ornament は Tier 2。"
   },
   {
     "id": "SP-063",
@@ -407,16 +407,16 @@
     "pct": 40,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: SP-071 ChapterList本実装待ち。"
+    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: SP-071 ChapterList Phase 1実装済み、残は章ごと独立保存。"
   },
   {
     "id": "SP-071",
     "title": "チャプター管理再設計仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 50,
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
-    "summary": "Novlr式2ペイン章管理。Focusモードの主要UI。章の独立管理単位化、ドラッグ並び替え、目次自動生成。SP-070依存。",
+    "summary": "Novlr式2ペイン章管理。Phase 1完了: 見出し自動検出・クリックナビ・ダブルクリックリネーム・右クリックメニュー・D&D並び替え・新規章追加・アクティブ章ハイライト+文字数表示。Phase 2: 章ごと独立保存(IndexedDB)・目次自動生成は未着手。",
     "related": ["SP-070", "SP-052", "SP-053"]
   },
   {

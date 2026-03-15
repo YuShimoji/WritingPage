@@ -218,5 +218,7 @@ Blank モードから:
 | Phase | 内容 | 状態 |
 |-------|------|------|
 | Phase 1 | 3モードCSS分離 + ショートカット + Focus ChapterListスタブ + Blankエッジホバー | 完了 |
-| Phase 2 | SP-071 ChapterList本実装（Novlr式階層管理） | todo |
+| Phase 2 | SP-071 ChapterList本実装（Novlr式階層管理） | partial |
+
+> Phase 2 の ChapterList 部分は SP-071 Phase 1 で実装済み（見出し検出・ナビ・リネーム・コンテキストメニュー・D&D・新規章・アクティブハイライト+文字数）。残: 章ごと独立保存(IndexedDB)。
 | Phase 3 | SP-076 ドックパネル（Normal モード用） | todo |
