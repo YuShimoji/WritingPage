@@ -124,16 +124,32 @@ Zen Writer v0.3.29
 
 ### 6. インポート/エクスポート
 
-| 形式 | インポート | エクスポート | 備考 |
-|------|-----------|-------------|------|
-| テキスト（.txt） | ○ | ○ | Browser/PWA/Electron共通 |
-| Markdown（.md） | ○ | ○ | Browser/PWA/Electron共通 |
-| HTML | × | ○ | Electronメニューから |
-| PDF | × | ○（印刷） | ブラウザ印刷ダイアログ経由 |
+#### プラットフォーム別対応マトリクス
+
+| 形式 | Browser/PWA Import | Browser/PWA Export | Electron Import | Electron Export |
+|------|:--:|:--:|:--:|:--:|
+| テキスト（.txt） | ○ | ○ | ○ | ○ |
+| Markdown（.md） | ○ | ○ | ○ | ○ |
+| HTML | × | × | ○ | ○ |
+| PDF（印刷） | × | ○ | × | ○ |
+
+#### UIアクセス経路
+
+- **Browser/PWA**
+  - Import: サイドバー → Documentsガジェット → 「読込」ボタン（`.txt`, `.md` のみ）
+  - Export: サイドバー → Documentsガジェット → 「TXT」「MD」ボタン / Advancedガジェット → 「印刷プレビュー」「TXTエクスポート」
+- **Electron**
+  - Import: ファイル → 開く（`Ctrl+O`）— `.txt`, `.md`, `.html`, `.htm`, 任意ファイル
+  - Export: ファイル → エクスポート → テキスト / HTML / Markdown
+  - 印刷: ファイル → 印刷（`Ctrl+P`）またはAdvancedガジェット
+
+**注記:** HTML エクスポートは `markdown-it` ライブラリによるレンダリング。Markdown構文がHTMLに変換される。
 
 ### 7. プラグインシステム
 
 manifest駆動のローカルプラグイン機能を実装済み。
+
+#### 基盤
 
 | 項目 | 状態 |
 |------|------|
@@ -142,7 +158,40 @@ manifest駆動のローカルプラグイン機能を実装済み。
 | manifest.json形式 | 実装済み（`js/plugins/manifest.json`） |
 | 同梱プラグイン | choice.js（選択肢ツール） |
 
-**制約：** ローカル信頼プラグインのみ対応。リモートプラグインやサンドボックスは未実装。
+#### プラグインAPI（実装済み）
+
+| API | 機能 | 備考 |
+|-----|------|------|
+| `gadgets` | カスタムガジェットの登録・設定読み書き | `ZWGadgets` へ委譲 |
+| `themes` | カスタムテーマパレットの登録 | `ThemeRegistry` へ委譲 |
+| `storage` | プラグイン固有のlocalStorage（`zw_plugin_{id}_` プレフィクスで分離） | JSON自動シリアライズ |
+| `events` | 名前空間付きCustomEvent (`ZWPlugin:{id}:{name}`) の送受信 | `onZW()` でグローバル購読可 |
+
+#### 登録パターン
+
+プラグインには2つの登録方式がある:
+
+1. **`window.ZWPlugin.register(config)`** — 正規API。`init(api)` コールバックで4つのAPIにアクセスできる
+2. **`window.ZenWriterPlugins.register(plugin)`** — 簡易レジストリ。エディタアクション（テンプレート挿入等）を直接登録する
+
+同梱の choice.js は簡易レジストリを使用。正規APIの利用例は今後追加予定。
+
+#### セキュリティ制約
+
+- **Trusted local plugins only**: `js/plugins/` 配下のローカルファイルのみ許可
+- パス検証: `js/plugins/[a-zA-Z0-9._\-/]+\.js` のみ通過、`..` を含むパスは拒否
+- サンドボックス・CSP分離・リモートプラグイン・権限システムは未実装
+
+#### 将来予定（未実装）
+
+| 項目 | 状態 |
+|------|------|
+| commands API | 設計のみ（`docs/design/PLUGIN_SYSTEM.md`） |
+| プラグインマネージャーUI | 未実装 |
+| リモートプラグイン | 未着手 |
+| サンドボックス分離 | 未着手 |
+| 権限宣言システム | 未着手 |
+
 詳細: `docs/PLUGIN_GUIDE.md`
 
 ### 8. Story Wiki
