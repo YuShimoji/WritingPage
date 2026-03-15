@@ -533,6 +533,217 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- SP-070: モード切替ショートカット ---
+    document.addEventListener('keydown', function (e) {
+        // Ctrl+Shift+F → Focus モード
+        if (e.ctrlKey && e.shiftKey && e.key === 'F') {
+            e.preventDefault();
+            var current = document.documentElement.getAttribute('data-ui-mode');
+            setUIMode(current === 'focus' ? 'normal' : 'focus');
+            return;
+        }
+        // Ctrl+Shift+B → Blank モード
+        if (e.ctrlKey && e.shiftKey && e.key === 'B') {
+            e.preventDefault();
+            var current2 = document.documentElement.getAttribute('data-ui-mode');
+            setUIMode(current2 === 'blank' ? 'normal' : 'blank');
+            return;
+        }
+        // Escape → normal に戻る (Focus/Blank から)
+        if (e.key === 'Escape') {
+            var mode = document.documentElement.getAttribute('data-ui-mode');
+            if (mode === 'focus' || mode === 'blank') {
+                e.preventDefault();
+                setUIMode('normal');
+            }
+        }
+    });
+
+    // --- SP-070: Focus チャプターパネル連動 ---
+    (function initFocusChapterPanel() {
+        var panel = document.getElementById('focus-chapter-panel');
+        var listEl = document.getElementById('focus-chapter-list');
+        var settingsBtn = document.getElementById('focus-open-settings');
+
+        if (!panel || !listEl) return;
+
+        // SectionsNavigator のデータを借りてチャプターリストを構築
+        function refreshChapterList() {
+            if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
+            listEl.innerHTML = '';
+
+            var headings = [];
+
+            // SectionsNavigator からデータを取得
+            if (window.ZWGadgets) {
+                var sectionsGadget = window.ZWGadgets.find(function (g) {
+                    return g.id === 'SectionsNavigator' && typeof g._headings !== 'undefined';
+                });
+                if (sectionsGadget && sectionsGadget._headings) {
+                    headings = sectionsGadget._headings;
+                }
+            }
+
+            // フォールバック: エディタから直接解析
+            if (headings.length === 0) {
+                var editor = document.getElementById('editor');
+                var text = editor ? editor.value || editor.textContent || '' : '';
+                var lines = text.split('\n');
+                var offset = 0;
+                for (var i = 0; i < lines.length; i++) {
+                    var match = lines[i].match(/^(#{1,6})\s+(.+)$/);
+                    if (match) {
+                        headings.push({
+                            level: match[1].length,
+                            title: match[2].trim(),
+                            startOffset: offset
+                        });
+                    }
+                    offset += lines[i].length + 1;
+                }
+            }
+
+            if (headings.length === 0) {
+                var empty = document.createElement('div');
+                empty.className = 'focus-chapter-item';
+                empty.textContent = '見出しがありません';
+                empty.style.color = 'var(--text-muted, #888)';
+                empty.style.fontStyle = 'italic';
+                listEl.appendChild(empty);
+                return;
+            }
+
+            headings.forEach(function (h, idx) {
+                var btn = document.createElement('button');
+                btn.className = 'focus-chapter-item focus-chapter-item--level-' + h.level;
+                btn.textContent = h.title;
+                btn.setAttribute('data-offset', h.startOffset);
+                btn.setAttribute('data-index', idx);
+                btn.addEventListener('click', function () {
+                    // SectionsNavigator の jumpToHeading を利用
+                    if (window.ZWGadgets) {
+                        var sg = window.ZWGadgets.find(function (g) {
+                            return g.id === 'SectionsNavigator' && typeof g.jumpToHeading === 'function';
+                        });
+                        if (sg) {
+                            sg.jumpToHeading(idx);
+                            refreshChapterList(); // アクティブ状態を更新
+                            return;
+                        }
+                    }
+                    // フォールバック: 直接スクロール
+                    var editor = document.getElementById('editor');
+                    if (editor && typeof editor.setSelectionRange === 'function') {
+                        editor.focus();
+                        editor.setSelectionRange(h.startOffset, h.startOffset);
+                        editor.scrollTop = editor.scrollHeight * (h.startOffset / editor.value.length);
+                    }
+                });
+                listEl.appendChild(btn);
+            });
+
+            // アクティブ章を判定
+            updateActiveChapter(headings);
+        }
+
+        function updateActiveChapter(headings) {
+            if (!headings || headings.length === 0) return;
+            var editor = document.getElementById('editor');
+            if (!editor) return;
+            var cursorPos = editor.selectionStart || 0;
+            var activeIdx = 0;
+            for (var i = 0; i < headings.length; i++) {
+                if (headings[i].startOffset <= cursorPos) {
+                    activeIdx = i;
+                }
+            }
+            var items = listEl.querySelectorAll('.focus-chapter-item[data-index]');
+            items.forEach(function (item) {
+                var isActive = parseInt(item.getAttribute('data-index'), 10) === activeIdx;
+                item.setAttribute('aria-current', isActive ? 'true' : 'false');
+            });
+        }
+
+        // 設定ボタン: サイドバーをオーバーレイ表示/非表示トグル
+        function closeFocusOverlay() {
+            var sidebar = document.getElementById('sidebar');
+            var overlay = document.getElementById('focus-overlay-backdrop');
+            if (sidebar) {
+                sidebar.classList.remove('focus-overlay-open');
+            }
+            if (overlay) {
+                overlay.style.display = 'none';
+            }
+        }
+
+        function openFocusOverlay() {
+            var sidebar = document.getElementById('sidebar');
+            if (!sidebar) return;
+            sidebar.classList.add('focus-overlay-open');
+            sidebar.style.display = '';
+            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                window.sidebarManager.forceSidebarState(true);
+            }
+            // オーバーレイ背景を表示（クリックで閉じる）
+            var overlay = document.getElementById('focus-overlay-backdrop');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'focus-overlay-backdrop';
+                overlay.className = 'focus-overlay-backdrop';
+                overlay.addEventListener('click', closeFocusOverlay);
+                document.body.appendChild(overlay);
+            }
+            overlay.style.display = 'block';
+        }
+
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', function () {
+                var sidebar = document.getElementById('sidebar');
+                if (sidebar && sidebar.classList.contains('focus-overlay-open')) {
+                    closeFocusOverlay();
+                } else {
+                    openFocusOverlay();
+                }
+            });
+        }
+
+        // モード変更時にパネルを更新
+        var observer = new MutationObserver(function (mutations) {
+            mutations.forEach(function (m) {
+                if (m.attributeName === 'data-ui-mode') {
+                    var mode = document.documentElement.getAttribute('data-ui-mode');
+                    if (mode === 'focus') {
+                        refreshChapterList();
+                    }
+                    // Focus以外のモードに切り替えた時にオーバーレイサイドバーを閉じる
+                    if (mode !== 'focus') {
+                        closeFocusOverlay();
+                    }
+                }
+            });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+
+        // コンテンツ変更時に更新
+        var refreshTimer = null;
+        var editorEl = document.getElementById('editor');
+        if (editorEl) {
+            editorEl.addEventListener('input', function () {
+                clearTimeout(refreshTimer);
+                refreshTimer = setTimeout(refreshChapterList, 300);
+            });
+        }
+
+        // 初回: 現在のモードがfocusなら構築
+        if (document.documentElement.getAttribute('data-ui-mode') === 'focus') {
+            setTimeout(refreshChapterList, 100);
+        }
+
+        window.ZWFocusChapterPanel = {
+            refresh: refreshChapterList
+        };
+    })();
+
     // ガジェット初期化・ロードアウトUI・ツールレジストリ（app-gadgets-init.js に委譲）
     if (typeof window.initAppGadgets === 'function') {
         window.initAppGadgets({ logger });

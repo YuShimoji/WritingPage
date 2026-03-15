@@ -203,6 +203,20 @@
       </div>
     </aside>
 
+    <!-- Focusモード: チャプターリストパネル (SP-070/SP-071) -->
+    <aside class="focus-chapter-panel" id="focus-chapter-panel" role="complementary" aria-label="チャプターリスト">
+      <div class="focus-chapter-panel__header">
+        <span class="focus-chapter-panel__title">チャプター</span>
+        <button class="focus-chapter-panel__settings-btn" id="focus-open-settings"
+          title="設定を開く" aria-label="設定パネルを開く">
+          <i data-lucide="settings" aria-hidden="true"></i>
+        </button>
+      </div>
+      <nav class="focus-chapter-panel__list" id="focus-chapter-list" aria-label="チャプター一覧">
+        <!-- SectionsNavigator の見出しデータから動的生成 -->
+      </nav>
+    </aside>
+
     <!-- サイドバーオーバーレイ（モバイル用） -->
     <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
 

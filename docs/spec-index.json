@@ -403,11 +403,11 @@
   {
     "id": "SP-070",
     "title": "モードアーキテクチャ仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 40,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "Editor/Focus/Blankの3モード分離。ガジェット過多とサイドバー混雑を構造的に解決。オーバーレイによるモード横断アクセス。"
+    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: SP-071 ChapterList本実装待ち。"
   },
   {
     "id": "SP-071",

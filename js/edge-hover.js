@@ -10,9 +10,9 @@
 (function () {
   'use strict';
 
-  var EDGE_ZONE = 18;       // エッジ検知ゾーン (px)
-  var DWELL_MS = 280;       // 滞在時間閾値 (ms)
-  var DISMISS_MS = 500;     // 離脱後の非表示ディレイ (ms)
+  var EDGE_ZONE = 24;       // エッジ検知ゾーン (px)
+  var DWELL_MS = 120;       // 滞在時間閾値 (ms)
+  var DISMISS_MS = 300;     // 離脱後の非表示ディレイ (ms)
 
   var state = {
     top: { active: false, dwellTimer: null, dismissTimer: null },

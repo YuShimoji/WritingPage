@@ -26,13 +26,15 @@
 
 実用的な小説執筆ツールとしての核心部分。最優先。
 
-### A-1. モードアーキテクチャ (SP-070) -- todo
+### A-1. モードアーキテクチャ (SP-070) -- partial
 
-Editor / Focus / Blank の3モード分離。ガジェット過多とサイドバー混雑を構造的に解決。
+Normal / Focus / Blank の3モード分離。Phase 1 完了。
 
-- Focusモード: タイトルとチャプターリストのみ表示
-- Blankモード: エディタのみの究極シンプル
-- オーバーレイによるモード横断アクセス
+- [x] CSS分離（Focus: ChapterListパネル、Blank: エッジホバー復帰）
+- [x] ショートカット（Ctrl+Shift+F / B、Esc復帰）
+- [x] Focus ChapterListスタブ（SectionsNavigatorデータ共有）
+- [x] Focusオーバーレイアクセス（設定ボタン → サイドバースライドイン）
+- [ ] SP-071 ChapterList本実装（Phase 2）
 
 ### A-2. チャプター管理再設計 (SP-071) -- todo
 
