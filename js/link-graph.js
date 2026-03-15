@@ -47,8 +47,9 @@
   function parseDocLinks(text) {
     if (!text || typeof text !== 'string') return [];
     var links = [];
+    var coveredRanges = [];
     // Markdown形式: [Label](doc://id#section) または [Label](doc://id)
-    var markdownRegex = /\[([^\]]+)\]\(doc:\/\/([^\s)]+)(?:#([^\s)]+))?\)/g;
+    var markdownRegex = /\[([^\]]+)\]\(doc:\/\/([^\s)#]+)(?:#([^\s)]+))?\)/g;
     var match;
     while ((match = markdownRegex.exec(text)) !== null) {
       var label = match[1];
@@ -61,10 +62,15 @@
         section: section,
         index: match.index
       });
+      coveredRanges.push({ start: match.index, end: match.index + match[0].length });
     }
     // プレーンテキスト形式: doc://id#section または doc://id
-    var plainRegex = /doc:\/\/([^\s\n]+)(?:#([^\s\n]+))?/g;
+    // Markdown形式で既にマッチした範囲は除外する
+    var plainRegex = /doc:\/\/([^\s\n#)]+)(?:#([^\s\n)]+))?/g;
     while ((match = plainRegex.exec(text)) !== null) {
+      var pos = match.index;
+      var covered = coveredRanges.some(function (r) { return pos >= r.start && pos < r.end; });
+      if (covered) continue;
       var docId2 = match[1];
       var section2 = match[2] || undefined;
       links.push({

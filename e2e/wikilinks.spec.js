@@ -40,15 +40,15 @@ test.describe('Wikilinks/バックリンク/グラフ機能', () => {
       return window.LinkGraph.parseDocLinks('Link to [document](doc://doc1#section1) and plain doc://doc2');
     });
 
-    // Markdownリンクとプレーンテキストリンクの両方が検出される
-    expect(parsedLinks.length).toBeGreaterThanOrEqual(2);
+    // Markdownリンクとプレーンテキストリンクが各1件ずつ検出される
+    expect(parsedLinks.length).toBe(2);
 
     // Markdownリンク [document](doc://doc1#section1) を確認
     const markdownLink = parsedLinks.find(l => l.text === 'document');
     expect(markdownLink).toBeDefined();
     expect(markdownLink.link).toBe('doc://doc1#section1');
-    expect(markdownLink.docId).toBe('doc1#section1');
-    expect(markdownLink.section).toBeUndefined();
+    expect(markdownLink.docId).toBe('doc1');
+    expect(markdownLink.section).toBe('section1');
 
     // プレーンテキストリンク doc://doc2 を確認
     const plainLink = parsedLinks.find(l => l.text === 'doc2');
