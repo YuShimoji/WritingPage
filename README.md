@@ -36,37 +36,13 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 - モジュラー設計による拡張可能なアーキテクチャ
 - ベータ版 Embed SDK（`docs/EMBED_SDK.md`）による `iframe` 埋め込みサポート
 
-## 開発中・優先課題（詳細: `docs/ROADMAP.md`）
+## 開発ロードマップ
 
-- ドラッグ&ドロップした画像の位置調整・サイズ変更・コラージュレイアウト
-- 選択範囲に追従するフローティング装飾ツールバーとアニメーション対応テキストスタイル
-- ガジェットのモジュール化とサイドバー構成のプリセット管理（章一覧、フォント切替、AI サマリ等）
-- 埋め込み先からの双方向通信強化（クロスオリジン安全性、外部ワークフロー連携）
-- インタラクティブ要素（シーン分岐、ビューワーモード切替）の設計と UI プロトタイピング
+詳細は `docs/ROADMAP.md` を参照。現在の優先順位:
 
-### UI将来強化計画（段階導入）
-
-- **ツリーペイン・フォルダ構造**: ガジェットを階層化・拡張可能レジストリ連携
-- **Markdown対応**: Typoraライクなライブプレビュー、ショートカット、インライン画像互換
-- **タイプライターモード**: カーソル高さ固定・改行時の張り付き強度調整（最小実装済）
-- **オートセーブ/スナップショット強化**: 閾値/間隔設定、復元UI（最小実装済）
-- **画像インタラクティブ機能**: VN用途向けプリセット＋詳細パラメータ編集
-- **自由なパネルレイアウト**: Obsidian風のドッキング/分割
-- **コンテンツ間リンク**: テキスト/画像ともにリンク移動可能
-- **低優先: 背景ビジュアル拡張（画像/グラデ/スクロール連動/ランダム化）** ※ダークモード基本機能は実装済み
-
-### 記載漏れの将来拡張アイデア
-
-- **フォーカスモード**: 現在行以外を減光/ぼかし（集中支援、タイプライターモードと併用）
-- **コマンドパレット**: ショートカットと合わせて操作の可視化（検索/置換/ガジェット操作を横断）
-- **Wikilinks/バックリンク/グラフ**: `[[link]]` 構文や `doc://` の可視化・相互参照グラフ
-- **分割ビュー**: 編集/プレビュー、章間比較、スナップショット差分
-- **タグ/スマートフォルダ**: ツリーペインにタグ軸、保存された検索、仮想フォルダ
-- **Pomodoro/集中タイマー**: HUD連携のセッション管理
-- **アクセシビリティ**: 高コントラスト、フォント可変、スクリーンリーダー対応
-- **キーバインド編集**: ショートカットの再割当
-- **ポータブル書き出し**: ワークスペース（文書＋アセット＋設定）をZip化
-- **画像フィルタ/レイヤ**: ぼかし/色相/彩度/セピア/合成などの調整を数値で管理
+1. **執筆体験の基盤** (Priority A): モードアーキテクチャ (partial)、チャプター管理再設計、セクションリンク
+2. **表現力拡張** (Priority B): Web小説演出、パステキスト、テキスト表現アーキテクチャ
+3. **エコシステム** (Priority C): ドックパネル、Google Keep連携、プラグイン拡張
 
 ## Setup & Run (開発・動作確認手順)
 
@@ -126,6 +102,9 @@ npx playwright test e2e/sidebar-layout.spec.js
 - フォントサイズ縮小: `Ctrl/Cmd + -`
 - フォントサイズ初期化: `Ctrl/Cmd + 0`
 - ツールバー表示/非表示: `Alt + W`
+- フォーカスモード切替: `Ctrl/Cmd + Shift + F`
+- ブランクモード切替: `Ctrl/Cmd + Shift + B`
+- モード復帰(→Normal): `Escape`
 
 ## データ保存
 
@@ -188,14 +167,14 @@ WritingPage/
   - `app.js`: UIの初期化とイベント配線
 - CSSカスタムプロパティにより配色・タイポグラフィを一元管理
 
-- 詳しくは `docs/DESIGN.md` を参照してください。
+- 詳しくは `docs/ARCHITECTURE.md` を参照してください。
 
 ## 開発の進め方
 
 - 選択肢駆動（Choices-Driven Development）で意思決定をドキュメント化し、`docs/ROADMAP.md` にフェーズを反映
 - 機能はガジェット/プラグイン単位で疎結合化し、埋め込みモードとの互換性を常に検証
 - タスクは小さく分割してコミットし、`HANDOVER.md` で中断可能点を共有
-- ブランチ運用指針は `docs/BRANCHING.md`、埋め込み運用は `docs/EMBED_SDK.md` を参照
+- ブランチ運用は `docs/BRANCHING.md`、埋め込みは `docs/EMBED_SDK.md` を参照
 
 ## 開発プロトコル
 
@@ -212,22 +191,35 @@ WritingPage/
 
 ## 関連ドキュメント
 
-- `docs/USER_GUIDE.md`
-- `docs/TESTING.md`
-- `docs/DESIGN.md`
-- `docs/THEMES.md`
-- `docs/ROADMAP.md`
-- `docs/RELEASE.md`
-- `docs/DEPLOY.md`
-- `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
-- `docs/KNOWN_ISSUES.md`
+### 主要ドキュメント
+
+- `docs/ROADMAP.md` - 機能ロードマップ（優先度別）
+- `docs/APP_SPECIFICATION.md` - アプリケーション仕様
+- `docs/ARCHITECTURE.md` - 設計概要
+- `docs/spec-index.json` - 仕様インデックス (全42エントリのステータス・実装率)
+- `docs/ISSUES.md` - 検証棚卸しからのアクションリスト
+
+### 開発ガイド
+
+- `docs/TESTING.md` - テスト手順
 - `docs/CODING_STANDARDS.md` - コーディング規約
-- `docs/LABELS.md`
-- `docs/EMBED_SDK.md`
-- `docs/SNAPSHOT_DESIGN.md`
-- `docs/EDITOR_EXTENSIONS.md`
-- `docs/BRANCHING.md`
-- `docs/spec-index.json` - 仕様インデックス (全ドキュメントのステータス・実装率)
+- `docs/BRANCHING.md` - ブランチ運用
+- `docs/EDITOR_EXTENSIONS.md` - エディタ拡張
+- `docs/THEMES.md` - テーマ設計
+- `docs/LABELS.md` - UIラベル管理
+
+### 運用・デプロイ
+
+- `docs/RELEASE.md` - リリース手順
+- `docs/DEPLOY.md` - デプロイ手順
+- `docs/EMBED_SDK.md` - 埋め込みSDK
+- `docs/PLUGIN_GUIDE.md` - プラグイン開発ガイド
+- `docs/GADGETS.md` - ガジェット仕様
+
+### その他
+
+- `CHANGELOG.md` - 変更履歴
+- `HANDOVER.md` - 作業引き継ぎ
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`
