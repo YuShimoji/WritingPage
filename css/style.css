@@ -387,10 +387,12 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   padding: 8px 0;
 }
 
-.focus-chapter-item {
-  display: block;
+/* --- SP-071 ChapterList Items --- */
+.cl-item {
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 8px 16px;
+  padding: 7px 12px;
   background: none;
   border: none;
   text-align: left;
@@ -399,24 +401,181 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   color: var(--text-color, #333);
   transition: background 0.1s ease;
   border-left: 3px solid transparent;
+  user-select: none;
+  gap: 4px;
 }
 
-.focus-chapter-item:hover {
+.cl-item:hover {
   background: var(--hover-bg, rgba(0, 0, 0, 0.04));
 }
 
-.focus-chapter-item[aria-current='true'] {
+.cl-item--active,
+.cl-item[aria-current='true'] {
   border-left-color: var(--accent-color, #4a90d9);
   background: var(--accent-bg, rgba(74, 144, 217, 0.08));
+}
+
+.cl-item--active .cl-item__title {
   font-weight: 600;
 }
 
-.focus-chapter-item--level-1 { padding-left: 16px; }
-.focus-chapter-item--level-2 { padding-left: 28px; }
-.focus-chapter-item--level-3 { padding-left: 40px; font-size: 12px; }
-.focus-chapter-item--level-4 { padding-left: 52px; font-size: 12px; }
-.focus-chapter-item--level-5 { padding-left: 64px; font-size: 12px; }
-.focus-chapter-item--level-6 { padding-left: 76px; font-size: 12px; }
+.cl-item__title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cl-item__count {
+  font-size: 11px;
+  color: var(--text-muted, #888);
+  flex-shrink: 0;
+}
+
+/* Level indentation */
+.cl-item--level-1 { padding-left: 12px; }
+.cl-item--level-2 { padding-left: 24px; }
+.cl-item--level-3 { padding-left: 36px; font-size: 12px; }
+.cl-item--level-4 { padding-left: 48px; font-size: 12px; }
+.cl-item--level-5 { padding-left: 60px; font-size: 12px; }
+.cl-item--level-6 { padding-left: 72px; font-size: 12px; }
+
+/* Inline rename */
+.cl-item__rename-input {
+  width: 100%;
+  padding: 2px 4px;
+  font-size: 13px;
+  border: 1px solid var(--accent-color, #4a90d9);
+  border-radius: 3px;
+  background: var(--bg-color, #fff);
+  color: var(--text-color, #333);
+  outline: none;
+}
+
+/* Drag & Drop */
+.cl-item--dragging {
+  opacity: 0.4;
+}
+
+.cl-item--drop-above {
+  box-shadow: 0 -2px 0 0 var(--accent-color, #4a90d9);
+}
+
+.cl-item--drop-below {
+  box-shadow: 0 2px 0 0 var(--accent-color, #4a90d9);
+}
+
+.cl-drop-zone {
+  height: 8px;
+  transition: height 0.1s ease;
+}
+
+.cl-drop-zone--active {
+  height: 24px;
+  background: var(--accent-bg, rgba(74, 144, 217, 0.08));
+  border: 1px dashed var(--accent-color, #4a90d9);
+  border-radius: 4px;
+  margin: 2px 8px;
+}
+
+/* Empty state */
+.cl-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted, #888);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* Footer: + 新しい章 */
+.focus-chapter-panel__footer {
+  padding: 8px;
+  border-top: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.focus-chapter-panel__add-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: 1px dashed var(--border-color, rgba(0, 0, 0, 0.15));
+  border-radius: 4px;
+  color: var(--text-muted, #888);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.focus-chapter-panel__add-btn:hover {
+  color: var(--accent-color, #4a90d9);
+  border-color: var(--accent-color, #4a90d9);
+  background: var(--accent-bg, rgba(74, 144, 217, 0.05));
+}
+
+.focus-chapter-panel__add-btn i,
+.focus-chapter-panel__add-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Context menu */
+.cl-context-menu {
+  position: fixed;
+  z-index: 300;
+  min-width: 160px;
+  background: var(--sidebar-bg, #fff);
+  border: 1px solid var(--border-color, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  animation: cl-menu-in 0.1s ease;
+}
+
+@keyframes cl-menu-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.cl-context-menu__item {
+  display: block;
+  width: 100%;
+  padding: 6px 14px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-color, #333);
+  transition: background 0.1s ease;
+}
+
+.cl-context-menu__item:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.04));
+}
+
+.cl-context-menu__item:disabled {
+  color: var(--text-muted, #888);
+  cursor: default;
+}
+
+.cl-context-menu__item--danger {
+  color: #d44;
+}
+
+.cl-context-menu__item--danger:hover {
+  background: rgba(221, 68, 68, 0.08);
+}
+
+.cl-context-menu__sep {
+  height: 1px;
+  background: var(--border-color, rgba(0, 0, 0, 0.08));
+  margin: 4px 0;
+}
+
+/* Legacy: 旧 focus-chapter-item クラスのフォールバック（後方互換） */
+.focus-chapter-item { display: none; }
 
 /* Focus モード: サイドバーのオーバーレイ表示 (設定ボタンから) */
 html[data-ui-mode='focus'] .sidebar.focus-overlay-open {
