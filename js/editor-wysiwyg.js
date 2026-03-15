@@ -15,6 +15,14 @@
       this.switchToTextareaBtn = document.getElementById('wysiwyg-switch-to-textarea');
       this.isWysiwygMode = false;
 
+      // SP-055: カスタム Undo/Redo スタック
+      this._undoStack = [];
+      this._redoStack = [];
+      this._undoMaxSize = 100;
+      this._undoSnapshotTimer = null;
+      this._undoLastSnapshot = '';
+      this._undoBatchTimeout = 500; // ms — テキスト入力のバッチング間隔
+
       // Turndownインスタンス（HTML → Markdown変換）
       this.turndownService = null;
       if (typeof TurndownService !== 'undefined') {
@@ -459,6 +467,7 @@
 
       // 入力時の自動保存とプレビュー更新
       this.wysiwygEditor.addEventListener('input', () => {
+        this._scheduleUndoSnapshot();
         this.syncToMarkdown();
         if (this.editorManager) {
           this.editorManager.markDirty();
@@ -471,12 +480,26 @@
       // ペースト時の処理（プレーンテキスト化を防ぐ）
       this.wysiwygEditor.addEventListener('paste', (e) => {
         e.preventDefault();
+        this._captureUndoSnapshot(); // ペースト前にスナップショット
         const text = (e.clipboardData || window.clipboardData).getData('text/plain');
         document.execCommand('insertText', false, text);
+        this._captureUndoSnapshot(); // ペースト後もキャプチャ
       });
 
       // キーボードショートカット
       this.wysiwygEditor.addEventListener('keydown', (e) => {
+        // Ctrl+Z: Undo (カスタム)
+        if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
+          e.preventDefault();
+          this._undoAction();
+          return;
+        }
+        // Ctrl+Shift+Z / Ctrl+Y: Redo (カスタム)
+        if ((e.ctrlKey || e.metaKey) && ((e.shiftKey && e.key === 'z') || e.key === 'y')) {
+          e.preventDefault();
+          this._redoAction();
+          return;
+        }
         // Ctrl+B: 太字
         if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
           e.preventDefault();
@@ -514,6 +537,9 @@
       const range = selection.getRangeAt(0);
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
+      // SP-055: フォーマットコマンド前にスナップショット（アトミックなUndo単位）
+      this._captureUndoSnapshot();
+
       // execCommand は選択なし (collapsed) でもプリフォーマットとして機能する
       document.execCommand(command, false, value);
       this.wysiwygEditor.focus();
@@ -526,6 +552,9 @@
      */
     wrapSelectionWithSpan(className) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+
+      // SP-055: カスタム装飾前にスナップショット（アトミックなUndo単位）
+      this._captureUndoSnapshot();
 
       this.wysiwygEditor.focus();
       const selection = window.getSelection();
@@ -676,6 +705,11 @@
 
       // 設定を保存
       try { localStorage.setItem('zenwriter-wysiwyg-mode', 'true'); } catch (_) { /* noop */ }
+
+      // SP-055: Undoスタック初期化
+      this._undoStack = [];
+      this._redoStack = [];
+      this._undoLastSnapshot = this.wysiwygEditor.innerHTML;
 
       // タイプライターモードの状態を同期
       this.applyTypewriterIfEnabled();
@@ -878,6 +912,88 @@
      */
     getCurrentMode() {
       return this.isWysiwygMode ? 'wysiwyg' : 'textarea';
+    }
+
+    // ---- SP-055: Undo/Redo スタック管理 ----
+
+    /**
+     * デバウンスされたスナップショット取得（テキスト入力用）。
+     * 連続入力を1つのUndo単位にバッチングする。
+     */
+    _scheduleUndoSnapshot() {
+      clearTimeout(this._undoSnapshotTimer);
+      this._undoSnapshotTimer = setTimeout(() => {
+        this._captureUndoSnapshot();
+      }, this._undoBatchTimeout);
+    }
+
+    /**
+     * 現在のcontenteditable状態をUndoスタックに即時キャプチャ。
+     * フォーマットコマンド・ペースト等のアトミック操作前に呼ぶ。
+     */
+    _captureUndoSnapshot() {
+      clearTimeout(this._undoSnapshotTimer);
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+
+      var current = this.wysiwygEditor.innerHTML;
+      if (current === this._undoLastSnapshot) return; // 変化なし
+
+      this._undoStack.push(this._undoLastSnapshot);
+      if (this._undoStack.length > this._undoMaxSize) {
+        this._undoStack.shift();
+      }
+      this._undoLastSnapshot = current;
+      this._redoStack = []; // 新しい操作でRedoをクリア
+    }
+
+    /**
+     * Undo実行
+     */
+    _undoAction() {
+      if (!this.wysiwygEditor || this._undoStack.length === 0) return;
+
+      // 現在の状態を保存してから一つ前の操作に戻す
+      this._captureUndoSnapshot();
+      // captureで現在の状態がpushされたので、それをredoに移す
+      var current = this._undoStack.pop();
+      if (current !== undefined) {
+        this._redoStack.push(this._undoLastSnapshot);
+      }
+
+      var prev = this._undoStack.length > 0
+        ? this._undoStack.pop()
+        : this._undoLastSnapshot;
+
+      this.wysiwygEditor.innerHTML = prev;
+      this._undoLastSnapshot = prev;
+      this.syncToMarkdown();
+      this._notifyChange();
+    }
+
+    /**
+     * Redo実行
+     */
+    _redoAction() {
+      if (!this.wysiwygEditor || this._redoStack.length === 0) return;
+
+      this._undoStack.push(this._undoLastSnapshot);
+      var next = this._redoStack.pop();
+      this.wysiwygEditor.innerHTML = next;
+      this._undoLastSnapshot = next;
+      this.syncToMarkdown();
+      this._notifyChange();
+    }
+
+    /**
+     * Undo/Redo後の同期通知
+     */
+    _notifyChange() {
+      if (this.editorManager) {
+        this.editorManager.markDirty();
+        this.editorManager.saveContent();
+        this.editorManager.updateWordCount();
+        this.editorManager.renderMarkdownPreview();
+      }
     }
 
     /**
