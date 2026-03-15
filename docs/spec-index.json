@@ -422,11 +422,11 @@
   {
     "id": "SP-072",
     "title": "セクションリンク & インタラクティブナビ仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 40,
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
-    "summary": "章末ナビ自動挿入(前へ/目次/次へ)、chapter://リンクによるゲームブック的章間ジャンプ、ページ公開設定(visible/draft/hidden)。WYSIWYG+読者向けHTML両対応。",
+    "summary": "Phase 1実装: 章末ナビバー(前へ/目次/次へ)自動挿入 + chapter://リンク(プレビュー+WYSIWYG+Turndown逆変換)。残: ページ公開設定、リンク挿入UI、エクスポート変換。",
     "related": ["SP-070", "SP-071"]
   },
   {

@@ -87,7 +87,8 @@
     window.ZWChapterList = {
       refresh: refresh,
       getChapters: function () { return chapters; },
-      getActiveIndex: function () { return activeChapterIdx; }
+      getActiveIndex: function () { return activeChapterIdx; },
+      navigateTo: navigateToChapter
     };
   }
 

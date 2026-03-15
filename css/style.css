@@ -3633,6 +3633,53 @@ html[data-embed='true'] #editor {
   letter-spacing: -0.05em;
 }
 
+/* ===== 章末ナビゲーション (SP-072) ===== */
+.chapter-nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75em 1em;
+  margin: 2em 0 1em;
+  border-top: 1px solid var(--border-color, #ccc);
+  border-bottom: 1px solid var(--border-color, #ccc);
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.chapter-nav-bar__link {
+  color: var(--accent-color, #4a90d9);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0.25em 0.5em;
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.chapter-nav-bar__link:hover {
+  background-color: var(--hover-bg, rgba(74, 144, 217, 0.1));
+}
+
+.chapter-nav-bar__link--disabled {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.chapter-nav-bar__toc {
+  font-weight: 500;
+}
+
+/* chapter:// リンク */
+.chapter-link {
+  color: var(--accent-color, #4a90d9);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  cursor: pointer;
+}
+
+.chapter-link:hover {
+  text-decoration-style: solid;
+}
+
 /* ===== 傍点・圏点 (SP-059 Phase 3) ===== */
 .kenten {
   -webkit-text-emphasis: filled sesame;

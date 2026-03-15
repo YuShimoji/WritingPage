@@ -120,6 +120,11 @@
       });
     }
 
+    // SP-072: chapter:// リンク変換
+    if (html && window.ZWChapterNav && typeof window.ZWChapterNav.convertChapterLinks === 'function') {
+      html = window.ZWChapterNav.convertChapterLinks(html);
+    }
+
     if (html) {
       // Kenten (傍点) support: {kenten|text} -> <span class="kenten">text</span>
       // Must run before ruby to avoid {kenten|...} being parsed as ruby
@@ -148,6 +153,11 @@
       }
     } else {
       editorManager.markdownPreviewPanel.innerHTML = html;
+    }
+
+    // SP-072: 章末ナビバー注入 + chapter:// リンクバインド
+    if (window.ZWChapterNav && typeof window.ZWChapterNav.onPreviewUpdated === 'function') {
+      window.ZWChapterNav.onPreviewUpdated(editorManager.markdownPreviewPanel);
     }
   }
 

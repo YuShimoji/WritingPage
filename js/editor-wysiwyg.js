@@ -67,6 +67,16 @@
             return '{kenten|' + content + '}';
           }
         });
+        // SP-072: chapter-link → [text](chapter://target) 逆変換
+        this.turndownService.addRule('chapterLink', {
+          filter: function (node) {
+            return node.nodeName === 'A' && node.classList.contains('chapter-link');
+          },
+          replacement: function (content, node) {
+            var target = node.dataset.chapterTarget || '';
+            return '[' + content + '](chapter://' + decodeURIComponent(target) + ')';
+          }
+        });
         this.turndownService.addRule('textAnimations', {
           filter: function (node) {
             return node.nodeName === 'SPAN' && node.className && /^anim-/.test(node.className);
@@ -474,6 +484,28 @@
     setupWysiwygEditorEvents() {
       if (!this.wysiwygEditor) return;
 
+      // SP-072: chapter:// リンクのクリックナビゲーション
+      this.wysiwygEditor.addEventListener('click', (e) => {
+        var link = e.target.closest('.chapter-link');
+        if (link) {
+          e.preventDefault();
+          var target = decodeURIComponent(link.dataset.chapterTarget || '');
+          if (target && window.ZWChapterNav) {
+            // chapter-nav.js の resolveAndNavigate は非公開なので直接呼ぶ
+            if (window.ZWChapterList && typeof window.ZWChapterList.navigateTo === 'function') {
+              var chapters = window.ZWChapterList.getChapters();
+              for (var i = 0; i < chapters.length; i++) {
+                if (chapters[i].title.toLowerCase().trim() === target.toLowerCase().trim() ||
+                    chapters[i].id === target) {
+                  window.ZWChapterList.navigateTo(i);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      });
+
       // 入力時の自動保存とプレビュー更新
       this.wysiwygEditor.addEventListener('input', () => {
         this._scheduleUndoSnapshot();
@@ -835,6 +867,11 @@
       html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_m, text) {
         return '<span class="kenten">' + text.trim() + '</span>';
       });
+
+      // SP-072: chapter:// リンク変換
+      if (window.ZWChapterNav && typeof window.ZWChapterNav.convertChapterLinks === 'function') {
+        html = window.ZWChapterNav.convertChapterLinks(html);
+      }
 
       return html;
     }
