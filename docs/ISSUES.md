@@ -57,7 +57,9 @@
 
 ---
 
-## 2) `docs/APP_SPECIFICATION.md` を現行実装ベースで更新し、SSOT を回復する
+## 2) ~~`docs/APP_SPECIFICATION.md` を現行実装ベースで更新し、SSOT を回復する~~ ✅ 解決済み (2026-03-16)
+
+> **解決**: 全面リライト。サイドバー6カテゴリ化、テスト271件/38ファイル、プラグイン実装済み記載、SP-070〜076新仕様反映、エディタモード詳細追記、Story Wiki追記。
 
 ### Goal（目的）
 
@@ -98,7 +100,9 @@
 
 ---
 
-## 3) `docs/GADGETS.md` の旧記述を整理し、現行アーキテクチャと一致させる
+## 3) ~~`docs/GADGETS.md` の旧記述を整理し、現行アーキテクチャと一致させる~~ ✅ 解決済み (2026-03-16)
+
+> **解決**: カテゴリ説明を旧3カテゴリ(Structure/Typography/Assist)から現行6カテゴリ(sections/structure/edit/theme/assist/advanced)に更新。タブ→アコーディオン表記修正。groupIdリファレンス修正。SP-070/SP-076連動注記追加。ロードアウト例更新。
 
 ### Goal（目的）
 

@@ -41,20 +41,25 @@
 
 ### レイアウト構造とカテゴリ（現行）
 
-- サイドバーは最大3階層（カテゴリ → ガジェット → ガジェット設定）で構成し、カテゴリは常時1つのみ展開。
-- 既定カテゴリ:
-  - **Structure**: 章/シーン一覧、アウトライン、分岐プレビュー。
-  - **Typography**: フォント切替、行間、テーマ、ビューワーレイアウト。
-  - **Assist**: 文字数/HUD、AI要約、進捗、リマインダー。
-- 各カテゴリは `data-gadget-group` 属性で識別し、読み込み時に `ZWGadgets.initGroup(groupId)` を使用してラベル・順序を適用する。
-- スクロール負荷軽減のため、カテゴリ切替時に非表示パネルは `aria-hidden="true"` とし、DOMを保持したままリフローを抑制。
+- サイドバーはアコーディオン形式で6カテゴリに分類。各カテゴリは折りたたみ可能。
+- 現行カテゴリ（`index.html` の `data-category` 属性と一致）:
+  1. **sections**: セクションナビゲーション（SP-052、見出しツリー）
+  2. **structure**: ドキュメント階層、アウトライン、スナップショット、タグ
+  3. **edit**: StoryWiki、画像、選択肢、プレビュー、装飾、アニメーション
+  4. **theme**: テーマ、フォント、VisualProfile、見出しスタイル、シーングラデーション
+  5. **assist**: 執筆目標、HUD、時計、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
+  6. **advanced**: UI設定、レイアウト、NodeGraph、GraphicNovel、LinkGraph、エクスポート、キーバインド
+- 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
+- スクロール負荷軽減のため、非展開カテゴリは `aria-hidden="true"` とし、DOMを保持したままリフローを抑制。
+
+> **SP-070 連動**: Focusモードではサイドバーが非表示となり、代わりにChapterListパネルが表示される。
+> **SP-076 将来変更**: ドックパネル実装時にガジェット配置構造が変わる可能性がある。
 
 #### UI仕様（現行）
 
-- カテゴリタブは左サイドバー上部に横並び、キーボード操作は `Alt + 1/2/3` でフォーカス。
+- カテゴリヘッダークリックでアコーディオン展開/折りたたみ。複数同時展開可能。
 - 各ガジェットセクションは従来のヘッダ（▼/▶, ⚙, ↑/↓）を維持しつつ、アコーディオン内でのみ表示。
-- `Alt + W` でツールバーを隠した際もカテゴリタブは `focus-within` に応じてフェード表示。
-- Embed モード（`?embed=1`）ではカテゴリタブ全体を非表示とし、`assist` 系のみ HUD に転換する（詳細は `docs/EMBED_SDK.md` と同期）。
+- Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
 #### 登録ガジェット一覧（33個）
 
@@ -140,7 +145,8 @@
   - `data-group="<groupId>"` … Sidebar のタブおよびカテゴリパネル。
   - `data-gadget-group="<groupId>"` … 各カテゴリ内のガジェットコンテナ。
   - `data-gadget-name="<Name>"` … 各ガジェットインスタンス。
-- `groupId` は `structure` / `typography` / `assist` / `wiki` を基準とし、ロードアウト設定のキーと一致。
+- `groupId` は `sections` / `structure` / `edit` / `theme` / `assist` / `advanced` を基準とし、ロードアウト設定のキーと一致。
+- 旧グループ名 `typography` / `wiki` / `settings` は互換用に `gadgets-utils.js` の `GADGET_GROUPS` に残存するが、`index.html` のアコーディオンには使用されない。
 
 ## ロードアウトプリセット（現行）
 
@@ -154,9 +160,12 @@
     "novel-standard": {
       "label": "小説・長編",
       "groups": {
-        "structure": ["Outline", "SceneList"],
-        "typography": ["Font", "Theme"],
-        "assist": ["HUD", "WordCount"]
+        "sections": ["SectionsNavigator"],
+        "structure": ["Outline", "Documents"],
+        "edit": ["StoryWiki"],
+        "theme": ["Themes", "Typography"],
+        "assist": ["WritingGoal", "HUDSettings"],
+        "advanced": ["PrintSettings"]
       }
     }
   }
@@ -185,7 +194,7 @@
 
 ## 実装概要
 
-- `index.html` に各グループ用の `.gadgets-panel[data-gadget-group]` を配置（例: `#structure-gadgets-panel` / `#typography-gadgets-panel` / `#assist-gadgets-panel` / `#wiki-gadgets-panel`）
+- `index.html` に各カテゴリ用の `.gadgets-panel[data-gadget-group]` を配置（例: `sections` / `structure` / `edit` / `theme` / `assist` / `advanced`）
 - ガジェット基盤は `js/gadgets-*.js` の複数ファイルで提供され、`index.html` から読み込まれます。
 - 初期化は `js/gadgets-init.js` が `data-gadget-group` を基準に各パネルへ `ZWGadgets.init(panel, { group })` を適用します。
 
