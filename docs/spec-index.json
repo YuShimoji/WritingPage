@@ -404,10 +404,10 @@
     "id": "SP-070",
     "title": "モードアーキテクチャ仕様",
     "status": "partial",
-    "pct": 70,
+    "pct": 80,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: ChapterList + 章独立保存完了。Focus章単位編集・Normal↔Focus同期実装済み。"
+    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット、Blankエッジホバー。Phase 2完了: ChapterStore統合ガード（undoスタック章分離、モード遷移前flush、chapterMode全文auto-save、ContentGuard経由ドキュメント切替）。残: Focusオーバーレイ設定UX、パネルリサイズ、ホットキーガジェットアクセス。"
   },
   {
     "id": "SP-071",
