@@ -143,24 +143,59 @@ const DEFAULT_SETTINGS = {
 };
 
 // ===== スナップショット（自動バックアップ） =====
+// SP-077: スナップショット メモリキャッシュ
+var _snapsCache = null;
+var _snapsCacheDirty = false;
+
+function _flushSnapsToIDB() {
+    if (!_snapsCacheDirty || !_snapsCache) return;
+    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+        _snapsCacheDirty = false;
+        // 全件クリアして再投入
+        window.ZenWriterIDB.clearSnapshots()
+            .then(function () {
+                var snaps = _snapsCache.slice();
+                var tx = Promise.resolve();
+                for (var i = 0; i < snaps.length; i++) {
+                    (function (s) { tx = tx.then(function () { return window.ZenWriterIDB.addSnapshot(s); }); })(snaps[i]);
+                }
+                return tx;
+            })
+            .catch(function (e) {
+                console.warn('[IDB] Snapshots flush error:', e);
+                _snapsCacheDirty = true;
+            });
+    }
+}
+
 function loadSnapshots() {
+    if (_snapsCache !== null) return _snapsCache;
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.SNAPSHOTS);
-        return raw ? JSON.parse(raw) : [];
+        _snapsCache = raw ? JSON.parse(raw) : [];
+        return _snapsCache;
     } catch (e) {
         console.error('スナップショット読込エラー:', e);
+        _snapsCache = [];
         return [];
     }
 }
 
 function saveSnapshots(list) {
+    _snapsCache = list || [];
+    _snapsCacheDirty = true;
     try {
-        localStorage.setItem(STORAGE_KEYS.SNAPSHOTS, JSON.stringify(list));
-        return true;
+        localStorage.setItem(STORAGE_KEYS.SNAPSHOTS, JSON.stringify(_snapsCache));
     } catch (e) {
-        console.error('スナップショット保存エラー:', e);
-        return false;
+        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+            console.warn('[Storage] localStorage quota exceeded for snapshots, using IDB only');
+        } else {
+            console.error('スナップショット保存エラー:', e);
+            return false;
+        }
     }
+    setTimeout(_flushSnapsToIDB, 1000);
+    return true;
 }
 
 function addSnapshot(content, maxKeep = 10) {
@@ -270,26 +305,58 @@ function normalizeAsset(asset) {
     return asset;
 }
 
+// SP-077: アセット メモリキャッシュ
+var _assetsCache = null;
+var _assetsCacheDirty = false;
+
+function _flushAssetsToIDB() {
+    if (!_assetsCacheDirty || !_assetsCache) return;
+    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+        _assetsCacheDirty = false;
+        var keys = Object.keys(_assetsCache);
+        var tx = Promise.resolve();
+        for (var i = 0; i < keys.length; i++) {
+            (function (asset) {
+                tx = tx.then(function () { return window.ZenWriterIDB.putAsset(asset); });
+            })(_assetsCache[keys[i]]);
+        }
+        tx.catch(function (e) {
+            console.warn('[IDB] Assets flush error:', e);
+            _assetsCacheDirty = true;
+        });
+    }
+}
+
 function loadAssets() {
+    if (_assetsCache !== null) return _assetsCache;
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.ASSETS);
         const parsed = raw ? JSON.parse(raw) : {};
         Object.keys(parsed).forEach(key => { parsed[key] = normalizeAsset(parsed[key]); });
-        return parsed;
+        _assetsCache = parsed;
+        return _assetsCache;
     } catch (e) {
         console.error('アセット読込エラー:', e);
+        _assetsCache = {};
         return {};
     }
 }
 
 function saveAssets(map) {
+    _assetsCache = map || {};
+    _assetsCacheDirty = true;
     try {
-        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(map || {}));
-        return true;
+        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(_assetsCache));
     } catch (e) {
-        console.error('アセット保存エラー:', e);
-        return false;
+        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+            console.warn('[Storage] localStorage quota exceeded for assets, using IDB only');
+        } else {
+            console.error('アセット保存エラー:', e);
+            return false;
+        }
     }
+    setTimeout(_flushAssetsToIDB, 1000);
+    return true;
 }
 
 function sanitizeAssetName(name) {
@@ -432,13 +499,25 @@ function _initIDB() {
                     if (result.migrated) {
                         console.log('[Storage] IDB migration complete:', result.counts);
                     }
-                    // IDB からドキュメントキャッシュを初期化
-                    return window.ZenWriterIDB.getAllDocs();
+                    // IDB からキャッシュを初期化 (docs, assets, snapshots, wiki)
+                    return Promise.all([
+                        window.ZenWriterIDB.getAllDocs(),
+                        window.ZenWriterIDB.getAllAssets(),
+                        window.ZenWriterIDB.getSnapshots(),
+                        window.ZenWriterIDB.getWikiPages()
+                    ]);
                 })
-                .then(function (docs) {
-                    if (docs && docs.length > 0) {
-                        _docsCache = docs;
+                .then(function (results) {
+                    var docs = results[0], assets = results[1], snaps = results[2], wiki = results[3];
+                    if (docs && docs.length > 0) _docsCache = docs;
+                    if (assets && assets.length > 0) {
+                        _assetsCache = {};
+                        for (var i = 0; i < assets.length; i++) {
+                            if (assets[i] && assets[i].id) _assetsCache[assets[i].id] = normalizeAsset(assets[i]);
+                        }
                     }
+                    if (snaps && snaps.length > 0) _snapsCache = snaps;
+                    if (wiki && wiki.length > 0) _wikiCache = wiki;
                     return true;
                 });
         })
@@ -1123,24 +1202,54 @@ const STORY_WIKI_PRESET_CATEGORIES = [
     { id: 'concept', label: '概念', icon: 'lightbulb', isPreset: true }
 ];
 
+// SP-077: Story Wiki メモリキャッシュ
+var _wikiCache = null;
+var _wikiCacheDirty = false;
+
+function _flushWikiToIDB() {
+    if (!_wikiCacheDirty || !_wikiCache) return;
+    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+        _wikiCacheDirty = false;
+        var entries = _wikiCache.slice();
+        var tx = Promise.resolve();
+        for (var i = 0; i < entries.length; i++) {
+            (function (e) { tx = tx.then(function () { return window.ZenWriterIDB.putWikiPage(e); }); })(entries[i]);
+        }
+        tx.catch(function (e) {
+            console.warn('[IDB] Wiki flush error:', e);
+            _wikiCacheDirty = true;
+        });
+    }
+}
+
 function loadStoryWiki() {
+    if (_wikiCache !== null) return _wikiCache;
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI);
-        return raw ? JSON.parse(raw) : [];
+        _wikiCache = raw ? JSON.parse(raw) : [];
+        return _wikiCache;
     } catch (e) {
         console.error('StoryWiki読込エラー:', e);
+        _wikiCache = [];
         return [];
     }
 }
 
 function saveStoryWiki(entries) {
+    _wikiCache = entries || [];
+    _wikiCacheDirty = true;
     try {
-        localStorage.setItem(STORAGE_KEYS.STORY_WIKI, JSON.stringify(entries || []));
-        return true;
+        localStorage.setItem(STORAGE_KEYS.STORY_WIKI, JSON.stringify(_wikiCache));
     } catch (e) {
-        console.error('StoryWiki保存エラー:', e);
-        return false;
+        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+            console.warn('[Storage] localStorage quota exceeded for wiki, using IDB only');
+        } else {
+            console.error('StoryWiki保存エラー:', e);
+            return false;
+        }
     }
+    setTimeout(_flushWikiToIDB, 2000);
+    return true;
 }
 
 function loadStoryWikiCategories() {

@@ -472,10 +472,10 @@
     "id": "SP-077",
     "title": "IndexedDB ストレージ移行仕様",
     "status": "partial",
-    "pct": 40,
+    "pct": 85,
     "cat": "system",
     "file": "docs/specs/spec-indexeddb-migration.md",
-    "summary": "Phase 1実装: IDBラッパー(storage-idb.js) + ドキュメント移行 + メモリキャッシュ統合。起動時に自動移行。残: アセット/スナップショット/Wiki/ノードグラフ移行。",
+    "summary": "Phase 1-3実装: IDBラッパー + ドキュメント/アセット/スナップショット/Wiki移行完了。メモリキャッシュ + 非同期IDBフラッシュ。残: ノードグラフ移行のみ。",
     "related": ["SP-071"]
   }
 ]
