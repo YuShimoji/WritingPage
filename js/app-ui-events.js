@@ -88,6 +88,8 @@
             }
         }
 
+        const DRAG_THRESHOLD = 3; // 3px閾値で誤操作防止
+
         function enableFloatingPanelDrag(panel) {
             if (!panel || panel.dataset.zwDragReady === 'true') return;
             const handle = panel.querySelector('.panel-header');
@@ -98,30 +100,52 @@
             let startY = 0;
             let startLeft = 0;
             let startTop = 0;
+            let pointerDown = false;
             let dragging = false;
+            let activePointerId = -1;
 
-            const onMouseMove = (ev) => {
-                if (!dragging) return;
+            const onPointerMove = (ev) => {
+                if (!pointerDown) return;
                 const dx = ev.clientX - startX;
                 const dy = ev.clientY - startY;
+
+                // 閾値未満ならドラッグ開始しない
+                if (!dragging) {
+                    if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+                    dragging = true;
+                    document.body.classList.add('dragging-floating-panel');
+                }
+
                 panel.style.left = `${Math.round(startLeft + dx)}px`;
                 panel.style.top = `${Math.round(startTop + dy)}px`;
                 panel.style.right = 'auto';
                 panel.style.bottom = 'auto';
             };
 
-            const onMouseUp = () => {
-                if (!dragging) return;
-                dragging = false;
-                panel.dataset.zwDragged = 'true';
-                document.body.classList.remove('dragging-floating-panel');
-                document.removeEventListener('mousemove', onMouseMove);
-                document.removeEventListener('mouseup', onMouseUp);
-                clampPanelToViewport(panel);
+            function cleanupListeners() {
+                handle.removeEventListener('pointermove', onPointerMove);
+                handle.removeEventListener('pointerup', onPointerUp);
+                handle.removeEventListener('lostpointercapture', onPointerUp);
+                document.removeEventListener('pointermove', onPointerMove);
+                document.removeEventListener('pointerup', onPointerUp);
+            }
+
+            const onPointerUp = (ev) => {
+                if (!pointerDown) return;
+                pointerDown = false;
+                try { handle.releasePointerCapture(activePointerId); } catch (_) { }
+                if (dragging) {
+                    dragging = false;
+                    panel.dataset.zwDragged = 'true';
+                    document.body.classList.remove('dragging-floating-panel');
+                    clampPanelToViewport(panel);
+                }
+                cleanupListeners();
             };
 
-            handle.addEventListener('mousedown', (ev) => {
-                if (ev.button !== 0) return;
+            handle.addEventListener('pointerdown', (ev) => {
+                // マウス左ボタン or タッチ
+                if (ev.pointerType === 'mouse' && ev.button !== 0) return;
                 if (ev.target.closest('button, input, select, textarea, a, label')) return;
                 ev.preventDefault();
                 prepareFloatingPanel(panel);
@@ -131,13 +155,21 @@
                 startY = ev.clientY;
                 startLeft = rect.left;
                 startTop = rect.top;
-                dragging = true;
-                document.body.classList.add('dragging-floating-panel');
-                document.addEventListener('mousemove', onMouseMove);
-                document.addEventListener('mouseup', onMouseUp);
+                pointerDown = true;
+                dragging = false;
+                activePointerId = ev.pointerId;
+
+                // タッチ: setPointerCapture で handle に集約
+                // マウス: document 側でもリスン (Playwright 互換 + ブラウザフォールバック)
+                try { handle.setPointerCapture(ev.pointerId); } catch (_) { }
+                handle.addEventListener('pointermove', onPointerMove);
+                handle.addEventListener('pointerup', onPointerUp);
+                handle.addEventListener('lostpointercapture', onPointerUp);
+                document.addEventListener('pointermove', onPointerMove);
+                document.addEventListener('pointerup', onPointerUp);
             });
 
-            panel.addEventListener('mousedown', () => bringPanelToFront(panel));
+            panel.addEventListener('pointerdown', () => bringPanelToFront(panel));
         }
 
         window.ZenWriterFloatingPanels = {

@@ -2655,6 +2655,7 @@ input[type='color'] {
   border-top-right-radius: 8px;
   cursor: move;
   user-select: none;
+  touch-action: none;
 }
 
 .floating-panel .panel-body {
