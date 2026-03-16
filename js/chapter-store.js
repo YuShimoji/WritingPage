@@ -182,6 +182,30 @@
   }
 
   /**
+   * 章のメタデータを更新（visibility 等）
+   * @param {string} chapterId
+   * @param {Object} patch - { visibility, level, ... }
+   */
+  function updateChapterMeta(chapterId, patch) {
+    if (!ensureStorage()) return false;
+    var docs = STORAGE.loadDocuments();
+    for (var i = 0; i < docs.length; i++) {
+      if (docs[i] && docs[i].id === chapterId && docs[i].type === 'chapter') {
+        var allowed = ['visibility', 'level', 'metadata'];
+        for (var k = 0; k < allowed.length; k++) {
+          if (patch.hasOwnProperty(allowed[k])) {
+            docs[i][allowed[k]] = patch[allowed[k]];
+          }
+        }
+        docs[i].updatedAt = Date.now();
+        STORAGE.saveDocuments(docs);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * 章を削除
    */
   function deleteChapter(chapterId) {
@@ -422,6 +446,7 @@
     // Mutations
     createChapter: createChapter,
     updateChapterContent: updateChapterContent,
+    updateChapterMeta: updateChapterMeta,
     renameChapter: renameChapter,
     deleteChapter: deleteChapter,
     reorderChapters: reorderChapters,

@@ -423,10 +423,10 @@
     "id": "SP-072",
     "title": "セクションリンク & インタラクティブナビ仕様",
     "status": "partial",
-    "pct": 40,
+    "pct": 60,
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
-    "summary": "Phase 1実装: 章末ナビバー(前へ/目次/次へ)自動挿入 + chapter://リンク(プレビュー+WYSIWYG+Turndown逆変換)。残: ページ公開設定、リンク挿入UI、エクスポート変換。",
+    "summary": "Phase 1: 章末ナビバー+chapter://リンク。Phase 2 MVP: 章visibility設定(visible/draft/hidden)+バッジ表示+ナビバーvisibilityフィルタ+convertForExport(chapter://→#anchor)。残: リンク挿入UI、壊れリンク警告。",
     "related": ["SP-070", "SP-071"]
   },
   {

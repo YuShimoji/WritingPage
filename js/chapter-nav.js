@@ -28,12 +28,37 @@
   // ---- Chapter resolution ----
 
   function getChapters() {
+    // chapterMode: Store から visibility 付きデータを取得
+    var Store = window.ZWChapterStore;
+    var S = window.ZenWriterStorage;
+    var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    if (docId && Store && Store.isChapterMode(docId)) {
+      var storeChapters = Store.getChaptersForDoc(docId);
+      return storeChapters.map(function (sc, i) {
+        return {
+          id: sc.id,
+          title: sc.name || '',
+          level: sc.level || 2,
+          visibility: sc.visibility || 'visible',
+          startOffset: 0,
+          endOffset: 0
+        };
+      });
+    }
+    // Legacy: heading ベースのパーサー
     if (!window.ZWChapterModel || typeof window.ZWChapterModel.parseChapters !== 'function') return [];
     var text = '';
-    if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function') {
-      text = window.ZenWriterStorage.loadContent() || '';
+    if (S && typeof S.loadContent === 'function') {
+      text = S.loadContent() || '';
     }
     return window.ZWChapterModel.parseChapters(text);
+  }
+
+  /** visibility=visible の章のみ返す */
+  function getVisibleChapters(chapters) {
+    return chapters.filter(function (ch) {
+      return !ch.visibility || ch.visibility === 'visible';
+    });
   }
 
   function findChapterByTitle(chapters, title) {
@@ -67,8 +92,9 @@
       existing[i].parentNode.removeChild(existing[i]);
     }
 
-    var chapters = getChapters();
-    if (chapters.length < 2) return; // 1章以下ならナビ不要
+    var allChapters = getChapters();
+    var visibleChapters = getVisibleChapters(allChapters);
+    if (visibleChapters.length < 2) return; // 1章以下ならナビ不要
 
     // プレビュー内のH1-H6を収集
     var headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
@@ -77,12 +103,16 @@
     // 各見出し = 章の開始。前の章の末尾(=次の見出しの直前)にナビバーを挿入
     for (var h = 0; h < headings.length; h++) {
       var chIdx = h;
-      if (chIdx >= chapters.length) break;
+      if (chIdx >= allChapters.length) break;
+
+      // draft/hidden の章にはナビバーを挿入しない
+      var ch = allChapters[chIdx];
+      if (ch.visibility && ch.visibility !== 'visible') continue;
 
       // この章の最後の要素を探す（次の見出しの直前、または末尾）
       var insertBefore = headings[h + 1] || null;
 
-      var nav = createNavBar(chapters, chIdx);
+      var nav = createNavBar(visibleChapters, chIdx, allChapters);
       if (nav) {
         if (insertBefore) {
           insertBefore.parentNode.insertBefore(nav, insertBefore);
@@ -93,21 +123,33 @@
     }
   }
 
-  function createNavBar(chapters, currentIndex) {
+  function createNavBar(visibleChapters, currentAllIndex, allChapters) {
+    // currentAllIndex は allChapters 内のインデックス。visibleChapters 内の位置を求める
+    var currentCh = allChapters[currentAllIndex];
+    var visIdx = -1;
+    for (var v = 0; v < visibleChapters.length; v++) {
+      if (visibleChapters[v].title === currentCh.title && visibleChapters[v].id === currentCh.id) {
+        visIdx = v;
+        break;
+      }
+    }
+    if (visIdx < 0) return null; // この章は visible でないためナビバーなし
+
     var nav = document.createElement('nav');
     nav.className = 'chapter-nav-bar';
     nav.setAttribute('aria-label', '章間ナビゲーション');
 
-    var prevCh = currentIndex > 0 ? chapters[currentIndex - 1] : null;
-    var nextCh = currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : null;
+    var prevCh = visIdx > 0 ? visibleChapters[visIdx - 1] : null;
+    var nextCh = visIdx < visibleChapters.length - 1 ? visibleChapters[visIdx + 1] : null;
 
-    // 前の章
+    // 前の章 — allChapters 内のインデックスを逆引き
     var prevBtn = document.createElement('a');
     prevBtn.className = 'chapter-nav-bar__link chapter-nav-bar__prev';
     if (prevCh) {
+      var prevAllIdx = allChapters.indexOf(prevCh);
       prevBtn.textContent = '\u2190 ' + prevCh.title;
       prevBtn.href = '#';
-      prevBtn.dataset.chapterIndex = currentIndex - 1;
+      prevBtn.dataset.chapterIndex = prevAllIdx >= 0 ? prevAllIdx : visIdx - 1;
       prevBtn.addEventListener('click', function (e) {
         e.preventDefault();
         navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
@@ -131,9 +173,10 @@
     var nextBtn = document.createElement('a');
     nextBtn.className = 'chapter-nav-bar__link chapter-nav-bar__next';
     if (nextCh) {
+      var nextAllIdx = allChapters.indexOf(nextCh);
       nextBtn.textContent = nextCh.title + ' \u2192';
       nextBtn.href = '#';
-      nextBtn.dataset.chapterIndex = currentIndex + 1;
+      nextBtn.dataset.chapterIndex = nextAllIdx >= 0 ? nextAllIdx : visIdx + 1;
       nextBtn.addEventListener('click', function (e) {
         e.preventDefault();
         navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
@@ -232,11 +275,33 @@
     bindChapterLinks(container);
   }
 
+  // ---- Export conversion ----
+
+  /**
+   * HTML出力用: chapter:// リンクを #anchor リンクに変換する。
+   * 印刷/エクスポート時に呼ぶ。
+   * @param {string} html
+   * @returns {string}
+   */
+  function convertForExport(html) {
+    if (!html) return html;
+    return html.replace(
+      /<a[^>]*class="chapter-link"[^>]*data-chapter-target="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi,
+      function (_match, target, text) {
+        var decoded = decodeURIComponent(target);
+        var slug = slugify(decoded);
+        return '<a href="#' + slug + '">' + text + '</a>';
+      }
+    );
+  }
+
   // ---- Public API ----
 
   window.ZWChapterNav = {
     onPreviewUpdated: onPreviewUpdated,
     convertChapterLinks: convertChapterLinks,
+    convertForExport: convertForExport,
+    getVisibleChapters: function () { return getVisibleChapters(getChapters()); },
     loadSettings: loadSettings,
     saveSettings: saveSettings,
     injectNavBars: injectNavBars

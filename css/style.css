@@ -432,6 +432,25 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   flex-shrink: 0;
 }
 
+/* Visibility badges */
+.cl-item__badge {
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+.cl-item__badge--draft {
+  background: var(--focus-color-15);
+  color: var(--focus-color, #4a90e2);
+}
+.cl-item__badge--hidden {
+  background: var(--border-color, #e0e0e0);
+  color: var(--text-muted, #888);
+}
+.cl-item--draft { opacity: 0.65; }
+.cl-item--hidden { opacity: 0.4; }
+
 /* Level indentation */
 .cl-item--level-1 { padding-left: 12px; }
 .cl-item--level-2 { padding-left: 24px; }

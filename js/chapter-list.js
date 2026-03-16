@@ -334,6 +334,15 @@
         }
       }
 
+      // visibility バッジ (chapterMode)
+      if (isChMode && ch.visibility && ch.visibility !== 'visible') {
+        var badge = document.createElement('span');
+        badge.className = 'cl-item__badge cl-item__badge--' + ch.visibility;
+        badge.textContent = ch.visibility === 'draft' ? '下書き' : '非公開';
+        item.appendChild(badge);
+        item.classList.add('cl-item--' + ch.visibility);
+      }
+
       // イベント
       item.addEventListener('click', handleClick.bind(null, idx));
       item.addEventListener('dblclick', handleDblClick.bind(null, idx));
@@ -536,11 +545,16 @@
 
     var actions;
     if (isChMode) {
+      var currentVis = chapters[idx] ? (chapters[idx].visibility || 'visible') : 'visible';
       actions = [
         { label: 'リネーム', action: function () { startInlineRename(idx); } },
         { label: '複製', action: function () { performDuplicate(idx); } },
         { label: '上へ移動', action: function () { performMove(idx, 'up'); }, disabled: idx === 0 },
         { label: '下へ移動', action: function () { performMove(idx, 'down'); }, disabled: idx === chapters.length - 1 },
+        { label: '---' },
+        { label: '表示', action: function () { setVisibility(idx, 'visible'); }, disabled: currentVis === 'visible' },
+        { label: '下書き', action: function () { setVisibility(idx, 'draft'); }, disabled: currentVis === 'draft' },
+        { label: '非公開', action: function () { setVisibility(idx, 'hidden'); }, disabled: currentVis === 'hidden' },
         { label: '---' },
         { label: '削除', action: function () { performDelete(idx, true); }, dangerous: true }
       ];
@@ -694,6 +708,14 @@
       var newIdx2 = direction === 'up' ? idx - 1 : idx + 1;
       navigateToChapter(newIdx2);
     }
+  }
+
+  function setVisibility(idx, value) {
+    var ch = chapters[idx];
+    if (!ch || !ch._storeRecord || !Store) return;
+    Store.updateChapterMeta(ch.id, { visibility: value });
+    ch.visibility = value;
+    refreshChapterMode();
   }
 
   function performDelete(idx, deleteContent) {
