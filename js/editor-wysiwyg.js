@@ -759,6 +759,19 @@
     }
 
     /**
+     * Undoスタックをリセットする（章切替時などに使用）
+     */
+    resetUndoStack() {
+      this._undoStack = [];
+      this._redoStack = [];
+      clearTimeout(this._undoSnapshotTimer);
+      if (this.isWysiwygMode && this.wysiwygEditor) {
+        this._undoLastSnapshot = this.wysiwygEditor.innerHTML;
+      }
+      this._lastCursorOffset = 0;
+    }
+
+    /**
      * textareaモードに切り替え (ソース表示)
      */
     switchToTextarea() {

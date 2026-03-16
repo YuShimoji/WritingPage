@@ -426,6 +426,14 @@
       flushActiveChapter();
       activeChapterIdx = idx;
       setEditorText(ch.content || '');
+      // undo スタック + dirty baseline をリセット（別章の履歴を持ち込まない）
+      var E = window.ZenWriterEditor;
+      if (E && E.richTextEditor && typeof E.richTextEditor.resetUndoStack === 'function') {
+        E.richTextEditor.resetUndoStack();
+      }
+      if (E && typeof E.refreshDirtyBaseline === 'function') {
+        E.refreshDirtyBaseline();
+      }
       highlightActive();
       // WYSIWYG 対応: 適切なエディタにフォーカス
       focusEditor();

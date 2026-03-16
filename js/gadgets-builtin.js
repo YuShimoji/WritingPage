@@ -261,7 +261,14 @@
         var docs = storage.loadDocuments() || [];
         var doc = docs.find(function (d) { return d && d.id === id; });
         if (!doc) return;
-        saveCurrentContent();
+        // ContentGuard 経由: chapterMode flush + dirty 保存
+        var G = window.ZWContentGuard;
+        if (G) {
+          var canProceed = G.prepareDocumentSwitch(id, { confirmIfDirty: true });
+          if (!canProceed) return;
+        } else {
+          saveCurrentContent();
+        }
         storage.setCurrentDocId(id);
         if (editorManager && typeof editorManager.setContent === 'function') {
           editorManager.setContent(doc.content || '');

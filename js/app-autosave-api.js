@@ -30,6 +30,13 @@
                             content = editor ? (editor.value || '') : '';
                         }
                         if (G) G.flushChapterIfNeeded();
+                        // chapterMode: アクティブ章だけでなく全文を組み立てて保存
+                        var _Store = window.ZWChapterStore;
+                        var _S = window.ZenWriterStorage;
+                        var _docId = _S && typeof _S.getCurrentDocId === 'function' ? _S.getCurrentDocId() : null;
+                        if (_docId && _Store && _Store.isChapterMode(_docId)) {
+                            content = _Store.assembleFullText(_docId);
+                        }
                         window.ZenWriterStorage.saveContent(content);
                         // HUDに保存通知
                         if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
@@ -69,6 +76,13 @@
                 if (G) {
                     // ContentGuard 経由: chapterMode flush + ドキュメント保存
                     G.ensureSaved({ snapshot: false });
+                    // chapterMode: 全文で上書き（ensureSaved はアクティブ章テキストのみ保存するため）
+                    var _Store2 = window.ZWChapterStore;
+                    var _S2 = window.ZenWriterStorage;
+                    var _dId = _S2 && typeof _S2.getCurrentDocId === 'function' ? _S2.getCurrentDocId() : null;
+                    if (_dId && _Store2 && _Store2.isChapterMode(_dId)) {
+                        _S2.saveContent(_Store2.assembleFullText(_dId));
+                    }
                 } else {
                     // フォールバック: ContentGuard 未ロード時
                     var content = '';
@@ -95,6 +109,14 @@
                 if (!content) {
                     const editor = elementManager.get('editor');
                     content = editor ? (editor.value || '') : '';
+                }
+                // chapterMode: アクティブ章をフラッシュしてから全文をスナップショット
+                if (G) G.flushChapterIfNeeded();
+                var _Store3 = window.ZWChapterStore;
+                var _S3 = window.ZenWriterStorage;
+                var _dId3 = _S3 && typeof _S3.getCurrentDocId === 'function' ? _S3.getCurrentDocId() : null;
+                if (_dId3 && _Store3 && _Store3.isChapterMode(_dId3)) {
+                    content = _Store3.assembleFullText(_dId3);
                 }
                 if (content && window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
                     window.ZenWriterStorage.addSnapshot(content, 10); // 最大10件

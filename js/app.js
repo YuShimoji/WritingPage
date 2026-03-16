@@ -503,6 +503,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // SP-070 Phase 2: モード変更前に chapterMode のデータを安定化
+        // MutationObserver (chapter-list.js) が発火する前にフラッシュを完了させる
+        try {
+            var G = window.ZWContentGuard;
+            if (G) {
+                G.flushChapterIfNeeded();
+                G.ensureSaved({ snapshot: false });
+            }
+        } catch (_) { }
+
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
         const select = document.getElementById('ui-mode-select');
