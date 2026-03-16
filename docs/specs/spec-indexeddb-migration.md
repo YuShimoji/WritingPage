@@ -193,4 +193,4 @@ await ZenWriterIDB.migrateFromLocalStorage() // → { migrated: boolean, counts:
 | Phase 1 | IDBラッパー + ドキュメント移行 + メモリキャッシュ互換レイヤー | done |
 | Phase 2 | アセット + スナップショット移行 | done |
 | Phase 3 | Wiki移行 (メモリキャッシュ + IDBフラッシュ) | done |
-| 残 | ノードグラフ移行 (`zw_nodegraph:*` → nodegraph store) | todo |
+| Phase 4 | ノードグラフ移行 (`zw_nodegraph:*` → nodegraph store) | done |

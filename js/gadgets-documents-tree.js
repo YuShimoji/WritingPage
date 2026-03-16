@@ -64,7 +64,8 @@
     row.appendChild(label);
 
     // クリックイベント
-    row.addEventListener('click', () => {
+    row.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (item.type === 'document' && handlers.onSelectDocument) {
         handlers.onSelectDocument(item.id);
       } else if (item.type === 'folder' && handlers.onToggleFolder) {

@@ -9,10 +9,14 @@
     try { if (window.ZenWriterStorage && ensure(window.ZenWriterStorage.getCurrentDocId)) return window.ZenWriterStorage.getCurrentDocId() || 'default'; } catch(e){ void e; }
     return 'default';
   }
-  function storageKey(docId){ return 'zw_nodegraph:'+ (docId || getDocId()); }
   function loadGraph(docId){
     try {
-      var raw = localStorage.getItem(storageKey(docId));
+      var STORAGE = window.ZenWriterStorage;
+      if (STORAGE && typeof STORAGE.loadNodegraph === 'function') {
+        return STORAGE.loadNodegraph(docId || getDocId());
+      }
+      // Fallback: direct localStorage
+      var raw = localStorage.getItem('zw_nodegraph:' + (docId || getDocId()));
       var obj = raw ? JSON.parse(raw) : null;
       if (!obj || typeof obj !== 'object') obj = { nodes: [], edges: [] };
       if (!Array.isArray(obj.nodes)) obj.nodes = [];
@@ -21,7 +25,15 @@
     } catch(e){ void e; return { nodes: [], edges: [] }; }
   }
   function saveGraph(docId, data){
-    try { localStorage.setItem(storageKey(docId), JSON.stringify(data||{ nodes: [], edges: [] })); } catch(e){ void e; }
+    try {
+      var STORAGE = window.ZenWriterStorage;
+      if (STORAGE && typeof STORAGE.saveNodegraph === 'function') {
+        STORAGE.saveNodegraph(docId || getDocId(), data || { nodes: [], edges: [] });
+        return;
+      }
+      // Fallback: direct localStorage
+      localStorage.setItem('zw_nodegraph:' + (docId || getDocId()), JSON.stringify(data || { nodes: [], edges: [] }));
+    } catch(e){ void e; }
   }
   function uid(prefix){ return String(prefix||'ng_') + Math.random().toString(36).slice(2); }
 

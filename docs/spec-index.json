@@ -404,19 +404,19 @@
     "id": "SP-070",
     "title": "モードアーキテクチャ仕様",
     "status": "partial",
-    "pct": 40,
+    "pct": 60,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: SP-071 ChapterList Phase 1実装済み、残は章ごと独立保存。"
+    "summary": "Normal/Focus/Blankの3モード分離。Phase 1完了: CSS分離、ショートカット(Ctrl+Shift+F/B/Esc)、FocusChapterListスタブ、Blankエッジホバー復帰。Phase 2: ChapterList + 章独立保存完了。Focus章単位編集・Normal↔Focus同期実装済み。"
   },
   {
     "id": "SP-071",
     "title": "チャプター管理再設計仕様",
     "status": "partial",
-    "pct": 50,
+    "pct": 80,
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
-    "summary": "Novlr式2ペイン章管理。Phase 1完了: 見出し自動検出・クリックナビ・ダブルクリックリネーム・右クリックメニュー・D&D並び替え・新規章追加・アクティブ章ハイライト+文字数表示。Phase 2: 章ごと独立保存(IndexedDB)・目次自動生成は未着手。",
+    "summary": "Novlr式2ペイン章管理。Phase 1完了: 見出し自動検出・クリックナビ・ダブルクリックリネーム・右クリックメニュー・D&D並び替え。Phase 2完了: 章ごと独立保存(documentsストア再利用)・chapterMode opt-in・Focus章単位編集・Normal↔Focus同期・移行UI。残: 目次自動生成。",
     "related": ["SP-070", "SP-052", "SP-053"]
   },
   {
@@ -471,11 +471,11 @@
   {
     "id": "SP-077",
     "title": "IndexedDB ストレージ移行仕様",
-    "status": "partial",
-    "pct": 85,
+    "status": "done",
+    "pct": 100,
     "cat": "system",
     "file": "docs/specs/spec-indexeddb-migration.md",
-    "summary": "Phase 1-3実装: IDBラッパー + ドキュメント/アセット/スナップショット/Wiki移行完了。メモリキャッシュ + 非同期IDBフラッシュ。残: ノードグラフ移行のみ。",
+    "summary": "Phase 1-4完了: IDBラッパー + ドキュメント/アセット/スナップショット/Wiki/ノードグラフ全移行完了。メモリキャッシュ + 非同期IDBフラッシュ。localStorageフォールバック対応。",
     "related": ["SP-071"]
   }
 ]
