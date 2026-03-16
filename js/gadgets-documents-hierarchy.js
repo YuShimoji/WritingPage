@@ -72,8 +72,15 @@
 
       function saveCurrentContent() {
         try {
-          if (editorManager && editorManager.editor && typeof storage.saveContent === 'function') {
-            storage.saveContent(editorManager.editor.value || '');
+          if (editorManager && typeof storage.saveContent === 'function') {
+            // WYSIWYG モード対応: getEditorValue() で正しい Markdown を取得
+            var content = '';
+            if (typeof editorManager.getEditorValue === 'function') {
+              content = editorManager.getEditorValue() || '';
+            } else if (editorManager.editor) {
+              content = editorManager.editor.value || '';
+            }
+            storage.saveContent(content);
           }
         } catch (_) { }
       }

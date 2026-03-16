@@ -21,6 +21,7 @@
       this._undoMaxSize = 100;
       this._undoSnapshotTimer = null;
       this._undoLastSnapshot = '';
+      this._lastCursorOffset = 0;
       this._undoBatchTimeout = 500; // ms — テキスト入力のバッチング間隔
 
       // Turndownインスタンス（HTML → Markdown変換）
@@ -751,6 +752,7 @@
       this._undoStack = [];
       this._redoStack = [];
       this._undoLastSnapshot = this.wysiwygEditor.innerHTML;
+      this._lastCursorOffset = 0;
 
       // タイプライターモードの状態を同期
       this.applyTypewriterIfEnabled();
@@ -989,11 +991,16 @@
       var current = this.wysiwygEditor.innerHTML;
       if (current === this._undoLastSnapshot) return; // 変化なし
 
-      this._undoStack.push(this._undoLastSnapshot);
+      var cursorPos = this._getCursorOffset();
+      this._undoStack.push({
+        html: this._undoLastSnapshot,
+        cursorOffset: this._lastCursorOffset || 0
+      });
       if (this._undoStack.length > this._undoMaxSize) {
         this._undoStack.shift();
       }
       this._undoLastSnapshot = current;
+      this._lastCursorOffset = cursorPos;
       this._redoStack = []; // 新しい操作でRedoをクリア
     }
 
@@ -1008,15 +1015,24 @@
       // captureで現在の状態がpushされたので、それをredoに移す
       var current = this._undoStack.pop();
       if (current !== undefined) {
-        this._redoStack.push(this._undoLastSnapshot);
+        this._redoStack.push({
+          html: this._undoLastSnapshot,
+          cursorOffset: this._lastCursorOffset || 0
+        });
       }
 
-      var prev = this._undoStack.length > 0
+      var prevSnapshot = this._undoStack.length > 0
         ? this._undoStack.pop()
-        : this._undoLastSnapshot;
+        : { html: this._undoLastSnapshot, cursorOffset: 0 };
 
-      this.wysiwygEditor.innerHTML = prev;
-      this._undoLastSnapshot = prev;
+      // 後方互換: 旧フォーマット (plain string) にも対応
+      var prevHtml = typeof prevSnapshot === 'string' ? prevSnapshot : prevSnapshot.html;
+      var prevCursor = typeof prevSnapshot === 'string' ? 0 : (prevSnapshot.cursorOffset || 0);
+
+      this.wysiwygEditor.innerHTML = prevHtml;
+      this._undoLastSnapshot = prevHtml;
+      this._lastCursorOffset = prevCursor;
+      this._restoreCursorOffset(prevCursor);
       this.syncToMarkdown();
       this._notifyChange();
     }
@@ -1027,12 +1043,86 @@
     _redoAction() {
       if (!this.wysiwygEditor || this._redoStack.length === 0) return;
 
-      this._undoStack.push(this._undoLastSnapshot);
-      var next = this._redoStack.pop();
-      this.wysiwygEditor.innerHTML = next;
-      this._undoLastSnapshot = next;
+      this._undoStack.push({
+        html: this._undoLastSnapshot,
+        cursorOffset: this._lastCursorOffset || 0
+      });
+      var nextSnapshot = this._redoStack.pop();
+
+      // 後方互換: 旧フォーマット (plain string) にも対応
+      var nextHtml = typeof nextSnapshot === 'string' ? nextSnapshot : nextSnapshot.html;
+      var nextCursor = typeof nextSnapshot === 'string' ? 0 : (nextSnapshot.cursorOffset || 0);
+
+      this.wysiwygEditor.innerHTML = nextHtml;
+      this._undoLastSnapshot = nextHtml;
+      this._lastCursorOffset = nextCursor;
+      this._restoreCursorOffset(nextCursor);
       this.syncToMarkdown();
       this._notifyChange();
+    }
+
+    /**
+     * エディタ内のカーソル位置を文字オフセットとして取得
+     */
+    _getCursorOffset() {
+      if (!this.wysiwygEditor) return 0;
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return 0;
+
+      var range = sel.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return 0;
+
+      try {
+        var preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(this.wysiwygEditor);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+        return preCaretRange.toString().length;
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    /**
+     * 文字オフセットからカーソル位置を復元
+     */
+    _restoreCursorOffset(offset) {
+      if (!this.wysiwygEditor || offset <= 0) return;
+
+      var sel = window.getSelection();
+      if (!sel) return;
+
+      try {
+        var charCount = 0;
+        var range = document.createRange();
+        range.setStart(this.wysiwygEditor, 0);
+        range.collapse(true);
+
+        var nodeStack = [this.wysiwygEditor];
+        var node, foundStart = false;
+
+        while (!foundStart && (node = nodeStack.pop())) {
+          if (node.nodeType === Node.TEXT_NODE) {
+            var nextCharCount = charCount + node.length;
+            if (offset <= nextCharCount) {
+              range.setStart(node, offset - charCount);
+              foundStart = true;
+            }
+            charCount = nextCharCount;
+          } else {
+            // 子ノードを逆順にスタックへ (前方から走査するため)
+            var i = node.childNodes.length;
+            while (i--) {
+              nodeStack.push(node.childNodes[i]);
+            }
+          }
+        }
+
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (_) {
+        // カーソル復元失敗時は末尾にフォールバック
+      }
     }
 
     /**
