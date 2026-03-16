@@ -119,16 +119,22 @@
       getChapters: function () { return chapters; },
       getActiveIndex: function () { return activeChapterIdx; },
       navigateTo: navigateToChapter,
-      isChapterMode: inChapterMode
+      isChapterMode: inChapterMode,
+      flushActive: flushActiveChapter
     };
   }
 
   // ---- Mode Transition (Slice 3) ----
 
   function handleModeTransition(fromMode, toMode) {
+    // ContentGuard: モード遷移前に現在の状態を保全
+    var G = window.ZWContentGuard;
+
     if (toMode === 'focus') {
+      // Normal → Focus: 遷移前に保存
+      if (G) G.ensureSaved({ snapshot: false });
       if (inChapterMode()) {
-        // Normal → Focus (chapterMode): 全文を章に分解
+        // chapterMode: 全文を章に分解
         var docId = getCurrentDocId();
         if (docId && fromMode !== 'focus') {
           var text = getEditorText();
@@ -146,12 +152,16 @@
       closeContextMenu();
       if (inChapterMode()) {
         // Focus → Normal (chapterMode): アクティブ章を保存 → 全文を組み立て
-        flushActiveChapter();
+        if (G) G.flushChapterIfNeeded();
+        else flushActiveChapter();
         var docId2 = getCurrentDocId();
         if (docId2) {
           var fullText = Store.assembleFullText(docId2);
           setEditorText(fullText);
         }
+      } else {
+        // Focus → Normal (legacy): 現在の内容を保存
+        if (G) G.ensureSaved({ snapshot: false });
       }
     } else {
       if (toMode !== 'focus') {
@@ -263,7 +273,9 @@
     var ch = chapters[activeChapterIdx];
     if (!ch || !ch._storeRecord) return;
 
-    var text = getEditorText();
+    // ContentGuard 経由で安全にコンテンツを取得 (WYSIWYG/textarea 両対応)
+    var G = window.ZWContentGuard;
+    var text = G ? G.getEditorContent() : getEditorText();
     Store.updateChapterContent(ch.id, text);
     // 内部キャッシュも更新
     ch.content = text;
@@ -578,44 +590,55 @@
   // ---- Chapter operations ----
 
   function handleAddChapter() {
-    if (inChapterMode()) {
-      var docId = getCurrentDocId();
-      if (!docId) return;
-      var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
-      var afterId = lastChapter ? lastChapter.id : null;
-      var level = lastChapter ? lastChapter.level : 2;
-
-      Store.createChapter(docId, '新しい章', '', afterId, level);
-      refreshChapterMode();
-
-      // 新しい章にナビゲート & インラインリネーム開始
-      setTimeout(function () {
-        var newIdx = chapters.length - 1;
-        navigateToChapter(newIdx);
-        startInlineRename(newIdx);
-      }, 50);
-      return;
+    // 共通ガード: ContentGuard 経由でアクティブ章/ドキュメントを確実に保存
+    var G = window.ZWContentGuard;
+    if (G) {
+      G.flushChapterIfNeeded();
+      G.ensureSaved({ snapshot: false });
+    } else {
+      flushActiveChapter();
     }
 
-    // Phase 1: テキスト操作
-    var lastChapter2 = chapters.length > 0 ? chapters[chapters.length - 1] : null;
-    var afterId2 = lastChapter2 ? lastChapter2.id : null;
-    var level2 = lastChapter2 ? lastChapter2.level : 2;
+    var docId = getCurrentDocId();
+    var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
+    var afterId = lastChapter ? lastChapter.id : null;
+    var level = lastChapter ? lastChapter.level : 2;
 
-    var text = getEditorText();
-    var result = Model.addChapter(text, chapters, afterId2, '新しい章', level2);
-    setEditorText(result.text);
-    refresh();
+    if (inChapterMode()) {
+      if (!docId) return;
+      Store.createChapter(docId, '新しい章', '', afterId, level);
+      refreshChapterMode();
+    } else {
+      // Legacy: テキスト操作 (保存は setEditorText → setContent → saveContent で自動)
+      var text = getEditorText();
+      var result = Model.addChapter(text, chapters, afterId, '新しい章', level);
+      setEditorText(result.text);
+      refresh();
+    }
 
+    // 共通: 新しい章にナビゲート + インラインリネーム
     setTimeout(function () {
       var newIdx = chapters.length - 1;
-      navigateToChapter(newIdx);
-      startInlineRename(newIdx);
+      if (newIdx >= 0) {
+        navigateToChapter(newIdx);
+        startInlineRename(newIdx);
+      }
     }, 50);
+  }
+
+  /** 共通: 章操作の前にアクティブ章を保存 */
+  function guardBeforeChapterOp() {
+    var G = window.ZWContentGuard;
+    if (G) {
+      G.flushChapterIfNeeded();
+    } else {
+      flushActiveChapter();
+    }
   }
 
   function performDuplicate(idx) {
     var ch = chapters[idx];
+    guardBeforeChapterOp();
 
     if (inChapterMode() && ch._storeRecord) {
       var docId = getCurrentDocId();
@@ -633,6 +656,7 @@
 
   function performMove(idx, direction) {
     var ch = chapters[idx];
+    guardBeforeChapterOp();
 
     if (inChapterMode() && ch._storeRecord) {
       var docId = getCurrentDocId();
@@ -666,6 +690,7 @@
 
   function performDelete(idx, deleteContent) {
     var ch = chapters[idx];
+    guardBeforeChapterOp();
 
     if (inChapterMode() && ch._storeRecord) {
       if (!confirm('「' + ch.title + '」を削除しますか？')) return;
@@ -801,20 +826,31 @@
   }
 
   function getEditorText() {
-    // chapterMode: WYSIWYG から正規 Markdown を取得 (offset 不要)
+    // ContentGuard 経由で統一取得 (WYSIWYG/textarea 両対応)
+    var G = window.ZWContentGuard;
+    if (G) return G.getEditorContent();
+
+    // フォールバック: ContentGuard 未ロード時
     if (inChapterMode()) {
       var E = window.ZenWriterEditor;
       if (E && typeof E.getEditorValue === 'function') {
         return E.getEditorValue() || '';
       }
     }
-    // Phase 1 (legacy): textarea.value を返す (offset 整合性のため)
     var editor = document.getElementById('editor');
     if (!editor) return '';
     return editor.value || '';
   }
 
   function setEditorText(text) {
+    // ContentGuard 経由で統一書込 (バックアップなし: 章操作は意図的な上書き)
+    var G = window.ZWContentGuard;
+    if (G) {
+      G.safeSetContent(text, { backup: false });
+      return;
+    }
+
+    // フォールバック
     if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
       window.ZenWriterEditor.setContent(text);
       return;

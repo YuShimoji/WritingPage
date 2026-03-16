@@ -230,11 +230,15 @@ function saveContent(content) {
     try {
         localStorage.setItem(STORAGE_KEYS.CONTENT, content);
         // 複数ドキュメント管理が有効な場合は、現在ドキュメントにも反映
+        // _docsCache とも同期してキャッシュ不整合を防ぐ
         try {
             const curId = localStorage.getItem(STORAGE_KEYS.CURRENT_DOC_ID);
             if (curId) {
-                const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
-                const docs = raw ? JSON.parse(raw) : [];
+                // キャッシュ優先: _docsCache があればそこを更新、なければ localStorage から読む
+                const docs = _docsCache || (function () {
+                    const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
+                    return raw ? JSON.parse(raw) : [];
+                })();
                 const idx = docs.findIndex(d => d && d.id === curId);
                 if (idx >= 0) {
                     const nextContent = content || '';
@@ -243,7 +247,18 @@ function saveContent(content) {
                     if (prevContent !== nextContent) {
                         docs[idx].updatedAt = Date.now();
                     }
-                    localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs));
+                    // キャッシュと localStorage の両方を更新
+                    _docsCache = docs;
+                    _docsCacheDirty = true;
+                    try {
+                        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(docs));
+                    } catch (lsErr) {
+                        // localStorage 容量超過時は IDB に任せる
+                        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+                            console.warn('[Storage] saveContent: localStorage quota exceeded, IDB will sync');
+                        }
+                    }
+                    _scheduleIDBFlush();
                 }
             }
         } catch (e) { /* ignore */ }

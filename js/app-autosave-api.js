@@ -21,10 +21,16 @@
             if (!autoSave.enabled) return;
             const delay = autoSave.delayMs || 2000;
             autoSaveTimeout = setTimeout(() => {
-                const editor = elementManager.get('editor');
-                if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
                     try {
-                        window.ZenWriterStorage.saveContent(editor.value || '');
+                        var G = window.ZWContentGuard;
+                        var content = G ? G.getEditorContent() : '';
+                        if (!content) {
+                            const editor = elementManager.get('editor');
+                            content = editor ? (editor.value || '') : '';
+                        }
+                        if (G) G.flushChapterIfNeeded();
+                        window.ZenWriterStorage.saveContent(content);
                         // HUDに保存通知
                         if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
                             window.ZenWriterHUD.show('自動保存されました', 1500, { bg: '#28a745', fg: '#fff' });
@@ -58,22 +64,40 @@
 
         // 自動バックアップ強化: ページを離れる前に保存
         window.addEventListener('beforeunload', function (_e) {
-            const editor = elementManager.get('editor');
             try {
-                if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
-                    window.ZenWriterStorage.saveContent(editor.value || '');
+                var G = window.ZWContentGuard;
+                if (G) {
+                    // ContentGuard 経由: chapterMode flush + ドキュメント保存
+                    G.ensureSaved({ snapshot: false });
+                } else {
+                    // フォールバック: ContentGuard 未ロード時
+                    var content = '';
+                    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.getEditorValue === 'function') {
+                        content = window.ZenWriterEditor.getEditorValue() || '';
+                    }
+                    if (!content) {
+                        const editor = elementManager.get('editor');
+                        content = editor ? (editor.value || '') : '';
+                    }
+                    if (content && window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                        window.ZenWriterStorage.saveContent(content);
+                    }
                 }
             } catch (_) { }
-            // メッセージは表示しない（ブラウザがデフォルト表示）
         });
 
         // 定期的なバックアップ（オンライン時のみ）
         setInterval(function () {
             if (!isOnline) return;
-            const editor = elementManager.get('editor');
             try {
-                if (editor && window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
-                    window.ZenWriterStorage.addSnapshot(editor.value || '', 10); // 最大10件
+                var G = window.ZWContentGuard;
+                var content = G ? G.getEditorContent() : '';
+                if (!content) {
+                    const editor = elementManager.get('editor');
+                    content = editor ? (editor.value || '') : '';
+                }
+                if (content && window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
+                    window.ZenWriterStorage.addSnapshot(content, 10); // 最大10件
                 }
             } catch (_) { }
         }, 5 * 60 * 1000); // 5分ごと

@@ -1,5 +1,6 @@
 // app-file-manager.js — ファイル管理機能
 // app.js から分離。DOMContentLoaded 後に initAppFileManager(deps) を呼び出す。
+// データ保全は ZWContentGuard に委譲する。
 (function () {
     'use strict';
 
@@ -11,6 +12,9 @@
      */
     function initAppFileManager(deps) {
         const { elementManager, updateDocumentTitle } = deps;
+
+        /** ContentGuard を安全に取得 */
+        function guard() { return window.ZWContentGuard || null; }
 
         const fileManager = {
             updateDocumentList() {
@@ -43,39 +47,23 @@
                 if (!docId) return;
 
                 try {
-                    const settings = window.ZenWriterStorage.loadSettings ? window.ZenWriterStorage.loadSettings() : {};
-                    const autoSaveEnabled = settings.autoSave && settings.autoSave.enabled;
-
-                    try {
-                        const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
-                            ? window.ZenWriterEditor.isDirty()
-                            : false;
-                        if (hasDirty) {
-                            if (autoSaveEnabled) {
-                                const editorEl = elementManager.get('editor');
-                                const content = editorEl ? (editorEl.value || '') : '';
-                                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
-                                    window.ZenWriterStorage.saveContent(content);
-                                }
-                            } else {
-                                const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_SWITCH) || '未保存の変更があります。ファイルを切り替えますか？\n現在の内容はスナップショットとして自動退避します。';
-                                const ok = confirm(msg);
-                                if (!ok) {
-                                    const selectEl = elementManager.get('currentDocument');
-                                    const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
-                                    if (selectEl && currentDocId) selectEl.value = currentDocId;
-                                    return;
-                                }
-                                try {
-                                    const editorEl = elementManager.get('editor');
-                                    const content = editorEl ? (editorEl.value || '') : '';
-                                    if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
-                                        window.ZenWriterStorage.addSnapshot(content);
-                                    }
-                                } catch (_) { }
+                    var G = guard();
+                    if (G) {
+                        // ContentGuard 経由: chapterMode flush + dirty check + snapshot を一括処理
+                        var canProceed = G.prepareDocumentSwitch(docId, {
+                            confirmIfDirty: true,
+                            onCancelled: function () {
+                                // キャンセル時: ドロップダウンを元に戻す
+                                var selectEl = elementManager.get('currentDocument');
+                                var currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;
+                                if (selectEl && currentDocId) selectEl.value = currentDocId;
                             }
-                        }
-                    } catch (_) { }
+                        });
+                        if (!canProceed) return;
+                    } else {
+                        // ContentGuard 未ロード時のフォールバック (起動初期)
+                        this._legacyDirtyCheck();
+                    }
 
                     if (window.ZenWriterStorage.setCurrentDocId) {
                         window.ZenWriterStorage.setCurrentDocId(docId);
@@ -128,6 +116,33 @@
                 } catch (e) {
                     console.warn('ドキュメント初期化エラー:', e);
                 }
+            },
+
+            /** ContentGuard 未ロード時のレガシーフォールバック */
+            _legacyDirtyCheck() {
+                try {
+                    var hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                        ? window.ZenWriterEditor.isDirty()
+                        : false;
+                    if (hasDirty) {
+                        var settings = window.ZenWriterStorage.loadSettings ? window.ZenWriterStorage.loadSettings() : {};
+                        var autoSaveEnabled = settings.autoSave && settings.autoSave.enabled;
+                        if (autoSaveEnabled) {
+                            // WYSIWYG 対応: getEditorValue を優先
+                            var content = '';
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.getEditorValue === 'function') {
+                                content = window.ZenWriterEditor.getEditorValue() || '';
+                            }
+                            if (!content) {
+                                var editorEl = elementManager.get('editor');
+                                content = editorEl ? (editorEl.value || '') : '';
+                            }
+                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+                                window.ZenWriterStorage.saveContent(content);
+                            }
+                        }
+                    }
+                } catch (_) { }
             }
         };
 
@@ -144,23 +159,21 @@
 
         if (newDocumentBtn) {
             newDocumentBtn.addEventListener('click', () => {
-                try {
-                    const hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
-                        ? window.ZenWriterEditor.isDirty()
-                        : false;
-                    if (hasDirty) {
-                        const msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
-                        const ok = confirm(msg);
-                        if (!ok) return;
-                        try {
-                            const editorEl = elementManager.get('editor');
-                            const content = editorEl ? (editorEl.value || '') : '';
-                            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.addSnapshot === 'function') {
-                                window.ZenWriterStorage.addSnapshot(content);
-                            }
-                        } catch (_) { }
-                    }
-                } catch (_) { }
+                var G = guard();
+                if (G) {
+                    if (!G.prepareNewDocument()) return;
+                } else {
+                    // ContentGuard 未ロード時のフォールバック
+                    try {
+                        var hasDirty = (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function')
+                            ? window.ZenWriterEditor.isDirty()
+                            : false;
+                        if (hasDirty) {
+                            var msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
+                            if (!confirm(msg)) return;
+                        }
+                    } catch (_) { }
+                }
                 fileManager.createNewDocument();
             });
         }

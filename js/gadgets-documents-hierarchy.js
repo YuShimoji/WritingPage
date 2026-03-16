@@ -92,7 +92,18 @@
         var doc = docs.find(function (d) { return d && d.id === id && d.type === 'document'; });
         if (!doc) return;
 
-        saveCurrentContent();
+        // ContentGuard 経由: chapterMode flush + dirty保存 + WYSIWYG安全取得を一括
+        var G = window.ZWContentGuard;
+        if (G) {
+          var canProceed = G.prepareDocumentSwitch(id, {
+            confirmIfDirty: true
+          });
+          if (!canProceed) return;
+        } else {
+          // フォールバック: 既存の saveCurrentContent
+          saveCurrentContent();
+        }
+
         storage.setCurrentDocId(id);
 
         if (editorManager && typeof editorManager.setContent === 'function') {
@@ -108,22 +119,28 @@
       }
 
       function createDocument(parentId) {
-        try {
-          var hasDirty = (editorManager && typeof editorManager.isDirty === 'function')
-            ? editorManager.isDirty()
-            : false;
-          if (hasDirty) {
-            var msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
-            var ok = confirm(msg);
-            if (!ok) return;
-            try {
-              var content = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : '';
-              if (storage && typeof storage.addSnapshot === 'function') {
-                storage.addSnapshot(content);
-              }
-            } catch (_) { }
-          }
-        } catch (_) { }
+        // ContentGuard 経由: dirty チェック + スナップショット退避
+        var G = window.ZWContentGuard;
+        if (G) {
+          if (!G.prepareNewDocument()) return;
+        } else {
+          // フォールバック
+          try {
+            var hasDirty = (editorManager && typeof editorManager.isDirty === 'function')
+              ? editorManager.isDirty()
+              : false;
+            if (hasDirty) {
+              var msg = (window.UILabels && window.UILabels.UNSAVED_CHANGES_NEW) || '未保存の変更があります。新規作成を続行しますか？\n現在の内容はスナップショットとして自動退避します。';
+              if (!confirm(msg)) return;
+              try {
+                var content = (G ? G.getEditorContent() : '') || ((editorManager && typeof editorManager.getEditorValue === 'function') ? editorManager.getEditorValue() : '') || '';
+                if (storage && typeof storage.addSnapshot === 'function' && content) {
+                  storage.addSnapshot(content);
+                }
+              } catch (_) { }
+            }
+          } catch (_) { }
+        }
 
         var name = prompt('新しいドキュメント名を入力', '無題');
         if (name === null) return;
@@ -249,7 +266,9 @@
         } else if (storage && typeof storage.exportText === 'function') {
           var text = '';
           try {
-            text = (editorManager && editorManager.editor) ? (editorManager.editor.value || '') : (storage.loadContent ? storage.loadContent() : '');
+            var G = window.ZWContentGuard;
+            text = G ? G.getEditorContent() : ((editorManager && typeof editorManager.getEditorValue === 'function') ? editorManager.getEditorValue() : '') || '';
+            if (!text) text = storage.loadContent ? storage.loadContent() : '';
           } catch (_) { }
           storage.exportText(text || '', 'document.txt', 'text/plain');
         }
