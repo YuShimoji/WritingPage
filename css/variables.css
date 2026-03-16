@@ -17,6 +17,16 @@
   /* Toolbar height */
   --toolbar-height: 60px;
 
+  /* Focus color alpha variants (base: --focus-color #4a90e2 = rgb(74,144,226)) */
+  --focus-color-5: rgba(74, 144, 226, 0.05);
+  --focus-color-6: rgba(74, 144, 226, 0.06);
+  --focus-color-10: rgba(74, 144, 226, 0.1);
+  --focus-color-15: rgba(74, 144, 226, 0.15);
+  --focus-color-20: rgba(74, 144, 226, 0.2);
+  --focus-color-25: rgba(74, 144, 226, 0.25);
+  --focus-color-30: rgba(74, 144, 226, 0.3);
+  --focus-color-60: rgba(74, 144, 226, 0.6);
+
   /* Progress bar color */
   --progress-color: var(--focus-color);
 
@@ -97,6 +107,14 @@
   --accent-color: #569cd6;
   --ui-focus-color: #4a90e2;
   --ui-accent-color: #569cd6;
+  --focus-color-5: rgba(74, 144, 226, 0.05);
+  --focus-color-6: rgba(74, 144, 226, 0.06);
+  --focus-color-10: rgba(74, 144, 226, 0.1);
+  --focus-color-15: rgba(74, 144, 226, 0.15);
+  --focus-color-20: rgba(74, 144, 226, 0.2);
+  --focus-color-25: rgba(74, 144, 226, 0.25);
+  --focus-color-30: rgba(74, 144, 226, 0.3);
+  --focus-color-60: rgba(74, 144, 226, 0.6);
   --hover-bg-color: rgba(255, 255, 255, 0.1);
   --active-bg-color: rgba(255, 255, 255, 0.15);
   --heading-h1-border-bottom: 1px solid #cccccc;

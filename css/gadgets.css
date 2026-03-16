@@ -174,11 +174,11 @@
 .gadget.drag-over {
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;
-  background: rgba(74, 144, 226, 0.05);
+  background: var(--focus-color-5);
 }
 
 .gadgets-panel.drag-over-tab {
-  background: rgba(74, 144, 226, 0.06);
+  background: var(--focus-color-6);
   outline: 2px dashed var(--focus-color);
   outline-offset: 2px;
 }
@@ -191,6 +191,6 @@
 }
 
 .panel-restore-gadget:hover {
-  background: rgba(74, 144, 226, 0.15);
+  background: var(--focus-color-15);
   color: var(--focus-color, #4a90e2);
 }

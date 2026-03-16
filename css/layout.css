@@ -165,7 +165,7 @@ body {
 }
 
 .editor-overlay__image.selected {
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.6);
+  box-shadow: 0 0 0 3px var(--focus-color-60);
 }
 
 .editor-overlay__image[data-alignment='left'] {
@@ -198,7 +198,7 @@ body {
 
 .editor-preview__header {
   border-color: var(--focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 2px var(--focus-color-20);
 }
 
 /* ツールバー */
@@ -257,7 +257,7 @@ body {
   top: 0;
   height: 100%;
   width: 0%;
-  background: var(--goal-bar-color, rgba(74, 144, 226, 0.6));
+  background: var(--goal-bar-color, var(--focus-color-60));
   transition: width 0.2s ease, background-color 0.3s ease;
 }
 

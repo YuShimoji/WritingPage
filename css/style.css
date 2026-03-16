@@ -1409,7 +1409,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 }
 
 .editor-overlay__image.selected {
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.6);
+  box-shadow: 0 0 0 3px var(--focus-color-60);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ui-focus-color) 60%, transparent);
 }
 
@@ -1441,7 +1441,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   right: 0;
   bottom: 0;
   pointer-events: none;
-  border: 2px dashed rgba(74, 144, 226, 0.3);
+  border: 2px dashed var(--focus-color-30);
   border-radius: 4px;
 }
 
@@ -1551,7 +1551,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 
 .editor-preview__header {
   border-color: var(--ui-focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 2px var(--focus-color-20);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
 }
 
@@ -2278,13 +2278,13 @@ input[type='color'] {
 
 .theme-preset:hover {
   border-color: var(--ui-focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 2px var(--focus-color-20);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 20%, transparent);
 }
 
 .theme-preset.active {
   border-color: var(--ui-focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+  box-shadow: 0 0 0 2px var(--focus-color-25);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--ui-focus-color) 25%, transparent);
 }
 
@@ -3127,12 +3127,12 @@ body.dragging-floating-panel {
 .gadget.drag-over {
   outline: 2px dashed var(--ui-focus-color);
   outline-offset: 2px;
-  background: rgba(74, 144, 226, 0.05);
+  background: var(--focus-color-5);
   background: color-mix(in srgb, var(--ui-focus-color) 5%, transparent);
 }
 
 .gadgets-panel.drag-over-tab {
-  background: rgba(74, 144, 226, 0.06);
+  background: var(--focus-color-6);
   background: color-mix(in srgb, var(--ui-focus-color) 6%, transparent);
   outline: 2px dashed var(--ui-focus-color);
   outline-offset: 2px;
@@ -4928,7 +4928,7 @@ a.wikilink {
 a.wikilink:hover {
   color: var(--focus-color, #357abd);
   border-bottom-style: solid;
-  background-color: rgba(74, 144, 226, 0.1);
+  background-color: var(--focus-color-10);
 }
 
 a.wikilink:visited {
@@ -5065,7 +5065,7 @@ a.wikilink:visited {
   border-color: var(--focus-color, #4a90e2);
   border-width: 2px;
   background: var(--ui-bg, #f5f5f5);
-  box-shadow: 0 2px 6px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 2px 6px var(--focus-color-20);
 }
 
 .keybind-display {
@@ -5132,7 +5132,7 @@ body.ui-editor-active .editor-preview {
   position: fixed;
   pointer-events: none;
   border: 2px solid var(--focus-color, #4a90e2);
-  background: rgba(74, 144, 226, 0.1);
+  background: var(--focus-color-10);
   z-index: 10000;
   display: none;
   box-sizing: border-box;
@@ -5772,7 +5772,7 @@ details[open] summary {
 }
 
 .tree-item-row.drag-over {
-  background: rgba(74, 144, 226, 0.2);
+  background: var(--focus-color-20);
   border: 2px dashed var(--accent-color);
 }
 
@@ -5816,7 +5816,7 @@ details[open] summary {
 
 .tree-root-drop-zone:hover {
   border-color: var(--accent-color);
-  background: rgba(74, 144, 226, 0.1);
+  background: var(--focus-color-10);
 }
 
 /* コンテキストメニュー */

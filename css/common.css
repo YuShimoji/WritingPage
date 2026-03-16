@@ -161,10 +161,10 @@ input[type='color'] {
 
 .theme-preset:hover {
   border-color: var(--focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  box-shadow: 0 0 0 2px var(--focus-color-20);
 }
 
 .theme-preset.active {
   border-color: var(--focus-color);
-  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.25);
+  box-shadow: 0 0 0 2px var(--focus-color-25);
 }
