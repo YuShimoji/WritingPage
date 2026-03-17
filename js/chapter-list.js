@@ -58,6 +58,9 @@
       addBtn.addEventListener('click', handleAddChapter);
     }
 
+    // パネルリサイズハンドル
+    setupPanelResize();
+
     // エディタ入力時にリフレッシュ / 自動保存
     var editorInputHandler = function () {
       if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
@@ -907,6 +910,67 @@
     }
     var editor = document.getElementById('editor');
     if (editor) editor.focus();
+  }
+
+  // ---- Panel resize (SP-070) ----
+
+  function setupPanelResize() {
+    if (!panelEl) return;
+
+    var handle = document.createElement('div');
+    handle.className = 'focus-chapter-panel__resize-handle';
+    panelEl.appendChild(handle);
+
+    var isDragging = false;
+    var startX = 0;
+    var startWidth = 0;
+    var MIN_WIDTH = 160;
+    var MAX_WIDTH = 480;
+    var DEFAULT_WIDTH = 240;
+
+    // 保存された幅を復元
+    try {
+      var saved = localStorage.getItem('zenwriter-focus-panel-width');
+      if (saved) {
+        var w = parseInt(saved, 10);
+        if (w >= MIN_WIDTH && w <= MAX_WIDTH) {
+          document.documentElement.style.setProperty('--focus-panel-width', w + 'px');
+        }
+      }
+    } catch (e) { void e; }
+
+    handle.addEventListener('pointerdown', function (e) {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      isDragging = true;
+      startX = e.clientX;
+      startWidth = panelEl.getBoundingClientRect().width;
+      handle.classList.add('focus-chapter-panel__resize-handle--active');
+      handle.setPointerCapture(e.pointerId);
+    });
+
+    handle.addEventListener('pointermove', function (e) {
+      if (!isDragging) return;
+      var delta = e.clientX - startX;
+      var newWidth = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth + delta));
+      document.documentElement.style.setProperty('--focus-panel-width', newWidth + 'px');
+    });
+
+    handle.addEventListener('pointerup', function (e) {
+      if (!isDragging) return;
+      isDragging = false;
+      handle.classList.remove('focus-chapter-panel__resize-handle--active');
+      try { handle.releasePointerCapture(e.pointerId); } catch (err) { void err; }
+      // 保存
+      var finalWidth = panelEl.getBoundingClientRect().width;
+      try { localStorage.setItem('zenwriter-focus-panel-width', String(Math.round(finalWidth))); } catch (err2) { void err2; }
+    });
+
+    // ダブルクリックでデフォルト幅に復帰
+    handle.addEventListener('dblclick', function () {
+      document.documentElement.style.setProperty('--focus-panel-width', DEFAULT_WIDTH + 'px');
+      try { localStorage.removeItem('zenwriter-focus-panel-width'); } catch (e) { void e; }
+    });
   }
 
   function getEditorText() {
