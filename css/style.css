@@ -2837,6 +2837,12 @@ body.dragging-floating-panel {
 .main-hub-panel {
   width: 420px;
   max-width: calc(100vw - 32px);
+  animation: panel-fade-in 0.15s ease-out;
+}
+
+@keyframes panel-fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .main-hub-panel .panel-tabs {
@@ -3636,7 +3642,10 @@ html[data-embed='true'] #editor {
   .anim-pulse,
   .anim-shake,
   .anim-bounce,
-  .anim-fade-in {
+  .anim-fade-in,
+  .modal-overlay,
+  .modal-dialog,
+  .main-hub-panel {
     animation: none !important;
   }
 }
@@ -5809,6 +5818,12 @@ body.ui-editor-preview {
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: modal-fade-in 0.15s ease-out;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .modal-dialog {
@@ -5821,6 +5836,12 @@ body.ui-editor-preview {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
+  animation: modal-slide-up 0.2s ease-out;
+}
+
+@keyframes modal-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0);
 }
 
 .modal-dialog--large {
