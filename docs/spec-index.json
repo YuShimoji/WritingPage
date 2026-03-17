@@ -482,10 +482,10 @@
     "id": "SP-078",
     "title": "読者プレビューモード仕様",
     "status": "partial",
-    "pct": 50,
+    "pct": 70,
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
-    "summary": "第4のUIモード(data-ui-mode=reader)。全画面読者向けレイアウト。visible章のみ表示、目次+章末ナビ自動生成、chapter://リンク変換。編集UIを完全に隠し、読者体験をプレビュー。",
+    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1: 全画面読者向けレイアウト+visible章結合+目次+ナビ+chapter://変換。Phase 2: 読者向けタイポグラフィ(text-indent/blockquote/h階層)+モバイル対応+reduced-motion。残: HTML出力、読書進捗。",
     "related": ["SP-070", "SP-071", "SP-072"]
   }
 ]
