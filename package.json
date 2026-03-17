@@ -25,7 +25,6 @@
     "test:e2e": "playwright test",
     "test:e2e:ci": "playwright test --reporter=line",
     "test:build:stable": "npm run lint:js:check && npm run test:smoke && npm run test:e2e:stable",
-    "test:puppeteer": "node scripts/puppeteer-test.js",
     "lint:js:check": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "format": "prettier --write .",
