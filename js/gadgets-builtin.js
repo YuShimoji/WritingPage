@@ -454,7 +454,9 @@
           }
 
           var editBtn = makeIconButton('edit-2', '改名', '', function () { renameDocument(doc.id); });
-          var delBtn = makeIconButton('trash-2', '削除', '#ff4d4f', function () { deleteDocument(doc.id); });
+          var cs = getComputedStyle(document.documentElement);
+          var dangerColor = cs.getPropertyValue('--danger-color').trim() || '#ff4d4f';
+          var delBtn = makeIconButton('trash-2', '削除', dangerColor, function () { deleteDocument(doc.id); });
 
           actions.appendChild(editBtn);
           actions.appendChild(delBtn);

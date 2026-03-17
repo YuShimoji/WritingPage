@@ -160,56 +160,8 @@
             }
         },
 
-        /**
-         * Panel management
-         */
-        toggleFontDecorationPanel(manager) {
-            const isVisible = manager.fontDecorationPanel && manager.fontDecorationPanel.style.display !== 'none';
-            if (isVisible) this.hideFontDecorationPanel(manager);
-            else this.showFontDecorationPanel(manager);
-        },
-
-        showFontDecorationPanel(manager) {
-            if (manager.fontDecorationPanel) {
-                manager.fontDecorationPanel.style.display = 'block';
-                if (manager.textAnimationPanel) manager.textAnimationPanel.style.display = 'none';
-
-                // パネルを表示した後、位置を画面内に制限
-                if (window.appUIEventsAPI && typeof window.appUIEventsAPI.prepareFloatingPanel === 'function') {
-                    window.appUIEventsAPI.prepareFloatingPanel(manager.fontDecorationPanel);
-                } else if (window.appUIEventsAPI && typeof window.appUIEventsAPI.clampPanelToViewport === 'function') {
-                    window.appUIEventsAPI.clampPanelToViewport(manager.fontDecorationPanel);
-                }
-            }
-        },
-
-        hideFontDecorationPanel(manager) {
-            if (manager.fontDecorationPanel) manager.fontDecorationPanel.style.display = 'none';
-        },
-
-        toggleTextAnimationPanel(manager) {
-            const isVisible = manager.textAnimationPanel && manager.textAnimationPanel.style.display !== 'none';
-            if (isVisible) this.hideTextAnimationPanel(manager);
-            else this.showTextAnimationPanel(manager);
-        },
-
-        showTextAnimationPanel(manager) {
-            if (manager.textAnimationPanel) {
-                manager.textAnimationPanel.style.display = 'block';
-                if (manager.fontDecorationPanel) manager.fontDecorationPanel.style.display = 'none';
-
-                // パネルを表示した後、位置を画面内に制限
-                if (window.appUIEventsAPI && typeof window.appUIEventsAPI.prepareFloatingPanel === 'function') {
-                    window.appUIEventsAPI.prepareFloatingPanel(manager.textAnimationPanel);
-                } else if (window.appUIEventsAPI && typeof window.appUIEventsAPI.clampPanelToViewport === 'function') {
-                    window.appUIEventsAPI.clampPanelToViewport(manager.textAnimationPanel);
-                }
-            }
-        },
-
-        hideTextAnimationPanel(manager) {
-            if (manager.textAnimationPanel) manager.textAnimationPanel.style.display = 'none';
-        },
+        // 旧パネル管理メソッド (toggleFontDecorationPanel等) は削除
+        // → MainHubPanel.toggle('decoration'|'animation') に統一
 
         updateAnimationSpeed(speed) {
             document.documentElement.style.setProperty('--anim-speed-factor', speed);
@@ -361,7 +313,8 @@
                 btn.addEventListener('click', () => {
                     const tag = btn.dataset.tag;
                     if (!tag) return;
-                    const isAnim = btn.closest('#text-animation-panel') !== null;
+                    // アニメーションタブ内のボタンか装飾タブ内のボタンかを判定
+                    const isAnim = btn.closest('#tab-animation') !== null || btn.classList.contains('anim-btn');
                     if (isAnim) {
                         if (typeof manager.applyTextAnimation === 'function') manager.applyTextAnimation(tag);
                     } else {
@@ -464,32 +417,20 @@
                 }
             });
 
-            // Built-in panel toggles - 統合メインハブパネルを使用
+            // パネルトグル — MainHubPanel に統一
             if (manager.toggleFontDecorationBtn) {
                 manager.toggleFontDecorationBtn.addEventListener('click', () => {
                     if (window.MainHubPanel) {
                         window.MainHubPanel.toggle('decoration');
-                    } else {
-                        // フォールバック: 従来のパネルを使用
-                        this.toggleFontDecorationPanel(manager);
                     }
                 });
-            }
-            if (manager.closeFontDecorationBtn) {
-                manager.closeFontDecorationBtn.addEventListener('click', () => this.hideFontDecorationPanel(manager));
             }
             if (manager.toggleTextAnimationBtn) {
                 manager.toggleTextAnimationBtn.addEventListener('click', () => {
                     if (window.MainHubPanel) {
                         window.MainHubPanel.toggle('animation');
-                    } else {
-                        // フォールバック: 従来のパネルを使用
-                        this.toggleTextAnimationPanel(manager);
                     }
                 });
-            }
-            if (manager.closeTextAnimationBtn) {
-                manager.closeTextAnimationBtn.addEventListener('click', () => this.hideTextAnimationPanel(manager));
             }
         }
     };

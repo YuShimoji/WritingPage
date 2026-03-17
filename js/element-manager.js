@@ -20,7 +20,7 @@ class ElementManager {
             showToolbarBtn: 'show-toolbar',
             toolbar: '.toolbar',
             fullscreenBtn: 'fullscreen',
-            feedbackBtn: 'feedback',
+            // feedbackBtn: 削除済み (HTML不在)
 
             // テーマ関連
             bgColorInput: 'bg-color',
@@ -35,8 +35,7 @@ class ElementManager {
             fontSizeValue: 'font-size-value',
             lineHeightInput: 'line-height',
             lineHeightValue: 'line-height-value',
-            fontPanel: 'floating-font-panel',
-            closeFontPanelBtn: 'close-font-panel',
+            // fontPanel / closeFontPanelBtn: 削除済み (floating-font-panelはコメントアウト済み → MainHubPanelに統合)
             globalFontRange: 'global-font-size',
             globalFontNumber: 'global-font-size-number',
             hudToggleVisibility: 'hud-toggle-visibility',
@@ -71,9 +70,7 @@ class ElementManager {
             helpButton: 'help-button',
             editorHelpButton: 'editor-help-button',
 
-            // 検索パネル
-            searchPanel: 'search-panel',
-            closeSearchPanelBtn: 'close-search-panel',
+            // 検索パネル (search-panel本体はMainHubPanelに統合済み。個別要素はMainHubPanel内に存在)
             searchInput: 'search-input',
             replaceInput: 'replace-input',
             replaceSingleBtn: 'replace-single',

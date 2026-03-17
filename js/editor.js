@@ -36,14 +36,10 @@ class EditorManager {
         this.imagesPreviewPanel = document.getElementById('images-preview-panel');
         this.previewPanelToggle = document.getElementById('toggle-preview');
         this._markdownRenderer = null;
-        this.fontDecorationPanel = document.getElementById('font-decoration-panel');
+        // 旧パネル参照は削除済み (font-decoration-panel, text-animation-panel, search-panel)
+        // → MainHubPanel に統合。ツールバーボタン参照のみ残す
         this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
-        this.closeFontDecorationBtn = document.getElementById('close-font-decoration-panel');
-        this.textAnimationPanel = document.getElementById('text-animation-panel');
         this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
-        this.closeTextAnimationBtn = document.getElementById('close-text-animation-panel');
-        this.searchPanel = document.getElementById('search-panel');
-        this.closeSearchBtn = document.getElementById('close-search-panel');
         this.editorContainer = document.querySelector('.editor-container');
         this.editorClassicLayer = document.getElementById('editor-classic-layer');
         this.toggleCanvasModeBtn = document.getElementById('toggle-canvas-mode');
@@ -117,12 +113,7 @@ class EditorManager {
     clampFontSize(px) { return window.EditorUI.clampFontSize(px); }
     applyFontDecoration(tag) { return window.EditorUI.applyFontDecoration(this, tag); }
     applyTextAnimation(tag) { return window.EditorUI.applyTextAnimation(this, tag); }
-    toggleFontDecorationPanel() { return window.EditorUI.toggleFontDecorationPanel(this); }
-    showFontDecorationPanel() { return window.EditorUI.showFontDecorationPanel(this); }
-    hideFontDecorationPanel() { return window.EditorUI.hideFontDecorationPanel(this); }
-    toggleTextAnimationPanel() { return window.EditorUI.toggleTextAnimationPanel(this); }
-    showTextAnimationPanel() { return window.EditorUI.showTextAnimationPanel(this); }
-    hideTextAnimationPanel() { return window.EditorUI.hideTextAnimationPanel(this); }
+    // 旧パネルtoggle/show/hideメソッドは削除 — MainHubPanel.toggle('decoration'|'animation')を使用
     updateAnimationSpeed(val) { return window.EditorUI.updateAnimationSpeed(val); }
     updateAnimationDuration(val) { return window.EditorUI.updateAnimationDuration(val); }
     updateAnimationReduceMotion(val) { return window.EditorUI.updateAnimationReduceMotion(val); }

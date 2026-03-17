@@ -9,18 +9,10 @@
          * @param {EditorManager} manager
          */
         showSearchPanel(manager) {
-            const panel = document.getElementById('search-panel');
-            if (!panel) return;
-            panel.style.display = 'block';
-            panel.setAttribute('aria-hidden', 'false');
-            if (window.ZenWriterFloatingPanels && typeof window.ZenWriterFloatingPanels.preparePanel === 'function') {
-                window.ZenWriterFloatingPanels.preparePanel(panel);
+            // MainHubPanel経由で検索タブを開く
+            if (window.MainHubPanel) {
+                window.MainHubPanel.show('search');
             }
-
-            // 他のパネルを隠す
-            if (typeof manager.hideFontDecorationPanel === 'function') manager.hideFontDecorationPanel();
-            if (typeof manager.hideTextAnimationPanel === 'function') manager.hideTextAnimationPanel();
-            if (manager.floatingFontPanel) manager.floatingFontPanel.style.display = 'none';
 
             const input = document.getElementById('search-input');
             if (input) {
@@ -42,10 +34,9 @@
          * @param {EditorManager} manager
          */
         hideSearchPanel(manager) {
-            const panel = document.getElementById('search-panel');
-            if (panel) {
-                panel.style.display = 'none';
-                panel.setAttribute('aria-hidden', 'true');
+            // MainHubPanel経由で閉じる
+            if (window.MainHubPanel) {
+                window.MainHubPanel.hide();
             }
             this.clearSearchHighlights(manager);
             // エディタにフォーカスを戻す
@@ -329,19 +320,8 @@
          * @param {EditorManager} manager
          */
         toggleSearchPanel(manager) {
-            // 統合メインハブパネルを優先的に使用
             if (window.MainHubPanel) {
                 window.MainHubPanel.toggle('search');
-                return;
-            }
-            // フォールバック: 従来の検索パネルを使用
-            const panel = document.getElementById('search-panel');
-            if (!panel) return;
-            const isVisible = panel.style.display !== 'none';
-            if (isVisible) {
-                this.hideSearchPanel(manager);
-            } else {
-                this.showSearchPanel(manager);
             }
         }
     };

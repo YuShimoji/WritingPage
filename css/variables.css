@@ -102,6 +102,10 @@
   --warning-bg: #ffc107;
   --warning-fg: #000000;
   --error-color: rgba(255, 0, 0, 0.6);
+  --danger-color: #e55555;
+
+  /* Accent foreground (text on accent-colored backgrounds) */
+  --accent-fg: #ffffff;
 
   /* Shadow */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);

@@ -107,8 +107,8 @@
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleFontDecorationPanel === 'function') {
-          window.ZenWriterEditor.toggleFontDecorationPanel();
+        if (window.MainHubPanel) {
+          window.MainHubPanel.toggle('decoration');
         }
       }
     },
@@ -119,9 +119,8 @@
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
-        const panel = document.getElementById('text-animation-panel');
-        if (panel) {
-          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        if (window.MainHubPanel) {
+          window.MainHubPanel.toggle('animation');
         }
       }
     },
@@ -319,9 +318,8 @@
       shortcut: '',
       category: '実験的機能',
       execute: () => {
-        const panel = document.getElementById('split-view-mode-panel');
-        if (panel) {
-          panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        if (window.MainHubPanel) {
+          window.MainHubPanel.toggle('split-view');
         }
       }
     },

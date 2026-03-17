@@ -116,7 +116,11 @@
     if (!status) return;
 
     status.textContent = message;
-    status.style.color = type === 'error' ? '#e74c3c' : type === 'success' ? '#27ae60' : '#95a5a6';
+    status.style.color = type === 'error'
+      ? 'var(--error-color, #e74c3c)'
+      : type === 'success'
+        ? 'var(--success-bg, #27ae60)'
+        : 'var(--text-muted, #95a5a6)';
   }
 
   /**
@@ -135,7 +139,7 @@
       const noResults = document.createElement('div');
       noResults.className = 'global-search-no-results';
       noResults.textContent = '一致するドキュメントが見つかりませんでした';
-      noResults.style.cssText = 'padding: 1rem; text-align: center; color: #95a5a6; font-style: italic;';
+      noResults.style.cssText = 'padding: 1rem; text-align: center; color: var(--text-muted, #95a5a6); font-style: italic;';
       container.appendChild(noResults);
       return;
     }
@@ -157,7 +161,7 @@
     const card = document.createElement('div');
     card.className = 'global-search-result-card';
     card.style.cssText = `
-      border: 1px solid #ddd;
+      border: 1px solid var(--border-color, #ddd);
       border-radius: 4px;
       padding: 0.75rem;
       margin-bottom: 0.5rem;
@@ -170,14 +174,14 @@
     header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;';
 
     const title = document.createElement('div');
-    title.style.cssText = 'font-weight: 600; color: #2c3e50;';
+    title.style.cssText = 'font-weight: 600; color: var(--text-color, #2c3e50);';
     title.textContent = result.docName;
     header.appendChild(title);
 
     const badge = document.createElement('span');
     badge.style.cssText = `
-      background-color: #3498db;
-      color: white;
+      background-color: var(--accent-color, #3498db);
+      color: var(--accent-fg, white);
       padding: 2px 8px;
       border-radius: 12px;
       font-size: 0.75rem;
@@ -190,7 +194,7 @@
     // パス
     if (result.path) {
       const path = document.createElement('div');
-      path.style.cssText = 'font-size: 0.85rem; color: #7f8c8d; margin-bottom: 0.5rem;';
+      path.style.cssText = 'font-size: 0.85rem; color: var(--text-muted, #7f8c8d); margin-bottom: 0.5rem;';
       path.textContent = result.path;
       card.appendChild(path);
     }
@@ -206,7 +210,7 @@
     // 残りのマッチ数を表示
     if (result.matchCount > previewCount) {
       const more = document.createElement('div');
-      more.style.cssText = 'font-size: 0.85rem; color: #95a5a6; margin-top: 0.25rem; font-style: italic;';
+      more.style.cssText = 'font-size: 0.85rem; color: var(--text-muted, #95a5a6); margin-top: 0.25rem; font-style: italic;';
       more.textContent = `他 ${result.matchCount - previewCount} 件...`;
       card.appendChild(more);
     }
@@ -236,15 +240,15 @@
     const preview = document.createElement('div');
     preview.style.cssText = `
       font-size: 0.85rem;
-      color: #555;
+      color: var(--text-color, #555);
       padding: 0.25rem 0;
-      border-left: 2px solid #3498db;
+      border-left: 2px solid var(--accent-color, #3498db);
       padding-left: 0.5rem;
       margin: 0.25rem 0;
     `;
 
     const line = document.createElement('span');
-    line.style.cssText = 'color: #95a5a6; margin-right: 0.5rem;';
+    line.style.cssText = 'color: var(--text-muted, #95a5a6); margin-right: 0.5rem;';
     line.textContent = `L${match.lineNumber}:`;
 
     const text = document.createElement('span');
@@ -269,7 +273,7 @@
 
     const regex = new RegExp(escapedMatch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
     return escaped.replace(regex, match =>
-      `<mark style="background-color: #f39c12; padding: 2px 4px; border-radius: 2px;">${match}</mark>`
+      `<mark style="background-color: var(--warning-bg, #f39c12); color: var(--warning-fg, #000); padding: 2px 4px; border-radius: 2px;">${match}</mark>`
     );
   }
 

@@ -164,7 +164,7 @@
           // 最新ラベル
           if (idx === 0) {
             var latestBadge = document.createElement('span');
-            latestBadge.style.cssText = 'font-size:10px;background:var(--accent-color,#4a90e2);color:#fff;padding:1px 5px;border-radius:3px;margin-left:6px;';
+            latestBadge.style.cssText = 'font-size:10px;background:var(--accent-color,#4a90e2);color:var(--accent-fg,#fff);padding:1px 5px;border-radius:3px;margin-left:6px;';
             latestBadge.textContent = L.LATEST || '最新';
             meta.appendChild(latestBadge);
           }

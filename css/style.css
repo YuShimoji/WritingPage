@@ -310,10 +310,6 @@ html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
 }
 
-html[data-ui-mode='focus'] #quick-tools-panel {
-  display: none !important;
-}
-
 html[data-ui-mode='focus'] .main-content {
   margin-left: var(--focus-panel-width, 240px) !important;
 }
@@ -687,10 +683,6 @@ html[data-ui-mode='blank'] .mini-hud {
   display: none !important;
 }
 
-html[data-ui-mode='blank'] #quick-tools-panel {
-  display: none !important;
-}
-
 html[data-ui-mode='blank'] .show-toolbar-fab {
   display: none !important;
 }
@@ -1039,6 +1031,16 @@ html[data-sidebar-open='true'] .editor-container {
   html[data-sidebar-open='true'] .editor-container {
     margin-left: 0;
     width: 100%;
+  }
+
+  /* モバイルではプレビューパネルを非表示化（画面領域を執筆に集中） */
+  .editor-preview {
+    display: none !important;
+  }
+
+  /* 分割ビュー時もプレビュー側を非表示 */
+  .split-view-preview {
+    display: none !important;
   }
 }
 
@@ -2140,11 +2142,11 @@ html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] .acc
 
 /* ダークモード対応 */
 [data-theme="dark"] .accordion-category {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] .accordion-header:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-bg-color);
 }
 
 .sidebar-section {
@@ -2530,10 +2532,10 @@ input[type='color'] {
   }
 
   .icon-button {
-    min-width: 40px;
-    height: 40px;
+    min-width: 44px;
+    height: 44px;
     padding: 0 8px;
-    /* タッチ操作に最適化: タップ領域を拡大 */
+    /* タッチ操作に最適化: WCAG 2.5.5 AAA (44px最小) */
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
@@ -2940,7 +2942,7 @@ body.dragging-floating-panel {
 .command-palette-item:hover,
 .command-palette-item.selected {
   background: var(--focus-color);
-  color: #fff;
+  color: var(--accent-fg, #fff);
 }
 
 .command-palette-item-label {
@@ -2966,7 +2968,7 @@ body.dragging-floating-panel {
 
 .command-palette-item-shortcut {
   padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--focus-color-20, rgba(255, 255, 255, 0.2));
   border-radius: 3px;
   font-family: monospace;
   font-size: 11px;
@@ -2974,7 +2976,7 @@ body.dragging-floating-panel {
 }
 
 .command-palette-item.selected .command-palette-item-shortcut {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--focus-color-30, rgba(255, 255, 255, 0.3));
 }
 
 .command-palette-empty {
@@ -3097,7 +3099,7 @@ body.dragging-floating-panel {
 
 .gadget-move-up:hover,
 .gadget-move-down:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
   transform: translateY(-1px);
 }
 
@@ -3195,14 +3197,14 @@ body.dragging-floating-panel {
 }
 
 .gadget-settings-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
 }
 
 .gadget-settings {
   margin-top: 6px;
   padding: 6px 8px;
   border-top: 1px dashed var(--border-color);
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--focus-color-5, rgba(0, 0, 0, 0.03));
 }
 
 /* ===== Wiki ガジェット: 縦リサイズハンドル ===== */
@@ -3250,8 +3252,8 @@ body.dragging-floating-panel {
   min-width: 140px;
   max-width: 60vw;
   padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
+  background: var(--hud-bg, rgba(0, 0, 0, 0.75));
+  color: var(--hud-fg, #fff);
   border-radius: 6px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   font-size: 12px;
@@ -5171,7 +5173,7 @@ a.wikilink:hover {
 }
 
 a.wikilink:visited {
-  color: #7b8a8b;
+  color: var(--text-muted, #7b8a8b);
 }
 
 /* Link Graph Container */
@@ -5195,13 +5197,13 @@ a.wikilink:visited {
 .link-graph-node {
   position: absolute;
   padding: 6px 10px;
-  border: 2px solid #4a90e2;
+  border: 2px solid var(--focus-color, #4a90e2);
   border-radius: 6px;
   background: var(--bg-color, #fff);
   color: var(--text-color, #333);
   font-size: 0.9rem;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0, 0, 0, 0.1));
   transition: all 0.2s ease;
   max-width: 200px;
   word-wrap: break-word;
@@ -5214,11 +5216,11 @@ a.wikilink:visited {
 }
 
 .link-graph-node[data-type="document"] {
-  border-color: #27ae60;
+  border-color: var(--success-bg, #27ae60);
 }
 
 .link-graph-node[data-type="wiki"] {
-  border-color: #4a90e2;
+  border-color: var(--focus-color, #4a90e2);
 }
 
 /* Link Graph Backlinks Panel */
@@ -5237,34 +5239,29 @@ a.wikilink:visited {
   color: var(--accent-color, #4a90e2);
 }
 
-/* Dark theme adjustments */
+/* Dark theme adjustments — CSS変数で自動追従するため最小限 */
 [data-theme='dark'] .link-graph-container {
-  background: #1e1e1e;
-  border-color: #444;
+  background: var(--bg-color);
+  border-color: var(--border-color);
 }
 
 [data-theme='dark'] .link-graph-node {
-  background: #2a2a2a;
-  color: #e0e0e0;
-  border-color: #4a90e2;
-}
-
-[data-theme='dark'] .link-graph-node[data-type="document"] {
-  border-color: #27ae60;
+  background: var(--toolbar-bg);
+  color: var(--text-color);
 }
 
 [data-theme='dark'] .link-graph-backlinks {
-  background: #2a2a2a;
-  border-color: #444;
-  color: #e0e0e0;
+  background: var(--toolbar-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
 }
 
 [data-theme='dark'] a.wikilink {
-  color: #5ba3f5;
+  color: var(--link-color, #5ba3f5);
 }
 
 [data-theme='dark'] a.wikilink:hover {
-  background-color: rgba(91, 163, 245, 0.2);
+  background-color: var(--focus-color-20, rgba(91, 163, 245, 0.2));
 }
 
 /* =========================================
@@ -5324,13 +5321,13 @@ a.wikilink:visited {
 
 .keybind-display:hover {
   background: var(--focus-color, #4a90e2);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   border-color: var(--focus-color, #4a90e2);
 }
 
 .keybind-display[data-editing="true"] {
   background: var(--focus-color, #4a90e2);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   border-color: var(--focus-color, #4a90e2);
   animation: keybind-pulse 1.5s ease-in-out infinite;
 }
@@ -5531,21 +5528,21 @@ body.ui-editor-preview {
 }
 
 [data-theme='dark'] .keybind-item {
-  background: #2a2a2a;
-  border-color: #444;
-  color: #e0e0e0;
+  background: var(--toolbar-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
 }
 
 [data-theme='dark'] .keybind-display {
-  background: #333;
-  border-color: #555;
-  color: #e0e0e0;
+  background: var(--sidebar-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
 }
 
 [data-theme='dark'] .keybind-display:hover {
-  background: #4a90e2;
-  color: #fff;
-  border-color: #4a90e2;
+  background: var(--focus-color);
+  color: var(--accent-fg, #fff);
+  border-color: var(--focus-color);
 }
 
 /* =========================================
@@ -5858,11 +5855,11 @@ body.ui-editor-preview {
 }
 
 .doc-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
 }
 
 [data-theme="dark"] .doc-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-bg-color);
 }
 
 .doc-item.active {
@@ -6156,7 +6153,7 @@ details[open] summary {
 
 .mode-switch-btn[aria-pressed="true"] {
   background: var(--accent-color, #4a9eff);
-  color: #fff;
+  color: var(--accent-fg, #fff);
 }
 
 .mode-switch-btn svg {
@@ -6251,7 +6248,7 @@ details[open] summary {
 
 .sidebar-control-btn[aria-pressed="true"] {
   background: var(--accent-color, #4a9eff);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   border-color: var(--accent-color, #4a9eff);
 }
 
@@ -6299,47 +6296,6 @@ details[open] summary {
 
 [data-edge-hover-top="true"] .toolbar::before {
   opacity: 0.6;
-}
-
-/* ===== ミニマルモード (Electron / 超ミニマル) ===== */
-/* transform方式: エッジホバーによるスライドイン復帰と互換 */
-
-html[data-ui-mode="minimal"] .toolbar {
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-html[data-ui-mode="minimal"] .sidebar {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-html[data-ui-mode="minimal"] .sidebar.open {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
-}
-
-html[data-ui-mode="minimal"] #char-count {
-  display: none;
-}
-
-/* エッジホバーでミニマルモード中でもUI復帰可能 */
-html[data-ui-mode="minimal"][data-edge-hover-top="true"] .toolbar {
-  transform: translateY(0) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar,
-html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
-  transform: translateX(0) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
 }
 
 /* ===== Story Wiki ===== */
@@ -6459,7 +6415,7 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
 
 .swiki-btn-primary {
   background: var(--accent-color, #6a9fb5);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   border-color: transparent;
 }
 
@@ -6468,8 +6424,8 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
 }
 
 .swiki-btn-danger {
-  color: #e55;
-  border-color: #e55;
+  color: var(--danger-color, #e55);
+  border-color: var(--danger-color, #e55);
 }
 
 .swiki-btn-danger:hover {
@@ -6565,7 +6521,7 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
 
 .swiki-tree-item.is-selected {
   background: var(--accent-color, #6a9fb5);
-  color: #fff;
+  color: var(--accent-fg, #fff);
 }
 
 /* 詳細ペイン */
@@ -6604,7 +6560,7 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
   padding: 2px 10px;
   border-radius: 12px;
   background: var(--accent-color, #6a9fb5);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   font-size: 12px;
 }
 
@@ -6658,7 +6614,7 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
 
 .swiki-related-link:hover {
   background: var(--accent-color, #6a9fb5);
-  color: #fff;
+  color: var(--accent-fg, #fff);
 }
 
 .swiki-detail-actions {
@@ -6864,7 +6820,7 @@ html[data-ui-mode="minimal"][data-edge-hover-left="true"] .sidebar.open {
   padding: 0 6px;
   border-radius: 8px;
   background: var(--accent-color, #6a9fb5);
-  color: #fff;
+  color: var(--accent-fg, #fff);
   font-size: 11px;
   margin-left: 4px;
 }

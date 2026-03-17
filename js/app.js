@@ -550,31 +550,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- SP-070: モード切替ショートカット ---
-    document.addEventListener('keydown', function (e) {
-        // Ctrl+Shift+F → Focus モード
-        if (e.ctrlKey && e.shiftKey && e.key === 'F') {
-            e.preventDefault();
-            var current = document.documentElement.getAttribute('data-ui-mode');
-            setUIMode(current === 'focus' ? 'normal' : 'focus');
-            return;
-        }
-        // Ctrl+Shift+B → Blank モード
-        if (e.ctrlKey && e.shiftKey && e.key === 'B') {
-            e.preventDefault();
-            var current2 = document.documentElement.getAttribute('data-ui-mode');
-            setUIMode(current2 === 'blank' ? 'normal' : 'blank');
-            return;
-        }
-        // Escape → normal に戻る (Focus/Blank から)
-        if (e.key === 'Escape') {
-            var mode = document.documentElement.getAttribute('data-ui-mode');
-            if (mode === 'focus' || mode === 'blank') {
-                e.preventDefault();
-                setUIMode('normal');
-            }
-        }
-    });
+    // SP-070 モード切替ショートカット: app-shortcuts.js に統一 (ui.mode.cycle / ui.mode.exit)
+    // Ctrl+Shift+F, Ctrl+Shift+B, Escape の処理は app-shortcuts.js (capture:true) で一元管理
 
     // --- SP-071: Focus チャプターパネル ---
     // チャプターリストは chapter-list.js (ZWChapterList) が管理。

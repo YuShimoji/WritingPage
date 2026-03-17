@@ -186,8 +186,7 @@
         const fullscreenBtn = elementManager.get('fullscreenBtn');
         const feedbackBtn = elementManager.get('feedbackBtn');
         const toggleSplitViewBtn = document.getElementById('toggle-split-view');
-        const splitViewModePanel = document.getElementById('split-view-mode-panel');
-        const closeSplitViewModePanelBtn = document.getElementById('close-split-view-mode-panel');
+        // split-view-mode-panel は MainHubPanel に統合済み (旧参照削除)
         const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
         const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
         const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
@@ -328,15 +327,7 @@
             updateThemeIcon();
         }
 
-        if (feedbackBtn) {
-            feedbackBtn.addEventListener('click', toggleFeedbackPanel);
-            feedbackBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleFeedbackPanel();
-                }
-            });
-        }
+        // feedbackBtn は HTML不在のため削除済み。toggleFeedbackPanel は他から呼ばれる可能性あり残存
 
         // スペルチェックのトグル
         if (toggleSpellCheckBtn && window.ZenWriterEditor && window.ZenWriterEditor.spellChecker) {
@@ -356,18 +347,11 @@
             }
         }
 
-        // 分割ビューのイベントハンドラ - 統合メインハブパネルを使用
+        // 分割ビュー — MainHubPanel に統一
         if (toggleSplitViewBtn) {
             toggleSplitViewBtn.addEventListener('click', () => {
                 if (window.MainHubPanel) {
                     window.MainHubPanel.toggle('split-view');
-                } else if (splitViewModePanel) {
-                    // フォールバック: 従来のパネルを使用
-                    const isVisible = splitViewModePanel.style.display !== 'none';
-                    splitViewModePanel.style.display = isVisible ? 'none' : 'block';
-                    if (!isVisible) {
-                        prepareFloatingPanel(splitViewModePanel);
-                    }
                 }
             });
         }
@@ -385,50 +369,25 @@
             });
         }
 
-        if (closeSplitViewModePanelBtn) {
-            closeSplitViewModePanelBtn.addEventListener('click', () => {
-                if (splitViewModePanel) {
-                    splitViewModePanel.style.display = 'none';
-                }
-            });
-        }
-
+        // 分割ビューモード選択ボタン — MainHubPanel内に配置済み
         if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
             splitViewEditPreviewBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('edit-preview');
-                // メインハブパネルまたは従来の分割ビューパネルを閉じる
-                const mainHubPanel = document.getElementById('main-hub-panel');
-                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
-                    mainHubPanel.style.display = 'none';
-                } else if (splitViewModePanel) {
-                    splitViewModePanel.style.display = 'none';
-                }
+                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
 
         if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
             splitViewChapterCompareBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('chapter-compare');
-                // メインハブパネルまたは従来の分割ビューパネルを閉じる
-                const mainHubPanel = document.getElementById('main-hub-panel');
-                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
-                    mainHubPanel.style.display = 'none';
-                } else if (splitViewModePanel) {
-                    splitViewModePanel.style.display = 'none';
-                }
+                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
 
         if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
             splitViewSnapshotDiffBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('snapshot-diff');
-                // メインハブパネルまたは従来の分割ビューパネルを閉じる
-                const mainHubPanel = document.getElementById('main-hub-panel');
-                if (mainHubPanel && mainHubPanel.style.display !== 'none') {
-                    mainHubPanel.style.display = 'none';
-                } else if (splitViewModePanel) {
-                    splitViewModePanel.style.display = 'none';
-                }
+                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
 
@@ -538,29 +497,9 @@
             panel.style.overflowY = 'auto';
         }
 
-        function toggleFontPanel(forceShow) {
-            if (forceShow === undefined) forceShow = null;
-            const fontPanel = elementManager.get('fontPanel');
-            if (!fontPanel) return;
-            const willShow = forceShow !== null ? !!forceShow : fontPanel.style.display === 'none';
-            fontPanel.style.display = willShow ? 'block' : 'none';
-            const toolsFab = elementManager.get('toolsFab');
-            if (toolsFab) {
-                toolsFab.setAttribute('aria-expanded', String(willShow));
-            }
-            if (willShow) {
-                prepareFloatingPanel(fontPanel);
-                syncQuickFontSizeInputs();
-                syncHudQuickControls();
-                positionFloatingPanel(fontPanel, elementManager.get('toolsFab'));
-                const firstInput = fontPanel.querySelector('input, button, select');
-                if (firstInput) {
-                    setTimeout(() => firstInput.focus(), 100);
-                }
-            }
-        }
-        // フローティングパネルのドラッグ有効化（統合メインハブパネルを含む）
-        ['floating-font-panel', 'font-decoration-panel', 'text-animation-panel', 'search-panel', 'split-view-mode-panel', 'main-hub-panel'].forEach((id) => {
+        // toggleFontPanel は削除済み (floating-font-panel はコメントアウト済み → MainHubPanel クイックツールタブに統合)
+        // フローティングパネルのドラッグ有効化（旧パネルIDは削除済み）
+        ['main-hub-panel'].forEach((id) => {
             const panel = document.getElementById(id);
             if (panel) {
                 enableFloatingPanelDrag(panel);
@@ -574,20 +513,7 @@
                 }
             });
         });
-        const toolsFab = elementManager.get('toolsFab');
-        const closeFontPanelBtn = elementManager.get('closeFontPanelBtn');
-        if (toolsFab) {
-            toolsFab.addEventListener('click', () => toggleFontPanel());
-            toolsFab.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFontPanel(); }
-            });
-        }
-        if (closeFontPanelBtn) {
-            closeFontPanelBtn.addEventListener('click', () => toggleFontPanel(false));
-            closeFontPanelBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleFontPanel(false); }
-            });
-        }
+        // toolsFab / closeFontPanelBtn は削除済み (HTML不在)
 
         // フォントパネルのコントロール
         function updateGlobalFontFrom(value) {
