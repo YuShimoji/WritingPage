@@ -74,7 +74,7 @@
         }
         previewModal = document.createElement('div');
         previewModal.className = 'snapshot-preview-modal';
-        previewModal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-color,#fff);border:1px solid var(--border-color,#ccc);border-radius:8px;padding:16px;max-width:500px;max-height:400px;overflow:auto;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.2);';
+        previewModal.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--bg-color,#fff);color:var(--text-color,#333);border:1px solid var(--border-color,#ccc);border-radius:8px;padding:16px;max-width:500px;max-height:400px;overflow:auto;z-index:9999;box-shadow:var(--shadow-sm,0 4px 20px rgba(0,0,0,0.2));';
 
         var modalHeader = document.createElement('div');
         modalHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;';

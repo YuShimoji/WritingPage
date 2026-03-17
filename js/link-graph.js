@@ -421,7 +421,7 @@
         var backlinks = findBacklinks(target, STORAGE);
         backlinksPanel.innerHTML = '';
         if (backlinks.length === 0) {
-          backlinksPanel.innerHTML = '<div style="padding:8px; color:#999;">バックリンクが見つかりませんでした</div>';
+          backlinksPanel.innerHTML = '<div style="padding:8px; color:var(--text-muted, #999);">バックリンクが見つかりませんでした</div>';
         } else {
           var title = el('div');
           title.textContent = '「' + target + '」へのバックリンク:';

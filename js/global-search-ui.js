@@ -211,9 +211,9 @@
       card.appendChild(more);
     }
 
-    // ホバー効果
+    // ホバー効果 (CSSクラスで制御)
     card.addEventListener('mouseenter', () => {
-      card.style.backgroundColor = '#f8f9fa';
+      card.style.backgroundColor = 'var(--hover-bg-color)';
     });
     card.addEventListener('mouseleave', () => {
       card.style.backgroundColor = 'transparent';

@@ -255,7 +255,7 @@
       highlight.style.top = position.top + 'px';
       highlight.style.width = position.width + 'px';
       highlight.style.height = position.height + 'px';
-      highlight.style.borderBottom = '2px wavy rgba(255, 0, 0, 0.6)';
+      highlight.style.borderBottom = '2px wavy var(--error-color, rgba(255, 0, 0, 0.6))';
       highlight.style.pointerEvents = 'none';
       highlight.dataset.start = word.start;
       highlight.dataset.end = word.end;

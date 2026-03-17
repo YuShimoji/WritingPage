@@ -146,7 +146,7 @@
 
           if (editingId === id) {
             keyDisplay.style.backgroundColor = 'var(--focus-color, #4a90e2)';
-            keyDisplay.style.color = '#fff';
+            keyDisplay.style.color = 'var(--success-fg, #fff)';
             keyDisplay.style.borderColor = 'var(--focus-color, #4a90e2)';
           }
 

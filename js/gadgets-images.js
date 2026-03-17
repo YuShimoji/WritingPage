@@ -106,14 +106,14 @@
         var mode = (API && typeof API.getCollageMode === 'function') ? API.getCollageMode() : 'free';
         if (mode === 'free') {
           freeModeBtn.style.background = 'var(--focus-color)';
-          freeModeBtn.style.color = '#fff';
+          freeModeBtn.style.color = 'var(--success-fg, #fff)';
           gridModeBtn.style.background = '';
           gridModeBtn.style.color = '';
         } else {
           freeModeBtn.style.background = '';
           freeModeBtn.style.color = '';
           gridModeBtn.style.background = 'var(--focus-color)';
-          gridModeBtn.style.color = '#fff';
+          gridModeBtn.style.color = 'var(--success-fg, #fff)';
         }
         var config = (API && typeof API.getGridConfig === 'function') ? API.getGridConfig() : { rows: 2, cols: 2, gap: 16 };
         rowsInput.value = config.rows || 2;

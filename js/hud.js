@@ -60,6 +60,35 @@
     }
 
     /**
+     * タイプ別の色付きメッセージ表示（publish のショートカット）
+     * @param {string} message
+     * @param {number} duration 表示継続ミリ秒
+     * @param {Object} options { type: 'success'|'warning'|'error', bg, fg }
+     */
+    show(message, duration = null, options = {}) {
+      const cs = getComputedStyle(document.documentElement);
+      const typeColors = {
+        success: { bg: cs.getPropertyValue('--success-bg').trim() || '#28a745', fg: cs.getPropertyValue('--success-fg').trim() || '#fff' },
+        warning: { bg: cs.getPropertyValue('--warning-bg').trim() || '#ffc107', fg: cs.getPropertyValue('--warning-fg').trim() || '#000' },
+        error:   { bg: cs.getPropertyValue('--error-color').trim() || '#dc3545', fg: '#fff' },
+      };
+      const colors = (options && options.type && typeColors[options.type]) || {};
+      const bg = options.bg || colors.bg;
+      const fg = options.fg || colors.fg;
+      if (bg || fg) {
+        const rgb = hexToRgb(bg || '#000000');
+        this.el.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`;
+        if (fg) this.el.style.color = fg;
+      }
+      this.publish(message, duration, options);
+      // 色を元に戻すタイマー
+      if (bg || fg) {
+        const dur = duration == null ? this.durationOverride || 1200 : duration;
+        setTimeout(() => this.applyConfig(this._lastConfig || {}), dur + 300);
+      }
+    }
+
+    /**
      * 短いメッセージをフェード表示
      * @param {string|Node} message
      * @param {number} duration 表示継続ミリ秒（pin中は無効）
@@ -103,6 +132,7 @@
 
     applyConfig(hud) {
       hud = hud || {};
+      this._lastConfig = hud;
       // 位置クラス
       this._posClasses.forEach((c) => this.el.classList.remove(c));
       const posMap = {

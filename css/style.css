@@ -580,11 +580,11 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
 }
 
 .cl-context-menu__item--danger {
-  color: #d44;
+  color: var(--error-color, #d44);
 }
 
 .cl-context-menu__item--danger:hover {
-  background: rgba(221, 68, 68, 0.08);
+  background: color-mix(in srgb, var(--error-color, #d44) 8%, transparent);
 }
 
 .cl-context-menu__sep {
@@ -694,6 +694,13 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --border-color: #3a3a3a;
   --focus-color: #555555;
   --accent-color: var(--focus-color);
+  --text-muted: #888888;
+  --hover-bg-color: rgba(255, 255, 255, 0.08);
+  --active-bg-color: rgba(255, 255, 255, 0.12);
+  --context-menu-bg: #2a2a2a;
+  --context-menu-border: #444;
+  --context-menu-hover: rgba(255, 255, 255, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme='night'] {
@@ -709,6 +716,13 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --border-color: #444444;
   --focus-color: #777777;
   --accent-color: var(--focus-color);
+  --text-muted: #999999;
+  --hover-bg-color: rgba(255, 255, 255, 0.08);
+  --active-bg-color: rgba(255, 255, 255, 0.12);
+  --context-menu-bg: #333333;
+  --context-menu-border: #555;
+  --context-menu-hover: rgba(255, 255, 255, 0.1);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* セピアテーマ */
@@ -724,6 +738,11 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --toolbar-text: #5b4636;
   --border-color: #d4c4a8;
   --focus-color: #9c6b48;
+  --text-muted: #8a7560;
+  --context-menu-bg: #f4ecd8;
+  --context-menu-border: #d4c4a8;
+  --context-menu-hover: rgba(156, 107, 72, 0.1);
+  --heading-h1-border-bottom: 1px solid #5b4636;
 }
 
 /* 高コントラストテーマ */
@@ -739,6 +758,17 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --toolbar-text: #ffffff;
   --border-color: #555555;
   --focus-color: #ffff00;
+  --text-muted: #aaaaaa;
+  --hover-bg-color: rgba(255, 255, 255, 0.12);
+  --active-bg-color: rgba(255, 255, 255, 0.2);
+  --context-menu-bg: #1a1a1a;
+  --context-menu-border: #666;
+  --context-menu-hover: rgba(255, 255, 255, 0.15);
+  --success-bg: #00cc00;
+  --warning-bg: #ffff00;
+  --warning-fg: #000000;
+  --error-color: #ff3333;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 /* ソラリゼドテーマ */
@@ -754,6 +784,12 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --toolbar-text: #586e75;
   --border-color: #93a1a1;
   --focus-color: #268bd2;
+  --text-muted: #839496;
+  --link-color: #268bd2;
+  --context-menu-bg: #fdf6e3;
+  --context-menu-border: #93a1a1;
+  --context-menu-hover: rgba(38, 139, 210, 0.1);
+  --heading-h1-border-bottom: 1px solid #586e75;
 }
 
 /* リセットとベーススタイル */
@@ -977,11 +1013,10 @@ html[data-toolbar-hidden='true'] .editor-container {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #fff;
-  /* カード風に白背景 */
+  background: var(--bg-color, #fff);
   border: 1px solid var(--border-color);
   border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-sm, 0 6px 20px rgba(0, 0, 0, 0.06));
 }
 
 .editor-preview {
@@ -5778,12 +5813,12 @@ details[open] summary {
 }
 
 .tree-item-row:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--hover-bg-color);
 }
 
 .tree-item-row.active {
   background: var(--accent-color, #4a90e2);
-  color: #ffffff;
+  color: var(--success-fg, #ffffff);
 }
 
 .tree-item-row.dragging {
@@ -5824,16 +5859,17 @@ details[open] summary {
 .tree-root-drop-zone {
   padding: 8px;
   margin: 4px;
-  border: 2px dashed #ccc;
+  border: 2px dashed var(--border-color, #ccc);
   border-radius: 4px;
   text-align: center;
-  color: #999;
+  color: var(--text-muted, #999);
   font-size: 0.9rem;
   display: none;
   transition: all 0.2s;
 }
 
-.tree-root-drop-zone:hover {
+.tree-root-drop-zone:hover,
+.tree-root-drop-zone.drag-active {
   border-color: var(--accent-color);
   background: var(--focus-color-10);
 }
@@ -5841,13 +5877,14 @@ details[open] summary {
 /* コンテキストメニュー */
 .context-menu {
   position: fixed;
-  background: #fff;
-  border: 1px solid #ccc;
+  background: var(--context-menu-bg, var(--bg-color, #fff));
+  border: 1px solid var(--context-menu-border, var(--border-color, #ccc));
   border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.15));
   z-index: 10000;
   min-width: 150px;
   padding: 4px 0;
+  color: var(--text-color, #333);
 }
 
 .context-menu button {
@@ -5859,30 +5896,37 @@ details[open] summary {
   text-align: left;
   cursor: pointer;
   font-size: 0.9rem;
+  color: inherit;
   transition: background 0.15s;
 }
 
 .context-menu button:hover {
-  background: #f0f0f0;
+  background: var(--context-menu-hover, var(--hover-bg-color, #f0f0f0));
+}
+
+.context-menu .context-menu-divider {
+  height: 1px;
+  background: var(--context-menu-divider, var(--border-color, #e0e0e0));
+  margin: 4px 0;
 }
 
 /* ダークモード対応 */
 [data-theme="dark"] .documents-toolbar button {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--border-color);
 }
 
 [data-theme="dark"] .tree-item-row:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--hover-bg-color);
 }
 
 [data-theme="dark"] .context-menu {
-  background: #2a2a2a;
-  border-color: #444;
-  color: #e0e0e0;
+  background: var(--context-menu-bg);
+  border-color: var(--context-menu-border);
+  color: var(--text-color);
 }
 
 [data-theme="dark"] .context-menu button:hover {
-  background: #3a3a3a;
+  background: var(--context-menu-hover);
 }
 
 /* ===== コンテキストツールバー ===== */

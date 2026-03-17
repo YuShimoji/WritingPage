@@ -52,7 +52,7 @@
     wrap.style.width='100%';
     wrap.style.height='100%';
     wrap.style.backgroundSize='20px 20px';
-    wrap.style.backgroundImage='linear-gradient(0deg, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px)';
+    wrap.style.backgroundImage='linear-gradient(0deg, var(--hover-bg-color, rgba(0,0,0,0.05)) 1px, transparent 1px), linear-gradient(90deg, var(--hover-bg-color, rgba(0,0,0,0.05)) 1px, transparent 1px)';
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class','ng-edges');
     svg.style.position='absolute'; svg.style.left='0'; svg.style.top='0'; svg.style.width='100%'; svg.style.height='100%';
@@ -81,7 +81,7 @@
       line.setAttribute('y1', p1.y);
       line.setAttribute('x2', p2.x);
       line.setAttribute('y2', p2.y);
-      line.setAttribute('stroke', '#666');
+      line.setAttribute('stroke', 'var(--text-muted, #666)');
       line.setAttribute('stroke-width', '2');
       canvas.svg.appendChild(line);
       if (e.label){
@@ -90,7 +90,7 @@
         text.setAttribute('x', midx);
         text.setAttribute('y', midy - 4);
         text.setAttribute('text-anchor','middle');
-        text.setAttribute('fill','#333');
+        text.setAttribute('fill','var(--text-color, #333)');
         text.setAttribute('font-size','12');
         text.textContent = e.label;
         canvas.svg.appendChild(text);
@@ -109,13 +109,13 @@
         node.style.border = '2px solid '+(n.color||TYPE_COLORS[n.type]||'#888');
         node.style.borderRadius='8px';
         node.style.background='var(--bg-color, #fff)';
-        node.style.boxShadow='0 2px 4px rgba(0,0,0,0.08)';
+        node.style.boxShadow='var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.08))';
         node.style.padding='6px 8px';
         node.style.cursor='move';
 
         var header = el('div','ng-node-header');
         header.style.display='flex'; header.style.alignItems='center'; header.style.gap='6px';
-        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='1px 6px'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='#fff';
+        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='1px 6px'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='var(--success-fg, #fff)';
         var title = el('div'); title.textContent = n.title || n.id; title.style.fontWeight='700'; title.style.flex='1';
         var del = el('button','small'); del.textContent='削除'; del.title='削除';
         header.appendChild(badge); header.appendChild(title); header.appendChild(del);

@@ -153,7 +153,7 @@
       // --- セクション2: ミニプレビュー ---
       var previewBox = document.createElement('div');
       previewBox.className = 'heading-preview';
-      previewBox.style.background = 'rgba(128,128,128,0.08)';
+      previewBox.style.background = 'var(--hover-bg-color, rgba(128,128,128,0.08))';
       previewBox.style.borderRadius = '6px';
       previewBox.style.padding = '8px 10px';
       previewBox.style.display = 'flex';

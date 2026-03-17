@@ -135,7 +135,7 @@
         
         if (isSelected) {
           item.style.background = 'var(--focus-color)';
-          item.style.color = '#fff';
+          item.style.color = 'var(--success-fg, #fff)';
         } else {
           item.style.background = 'transparent';
           item.addEventListener('mouseenter', function () {

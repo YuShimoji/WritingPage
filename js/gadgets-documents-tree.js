@@ -173,8 +173,6 @@
       const active = container.querySelector(`.tree-item[data-id="${CSS.escape(activeId)}"] .tree-item-row`);
       if (active) {
         active.classList.add('active');
-        active.style.backgroundColor = 'var(--accent-color, #4a90e2)';
-        active.style.color = '#ffffff';
       }
     }
   }
@@ -188,25 +186,17 @@
     const dropZone = document.createElement('div');
     dropZone.className = 'tree-root-drop-zone';
     dropZone.textContent = 'ルートに移動';
-    dropZone.style.padding = '8px';
-    dropZone.style.margin = '4px';
-    dropZone.style.border = '2px dashed #ccc';
-    dropZone.style.borderRadius = '4px';
-    dropZone.style.textAlign = 'center';
-    dropZone.style.color = '#999';
     dropZone.style.display = 'none';
 
     dropZone.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'move';
       dropZone.style.display = 'block';
-      dropZone.style.borderColor = '#4a90e2';
-      dropZone.style.backgroundColor = 'rgba(74, 144, 226, 0.1)';
+      dropZone.classList.add('drag-active');
     });
 
     dropZone.addEventListener('dragleave', () => {
-      dropZone.style.borderColor = '#ccc';
-      dropZone.style.backgroundColor = 'transparent';
+      dropZone.classList.remove('drag-active');
     });
 
     dropZone.addEventListener('drop', (e) => {
@@ -216,8 +206,7 @@
         onDrop(draggedId, null); // null = ルート
       }
       dropZone.style.display = 'none';
-      dropZone.style.borderColor = '#ccc';
-      dropZone.style.backgroundColor = 'transparent';
+      dropZone.classList.remove('drag-active');
     });
 
     // ドラッグ開始時に表示

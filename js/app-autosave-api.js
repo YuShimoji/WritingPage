@@ -40,7 +40,7 @@
                         window.ZenWriterStorage.saveContent(content);
                         // HUDに保存通知
                         if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
-                            window.ZenWriterHUD.show('自動保存されました', 1500, { bg: '#28a745', fg: '#fff' });
+                            window.ZenWriterHUD.show('自動保存されました', 1500, { type: 'success' });
                         }
                     } catch (e) {
                         console.error('自動保存エラー:', e);
@@ -57,11 +57,11 @@
             if (wasOnline !== isOnline) {
                 if (!isOnline) {
                     if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
-                        window.ZenWriterHUD.show('オフラインになりました。変更はローカルに保存されます。', 3000, { bg: '#ffc107', fg: '#000' });
+                        window.ZenWriterHUD.show('オフラインになりました。変更はローカルに保存されます。', 3000, { type: 'warning' });
                     }
                 } else {
                     if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
-                        window.ZenWriterHUD.show('オンラインに戻りました。', 2000, { bg: '#28a745', fg: '#fff' });
+                        window.ZenWriterHUD.show('オンラインに戻りました。', 2000, { type: 'success' });
                     }
                 }
             }

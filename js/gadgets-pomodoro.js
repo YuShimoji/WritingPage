@@ -256,7 +256,7 @@
       pomodoroBtn.addEventListener('click', function () {
         currentMode = 'pomodoro';
         pomodoroBtn.style.background = 'var(--ui-focus-color, #4a90e2)';
-        pomodoroBtn.style.color = '#fff';
+        pomodoroBtn.style.color = 'var(--success-fg, #fff)';
         customBtn.style.background = '';
         customBtn.style.color = '';
         customInputRow.style.display = 'none';
@@ -266,7 +266,7 @@
       customBtn.addEventListener('click', function () {
         currentMode = 'custom';
         customBtn.style.background = 'var(--ui-focus-color, #4a90e2)';
-        customBtn.style.color = '#fff';
+        customBtn.style.color = 'var(--success-fg, #fff)';
         pomodoroBtn.style.background = '';
         pomodoroBtn.style.color = '';
         customInputRow.style.display = 'flex';

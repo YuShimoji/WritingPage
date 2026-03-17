@@ -344,15 +344,8 @@
 
         contextMenu = document.createElement('div');
         contextMenu.className = 'context-menu';
-        contextMenu.style.position = 'fixed';
         contextMenu.style.left = e.clientX + 'px';
         contextMenu.style.top = e.clientY + 'px';
-        contextMenu.style.backgroundColor = '#fff';
-        contextMenu.style.border = '1px solid #ccc';
-        contextMenu.style.borderRadius = '4px';
-        contextMenu.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        contextMenu.style.zIndex = '10000';
-        contextMenu.style.minWidth = '150px';
 
         var menuItems = [];
 
@@ -388,27 +381,12 @@
         menuItems.forEach(function (menuItem) {
           if (menuItem.separator) {
             var sep = document.createElement('div');
-            sep.style.height = '1px';
-            sep.style.backgroundColor = '#e0e0e0';
-            sep.style.margin = '4px 0';
+            sep.className = 'context-menu-divider';
             contextMenu.appendChild(sep);
           } else {
             var menuBtn = document.createElement('button');
             menuBtn.type = 'button';
             menuBtn.textContent = menuItem.label;
-            menuBtn.style.display = 'block';
-            menuBtn.style.width = '100%';
-            menuBtn.style.padding = '8px 12px';
-            menuBtn.style.border = 'none';
-            menuBtn.style.background = 'none';
-            menuBtn.style.textAlign = 'left';
-            menuBtn.style.cursor = 'pointer';
-            menuBtn.addEventListener('mouseover', function () {
-              menuBtn.style.backgroundColor = '#f0f0f0';
-            });
-            menuBtn.addEventListener('mouseout', function () {
-              menuBtn.style.backgroundColor = 'transparent';
-            });
             menuBtn.addEventListener('click', function () {
               menuItem.action();
               closeContextMenu();

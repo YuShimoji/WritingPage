@@ -86,6 +86,26 @@
   --hover-bg-color: rgba(0, 0, 0, 0.05);
   --active-bg-color: rgba(0, 0, 0, 0.1);
 
+  /* Semantic text colors */
+  --text-muted: #999999;
+  --link-color: var(--accent-color);
+
+  /* Context menu */
+  --context-menu-bg: var(--bg-color);
+  --context-menu-border: var(--border-color);
+  --context-menu-hover: var(--hover-bg-color);
+  --context-menu-divider: var(--border-color);
+
+  /* Status colors */
+  --success-bg: #28a745;
+  --success-fg: #ffffff;
+  --warning-bg: #ffc107;
+  --warning-fg: #000000;
+  --error-color: rgba(255, 0, 0, 0.6);
+
+  /* Shadow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+
   /* Theme transition settings */
   --theme-transition-duration: 0.3s;
   --theme-transition-timing: ease-in-out;
@@ -119,4 +139,24 @@
   --active-bg-color: rgba(255, 255, 255, 0.15);
   --heading-h1-border-bottom: 1px solid #cccccc;
   --bg-gradient: linear-gradient(135deg, #1e1e1e 0%, #252526 100%);
+
+  /* Semantic text colors */
+  --text-muted: #888888;
+  --link-color: #6ab0f3;
+
+  /* Context menu */
+  --context-menu-bg: #2a2a2a;
+  --context-menu-border: #444444;
+  --context-menu-hover: rgba(255, 255, 255, 0.1);
+  --context-menu-divider: #444444;
+
+  /* Status colors */
+  --success-bg: #2ea043;
+  --success-fg: #ffffff;
+  --warning-bg: #d29922;
+  --warning-fg: #ffffff;
+  --error-color: rgba(255, 80, 80, 0.7);
+
+  /* Shadow */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
