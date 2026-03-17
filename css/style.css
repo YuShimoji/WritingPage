@@ -4074,6 +4074,20 @@ html[data-embed='true'] #editor {
   font-size: 0.8em;
 }
 
+/* 外部リンク (SP-072) */
+.external-link {
+  color: var(--link-color, var(--accent-color, #4a90d9));
+  text-decoration: underline;
+}
+
+.external-link::after {
+  content: '\2197';
+  font-size: 0.7em;
+  margin-left: 2px;
+  vertical-align: super;
+  opacity: 0.6;
+}
+
 /* リンク挿入モーダル (SP-072) */
 .link-insert-modal {
   position: fixed;
@@ -4116,6 +4130,16 @@ html[data-embed='true'] #editor {
 .link-insert-modal__input:focus {
   border-color: var(--accent-color, #4a90e2);
   box-shadow: 0 0 0 2px var(--focus-color-20, rgba(74, 144, 226, 0.2));
+}
+
+.link-insert-modal__ext-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted, #999);
+  margin-top: 4px;
+}
+
+.link-insert-modal__ext-hint--warn {
+  color: var(--error-color, #d44);
 }
 
 .link-insert-modal__divider {

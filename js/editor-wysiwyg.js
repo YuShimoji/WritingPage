@@ -708,6 +708,7 @@
           link.href = url;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
+          link.className = 'external-link';
         }
         link.textContent = selectedText || url;
 
@@ -751,6 +752,12 @@
       input.type = 'text';
       input.placeholder = 'URL\u3092\u5165\u529b (https://...)';
       inputRow.appendChild(input);
+      // 外部リンクヒント（URL入力時に表示）
+      const extHint = document.createElement('div');
+      extHint.className = 'link-insert-modal__ext-hint';
+      extHint.textContent = '\u5916\u90e8\u30ea\u30f3\u30af: \u65b0\u898f\u30bf\u30d6\u3067\u958b\u304d\u307e\u3059';
+      extHint.style.display = 'none';
+      inputRow.appendChild(extHint);
       modal.appendChild(inputRow);
 
       // 仕切り
@@ -797,12 +804,16 @@
         });
       }
 
+      // 危険なURLスキームの検証
+      const isDangerousUrl = (url) => /^\s*(javascript|data|vbscript):/i.test(url);
+      const isExternalUrl = (url) => /^https?:\/\//i.test(url);
+
       // URL入力のEnterキー確定
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
           e.preventDefault();
           const val = input.value.trim();
-          if (val) {
+          if (val && !isDangerousUrl(val)) {
             this._closeLinkInsertModal();
             onConfirm(val, false);
           }
@@ -812,17 +823,29 @@
         }
       });
 
-      // フィルタリング
+      // フィルタリング + 外部リンクヒント表示
       input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
+        const q = input.value.trim();
+        const qLower = q.toLowerCase();
         const items = chaptersEl.querySelectorAll('.link-insert-modal__chapter-item');
         items.forEach(function (it) {
-          if (!q || it.textContent.toLowerCase().includes(q)) {
+          if (!q || it.textContent.toLowerCase().includes(qLower)) {
             it.style.display = '';
           } else {
             it.style.display = 'none';
           }
         });
+        // 外部URLヒント表示
+        extHint.style.display = isExternalUrl(q) ? '' : 'none';
+        // 危険なURL警告
+        if (isDangerousUrl(q)) {
+          extHint.textContent = '\u5371\u967a\u306aURL\u30b9\u30ad\u30fc\u30e0\u3067\u3059';
+          extHint.style.display = '';
+          extHint.classList.add('link-insert-modal__ext-hint--warn');
+        } else {
+          extHint.textContent = '\u5916\u90e8\u30ea\u30f3\u30af: \u65b0\u898f\u30bf\u30d6\u3067\u958b\u304d\u307e\u3059';
+          extHint.classList.remove('link-insert-modal__ext-hint--warn');
+        }
       });
 
       // 外部クリックで閉じる
