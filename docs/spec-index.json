@@ -404,7 +404,7 @@
     "id": "SP-070",
     "title": "モードアーキテクチャ仕様",
     "status": "done",
-    "pct": 90,
+    "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
     "summary": "Normal/Focus/Blankの3モード分離。Phase 1: CSS分離+ショートカット+Blankエッジホバー。Phase 2: ChapterStore統合ガード。Phase 3: Focusパネルリサイズ(pointer events+localStorage保存+ダブルクリック復帰)。Focusオーバーレイ設定は実装済み。残: ホットキーガジェットアクセス(将来)。"
@@ -413,7 +413,7 @@
     "id": "SP-071",
     "title": "チャプター管理再設計仕様",
     "status": "done",
-    "pct": 95,
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
     "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",

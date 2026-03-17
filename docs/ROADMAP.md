@@ -35,7 +35,7 @@ Normal / Focus / Blank の3モード分離。Phase 1 完了。
 - [x] Focus ChapterListスタブ（SectionsNavigatorデータ共有）
 - [x] Focusオーバーレイアクセス（設定ボタン → サイドバースライドイン）
 - [x] SP-071 ChapterList Phase 1 実装
-- [ ] SP-071 Phase 2（章ごと独立保存）
+- [x] SP-071 Phase 2（章ごと独立保存 — chapter-store.js 実装済み）
 
 ### A-2. チャプター管理再設計 (SP-071) -- partial
 
@@ -49,7 +49,7 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] ドラッグ&ドロップ並び替え
 - [x] 「+ 新しい章」ボタン
 - [x] アクティブ章ハイライト + 文字数表示
-- [ ] Phase 2: 章ごと独立保存 (IndexedDB)
+- [x] Phase 2: 章ごと独立保存 (documents ストアに type:'chapter' + IDB フラッシュ機構)
 - [x] 目次ページ自動生成 (SP-071 Phase 3 + SP-072連動)
 
 ### A-3. セクションリンク & インタラクティブナビ (SP-072) -- partial (85%)
