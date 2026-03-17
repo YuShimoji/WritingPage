@@ -39,10 +39,10 @@
     "id": "SP-005",
     "title": "ロードマップ",
     "status": "partial",
-    "pct": 30,
+    "pct": 70,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。UI/UX磨き上げが最優先"
+    "summary": "Priority A-E の開発計画。A: ほぼ完了(モード/チャプター/セクションリンク/UI磨き上げ)。B: partial。C-E: todo"
   },
   {
     "id": "SP-006",

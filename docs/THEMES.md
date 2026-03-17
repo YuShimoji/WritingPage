@@ -2,7 +2,9 @@
 
 本プロジェクトの配色/タイポグラフィは CSS カスタムプロパティ（変数）で一元管理しています。プリセット切替とカスタムカラーに対応し、ドキュメント化された拡張ポイントを提供します。
 
-## 変数一覧（`css/style.css`）
+## 変数一覧
+
+### ベース変数（`css/variables.css`）
 
 - `--bg-color`: 既定の背景色（レガシー変数、UI/エディタ両レイヤのベース）
 - `--text-color`: 既定の文字色（レガシー変数、UI/エディタ両レイヤのベース）
@@ -20,6 +22,26 @@
 - `--font-family`: ベースフォント
 - `--font-size`: ベースフォントサイズ
 - `--line-height`: 行間
+
+### セマンティック変数（2026-03-17 追加）
+
+- `--text-muted`: 控えめなテキスト色（プレースホルダー、注釈、補助テキスト）
+- `--link-color`: リンク色（デフォルトは `--accent-color`）
+- `--accent-fg`: アクセント背景上の前景色（ボタン内テキスト等、通常 #fff）
+- `--hover-bg-color`: ホバー時の背景色
+- `--active-bg-color`: アクティブ状態の背景色
+- `--context-menu-bg`: コンテキストメニュー背景
+- `--context-menu-border`: コンテキストメニュー枠線
+- `--context-menu-hover`: コンテキストメニューホバー背景
+- `--context-menu-divider`: コンテキストメニュー区切り線
+- `--success-bg`: 成功通知の背景色（#28a745 / high-contrast: #00cc00）
+- `--success-fg`: 成功通知の前景色
+- `--warning-bg`: 警告通知の背景色（#ffc107 / high-contrast: #ffff00）
+- `--warning-fg`: 警告通知の前景色
+- `--error-color`: エラー表示色（スペルチェック波線、壊れリンク等）
+- `--danger-color`: 危険操作表示色（削除ボタン等）
+- `--shadow-sm`: 小サイズのボックスシャドウ
+- `--focus-color-{5,6,10,15,20,25,30,60}`: フォーカス色のアルファ段階変数
 
 ## プリセット（`data-theme`）
 
