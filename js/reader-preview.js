@@ -260,17 +260,85 @@
     });
   }
 
+  /**
+   * 読者プレビューのHTMLをスタンドアロンファイルとしてダウンロード
+   */
+  function exportHtml() {
+    if (!innerEl) return;
+
+    var title = '';
+    var titleEl = innerEl.querySelector('.reader-preview__title');
+    if (titleEl) title = titleEl.textContent || '';
+
+    // CSSテーマ変数を取得
+    var cs = getComputedStyle(document.documentElement);
+    var bgColor = cs.getPropertyValue('--bg-color').trim() || '#ffffff';
+    var textColor = cs.getPropertyValue('--text-color').trim() || '#333333';
+    var linkColor = cs.getPropertyValue('--link-color').trim() || cs.getPropertyValue('--accent-color').trim() || '#4a90d9';
+    var fontFamily = cs.getPropertyValue('--font-family').trim() || "'Noto Serif JP', serif";
+
+    var content = innerEl.querySelector('.reader-preview__content');
+    var bodyHtml = content ? content.innerHTML : innerEl.innerHTML;
+
+    // ナビバーを出力から除外（編集ツール用）
+    var tempDiv = document.createElement('div');
+    tempDiv.innerHTML = bodyHtml;
+    tempDiv.querySelectorAll('.chapter-nav-bar').forEach(function (el) { el.remove(); });
+    bodyHtml = tempDiv.innerHTML;
+
+    var html = '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
+      + '<meta charset="UTF-8">\n'
+      + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+      + '<title>' + (title || 'Zen Writer Export').replace(/</g, '&lt;') + '</title>\n'
+      + '<style>\n'
+      + '  body { max-width: 720px; margin: 2rem auto; padding: 0 1rem; '
+      + 'font-family: ' + fontFamily + '; line-height: 1.8; '
+      + 'background: ' + bgColor + '; color: ' + textColor + '; }\n'
+      + '  a { color: ' + linkColor + '; }\n'
+      + '  h1, h2, h3 { margin-top: 2em; margin-bottom: 0.5em; }\n'
+      + '  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }\n'
+      + '  p { text-indent: 1em; margin: 0.5em 0; }\n'
+      + '  blockquote { border-left: 3px solid #ccc; margin: 1em 0; padding: 0.5em 1em; color: #666; }\n'
+      + '</style>\n</head>\n<body>\n'
+      + (title ? '<h1>' + title.replace(/</g, '&lt;') + '</h1>\n' : '')
+      + bodyHtml + '\n'
+      + '</body>\n</html>';
+
+    // Blobダウンロード
+    var blob = new Blob([html], { type: 'text/html; charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (title || 'export').replace(/[<>:"/\\|?*]/g, '_') + '.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // HUDフィードバック
+    if (window.ZenWriterHUD) {
+      window.ZenWriterHUD.show('HTMLを保存しました', 2000, { type: 'success' });
+    }
+  }
+
   // ---- Init ----
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
+    document.addEventListener('DOMContentLoaded', function () {
+      init();
+      var exportBtn = document.getElementById('reader-export-html');
+      if (exportBtn) exportBtn.addEventListener('click', exportHtml);
+    }, { once: true });
   } else {
     init();
+    var exportBtn = document.getElementById('reader-export-html');
+    if (exportBtn) exportBtn.addEventListener('click', exportHtml);
   }
 
   // Public API
   window.ZWReaderPreview = {
     enter: enterReaderMode,
-    exit: exitReaderMode
+    exit: exitReaderMode,
+    exportHtml: exportHtml
   };
 })();

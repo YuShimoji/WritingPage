@@ -862,6 +862,29 @@ html[data-ui-mode='reader']:hover .reader-preview__back-fab,
   pointer-events: auto;
 }
 
+.reader-preview__export-btn {
+  position: fixed;
+  top: -48px;
+  right: 140px;
+  z-index: 200;
+  background: var(--accent-color, #4a90e2);
+  color: var(--accent-fg, #fff);
+  border: none;
+  border-radius: 24px;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.15));
+  transition: top 0.25s ease;
+  pointer-events: none;
+}
+
+html[data-ui-mode='reader']:hover .reader-preview__export-btn,
+.reader-preview__export-btn:focus {
+  top: 12px;
+  pointer-events: auto;
+}
+
 /* Reader モード: モバイル対応 */
 @media (max-width: 768px) {
   .reader-preview {
@@ -881,11 +904,19 @@ html[data-ui-mode='reader']:hover .reader-preview__back-fab,
     padding: 6px 14px;
     font-size: 0.8rem;
   }
+
+  .reader-preview__export-btn {
+    right: auto;
+    left: 8px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
 }
 
 /* Reader モード: reduced-motion */
 @media (prefers-reduced-motion: reduce) {
-  .reader-preview__back-fab {
+  .reader-preview__back-fab,
+  .reader-preview__export-btn {
     transition: none;
   }
 }
