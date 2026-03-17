@@ -11,7 +11,7 @@
      * @param {Function} deps.toggleToolbar
      * @param {Function} deps._toggleFullscreen
      * @param {Function} deps.syncHudQuickControls
-     * @returns {Object} toggleFeedbackPanel, toggleFontPanel
+     * @returns {Object} toggleFeedbackPanel, toggleModal, prepareFloatingPanel, clampPanelToViewport
      */
     function initAppUIEvents(deps) {
         const {
@@ -642,24 +642,33 @@
         const sidebarWysiwygBtn = document.getElementById('sidebar-toggle-wysiwyg');
         const sidebarHelpBtn = document.getElementById('sidebar-toggle-help');
 
+        // サイドバーボタン: 直接API呼び出し (ツールバー.click()中継を廃止)
         if (sidebarPreviewBtn) {
             sidebarPreviewBtn.addEventListener('click', () => {
-                const toolbarBtn = document.getElementById('toggle-preview');
-                if (toolbarBtn) toolbarBtn.click();
+                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+                    window.ZenWriterEditor.togglePreview();
+                }
             });
         }
 
         if (sidebarSplitBtn) {
             sidebarSplitBtn.addEventListener('click', () => {
-                const toolbarBtn = document.getElementById('toggle-split-view');
-                if (toolbarBtn) toolbarBtn.click();
+                if (window.MainHubPanel) {
+                    window.MainHubPanel.toggle('split-view');
+                }
             });
         }
 
         if (sidebarWysiwygBtn) {
             sidebarWysiwygBtn.addEventListener('click', () => {
-                const toolbarBtn = document.getElementById('toggle-wysiwyg');
-                if (toolbarBtn) toolbarBtn.click();
+                const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+                if (rte) {
+                    if (rte.isWysiwygMode) {
+                        rte.switchToTextarea();
+                    } else {
+                        rte.switchToWysiwyg();
+                    }
+                }
             });
         }
 
@@ -674,7 +683,6 @@
 
         return {
             toggleFeedbackPanel,
-            toggleFontPanel,
             toggleModal,
             prepareFloatingPanel,
             clampPanelToViewport

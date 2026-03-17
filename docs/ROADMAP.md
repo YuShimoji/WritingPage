@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 284 test cases (40 spec files) (2026-03-16 時点)
+- E2E: 300 test cases (44 spec files) (2026-03-17 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
@@ -50,16 +50,17 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] 「+ 新しい章」ボタン
 - [x] アクティブ章ハイライト + 文字数表示
 - [ ] Phase 2: 章ごと独立保存 (IndexedDB)
-- [ ] 目次ページ自動生成 (SP-072連動)
+- [x] 目次ページ自動生成 (SP-071 Phase 3 + SP-072連動)
 
-### A-3. セクションリンク & インタラクティブナビ (SP-072) -- todo
+### A-3. セクションリンク & インタラクティブナビ (SP-072) -- partial (85%)
 
 章末ナビ自動挿入 + ゲームブック的インタラクティブリンク。
 
-- 前へ / 目次 / 次へ の自動挿入
-- `chapter://` リンクで任意の章間ジャンプ
-- ページ公開設定 (visible / draft / hidden)
-- WYSIWYG + 読者向けHTML 両対応
+- [x] Phase 1: 章末ナビ自動挿入 (前へ / 目次 / 次へ)
+- [x] Phase 2: 章visibility設定 + export変換
+- [x] Phase 3: リンク挿入モーダルUI + 壊れリンク警告
+- [ ] 外部リンク新規タブ確認
+- [ ] ゲームブック分岐UIデザイン
 
 ### A-4. UI/UX 磨き上げ (残タスク)
 
@@ -76,6 +77,10 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - サイドバー情報密度の整理 -- done
 - サイドバー品質改善 -- done
 - エディタの入力体験改善 -- done (タイプライターモード/プリフォーマット等)
+- テーマ一貫性 CRITICAL群 -- done (CSS変数14種+JS硬コード色30箇所)
+- テーマ一貫性 HIGH/MEDIUM群 -- done (global-search-ui/link-graph/keybind/swiki/command-palette/gadget-*/mini-hud)
+- デッド参照根絶 -- done (旧パネル参照→MainHubPanel統一, Escape統合, デッドCSS/メソッド削除)
+- サイドバー間接委譲→直接API化 -- done
 
 ---
 
