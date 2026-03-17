@@ -110,6 +110,12 @@
           onClick: function () { scanCurrentDocument(); }
         }),
         el('button', {
+          className: 'swiki-btn swiki-btn-graph',
+          textContent: 'グラフ',
+          title: 'リンクグラフを表示',
+          onClick: function () { openGraphOverlay(); }
+        }),
+        el('button', {
           className: 'swiki-btn swiki-btn-expand',
           textContent: '展開',
           onClick: function () {
@@ -214,6 +220,47 @@
       }
     }
 
+    // ── グラフビューオーバーレイ ─────────────
+    function openGraphOverlay() {
+      if (!window.LinkGraph) return;
+
+      var overlay = el('div', { className: 'swiki-overlay swiki-graph-overlay' });
+      var dialog = el('div', { className: 'swiki-dialog swiki-graph-dialog' });
+      dialog.style.cssText = 'width: 90vw; max-width: 900px; height: 80vh; max-height: 80vh; display: flex; flex-direction: column;';
+
+      var header = el('div', { className: 'swiki-dialog-header' }, [
+        el('h3', { textContent: 'リンクグラフ' }),
+        el('button', {
+          className: 'swiki-btn',
+          textContent: '閉じる',
+          onClick: function () { overlay.remove(); }
+        })
+      ]);
+      dialog.appendChild(header);
+
+      var graphContainer = el('div', { className: 'link-graph-container' });
+      graphContainer.style.cssText = 'flex: 1; overflow: auto; position: relative;';
+      dialog.appendChild(graphContainer);
+
+      overlay.appendChild(dialog);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) overlay.remove();
+      });
+      document.body.appendChild(overlay);
+
+      // グラフデータ生成と描画
+      try {
+        var graphData = window.LinkGraph.generateGraphData();
+        if (graphData && graphData.nodes.length > 0) {
+          window.LinkGraph.renderGraph(graphContainer, graphData);
+        } else {
+          graphContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted,#999);">リンクデータがありません。本文に [[wikilink]] や doc:// リンクを追加してください。</div>';
+        }
+      } catch (err) {
+        graphContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--error-color,#e55);">グラフ生成中にエラーが発生しました。</div>';
+      }
+    }
+
     function renderFull() {
       root.innerHTML = '';
       root.className = 'swiki-root swiki-full';
@@ -241,6 +288,12 @@
           className: 'swiki-btn swiki-btn-new',
           textContent: '+ 新規作成',
           onClick: function () { openCreateDialog(); }
+        }),
+        el('button', {
+          className: 'swiki-btn swiki-btn-graph',
+          textContent: 'グラフ',
+          title: 'リンクグラフを表示',
+          onClick: function () { openGraphOverlay(); }
         })
       ]);
 
