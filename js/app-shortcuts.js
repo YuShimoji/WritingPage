@@ -265,6 +265,16 @@
                     setUIMode('normal');
                     return;
                 }
+                // SP-078: reader モードからの復帰
+                if (currentMode === 'reader') {
+                    e.preventDefault();
+                    if (window.ZWReaderPreview && typeof window.ZWReaderPreview.exit === 'function') {
+                        window.ZWReaderPreview.exit();
+                    } else {
+                        setUIMode('normal');
+                    }
+                    return;
+                }
             }
         }, true);
     }

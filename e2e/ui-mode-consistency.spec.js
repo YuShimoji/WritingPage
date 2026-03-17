@@ -95,4 +95,40 @@ test.describe('UI Mode Consistency', () => {
       await expect(panel).toBeVisible();
     }
   });
+
+  // ===== Reader モード (SP-078) =====
+  test('Reader mode: sidebar and toolbar are hidden', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(300);
+    const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    expect(mode).toBe('reader');
+    const sidebar = page.locator('.sidebar');
+    await expect(sidebar).toBeHidden();
+  });
+
+  test('Reader mode: reader-preview is visible', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(300);
+    const preview = page.locator('#reader-preview');
+    if (await preview.count() > 0) {
+      await expect(preview).toBeVisible();
+    }
+  });
+
+  test('Reader mode: exit returns to previous mode', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(200);
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.exit();
+    });
+    await page.waitForTimeout(200);
+    const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    expect(mode).toBe('normal');
+  });
 });

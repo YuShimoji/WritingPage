@@ -468,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UIモード切り替え
     function setUIMode(mode, save = true) {
-        const validModes = ['normal', 'focus', 'blank'];
+        const validModes = ['normal', 'focus', 'blank', 'reader'];
         const targetMode = validModes.includes(mode) ? mode : 'normal';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
