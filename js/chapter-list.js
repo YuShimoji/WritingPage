@@ -383,6 +383,60 @@
     if (!isChMode && chapters.length > 0) {
       renderMigrateButton();
     }
+
+    // フッター統計 + 目次コピーボタン
+    renderFooterStats();
+  }
+
+  function renderFooterStats() {
+    var footer = panelEl && panelEl.querySelector('.focus-chapter-panel__footer');
+    if (!footer) return;
+
+    // 既存の統計要素を除去
+    var existing = footer.querySelector('.cl-footer-stats');
+    if (existing) existing.remove();
+
+    if (chapters.length === 0) return;
+
+    var isChMode = inChapterMode();
+    var totalChars = 0;
+    chapters.forEach(function (ch) {
+      if (isChMode) {
+        totalChars += (ch.content || '').trim().length;
+      } else {
+        var text = getEditorText();
+        totalChars += (Model ? Model.getChapterBody(text, ch).trim().length : 0);
+      }
+    });
+
+    var stats = document.createElement('div');
+    stats.className = 'cl-footer-stats';
+
+    var countText = document.createElement('span');
+    countText.className = 'cl-footer-stats__count';
+    countText.textContent = formatCount(totalChars) + ' / ' + chapters.length + '\u7ae0';
+    stats.appendChild(countText);
+
+    var tocCopyBtn = document.createElement('button');
+    tocCopyBtn.type = 'button';
+    tocCopyBtn.className = 'cl-footer-stats__toc-btn';
+    tocCopyBtn.textContent = '\u76ee\u6b21\u30b3\u30d4\u30fc';
+    tocCopyBtn.title = '\u76ee\u6b21\u3092\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u30b3\u30d4\u30fc';
+    tocCopyBtn.addEventListener('click', function () {
+      if (window.ZWChapterNav && typeof window.ZWChapterNav.generateTocText === 'function') {
+        var text = window.ZWChapterNav.generateTocText();
+        if (text && navigator.clipboard) {
+          navigator.clipboard.writeText(text).then(function () {
+            tocCopyBtn.textContent = '\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f';
+            setTimeout(function () { tocCopyBtn.textContent = '\u76ee\u6b21\u30b3\u30d4\u30fc'; }, 1500);
+          });
+        }
+      }
+    });
+    stats.appendChild(tocCopyBtn);
+
+    // addBtn の前に挿入
+    footer.insertBefore(stats, footer.firstChild);
   }
 
   // ---- Migration button (Slice 4) ----

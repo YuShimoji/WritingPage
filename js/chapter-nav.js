@@ -76,6 +76,65 @@
       .replace(/[^\w\u3000-\u9fff\uf900-\ufaff\u4e00-\u9faf-]/g, '');
   }
 
+  // ---- Table of Contents injection (preview) ----
+
+  /**
+   * プレビューパネルの先頭に目次を自動挿入する (SP-071)。
+   * visibleな章のみ表示。各項目はクリックで章にジャンプ。
+   */
+  function injectToc(container) {
+    var settings = loadSettings();
+    if (!settings.enabled) return;
+
+    // 既存のToCを除去
+    var existing = container.querySelector('.chapter-toc');
+    if (existing) existing.remove();
+
+    var allChapters = getChapters();
+    var visibleChapters = getVisibleChapters(allChapters);
+    if (visibleChapters.length < 2) return;
+
+    var toc = document.createElement('nav');
+    toc.className = 'chapter-toc';
+    toc.setAttribute('aria-label', '\u76ee\u6b21');
+
+    var tocTitle = document.createElement('h2');
+    tocTitle.className = 'chapter-toc__title';
+    tocTitle.textContent = '\u76ee\u6b21';
+    toc.appendChild(tocTitle);
+
+    var list = document.createElement('ol');
+    list.className = 'chapter-toc__list';
+
+    visibleChapters.forEach(function (ch, visIdx) {
+      var allIdx = allChapters.indexOf(ch);
+      var li = document.createElement('li');
+      li.className = 'chapter-toc__item';
+
+      var link = document.createElement('a');
+      link.className = 'chapter-toc__link';
+      link.href = '#';
+      link.textContent = ch.title || '(untitled)';
+      link.dataset.chapterIndex = allIdx >= 0 ? allIdx : visIdx;
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
+      });
+
+      li.appendChild(link);
+      list.appendChild(li);
+    });
+
+    toc.appendChild(list);
+
+    // プレビュー先頭に挿入
+    if (container.firstChild) {
+      container.insertBefore(toc, container.firstChild);
+    } else {
+      container.appendChild(toc);
+    }
+  }
+
   // ---- Nav bar injection (preview) ----
 
   /**
@@ -159,14 +218,19 @@
       prevBtn.className += ' chapter-nav-bar__link--disabled';
     }
 
-    // 目次 (先頭章へ)
+    // 目次 (ToC要素へスクロール、なければ先頭章へ)
     var tocBtn = document.createElement('a');
     tocBtn.className = 'chapter-nav-bar__link chapter-nav-bar__toc';
     tocBtn.textContent = '\u76ee\u6b21';
     tocBtn.href = '#';
     tocBtn.addEventListener('click', function (e) {
       e.preventDefault();
-      navigateToChapter(0);
+      var tocEl = document.querySelector('.chapter-toc');
+      if (tocEl) {
+        tocEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        navigateToChapter(0);
+      }
     });
 
     // 次の章
@@ -283,6 +347,7 @@
    */
   function onPreviewUpdated(container) {
     if (!container) return;
+    injectToc(container);
     injectNavBars(container);
     bindChapterLinks(container);
   }
@@ -309,6 +374,20 @@
 
   // ---- Public API ----
 
+  /**
+   * 目次をプレーンテキストとして生成（クリップボードコピー用）
+   */
+  function generateTocText() {
+    var allChapters = getChapters();
+    var visible = getVisibleChapters(allChapters);
+    if (visible.length === 0) return '';
+    var lines = ['\u76ee\u6b21', ''];
+    visible.forEach(function (ch, i) {
+      lines.push((i + 1) + '. ' + (ch.title || '(untitled)'));
+    });
+    return lines.join('\n');
+  }
+
   window.ZWChapterNav = {
     onPreviewUpdated: onPreviewUpdated,
     convertChapterLinks: convertChapterLinks,
@@ -316,6 +395,8 @@
     getVisibleChapters: function () { return getVisibleChapters(getChapters()); },
     loadSettings: loadSettings,
     saveSettings: saveSettings,
-    injectNavBars: injectNavBars
+    injectNavBars: injectNavBars,
+    injectToc: injectToc,
+    generateTocText: generateTocText
   };
 })();

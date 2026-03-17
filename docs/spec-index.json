@@ -412,11 +412,11 @@
   {
     "id": "SP-071",
     "title": "チャプター管理再設計仕様",
-    "status": "partial",
-    "pct": 80,
+    "status": "done",
+    "pct": 95,
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
-    "summary": "Novlr式2ペイン章管理。Phase 1完了: 見出し自動検出・クリックナビ・ダブルクリックリネーム・右クリックメニュー・D&D並び替え。Phase 2完了: 章ごと独立保存(documentsストア再利用)・chapterMode opt-in・Focus章単位編集・Normal↔Focus同期・移行UI。残: 目次自動生成。",
+    "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",
     "related": ["SP-070", "SP-052", "SP-053"]
   },
   {
