@@ -10,7 +10,6 @@
      * @param {Function} deps.toggleSidebar
      * @param {Function} deps.toggleToolbar
      * @param {Function} deps._toggleFullscreen
-     * @param {Function} deps.syncHudQuickControls
      * @returns {Object} toggleFeedbackPanel, toggleModal, prepareFloatingPanel, clampPanelToViewport
      */
     function initAppUIEvents(deps) {
@@ -184,7 +183,6 @@
         const toggleToolbarBtn = elementManager.get('toggleToolbarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         const fullscreenBtn = elementManager.get('fullscreenBtn');
-        // feedbackBtn: HTML不在のため削除
         const toggleSplitViewBtn = document.getElementById('toggle-split-view');
         // split-view-mode-panel は MainHubPanel に統合済み (旧参照削除)
         const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
