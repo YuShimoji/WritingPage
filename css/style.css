@@ -2633,7 +2633,7 @@ input[type='color'] {
   /* ガジェット内のボタン最適化 */
   .gadget button,
   .gadget .btn {
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 12px;
     font-size: 13px;
   }
@@ -2685,6 +2685,51 @@ input[type='color'] {
   /* スペルチェック提案パネルの最適化 */
   .spell-check-suggestions {
     max-width: calc(100vw - 32px);
+  }
+
+  /* R1: Story Wiki ダイアログ — 横はみ出し防止 */
+  .swiki-dialog {
+    min-width: auto;
+    width: calc(100vw - 32px);
+    max-width: 360px;
+  }
+
+  /* R2: Story Wiki ツリーペイン — モバイルではフルwidth */
+  .swiki-tree-pane {
+    width: 100%;
+    min-width: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+    max-height: 30vh;
+  }
+
+  .swiki-root {
+    flex-direction: column;
+  }
+
+  /* R3: ステータスバーボタン — タップターゲット44px化 */
+  .status-bar-nav-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  /* R4: WYSIWYGボタン — タップターゲット44px化 */
+  .wysiwyg-btn {
+    min-width: 44px;
+    height: 44px;
+  }
+
+  /* R5: リンク挿入モーダル — 横はみ出し防止 */
+  .link-insert-modal {
+    width: calc(100vw - 32px);
+    max-width: 360px;
+  }
+
+  /* R6: Focus オーバーレイサイドバー — モバイルでフル幅 */
+  .sidebar.focus-overlay-open {
+    width: 100% !important;
+    max-width: 100%;
   }
 }
 

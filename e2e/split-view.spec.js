@@ -176,8 +176,10 @@ test.describe('Split View', () => {
     const container = page.locator('#split-view-container');
     await expect(container).toBeVisible();
 
-    // 再度ボタンをクリックして閉じる（モードパネルを開く）
-    await page.click('#toggle-split-view');
+    // 再度モードパネルを開く（toggle ではなく show で確実に開く）
+    await page.evaluate(() => {
+      if (window.MainHubPanel) window.MainHubPanel.show('split-view');
+    });
     await page.waitForSelector('#tab-split-view', { state: 'visible', timeout: 5000 });
 
     // 同じモードを再度選択して閉じる
