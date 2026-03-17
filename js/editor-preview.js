@@ -107,8 +107,15 @@
         var link = parts[0].trim();
         var display = parts.length > 1 ? parts[1].trim() : link;
 
+        // W2: StoryWiki API で存在チェック (旧 listWikiPages から移行)
         var exists = false;
-        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.listWikiPages === 'function') {
+        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.searchStoryWiki === 'function') {
+          var results = window.ZenWriterStorage.searchStoryWiki(link);
+          exists = results.some(function (e) {
+            return (e.title || '').toLowerCase() === link.toLowerCase();
+          });
+        } else if (window.ZenWriterStorage && typeof window.ZenWriterStorage.listWikiPages === 'function') {
+          // フォールバック: 旧 API
           var all = window.ZenWriterStorage.listWikiPages();
           exists = all.some(function (p) {
             return (p.title || '') === link;
@@ -116,7 +123,7 @@
         }
         var brokenClass = exists ? '' : ' is-broken';
 
-        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '" onclick="return false;">' + display + '</a>';
+        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
       });
     }
 
@@ -158,6 +165,20 @@
     // SP-072: 章末ナビバー注入 + chapter:// リンクバインド
     if (window.ZWChapterNav && typeof window.ZWChapterNav.onPreviewUpdated === 'function') {
       window.ZWChapterNav.onPreviewUpdated(editorManager.markdownPreviewPanel);
+    }
+
+    // W1: wikilink クリックハンドラ (イベント委譲)
+    if (!editorManager.markdownPreviewPanel.__zwWikilinkBound) {
+      editorManager.markdownPreviewPanel.addEventListener('click', function (e) {
+        var target = e.target.closest('a.wikilink');
+        if (!target) return;
+        e.preventDefault();
+        var link = decodeURIComponent(target.getAttribute('data-wikilink') || '');
+        if (!link) return;
+        // StoryWiki のエントリを開く (swiki-open-entry イベントを発火)
+        document.dispatchEvent(new CustomEvent('swiki-open-entry', { detail: { title: link } }));
+      });
+      editorManager.markdownPreviewPanel.__zwWikilinkBound = true;
     }
   }
 

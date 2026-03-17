@@ -335,14 +335,10 @@
     for (var j = 0; j < graphData.nodes.length; j++) {
       var node = graphData.nodes[j];
       var nodeEl = el('div', 'link-graph-node');
+      nodeEl.setAttribute('data-type', node.type || 'unknown');
       nodeEl.style.position = 'absolute';
       nodeEl.style.left = node.x + 'px';
       nodeEl.style.top = node.y + 'px';
-      nodeEl.style.padding = '6px 10px';
-      nodeEl.style.border = '2px solid ' + (node.type === 'wiki' ? '#4a90e2' : node.type === 'document' ? '#27ae60' : '#888');
-      nodeEl.style.borderRadius = '6px';
-      nodeEl.style.background = 'var(--bg-color, #fff)';
-      nodeEl.style.cursor = 'pointer';
       nodeEl.textContent = node.label;
       nodeEl.title = node.id + ' (' + node.type + ')';
       nodesLayer.appendChild(nodeEl);
