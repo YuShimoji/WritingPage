@@ -423,10 +423,10 @@
     "id": "SP-072",
     "title": "セクションリンク & インタラクティブナビ仕様",
     "status": "partial",
-    "pct": 60,
+    "pct": 85,
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
-    "summary": "Phase 1: 章末ナビバー+chapter://リンク。Phase 2 MVP: 章visibility設定(visible/draft/hidden)+バッジ表示+ナビバーvisibilityフィルタ+convertForExport(chapter://→#anchor)。残: リンク挿入UI、壊れリンク警告。",
+    "summary": "Phase 1: 章末ナビバー+chapter://リンク。Phase 2: 章visibility設定+バッジ+export変換。Phase 3: リンク挿入モーダルUI(Notion風章選択+URLフィルタ)+壊れリンク警告(赤wavy+ツールチップ)。残: 外部リンク新規タブ確認、ゲームブック分岐UIデザイン。",
     "related": ["SP-070", "SP-071"]
   },
   {
