@@ -481,7 +481,7 @@
   {
     "id": "SP-078",
     "title": "読者プレビューモード仕様",
-    "status": "done",
+    "status": "partial",
     "pct": 90,
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
