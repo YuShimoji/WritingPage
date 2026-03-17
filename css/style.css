@@ -5772,8 +5772,8 @@ body.ui-editor-preview {
 }
 
 .wikilink.is-broken {
-  color: #ff4d4f;
-  text-decoration-color: #ff4d4f;
+  color: var(--error-color, #ff4d4f);
+  text-decoration-color: var(--error-color, #ff4d4f);
 }
 
 .wiki-backlinks {
