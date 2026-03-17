@@ -689,27 +689,184 @@
       const range = selection.getRangeAt(0);
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
+      const savedRange = range.cloneRange();
       const selectedText = selection.toString().trim();
-      const url = prompt('リンクURLを入力してください:', selectedText ? 'https://' : '');
-      if (!url) return;
+      const self = this;
 
-      const link = document.createElement('a');
-      link.href = url;
-      link.textContent = selectedText || url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      this._showLinkInsertModal(savedRange, selectedText, function (url, isChapterLink) {
+        self.wysiwygEditor.focus();
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
 
-      range.deleteContents();
-      range.insertNode(link);
+        const link = document.createElement('a');
+        if (isChapterLink) {
+          link.href = '#';
+          link.className = 'chapter-link';
+          link.dataset.chapterTarget = encodeURIComponent(url);
+        } else {
+          link.href = url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+        }
+        link.textContent = selectedText || url;
 
-      selection.removeAllRanges();
-      const newRange = document.createRange();
-      newRange.setStartAfter(link);
-      newRange.collapse(true);
-      selection.addRange(newRange);
+        savedRange.deleteContents();
+        savedRange.insertNode(link);
 
-      this.wysiwygEditor.focus();
-      this.syncToMarkdown();
+        sel.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.setStartAfter(link);
+        newRange.collapse(true);
+        sel.addRange(newRange);
+
+        self.wysiwygEditor.focus();
+        self.syncToMarkdown();
+      });
+    }
+
+    _showLinkInsertModal(savedRange, selectedText, onConfirm) {
+      // 既存モーダルを閉じる
+      this._closeLinkInsertModal();
+
+      const modal = document.createElement('div');
+      modal.className = 'link-insert-modal';
+
+      // 位置をカーソル付近に配置
+      const rect = savedRange.getBoundingClientRect();
+      modal.style.left = Math.min(rect.left, window.innerWidth - 340) + 'px';
+      modal.style.top = (rect.bottom + 8) + 'px';
+
+      // ヘッダー
+      const header = document.createElement('div');
+      header.className = 'link-insert-modal__header';
+      header.textContent = '\u30ea\u30f3\u30af\u633f\u5165';
+      modal.appendChild(header);
+
+      // URL入力欄
+      const inputRow = document.createElement('div');
+      inputRow.className = 'link-insert-modal__input-row';
+      const input = document.createElement('input');
+      input.className = 'link-insert-modal__input';
+      input.type = 'text';
+      input.placeholder = 'URL\u3092\u5165\u529b (https://...)';
+      inputRow.appendChild(input);
+      modal.appendChild(inputRow);
+
+      // 仕切り
+      const divider = document.createElement('div');
+      divider.className = 'link-insert-modal__divider';
+      divider.textContent = '\u2014\u2014 \u307e\u305f\u306f\u7ae0\u30ea\u30f3\u30af \u2014\u2014';
+      modal.appendChild(divider);
+
+      // 章リスト
+      const chaptersEl = document.createElement('div');
+      chaptersEl.className = 'link-insert-modal__chapters';
+      modal.appendChild(chaptersEl);
+
+      const chapters = (window.ZWChapterNav && typeof window.ZWChapterNav.getVisibleChapters === 'function')
+        ? window.ZWChapterNav.getVisibleChapters()
+        : [];
+
+      // ChapterStoreから全章取得（draft含む）
+      const allChapters = this._getAllChaptersForLinkModal();
+
+      if (allChapters.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'link-insert-modal__empty';
+        empty.textContent = '\u7ae0\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093';
+        chaptersEl.appendChild(empty);
+      } else {
+        const self = this;
+        allChapters.forEach(function (ch) {
+          const item = document.createElement('div');
+          item.className = 'link-insert-modal__chapter-item';
+          if (ch.visibility === 'draft') item.classList.add('link-insert-modal__chapter-item--draft');
+          if (ch.visibility === 'hidden') item.classList.add('link-insert-modal__chapter-item--hidden');
+
+          item.textContent = ch.title || ch.name || '(untitled)';
+
+          if (ch.visibility && ch.visibility !== 'visible') {
+            const badge = document.createElement('span');
+            badge.className = 'link-insert-modal__visibility-badge';
+            badge.textContent = ch.visibility;
+            item.appendChild(badge);
+          }
+
+          item.addEventListener('click', function () {
+            self._closeLinkInsertModal();
+            onConfirm(ch.title || ch.id, true);
+          });
+          chaptersEl.appendChild(item);
+        });
+      }
+
+      // URL入力のEnterキー確定
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const val = input.value.trim();
+          if (val) {
+            this._closeLinkInsertModal();
+            onConfirm(val, false);
+          }
+        }
+        if (e.key === 'Escape') {
+          this._closeLinkInsertModal();
+        }
+      });
+
+      // フィルタリング
+      input.addEventListener('input', () => {
+        const q = input.value.trim().toLowerCase();
+        const items = chaptersEl.querySelectorAll('.link-insert-modal__chapter-item');
+        items.forEach(function (it) {
+          if (!q || it.textContent.toLowerCase().includes(q)) {
+            it.style.display = '';
+          } else {
+            it.style.display = 'none';
+          }
+        });
+      });
+
+      // 外部クリックで閉じる
+      this._linkModalCloseHandler = (e) => {
+        if (!modal.contains(e.target)) {
+          this._closeLinkInsertModal();
+        }
+      };
+      setTimeout(() => document.addEventListener('mousedown', this._linkModalCloseHandler), 0);
+
+      document.body.appendChild(modal);
+      this._linkInsertModal = modal;
+      input.focus();
+    }
+
+    _getAllChaptersForLinkModal() {
+      var Store = window.ZWChapterStore;
+      var S = window.ZenWriterStorage;
+      var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+      if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId)) {
+        return (Store.getChaptersForDoc(docId) || []).map(function (sc) {
+          return { id: sc.id, title: sc.name || '', visibility: sc.visibility || 'visible' };
+        });
+      }
+      // Legacy fallback
+      if (window.ZWChapterNav && typeof window.ZWChapterNav.getVisibleChapters === 'function') {
+        return window.ZWChapterNav.getVisibleChapters();
+      }
+      return [];
+    }
+
+    _closeLinkInsertModal() {
+      if (this._linkInsertModal) {
+        this._linkInsertModal.remove();
+        this._linkInsertModal = null;
+      }
+      if (this._linkModalCloseHandler) {
+        document.removeEventListener('mousedown', this._linkModalCloseHandler);
+        this._linkModalCloseHandler = null;
+      }
     }
 
     notifySelectionRequired() {

@@ -3735,6 +3735,111 @@ html[data-embed='true'] #editor {
   text-decoration-style: solid;
 }
 
+.chapter-link--broken {
+  color: var(--error-color, #d44);
+  text-decoration-color: var(--error-color, #d44);
+  text-decoration-style: wavy;
+}
+
+.chapter-link--broken::after {
+  content: ' \26a0';
+  font-size: 0.8em;
+}
+
+/* リンク挿入モーダル (SP-072) */
+.link-insert-modal {
+  position: fixed;
+  z-index: 10001;
+  background: var(--context-menu-bg, var(--bg-color, #fff));
+  color: var(--text-color, #333);
+  border: 1px solid var(--context-menu-border, var(--border-color, #ccc));
+  border-radius: 8px;
+  box-shadow: var(--shadow-sm, 0 2px 12px rgba(0, 0, 0, 0.15));
+  width: 320px;
+  max-height: 360px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.link-insert-modal__header {
+  padding: 10px 12px 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.link-insert-modal__input-row {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
+}
+
+.link-insert-modal__input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  background: var(--bg-color, #fff);
+  color: var(--text-color, #333);
+  outline: none;
+}
+
+.link-insert-modal__input:focus {
+  border-color: var(--accent-color, #4a90e2);
+  box-shadow: 0 0 0 2px var(--focus-color-20, rgba(74, 144, 226, 0.2));
+}
+
+.link-insert-modal__divider {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  color: var(--text-muted, #999);
+  text-align: center;
+}
+
+.link-insert-modal__chapters {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.link-insert-modal__chapter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.1s;
+}
+
+.link-insert-modal__chapter-item:hover {
+  background: var(--context-menu-hover, var(--hover-bg-color, #f0f0f0));
+}
+
+.link-insert-modal__chapter-item--draft {
+  opacity: 0.6;
+}
+
+.link-insert-modal__chapter-item--hidden {
+  display: none;
+}
+
+.link-insert-modal__visibility-badge {
+  font-size: 0.7rem;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--hover-bg-color, rgba(0, 0, 0, 0.06));
+  color: var(--text-muted, #999);
+}
+
+.link-insert-modal__empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--text-muted, #999);
+  font-size: 0.85rem;
+}
+
 /* ===== 傍点・圏点 (SP-059 Phase 3) ===== */
 .kenten {
   -webkit-text-emphasis: filled sesame;

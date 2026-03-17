@@ -218,15 +218,27 @@
    */
   function convertChapterLinks(html) {
     if (!html) return html;
+    var chapters = getChapters();
     // Markdown-it が生成する <a href="chapter://..."> を変換
     return html.replace(
       /<a\s+href="chapter:\/\/([^"]+)"([^>]*)>(.*?)<\/a>/gi,
       function (_match, chapterId, attrs, text) {
         var decoded = decodeURIComponent(chapterId);
-        return '<a href="#" class="chapter-link" data-chapter-target="' +
-          encodeURIComponent(decoded) + '"' + attrs + '>' + text + '</a>';
+        var isBroken = !findChapterByTitle(chapters, decoded) && !findChapterById(chapters, decoded);
+        var cls = 'chapter-link' + (isBroken ? ' chapter-link--broken' : '');
+        var title = isBroken ? ' title="\u30ea\u30f3\u30af\u5148\u306e\u7ae0\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093: ' + decoded + '"' : '';
+        return '<a href="#" class="' + cls + '" data-chapter-target="' +
+          encodeURIComponent(decoded) + '"' + title + attrs + '>' + text + '</a>';
       }
     );
+  }
+
+  function findChapterById(chapters, id) {
+    if (!id) return null;
+    for (var i = 0; i < chapters.length; i++) {
+      if (chapters[i].id === id || chapters[i].id === 'ch-' + id) return { chapter: chapters[i], index: i };
+    }
+    return null;
   }
 
   /**
