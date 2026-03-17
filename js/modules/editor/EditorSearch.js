@@ -319,7 +319,7 @@
          * 検索パネルを表示/非表示
          * @param {EditorManager} manager
          */
-        toggleSearchPanel(manager) {
+        toggleSearchPanel(_manager) {
             if (window.MainHubPanel) {
                 window.MainHubPanel.toggle('search');
             }

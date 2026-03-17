@@ -19,7 +19,7 @@
             toggleSidebar,
             toggleToolbar,
             _toggleFullscreen,
-            syncHudQuickControls
+            _syncHudQuickControls
         } = deps;
         const FLOATING_PANEL_MARGIN = 12;
         let floatingPanelZIndex = 1650;
@@ -130,7 +130,7 @@
                 document.removeEventListener('pointerup', onPointerUp);
             }
 
-            const onPointerUp = (ev) => {
+            const onPointerUp = (_ev) => {
                 if (!pointerDown) return;
                 pointerDown = false;
                 try { handle.releasePointerCapture(activePointerId); } catch (_) { }
@@ -184,7 +184,7 @@
         const toggleToolbarBtn = elementManager.get('toggleToolbarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         const fullscreenBtn = elementManager.get('fullscreenBtn');
-        const feedbackBtn = elementManager.get('feedbackBtn');
+        // feedbackBtn: HTML不在のため削除
         const toggleSplitViewBtn = document.getElementById('toggle-split-view');
         // split-view-mode-panel は MainHubPanel に統合済み (旧参照削除)
         const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
@@ -466,38 +466,7 @@
             }
         }
 
-        // ===== フローティングツール（フォントパネル） =====
-        function positionFloatingPanel(panel, trigger) {
-            if (!panel) return;
-            const margin = 12;
-            const triggerRect = trigger ? trigger.getBoundingClientRect() : null;
-            const panelRect = panel.getBoundingClientRect();
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-
-            let left = triggerRect ? triggerRect.left : viewportWidth - panelRect.width - margin;
-            let top = triggerRect ? (triggerRect.bottom + 8) : (viewportHeight - panelRect.height - margin);
-
-            if (left + panelRect.width > viewportWidth - margin) {
-                left = viewportWidth - panelRect.width - margin;
-            }
-            if (left < margin) left = margin;
-
-            if (top + panelRect.height > viewportHeight - margin && triggerRect) {
-                top = triggerRect.top - panelRect.height - 8;
-            }
-            if (top < margin) top = margin;
-
-            panel.style.position = 'fixed';
-            panel.style.right = 'auto';
-            panel.style.bottom = 'auto';
-            panel.style.left = Math.round(left) + 'px';
-            panel.style.top = Math.round(top) + 'px';
-            panel.style.maxHeight = `calc(100vh - ${margin * 2}px)`;
-            panel.style.overflowY = 'auto';
-        }
-
-        // toggleFontPanel は削除済み (floating-font-panel はコメントアウト済み → MainHubPanel クイックツールタブに統合)
+        // positionFloatingPanel / toggleFontPanel は削除済み (MainHubPanel に統合)
         // フローティングパネルのドラッグ有効化（旧パネルIDは削除済み）
         ['main-hub-panel'].forEach((id) => {
             const panel = document.getElementById(id);

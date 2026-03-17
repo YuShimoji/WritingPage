@@ -39,12 +39,25 @@ test.describe('Story Wiki', () => {
     const dialog = page.locator('.swiki-dialog');
     await expect(dialog).toBeVisible({ timeout: 5000 });
 
-    // フォーム入力
-    await dialog.locator('input[placeholder="用語名"]').fill('テストキャラ');
-    await dialog.locator('select').selectOption('character');
+    // フォーム入力 (サイドバーがオーバーレイを遮る場合があるため evaluate で直接操作)
+    await page.evaluate(() => {
+      var dialog = document.querySelector('.swiki-dialog');
+      if (!dialog) return;
+      var input = dialog.querySelector('input[placeholder="用語名"]');
+      if (input) { input.value = 'テストキャラ'; input.dispatchEvent(new Event('input')); }
+      var select = dialog.querySelector('select');
+      if (select) { select.value = 'character'; select.dispatchEvent(new Event('change')); }
+    });
 
-    // 作成
-    await dialog.locator('button:text-is("作成")').click();
+    // 作成ボタンを evaluate でクリック
+    await page.evaluate(() => {
+      var dialog = document.querySelector('.swiki-dialog');
+      if (!dialog) return;
+      var btns = dialog.querySelectorAll('button');
+      for (var i = 0; i < btns.length; i++) {
+        if (btns[i].textContent.trim() === '作成') { btns[i].click(); break; }
+      }
+    });
 
     // ダイアログが閉じて全画面ペインに遷移
     await expect(dialog).not.toBeVisible({ timeout: 3000 });

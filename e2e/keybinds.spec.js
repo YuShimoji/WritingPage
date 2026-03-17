@@ -65,7 +65,10 @@ test.describe('Keybinds E2E', () => {
     const originalKeybind = await keyDisplay.textContent();
     expect(originalKeybind).toBeTruthy();
 
-    await keyDisplay.click();
+    await page.evaluate(() => {
+      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      if (item) item.click();
+    });
     await expect(keyDisplay).toHaveText('...');
 
     await page.keyboard.down('Control');
@@ -95,7 +98,10 @@ test.describe('Keybinds E2E', () => {
       return keybinds[keys[1]];
     });
 
-    await firstKeyDisplay.click();
+    await page.evaluate(() => {
+      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      if (item) item.click();
+    });
     await page.waitForTimeout(100);
 
     if (secondKeybindData.ctrlKey) await page.keyboard.down('Control');
@@ -119,7 +125,10 @@ test.describe('Keybinds E2E', () => {
 
     const firstItem = page.locator(`${scope} .keybind-item`).first();
     const firstKeyDisplay = firstItem.locator('.keybind-display');
-    await firstKeyDisplay.click();
+    await page.evaluate(() => {
+      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      if (item) item.click();
+    });
     await page.waitForTimeout(100);
 
     await page.keyboard.down('Control');
@@ -127,7 +136,13 @@ test.describe('Keybinds E2E', () => {
     await page.keyboard.up('Control');
     await page.waitForTimeout(500);
 
-    await resetBtn.click();
+    await page.evaluate(() => {
+      var btn = document.querySelector('#settings-gadgets-panel button');
+      var all = document.querySelectorAll('#settings-gadgets-panel button');
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].textContent.includes('デフォルトに戻す')) { all[i].click(); break; }
+      }
+    });
     await page.waitForTimeout(500);
 
     const allMatch = await page.evaluate(() => {

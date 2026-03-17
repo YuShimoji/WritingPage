@@ -92,7 +92,6 @@
     innerEl.innerHTML = '';
 
     var Nav = window.ZWChapterNav;
-    var Store = window.ZWChapterStore;
     var S = window.ZenWriterStorage;
 
     // 作品タイトル

@@ -43,10 +43,9 @@ test.describe('UI Mode Consistency', () => {
 
   test('Blank mode: status bar is hidden if present', async ({ page }) => {
     await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'blank'));
-    await page.waitForTimeout(100);
     const statusBar = page.locator('#editor-bottom-nav');
     if (await statusBar.count() > 0) {
-      await expect(statusBar).toBeHidden();
+      await expect(statusBar).toBeHidden({ timeout: 3000 });
     }
   });
 

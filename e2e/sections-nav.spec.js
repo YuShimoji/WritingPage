@@ -381,7 +381,9 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
     });
     await page.waitForTimeout(500);
 
-    // nextボタンをクリック → 第2章へ
+    // サイドバーを閉じてからnextボタンをクリック → 第2章へ
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(300);
     await page.click('#bottom-nav-next');
     await page.waitForTimeout(500);
 

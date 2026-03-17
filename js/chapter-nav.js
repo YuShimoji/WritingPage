@@ -34,7 +34,7 @@
     var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
     if (docId && Store && Store.isChapterMode(docId)) {
       var storeChapters = Store.getChaptersForDoc(docId);
-      return storeChapters.map(function (sc, i) {
+      return storeChapters.map(function (sc, _i) {
         return {
           id: sc.id,
           title: sc.name || '',

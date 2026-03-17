@@ -764,10 +764,6 @@
       chaptersEl.className = 'link-insert-modal__chapters';
       modal.appendChild(chaptersEl);
 
-      const chapters = (window.ZWChapterNav && typeof window.ZWChapterNav.getVisibleChapters === 'function')
-        ? window.ZWChapterNav.getVisibleChapters()
-        : [];
-
       // ChapterStoreから全章取得（draft含む）
       const allChapters = this._getAllChaptersForLinkModal();
 
