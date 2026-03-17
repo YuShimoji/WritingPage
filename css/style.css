@@ -732,6 +732,9 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --text-muted: #888888;
   --hover-bg-color: rgba(255, 255, 255, 0.08);
   --active-bg-color: rgba(255, 255, 255, 0.12);
+  --hover-bg: var(--hover-bg-color);
+  --accent-bg: rgba(85, 85, 85, 0.15);
+  --ui-border: var(--border-color);
   --context-menu-bg: #2a2a2a;
   --context-menu-border: #444;
   --context-menu-hover: rgba(255, 255, 255, 0.08);
@@ -754,6 +757,9 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --text-muted: #999999;
   --hover-bg-color: rgba(255, 255, 255, 0.08);
   --active-bg-color: rgba(255, 255, 255, 0.12);
+  --hover-bg: var(--hover-bg-color);
+  --accent-bg: rgba(119, 119, 119, 0.12);
+  --ui-border: var(--border-color);
   --context-menu-bg: #333333;
   --context-menu-border: #555;
   --context-menu-hover: rgba(255, 255, 255, 0.1);
@@ -778,6 +784,9 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --context-menu-border: #d4c4a8;
   --context-menu-hover: rgba(156, 107, 72, 0.1);
   --heading-h1-border-bottom: 1px solid #5b4636;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --accent-bg: rgba(156, 107, 72, 0.1);
+  --ui-border: var(--border-color);
 }
 
 /* 高コントラストテーマ */
@@ -796,6 +805,9 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --text-muted: #aaaaaa;
   --hover-bg-color: rgba(255, 255, 255, 0.12);
   --active-bg-color: rgba(255, 255, 255, 0.2);
+  --hover-bg: var(--hover-bg-color);
+  --accent-bg: rgba(255, 255, 0, 0.15);
+  --ui-border: var(--border-color);
   --context-menu-bg: #1a1a1a;
   --context-menu-border: #666;
   --context-menu-hover: rgba(255, 255, 255, 0.15);
@@ -825,6 +837,9 @@ html[data-ui-mode='blank'] .fab-toggle-toolbar {
   --context-menu-border: #93a1a1;
   --context-menu-hover: rgba(38, 139, 210, 0.1);
   --heading-h1-border-bottom: 1px solid #586e75;
+  --hover-bg: rgba(0, 0, 0, 0.04);
+  --accent-bg: rgba(38, 139, 210, 0.1);
+  --ui-border: var(--border-color);
 }
 
 /* リセットとベーススタイル */

@@ -85,6 +85,11 @@
   /* Hover and active backgrounds */
   --hover-bg-color: rgba(0, 0, 0, 0.05);
   --active-bg-color: rgba(0, 0, 0, 0.1);
+  --hover-bg: var(--hover-bg-color);
+  --accent-bg: rgba(74, 144, 217, 0.08);
+
+  /* UI chrome aliases */
+  --ui-border: var(--border-color);
 
   /* Semantic text colors */
   --text-muted: #999999;
@@ -141,6 +146,9 @@
   --focus-color-60: rgba(74, 144, 226, 0.6);
   --hover-bg-color: rgba(255, 255, 255, 0.1);
   --active-bg-color: rgba(255, 255, 255, 0.15);
+  --hover-bg: var(--hover-bg-color);
+  --accent-bg: rgba(86, 156, 214, 0.12);
+  --ui-border: var(--border-color);
   --heading-h1-border-bottom: 1px solid #cccccc;
   --bg-gradient: linear-gradient(135deg, #1e1e1e 0%, #252526 100%);
 
