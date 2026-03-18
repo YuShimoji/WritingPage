@@ -6,7 +6,7 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.29
-- **最終更新**: 2026-03-17
+- **最終更新**: 2026-03-18
 - **ブランチ**: main（origin/main と同期済み）
 
 ## 再開手順
@@ -25,16 +25,12 @@ npm run lint              # ESLint
 
 | テスト | 状態 | コマンド |
 |--------|------|----------|
-| E2E | 308+ passed / 8 failed / 1 skipped (44 spec files) | `npx playwright test` |
+| E2E | 387 passed / 1 failed / 1 skipped (51 spec files) | `npx playwright test` |
 | Lint | ALL PASSED (0 errors) | `npm run lint` |
 
-### 既知の E2E 失敗 (2026-03-17)
+### 既知の E2E 失敗 (2026-03-18)
 
-- editor-canvas-mode.spec.js: 1件 (Canvas Mode は betaEnabled:false で延期中)
-- keybinds.spec.js: 3件 (キーバインド編集/競合検出/デフォルト復帰)
-- sections-nav.spec.js: 2件 (ツリーノードジャンプ/下部ナビコラプス追従)
-- ui-mode-consistency.spec.js: 1件 (Blank mode ステータスバー)
-- wiki.spec.js: 1件 (Wiki エントリ作成)
+- editor-canvas-mode.spec.js: 1件 (Canvas Mode は betaEnabled:false で延期中 — 唯一の既知失敗)
 
 ### アーキテクチャ概要
 
@@ -70,7 +66,7 @@ npm run lint              # ESLint
 | `js/storage.js` | 1612 | IDB移行完了 |
 | `js/sidebar-manager.js` | 1370 | SSOT |
 | `js/editor-wysiwyg.js` | 1355 | リンク挿入モーダル追加 |
-| `js/story-wiki.js` | 1041 | Phase 1 完了 |
+| `js/story-wiki.js` | 1041 | Phase 2 Step 1-3 完了 (グラフ/バックリンク/AI生成) |
 | `js/chapter-list.js` | 1026 | Phase 3 目次生成 |
 | `js/gadgets-core.js` | 1020 | 適正 |
 | `js/app.js` | 644 | Phase 3 分割完了 |
