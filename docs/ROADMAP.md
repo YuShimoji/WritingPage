@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 314 test cases (44 spec files) (2026-03-17 時点)
+- E2E: 368 passed / 50 spec files (2026-03-18 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
@@ -54,15 +54,15 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] Phase 2: 章ごと独立保存 (documents ストアに type:'chapter' + IDB フラッシュ機構)
 - [x] 目次ページ自動生成 (SP-071 Phase 3 + SP-072連動)
 
-### A-3. セクションリンク & インタラクティブナビ (SP-072) -- partial (90%)
+### A-3. セクションリンク & インタラクティブナビ (SP-072) -- done (100%)
 
 章末ナビ自動挿入 + ゲームブック的インタラクティブリンク。
 
 - [x] Phase 1: 章末ナビ自動挿入 (前へ / 目次 / 次へ)
 - [x] Phase 2: 章visibility設定 + export変換
 - [x] Phase 3: リンク挿入モーダルUI + 壊れリンク警告
-- [x] 外部リンク新規タブ確認 (Phase 4 完了: target="_blank" + .external-link + URLバリデーション)
-- [ ] ゲームブック分岐UIデザイン (HUMAN_AUTHORITY: SP-074と連動して設計)
+- [x] Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
+- [x] Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
 
 ### A-4. UI/UX 磨き上げ (残タスク)
 
