@@ -280,21 +280,34 @@
    * @param {string} html
    * @returns {string}
    */
+  var VALID_LINK_STYLES = ['choice', 'emphasis', 'card'];
+
+  function parseLinkStyle(attrs) {
+    if (!attrs) return '';
+    var m = attrs.match(/data-style="([^"]+)"/i);
+    if (m && VALID_LINK_STYLES.indexOf(m[1]) !== -1) return m[1];
+    return '';
+  }
+
   function convertChapterLinks(html) {
     if (!html) return html;
     var chapters = getChapters();
     // Markdown-it が生成する <a href="chapter://..."> を変換
-    return html.replace(
+    var converted = html.replace(
       /<a\s+href="chapter:\/\/([^"]+)"([^>]*)>(.*?)<\/a>/gi,
       function (_match, chapterId, attrs, text) {
         var decoded = decodeURIComponent(chapterId);
         var isBroken = !findChapterByTitle(chapters, decoded) && !findChapterById(chapters, decoded);
-        var cls = 'chapter-link' + (isBroken ? ' chapter-link--broken' : '');
+        var style = parseLinkStyle(attrs);
+        var cls = 'chapter-link';
+        if (style) cls += ' chapter-link--' + style;
+        if (isBroken) cls += ' chapter-link--broken';
         var title = isBroken ? ' title="\u30ea\u30f3\u30af\u5148\u306e\u7ae0\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093: ' + decoded + '"' : '';
         return '<a href="#" class="' + cls + '" data-chapter-target="' +
-          encodeURIComponent(decoded) + '"' + title + attrs + '>' + text + '</a>';
+          encodeURIComponent(decoded) + '"' + title + '>' + text + '</a>';
       }
     );
+    return converted;
   }
 
   function findChapterById(chapters, id) {

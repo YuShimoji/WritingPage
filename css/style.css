@@ -4190,6 +4190,95 @@ html[data-embed='true'] #editor {
   text-decoration: underline;
 }
 
+/* ゲームブック分岐リンク (SP-072 Phase 5) */
+.chapter-link--choice {
+  display: block;
+  padding: 0.4em 0.8em;
+  margin: 0.3em 0;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--accent-color, #4a90d9);
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+
+.chapter-link--choice::before {
+  content: '\25b6\00a0';
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.chapter-link--choice:hover {
+  background-color: var(--hover-bg-color, rgba(128, 128, 128, 0.12));
+  text-decoration: none;
+}
+
+.chapter-link--emphasis {
+  display: block;
+  padding: 0.5em 1em;
+  margin: 0.35em 0;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--accent-color, #4a90d9);
+  border-left: 3px solid color-mix(in srgb, var(--accent-color, #4a90d9) 40%, transparent);
+  border-radius: 0 4px 4px 0;
+  transition: background-color 0.15s ease, border-left-color 0.15s ease;
+}
+
+.chapter-link--emphasis::before {
+  content: '\25b6\00a0';
+  font-size: 0.8em;
+  opacity: 0.7;
+}
+
+.chapter-link--emphasis:hover {
+  background-color: var(--hover-bg-color, rgba(128, 128, 128, 0.12));
+  border-left-color: var(--accent-color, #4a90d9);
+}
+
+.chapter-link--card {
+  display: block;
+  padding: 0.6em 1em;
+  margin: 0.4em 0;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--text-color, #333);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: 6px;
+  background: var(--bg-color, #fff);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.chapter-link--card::before {
+  content: '\25b6\00a0';
+  font-size: 0.8em;
+  color: var(--accent-color, #4a90d9);
+  opacity: 0.7;
+}
+
+.chapter-link--card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-color, #4a90d9);
+  text-decoration: none;
+}
+
+.chapter-choices {
+  margin: 1.5em 0;
+  padding: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-link--choice,
+  .chapter-link--emphasis,
+  .chapter-link--card {
+    transition: none;
+  }
+  .chapter-link--card:hover {
+    transform: none;
+  }
+}
+
 .chapter-link--broken {
   color: var(--error-color, #d44);
   text-decoration-color: var(--error-color, #d44);

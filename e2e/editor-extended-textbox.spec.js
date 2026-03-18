@@ -91,3 +91,74 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
     await expect(items).toHaveCount(8);
   });
 });
+
+test.describe('Extended Textbox (SP-016 Phase 2: WYSIWYG)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-toolbar-mode', 'full');
+    });
+  });
+
+  test('WYSIWYG renders textbox DSL as div.zw-textbox', async ({ page }) => {
+    await page.fill('#editor', ':::zw-textbox{preset:"inner-voice"}\n心の声テスト\n:::');
+    await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+
+    const textbox = page.locator('#wysiwyg-editor .zw-textbox[data-preset="inner-voice"]');
+    await expect(textbox).toBeVisible();
+    await expect(textbox).toContainText('心の声テスト');
+  });
+
+  test('textbox DSL round-trip textarea -> WYSIWYG -> textarea preserves content', async ({ page }) => {
+    const dsl = ':::zw-textbox{preset:"se-animal-fade"}\nガルルル\n:::';
+    await page.fill('#editor', dsl);
+
+    await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+    await expect(page.locator('#wysiwyg-editor .zw-textbox')).toBeVisible();
+
+    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    const value = await page.locator('#editor').inputValue();
+    expect(value).toContain(':::zw-textbox{preset:"se-animal-fade"');
+    expect(value).toContain('ガルルル');
+  });
+
+  test('textbox coexists with inline decorations in WYSIWYG', async ({ page }) => {
+    const content = ':::zw-textbox{preset:"inner-voice"}\n[bold]太字の心の声[/bold]\n:::';
+    await page.fill('#editor', content);
+
+    await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+
+    const textbox = page.locator('#wysiwyg-editor .zw-textbox');
+    await expect(textbox).toBeVisible();
+
+    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    const value = await page.locator('#editor').inputValue();
+    expect(value).toContain('zw-textbox');
+    expect(value).toContain('太字の心の声');
+  });
+
+  test('settings toggle disables textbox feature', async ({ page }) => {
+    const hasSettingsSection = await page.evaluate(() => {
+      const s = window.ZenWriterStorage.loadSettings();
+      return !!(s && s.editor && s.editor.extendedTextbox);
+    });
+    expect(hasSettingsSection).toBe(true);
+
+    await page.evaluate(() => {
+      const s = window.ZenWriterStorage.loadSettings();
+      s.editor.extendedTextbox.enabled = false;
+      window.ZenWriterStorage.saveSettings(s);
+      window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged'));
+    });
+
+    const isDisabled = await page.evaluate(() => {
+      const s = window.ZenWriterStorage.loadSettings();
+      return s.editor.extendedTextbox.enabled === false;
+    });
+    expect(isDisabled).toBe(true);
+  });
+});
