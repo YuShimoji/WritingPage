@@ -14,7 +14,8 @@
 | Phase | 内容 | 状態 |
 |-------|------|------|
 | Phase 1 | 基本機能 (CRUD / ツリー / カテゴリ / 検索 / エディタ連携) | done |
-| Phase 2 | AI生成 / グラフビュー / 高度な自動検出 | todo |
+| Phase 2 Step 1-2 | グラフビュー統合 / バックリンク一覧 | done |
+| Phase 2 Step 3-4 | AI生成 / 高度な自動検出 | todo |
 
 ---
 
@@ -191,18 +192,45 @@ WikiCategory = {
 
 ---
 
-## Phase 2 仕様 (後日詳細化)
+## Phase 2 仕様
 
-### AI生成
+### Phase 2 構成
+
+| Step | 内容 | 状態 |
+|------|------|------|
+| Step 1 | グラフビュー統合 (カテゴリ色分け / 力学レイアウト / ノードクリック遷移) | done |
+| Step 2 | バックリンク一覧 (詳細ペイン統合 / Story Wiki + ドキュメント横断) | done |
+| Step 3 | AI生成 | todo |
+| Step 4 | 高度な自動検出 | todo |
+
+### Step 1: グラフビュー統合 (done)
+
+- `link-graph.js` の `generateGraphData()` を Story Wiki エントリ (`loadStoryWiki()`) 対応に拡張
+- Wiki エントリのカテゴリ情報をノードに付与 (`node.category`)
+- `relatedIds` による関連エッジも生成 (破線表示)
+- 力学レイアウト (force-directed) による自動配置
+  - 斥力 + エッジ引力 + 減衰 + 境界制約
+  - 初期位置は円形配置
+- カテゴリ別ノード色分け (7プリセット + wiki/document/current/unknown)
+- ノードクリックで対応 Wiki 記事の全画面ペインへ遷移
+- カテゴリ凡例をグラフオーバーレイ上部に表示
+- ESCキーでオーバーレイ閉じ
+
+### Step 2: バックリンク一覧 (done)
+
+- Wiki 記事詳細ペインの「関連項目」セクション下に「バックリンク」セクションを追加
+- `findBacklinks()` を Story Wiki エントリ (`loadStoryWiki()`) 対応に拡張
+  - `sourceType: 'story-wiki'` + `sourceCategory` を返す
+  - タイトルおよび別名の両方でバックリンクを検索
+  - 自身 (同一タイトル) はスキップ
+- バックリンク項目にソース種別バッジ (Wiki / Doc / 現在) を表示
+- Story Wiki バックリンクのクリックで該当記事へ遷移
+
+### Step 3: AI生成 (todo)
 - 用語記事の下書き自動生成
 - コンテキスト(本文)を基にした記事内容の提案
 
-### グラフビュー
-- 用語間の関係を視覚化するネットワークグラフ
-- `link-graph.js` を拡張
-- バックリンク一覧
-
-### 高度な自動検出
+### Step 4: 高度な自動検出 (todo)
 - 形態素解析による精度向上
 - 文脈を考慮した固有名詞判定
 

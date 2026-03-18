@@ -238,6 +238,11 @@
       ]);
       dialog.appendChild(header);
 
+      // カテゴリ凡例
+      var legendContainer = el('div', { className: 'swiki-graph-legend' });
+      legendContainer.style.cssText = 'padding: 6px 12px; border-bottom: 1px solid var(--border-color, #ccc); display: flex; flex-wrap: wrap; gap: 4px; align-items: center;';
+      dialog.appendChild(legendContainer);
+
       var graphContainer = el('div', { className: 'link-graph-container' });
       graphContainer.style.cssText = 'flex: 1; overflow: auto; position: relative;';
       dialog.appendChild(graphContainer);
@@ -248,15 +253,46 @@
       });
       document.body.appendChild(overlay);
 
+      // ESCで閉じる
+      var graphEsc = function (e) {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          overlay.remove();
+          document.removeEventListener('keydown', graphEsc, true);
+        }
+      };
+      document.addEventListener('keydown', graphEsc, true);
+
       // グラフデータ生成と描画
       try {
         var graphData = window.LinkGraph.generateGraphData();
         if (graphData && graphData.nodes.length > 0) {
-          window.LinkGraph.renderGraph(graphContainer, graphData);
+          window.LinkGraph.renderGraph(graphContainer, graphData, {
+            onNodeClick: function (node) {
+              // wiki: プレフィックスを除去してWikiエントリを検索
+              var title = node.label;
+              var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+              var found = entries.find(function (e) { return e.title === title; });
+              if (found) {
+                overlay.remove();
+                document.removeEventListener('keydown', graphEsc, true);
+                state.selectedId = found.id;
+                state.editingId = null;
+                state.mode = 'full';
+                renderFull();
+              }
+            }
+          });
+          // 凡例描画
+          if (window.LinkGraph.renderLegend) {
+            window.LinkGraph.renderLegend(legendContainer, graphData);
+          }
         } else {
-          graphContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted,#999);">リンクデータがありません。本文に [[wikilink]] や doc:// リンクを追加してください。</div>';
+          legendContainer.style.display = 'none';
+          graphContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text-muted,#999);">リンクデータがありません。Wiki記事を作成し、本文に [[wikilink]] を追加してください。</div>';
         }
       } catch (err) {
+        legendContainer.style.display = 'none';
         graphContainer.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--error-color,#e55);">グラフ生成中にエラーが発生しました。</div>';
       }
     }
@@ -410,6 +446,69 @@
           }
         });
         container.appendChild(relSection);
+      }
+
+      // バックリンク一覧
+      if (window.LinkGraph) {
+        var blSection = el('div', { className: 'swiki-detail-backlinks' });
+        var blTitle = el('h3', { textContent: 'バックリンク' });
+        blSection.appendChild(blTitle);
+
+        // タイトルと別名の両方でバックリンクを検索
+        var targets = [entry.title].concat(entry.aliases || []);
+        var allBacklinks = [];
+        var seen = {};
+        targets.forEach(function (t) {
+          var bls = window.LinkGraph.findBacklinks(t);
+          bls.forEach(function (bl) {
+            if (!seen[bl.source]) {
+              seen[bl.source] = true;
+              allBacklinks.push(bl);
+            }
+          });
+        });
+
+        if (allBacklinks.length === 0) {
+          blSection.appendChild(el('div', {
+            className: 'swiki-backlink-empty',
+            textContent: 'この記事を参照している記事はありません'
+          }));
+        } else {
+          allBacklinks.forEach(function (bl) {
+            var blItem = el('div', { className: 'swiki-backlink-item' });
+            var typeLabel = bl.sourceType === 'story-wiki' ? 'Wiki' :
+              bl.sourceType === 'document' ? 'Doc' :
+              bl.sourceType === 'current' ? '現在' : bl.sourceType;
+            var badge = el('span', {
+              className: 'swiki-backlink-type',
+              textContent: typeLabel
+            });
+            var link = el('a', {
+              className: 'swiki-backlink-link',
+              textContent: bl.sourceTitle,
+              href: '#',
+              onClick: function (e) {
+                e.preventDefault();
+                // Story Wiki エントリの場合、遷移
+                if (bl.sourceType === 'story-wiki') {
+                  var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+                  var found = entries.find(function (ent) {
+                    return ent.title === bl.sourceTitle || ent.id === bl.source;
+                  });
+                  if (found) {
+                    state.selectedId = found.id;
+                    state.editingId = null;
+                    renderFull();
+                  }
+                }
+              }
+            });
+            blItem.appendChild(badge);
+            blItem.appendChild(link);
+            blSection.appendChild(blItem);
+          });
+        }
+        container.appendChild(blSection);
       }
 
       // アクションボタン

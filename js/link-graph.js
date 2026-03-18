@@ -13,6 +13,21 @@
   function _byId(id) { return document.getElementById(id); }
   function el(tag, cls) { var e = document.createElement(tag); if (cls) e.className = cls; return e; }
 
+  // カテゴリ別ノードカラー
+  var CATEGORY_COLORS = {
+    character: '#e07cc5',
+    location: '#68b5e0',
+    item: '#e0a843',
+    organization: '#7bc77b',
+    term: '#b0a0d0',
+    event: '#e06060',
+    concept: '#60c0c0',
+    wiki: '#a0a0a0',
+    document: '#d0c090',
+    current: '#c0d080',
+    unknown: '#999999'
+  };
+
   /**
    * `[[link]]`構文をパースしてリンク情報を抽出
    * @param {string} text - パース対象のテキスト
@@ -123,12 +138,47 @@
     if (!target || !storage) return [];
     var backlinks = [];
 
-    // Wikiページから検索
+    // Story Wiki エントリから検索
+    try {
+      if (ensure(storage.loadStoryWiki)) {
+        var swEntries = storage.loadStoryWiki();
+        for (var i = 0; i < swEntries.length; i++) {
+          var entry = swEntries[i];
+          if (!entry) continue;
+          // タイトル/別名が一致する自身はスキップ
+          if (entry.title === target) continue;
+          if (!entry.content) continue;
+          var swLinks = parseAllLinks(entry.content);
+          var matchSwLinks = swLinks.filter(function (link) {
+            return link.target === target || link.link === target;
+          });
+          // relatedIds による参照も検出
+          if (entry.relatedIds && entry.relatedIds.length > 0) {
+            // target がエントリIDの場合
+            var relMatch = entry.relatedIds.some(function (rid) { return rid === target; });
+            if (relMatch && matchSwLinks.length === 0) {
+              matchSwLinks.push({ type: 'related', target: target, text: target });
+            }
+          }
+          if (matchSwLinks.length > 0) {
+            backlinks.push({
+              source: entry.id || entry.title || 'unknown',
+              sourceType: 'story-wiki',
+              sourceTitle: entry.title || entry.id,
+              sourceCategory: entry.category,
+              links: matchSwLinks
+            });
+          }
+        }
+      }
+    } catch (e) { void e; }
+
+    // レガシー Wikiページから検索 (後方互換)
     try {
       if (ensure(storage.listWikiPages)) {
         var wikiPages = storage.listWikiPages();
-        for (var i = 0; i < wikiPages.length; i++) {
-          var page = wikiPages[i];
+        for (var wi = 0; wi < wikiPages.length; wi++) {
+          var page = wikiPages[wi];
           if (!page || !page.content) continue;
           var links = parseAllLinks(page.content);
           var matchingLinks = links.filter(function (link) {
@@ -212,12 +262,20 @@
     var edges = [];
     var nodeMap = {}; // ノードID -> ノードインデックス
 
-    function getOrCreateNode(id, label, type) {
-      if (nodeMap[id] !== undefined) return nodeMap[id];
+    function getOrCreateNode(id, label, type, category) {
+      if (nodeMap[id] !== undefined) {
+        // カテゴリ情報を後から補完
+        if (category && !nodes[nodeMap[id]].category) {
+          nodes[nodeMap[id]].category = category;
+          nodes[nodeMap[id]].type = type || nodes[nodeMap[id]].type;
+        }
+        return nodeMap[id];
+      }
       var node = {
         id: id,
         label: label || id,
         type: type || 'unknown',
+        category: category || null,
         x: Math.random() * 400 + 50,
         y: Math.random() * 300 + 50
       };
@@ -227,7 +285,54 @@
       return index;
     }
 
-    // Wikiページをノードとして追加
+    // Story Wiki エントリをノードとして追加
+    try {
+      if (ensure(storage.loadStoryWiki)) {
+        var swEntries = storage.loadStoryWiki();
+        for (var si = 0; si < swEntries.length; si++) {
+          var swEntry = swEntries[si];
+          if (!swEntry) continue;
+          var swId = 'wiki:' + swEntry.title;
+          getOrCreateNode(swId, swEntry.title, 'story-wiki', swEntry.category);
+
+          // 本文内リンクからエッジを作成
+          if (swEntry.content) {
+            var swLinks = parseAllLinks(swEntry.content);
+            for (var sj = 0; sj < swLinks.length; sj++) {
+              var swLink = swLinks[sj];
+              var swTargetId = swLink.type === 'doclink' ? 'doc:' + swLink.docId : 'wiki:' + swLink.target;
+              var swTargetIdx = getOrCreateNode(swTargetId, swLink.text, swLink.type === 'doclink' ? 'document' : 'wiki');
+              edges.push({
+                from: nodeMap[swId],
+                to: swTargetIdx,
+                label: swLink.text,
+                type: swLink.type
+              });
+            }
+          }
+
+          // relatedIds からエッジを作成
+          if (swEntry.relatedIds) {
+            for (var sr = 0; sr < swEntry.relatedIds.length; sr++) {
+              var relId = swEntry.relatedIds[sr];
+              var relEntry = ensure(storage.getStoryWikiEntry) ? storage.getStoryWikiEntry(relId) : null;
+              if (relEntry) {
+                var relNodeId = 'wiki:' + relEntry.title;
+                var relIdx = getOrCreateNode(relNodeId, relEntry.title, 'story-wiki', relEntry.category);
+                edges.push({
+                  from: nodeMap[swId],
+                  to: relIdx,
+                  label: '',
+                  type: 'related'
+                });
+              }
+            }
+          }
+        }
+      }
+    } catch (e) { void e; }
+
+    // レガシー Wikiページをノードとして追加 (後方互換)
     try {
       if (ensure(storage.listWikiPages)) {
         var wikiPages = storage.listWikiPages();
@@ -237,7 +342,6 @@
           var pageId = 'wiki:' + (page.id || page.title || 'unknown');
           getOrCreateNode(pageId, page.title || page.id, 'wiki');
 
-          // リンクを検出してエッジを作成
           if (page.content) {
             var links = parseAllLinks(page.content);
             for (var j = 0; j < links.length; j++) {
@@ -291,13 +395,102 @@
   }
 
   /**
-   * グラフをレンダリング（簡易版、D3.js等のライブラリを使用する場合は別途実装）
+   * 簡易力学レイアウト (force-directed)
+   * @param {Object} graphData - グラフデータ (nodes/edges)
+   * @param {number} width - キャンバス幅
+   * @param {number} height - キャンバス高さ
+   */
+  function applyForceLayout(graphData, width, height) {
+    var nodes = graphData.nodes;
+    var edges = graphData.edges;
+    if (nodes.length === 0) return;
+
+    // 初期位置を円形に配置
+    var cx = width / 2, cy = height / 2;
+    var radius = Math.min(width, height) * 0.35;
+    for (var i = 0; i < nodes.length; i++) {
+      var angle = (2 * Math.PI * i) / nodes.length;
+      nodes[i].x = cx + radius * Math.cos(angle);
+      nodes[i].y = cy + radius * Math.sin(angle);
+      nodes[i].vx = 0;
+      nodes[i].vy = 0;
+    }
+
+    // 反復計算
+    var iterations = 80;
+    var repulsion = 3000;
+    var attraction = 0.02;
+    var damping = 0.9;
+    var minDist = 40;
+
+    for (var iter = 0; iter < iterations; iter++) {
+      // 斥力 (全ペア)
+      for (var a = 0; a < nodes.length; a++) {
+        for (var b = a + 1; b < nodes.length; b++) {
+          var dx = nodes[a].x - nodes[b].x;
+          var dy = nodes[a].y - nodes[b].y;
+          var dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          if (dist < minDist) dist = minDist;
+          var force = repulsion / (dist * dist);
+          var fx = (dx / dist) * force;
+          var fy = (dy / dist) * force;
+          nodes[a].vx += fx;
+          nodes[a].vy += fy;
+          nodes[b].vx -= fx;
+          nodes[b].vy -= fy;
+        }
+      }
+      // 引力 (エッジ)
+      for (var e = 0; e < edges.length; e++) {
+        var from = nodes[edges[e].from];
+        var to = nodes[edges[e].to];
+        if (!from || !to) continue;
+        var edx = to.x - from.x;
+        var edy = to.y - from.y;
+        var eDist = Math.sqrt(edx * edx + edy * edy) || 1;
+        var af = attraction * eDist;
+        from.vx += (edx / eDist) * af;
+        from.vy += (edy / eDist) * af;
+        to.vx -= (edx / eDist) * af;
+        to.vy -= (edy / eDist) * af;
+      }
+      // 位置更新
+      for (var n = 0; n < nodes.length; n++) {
+        nodes[n].vx *= damping;
+        nodes[n].vy *= damping;
+        nodes[n].x += nodes[n].vx;
+        nodes[n].y += nodes[n].vy;
+        // 境界制約
+        nodes[n].x = Math.max(60, Math.min(width - 60, nodes[n].x));
+        nodes[n].y = Math.max(30, Math.min(height - 30, nodes[n].y));
+      }
+    }
+  }
+
+  /**
+   * ノードの表示色を取得
+   */
+  function getNodeColor(node) {
+    if (node.category && CATEGORY_COLORS[node.category]) return CATEGORY_COLORS[node.category];
+    return CATEGORY_COLORS[node.type] || CATEGORY_COLORS.unknown;
+  }
+
+  /**
+   * グラフをレンダリング（カテゴリ色分け + ノードクリック + 力学レイアウト）
    * @param {HTMLElement} container - コンテナ要素
    * @param {Object} graphData - グラフデータ
+   * @param {Object} [options] - オプション { onNodeClick: function(node) }
    */
-  function renderGraph(container, graphData) {
+  function renderGraph(container, graphData, options) {
     if (!container || !graphData) return;
     container.innerHTML = '';
+    var opts = options || {};
+
+    var cw = container.clientWidth || 500;
+    var ch = container.clientHeight || 400;
+
+    // 力学レイアウト適用
+    applyForceLayout(graphData, cw, ch);
 
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.style.width = '100%';
@@ -326,33 +519,99 @@
       line.setAttribute('y1', fromNode.y);
       line.setAttribute('x2', toNode.x);
       line.setAttribute('y2', toNode.y);
-      line.setAttribute('stroke', '#999');
-      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke', edge.type === 'related' ? 'var(--border-color, #666)' : 'var(--text-muted, #999)');
+      line.setAttribute('stroke-width', edge.type === 'related' ? '1' : '1.5');
+      line.setAttribute('stroke-dasharray', edge.type === 'related' ? '4,3' : 'none');
+      line.setAttribute('stroke-opacity', '0.6');
       svg.appendChild(line);
     }
 
     // ノードを描画
     for (var j = 0; j < graphData.nodes.length; j++) {
       var node = graphData.nodes[j];
+      var color = getNodeColor(node);
       var nodeEl = el('div', 'link-graph-node');
       nodeEl.setAttribute('data-type', node.type || 'unknown');
+      if (node.category) nodeEl.setAttribute('data-category', node.category);
       nodeEl.style.position = 'absolute';
-      nodeEl.style.left = node.x + 'px';
-      nodeEl.style.top = node.y + 'px';
+      nodeEl.style.left = (node.x - 4) + 'px';
+      nodeEl.style.top = (node.y - 4) + 'px';
+      nodeEl.style.background = color;
+      nodeEl.style.color = '#fff';
+      nodeEl.style.padding = '3px 8px';
+      nodeEl.style.borderRadius = '10px';
+      nodeEl.style.fontSize = '0.75rem';
+      nodeEl.style.whiteSpace = 'nowrap';
+      nodeEl.style.cursor = opts.onNodeClick ? 'pointer' : 'default';
+      nodeEl.style.boxShadow = '0 1px 3px rgba(0,0,0,0.3)';
+      nodeEl.style.transition = 'transform 0.15s, box-shadow 0.15s';
       nodeEl.textContent = node.label;
-      nodeEl.title = node.id + ' (' + node.type + ')';
+      nodeEl.title = node.label + (node.category ? ' (' + node.category + ')' : '');
+      if (opts.onNodeClick) {
+        (function (n) {
+          nodeEl.addEventListener('click', function () { opts.onNodeClick(n); });
+          nodeEl.addEventListener('mouseenter', function () { this.style.transform = 'scale(1.15)'; this.style.boxShadow = '0 2px 8px rgba(0,0,0,0.4)'; });
+          nodeEl.addEventListener('mouseleave', function () { this.style.transform = ''; this.style.boxShadow = '0 1px 3px rgba(0,0,0,0.3)'; });
+        })(node);
+      }
       nodesLayer.appendChild(nodeEl);
     }
   }
 
-  // 公開API
+  /**
+   * カテゴリ凡例を描画
+   * @param {HTMLElement} container - 凡例のコンテナ
+   * @param {Object} graphData - グラフデータ (使用カテゴリを特定)
+   */
+  function renderLegend(container, graphData) {
+    if (!container || !graphData) return;
+    container.innerHTML = '';
+    container.className = 'link-graph-legend';
+
+    // 使用中のカテゴリを収集
+    var usedTypes = {};
+    for (var i = 0; i < graphData.nodes.length; i++) {
+      var n = graphData.nodes[i];
+      var key = n.category || n.type || 'unknown';
+      usedTypes[key] = true;
+    }
+
+    var labelMap = {
+      character: 'キャラクター', location: '場所', item: 'アイテム',
+      organization: '組織', term: '用語', event: 'イベント', concept: '概念',
+      wiki: 'Wiki', document: 'ドキュメント', current: '現在のドキュメント', unknown: '不明'
+    };
+
+    var keys = Object.keys(usedTypes);
+    for (var j = 0; j < keys.length; j++) {
+      var k = keys[j];
+      var color = CATEGORY_COLORS[k] || CATEGORY_COLORS.unknown;
+      var item = el('span', 'link-graph-legend-item');
+      var dot = el('span', 'link-graph-legend-dot');
+      dot.style.background = color;
+      dot.style.display = 'inline-block';
+      dot.style.width = '10px';
+      dot.style.height = '10px';
+      dot.style.borderRadius = '50%';
+      dot.style.marginRight = '4px';
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(labelMap[k] || k));
+      item.style.marginRight = '12px';
+      item.style.fontSize = '0.8rem';
+      container.appendChild(item);
+    }
+  }
+
+  // 公開API (registerGadget前の仮公開、後でグローバル版で上書きされる)
   window.LinkGraph = {
     parseWikilinks: parseWikilinks,
     parseDocLinks: parseDocLinks,
     parseAllLinks: parseAllLinks,
     findBacklinks: findBacklinks,
     generateGraphData: generateGraphData,
-    renderGraph: renderGraph
+    renderGraph: renderGraph,
+    renderLegend: renderLegend,
+    CATEGORY_COLORS: CATEGORY_COLORS
   };
 
   // Gadgetとして登録
@@ -463,7 +722,9 @@
     generateGraphData: function (storage) {
       return generateGraphData(storage || window.ZenWriterStorage);
     },
-    renderGraph: renderGraph
+    renderGraph: renderGraph,
+    renderLegend: renderLegend,
+    CATEGORY_COLORS: CATEGORY_COLORS
   };
 
   // init when gadgets ready
