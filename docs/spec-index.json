@@ -422,8 +422,8 @@
   {
     "id": "SP-072",
     "title": "セクションリンク & インタラクティブナビ仕様",
-    "status": "done",
-    "pct": 100,
+    "status": "partial",
+    "pct": 95,
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
     "summary": "Phase 1-5完了。章末ナビバー+chapter://リンク+visibility+リンク挿入モーダル+壊れリンク警告+外部リンク+ゲームブック分岐UI(3階層:choice/emphasis/card+SP-062エフェクト転用設計)。E2E 5件。",
@@ -446,7 +446,7 @@
     "pct": 15,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1完了: テクスチャオーバーレイ5種(wave/sparkle/cosmic/fire/glitch)+CSS animation+reduced motion+WYSIWYG round-trip。E2E 7件。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。",
+    "summary": "Phase 1完了: テクスチャオーバーレイ5種(wave/sparkle/cosmic/fire/glitch)+CSS animation+reduced motion+WYSIWYG round-trip。E2E 7件。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {

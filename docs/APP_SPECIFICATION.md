@@ -246,7 +246,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 | フレームワーク | なし（バニラJS） |
 | CSS設計 | CSS変数、Flexbox |
 | ストレージ | LocalStorage |
-| テスト | Playwright E2E（271件 / 38ファイル） |
+| テスト | Playwright E2E（358件 / 49ファイル） |
 | Lint | ESLint、Prettier、Markdownlint |
 | デスクトップ | Electron v35.0.0 |
 
@@ -256,7 +256,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 |------|------|
 | JavaScriptファイル | 104ファイル |
 | CSSファイル | style.css（メイン、6000+行） |
-| E2Eテスト | 38ファイル、271テストケース |
+| E2Eテスト | 49ファイル、358テストケース |
 | ガジェット | 33個 (+1 開発専用) |
 | 仕様書 | spec-index.json に42エントリ |
 
