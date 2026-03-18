@@ -65,6 +65,17 @@
       ? window.ZenWriterStorage.loadSettings()
       : {};
 
+    // DSL ブロックを退避してから markdown-it に渡す
+    var dslBlockRe = /:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
+    var dslPlaceholders = [];
+    var dslCounter = 0;
+    var mdSrc = src.replace(dslBlockRe, function (match) {
+      var token = '\n\nZWDSLBLOCK' + dslCounter + '\n\n';
+      dslPlaceholders.push({ token: 'ZWDSLBLOCK' + dslCounter, dsl: match });
+      dslCounter++;
+      return token;
+    });
+
     var html = '';
     try {
       if (window.markdownit) {
@@ -75,9 +86,9 @@
             breaks: true,
           });
         }
-        html = editorManager._markdownRenderer.render(src);
+        html = editorManager._markdownRenderer.render(mdSrc);
       } else {
-        html = (src || '')
+        html = (mdSrc || '')
           .replace(/&/g, '&amp;')
           .replace(/</g, '&lt;')
           .replace(/>/g, '&gt;')
@@ -87,10 +98,11 @@
       html = '';
     }
 
-    // :::zw-* DSL マーカーが <p> で囲まれている場合を復元
-    if (html && html.indexOf(':::zw-') !== -1) {
-      html = html.replace(/<p>(:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?)<\/p>/gi, '$1\n');
-      html = html.replace(/<p>:::<\/p>/g, '\n:::');
+    // DSL ブロックを復元
+    for (var di = 0; di < dslPlaceholders.length; di++) {
+      var dp = dslPlaceholders[di];
+      html = html.replace(new RegExp('<p>' + dp.token + '</p>', 'g'), dp.dsl);
+      html = html.replace(new RegExp(dp.token, 'g'), dp.dsl);
     }
 
     if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
