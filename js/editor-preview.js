@@ -87,6 +87,12 @@
       html = '';
     }
 
+    // :::zw-* DSL マーカーが <p> で囲まれている場合を復元
+    if (html && html.indexOf(':::zw-') !== -1) {
+      html = html.replace(/<p>(:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?)<\/p>/gi, '$1\n');
+      html = html.replace(/<p>:::<\/p>/g, '\n:::');
+    }
+
     if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
       html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
         settings: settings,

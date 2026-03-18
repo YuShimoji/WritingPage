@@ -237,6 +237,19 @@
   }
 
   /**
+   * markdown-it が <p> で囲んだ :::zw-* DSL マーカーを復元する。
+   * markdown-it-container プラグインなしでも textbox DSL が動作するための前処理。
+   */
+  function unwrapDslBlocks(html) {
+    if (!html || html.indexOf(':::zw-') === -1) return html;
+    // <p>:::zw-textbox{...}</p> → :::zw-textbox{...}\n
+    html = html.replace(/<p>(:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?)<\/p>/gi, '$1\n');
+    // <p>:::</p> → \n:::
+    html = html.replace(/<p>:::<\/p>/g, '\n:::');
+    return html;
+  }
+
+  /**
    * エディタの全コンテンツをHTMLとして取得
    */
   function getFullContentHtml() {
@@ -273,13 +286,13 @@
     // Markdown→HTML変換
     if (window.ZenWriterEditor && typeof window.ZenWriterEditor.richTextEditor === 'object' &&
         typeof window.ZenWriterEditor.richTextEditor.markdownToHtml === 'function') {
-      return window.ZenWriterEditor.richTextEditor.markdownToHtml(markdown);
+      return unwrapDslBlocks(window.ZenWriterEditor.richTextEditor.markdownToHtml(markdown));
     }
 
     // フォールバック: markdown-itが利用可能なら直接変換
     if (window.markdownit) {
       var md = window.markdownit({ html: false, linkify: true, breaks: true });
-      return md.render(markdown);
+      return unwrapDslBlocks(md.render(markdown));
     }
 
     // 最終フォールバック: テキストそのまま
