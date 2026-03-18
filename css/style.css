@@ -7316,6 +7316,39 @@ details[open] summary {
   text-decoration: underline;
 }
 
+/* 下書き生成 */
+.swiki-btn-draft {
+  margin-top: 4px;
+}
+
+.swiki-draft-status {
+  font-size: 0.8rem;
+  color: var(--text-muted, #999);
+  margin-top: 4px;
+  padding: 4px 0;
+}
+
+/* 設定ダイアログ */
+.swiki-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.swiki-settings-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted, #999);
+  margin: 4px 0 12px;
+}
+
+.swiki-btn-settings {
+  min-width: auto;
+  padding: 4px 8px;
+  font-size: 1rem;
+}
+
 /* グラフ凡例 */
 .link-graph-legend {
   display: flex;

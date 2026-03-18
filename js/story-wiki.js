@@ -122,6 +122,12 @@
             state.mode = 'full';
             renderFull();
           }
+        }),
+        el('button', {
+          className: 'swiki-btn swiki-btn-settings',
+          textContent: '\u2699',
+          title: 'Story Wiki 設定',
+          onClick: function () { openSettingsDialog(); }
         })
       ]);
       root.appendChild(footer);
@@ -594,6 +600,41 @@
       form.appendChild(previewBtn);
       form.appendChild(previewDiv);
 
+      // 下書き生成ボタン
+      var draftStatus = el('div', { className: 'swiki-draft-status' });
+      draftStatus.style.display = 'none';
+      var draftBtn = el('button', {
+        className: 'swiki-btn swiki-btn-sm swiki-btn-draft',
+        textContent: '下書き生成',
+        title: 'カテゴリに基づいた下書きを生成 (APIキー設定時はAI生成)',
+        onClick: function () {
+          draftBtn.disabled = true;
+          draftBtn.textContent = '生成中...';
+          draftStatus.style.display = 'none';
+          var title = titleInput.value.trim() || entry.title;
+          var cat = catSelect.value;
+          var aliases = aliasInput.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+          generateDraft(title, cat, aliases, function (content, warning) {
+            draftBtn.disabled = false;
+            draftBtn.textContent = '下書き生成';
+            if (content) {
+              // 既存の内容があれば末尾に追加、なければ置換
+              if (contentArea.value.trim()) {
+                contentArea.value = contentArea.value + '\n\n' + content;
+              } else {
+                contentArea.value = content;
+              }
+            }
+            if (warning) {
+              draftStatus.textContent = warning;
+              draftStatus.style.display = 'block';
+            }
+          });
+        }
+      });
+      form.appendChild(draftBtn);
+      form.appendChild(draftStatus);
+
       // 保存/キャンセル
       var btnRow = el('div', { className: 'swiki-edit-actions' }, [
         el('button', {
@@ -876,10 +917,12 @@
       var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true };
       if (!settings.autoDetect) return;
 
-      // エディタの本文を取得
-      var editorArea = document.querySelector('.editor-area') || document.querySelector('#editor');
+      // エディタの本文を取得 (WYSIWYG表示中ならそちら、そうでなければtextarea)
+      var _wysiwygEl = document.querySelector('#wysiwyg-editor');
+      var _textareaEl = document.querySelector('#editor');
+      var editorArea = (_wysiwygEl && _wysiwygEl.offsetParent !== null) ? _wysiwygEl : _textareaEl;
       if (!editorArea) return;
-      var text = editorArea.innerText || editorArea.textContent || '';
+      var text = editorArea.value || editorArea.innerText || editorArea.textContent || '';
       var candidates = extractCandidateTerms(text);
       if (candidates.length > 0) {
         showAutoDetectSuggestions(candidates);
@@ -891,6 +934,255 @@
       scan: scanCurrentDocument,
       extractCandidates: extractCandidateTerms,
       showSuggestions: showAutoDetectSuggestions
+    };
+
+    // ── AI生成 (ハイブリッド) ────────────────
+
+    // カテゴリ別テンプレート
+    var CATEGORY_TEMPLATES = {
+      character: { label: 'キャラクター', sections: ['概要', '外見', '性格', '経歴', '関連'] },
+      location:  { label: '場所', sections: ['概要', '地理', '歴史', '特徴'] },
+      item:      { label: 'アイテム', sections: ['概要', '外見', '効果・用途', '来歴'] },
+      organization: { label: '組織', sections: ['概要', '目的', '構成', '歴史'] },
+      term:      { label: '用語', sections: ['概要', '定義', '用例', '関連概念'] },
+      event:     { label: 'イベント', sections: ['概要', '経緯', '影響', '関連人物'] },
+      concept:   { label: '概念', sections: ['概要', '定義', '原理', '応用'] }
+    };
+
+    /**
+     * 本文から対象用語の言及箇所を抽出
+     */
+    function extractMentions(title, aliases) {
+      // WYSIWYG が表示中ならそちらを優先、そうでなければ textarea
+      var wysiwygEl = document.querySelector('#wysiwyg-editor');
+      var textareaEl = document.querySelector('#editor');
+      var editorArea = (wysiwygEl && wysiwygEl.offsetParent !== null) ? wysiwygEl : textareaEl;
+      if (!editorArea) return [];
+      var text = editorArea.value || editorArea.innerText || editorArea.textContent || '';
+      if (!text) return [];
+
+      var terms = [title].concat(aliases || []).filter(Boolean);
+      var mentions = [];
+      terms.forEach(function (term) {
+        var idx = 0;
+        var lower = text.toLowerCase();
+        var termLower = term.toLowerCase();
+        while (idx < text.length) {
+          var pos = lower.indexOf(termLower, idx);
+          if (pos === -1) break;
+          var start = Math.max(0, pos - 100);
+          var end = Math.min(text.length, pos + term.length + 100);
+          var snippet = text.slice(start, end).replace(/\n/g, ' ').trim();
+          if (start > 0) snippet = '...' + snippet;
+          if (end < text.length) snippet = snippet + '...';
+          mentions.push(snippet);
+          idx = pos + term.length;
+          if (mentions.length >= 5) break;
+        }
+      });
+      return mentions;
+    }
+
+    /**
+     * 関連 Wiki 記事候補を抽出
+     */
+    function findRelatedEntries(title) {
+      var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+      var related = [];
+      entries.forEach(function (e) {
+        if (e.title === title) return;
+        if (e.content && e.content.indexOf(title) !== -1) {
+          related.push(e.title);
+        }
+      });
+      return related.slice(0, 10);
+    }
+
+    /**
+     * テンプレート生成 (オフライン)
+     */
+    function generateTemplate(title, category, aliases) {
+      var tmpl = CATEGORY_TEMPLATES[category] || CATEGORY_TEMPLATES.term;
+      var mentions = extractMentions(title, aliases);
+      var related = findRelatedEntries(title);
+
+      var lines = [];
+      tmpl.sections.forEach(function (section, idx) {
+        lines.push('## ' + section);
+        lines.push('');
+        if (idx === 0 && mentions.length > 0) {
+          lines.push('本文からの言及:');
+          lines.push('');
+          mentions.forEach(function (m) {
+            lines.push('> ' + m);
+            lines.push('');
+          });
+        }
+        if (section === '関連' || section === '関連概念' || section === '関連人物') {
+          if (related.length > 0) {
+            related.forEach(function (r) {
+              lines.push('- [[' + r + ']]');
+            });
+            lines.push('');
+          }
+        }
+        lines.push('');
+      });
+
+      return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    }
+
+    /**
+     * OpenAI API で下書きを生成
+     */
+    function generateWithAI(title, category, aliases, callback) {
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : {};
+      var apiKey = settings.apiKey;
+      if (!apiKey) {
+        callback(null, 'API キーが設定されていません');
+        return;
+      }
+
+      var model = settings.aiModel || 'gpt-4o-mini';
+      var tmpl = CATEGORY_TEMPLATES[category] || CATEGORY_TEMPLATES.term;
+      var mentions = extractMentions(title, aliases);
+      var mentionText = mentions.length > 0
+        ? '\n\n本文中の言及:\n' + mentions.map(function (m) { return '- ' + m; }).join('\n')
+        : '';
+
+      var systemPrompt = 'あなたは小説の世界観Wikiの執筆者です。与えられた用語について、指定されたカテゴリとセクション構造に従ってMarkdown形式の記事を生成してください。本文中の言及がある場合はそれを参考にしてください。簡潔で物語に役立つ内容にしてください。';
+      var userPrompt = '用語名: ' + title +
+        '\nカテゴリ: ' + (tmpl.label || category) +
+        '\nセクション構造: ' + tmpl.sections.join(' / ') +
+        mentionText +
+        '\n\n上記の情報を基に、Markdown形式の記事を生成してください。各セクションは ## で始めてください。';
+
+      var body = {
+        model: model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 800,
+        temperature: 0.7
+      };
+
+      fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + apiKey
+        },
+        body: JSON.stringify(body)
+      })
+      .then(function (res) {
+        if (!res.ok) {
+          return res.json().then(function (err) {
+            throw new Error((err.error && err.error.message) || 'API error: ' + res.status);
+          });
+        }
+        return res.json();
+      })
+      .then(function (data) {
+        var content = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        callback(content || '', null);
+      })
+      .catch(function (err) {
+        callback(null, err.message || 'AI生成に失敗しました');
+      });
+    }
+
+    /**
+     * 下書き生成 (ハイブリッド: APIキーがあればAI、なければテンプレート)
+     */
+    function generateDraft(title, category, aliases, callback) {
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : {};
+      if (settings.apiKey) {
+        generateWithAI(title, category, aliases, function (content, error) {
+          if (error || !content) {
+            // フォールバック: テンプレート生成
+            var fallback = generateTemplate(title, category, aliases);
+            callback(fallback, error ? 'AI生成失敗、テンプレートにフォールバック: ' + error : null);
+          } else {
+            callback(content, null);
+          }
+        });
+      } else {
+        var template = generateTemplate(title, category, aliases);
+        callback(template, null);
+      }
+    }
+
+    /**
+     * API キー設定ダイアログ
+     */
+    function openSettingsDialog() {
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true, ignoredTerms: [], apiKey: '', aiModel: 'gpt-4o-mini' };
+
+      var overlay = el('div', { className: 'swiki-overlay' });
+      var dialog = el('div', { className: 'swiki-dialog' });
+
+      dialog.appendChild(el('h3', { textContent: 'Story Wiki 設定' }));
+
+      // 自動検出
+      dialog.appendChild(el('label', { textContent: '自動検出' }));
+      var autoDetectCheck = el('input', { type: 'checkbox' });
+      autoDetectCheck.checked = settings.autoDetect !== false;
+      var adRow = el('div', { className: 'swiki-settings-row' });
+      adRow.appendChild(autoDetectCheck);
+      adRow.appendChild(document.createTextNode(' 保存時に用語候補を自動検出'));
+      dialog.appendChild(adRow);
+
+      // API キー
+      dialog.appendChild(el('label', { textContent: 'OpenAI API キー (省略可)' }));
+      var apiKeyInput = el('input', { type: 'password', className: 'swiki-input', placeholder: 'sk-...', value: settings.apiKey || '' });
+      dialog.appendChild(apiKeyInput);
+
+      dialog.appendChild(el('div', { className: 'swiki-settings-hint', textContent: '設定するとAIによる記事下書き生成が有効になります。未設定ならテンプレート生成を使用します。' }));
+
+      // モデル
+      dialog.appendChild(el('label', { textContent: 'モデル' }));
+      var modelInput = el('input', { type: 'text', className: 'swiki-input', value: settings.aiModel || 'gpt-4o-mini' });
+      dialog.appendChild(modelInput);
+
+      var btnRow = el('div', { className: 'swiki-dialog-actions' }, [
+        el('button', {
+          className: 'swiki-btn swiki-btn-primary',
+          textContent: '保存',
+          onClick: function () {
+            settings.autoDetect = autoDetectCheck.checked;
+            settings.apiKey = apiKeyInput.value.trim();
+            settings.aiModel = modelInput.value.trim() || 'gpt-4o-mini';
+            if (S.saveStoryWikiSettings) S.saveStoryWikiSettings(settings);
+            overlay.remove();
+          }
+        }),
+        el('button', {
+          className: 'swiki-btn',
+          textContent: 'キャンセル',
+          onClick: function () { overlay.remove(); }
+        })
+      ]);
+      dialog.appendChild(btnRow);
+
+      overlay.appendChild(dialog);
+      document.body.appendChild(overlay);
+      apiKeyInput.focus();
+
+      overlay.addEventListener('click', function (e) { if (e.target === overlay) overlay.remove(); });
+      var settingsEsc = function (e) {
+        if (e.key === 'Escape') { e.stopPropagation(); overlay.remove(); document.removeEventListener('keydown', settingsEsc, true); }
+      };
+      document.addEventListener('keydown', settingsEsc, true);
+    }
+
+    // グローバルに公開
+    window.StoryWikiAI = {
+      generateTemplate: generateTemplate,
+      generateWithAI: generateWithAI,
+      generateDraft: generateDraft,
+      extractMentions: extractMentions,
+      openSettings: openSettingsDialog
     };
 
     // 保存時フック: ドキュメント保存時に自動検出をトリガー
@@ -981,7 +1273,7 @@
 
   // エディタ本文内のWiki用語をハイライトする
   function highlightWikiTerms() {
-    var editorArea = document.querySelector('.editor-area');
+    var editorArea = document.querySelector('#wysiwyg-editor');
     if (!editorArea) return;
 
     // contenteditable なので、テキストノードを走査して一致箇所をマーク
@@ -1053,7 +1345,7 @@
 
   // ハイライトをクリア
   function clearHighlights() {
-    var editorArea = document.querySelector('.editor-area');
+    var editorArea = document.querySelector('#wysiwyg-editor');
     if (!editorArea) return;
     var highlights = editorArea.querySelectorAll('.swiki-highlight');
     highlights.forEach(function (span) {
@@ -1076,7 +1368,7 @@
 
   // イベント委譲: ハイライトへのホバー/クリック
   function setupEditorListeners() {
-    var editorArea = document.querySelector('.editor-area');
+    var editorArea = document.querySelector('#wysiwyg-editor');
     if (!editorArea) return;
 
     editorArea.addEventListener('mouseover', function (e) {
