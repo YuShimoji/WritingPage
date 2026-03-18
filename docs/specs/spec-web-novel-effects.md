@@ -95,7 +95,7 @@ SP-062 の責務モデルに以下を追加拡張する:
 #### 2.2 記法
 
 ```markdown
-:::zw-typing{speed="50ms" mode="auto"}
+:::zw-typing{speed:"50ms", mode:"auto"}
 一文字ずつ表示されるテキスト。
 :::
 ```
@@ -113,7 +113,7 @@ SP-062 の責務モデルに以下を追加拡張する:
 #### 3.1 構造
 
 ```markdown
-:::zw-dialog{speaker="アリス" icon="alice.png" position="left"}
+:::zw-dialog{speaker:"アリス", icon:"alice.png", position:"left"}
 こんにちは。ここが不思議の国ね。
 :::
 ```
@@ -151,7 +151,7 @@ SP-062 の責務モデルに以下を追加拡張する:
 ```markdown
 [se src="click.mp3" volume="0.5"]  <!-- インラインSEマーカー -->
 
-:::zw-typing{speed="50ms" se="keystroke.mp3"}  <!-- タイピング連動SE -->
+:::zw-typing{speed:"50ms", se:"keystroke.mp3"}  <!-- タイピング連動SE -->
 テキスト
 :::
 ```

@@ -1,14 +1,20 @@
 /**
  * TextboxDslParser
- * Phase 1 parser/serializer and HTML transformer for :::zw-textbox blocks.
+ * Parser/serializer and HTML transformer for :::zw-* blocks.
+ * Supported block types: textbox, typing, dialog
  */
 (function (root) {
   'use strict';
 
-  var OPEN_RE = /:::zw-textbox(?:\{([^}]*)\})?(?:\r?\n|<br\s*\/?>)/i;
-  var BLOCK_RE = /:::zw-textbox(?:\{([^}]*)\})?(?:\r?\n|<br\s*\/?>)([\s\S]*?)(?:\r?\n|<br\s*\/?>):::/gi;
-  var ALLOWED_ATTRS = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class'];
+  var BLOCK_TYPES = ['textbox', 'typing', 'dialog'];
+  var BLOCK_TYPES_RE = BLOCK_TYPES.join('|');
+  var OPEN_RE = new RegExp(':::zw-(?:' + BLOCK_TYPES_RE + ')(?:\\{([^}]*)\\})?(?:\\r?\\n|<br\\s*\\/?>)', 'i');
+  var BLOCK_RE = new RegExp(':::zw-(' + BLOCK_TYPES_RE + ')(?:\\{([^}]*)\\})?(?:\\r?\\n|<br\\s*\\/?>)([\\s\\S]*?)(?:\\r?\\n|<br\\s*\\/?>):::', 'gi');
+  var ALLOWED_ATTRS = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style'];
   var ALLOWED_ROLES = ['dialogue', 'monologue', 'narration', 'sfx', 'system', 'custom'];
+  var TYPING_MODES = ['auto', 'click', 'scroll'];
+  var DIALOG_POSITIONS = ['left', 'right', 'center'];
+  var DIALOG_STYLES = ['default', 'bubble', 'bordered', 'transparent'];
 
   function clampNumber(value, min, max, fallback) {
     var n = typeof value === 'number' ? value : parseFloat(value);
@@ -48,13 +54,25 @@
     }
     if (typeof out.tilt !== 'undefined') out.tilt = clampNumber(out.tilt, -20, 20, 0);
     if (typeof out.scale !== 'undefined') out.scale = clampNumber(out.scale, 0.5, 2.0, 1);
+    if (typeof out.mode !== 'undefined') {
+      var mode = String(out.mode || '').toLowerCase();
+      out.mode = TYPING_MODES.indexOf(mode) !== -1 ? mode : 'auto';
+    }
+    if (typeof out.position !== 'undefined') {
+      var pos = String(out.position || '').toLowerCase();
+      out.position = DIALOG_POSITIONS.indexOf(pos) !== -1 ? pos : 'left';
+    }
+    if (typeof out.style !== 'undefined') {
+      var st = String(out.style || '').toLowerCase();
+      out.style = DIALOG_STYLES.indexOf(st) !== -1 ? st : 'default';
+    }
 
     return out;
   }
 
   function stringifyAttrs(attrs) {
     var src = attrs && typeof attrs === 'object' ? attrs : {};
-    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class'];
+    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style'];
     var parts = [];
 
     keys.forEach(function (key) {
@@ -70,10 +88,12 @@
     return parts.join(', ');
   }
 
-  function wrap(text, attrs) {
+  function wrap(text, attrs, blockType) {
     var body = String(text || '');
+    var type = blockType || 'textbox';
+    if (BLOCK_TYPES.indexOf(type) === -1) type = 'textbox';
     var attrText = stringifyAttrs(attrs || {});
-    var header = ':::zw-textbox' + (attrText ? '{' + attrText + '}' : '');
+    var header = ':::zw-' + type + (attrText ? '{' + attrText + '}' : '');
     return header + '\n' + body + '\n:::';
   }
 
@@ -85,7 +105,7 @@
 
     var segments = [];
     var lastIndex = 0;
-    source.replace(BLOCK_RE, function (full, attrText, content, offset) {
+    source.replace(BLOCK_RE, function (full, blockType, attrText, content, offset) {
       if (offset > lastIndex) {
         segments.push({
           type: 'text',
@@ -93,7 +113,7 @@
         });
       }
       segments.push({
-        type: 'textbox',
+        type: blockType || 'textbox',
         raw: full,
         attrs: parseAttrs(attrText || ''),
         content: String(content || '')
@@ -135,6 +155,34 @@
     return (attrs.class || (resolved && resolved.className) || ('zw-textbox--' + String(preset).toLowerCase()));
   }
 
+  function renderTypingHtml(attrs, content) {
+    var speed = attrs.speed || '50ms';
+    var mode = attrs.mode || 'auto';
+    if (TYPING_MODES.indexOf(mode) === -1) mode = 'auto';
+    var dataAttrs = 'data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '"';
+    return '<div class="zw-typing" ' + dataAttrs + ' aria-live="polite">'
+      + '<span class="zw-typing__text">' + escapeHtmlText(content) + '</span>'
+      + '</div>';
+  }
+
+  function renderDialogHtml(attrs, content) {
+    var speaker = attrs.speaker || '';
+    var position = attrs.position || 'left';
+    if (DIALOG_POSITIONS.indexOf(position) === -1) position = 'left';
+    var dialogStyle = attrs.style || 'default';
+    if (DIALOG_STYLES.indexOf(dialogStyle) === -1) dialogStyle = 'default';
+    var icon = attrs.icon || '';
+    var classAttr = 'zw-dialog zw-dialog--' + escapeAttr(position) + ' zw-dialog--' + escapeAttr(dialogStyle);
+    var iconHtml = icon ? '<div class="zw-dialog__icon"><img src="' + escapeAttr(icon) + '" alt="' + escapeAttr(speaker) + '"></div>' : '';
+    var speakerHtml = speaker ? '<div class="zw-dialog__speaker">' + escapeHtmlText(speaker) + '</div>' : '';
+    return '<div class="' + classAttr + '">'
+      + iconHtml
+      + '<div class="zw-dialog__body">'
+      + speakerHtml
+      + '<div class="zw-dialog__content">' + escapeHtmlText(content) + '</div>'
+      + '</div></div>';
+  }
+
   function toHtml(input, options) {
     var source = String(input || '');
     if (!OPEN_RE.test(source)) return source;
@@ -145,8 +193,18 @@
       return window.TextboxEffectRenderer.renderSegments(parseSegments(source), options || {});
     }
 
-    return source.replace(BLOCK_RE, function (_full, attrText, content) {
+    return source.replace(BLOCK_RE, function (_full, blockType, attrText, content) {
       var attrs = parseAttrs(attrText || '');
+      var type = blockType || 'textbox';
+
+      if (type === 'typing') {
+        return renderTypingHtml(attrs, content);
+      }
+      if (type === 'dialog') {
+        return renderDialogHtml(attrs, content);
+      }
+
+      // textbox (default)
       var role = attrs.role ? String(attrs.role) : 'custom';
       var className = normalizePresetClass(attrs, options);
       var dataAttrs = [
@@ -170,8 +228,12 @@
   }
 
   var api = {
+    BLOCK_TYPES: BLOCK_TYPES,
     ALLOWED_ATTRS: ALLOWED_ATTRS,
     ALLOWED_ROLES: ALLOWED_ROLES,
+    TYPING_MODES: TYPING_MODES,
+    DIALOG_POSITIONS: DIALOG_POSITIONS,
+    DIALOG_STYLES: DIALOG_STYLES,
     parseAttrs: parseAttrs,
     parseSegments: parseSegments,
     stringifyAttrs: stringifyAttrs,

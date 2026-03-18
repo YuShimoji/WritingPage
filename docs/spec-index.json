@@ -446,7 +446,7 @@
     "pct": 15,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1完了: テクスチャオーバーレイ5種(wave/sparkle/cosmic/fire/glitch)+CSS animation+reduced motion+WYSIWYG round-trip。E2E 7件。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
+    "summary": "Phase 1完了: テクスチャオーバーレイ5種+CSS animation+reduced motion+WYSIWYG round-trip (E2E 7件)。基盤整備: TextboxDslParser ブロック型ディスパッチ拡張(:::zw-typing/:::zw-dialog対応)、属性記法統一(key:\"value\")。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {

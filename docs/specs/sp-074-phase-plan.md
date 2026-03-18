@@ -31,7 +31,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: 1文字ずつ表示される演出を実装し、読者向け出力の基盤能力を獲得する。
 
 **スコープ**:
-- `:::zw-typing{speed="50ms" mode="auto"}` ブロック記法
+- `:::zw-typing{speed:"50ms", mode:"auto"}` ブロック記法
 - 3モード: auto (自動再生) / click (クリック進行) / scroll (スクロール連動)
 - WYSIWYG: テキスト通常表示 + タイピングアイコンバッジ
 - プレビュー / HTML出力: 実際のタイピングアニメーション再生
@@ -50,7 +50,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: ADV/ビジュアルノベル的な発言表示を実現し、SP-016 のテキストボックス基盤を拡張する。
 
 **スコープ**:
-- `:::zw-dialog{speaker="アリス" icon="alice.png" position="left"}` ブロック記法
+- `:::zw-dialog{speaker:"アリス", icon:"alice.png", position:"left"}` ブロック記法
 - 4スタイル: default / bubble / bordered / transparent
 - WYSIWYG: ブロック要素として編集 (SP-016 の TextboxRichTextBridge を拡張)
 - アイコン画像: IndexedDB 保存 (SP-077 基盤活用)
