@@ -11,6 +11,14 @@
     fadein: { tag: 'fadein', className: 'anim-fade-in', reducedMotion: 'drop' }
   };
 
+  var TEXTURES = {
+    wave: { tag: 'wave', className: 'tex-wave', reducedMotion: 'drop' },
+    sparkle: { tag: 'sparkle', className: 'tex-sparkle', reducedMotion: 'drop' },
+    cosmic: { tag: 'cosmic', className: 'tex-cosmic', reducedMotion: 'drop' },
+    fire: { tag: 'fire', className: 'tex-fire', reducedMotion: 'drop' },
+    glitch: { tag: 'glitch', className: 'tex-glitch', reducedMotion: 'drop' }
+  };
+
   function get(tag) {
     if (!tag) return null;
     return ANIMATIONS[String(tag).toLowerCase()] || null;
@@ -20,10 +28,22 @@
     return Object.keys(ANIMATIONS).map(function (key) { return ANIMATIONS[key]; });
   }
 
+  function getTexture(tag) {
+    if (!tag) return null;
+    return TEXTURES[String(tag).toLowerCase()] || null;
+  }
+
+  function listTextures() {
+    return Object.keys(TEXTURES).map(function (key) { return TEXTURES[key]; });
+  }
+
   var api = {
     ANIMATIONS: ANIMATIONS,
+    TEXTURES: TEXTURES,
     get: get,
-    list: list
+    getTexture: getTexture,
+    list: list,
+    listTextures: listTextures
   };
 
   root.TextAnimationDictionary = api;

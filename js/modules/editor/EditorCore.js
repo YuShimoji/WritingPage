@@ -277,7 +277,7 @@
             if (!text) return text;
             const withTextbox = this.processTextboxDsl(text);
             const normalized = this.normalizeCustomTagEscapes(withTextbox);
-            return normalized
+            var result = normalized
                 .replace(/\[fade\](.*?)\[\/fade\]/gi, '<span class="anim-fade">$1</span>')
                 .replace(/\[slide\](.*?)\[\/slide\]/gi, '<span class="anim-slide">$1</span>')
                 .replace(/\[type\](.*?)\[\/type\]/gi, '<span class="anim-typewriter">$1</span>')
@@ -285,6 +285,16 @@
                 .replace(/\[shake\](.*?)\[\/shake\]/gi, '<span class="anim-shake">$1</span>')
                 .replace(/\[bounce\](.*?)\[\/bounce\]/gi, '<span class="anim-bounce">$1</span>')
                 .replace(/\[fadein\](.*?)\[\/fadein\]/gi, '<span class="anim-fade-in">$1</span>');
+            result = result.replace(
+                /\[anim\s+type=["']texture["']\s+texture=["']([\w-]+)["'](?:\s+[^[\]]*?)?\](.*?)\[\/anim\]/gi,
+                function (_, texName, content) {
+                    var dict = window.TextAnimationDictionary;
+                    var tex = dict && dict.getTexture ? dict.getTexture(texName) : null;
+                    var cls = tex ? tex.className : 'tex-' + texName.toLowerCase();
+                    return '<span class="' + cls + '">' + content + '</span>';
+                }
+            );
+            return result;
         },
 
         processFontDecorations(text) {

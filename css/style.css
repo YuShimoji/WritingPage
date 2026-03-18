@@ -3962,6 +3962,11 @@ html[data-embed='true'] #editor {
   .anim-shake,
   .anim-bounce,
   .anim-fade-in,
+  .tex-wave,
+  .tex-sparkle,
+  .tex-cosmic,
+  .tex-fire,
+  .tex-glitch,
   .modal-overlay,
   .modal-dialog,
   .main-hub-panel {
@@ -4015,6 +4020,91 @@ html[data-embed='true'] #editor {
   to {
     width: 100%;
   }
+}
+
+/* ===== テクスチャオーバーレイ (SP-074 Phase 1) ===== */
+.tex-wave,
+.tex-sparkle,
+.tex-cosmic,
+.tex-fire,
+.tex-glitch {
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+}
+
+.tex-wave {
+  background-image: linear-gradient(90deg,
+    #3498db 0%, #2ecc71 25%, #3498db 50%, #2ecc71 75%, #3498db 100%);
+  animation: tex-wave-move calc(3s / var(--anim-speed, 1)) ease-in-out infinite;
+}
+
+@keyframes tex-wave-move {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.tex-sparkle {
+  background-image: linear-gradient(135deg,
+    #f1c40f 0%, #fff 15%, #f39c12 30%, #fff 45%,
+    #f1c40f 60%, #fff 75%, #f39c12 90%, #fff 100%);
+  animation: tex-sparkle-move calc(2s / var(--anim-speed, 1)) linear infinite;
+}
+
+@keyframes tex-sparkle-move {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 200%; }
+}
+
+.tex-cosmic {
+  background-image: linear-gradient(270deg,
+    #6c3483 0%, #1a5276 25%, #148f77 50%, #6c3483 75%, #1a5276 100%);
+  background-size: 400% 400%;
+  animation: tex-cosmic-flow calc(6s / var(--anim-speed, 1)) ease infinite;
+}
+
+@keyframes tex-cosmic-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.tex-fire {
+  background-image: linear-gradient(0deg,
+    #e74c3c 0%, #f39c12 30%, #f1c40f 60%, #e67e22 80%, #e74c3c 100%);
+  background-size: 200% 300%;
+  animation: tex-fire-flicker calc(1.5s / var(--anim-speed, 1)) ease-in-out infinite alternate;
+}
+
+@keyframes tex-fire-flicker {
+  0% { background-position: 50% 100%; }
+  50% { background-position: 50% 60%; }
+  100% { background-position: 50% 100%; }
+}
+
+.tex-glitch {
+  background-image: linear-gradient(90deg,
+    #00ff41 0%, #ff0080 20%, #00ff41 40%, #ff0080 60%, #00ff41 80%, #ff0080 100%);
+  animation: tex-glitch-shift calc(0.5s / var(--anim-speed, 1)) steps(4) infinite;
+}
+
+@keyframes tex-glitch-shift {
+  0% { background-position: 0% 0%; }
+  25% { background-position: 80% 20%; }
+  50% { background-position: 20% 80%; }
+  75% { background-position: 60% 40%; }
+  100% { background-position: 0% 0%; }
+}
+
+/* テクスチャ reduced motion */
+[data-reduce-motion="true"] .tex-wave,
+[data-reduce-motion="true"] .tex-sparkle,
+[data-reduce-motion="true"] .tex-cosmic,
+[data-reduce-motion="true"] .tex-fire,
+[data-reduce-motion="true"] .tex-glitch {
+  animation: none !important;
 }
 
 /* ===== フォント装飾 ===== */
