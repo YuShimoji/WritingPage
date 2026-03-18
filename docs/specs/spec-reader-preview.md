@@ -94,6 +94,7 @@
   - 傍点: `{kenten|text}` → `<span class="kenten">`
   - ルビ: `{漢字|かな}` → `<ruby>` / `|漢字《かな》` → `<ruby>`
 - **選択肢グループ化**: `autoGroupChoices()` で連続する chapter-link を自動グループ化
+- **DSL退避方式**: `:::zw-*` ブロックは markdown-it に渡す前にプレースホルダーに退避し、HTML変換後に復元する (`extractDslBlocks` / `restoreDslBlocks`)。markdown-it は `:::` 構文を認識しないため、`<p>` で囲んでしまい DSL パーサーが壊れる問題を回避する。editor-preview.js にも同じ方式を適用済み。
 
 ### 3. スタイリング
 
@@ -187,9 +188,12 @@
 | 既存機能 | 再利用方法 |
 |---------|-----------|
 | editor-preview.js のMarkdownパイプライン | HTML生成に再利用 |
+| TextboxRichTextBridge.projectRenderedHtml() | テキストボックス+semantic preset投影 |
+| processFontDecorations() / processTextAnimations() | フォント装飾・テクスチャアニメーション |
 | chapter-nav.js injectToc() | 目次生成 |
 | chapter-nav.js injectNavBars() | 章末ナビ |
 | chapter-nav.js convertForExport() | chapter://→#anchor変換 |
+| chapter-nav.js autoGroupChoices() | 連続リンク自動グループ化 |
 | chapter-nav.js getVisibleChapters() | draft/hidden除外 |
 | SP-070 data-ui-mode パターン | 第4モード追加 |
 | print.css | 印刷時のスタイリング |
@@ -226,3 +230,42 @@
 - 改修 `js/app.js`: モード切替に reader を追加
 - 改修 `css/style.css`: `[data-ui-mode="reader"]` のCSS定義
 - 改修 `index.html`: 読者プレビューパネルのマウントポイント + ツールバーボタン
+
+---
+
+## 統合体験パイプライン設計ノート (2026-03-18 session 8)
+
+### レンダリングパイプラインの全体像
+
+```text
+Markdown (chapter-store or ContentGuard)
+  ↓ extractDslBlocks() — :::zw-* ブロックをプレースホルダーに退避
+  ↓
+markdownToHtml() or markdownit.render()
+  ↓
+restoreDslBlocks() — プレースホルダーを DSL テキストに復元
+  ↓
+TextboxRichTextBridge.projectRenderedHtml() — textbox + semantic preset 投影
+  ↓
+processFontDecorations() — フォント装飾
+  ↓
+processTextAnimations() — テクスチャアニメーション (wave/sparkle/cosmic/fire/glitch)
+  ↓
+[[wikilink]] 変換 — <a class="wikilink"> に変換 (searchStoryWiki 存在チェック)
+  ↓
+{kenten|text} / {漢字|かな} / |漢字《かな》 — 傍点・ルビ変換
+  ↓
+convertForExport() — chapter:// → #anchor 変換
+  ↓
+DOM挿入
+  ↓
+injectToc() / injectNavBars() / autoGroupChoices() / bindReaderLinks()
+```
+
+### 既知の制約と注意点
+
+1. **DSL退避の正規表現制約**: `:::zw-textbox{...}\n` の開始行と `\n:::` の終了行が改行で区切られている必要がある。改行なしの `:::zw-textbox{...}text:::` はマッチしない
+2. **WYSIWYG vs textarea**: WYSIWYG モードでは textbox は DOM 要素として直接存在するため DSL 退避は不要。textarea → プレビューのパスでのみ退避が必要
+3. **wikilink は読者プレビューではクリック無効**: 読者にとって Wiki ガジェットは不要なため、`e.preventDefault()` のみ設定
+4. **exportHtml() のテクスチャ**: @keyframes を inline `<style>` に embed。prefers-reduced-motion で animation:none
+5. **markdown-it-container 不採用**: プラグイン追加は依存増加。DSL退避方式で同等の結果を得られるため現状維持
