@@ -101,11 +101,11 @@
   {
     "id": "SP-016",
     "title": "拡張テキストボックス機能仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-extended-textbox.md",
-    "summary": "テキスト/ボックス単位の演出拡張（プリセット、傾き・拡縮・アニメ、WYSIWYG連携）。Phase 1-2完了。Phase 3(ユーザー定義プリセット管理UI)未着手"
+    "summary": "テキスト/ボックス単位の演出拡張（プリセット、傾き・拡縮・アニメ、WYSIWYG連携）。Phase 1-3完了。ユーザー定義プリセット管理UI+WYSIWYG TBドロップダウン実装済み"
   },
   {
     "id": "SP-015",
