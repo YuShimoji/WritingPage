@@ -142,10 +142,62 @@
       return;
     }
 
-    // HTML変換パイプライン
+    // HTML変換パイプライン (editor-preview.js と同等の装飾処理を適用)
     var html = fullHtml;
 
-    // chapter://リンクをアンカーに変換
+    // 1. テキストボックス + semantic preset 投影
+    if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
+      var rwSettings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings() : {};
+      html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
+        settings: rwSettings,
+        target: 'reader'
+      });
+    }
+
+    // 2. フォント装飾
+    var edMgr = window.ZenWriterEditor;
+    if (html && edMgr && typeof edMgr.processFontDecorations === 'function') {
+      html = edMgr.processFontDecorations(html);
+    }
+
+    // 3. テキストアニメーション (wave, sparkle, cosmic, fire, glitch)
+    if (html && edMgr && typeof edMgr.processTextAnimations === 'function') {
+      html = edMgr.processTextAnimations(html);
+    }
+
+    // 4. [[wikilink]] 変換
+    if (html) {
+      html = html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
+        var parts = content.split('|');
+        var link = parts[0].trim();
+        var display = parts.length > 1 ? parts[1].trim() : link;
+        var exists = false;
+        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.searchStoryWiki === 'function') {
+          var results = window.ZenWriterStorage.searchStoryWiki(link);
+          exists = results.some(function (e) {
+            return (e.title || '').toLowerCase() === link.toLowerCase();
+          });
+        }
+        var brokenClass = exists ? '' : ' is-broken';
+        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
+      });
+    }
+
+    // 5. 傍点 + ルビ
+    if (html) {
+      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_match, text) {
+        return '<span class="kenten">' + text.trim() + '</span>';
+      });
+      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
+        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
+      });
+      html = html.replace(/\|([^|《》]+)《([^《》]+)》/g, function (_match, kanji, kana) {
+        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
+      });
+    }
+
+    // 6. chapter://リンクをアンカーに変換
     if (Nav && typeof Nav.convertForExport === 'function') {
       html = Nav.convertForExport(html);
     }
@@ -164,8 +216,20 @@
       if (typeof Nav.injectNavBars === 'function') {
         Nav.injectNavBars(contentDiv);
       }
+      // 連続リンクの自動グループ化
+      if (typeof Nav.autoGroupChoices === 'function') {
+        Nav.autoGroupChoices(contentDiv);
+      }
       // chapter-linkのクリックハンドラ（読者プレビュー内でのジャンプ）
       bindReaderLinks(contentDiv);
+    }
+
+    // wikilinkクリックハンドラ
+    var wikiLinks = contentDiv.querySelectorAll('a.wikilink');
+    for (var wl = 0; wl < wikiLinks.length; wl++) {
+      wikiLinks[wl].addEventListener('click', function (e) {
+        e.preventDefault();
+      });
     }
 
     // 先頭にスクロール
@@ -322,6 +386,29 @@
       + '  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }\n'
       + '  p { text-indent: 1em; margin: 0.5em 0; }\n'
       + '  blockquote { border-left: 3px solid #ccc; margin: 1em 0; padding: 0.5em 1em; color: #666; }\n'
+      + '  .zw-textbox { display: block; margin: 1em 0; padding: 0.8em 1em; border-left: 3px solid #ccc; }\n'
+      + '  .zw-textbox--dialogue { border-left-color: #4a90e2; }\n'
+      + '  .zw-textbox--monologue { opacity: 0.9; font-style: italic; }\n'
+      + '  .zw-textbox--narration { font-size: 0.95em; line-height: 2; }\n'
+      + '  .zw-textbox--chant { letter-spacing: 0.05em; text-align: center; }\n'
+      + '  .zw-textbox--warning { border-left-color: #e53935; }\n'
+      + '  .tex-wave, .tex-sparkle, .tex-cosmic, .tex-fire, .tex-glitch'
+      + '  { -webkit-background-clip: text; background-clip: text; color: transparent; background-size: 200% 200%; }\n'
+      + '  .tex-wave { background-image: linear-gradient(90deg, #1a73e8, #00bcd4, #1a73e8); animation: tex-wave-move 3s ease-in-out infinite; }\n'
+      + '  .tex-sparkle { background-image: linear-gradient(135deg, #f5c842 0%, #ff6f61 25%, #f5c842 50%, #ff6f61 75%, #f5c842 100%); animation: tex-sparkle-move 2s linear infinite; }\n'
+      + '  .tex-cosmic { background-image: linear-gradient(270deg, #7b1fa2, #1565c0, #00838f, #1565c0, #7b1fa2); animation: tex-cosmic-flow 6s ease infinite; }\n'
+      + '  .tex-fire { background-image: linear-gradient(0deg, #ff6f00, #ff8f00, #ffd600, #ff8f00, #ff6f00); animation: tex-fire-flicker 1.5s ease-in-out infinite alternate; }\n'
+      + '  .tex-glitch { background-image: linear-gradient(90deg, #00e676, #f50057, #2979ff, #f50057, #00e676); animation: tex-glitch-shift 0.5s steps(4) infinite; }\n'
+      + '  @keyframes tex-wave-move { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }\n'
+      + '  @keyframes tex-sparkle-move { 0% { background-position: 0% 0%; } 100% { background-position: 200% 200%; } }\n'
+      + '  @keyframes tex-cosmic-flow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }\n'
+      + '  @keyframes tex-fire-flicker { 0%,100% { background-position: 50% 100%; } 50% { background-position: 50% 60%; } }\n'
+      + '  @keyframes tex-glitch-shift { 0% { background-position: 0% 0%; } 25% { background-position: 80% 20%; } 50% { background-position: 20% 80%; } 75% { background-position: 60% 40%; } 100% { background-position: 0% 0%; } }\n'
+      + '  @media (prefers-reduced-motion: reduce) { .tex-wave,.tex-sparkle,.tex-cosmic,.tex-fire,.tex-glitch { animation: none !important; } }\n'
+      + '  .kenten { -webkit-text-emphasis: filled sesame; text-emphasis: filled sesame; }\n'
+      + '  a.wikilink { color: ' + linkColor + '; text-decoration: underline dotted; }\n'
+      + '  a.wikilink.is-broken { color: #e53935; text-decoration: line-through; }\n'
+      + '  ruby rt { font-size: 0.5em; }\n'
       + '</style>\n</head>\n<body>\n'
       + (title ? '<h1>' + title.replace(/</g, '&lt;') + '</h1>\n' : '')
       + bodyHtml + '\n'
