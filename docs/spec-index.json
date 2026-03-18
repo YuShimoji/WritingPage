@@ -443,10 +443,10 @@
     "id": "SP-074",
     "title": "Web小説演出統合仕様",
     "status": "partial",
-    "pct": 35,
+    "pct": 50,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, デフォルト30ms/字, TypingEffectController+CSS+reader-preview統合, reduced motion対応, E2E 10件)。TextboxEffectRenderer typing/dialog対応。残: Phase 3-6(ダイアログ/スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
+    "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, 30ms/字, E2E 10件)。Phase 3完了: ダイアログボックス(4スタイルx3位置, アイコン/スピーカー名, CSS変数テーマ対応, エクスポートHTML埋込)。TextboxEffectRenderer typing/dialog対応。残: Phase 4-6(スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {
