@@ -86,6 +86,14 @@
 - **章末ナビバー**: 各章末に自動挿入（`injectNavBars()` 再利用）
 - **chapter://リンク**: アンカーリンクに変換（`convertForExport()` 再利用）
 - **壊れリンク**: 読者モードでは非表示（editモード専用の警告）
+- **装飾パイプライン**: editor-preview.js と同等の変換を適用
+  - テキストボックス: `TextboxRichTextBridge.projectRenderedHtml()` で投影
+  - フォント装飾: `processFontDecorations()` で変換
+  - テキストアニメーション: `processTextAnimations()` で変換 (wave/sparkle/cosmic/fire/glitch)
+  - `[[wikilink]]`: `<a class="wikilink">` に変換（存在チェック付き）
+  - 傍点: `{kenten|text}` → `<span class="kenten">`
+  - ルビ: `{漢字|かな}` → `<ruby>` / `|漢字《かな》` → `<ruby>`
+- **選択肢グループ化**: `autoGroupChoices()` で連続する chapter-link を自動グループ化
 
 ### 3. スタイリング
 

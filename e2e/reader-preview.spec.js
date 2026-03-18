@@ -153,6 +153,74 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     expect(scrollTop).toBeGreaterThan(400);
   });
 
+  test('テクスチャオーバーレイが読者プレビューで表示される', async ({ page }) => {
+    await page.evaluate(() => {
+      var editor = document.getElementById('wysiwyg-editor');
+      if (editor) {
+        editor.innerHTML = '<h2>第1章</h2><p>[wave]波打つテキスト[/wave]</p>';
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await page.evaluate(() => window.ZWReaderPreview.enter());
+    await page.waitForTimeout(300);
+
+    const texWave = page.locator('#reader-preview-inner .tex-wave');
+    await expect(texWave).toBeAttached();
+  });
+
+  test('傍点(kenten)が読者プレビューで表示される', async ({ page }) => {
+    await page.evaluate(() => {
+      var editor = document.getElementById('wysiwyg-editor');
+      if (editor) {
+        editor.innerHTML = '<h2>第1章</h2><p>{kenten|重要なテキスト}を含む文</p>';
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await page.evaluate(() => window.ZWReaderPreview.enter());
+    await page.waitForTimeout(300);
+
+    const kenten = page.locator('#reader-preview-inner .kenten');
+    await expect(kenten).toBeAttached();
+    await expect(kenten).toHaveText('重要なテキスト');
+  });
+
+  test('wikilinkが読者プレビューでリンク化される', async ({ page }) => {
+    await page.evaluate(() => {
+      var editor = document.getElementById('wysiwyg-editor');
+      if (editor) {
+        editor.innerHTML = '<h2>第1章</h2><p>[[テストキャラ]]が登場する</p>';
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await page.evaluate(() => window.ZWReaderPreview.enter());
+    await page.waitForTimeout(300);
+
+    const wikilink = page.locator('#reader-preview-inner a.wikilink');
+    await expect(wikilink).toBeAttached();
+    await expect(wikilink).toHaveAttribute('data-wikilink');
+  });
+
+  test('ルビ記法が読者プレビューで変換される', async ({ page }) => {
+    await page.evaluate(() => {
+      var editor = document.getElementById('wysiwyg-editor');
+      if (editor) {
+        editor.innerHTML = '<h2>第1章</h2><p>{漢字|かんじ}のテスト</p>';
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    });
+
+    await page.evaluate(() => window.ZWReaderPreview.enter());
+    await page.waitForTimeout(300);
+
+    const ruby = page.locator('#reader-preview-inner ruby');
+    await expect(ruby).toBeAttached();
+    const rt = page.locator('#reader-preview-inner ruby rt');
+    await expect(rt).toHaveText('かんじ');
+  });
+
   test('exit APIで編集モードに復帰する', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
