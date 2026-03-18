@@ -300,10 +300,275 @@
         saveTextboxSettings({ showSfxField: !!textboxShowSfx.checked });
       });
 
+      // ユーザー定義プリセット管理UI (Phase 3)
+      var ALLOWED_ROLES = (window.TextboxPresetRegistry && window.TextboxPresetRegistry.ALLOWED_ROLES)
+        ? window.TextboxPresetRegistry.ALLOWED_ROLES
+        : ['dialogue', 'monologue', 'narration', 'sfx', 'system', 'custom'];
+
+      var userPresetsContainer = el('div');
+      userPresetsContainer.className = 'tb-user-presets';
+      userPresetsContainer.style.display = 'grid';
+      userPresetsContainer.style.gap = '4px';
+
+      var userPresetsLabel = el('div');
+      userPresetsLabel.textContent = 'カスタムプリセット';
+      userPresetsLabel.style.fontSize = '12px';
+      userPresetsLabel.style.fontWeight = 'bold';
+      userPresetsContainer.appendChild(userPresetsLabel);
+
+      var userPresetsList = el('div');
+      userPresetsList.className = 'tb-user-presets-list';
+      userPresetsContainer.appendChild(userPresetsList);
+
+      function getUserPresets() {
+        var cfg = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+          ? window.ZenWriterStorage.loadSettings() : {};
+        return (cfg && cfg.editor && cfg.editor.extendedTextbox && Array.isArray(cfg.editor.extendedTextbox.userPresets))
+          ? cfg.editor.extendedTextbox.userPresets : [];
+      }
+
+      function saveUserPresets(presets) {
+        saveTextboxSettings({ userPresets: presets });
+        renderUserPresetList();
+        // 既定プリセットセレクトも更新
+        refreshDefaultPresetSelect();
+      }
+
+      function refreshDefaultPresetSelect() {
+        var current = textboxPresetSelect.value;
+        textboxPresetSelect.innerHTML = '';
+        var allPresets = (window.TextboxPresetRegistry && typeof window.TextboxPresetRegistry.list === 'function')
+          ? window.TextboxPresetRegistry.list(window.ZenWriterStorage.loadSettings()) : [];
+        allPresets.forEach(function (p) {
+          var o = el('option'); o.value = p.id; o.textContent = p.label || p.id;
+          textboxPresetSelect.appendChild(o);
+        });
+        textboxPresetSelect.value = current || 'inner-voice';
+      }
+
+      function renderUserPresetList() {
+        userPresetsList.innerHTML = '';
+        var presets = getUserPresets();
+        if (presets.length === 0) {
+          var empty = el('div');
+          empty.textContent = 'カスタムプリセットはありません';
+          empty.style.fontSize = '11px';
+          empty.style.color = 'var(--text-color, #999)';
+          empty.style.padding = '4px 0';
+          userPresetsList.appendChild(empty);
+          return;
+        }
+        presets.forEach(function (raw, idx) {
+          var registry = window.TextboxPresetRegistry;
+          var preset = registry && typeof registry.normalizePreset === 'function'
+            ? registry.normalizePreset(raw, 'user-' + idx) : raw;
+          if (!preset) return;
+
+          var item = el('div');
+          item.className = 'tb-preset-item';
+          item.style.display = 'flex';
+          item.style.alignItems = 'center';
+          item.style.gap = '6px';
+          item.style.padding = '4px 6px';
+          item.style.border = '1px solid var(--border-color, #555)';
+          item.style.borderRadius = '4px';
+
+          var info = el('span');
+          info.style.flex = '1';
+          info.style.fontSize = '12px';
+          info.textContent = (preset.label || preset.id) + ' (' + (preset.role || 'custom') + ')';
+
+          var editBtn = el('button');
+          editBtn.className = 'small';
+          editBtn.textContent = '編集';
+          editBtn.style.fontSize = '11px';
+          editBtn.addEventListener('click', function () { openPresetEditor(preset, idx); });
+
+          var dupBtn = el('button');
+          dupBtn.className = 'small';
+          dupBtn.textContent = '複製';
+          dupBtn.style.fontSize = '11px';
+          dupBtn.addEventListener('click', function () {
+            var list = getUserPresets();
+            var copy = JSON.parse(JSON.stringify(raw));
+            copy.id = (copy.id || 'preset') + '-copy';
+            copy.label = (copy.label || copy.id) + ' (コピー)';
+            list.push(copy);
+            saveUserPresets(list);
+          });
+
+          var delBtn = el('button');
+          delBtn.className = 'small';
+          delBtn.textContent = '削除';
+          delBtn.style.fontSize = '11px';
+          delBtn.style.color = 'var(--danger-color, #e74c3c)';
+          delBtn.addEventListener('click', function () {
+            var list = getUserPresets();
+            list.splice(idx, 1);
+            saveUserPresets(list);
+          });
+
+          item.appendChild(info);
+          item.appendChild(editBtn);
+          item.appendChild(dupBtn);
+          item.appendChild(delBtn);
+          userPresetsList.appendChild(item);
+        });
+      }
+
+      // プリセット作成/編集フォーム
+      function openPresetEditor(preset, editIndex) {
+        // 既存のエディタがあれば削除
+        var existing = userPresetsContainer.querySelector('.tb-preset-editor');
+        if (existing) existing.remove();
+
+        var isNew = editIndex === undefined || editIndex === null;
+        var data = preset || { id: '', label: '', role: 'custom', anim: '', tilt: 0, scale: 1, sfx: '' };
+
+        var editor = el('div');
+        editor.className = 'tb-preset-editor';
+        editor.style.display = 'grid';
+        editor.style.gap = '4px';
+        editor.style.padding = '8px';
+        editor.style.border = '1px solid var(--accent-color, #4a9eff)';
+        editor.style.borderRadius = '6px';
+        editor.style.marginTop = '4px';
+
+        var editorTitle = el('div');
+        editorTitle.textContent = isNew ? '新規プリセット' : 'プリセット編集';
+        editorTitle.style.fontSize = '12px';
+        editorTitle.style.fontWeight = 'bold';
+        editor.appendChild(editorTitle);
+
+        function addField(labelText, inputEl) {
+          var row = el('div');
+          var lbl = el('label');
+          lbl.textContent = labelText;
+          lbl.style.display = 'block';
+          lbl.style.fontSize = '11px';
+          row.appendChild(lbl);
+          row.appendChild(inputEl);
+          editor.appendChild(row);
+          return inputEl;
+        }
+
+        var idInput = el('input'); idInput.type = 'text'; idInput.value = data.id || ''; idInput.placeholder = 'preset-id'; idInput.style.width = '100%';
+        addField('ID (英数字とハイフン)', idInput);
+
+        var labelInput = el('input'); labelInput.type = 'text'; labelInput.value = data.label || ''; labelInput.placeholder = '表示名'; labelInput.style.width = '100%';
+        addField('表示名', labelInput);
+
+        var roleSelect = el('select'); roleSelect.style.width = '100%';
+        ALLOWED_ROLES.forEach(function (r) {
+          var o = el('option'); o.value = r; o.textContent = r; roleSelect.appendChild(o);
+        });
+        roleSelect.value = data.role || 'custom';
+        addField('役割', roleSelect);
+
+        var animInput = el('input'); animInput.type = 'text'; animInput.value = data.anim || ''; animInput.placeholder = 'fadein, shake, etc.'; animInput.style.width = '100%';
+        addField('アニメーション', animInput);
+
+        var tiltInput = el('input'); tiltInput.type = 'number'; tiltInput.min = '-20'; tiltInput.max = '20'; tiltInput.step = '1'; tiltInput.value = String(data.tilt || 0); tiltInput.style.width = '100%';
+        addField('傾き (-20 ~ 20)', tiltInput);
+
+        var scaleInput = el('input'); scaleInput.type = 'number'; scaleInput.min = '0.5'; scaleInput.max = '2.0'; scaleInput.step = '0.05'; scaleInput.value = String(data.scale || 1); scaleInput.style.width = '100%';
+        addField('スケール (0.5 ~ 2.0)', scaleInput);
+
+        var sfxInput = el('input'); sfxInput.type = 'text'; sfxInput.value = data.sfx || ''; sfxInput.placeholder = 'サウンドエフェクトID'; sfxInput.style.width = '100%';
+        addField('SFX', sfxInput);
+
+        var errorMsg = el('div');
+        errorMsg.style.fontSize = '11px';
+        errorMsg.style.color = 'var(--danger-color, #e74c3c)';
+        errorMsg.style.display = 'none';
+        editor.appendChild(errorMsg);
+
+        var btnRow = el('div');
+        btnRow.style.display = 'flex';
+        btnRow.style.gap = '6px';
+        btnRow.style.justifyContent = 'flex-end';
+
+        var saveBtn = el('button');
+        saveBtn.className = 'small';
+        saveBtn.textContent = isNew ? '作成' : '保存';
+        saveBtn.addEventListener('click', function () {
+          var registry = window.TextboxPresetRegistry;
+          var sanitizedId = registry && typeof registry.sanitizeId === 'function'
+            ? registry.sanitizeId(idInput.value) : idInput.value.trim().toLowerCase().replace(/[^a-z0-9-_]/g, '-');
+
+          if (!sanitizedId) {
+            errorMsg.textContent = 'IDを入力してください';
+            errorMsg.style.display = 'block';
+            return;
+          }
+          if (!labelInput.value.trim()) {
+            errorMsg.textContent = '表示名を入力してください';
+            errorMsg.style.display = 'block';
+            return;
+          }
+
+          // 組み込みプリセットとのID重複チェック
+          var builtins = (registry && registry.BUILTIN_PRESETS) ? registry.BUILTIN_PRESETS : [];
+          var builtinDup = builtins.some(function (b) { return b.id === sanitizedId; });
+          if (builtinDup) {
+            errorMsg.textContent = '組み込みプリセットと同じIDは使用できません';
+            errorMsg.style.display = 'block';
+            return;
+          }
+
+          var newPreset = {
+            id: sanitizedId,
+            label: labelInput.value.trim(),
+            role: roleSelect.value || 'custom',
+            anim: animInput.value.trim(),
+            tilt: clamp(parseFloat(tiltInput.value), -20, 20),
+            scale: clamp(parseFloat(scaleInput.value), 0.5, 2.0),
+            sfx: sfxInput.value.trim()
+          };
+
+          var list = getUserPresets();
+          if (isNew) {
+            // 既存ユーザープリセットとのID重複チェック
+            var userDup = list.some(function (u) { return (u.id || '') === sanitizedId; });
+            if (userDup) {
+              errorMsg.textContent = '同じIDのカスタムプリセットが既に存在します';
+              errorMsg.style.display = 'block';
+              return;
+            }
+            list.push(newPreset);
+          } else {
+            list[editIndex] = newPreset;
+          }
+          saveUserPresets(list);
+          editor.remove();
+        });
+
+        var cancelBtn = el('button');
+        cancelBtn.className = 'small';
+        cancelBtn.textContent = 'キャンセル';
+        cancelBtn.addEventListener('click', function () { editor.remove(); });
+
+        btnRow.appendChild(cancelBtn);
+        btnRow.appendChild(saveBtn);
+        editor.appendChild(btnRow);
+
+        userPresetsContainer.appendChild(editor);
+      }
+
+      var addPresetBtn = el('button');
+      addPresetBtn.className = 'small';
+      addPresetBtn.textContent = '+ 新規プリセット';
+      addPresetBtn.style.marginTop = '4px';
+      addPresetBtn.addEventListener('click', function () { openPresetEditor(null); });
+      userPresetsContainer.appendChild(addPresetBtn);
+
+      renderUserPresetList();
+
       textboxRow.appendChild(textboxTitle);
       textboxRow.appendChild(textboxEnabledRow);
       textboxRow.appendChild(textboxPresetRow);
       textboxRow.appendChild(textboxSfxRow);
+      textboxRow.appendChild(userPresetsContainer);
 
       // タブ配置（上下左右）
       var placementRow = el('div');

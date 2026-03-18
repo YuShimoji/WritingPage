@@ -12,8 +12,8 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: SP-062 の TextEffect / Animation 辞書を拡張し、文字にテクスチャを重ねる基盤能力を獲得する。外部アセット不要の純 CSS 実装。
 
 **スコープ**:
-- TextAnimationDictionary に 6 種のテクスチャエントリ追加 (wave / sparkle / cosmic / fire / glitch / custom)
-- `[anim type="texture" texture="wave"]` 記法のパーサー拡張
+- TextAnimationDictionary に 5 種のテクスチャエントリ追加 (wave / sparkle / cosmic / fire / glitch)
+- `[wave]...[/wave]` 記法 (既存 `[fade]` 等と同一パターン)
 - CSS: `background-clip: text` + `@keyframes` でテクスチャアニメーション
 - reduced motion: 静的テクスチャ表示に縮退 (SP-062 の drop 規則に準拠)
 - プレビュー + WYSIWYG 両対応

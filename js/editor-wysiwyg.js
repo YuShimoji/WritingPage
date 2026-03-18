@@ -87,6 +87,15 @@
             return '[' + tag + ']' + content + '[/' + tag + ']';
           }
         });
+        this.turndownService.addRule('textureOverlay', {
+          filter: function (node) {
+            return node.nodeName === 'SPAN' && node.className && /^tex-/.test(node.className);
+          },
+          replacement: function (content, node) {
+            var texName = node.className.replace('tex-', '');
+            return '[' + texName + ']' + content + '[/' + texName + ']';
+          }
+        });
       }
 
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
@@ -286,6 +295,9 @@
         });
       });
 
+      // テキストボックスプリセットドロップダウン (Phase 3)
+      this._setupTextboxDropdown();
+
       // ドロップダウン外クリックで閉じる
       document.addEventListener('mousedown', function (e) {
         if (!e.target.closest('.wysiwyg-dropdown')) {
@@ -294,6 +306,172 @@
           });
         }
       });
+    }
+
+    /**
+     * テキストボックスプリセットドロップダウンの初期化 (SP-016 Phase 3)
+     */
+    _setupTextboxDropdown() {
+      if (!this.wysiwygToolbar) return;
+      var self = this;
+      var tbDropdown = this.wysiwygToolbar.querySelector('[data-dropdown="textbox"]');
+      if (!tbDropdown) return;
+      var tbMenu = tbDropdown.querySelector('.wysiwyg-dropdown-menu');
+      if (!tbMenu) return;
+
+      // テキストボックス機能が無効の場合は非表示
+      function isTextboxEnabled() {
+        try {
+          var s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+            ? window.ZenWriterStorage.loadSettings() : {};
+          return !!(s && s.editor && s.editor.extendedTextbox && s.editor.extendedTextbox.enabled);
+        } catch (_) { return false; }
+      }
+
+      function buildMenu() {
+        tbMenu.innerHTML = '';
+        var settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+          ? window.ZenWriterStorage.loadSettings() : {};
+        var registry = window.TextboxPresetRegistry;
+        var presets = registry && typeof registry.list === 'function' ? registry.list(settings) : [];
+
+        // 解除ボタン
+        var removeBtn = document.createElement('button');
+        removeBtn.setAttribute('role', 'menuitem');
+        removeBtn.className = 'wysiwyg-tb-item wysiwyg-tb-item--remove';
+        removeBtn.textContent = 'テキストボックス解除';
+        removeBtn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          self._unwrapTextbox();
+          tbDropdown.setAttribute('data-open', 'false');
+        });
+        tbMenu.appendChild(removeBtn);
+
+        presets.forEach(function (preset) {
+          var btn = document.createElement('button');
+          btn.setAttribute('role', 'menuitem');
+          btn.className = 'wysiwyg-tb-item';
+          btn.dataset.tbPreset = preset.id;
+          var labelSpan = document.createElement('span');
+          labelSpan.className = 'wysiwyg-tb-label';
+          labelSpan.textContent = preset.label;
+          var roleSpan = document.createElement('span');
+          roleSpan.className = 'wysiwyg-tb-role';
+          roleSpan.textContent = preset.role;
+          btn.appendChild(labelSpan);
+          btn.appendChild(roleSpan);
+          btn.addEventListener('mousedown', function (e) {
+            e.preventDefault();
+            self._applyTextboxPreset(preset);
+            tbDropdown.setAttribute('data-open', 'false');
+          });
+          tbMenu.appendChild(btn);
+        });
+      }
+
+      // トグル開閉時にメニューを再構築
+      var toggle = tbDropdown.querySelector('.wysiwyg-dropdown-toggle');
+      if (toggle) {
+        var origListener = toggle._tbMenuListener;
+        if (origListener) toggle.removeEventListener('mousedown', origListener);
+        toggle._tbMenuListener = function () {
+          var isOpen = tbDropdown.getAttribute('data-open') === 'true';
+          if (!isOpen) buildMenu();
+          // 機能無効時は開かない
+          if (!isTextboxEnabled()) {
+            tbDropdown.setAttribute('data-open', 'false');
+          }
+        };
+        toggle.addEventListener('mousedown', toggle._tbMenuListener);
+      }
+
+      // 表示/非表示の更新
+      this._updateTbDropdownVisibility = function () {
+        tbDropdown.style.display = isTextboxEnabled() ? '' : 'none';
+      };
+      this._updateTbDropdownVisibility();
+      window.addEventListener('ZenWriterSettingsChanged', function () {
+        if (self._updateTbDropdownVisibility) self._updateTbDropdownVisibility();
+      });
+    }
+
+    /**
+     * WYSIWYG で選択テキストをテキストボックスで囲む
+     */
+    _applyTextboxPreset(preset) {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      this._captureUndoSnapshot();
+      this.wysiwygEditor.focus();
+
+      var selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return;
+      var range = selection.getRangeAt(0);
+      if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
+
+      // 既存の textbox 内にいる場合はプリセットを変更
+      var existing = range.commonAncestorContainer;
+      if (existing.nodeType === Node.TEXT_NODE) existing = existing.parentElement;
+      var existingTb = existing ? existing.closest('.zw-textbox') : null;
+      if (existingTb && this.wysiwygEditor.contains(existingTb)) {
+        existingTb.dataset.preset = preset.id;
+        existingTb.dataset.role = preset.role || 'custom';
+        if (preset.anim) existingTb.dataset.anim = preset.anim;
+        if (typeof preset.tilt === 'number') existingTb.dataset.tilt = String(preset.tilt);
+        if (typeof preset.scale === 'number') existingTb.dataset.scale = String(preset.scale);
+        if (preset.sfx) existingTb.dataset.sfx = preset.sfx;
+        // CSS クラスを更新
+        existingTb.className = 'zw-textbox ' + (preset.className || 'zw-textbox--' + preset.id);
+        this._notifyChange();
+        return;
+      }
+
+      // 新しいテキストボックス div を作成
+      var div = document.createElement('div');
+      div.className = 'zw-textbox ' + (preset.className || 'zw-textbox--' + preset.id);
+      div.dataset.preset = preset.id;
+      div.dataset.role = preset.role || 'custom';
+      if (preset.anim) div.dataset.anim = preset.anim;
+      if (typeof preset.tilt === 'number' && preset.tilt !== 0) div.dataset.tilt = String(preset.tilt);
+      if (typeof preset.scale === 'number' && preset.scale !== 1) div.dataset.scale = String(preset.scale);
+      if (preset.sfx) div.dataset.sfx = preset.sfx;
+
+      var content = document.createElement('div');
+      content.className = 'zw-textbox__content';
+      content.appendChild(range.extractContents());
+      div.appendChild(content);
+      range.insertNode(div);
+
+      // カーソルをテキストボックスの末尾に配置
+      var newRange = document.createRange();
+      newRange.selectNodeContents(content);
+      newRange.collapse(false);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+
+      this._notifyChange();
+    }
+
+    /**
+     * WYSIWYG でテキストボックスを解除
+     */
+    _unwrapTextbox() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+
+      var selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+      var range = selection.getRangeAt(0);
+      var node = range.commonAncestorContainer;
+      if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+      var tb = node ? node.closest('.zw-textbox') : null;
+      if (!tb || !this.wysiwygEditor.contains(tb)) return;
+
+      this._captureUndoSnapshot();
+      var contentEl = tb.querySelector('.zw-textbox__content');
+      var fragment = document.createDocumentFragment();
+      var source = contentEl || tb;
+      while (source.firstChild) fragment.appendChild(source.firstChild);
+      tb.parentNode.replaceChild(fragment, tb);
+      this._notifyChange();
     }
 
     /**

@@ -64,11 +64,14 @@ SP-062 の責務モデルに以下を追加拡張する:
 
 #### 1.2 記法
 
-既存の `[anim]` タグを拡張:
+既存の `[tag]...[/tag]` パターンに統一:
 
 ```markdown
-[anim type="texture" texture="wave" color="#3498db"]波打つテキスト[/anim]
-[anim type="texture" texture="sparkle"]キラキラ[/anim]
+[wave]波打つテキスト[/wave]
+[sparkle]キラキラ[/sparkle]
+[cosmic]宇宙的テキスト[/cosmic]
+[fire]炎のテキスト[/fire]
+[glitch]グリッチテキスト[/glitch]
 ```
 
 #### 1.3 CSS実装方針

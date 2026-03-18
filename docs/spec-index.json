@@ -442,11 +442,11 @@
   {
     "id": "SP-074",
     "title": "Web小説演出統合仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 15,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "テクスチャオーバーレイ・タイピング演出・ダイアログボックス(顔アイコン)・SE・スクロール連動。SP-062基盤上に構築。ADV/Web小説/ホラー等ジャンルプリセット対応。",
+    "summary": "Phase 1完了: テクスチャオーバーレイ5種(wave/sparkle/cosmic/fire/glitch)+CSS animation+reduced motion+WYSIWYG round-trip。E2E 7件。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {

@@ -282,6 +282,43 @@
   }
 }
 
+/* WYSIWYG テキストボックスドロップダウン (SP-016 Phase 3) */
+.wysiwyg-tb-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 5px 10px;
+  border: none;
+  background: none;
+  color: var(--text-color, #ddd);
+  cursor: pointer;
+  font-size: 12px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wysiwyg-tb-item:hover {
+  background: var(--hover-bg-color, rgba(255, 255, 255, 0.1));
+}
+
+.wysiwyg-tb-item--remove {
+  color: var(--danger-color, #e74c3c);
+  border-bottom: 1px solid var(--border-color, #555);
+  margin-bottom: 2px;
+  padding-bottom: 6px;
+}
+
+.wysiwyg-tb-label {
+  flex: 1;
+}
+
+.wysiwyg-tb-role {
+  font-size: 10px;
+  opacity: 0.6;
+  margin-left: 8px;
+}
+
 /* ボタン共通スタイル（モダン化） */
 button,
 input[type="button"],
