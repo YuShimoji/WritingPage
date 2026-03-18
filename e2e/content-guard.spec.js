@@ -19,7 +19,7 @@ async function setEditorContent(page, text) {
   await page.waitForTimeout(300);
 }
 
-async function getEditorContent(page) {
+async function getEditorContent(page) { // eslint-disable-line no-unused-vars
   return page.evaluate(() => {
     if (window.ZenWriterEditor && typeof window.ZenWriterEditor.getEditorValue === 'function') {
       return window.ZenWriterEditor.getEditorValue() || '';

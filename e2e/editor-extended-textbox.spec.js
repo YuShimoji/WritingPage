@@ -17,7 +17,7 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
     expect(Array.isArray(settings.userPresets)).toBe(true);
   });
 
-  test('textarea selection tooltip can wrap selected text with textbox DSL', async ({ page }) => {
+  test('textarea selection tooltip can wrap selected text with textbox DSL via dropdown', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await page.waitForSelector('#selection-tooltip', { state: 'attached', timeout: 10000 });
@@ -30,9 +30,15 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
       editor.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
     });
 
-    const presetBtn = page.locator('#selection-tooltip button[data-action="textbox-inner-voice"]');
-    await expect(presetBtn).toBeVisible();
-    await presetBtn.click();
+    // Open TB dropdown
+    const tbToggle = page.locator('#selection-tooltip .tb-dropdown-toggle');
+    await expect(tbToggle).toBeVisible();
+    await tbToggle.click();
+
+    // Select inner-voice from dropdown
+    const presetItem = page.locator('#selection-tooltip .tb-dropdown-item[data-preset-id="inner-voice"]');
+    await expect(presetItem).toBeVisible();
+    await presetItem.click();
 
     const value = await page.locator('#editor').inputValue();
     expect(value).toContain(':::zw-textbox{preset:"inner-voice"');
@@ -40,7 +46,7 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
     expect(value).toContain(':::');
   });
 
-  test('textbox feature disabled hides textbox buttons in selection tooltip', async ({ page }) => {
+  test('textbox feature disabled hides TB dropdown in selection tooltip', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await page.waitForSelector('#selection-tooltip', { state: 'attached', timeout: 10000 });
@@ -61,38 +67,27 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
       editor.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
     });
 
-    await expect(page.locator('#selection-tooltip button[data-action="textbox-inner-voice"]')).toBeHidden();
-    await expect(page.locator('#selection-tooltip button[data-action="textbox-se-animal-fade"]')).toBeHidden();
-    await expect(page.locator('#selection-tooltip button[data-action="textbox-typing-sequence"]')).toBeHidden();
+    await expect(page.locator('#selection-tooltip .tb-dropdown-wrapper')).toBeHidden();
   });
 
-  test('textbox default preset setting is respected by TB button', async ({ page }) => {
+  test('TB dropdown lists all 8 presets', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await page.waitForSelector('#selection-tooltip', { state: 'attached', timeout: 10000 });
 
     await page.evaluate(() => {
-      const s = window.ZenWriterStorage.loadSettings();
-      s.editor = s.editor || {};
-      s.editor.extendedTextbox = s.editor.extendedTextbox || {};
-      s.editor.extendedTextbox.enabled = true;
-      s.editor.extendedTextbox.defaultPreset = 'typing-sequence';
-      window.ZenWriterStorage.saveSettings(s);
-    });
-
-    await page.evaluate(() => {
       const editor = document.getElementById('editor');
-      editor.value = 'デフォルトプリセット';
+      editor.value = 'プリセット一覧テスト';
       editor.focus();
       editor.setSelectionRange(0, 4);
       editor.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
     });
 
-    const defaultBtn = page.locator('#selection-tooltip button[data-action="textbox-default"]');
-    await expect(defaultBtn).toBeVisible();
-    await defaultBtn.click();
+    const tbToggle = page.locator('#selection-tooltip .tb-dropdown-toggle');
+    await expect(tbToggle).toBeVisible();
+    await tbToggle.click();
 
-    const value = await page.locator('#editor').inputValue();
-    expect(value).toContain('preset:"typing-sequence"');
+    const items = page.locator('#selection-tooltip .tb-dropdown-item');
+    await expect(items).toHaveCount(8);
   });
 });

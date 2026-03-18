@@ -46,6 +46,66 @@
       textEffects: [],
       animations: ['type'],
       ornaments: ['mono']
+    },
+    {
+      id: 'dialogue',
+      label: '台詞',
+      role: 'dialogue',
+      anim: '',
+      tilt: 0,
+      scale: 1,
+      className: 'zw-textbox--dialogue',
+      textEffects: [],
+      animations: [],
+      ornaments: []
+    },
+    {
+      id: 'monologue',
+      label: '独白',
+      role: 'monologue',
+      anim: 'fadein',
+      tilt: -2,
+      scale: 0.98,
+      className: 'zw-textbox--monologue',
+      textEffects: ['italic'],
+      animations: ['fadein'],
+      ornaments: ['soft']
+    },
+    {
+      id: 'narration',
+      label: '語り',
+      role: 'narration',
+      anim: '',
+      tilt: 0,
+      scale: 0.95,
+      className: 'zw-textbox--narration',
+      textEffects: [],
+      animations: [],
+      ornaments: ['mono']
+    },
+    {
+      id: 'chant',
+      label: '詠唱',
+      role: 'custom',
+      anim: 'shake',
+      tilt: 0,
+      scale: 1.05,
+      className: 'zw-textbox--chant',
+      textEffects: ['bold', 'outline'],
+      animations: ['shake'],
+      ornaments: ['burst']
+    },
+    {
+      id: 'warning',
+      label: '警告',
+      role: 'system',
+      anim: 'shake',
+      tilt: 2,
+      scale: 1.02,
+      className: 'zw-textbox--warning',
+      textEffects: ['bold'],
+      animations: ['shake'],
+      ornaments: ['burst']
     }
   ];
 

@@ -71,7 +71,7 @@ test.describe('SP-072 External Links', () => {
       editor.innerHTML = '<p><a href="https://example.com" class="external-link" target="_blank">test</a></p>';
       var a = editor.querySelector('a.external-link');
       if (!a) return null;
-      var cs = window.getComputedStyle(a, '::after');
+      var _cs = window.getComputedStyle(a, '::after');
       return {
         hasLink: true,
         textDecoration: window.getComputedStyle(a).textDecoration,

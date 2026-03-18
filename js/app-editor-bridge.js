@@ -35,11 +35,7 @@
       { id: 'link', label: 'Link', run: () => makeLink() },
       { id: 'image', label: 'Img', run: () => makeImage() },
       { id: 'hr', label: '---', run: () => insertHr() },
-      { id: 'ruby', label: 'ルビ', run: () => insertRuby() },
-      { id: 'textbox-default', label: 'TB', run: () => applyTextboxPreset() },
-      { id: 'textbox-inner-voice', label: '声', run: () => applyTextboxPreset('inner-voice') },
-      { id: 'textbox-se-animal-fade', label: 'SE', run: () => applyTextboxPreset('se-animal-fade') },
-      { id: 'textbox-typing-sequence', label: 'Type', run: () => applyTextboxPreset('typing-sequence') }
+      { id: 'ruby', label: 'ルビ', run: () => insertRuby() }
     ];
 
     actions.forEach(act => {
@@ -52,6 +48,74 @@
       });
       tooltip.appendChild(btn);
     });
+
+    // Textbox preset dropdown
+    const tbWrapper = document.createElement('div');
+    tbWrapper.className = 'tb-dropdown-wrapper';
+    tbWrapper.dataset.action = 'textbox-dropdown';
+
+    const tbBtn = document.createElement('button');
+    tbBtn.type = 'button';
+    tbBtn.textContent = 'TB \u25bc';
+    tbBtn.dataset.action = 'textbox-toggle';
+    tbBtn.className = 'tb-dropdown-toggle';
+    tbWrapper.appendChild(tbBtn);
+
+    const tbMenu = document.createElement('div');
+    tbMenu.className = 'tb-dropdown-menu';
+    tbMenu.style.display = 'none';
+
+    function buildPresetMenu() {
+      tbMenu.innerHTML = '';
+      const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings() : {};
+      const registry = window.TextboxPresetRegistry;
+      const presets = registry && typeof registry.list === 'function' ? registry.list(settings) : [];
+
+      presets.forEach(preset => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'tb-dropdown-item';
+        item.dataset.presetId = preset.id;
+        const labelSpan = document.createElement('span');
+        labelSpan.className = 'tb-preset-label';
+        labelSpan.textContent = preset.label;
+        const roleSpan = document.createElement('span');
+        roleSpan.className = 'tb-preset-role';
+        roleSpan.textContent = preset.role;
+        item.appendChild(labelSpan);
+        item.appendChild(roleSpan);
+        item.addEventListener('click', (e) => {
+          e.stopPropagation();
+          applyTextboxPreset(preset.id);
+          hideTbMenu();
+        });
+        tbMenu.appendChild(item);
+      });
+    }
+
+    let tbMenuVisible = false;
+    function showTbMenu() {
+      buildPresetMenu();
+      tbMenu.style.display = 'block';
+      tbMenuVisible = true;
+    }
+    function hideTbMenu() {
+      tbMenu.style.display = 'none';
+      tbMenuVisible = false;
+    }
+
+    tbBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (tbMenuVisible) { hideTbMenu(); } else { showTbMenu(); }
+    });
+
+    document.addEventListener('click', () => {
+      if (tbMenuVisible) hideTbMenu();
+    });
+
+    tbWrapper.appendChild(tbMenu);
+    tooltip.appendChild(tbWrapper);
 
     const buttons = Array.from(tooltip.querySelectorAll('button'));
 
@@ -86,12 +150,8 @@
       tooltip.style.top = y + 'px';
 
       const textboxEnabled = isTextboxFeatureEnabled();
-      buttons.forEach((btn) => {
-        if (!btn || !btn.dataset || !btn.dataset.action) return;
-        if (btn.dataset.action.indexOf('textbox-') === 0) {
-          btn.style.display = textboxEnabled ? '' : 'none';
-        }
-      });
+      tbWrapper.style.display = textboxEnabled ? '' : 'none';
+      if (!textboxEnabled && tbMenuVisible) hideTbMenu();
       visible = true;
     }
 

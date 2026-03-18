@@ -12,6 +12,9 @@
   var backFab = null;
   var toggleBtn = null;
   var previousMode = null;
+  var progressBar = null;
+  var progressFill = null;
+  var scrollRAF = null;
 
   function init() {
     previewEl = document.getElementById('reader-preview');
@@ -20,6 +23,17 @@
     toggleBtn = document.getElementById('toggle-reader-preview');
 
     if (!previewEl || !innerEl) return;
+
+    // プログレスバーを生成
+    progressBar = document.createElement('div');
+    progressBar.className = 'reader-progress-bar';
+    progressFill = document.createElement('div');
+    progressFill.className = 'reader-progress-fill';
+    progressBar.appendChild(progressFill);
+    previewEl.appendChild(progressBar);
+
+    // スクロール連動
+    previewEl.addEventListener('scroll', onScroll, { passive: true });
 
     // ツールバーボタン
     if (toggleBtn) {
@@ -73,12 +87,21 @@
 
     // モード切替
     document.documentElement.setAttribute('data-ui-mode', 'reader');
+
+    // スクロール位置を復元
+    restoreScrollPosition();
   }
 
   function exitReaderMode() {
+    // スクロール位置を保存
+    saveScrollPosition();
+
     var target = previousMode || 'normal';
     document.documentElement.setAttribute('data-ui-mode', target);
     previousMode = null;
+
+    // プログレスバーをリセット
+    if (progressFill) progressFill.style.width = '0%';
 
     // 読者プレビューの内容をクリア（メモリ節約）
     if (innerEl) innerEl.innerHTML = '';
@@ -321,6 +344,60 @@
     }
   }
 
+  /**
+   * スクロール進捗を更新
+   */
+  function onScroll() {
+    if (scrollRAF) return;
+    scrollRAF = requestAnimationFrame(function () {
+      scrollRAF = null;
+      if (!previewEl || !progressFill) return;
+      var scrollTop = previewEl.scrollTop;
+      var scrollHeight = previewEl.scrollHeight - previewEl.clientHeight;
+      var pct = scrollHeight > 0 ? Math.min(100, (scrollTop / scrollHeight) * 100) : 0;
+      progressFill.style.width = pct + '%';
+    });
+  }
+
+  /**
+   * スクロール位置をセッションに保存
+   */
+  function saveScrollPosition() {
+    if (!previewEl) return;
+    var key = getScrollKey();
+    if (!key) return;
+    try {
+      sessionStorage.setItem(key, String(previewEl.scrollTop));
+    } catch (_e) { /* quota exceeded */ }
+  }
+
+  /**
+   * スクロール位置を復元
+   */
+  function restoreScrollPosition() {
+    if (!previewEl) return;
+    var key = getScrollKey();
+    if (!key) return;
+    try {
+      var saved = sessionStorage.getItem(key);
+      if (saved !== null) {
+        var pos = parseInt(saved, 10);
+        if (!isNaN(pos) && pos > 0) {
+          previewEl.scrollTop = pos;
+        }
+      }
+    } catch (_e) { /* not available */ }
+  }
+
+  /**
+   * 現在のドキュメントIDに基づくスクロールキー
+   */
+  function getScrollKey() {
+    var S = window.ZenWriterStorage;
+    var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    return docId ? 'reader-scroll-' + docId : 'reader-scroll-default';
+  }
+
   // ---- Init ----
 
   if (document.readyState === 'loading') {
@@ -339,6 +416,11 @@
   window.ZWReaderPreview = {
     enter: enterReaderMode,
     exit: exitReaderMode,
-    exportHtml: exportHtml
+    exportHtml: exportHtml,
+    getProgress: function () {
+      if (!previewEl) return 0;
+      var scrollHeight = previewEl.scrollHeight - previewEl.clientHeight;
+      return scrollHeight > 0 ? Math.min(100, (previewEl.scrollTop / scrollHeight) * 100) : 0;
+    }
   };
 })();

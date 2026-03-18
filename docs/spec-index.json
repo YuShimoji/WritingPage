@@ -357,11 +357,11 @@
   {
     "id": "SP-060",
     "title": "装飾プリセット統合仕様",
-    "status": "partial",
-    "pct": 75,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-decoration-semantic-presets.md",
-    "summary": "decor/animの単発運用をsemantic preset化し、Textbox連携とround-trip保証を整理する。"
+    "summary": "Phase 1-3完了。semantic preset 5種(dialogue/monologue/narration/chant/warning)+legacy 3種。TBドロップダウンUI統合。CSS+round-trip+UI E2E 11件。"
   },
   {
     "id": "SP-061",
@@ -481,11 +481,11 @@
   {
     "id": "SP-078",
     "title": "読者プレビューモード仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
-    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1: 全画面読者向けレイアウト+visible章結合+目次+ナビ+chapter://変換。Phase 2: 読者向けタイポグラフィ(text-indent/blockquote/h階層)+モバイル対応+reduced-motion。残: HTML出力、読書進捗。",
+    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+タイポグラフィ+モバイル+reduced-motion+HTML出力+読書進捗バー+スクロール位置記憶/復元。E2E 6件。",
     "related": ["SP-070", "SP-071", "SP-072"]
   }
 ]

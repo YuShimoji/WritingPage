@@ -124,7 +124,7 @@ test.describe('Keybinds E2E', () => {
     await expect(resetBtn).toBeVisible();
 
     const firstItem = page.locator(`${scope} .keybind-item`).first();
-    const firstKeyDisplay = firstItem.locator('.keybind-display');
+    const _firstKeyDisplay = firstItem.locator('.keybind-display');
     await page.evaluate(() => {
       var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
       if (item) item.click();
@@ -137,7 +137,7 @@ test.describe('Keybinds E2E', () => {
     await page.waitForTimeout(500);
 
     await page.evaluate(() => {
-      var btn = document.querySelector('#settings-gadgets-panel button');
+      var _btn = document.querySelector('#settings-gadgets-panel button');
       var all = document.querySelectorAll('#settings-gadgets-panel button');
       for (var i = 0; i < all.length; i++) {
         if (all[i].textContent.includes('デフォルトに戻す')) { all[i].click(); break; }
