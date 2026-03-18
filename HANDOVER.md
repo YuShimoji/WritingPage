@@ -65,9 +65,10 @@ npm run lint              # ESLint
 |----------|------|------|
 | `js/storage.js` | 1612 | IDB移行完了 |
 | `js/sidebar-manager.js` | 1370 | SSOT |
-| `js/editor-wysiwyg.js` | 1355 | リンク挿入モーダル追加 |
-| `js/story-wiki.js` | 1041 | Phase 2 Step 1-3 完了 (グラフ/バックリンク/AI生成) |
+| `js/editor-wysiwyg.js` | 1583 | リンク挿入モーダル + DSL退避方式追加 |
+| `js/story-wiki.js` | 1432 | Phase 2 Step 1-3 完了 (グラフ/バックリンク/AI生成) |
 | `js/chapter-list.js` | 1026 | Phase 3 目次生成 |
+| `js/gadgets-editor-extras.js` | 1227 | TB DSL / プリセット / ゲームブック分岐UI |
 | `js/gadgets-core.js` | 1020 | 適正 |
 | `js/app.js` | 644 | Phase 3 分割完了 |
 
