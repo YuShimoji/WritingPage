@@ -75,10 +75,10 @@
     "id": "SP-012",
     "title": "Visual Profile 仕様",
     "status": "partial",
-    "pct": 70,
+    "pct": 25,
     "cat": "ui",
     "file": "docs/VISUAL_PROFILE.md",
-    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A/B実装済み"
+    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A (モデル定義・責務整理) ドラフト完了。実装は個別SP (SP-013/054/057/058) で進行中。統合UIは未着手"
   },
   {
     "id": "SP-013",
@@ -443,7 +443,7 @@
     "id": "SP-074",
     "title": "Web小説演出統合仕様",
     "status": "partial",
-    "pct": 15,
+    "pct": 18,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
     "summary": "Phase 1完了: テクスチャオーバーレイ5種+CSS animation+reduced motion+WYSIWYG round-trip (E2E 7件)。基盤整備: TextboxDslParser ブロック型ディスパッチ拡張(:::zw-typing/:::zw-dialog対応)、属性記法統一(key:\"value\")。残: Phase 2-6(タイピング/ダイアログ/スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",

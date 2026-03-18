@@ -201,7 +201,7 @@ WikiCategory = {
 |------|------|------|
 | Step 1 | グラフビュー統合 (カテゴリ色分け / 力学レイアウト / ノードクリック遷移) | done |
 | Step 2 | バックリンク一覧 (詳細ペイン統合 / Story Wiki + ドキュメント横断) | done |
-| Step 3 | AI生成 | todo |
+| Step 3 | AI生成 (テンプレート + OpenAI ハイブリッド) | done |
 | Step 4 | 高度な自動検出 | todo |
 
 ### Step 1: グラフビュー統合 (done)
