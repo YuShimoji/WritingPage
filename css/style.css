@@ -4144,6 +4144,56 @@ html[data-embed='true'] #editor {
   animation: none !important;
 }
 
+/* ===== タイピング演出 (SP-074 Phase 2) ===== */
+.zw-typing {
+  display: block;
+  margin: 0.5em 0;
+  line-height: 1.8;
+  min-height: 1.5em;
+}
+
+.zw-typing__text {
+  display: inline;
+}
+
+.zw-typing__char {
+  transition: none;
+}
+
+.zw-typing--complete .zw-typing__char {
+  opacity: 1 !important;
+}
+
+/* Click mode: cursor change */
+.zw-typing[data-typing-state="active"] {
+  cursor: pointer;
+}
+
+/* Screen reader: full text always available */
+.zw-typing .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduced motion: show all text immediately */
+[data-reduce-motion="true"] .zw-typing .zw-typing__char,
+[data-reduce-motion="true"] .zw-typing--complete .zw-typing__char {
+  opacity: 1 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zw-typing .zw-typing__char {
+    opacity: 1 !important;
+  }
+}
+
 /* ===== フォント装飾 ===== */
 .decor-bold {
   font-weight: 700;

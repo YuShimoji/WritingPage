@@ -96,11 +96,51 @@
     return '<div class="' + escapeAttr(classNames.join(' ')) + '" ' + dataAttrs.join(' ') + styleAttr + '><div class="zw-textbox__content">' + contentHtml + '</div></div>';
   }
 
+  function renderTyping(segment) {
+    if (!segment || segment.type !== 'typing') return '';
+    var attrs = segment.attrs || {};
+    var speed = attrs.speed || '30ms';
+    var mode = attrs.mode || 'auto';
+    var validModes = ['auto', 'click', 'scroll'];
+    if (validModes.indexOf(mode) === -1) mode = 'auto';
+    var content = escapeHtmlText(segment.content || '');
+    return '<div class="zw-typing" data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '" aria-live="polite">'
+      + '<span class="zw-typing__text">' + content + '</span>'
+      + '<span class="zw-typing__full sr-only">' + content + '</span>'
+      + '</div>';
+  }
+
+  function renderDialog(segment) {
+    if (!segment || segment.type !== 'dialog') return '';
+    var attrs = segment.attrs || {};
+    var speaker = attrs.speaker || '';
+    var position = attrs.position || 'left';
+    var validPos = ['left', 'right', 'center'];
+    if (validPos.indexOf(position) === -1) position = 'left';
+    var dialogStyle = attrs.style || 'default';
+    var validStyles = ['default', 'bubble', 'bordered', 'transparent'];
+    if (validStyles.indexOf(dialogStyle) === -1) dialogStyle = 'default';
+    var icon = attrs.icon || '';
+    var classAttr = 'zw-dialog zw-dialog--' + position + ' zw-dialog--' + dialogStyle;
+    var iconHtml = icon ? '<div class="zw-dialog__icon"><img src="' + escapeAttr(icon) + '" alt="' + escapeAttr(speaker) + '"></div>' : '';
+    var speakerHtml = speaker ? '<div class="zw-dialog__speaker">' + escapeHtmlText(speaker) + '</div>' : '';
+    var content = escapeHtmlText(segment.content || '');
+    return '<div class="' + classAttr + '">'
+      + iconHtml
+      + '<div class="zw-dialog__body">'
+      + speakerHtml
+      + '<div class="zw-dialog__content">' + content + '</div>'
+      + '</div></div>';
+  }
+
   function renderSegments(segments, options) {
     var list = Array.isArray(segments) ? segments : [];
     return list.map(function (segment) {
-      if (!segment || segment.type !== 'textbox') return segment && typeof segment.value === 'string' ? segment.value : '';
-      return renderTextbox(segment, options || {});
+      if (!segment) return '';
+      if (segment.type === 'textbox') return renderTextbox(segment, options || {});
+      if (segment.type === 'typing') return renderTyping(segment);
+      if (segment.type === 'dialog') return renderDialog(segment);
+      return typeof segment.value === 'string' ? segment.value : '';
     }).join('');
   }
 

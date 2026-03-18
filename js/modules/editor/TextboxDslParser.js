@@ -156,7 +156,7 @@
   }
 
   function renderTypingHtml(attrs, content) {
-    var speed = attrs.speed || '50ms';
+    var speed = attrs.speed || '30ms';
     var mode = attrs.mode || 'auto';
     if (TYPING_MODES.indexOf(mode) === -1) mode = 'auto';
     var dataAttrs = 'data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '"';

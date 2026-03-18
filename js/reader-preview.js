@@ -15,6 +15,7 @@
   var progressBar = null;
   var progressFill = null;
   var scrollRAF = null;
+  var typingCleanup = null;
 
   function init() {
     previewEl = document.getElementById('reader-preview');
@@ -102,6 +103,12 @@
 
     // プログレスバーをリセット
     if (progressFill) progressFill.style.width = '0%';
+
+    // タイピング演出をクリーンアップ
+    if (typingCleanup) {
+      typingCleanup();
+      typingCleanup = null;
+    }
 
     // 読者プレビューの内容をクリア（メモリ節約）
     if (innerEl) innerEl.innerHTML = '';
@@ -230,6 +237,11 @@
       wikiLinks[wl].addEventListener('click', function (e) {
         e.preventDefault();
       });
+    }
+
+    // タイピング演出をアクティベート (SP-074 Phase 2)
+    if (root.TypingEffectController && typeof root.TypingEffectController.activate === 'function') {
+      typingCleanup = root.TypingEffectController.activate(contentDiv);
     }
 
     // 先頭にスクロール
@@ -442,6 +454,8 @@
       + '  @keyframes tex-fire-flicker { 0%,100% { background-position: 50% 100%; } 50% { background-position: 50% 60%; } }\n'
       + '  @keyframes tex-glitch-shift { 0% { background-position: 0% 0%; } 25% { background-position: 80% 20%; } 50% { background-position: 20% 80%; } 75% { background-position: 60% 40%; } 100% { background-position: 0% 0%; } }\n'
       + '  @media (prefers-reduced-motion: reduce) { .tex-wave,.tex-sparkle,.tex-cosmic,.tex-fire,.tex-glitch { animation: none !important; } }\n'
+      + '  .zw-typing { display: block; margin: 0.5em 0; line-height: 1.8; }\n'
+      + '  .zw-typing .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }\n'
       + '  .kenten { -webkit-text-emphasis: filled sesame; text-emphasis: filled sesame; }\n'
       + '  a.wikilink { color: ' + linkColor + '; text-decoration: underline dotted; }\n'
       + '  a.wikilink.is-broken { color: #e53935; text-decoration: line-through; }\n'
