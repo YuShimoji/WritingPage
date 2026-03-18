@@ -69,13 +69,17 @@
           }
         });
         // SP-072: chapter-link → [text](chapter://target) 逆変換
+        // data-style がある場合は chapter://target#style=card 形式で保持
         this.turndownService.addRule('chapterLink', {
           filter: function (node) {
             return node.nodeName === 'A' && node.classList.contains('chapter-link');
           },
           replacement: function (content, node) {
             var target = node.dataset.chapterTarget || '';
-            return '[' + content + '](chapter://' + decodeURIComponent(target) + ')';
+            var decoded = decodeURIComponent(target);
+            var style = node.dataset.style || '';
+            var suffix = style ? '#style=' + style : '';
+            return '[' + content + '](chapter://' + decoded + suffix + ')';
           }
         });
         this.turndownService.addRule('textAnimations', {
@@ -871,7 +875,7 @@
       const selectedText = selection.toString().trim();
       const self = this;
 
-      this._showLinkInsertModal(savedRange, selectedText, function (url, isChapterLink) {
+      this._showLinkInsertModal(savedRange, selectedText, function (url, isChapterLink, linkStyle) {
         self.wysiwygEditor.focus();
         const sel = window.getSelection();
         sel.removeAllRanges();
@@ -881,7 +885,9 @@
         if (isChapterLink) {
           link.href = '#';
           link.className = 'chapter-link';
+          if (linkStyle) link.classList.add('chapter-link--' + linkStyle);
           link.dataset.chapterTarget = encodeURIComponent(url);
+          if (linkStyle) link.dataset.style = linkStyle;
         } else {
           link.href = url;
           link.target = '_blank';
@@ -938,6 +944,29 @@
       inputRow.appendChild(extHint);
       modal.appendChild(inputRow);
 
+      // リンクスタイル選択
+      const styleRow = document.createElement('div');
+      styleRow.className = 'link-insert-modal__style-row';
+      const styleLabel = document.createElement('label');
+      styleLabel.className = 'link-insert-modal__style-label';
+      styleLabel.textContent = '\u30b9\u30bf\u30a4\u30eb';
+      const styleSelect = document.createElement('select');
+      styleSelect.className = 'link-insert-modal__style-select';
+      [
+        { value: '', label: '\u6a19\u6e96' },
+        { value: 'choice', label: '\u25b6 \u9078\u629e\u80a2' },
+        { value: 'emphasis', label: '\u25b6 \u5f37\u8abf' },
+        { value: 'card', label: '\u25b6 \u30ab\u30fc\u30c9' }
+      ].forEach(function (opt) {
+        var o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.label;
+        styleSelect.appendChild(o);
+      });
+      styleRow.appendChild(styleLabel);
+      styleRow.appendChild(styleSelect);
+      modal.appendChild(styleRow);
+
       // 仕切り
       const divider = document.createElement('div');
       divider.className = 'link-insert-modal__divider';
@@ -975,8 +1004,9 @@
           }
 
           item.addEventListener('click', function () {
+            var style = styleSelect.value;
             self._closeLinkInsertModal();
-            onConfirm(ch.title || ch.id, true);
+            onConfirm(ch.title || ch.id, true, style);
           });
           chaptersEl.appendChild(item);
         });
@@ -992,8 +1022,9 @@
           e.preventDefault();
           const val = input.value.trim();
           if (val && !isDangerousUrl(val)) {
+            var style = styleSelect.value;
             this._closeLinkInsertModal();
-            onConfirm(val, false);
+            onConfirm(val, false, style);
           }
         }
         if (e.key === 'Escape') {

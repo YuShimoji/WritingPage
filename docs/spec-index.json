@@ -266,10 +266,10 @@
     "id": "SP-050",
     "title": "Story Wiki 仕様",
     "status": "partial",
-    "pct": 80,
+    "pct": 90,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "用語集Wiki Phase 1完了。カテゴリ7種+カスタム、ツリー+詳細ペイン、自動検出ハイブリッド、エディタ連携。Phase 2: AI生成/グラフビュー未着手",
+    "summary": "Phase 1完了 + Phase 2 Step 1-2完了。グラフビュー統合(カテゴリ色分け/力学レイアウト/ノードクリック遷移) + バックリンク一覧UI。残: AI生成/高度自動検出",
     "related": ["SP-041", "SP-048"]
   },
   {
@@ -422,12 +422,12 @@
   {
     "id": "SP-072",
     "title": "セクションリンク & インタラクティブナビ仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
-    "summary": "Phase 1-5完了。章末ナビバー+chapter://リンク+visibility+リンク挿入モーダル+壊れリンク警告+外部リンク+ゲームブック分岐UI(3階層:choice/emphasis/card+SP-062エフェクト転用設計)。E2E 5件。",
-    "related": ["SP-070", "SP-071"]
+    "summary": "Phase 1-5完了。章末ナビバー+chapter://リンク+visibility+リンク挿入モーダル+壊れリンク警告+外部リンク+ゲームブック分岐UI(3階層:choice/emphasis/card, data-style属性方式, URLフラグメント保持, スタイル選択UI, 自動グループ化+区切り線)。E2E 9件。",
+    "related": ["SP-070", "SP-071", "SP-062"]
   },
   {
     "id": "SP-073",

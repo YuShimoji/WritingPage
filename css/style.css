@@ -4392,7 +4392,9 @@ html[data-embed='true'] #editor {
 
 .chapter-choices {
   margin: 1.5em 0;
-  padding: 0;
+  padding: 0.5em 0;
+  border-top: 1px solid var(--border-color, #e0e0e0);
+  border-bottom: 1px solid var(--border-color, #e0e0e0);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -4483,6 +4485,29 @@ html[data-embed='true'] #editor {
 
 .link-insert-modal__ext-hint--warn {
   color: var(--error-color, #d44);
+}
+
+.link-insert-modal__style-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+}
+
+.link-insert-modal__style-label {
+  font-size: 0.75rem;
+  color: var(--text-muted, #999);
+  white-space: nowrap;
+}
+
+.link-insert-modal__style-select {
+  flex: 1;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-color, #ddd);
+  border-radius: 4px;
+  background: var(--bg-color, #fff);
+  color: var(--text-color, #333);
 }
 
 .link-insert-modal__divider {
@@ -7240,6 +7265,65 @@ details[open] summary {
 .swiki-related-link:hover {
   background: var(--accent-color, #6a9fb5);
   color: var(--accent-fg, #fff);
+}
+
+/* バックリンク一覧 */
+.swiki-detail-backlinks {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.swiki-detail-backlinks h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.swiki-backlink-empty {
+  color: var(--text-muted, #999);
+  font-size: 0.85rem;
+  padding: 4px 0;
+}
+
+.swiki-backlink-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.swiki-backlink-item:last-child {
+  border-bottom: none;
+}
+
+.swiki-backlink-type {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--bg-secondary, #f0f0f0);
+  color: var(--text-muted, #666);
+  flex-shrink: 0;
+}
+
+.swiki-backlink-link {
+  color: var(--accent-color, #6a9fb5);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.swiki-backlink-link:hover {
+  text-decoration: underline;
+}
+
+/* グラフ凡例 */
+.link-graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 6px 0;
+  font-size: 0.8rem;
+  color: var(--text-muted, #999);
 }
 
 .swiki-detail-actions {

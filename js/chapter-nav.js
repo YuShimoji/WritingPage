@@ -289,6 +289,15 @@
     return '';
   }
 
+  function parseStyleFromFragment(chapterId) {
+    var hashIdx = chapterId.indexOf('#style=');
+    if (hashIdx === -1) return { id: chapterId, style: '' };
+    var style = chapterId.substring(hashIdx + 7);
+    var id = chapterId.substring(0, hashIdx);
+    if (VALID_LINK_STYLES.indexOf(style) === -1) return { id: id, style: '' };
+    return { id: id, style: style };
+  }
+
   function convertChapterLinks(html) {
     if (!html) return html;
     var chapters = getChapters();
@@ -297,14 +306,19 @@
       /<a\s+href="chapter:\/\/([^"]+)"([^>]*)>(.*?)<\/a>/gi,
       function (_match, chapterId, attrs, text) {
         var decoded = decodeURIComponent(chapterId);
+        // #style=xxx フラグメントからスタイル抽出
+        var parsed = parseStyleFromFragment(decoded);
+        decoded = parsed.id;
         var isBroken = !findChapterByTitle(chapters, decoded) && !findChapterById(chapters, decoded);
-        var style = parseLinkStyle(attrs);
+        // data-style属性 or URLフラグメントのどちらからでもスタイル取得
+        var style = parsed.style || parseLinkStyle(attrs);
         var cls = 'chapter-link';
         if (style) cls += ' chapter-link--' + style;
         if (isBroken) cls += ' chapter-link--broken';
+        var dataStyle = style ? ' data-style="' + style + '"' : '';
         var title = isBroken ? ' title="\u30ea\u30f3\u30af\u5148\u306e\u7ae0\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093: ' + decoded + '"' : '';
         return '<a href="#" class="' + cls + '" data-chapter-target="' +
-          encodeURIComponent(decoded) + '"' + title + '>' + text + '</a>';
+          encodeURIComponent(decoded) + '"' + dataStyle + title + '>' + text + '</a>';
       }
     );
     return converted;
@@ -352,17 +366,87 @@
     }
   }
 
+  // ---- Auto-grouping of consecutive choice links ----
+
+  /**
+   * 連続する .chapter-link 要素を .chapter-choices ラッパーで自動グループ化する。
+   * 間に他の要素（テキストノード含む）が挟まっている場合はグループを分割する。
+   */
+  function autoGroupChoices(container) {
+    if (!container) return;
+    var links = container.querySelectorAll('.chapter-link');
+    if (links.length < 2) return;
+
+    var groups = [];
+    var currentGroup = [];
+
+    for (var i = 0; i < links.length; i++) {
+      var link = links[i];
+      // 直前のグループの最後のリンクと同じ親で連続しているか判定
+      if (currentGroup.length === 0) {
+        currentGroup.push(link);
+      } else {
+        var prev = currentGroup[currentGroup.length - 1];
+        if (areConsecutiveBlockLinks(prev, link)) {
+          currentGroup.push(link);
+        } else {
+          if (currentGroup.length >= 2) groups.push(currentGroup);
+          currentGroup = [link];
+        }
+      }
+    }
+    if (currentGroup.length >= 2) groups.push(currentGroup);
+
+    // 各グループを .chapter-choices で囲む
+    groups.forEach(function (group) {
+      // 既にグループ化済みならスキップ
+      if (group[0].parentNode && group[0].parentNode.classList &&
+          group[0].parentNode.classList.contains('chapter-choices')) return;
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'chapter-choices';
+      group[0].parentNode.insertBefore(wrapper, group[0]);
+      group.forEach(function (link) {
+        wrapper.appendChild(link);
+      });
+    });
+  }
+
+  /**
+   * 2つのリンクがブロック要素として連続しているか判定。
+   * 同じ親の中で、間に意味のある要素がなければ連続とみなす。
+   */
+  function areConsecutiveBlockLinks(a, b) {
+    if (a.parentNode !== b.parentNode) return false;
+    var node = a.nextSibling;
+    while (node && node !== b) {
+      // 空白テキストノードはスキップ
+      if (node.nodeType === 3 && node.textContent.trim() === '') {
+        node = node.nextSibling;
+        continue;
+      }
+      // <br> もスキップ
+      if (node.nodeType === 1 && node.nodeName === 'BR') {
+        node = node.nextSibling;
+        continue;
+      }
+      return false;
+    }
+    return node === b;
+  }
+
   // ---- Preview integration hook ----
 
   /**
    * プレビュー更新後に呼ばれるフック。
-   * ナビバー注入 + chapter:// リンクバインドを行う。
+   * ナビバー注入 + chapter:// リンクバインド + 選択肢自動グループ化。
    */
   function onPreviewUpdated(container) {
     if (!container) return;
     injectToc(container);
     injectNavBars(container);
     bindChapterLinks(container);
+    autoGroupChoices(container);
   }
 
   // ---- Export conversion ----
@@ -405,6 +489,7 @@
     onPreviewUpdated: onPreviewUpdated,
     convertChapterLinks: convertChapterLinks,
     convertForExport: convertForExport,
+    autoGroupChoices: autoGroupChoices,
     getVisibleChapters: function () { return getVisibleChapters(getChapters()); },
     loadSettings: loadSettings,
     saveSettings: saveSettings,
