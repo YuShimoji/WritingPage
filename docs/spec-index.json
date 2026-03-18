@@ -266,10 +266,10 @@
     "id": "SP-050",
     "title": "Story Wiki 仕様",
     "status": "partial",
-    "pct": 90,
+    "pct": 95,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "Phase 1完了 + Phase 2 Step 1-2完了。グラフビュー統合(カテゴリ色分け/力学レイアウト/ノードクリック遷移) + バックリンク一覧UI。残: AI生成/高度自動検出",
+    "summary": "Phase 1完了 + Phase 2 Step 1-3完了。グラフビュー統合(カテゴリ色分け/力学レイアウト/ノードクリック遷移) + バックリンク一覧 + AI生成(テンプレート+OpenAIハイブリッド)。E2E 31件。残: Step 4 高度自動検出(形態素解析)",
     "related": ["SP-041", "SP-048"]
   },
   {
@@ -485,7 +485,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
-    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+タイポグラフィ+モバイル+reduced-motion+HTML出力+読書進捗バー+スクロール位置記憶/復元。E2E 6件。",
+    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
     "related": ["SP-070", "SP-071", "SP-072"]
   }
 ]

@@ -278,4 +278,120 @@ test.describe('Story Wiki', () => {
     });
     expect(hasApi).toBe(true);
   });
+
+  // ── Phase 2 Step 3: AI生成 (テンプレート/ハイブリッド) ──
+
+  test('should expose StoryWikiAI API', async ({ page }) => {
+    const hasApi = await page.evaluate(() => {
+      return typeof window.StoryWikiAI !== 'undefined' &&
+        typeof window.StoryWikiAI.generateTemplate === 'function' &&
+        typeof window.StoryWikiAI.generateDraft === 'function' &&
+        typeof window.StoryWikiAI.extractMentions === 'function' &&
+        typeof window.StoryWikiAI.openSettings === 'function';
+    });
+    expect(hasApi).toBe(true);
+  });
+
+  test('should generate category-specific template (character)', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      if (!window.StoryWikiAI) return null;
+      var md = window.StoryWikiAI.generateTemplate('テスト太郎', 'character', []);
+      return md;
+    });
+    expect(result).not.toBeNull();
+    expect(result).toContain('## 概要');
+    expect(result).toContain('## 外見');
+    expect(result).toContain('## 性格');
+    expect(result).toContain('## 経歴');
+    expect(result).toContain('## 関連');
+  });
+
+  test('should generate category-specific template (location)', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      if (!window.StoryWikiAI) return null;
+      return window.StoryWikiAI.generateTemplate('王都ルミナス', 'location', []);
+    });
+    expect(result).not.toBeNull();
+    expect(result).toContain('## 概要');
+    expect(result).toContain('## 地理');
+    expect(result).toContain('## 歴史');
+    expect(result).toContain('## 特徴');
+  });
+
+  test('should extract mentions from editor text', async ({ page }) => {
+    // エディタにテスト文章を直接設定
+    const editor = page.locator('#editor');
+    await editor.waitFor({ timeout: 5000 });
+    await page.evaluate(() => {
+      var ed = document.querySelector('#editor');
+      if (ed) ed.innerHTML = '<p>勇者ヒカルは古代の剣を手にした。勇者ヒカルの旅が始まる。</p>';
+    });
+    await page.waitForTimeout(300);
+
+    const mentions = await page.evaluate(() => {
+      if (!window.StoryWikiAI) return [];
+      return window.StoryWikiAI.extractMentions('勇者ヒカル', []);
+    });
+    expect(mentions.length).toBeGreaterThan(0);
+    expect(mentions[0]).toContain('勇者ヒカル');
+
+    // テンプレート生成に言及が含まれる
+    const result = await page.evaluate(() => {
+      return window.StoryWikiAI.generateTemplate('勇者ヒカル', 'character', []);
+    });
+    expect(result).toContain('本文からの言及');
+    expect(result).toContain('勇者ヒカル');
+  });
+
+  test('should fallback to template when no API key is set (generateDraft)', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      return new Promise(function (resolve) {
+        if (!window.StoryWikiAI) { resolve(null); return; }
+        // APIキーなし → テンプレートにフォールバック
+        var s = window.ZenWriterStorage;
+        if (s && s.saveStoryWikiSettings) {
+          s.saveStoryWikiSettings({ autoDetect: true, ignoredTerms: [], apiKey: '' });
+        }
+        window.StoryWikiAI.generateDraft('テスト用語', 'term', [], function (content, warning) {
+          resolve({ content: content, warning: warning });
+        });
+      });
+    });
+    expect(result).not.toBeNull();
+    expect(result.content).toContain('## 概要');
+    expect(result.content).toContain('## 定義');
+    expect(result.warning).toBeNull();
+  });
+
+  test('should show draft generation button in edit form', async ({ page }) => {
+    // Wiki記事を作成
+    await page.evaluate(() => {
+      var s = window.ZenWriterStorage;
+      if (s && s.createStoryWikiEntry) {
+        s.createStoryWikiEntry({ title: 'Draft Test Entry', category: 'character', source: 'manual' });
+      }
+    });
+
+    // フルペインを開く
+    const expandBtn = page.locator('#edit-gadgets-panel .swiki-expand-btn');
+    if (await expandBtn.isVisible()) {
+      await expandBtn.click();
+    }
+    await page.waitForTimeout(500);
+
+    // 記事を選択して編集モードに入る
+    const entryLink = page.locator('.swiki-tree-item:has-text("Draft Test Entry")');
+    if (await entryLink.isVisible()) {
+      await entryLink.click();
+      await page.waitForTimeout(300);
+      const editBtn = page.locator('.swiki-btn:has-text("編集")');
+      if (await editBtn.isVisible()) {
+        await editBtn.click();
+        await page.waitForTimeout(300);
+        // 下書き生成ボタンが存在する
+        const draftBtn = page.locator('.swiki-btn-draft');
+        await expect(draftBtn).toBeAttached({ timeout: 3000 });
+      }
+    }
+  });
 });

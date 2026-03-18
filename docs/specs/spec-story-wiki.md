@@ -15,7 +15,8 @@
 |-------|------|------|
 | Phase 1 | 基本機能 (CRUD / ツリー / カテゴリ / 検索 / エディタ連携) | done |
 | Phase 2 Step 1-2 | グラフビュー統合 / バックリンク一覧 | done |
-| Phase 2 Step 3-4 | AI生成 / 高度な自動検出 | todo |
+| Phase 2 Step 3 | AI生成 (テンプレート + OpenAI ハイブリッド) | done |
+| Phase 2 Step 4 | 高度な自動検出 | todo |
 
 ---
 
@@ -226,7 +227,7 @@ WikiCategory = {
 - バックリンク項目にソース種別バッジ (Wiki / Doc / 現在) を表示
 - Story Wiki バックリンクのクリックで該当記事へ遷移
 
-### Step 3: AI生成 (todo)
+### Step 3: AI生成 (done)
 
 ハイブリッド方式: テンプレート生成 (デフォルト/オフライン) + OpenAI API (オプション)。
 
