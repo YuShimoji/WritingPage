@@ -28,9 +28,10 @@ npm run lint              # ESLint
 | E2E | 389 passed / 0 failed / 1 skipped (52 spec files, 399 total) | `npx playwright test` |
 | Lint | ALL PASSED (0 errors) | `npm run lint` |
 
-### 既知の E2E 失敗 (2026-03-18)
+### 既知の E2E スキップ (2026-03-19)
 
-- editor-canvas-mode.spec.js: 1件 (Canvas Mode は betaEnabled:false で延期中 — 唯一の既知失敗)
+- editor-canvas-mode.spec.js: 1件 skip (Canvas Mode は betaEnabled:false で延期中)
+- +9件: 条件付きskip (Images系/xorigin/split-view等のガジェットloadout依存)
 
 ### アーキテクチャ概要
 

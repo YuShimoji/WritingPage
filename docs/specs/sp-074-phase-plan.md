@@ -7,7 +7,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 
 ---
 
-## Phase 1: テクスチャオーバーレイ (CSS-only)
+## Phase 1: テクスチャオーバーレイ (CSS-only) — done
 
 **狙い**: SP-062 の TextEffect / Animation 辞書を拡張し、文字にテクスチャを重ねる基盤能力を獲得する。外部アセット不要の純 CSS 実装。
 
@@ -26,40 +26,54 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 
 ---
 
-## Phase 2: タイピング演出
+## Phase 2: タイピング演出 — done
 
 **狙い**: 1文字ずつ表示される演出を実装し、読者向け出力の基盤能力を獲得する。
 
 **スコープ**:
-- `:::zw-typing{speed:"50ms", mode:"auto"}` ブロック記法
-- 3モード: auto (自動再生) / click (クリック進行) / scroll (スクロール連動)
-- WYSIWYG: テキスト通常表示 + タイピングアイコンバッジ
-- プレビュー / HTML出力: 実際のタイピングアニメーション再生
-- 再生コントロール: play / stop / reset ボタン (プレビュー内)
+- `:::zw-typing{speed:"30ms", mode:"auto"}` ブロック記法 (デフォルト30ms/字に決定)
+- 3モード: auto (自動再生) / click (クリック進行, カーソル変化のみ) / scroll (IntersectionObserver)
+- WYSIWYG: テキスト通常表示 (タイピングアイコンバッジは未実装)
+- プレビュー / reader-preview: 実際のタイピングアニメーション再生
+- 再生コントロール: 未実装 (click モードのクリック進行 + fast-forward で代替)
 - アクセシビリティ: `aria-live="polite"` + `.sr-only` で全文即時提供
+- reduced motion: 即座全文表示
+
+**実装成果物**:
+- `js/modules/editor/TypingEffectController.js` (232行)
+- TextboxEffectRenderer に renderTyping() 追加
+- reader-preview.js にパイプライン統合 + exitReaderMode クリーンアップ
+- CSS: `.zw-typing` スタイル + reduced motion + sr-only
+- E2E: typing-effect.spec.js 10件
 
 **依存**: Phase 1 (テクスチャと組み合わせ可能)
-**推定工数**: 中
-**新規ファイル**: `js/modules/editor/TypingEffectController.js`
-**HUMAN_AUTHORITY**: デフォルト速度、click モードの UI デザイン
+**HUMAN_AUTHORITY 決定済み**: デフォルト速度=30ms/字、クリックUI=カーソル変化のみ
 
 ---
 
-## Phase 3: ダイアログボックス (顔アイコン付き)
+## Phase 3: ダイアログボックス (顔アイコン付き) — done
 
 **狙い**: ADV/ビジュアルノベル的な発言表示を実現し、SP-016 のテキストボックス基盤を拡張する。
 
 **スコープ**:
 - `:::zw-dialog{speaker:"アリス", icon:"alice.png", position:"left"}` ブロック記法
 - 4スタイル: default / bubble / bordered / transparent
-- WYSIWYG: ブロック要素として編集 (SP-016 の TextboxRichTextBridge を拡張)
-- アイコン画像: IndexedDB 保存 (SP-077 基盤活用)
-- SP-072 ゲームブック分岐UI連携: 選択肢ダイアログとして応用可能な構造
+- 3位置: left / right / center (flex-direction 制御)
+- アイコン: 48px円形、object-fit cover
+- CSS変数: --dialog-bg, --dialog-speaker-color, --dialog-bubble-bg 等でテーマ対応
 
-**依存**: Phase 1, SP-016 (done/95%), SP-077 (done)
-**推定工数**: 中〜大
-**新規ファイル**: `js/modules/editor/DialogBoxRenderer.js`
-**HUMAN_AUTHORITY**: ダイアログの視覚デザイン、アイコンサイズ、position バリエーション
+**実装成果物**:
+- TextboxEffectRenderer に renderDialog() 追加
+- CSS: `.zw-dialog` 4スタイル x 3位置 + アイコン + スピーカー名
+- reader-preview.js エクスポートHTML にダイアログCSS埋め込み
+- E2E: typing-effect.spec.js 内にダイアログテスト1件含む
+
+**未実装 (将来)**:
+- WYSIWYG ブロック編集 (TextboxRichTextBridge 拡張)
+- アイコン画像の IndexedDB 保存・管理UI
+- DialogBoxRenderer.js (独立レンダラー — 現在は TextboxEffectRenderer に統合)
+
+**依存**: Phase 1, SP-016 (done), SP-077 (done)
 
 ---
 
@@ -77,7 +91,14 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **依存**: Phase 1, Phase 2
 **推定工数**: 小〜中
 **新規ファイル**: なし (既存モジュール拡張)
-**HUMAN_AUTHORITY**: threshold / delay のデフォルト値
+**HUMAN_AUTHORITY**: threshold / delay のデフォルト値、構文方式の選択
+
+**構文方式の未決定事項 (session 10 で発見)**:
+仕様案の `[anim type="scroll-trigger"]` は属性付きインラインタグという新パターン。既存パーサーは `[tag]...[/tag]` (属性なし) のみ対応。実装方式の選択が必要:
+- A: `[anim]` 属性付きインラインタグパーサーを新設 (仕様通り、パーサー拡張コスト大)
+- B: `:::zw-scroll{effect:"fade-in"}` ブロック構文 (既存DslParser拡張、低コスト)
+- C: data属性方式 — 任意要素に `data-scroll-trigger="fade-in"` を付与 (DSL不要)
+- D: Phase 4 後送り
 
 ---
 
