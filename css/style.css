@@ -4194,6 +4194,86 @@ html[data-embed='true'] #editor {
   }
 }
 
+/* ===== ダイアログボックス (SP-074 Phase 3) ===== */
+.zw-dialog {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75em;
+  margin: 1em 0;
+  padding: 0.8em 1em;
+  border-radius: 8px;
+  background: var(--dialog-bg, rgba(128, 128, 128, 0.08));
+  line-height: 1.8;
+}
+
+.zw-dialog__icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.zw-dialog__icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.zw-dialog__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.zw-dialog__speaker {
+  font-weight: 700;
+  font-size: 0.9em;
+  margin-bottom: 0.2em;
+  color: var(--dialog-speaker-color, var(--editor-text, inherit));
+}
+
+.zw-dialog__content {
+  white-space: pre-wrap;
+}
+
+/* Position variants */
+.zw-dialog--right {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.zw-dialog--center {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.zw-dialog--center .zw-dialog__icon {
+  margin-bottom: 0.5em;
+}
+
+/* Style variants */
+.zw-dialog--bubble {
+  background: var(--dialog-bubble-bg, rgba(74, 144, 226, 0.1));
+  border: 1px solid var(--dialog-bubble-border, rgba(74, 144, 226, 0.3));
+  border-radius: 16px;
+}
+
+.zw-dialog--bordered {
+  background: transparent;
+  border: 2px solid var(--dialog-border-color, #ccc);
+  border-radius: 4px;
+}
+
+.zw-dialog--transparent {
+  background: transparent;
+  padding: 0.4em 0;
+}
+
+.zw-dialog--transparent .zw-dialog__speaker {
+  opacity: 0.7;
+}
+
 /* ===== フォント装飾 ===== */
 .decor-bold {
   font-weight: 700;
