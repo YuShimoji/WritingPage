@@ -196,7 +196,10 @@
     "cat": "infra",
     "file": "docs/TESTING.md",
     "summary": "Playwright E2E・スモークテスト・CI実行手順",
-    "related": ["SP-048", "SP-050"]
+    "related": [
+      "SP-048",
+      "SP-050"
+    ]
   },
   {
     "id": "SP-042",
@@ -260,17 +263,23 @@
     "cat": "infra",
     "file": "docs/MANUAL_TEST_GUIDE.md",
     "summary": "手動テスト観点・推奨運用・Playwright画面証跡の取得手順",
-    "related": ["SP-041", "SP-050"]
+    "related": [
+      "SP-041",
+      "SP-050"
+    ]
   },
   {
     "id": "SP-050",
     "title": "Story Wiki 仕様",
     "status": "partial",
-    "pct": 95,
+    "pct": 98,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "Phase 1完了 + Phase 2 Step 1-3完了。グラフビュー統合(カテゴリ色分け/力学レイアウト/ノードクリック遷移) + バックリンク一覧 + AI生成(テンプレート+OpenAIハイブリッド)。E2E 31件。残: Step 4 高度自動検出(形態素解析)",
-    "related": ["SP-041", "SP-048"]
+    "summary": "Phase 1完了 + Phase 2 Step 1-4a完了。グラフビュー統合 + バックリンク一覧 + AI生成 + リンク候補検出(簡易版: findUnlinkedMentions/applyWikilinks/showLinkCandidatesDialog)。E2E 31件。残: Step 4b 形態素解析(deferred)",
+    "related": [
+      "SP-041",
+      "SP-048"
+    ]
   },
   {
     "id": "SP-051",
@@ -298,7 +307,10 @@
     "cat": "ui",
     "file": "docs/specs/spec-writing-focus-sidebar.md",
     "summary": "SP-070 (モードアーキテクチャ) + SP-071 (チャプター管理再設計) に包含された。3段構成→Focusモード、セクション領域→ChapterList、設定表示→オーバーレイ。設計意図の参照用として保存。",
-    "supersededBy": ["SP-070", "SP-071"]
+    "supersededBy": [
+      "SP-070",
+      "SP-071"
+    ]
   },
   {
     "id": "SP-054",
@@ -367,10 +379,10 @@
     "id": "SP-061",
     "title": "Visual Profile Typography Pack 仕様",
     "status": "partial",
-    "pct": 60,
+    "pct": 80,
     "cat": "ui",
     "file": "docs/specs/spec-visual-profile-typography-pack.md",
-    "summary": "Phase 1完了: 4パック(執筆集中/資料読解/校正/演出確認)定義 + VisualProfileガジェット内ワンクリック適用UI。typography-pack.js新規。ZenWriterTheme既存APIに委譲しマージ保存で後方互換。残: E2E追加 / ユーザー定義パック / Visual Profile本体へのtypographyPackフィールド統合。"
+    "summary": "typography-pack.js新設(4パック/API完成) + VisualProfileガジェットUI統合(作業シーンセクション/vp-pack-btnスタイル/is-activeクラス制御)。ZenWriterTheme既存API委譲でマージ保存互換。残: E2E追加/ユーザー定義パック/Visual Profile本体へのtypographyPackフィールド統合"
   },
   {
     "id": "SP-062",
@@ -398,7 +410,9 @@
     "cat": "ui",
     "file": "docs/specs/spec-font-switching-impact-map.md",
     "summary": "SP-054 フォント切り替え実装時の影響範囲分析。変更対象ファイル・関連度・安全な作業順序を整理。",
-    "related": ["SP-054"]
+    "related": [
+      "SP-054"
+    ]
   },
   {
     "id": "SP-070",
@@ -417,7 +431,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
     "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",
-    "related": ["SP-070", "SP-052", "SP-053"]
+    "related": [
+      "SP-070",
+      "SP-052",
+      "SP-053"
+    ]
   },
   {
     "id": "SP-072",
@@ -427,7 +445,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
     "summary": "Phase 1-5完了。章末ナビバー+chapter://リンク+visibility+リンク挿入モーダル+壊れリンク警告+外部リンク+ゲームブック分岐UI(3階層:choice/emphasis/card, data-style属性方式, URLフラグメント保持, スタイル選択UI, 自動グループ化+区切り線)。E2E 9件。",
-    "related": ["SP-070", "SP-071", "SP-062"]
+    "related": [
+      "SP-070",
+      "SP-071",
+      "SP-062"
+    ]
   },
   {
     "id": "SP-073",
@@ -437,7 +459,10 @@
     "cat": "ui",
     "file": "docs/specs/spec-path-text.md",
     "summary": "ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。WYSIWYG上で制御点ハンドルによるインタラクティブ編集。",
-    "related": ["SP-016", "SP-062"]
+    "related": [
+      "SP-016",
+      "SP-062"
+    ]
   },
   {
     "id": "SP-074",
@@ -447,7 +472,12 @@
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
     "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, 30ms/字, E2E 10件)。Phase 3完了: ダイアログボックス(4スタイルx3位置, アイコン/スピーカー名, CSS変数テーマ対応, エクスポートHTML埋込)。Phase 4完了: スクロール連動演出(:::zw-scroll{} 構文, fade-in/slide-in/slide-up, IntersectionObserver, E2E 4件)。WYSIWYG round-trip対応(typing/dialog→DSLシリアライズ)。残: Phase 5(SE)/Phase 6(プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
-    "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
+    "related": [
+      "SP-062",
+      "SP-055",
+      "SP-016",
+      "SP-060"
+    ]
   },
   {
     "id": "SP-075",
@@ -466,7 +496,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
     "summary": "上下左右へのパネルドッキング。タブグループ化、フローティング切り離し、プリセット配置。Editorモード専用。SP-070依存。",
-    "related": ["SP-070", "SP-051", "SP-071"]
+    "related": [
+      "SP-070",
+      "SP-051",
+      "SP-071"
+    ]
   },
   {
     "id": "SP-077",
@@ -476,7 +510,9 @@
     "cat": "system",
     "file": "docs/specs/spec-indexeddb-migration.md",
     "summary": "Phase 1-4完了: IDBラッパー + ドキュメント/アセット/スナップショット/Wiki/ノードグラフ全移行完了。メモリキャッシュ + 非同期IDBフラッシュ。localStorageフォールバック対応。",
-    "related": ["SP-071"]
+    "related": [
+      "SP-071"
+    ]
   },
   {
     "id": "SP-078",
@@ -486,7 +522,11 @@
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
     "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
-    "related": ["SP-070", "SP-071", "SP-072"]
+    "related": [
+      "SP-070",
+      "SP-071",
+      "SP-072"
+    ]
   },
   {
     "id": "SP-079",
@@ -496,6 +536,10 @@
     "cat": "ui",
     "file": "docs/issues/2026-03-19_chapter-ux-issues.md",
     "summary": "チャプター管理UX 3点改善: (A) chapterModeデフォルト化+ロールバックUI (B) 文字数をプレーンテキストベースに統一 (C) Legacy章作成のテキスト汚染解消。Issue Dのドキュメント操作不整合も包含予定。",
-    "related": ["SP-071", "SP-052", "SP-070"]
+    "related": [
+      "SP-071",
+      "SP-052",
+      "SP-070"
+    ]
   }
 ]

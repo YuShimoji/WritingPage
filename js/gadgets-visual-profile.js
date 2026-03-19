@@ -23,6 +23,70 @@
       root.style.flexDirection = 'column';
       root.style.gap = '8px';
 
+      // ===== 作業シーン (Typography Pack) =====
+      var TP = window.ZenWriterTypographyPack;
+      if (TP) {
+        var packSection = el('div');
+        packSection.style.display = 'flex';
+        packSection.style.flexDirection = 'column';
+        packSection.style.gap = '4px';
+        packSection.style.paddingBottom = '8px';
+        packSection.style.borderBottom = '1px solid var(--border-color, #ddd)';
+
+        var packHeading = el('div');
+        packHeading.textContent = '作業シーン';
+        packHeading.style.fontSize = '11px';
+        packHeading.style.opacity = '0.7';
+        packHeading.style.fontWeight = 'bold';
+        packSection.appendChild(packHeading);
+
+        var packBtnRow = el('div');
+        packBtnRow.style.display = 'flex';
+        packBtnRow.style.flexWrap = 'wrap';
+        packBtnRow.style.gap = '4px';
+
+        function updatePackButtons() {
+          var currentId = TP.getCurrentPackId();
+          packBtnRow.querySelectorAll('button[data-pack-id]').forEach(function (btn) {
+            btn.classList.toggle('is-active', btn.dataset.packId === currentId);
+          });
+        }
+
+        TP.getBuiltInPacks().forEach(function (pack) {
+          var btn = el('button', 'vp-pack-btn');
+          btn.textContent = pack.label;
+          btn.title = pack.description;
+          btn.dataset.packId = pack.id;
+          btn.addEventListener('click', function () {
+            TP.applyTypographyPack(pack.id);
+          });
+          packBtnRow.appendChild(btn);
+        });
+
+        packSection.appendChild(packBtnRow);
+
+        var packInfo = el('div');
+        packInfo.style.fontSize = '11px';
+        packInfo.style.opacity = '0.6';
+
+        function updatePackInfo() {
+          var currentId = TP.getCurrentPackId();
+          var pack = currentId ? TP.getPack(currentId) : null;
+          packInfo.textContent = pack ? ('適用中: ' + pack.label) : '未設定';
+        }
+
+        updatePackInfo();
+        packSection.appendChild(packInfo);
+
+        window.addEventListener('ZenWriterTypographyPackApplied', function () {
+          updatePackInfo();
+          updatePackButtons();
+        });
+
+        updatePackButtons();
+        root.appendChild(packSection);
+      }
+
       // プロファイル選択
       const selectRow = el('div');
       selectRow.style.display = 'flex';

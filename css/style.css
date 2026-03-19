@@ -8083,3 +8083,27 @@ html[data-ui-mode='blank'] .editor-status-bar {
 .status-bar-title:hover {
   text-decoration: underline;
 }
+
+/* ── Typography Pack (SP-061) ── */
+.vp-pack-btn {
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.vp-pack-btn:hover {
+  background: var(--border-color);
+}
+
+.vp-pack-btn.is-active {
+  background: var(--accent-color, #6a9fb5);
+  color: var(--accent-fg, #fff);
+  border-color: transparent;
+  font-weight: 500;
+}
