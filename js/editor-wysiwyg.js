@@ -371,6 +371,33 @@
           });
           tbMenu.appendChild(btn);
         });
+
+        // 演出ブロック挿入セクション (SP-074 Phase 3)
+        var sep = document.createElement('div');
+        sep.className = 'wysiwyg-tb-separator';
+        tbMenu.appendChild(sep);
+
+        var typingBtn = document.createElement('button');
+        typingBtn.setAttribute('role', 'menuitem');
+        typingBtn.className = 'wysiwyg-tb-item wysiwyg-tb-item--effect';
+        typingBtn.textContent = 'タイピング演出を挿入';
+        typingBtn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          self._insertTypingBlock();
+          tbDropdown.setAttribute('data-open', 'false');
+        });
+        tbMenu.appendChild(typingBtn);
+
+        var dialogBtn = document.createElement('button');
+        dialogBtn.setAttribute('role', 'menuitem');
+        dialogBtn.className = 'wysiwyg-tb-item wysiwyg-tb-item--effect';
+        dialogBtn.textContent = 'ダイアログを挿入';
+        dialogBtn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          self._insertDialogBlock();
+          tbDropdown.setAttribute('data-open', 'false');
+        });
+        tbMenu.appendChild(dialogBtn);
       }
 
       // トグル開閉時にメニューを再構築
@@ -475,6 +502,91 @@
       var source = contentEl || tb;
       while (source.firstChild) fragment.appendChild(source.firstChild);
       tb.parentNode.replaceChild(fragment, tb);
+      this._notifyChange();
+    }
+
+    /**
+     * WYSIWYG にタイピング演出ブロックを挿入 (SP-074 Phase 3)
+     */
+    _insertTypingBlock() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      this._captureUndoSnapshot();
+      this.wysiwygEditor.focus();
+
+      var div = document.createElement('div');
+      div.className = 'zw-typing';
+      div.setAttribute('data-speed', '30ms');
+      div.setAttribute('data-mode', 'auto');
+      div.setAttribute('aria-live', 'polite');
+
+      var textSpan = document.createElement('span');
+      textSpan.className = 'zw-typing__text';
+      textSpan.textContent = 'ここにテキストを入力';
+      var fullSpan = document.createElement('span');
+      fullSpan.className = 'zw-typing__full sr-only';
+      fullSpan.textContent = 'ここにテキストを入力';
+      div.appendChild(textSpan);
+      div.appendChild(fullSpan);
+
+      var selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        var range = selection.getRangeAt(0);
+        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          range.collapse(false);
+          range.insertNode(div);
+          var newRange = document.createRange();
+          newRange.selectNodeContents(textSpan);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+          this._notifyChange();
+          return;
+        }
+      }
+      this.wysiwygEditor.appendChild(div);
+      this._notifyChange();
+    }
+
+    /**
+     * WYSIWYG にダイアログブロックを挿入 (SP-074 Phase 3)
+     */
+    _insertDialogBlock() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      this._captureUndoSnapshot();
+      this.wysiwygEditor.focus();
+
+      var div = document.createElement('div');
+      div.className = 'zw-dialog zw-dialog--left zw-dialog--default';
+      div.setAttribute('data-dialog-position', 'left');
+      div.setAttribute('data-dialog-style', 'default');
+      div.setAttribute('data-dialog-speaker', 'キャラクター');
+
+      var body = document.createElement('div');
+      body.className = 'zw-dialog__body';
+      var speakerEl = document.createElement('div');
+      speakerEl.className = 'zw-dialog__speaker';
+      speakerEl.textContent = 'キャラクター';
+      var contentEl = document.createElement('div');
+      contentEl.className = 'zw-dialog__content';
+      contentEl.textContent = 'セリフを入力';
+      body.appendChild(speakerEl);
+      body.appendChild(contentEl);
+      div.appendChild(body);
+
+      var selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        var range = selection.getRangeAt(0);
+        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          range.collapse(false);
+          range.insertNode(div);
+          var newRange = document.createRange();
+          newRange.selectNodeContents(contentEl);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+          this._notifyChange();
+          return;
+        }
+      }
+      this.wysiwygEditor.appendChild(div);
       this._notifyChange();
     }
 

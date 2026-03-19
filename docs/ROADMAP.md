@@ -90,10 +90,18 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 
 ポストモダン文学・Web小説・ビジュアルノベルの表現に必要な機能。
 
-### B-1. Web小説演出統合 (SP-074) -- partial/50%
+### B-1. Web小説演出統合 (SP-074) -- partial/75%
 
 テクスチャオーバーレイ / タイピング演出 / ダイアログボックス / SE / スクロール連動。
 SP-062 (テキスト表現アーキテクチャ) 基盤上に構築。ジャンルプリセット対応。
+
+- [x] Phase 1: テクスチャ5種 (wave/sparkle/cosmic/fire/glitch)
+- [x] Phase 2: タイピング演出 (auto/click/scroll 3モード, 30ms/字)
+- [x] Phase 3: ダイアログボックス (4スタイル x 3位置, アイコン/スピーカー名)
+- [x] Phase 4: スクロール連動演出 (:::zw-scroll{} 構文, fade-in/slide-in/slide-up)
+- [x] WYSIWYG round-trip: typing/dialog → DSL シリアライズ
+- [ ] Phase 5: SE (効果音) — MediaManager.js 新設
+- [ ] Phase 6: ジャンルプリセット (ADV風/Web小説風/ホラー風/ポエム風)
 
 ### B-2. パステキスト (SP-073) -- todo
 

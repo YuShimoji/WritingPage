@@ -4274,6 +4274,54 @@ html[data-embed='true'] #editor {
   opacity: 0.7;
 }
 
+/* ===== SP-074 Phase 3: WYSIWYG 演出ブロック挿入 UI ===== */
+.wysiwyg-tb-separator {
+  height: 1px;
+  background: var(--border-color, #444);
+  margin: 4px 0;
+}
+
+.wysiwyg-tb-item--effect {
+  font-style: italic;
+  color: var(--accent-color, #4a90e2);
+}
+
+/* ===== SP-074 Phase 4: スクロール連動演出 ===== */
+.zw-scroll-trigger {
+  opacity: 0;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  will-change: opacity, transform;
+}
+
+.zw-scroll-trigger.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.zw-scroll-trigger[data-effect="slide-in"],
+.zw-scroll-trigger[data-effect="slide-up"] {
+  transform: translateY(24px);
+}
+
+.zw-scroll-trigger[data-effect="slide-in"].is-visible,
+.zw-scroll-trigger[data-effect="slide-up"].is-visible {
+  transform: translateY(0);
+}
+
+[data-reduce-motion="true"] .zw-scroll-trigger {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zw-scroll-trigger {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* ===== フォント装飾 ===== */
 .decor-bold {
   font-weight: 700;
@@ -7657,6 +7705,22 @@ details[open] summary {
 .swiki-suggest-cat {
   width: 110px;
   flex-shrink: 0;
+}
+
+.swiki-suggest-cat-badge {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--border-color);
+  color: var(--text-muted, #999);
+  flex-shrink: 0;
+}
+
+.swiki-suggest-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted, #999);
+  margin: 0 0 8px;
+  line-height: 1.5;
 }
 
 /* エディタ内ハイライト */

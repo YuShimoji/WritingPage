@@ -59,6 +59,48 @@
       node.replaceWith(document.createTextNode(token));
     });
 
+    // .zw-typing ブロックのシリアライズ (SP-074 Phase 3)
+    var typingNodes = container.querySelectorAll('.zw-typing');
+    Array.prototype.forEach.call(typingNodes, function (node, localIdx) {
+      var textEl = node.querySelector('.zw-typing__text');
+      var content = textEl ? (textEl.textContent || '') : (node.textContent || '');
+      var speed = node.getAttribute('data-speed') || '';
+      var mode = node.getAttribute('data-mode') || '';
+      var attrs = {};
+      if (speed && speed !== '30ms') attrs.speed = speed;
+      if (mode && mode !== 'auto') attrs.mode = mode;
+      var parser = root.TextboxDslParser;
+      var dsl = parser && typeof parser.wrap === 'function'
+        ? parser.wrap(content.trim(), attrs, 'typing')
+        : ':::zw-typing\n' + content + '\n:::';
+      var token = 'ZWTYPING' + localIdx;
+      placeholders.push({ token: token, dsl: dsl });
+      node.replaceWith(document.createTextNode(token));
+    });
+
+    // .zw-dialog ブロックのシリアライズ (SP-074 Phase 3)
+    var dialogNodes = container.querySelectorAll('.zw-dialog');
+    Array.prototype.forEach.call(dialogNodes, function (node, localIdx) {
+      var contentEl = node.querySelector('.zw-dialog__content');
+      var content = contentEl ? (contentEl.textContent || '') : '';
+      var attrs = {};
+      var speaker = node.getAttribute('data-dialog-speaker') || '';
+      var position = node.getAttribute('data-dialog-position') || '';
+      var dialogStyle = node.getAttribute('data-dialog-style') || '';
+      var icon = node.getAttribute('data-dialog-icon') || '';
+      if (speaker) attrs.speaker = speaker;
+      if (position && position !== 'left') attrs.position = position;
+      if (dialogStyle && dialogStyle !== 'default') attrs.style = dialogStyle;
+      if (icon) attrs.icon = icon;
+      var parser = root.TextboxDslParser;
+      var dsl = parser && typeof parser.wrap === 'function'
+        ? parser.wrap(content.trim(), attrs, 'dialog')
+        : ':::zw-dialog\n' + content + '\n:::';
+      var token = 'ZWDIALOG' + localIdx;
+      placeholders.push({ token: token, dsl: dsl });
+      node.replaceWith(document.createTextNode(token));
+    });
+
     return {
       html: container.innerHTML,
       placeholders: placeholders

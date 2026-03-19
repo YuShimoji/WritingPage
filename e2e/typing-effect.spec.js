@@ -212,3 +212,137 @@ test.describe('SP-074 Phase 2: Typing Effect', () => {
     expect(html).toContain('こんにちは');
   });
 });
+
+test.describe('SP-074 Phase 3: WYSIWYG round-trip', () => {
+  test('dialog HTML retains data-* attributes for serialization', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const html = await page.evaluate(() => {
+      var renderer = window.TextboxEffectRenderer;
+      if (!renderer) return null;
+      var parser = window.TextboxDslParser;
+      if (!parser) return null;
+      var segments = parser.parseSegments(':::zw-dialog{speaker:"Alice", position:"right", style:"bubble"}\nセリフ\n:::');
+      return renderer.renderSegments(segments, {});
+    });
+
+    expect(html).toBeTruthy();
+    expect(html).toContain('data-dialog-speaker="Alice"');
+    expect(html).toContain('data-dialog-position="right"');
+    expect(html).toContain('data-dialog-style="bubble"');
+  });
+
+  test('TextboxRichTextBridge serializes .zw-typing back to DSL', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const result = await page.evaluate(() => {
+      var bridge = window.TextboxRichTextBridge;
+      if (!bridge) return null;
+      var html = '<div class="zw-typing" data-speed="50ms" data-mode="click" aria-live="polite">'
+        + '<span class="zw-typing__text">テスト</span>'
+        + '<span class="zw-typing__full sr-only">テスト</span>'
+        + '</div>';
+      var serialized = bridge.serializeHtml(html, {});
+      return {
+        hasToken: serialized.html.includes('ZWTYPING'),
+        placeholder: serialized.placeholders[0] ? serialized.placeholders[0].dsl : ''
+      };
+    });
+
+    expect(result).toBeTruthy();
+    expect(result.hasToken).toBe(true);
+    expect(result.placeholder).toContain(':::zw-typing');
+    expect(result.placeholder).toContain('テスト');
+  });
+
+  test('TextboxRichTextBridge serializes .zw-dialog back to DSL', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const result = await page.evaluate(() => {
+      var bridge = window.TextboxRichTextBridge;
+      if (!bridge) return null;
+      var html = '<div class="zw-dialog zw-dialog--left zw-dialog--default"'
+        + ' data-dialog-position="left" data-dialog-style="default" data-dialog-speaker="Alice">'
+        + '<div class="zw-dialog__body">'
+        + '<div class="zw-dialog__speaker">Alice</div>'
+        + '<div class="zw-dialog__content">こんにちは</div>'
+        + '</div></div>';
+      var serialized = bridge.serializeHtml(html, {});
+      return {
+        hasToken: serialized.html.includes('ZWDIALOG'),
+        placeholder: serialized.placeholders[0] ? serialized.placeholders[0].dsl : ''
+      };
+    });
+
+    expect(result).toBeTruthy();
+    expect(result.hasToken).toBe(true);
+    expect(result.placeholder).toContain(':::zw-dialog');
+    expect(result.placeholder).toContain('こんにちは');
+  });
+});
+
+test.describe('SP-074 Phase 4: Scroll trigger', () => {
+  test('TextboxDslParser renders :::zw-scroll as .zw-scroll-trigger div', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const html = await page.evaluate(() => {
+      var parser = window.TextboxDslParser;
+      if (!parser) return null;
+      return parser.toHtml(':::zw-scroll{effect:"fade-in", delay:"200ms"}\nスクロールで表示\n:::');
+    });
+
+    expect(html).toBeTruthy();
+    expect(html).toContain('class="zw-scroll-trigger"');
+    expect(html).toContain('data-effect="fade-in"');
+    expect(html).toContain('data-delay="200ms"');
+    expect(html).toContain('スクロールで表示');
+  });
+
+  test('TextboxEffectRenderer handles scroll segments', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const html = await page.evaluate(() => {
+      var parser = window.TextboxDslParser;
+      var renderer = window.TextboxEffectRenderer;
+      if (!parser || !renderer) return null;
+      var segments = parser.parseSegments(':::zw-scroll{effect:"slide-in"}\nスライドイン\n:::');
+      return renderer.renderSegments(segments, {});
+    });
+
+    expect(html).toBeTruthy();
+    expect(html).toContain('zw-scroll-trigger');
+    expect(html).toContain('data-effect="slide-in"');
+    expect(html).toContain('スライドイン');
+  });
+
+  test('scroll trigger renders in editor preview', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await showFullToolbar(page);
+
+    await page.fill('#editor', ':::zw-scroll{effect:"fade-in"}\nフェードイン要素\n:::');
+    await page.click('#toggle-preview');
+
+    const triggerDiv = page.locator('#markdown-preview-panel .zw-scroll-trigger');
+    await expect(triggerDiv).toBeAttached({ timeout: 5000 });
+    await expect(triggerDiv).toHaveAttribute('data-effect', 'fade-in');
+  });
+
+  test('default scroll effect is fade-in when not specified', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const html = await page.evaluate(() => {
+      var parser = window.TextboxDslParser;
+      if (!parser) return null;
+      return parser.toHtml(':::zw-scroll\nデフォルト\n:::');
+    });
+
+    expect(html).toContain('data-effect="fade-in"');
+  });
+});

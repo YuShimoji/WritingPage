@@ -16,6 +16,7 @@
   var progressFill = null;
   var scrollRAF = null;
   var typingCleanup = null;
+  var scrollTriggerCleanup = null;
 
   function init() {
     previewEl = document.getElementById('reader-preview');
@@ -108,6 +109,12 @@
     if (typingCleanup) {
       typingCleanup();
       typingCleanup = null;
+    }
+
+    // スクロール連動演出をクリーンアップ
+    if (scrollTriggerCleanup) {
+      scrollTriggerCleanup();
+      scrollTriggerCleanup = null;
     }
 
     // 読者プレビューの内容をクリア（メモリ節約）
@@ -244,6 +251,9 @@
       typingCleanup = root.TypingEffectController.activate(contentDiv);
     }
 
+    // スクロール連動演出をアクティベート (SP-074 Phase 4)
+    scrollTriggerCleanup = activateScrollTriggers(contentDiv);
+
     // 先頭にスクロール
     previewEl.scrollTop = 0;
   }
@@ -252,7 +262,7 @@
    * markdown-it 処理前に :::zw-* DSL ブロックをプレースホルダーに退避する。
    * markdown-it は DSL 構文を認識しないため、<p> で囲まれて壊れるのを防ぐ。
    */
-  var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
+  var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog|scroll)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
 
   function extractDslBlocks(markdown) {
     var placeholders = [];
@@ -275,6 +285,55 @@
       html = html.replace(new RegExp(p.token, 'g'), p.dsl);
     }
     return html;
+  }
+
+  /**
+   * スクロール連動演出 (SP-074 Phase 4) の IntersectionObserver を設定する。
+   * @param {Element} container
+   * @returns {Function|null} クリーンアップ関数
+   */
+  function activateScrollTriggers(container) {
+    var triggers = container.querySelectorAll('.zw-scroll-trigger');
+    if (!triggers.length) return null;
+
+    // IntersectionObserver 非対応環境: 全て即時表示
+    if (!('IntersectionObserver' in window)) {
+      Array.prototype.forEach.call(triggers, function (el) {
+        el.classList.add('is-visible');
+      });
+      return null;
+    }
+
+    // reduced motion: 即時表示
+    var isReduced = document.documentElement.getAttribute('data-reduce-motion') === 'true'
+      || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (isReduced) {
+      Array.prototype.forEach.call(triggers, function (el) {
+        el.classList.add('is-visible');
+      });
+      return null;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var el = entry.target;
+        var delay = el.getAttribute('data-delay') || '';
+        var delayMs = parseInt(delay, 10) || 0;
+        if (delayMs > 0) {
+          setTimeout(function () { el.classList.add('is-visible'); }, delayMs);
+        } else {
+          el.classList.add('is-visible');
+        }
+        observer.unobserve(el);
+      });
+    }, { threshold: 0.2, rootMargin: '0px' });
+
+    Array.prototype.forEach.call(triggers, function (el) {
+      observer.observe(el);
+    });
+
+    return function cleanup() { observer.disconnect(); };
   }
 
   /**

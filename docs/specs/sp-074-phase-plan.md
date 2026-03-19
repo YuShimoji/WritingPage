@@ -77,28 +77,30 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 
 ---
 
-## Phase 4: スクロール連動演出
+## Phase 4: スクロール連動演出 — done
 
 **狙い**: IntersectionObserver ベースのスクロールトリガーで、読者の閲覧体験を動的にする。
 
 **スコープ**:
-- `[anim type="scroll-trigger" effect="fade-in" delay="200ms"]` 記法
-- 対応演出: fade-in / slide-in / テクスチャ開始 / タイピング開始
+
+- `:::zw-scroll{effect:"fade-in", delay:"200ms"}` ブロック構文 (B案採用)
+- 対応演出: fade-in / slide-in / slide-up
 - IntersectionObserver (threshold 0.2) でトリガー
-- WYSIWYG: 通常表示 + スクロールトリガーバッジ
-- プレビュー / HTML出力: スクロール位置で演出開始
+- 非対応環境: 即時表示フォールバック
+- WYSIWYG: 通常テキスト表示 (バッジ未実装 — 将来拡張)
+- プレビュー / reader-preview: スクロール位置で演出開始
+- reduced-motion: 即時全文表示
 
-**依存**: Phase 1, Phase 2
-**推定工数**: 小〜中
-**新規ファイル**: なし (既存モジュール拡張)
-**HUMAN_AUTHORITY**: threshold / delay のデフォルト値、構文方式の選択
+**実装成果物**:
 
-**構文方式の未決定事項 (session 10 で発見)**:
-仕様案の `[anim type="scroll-trigger"]` は属性付きインラインタグという新パターン。既存パーサーは `[tag]...[/tag]` (属性なし) のみ対応。実装方式の選択が必要:
-- A: `[anim]` 属性付きインラインタグパーサーを新設 (仕様通り、パーサー拡張コスト大)
-- B: `:::zw-scroll{effect:"fade-in"}` ブロック構文 (既存DslParser拡張、低コスト)
-- C: data属性方式 — 任意要素に `data-scroll-trigger="fade-in"` を付与 (DSL不要)
-- D: Phase 4 後送り
+- TextboxDslParser: BLOCK_TYPES に `scroll` 追加、`renderScroll()` で `.zw-scroll-trigger` div 生成
+- TextboxEffectRenderer: `renderScroll()` 追加
+- reader-preview.js: `activateScrollTriggers()` (IntersectionObserver, delay 対応)
+- editor-preview.js + reader-preview.js: `DSL_BLOCK_RE` に `scroll` 追加
+- CSS: `.zw-scroll-trigger` + fade-in / slide-in / slide-up + reduced-motion 対応
+- E2E: typing-effect.spec.js に Phase 4 テスト4件追加 (計20件)
+
+**HUMAN_AUTHORITY 決定済み**: 構文 = B案 (`:::zw-scroll{}`)、threshold = 0.2、delay はオプション属性
 
 ---
 

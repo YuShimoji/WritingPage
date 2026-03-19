@@ -912,17 +912,191 @@
       });
     }
 
-    // 手動スキャン: ガジェットUIにスキャンボタン追加
+    // ── リンク候補検出 (簡易自動検出) ──────────────────────────
+
+    // 既存の [[...]] wikiリンクを一時マスク
+    function maskWikilinks(text) {
+      var links = [];
+      var masked = text.replace(/\[\[([^\]]+)\]\]/g, function (match) {
+        var idx = links.length;
+        links.push(match);
+        return '\x00LINK' + idx + '\x00';
+      });
+      return { maskedText: masked, links: links };
+    }
+
+    // マスクを復元
+    function unmaskWikilinks(text, links) {
+      return text.replace(/\x00LINK(\d+)\x00/g, function (_, idx) {
+        return links[parseInt(idx, 10)] || '';
+      });
+    }
+
+    // 登録済みWiki用語が本文内に未リンクで存在する箇所を検出
+    function findUnlinkedMentions(text) {
+      var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+      if (entries.length === 0 || !text) return [];
+
+      var masked = maskWikilinks(text);
+      var maskedText = masked.maskedText;
+
+      var results = [];
+      entries.forEach(function (entry) {
+        var terms = [entry.title].concat(entry.aliases || []).filter(function (t) { return t && t.length >= 2; });
+        var count = 0;
+        terms.forEach(function (term) {
+          var escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          var re = new RegExp(escaped, 'g');
+          var matches = maskedText.match(re);
+          if (matches) count += matches.length;
+        });
+        if (count > 0) {
+          results.push({ entry: entry, count: count });
+        }
+      });
+
+      results.sort(function (a, b) { return b.count - a.count; });
+      return results;
+    }
+
+    // 選択した用語を本文内で [[...]] に変換
+    function applyWikilinks(text, selectedEntries) {
+      var masked = maskWikilinks(text);
+      var result = masked.maskedText;
+
+      selectedEntries.forEach(function (entry) {
+        var allTerms = [entry.title].concat(entry.aliases || []).filter(function (t) { return t && t.length >= 2; });
+        allTerms.forEach(function (term) {
+          var escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          var re = new RegExp(escaped, 'g');
+          result = result.replace(re, '[[' + term + ']]');
+        });
+      });
+
+      return unmaskWikilinks(result, masked.links);
+    }
+
+    // リンク候補ダイアログ
+    function showLinkCandidatesDialog(candidates) {
+      if (candidates.length === 0) return;
+
+      var categories = S.loadStoryWikiCategories ? S.loadStoryWikiCategories() : [];
+      var catMap = {};
+      categories.forEach(function (c) { catMap[c.id] = c.label; });
+
+      var overlay = el('div', { className: 'swiki-overlay' });
+      var dialog = el('div', { className: 'swiki-dialog swiki-suggest-dialog' });
+
+      dialog.appendChild(el('h3', { textContent: 'リンク候補が見つかりました' }));
+      dialog.appendChild(el('p', {
+        className: 'swiki-suggest-desc',
+        textContent: '本文中に登録済みのWiki用語が見つかりました。[[wikiリンク]]に変換する用語を選択してください。'
+      }));
+
+      var checkStates = candidates.map(function () { return true; });
+      var listDiv = el('div', { className: 'swiki-suggest-list' });
+
+      candidates.forEach(function (candidate, idx) {
+        var row = el('div', { className: 'swiki-suggest-row' });
+
+        var checkbox = el('input', { type: 'checkbox', checked: '' });
+        checkbox.checked = true;
+        checkbox.addEventListener('change', function () { checkStates[idx] = checkbox.checked; });
+        row.appendChild(checkbox);
+
+        row.appendChild(el('span', { className: 'swiki-suggest-term', textContent: candidate.entry.title }));
+        row.appendChild(el('span', { className: 'swiki-suggest-count', textContent: '\u00D7' + candidate.count }));
+
+        var catLabel = catMap[candidate.entry.category] || '';
+        if (catLabel) {
+          row.appendChild(el('span', { className: 'swiki-suggest-cat-badge', textContent: catLabel }));
+        }
+
+        listDiv.appendChild(row);
+      });
+
+      dialog.appendChild(listDiv);
+
+      var btnRow = el('div', { className: 'swiki-dialog-actions' }, [
+        el('button', {
+          className: 'swiki-btn swiki-btn-primary',
+          textContent: '選択した用語をリンク化',
+          onClick: function () {
+            var G = window.ZWContentGuard;
+            var currentText = G ? G.getEditorContent() : '';
+            if (!currentText) { overlay.remove(); return; }
+
+            var selected = candidates
+              .filter(function (_, i) { return checkStates[i]; })
+              .map(function (c) { return c.entry; });
+
+            if (selected.length > 0) {
+              var newText = applyWikilinks(currentText, selected);
+              if (G && typeof G.safeSetContent === 'function') {
+                G.safeSetContent(newText);
+              } else {
+                var editorEl = document.getElementById('editor');
+                if (editorEl) {
+                  editorEl.value = newText;
+                  editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+              }
+            }
+            overlay.remove();
+          }
+        }),
+        el('button', {
+          className: 'swiki-btn',
+          textContent: '閉じる',
+          onClick: function () { overlay.remove(); }
+        })
+      ]);
+
+      dialog.appendChild(btnRow);
+      overlay.appendChild(dialog);
+      document.body.appendChild(overlay);
+
+      var linkEsc = function (e) {
+        if (e.key === 'Escape') {
+          e.stopPropagation();
+          overlay.remove();
+          document.removeEventListener('keydown', linkEsc, true);
+        }
+      };
+      document.addEventListener('keydown', linkEsc, true);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) {
+          overlay.remove();
+          document.removeEventListener('keydown', linkEsc, true);
+        }
+      });
+    }
+
+    // 手動スキャン: リンク候補 → 新語候補 の順に提示
     function scanCurrentDocument() {
       var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true };
       if (!settings.autoDetect) return;
 
-      // エディタの本文を取得 (WYSIWYG表示中ならそちら、そうでなければtextarea)
-      var _wysiwygEl = document.querySelector('#wysiwyg-editor');
-      var _textareaEl = document.querySelector('#editor');
-      var editorArea = (_wysiwygEl && _wysiwygEl.offsetParent !== null) ? _wysiwygEl : _textareaEl;
-      if (!editorArea) return;
-      var text = editorArea.value || editorArea.innerText || editorArea.textContent || '';
+      // ContentGuard 経由で生テキストを取得 (WYSIWYG/textarea 両対応)
+      var G = window.ZWContentGuard;
+      var text = (G && typeof G.getEditorContent === 'function') ? G.getEditorContent() : '';
+      if (!text) {
+        var _wysiwygEl = document.querySelector('#wysiwyg-editor');
+        var _textareaEl = document.querySelector('#editor');
+        var editorArea = (_wysiwygEl && _wysiwygEl.offsetParent !== null) ? _wysiwygEl : _textareaEl;
+        if (!editorArea) return;
+        text = editorArea.value || editorArea.innerText || editorArea.textContent || '';
+      }
+      if (!text) return;
+
+      // リンク候補 (既存Wiki用語が未リンク) を優先表示
+      var linkCandidates = findUnlinkedMentions(text);
+      if (linkCandidates.length > 0) {
+        showLinkCandidatesDialog(linkCandidates);
+        return;
+      }
+
+      // リンク候補なし → 従来の新語候補スキャン
       var candidates = extractCandidateTerms(text);
       if (candidates.length > 0) {
         showAutoDetectSuggestions(candidates);
@@ -933,7 +1107,9 @@
     window.StoryWikiAutoDetect = {
       scan: scanCurrentDocument,
       extractCandidates: extractCandidateTerms,
-      showSuggestions: showAutoDetectSuggestions
+      showSuggestions: showAutoDetectSuggestions,
+      findUnlinkedMentions: findUnlinkedMentions,
+      showLinkCandidates: showLinkCandidatesDialog
     };
 
     // ── AI生成 (ハイブリッド) ────────────────

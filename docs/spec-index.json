@@ -366,11 +366,11 @@
   {
     "id": "SP-061",
     "title": "Visual Profile Typography Pack 仕様",
-    "status": "todo",
-    "pct": 10,
+    "status": "partial",
+    "pct": 60,
     "cat": "ui",
     "file": "docs/specs/spec-visual-profile-typography-pack.md",
-    "summary": "静かな執筆・資料読み・校正・演出確認など作業シーン別のTypography PackをVisual Profileに接続する。"
+    "summary": "Phase 1完了: 4パック(執筆集中/資料読解/校正/演出確認)定義 + VisualProfileガジェット内ワンクリック適用UI。typography-pack.js新規。ZenWriterTheme既存APIに委譲しマージ保存で後方互換。残: E2E追加 / ユーザー定義パック / Visual Profile本体へのtypographyPackフィールド統合。"
   },
   {
     "id": "SP-062",
@@ -443,10 +443,10 @@
     "id": "SP-074",
     "title": "Web小説演出統合仕様",
     "status": "partial",
-    "pct": 50,
+    "pct": 75,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, 30ms/字, E2E 10件)。Phase 3完了: ダイアログボックス(4スタイルx3位置, アイコン/スピーカー名, CSS変数テーマ対応, エクスポートHTML埋込)。TextboxEffectRenderer typing/dialog対応。残: Phase 4-6(スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
+    "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, 30ms/字, E2E 10件)。Phase 3完了: ダイアログボックス(4スタイルx3位置, アイコン/スピーカー名, CSS変数テーマ対応, エクスポートHTML埋込)。Phase 4完了: スクロール連動演出(:::zw-scroll{} 構文, fade-in/slide-in/slide-up, IntersectionObserver, E2E 4件)。WYSIWYG round-trip対応(typing/dialog→DSLシリアライズ)。残: Phase 5(SE)/Phase 6(プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {

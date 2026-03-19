@@ -1,16 +1,16 @@
 /**
  * TextboxDslParser
  * Parser/serializer and HTML transformer for :::zw-* blocks.
- * Supported block types: textbox, typing, dialog
+ * Supported block types: textbox, typing, dialog, scroll
  */
 (function (root) {
   'use strict';
 
-  var BLOCK_TYPES = ['textbox', 'typing', 'dialog'];
+  var BLOCK_TYPES = ['textbox', 'typing', 'dialog', 'scroll'];
   var BLOCK_TYPES_RE = BLOCK_TYPES.join('|');
   var OPEN_RE = new RegExp(':::zw-(?:' + BLOCK_TYPES_RE + ')(?:\\{([^}]*)\\})?(?:\\r?\\n|<br\\s*\\/?>)', 'i');
   var BLOCK_RE = new RegExp(':::zw-(' + BLOCK_TYPES_RE + ')(?:\\{([^}]*)\\})?(?:\\r?\\n|<br\\s*\\/?>)([\\s\\S]*?)(?:\\r?\\n|<br\\s*\\/?>):::', 'gi');
-  var ALLOWED_ATTRS = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style'];
+  var ALLOWED_ATTRS = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style', 'effect', 'delay', 'threshold'];
   var ALLOWED_ROLES = ['dialogue', 'monologue', 'narration', 'sfx', 'system', 'custom'];
   var TYPING_MODES = ['auto', 'click', 'scroll'];
   var DIALOG_POSITIONS = ['left', 'right', 'center'];
@@ -72,7 +72,7 @@
 
   function stringifyAttrs(attrs) {
     var src = attrs && typeof attrs === 'object' ? attrs : {};
-    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style'];
+    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style', 'effect', 'delay', 'threshold'];
     var parts = [];
 
     keys.forEach(function (key) {
@@ -165,6 +165,18 @@
       + '</div>';
   }
 
+  function renderScrollHtml(attrs, content) {
+    var effect = attrs.effect || 'fade-in';
+    var validEffects = ['fade-in', 'slide-in', 'slide-up'];
+    if (validEffects.indexOf(effect) === -1) effect = 'fade-in';
+    var delay = attrs.delay || '';
+    var threshold = attrs.threshold || '';
+    var dataAttrs = 'data-effect="' + escapeAttr(effect) + '"';
+    if (delay) dataAttrs += ' data-delay="' + escapeAttr(delay) + '"';
+    if (threshold) dataAttrs += ' data-threshold="' + escapeAttr(threshold) + '"';
+    return '<div class="zw-scroll-trigger" ' + dataAttrs + '>' + escapeHtmlText(content) + '</div>';
+  }
+
   function renderDialogHtml(attrs, content) {
     var speaker = attrs.speaker || '';
     var position = attrs.position || 'left';
@@ -202,6 +214,9 @@
       }
       if (type === 'dialog') {
         return renderDialogHtml(attrs, content);
+      }
+      if (type === 'scroll') {
+        return renderScrollHtml(attrs, content);
       }
 
       // textbox (default)

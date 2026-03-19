@@ -96,6 +96,21 @@
     return '<div class="' + escapeAttr(classNames.join(' ')) + '" ' + dataAttrs.join(' ') + styleAttr + '><div class="zw-textbox__content">' + contentHtml + '</div></div>';
   }
 
+  function renderScroll(segment) {
+    if (!segment || segment.type !== 'scroll') return '';
+    var attrs = segment.attrs || {};
+    var effect = attrs.effect || 'fade-in';
+    var validEffects = ['fade-in', 'slide-in', 'slide-up'];
+    if (validEffects.indexOf(effect) === -1) effect = 'fade-in';
+    var delay = attrs.delay || '';
+    var threshold = attrs.threshold || '';
+    var content = escapeHtmlText(segment.content || '');
+    var dataAttrs = 'data-effect="' + escapeAttr(effect) + '"';
+    if (delay) dataAttrs += ' data-delay="' + escapeAttr(delay) + '"';
+    if (threshold) dataAttrs += ' data-threshold="' + escapeAttr(threshold) + '"';
+    return '<div class="zw-scroll-trigger" ' + dataAttrs + '>' + content + '</div>';
+  }
+
   function renderTyping(segment) {
     if (!segment || segment.type !== 'typing') return '';
     var attrs = segment.attrs || {};
@@ -125,7 +140,11 @@
     var iconHtml = icon ? '<div class="zw-dialog__icon"><img src="' + escapeAttr(icon) + '" alt="' + escapeAttr(speaker) + '"></div>' : '';
     var speakerHtml = speaker ? '<div class="zw-dialog__speaker">' + escapeHtmlText(speaker) + '</div>' : '';
     var content = escapeHtmlText(segment.content || '');
-    return '<div class="' + classAttr + '">'
+    // data-* attrs allow WYSIWYG serialization to recover DSL attributes
+    var rootDataAttrs = ' data-dialog-position="' + escapeAttr(position) + '" data-dialog-style="' + escapeAttr(dialogStyle) + '"';
+    if (speaker) rootDataAttrs += ' data-dialog-speaker="' + escapeAttr(speaker) + '"';
+    if (icon) rootDataAttrs += ' data-dialog-icon="' + escapeAttr(icon) + '"';
+    return '<div class="' + classAttr + '"' + rootDataAttrs + '>'
       + iconHtml
       + '<div class="zw-dialog__body">'
       + speakerHtml
@@ -140,6 +159,7 @@
       if (segment.type === 'textbox') return renderTextbox(segment, options || {});
       if (segment.type === 'typing') return renderTyping(segment);
       if (segment.type === 'dialog') return renderDialog(segment);
+      if (segment.type === 'scroll') return renderScroll(segment);
       return typeof segment.value === 'string' ? segment.value : '';
     }).join('');
   }

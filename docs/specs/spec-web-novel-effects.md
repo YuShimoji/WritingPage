@@ -172,24 +172,46 @@ SP-062 の責務モデルに以下を追加拡張する:
 - SEマーカーはインラインのスピーカーアイコンとして表示
 - クリックで試聴、右クリックで設定変更
 
-### 5. スクロール連動演出
+### 5. スクロール連動演出 (Phase 4: done)
 
 要素がビューポートに入ったときに演出を開始する。
 
 #### 5.1 対応する演出
 
-- フェードイン / スライドイン
-- テクスチャアニメーション開始
-- タイピング演出開始
-- SE再生
+- fade-in (フェードイン)
+- slide-in (左からスライドイン)
+- slide-up (下からスライドアップ)
+- reduced-motion 縮退: 即時表示 (アニメーションなし)
 
 #### 5.2 記法
 
 ```markdown
-[anim type="scroll-trigger" effect="fade-in" delay="200ms"]
+:::zw-scroll{effect:"fade-in"}
 スクロールで表示されるテキスト
-[/anim]
+:::
+
+:::zw-scroll{effect:"slide-in", delay:"300ms"}
+遅延付きスライドイン
+:::
+
+:::zw-scroll{effect:"slide-up", threshold:"0.3"}
+カスタム閾値でスライドアップ
+:::
 ```
+
+| 属性 | デフォルト | 説明 |
+| ---- | --------- | ---- |
+| effect | fade-in | 演出種別: fade-in / slide-in / slide-up |
+| delay | なし | 演出開始の遅延 (例: "300ms") |
+| threshold | 0.2 | IntersectionObserver の閾値 (0.0〜1.0) |
+
+#### 5.3 実装詳細
+
+- IntersectionObserver でビューポート交差を検知 (`threshold: 0.2`)
+- 交差後に `.is-visible` クラスを付与、CSS transition で演出
+- 非対応環境: 全要素を即時表示 (フォールバック)
+- reader-preview.js の `activateScrollTriggers()` が管理
+- TextboxDslParser が `:::zw-scroll` ブロックを `.zw-scroll-trigger` div に変換
 
 ---
 

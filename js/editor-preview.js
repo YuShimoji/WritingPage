@@ -66,7 +66,7 @@
       : {};
 
     // DSL ブロックを退避してから markdown-it に渡す
-    var dslBlockRe = /:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
+    var dslBlockRe = /:::zw-(?:textbox|typing|dialog|scroll)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
     var dslPlaceholders = [];
     var dslCounter = 0;
     var mdSrc = src.replace(dslBlockRe, function (match) {

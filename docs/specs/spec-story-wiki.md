@@ -16,7 +16,8 @@
 | Phase 1 | 基本機能 (CRUD / ツリー / カテゴリ / 検索 / エディタ連携) | done |
 | Phase 2 Step 1-2 | グラフビュー統合 / バックリンク一覧 | done |
 | Phase 2 Step 3 | AI生成 (テンプレート + OpenAI ハイブリッド) | done |
-| Phase 2 Step 4 | 高度な自動検出 | todo |
+| Phase 2 Step 4a | リンク候補検出 (簡易版: 既存Wiki用語の未リンク箇所検出) | done |
+| Phase 2 Step 4b | 高度な自動検出 (形態素解析) | todo |
 
 ---
 
@@ -158,6 +159,33 @@ WikiCategory = {
 
 - 設定でオン/オフ切り替え可能
 - デフォルト: オン
+
+### 4b. リンク候補検出 (Phase 2 Step 4a: done)
+
+登録済みWiki用語が本文内に `[[...]]` なしで出現している箇所を検出し、ワンクリックでリンク化する。
+
+#### 動作フロー
+
+1. 手動スキャンボタン押下 (または保存時トリガー)
+2. 既存 `[[...]]` をマスクして重複検出を防ぐ
+3. 登録済みWiki用語 + aliases を全文検索してヒット数を集計
+4. ヒットがあれば「リンク候補」ダイアログを優先表示
+5. ヒットなしの場合は従来の「新語候補」ダイアログにフォールバック
+
+#### リンク候補ダイアログ
+
+- 用語名・出現回数・カテゴリバッジを表示
+- チェックボックスで選択 (デフォルト全選択)
+- 「選択した用語をリンク化」でContentGuard経由の一括変換
+- Esc / 背景クリックで閉じる
+
+#### 実装
+
+- `findUnlinkedMentions(text)`: 検出ロジック (story-wiki.js)
+- `showLinkCandidatesDialog(candidates)`: UI (story-wiki.js)
+- `applyWikilinks(text, selectedEntries)`: `[[用語]]` 変換 (story-wiki.js)
+- CSS: `.swiki-suggest-*` / `.swiki-dialog-actions` (style.css)
+- `window.StoryWikiAutoDetect.findUnlinkedMentions` / `showLinkCandidates` で公開
 
 ### 5. エディタ連携
 
