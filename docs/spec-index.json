@@ -531,11 +531,11 @@
   {
     "id": "SP-079",
     "title": "Editor モード UX 統合改善",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 10,
     "cat": "ui",
     "file": "docs/issues/2026-03-19_chapter-ux-issues.md",
-    "summary": "チャプター管理UX 3点改善: (A) chapterModeデフォルト化+ロールバックUI (B) 文字数をプレーンテキストベースに統一 (C) Legacy章作成のテキスト汚染解消。Issue Dのドキュメント操作不整合も包含予定。",
+    "summary": "チャプター管理UX 4点改善: (A) chapterModeデフォルト化+ロールバックUI (B) 文字数をプレーンテキストベースに統一 (C) Legacy章作成のテキスト汚染解消 (D) ドキュメント操作不整合。Playwright検証完了 (e2e/chapter-ux-issues.spec.js)。",
     "related": [
       "SP-071",
       "SP-052",

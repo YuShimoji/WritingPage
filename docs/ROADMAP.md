@@ -64,7 +64,19 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
 - [x] Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
 
-### A-4. UI/UX 磨き上げ (残タスク)
+### A-4. Editor モード UX 統合改善 (SP-079) -- partial/10%
+
+chapterMode デフォルト化 + 文字数精度 + テキスト汚染解消。Playwright 検証済み (2026-03-19)。
+
+- [x] イシュー調査・仕様書化 (docs/issues/2026-03-19_chapter-ux-issues.md)
+- [x] Playwright E2E で全イシュー再現確認 (e2e/chapter-ux-issues.spec.js)
+- [ ] Step 1: 新規ドキュメントを chapterMode で作成 (Issue C の根本解決)
+- [ ] Step 2: chapterMode ロールバック UI (Issue A)
+- [ ] Step 3: 文字数を countPlainChars() に統一 (Issue B)
+- [ ] Step 4: Legacy ドキュメントに変換バナー表示
+- [ ] Issue D: ドキュメント操作不整合 (クリック順序入替え・内容消失) — 別 Worker 調査中
+
+### A-5. UI/UX 磨き上げ (残タスク)
 
 - px→rem段階移行 -- todo (140箇所、大規模)
 
