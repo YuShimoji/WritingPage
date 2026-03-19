@@ -487,5 +487,15 @@
     "file": "docs/specs/spec-reader-preview.md",
     "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
     "related": ["SP-070", "SP-071", "SP-072"]
+  },
+  {
+    "id": "SP-079",
+    "title": "Editor モード UX 統合改善",
+    "status": "todo",
+    "pct": 0,
+    "cat": "ui",
+    "file": "docs/issues/2026-03-19_chapter-ux-issues.md",
+    "summary": "チャプター管理UX 3点改善: (A) chapterModeデフォルト化+ロールバックUI (B) 文字数をプレーンテキストベースに統一 (C) Legacy章作成のテキスト汚染解消。Issue Dのドキュメント操作不整合も包含予定。",
+    "related": ["SP-071", "SP-052", "SP-070"]
   }
 ]
