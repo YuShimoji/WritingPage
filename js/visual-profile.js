@@ -1,4 +1,4 @@
-// Visual Profile 管理 — Phase A 実装
+// Visual Profile 管理 — Phase A 実装 + SP-061 Typography Pack
 // テーマ/背景/フォント/余白/表示モードの設定群を「Visual Profile」としてまとめて扱う
 
 /**
@@ -16,7 +16,72 @@
  * @property {number} lineHeight - 行間
  * @property {string} editorWidthMode - エディタ幅モード ('narrow' | 'medium' | 'wide')
  * @property {string} uiMode - 表示モード ('normal' | 'focus' | 'blank')
+ * @property {string} [typographyPack] - SP-061 タイポグラフィパックID
  */
+
+/**
+ * SP-061 Typography Pack 定義
+ * 作業文脈ごとにタイポグラフィ設定を一括切替するためのパック。
+ * @typedef {Object} TypographyPack
+ * @property {string} id - パックID
+ * @property {string} label - UI表示名
+ * @property {string} description - 説明文
+ * @property {Object} values - タイポグラフィ設定値
+ */
+const TYPOGRAPHY_PACKS = [
+  {
+    id: 'silent-writing',
+    label: '執筆集中',
+    description: '大きめの本文、広い行間。見出しは控えめ。ルビ非表示。字間ゆったり。',
+    values: {
+      editorFontSize: 18,
+      lineHeight: 2.0,
+      letterSpacing: 0.04,
+      paragraphIndent: true,
+      headingPreset: 'novel',
+      rubyVisibility: 'hidden'
+    }
+  },
+  {
+    id: 'reference-reading',
+    label: '資料読解',
+    description: '標準サイズ、詰め気味の行間。ルビ表示。見出しは視認性重視。',
+    values: {
+      editorFontSize: 15,
+      lineHeight: 1.5,
+      letterSpacing: 0.0,
+      paragraphIndent: false,
+      headingPreset: 'default',
+      rubyVisibility: 'visible'
+    }
+  },
+  {
+    id: 'proofreading',
+    label: '校正',
+    description: 'やや大きめ本文、広い行間と字間。ルビ表示。赤入れしやすい余白。',
+    values: {
+      editorFontSize: 17,
+      lineHeight: 2.2,
+      letterSpacing: 0.06,
+      paragraphIndent: true,
+      headingPreset: 'default',
+      rubyVisibility: 'visible'
+    }
+  },
+  {
+    id: 'staging-check',
+    label: '演出確認',
+    description: '読者体験に近い設定。標準本文サイズ、適度な行間。ルビ表示。',
+    values: {
+      editorFontSize: 16,
+      lineHeight: 1.8,
+      letterSpacing: 0.02,
+      paragraphIndent: true,
+      headingPreset: 'novel',
+      rubyVisibility: 'visible'
+    }
+  }
+];
 
 /**
  * 組み込み Visual Profile の定義
@@ -43,7 +108,8 @@ const BUILT_IN_PROFILES = [
     uiFontSize: 14,
     editorFontSize: 18,
     lineHeight: 1.7,
-    editorWidthMode: 'narrow'
+    editorWidthMode: 'narrow',
+    typographyPack: 'silent-writing'
   },
   {
     id: 'blank-light',
@@ -102,8 +168,22 @@ function applyVisualProfile(profile) {
     }
 
     // 4) 表示モード（UIモード）を適用
-    if (false && profile.uiMode && window.app && typeof window.app.setUIMode === 'function') {
-      window.app.setUIMode(profile.uiMode);
+    // data-ui-mode を直接設定し、モード変更イベントを発火
+    if (profile.uiMode) {
+      var currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+      if (currentMode !== profile.uiMode) {
+        document.documentElement.setAttribute('data-ui-mode', profile.uiMode);
+        try {
+          window.dispatchEvent(new CustomEvent('ZenWriterUIModeChanged', {
+            detail: { mode: profile.uiMode, source: 'visual-profile' }
+          }));
+        } catch (_e) { /* ignore */ }
+      }
+    }
+
+    // 5) SP-061: Typography Pack を適用
+    if (profile.typographyPack) {
+      applyTypographyPack(profile.typographyPack);
     }
 
     // 適用完了イベントを発火
@@ -288,6 +368,123 @@ function applyProfileById(profileId) {
   return true;
 }
 
+// ===== SP-061: Typography Pack =====
+
+/**
+ * Typography Pack をIDで取得
+ * @param {string} packId
+ * @returns {TypographyPack|null}
+ */
+function getTypographyPack(packId) {
+  return TYPOGRAPHY_PACKS.find(p => p.id === packId) || null;
+}
+
+/**
+ * すべてのTypography Packを取得
+ * @returns {TypographyPack[]}
+ */
+function getTypographyPacks() {
+  return [...TYPOGRAPHY_PACKS];
+}
+
+/**
+ * Typography Pack を適用する
+ * 見出しプリセット、字間、行間、本文サイズ、ルビ可視性を一括設定。
+ * @param {string} packId - パックID
+ * @returns {boolean} 適用成功
+ */
+function applyTypographyPack(packId) {
+  var pack = getTypographyPack(packId);
+  if (!pack) return false;
+
+  var v = pack.values;
+  var root = document.documentElement;
+
+  // 本文フォントサイズ
+  if (v.editorFontSize) {
+    root.style.setProperty('--font-size', v.editorFontSize + 'px');
+  }
+
+  // 行間
+  if (v.lineHeight) {
+    root.style.setProperty('--line-height', String(v.lineHeight));
+  }
+
+  // 字間 (既存CSS変数 --body-letter-spacing に合わせる)
+  if (typeof v.letterSpacing === 'number') {
+    root.style.setProperty('--body-letter-spacing', v.letterSpacing + 'em');
+  }
+
+  // 段落字下げ
+  if (typeof v.paragraphIndent === 'boolean') {
+    root.setAttribute('data-paragraph-indent', v.paragraphIndent ? 'true' : 'false');
+  }
+
+  // 見出しプリセット (HeadingPresetRegistry 経由)
+  if (v.headingPreset && window.HeadingPresetRegistry) {
+    var preset = window.HeadingPresetRegistry.getPreset(v.headingPreset);
+    if (preset && preset.values) {
+      var vals = preset.values;
+      for (var level = 1; level <= 6; level++) {
+        var key = 'h' + level;
+        if (vals[key]) {
+          if (vals[key].fontSize) root.style.setProperty('--heading-h' + level + '-size', vals[key].fontSize);
+          if (vals[key].fontWeight) root.style.setProperty('--heading-h' + level + '-weight', vals[key].fontWeight);
+          if (vals[key].lineHeight) root.style.setProperty('--heading-h' + level + '-line-height', String(vals[key].lineHeight));
+        }
+      }
+    }
+  }
+
+  // ルビ可視性 (既存 data-ruby-hidden 属性に変換)
+  if (v.rubyVisibility) {
+    if (v.rubyVisibility === 'hidden') {
+      root.setAttribute('data-ruby-hidden', 'true');
+    } else {
+      root.removeAttribute('data-ruby-hidden');
+    }
+  }
+
+  // 適用中パックIDを保存
+  try {
+    localStorage.setItem('zenWriter_typographyPack', packId);
+  } catch (_) { /* ignore */ }
+
+  // イベント発火
+  try {
+    window.dispatchEvent(new CustomEvent('ZenWriterTypographyPackApplied', {
+      detail: { packId: packId, pack: pack }
+    }));
+  } catch (_) { /* ignore */ }
+
+  return true;
+}
+
+/**
+ * 現在適用中のTypography Pack IDを取得
+ * @returns {string|null}
+ */
+function getCurrentTypographyPackId() {
+  try {
+    return localStorage.getItem('zenWriter_typographyPack') || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+/**
+ * Typography Pack をクリア（デフォルト状態に戻す）
+ */
+function clearTypographyPack() {
+  var root = document.documentElement;
+  root.style.removeProperty('--body-letter-spacing');
+  root.removeAttribute('data-paragraph-indent');
+  root.removeAttribute('data-ruby-hidden');
+  try {
+    localStorage.removeItem('zenWriter_typographyPack');
+  } catch (_) { /* ignore */ }
+}
+
 // グローバルオブジェクトに公開
 window.ZenWriterVisualProfile = {
   // Phase A
@@ -304,5 +501,12 @@ window.ZenWriterVisualProfile = {
   updateUserProfile,
   getCurrentProfileId,
   setCurrentProfileId,
-  applyProfileById
+  applyProfileById,
+  // SP-061: Typography Pack
+  TYPOGRAPHY_PACKS,
+  getTypographyPack,
+  getTypographyPacks,
+  applyTypographyPack,
+  getCurrentTypographyPackId,
+  clearTypographyPack
 };
