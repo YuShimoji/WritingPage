@@ -148,6 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // SP-076: ドックパネル初期化
+    if (typeof DockManager === 'function') {
+        var dockManager = new DockManager(sidebarManager);
+        dockManager.init();
+        window.dockManager = dockManager;
+    }
+
     // 要素別フォントサイズを適用
     applyElementFontSizes();
 
@@ -533,6 +540,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.ZenWriterStorage.saveSettings(s);
             } catch (_) { }
         }
+
+        // SP-076: ドックパネルにモード変更を通知
+        if (window.dockManager && typeof window.dockManager._onUIModeChanged === 'function') {
+            window.dockManager._onUIModeChanged(targetMode);
+        }
     }
 
     const uiModeSelect = document.getElementById('ui-mode-select');
@@ -548,6 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const mode = this.getAttribute('data-mode');
             if (mode) setUIMode(mode);
         });
+    });
+
+    // Visual Profile からの UIモード変更を受信 (SP-012)
+    window.addEventListener('ZenWriterUIModeChanged', function (e) {
+        if (e.detail && e.detail.source === 'visual-profile' && e.detail.mode) {
+            setUIMode(e.detail.mode);
+        }
     });
 
     // SP-070 モード切替ショートカット: app-shortcuts.js に統一 (ui.mode.cycle / ui.mode.exit)

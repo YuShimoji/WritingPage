@@ -58,6 +58,7 @@
   <link rel="stylesheet" href="css/editor-decorations.css" />
   <link rel="stylesheet" href="css/theme-transition.css" />
   <link rel="stylesheet" href="css/graphic-novel.css" />
+  <link rel="stylesheet" href="css/dock-panel.css" />
   <script>
     // フォント読み込み: ローカル優先、失敗時のみ Google Fonts へフォールバック
     (function () {
@@ -110,8 +111,30 @@
 
 <body>
   <div class="app-container">
+    <!-- 左ドックパネル (SP-076) -->
+    <aside class="dock-panel-left" id="dock-panel-left" role="complementary" aria-label="左パネル">
+      <div class="dock-panel-left__header">
+        <span class="dock-panel-left__title">パネル</span>
+        <button class="dock-panel-left__close-btn" id="dock-left-close" title="閉じる">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="dock-panel-left__content" id="dock-left-content"></div>
+      <div class="dock-resize-handle" id="dock-left-resize-handle"></div>
+    </aside>
+
     <!-- サイドバー -->
     <aside class="sidebar" id="sidebar" role="complementary" aria-label="設定パネル">
+      <div class="sidebar-dock-controls" id="sidebar-dock-controls">
+        <button class="dock-move-btn" id="dock-move-sidebar" title="サイドバーを反対側に移動">
+          <i data-lucide="panel-right" aria-hidden="true"></i>
+          <span>右に移動</span>
+        </button>
+        <button class="dock-move-btn dock-toggle-left-btn" id="dock-toggle-left" title="左パネルを開閉">
+          <i data-lucide="panel-left" aria-hidden="true"></i>
+          <span>左パネル</span>
+        </button>
+      </div>
       <div class="sidebar-accordion">
         <!-- sections カテゴリ (SP-052) -->
         <section class="accordion-category" data-category="sections">
@@ -699,6 +722,7 @@
   <script defer src="js/tools-registry.js"></script>
   <script defer src="js/element-manager.js"></script>
   <script defer src="js/sidebar-manager.js"></script>
+  <script defer src="js/dock-manager.js"></script>
   <script defer src="js/settings-manager.js"></script>
   <!-- Gadgets system (modular) -->
   <script defer src="js/loadouts-presets.js"></script>
@@ -762,6 +786,9 @@
   <script defer src="js/modules/editor/TextboxEffectRenderer.js"></script>
   <script defer src="js/modules/editor/TextboxRichTextBridge.js"></script>
   <script defer src="js/modules/editor/TypingEffectController.js"></script>
+  <script defer src="js/modules/editor/ScrollTriggerController.js"></script>
+  <script defer src="js/modules/editor/SoundEffectController.js"></script>
+  <script defer src="js/modules/editor/GenrePresetRegistry.js"></script>
   <script defer src="js/modules/editor/EditorCore.js"></script>
   <script defer src="js/modules/editor/EditorUI.js"></script>
   <script defer src="js/modules/editor/EditorSearch.js"></script>
