@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 98%完了(A-1/2/3 done, 残:px→rem)。B: partial(SP-074/18%, SP-050/95%)。C-D: todo。E: done(IndexedDB+章独立保存)"
+    "summary": "Priority A-E の開発計画。A: 98%完了(A-1/2/3 done, 残:px→rem)。B: SP-074 done, SP-061 done, SP-050/95%, SP-073/40%。C: SP-076/25%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
   },
   {
     "id": "SP-006",

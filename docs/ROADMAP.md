@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-03-18 / v0.3.29
+> 最終更新: 2026-03-22 / v0.3.29
 
 ## ステータス語彙
 
@@ -14,11 +14,12 @@
 
 ## 現在の状態
 
-- E2E: 390 passed / 51 spec files (2026-03-18 時点)
+- E2E: 397 passed / 1 failed (Canvas Mode既知) (2026-03-22 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
-- 仕様書: spec-index.json に 42 エントリ (新規7件含む)
+- 仕様書: spec-index.json に 42 エントリ
+- 残 partial: SP-050(95%), SP-073(40%), SP-076(25%)
 
 ---
 
@@ -95,9 +96,10 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 テクスチャオーバーレイ / タイピング演出 / ダイアログボックス / スクロール連動 / SE / ジャンルプリセット。
 SP-062 (テキスト表現アーキテクチャ) 基盤上に構築。Phase 1-6 全完了。
 
-### B-2. パステキスト (SP-073) -- todo
+### B-2. パステキスト (SP-073) -- partial (40%)
 
 ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。
+Phase 1完了 (:::zw-pathtext DSL + SVGレンダリング)。残: Phase 2 WYSIWYG制御点ハンドルUI。
 
 ### B-3. Typography進化トラック
 
