@@ -333,6 +333,68 @@
       rubySection.appendChild(rubyVisibleRow);
 
       wrap.appendChild(rubySection);
+
+      // ===== タイポグラフィパック (SP-061 Phase 2) =====
+      var vp = window.ZenWriterVisualProfile;
+      if (vp && vp.getTypographyPacks) {
+        var packSection = makeSection('タイポグラフィパック');
+        var packSelect = document.createElement('select');
+        var noneOpt = document.createElement('option');
+        noneOpt.value = '';
+        noneOpt.textContent = '-- なし --';
+        packSelect.appendChild(noneOpt);
+
+        var packs = vp.getTypographyPacks();
+        packs.forEach(function (p) {
+          var opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.label;
+          if (p.description) opt.title = p.description;
+          packSelect.appendChild(opt);
+        });
+
+        // 現在のパックを復元
+        var currentPackId = vp.getCurrentTypographyPackId();
+        if (currentPackId) {
+          packSelect.value = currentPackId;
+        }
+
+        var packDesc = document.createElement('div');
+        packDesc.style.fontSize = '0.8rem';
+        packDesc.style.opacity = '0.6';
+        packDesc.style.minHeight = '1.2em';
+        function updatePackDesc(id) {
+          var pack = id ? vp.getTypographyPack(id) : null;
+          packDesc.textContent = pack ? pack.description : '';
+        }
+        updatePackDesc(currentPackId);
+
+        packSelect.addEventListener('change', function () {
+          var id = packSelect.value;
+          if (id) {
+            vp.applyTypographyPack(id);
+          } else {
+            vp.clearTypographyPack();
+          }
+          updatePackDesc(id);
+          // パック適用後、個別設定UIも同期
+          refreshState();
+        });
+
+        packSection.appendChild(makeRow('パック選択', packSelect));
+        packSection.appendChild(packDesc);
+        wrap.appendChild(packSection);
+
+        // パック変更イベントでUI同期
+        window.addEventListener('ZenWriterTypographyPackApplied', function (e) {
+          if (e.detail && e.detail.packId) {
+            packSelect.value = e.detail.packId;
+            updatePackDesc(e.detail.packId);
+            refreshState();
+          }
+        });
+      }
+
       el.appendChild(wrap);
 
       function applyRubySettings() {

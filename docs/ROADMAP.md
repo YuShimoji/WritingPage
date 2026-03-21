@@ -104,7 +104,7 @@ SP-062 (テキスト表現アーキテクチャ) 基盤上に構築。Phase 1-6 
 - Phase 0-2: done (フォント切替 / 見出し / マイクロタイポグラフィ)
 - Phase 3: SP-059 日本語組版・ルビ拡張（傍点・圏点） -- done
 - Phase 4: SP-060 装飾プリセット統合 -- done
-- Phase 5: SP-061 Visual Profile Typography Pack -- todo
+- Phase 5: SP-061 Visual Profile Typography Pack -- done
 
 ### B-4. 既存機能の完成
 

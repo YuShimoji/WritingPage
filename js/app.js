@@ -155,6 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
         window.dockManager = dockManager;
     }
 
+    // SP-061 Phase 2: リロード時にタイポグラフィパックを復元
+    if (window.ZenWriterVisualProfile && window.ZenWriterVisualProfile.getCurrentTypographyPackId) {
+        var savedPackId = window.ZenWriterVisualProfile.getCurrentTypographyPackId();
+        if (savedPackId) {
+            window.ZenWriterVisualProfile.applyTypographyPack(savedPackId);
+        }
+    }
+
     // 要素別フォントサイズを適用
     applyElementFontSizes();
 

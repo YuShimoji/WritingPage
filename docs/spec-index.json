@@ -366,11 +366,11 @@
   {
     "id": "SP-061",
     "title": "Visual Profile Typography Pack 仕様",
-    "status": "partial",
-    "pct": 50,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-visual-profile-typography-pack.md",
-    "summary": "Phase 1完了: 4パック定義(silent-writing/reference-reading/proofreading/staging-check)+applyTypographyPack API。見出しプリセット/字間/行間/ルビ可視性/字下げを一括切替。Phase 2: ガジェットUI/リロード復元。"
+    "summary": "Phase 1-2全完了。4パック定義(silent-writing/reference-reading/proofreading/staging-check)+applyTypographyPack API+TypographyガジェットUI(ドロップダウン選択+説明文+イベント同期)+リロード復元(localStorage+app.js初期化)。"
   },
   {
     "id": "SP-062",

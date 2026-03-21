@@ -5,7 +5,7 @@
 
 ## ステータス
 - Phase 1: done (コアロジック + 4パック定義)
-- Phase 2: todo (ガジェットUI / パック選択ドロップダウン)
+- Phase 2: done (ガジェットUI / パック選択ドロップダウン / リロード復元)
 
 ## 実装内容 (Phase 1)
 
@@ -53,11 +53,24 @@ ZenWriterVisualProfile.clearTypographyPack()
 - 適用中パックIDは `localStorage('zenWriter_typographyPack')` に保存
 - リロード後の復元はガジェットUI (Phase 2) で実装予定
 
+## 実装内容 (Phase 2)
+
+### ガジェットUI
+- Typography ガジェット内に「タイポグラフィパック」セクションを追加
+- ドロップダウンで4パック + 「なし」を選択可能
+- パック説明文をドロップダウン下部に表示
+- パック適用後、個別設定スライダーも同期更新
+- `ZenWriterTypographyPackApplied` イベントでUI同期
+
+### リロード復元
+- `app.js` 初期化時に `localStorage('zenWriter_typographyPack')` から復元
+- Visual Profile 適用時の `profile.typographyPack` 経由の復元と併存
+
 ## 受け入れ基準
 
 1. [x] パック選択で複数タイポ値が一括適用される
-2. [ ] 適用後に個別調整してもプロファイルが破壊されず、差分として保存される (Phase 2)
-3. [ ] リロード後に最後のパック状態が再現される (Phase 2)
+2. [x] 適用後に個別調整してもプロファイルが破壊されず、差分として保存される (Phase 2)
+3. [x] リロード後に最後のパック状態が再現される (Phase 2)
 4. [x] 既存の theme/font 設定のみ利用ユーザーに後方互換影響を与えない
 
 ## 依存関係
@@ -68,3 +81,5 @@ ZenWriterVisualProfile.clearTypographyPack()
 ## 影響範囲
 
 - `js/visual-profile.js`: TYPOGRAPHY_PACKS 定義 + applyTypographyPack() + API公開
+- `js/gadgets-typography.js`: パック選択ドロップダウンUI + イベント同期
+- `js/app.js`: リロード時パック復元
