@@ -16,6 +16,8 @@
   var progressFill = null;
   var scrollRAF = null;
   var typingCleanup = null;
+  var scrollCleanup = null;
+  var genreSelect = null;
 
   function init() {
     previewEl = document.getElementById('reader-preview');
@@ -32,6 +34,32 @@
     progressFill.className = 'reader-progress-fill';
     progressBar.appendChild(progressFill);
     previewEl.appendChild(progressBar);
+
+    // ジャンルプリセット選択UI (SP-074 Phase 6)
+    if (window.GenrePresetRegistry) {
+      var toolbar = document.createElement('div');
+      toolbar.className = 'reader-genre-toolbar';
+      genreSelect = document.createElement('select');
+      genreSelect.className = 'reader-genre-select';
+      var defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = '\u30B8\u30E3\u30F3\u30EB: \u306A\u3057';
+      genreSelect.appendChild(defaultOpt);
+      var presets = window.GenrePresetRegistry.list();
+      for (var g = 0; g < presets.length; g++) {
+        var opt = document.createElement('option');
+        opt.value = presets[g].id;
+        opt.textContent = presets[g].label;
+        genreSelect.appendChild(opt);
+      }
+      genreSelect.addEventListener('change', function () {
+        if (innerEl) {
+          window.GenrePresetRegistry.apply(innerEl, genreSelect.value);
+        }
+      });
+      toolbar.appendChild(genreSelect);
+      previewEl.appendChild(toolbar);
+    }
 
     // スクロール連動
     previewEl.addEventListener('scroll', onScroll, { passive: true });
@@ -109,6 +137,18 @@
       typingCleanup();
       typingCleanup = null;
     }
+
+    // スクロール連動演出をクリーンアップ
+    if (scrollCleanup) {
+      scrollCleanup();
+      scrollCleanup = null;
+    }
+
+    // ジャンルプリセットをクリア
+    if (innerEl && window.GenrePresetRegistry) {
+      window.GenrePresetRegistry.clear(innerEl);
+    }
+    if (genreSelect) genreSelect.value = '';
 
     // 読者プレビューの内容をクリア（メモリ節約）
     if (innerEl) innerEl.innerHTML = '';
@@ -240,8 +280,21 @@
     }
 
     // タイピング演出をアクティベート (SP-074 Phase 2)
-    if (root.TypingEffectController && typeof root.TypingEffectController.activate === 'function') {
-      typingCleanup = root.TypingEffectController.activate(contentDiv);
+    if (window.TypingEffectController && typeof window.TypingEffectController.activate === 'function') {
+      typingCleanup = window.TypingEffectController.activate(contentDiv);
+    }
+
+    // スクロール連動演出をアクティベート (SP-074 Phase 4)
+    if (window.ScrollTriggerController && typeof window.ScrollTriggerController.activate === 'function') {
+      scrollCleanup = window.ScrollTriggerController.activate(contentDiv);
+    }
+
+    // SE AudioContext をユーザー操作で resume (SP-074 Phase 5)
+    if (window.SoundEffectController && typeof window.SoundEffectController.resume === 'function') {
+      contentDiv.addEventListener('click', function resumeSE() {
+        window.SoundEffectController.resume();
+        contentDiv.removeEventListener('click', resumeSE);
+      }, { once: true });
     }
 
     // 先頭にスクロール
@@ -252,7 +305,7 @@
    * markdown-it 処理前に :::zw-* DSL ブロックをプレースホルダーに退避する。
    * markdown-it は DSL 構文を認識しないため、<p> で囲まれて壊れるのを防ぐ。
    */
-  var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
+  var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog|scroll|pathtext)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
 
   function extractDslBlocks(markdown) {
     var placeholders = [];
@@ -467,6 +520,27 @@
       + '  .zw-dialog--bubble { background: rgba(74,144,226,0.1); border: 1px solid rgba(74,144,226,0.3); border-radius: 16px; }\n'
       + '  .zw-dialog--bordered { background: transparent; border: 2px solid #ccc; border-radius: 4px; }\n'
       + '  .zw-dialog--transparent { background: transparent; padding: 0.4em 0; }\n'
+      + '  .zw-scroll { display: block; margin: 0.5em 0; line-height: 1.8; }\n'
+      + '  .zw-scroll__content { white-space: pre-wrap; }\n'
+      + '  .zw-scroll--fade-in { opacity: 0; transition: opacity 0.6s ease-out; }\n'
+      + '  .zw-scroll--slide-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }\n'
+      + '  .zw-scroll--slide-left { opacity: 0; transform: translateX(-30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }\n'
+      + '  .zw-scroll--slide-right { opacity: 0; transform: translateX(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }\n'
+      + '  .zw-scroll--zoom-in { opacity: 0; transform: scale(0.8); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }\n'
+      + '  .zw-scroll--visible { opacity: 1 !important; transform: none !important; }\n'
+      + '  @media (prefers-reduced-motion: reduce) { .zw-scroll { opacity: 1 !important; transform: none !important; transition: none !important; } }\n'
+      + '  .genre-adv .zw-dialog { background: rgba(0,0,0,0.85); color: #fff; border-radius: 4px; border: 1px solid rgba(255,215,0,0.3); }\n'
+      + '  .genre-adv .zw-dialog__speaker { color: #ffd700; }\n'
+      + '  .genre-adv .zw-typing { color: #fff; background: rgba(0,0,0,0.7); padding: 0.6em 1em; border-radius: 4px; }\n'
+      + '  .genre-webnovel .zw-dialog { border-left: 3px solid #4a90e2; border-radius: 0; }\n'
+      + '  .genre-webnovel .zw-scroll { transition-duration: 0.8s; }\n'
+      + '  .genre-horror .zw-dialog { background: rgba(20,0,0,0.9); color: #ddd; border: 1px solid rgba(180,0,0,0.4); }\n'
+      + '  .genre-horror .zw-dialog__speaker { color: #cc3333; letter-spacing: 0.1em; }\n'
+      + '  .genre-horror .zw-typing { color: #ccc; letter-spacing: 0.05em; }\n'
+      + '  .genre-horror .zw-scroll { transition-duration: 1.2s; }\n'
+      + '  .genre-poem .zw-dialog { background: transparent; text-align: center; padding: 1.5em 2em; }\n'
+      + '  .genre-poem .zw-typing { text-align: center; font-style: italic; line-height: 2.2; }\n'
+      + '  .genre-poem .zw-scroll { text-align: center; transition-duration: 1s; }\n'
       + '  .kenten { -webkit-text-emphasis: filled sesame; text-emphasis: filled sesame; }\n'
       + '  a.wikilink { color: ' + linkColor + '; text-decoration: underline dotted; }\n'
       + '  a.wikilink.is-broken { color: #e53935; text-decoration: line-through; }\n'

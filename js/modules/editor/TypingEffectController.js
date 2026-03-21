@@ -56,10 +56,17 @@
 
   /**
    * Reveal characters one by one using requestAnimationFrame.
+   * @param {HTMLElement[]} chars
+   * @param {number} speed - ms per character
+   * @param {Function} onComplete
+   * @param {Object} [seOpts] - SE options: { name, interval }
    */
-  function animateAuto(chars, speed, onComplete) {
+  function animateAuto(chars, speed, onComplete, seOpts) {
     var index = 0;
     var lastTime = 0;
+    var seCounter = 0;
+    var seInterval = (seOpts && seOpts.interval) || 3;
+    var seName = seOpts && seOpts.name;
 
     function step(timestamp) {
       if (!lastTime) lastTime = timestamp;
@@ -70,6 +77,12 @@
         index++;
         elapsed -= speed;
         lastTime += speed;
+
+        // Play SE every N characters
+        if (seName && ++seCounter >= seInterval) {
+          seCounter = 0;
+          if (root.SoundEffectController) root.SoundEffectController.play(seName);
+        }
       }
 
       if (index < chars.length) {
@@ -91,12 +104,16 @@
    * Click mode: reveal chars until next paragraph boundary, then wait for click.
    * Paragraph boundaries are detected by consecutive newline (br) elements.
    */
-  function animateClick(container, chars, speed, onComplete) {
+  function animateClick(container, chars, speed, onComplete, seOpts) {
     var index = 0;
     var paused = false;
 
     container.style.cursor = 'pointer';
     container.setAttribute('data-typing-state', 'active');
+
+    var seCounter = 0;
+    var seInterval = (seOpts && seOpts.interval) || 3;
+    var seName = seOpts && seOpts.name;
 
     function revealChunk() {
       if (index >= chars.length) {
@@ -121,6 +138,11 @@
           index++;
           elapsed -= speed;
           lastTime += speed;
+
+          if (seName && ++seCounter >= seInterval) {
+            seCounter = 0;
+            if (root.SoundEffectController) root.SoundEffectController.play(seName);
+          }
 
           // Pause after revealing a newline boundary (next char after br)
           if (index < chars.length && index > 1) {
@@ -171,7 +193,7 @@
   /**
    * Scroll mode: start typing animation when element enters viewport.
    */
-  function animateScroll(container, chars, speed, onComplete) {
+  function animateScroll(container, chars, speed, onComplete, seOpts) {
     if (!('IntersectionObserver' in window)) {
       // Fallback: immediate reveal
       for (var i = 0; i < chars.length; i++) chars[i].style.opacity = '1';
@@ -183,7 +205,7 @@
       for (var j = 0; j < entries.length; j++) {
         if (entries[j].isIntersecting) {
           observer.disconnect();
-          animateAuto(chars, speed, onComplete);
+          animateAuto(chars, speed, onComplete, seOpts);
           return;
         }
       }
@@ -222,16 +244,20 @@
 
         var chars = prepareCharacters(textEl);
 
+        // SE options from data-sfx attribute
+        var sfxName = el.getAttribute('data-sfx') || '';
+        var seOpts = sfxName ? { name: sfxName, interval: 3 } : null;
+
         function onComplete() {
           el.classList.add('zw-typing--complete');
         }
 
         if (mode === 'click') {
-          animateClick(el, chars, speed, onComplete);
+          animateClick(el, chars, speed, onComplete, seOpts);
         } else if (mode === 'scroll') {
-          animateScroll(el, chars, speed, onComplete);
+          animateScroll(el, chars, speed, onComplete, seOpts);
         } else {
-          animateAuto(chars, speed, onComplete);
+          animateAuto(chars, speed, onComplete, seOpts);
         }
 
         cleanups.push(function () {

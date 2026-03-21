@@ -103,8 +103,10 @@
     var mode = attrs.mode || 'auto';
     var validModes = ['auto', 'click', 'scroll'];
     if (validModes.indexOf(mode) === -1) mode = 'auto';
+    var sfx = attrs.sfx || '';
     var content = escapeHtmlText(segment.content || '');
-    return '<div class="zw-typing" data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '" aria-live="polite">'
+    var sfxAttr = sfx ? ' data-sfx="' + escapeAttr(sfx) + '"' : '';
+    return '<div class="zw-typing" data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '"' + sfxAttr + ' aria-live="polite">'
       + '<span class="zw-typing__text">' + content + '</span>'
       + '<span class="zw-typing__full sr-only">' + content + '</span>'
       + '</div>';
@@ -133,6 +135,26 @@
       + '</div></div>';
   }
 
+  function renderScroll(segment) {
+    if (!segment || segment.type !== 'scroll') return '';
+    var attrs = segment.attrs || {};
+    var validEffects = ['fade-in', 'slide-up', 'slide-left', 'slide-right', 'zoom-in'];
+    var effect = attrs.effect || 'fade-in';
+    if (validEffects.indexOf(effect) === -1) effect = 'fade-in';
+    var delay = attrs.delay || '0ms';
+    var threshold = typeof attrs.threshold !== 'undefined' ? attrs.threshold : 0.2;
+    var sfx = attrs.sfx || '';
+    var content = escapeHtmlText(segment.content || '');
+    var sfxAttr = sfx ? ' data-sfx="' + escapeAttr(sfx) + '"' : '';
+    return '<div class="zw-scroll zw-scroll--' + escapeAttr(effect) + '"'
+      + ' data-effect="' + escapeAttr(effect) + '"'
+      + ' data-delay="' + escapeAttr(delay) + '"'
+      + ' data-threshold="' + escapeAttr(threshold) + '"'
+      + sfxAttr + '>'
+      + '<div class="zw-scroll__content">' + content + '</div>'
+      + '</div>';
+  }
+
   function renderSegments(segments, options) {
     var list = Array.isArray(segments) ? segments : [];
     return list.map(function (segment) {
@@ -140,8 +162,58 @@
       if (segment.type === 'textbox') return renderTextbox(segment, options || {});
       if (segment.type === 'typing') return renderTyping(segment);
       if (segment.type === 'dialog') return renderDialog(segment);
+      if (segment.type === 'scroll') return renderScroll(segment);
+      if (segment.type === 'pathtext') return renderPathtext(segment);
       return typeof segment.value === 'string' ? segment.value : '';
     }).join('');
+  }
+
+  // SP-073: pathtext レンダリング（DslParser の renderPathtextHtml に委譲）
+  var pathtextIdCounter = 0;
+  function renderPathtext(segment) {
+    pathtextIdCounter += 1;
+    var attrs = segment.attrs || {};
+    var content = segment.content || '';
+    var pathId = 'zw-pathtext-r-' + pathtextIdCounter;
+    var pathD = attrs.path || 'M 10 80 Q 95 10 180 80';
+    var fontSize = attrs['font-size'] || '16px';
+    var textAnchor = attrs['text-anchor'] || 'start';
+    var startOffset = attrs['start-offset'] || '0%';
+    var viewBox = attrs.viewbox || '';
+    var stroke = attrs.stroke || 'none';
+    var strokeWidth = attrs['stroke-width'] || '0';
+    var showPath = stroke !== 'none';
+
+    if (!viewBox) {
+      var nums = pathD.match(/-?\d+\.?\d*/g);
+      if (nums && nums.length >= 2) {
+        var xs = [], ys = [];
+        for (var i = 0; i < nums.length; i++) {
+          (i % 2 === 0 ? xs : ys).push(parseFloat(nums[i]));
+        }
+        var pad = 20;
+        viewBox = (Math.min.apply(null, xs) - pad) + ' ' + (Math.min.apply(null, ys) - pad) + ' '
+          + (Math.max.apply(null, xs) - Math.min.apply(null, xs) + pad * 2) + ' '
+          + (Math.max.apply(null, ys) - Math.min.apply(null, ys) + pad * 2);
+      } else {
+        viewBox = '0 0 200 100';
+      }
+    }
+
+    var pathStroke = showPath
+      ? ' stroke="' + escapeAttr(stroke) + '" stroke-width="' + escapeAttr(strokeWidth) + '"'
+      : '';
+
+    return '<div class="zw-pathtext" data-path="' + escapeAttr(pathD) + '">'
+      + '<svg viewBox="' + escapeAttr(viewBox) + '" class="zw-pathtext__svg" preserveAspectRatio="xMidYMid meet">'
+      + '<defs><path id="' + pathId + '" d="' + escapeAttr(pathD) + '" fill="transparent"' + pathStroke + ' /></defs>'
+      + (showPath ? '<use href="#' + pathId + '" fill="transparent"' + pathStroke + ' />' : '')
+      + '<text font-size="' + escapeAttr(fontSize) + '" fill="currentColor">'
+      + '<textPath href="#' + pathId + '"'
+      + ' text-anchor="' + escapeAttr(textAnchor) + '"'
+      + ' startOffset="' + escapeAttr(startOffset) + '">'
+      + escapeHtmlText(content)
+      + '</textPath></text></svg></div>';
   }
 
   var api = {
