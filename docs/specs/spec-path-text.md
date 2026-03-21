@@ -5,129 +5,89 @@
 ベジェ曲線や自由な曲線に沿ってテキストを配置する機能を提供する。
 ポストモダン小説やコンクリートポエトリー、実験的タイポグラフィの表現に使用する。
 
-WYSIWYG上で執筆時にカーブテキストが視覚的にレンダリングされ、
-HTML出力でも同等の表示が再現される。
+## ステータス
+- Phase 1: done (DSL記法 + SVGレンダリング + プレビュー/エクスポート対応)
+- Phase 2: todo (WYSIWYG制御点ハンドルUI)
+- Phase 3: todo (プリセットパス / フリーハンド)
 
 ---
 
-## 背景課題
+## Phase 1 実装内容
 
-- テキストは常に水平方向に流れる前提で、曲線配置の手段がない
-- ポストモダン文学やコンクリートポエトリーでは、文字の空間配置自体が意味を持つ
-- CSS / SVG の `textPath` を活用すれば技術的には実現可能だが、
-  WYSIWYG上での編集体験が課題
-- 既存のテキストボックス (SP-016) は矩形のみ対応
-
----
-
-## 目的
-
-- ベジェ曲線・円弧・自由曲線に沿ってテキストを配置できるようにする
-- WYSIWYG上でパスの形状を直感的に編集できるようにする
-- HTML / SVG 出力で忠実に再現する
-- 既存のテキストボックス (SP-016) と共通のブロック要素として扱う
-
----
-
-## 機能仕様
-
-### 1. パスの種類
-
-| パス種類 | 説明 | 制御点 |
-|----------|------|--------|
-| 直線 | 傾斜した直線上にテキスト | 始点 + 終点 |
-| 円弧 | 円の一部に沿ってテキスト | 中心 + 半径 + 開始角 + 終了角 |
-| 2次ベジェ | 1制御点の曲線 | 始点 + 制御点 + 終点 |
-| 3次ベジェ | 2制御点のS字や複雑曲線 | 始点 + 制御点2つ + 終点 |
-| フリーハンド | ドラッグで描いた曲線 | 自動的にベジェに変換 |
-
-### 2. 記法
+### 記法
 
 ```markdown
-:::zw-pathtext{path="M 10 80 Q 95 10 180 80" font-size="16px"}
+:::zw-pathtext{path:"M 10 80 Q 95 10 180 80", font-size:"18px"}
 曲線に沿って流れるテキスト
 :::
 ```
 
-- `path`: SVG path の `d` 属性値
-- パスデータは WYSIWYG のビジュアルエディタで生成し、ユーザーが直接書く必要はない
+### 属性
 
-### 3. WYSIWYG上の編集UI
+| 属性 | 説明 | デフォルト |
+|------|------|-----------|
+| path | SVG path の `d` 属性値 | `M 10 80 Q 95 10 180 80` |
+| font-size | フォントサイズ | `16px` |
+| text-anchor | start / middle / end | `start` |
+| start-offset | パス上の開始位置 (%) | `0%` |
+| side | left / right | (なし) |
+| viewbox | SVG viewBox | (パスから自動計算) |
+| stroke | パス線の色 | `none` |
+| stroke-width | パス線の太さ | `0` |
 
-#### 3.1 挿入
+### レンダリング
 
-- フローティング装飾バーまたはサイドバーから「パステキスト」を選択
-- デフォルトのベジェ曲線が挿入される
-
-#### 3.2 パス編集
-
-- パステキストをクリックすると編集モードに入る
-- 制御点がハンドルとして表示される（SVGオーバーレイ）
-- ハンドルをドラッグしてパスの形状を変更
-- テキストがリアルタイムでパスに沿って再配置される
-
-#### 3.3 テキスト編集
-
-- パステキストをダブルクリックするとテキスト入力モードに入る
-- 入力したテキストがパスに沿って配置される
-- フォントサイズ・色・装飾は通常のテキストと同様に適用可能
-
-### 4. レンダリング
-
-#### 4.1 WYSIWYG / プレビュー
-
-SVG `<textPath>` を使用:
+SVG `<textPath>` を使用してテキストをパスに沿って配置:
 
 ```html
-<svg viewBox="0 0 200 100">
-  <defs>
-    <path id="curve" d="M 10 80 Q 95 10 180 80" fill="transparent" />
-  </defs>
-  <text>
-    <textPath href="#curve">曲線に沿って流れるテキスト</textPath>
-  </text>
-</svg>
+<div class="zw-pathtext" data-path="M 10 80 Q 95 10 180 80">
+  <svg viewBox="..." class="zw-pathtext__svg" preserveAspectRatio="xMidYMid meet">
+    <defs><path id="zw-pathtext-1" d="M 10 80 Q 95 10 180 80" fill="transparent" /></defs>
+    <text font-size="18px" fill="currentColor">
+      <textPath href="#zw-pathtext-1" text-anchor="start" startOffset="0%">
+        曲線に沿って流れるテキスト
+      </textPath>
+    </text>
+  </svg>
+</div>
 ```
 
-#### 4.2 HTML出力
+### viewBox 自動計算
 
-- SVG をインラインで出力
-- フォールバック: SVG非対応環境では通常テキストとして表示
+viewBox が指定されない場合、パスの座標値から自動計算:
+- パス内の全座標を抽出 (X座標/Y座標を分離)
+- min/max に 20px パディングを追加
 
-#### 4.3 印刷
+### パス線表示
 
-- SVG がそのまま印刷される（ベクタなので解像度問題なし）
+`stroke` 属性を指定するとパスの線が表示される:
 
-### 5. テキスト配置オプション
+```markdown
+:::zw-pathtext{path:"M 20 80 Q 100 10 180 80", stroke:"#888", stroke-width:"1"}
+パスの線を表示したテキスト
+:::
+```
 
-| オプション | 説明 | デフォルト |
-|-----------|------|-----------|
-| textAnchor | start / middle / end | start |
-| startOffset | パス上の開始位置 (%) | 0% |
-| letterSpacing | 字間 | normal |
-| direction | ltr / rtl | ltr |
-| side | left / right (パスのどちら側にテキストを置くか) | left |
+### 対応箇所
 
----
-
-## 成功状態
-
-- ベジェ曲線を挿入し、制御点をドラッグして曲線を変形できる
-- 曲線に沿ってテキストが配置され、リアルタイムで更新される
-- フォントサイズ・色の変更がパステキストに適用される
-- HTML出力でSVGとして忠実に再現される
-- 印刷時にベクタ品質で出力される
+- DslParser: `BLOCK_TYPES` に `pathtext` 追加、`renderPathtextHtml()` 追加
+- TextboxEffectRenderer: `renderPathtext()` 追加
+- editor-preview.js: DSL退避正規表現に `pathtext` 追加
+- reader-preview.js: DSL退避正規表現に `pathtext` 追加
+- CSS: `.zw-pathtext` / `.zw-pathtext__svg` スタイル追加
 
 ---
 
-## 未決定事項
+## 未決定事項 (Phase 2以降)
 
+- [ ] WYSIWYG上での制御点ハンドル編集UI
 - [ ] パスの最大複雑度（制御点の上限数）
 - [ ] 日本語縦書きテキストのパス配置対応
 - [ ] パステキスト内でのルビ表示の可否
 - [ ] パスの共有・再利用（テンプレート化）
 - [ ] パステキストへのアニメーション適用（SP-074 との組み合わせ）
 - [ ] モバイル上でのパスハンドル操作の実現可能性
+- [ ] プリセットパス（円弧、波線、螺旋等）
 
 ---
 
@@ -139,12 +99,10 @@ SVG `<textPath>` を使用:
 | SP-062 テキスト表現アーキテクチャ | パステキストもTextEffect/Animationの適用対象 |
 | SP-074 Web小説演出 | テクスチャやアニメーションとの組み合わせ |
 
----
-
 ## 影響範囲
 
-- 新規 `js/modules/editor/PathTextRenderer.js`: パスの描画・編集UI
-- 新規 `js/modules/editor/PathTextEditor.js`: 制御点ハンドル操作
-- `js/modules/editor-wysiwyg.js`: パステキストブロックの認識・編集
-- `css/style.css`: パスエディタのハンドルスタイル
-- エクスポート処理: SVGインライン出力
+- `js/modules/editor/TextboxDslParser.js`: BLOCK_TYPES + renderPathtextHtml
+- `js/modules/editor/TextboxEffectRenderer.js`: renderPathtext
+- `js/editor-preview.js`: DSL退避正規表現
+- `js/reader-preview.js`: DSL退避正規表現
+- `css/style.css`: .zw-pathtext スタイル

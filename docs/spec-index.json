@@ -74,11 +74,11 @@
   {
     "id": "SP-012",
     "title": "Visual Profile 仕様",
-    "status": "partial",
-    "pct": 25,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/VISUAL_PROFILE.md",
-    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A (モデル定義・責務整理) ドラフト完了。実装は個別SP (SP-013/054/057/058) で進行中。統合UIは未着手"
+    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A (モデル+適用フロー) + Phase B (ユーザー定義CRUD+localStorage) + UI ガジェット (選択/保存/削除) + uiMode適用(SP-070統合, ZenWriterUIModeChangedイベント経由)。組み込み3種(標準/集中ダーク/ブランクライト)"
   },
   {
     "id": "SP-013",
@@ -366,11 +366,11 @@
   {
     "id": "SP-061",
     "title": "Visual Profile Typography Pack 仕様",
-    "status": "todo",
-    "pct": 10,
+    "status": "partial",
+    "pct": 50,
     "cat": "ui",
     "file": "docs/specs/spec-visual-profile-typography-pack.md",
-    "summary": "静かな執筆・資料読み・校正・演出確認など作業シーン別のTypography PackをVisual Profileに接続する。"
+    "summary": "Phase 1完了: 4パック定義(silent-writing/reference-reading/proofreading/staging-check)+applyTypographyPack API。見出しプリセット/字間/行間/ルビ可視性/字下げを一括切替。Phase 2: ガジェットUI/リロード復元。"
   },
   {
     "id": "SP-062",
@@ -432,21 +432,21 @@
   {
     "id": "SP-073",
     "title": "パステキスト仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 40,
     "cat": "ui",
     "file": "docs/specs/spec-path-text.md",
-    "summary": "ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。WYSIWYG上で制御点ハンドルによるインタラクティブ編集。",
+    "summary": "Phase 1完了: :::zw-pathtext DSL記法+SVG textPathレンダリング+viewBox自動計算+パス線表示。DslParser/EffectRenderer/editor-preview/reader-preview対応済み。Phase 2: WYSIWYG制御点ハンドルUI。",
     "related": ["SP-016", "SP-062"]
   },
   {
     "id": "SP-074",
     "title": "Web小説演出統合仕様",
-    "status": "partial",
-    "pct": 50,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1完了: テクスチャ5種(E2E 7件)。Phase 2完了: タイピング演出(auto/click/scroll 3モード, 30ms/字, E2E 10件)。Phase 3完了: ダイアログボックス(4スタイルx3位置, アイコン/スピーカー名, CSS変数テーマ対応, エクスポートHTML埋込)。TextboxEffectRenderer typing/dialog対応。残: Phase 4-6(スクロール連動/SE/プリセット)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
+    "summary": "Phase 1-6全完了。テクスチャ5種+タイピング3モード+ダイアログ4x3+スクロール5エフェクト+SE合成音5種+ジャンルプリセット4種(ADV/Web小説/ホラー/ポエム)。CSSテーマクラス方式+reader-preview選択UI。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {
@@ -461,11 +461,11 @@
   {
     "id": "SP-076",
     "title": "ドックパネルシステム仕様",
-    "status": "todo",
-    "pct": 0,
+    "status": "partial",
+    "pct": 25,
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
-    "summary": "上下左右へのパネルドッキング。タブグループ化、フローティング切り離し、プリセット配置。Editorモード専用。SP-070依存。",
+    "summary": "Phase 1完了: 左右ドック。DockManager.js新設。サイドバーを左右にボタンで移動可能。左ドックパネル新設(リサイズ対応)。localStorage保存/復元。Focus/Blank/Reader非表示互換。モバイル無効化。残: Phase 2(タブグループ)/3(フローティング)/4(上下ドック)。",
     "related": ["SP-070", "SP-051", "SP-071"]
   },
   {
