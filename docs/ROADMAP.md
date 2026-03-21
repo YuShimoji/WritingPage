@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 397 passed / 1 failed (Canvas Mode既知) (2026-03-22 時点)
+- E2E: 418 passed / 1 failed (Canvas Mode既知) / 56 spec files (2026-03-22 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
