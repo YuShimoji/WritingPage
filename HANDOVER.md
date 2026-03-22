@@ -28,7 +28,7 @@ npm run lint              # ESLint
 | E2E | 418 passed / 1 failed (Canvas Mode既知) / 1 skipped (56 spec files) | `npx playwright test` |
 | Lint | ALL PASSED (0 errors) | `npm run lint` |
 
-### 既知の E2E スキップ (2026-03-19)
+### 既知の E2E スキップ (2026-03-22)
 
 - editor-canvas-mode.spec.js: 1件 skip (Canvas Mode は betaEnabled:false で延期中)
 - +9件: 条件付きskip (Images系/xorigin/split-view等のガジェットloadout依存)
@@ -71,7 +71,7 @@ npm run lint              # ESLint
 | `js/chapter-list.js` | 1026 | Phase 3 目次生成 |
 | `js/gadgets-editor-extras.js` | 1227 | TB DSL / プリセット / ゲームブック分岐UI |
 | `js/gadgets-core.js` | 1020 | 適正 |
-| `js/app.js` | 644 | Phase 3 分割完了 |
+| `js/app.js` | 671 | Phase 3 分割完了 |
 
 ## 決定事項
 
