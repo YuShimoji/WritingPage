@@ -236,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const s = window.ZenWriterStorage.loadSettings();
             const fs = (s && s.fontSizes) || {};
             const root = document.documentElement;
-            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', fs.heading + 'px');
-            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', fs.body + 'px');
+            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', (fs.heading / 16) + 'rem');
+            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', (fs.body / 16) + 'rem');
         } catch (_) { }
     }
 
@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 group.className = 'plugin-group';
                 group.style.display = 'flex';
                 group.style.flexDirection = 'column';
-                group.style.gap = '6px';
+                group.style.gap = '0.375rem';
 
                 const title = document.createElement('div');
                 title.className = 'plugin-title';
@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionsWrap.className = 'plugin-actions';
                 actionsWrap.style.display = 'flex';
                 actionsWrap.style.flexWrap = 'wrap';
-                actionsWrap.style.gap = '6px';
+                actionsWrap.style.gap = '0.375rem';
                 (p.actions || []).forEach(a => {
                     const btn = document.createElement('button');
                     btn.className = 'small';

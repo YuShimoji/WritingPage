@@ -402,7 +402,7 @@ function applyTypographyPack(packId) {
 
   // 本文フォントサイズ
   if (v.editorFontSize) {
-    root.style.setProperty('--font-size', v.editorFontSize + 'px');
+    root.style.setProperty('--font-size', (v.editorFontSize / 16) + 'rem');
   }
 
   // 行間

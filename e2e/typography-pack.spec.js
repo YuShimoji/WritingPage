@@ -66,7 +66,7 @@ test.describe('SP-061: Typography Pack', () => {
     });
 
     expect(result).toBeTruthy();
-    expect(result.fontSize).toBe('18px');
+    expect(result.fontSize).toBe('1.125rem');
     expect(result.lineHeight).toBe('2');
     expect(result.letterSpacing).toBe('0.04em');
     expect(result.currentId).toBe('silent-writing');

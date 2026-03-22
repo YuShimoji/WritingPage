@@ -169,10 +169,10 @@
 
         var container = document.createElement('div');
         container.style.display = 'grid';
-        container.style.gap = '8px';
+        container.style.gap = '0.5rem';
 
         var desc = document.createElement('div');
-        desc.style.fontSize = '12px';
+        desc.style.fontSize = '0.75rem';
         desc.style.opacity = '0.8';
         desc.textContent = 'サンプル文書をワンクリックで追加します（既存の文書は変更しません）。';
 

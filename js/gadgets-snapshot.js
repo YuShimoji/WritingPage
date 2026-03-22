@@ -26,14 +26,14 @@
       wrap.className = 'snapshot-manager';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
+      wrap.style.gap = '0.5rem';
 
       // ヘッダー行（保存ボタン + ショートカットヒント）
       var header = document.createElement('div');
       header.style.display = 'flex';
       header.style.justifyContent = 'space-between';
       header.style.alignItems = 'center';
-      header.style.gap = '8px';
+      header.style.gap = '0.5rem';
 
       var btn = document.createElement('button');
       btn.type = 'button';
@@ -50,7 +50,7 @@
       });
 
       var hint = document.createElement('span');
-      hint.style.fontSize = '11px';
+      hint.style.fontSize = '0.6875rem';
       hint.style.opacity = '0.6';
       hint.textContent = L.RESTORE_SHORTCUT_HINT || 'Ctrl+Shift+Z: 復元';
 
@@ -95,7 +95,7 @@
         modalHeader.appendChild(closeBtn);
 
         var modalBody = document.createElement('pre');
-        modalBody.style.cssText = 'white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.5;margin:0;max-height:300px;overflow:auto;';
+        modalBody.style.cssText = 'white-space:pre-wrap;word-break:break-word;font-size:0.8125rem;line-height:1.5;margin:0;max-height:300px;overflow:auto;';
         modalBody.textContent = content || (L.EMPTY_CONTENT || '（空）');
 
         previewModal.appendChild(modalHeader);
@@ -151,12 +151,12 @@
           metaRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;';
 
           var meta = document.createElement('div');
-          meta.style.fontSize = '12px';
+          meta.style.fontSize = '0.75rem';
           var timeSpan = document.createElement('span');
           timeSpan.textContent = fmt(s.ts);
           var lenSpan = document.createElement('span');
           lenSpan.style.opacity = '0.7';
-          lenSpan.style.marginLeft = '8px';
+          lenSpan.style.marginLeft = '0.5rem';
           lenSpan.textContent = s.len + ' ' + (L.CHARS_SUFFIX || '文字');
           meta.appendChild(timeSpan);
           meta.appendChild(lenSpan);
@@ -164,7 +164,7 @@
           // 最新ラベル
           if (idx === 0) {
             var latestBadge = document.createElement('span');
-            latestBadge.style.cssText = 'font-size:10px;background:var(--accent-color,#4a90e2);color:var(--accent-fg,#fff);padding:1px 5px;border-radius:3px;margin-left:6px;';
+            latestBadge.style.cssText = 'font-size:0.625rem;background:var(--accent-color,#4a90e2);color:var(--accent-fg,#fff);padding:1px 5px;border-radius:3px;margin-left:6px;';
             latestBadge.textContent = L.LATEST || '最新';
             meta.appendChild(latestBadge);
           }
@@ -176,7 +176,7 @@
           contentRow.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:8px;';
 
           var preview = document.createElement('div');
-          preview.style.cssText = 'font-size:11px;opacity:0.6;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;';
+          preview.style.cssText = 'font-size:0.6875rem;opacity:0.6;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;';
           preview.textContent = truncate(s.content, 40) || (L.EMPTY_CONTENT || '（空）');
           preview.title = L.CLICK_TO_PREVIEW || 'クリックでプレビュー';
           preview.addEventListener('click', function () {

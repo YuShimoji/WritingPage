@@ -13,7 +13,7 @@
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
-        row.style.gap = '4px';
+        row.style.gap = '0.25rem';
         row.textContent = labelText;
         row.appendChild(control);
         return row;
@@ -40,7 +40,7 @@
       var widthRow = document.createElement('div');
       widthRow.style.display = 'flex';
       widthRow.style.flexDirection = 'column';
-      widthRow.style.gap = '4px';
+      widthRow.style.gap = '0.25rem';
       widthRow.appendChild(widthLabel);
       widthRow.appendChild(widthInput);
       el.appendChild(widthRow);
@@ -66,7 +66,7 @@
       var paddingRow = document.createElement('div');
       paddingRow.style.display = 'flex';
       paddingRow.style.flexDirection = 'column';
-      paddingRow.style.gap = '4px';
+      paddingRow.style.gap = '0.25rem';
       paddingRow.appendChild(paddingLabel);
       paddingRow.appendChild(paddingInput);
       el.appendChild(paddingRow);
@@ -75,7 +75,7 @@
       var borderRow = document.createElement('label');
       borderRow.style.display = 'flex';
       borderRow.style.alignItems = 'center';
-      borderRow.style.gap = '6px';
+      borderRow.style.gap = '0.375rem';
       var borderCb = document.createElement('input');
       borderCb.type = 'checkbox';
       borderCb.checked = !!ctx.get('showBorder', false);

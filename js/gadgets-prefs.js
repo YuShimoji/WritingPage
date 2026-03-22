@@ -32,7 +32,7 @@
     try {
       root.innerHTML = '';
       root.style.display = 'grid';
-      root.style.gap = '8px';
+      root.style.gap = '0.5rem';
 
       if (!window.ZWGadgets || typeof window.ZWGadgets.exportPrefs !== 'function' || typeof window.ZWGadgets.importPrefs !== 'function') {
         var warn = document.createElement('div');
@@ -51,7 +51,7 @@
 
       var importRow = document.createElement('div');
       importRow.style.display = 'grid';
-      importRow.style.gap = '6px';
+      importRow.style.gap = '0.375rem';
 
       var fileInput = document.createElement('input');
       fileInput.type = 'file';

@@ -49,7 +49,7 @@ body {
   font-family: var(--font-family);
   font-size: var(--editor-font-size);
   line-height: var(--line-height);
-  padding: 1rem 100px;
+  padding: 1rem 6.25rem;
   outline: none;
   transition:
     color var(--transition-speed),
@@ -131,7 +131,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1;
   pointer-events: auto;
   cursor: se-resize;
@@ -154,7 +154,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 0.75rem;
   pointer-events: auto;
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
@@ -240,7 +240,7 @@ body {
   width: 22vw;
   min-width: 160px;
   max-width: 280px;
-  padding: 0 8px;
+  padding: 0 0.5rem;
 }
 .goal-progress__track {
   position: relative;
@@ -299,13 +299,13 @@ body {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
 .loadout-controls {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 .loadout-controls select,
@@ -315,14 +315,14 @@ body {
 
 .loadout-buttons {
   display: flex;
-  gap: 6px;
+  gap: 0.375rem;
   flex-wrap: wrap;
 }
 
 .sidebar-groups {
   flex: 1;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 0.25rem;
 }
 
 .sidebar-group {
@@ -336,7 +336,7 @@ body {
 /* Accordion mode: show all groups */
 [data-tabs-presentation="accordion"] .sidebar-group {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
 }
 
 [data-tabs-presentation="accordion"] .sidebar-group.active {
@@ -346,11 +346,11 @@ body {
 [data-tabs-presentation="accordion"] .sidebar-group summary {
   cursor: pointer;
   font-weight: 600;
-  padding: 10px;
+  padding: 0.625rem;
   background: var(--toolbar-bg);
   border: 1px solid var(--border-color);
   border-radius: 4px;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
 [data-tabs-presentation="accordion"] .sidebar-group[aria-hidden="true"] {
@@ -361,13 +361,13 @@ body {
 [data-tabs-presentation="buttons"] .sidebar-tabs {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.375rem;
 }
 
 [data-tabs-presentation="buttons"] .sidebar-tab {
   display: block;
   width: 100%;
-  padding: 10px;
+  padding: 0.625rem;
   text-align: center;
   background: var(--bg-color);
   border: 1px solid var(--border-color);
@@ -395,7 +395,7 @@ body {
 .sidebar-group .gadgets-panel {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .sidebar-group .gadget {
@@ -406,11 +406,11 @@ body {
 .sidebar details {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 0.375rem 0.5rem;
   background: var(--bg-color);
 }
 .sidebar details + details {
-  margin-top: 10px;
+  margin-top: 0.625rem;
 }
 .sidebar summary {
   cursor: pointer;
@@ -444,7 +444,7 @@ body {
 
 /* ===== サイドバー開閉時のメインコンテンツ移動 ===== */
 html[data-sidebar-open] .main-content {
-  margin-left: var(--sidebar-width, 300px);
+  margin-left: var(--sidebar-width, 18.75rem);
 }
 
 /* ===== サイドバー開閉時のツールバー位置調整 ===== */

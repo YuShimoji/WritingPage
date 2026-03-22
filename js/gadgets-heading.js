@@ -48,7 +48,7 @@
       wrap.className = 'gadget-heading-styles';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '12px';
+      wrap.style.gap = '0.75rem';
 
       function makeSection(title) {
         var section = document.createElement('div');
@@ -60,7 +60,7 @@
         section.appendChild(heading);
         section.style.display = 'flex';
         section.style.flexDirection = 'column';
-        section.style.gap = '6px';
+        section.style.gap = '0.375rem';
         return section;
       }
 
@@ -107,7 +107,7 @@
 
       // 保存/削除ボタン行
       var presetBtnRow = document.createElement('div');
-      presetBtnRow.style.cssText = 'display:flex;gap:6px;align-items:center;';
+      presetBtnRow.style.cssText = 'display:flex;gap:0.375rem;align-items:center;';
 
       var savePresetBtn = document.createElement('button');
       savePresetBtn.type = 'button';
@@ -155,10 +155,10 @@
       previewBox.className = 'heading-preview';
       previewBox.style.background = 'var(--hover-bg-color, rgba(128,128,128,0.08))';
       previewBox.style.borderRadius = '6px';
-      previewBox.style.padding = '8px 10px';
+      previewBox.style.padding = '0.5rem 0.625rem';
       previewBox.style.display = 'flex';
       previewBox.style.flexDirection = 'column';
-      previewBox.style.gap = '2px';
+      previewBox.style.gap = '0.125rem';
 
       var previewLines = {};
       ALL_LEVELS.forEach(function (level) {
@@ -187,11 +187,11 @@
         var levelWrap = document.createElement('div');
         levelWrap.style.display = 'flex';
         levelWrap.style.flexDirection = 'column';
-        levelWrap.style.gap = '4px';
-        levelWrap.style.paddingTop = '4px';
+        levelWrap.style.gap = '0.25rem';
+        levelWrap.style.paddingTop = '0.25rem';
         if (level !== 'h1') {
           levelWrap.style.borderTop = '1px solid var(--border-color)';
-          levelWrap.style.marginTop = '4px';
+          levelWrap.style.marginTop = '0.25rem';
         }
 
         var levelLabel = document.createElement('div');
@@ -210,7 +210,7 @@
         var weightRow = document.createElement('div');
         weightRow.style.display = 'flex';
         weightRow.style.alignItems = 'center';
-        weightRow.style.gap = '6px';
+        weightRow.style.gap = '0.375rem';
         var weightLabel = document.createElement('span');
         weightLabel.style.fontSize = '0.8rem';
         weightLabel.style.opacity = '0.8';
@@ -264,7 +264,7 @@
       h46Section.className = 'heading-section';
 
       var h46Header = document.createElement('div');
-      h46Header.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:4px;font-size:0.9rem;font-weight:600;user-select:none;';
+      h46Header.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:0.25rem;font-size:0.9rem;font-weight:600;user-select:none;';
       var h46Arrow = document.createElement('span');
       h46Arrow.style.cssText = 'font-size:0.7rem;width:12px;display:inline-block;transition:transform 0.15s;';
       var h46Title = document.createElement('span');
@@ -276,18 +276,18 @@
       var h46Content = document.createElement('div');
       h46Content.style.display = 'flex';
       h46Content.style.flexDirection = 'column';
-      h46Content.style.gap = '4px';
-      h46Content.style.paddingLeft = '4px';
+      h46Content.style.gap = '0.25rem';
+      h46Content.style.paddingLeft = '0.25rem';
 
       SIMPLE_LEVELS.forEach(function (level) {
         var levelWrap = document.createElement('div');
         levelWrap.style.display = 'flex';
         levelWrap.style.flexDirection = 'column';
-        levelWrap.style.gap = '4px';
-        levelWrap.style.paddingTop = '4px';
+        levelWrap.style.gap = '0.25rem';
+        levelWrap.style.paddingTop = '0.25rem';
         if (level !== 'h4') {
           levelWrap.style.borderTop = '1px solid var(--border-color)';
-          levelWrap.style.marginTop = '4px';
+          levelWrap.style.marginTop = '0.25rem';
         }
 
         var levelLabel = document.createElement('div');
@@ -328,7 +328,7 @@
         var row = document.createElement('div');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
-        row.style.gap = '2px';
+        row.style.gap = '0.125rem';
 
         var lbl = document.createElement('div');
         lbl.style.fontSize = '0.8rem';

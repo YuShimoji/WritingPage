@@ -302,7 +302,7 @@
         el.style.position = 'absolute';
         el.style.left = x + 'px';
         el.style.top = y + 'px';
-        el.style.fontSize = size + 'px';
+        el.style.fontSize = (size / 16) + 'rem';
         el.style.transform = 'rotate(' + rotation + 'deg)';
         el.style.opacity = '0';
 

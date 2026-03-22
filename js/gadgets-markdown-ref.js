@@ -122,13 +122,13 @@
     wrap.className = 'gadget-markdown-ref';
     wrap.style.display = 'flex';
     wrap.style.flexDirection = 'column';
-    wrap.style.gap = '6px';
+    wrap.style.gap = '0.375rem';
 
     // --- Search ---
     var searchInput = document.createElement('input');
     searchInput.type = 'search';
     searchInput.placeholder = '検索...';
-    searchInput.style.cssText = 'width:100%;padding:4px 8px;border:1px solid var(--border-color,#ccc);border-radius:4px;font-size:0.85rem;box-sizing:border-box;background:var(--input-bg,#fff);color:var(--text-color,#333);';
+    searchInput.style.cssText = 'width:100%;padding:0.25rem 0.5rem;border:1px solid var(--border-color,#ccc);border-radius:4px;font-size:0.85rem;box-sizing:border-box;background:var(--input-bg,#fff);color:var(--text-color,#333);';
     wrap.appendChild(searchInput);
 
     var collapseState = loadCollapseState();
@@ -142,7 +142,7 @@
 
       // Header
       var header = document.createElement('div');
-      header.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:4px;padding:3px 0;font-size:0.9rem;font-weight:600;user-select:none;';
+      header.style.cssText = 'cursor:pointer;display:flex;align-items:center;gap:0.25rem;padding:0.1875rem 0;font-size:0.9rem;font-weight:600;user-select:none;';
       var arrow = document.createElement('span');
       arrow.style.cssText = 'font-size:0.7rem;width:12px;display:inline-block;transition:transform 0.15s;';
       var titleSpan = document.createElement('span');
@@ -154,18 +154,18 @@
       // Items container
       var itemsEl = document.createElement('div');
       itemsEl.className = 'mdref-items';
-      itemsEl.style.cssText = 'display:flex;flex-direction:column;gap:2px;padding-left:16px;';
+      itemsEl.style.cssText = 'display:flex;flex-direction:column;gap:0.125rem;padding-left:1rem;';
 
       cat.items.forEach(function (item) {
         var row = document.createElement('div');
         row.className = 'mdref-item';
-        row.style.cssText = 'display:flex;align-items:baseline;gap:6px;padding:2px 0;font-size:0.82rem;line-height:1.4;';
+        row.style.cssText = 'display:flex;align-items:baseline;gap:0.375rem;padding:0.125rem 0;font-size:0.82rem;line-height:1.4;';
 
         // Left: syntax or shortcut
         if (item.syntax) {
           var codeEl = document.createElement('code');
           codeEl.textContent = item.syntax;
-          codeEl.style.cssText = 'font-size:0.8rem;background:var(--code-bg,rgba(128,128,128,0.1));padding:1px 4px;border-radius:3px;white-space:nowrap;flex-shrink:0;';
+          codeEl.style.cssText = 'font-size:0.8rem;background:var(--code-bg,rgba(128,128,128,0.1));padding:0.0625rem 0.25rem;border-radius:3px;white-space:nowrap;flex-shrink:0;';
           row.appendChild(codeEl);
         }
 
@@ -173,7 +173,7 @@
         if (item.shortcut) {
           var kbdEl = document.createElement('kbd');
           kbdEl.textContent = item.shortcut;
-          kbdEl.style.cssText = 'font-size:0.75rem;background:var(--kbd-bg,rgba(128,128,128,0.15));padding:1px 5px;border-radius:3px;border:1px solid var(--border-color,#ccc);white-space:nowrap;flex-shrink:0;font-family:inherit;';
+          kbdEl.style.cssText = 'font-size:0.75rem;background:var(--kbd-bg,rgba(128,128,128,0.15));padding:0.0625rem 0.3125rem;border-radius:3px;border:1px solid var(--border-color,#ccc);white-space:nowrap;flex-shrink:0;font-family:inherit;';
           row.appendChild(kbdEl);
         }
 

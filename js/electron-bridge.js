@@ -195,7 +195,7 @@
         if (!editor) return;
         const current = parseFloat(window.getComputedStyle(editor).fontSize) || 16;
         const newSize = Math.max(10, Math.min(48, current + direction * 2));
-        editor.style.fontSize = newSize + 'px';
+        editor.style.fontSize = (newSize / 16) + 'rem';
     }
 
     function resetZoom() {

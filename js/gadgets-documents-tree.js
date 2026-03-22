@@ -21,7 +21,7 @@
     row.className = 'tree-item-row';
     row.style.display = 'flex';
     row.style.alignItems = 'center';
-    row.style.padding = '4px 8px';
+    row.style.padding = '0.25rem 0.5rem';
     row.style.borderRadius = '4px';
     row.style.cursor = 'pointer';
     row.style.userSelect = 'none';
@@ -31,7 +31,7 @@
       const toggle = document.createElement('span');
       toggle.className = 'tree-toggle';
       toggle.textContent = item.collapsed ? '▶' : '▼';
-      toggle.style.marginRight = '4px';
+      toggle.style.marginRight = '0.25rem';
       toggle.style.fontSize = '0.8em';
       toggle.style.cursor = 'pointer';
       toggle.addEventListener('click', (e) => {
@@ -53,7 +53,7 @@
     const icon = document.createElement('span');
     icon.className = 'tree-icon';
     icon.textContent = item.type === 'folder' ? '📁' : '📄';
-    icon.style.marginRight = '6px';
+    icon.style.marginRight = '0.375rem';
     row.appendChild(icon);
 
     // ラベル
@@ -145,7 +145,7 @@
       const empty = document.createElement('p');
       empty.textContent = 'ドキュメントがありません';
       empty.style.opacity = '0.6';
-      empty.style.padding = '16px 8px';
+      empty.style.padding = '1rem 0.5rem';
       empty.style.textAlign = 'center';
       container.appendChild(empty);
       return;

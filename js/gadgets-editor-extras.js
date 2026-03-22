@@ -27,7 +27,7 @@
 
   function createRangeRow(labelText, input) {
     var row = el('div');
-    var lbl = el('div'); lbl.textContent = labelText; lbl.style.fontSize = '12px';
+    var lbl = el('div'); lbl.textContent = labelText; lbl.style.fontSize = '0.75rem';
     row.appendChild(lbl); row.appendChild(input);
     return row;
   }
@@ -40,7 +40,7 @@
       var s = window.ZenWriterStorage.loadSettings();
       var tw = (s && s.typewriter) || {};
       root.innerHTML = '';
-      root.style.display = 'grid'; root.style.gap = '8px';
+      root.style.display = 'grid'; root.style.gap = '0.5rem';
 
       var row1 = el('label', 'toggle-switch');
       var enabled = el('input'); enabled.type = 'checkbox'; enabled.id = 'typewriter-enabled'; enabled.checked = !!tw.enabled;
@@ -49,17 +49,17 @@
 
       var row2 = el('div');
       var anchor = el('input'); anchor.type = 'range'; anchor.id = 'typewriter-anchor-ratio'; anchor.min = '0.05'; anchor.max = '0.95'; anchor.step = '0.05'; anchor.value = String(typeof tw.anchorRatio === 'number' ? tw.anchorRatio : 0.5);
-      var aLbl = el('div'); aLbl.textContent = 'アンカー位置: ' + anchor.value; aLbl.style.fontSize = '12px';
+      var aLbl = el('div'); aLbl.textContent = 'アンカー位置: ' + anchor.value; aLbl.style.fontSize = '0.75rem';
       row2.appendChild(aLbl); row2.appendChild(anchor);
 
       var row3 = el('div');
       var stick = el('input'); stick.type = 'range'; stick.id = 'typewriter-stickiness'; stick.min = '0'; stick.max = '1'; stick.step = '0.1'; stick.value = String(typeof tw.stickiness === 'number' ? tw.stickiness : 0.9);
-      var sLbl = el('div'); sLbl.textContent = '張り付き強度: ' + stick.value; sLbl.style.fontSize = '12px';
+      var sLbl = el('div'); sLbl.textContent = '張り付き強度: ' + stick.value; sLbl.style.fontSize = '0.75rem';
       row3.appendChild(sLbl); row3.appendChild(stick);
 
       var row4 = el('div');
       var wrapCols = el('input'); wrapCols.type = 'range'; wrapCols.min = '40'; wrapCols.max = '120'; wrapCols.step = '10'; wrapCols.value = String(typeof tw.wrapCols === 'number' ? tw.wrapCols : 80);
-      var wLbl = el('div'); wLbl.textContent = '折り返し文字数: ' + wrapCols.value; wLbl.style.fontSize = '12px';
+      var wLbl = el('div'); wLbl.textContent = '折り返し文字数: ' + wrapCols.value; wLbl.style.fontSize = '0.75rem';
       row4.appendChild(wLbl); row4.appendChild(wrapCols);
 
       var btnApply = el('button', 'small'); btnApply.textContent = '今すぐ整列';
@@ -81,7 +81,7 @@
       var s = window.ZenWriterStorage.loadSettings();
       var fm = (s && s.focusMode) || {};
       root.innerHTML = '';
-      root.style.display = 'grid'; root.style.gap = '8px';
+      root.style.display = 'grid'; root.style.gap = '0.5rem';
 
       var row1 = el('label', 'toggle-switch');
       var enabled = el('input'); enabled.type = 'checkbox'; enabled.id = 'focus-mode-enabled'; enabled.checked = !!fm.enabled;
@@ -90,12 +90,12 @@
 
       var row2 = el('div');
       var dimOpacity = el('input'); dimOpacity.type = 'range'; dimOpacity.id = 'focus-dim-opacity'; dimOpacity.min = '0'; dimOpacity.max = '1'; dimOpacity.step = '0.1'; dimOpacity.value = String(typeof fm.dimOpacity === 'number' ? fm.dimOpacity : 0.3);
-      var dLbl = el('div'); dLbl.textContent = '減光: ' + dimOpacity.value; dLbl.style.fontSize = '12px';
+      var dLbl = el('div'); dLbl.textContent = '減光: ' + dimOpacity.value; dLbl.style.fontSize = '0.75rem';
       row2.appendChild(dLbl); row2.appendChild(dimOpacity);
 
       var row3 = el('div');
       var blurRadius = el('input'); blurRadius.type = 'range'; blurRadius.id = 'focus-blur-radius'; blurRadius.min = '0'; blurRadius.max = '10'; blurRadius.step = '0.5'; blurRadius.value = String(typeof fm.blurRadius === 'number' ? fm.blurRadius : 2);
-      var bLbl = el('div'); bLbl.textContent = 'ぼかし: ' + blurRadius.value + 'px'; bLbl.style.fontSize = '12px';
+      var bLbl = el('div'); bLbl.textContent = 'ぼかし: ' + blurRadius.value + 'px'; bLbl.style.fontSize = '0.75rem';
       row3.appendChild(bLbl); row3.appendChild(blurRadius);
 
       function refreshFocusMode() {
@@ -139,10 +139,10 @@
     window.ZWGadgets.register('MarkdownPreview', function (root) {
       var s = window.ZenWriterStorage.loadSettings();
       var prev = (s && s.preview) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '6px';
+      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.375rem';
 
       var row = el('div');
-      var sync = el('input'); sync.type = 'checkbox'; sync.checked = !!prev.syncScroll; var lbl = el('label'); lbl.textContent = 'スクロール同期'; lbl.style.marginLeft = '6px'; row.appendChild(sync); row.appendChild(lbl);
+      var sync = el('input'); sync.type = 'checkbox'; sync.checked = !!prev.syncScroll; var lbl = el('label'); lbl.textContent = 'スクロール同期'; lbl.style.marginLeft = '0.375rem'; row.appendChild(sync); row.appendChild(lbl);
 
       var btnToggle = el('button', 'small'); btnToggle.textContent = 'プレビュー開閉';
       btnToggle.addEventListener('click', function () {
@@ -159,7 +159,7 @@
       var ui = (s && s.ui) || {};
       var fs = (s && s.fontSizes) || {};
       var editorCfg = (s && s.editor) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '8px';
+      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.5rem';
 
       var presRow = el('div');
       var sel = el('select');['buttons', 'tabs', 'dropdown', 'accordion'].forEach(function (k) { var o = el('option'); o.value = k; o.textContent = k; sel.appendChild(o); }); sel.value = String(ui.tabsPresentation || 'tabs');
@@ -192,7 +192,7 @@
 
       var widthRow = el('div');
       var rng = el('input'); rng.type = 'range'; rng.min = '220'; rng.max = '560'; rng.step = '10'; rng.value = String(typeof ui.sidebarWidth === 'number' ? ui.sidebarWidth : 320);
-      var note = el('div'); note.style.fontSize = '12px'; note.textContent = 'サイドバー幅: ' + rng.value + 'px';
+      var note = el('div'); note.style.fontSize = '0.75rem'; note.textContent = 'サイドバー幅: ' + rng.value + 'px';
       widthRow.appendChild(note); widthRow.appendChild(rng);
 
       var fontRow = el('div');
@@ -219,20 +219,20 @@
       var textboxCfg = editorCfg.extendedTextbox || {};
       var textboxRow = el('div');
       textboxRow.style.display = 'grid';
-      textboxRow.style.gap = '6px';
-      textboxRow.style.padding = '8px';
+      textboxRow.style.gap = '0.375rem';
+      textboxRow.style.padding = '0.5rem';
       textboxRow.style.border = '1px solid var(--border-color, #444)';
       textboxRow.style.borderRadius = '6px';
 
       var textboxTitle = el('div');
       textboxTitle.textContent = 'TextBox Effects';
-      textboxTitle.style.fontSize = '12px';
+      textboxTitle.style.fontSize = '0.75rem';
       textboxTitle.style.fontWeight = 'bold';
 
       var textboxEnabledRow = el('label');
       textboxEnabledRow.style.display = 'flex';
       textboxEnabledRow.style.alignItems = 'center';
-      textboxEnabledRow.style.gap = '6px';
+      textboxEnabledRow.style.gap = '0.375rem';
       var textboxEnabled = el('input');
       textboxEnabled.type = 'checkbox';
       textboxEnabled.checked = textboxCfg.enabled !== false;
@@ -269,7 +269,7 @@
       var textboxSfxRow = el('label');
       textboxSfxRow.style.display = 'flex';
       textboxSfxRow.style.alignItems = 'center';
-      textboxSfxRow.style.gap = '6px';
+      textboxSfxRow.style.gap = '0.375rem';
       var textboxShowSfx = el('input');
       textboxShowSfx.type = 'checkbox';
       textboxShowSfx.checked = textboxCfg.showSfxField !== false;
@@ -308,11 +308,11 @@
       var userPresetsContainer = el('div');
       userPresetsContainer.className = 'tb-user-presets';
       userPresetsContainer.style.display = 'grid';
-      userPresetsContainer.style.gap = '4px';
+      userPresetsContainer.style.gap = '0.25rem';
 
       var userPresetsLabel = el('div');
       userPresetsLabel.textContent = 'カスタムプリセット';
-      userPresetsLabel.style.fontSize = '12px';
+      userPresetsLabel.style.fontSize = '0.75rem';
       userPresetsLabel.style.fontWeight = 'bold';
       userPresetsContainer.appendChild(userPresetsLabel);
 
@@ -352,9 +352,9 @@
         if (presets.length === 0) {
           var empty = el('div');
           empty.textContent = 'カスタムプリセットはありません';
-          empty.style.fontSize = '11px';
+          empty.style.fontSize = '0.6875rem';
           empty.style.color = 'var(--text-color, #999)';
-          empty.style.padding = '4px 0';
+          empty.style.padding = '0.25rem 0';
           userPresetsList.appendChild(empty);
           return;
         }
@@ -368,26 +368,26 @@
           item.className = 'tb-preset-item';
           item.style.display = 'flex';
           item.style.alignItems = 'center';
-          item.style.gap = '6px';
-          item.style.padding = '4px 6px';
+          item.style.gap = '0.375rem';
+          item.style.padding = '0.25rem 0.375rem';
           item.style.border = '1px solid var(--border-color, #555)';
           item.style.borderRadius = '4px';
 
           var info = el('span');
           info.style.flex = '1';
-          info.style.fontSize = '12px';
+          info.style.fontSize = '0.75rem';
           info.textContent = (preset.label || preset.id) + ' (' + (preset.role || 'custom') + ')';
 
           var editBtn = el('button');
           editBtn.className = 'small';
           editBtn.textContent = '編集';
-          editBtn.style.fontSize = '11px';
+          editBtn.style.fontSize = '0.6875rem';
           editBtn.addEventListener('click', function () { openPresetEditor(preset, idx); });
 
           var dupBtn = el('button');
           dupBtn.className = 'small';
           dupBtn.textContent = '複製';
-          dupBtn.style.fontSize = '11px';
+          dupBtn.style.fontSize = '0.6875rem';
           dupBtn.addEventListener('click', function () {
             var list = getUserPresets();
             var copy = JSON.parse(JSON.stringify(raw));
@@ -400,7 +400,7 @@
           var delBtn = el('button');
           delBtn.className = 'small';
           delBtn.textContent = '削除';
-          delBtn.style.fontSize = '11px';
+          delBtn.style.fontSize = '0.6875rem';
           delBtn.style.color = 'var(--danger-color, #e74c3c)';
           delBtn.addEventListener('click', function () {
             var list = getUserPresets();
@@ -428,15 +428,15 @@
         var editor = el('div');
         editor.className = 'tb-preset-editor';
         editor.style.display = 'grid';
-        editor.style.gap = '4px';
-        editor.style.padding = '8px';
+        editor.style.gap = '0.25rem';
+        editor.style.padding = '0.5rem';
         editor.style.border = '1px solid var(--accent-color, #4a9eff)';
         editor.style.borderRadius = '6px';
-        editor.style.marginTop = '4px';
+        editor.style.marginTop = '0.25rem';
 
         var editorTitle = el('div');
         editorTitle.textContent = isNew ? '新規プリセット' : 'プリセット編集';
-        editorTitle.style.fontSize = '12px';
+        editorTitle.style.fontSize = '0.75rem';
         editorTitle.style.fontWeight = 'bold';
         editor.appendChild(editorTitle);
 
@@ -445,7 +445,7 @@
           var lbl = el('label');
           lbl.textContent = labelText;
           lbl.style.display = 'block';
-          lbl.style.fontSize = '11px';
+          lbl.style.fontSize = '0.6875rem';
           row.appendChild(lbl);
           row.appendChild(inputEl);
           editor.appendChild(row);
@@ -478,14 +478,14 @@
         addField('SFX', sfxInput);
 
         var errorMsg = el('div');
-        errorMsg.style.fontSize = '11px';
+        errorMsg.style.fontSize = '0.6875rem';
         errorMsg.style.color = 'var(--danger-color, #e74c3c)';
         errorMsg.style.display = 'none';
         editor.appendChild(errorMsg);
 
         var btnRow = el('div');
         btnRow.style.display = 'flex';
-        btnRow.style.gap = '6px';
+        btnRow.style.gap = '0.375rem';
         btnRow.style.justifyContent = 'flex-end';
 
         var saveBtn = el('button');
@@ -558,7 +558,7 @@
       var addPresetBtn = el('button');
       addPresetBtn.className = 'small';
       addPresetBtn.textContent = '+ 新規プリセット';
-      addPresetBtn.style.marginTop = '4px';
+      addPresetBtn.style.marginTop = '0.25rem';
       addPresetBtn.addEventListener('click', function () { openPresetEditor(null); });
       userPresetsContainer.appendChild(addPresetBtn);
 
@@ -588,8 +588,8 @@
       // タブ順序変更UI
       var orderRow = el('div');
       var orderLabel = el('label'); orderLabel.textContent = 'タブ順序'; orderLabel.style.display = 'block';
-      var orderContainer = el('div'); orderContainer.style.display = 'flex'; orderContainer.style.flexDirection = 'column'; orderContainer.style.gap = '4px';
-      var orderList = el('div'); orderList.id = 'tab-order-list'; orderList.style.display = 'flex'; orderList.style.flexDirection = 'column'; orderList.style.gap = '4px';
+      var orderContainer = el('div'); orderContainer.style.display = 'flex'; orderContainer.style.flexDirection = 'column'; orderContainer.style.gap = '0.25rem';
+      var orderList = el('div'); orderList.id = 'tab-order-list'; orderList.style.display = 'flex'; orderList.style.flexDirection = 'column'; orderList.style.gap = '0.25rem';
       orderContainer.appendChild(orderList);
       orderRow.appendChild(orderLabel); orderRow.appendChild(orderContainer);
 
@@ -608,15 +608,15 @@
             }
           }
           if (tabs.length === 0) {
-            var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '12px'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
+            var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '0.75rem'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
             return;
           }
           tabs.forEach(function (tabId, index) {
             var item = el('div');
             item.style.display = 'flex';
             item.style.alignItems = 'center';
-            item.style.gap = '8px';
-            item.style.padding = '4px 8px';
+            item.style.gap = '0.5rem';
+            item.style.padding = '0.25rem 0.5rem';
             item.style.border = '1px solid var(--border-color, #e0e0e0)';
             item.style.borderRadius = '4px';
             item.style.backgroundColor = 'var(--ui-bg, #fff)';
@@ -748,12 +748,12 @@
       var autoSaveCfg = (s && s.autoSave) || {};
       var autoSaveRow = el('div');
       autoSaveRow.style.display = 'grid';
-      autoSaveRow.style.gap = '4px';
+      autoSaveRow.style.gap = '0.25rem';
 
       var autoSaveLabel = el('label');
       autoSaveLabel.style.display = 'flex';
       autoSaveLabel.style.alignItems = 'center';
-      autoSaveLabel.style.gap = '6px';
+      autoSaveLabel.style.gap = '0.375rem';
       var autoSaveCheck = el('input');
       autoSaveCheck.type = 'checkbox';
       autoSaveCheck.id = 'auto-save-enabled';
@@ -766,8 +766,8 @@
       var autoSaveDelayRow = el('div');
       autoSaveDelayRow.style.display = 'flex';
       autoSaveDelayRow.style.alignItems = 'center';
-      autoSaveDelayRow.style.gap = '6px';
-      autoSaveDelayRow.style.fontSize = '12px';
+      autoSaveDelayRow.style.gap = '0.375rem';
+      autoSaveDelayRow.style.fontSize = '0.75rem';
       var autoSaveDelayLabel = el('span');
       autoSaveDelayLabel.textContent = '遅延:';
       var autoSaveDelayInput = el('input');
@@ -808,8 +808,8 @@
       // フローティングパネル設定
       var floatRow = el('div');
       floatRow.style.display = 'grid';
-      floatRow.style.gap = '6px';
-      var floatLabel = el('div'); floatLabel.textContent = 'フローティングパネル'; floatLabel.style.fontSize = '12px'; floatLabel.style.fontWeight = 'bold';
+      floatRow.style.gap = '0.375rem';
+      var floatLabel = el('div'); floatLabel.textContent = 'フローティングパネル'; floatLabel.style.fontSize = '0.75rem'; floatLabel.style.fontWeight = 'bold';
 
       var floatTabSelect = el('select');
       floatTabSelect.style.width = '100%';
@@ -825,7 +825,7 @@
 
       var floatBtnRow = el('div');
       floatBtnRow.style.display = 'flex';
-      floatBtnRow.style.gap = '6px';
+      floatBtnRow.style.gap = '0.375rem';
       var floatBtn = el('button', 'small'); floatBtn.textContent = '表示/非表示';
       var floatCloseBtn = el('button', 'small'); floatCloseBtn.textContent = '閉じる';
       floatBtnRow.appendChild(floatBtn);
@@ -890,18 +890,18 @@
       // ガジェットUX設定
       var gadgetUXRow = el('div');
       gadgetUXRow.style.display = 'grid';
-      gadgetUXRow.style.gap = '6px';
+      gadgetUXRow.style.gap = '0.375rem';
 
       var gadgetUXLabel = el('div');
       gadgetUXLabel.textContent = 'ガジェット表示';
-      gadgetUXLabel.style.fontSize = '12px';
+      gadgetUXLabel.style.fontSize = '0.75rem';
       gadgetUXLabel.style.fontWeight = 'bold';
 
       // ヘルプアイコン表示トグル
       var helpIconRow = el('label');
       helpIconRow.style.display = 'flex';
       helpIconRow.style.alignItems = 'center';
-      helpIconRow.style.gap = '6px';
+      helpIconRow.style.gap = '0.375rem';
       var helpIconCheck = el('input');
       helpIconCheck.type = 'checkbox';
       helpIconCheck.checked = localStorage.getItem('zenwriter-gadget-help-visible') !== 'false';
@@ -922,7 +922,7 @@
       var bulkToggleRow = el('label');
       bulkToggleRow.style.display = 'flex';
       bulkToggleRow.style.alignItems = 'center';
-      bulkToggleRow.style.gap = '6px';
+      bulkToggleRow.style.gap = '0.375rem';
       var bulkToggleCheck = el('input');
       bulkToggleCheck.type = 'checkbox';
       bulkToggleCheck.checked = localStorage.getItem('zenwriter-gadget-bulk-toggle-visible') !== 'false';
@@ -951,7 +951,7 @@
       var s = window.ZenWriterStorage.loadSettings();
       var ui = (s && s.ui) || {};
       var g = ui.bgGradient || { enabled: false, type: 'linear', angle: 135, c1: '#101318', c2: '#262f3f', opacity: 0.35 };
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '6px';
+      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.375rem';
 
       function hexToRgb(h) { h = String(h || '').replace('#', ''); if (h.length === 3) { h = h.split('').map(x => x + x).join(''); } var n = parseInt(h, 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; }
       function rgba(hex, a) { var c = hexToRgb(hex); return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')'; }
@@ -973,9 +973,9 @@
       var l0 = el('span'); l0.textContent = '背景グラデーション';
       row0.appendChild(enable); row0.appendChild(l0);
       var typeSel = el('select');['linear', 'radial'].forEach(function (t) { var o = el('option'); o.value = t; o.textContent = t; typeSel.appendChild(o); }); typeSel.value = String(g.type || 'linear');
-      var angle = el('input'); angle.type = 'range'; angle.min = '0'; angle.max = '360'; angle.step = '1'; angle.value = String(g.angle || 135); var aLbl = el('div'); aLbl.textContent = '角度: ' + angle.value + '°'; aLbl.style.fontSize = '12px'; var row1 = el('div'); row1.appendChild(aLbl); row1.appendChild(angle);
-      var c1 = el('input'); c1.type = 'color'; c1.value = String(g.c1 || '#101318'); var c2 = el('input'); c2.type = 'color'; c2.value = String(g.c2 || '#262f3f'); var row2 = el('div'); row2.style.display = 'flex'; row2.style.gap = '8px'; row2.appendChild(c1); row2.appendChild(c2);
-      var op = el('input'); op.type = 'range'; op.min = '0'; op.max = '1'; op.step = '0.05'; op.value = String(typeof g.opacity === 'number' ? g.opacity : 0.35); var oLbl = el('div'); oLbl.textContent = '強度: ' + op.value; oLbl.style.fontSize = '12px'; var row3 = el('div'); row3.appendChild(oLbl); row3.appendChild(op);
+      var angle = el('input'); angle.type = 'range'; angle.min = '0'; angle.max = '360'; angle.step = '1'; angle.value = String(g.angle || 135); var aLbl = el('div'); aLbl.textContent = '角度: ' + angle.value + '°'; aLbl.style.fontSize = '0.75rem'; var row1 = el('div'); row1.appendChild(aLbl); row1.appendChild(angle);
+      var c1 = el('input'); c1.type = 'color'; c1.value = String(g.c1 || '#101318'); var c2 = el('input'); c2.type = 'color'; c2.value = String(g.c2 || '#262f3f'); var row2 = el('div'); row2.style.display = 'flex'; row2.style.gap = '0.5rem'; row2.appendChild(c1); row2.appendChild(c2);
+      var op = el('input'); op.type = 'range'; op.min = '0'; op.max = '1'; op.step = '0.05'; op.value = String(typeof g.opacity === 'number' ? g.opacity : 0.35); var oLbl = el('div'); oLbl.textContent = '強度: ' + op.value; oLbl.style.fontSize = '0.75rem'; var row3 = el('div'); row3.appendChild(oLbl); row3.appendChild(op);
       var btn = el('button', 'small'); btn.textContent = '適用';
 
       enable.addEventListener('change', function () { g.enabled = !!enable.checked; apply(g); });
@@ -995,7 +995,7 @@
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
       root.innerHTML = '';
-      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '2px'; return b; };
+      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '0.125rem'; return b; };
       var row1 = el('div'); row1.appendChild(mkBtn('bold', 'B')); row1.appendChild(mkBtn('italic', 'I')); row1.appendChild(mkBtn('underline', 'U')); row1.appendChild(mkBtn('strike', 'S')); row1.appendChild(mkBtn('black', '極'));
       var row2 = el('div'); row2.appendChild(mkBtn('light', '細')); row2.appendChild(mkBtn('smallcaps', 'SC')); row2.appendChild(mkBtn('shadow', '影')); row2.appendChild(mkBtn('outline', '輪')); row2.appendChild(mkBtn('glow', '光'));
       var row3 = el('div'); row3.appendChild(mkBtn('uppercase', '大')); row3.appendChild(mkBtn('lowercase', '小')); row3.appendChild(mkBtn('capitalize', '頭')); row3.appendChild(mkBtn('wide', '広')); row3.appendChild(mkBtn('narrow', '狭'));
@@ -1010,7 +1010,7 @@
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
       root.innerHTML = '';
-      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '2px'; return b; };
+      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '0.125rem'; return b; };
       var row1 = el('div'); row1.appendChild(mkBtn('fade', 'フェード')); row1.appendChild(mkBtn('slide', 'スライド')); row1.appendChild(mkBtn('type', 'タイプ')); row1.appendChild(mkBtn('pulse', 'パルス'));
       var row2 = el('div'); row2.appendChild(mkBtn('shake', 'シェイク')); row2.appendChild(mkBtn('bounce', 'バウンス')); row2.appendChild(mkBtn('fadein', '遅フェード'));
       function bind(container) {
@@ -1024,25 +1024,25 @@
     window.ZWGadgets.register('EditorLayout', function (root) {
       var s = window.ZenWriterStorage.loadSettings();
       var layout = (s && s.editorLayout) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '8px';
+      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.5rem';
 
       // 最大幅設定
       var maxWidthRow = el('div');
-      var maxWidthLabel = el('div'); maxWidthLabel.textContent = '最大幅 (0=全幅)'; maxWidthLabel.style.fontSize = '12px';
+      var maxWidthLabel = el('div'); maxWidthLabel.textContent = '最大幅 (0=全幅)'; maxWidthLabel.style.fontSize = '0.75rem';
       var maxWidthInput = el('input'); maxWidthInput.type = 'number'; maxWidthInput.min = '0'; maxWidthInput.max = '2000'; maxWidthInput.step = '50';
       maxWidthInput.value = String(typeof layout.maxWidth === 'number' ? layout.maxWidth : 900);
       maxWidthRow.appendChild(maxWidthLabel); maxWidthRow.appendChild(maxWidthInput);
 
       // padding設定
       var paddingRow = el('div');
-      var paddingLabel = el('div'); paddingLabel.textContent = '内余白 (px)'; paddingLabel.style.fontSize = '12px';
+      var paddingLabel = el('div'); paddingLabel.textContent = '内余白 (px)'; paddingLabel.style.fontSize = '0.75rem';
       var paddingInput = el('input'); paddingInput.type = 'number'; paddingInput.min = '0'; paddingInput.max = '100'; paddingInput.step = '5';
       paddingInput.value = String(typeof layout.padding === 'number' ? layout.padding : 32);
       paddingRow.appendChild(paddingLabel); paddingRow.appendChild(paddingInput);
 
       // 余白エリア背景色
       var marginBgRow = el('div');
-      var marginBgLabel = el('div'); marginBgLabel.textContent = '余白背景色'; marginBgLabel.style.fontSize = '12px';
+      var marginBgLabel = el('div'); marginBgLabel.textContent = '余白背景色'; marginBgLabel.style.fontSize = '0.75rem';
       var marginBgInput = el('input'); marginBgInput.type = 'color';
       marginBgInput.value = layout.marginBgColor || '#f5f5dc';
       marginBgRow.appendChild(marginBgLabel); marginBgRow.appendChild(marginBgInput);
@@ -1096,7 +1096,7 @@
       var base = scene.base || { enabled: false, type: 'linear', angle: 180, c1: '#f5f5dc', c2: '#e0e0c0', strength: 0.5 };
       var pattern = scene.pattern || { enabled: false, type: 'repeating-linear', angle: 45, c1: '#ffffff', c2: '#e0e0e0', size: 50, strength: 0.3 };
       var overlay = scene.overlay || { enabled: false, type: 'radial', c1: '#000000', c2: 'transparent', strength: 0.2 };
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '12px';
+      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.75rem';
 
       function applyScene() {
         var layers = [];
@@ -1156,14 +1156,14 @@
       }
 
       // Base Layer UI
-      var baseTitle = el('div'); baseTitle.textContent = 'Base Layer'; baseTitle.style.fontWeight = 'bold'; baseTitle.style.fontSize = '14px';
+      var baseTitle = el('div'); baseTitle.textContent = 'Base Layer'; baseTitle.style.fontWeight = 'bold'; baseTitle.style.fontSize = '0.875rem';
       var baseRow0 = el('label', 'toggle-switch toggle-compact');
       var baseEnable = el('input'); baseEnable.type = 'checkbox'; baseEnable.checked = !!base.enabled;
       baseRow0.appendChild(baseEnable);
       var baseType = el('select');['solid', 'linear', 'radial'].forEach(function (t) { var o = el('option'); o.value = t; o.textContent = t; baseType.appendChild(o); }); baseType.value = String(base.type || 'linear');
-      var baseAngle = el('input'); baseAngle.type = 'range'; baseAngle.min = '0'; baseAngle.max = '360'; baseAngle.step = '1'; baseAngle.value = String(base.angle || 180); var baseALbl = el('div'); baseALbl.textContent = '角度: ' + baseAngle.value + '°'; baseALbl.style.fontSize = '12px'; var baseRow1 = el('div'); baseRow1.appendChild(baseALbl); baseRow1.appendChild(baseAngle);
+      var baseAngle = el('input'); baseAngle.type = 'range'; baseAngle.min = '0'; baseAngle.max = '360'; baseAngle.step = '1'; baseAngle.value = String(base.angle || 180); var baseALbl = el('div'); baseALbl.textContent = '角度: ' + baseAngle.value + '°'; baseALbl.style.fontSize = '0.75rem'; var baseRow1 = el('div'); baseRow1.appendChild(baseALbl); baseRow1.appendChild(baseAngle);
       var baseC1 = el('input'); baseC1.type = 'color'; baseC1.value = String(base.c1 || '#f5f5dc'); var baseC2 = el('input'); baseC2.type = 'color'; baseC2.value = String(base.c2 || '#e0e0c0'); var baseRow2 = createColorPickerRow(baseC1, baseC2);
-      var baseStr = el('input'); baseStr.type = 'range'; baseStr.min = '0'; baseStr.max = '1'; baseStr.step = '0.05'; baseStr.value = String(typeof base.strength === 'number' ? base.strength : 0.5); var baseSLbl = el('div'); baseSLbl.textContent = '強度: ' + baseStr.value; baseSLbl.style.fontSize = '12px'; var baseRow3 = el('div'); baseRow3.appendChild(baseSLbl); baseRow3.appendChild(baseStr);
+      var baseStr = el('input'); baseStr.type = 'range'; baseStr.min = '0'; baseStr.max = '1'; baseStr.step = '0.05'; baseStr.value = String(typeof base.strength === 'number' ? base.strength : 0.5); var baseSLbl = el('div'); baseSLbl.textContent = '強度: ' + baseStr.value; baseSLbl.style.fontSize = '0.75rem'; var baseRow3 = el('div'); baseRow3.appendChild(baseSLbl); baseRow3.appendChild(baseStr);
 
       baseEnable.addEventListener('change', function () { base.enabled = !!baseEnable.checked; applyScene(); });
       baseType.addEventListener('change', function () { base.type = String(baseType.value || 'linear'); applyScene(); });
@@ -1175,15 +1175,15 @@
       baseStr.addEventListener('change', function () { base.strength = parseFloat(baseStr.value) || 0.5; applyScene(); });
 
       // Pattern Layer UI
-      var patternTitle = el('div'); patternTitle.textContent = 'Pattern Layer'; patternTitle.style.fontWeight = 'bold'; patternTitle.style.fontSize = '14px'; patternTitle.style.marginTop = '8px';
+      var patternTitle = el('div'); patternTitle.textContent = 'Pattern Layer'; patternTitle.style.fontWeight = 'bold'; patternTitle.style.fontSize = '0.875rem'; patternTitle.style.marginTop = '0.5rem';
       var patternRow0 = el('label', 'toggle-switch toggle-compact');
       var patternEnable = el('input'); patternEnable.type = 'checkbox'; patternEnable.checked = !!pattern.enabled;
       patternRow0.appendChild(patternEnable);
       var patternType = el('select');['repeating-linear', 'repeating-radial'].forEach(function (t) { var o = el('option'); o.value = t; o.textContent = t; patternType.appendChild(o); }); patternType.value = String(pattern.type || 'repeating-linear');
-      var patternAngle = el('input'); patternAngle.type = 'range'; patternAngle.min = '0'; patternAngle.max = '360'; patternAngle.step = '1'; patternAngle.value = String(pattern.angle || 45); var patternALbl = el('div'); patternALbl.textContent = '角度: ' + patternAngle.value + '°'; patternALbl.style.fontSize = '12px'; var patternRow1 = el('div'); patternRow1.appendChild(patternALbl); patternRow1.appendChild(patternAngle);
-      var patternSize = el('input'); patternSize.type = 'range'; patternSize.min = '10'; patternSize.max = '200'; patternSize.step = '5'; patternSize.value = String(pattern.size || 50); var patternSzLbl = el('div'); patternSzLbl.textContent = 'サイズ: ' + patternSize.value + 'px'; patternSzLbl.style.fontSize = '12px'; var patternRow2 = createRangeRow('サイズ: ' + patternSize.value + 'px', patternSize);
+      var patternAngle = el('input'); patternAngle.type = 'range'; patternAngle.min = '0'; patternAngle.max = '360'; patternAngle.step = '1'; patternAngle.value = String(pattern.angle || 45); var patternALbl = el('div'); patternALbl.textContent = '角度: ' + patternAngle.value + '°'; patternALbl.style.fontSize = '0.75rem'; var patternRow1 = el('div'); patternRow1.appendChild(patternALbl); patternRow1.appendChild(patternAngle);
+      var patternSize = el('input'); patternSize.type = 'range'; patternSize.min = '10'; patternSize.max = '200'; patternSize.step = '5'; patternSize.value = String(pattern.size || 50); var patternSzLbl = el('div'); patternSzLbl.textContent = 'サイズ: ' + patternSize.value + 'px'; patternSzLbl.style.fontSize = '0.75rem'; var patternRow2 = createRangeRow('サイズ: ' + patternSize.value + 'px', patternSize);
       var patternC1 = el('input'); patternC1.type = 'color'; patternC1.value = String(pattern.c1 || '#ffffff'); var patternC2 = el('input'); patternC2.type = 'color'; patternC2.value = String(pattern.c2 || '#e0e0e0'); var patternRow3 = createColorPickerRow(patternC1, patternC2);
-      var patternStr = el('input'); patternStr.type = 'range'; patternStr.min = '0'; patternStr.max = '1'; patternStr.step = '0.05'; patternStr.value = String(typeof pattern.strength === 'number' ? pattern.strength : 0.3); var patternSLbl = el('div'); patternSLbl.textContent = '強度: ' + patternStr.value; patternSLbl.style.fontSize = '12px'; var patternRow4 = el('div'); patternRow4.appendChild(patternSLbl); patternRow4.appendChild(patternStr);
+      var patternStr = el('input'); patternStr.type = 'range'; patternStr.min = '0'; patternStr.max = '1'; patternStr.step = '0.05'; patternStr.value = String(typeof pattern.strength === 'number' ? pattern.strength : 0.3); var patternSLbl = el('div'); patternSLbl.textContent = '強度: ' + patternStr.value; patternSLbl.style.fontSize = '0.75rem'; var patternRow4 = el('div'); patternRow4.appendChild(patternSLbl); patternRow4.appendChild(patternStr);
 
       patternEnable.addEventListener('change', function () { pattern.enabled = !!patternEnable.checked; applyScene(); });
       patternType.addEventListener('change', function () { pattern.type = String(patternType.value || 'repeating-linear'); applyScene(); });
@@ -1197,13 +1197,13 @@
       patternStr.addEventListener('change', function () { pattern.strength = parseFloat(patternStr.value) || 0.3; applyScene(); });
 
       // Overlay Layer UI
-      var overlayTitle = el('div'); overlayTitle.textContent = 'Overlay Layer'; overlayTitle.style.fontWeight = 'bold'; overlayTitle.style.fontSize = '14px'; overlayTitle.style.marginTop = '8px';
+      var overlayTitle = el('div'); overlayTitle.textContent = 'Overlay Layer'; overlayTitle.style.fontWeight = 'bold'; overlayTitle.style.fontSize = '0.875rem'; overlayTitle.style.marginTop = '0.5rem';
       var overlayRow0 = el('label', 'toggle-switch toggle-compact');
       var overlayEnable = el('input'); overlayEnable.type = 'checkbox'; overlayEnable.checked = !!overlay.enabled;
       overlayRow0.appendChild(overlayEnable);
       var overlayType = el('select');['radial', 'linear'].forEach(function (t) { var o = el('option'); o.value = t; o.textContent = t; overlayType.appendChild(o); }); overlayType.value = String(overlay.type || 'radial');
       var overlayC1 = el('input'); overlayC1.type = 'color'; overlayC1.value = String(overlay.c1 || '#000000'); var overlayC2 = el('input'); overlayC2.type = 'color'; overlayC2.value = String(overlay.c2 || '#ffffff'); var overlayRow1 = createColorPickerRow(overlayC1, overlayC2);
-      var overlayStr = el('input'); overlayStr.type = 'range'; overlayStr.min = '0'; overlayStr.max = '1'; overlayStr.step = '0.05'; overlayStr.value = String(typeof overlay.strength === 'number' ? overlay.strength : 0.2); var overlaySLbl = el('div'); overlaySLbl.textContent = '強度: ' + overlayStr.value; overlaySLbl.style.fontSize = '12px'; var overlayRow2 = el('div'); overlayRow2.appendChild(overlaySLbl); overlayRow2.appendChild(overlayStr);
+      var overlayStr = el('input'); overlayStr.type = 'range'; overlayStr.min = '0'; overlayStr.max = '1'; overlayStr.step = '0.05'; overlayStr.value = String(typeof overlay.strength === 'number' ? overlay.strength : 0.2); var overlaySLbl = el('div'); overlaySLbl.textContent = '強度: ' + overlayStr.value; overlaySLbl.style.fontSize = '0.75rem'; var overlayRow2 = el('div'); overlayRow2.appendChild(overlaySLbl); overlayRow2.appendChild(overlayStr);
 
       overlayEnable.addEventListener('change', function () { overlay.enabled = !!overlayEnable.checked; applyScene(); });
       overlayType.addEventListener('change', function () { overlay.type = String(overlayType.value || 'radial'); applyScene(); });

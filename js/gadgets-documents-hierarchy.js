@@ -221,14 +221,14 @@
       container.className = 'documents-hierarchy';
       container.style.display = 'flex';
       container.style.flexDirection = 'column';
-      container.style.gap = '8px';
+      container.style.gap = '0.5rem';
 
       // ツールバー
       var toolbar = document.createElement('div');
       toolbar.className = 'documents-toolbar';
       toolbar.style.display = 'flex';
-      toolbar.style.gap = '4px';
-      toolbar.style.marginBottom = '8px';
+      toolbar.style.gap = '0.25rem';
+      toolbar.style.marginBottom = '0.5rem';
 
       var newDocBtn = document.createElement('button');
       newDocBtn.type = 'button';

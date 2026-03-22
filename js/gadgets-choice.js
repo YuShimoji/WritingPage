@@ -10,7 +10,7 @@
   ZWGadgets.register('ChoiceTools', function (el) {
     try {
       var ed = window.ZenWriterEditor;
-      var wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '6px';
+      var wrap = document.createElement('div'); wrap.style.display = 'flex'; wrap.style.flexWrap = 'wrap'; wrap.style.gap = '0.375rem';
       function makeBtn(text, handler) { var b = document.createElement('button'); b.type = 'button'; b.className = 'small'; b.textContent = text; b.addEventListener('click', handler); return b; }
       function insertChoice() {
         if (!ed || typeof ed.insertTextAtCursor !== 'function') return;

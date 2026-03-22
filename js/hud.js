@@ -153,7 +153,7 @@
           Math.max(hud.width || this.defaultWidth, 120),
           window.innerWidth * 0.8,
         ) + 'px';
-      this.el.style.fontSize = (hud.fontSize || this.defaultFontSize) + 'px';
+      this.el.style.fontSize = ((hud.fontSize || this.defaultFontSize) / 16) + 'rem';
       this.durationOverride = hud.duration || null;
     }
 

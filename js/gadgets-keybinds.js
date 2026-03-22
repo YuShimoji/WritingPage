@@ -26,14 +26,14 @@
     try {
       root.innerHTML = '';
       root.style.display = 'grid';
-      root.style.gap = '12px';
+      root.style.gap = '0.75rem';
 
       // ヘッダー
       var header = document.createElement('div');
       header.style.display = 'flex';
       header.style.justifyContent = 'space-between';
       header.style.alignItems = 'center';
-      header.style.marginBottom = '8px';
+      header.style.marginBottom = '0.5rem';
 
       var title = document.createElement('h3');
       title.textContent = (window.UILabels && window.UILabels.KEYBINDS_TITLE) || 'キーボードショートカット';
@@ -63,7 +63,7 @@
       hint.className = 'keybinds-hint';
       hint.style.fontSize = '0.85em';
       hint.style.opacity = '0.7';
-      hint.style.marginBottom = '8px';
+      hint.style.marginBottom = '0.5rem';
       hint.textContent = (window.UILabels && window.UILabels.KEYBINDS_HINT) || '各ショートカットをクリックして新しいキーを設定できます';
       root.appendChild(hint);
 
@@ -71,7 +71,7 @@
       var listContainer = document.createElement('div');
       listContainer.className = 'keybinds-list';
       listContainer.style.display = 'grid';
-      listContainer.style.gap = '8px';
+      listContainer.style.gap = '0.5rem';
       root.appendChild(listContainer);
 
       // 編集中のキーバインドID
@@ -95,8 +95,8 @@
           item.className = 'keybind-item';
           item.style.display = 'grid';
           item.style.gridTemplateColumns = '1fr auto';
-          item.style.gap = '8px';
-          item.style.padding = '8px';
+          item.style.gap = '0.5rem';
+          item.style.padding = '0.5rem';
           item.style.border = '1px solid var(--border-color, #e0e0e0)';
           item.style.borderRadius = '4px';
           item.style.alignItems = 'center';
@@ -109,7 +109,7 @@
           var left = document.createElement('div');
           left.style.display = 'flex';
           left.style.flexDirection = 'column';
-          left.style.gap = '4px';
+          left.style.gap = '0.25rem';
 
           var desc = document.createElement('div');
           desc.textContent = keybind.description || id;
@@ -129,12 +129,12 @@
           var right = document.createElement('div');
           right.style.display = 'flex';
           right.style.alignItems = 'center';
-          right.style.gap = '8px';
+          right.style.gap = '0.5rem';
 
           var keyDisplay = document.createElement('kbd');
           keyDisplay.className = 'keybind-display';
           keyDisplay.textContent = editingId === id ? '...' : Keybinds.format(keybind);
-          keyDisplay.style.padding = '4px 8px';
+          keyDisplay.style.padding = '0.25rem 0.5rem';
           keyDisplay.style.backgroundColor = 'var(--ui-bg, #f0f0f0)';
           keyDisplay.style.border = '1px solid var(--border-color, #d0d0d0)';
           keyDisplay.style.borderRadius = '3px';
@@ -166,7 +166,7 @@
             clearBtn.type = 'button';
             clearBtn.className = 'small';
             clearBtn.textContent = '×';
-            clearBtn.style.padding = '2px 6px';
+            clearBtn.style.padding = '0.125rem 0.375rem';
             clearBtn.style.minWidth = 'auto';
             clearBtn.title = (window.UILabels && window.UILabels.KEYBINDS_CLEAR) || 'デフォルトに戻す';
             clearBtn.addEventListener('click', function (e) {

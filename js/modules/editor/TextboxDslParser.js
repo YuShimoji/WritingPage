@@ -215,7 +215,7 @@
     pathtextCounter += 1;
     var pathId = 'zw-pathtext-' + pathtextCounter;
     var pathD = attrs.path || 'M 10 80 Q 95 10 180 80';
-    var fontSize = attrs['font-size'] || '16px';
+    var fontSize = attrs['font-size'] || '1rem';
     var textAnchor = attrs['text-anchor'] || 'start';
     var startOffset = attrs['start-offset'] || '0%';
     var side = attrs.side || '';

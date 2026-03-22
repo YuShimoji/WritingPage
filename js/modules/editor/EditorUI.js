@@ -88,8 +88,8 @@
                 return;
             }
 
-            document.documentElement.style.setProperty('--editor-font-size', size + 'px');
-            document.documentElement.style.setProperty('--font-size', size + 'px');
+            document.documentElement.style.setProperty('--editor-font-size', (size / 16) + 'rem');
+            document.documentElement.style.setProperty('--font-size', (size / 16) + 'rem');
             if (storage && storage.saveSettings) {
                 storage.saveSettings({
                     editorFontSize: size,

@@ -145,7 +145,7 @@
     var wrap = document.createElement('div');
     wrap.style.display = 'flex';
     wrap.style.flexDirection = 'column';
-    wrap.style.gap = '10px';
+    wrap.style.gap = '0.625rem';
 
     // --- Preset Section ---
     var presetSection = document.createElement('div');
@@ -158,7 +158,7 @@
 
     var presetRow = document.createElement('div');
     presetRow.style.display = 'flex';
-    presetRow.style.gap = '6px';
+    presetRow.style.gap = '0.375rem';
 
     var presetSelect = document.createElement('select');
     presetSelect.className = 'gn-select';
@@ -225,7 +225,7 @@
     var addCharBtn = document.createElement('button');
     addCharBtn.className = 'gn-btn';
     addCharBtn.textContent = '+ Add';
-    addCharBtn.style.marginTop = '4px';
+    addCharBtn.style.marginTop = '0.25rem';
     charSection.appendChild(addCharBtn);
 
     wrap.appendChild(charSection);
@@ -236,8 +236,8 @@
 
     var inputModeRow = document.createElement('div');
     inputModeRow.style.display = 'flex';
-    inputModeRow.style.gap = '4px';
-    inputModeRow.style.marginBottom = '6px';
+    inputModeRow.style.gap = '0.25rem';
+    inputModeRow.style.marginBottom = '0.375rem';
 
     var jsonModeBtn = document.createElement('button');
     jsonModeBtn.className = 'gn-btn gn-btn--primary';
@@ -269,7 +269,7 @@
     // --- Action Buttons ---
     var btnRow = document.createElement('div');
     btnRow.style.display = 'flex';
-    btnRow.style.gap = '8px';
+    btnRow.style.gap = '0.5rem';
     btnRow.style.flexWrap = 'wrap';
 
     var playBtn = document.createElement('button');
@@ -475,14 +475,14 @@
       for (var f = 0; f < fields.length; f++) {
         var row = document.createElement('div');
         row.style.display = 'flex';
-        row.style.gap = '4px';
+        row.style.gap = '0.25rem';
         row.style.alignItems = 'center';
-        row.style.marginBottom = '4px';
+        row.style.marginBottom = '0.25rem';
 
         var lbl = document.createElement('label');
         lbl.textContent = fields[f].label;
         lbl.style.width = '40px';
-        lbl.style.fontSize = '12px';
+        lbl.style.fontSize = '0.75rem';
         row.appendChild(lbl);
 
         var inp = document.createElement('input');
@@ -499,14 +499,14 @@
       // Position select
       var posRow = document.createElement('div');
       posRow.style.display = 'flex';
-      posRow.style.gap = '4px';
+      posRow.style.gap = '0.25rem';
       posRow.style.alignItems = 'center';
-      posRow.style.marginBottom = '4px';
+      posRow.style.marginBottom = '0.25rem';
 
       var posLbl = document.createElement('label');
       posLbl.textContent = 'Pos';
       posLbl.style.width = '40px';
-      posLbl.style.fontSize = '12px';
+      posLbl.style.fontSize = '0.75rem';
       posRow.appendChild(posLbl);
 
       var posSelect = document.createElement('select');
@@ -524,8 +524,8 @@
 
       var dialogBtns = document.createElement('div');
       dialogBtns.style.display = 'flex';
-      dialogBtns.style.gap = '4px';
-      dialogBtns.style.marginTop = '6px';
+      dialogBtns.style.gap = '0.25rem';
+      dialogBtns.style.marginTop = '0.375rem';
 
       var saveBtn = document.createElement('button');
       saveBtn.className = 'gn-btn gn-btn--primary';

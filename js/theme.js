@@ -207,11 +207,11 @@ class ThemeManager {
   ) {
     const root = document.documentElement;
     root.style.setProperty('--font-family', fontFamily);
-    root.style.setProperty('--font-size', `${fontSize}px`);
-    root.style.setProperty('--ui-font-size', `${uiFontSize || fontSize}px`);
+    root.style.setProperty('--font-size', `${fontSize / 16}rem`);
+    root.style.setProperty('--ui-font-size', `${(uiFontSize || fontSize) / 16}rem`);
     root.style.setProperty(
       '--editor-font-size',
-      `${editorFontSize || fontSize}px`,
+      `${(editorFontSize || fontSize) / 16}rem`,
     );
     root.style.setProperty('--line-height', lineHeight);
 

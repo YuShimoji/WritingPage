@@ -451,8 +451,8 @@
 
     var wrapper = document.createElement('div');
     wrapper.className = 'cl-migrate-wrapper';
-    wrapper.style.padding = '8px';
-    wrapper.style.marginTop = '8px';
+    wrapper.style.padding = '0.5rem';
+    wrapper.style.marginTop = '0.5rem';
     wrapper.style.borderTop = '1px solid var(--border-color, #333)';
 
     var btn = document.createElement('button');
