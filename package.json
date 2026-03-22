@@ -67,6 +67,7 @@
   },
   "dependencies": {
     "@fontsource/noto-serif-jp": "^5.0.0",
+    "kuromoji": "^0.1.2",
     "lucide": "^0.577.0",
     "markdown-it": "^14.1.0",
     "morphdom": "^2.7.2",

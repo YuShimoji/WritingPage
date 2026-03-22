@@ -18,8 +18,8 @@
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
-- 仕様書: spec-index.json に 53 エントリ (active 45)
-- 残 partial: SP-050(95%), SP-073(40%), SP-076(25%)
+- 仕様書: spec-index.json に 53 エントリ (active 46)
+- 残 partial: SP-073(40%), SP-076(25%)
 
 ---
 
@@ -67,7 +67,7 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 
 ### A-4. UI/UX 磨き上げ (残タスク)
 
-- px→rem段階移行 -- todo (140箇所、大規模)
+- px→rem段階移行 -- partial (Phase 1完了: font-size全件+CSSカスタムプロパティ+JS setProperty。残: padding/margin/width Phase 2-3)
 
 ### A-4 完了済み
 
@@ -117,7 +117,7 @@ Phase 1完了 (:::zw-pathtext DSL + SVGレンダリング)。残: Phase 2 WYSIWY
 - AI生成 -- done (テンプレート+OpenAIハイブリッド/設定UI/下書きボタン)
 - `[[wikilink]]` 構文の自動パース -- done
 - `doc://` リンクのパースバグ修正 -- done (Issue #1, 2026-03-16 解決済み)
-- 高度な自動検出(形態素解析) -- todo
+- 高度な自動検出(形態素解析) -- done (kuromoji.js IPAdic辞書、ZenMorphology共通モジュール)
 
 #### WYSIWYG テキストアニメーション
 

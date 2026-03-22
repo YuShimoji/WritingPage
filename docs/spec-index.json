@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 98%完了(A-1/2/3 done, 残:px→rem)。B: SP-074 done, SP-061 done, SP-050/95%, SP-073/40%。C: SP-076/25%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
+    "summary": "Priority A-E の開発計画。A: 98%完了(A-1/2/3 done, 残:px→rem)。B: SP-074 done, SP-061 done, SP-050 done, SP-073/40%。C: SP-076/25%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
   },
   {
     "id": "SP-006",
@@ -265,11 +265,11 @@
   {
     "id": "SP-050",
     "title": "Story Wiki 仕様",
-    "status": "partial",
-    "pct": 95,
+    "status": "done",
+    "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
-    "summary": "Phase 1完了 + Phase 2 Step 1-3完了。グラフビュー統合(カテゴリ色分け/力学レイアウト/ノードクリック遷移) + バックリンク一覧 + AI生成(テンプレート+OpenAIハイブリッド)。E2E 31件。残: Step 4 高度自動検出(形態素解析)",
+    "summary": "Phase 1-2全完了。グラフビュー/バックリンク/AI生成/形態素解析(kuromoji.js)による高精度自動検出。固有名詞品詞タグからWikiカテゴリ自動判定。ZenMorphology共通モジュール。E2E 27件",
     "related": ["SP-041", "SP-048"]
   },
   {
