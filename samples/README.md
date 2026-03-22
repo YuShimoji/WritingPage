@@ -11,6 +11,8 @@
 | wiki-and-chapters-demo.md | Wikilink活用の物語 | `[[wikilink]]`, チャプター構造, テキストボックスプリセット, ルビ, 傍点, 用語管理 |
 | heading-typography-novel.md | 小説向け見出し構成 | H1-H4の見出し階層, 小説的な節構成 |
 | heading-typography-scenario.md | シナリオ向け見出し構成 | シナリオ/脚本形式の見出し |
+| web-novel-effects-demo.md | Web小説演出統合デモ | タイピング3モード, ダイアログ4スタイル, スクロール連動4種, テクスチャ, テキストボックス4プリセット, ルビ, 傍点 |
+| gamebook-styled-demo.md | ゲームブック分岐スタイルデモ | 分岐スタイル3種(default/card/button), ダイアログ, タイピング, スクロール, テキストボックス, テクスチャ |
 
 ## 使い方
 

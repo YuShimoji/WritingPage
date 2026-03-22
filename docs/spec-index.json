@@ -487,5 +487,14 @@
     "file": "docs/specs/spec-reader-preview.md",
     "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
     "related": ["SP-070", "SP-071", "SP-072"]
+  },
+  {
+    "id": "SP-079",
+    "title": "執筆パイプライン定義",
+    "status": "done",
+    "pct": 100,
+    "cat": "core",
+    "file": "docs/WRITING_PIPELINE.md",
+    "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A:テキスト小説/B:演出付きWeb小説/C:ゲームブック)、サンプルカバレッジマトリクス、未解決設計課題(Q1-Q4)、自動化改善候補、健全性指標。"
   }
 ]
