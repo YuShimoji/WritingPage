@@ -64,17 +64,18 @@ Zen Writer v0.3.29
 
 ### 2. エディタモード（SP-070）
 
-3つのUIモードを切り替えて執筆環境をカスタマイズ。
+4つのUIモードを切り替えて執筆環境をカスタマイズ。
 
 | モード | 説明 | ショートカット |
 |--------|------|-------------|
 | Normal | 全機能アクセス可能。サイドバー・ツールバー・ガジェットすべて表示 | — |
-| Focus | 執筆集中。左にチャプターリストパネル（SP-071 Phase 1実装済み: 章ナビ・リネーム・D&D・コンテキストメニュー）、サイドバー非表示。設定はオーバーレイアクセス | `Ctrl+Shift+F` |
+| Focus | 執筆集中。左にチャプターリストパネル（章ナビ・リネーム・D&D・コンテキストメニュー）、サイドバー非表示。設定はオーバーレイアクセス | `Ctrl+Shift+F` |
 | Blank | 究極シンプル。エディタのみ表示。上端ホバーでツールバー一時復帰 | `Ctrl+Shift+B` |
+| Reader | 読者プレビュー。全画面読者レイアウト。visible章結合・目次・ナビ・装飾パイプライン統合・読書進捗バー | — |
 
 - `Esc` でFocus/BlankからNormalに復帰
 - モード状態はLocalStorageに保存・次回起動時に復元
-- 仕様詳細: `docs/specs/spec-mode-architecture.md`
+- 仕様詳細: `docs/specs/spec-mode-architecture.md`、`docs/specs/spec-reader-preview.md`
 
 ### 3. ドキュメント管理
 
@@ -250,8 +251,8 @@ manifest駆動のローカルプラグイン機能を実装済み。
 |------|------|
 | フレームワーク | なし（バニラJS） |
 | CSS設計 | CSS変数、Flexbox |
-| ストレージ | LocalStorage |
-| テスト | Playwright E2E（358件 / 49ファイル） |
+| ストレージ | IndexedDB + メモリキャッシュ (localStorageフォールバック) |
+| テスト | Playwright E2E（418件 / 57ファイル） |
 | Lint | ESLint、Prettier、Markdownlint |
 | デスクトップ | Electron v35.0.0 |
 
@@ -259,11 +260,11 @@ manifest駆動のローカルプラグイン機能を実装済み。
 
 | 項目 | 数値 |
 |------|------|
-| JavaScriptファイル | 104ファイル |
-| CSSファイル | style.css（メイン、6000+行） |
-| E2Eテスト | 49ファイル、358テストケース |
+| JavaScriptファイル | 116ファイル |
+| CSSファイル | style.css（メイン、8200+行） |
+| E2Eテスト | 57ファイル、418テストケース |
 | ガジェット | 33個 (+1 開発専用) |
-| 仕様書 | spec-index.json に42エントリ |
+| 仕様書 | spec-index.json に53エントリ |
 
 ### パフォーマンス
 

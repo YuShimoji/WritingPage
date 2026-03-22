@@ -18,7 +18,7 @@
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
-- 仕様書: spec-index.json に 42 エントリ
+- 仕様書: spec-index.json に 53 エントリ (active 45)
 - 残 partial: SP-050(95%), SP-073(40%), SP-076(25%)
 
 ---
@@ -139,10 +139,10 @@ Phase 1完了 (:::zw-pathtext DSL + SVGレンダリング)。残: Phase 2 WYSIWY
 
 外部連携とカスタマイズ性の拡充。
 
-### C-1. ドックパネルシステム (SP-076) -- todo
+### C-1. ドックパネルシステム (SP-076) -- partial (25%)
 
 上下左右へのパネルドッキング。Editorモード専用。
-Phase 1: 左右ドック / Phase 2: タブグループ / Phase 3: フローティング & スナップ。
+Phase 1: 左右ドック (done) / Phase 2: タブグループ / Phase 3: フローティング & スナップ。
 
 ### C-2. Google Keep 双方向連携 (SP-075) -- todo
 
