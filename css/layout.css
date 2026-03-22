@@ -444,12 +444,12 @@ body {
 
 /* ===== サイドバー開閉時のメインコンテンツ移動 ===== */
 html[data-sidebar-open] .main-content {
-  margin-left: var(--sidebar-width, 18.75rem);
+  margin-left: var(--sidebar-width, 320px);
 }
 
 /* ===== サイドバー開閉時のツールバー位置調整 ===== */
 html[data-sidebar-open] .toolbar {
-  left: var(--sidebar-width, 300px);
+  left: var(--sidebar-width, 320px);
 }
 
 /* ===== 埋め込みモード（?embed=1） ===== */

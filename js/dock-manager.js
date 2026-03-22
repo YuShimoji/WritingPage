@@ -55,6 +55,11 @@
               this._layout.leftPanel.width = clamp(parsed.leftPanel.width, MIN_WIDTH, getMaxWidth());
             }
           }
+          if (parsed.rightPanel && typeof parsed.rightPanel === 'object') {
+            if (typeof parsed.rightPanel.width === 'number') {
+              this._layout.rightPanel.width = clamp(parsed.rightPanel.width, MIN_WIDTH, getMaxWidth());
+            }
+          }
         }
       }
     } catch (_e) { /* ignore */ }
@@ -84,6 +89,7 @@
 
     // CSS variables
     html.style.setProperty('--dock-left-width', this._layout.leftPanel.width + 'px');
+    html.style.setProperty('--sidebar-width', this._layout.rightPanel.width + 'px');
 
     // Update move button label
     this._updateMoveButton();
@@ -138,6 +144,9 @@
     if (side === 'left') {
       this._layout.leftPanel.width = w;
       document.documentElement.style.setProperty('--dock-left-width', w + 'px');
+    } else if (side === 'sidebar') {
+      this._layout.rightPanel.width = w;
+      document.documentElement.style.setProperty('--sidebar-width', w + 'px');
     }
     this._save();
   };
@@ -252,6 +261,9 @@
       if (side === 'left') {
         var panel = document.getElementById('dock-panel-left');
         if (panel) self.setDockWidth('left', panel.offsetWidth);
+      } else {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar) self.setDockWidth('sidebar', sidebar.offsetWidth);
       }
     }
 

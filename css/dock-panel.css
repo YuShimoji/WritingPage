@@ -14,7 +14,7 @@ html[data-dock-sidebar="right"] .sidebar.open {
 
 html[data-dock-sidebar="right"][data-sidebar-open] .main-content {
   margin-left: 0;
-  margin-right: var(--sidebar-width, 20rem);
+  margin-right: var(--sidebar-width, 320px);
 }
 
 html[data-dock-sidebar="right"][data-sidebar-open] .toolbar {
@@ -44,7 +44,7 @@ html[data-dock-left-open="true"] .dock-panel-left {
 
 /* 左ドック開時: main-content / toolbar 調整 */
 html[data-dock-left-open="true"] .main-content {
-  margin-left: var(--dock-left-width, 17.5rem);
+  margin-left: var(--dock-left-width, 280px);
 }
 
 html[data-dock-left-open="true"] .toolbar {
@@ -53,8 +53,8 @@ html[data-dock-left-open="true"] .toolbar {
 
 /* 左ドック + 右サイドバー同時 */
 html[data-dock-left-open="true"][data-dock-sidebar="right"][data-sidebar-open] .main-content {
-  margin-left: var(--dock-left-width, 17.5rem);
-  margin-right: var(--sidebar-width, 20rem);
+  margin-left: var(--dock-left-width, 280px);
+  margin-right: var(--sidebar-width, 320px);
 }
 
 html[data-dock-left-open="true"][data-dock-sidebar="right"][data-sidebar-open] .toolbar {
@@ -211,7 +211,7 @@ html[data-ui-mode='reader'] .sidebar-dock-controls {
   }
 
   html[data-dock-sidebar="right"][data-sidebar-open] .main-content {
-    margin-left: var(--sidebar-width, 20rem);
+    margin-left: var(--sidebar-width, 320px);
     margin-right: 0;
   }
 }
