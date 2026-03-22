@@ -6,8 +6,8 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.29
-- **最終更新**: 2026-03-22
-- **ブランチ**: main（origin/main より 10 コミット ahead）
+- **最終更新**: 2026-03-23 (session 15 nightshift: docs債務解消 + 健全性確認)
+- **ブランチ**: main（origin/main より 15 コミット ahead）
 
 ## 再開手順
 
@@ -25,7 +25,7 @@ npm run lint              # ESLint
 
 | テスト | 状態 | コマンド |
 |--------|------|----------|
-| E2E | 418 passed / 1 failed (Canvas Mode既知) / 1 skipped (56 spec files) | `npx playwright test` |
+| E2E | 430 passed / 1 failed (Canvas Mode既知) / 1 skipped (56 spec files) | `npx playwright test` |
 | Lint | ALL PASSED (0 errors) | `npm run lint` |
 
 ### 既知の E2E スキップ (2026-03-22)
@@ -97,4 +97,6 @@ npm run lint              # ESLint
 - `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
 - `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
 - `docs/specs/` -- 個別仕様書 (spec-index.json で索引)
+- `docs/WRITING_PIPELINE.md` -- 執筆パイプライン定義 (工程別の手動/自動境界)
+- `docs/project-context.md` -- プロジェクトコンテキスト (LANE/SLICE/DELIVERABLE)
 - `CLAUDE.md` -- AI再開用コンテキスト

@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-03-22 / v0.3.29
+> 最終更新: 2026-03-23 / v0.3.29
 
 ## ステータス語彙
 
@@ -14,11 +14,11 @@
 
 ## 現在の状態
 
-- E2E: 418 passed / 1 failed (Canvas Mode既知) / 56 spec files (2026-03-22 時点)
+- E2E: 430 passed / 1 failed (Canvas Mode既知) / 56 spec files (2026-03-23 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
-- 仕様書: spec-index.json に 53 エントリ (active 46)
+- 仕様書: spec-index.json に 54 エントリ (active 47)
 - 残 partial: SP-073(40%), SP-076(25%)
 
 ---
