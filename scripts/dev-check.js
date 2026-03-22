@@ -152,12 +152,7 @@ async function loadCssWithImports(url) {
       /id=\"settings-modal\"/i.test(index.body) &&
       /id=\"help-modal\"/i.test(index.body) &&
       /id=\"toggle-settings\"/i.test(index.body) &&
-      /id=\"toggle-help-modal\"/i.test(index.body) &&
-      /id=\"floating-font-panel\"/i.test(index.body) &&
-      /id=\"search-panel\"/i.test(index.body) &&
-      /id=\"font-decoration-panel\"/i.test(index.body) &&
-      /id=\"text-animation-panel\"/i.test(index.body) &&
-      /id=\"split-view-mode-panel\"/i.test(index.body);
+      /id=\"toggle-help-modal\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await loadCssWithImports('/css/style.css');
@@ -328,19 +323,11 @@ async function loadCssWithImports(url) {
       },
     );
 
-    // フローティングパネルの存在検証
-    const hasFloatingFont = /id="floating-font-panel"/i.test(index.body);
-    const hasSearchPanel = /id="search-panel"/i.test(index.body);
-    const hasFontDecorPanel = /id="font-decoration-panel"/i.test(index.body);
-    const hasTextAnimPanel = /id="text-animation-panel"/i.test(index.body);
-    const hasSplitViewModePanel = /id="split-view-mode-panel"/i.test(index.body);
-    const okFloatingPanels = hasFloatingFont && hasSearchPanel && hasFontDecorPanel && hasTextAnimPanel && hasSplitViewModePanel;
+    // フローティングパネルの存在検証 (旧個別パネルはMainHubPanelに統合済み)
+    const hasMainHubPanel = /id="main-hub-panel"/i.test(index.body);
+    const okFloatingPanels = hasMainHubPanel;
     console.log('CHECK floating panels ->', okFloatingPanels ? 'OK' : 'NG', {
-      hasFloatingFont,
-      hasSearchPanel,
-      hasFontDecorPanel,
-      hasTextAnimPanel,
-      hasSplitViewModePanel,
+      hasMainHubPanel,
     });
 
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
@@ -585,7 +572,7 @@ async function loadCssWithImports(url) {
               lastLevel = lvl;
             }
           }
-          if (line.length > 200) longOk = false;
+          if (line.length > 200 && !line.trimStart().startsWith('|')) longOk = false;
           if (/\s$/.test(line)) trailOk = false;
           if (/\t/.test(line)) tabsOk = false;
         }
