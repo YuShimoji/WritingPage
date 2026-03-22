@@ -161,8 +161,7 @@ test.describe('SP-072 Gamebook Branch UI', () => {
       document.body.appendChild(row);
       var cs = getComputedStyle(row);
       var display = cs.display;
-      var csSelect = getComputedStyle(select);
-      var flex = csSelect.flex;
+      var _csSelect = getComputedStyle(select);
       document.body.removeChild(row);
       return display === 'flex';
     });

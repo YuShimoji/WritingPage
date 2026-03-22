@@ -24,11 +24,13 @@
 ### `js/modules/editor/CanvasViewportController.js`
 
 責務:
+
 - pan/zoom/rotation状態管理
 - Pointer/Wheel/Touchジェスチャ解釈
 - Viewport行列の生成と適用
 
 主要API:
+
 - `setPan(x, y)`
 - `setZoom(z, anchor)`
 - `setRotation(deg)`
@@ -39,11 +41,13 @@
 ### `js/modules/editor/CanvasNodeStore.js`
 
 責務:
+
 - Text NodeのCRUD
 - ノード順序・サイズ・位置の永続化
 - `contentRef` と本文ストレージの関連付け
 
 主要API:
+
 - `createNode(direction, fromNodeId)`
 - `updateNodeRect(id, patch)`
 - `deleteNode(id)`
@@ -52,11 +56,13 @@
 ### `js/modules/editor/CanvasRenderLayer.js`
 
 責務:
+
 - Canvas DOMレイヤ構築
 - ノード、ミニマップ、選択枠の描画
 - 表示領域外ノードの更新抑制
 
 主要API:
+
 - `mount(containerEl)`
 - `render(viewState, nodes)`
 - `setActiveNode(id)`
@@ -64,11 +70,13 @@
 ### `js/modules/editor/CanvasRichTextBridge.js`
 
 責務:
+
 - `fixedTextScale` 時の逆スケール補正
 - WYSIWYG (`contenteditable`) とCanvas transformの整合
 - 回転導入時の入力面補正
 
 主要API:
+
 - `applyTextScaleCompensation(nodeEl, zoom)`
 - `syncWysiwygNode(nodeId)`
 - `syncTextareaNode(nodeId)`
@@ -131,6 +139,7 @@
   - detail: `{ enabled }`
 
 利用先:
+
 - HUD更新
 - ミニマップ更新
 - 将来のプラグイン連携
@@ -208,6 +217,7 @@
 - タッチ端末での誤ジェスチャ（編集とパンの衝突）
 
 対策:
+
 - Transform対象の分離（入力面と視覚補助面）
 - ジェスチャ閾値（移動px/時間）を設定化
 - 早期にPlaywrightで回帰シナリオを固定

@@ -12,6 +12,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: SP-062 の TextEffect / Animation 辞書を拡張し、文字にテクスチャを重ねる基盤能力を獲得する。外部アセット不要の純 CSS 実装。
 
 **スコープ**:
+
 - TextAnimationDictionary に 5 種のテクスチャエントリ追加 (wave / sparkle / cosmic / fire / glitch)
 - `[wave]...[/wave]` 記法 (既存 `[fade]` 等と同一パターン)
 - CSS: `background-clip: text` + `@keyframes` でテクスチャアニメーション
@@ -31,6 +32,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: 1文字ずつ表示される演出を実装し、読者向け出力の基盤能力を獲得する。
 
 **スコープ**:
+
 - `:::zw-typing{speed:"30ms", mode:"auto"}` ブロック記法 (デフォルト30ms/字に決定)
 - 3モード: auto (自動再生) / click (クリック進行, カーソル変化のみ) / scroll (IntersectionObserver)
 - WYSIWYG: テキスト通常表示 (タイピングアイコンバッジは未実装)
@@ -40,6 +42,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - reduced motion: 即座全文表示
 
 **実装成果物**:
+
 - `js/modules/editor/TypingEffectController.js` (232行)
 - TextboxEffectRenderer に renderTyping() 追加
 - reader-preview.js にパイプライン統合 + exitReaderMode クリーンアップ
@@ -56,6 +59,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: ADV/ビジュアルノベル的な発言表示を実現し、SP-016 のテキストボックス基盤を拡張する。
 
 **スコープ**:
+
 - `:::zw-dialog{speaker:"アリス", icon:"alice.png", position:"left"}` ブロック記法
 - 4スタイル: default / bubble / bordered / transparent
 - 3位置: left / right / center (flex-direction 制御)
@@ -63,12 +67,14 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - CSS変数: --dialog-bg, --dialog-speaker-color, --dialog-bubble-bg 等でテーマ対応
 
 **実装成果物**:
+
 - TextboxEffectRenderer に renderDialog() 追加
 - CSS: `.zw-dialog` 4スタイル x 3位置 + アイコン + スピーカー名
 - reader-preview.js エクスポートHTML にダイアログCSS埋め込み
 - E2E: typing-effect.spec.js 内にダイアログテスト1件含む
 
 **未実装 (将来)**:
+
 - WYSIWYG ブロック編集 (TextboxRichTextBridge 拡張)
 - アイコン画像の IndexedDB 保存・管理UI
 - DialogBoxRenderer.js (独立レンダラー — 現在は TextboxEffectRenderer に統合)
@@ -82,6 +88,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: IntersectionObserver ベースのスクロールトリガーで、読者の閲覧体験を動的にする。
 
 **スコープ**:
+
 - `:::zw-scroll{effect:"fade-in", delay:"200ms", threshold:"0.2"}` ブロック記法
 - 対応演出: fade-in / slide-up / slide-left / slide-right / zoom-in
 - IntersectionObserver (threshold デフォルト 0.2) でトリガー
@@ -91,6 +98,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - アクセシビリティ: reduced motion 時は即時全文表示 (transition: none)
 
 **実装成果物**:
+
 - `js/modules/editor/ScrollTriggerController.js` (140行) — IntersectionObserver ベース
 - TextboxDslParser.js に 'scroll' ブロックタイプ + effect/delay/threshold 属性追加
 - TextboxEffectRenderer.js に renderScroll() 追加
@@ -107,6 +115,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: テキストに効果音を紐づける最小 SE 基盤を実装する。外部ファイル不要の Web Audio API 合成音方式。
 
 **スコープ (5a: 最小基盤)**:
+
 - Web Audio API による合成音 5 種: keystroke / click / whoosh / chime / ping
 - タイピング連動 SE: `:::zw-typing{sfx:"keystroke"}` — 3文字おきに再生
 - スクロール連動 SE: `:::zw-scroll{effect:"fade-in", sfx:"whoosh"}` — reveal 時に再生
@@ -115,6 +124,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - reduced motion: ミュート (SE 再生しない)
 
 **実装成果物**:
+
 - `js/modules/editor/SoundEffectController.js` (200行) — Web Audio API 合成音
 - TypingEffectController.js: sfx data属性読み取り + animateAuto/Click/Scroll に SE コールバック追加
 - ScrollTriggerController.js: sfx data属性読み取り + reveal 時 SE 再生
@@ -122,6 +132,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - reader-preview.js: AudioContext.resume() 追加
 
 **将来拡張 (未実装)**:
+
 - IndexedDB 音声保存・管理UI (ユーザーアップロード SE)
 - WYSIWYG スピーカーアイコン表示・ホバー試聴
 - 音量制御UI (マスター + 個別 + ミュートボタン)
@@ -138,6 +149,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 **狙い**: Phase 1-5 の成果を組み合わせたプリセットを提供し、ワンクリックで演出スタイルを適用可能にする。
 
 **スコープ**:
+
 - 4プリセット: ADV / Web小説 / ホラー / ポエム
 - CSSテーマクラス方式: reader-preview コンテナに genre-* クラスを適用
 - ジャンル選択UI: reader-preview ツールバーにドロップダウン (ホバーで表示)
@@ -145,6 +157,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 - エクスポートHTMLにジャンルCSS埋め込み
 
 **実装成果物**:
+
 - `js/modules/editor/GenrePresetRegistry.js` (120行) — 4ジャンル定義 + apply/clear API
 - CSS: .genre-adv / .genre-webnovel / .genre-horror / .genre-poem (各ジャンル固有スタイル)
 - reader-preview.js: ジャンル選択ドロップダウンUI + エクスポートCSS

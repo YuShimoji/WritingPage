@@ -104,14 +104,17 @@
 ## 1. 標準プリセット（初期搭載）
 
 1. `inner-voice`
+
 - 用途: 心の声
 - 既定: italic寄り、opacity低め、fade-in
 
 2. `se-animal-fade`
+
 - 用途: 動物の鳴き声
 - 既定: outline/black、shake、fade-out
 
 3. `typing-sequence`
+
 - 用途: タイピング画面演出
 - 既定: monospace寄り、type animation、sfx=`typing-loop`
 

@@ -189,7 +189,7 @@ test.describe('SP-074 Phase 2: Typing Effect', () => {
 
     // WYSIWYG should render the typing block visually
     const typingDiv = page.locator('#wysiwyg-editor .zw-typing');
-    const hasTyping = await typingDiv.count();
+    await typingDiv.count();
     // Content text should be preserved in some form
     const wysiwygText = await page.locator('#wysiwyg-editor').textContent();
     expect(wysiwygText).toContain('タイプライター');

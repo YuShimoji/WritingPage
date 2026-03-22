@@ -139,7 +139,7 @@ test.describe('Story Wiki グラフビュー統合', () => {
 
   test('should generate graph with relatedIds edges', async ({ page }) => {
     // relatedIds で接続されたエントリを作成
-    const ids = await page.evaluate(() => {
+    await page.evaluate(() => {
       var s = window.ZenWriterStorage;
       if (!s || !s.createStoryWikiEntry) return {};
       var a = s.createStoryWikiEntry({ title: 'Sun', category: 'concept', content: '太陽。', source: 'manual' });

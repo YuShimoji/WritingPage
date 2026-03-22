@@ -1,9 +1,11 @@
 # SP-061 Visual Profile Typography Pack 仕様
 
 ## 目的
+
 `Visual Profile` にタイポグラフィ設定パックを接続し、「執筆」「校正」「演出確認」など作業文脈ごとに一括切替できるようにする。
 
 ## ステータス
+
 - Phase 1: done (コアロジック + 4パック定義)
 - Phase 2: done (ガジェットUI / パック選択ドロップダウン / リロード復元)
 
@@ -56,6 +58,7 @@ ZenWriterVisualProfile.clearTypographyPack()
 ## 実装内容 (Phase 2)
 
 ### ガジェットUI
+
 - Typography ガジェット内に「タイポグラフィパック」セクションを追加
 - ドロップダウンで4パック + 「なし」を選択可能
 - パック説明文をドロップダウン下部に表示
@@ -63,6 +66,7 @@ ZenWriterVisualProfile.clearTypographyPack()
 - `ZenWriterTypographyPackApplied` イベントでUI同期
 
 ### リロード復元
+
 - `app.js` 初期化時に `localStorage('zenWriter_typographyPack')` から復元
 - Visual Profile 適用時の `profile.typographyPack` 経由の復元と併存
 
