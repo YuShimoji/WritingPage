@@ -16,6 +16,21 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+    // chapterMode をオフにし、Legacy パス (editor.value) でコンテンツを読ませる
+    await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      if (!S) return;
+      var docId = S.getCurrentDocId();
+      if (!docId) return;
+      var docs = S.loadDocuments();
+      for (var i = 0; i < docs.length; i++) {
+        if (docs[i] && docs[i].id === docId) {
+          docs[i].chapterMode = false;
+          break;
+        }
+      }
+      S.saveDocuments(docs);
+    });
   });
 
   test('読者プレビューモードに切り替えられる', async ({ page }) => {
@@ -81,13 +96,19 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
   });
 
   test('プログレスバーがスクロールに連動する', async ({ page }) => {
-    // 長いコンテンツを入力
+    // 長いコンテンツを入力 (textarea + WYSIWYG 両方に設定)
     await page.evaluate(() => {
+      var md = '## 第1章\n';
+      var html = '<h2>第1章</h2>';
+      for (var i = 0; i < 50; i++) {
+        md += 'テスト本文の段落' + i + 'です。\n\n';
+        html += '<p>テスト本文の段落' + i + 'です。</p>';
+      }
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = md;
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
-        var content = '<h2>第1章</h2>';
-        for (var i = 0; i < 50; i++) content += '<p>テスト本文の段落' + i + 'です。</p>';
-        editor.innerHTML = content;
+        editor.innerHTML = html;
         editor.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
@@ -117,13 +138,19 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
   });
 
   test('スクロール位置が記憶され復元される', async ({ page }) => {
-    // 長いコンテンツを入力
+    // 長いコンテンツを入力 (textarea + WYSIWYG 両方に設定)
     await page.evaluate(() => {
+      var md = '## 第1章\n';
+      var html = '<h2>第1章</h2>';
+      for (var i = 0; i < 50; i++) {
+        md += '段落' + i + '。\n\n';
+        html += '<p>段落' + i + '。</p>';
+      }
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = md;
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
-        var content = '<h2>第1章</h2>';
-        for (var i = 0; i < 50; i++) content += '<p>段落' + i + '。</p>';
-        editor.innerHTML = content;
+        editor.innerHTML = html;
         editor.dispatchEvent(new Event('input', { bubbles: true }));
       }
     });
@@ -155,6 +182,8 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
 
   test('テクスチャオーバーレイが読者プレビューで表示される', async ({ page }) => {
     await page.evaluate(() => {
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = '## 第1章\n\n[wave]波打つテキスト[/wave]';
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
         editor.innerHTML = '<h2>第1章</h2><p>[wave]波打つテキスト[/wave]</p>';
@@ -171,6 +200,8 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
 
   test('傍点(kenten)が読者プレビューで表示される', async ({ page }) => {
     await page.evaluate(() => {
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = '## 第1章\n\n{kenten|重要なテキスト}を含む文';
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
         editor.innerHTML = '<h2>第1章</h2><p>{kenten|重要なテキスト}を含む文</p>';
@@ -188,6 +219,8 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
 
   test('wikilinkが読者プレビューでリンク化される', async ({ page }) => {
     await page.evaluate(() => {
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = '## 第1章\n\n[[テストキャラ]]が登場する';
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
         editor.innerHTML = '<h2>第1章</h2><p>[[テストキャラ]]が登場する</p>';
@@ -205,6 +238,8 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
 
   test('ルビ記法が読者プレビューで変換される', async ({ page }) => {
     await page.evaluate(() => {
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = '## 第1章\n\n{漢字|かんじ}のテスト';
       var editor = document.getElementById('wysiwyg-editor');
       if (editor) {
         editor.innerHTML = '<h2>第1章</h2><p>{漢字|かんじ}のテスト</p>';
