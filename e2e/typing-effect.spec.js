@@ -285,7 +285,7 @@ test.describe('SP-074 Phase 3: WYSIWYG round-trip', () => {
 });
 
 test.describe('SP-074 Phase 4: Scroll trigger', () => {
-  test('TextboxDslParser renders :::zw-scroll as .zw-scroll-trigger div', async ({ page }) => {
+  test('TextboxDslParser renders :::zw-scroll as .zw-scroll div', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
@@ -296,7 +296,7 @@ test.describe('SP-074 Phase 4: Scroll trigger', () => {
     });
 
     expect(html).toBeTruthy();
-    expect(html).toContain('class="zw-scroll-trigger"');
+    expect(html).toContain('zw-scroll');
     expect(html).toContain('data-effect="fade-in"');
     expect(html).toContain('data-delay="200ms"');
     expect(html).toContain('スクロールで表示');
@@ -310,14 +310,14 @@ test.describe('SP-074 Phase 4: Scroll trigger', () => {
       var parser = window.TextboxDslParser;
       var renderer = window.TextboxEffectRenderer;
       if (!parser || !renderer) return null;
-      var segments = parser.parseSegments(':::zw-scroll{effect:"slide-in"}\nスライドイン\n:::');
+      var segments = parser.parseSegments(':::zw-scroll{effect:"slide-up"}\nスライドアップ\n:::');
       return renderer.renderSegments(segments, {});
     });
 
     expect(html).toBeTruthy();
-    expect(html).toContain('zw-scroll-trigger');
-    expect(html).toContain('data-effect="slide-in"');
-    expect(html).toContain('スライドイン');
+    expect(html).toContain('zw-scroll');
+    expect(html).toContain('data-effect="slide-up"');
+    expect(html).toContain('スライドアップ');
   });
 
   test('scroll trigger renders in editor preview', async ({ page }) => {
@@ -328,7 +328,7 @@ test.describe('SP-074 Phase 4: Scroll trigger', () => {
     await page.fill('#editor', ':::zw-scroll{effect:"fade-in"}\nフェードイン要素\n:::');
     await page.click('#toggle-preview');
 
-    const triggerDiv = page.locator('#markdown-preview-panel .zw-scroll-trigger');
+    const triggerDiv = page.locator('#markdown-preview-panel .zw-scroll');
     await expect(triggerDiv).toBeAttached({ timeout: 5000 });
     await expect(triggerDiv).toHaveAttribute('data-effect', 'fade-in');
   });

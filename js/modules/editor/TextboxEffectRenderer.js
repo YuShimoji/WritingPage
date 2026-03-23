@@ -127,7 +127,11 @@
     var iconHtml = icon ? '<div class="zw-dialog__icon"><img src="' + escapeAttr(icon) + '" alt="' + escapeAttr(speaker) + '"></div>' : '';
     var speakerHtml = speaker ? '<div class="zw-dialog__speaker">' + escapeHtmlText(speaker) + '</div>' : '';
     var content = escapeHtmlText(segment.content || '');
-    return '<div class="' + classAttr + '">'
+    var dataAttrs = ' data-dialog-speaker="' + escapeAttr(speaker) + '"'
+      + ' data-dialog-position="' + escapeAttr(position) + '"'
+      + ' data-dialog-style="' + escapeAttr(dialogStyle) + '"';
+    if (icon) dataAttrs += ' data-dialog-icon="' + escapeAttr(icon) + '"';
+    return '<div class="' + classAttr + '"' + dataAttrs + '>'
       + iconHtml
       + '<div class="zw-dialog__body">'
       + speakerHtml

@@ -4632,6 +4632,84 @@ html[data-embed='true'] #editor {
   }
 }
 
+/* ===== WYSIWYG DSL ブロック静的プレビュー (Q3) ===== */
+
+/* スクロールブロック: 編集コンテキストでは常時表示 (初期 opacity:0 を上書き) */
+.wysiwyg-editor .zw-scroll,
+#editor-preview .zw-scroll {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* 型バッジ共通テキストスタイル */
+.wysiwyg-editor .zw-typing::before,
+.wysiwyg-editor .zw-dialog::before,
+.wysiwyg-editor .zw-scroll::before {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.125rem;
+  color: #fff;
+  width: fit-content;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+}
+
+/* タイピングブロック */
+.wysiwyg-editor .zw-typing {
+  border-left: 0.1875rem solid var(--accent-color, #4a90e2);
+  padding-left: 0.75em;
+  background: rgba(74, 144, 226, 0.05);
+  border-radius: 0.25rem;
+}
+
+.wysiwyg-editor .zw-typing::before {
+  content: 'タイピング';
+  display: block;
+  background: var(--accent-color, #4a90e2);
+  margin-bottom: 0.25em;
+}
+
+.wysiwyg-editor .zw-typing[data-mode="click"]::before {
+  content: 'タイピング: クリック';
+}
+
+/* ダイアログブロック (flex layout を壊さないよう absolute 配置) */
+.wysiwyg-editor .zw-dialog {
+  position: relative;
+  padding-top: 1.5em;
+}
+
+.wysiwyg-editor .zw-dialog::before {
+  content: 'ダイアログ';
+  position: absolute;
+  top: 0.25em;
+  left: 0.625em;
+  background: #3d9970;
+}
+
+/* スクロールブロック */
+.wysiwyg-editor .zw-scroll {
+  border-left: 0.1875rem solid #9b59b6;
+  padding-left: 0.75em;
+  background: rgba(155, 89, 182, 0.05);
+  border-radius: 0.25rem;
+}
+
+.wysiwyg-editor .zw-scroll::before {
+  content: 'スクロール';
+  display: block;
+  background: #9b59b6;
+  margin-bottom: 0.25em;
+}
+
+.wysiwyg-editor .zw-scroll[data-effect]::before {
+  content: 'スクロール: ' attr(data-effect);
+}
+
 /* ===== ジャンルプリセット (SP-074 Phase 6) ===== */
 
 /* ADV / ビジュアルノベル */

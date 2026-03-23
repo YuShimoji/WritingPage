@@ -968,13 +968,15 @@
       this._captureUndoSnapshot();
       this.wysiwygEditor.focus();
 
+      var effect = attrs.effect || 'fade-in';
       var div = document.createElement('div');
-      div.className = 'zw-scroll-trigger';
-      div.setAttribute('data-effect', attrs.effect || 'fade-in');
-      if (attrs.delay) div.setAttribute('data-delay', attrs.delay);
+      div.className = 'zw-scroll zw-scroll--' + effect;
+      div.setAttribute('data-effect', effect);
+      div.setAttribute('data-delay', attrs.delay || '0ms');
       div.setAttribute('data-threshold', attrs.threshold || '0.2');
 
-      var content = document.createElement('p');
+      var content = document.createElement('div');
+      content.className = 'zw-scroll__content';
       content.textContent = 'スクロールで表示されるテキスト';
       div.appendChild(content);
 

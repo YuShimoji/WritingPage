@@ -5,7 +5,7 @@
 ## ステータス語彙
 
 | ステータス | 意味 |
-|-----------|------|
+| --------- | ---- |
 | done | 実装完了、E2Eあり |
 | partial | 実装途中（Phase N/M 等で進捗明記） |
 | todo | 未着手 |
@@ -65,7 +65,7 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
 - [x] Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
 
-### A-4. Editor モード UX 統合改善 (SP-079) -- done
+### A-4. Editor モード UX 統合改善 (SP-071 Phase 3) -- done
 
 chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI + Legacy 変換バナー。
 

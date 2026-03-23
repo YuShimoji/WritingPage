@@ -101,8 +101,8 @@
       node.replaceWith(document.createTextNode(token));
     });
 
-    // .zw-scroll-trigger ブロックのシリアライズ
-    var scrollNodes = container.querySelectorAll('.zw-scroll-trigger');
+    // .zw-scroll ブロックのシリアライズ
+    var scrollNodes = container.querySelectorAll('.zw-scroll');
     Array.prototype.forEach.call(scrollNodes, function (node, localIdx) {
       var content = node.textContent || '';
       var attrs = {};

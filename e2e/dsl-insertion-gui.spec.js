@@ -66,7 +66,7 @@ test.describe('DSL挿入GUI', () => {
       rte._insertScrollBlock();
       var ed = document.getElementById('wysiwyg-editor');
       if (!ed) return null;
-      var el = ed.querySelector('.zw-scroll-trigger');
+      var el = ed.querySelector('.zw-scroll');
       return el ? {
         effect: el.getAttribute('data-effect'),
         threshold: el.getAttribute('data-threshold')

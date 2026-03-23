@@ -211,7 +211,7 @@ SP-062 の責務モデルに以下を追加拡張する:
 - 交差後に `.is-visible` クラスを付与、CSS transition で演出
 - 非対応環境: 全要素を即時表示 (フォールバック)
 - reader-preview.js の `activateScrollTriggers()` が管理
-- TextboxDslParser が `:::zw-scroll` ブロックを `.zw-scroll-trigger` div に変換
+- TextboxDslParser が `:::zw-scroll` ブロックを `.zw-scroll` div に変換
 
 ---
 
