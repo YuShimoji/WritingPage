@@ -26,7 +26,7 @@
             'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'Clock'
+            'MarkdownReference'
           ],
           typography: [],
           wiki: ['StoryWiki'],
@@ -35,7 +35,6 @@
             'Typography',
             'VisualProfile',
             'EditorLayout',
-            'SceneGradient',
             'MarkdownPreview',
             'UISettings',
             'PrintSettings',
@@ -58,12 +57,9 @@
             'Outline'
           ],
           assist: [
-            'Typewriter',
-            'FocusMode',
             'SnapshotManager',
-            'HUDSettings',
             'WritingGoal',
-            'Clock'
+            'MarkdownReference'
           ],
           typography: [],
           wiki: ['StoryWiki'],
@@ -94,7 +90,7 @@
             'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'Clock'
+            'MarkdownReference'
           ],
           typography: [],
           wiki: ['StoryWiki'],
@@ -103,45 +99,8 @@
             'Typography',
             'VisualProfile',
             'EditorLayout',
-            'SceneGradient',
             'Images',
             'ChoiceTools',
-            'MarkdownPreview',
-            'UISettings',
-            'GadgetPrefs',
-            'Keybinds'
-          ]
-        }
-      },
-      'graphic-novel': {
-        label: 'グラフィックノベル',
-        description: '漫画/グラフィックノベル向け（画像・装飾・サンプル）',
-        groups: {
-          structure: [
-            'Documents',
-            'Outline',
-            'TagsAndSmartFolders'
-          ],
-          assist: [
-            'Typewriter',
-            'FocusMode',
-            'SnapshotManager',
-            'HUDSettings',
-            'WritingGoal',
-            'Clock'
-          ],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: [
-            'Themes',
-            'Typography',
-            'VisualProfile',
-            'EditorLayout',
-            'SceneGradient',
-            'Images',
-            'FontDecoration',
-            'TextAnimation',
-            'Samples',
             'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
@@ -158,12 +117,9 @@
             'Outline'
           ],
           assist: [
-            'Typewriter',
-            'FocusMode',
             'SnapshotManager',
-            'HUDSettings',
             'WritingGoal',
-            'Clock'
+            'MarkdownReference'
           ],
           typography: [],
           wiki: ['StoryWiki'],

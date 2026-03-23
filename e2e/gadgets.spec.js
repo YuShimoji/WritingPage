@@ -44,7 +44,7 @@ async function waitGadgetsReady(page) {
 
 test.describe('Gadgets E2E', () => {
   test.setTimeout(60000);
-  test('Clock gadget renders in settings modal and respects hour24 setting', async ({ page }) => {
+  test.skip('Clock gadget renders in settings modal and respects hour24 setting — Clock removed in session 19', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
     await openSettingsModal(page);

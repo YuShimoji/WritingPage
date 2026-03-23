@@ -340,7 +340,7 @@ test.describe('Editor Settings', () => {
     expect(afterCount).toBeGreaterThan(beforeCount);
   });
 
-  test('should add node graph gadget elements', async ({ page }) => {
+  test.skip('should add node graph gadget elements — NodeGraph removed in session 19', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
 

@@ -946,7 +946,8 @@
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
     }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
 
-    // UI Design Gadget (background gradient)
+    // UI Design Gadget — DISABLED (background gradient, merged conceptually into Themes)
+    /* DISABLED: UIDesign
     window.ZWGadgets.register('UIDesign', function (root, api) {
       var s = window.ZenWriterStorage.loadSettings();
       var ui = (s && s.ui) || {};
@@ -991,6 +992,7 @@
       root.appendChild(row0); root.appendChild(typeSel); root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(btn);
       apply(g);
     }, { title: 'UI Design', groups: ['advanced'], description: '背景グラデーションの設定。色、角度、強度をカスタマイズ。' });
+    END DISABLED: UIDesign */
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -1089,7 +1091,8 @@
       root.appendChild(applyBtn);
     }, { title: 'Editor Layout', groups: ['advanced'], description: 'エディタの最大幅、内余白、余白背景色を調整。' });
 
-    // Scene Gradient Gadget (背景グラデーション 3レイヤ)
+    // Scene Gradient Gadget — DISABLED (3-layer gradient, niche)
+    /* DISABLED: SceneGradient
     window.ZWGadgets.register('SceneGradient', function (root, api) {
       var s = window.ZenWriterStorage.loadSettings();
       var scene = (s && s.scene) || {};
@@ -1221,6 +1224,7 @@
 
       applyScene();
     }, { title: 'Scene Gradient', groups: ['theme'], description: 'シーンに合わせた3層グラデーション背景。雰囲気を視覚的に演出。' });
+    END DISABLED: SceneGradient */
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

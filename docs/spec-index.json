@@ -20,7 +20,7 @@
   {
     "id": "SP-003",
     "title": "設計方針",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "core",
     "file": "docs/DESIGN.md",
@@ -33,7 +33,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/GADGETS.md",
-    "summary": "33個のガジェットの一覧・API・登録方法・将来タスク"
+    "summary": "ガジェット一覧・API・登録方法 (session 19で33→27に整理)"
   },
   {
     "id": "SP-005",
@@ -47,7 +47,7 @@
   {
     "id": "SP-006",
     "title": "プロジェクト健全性レポート",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "core",
     "file": "docs/PROJECT_HEALTH.md",
@@ -92,7 +92,7 @@
   {
     "id": "SP-014",
     "title": "UI構造設計",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "ui",
     "file": "docs/UI_ARCHITECTURE.md",
@@ -110,7 +110,7 @@
   {
     "id": "SP-015",
     "title": "スナップショット設計 v1→v2",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "data",
     "file": "docs/SNAPSHOT_DESIGN.md",
@@ -128,7 +128,7 @@
   {
     "id": "SP-021",
     "title": "Embed SDK検証手順",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "system",
     "file": "docs/EMBED_TESTING.md",
@@ -146,7 +146,7 @@
   {
     "id": "SP-031",
     "title": "ユーザーガイド",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "user",
     "file": "docs/USER_GUIDE.md",
@@ -155,7 +155,7 @@
   {
     "id": "SP-032",
     "title": "FAQ",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "user",
     "file": "docs/FAQ.md",
@@ -246,7 +246,7 @@
   {
     "id": "SP-047",
     "title": "既知の問題",
-    "status": "legacy",
+    "status": "removed",
     "pct": 0,
     "cat": "infra",
     "file": "docs/KNOWN_ISSUES.md",

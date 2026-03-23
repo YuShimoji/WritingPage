@@ -151,7 +151,7 @@ window.UILabels = {
     CURRENT_FILE: '現在のファイル',
     NEW_FILE: '新規ファイル',
     RESTORE_FROM_BACKUP: '復元',
-    HELP_SECTION: 'ヘルプ / リファレンス',
+    HELP_SECTION: 'ヘルプ',
     OPEN_WIKI_HELP: 'Wikiヘルプを開く',
     EDITOR_GUIDE: 'エディタ機能ガイド',
     UI_LAB: 'UIレイアウト実験',

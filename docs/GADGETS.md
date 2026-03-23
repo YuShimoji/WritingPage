@@ -61,7 +61,9 @@
 - 各ガジェットセクションは従来のヘッダ（▼/▶, ⚙, ↑/↓）を維持しつつ、アコーディオン内でのみ表示。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### 登録ガジェット一覧（33個）
+#### 登録ガジェット一覧（27個）
+
+> Session 19 (2026-03-23) で33→27に整理。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -78,28 +80,29 @@
 | 11 | Typography | フォント | theme | フォントファミリー、サイズ、行間の設定。 | gadgets-typography.js |
 | 12 | Themes | テーマ | theme | テーマプリセットとカスタムカラーの設定。 | gadgets-themes.js |
 | 13 | VisualProfile | Visual Profile | theme | テーマ・フォント・レイアウトをまとめた複合プロファイルの管理・適用。 | gadgets-visual-profile.js |
-| 14 | SceneGradient | Scene Gradient | theme | シーンに合わせた3層グラデーション背景。雰囲気を視覚的に演出。 | gadgets-editor-extras.js |
-| 15 | Clock | 時計 | assist | 現在時刻をリアルタイム表示。 | gadgets-clock.js |
-| 16 | WritingGoal | 執筆目標 | assist | 文字数・時間の目標を設定し、進捗を表示。 | gadgets-goal.js |
-| 17 | Typewriter | Typewriter | assist | タイプライター風スクロール。カーソル行を常に画面中央に維持します。 | gadgets-editor-extras.js |
-| 18 | FocusMode | Focus Mode | assist | 集中モード。編集中の段落以外を薄暗くして注意を集中させます。 | gadgets-editor-extras.js |
-| 19 | HUDSettings | HUD設定 | assist | ヘッドアップディスプレイの表示項目・位置・フェード時間を設定。 | gadgets-hud.js |
-| 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | ポモドーロテクニックで集中と休憩を管理。カスタム時間設定も可能。 | gadgets-pomodoro.js |
+| 14 | HeadingStyles | 見出しスタイル | theme | 見出し(H1-H6)のフォント・サイズ・色をプリセットで管理・適用。 | gadgets-heading.js |
+| 15 | WritingGoal | 執筆目標 | assist | 文字数・時間の目標を設定し、進捗を表示。 | gadgets-goal.js |
+| 16 | Typewriter | Typewriter | assist | タイプライター風スクロール。カーソル行を常に画面中央に維持。 | gadgets-editor-extras.js |
+| 17 | FocusMode | Focus Mode | assist | 集中モード。編集中の段落以外を薄暗くして注意を集中させます。 | gadgets-editor-extras.js |
+| 18 | HUDSettings | HUD設定 | assist | ヘッドアップディスプレイの表示項目・位置・フェード時間を設定。 | gadgets-hud.js |
+| 19 | PomodoroTimer | Pomodoro/集中タイマー | assist | ポモドーロテクニックで集中と休憩を管理。カスタム時間設定も可能。 | gadgets-pomodoro.js |
+| 20 | MarkdownReference | Markdownリファレンス | assist | Markdown構文のクイックリファレンス表示。 | gadgets-markdown-ref.js |
 | 21 | UISettings | UI Settings | advanced | UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。 | gadgets-editor-extras.js |
-| 22 | UIDesign | UI Design | advanced | 背景グラデーションの設定。色、角度、強度をカスタマイズ。 | gadgets-editor-extras.js |
-| 23 | EditorLayout | Editor Layout | advanced | エディタの最大幅、内余白、余白背景色を調整。 | gadgets-editor-extras.js |
-| 24 | NodeGraph | Node Graph | advanced | ノードベースのビジュアルグラフエディタ。ストーリー構造を視覚化。 | nodegraph.js |
-| 25 | GraphicNovel | Graphic Novel | advanced | グラフィックノベル形式のビジュアルエディタ。コマ割り・演出を設定。 | gadgets-graphic-novel.js |
-| 26 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
-| 27 | GadgetPrefs | ガジェット設定 | advanced | ガジェットの表示・非表示やグループ割り当てを管理。 | gadgets-prefs.js |
-| 28 | LoadoutManager | ロードアウト管理 | advanced | ロードアウトの保存・適用・管理を行います。 | gadgets-loadout.js |
-| 29 | Keybinds | キーボードショートカット | advanced | キーボードショートカットの一覧表示とカスタマイズ。 | gadgets-keybinds.js |
-| 30 | PrintSettings | エクスポート | advanced | PDF・テキスト・HTML形式でのエクスポートと印刷設定。 | gadgets-print.js |
-| 31 | HeadingStyles | 見出しスタイル | theme | 見出し(H1-H6)のフォント・サイズ・色をプリセットで管理・適用。 | gadgets-heading.js |
-| 32 | MarkdownReference | Markdownリファレンス | assist | Markdown構文のクイックリファレンス表示。 | gadgets-markdown-ref.js |
-| 33 | SectionsNavigator | セクションナビ | sections | 見出しツリーとキーボードナビゲーション。長編の章移動を効率化。 | gadgets-sections-nav.js |
+| 22 | EditorLayout | Editor Layout | advanced | エディタの最大幅、内余白、余白背景色を調整。 | gadgets-editor-extras.js |
+| 23 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
+| 24 | GadgetPrefs | ガジェット設定 | advanced | ガジェットの表示・非表示やグループ割り当てを管理。 | gadgets-prefs.js |
+| 25 | LoadoutManager | ロードアウト管理 | advanced | ロードアウトの保存・適用・管理を行います。 | gadgets-loadout.js |
+| 26 | Keybinds | キーボードショートカット | advanced | キーボードショートカットの一覧表示とカスタマイズ。 | gadgets-keybinds.js |
+| 27 | PrintSettings | エクスポート | advanced | PDF・テキスト・HTML形式でのエクスポートと印刷設定。 | gadgets-print.js |
 
-> 注: `Samples` ガジェット（groups: settings）は開発者向けで通常UIには表示されません。
+| # | Name | 状態 | 理由 |
+|---|------|------|------|
+| - | Clock | 削除 | OS時計で十分 |
+| - | Samples | 削除 | 開発専用 |
+| - | NodeGraph | 削除 | ニッチ (小説執筆の核ではない) |
+| - | GraphicNovel | 削除 | ニッチ (6モジュール含む) |
+| - | UIDesign | 無効化 | 背景グラデーション、テーマに概念統合 |
+| - | SceneGradient | 無効化 | 3層グラデーション、ニッチ |
 
 #### グループ別集計
 
@@ -107,9 +110,9 @@
 |-------|----|----------|
 | structure | 5 | 文書構造・ナビゲーション |
 | edit | 5 | 編集・装飾・プレビュー |
-| theme | 5 | テーマ・フォント・視覚設定 |
-| assist | 7 | 執筆支援・タイマー・集中・リファレンス |
-| advanced | 10 | UI設定・グラフ・管理ツール |
+| theme | 4 | テーマ・フォント・視覚設定 |
+| assist | 6 | 執筆支援・タイマー・集中・リファレンス |
+| advanced | 6 | UI設定・グラフ・管理ツール |
 | sections | 1 | セクションナビゲーション (SP-052) |
 
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
