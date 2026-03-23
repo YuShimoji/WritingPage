@@ -340,20 +340,18 @@ manifest駆動のローカルプラグイン機能を実装済み。
 
 ---
 
-## 新規仕様（策定済み・実装待ち）
+## 主要仕様の実装状態
 
-以下の仕様は `docs/specs/` に策定済み。詳細は `docs/spec-index.json` を参照。
-ロードマップ上の優先度は `docs/ROADMAP.md` に記載。
+詳細は `docs/spec-index.json` を参照。ロードマップ上の優先度は `docs/ROADMAP.md` に記載。
 
 | ID | 仕様名 | 状態 |
 |----|--------|------|
-| SP-070 | モードアーキテクチャ | partial（Phase 1完了） |
-| SP-071 | チャプター管理再設計 | partial（Phase 1完了） |
-| SP-072 | セクションリンク & インタラクティブナビ | todo |
-| SP-073 | パステキスト | partial（Phase 1+2完了, Phase 3 todo） |
-| SP-074 | Web小説演出統合 | todo |
-| SP-075 | Google Keep連携 | todo |
-| SP-076 | ドックパネルシステム | todo |
+| SP-070 | モードアーキテクチャ | done (Phase 1-3完了) |
+| SP-071 | チャプター管理再設計 | done (Phase 1-3完了) |
+| SP-072 | セクションリンク & インタラクティブナビ | done (Phase 1-5完了) |
+| SP-073 | パステキスト | partial (90%。Phase 1-3完了、Phase 4 フリーハンド描画 残) |
+| SP-074 | Web小説演出統合 | done (Phase 1-6完了) |
+| SP-076 | ドックパネルシステム | partial (75%。Phase 1-3完了、Phase 4 上下ドック+プリセット 残) |
 
 ---
 

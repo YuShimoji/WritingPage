@@ -137,11 +137,11 @@
   {
     "id": "SP-022",
     "title": "プラグインシステム設計",
-    "status": "todo",
+    "status": "removed",
     "pct": 20,
     "cat": "system",
     "file": "docs/design/PLUGIN_SYSTEM.md",
-    "summary": "ユーザー定義ガジェット/プラグイン拡張の設計書 (Draft)"
+    "summary": "正式化はスコープ外 (2026-03-23)。現行manifest駆動ローカルプラグインで十分機能中。設計書は参考として残す。"
   },
   {
     "id": "SP-031",
@@ -321,11 +321,11 @@
   {
     "id": "SP-056",
     "title": "拡張スクロール（キャンバス）仕様",
-    "status": "deferred",
+    "status": "removed",
     "pct": 30,
     "cat": "ui",
     "file": "docs/specs/spec-extended-scroll-canvas.md",
-    "summary": "betaEnabled:false で非公開中。Phase 1 (30%) 未完了。完成度が上がるまで延期 (DECISION LOG 2026-03-11)。"
+    "summary": "スコープ外 (2026-03-23)。betaEnabled:false のまま凍結。"
   },
   {
     "id": "SP-057",
@@ -352,7 +352,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-japanese-typesetting-ruby.md",
-    "summary": "Phase 1-3全完了。ルビ記法統一+CSS、サイズ/位置/表示切替、傍点・圏点({kenten|text}記法+CSS text-emphasis)。"
+    "summary": "Phase 1-3全完了。ルビ記法統一+CSS、サイズ/位置/表示切替、傍点・圏点。Q2: WYSIWYG双方向ルビ統合(挿入/編集/削除/ラウンドトリップ)。"
   },
   {
     "id": "SP-060",
@@ -446,17 +446,17 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
-    "summary": "Phase 1-6全完了。テクスチャ5種+タイピング3モード+ダイアログ4x3+スクロール5エフェクト+SE合成音5種+ジャンルプリセット4種(ADV/Web小説/ホラー/ポエム)。CSSテーマクラス方式+reader-preview選択UI。フェーズ計画: docs/specs/sp-074-phase-plan.md",
+    "summary": "Phase 1-6全完了。テクスチャ5種+タイピング3モード+ダイアログ4x3+スクロール5エフェクト+SE合成音5種+ジャンルプリセット4種。Q1: 全DSL型にツールバー挿入GUI+属性設定モーダル。Q3: WYSIWYG静的プレビュー(型バッジ+実スタイル)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
     "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
   },
   {
     "id": "SP-075",
     "title": "Google Keep双方向連携仕様",
-    "status": "todo",
+    "status": "removed",
     "pct": 0,
     "cat": "system",
     "file": "docs/specs/spec-google-keep-integration.md",
-    "summary": "Google Takeoutベースのインポート(Phase 1)、テキストエクスポート(Phase 2)、将来のAPI連携(Phase 3)。ラベル単位フィルタリング、章/素材メモとしての取り込み。"
+    "summary": "スコープ外 (2026-03-23)。仕様書は参考として残す。"
   },
   {
     "id": "SP-076",
@@ -495,6 +495,6 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/WRITING_PIPELINE.md",
-    "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A:テキスト小説/B:演出付きWeb小説/C:ゲームブック)、サンプルカバレッジマトリクス、設計課題(Q1-Q3解決済み/Q4未決定)、自動化改善候補、健全性指標。Stage 4完成度92%。"
+    "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A/B/C)、設計課題(Q1-Q3解決済み/Q4未決定)。EPUB/DOCX スコープ外 (2026-03-23)。Stage 6完成度95%。"
   }
 ]

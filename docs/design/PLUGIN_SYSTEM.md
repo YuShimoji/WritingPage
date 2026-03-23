@@ -26,7 +26,7 @@ Zen Writer のプラグインシステムは、コアコードを変更せずに
 | **Gadget Plugin** | カスタムガジェット追加 | ポモドーロタイマー、カスタムカウンター |
 | **Theme Plugin** | テーマ色パレット追加 | 独自カラースキーム |
 | **Command Plugin** | コマンドパレットにコマンド追加 | カスタム変換処理 |
-| **Export Plugin** | エクスポート形式追加 | LaTeX, EPUB 変換 |
+| **Export Plugin** | エクスポート形式追加 | LaTeX 変換 |
 
 ---
 

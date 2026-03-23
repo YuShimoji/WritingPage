@@ -35,7 +35,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 
 - `:::zw-typing{speed:"30ms", mode:"auto"}` ブロック記法 (デフォルト30ms/字に決定)
 - 3モード: auto (自動再生) / click (クリック進行, カーソル変化のみ) / scroll (IntersectionObserver)
-- WYSIWYG: テキスト通常表示 (タイピングアイコンバッジは未実装)
+- WYSIWYG: 静的プレビュー (Q3実装: 型バッジ「タイピング」+ 左ボーダー + 背景色。クリックモード時は「タイピング: クリック」表示)
 - プレビュー / reader-preview: 実際のタイピングアニメーション再生
 - 再生コントロール: 未実装 (click モードのクリック進行 + fast-forward で代替)
 - アクセシビリティ: `aria-live="polite"` + `.sr-only` で全文即時提供
@@ -75,7 +75,7 @@ SP-074 を6段階に分割し、CSS-only の低リスク機能から順に積み
 
 **未実装 (将来)**:
 
-- WYSIWYG ブロック編集 (TextboxRichTextBridge 拡張)
+- WYSIWYG ブロック編集 (TextboxRichTextBridge 拡張) — data-dialog-* 属性追加済み (Q3 session 17)。完全な双方向編集は将来
 - アイコン画像の IndexedDB 保存・管理UI
 - DialogBoxRenderer.js (独立レンダラー — 現在は TextboxEffectRenderer に統合)
 
