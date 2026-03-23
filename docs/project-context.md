@@ -6,7 +6,7 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 15 nightshift完了 — docs債務解消 + E2E 430件確認 + spec-index監査
+- 直近の状態: session 16 — SP-079 Step 1-4 実装完了 + Q1決定 (全DSL型にUI) + nightshift 18コミットマージ
 
 ### 運用メモ
 
@@ -36,11 +36,11 @@
 
 ## CURRENT SLICE
 
-- スライス名: デザイナーパイプライン設計判断 (Q1-Q4)
-- ユーザー操作列: WRITING_PIPELINE.md のQ1-Q4を読む → 各質問に回答 → 回答に基づき実装方針を決定
-- 成功状態: Q1-Q4 全てに回答が出て、次の実装スライス (ルビUI or DSL挿入UI) が確定
-- このスライスで必要な基盤能力: なし (設計判断のみ)
-- このスライスから抽出されるツール要求: Q1→DSL挿入GUI / Q2→ルビ挿入UI / Q3→WYSIWYGプレビュー拡張
+- スライス名: DSL挿入GUI実装 (Q1決定済み: 全DSL型にUI)
+- ユーザー操作列: WYSIWYGモードで演出ブロック挿入ボタンを使い、typing/dialog/scroll/pathtextをGUIから追加
+- 成功状態: 4種のDSLブロックがツールバーUIから挿入でき、DSL記法を知らなくても演出を適用できる
+- このスライスで必要な基盤能力: editor-wysiwyg.js のブロック挿入API、DSLパーサーとの往復
+- このスライスから抽出されるツール要求: DSL挿入GUI (装飾工程の最大摩擦解消)
 - 今回はやらないこと: SP-076 Phase 2 (タブグループ)、SP-073 Phase 2、Export再設計
 
 ---
@@ -75,21 +75,19 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Authoring / Experience Slice
-- 現在のスライス: デザイナーパイプライン設計判断 (Q1-Q4) -- ユーザー判断待ち
-- 前回 (session 14 nightshift) の変更:
-  - js/dock-manager.js: サイドバー幅永続化修正
-  - css/dock-panel.css, css/layout.css: CSSフォールバック統一
-  - e2e/dock-panel.spec.js: 5→13件
-  - docs/WRITING_PIPELINE.md: 執筆パイプライン定義新設
-  - docs/project-context.md: 新設
-  - samples/: gamebook-styled-demo.md, web-novel-effects-demo.md 追加
-- 今回 (session 15 nightshift) の変更:
-  - docs/ROADMAP.md: E2E数値修正 (418→430)
-  - CLAUDE.md: E2E数値不整合修正
-  - spec-index.json 整合性監査: 問題なし
-  - E2E: 430 passed / 1 failed (Canvas既知) -- 健全性確認済み
-- 未コミット: session 14 + 15 の変更 (modified 9 + untracked 5)。15コミット未push
-- 次回最初に確認すべきファイル: docs/WRITING_PIPELINE.md (Q1-Q4 未解決設計課題)
-- 未確定の設計論点: Q1(DSL挿入UI範囲) / Q2(ルビ挿入UI形態) / Q3(WYSIWYG演出プレビュー) / Q4(サンプル位置づけ) / 左サイドバー到達点 / ガジェット整理方針 / Canvas Mode(SP-056)継続/廃止
+- 現在の主レーン: Experience Slice / Authoring
+- 現在のスライス: SP-079 実装完了 → 次スライス選択待ち
+- 今回 (session 16) の変更:
+  - js/storage.js: createDocument() に chapterMode:true 追加
+  - js/app-file-manager.js: chapterMode初期化 + Legacy変換バナー
+  - js/chapter-store.js: revertChapterMode() 追加
+  - js/chapter-list.js: countPlainChars() + 解除ボタン + 文字数統一
+  - js/modules/editor/EditorUI.js: _countPlainChars() + ステータスバー統一
+  - css/style.css: Legacy変換バナー + 解除ボタン CSS
+  - e2e/chapter-list.spec.js, chapter-store.spec.js, chapter-ux-issues.spec.js: forceLegacyModeヘルパー + テスト修正
+  - docs/worker-prompts/: 3件新設 (A-4 rem, SP-076 Phase 2-3, SP-073 Phase 2)
+  - nightshift sessions 11-15 (18コミット) マージ統合
+- E2E: 430 passed / 3 skipped
+- 次回最初に確認すべきファイル: docs/WRITING_PIPELINE.md (Q2-Q4 未解決設計課題)
+- 未確定の設計論点: Q2(ルビ挿入UI形態) / Q3(WYSIWYG演出プレビュー) / Q4(サンプル位置づけ) / 左サイドバー到達点 / ガジェット整理方針
 - 今は触らない範囲: SP-076 Phase 2+, SP-073 Phase 2, Export再設計, SP-075 Google Keep

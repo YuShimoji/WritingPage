@@ -604,6 +604,7 @@ function createDocument(name = '新規ドキュメント', content = '', parentI
         type: 'document',
         name: String(name || '新規ドキュメント'),
         content: String(content || ''),
+        chapterMode: true,
         parentId: parentId || null,
         createdAt: Date.now(),
         updatedAt: Date.now()

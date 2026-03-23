@@ -38,6 +38,22 @@
     return !!(docId && Store && Store.isChapterMode(docId));
   }
 
+  /**
+   * Markdown ソースから DSL ブロック・見出し記号・装飾記法を除いてプレーンテキスト文字数を返す
+   */
+  function countPlainChars(markdown) {
+    if (!markdown) return 0;
+    return markdown
+      .replace(/^:::zw-[^\n]*\n?/gm, '')    // DSL ヘッダー行
+      .replace(/^:::\s*$/gm, '')              // DSL 閉じ行
+      .replace(/^#{1,6}\s+/gm, '')            // 見出し記号
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // リンク (テキスト部分のみ残す)
+      .replace(/\{([^|]+)\|[^}]+\}/g, '$1')    // ルビ記法 (本文のみ残す)
+      .replace(/\{kenten\|([^}]+)\}/g, '$1')   // 傍点記法
+      .trim()
+      .length;
+  }
+
   // ---- Init ----
 
   function init() {
@@ -317,24 +333,16 @@
       titleSpan.textContent = ch.title;
       item.appendChild(titleSpan);
 
-      // 文字数
-      if (isChMode) {
-        var bodyLen = (ch.content || '').trim().length;
-        if (bodyLen > 0) {
-          var countSpan = document.createElement('span');
-          countSpan.className = 'cl-item__count';
-          countSpan.textContent = formatCount(bodyLen);
-          item.appendChild(countSpan);
-        }
-      } else {
-        var text = getEditorText();
-        var bodyLen2 = Model.getChapterBody(text, ch).trim().length;
-        if (bodyLen2 > 0) {
-          var countSpan2 = document.createElement('span');
-          countSpan2.className = 'cl-item__count';
-          countSpan2.textContent = formatCount(bodyLen2);
-          item.appendChild(countSpan2);
-        }
+      // 文字数 (プレーンテキストベース)
+      var chBody = isChMode
+        ? (ch.content || '')
+        : (Model ? Model.getChapterBody(getEditorText(), ch) : '');
+      var bodyLen = countPlainChars(chBody);
+      if (bodyLen > 0) {
+        var countSpan = document.createElement('span');
+        countSpan.className = 'cl-item__count';
+        countSpan.textContent = formatCount(bodyLen);
+        item.appendChild(countSpan);
       }
 
       // visibility バッジ (chapterMode)
@@ -382,9 +390,13 @@
     });
     listEl.appendChild(dropZone);
 
-    // chapterMode でなければ移行ボタンを表示 (Slice 4)
+    // chapterMode でなければ移行ボタンを表示
     if (!isChMode && chapters.length > 0) {
       renderMigrateButton();
+    }
+    // chapterMode なら解除ボタンを表示
+    if (isChMode) {
+      renderRevertButton();
     }
 
     // フッター統計 + 目次コピーボタン
@@ -403,13 +415,12 @@
 
     var isChMode = inChapterMode();
     var totalChars = 0;
+    var editorText = isChMode ? '' : getEditorText();
     chapters.forEach(function (ch) {
-      if (isChMode) {
-        totalChars += (ch.content || '').trim().length;
-      } else {
-        var text = getEditorText();
-        totalChars += (Model ? Model.getChapterBody(text, ch).trim().length : 0);
-      }
+      var body = isChMode
+        ? (ch.content || '')
+        : (Model ? Model.getChapterBody(editorText, ch) : '');
+      totalChars += countPlainChars(body);
     });
 
     var stats = document.createElement('div');
@@ -469,6 +480,39 @@
         }
       } else {
         alert('変換に失敗しました');
+      }
+    });
+
+    wrapper.appendChild(btn);
+    listEl.appendChild(wrapper);
+  }
+
+  /**
+   * chapterMode 解除ボタンを表示 (ロールバック)
+   */
+  function renderRevertButton() {
+    if (!Store || !Store.revertChapterMode) return;
+    var docId = getCurrentDocId();
+    if (!docId) return;
+
+    var wrapper = document.createElement('div');
+    wrapper.className = 'cl-revert-wrapper';
+    wrapper.style.padding = '0.5rem';
+    wrapper.style.marginTop = '0.25rem';
+
+    var btn = document.createElement('button');
+    btn.className = 'small cl-revert-btn';
+    btn.textContent = '章モードを解除';
+    btn.title = '全章を結合して通常テキストに戻します';
+    btn.style.opacity = '0.6';
+    btn.addEventListener('click', function () {
+      if (!confirm('章モードを解除して通常テキストに戻しますか？\n（全章が1つのテキストに結合されます）')) return;
+      var restoredText = Store.revertChapterMode(docId);
+      if (restoredText !== false) {
+        setEditorText(restoredText);
+        refreshChapterMode();
+      } else {
+        alert('解除に失敗しました');
       }
     });
 

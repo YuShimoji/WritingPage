@@ -80,9 +80,58 @@
                     if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
                         window.ZenWriterEditor.showNotification('ファイルを切り替えました');
                     }
+
+                    // Legacy ドキュメント変換バナー表示
+                    this._updateLegacyBanner(docId);
                 } catch (e) {
                     console.error('ドキュメント切り替えエラー:', e);
                 }
+            },
+
+            /** Legacy ドキュメントに chapterMode 変換バナーを表示/非表示 */
+            _updateLegacyBanner(docId) {
+                var Store = window.ZWChapterStore;
+                var isLegacy = docId && Store && !Store.isChapterMode(docId);
+
+                var banner = document.getElementById('legacy-convert-banner');
+                if (!isLegacy) {
+                    if (banner) banner.style.display = 'none';
+                    return;
+                }
+
+                if (!banner) {
+                    banner = document.createElement('div');
+                    banner.id = 'legacy-convert-banner';
+                    banner.className = 'legacy-convert-banner';
+                    banner.innerHTML =
+                        '<span>このドキュメントは旧フォーマットです。章ごとの独立保存に変換すると、より安全に管理できます。</span>' +
+                        '<button type="button" class="small legacy-convert-banner__btn">新フォーマットに変換</button>' +
+                        '<button type="button" class="small legacy-convert-banner__dismiss" title="閉じる" aria-label="閉じる">×</button>';
+
+                    banner.querySelector('.legacy-convert-banner__btn').addEventListener('click', function () {
+                        if (!confirm('章を独立した保存単位に変換しますか？')) return;
+                        var ok = Store.migrateToChapterMode(docId);
+                        if (ok) {
+                            banner.style.display = 'none';
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+                                window.ZenWriterEditor.showNotification('新フォーマットに変換しました');
+                            }
+                            // チャプターリスト更新
+                            if (window.ZWChapterList && typeof window.ZWChapterList.refresh === 'function') {
+                                window.ZWChapterList.refresh();
+                            }
+                        }
+                    });
+                    banner.querySelector('.legacy-convert-banner__dismiss').addEventListener('click', function () {
+                        banner.style.display = 'none';
+                    });
+
+                    var editorLayer = document.getElementById('editor-classic-layer');
+                    if (editorLayer) {
+                        editorLayer.insertBefore(banner, editorLayer.firstChild);
+                    }
+                }
+                banner.style.display = '';
             },
 
             createNewDocument() {
@@ -93,6 +142,11 @@
                     if (window.ZenWriterStorage.createDocument) {
                         const newDoc = window.ZenWriterStorage.createDocument(name.trim());
                         if (newDoc && newDoc.id) {
+                            // chapterMode 初期化: 空の初期チャプターを作成
+                            var Store = window.ZWChapterStore;
+                            if (Store && Store.splitIntoChapters) {
+                                Store.splitIntoChapters(newDoc.id, newDoc.content || '');
+                            }
                             this.switchDocument(newDoc.id);
                         }
                     }
@@ -106,7 +160,12 @@
                     const docs = window.ZenWriterStorage.loadDocuments ? (window.ZenWriterStorage.loadDocuments() || []) : [];
                     if (docs.length === 0) {
                         const currentContent = window.ZenWriterStorage.loadContent ? (window.ZenWriterStorage.loadContent() || '') : '';
-                        window.ZenWriterStorage.createDocument('デフォルト', currentContent);
+                        const newDoc = window.ZenWriterStorage.createDocument('デフォルト', currentContent);
+                        // chapterMode 初期化
+                        var Store = window.ZWChapterStore;
+                        if (newDoc && newDoc.id && Store && Store.splitIntoChapters) {
+                            Store.splitIntoChapters(newDoc.id, currentContent);
+                        }
                     }
 
                     const currentDocId = window.ZenWriterStorage.getCurrentDocId ? window.ZenWriterStorage.getCurrentDocId() : null;

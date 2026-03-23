@@ -53,6 +53,32 @@ async function setupTestDoc(page, content) {
   await page.waitForTimeout(200);
 }
 
+/**
+ * 現在のドキュメントを Legacy モード (chapterMode: false) に強制する
+ */
+async function forceLegacyMode(page) {
+  await page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    if (!S) return;
+    var docId = S.getCurrentDocId();
+    if (!docId) return;
+    var docs = S.loadDocuments();
+    var cleaned = [];
+    for (var i = 0; i < docs.length; i++) {
+      if (docs[i] && docs[i].id === docId) {
+        docs[i].chapterMode = false;
+        cleaned.push(docs[i]);
+      } else if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
+        // skip chapter records
+      } else {
+        cleaned.push(docs[i]);
+      }
+    }
+    S.saveDocuments(cleaned);
+  });
+  await page.waitForTimeout(100);
+}
+
 // ---------------------------------------------------------------------------
 // SP-071 Phase 2: Chapter Store
 // ---------------------------------------------------------------------------
@@ -176,6 +202,7 @@ test.describe('SP-071 Phase 2 ChapterStore', () => {
   test('見出しベースの文書を chapterMode に変換できる', async ({ page }) => {
     const testContent = '## 第一章\n\n本文A\n\n## 第二章\n\n本文B';
     await setupTestDoc(page, testContent);
+    await forceLegacyMode(page);
 
     // エディタにもコンテンツを設定
     await setEditorContent(page, testContent);
@@ -220,6 +247,7 @@ test.describe('SP-071 Phase 2 ChapterStore', () => {
   test('非 chapterMode で Focus モード時に移行ボタンが表示される', async ({ page }) => {
     const testContent = '## 第一章\n\n本文A';
     await setupTestDoc(page, testContent);
+    await forceLegacyMode(page);
     await setEditorContent(page, testContent);
     await enterFocusMode(page);
 

@@ -29,6 +29,32 @@ async function enterFocusMode(page) {
   await page.waitForTimeout(200);
 }
 
+/**
+ * 現在のドキュメントを Legacy モード (chapterMode: false) に強制する
+ */
+async function forceLegacyMode(page) {
+  await page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    if (!S) return;
+    var docId = S.getCurrentDocId();
+    if (!docId) return;
+    var docs = S.loadDocuments();
+    var cleaned = [];
+    for (var i = 0; i < docs.length; i++) {
+      if (docs[i] && docs[i].id === docId) {
+        docs[i].chapterMode = false;
+        cleaned.push(docs[i]);
+      } else if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
+        // skip chapter records
+      } else {
+        cleaned.push(docs[i]);
+      }
+    }
+    S.saveDocuments(cleaned);
+  });
+  await page.waitForTimeout(100);
+}
+
 // ---------------------------------------------------------------------------
 // SP-071 Chapter List — Focus mode
 // ---------------------------------------------------------------------------
@@ -88,7 +114,8 @@ test.describe('SP-071 ChapterList', () => {
   // -------------------------------------------------------------------------
   // 2. Chapter navigation
   // -------------------------------------------------------------------------
-  test('チャプターアイテムクリックでカーソルが見出し位置に移動する', async ({ page }) => {
+  test('チャプターアイテムクリックでカーソルが見出し位置に移動する (Legacy)', async ({ page }) => {
+    await forceLegacyMode(page);
     const content = '## Chapter 1\n\n本文A\n\n## Chapter 2\n\n本文B';
     await setEditorContent(page, content);
     await enterFocusMode(page);
@@ -121,7 +148,8 @@ test.describe('SP-071 ChapterList', () => {
   // -------------------------------------------------------------------------
   // 3. Add chapter
   // -------------------------------------------------------------------------
-  test('「新しい章」ボタンでエディタに新しい見出しが挿入される', async ({ page }) => {
+  test('「新しい章」ボタンでエディタに新しい見出しが挿入される (Legacy)', async ({ page }) => {
+    await forceLegacyMode(page);
     await setEditorContent(page, '## Chapter 1\n\n本文A');
     await enterFocusMode(page);
 
@@ -146,7 +174,8 @@ test.describe('SP-071 ChapterList', () => {
   // -------------------------------------------------------------------------
   // 4. Inline rename
   // -------------------------------------------------------------------------
-  test('ダブルクリックでインライン編集フィールドが表示され、Enter でエディタの見出しが更新される', async ({ page }) => {
+  test('ダブルクリックでインライン編集フィールドが表示され、Enter でエディタの見出しが更新される (Legacy)', async ({ page }) => {
+    await forceLegacyMode(page);
     await setEditorContent(page, '## Chapter 1\n\n本文A\n\n## Chapter 2\n\n本文B');
     await enterFocusMode(page);
 

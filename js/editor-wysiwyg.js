@@ -15,6 +15,9 @@
       this.switchToTextareaBtn = document.getElementById('wysiwyg-switch-to-textarea');
       this.isWysiwygMode = false;
 
+      // SP-073 Phase 2: PathHandleOverlay
+      this._pathOverlay = null;
+
       // SP-055: カスタム Undo/Redo スタック
       this._undoStack = [];
       this._redoStack = [];
@@ -383,8 +386,10 @@
         typingBtn.textContent = 'タイピング演出を挿入';
         typingBtn.addEventListener('mousedown', function (e) {
           e.preventDefault();
-          self._insertTypingBlock();
           tbDropdown.setAttribute('data-open', 'false');
+          self._showDslModal('typing', function (attrs) {
+            self._insertTypingBlock(attrs);
+          });
         });
         tbMenu.appendChild(typingBtn);
 
@@ -394,10 +399,38 @@
         dialogBtn.textContent = 'ダイアログを挿入';
         dialogBtn.addEventListener('mousedown', function (e) {
           e.preventDefault();
-          self._insertDialogBlock();
           tbDropdown.setAttribute('data-open', 'false');
+          self._showDslModal('dialog', function (attrs) {
+            self._insertDialogBlock(attrs);
+          });
         });
         tbMenu.appendChild(dialogBtn);
+
+        var scrollBtn = document.createElement('button');
+        scrollBtn.setAttribute('role', 'menuitem');
+        scrollBtn.className = 'wysiwyg-tb-item wysiwyg-tb-item--effect';
+        scrollBtn.textContent = 'スクロール演出を挿入';
+        scrollBtn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          tbDropdown.setAttribute('data-open', 'false');
+          self._showDslModal('scroll', function (attrs) {
+            self._insertScrollBlock(attrs);
+          });
+        });
+        tbMenu.appendChild(scrollBtn);
+
+        var pathtextBtn = document.createElement('button');
+        pathtextBtn.setAttribute('role', 'menuitem');
+        pathtextBtn.className = 'wysiwyg-tb-item wysiwyg-tb-item--effect';
+        pathtextBtn.textContent = 'パステキストを挿入';
+        pathtextBtn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          tbDropdown.setAttribute('data-open', 'false');
+          self._showDslModal('pathtext', function (attrs) {
+            self._insertPathtextBlock(attrs);
+          });
+        });
+        tbMenu.appendChild(pathtextBtn);
       }
 
       // トグル開閉時にメニューを再構築
@@ -505,18 +538,137 @@
       this._notifyChange();
     }
 
+    // ---- DSL 属性設定モーダル ----
+
+    _showDslModal(type, onConfirm) {
+      var DSL_FIELDS = {
+        typing: [
+          { key: 'speed', label: '速度 (ms/字)', type: 'select', options: ['30ms', '50ms', '80ms', '120ms'], default: '30ms' },
+          { key: 'mode', label: 'モード', type: 'select', options: ['auto', 'click', 'scroll'], default: 'auto' }
+        ],
+        dialog: [
+          { key: 'speaker', label: '話者名', type: 'text', default: 'キャラクター' },
+          { key: 'position', label: '位置', type: 'select', options: ['left', 'right', 'center'], default: 'left' },
+          { key: 'style', label: 'スタイル', type: 'select', options: ['default', 'dark', 'neon', 'retro'], default: 'default' }
+        ],
+        scroll: [
+          { key: 'effect', label: 'エフェクト', type: 'select', options: ['fade-in', 'slide-in', 'slide-up'], default: 'fade-in' },
+          { key: 'delay', label: '遅延 (ms)', type: 'text', default: '' },
+          { key: 'threshold', label: '閾値 (0-1)', type: 'text', default: '0.2' }
+        ],
+        pathtext: [
+          { key: 'path', label: 'パス形状', type: 'select', options: [
+            'M20,100 Q200,10 380,100',
+            'M20,60 C100,0 300,120 380,60',
+            'M20,60 L380,60',
+            'M200,10 A90,90 0 1,1 200,190'
+          ], default: 'M20,100 Q200,10 380,100', labels: ['波形', 'S字カーブ', '直線', '円弧'] }
+        ]
+      };
+      var fields = DSL_FIELDS[type];
+      if (!fields || fields.length === 0) { onConfirm({}); return; }
+
+      // 既存モーダルを除去
+      var existing = document.getElementById('dsl-attr-modal');
+      if (existing) existing.remove();
+
+      var overlay = document.createElement('div');
+      overlay.id = 'dsl-attr-modal';
+      overlay.className = 'dsl-attr-modal-overlay';
+
+      var modal = document.createElement('div');
+      modal.className = 'dsl-attr-modal';
+
+      var title = document.createElement('div');
+      title.className = 'dsl-attr-modal__title';
+      var typeNames = { typing: 'タイピング演出', dialog: 'ダイアログ', scroll: 'スクロール演出', pathtext: 'パステキスト' };
+      title.textContent = (typeNames[type] || type) + ' の設定';
+      modal.appendChild(title);
+
+      var inputs = {};
+      fields.forEach(function (field) {
+        var row = document.createElement('div');
+        row.className = 'dsl-attr-modal__row';
+
+        var label = document.createElement('label');
+        label.className = 'dsl-attr-modal__label';
+        label.textContent = field.label;
+        row.appendChild(label);
+
+        if (field.type === 'select') {
+          var sel = document.createElement('select');
+          sel.className = 'dsl-attr-modal__input';
+          (field.options || []).forEach(function (opt, i) {
+            var optEl = document.createElement('option');
+            optEl.value = opt;
+            optEl.textContent = field.labels ? field.labels[i] : opt;
+            if (opt === field.default) optEl.selected = true;
+            sel.appendChild(optEl);
+          });
+          row.appendChild(sel);
+          inputs[field.key] = sel;
+        } else {
+          var inp = document.createElement('input');
+          inp.type = 'text';
+          inp.className = 'dsl-attr-modal__input';
+          inp.value = field.default || '';
+          inp.placeholder = field.label;
+          row.appendChild(inp);
+          inputs[field.key] = inp;
+        }
+        modal.appendChild(row);
+      });
+
+      var actions = document.createElement('div');
+      actions.className = 'dsl-attr-modal__actions';
+
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'small dsl-attr-modal__cancel';
+      cancelBtn.textContent = 'キャンセル';
+      cancelBtn.addEventListener('click', function () { overlay.remove(); });
+      actions.appendChild(cancelBtn);
+
+      var confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.className = 'small dsl-attr-modal__confirm';
+      confirmBtn.textContent = '挿入';
+      confirmBtn.addEventListener('click', function () {
+        var attrs = {};
+        Object.keys(inputs).forEach(function (key) {
+          var val = inputs[key].value;
+          if (val) attrs[key] = val;
+        });
+        overlay.remove();
+        onConfirm(attrs);
+      });
+      actions.appendChild(confirmBtn);
+      modal.appendChild(actions);
+
+      overlay.appendChild(modal);
+      overlay.addEventListener('click', function (e) {
+        if (e.target === overlay) overlay.remove();
+      });
+
+      document.body.appendChild(overlay);
+      // 最初の入力にフォーカス
+      var firstInput = modal.querySelector('input, select');
+      if (firstInput) firstInput.focus();
+    }
+
     /**
      * WYSIWYG にタイピング演出ブロックを挿入 (SP-074 Phase 3)
      */
-    _insertTypingBlock() {
+    _insertTypingBlock(attrs) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      attrs = attrs || {};
       this._captureUndoSnapshot();
       this.wysiwygEditor.focus();
 
       var div = document.createElement('div');
       div.className = 'zw-typing';
-      div.setAttribute('data-speed', '30ms');
-      div.setAttribute('data-mode', 'auto');
+      div.setAttribute('data-speed', attrs.speed || '30ms');
+      div.setAttribute('data-mode', attrs.mode || 'auto');
       div.setAttribute('aria-live', 'polite');
 
       var textSpan = document.createElement('span');
@@ -549,22 +701,27 @@
     /**
      * WYSIWYG にダイアログブロックを挿入 (SP-074 Phase 3)
      */
-    _insertDialogBlock() {
+    _insertDialogBlock(attrs) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      attrs = attrs || {};
       this._captureUndoSnapshot();
       this.wysiwygEditor.focus();
 
+      var pos = attrs.position || 'left';
+      var sty = attrs.style || 'default';
+      var speaker = attrs.speaker || 'キャラクター';
+
       var div = document.createElement('div');
-      div.className = 'zw-dialog zw-dialog--left zw-dialog--default';
-      div.setAttribute('data-dialog-position', 'left');
-      div.setAttribute('data-dialog-style', 'default');
-      div.setAttribute('data-dialog-speaker', 'キャラクター');
+      div.className = 'zw-dialog zw-dialog--' + pos + ' zw-dialog--' + sty;
+      div.setAttribute('data-dialog-position', pos);
+      div.setAttribute('data-dialog-style', sty);
+      div.setAttribute('data-dialog-speaker', speaker);
 
       var body = document.createElement('div');
       body.className = 'zw-dialog__body';
       var speakerEl = document.createElement('div');
       speakerEl.className = 'zw-dialog__speaker';
-      speakerEl.textContent = 'キャラクター';
+      speakerEl.textContent = speaker;
       var contentEl = document.createElement('div');
       contentEl.className = 'zw-dialog__content';
       contentEl.textContent = 'セリフを入力';
@@ -587,6 +744,307 @@
         }
       }
       this.wysiwygEditor.appendChild(div);
+      this._notifyChange();
+    }
+
+    /**
+     * WYSIWYG にスクロール連動ブロックを挿入
+     */
+    _insertScrollBlock(attrs) {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      attrs = attrs || {};
+      this._captureUndoSnapshot();
+      this.wysiwygEditor.focus();
+
+      var div = document.createElement('div');
+      div.className = 'zw-scroll-trigger';
+      div.setAttribute('data-effect', attrs.effect || 'fade-in');
+      if (attrs.delay) div.setAttribute('data-delay', attrs.delay);
+      div.setAttribute('data-threshold', attrs.threshold || '0.2');
+
+      var content = document.createElement('p');
+      content.textContent = 'スクロールで表示されるテキスト';
+      div.appendChild(content);
+
+      var selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        var range = selection.getRangeAt(0);
+        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          range.collapse(false);
+          range.insertNode(div);
+          var newRange = document.createRange();
+          newRange.selectNodeContents(content);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+          this._notifyChange();
+          return;
+        }
+      }
+      this.wysiwygEditor.appendChild(div);
+      this._notifyChange();
+    }
+
+    /**
+     * WYSIWYG にパステキストブロックを挿入
+     */
+    _insertPathtextBlock(attrs) {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      attrs = attrs || {};
+      this._captureUndoSnapshot();
+      this.wysiwygEditor.focus();
+
+      var pathD = attrs.path || 'M20,100 Q200,10 380,100';
+      var isArc = pathD.indexOf(' A') !== -1;
+      var viewH = isArc ? 200 : 120;
+
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('class', 'zw-pathtext');
+      svg.setAttribute('viewBox', '0 0 400 ' + viewH);
+      svg.setAttribute('width', '400');
+      svg.setAttribute('height', String(viewH));
+      svg.setAttribute('data-path', pathD);
+
+      var defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      var pathId = 'zw-path-' + Date.now();
+      path.setAttribute('id', pathId);
+      path.setAttribute('d', pathD);
+      path.setAttribute('fill', 'none');
+      defs.appendChild(path);
+      svg.appendChild(defs);
+
+      var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      var textPath = document.createElementNS('http://www.w3.org/2000/svg', 'textPath');
+      textPath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', '#' + pathId);
+      textPath.textContent = 'パスに沿ったテキスト';
+      text.appendChild(textPath);
+      svg.appendChild(text);
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'zw-pathtext-wrapper';
+      wrapper.appendChild(svg);
+
+      var selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        var range = selection.getRangeAt(0);
+        if (this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+          range.collapse(false);
+          range.insertNode(wrapper);
+          this._notifyChange();
+          return;
+        }
+      }
+      this.wysiwygEditor.appendChild(wrapper);
+      this._notifyChange();
+    }
+
+    // ---- SP-073 Phase 2: パステキスト制御点オーバーレイ ----
+
+    _attachPathOverlay(pathtextEl) {
+      if (!window.PathHandleOverlay) return;
+      if (!this._pathOverlay) {
+        this._pathOverlay = new window.PathHandleOverlay.PathHandleOverlay();
+        this._pathOverlay.onChange(() => {
+          this._captureUndoSnapshot();
+          this._notifyChange();
+        });
+      }
+      this._pathOverlay.attach(pathtextEl);
+    }
+
+    _detachPathOverlay() {
+      if (this._pathOverlay) {
+        this._pathOverlay.detach();
+      }
+    }
+
+    // ---- SP-073 Phase 3: パステキスト コンテキストメニュー ----
+
+    _showPathtextContextMenu(pathtextEl, x, y) {
+      this._closePathtextContextMenu();
+      var self = this;
+      var PH = window.PathHandleOverlay;
+      if (!PH) return;
+
+      var menu = document.createElement('div');
+      menu.className = 'cl-context-menu';
+      menu.setAttribute('role', 'menu');
+      this._pathtextContextMenu = menu;
+
+      // -- プリセットヘッダー --
+      var presetHeader = document.createElement('div');
+      presetHeader.className = 'cl-context-menu__header';
+      presetHeader.textContent = 'パスの形状を変更';
+      menu.appendChild(presetHeader);
+
+      PH.PRESET_NAMES.forEach(function (name) {
+        var btn = document.createElement('button');
+        btn.className = 'cl-context-menu__item';
+        btn.textContent = PH.PRESET_LABELS[name] || name;
+        btn.setAttribute('role', 'menuitem');
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          self._applyPresetPath(pathtextEl, name);
+          self._closePathtextContextMenu();
+        });
+        menu.appendChild(btn);
+      });
+
+      var sep1 = document.createElement('div');
+      sep1.className = 'cl-context-menu__sep';
+      menu.appendChild(sep1);
+
+      // -- テキスト配置方向 --
+      var sideHeader = document.createElement('div');
+      sideHeader.className = 'cl-context-menu__header';
+      sideHeader.textContent = 'テキスト配置方向';
+      menu.appendChild(sideHeader);
+
+      var currentSide = this._getPathtextSide(pathtextEl);
+      [{ value: '', label: '左 (デフォルト)' }, { value: 'right', label: '右' }].forEach(function (opt) {
+        var btn = document.createElement('button');
+        btn.className = 'cl-context-menu__item';
+        btn.textContent = opt.label;
+        btn.disabled = (currentSide === opt.value);
+        btn.setAttribute('role', 'menuitem');
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          self._applyPathtextSide(pathtextEl, opt.value);
+          self._closePathtextContextMenu();
+        });
+        menu.appendChild(btn);
+      });
+
+      var sep2 = document.createElement('div');
+      sep2.className = 'cl-context-menu__sep';
+      menu.appendChild(sep2);
+
+      // -- パス線表示トグル --
+      var hasStroke = this._pathtextHasStroke(pathtextEl);
+      var strokeBtn = document.createElement('button');
+      strokeBtn.className = 'cl-context-menu__item';
+      strokeBtn.textContent = hasStroke ? 'パス線を非表示' : 'パス線を表示';
+      strokeBtn.setAttribute('role', 'menuitem');
+      strokeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        self._togglePathtextStroke(pathtextEl);
+        self._closePathtextContextMenu();
+      });
+      menu.appendChild(strokeBtn);
+
+      // 位置調整
+      document.body.appendChild(menu);
+      var rect = menu.getBoundingClientRect();
+      var viewW = window.innerWidth;
+      var viewH = window.innerHeight;
+      if (x + rect.width > viewW) x = viewW - rect.width - 4;
+      if (y + rect.height > viewH) y = viewH - rect.height - 4;
+      menu.style.left = x + 'px';
+      menu.style.top = y + 'px';
+    }
+
+    _closePathtextContextMenu() {
+      if (this._pathtextContextMenu && this._pathtextContextMenu.parentNode) {
+        this._pathtextContextMenu.parentNode.removeChild(this._pathtextContextMenu);
+      }
+      this._pathtextContextMenu = null;
+    }
+
+    _applyPresetPath(pathtextEl, presetName) {
+      var PH = window.PathHandleOverlay;
+      if (!PH) return;
+      var newD = PH.generatePresetPath(presetName);
+      if (!newD) return;
+
+      this._captureUndoSnapshot();
+      pathtextEl.setAttribute('data-path', newD);
+
+      var svg = pathtextEl.querySelector('.zw-pathtext__svg');
+      if (svg) {
+        var defPath = svg.querySelector('defs path');
+        if (defPath) defPath.setAttribute('d', newD);
+        var nums = newD.match(/-?\d+\.?\d*/g);
+        if (nums && nums.length >= 2) {
+          var xs = [], ys = [];
+          for (var i = 0; i < nums.length; i++) {
+            (i % 2 === 0 ? xs : ys).push(parseFloat(nums[i]));
+          }
+          var pad = 20;
+          svg.setAttribute('viewBox',
+            (Math.min.apply(null, xs) - pad) + ' ' + (Math.min.apply(null, ys) - pad) + ' '
+            + (Math.max.apply(null, xs) - Math.min.apply(null, xs) + pad * 2) + ' '
+            + (Math.max.apply(null, ys) - Math.min.apply(null, ys) + pad * 2));
+        }
+      }
+
+      // オーバーレイ再アタッチ
+      if (this._pathOverlay && this._pathOverlay.isAttached()) {
+        this._pathOverlay.detach();
+        this._pathOverlay.attach(pathtextEl);
+      }
+      this._notifyChange();
+    }
+
+    _getPathtextSide(pathtextEl) {
+      var svg = pathtextEl.querySelector('.zw-pathtext__svg');
+      if (!svg) return '';
+      var tp = svg.querySelector('textPath');
+      return tp ? (tp.getAttribute('side') || '') : '';
+    }
+
+    _applyPathtextSide(pathtextEl, side) {
+      var svg = pathtextEl.querySelector('.zw-pathtext__svg');
+      if (!svg) return;
+      var tp = svg.querySelector('textPath');
+      if (!tp) return;
+      this._captureUndoSnapshot();
+      if (side) {
+        tp.setAttribute('side', side);
+      } else {
+        tp.removeAttribute('side');
+      }
+      this._notifyChange();
+    }
+
+    _pathtextHasStroke(pathtextEl) {
+      var svg = pathtextEl.querySelector('.zw-pathtext__svg');
+      if (!svg) return false;
+      var defPath = svg.querySelector('defs path');
+      if (!defPath) return false;
+      var stroke = defPath.getAttribute('stroke');
+      return stroke && stroke !== 'none';
+    }
+
+    _togglePathtextStroke(pathtextEl) {
+      var svg = pathtextEl.querySelector('.zw-pathtext__svg');
+      if (!svg) return;
+      var defPath = svg.querySelector('defs path');
+      if (!defPath) return;
+      this._captureUndoSnapshot();
+
+      var current = defPath.getAttribute('stroke');
+      if (current && current !== 'none') {
+        defPath.setAttribute('stroke', 'none');
+        defPath.setAttribute('stroke-width', '0');
+        var useEl = svg.querySelector('use');
+        if (useEl) useEl.remove();
+      } else {
+        defPath.setAttribute('stroke', '#888');
+        defPath.setAttribute('stroke-width', '1');
+        if (!svg.querySelector('use')) {
+          var pathId = defPath.getAttribute('id');
+          if (pathId) {
+            var useNew = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            useNew.setAttribute('href', '#' + pathId);
+            useNew.setAttribute('fill', 'transparent');
+            useNew.setAttribute('stroke', '#888');
+            useNew.setAttribute('stroke-width', '1');
+            var textEl = svg.querySelector('text');
+            if (textEl) svg.insertBefore(useNew, textEl);
+            else svg.appendChild(useNew);
+          }
+        }
+      }
       this._notifyChange();
     }
 
@@ -798,6 +1256,33 @@
               }
             }
           }
+        }
+      });
+
+      // SP-073 Phase 2: パステキスト制御点ハンドル
+      this.wysiwygEditor.addEventListener('pointerdown', (e) => {
+        var pathtextEl = e.target.closest('.zw-pathtext');
+        // ハンドル自体のpointerdownはPathHandleOverlay内で処理される
+        if (e.target.closest('.zw-pathtext-handle')) return;
+        if (pathtextEl && this.wysiwygEditor.contains(pathtextEl)) {
+          this._attachPathOverlay(pathtextEl);
+        } else if (this._pathOverlay && this._pathOverlay.isAttached()) {
+          this._detachPathOverlay();
+        }
+      });
+
+      // SP-073 Phase 3: パステキスト右クリックメニュー
+      this.wysiwygEditor.addEventListener('contextmenu', (e) => {
+        var pathtextEl = e.target.closest('.zw-pathtext');
+        if (pathtextEl && this.wysiwygEditor.contains(pathtextEl)) {
+          e.preventDefault();
+          this._showPathtextContextMenu(pathtextEl, e.clientX, e.clientY);
+        }
+      });
+      // クリックでメニューを閉じる
+      document.addEventListener('click', (e) => {
+        if (this._pathtextContextMenu && !this._pathtextContextMenu.contains(e.target)) {
+          this._closePathtextContextMenu();
         }
       });
 

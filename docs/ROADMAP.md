@@ -14,12 +14,12 @@
 
 ## 現在の状態
 
-- E2E: 430 passed / 1 failed (Canvas Mode既知) / 56 spec files (2026-03-23 時点)
+- E2E: 430 passed / 3 skipped / 58 spec files (2026-03-23 時点)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
 - 仕様書: spec-index.json に 54 エントリ (active 47)
-- 残 partial: SP-073(40%), SP-076(25%)
+- 残 partial: SP-073(90%), SP-076(75%)
 
 ---
 
@@ -65,9 +65,18 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 - [x] Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
 - [x] Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
 
-### A-4. UI/UX 磨き上げ (残タスク)
+### A-4. Editor モード UX 統合改善 (SP-079) -- done
 
-- px→rem段階移行 -- partial (Phase 1完了: font-size全件+CSSカスタムプロパティ+JS setProperty。残: padding/margin/width Phase 2-3)
+chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI + Legacy 変換バナー。
+
+- [x] Step 1: 新規ドキュメントを chapterMode で作成
+- [x] Step 2: chapterMode ロールバック UI (「章モードを解除」ボタン)
+- [x] Step 3: 文字数を countPlainChars() に統一 (DSL/見出し/装飾記法を除外)
+- [x] Step 4: Legacy ドキュメントに「新フォーマットに変換」バナー表示
+
+### A-5. UI/UX 磨き上げ (残タスク)
+
+- px→rem段階移行 -- done (Phase 1: font-size+CSSカスタムプロパティ+JS setProperty / Phase 2: padding+margin / Phase 3: width+height+gap+border-radius+JS静的値)
 
 ### A-4 完了済み
 
@@ -96,10 +105,10 @@ Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 テクスチャオーバーレイ / タイピング演出 / ダイアログボックス / スクロール連動 / SE / ジャンルプリセット。
 SP-062 (テキスト表現アーキテクチャ) 基盤上に構築。Phase 1-6 全完了。
 
-### B-2. パステキスト (SP-073) -- partial (40%)
+### B-2. パステキスト (SP-073) -- partial (90%)
 
 ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。
-Phase 1完了 (:::zw-pathtext DSL + SVGレンダリング)。残: Phase 2 WYSIWYG制御点ハンドルUI。
+Phase 1完了 (DSL + SVGレンダリング)。Phase 2完了 (WYSIWYG制御点ハンドルUI)。Phase 3完了 (プリセットパス7種+右クリックメニュー+side切替+パス線トグル)。残: Phase 4 フリーハンド描画。
 
 ### B-3. Typography進化トラック
 
@@ -139,10 +148,10 @@ Phase 1完了 (:::zw-pathtext DSL + SVGレンダリング)。残: Phase 2 WYSIWY
 
 外部連携とカスタマイズ性の拡充。
 
-### C-1. ドックパネルシステム (SP-076) -- partial (25%)
+### C-1. ドックパネルシステム (SP-076) -- partial (75%)
 
 上下左右へのパネルドッキング。Editorモード専用。
-Phase 1: 左右ドック (done) / Phase 2: タブグループ / Phase 3: フローティング & スナップ。
+Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (上下ドック+プリセット)。E2E 36件。
 
 ### C-2. Google Keep 双方向連携 (SP-075) -- todo
 

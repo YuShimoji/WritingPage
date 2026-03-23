@@ -101,6 +101,67 @@
       node.replaceWith(document.createTextNode(token));
     });
 
+    // .zw-scroll-trigger ブロックのシリアライズ
+    var scrollNodes = container.querySelectorAll('.zw-scroll-trigger');
+    Array.prototype.forEach.call(scrollNodes, function (node, localIdx) {
+      var content = node.textContent || '';
+      var attrs = {};
+      var effect = node.getAttribute('data-effect') || '';
+      var delay = node.getAttribute('data-delay') || '';
+      var threshold = node.getAttribute('data-threshold') || '';
+      if (effect && effect !== 'fade-in') attrs.effect = effect;
+      if (delay) attrs.delay = delay;
+      if (threshold && threshold !== '0.2') attrs.threshold = threshold;
+      var parser = root.TextboxDslParser;
+      var dsl = parser && typeof parser.wrap === 'function'
+        ? parser.wrap(content.trim(), attrs, 'scroll')
+        : ':::zw-scroll\n' + content + '\n:::';
+      var token = 'ZWSCROLL' + localIdx;
+      placeholders.push({ token: token, dsl: dsl });
+      node.replaceWith(document.createTextNode(token));
+    });
+
+    // .zw-pathtext ブロックのシリアライズ (SP-073 Phase 2)
+    var pathtextNodes = container.querySelectorAll('.zw-pathtext');
+    Array.prototype.forEach.call(pathtextNodes, function (node, localIdx) {
+      var svg = node.querySelector('.zw-pathtext__svg');
+      var textPath = svg ? svg.querySelector('textPath') : null;
+      var content = textPath ? (textPath.textContent || '') : (node.textContent || '');
+      var pathD = node.getAttribute('data-path') || '';
+      var attrs = {};
+      if (pathD) attrs.path = pathD;
+      // SVG要素から属性を復元
+      if (svg) {
+        var textEl = svg.querySelector('text');
+        if (textEl) {
+          var fs = textEl.getAttribute('font-size');
+          if (fs && fs !== '1rem') attrs['font-size'] = fs;
+        }
+        if (textPath) {
+          var anchor = textPath.getAttribute('text-anchor');
+          if (anchor && anchor !== 'start') attrs['text-anchor'] = anchor;
+          var offset = textPath.getAttribute('startOffset');
+          if (offset && offset !== '0%') attrs['start-offset'] = offset;
+          var side = textPath.getAttribute('side');
+          if (side) attrs.side = side;
+        }
+        var pathEl = svg.querySelector('defs path');
+        if (pathEl) {
+          var stroke = pathEl.getAttribute('stroke');
+          if (stroke && stroke !== 'none') attrs.stroke = stroke;
+          var sw = pathEl.getAttribute('stroke-width');
+          if (sw && sw !== '0') attrs['stroke-width'] = sw;
+        }
+      }
+      var parser = root.TextboxDslParser;
+      var dsl = parser && typeof parser.wrap === 'function'
+        ? parser.wrap(content.trim(), attrs, 'pathtext')
+        : ':::zw-pathtext\n' + content + '\n:::';
+      var token = 'ZWPATHTEXT' + localIdx;
+      placeholders.push({ token: token, dsl: dsl });
+      node.replaceWith(document.createTextNode(token));
+    });
+
     return {
       html: container.innerHTML,
       placeholders: placeholders

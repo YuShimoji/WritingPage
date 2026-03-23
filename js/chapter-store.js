@@ -435,6 +435,46 @@
     return true;
   }
 
+  /**
+   * chapterMode を解除して元のテキストに戻す
+   * assembleFullText で全章を結合し、doc.content に書き戻す
+   * @param {string} docId
+   * @returns {string|false} 復元されたテキスト、または失敗時 false
+   */
+  function revertChapterMode(docId) {
+    if (!ensureStorage()) return false;
+    var doc = getDocRecord(docId);
+    if (!doc || !doc.chapterMode) return false;
+
+    // 全章を結合してテキストに戻す
+    var fullText = assembleFullText(docId);
+
+    // 章レコードを削除
+    var docs = STORAGE.loadDocuments();
+    for (var i = docs.length - 1; i >= 0; i--) {
+      if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
+        // IDB からも削除
+        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+          window.ZenWriterIDB.deleteDoc(docs[i].id).catch(function () {});
+        }
+        docs.splice(i, 1);
+      }
+    }
+
+    // ドキュメントの chapterMode を解除し、content を復元
+    for (var j = 0; j < docs.length; j++) {
+      if (docs[j] && docs[j].id === docId) {
+        docs[j].chapterMode = false;
+        docs[j].content = fullText;
+        docs[j].updatedAt = Date.now();
+        break;
+      }
+    }
+
+    STORAGE.saveDocuments(docs);
+    return fullText;
+  }
+
   // ---- Public API ----
 
   window.ZWChapterStore = {
@@ -456,6 +496,7 @@
     splitIntoChapters: splitIntoChapters,
 
     // Migration
-    migrateToChapterMode: migrateToChapterMode
+    migrateToChapterMode: migrateToChapterMode,
+    revertChapterMode: revertChapterMode
   };
 })();

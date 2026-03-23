@@ -38,6 +38,34 @@ async function enterFocusMode(page) {
   await page.waitForTimeout(200);
 }
 
+/**
+ * 現在のドキュメントを Legacy モード (chapterMode: false) に強制する
+ * SP-079 で chapterMode がデフォルトになったため、Legacy テストにはこれが必要
+ */
+async function forceLegacyMode(page) {
+  await page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    if (!S) return;
+    var docId = S.getCurrentDocId();
+    if (!docId) return;
+    var docs = S.loadDocuments();
+    // chapterMode フラグを外す + 章レコードを削除
+    var cleaned = [];
+    for (var i = 0; i < docs.length; i++) {
+      if (docs[i] && docs[i].id === docId) {
+        docs[i].chapterMode = false;
+        cleaned.push(docs[i]);
+      } else if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
+        // 章レコードをスキップ (削除)
+      } else {
+        cleaned.push(docs[i]);
+      }
+    }
+    S.saveDocuments(cleaned);
+  });
+  await page.waitForTimeout(100);
+}
+
 // ---------------------------------------------------------------------------
 // Issue A: 章モード一方向移行
 // ---------------------------------------------------------------------------
@@ -49,6 +77,7 @@ test.describe('Issue A: 章モード一方向移行', () => {
   });
 
   test('A-1: Legacy モードで見出しがあれば「章モードに変換」ボタンが表示される', async ({ page }) => {
+    await forceLegacyMode(page);
     await setEditorContent(page, '## 第一章\n\n本文A\n\n## 第二章\n\n本文B');
     await enterFocusMode(page);
 
@@ -57,44 +86,52 @@ test.describe('Issue A: 章モード一方向移行', () => {
     await expect(migrateBtn).toHaveText('章モードに変換');
   });
 
-  test('A-2: 章モード移行後にロールバックボタンが存在しない', async ({ page }) => {
+  test('A-2: 章モードで「章モードを解除」ボタンが存在する', async ({ page }) => {
     await setEditorContent(page, '## 第一章\n\n本文A\n\n## 第二章\n\n本文B');
     await enterFocusMode(page);
 
-    // migrate ボタンをクリック (confirm をオートで承認)
-    page.once('dialog', d => d.accept());
-    await page.locator('.cl-migrate-btn').click();
-    await page.waitForTimeout(400);
-
-    // 「章モードに変換」ボタンが消える
-    await expect(page.locator('.cl-migrate-btn')).toHaveCount(0);
-
-    // ロールバック用のボタン類が存在しないことを確認
-    const revertBtns = await page.evaluate(() => {
-      var texts = Array.from(document.querySelectorAll('button')).map(b => b.textContent.trim());
-      return texts.filter(t => t.includes('解除') || t.includes('元に戻す') || t.includes('ロールバック') || t.includes('移行前'));
-    });
-    // 確認: ロールバック UI が存在しない (Issue A の指摘通り)
-    expect(revertBtns).toHaveLength(0);
+    // chapterMode (デフォルト) で解除ボタンが表示される
+    const revertBtn = page.locator('.cl-revert-btn');
+    await expect(revertBtn).toBeVisible({ timeout: 5000 });
+    await expect(revertBtn).toHaveText('章モードを解除');
   });
 
-  test('A-3: 章モード移行後に chapterMode フラグが true になる', async ({ page }) => {
-    await setEditorContent(page, '## 章1\n\n本文\n\n## 章2\n\n本文2');
-    await enterFocusMode(page);
+  test('A-3: migrateToChapterMode API で chapterMode フラグが true になる', async ({ page }) => {
+    // API レベルで Legacy→chapterMode 移行を検証
+    const result = await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      var CS = window.ZWChapterStore;
+      if (!S || !CS) return { error: 'Store not available' };
 
-    page.once('dialog', d => d.accept());
-    await page.locator('.cl-migrate-btn').click();
-    await page.waitForTimeout(400);
+      // Legacy ドキュメントを直接作成 (chapterMode 解除)
+      var doc = S.createDocument('Legacy テスト', '## 章1\n\n本文\n\n## 章2\n\n本文2');
+      var docs = S.loadDocuments();
+      for (var i = 0; i < docs.length; i++) {
+        if (docs[i].id === doc.id) {
+          docs[i].chapterMode = false;
+          // splitIntoChapters で作られた章も削除
+          break;
+        }
+      }
+      // 章レコード削除
+      docs = docs.filter(function(d) {
+        return !(d.type === 'chapter' && d.parentId === doc.id);
+      });
+      S.saveDocuments(docs);
+      S.setCurrentDocId(doc.id);
 
-    const isChMode = await page.evaluate(() => {
-      var Store = window.ZWChapterStore;
-      var docId = window.ZenWriterEditor && typeof window.ZenWriterEditor.getCurrentDocId === 'function'
-        ? window.ZenWriterEditor.getCurrentDocId()
-        : null;
-      if (!Store || !docId) return null;
-      return Store.isChapterMode(docId);
+      var before = CS.isChapterMode(doc.id);
+      var ok = CS.migrateToChapterMode(doc.id);
+      var after = CS.isChapterMode(doc.id);
+      var chapters = CS.getChaptersForDoc(doc.id);
+
+      return { before: before, ok: ok, after: after, count: chapters.length };
     });
-    expect(isChMode).toBe(true);
+
+    expect(result.before).toBe(false);
+    expect(result.ok).toBe(true);
+    expect(result.after).toBe(true);
+    expect(result.count).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -192,25 +229,10 @@ test.describe('Issue C: Legacy モード章追加のテキスト汚染', () => {
   });
 
   test('C-1: Legacy モードで「+ 新しい章」を押すとMarkdownに見出しが挿入される', async ({ page }) => {
+    await forceLegacyMode(page);
     const initialContent = '## 序章\n\nこれは序章の本文です。読者が最初に読む部分。';
     await setEditorContent(page, initialContent);
     await enterFocusMode(page);
-
-    // chapterMode ではないことを確認
-    const isChMode = await page.evaluate(() => {
-      var Store = window.ZWChapterStore;
-      var docId = window.ZenWriterEditor && typeof window.ZenWriterEditor.getCurrentDocId === 'function'
-        ? window.ZenWriterEditor.getCurrentDocId()
-        : null;
-      if (!Store || !docId) return false;
-      return Store.isChapterMode(docId);
-    });
-
-    if (isChMode) {
-      // chapterMode になっている場合はテスト対象外
-      test.skip(true, 'Already in chapterMode — Issue C applies only to Legacy mode');
-      return;
-    }
 
     // 「+ 新しい章」ボタンをクリック
     const addBtn = page.locator('#focus-add-chapter');

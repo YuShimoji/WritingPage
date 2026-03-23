@@ -22,7 +22,7 @@
         _updateWordCountImmediate(manager) {
             if (!manager.wordCountElement) return;
             const text = manager.getEditorValue ? manager.getEditorValue() : (manager.editor ? manager.editor.value : '');
-            const count = (text || '').length;
+            const count = EditorUI._countPlainChars(text || '');
             manager.wordCountElement.textContent = `文字数: ${count}`;
 
             if (manager.goalProgressEl && manager.goalProgressBarEl) {
@@ -44,6 +44,22 @@
                     manager.goalProgressEl.style.display = 'none';
                 }
             }
+        },
+
+        /**
+         * Markdown ソースからプレーンテキスト文字数を返す (DSL/見出し/装飾記法を除外)
+         */
+        _countPlainChars(markdown) {
+            if (!markdown) return 0;
+            return markdown
+                .replace(/^:::zw-[^\n]*\n?/gm, '')
+                .replace(/^:::\s*$/gm, '')
+                .replace(/^#{1,6}\s+/gm, '')
+                .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                .replace(/\{([^|]+)\|[^}]+\}/g, '$1')
+                .replace(/\{kenten\|([^}]+)\}/g, '$1')
+                .trim()
+                .length;
         },
 
         /**
@@ -109,11 +125,11 @@
         applyWidthMode(mode) {
             const root = document.documentElement;
             if (mode === 'narrow') {
-                root.style.setProperty('--editor-max-width', '600px');
+                root.style.setProperty('--editor-max-width', '37.5rem');
             } else if (mode === 'wide') {
-                root.style.setProperty('--editor-max-width', '1200px');
+                root.style.setProperty('--editor-max-width', '75rem');
             } else {
-                root.style.setProperty('--editor-max-width', '800px');
+                root.style.setProperty('--editor-max-width', '50rem');
             }
         },
 
