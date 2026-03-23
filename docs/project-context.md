@@ -6,14 +6,15 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 19 — ガジェット大整理(33→27) + MarkdownReference配置修正 + help/reference分離 + legacy仕様7件removed化
+- 直近の状態: session 20 — session 19 検証 (Playwright自動検証13テスト全通過)
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 514 passed / 1 failed (canvas-mode既知) / 3 skipped
+- E2E: 514 passed / 1 failed (canvas-mode既知) / 5 skipped + 検証spec 13 passed
 - spec-index: 54エントリ (done 41, partial 2, removed 10, superseded 1)
-- Q1/Q2/Q3 全解決済み。残: Q4(サンプル位置づけ)
+- Q1/Q2/Q3/Q4 全解決済み
+- 発見事項: SectionsNavigator が登録済み(28個)だがパネル未配置(配置27個)
 - EPUB: スコープ外 (2026-03-23 除外決定)
 
 ---
@@ -73,15 +74,14 @@
 ## HANDOFF SNAPSHOT
 
 - 現在の主レーン: Experience Slice / Authoring
-- 現在のスライス: ガジェット整理 + レガシー仕様クリーンアップ
-- 今回 (session 19) の変更:
-  - ガジェット整理: 33→27 (Clock/Samples/NodeGraph/GraphicNovel削除、UIDesign/SceneGradient無効化)
-  - ロードアウト再構成: graphic-novelプリセット削除、全プリセットにMarkdownReference追加、ミニマル/脚本の不要ガジェット除去
-  - gadgets-help.js: ヘルプからリファレンスを分離、Lucideアイコン除去、Wiki手順を現行UIに更新、セクション9→6に削減
-  - ui-labels.js: 「ヘルプ / リファレンス」→「ヘルプ」
-  - legacy仕様7件: SP-003/006/014/015/021/031/032/047を全てremoved化
-  - spec-index.json: legacy→removed一括変更、SP-004 summary更新
-  - GADGETS.md: ガジェット一覧27個に更新、削除/無効化の理由記載
-- E2E: 要確認 (ガジェット削除でテスト影響の可能性あり)
-- 未確定の設計論点: SP-076 Phase 4
+- 現在のスライス: session 19 ガジェット整理の検証完了
+- 今回 (session 20) の変更:
+  - Playwright自動検証スクリプト作成 (e2e/session19-verify.spec.js, 13テスト)
+  - 全13テスト passed: ガジェット削除/無効化/配置/ロードアウト/ヘルプモーダル/ui-labels
+  - スクリーンショット9枚撮影 (e2e/verification-screenshots/)
+  - 発見: SectionsNavigator が登録済み(28個)だがどのパネルにも未配置
+- 次回最初に確認すべきファイル:
+  - e2e/session19-verify.spec.js (検証テスト)
+  - e2e/verification-screenshots/ (スクリーンショット)
+- 未確定の設計論点: SP-076 Phase 4, SectionsNavigatorの扱い
 - 今は触らない範囲: SP-073 Phase 4
