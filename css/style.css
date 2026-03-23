@@ -4593,7 +4593,7 @@ html[data-embed='true'] #editor {
 /* SP-073 Phase 2: 制御点ハンドルオーバーレイ */
 .zw-pathtext--editing {
   outline: 1px dashed var(--accent-color, #5b8dd9);
-  outline-offset: 4px;
+  outline-offset: 0.25rem;
 }
 
 .zw-pathtext-handle {

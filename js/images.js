@@ -174,7 +174,7 @@
         wrap.style.position = 'absolute';
         wrap.style.cursor = 'move';
         wrap.style.border = '2px solid var(--border-color, rgba(0,0,0,0.2))';
-        wrap.style.borderRadius = '4px';
+        wrap.style.borderRadius = '0.25rem';
         wrap.style.background = 'color-mix(in srgb, var(--bg-color, #fff) 80%, transparent)';
         try { wrap.style.zIndex = String(it.z || (i + 1)); } catch (e) { void e; }
         if ((it.id || '') === focusTargetId) {

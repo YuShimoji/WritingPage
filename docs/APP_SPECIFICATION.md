@@ -350,7 +350,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 | SP-070 | モードアーキテクチャ | partial（Phase 1完了） |
 | SP-071 | チャプター管理再設計 | partial（Phase 1完了） |
 | SP-072 | セクションリンク & インタラクティブナビ | todo |
-| SP-073 | パステキスト | todo |
+| SP-073 | パステキスト | partial（Phase 1+2完了, Phase 3 todo） |
 | SP-074 | Web小説演出統合 | todo |
 | SP-075 | Google Keep連携 | todo |
 | SP-076 | ドックパネルシステム | todo |

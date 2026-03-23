@@ -85,7 +85,7 @@
 @keyframes slideIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(0.625rem);
     }
 
     to {
@@ -116,11 +116,11 @@
     }
 
     25% {
-        transform: translateX(-2px);
+        transform: translateX(-0.125rem);
     }
 
     75% {
-        transform: translateX(2px);
+        transform: translateX(0.125rem);
     }
 }
 
@@ -135,11 +135,11 @@
     }
 
     40% {
-        transform: translateY(-5px);
+        transform: translateY(-0.3125rem);
     }
 
     60% {
-        transform: translateY(-3px);
+        transform: translateY(-0.1875rem);
     }
 }
 

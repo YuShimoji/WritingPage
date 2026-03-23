@@ -29,7 +29,7 @@
       collageSection.style.gap = '0.375rem';
       collageSection.style.padding = '0.5rem';
       collageSection.style.border = '1px solid var(--border-color)';
-      collageSection.style.borderRadius = '4px';
+      collageSection.style.borderRadius = '0.25rem';
       collageSection.style.marginTop = '0.5rem';
 
       var collageTitle = document.createElement('div');
@@ -66,7 +66,7 @@
       rowsInput.min = '1';
       rowsInput.max = '10';
       rowsInput.value = '2';
-      rowsInput.style.width = '50px';
+      rowsInput.style.width = '3.125rem';
       var colsLabel = document.createElement('label');
       colsLabel.textContent = (window.UILabels && window.UILabels.COLLAGE_GRID_COLS) || '列:';
       colsLabel.style.fontSize = '0.75rem';
@@ -75,7 +75,7 @@
       colsInput.min = '1';
       colsInput.max = '10';
       colsInput.value = '2';
-      colsInput.style.width = '50px';
+      colsInput.style.width = '3.125rem';
       gridConfigRow.appendChild(rowsLabel);
       gridConfigRow.appendChild(rowsInput);
       gridConfigRow.appendChild(colsLabel);
@@ -211,7 +211,7 @@
           var images = (API && typeof API._load === 'function') ? API._load() : [];
           images.forEach(function (it) {
             var row = document.createElement('div'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '0.5rem';
-            var thumb = document.createElement('img'); thumb.src = it.src; thumb.alt = it.alt || ''; thumb.style.width = '40px'; thumb.style.height = '40px'; thumb.style.objectFit = 'cover'; thumb.style.border = '1px solid var(--border-color)';
+            var thumb = document.createElement('img'); thumb.src = it.src; thumb.alt = it.alt || ''; thumb.style.width = '2.5rem'; thumb.style.height = '2.5rem'; thumb.style.objectFit = 'cover'; thumb.style.border = '1px solid var(--border-color)';
             var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex = '1 1 auto'; name.style.fontSize = '0.75rem'; name.style.opacity = '0.8';
             var editBtn = document.createElement('button'); editBtn.type = 'button'; editBtn.className = 'small'; editBtn.textContent = (window.UILabels && window.UILabels.BTN_EDIT) || '編集'; editBtn.title = (window.UILabels && window.UILabels.BTN_EDIT_TITLE) || 'プロパティ編集';
             editBtn.addEventListener('click', function () { showEditDialog(it.id, it); });

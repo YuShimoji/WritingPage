@@ -2,13 +2,13 @@
 .small {
   font-size: 0.75rem;
   padding: 0.125rem 0.375rem;
-  border-radius: 3px;
+  border-radius: 0.1875rem;
 }
 
 /* ボタン共通スタイル（モダン化） */
 button, input[type="button"], .button {
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 0.375rem;
   background-color: var(--bg-color);
   color: var(--text-color);
   cursor: pointer;
@@ -25,7 +25,7 @@ button:hover, input[type="button"]:hover, .button:hover {
 /* 入力要素モダン化 */
 input[type="text"], input[type="range"], input[type="number"], textarea {
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   padding: 0.25rem 0.5rem;
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -39,7 +39,7 @@ button,
   color: white;
   border: none;
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
@@ -67,9 +67,9 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 4px;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
 }
 
 .icon-button:hover {
@@ -86,7 +86,7 @@ input[type='date'] {
   margin-bottom: 1rem;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background-color: var(--bg-color);
   color: var(--text-color);
   font-family: inherit;
@@ -104,17 +104,17 @@ input[type='radio'] {
 
 /* Range slider styling (WebKit) */
 input[type='range']::-webkit-slider-runnable-track {
-  height: 6px;
+  height: 0.375rem;
   background: linear-gradient(90deg, var(--accent-color), var(--accent-color));
-  border-radius: 999px;
+  border-radius: 62.4375rem;
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   background: var(--accent-color);
-  border: 2px solid #fff;
+  border: 0.125rem solid #fff;
   border-radius: 50%;
   margin-top: -0.3125rem; /* center on 0.375rem track */
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
@@ -122,21 +122,21 @@ input[type='range']::-webkit-slider-thumb {
 
 /* Range slider styling (Firefox) */
 input[type='range']::-moz-range-track {
-  height: 6px;
+  height: 0.375rem;
   background: var(--accent-color);
-  border-radius: 999px;
+  border-radius: 62.4375rem;
 }
 input[type='range']::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 1rem;
+  height: 1rem;
   background: var(--accent-color);
-  border: 2px solid #fff;
+  border: 0.125rem solid #fff;
   border-radius: 50%;
   box-shadow: 0 1px 3px rgba(0,0,0,0.25);
 }
 
 input[type='color'] {
-  height: 40px;
+  height: 2.5rem;
   padding: 0.2rem;
   margin-bottom: 0.5rem;
 }
@@ -154,7 +154,7 @@ input[type='color'] {
   border: 1px solid var(--border-color);
   background-color: var(--bg-color);
   color: var(--text-color);
-  border-radius: 4px;
+  border-radius: 0.25rem;
   cursor: pointer;
   transition: all 0.2s;
 }

@@ -29,13 +29,13 @@
         var packSection = el('div');
         packSection.style.display = 'flex';
         packSection.style.flexDirection = 'column';
-        packSection.style.gap = '4px';
-        packSection.style.paddingBottom = '8px';
+        packSection.style.gap = '0.25rem';
+        packSection.style.paddingBottom = '0.5rem';
         packSection.style.borderBottom = '1px solid var(--border-color, #ddd)';
 
         var packHeading = el('div');
         packHeading.textContent = '作業シーン';
-        packHeading.style.fontSize = '11px';
+        packHeading.style.fontSize = '0.6875rem';
         packHeading.style.opacity = '0.7';
         packHeading.style.fontWeight = 'bold';
         packSection.appendChild(packHeading);
@@ -43,7 +43,7 @@
         var packBtnRow = el('div');
         packBtnRow.style.display = 'flex';
         packBtnRow.style.flexWrap = 'wrap';
-        packBtnRow.style.gap = '4px';
+        packBtnRow.style.gap = '0.25rem';
 
         function updatePackButtons() {
           var currentId = TP.getCurrentPackId();
@@ -66,7 +66,7 @@
         packSection.appendChild(packBtnRow);
 
         var packInfo = el('div');
-        packInfo.style.fontSize = '11px';
+        packInfo.style.fontSize = '0.6875rem';
         packInfo.style.opacity = '0.6';
 
         function updatePackInfo() {
@@ -96,7 +96,7 @@
       const selectLabel = el('label');
       selectLabel.textContent = (window.UILabels && window.UILabels.PROFILE_LABEL) || 'プロファイル';
       selectLabel.style.fontSize = '0.75rem';
-      selectLabel.style.minWidth = '70px';
+      selectLabel.style.minWidth = '4.375rem';
 
       const select = el('select');
       select.style.flex = '1';

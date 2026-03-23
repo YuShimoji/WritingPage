@@ -22,7 +22,7 @@
     row.style.display = 'flex';
     row.style.alignItems = 'center';
     row.style.padding = '0.25rem 0.5rem';
-    row.style.borderRadius = '4px';
+    row.style.borderRadius = '0.25rem';
     row.style.cursor = 'pointer';
     row.style.userSelect = 'none';
 
@@ -44,7 +44,7 @@
     } else {
       // ドキュメントの場合: インデント用スペース
       const spacer = document.createElement('span');
-      spacer.style.width = '12px';
+      spacer.style.width = '0.75rem';
       spacer.style.display = 'inline-block';
       row.appendChild(spacer);
     }

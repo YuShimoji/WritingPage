@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 100%完了(A-1/2/3/4 done, px→rem done)。B: SP-074 done, SP-061 done, SP-050 done, SP-073/70%。C: SP-076/75%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
+    "summary": "Priority A-E の開発計画。A: 100%完了(A-1/2/3/4 done, px→rem done)。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076/25%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
   },
   {
     "id": "SP-006",
@@ -433,10 +433,10 @@
     "id": "SP-073",
     "title": "パステキスト仕様",
     "status": "partial",
-    "pct": 70,
+    "pct": 90,
     "cat": "ui",
     "file": "docs/specs/spec-path-text.md",
-    "summary": "Phase 1完了: DSL+SVGレンダリング。Phase 2完了: WYSIWYG制御点ハンドルUI(PathHandleOverlay+パスコマンドパーサー+ドラッグ編集+ガイドライン+data-path同期+Bridge pathtext serialize)。E2E 12件。Phase 3: プリセットパス/フリーハンド。",
+    "summary": "Phase 1完了: DSL+SVGレンダリング。Phase 2完了: WYSIWYG制御点ハンドルUI。Phase 3完了: プリセットパス7種+右クリックメニュー+side切替+パス線トグル。E2E 20件。残: Phase 4フリーハンド描画。",
     "related": ["SP-016", "SP-062"]
   },
   {
@@ -465,7 +465,7 @@
     "pct": 75,
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
-    "summary": "Phase 1-3完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。E2E 36件。残: Phase 4(上下ドック+プリセット)。",
+    "summary": "Phase 1-3完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。E2E 45件。残: Phase 4(上下ドック+プリセット)。",
     "related": ["SP-070", "SP-051", "SP-071"]
   },
   {

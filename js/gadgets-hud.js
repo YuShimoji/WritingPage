@@ -36,7 +36,7 @@
       posSelect.style.width = '100%';
       posSelect.style.padding = '0.25rem';
       posSelect.style.border = '1px solid var(--border-color)';
-      posSelect.style.borderRadius = '4px';
+      posSelect.style.borderRadius = '0.25rem';
       posSelect.style.background = 'var(--bg-color)';
       posSelect.style.color = 'var(--text-color)';
 
@@ -61,7 +61,7 @@
       durInput.style.width = '100%';
       durInput.style.padding = '0.25rem';
       durInput.style.border = '1px solid var(--border-color)';
-      durInput.style.borderRadius = '4px';
+      durInput.style.borderRadius = '0.25rem';
 
       // 背景色
       var bgLabel = document.createElement('label');
@@ -70,7 +70,7 @@
       bgInput.type = 'color';
       bgInput.value = mergedHud.bg;
       bgInput.style.width = '100%';
-      bgInput.style.height = '32px';
+      bgInput.style.height = '2rem';
 
       // 文字色
       var fgLabel = document.createElement('label');
@@ -79,7 +79,7 @@
       fgInput.type = 'color';
       fgInput.value = mergedHud.fg;
       fgInput.style.width = '100%';
-      fgInput.style.height = '32px';
+      fgInput.style.height = '2rem';
 
       // 不透明度
       var opLabel = document.createElement('label');
@@ -114,7 +114,7 @@
       widthInput.style.width = '100%';
       widthInput.style.padding = '0.25rem';
       widthInput.style.border = '1px solid var(--border-color)';
-      widthInput.style.borderRadius = '4px';
+      widthInput.style.borderRadius = '0.25rem';
 
       // フォントサイズ
       var fsLabel = document.createElement('label');
@@ -129,7 +129,7 @@
       fsInput.style.width = '100%';
       fsInput.style.padding = '0.25rem';
       fsInput.style.border = '1px solid var(--border-color)';
-      fsInput.style.borderRadius = '4px';
+      fsInput.style.borderRadius = '0.25rem';
 
       // メッセージ
       var msgLabel = document.createElement('label');
@@ -141,7 +141,7 @@
       msgInput.style.width = '100%';
       msgInput.style.padding = '0.25rem';
       msgInput.style.border = '1px solid var(--border-color)';
-      msgInput.style.borderRadius = '4px';
+      msgInput.style.borderRadius = '0.25rem';
 
       // ピン留め
       var pinLabel = document.createElement('label');

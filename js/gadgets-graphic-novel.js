@@ -188,7 +188,7 @@
 
     var presetTextInput = document.createElement('textarea');
     presetTextInput.className = 'gn-json-input';
-    presetTextInput.style.minHeight = '60px';
+    presetTextInput.style.minHeight = '3.75rem';
     presetTextInput.placeholder = 'Enter text for preset...';
     presetSection.appendChild(presetTextInput);
 
@@ -481,7 +481,7 @@
 
         var lbl = document.createElement('label');
         lbl.textContent = fields[f].label;
-        lbl.style.width = '40px';
+        lbl.style.width = '2.5rem';
         lbl.style.fontSize = '0.75rem';
         row.appendChild(lbl);
 
@@ -505,7 +505,7 @@
 
       var posLbl = document.createElement('label');
       posLbl.textContent = 'Pos';
-      posLbl.style.width = '40px';
+      posLbl.style.width = '2.5rem';
       posLbl.style.fontSize = '0.75rem';
       posRow.appendChild(posLbl);
 

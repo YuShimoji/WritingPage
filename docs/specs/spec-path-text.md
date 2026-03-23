@@ -8,8 +8,9 @@
 ## ステータス
 
 - Phase 1: done (DSL記法 + SVGレンダリング + プレビュー/エクスポート対応)
-- Phase 2: todo (WYSIWYG制御点ハンドルUI)
-- Phase 3: todo (プリセットパス / フリーハンド)
+- Phase 2: done (WYSIWYG制御点ハンドルUI + パスコマンドパーサー + Bridge pathtext serialize)
+- Phase 3: done (プリセットパス7種 + 右クリックメニュー + side切替 + パス線トグル)
+- Phase 4: todo (フリーハンド描画)
 
 ---
 
@@ -80,16 +81,98 @@ viewBox が指定されない場合、パスの座標値から自動計算:
 
 ---
 
-## 未決定事項 (Phase 2以降)
+## Phase 2 実装内容
 
-- [ ] WYSIWYG上での制御点ハンドル編集UI
+### WYSIWYG制御点ハンドルUI
+
+WYSIWYGモードでパステキストブロックをクリックすると、ベジェ曲線の制御点をドラッグ編集できる。
+
+#### ユーザー操作
+
+1. パステキストブロックをクリック → 制御点ハンドルが表示
+2. ハンドルをドラッグ → パスがリアルタイム変形
+3. ドラッグ終了 → `data-path` 属性と DSL が自動更新
+4. パス外をクリック → ハンドル非表示
+
+#### ハンドルの種類
+
+| 種類 | CSS クラス | 表示 |
+|------|-----------|------|
+| 端点 (M/L/Q終点/C終点/A終点) | `zw-pathtext-handle--endpoint` | 塗り潰し円 (6px) |
+| 制御点 (Q制御/C制御1,2/S制御) | `zw-pathtext-handle--control` | 中空円 (6px) |
+| ガイドライン | `zw-pathtext-handle__guide` | 点線 |
+
+#### 対応パスコマンド
+
+M, L, Q, C, S, T, A (H/V は非対応)
+
+### 対応箇所
+
+- `js/modules/editor/PathHandleOverlay.js`: パスコマンドパーサー + ハンドルオーバーレイ UI
+- `js/editor-wysiwyg.js`: クリック検出 + オーバーレイ attach/detach
+- `js/modules/editor/TextboxRichTextBridge.js`: pathtext シリアライズ追加
+- `js/modules/editor/TextboxDslParser.js`: `stringifyAttrs` に pathtext 属性キー追加
+- `css/style.css`: ハンドルスタイル (accent-color, reduced-motion 対応)
+- `e2e/pathtext-handles.spec.js`: E2E 20件
+
+### 暗黙仕様
+
+- ハンドルデザイン: シンプル円方式 (端点=塗り潰し, 制御点=中空, ガイドライン=点線)。色は `--accent-color`
+- パスプリセットUI: Phase 3 に送る
+- テキスト配置方向切り替えUI: Phase 3 で右クリックメニューに実装済み
+- viewBox はドラッグ中に自動再計算される
+
+---
+
+## Phase 3 実装内容
+
+### プリセットパス & コンテキストメニュー
+
+パステキスト上で右クリックすると、パスの形状変更・テキスト配置方向・パス線表示をコントロールできるコンテキストメニューが表示される。
+
+#### プリセット一覧 (7種)
+
+| 名前 | ラベル | パスコマンド |
+|------|--------|-------------|
+| line | 直線 | M + L |
+| curve | 上カーブ | M + Q |
+| sCurve | S字カーブ | M + C |
+| arc | 円弧 | M + A |
+| wave | 波線 | M + Q + Q |
+| curveDown | 下カーブ | M + Q |
+| step | 階段 | M + L + L + L |
+
+#### コンテキストメニュー構成
+
+1. **パスの形状を変更** (ヘッダー) → 7種プリセットボタン
+2. **テキスト配置方向** (ヘッダー) → 左(デフォルト) / 右
+3. **パス線を表示/非表示** → stroke トグル
+
+#### 暗黙仕様
+
+- プリセット適用時、viewBox は自動再計算
+- プリセット適用時、ハンドルオーバーレイは自動再アタッチ
+- コンテキストメニューは `cl-context-menu` パターン (BEM, viewport clamping, role=menu)
+- フリーハンド描画は Phase 4 に送る (ベジェ近似アルゴリズムの工数大)
+
+### 対応箇所
+
+- `js/modules/editor/PathHandleOverlay.js`: PRESETS / PRESET_LABELS / generatePresetPath 追加
+- `js/editor-wysiwyg.js`: contextmenu リスナー + _showPathtextContextMenu + _applyPresetPath + side/stroke操作
+- `css/style.css`: `.cl-context-menu__header` スタイル追加
+- `e2e/pathtext-handles.spec.js`: Phase 3 E2E 8件追加 (合計20件)
+
+---
+
+## 未決定事項 (Phase 4以降)
+
+- [ ] フリーハンド描画 (ポインタ追跡 + Ramer-Douglas-Peucker簡略化 + ベジェ近似)
 - [ ] パスの最大複雑度（制御点の上限数）
 - [ ] 日本語縦書きテキストのパス配置対応
 - [ ] パステキスト内でのルビ表示の可否
 - [ ] パスの共有・再利用（テンプレート化）
 - [ ] パステキストへのアニメーション適用（SP-074 との組み合わせ）
 - [ ] モバイル上でのパスハンドル操作の実現可能性
-- [ ] プリセットパス（円弧、波線、螺旋等）
 
 ---
 
@@ -103,8 +186,12 @@ viewBox が指定されない場合、パスの座標値から自動計算:
 
 ## 影響範囲
 
-- `js/modules/editor/TextboxDslParser.js`: BLOCK_TYPES + renderPathtextHtml
+- `js/modules/editor/TextboxDslParser.js`: BLOCK_TYPES + renderPathtextHtml + stringifyAttrs pathtext属性
 - `js/modules/editor/TextboxEffectRenderer.js`: renderPathtext
+- `js/modules/editor/PathHandleOverlay.js`: パスコマンドパーサー + ハンドルオーバーレイUI (Phase 2)
+- `js/modules/editor/TextboxRichTextBridge.js`: pathtext シリアライズ (Phase 2)
+- `js/editor-wysiwyg.js`: pathtext クリック検出 + オーバーレイ統合 (Phase 2)
 - `js/editor-preview.js`: DSL退避正規表現
 - `js/reader-preview.js`: DSL退避正規表現
-- `css/style.css`: .zw-pathtext スタイル
+- `css/style.css`: .zw-pathtext スタイル + ハンドルスタイル (Phase 2)
+- `e2e/pathtext-handles.spec.js`: Phase 2 E2E 20件

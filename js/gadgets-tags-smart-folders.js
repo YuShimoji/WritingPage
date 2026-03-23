@@ -58,9 +58,9 @@
       var treeContainer = document.createElement('div');
       treeContainer.className = 'tags-smart-folders-tree';
       treeContainer.style.border = '1px solid var(--border-color)';
-      treeContainer.style.borderRadius = '4px';
+      treeContainer.style.borderRadius = '0.25rem';
       treeContainer.style.padding = '0.375rem';
-      treeContainer.style.maxHeight = '400px';
+      treeContainer.style.maxHeight = '25rem';
       treeContainer.style.overflowY = 'auto';
 
       var state = {
@@ -130,7 +130,7 @@
         item.style.justifyContent = 'space-between';
         item.style.padding = '0.25rem 0.375rem';
         item.style.cursor = 'pointer';
-        item.style.borderRadius = '4px';
+        item.style.borderRadius = '0.25rem';
         item.style.marginBottom = '0.125rem';
         
         if (isSelected) {

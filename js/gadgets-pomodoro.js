@@ -28,7 +28,7 @@
       displayArea.className = 'pomodoro-display';
       displayArea.style.textAlign = 'center';
       displayArea.style.padding = '1rem';
-      displayArea.style.borderRadius = '8px';
+      displayArea.style.borderRadius = '0.5rem';
       displayArea.style.background = 'var(--sidebar-bg, #f5f5f5)';
       displayArea.style.border = '1px solid var(--border-color, #e0e0e0)';
 
@@ -52,9 +52,9 @@
       var progressBar = document.createElement('div');
       progressBar.className = 'pomodoro-progress';
       progressBar.style.width = '100%';
-      progressBar.style.height = '4px';
+      progressBar.style.height = '0.25rem';
       progressBar.style.background = 'var(--border-color, #e0e0e0)';
-      progressBar.style.borderRadius = '2px';
+      progressBar.style.borderRadius = '0.125rem';
       progressBar.style.marginTop = '0.75rem';
       progressBar.style.overflow = 'hidden';
 
@@ -113,7 +113,7 @@
       customInput.min = '1';
       customInput.max = '120';
       customInput.value = '25';
-      customInput.style.width = '60px';
+      customInput.style.width = '3.75rem';
       customInput.style.padding = '0.125rem 0.25rem';
 
       customInputRow.appendChild(customLabel);
@@ -351,7 +351,7 @@
       workInput.min = '1';
       workInput.max = '120';
       workInput.value = timer.defaultWorkMinutes;
-      workInput.style.width = '60px';
+      workInput.style.width = '3.75rem';
       workInput.addEventListener('change', function () {
         var minutes = Math.max(1, Math.min(120, parseInt(workInput.value, 10) || 25));
         timer.defaultWorkMinutes = minutes;
@@ -373,7 +373,7 @@
       breakInput.min = '1';
       breakInput.max = '60';
       breakInput.value = timer.defaultBreakMinutes;
-      breakInput.style.width = '60px';
+      breakInput.style.width = '3.75rem';
       breakInput.addEventListener('change', function () {
         var minutes = Math.max(1, Math.min(60, parseInt(breakInput.value, 10) || 5));
         timer.defaultBreakMinutes = minutes;
@@ -395,7 +395,7 @@
       customInput.min = '1';
       customInput.max = '120';
       customInput.value = timer.customMinutes;
-      customInput.style.width = '60px';
+      customInput.style.width = '3.75rem';
       customInput.addEventListener('change', function () {
         var minutes = Math.max(1, Math.min(120, parseInt(customInput.value, 10) || 25));
         timer.customMinutes = minutes;

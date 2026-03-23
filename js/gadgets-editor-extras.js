@@ -20,7 +20,7 @@
   function rgba(hex, a) { var c = hexToRgb(hex); return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')'; }
 
   function createColorPickerRow(c1, c2, gap) {
-    var row = el('div'); row.style.display = 'flex'; row.style.gap = gap || '8px';
+    var row = el('div'); row.style.display = 'flex'; row.style.gap = gap || '0.5rem';
     row.appendChild(c1); row.appendChild(c2);
     return row;
   }
@@ -222,7 +222,7 @@
       textboxRow.style.gap = '0.375rem';
       textboxRow.style.padding = '0.5rem';
       textboxRow.style.border = '1px solid var(--border-color, #444)';
-      textboxRow.style.borderRadius = '6px';
+      textboxRow.style.borderRadius = '0.375rem';
 
       var textboxTitle = el('div');
       textboxTitle.textContent = 'TextBox Effects';
@@ -371,7 +371,7 @@
           item.style.gap = '0.375rem';
           item.style.padding = '0.25rem 0.375rem';
           item.style.border = '1px solid var(--border-color, #555)';
-          item.style.borderRadius = '4px';
+          item.style.borderRadius = '0.25rem';
 
           var info = el('span');
           info.style.flex = '1';
@@ -431,7 +431,7 @@
         editor.style.gap = '0.25rem';
         editor.style.padding = '0.5rem';
         editor.style.border = '1px solid var(--accent-color, #4a9eff)';
-        editor.style.borderRadius = '6px';
+        editor.style.borderRadius = '0.375rem';
         editor.style.marginTop = '0.25rem';
 
         var editorTitle = el('div');
@@ -618,7 +618,7 @@
             item.style.gap = '0.5rem';
             item.style.padding = '0.25rem 0.5rem';
             item.style.border = '1px solid var(--border-color, #e0e0e0)';
-            item.style.borderRadius = '4px';
+            item.style.borderRadius = '0.25rem';
             item.style.backgroundColor = 'var(--ui-bg, #fff)';
             item.draggable = true;
             item.dataset.tabId = tabId;
@@ -777,7 +777,7 @@
       autoSaveDelayInput.max = '30000';
       autoSaveDelayInput.step = '500';
       autoSaveDelayInput.value = String(autoSaveCfg.delayMs || 2000);
-      autoSaveDelayInput.style.width = '70px';
+      autoSaveDelayInput.style.width = '4.375rem';
       var autoSaveDelayUnit = el('span');
       autoSaveDelayUnit.textContent = 'ms';
       autoSaveDelayRow.appendChild(autoSaveDelayLabel);

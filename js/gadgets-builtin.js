@@ -403,7 +403,7 @@
           item.style.justifyContent = 'space-between';
           item.style.alignItems = 'center';
           item.style.padding = '0.375rem 0.5rem';
-          item.style.borderRadius = '4px';
+          item.style.borderRadius = '0.25rem';
           item.style.cursor = 'pointer';
           item.style.fontSize = '0.9rem';
           item.style.transition = 'background 0.2s';
@@ -479,10 +479,10 @@
       listContainer.style.display = 'flex';
       listContainer.style.flexDirection = 'column';
       listContainer.style.gap = '0.125rem';
-      listContainer.style.maxHeight = '300px';
+      listContainer.style.maxHeight = '18.75rem';
       listContainer.style.overflowY = 'auto';
       listContainer.style.border = '1px solid var(--border-color)';
-      listContainer.style.borderRadius = '6px';
+      listContainer.style.borderRadius = '0.375rem';
       listContainer.style.padding = '0.25rem';
 
       var container = document.createElement('div');

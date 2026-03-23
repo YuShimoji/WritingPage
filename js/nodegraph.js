@@ -51,7 +51,7 @@
     wrap.style.position='relative';
     wrap.style.width='100%';
     wrap.style.height='100%';
-    wrap.style.backgroundSize='20px 20px';
+    wrap.style.backgroundSize='20px 1.25rem';
     wrap.style.backgroundImage='linear-gradient(0deg, var(--hover-bg-color, rgba(0,0,0,0.05)) 1px, transparent 1px), linear-gradient(90deg, var(--hover-bg-color, rgba(0,0,0,0.05)) 1px, transparent 1px)';
     var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     svg.setAttribute('class','ng-edges');
@@ -107,7 +107,7 @@
         node.style.width = (n.w||160) + 'px';
         node.style.minHeight = (n.h||48) + 'px';
         node.style.border = '2px solid '+(n.color||TYPE_COLORS[n.type]||'#888');
-        node.style.borderRadius='8px';
+        node.style.borderRadius='0.5rem';
         node.style.background='var(--bg-color, #fff)';
         node.style.boxShadow='var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.08))';
         node.style.padding='0.375rem 0.5rem';
@@ -115,13 +115,13 @@
 
         var header = el('div','ng-node-header');
         header.style.display='flex'; header.style.alignItems='center'; header.style.gap='0.375rem';
-        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='0.0625rem 0.375rem'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='var(--success-fg, #fff)';
+        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='0.6875rem'; badge.style.padding='0.0625rem 0.375rem'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='var(--success-fg, #fff)';
         var title = el('div'); title.textContent = n.title || n.id; title.style.fontWeight='700'; title.style.flex='1';
         var del = el('button','small'); del.textContent='削除'; del.title='削除';
         header.appendChild(badge); header.appendChild(title); header.appendChild(del);
         node.appendChild(header);
 
-        var meta = el('div','ng-node-meta'); meta.style.fontSize='12px'; meta.style.opacity='0.8'; meta.textContent = n.status ? ('status: '+n.status) : '';
+        var meta = el('div','ng-node-meta'); meta.style.fontSize='0.75rem'; meta.style.opacity='0.8'; meta.textContent = n.status ? ('status: '+n.status) : '';
         node.appendChild(meta);
 
         // drag
@@ -190,7 +190,7 @@
       toolbar.appendChild(btnOpen); toolbar.appendChild(btnAdd); toolbar.appendChild(btnLink); toolbar.appendChild(btnImportLinks);
 
       var viewport = el('div','ng-viewport');
-      viewport.style.minHeight='260px'; viewport.style.border='1px solid var(--border-color)'; viewport.style.borderRadius='4px'; viewport.style.position='relative';
+      viewport.style.minHeight='16.25rem'; viewport.style.border='1px solid var(--border-color)'; viewport.style.borderRadius='0.25rem'; viewport.style.position='relative';
       viewport.style.background='var(--bg-color)';
 
       root.appendChild(toolbar); root.appendChild(viewport);
@@ -212,7 +212,7 @@
         data.edges.push({ id: uid('edge_'), from: a.id, to: b.id, label: '関連' }); commit();
       });
       btnOpen.addEventListener('click', function(){
-        var content = el('div'); content.style.minWidth='480px'; content.style.minHeight='280px'; content.style.padding='0.5rem';
+        var content = el('div'); content.style.minWidth='30rem'; content.style.minHeight='17.5rem'; content.style.padding='0.5rem';
         var canvas2 = createCanvas(); content.appendChild(canvas2.wrap);
         function commit2(){ saveGraph(getDocId(), data); renderGraph(canvas2, data, commit2); }
         renderGraph(canvas2, data, commit2);

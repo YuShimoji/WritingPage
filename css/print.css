@@ -2,7 +2,7 @@
 
 .print-view {
   display: none;
-  max-width: 900px;
+  max-width: 56.25rem;
   margin: 0 auto;
   padding: 1.5cm 1.5cm;
   color: #000;
@@ -161,7 +161,7 @@
   #editor blockquote {
     margin: 1em 2em;
     font-style: italic;
-    border-left: 4px solid #ccc;
+    border-left: 0.25rem solid #ccc;
     padding-left: 1em;
   }
 

@@ -5,43 +5,43 @@
   position: absolute;
   background-color: rgba(255, 255, 0, 0.3);
   border: 1px solid rgba(255, 255, 0, 0.6);
-  border-radius: 2px;
+  border-radius: 0.125rem;
   pointer-events: none;
   z-index: 10;
 }
 .mini-hud {
   position: fixed;
-  min-width: 140px;
+  min-width: 8.75rem;
   max-width: 60vw;
   padding: 0.5rem 0.75rem;
   background: rgba(0, 0, 0, 0.75);
   color: #fff;
-  border-radius: 6px;
+  border-radius: 0.375rem;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   font-size: 0.75rem;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(8px);
+  transform: translateY(0.5rem);
   transition:
     opacity 0.2s ease,
     transform 0.2s ease;
   z-index: 1700;
 }
 .mini-hud.pos-bl {
-  left: 16px;
-  bottom: 16px;
+  left: 1rem;
+  bottom: 1rem;
 }
 .mini-hud.pos-br {
-  right: 16px;
-  bottom: 16px;
+  right: 1rem;
+  bottom: 1rem;
 }
 .mini-hud.pos-tl {
-  left: 16px;
-  top: 16px;
+  left: 1rem;
+  top: 1rem;
 }
 .mini-hud.pos-tr {
-  right: 16px;
-  top: 16px;
+  right: 1rem;
+  top: 1rem;
 }
 .mini-hud.show {
   opacity: 1;
@@ -63,10 +63,10 @@
 /* フローティングアクションボタン（ツールバー再表示） */
 .fab-toggle-toolbar {
   position: fixed;
-  right: 16px;
-  bottom: 16px;
-  width: 64px;
-  height: 64px;
+  right: 1rem;
+  bottom: 1rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -86,10 +86,10 @@
 /* 追加機能用FAB */
 .fab-tools {
   position: fixed;
-  right: 16px;
-  bottom: 72px;
-  width: 64px;
-  height: 64px;
+  right: 1rem;
+  bottom: 4.5rem;
+  width: 4rem;
+  height: 4rem;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -103,8 +103,8 @@
 }
 
 .fab-tools svg {
-  width: 40px;
-  height: 40px;
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
 .fab-tools:hover {
@@ -114,13 +114,13 @@
 /* フローティングパネル */
 .floating-panel {
   position: fixed;
-  right: 16px;
-  bottom: 128px;
-  width: 260px;
+  right: 1rem;
+  bottom: 8rem;
+  width: 16.25rem;
   background: var(--bg-color);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 0.5rem;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
   z-index: 1600;
 }
@@ -132,8 +132,8 @@
   padding: 0.5rem 0.625rem;
   background: var(--toolbar-bg);
   border-bottom: 1px solid var(--border-color);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
 }
 
 .floating-panel .panel-body {
@@ -176,7 +176,7 @@
 
 .outline-insert .outline-btn {
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   border: 1px solid var(--border-color);
   background: transparent;
   cursor: pointer;
@@ -199,7 +199,7 @@
     animation: slide-in 1s ease-out;
 }
 @keyframes slide-in {
-    from { transform: translateX(-20px); opacity: 0; }
+    from { transform: translateX(-1.25rem); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
 
@@ -207,7 +207,7 @@
     animation: typewriter 2s steps(40, end);
     overflow: hidden;
     white-space: nowrap;
-    border-right: 2px solid var(--text-color);
+    border-right: 0.125rem solid var(--text-color);
 }
 @keyframes typewriter {
     from { width: 0; }
@@ -240,7 +240,7 @@
 }
 
 .decor-shadow {
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    text-shadow: 1px 1px 0.125rem rgba(0, 0, 0, 0.3);
 }
 
 .decor-btn {
@@ -249,10 +249,10 @@
     border: 1px solid var(--border-color);
     background: var(--bg-color);
     color: var(--text-color);
-    border-radius: 4px;
+    border-radius: 0.25rem;
     cursor: pointer;
     font-weight: bold;
-    min-width: 32px;
+    min-width: 2rem;
     transition: background-color 0.2s;
 }
 
@@ -291,7 +291,7 @@
 }
 
 .decor-glow {
-    text-shadow: 0 0 10px var(--text-color);
+    text-shadow: 0 0 0.625rem var(--text-color);
 }
 
 .decor-wide {
@@ -318,8 +318,8 @@
 
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
-    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
-    20%, 40%, 60%, 80% { transform: translateX(2px); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-0.125rem); }
+    20%, 40%, 60%, 80% { transform: translateX(0.125rem); }
 }
 
 .anim-bounce {
@@ -328,8 +328,8 @@
 
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-    40% { transform: translateY(-10px); }
-    60% { transform: translateY(-5px); }
+    40% { transform: translateY(-0.625rem); }
+    60% { transform: translateY(-0.3125rem); }
 }
 
 .anim-fade-in {
@@ -337,7 +337,7 @@
 }
 
 @keyframes fade-in-slow {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(0.625rem); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -360,15 +360,15 @@
   background: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 0.5rem 0.75rem;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   font-size: 0.85rem;
   white-space: nowrap;
   z-index: 1000;
   pointer-events: none;
   opacity: 0;
-  transform: translateY(-5px);
+  transform: translateY(-0.3125rem);
   transition: opacity 0.2s, transform 0.2s;
-  max-width: 300px;
+  max-width: 18.75rem;
   word-wrap: break-word;
   white-space: normal;
 }
@@ -381,13 +381,13 @@
 .link-preview::before {
   content: '';
   position: absolute;
-  top: -6px;
-  left: 10px;
+  top: -0.375rem;
+  left: 0.625rem;
   width: 0;
   height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-bottom: 6px solid rgba(0, 0, 0, 0.9);
+  border-left: 0.375rem solid transparent;
+  border-right: 0.375rem solid transparent;
+  border-bottom: 0.375rem solid rgba(0, 0, 0, 0.9);
 }
 
 /* Panels Layout スタイル */
@@ -395,10 +395,10 @@
   position: absolute;
   background: var(--bg-color, #ffffff);
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  min-height: 100px;
+  min-width: 12.5rem;
+  min-height: 6.25rem;
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -412,7 +412,7 @@
   justify-content: space-between;
   align-items: center;
   cursor: move;
-  border-radius: 4px 4px 0 0;
+  border-radius: 0.25rem 0.25rem 0 0;
 }
 
 .panel-controls {
@@ -426,7 +426,7 @@
   color: white;
   cursor: pointer;
   padding: 0.125rem 0.375rem;
-  border-radius: 2px;
+  border-radius: 0.125rem;
   font-size: 0.75rem;
 }
 

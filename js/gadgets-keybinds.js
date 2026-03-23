@@ -98,11 +98,11 @@
           item.style.gap = '0.5rem';
           item.style.padding = '0.5rem';
           item.style.border = '1px solid var(--border-color, #e0e0e0)';
-          item.style.borderRadius = '4px';
+          item.style.borderRadius = '0.25rem';
           item.style.alignItems = 'center';
           if (editingId === id) {
             item.style.borderColor = 'var(--focus-color, #4a90e2)';
-            item.style.borderWidth = '2px';
+            item.style.borderWidth = '0.125rem';
             item.style.backgroundColor = 'var(--ui-bg, #f5f5f5)';
           }
 
@@ -137,7 +137,7 @@
           keyDisplay.style.padding = '0.25rem 0.5rem';
           keyDisplay.style.backgroundColor = 'var(--ui-bg, #f0f0f0)';
           keyDisplay.style.border = '1px solid var(--border-color, #d0d0d0)';
-          keyDisplay.style.borderRadius = '3px';
+          keyDisplay.style.borderRadius = '0.1875rem';
           keyDisplay.style.fontSize = '0.85em';
           keyDisplay.style.fontFamily = 'monospace';
           keyDisplay.style.cursor = 'pointer';

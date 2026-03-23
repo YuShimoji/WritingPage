@@ -154,7 +154,7 @@
       var previewBox = document.createElement('div');
       previewBox.className = 'heading-preview';
       previewBox.style.background = 'var(--hover-bg-color, rgba(128,128,128,0.08))';
-      previewBox.style.borderRadius = '6px';
+      previewBox.style.borderRadius = '0.375rem';
       previewBox.style.padding = '0.5rem 0.625rem';
       previewBox.style.display = 'flex';
       previewBox.style.flexDirection = 'column';
@@ -214,7 +214,7 @@
         var weightLabel = document.createElement('span');
         weightLabel.style.fontSize = '0.8rem';
         weightLabel.style.opacity = '0.8';
-        weightLabel.style.minWidth = '32px';
+        weightLabel.style.minWidth = '2rem';
         weightLabel.textContent = '太さ:';
         var weightSelect = document.createElement('select');
         weightSelect.setAttribute('data-level', level);

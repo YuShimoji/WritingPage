@@ -539,7 +539,7 @@
       nodeEl.style.background = color;
       nodeEl.style.color = '#fff';
       nodeEl.style.padding = '0.1875rem 0.5rem';
-      nodeEl.style.borderRadius = '10px';
+      nodeEl.style.borderRadius = '0.625rem';
       nodeEl.style.fontSize = '0.75rem';
       nodeEl.style.whiteSpace = 'nowrap';
       nodeEl.style.cursor = opts.onNodeClick ? 'pointer' : 'default';
@@ -590,8 +590,8 @@
       var dot = el('span', 'link-graph-legend-dot');
       dot.style.background = color;
       dot.style.display = 'inline-block';
-      dot.style.width = '10px';
-      dot.style.height = '10px';
+      dot.style.width = '0.625rem';
+      dot.style.height = '0.625rem';
       dot.style.borderRadius = '50%';
       dot.style.marginRight = '0.25rem';
       item.appendChild(dot);
@@ -646,19 +646,19 @@
       toolbar.appendChild(searchInput);
 
       var graphContainer = el('div', 'link-graph-container');
-      graphContainer.style.minHeight = '300px';
+      graphContainer.style.minHeight = '18.75rem';
       graphContainer.style.border = '1px solid var(--border-color)';
-      graphContainer.style.borderRadius = '4px';
+      graphContainer.style.borderRadius = '0.25rem';
       graphContainer.style.position = 'relative';
       graphContainer.style.background = 'var(--bg-color)';
       graphContainer.style.overflow = 'auto';
 
       var backlinksPanel = el('div', 'link-graph-backlinks');
       backlinksPanel.style.display = 'none';
-      backlinksPanel.style.maxHeight = '200px';
+      backlinksPanel.style.maxHeight = '12.5rem';
       backlinksPanel.style.overflow = 'auto';
       backlinksPanel.style.border = '1px solid var(--border-color)';
-      backlinksPanel.style.borderRadius = '4px';
+      backlinksPanel.style.borderRadius = '0.25rem';
       backlinksPanel.style.padding = '0.5rem';
       backlinksPanel.style.fontSize = '0.9rem';
 

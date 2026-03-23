@@ -261,7 +261,7 @@ class SidebarManager {
             content.style.display = 'block';
             content.setAttribute('aria-hidden', 'false');
             var targetH = content.scrollHeight;
-            content.style.maxHeight = '0px';
+            content.style.maxHeight = '0';
             // 次フレームで目標高さを設定してアニメーション開始
             requestAnimationFrame(function () {
                 content.style.maxHeight = targetH + 'px';

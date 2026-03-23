@@ -83,7 +83,7 @@
 
   function stringifyAttrs(attrs) {
     var src = attrs && typeof attrs === 'object' ? attrs : {};
-    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style', 'effect', 'delay', 'threshold'];
+    var keys = ['preset', 'role', 'anim', 'tilt', 'scale', 'sfx', 'class', 'speed', 'mode', 'speaker', 'icon', 'position', 'style', 'effect', 'delay', 'threshold', 'path', 'font-size', 'text-anchor', 'start-offset', 'side', 'viewbox', 'stroke', 'stroke-width'];
     var parts = [];
 
     keys.forEach(function (key) {
