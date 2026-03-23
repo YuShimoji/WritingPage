@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 430 passed / 3 skipped / 58 spec files (2026-03-23 時点)
+- E2E: 514 passed / 1 failed (canvas-mode既知) / 3 skipped / 62 spec files (2026-03-23 session 17)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 33個登録済み (+1 開発専用)
@@ -151,7 +151,7 @@ Phase 1完了 (DSL + SVGレンダリング)。Phase 2完了 (WYSIWYG制御点ハ
 ### C-1. ドックパネルシステム (SP-076) -- partial (75%)
 
 上下左右へのパネルドッキング。Editorモード専用。
-Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (上下ドック+プリセット)。E2E 36件。
+Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (上下ドック+プリセット)。E2E 45件。
 
 ### C-2. Google Keep 双方向連携 (SP-075) -- todo
 

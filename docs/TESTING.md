@@ -8,7 +8,7 @@
 npm run test:e2e
 ```
 
-- 259 test cases (38 spec files) (2026-03-12 時点)
+- 518 test cases / 62 spec files (2026-03-23 時点。最新件数は `npx playwright test --list` で確認)
 - 失敗時は `test-results/` にスクリーンショットとトレースが保存される
 - CI: `.github/workflows/ci-e2e.yml` で push/PR 時に自動実行
 
