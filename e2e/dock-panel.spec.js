@@ -796,3 +796,310 @@ test.describe('SP-076 Phase 3: Floating & Snap', () => {
     expect(resizeHandle).toBeTruthy();
   });
 });
+
+test.describe('SP-076 Phase 2-3: UI Interaction Tests', () => {
+  // Helper: simulate pointer drag via evaluate (works with setPointerCapture)
+  async function simulatePointerDrag(page, selector, dx, dy) {
+    return page.evaluate(({ sel, deltaX, deltaY }) => {
+      var el = document.querySelector(sel);
+      if (!el) throw new Error('Element not found: ' + sel);
+      var rect = el.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+
+      el.dispatchEvent(new PointerEvent('pointerdown', {
+        clientX: cx, clientY: cy, pointerId: 1, bubbles: true
+      }));
+      // Simulate movement in steps
+      for (var i = 1; i <= 5; i++) {
+        el.dispatchEvent(new PointerEvent('pointermove', {
+          clientX: cx + deltaX * i / 5,
+          clientY: cy + deltaY * i / 5,
+          pointerId: 1, bubbles: true
+        }));
+      }
+      el.dispatchEvent(new PointerEvent('pointerup', {
+        clientX: cx + deltaX, clientY: cy + deltaY,
+        pointerId: 1, bubbles: true
+      }));
+    }, { sel: selector, deltaX: dx, deltaY: dy });
+  }
+
+  test('Tab drag reorder via HTML drag events', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('d1', 'Drag A');
+      window.dockManager.addTab('d2', 'Drag B');
+      window.dockManager.addTab('d3', 'Drag C');
+      window.dockManager.setActiveTab(0);
+    });
+
+    // Simulate HTML drag via evaluate (DataTransfer can't be constructed externally)
+    await page.evaluate(() => {
+      var tabs = document.querySelectorAll('.dock-tab');
+      var tab0 = tabs[0];
+      var tab2 = tabs[2];
+      var dt = new DataTransfer();
+      dt.setData('text/plain', '0');
+
+      tab0.dispatchEvent(new DragEvent('dragstart', { dataTransfer: dt, bubbles: true }));
+      tab2.dispatchEvent(new DragEvent('dragover', { dataTransfer: dt, bubbles: true, cancelable: true }));
+      tab2.dispatchEvent(new DragEvent('drop', { dataTransfer: dt, bubbles: true }));
+      tab0.dispatchEvent(new DragEvent('dragend', { bubbles: true }));
+    });
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs[0].id).toBe('d2');
+    expect(tabs[1].id).toBe('d3');
+    expect(tabs[2].id).toBe('d1');
+  });
+
+  test('Floating panel drag moves position', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fdrag', 'Drag Float');
+      window.dockManager.floatTab('fdrag', { x: 200, y: 200, width: 300, height: 250 });
+    });
+
+    const before = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fdrag"]');
+      return { left: el.offsetLeft, top: el.offsetTop };
+    });
+
+    await simulatePointerDrag(page,
+      '.dock-floating[data-float-id="fdrag"] .dock-floating__header', 100, 50);
+
+    const after = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fdrag"]');
+      return { left: el.offsetLeft, top: el.offsetTop };
+    });
+
+    expect(after.left).toBeGreaterThan(before.left + 50);
+    expect(after.top).toBeGreaterThan(before.top + 20);
+  });
+
+  test('Floating panel drag position is saved to localStorage', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fdsave', 'Drag Save');
+      window.dockManager.floatTab('fdsave', { x: 100, y: 100, width: 300, height: 250 });
+    });
+
+    await simulatePointerDrag(page,
+      '.dock-floating[data-float-id="fdsave"] .dock-floating__header', 80, 60);
+
+    const stored = await page.evaluate(() => {
+      var raw = localStorage.getItem('zenwriter-dock-layout');
+      return JSON.parse(raw).floating[0];
+    });
+
+    expect(stored.x).toBeGreaterThan(100);
+    expect(stored.y).toBeGreaterThan(100);
+  });
+
+  test('Floating panel resize via pointer drag on handle', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fresize', 'Resize Float');
+      window.dockManager.floatTab('fresize', { x: 100, y: 100, width: 300, height: 250 });
+    });
+
+    const before = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fresize"]');
+      return { width: el.offsetWidth, height: el.offsetHeight };
+    });
+
+    await simulatePointerDrag(page,
+      '.dock-floating[data-float-id="fresize"] .dock-floating__resize', 80, 60);
+
+    const after = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fresize"]');
+      return { width: el.offsetWidth, height: el.offsetHeight };
+    });
+
+    expect(after.width).toBeGreaterThan(before.width + 40);
+    expect(after.height).toBeGreaterThan(before.height + 30);
+  });
+
+  test('Floating panel resize size is saved', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('frsave', 'Resize Save');
+      window.dockManager.floatTab('frsave', { x: 100, y: 100, width: 300, height: 250 });
+    });
+
+    await simulatePointerDrag(page,
+      '.dock-floating[data-float-id="frsave"] .dock-floating__resize', 100, 80);
+
+    const stored = await page.evaluate(() => {
+      var raw = localStorage.getItem('zenwriter-dock-layout');
+      return JSON.parse(raw).floating[0];
+    });
+
+    expect(stored.width).toBeGreaterThan(300);
+    expect(stored.height).toBeGreaterThan(250);
+  });
+
+  test('Snap zone appears during drag and triggers re-dock', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fsnap', 'Snap Test');
+      window.dockManager.floatTab('fsnap', { x: 300, y: 200, width: 300, height: 250 });
+    });
+
+    // Simulate drag to left edge (clientX < 40 triggers snap)
+    const result = await page.evaluate(() => {
+      var header = document.querySelector('.dock-floating[data-float-id="fsnap"] .dock-floating__header');
+      var rect = header.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+
+      header.dispatchEvent(new PointerEvent('pointerdown', {
+        clientX: cx, clientY: cy, pointerId: 1, bubbles: true
+      }));
+
+      // Check snap zone appeared
+      var hasZone = !!document.querySelector('.dock-snap-zone--left');
+
+      // Move to left edge
+      header.dispatchEvent(new PointerEvent('pointermove', {
+        clientX: 10, clientY: cy, pointerId: 1, bubbles: true
+      }));
+
+      var zoneActive = document.querySelector('.dock-snap-zone--left');
+      var isActive = zoneActive && zoneActive.classList.contains('dock-snap-zone--active');
+
+      // Release at left edge
+      header.dispatchEvent(new PointerEvent('pointerup', {
+        clientX: 10, clientY: cy, pointerId: 1, bubbles: true
+      }));
+
+      return {
+        hadZone: hasZone,
+        wasActive: isActive,
+        tabs: window.dockManager.getTabs(),
+        floating: window.dockManager.getFloating(),
+        zonesRemoved: document.querySelectorAll('.dock-snap-zone').length === 0
+      };
+    });
+
+    expect(result.hadZone).toBe(true);
+    expect(result.wasActive).toBe(true);
+    expect(result.tabs).toHaveLength(1);
+    expect(result.tabs[0].id).toBe('fsnap');
+    expect(result.floating).toHaveLength(0);
+    expect(result.zonesRemoved).toBe(true);
+  });
+
+  test('Content preserved when floating and snapping back', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('content-preserve', 'Content Test', function (panel) {
+        var div = document.createElement('div');
+        div.id = 'test-content-marker';
+        div.textContent = 'Preserved Content 12345';
+        panel.appendChild(div);
+      });
+    });
+
+    const beforeFloat = await page.evaluate(() => {
+      var marker = document.getElementById('test-content-marker');
+      return marker ? marker.textContent : null;
+    });
+    expect(beforeFloat).toBe('Preserved Content 12345');
+
+    await page.evaluate(() => window.dockManager.floatTab('content-preserve'));
+
+    const inFloat = await page.evaluate(() => {
+      var marker = document.querySelector('.dock-floating .dock-floating__content #test-content-marker');
+      return marker ? marker.textContent : null;
+    });
+    expect(inFloat).toBe('Preserved Content 12345');
+
+    await page.evaluate(() => window.dockManager.snapToDock('content-preserve'));
+
+    const afterSnap = await page.evaluate(() => {
+      var marker = document.querySelector('#dock-left-content .dock-tab-panel #test-content-marker');
+      return marker ? marker.textContent : null;
+    });
+    expect(afterSnap).toBe('Preserved Content 12345');
+  });
+
+  test('Multiple floating panels coexist', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('mf1', 'Multi 1');
+      window.dockManager.addTab('mf2', 'Multi 2');
+      window.dockManager.addTab('mf3', 'Multi 3');
+      window.dockManager.floatTab('mf1', { x: 50, y: 50 });
+      window.dockManager.floatTab('mf2', { x: 200, y: 100 });
+      window.dockManager.floatTab('mf3', { x: 350, y: 150 });
+    });
+
+    const state = await page.evaluate(() => {
+      return {
+        domCount: document.querySelectorAll('.dock-floating').length,
+        floating: window.dockManager.getFloating()
+      };
+    });
+    expect(state.domCount).toBe(3);
+    expect(state.floating).toHaveLength(3);
+
+    // Close one, snap one back
+    await page.evaluate(() => {
+      window.dockManager.closeFloating('mf2');
+      window.dockManager.snapToDock('mf1');
+    });
+
+    const after = await page.evaluate(() => {
+      return {
+        domCount: document.querySelectorAll('.dock-floating').length,
+        tabs: window.dockManager.getTabs(),
+        floating: window.dockManager.getFloating()
+      };
+    });
+    expect(after.domCount).toBe(1);
+    expect(after.tabs).toHaveLength(1);
+    expect(after.tabs[0].id).toBe('mf1');
+    expect(after.floating).toHaveLength(1);
+    expect(after.floating[0].id).toBe('mf3');
+  });
+
+  test('Floating panel min size enforced on resize', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fmin', 'Min Size');
+      window.dockManager.floatTab('fmin', { x: 200, y: 200, width: 300, height: 250 });
+    });
+
+    // Resize to try to go below minimum
+    await simulatePointerDrag(page,
+      '.dock-floating[data-float-id="fmin"] .dock-floating__resize', -200, -200);
+
+    const size = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fmin"]');
+      return { width: el.offsetWidth, height: el.offsetHeight };
+    });
+
+    expect(size.width).toBeGreaterThanOrEqual(200);
+    expect(size.height).toBeGreaterThanOrEqual(150);
+  });
+});
