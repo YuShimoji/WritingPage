@@ -40,7 +40,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 24px;
+  padding: 1.5rem;
   overflow: hidden;
 }
 
@@ -56,7 +56,7 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   color: rgba(255, 255, 255, 0.7);
-  font-size: 24px;
+  font-size: 1.5rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -75,8 +75,8 @@
 .gn-control-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 24px;
+  gap: 0.75rem;
+  padding: 0.625rem 1.5rem;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
 }
@@ -88,7 +88,7 @@
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  font-size: 0.875rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -104,7 +104,7 @@
 .gn-scene-label {
   flex: 1;
   text-align: right;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: rgba(255, 255, 255, 0.5);
   user-select: none;
 }
@@ -114,8 +114,8 @@
    ============================================================ */
 .gn-dialogue-window {
   display: flex;
-  gap: 16px;
-  padding: 20px 24px;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -142,7 +142,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 0.375rem;
   flex-shrink: 0;
   min-width: 72px;
 }
@@ -162,13 +162,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 1.75rem;
   font-weight: bold;
   color: #fff;
 }
 
 .gn-dialogue-name {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: bold;
   text-align: center;
   white-space: nowrap;
@@ -184,7 +184,7 @@
 }
 
 .gn-dialogue-text {
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1.7;
   color: var(--gn-text);
   word-break: break-word;
@@ -195,7 +195,7 @@
   content: '\258C';
   animation: gn-cursor-blink 0.8s step-end infinite;
   color: var(--gn-accent);
-  margin-left: 2px;
+  margin-left: 0.125rem;
 }
 
 @keyframes gn-cursor-blink {
@@ -220,11 +220,11 @@
 }
 
 .gn-tree-node {
-  padding: 8px 16px;
+  padding: 0.5rem 1rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--gn-text);
   max-width: 320px;
@@ -256,7 +256,7 @@
 .gn-anchored {
   position: absolute;
   max-width: 600px;
-  padding: 16px 24px;
+  padding: 1rem 1.5rem;
   border-radius: 10px;
   color: var(--gn-text);
 }
@@ -273,7 +273,7 @@
 }
 
 .gn-anchored-text {
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1.8;
 }
 
@@ -292,7 +292,7 @@
 
 .gn-bubble {
   position: relative;
-  padding: 14px 20px;
+  padding: 0.875rem 1.25rem;
   background: rgba(255, 255, 255, 0.95);
   color: #1a1a2e;
   border-radius: 16px;
@@ -301,14 +301,14 @@
 }
 
 .gn-bubble-name {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
   opacity: 0.7;
 }
 
 .gn-bubble-text {
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.6;
 }
 
@@ -362,10 +362,10 @@
    ============================================================ */
 .gn-chat-message {
   display: flex;
-  gap: 10px;
+  gap: 0.625rem;
   align-items: flex-start;
   max-width: 600px;
-  margin: 0 auto 12px;
+  margin: 0 auto 0.75rem;
   animation: gn-chat-slideIn 0.3s ease-out;
 }
 
@@ -392,13 +392,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bold;
   color: #fff;
 }
 
 .gn-chat-bubble {
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 12px;
@@ -410,14 +410,14 @@
 }
 
 .gn-chat-name {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: bold;
-  margin-bottom: 3px;
+  margin-bottom: 0.1875rem;
   opacity: 0.7;
 }
 
 .gn-chat-text {
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.6;
   color: var(--gn-text);
 }
@@ -426,23 +426,23 @@
    Gadget UI (sidebar)
    ============================================================ */
 .gn-gadget-section {
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 
 .gn-gadget-section-title {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--text-color, #999);
-  margin-bottom: 6px;
+  margin-bottom: 0.375rem;
   opacity: 0.7;
 }
 
 .gn-scene-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
   max-height: 200px;
   overflow-y: auto;
 }
@@ -450,11 +450,11 @@
 .gn-scene-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.1));
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: background var(--gn-transition-speed);
 }
@@ -477,7 +477,7 @@
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   color: var(--text-color, #ccc);
-  font-size: 12px;
+  font-size: 0.75rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -492,13 +492,13 @@
 .gn-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
+  gap: 0.25rem;
+  padding: 0.375rem 0.75rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.15));
   border-radius: 6px;
   background: transparent;
   color: var(--text-color, #ccc);
-  font-size: 13px;
+  font-size: 0.8125rem;
   cursor: pointer;
   transition: background var(--gn-transition-speed), border-color var(--gn-transition-speed);
 }
@@ -521,13 +521,13 @@
 .gn-json-input {
   width: 100%;
   min-height: 120px;
-  padding: 8px;
+  padding: 0.5rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.15));
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.2);
   color: var(--text-color, #ccc);
   font-family: monospace;
-  font-size: 12px;
+  font-size: 0.75rem;
   resize: vertical;
 }
 
@@ -538,18 +538,18 @@
 
 .gn-error {
   color: #f85149;
-  font-size: 12px;
-  margin-top: 4px;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 /* --- Select --- */
 .gn-select {
-  padding: 4px 8px;
+  padding: 0.25rem 0.5rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.15));
   border-radius: 6px;
   background: rgba(0, 0, 0, 0.2);
   color: var(--text-color, #ccc);
-  font-size: 13px;
+  font-size: 0.8125rem;
   flex: 1;
 }
 
@@ -562,7 +562,7 @@
 .gn-char-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
   max-height: 150px;
   overflow-y: auto;
 }
@@ -570,11 +570,11 @@
 .gn-char-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.1));
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .gn-char-swatch {
@@ -592,27 +592,27 @@
 }
 
 .gn-char-pos {
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--text-color, #999);
   opacity: 0.6;
 }
 
 /* --- Character Add Dialog --- */
 .gn-char-dialog {
-  margin-top: 8px;
-  padding: 8px;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.15));
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.3);
 }
 
 .gn-char-input {
-  padding: 3px 6px;
+  padding: 0.1875rem 0.375rem;
   border: 1px solid var(--border-color, rgba(255,255,255,0.15));
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.2);
   color: var(--text-color, #ccc);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .gn-char-input:focus {
@@ -627,12 +627,12 @@
   .gn-dialogue-window {
     flex-direction: column;
     align-items: center;
-    padding: 16px;
+    padding: 1rem;
   }
 
   .gn-dialogue-char-area {
     flex-direction: row;
-    gap: 10px;
+    gap: 0.625rem;
   }
 
   .gn-dialogue-icon {
@@ -641,10 +641,10 @@
   }
 
   .gn-dialogue-text {
-    font-size: 16px;
+    font-size: 1rem;
   }
 
   .gn-control-bar {
-    padding: 8px 16px;
+    padding: 0.5rem 1rem;
   }
 }

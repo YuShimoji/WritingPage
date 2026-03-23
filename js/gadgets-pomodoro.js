@@ -21,13 +21,13 @@
       container.className = 'gadget-pomodoro';
       container.style.display = 'flex';
       container.style.flexDirection = 'column';
-      container.style.gap = '12px';
+      container.style.gap = '0.75rem';
 
       // タイマー表示エリア
       var displayArea = document.createElement('div');
       displayArea.className = 'pomodoro-display';
       displayArea.style.textAlign = 'center';
-      displayArea.style.padding = '16px';
+      displayArea.style.padding = '1rem';
       displayArea.style.borderRadius = '8px';
       displayArea.style.background = 'var(--sidebar-bg, #f5f5f5)';
       displayArea.style.border = '1px solid var(--border-color, #e0e0e0)';
@@ -35,16 +35,16 @@
       // 時間表示
       var timeDisplay = document.createElement('div');
       timeDisplay.className = 'pomodoro-time';
-      timeDisplay.style.fontSize = '32px';
+      timeDisplay.style.fontSize = '2rem';
       timeDisplay.style.fontWeight = 'bold';
       timeDisplay.style.fontFamily = 'monospace';
-      timeDisplay.style.marginBottom = '8px';
+      timeDisplay.style.marginBottom = '0.5rem';
       timeDisplay.textContent = '25:00';
 
       // 状態表示
       var stateDisplay = document.createElement('div');
       stateDisplay.className = 'pomodoro-state';
-      stateDisplay.style.fontSize = '14px';
+      stateDisplay.style.fontSize = '0.875rem';
       stateDisplay.style.opacity = '0.7';
       stateDisplay.textContent = '待機中';
 
@@ -55,7 +55,7 @@
       progressBar.style.height = '4px';
       progressBar.style.background = 'var(--border-color, #e0e0e0)';
       progressBar.style.borderRadius = '2px';
-      progressBar.style.marginTop = '12px';
+      progressBar.style.marginTop = '0.75rem';
       progressBar.style.overflow = 'hidden';
 
       var progressFill = document.createElement('div');
@@ -75,12 +75,12 @@
       controlsArea.className = 'pomodoro-controls';
       controlsArea.style.display = 'flex';
       controlsArea.style.flexDirection = 'column';
-      controlsArea.style.gap = '8px';
+      controlsArea.style.gap = '0.5rem';
 
       // モード選択
       var modeRow = document.createElement('div');
       modeRow.style.display = 'flex';
-      modeRow.style.gap = '4px';
+      modeRow.style.gap = '0.25rem';
 
       var pomodoroBtn = document.createElement('button');
       pomodoroBtn.type = 'button';
@@ -101,12 +101,12 @@
       var customInputRow = document.createElement('div');
       customInputRow.className = 'pomodoro-custom-input';
       customInputRow.style.display = 'none';
-      customInputRow.style.gap = '4px';
+      customInputRow.style.gap = '0.25rem';
       customInputRow.style.alignItems = 'center';
 
       var customLabel = document.createElement('label');
       customLabel.textContent = (window.UILabels && window.UILabels.CUSTOM_MINUTES) || '時間（分）:';
-      customLabel.style.fontSize = '12px';
+      customLabel.style.fontSize = '0.75rem';
 
       var customInput = document.createElement('input');
       customInput.type = 'number';
@@ -114,7 +114,7 @@
       customInput.max = '120';
       customInput.value = '25';
       customInput.style.width = '60px';
-      customInput.style.padding = '2px 4px';
+      customInput.style.padding = '0.125rem 0.25rem';
 
       customInputRow.appendChild(customLabel);
       customInputRow.appendChild(customInput);
@@ -122,7 +122,7 @@
       // メインコントロールボタン
       var mainControlsRow = document.createElement('div');
       mainControlsRow.style.display = 'flex';
-      mainControlsRow.style.gap = '4px';
+      mainControlsRow.style.gap = '0.25rem';
 
       var startBtn = document.createElement('button');
       startBtn.type = 'button';
@@ -159,10 +159,10 @@
       // 統計表示
       var statsArea = document.createElement('div');
       statsArea.className = 'pomodoro-stats';
-      statsArea.style.fontSize = '12px';
+      statsArea.style.fontSize = '0.75rem';
       statsArea.style.opacity = '0.7';
-      statsArea.style.marginTop = '8px';
-      statsArea.style.paddingTop = '8px';
+      statsArea.style.marginTop = '0.5rem';
+      statsArea.style.paddingTop = '0.5rem';
       statsArea.style.borderTop = '1px solid var(--border-color, #e0e0e0)';
 
       var statsText = document.createElement('div');
@@ -337,13 +337,13 @@
       var container = document.createElement('div');
       container.style.display = 'flex';
       container.style.flexDirection = 'column';
-      container.style.gap = '12px';
+      container.style.gap = '0.75rem';
 
       // 作業時間設定
       var workRow = document.createElement('label');
       workRow.style.display = 'flex';
       workRow.style.alignItems = 'center';
-      workRow.style.gap = '8px';
+      workRow.style.gap = '0.5rem';
       workRow.textContent = (window.UILabels && window.UILabels.POMODORO_WORK_MINUTES) || '作業時間（分）:';
 
       var workInput = document.createElement('input');
@@ -365,7 +365,7 @@
       var breakRow = document.createElement('label');
       breakRow.style.display = 'flex';
       breakRow.style.alignItems = 'center';
-      breakRow.style.gap = '8px';
+      breakRow.style.gap = '0.5rem';
       breakRow.textContent = (window.UILabels && window.UILabels.POMODORO_BREAK_MINUTES) || '休憩時間（分）:';
 
       var breakInput = document.createElement('input');
@@ -387,7 +387,7 @@
       var customRow = document.createElement('label');
       customRow.style.display = 'flex';
       customRow.style.alignItems = 'center';
-      customRow.style.gap = '8px';
+      customRow.style.gap = '0.5rem';
       customRow.textContent = (window.UILabels && window.UILabels.POMODORO_CUSTOM_DEFAULT) || 'カスタム時間のデフォルト（分）:';
 
       var customInput = document.createElement('input');

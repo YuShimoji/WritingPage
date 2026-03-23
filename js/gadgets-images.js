@@ -12,7 +12,7 @@
       var API = window.ZenWriterImages;
       var root = document.createElement('div');
       root.style.display = 'grid';
-      root.style.gap = '6px';
+      root.style.gap = '0.375rem';
 
       var urlRow = document.createElement('div');
       var urlInput = document.createElement('input'); urlInput.type = 'url'; urlInput.placeholder = (window.UILabels && window.UILabels.IMG_URL_PLACEHOLDER) || '画像URLを入力';
@@ -26,21 +26,21 @@
       // コラージュレイアウトコントロール
       var collageSection = document.createElement('div');
       collageSection.style.display = 'grid';
-      collageSection.style.gap = '6px';
-      collageSection.style.padding = '8px';
+      collageSection.style.gap = '0.375rem';
+      collageSection.style.padding = '0.5rem';
       collageSection.style.border = '1px solid var(--border-color)';
       collageSection.style.borderRadius = '4px';
-      collageSection.style.marginTop = '8px';
+      collageSection.style.marginTop = '0.5rem';
 
       var collageTitle = document.createElement('div');
       collageTitle.textContent = (window.UILabels && window.UILabels.COLLAGE_TITLE) || 'コラージュレイアウト';
       collageTitle.style.fontWeight = '600';
-      collageTitle.style.fontSize = '13px';
+      collageTitle.style.fontSize = '0.8125rem';
       collageSection.appendChild(collageTitle);
 
       var modeRow = document.createElement('div');
       modeRow.style.display = 'flex';
-      modeRow.style.gap = '6px';
+      modeRow.style.gap = '0.375rem';
       var freeModeBtn = document.createElement('button');
       freeModeBtn.type = 'button';
       freeModeBtn.className = 'small';
@@ -56,11 +56,11 @@
       var gridConfigRow = document.createElement('div');
       gridConfigRow.style.display = 'grid';
       gridConfigRow.style.gridTemplateColumns = 'auto 1fr auto 1fr';
-      gridConfigRow.style.gap = '4px';
+      gridConfigRow.style.gap = '0.25rem';
       gridConfigRow.style.alignItems = 'center';
       var rowsLabel = document.createElement('label');
       rowsLabel.textContent = (window.UILabels && window.UILabels.COLLAGE_GRID_ROWS) || '行:';
-      rowsLabel.style.fontSize = '12px';
+      rowsLabel.style.fontSize = '0.75rem';
       var rowsInput = document.createElement('input');
       rowsInput.type = 'number';
       rowsInput.min = '1';
@@ -69,7 +69,7 @@
       rowsInput.style.width = '50px';
       var colsLabel = document.createElement('label');
       colsLabel.textContent = (window.UILabels && window.UILabels.COLLAGE_GRID_COLS) || '列:';
-      colsLabel.style.fontSize = '12px';
+      colsLabel.style.fontSize = '0.75rem';
       var colsInput = document.createElement('input');
       colsInput.type = 'number';
       colsInput.min = '1';
@@ -84,7 +84,7 @@
 
       var actionRow = document.createElement('div');
       actionRow.style.display = 'flex';
-      actionRow.style.gap = '6px';
+      actionRow.style.gap = '0.375rem';
       var applyGridBtn = document.createElement('button');
       applyGridBtn.type = 'button';
       applyGridBtn.className = 'small';
@@ -172,7 +172,7 @@
         } catch (_) { }
       });
 
-      var list = document.createElement('div'); list.style.display = 'grid'; list.style.gap = '6px';
+      var list = document.createElement('div'); list.style.display = 'grid'; list.style.gap = '0.375rem';
 
       function showEditDialog(id, it) {
         try {
@@ -185,11 +185,11 @@
           var saveBtn = document.createElement('button'); saveBtn.type = 'button'; saveBtn.textContent = (window.UILabels && window.UILabels.BTN_SAVE) || '保存'; saveBtn.className = 'small';
           var cancelBtn = document.createElement('button'); cancelBtn.type = 'button'; cancelBtn.textContent = (window.UILabels && window.UILabels.BTN_CANCEL) || 'キャンセル'; cancelBtn.className = 'small';
 
-          var dialog = document.createElement('div'); dialog.style.position = 'fixed'; dialog.style.top = '50%'; dialog.style.left = '50%'; dialog.style.transform = 'translate(-50%,-50%)'; dialog.style.background = 'var(--bg-color)'; dialog.style.border = '1px solid var(--border-color)'; dialog.style.padding = '16px'; dialog.style.zIndex = '10000'; dialog.style.display = 'flex'; dialog.style.flexDirection = 'column'; dialog.style.gap = '8px';
+          var dialog = document.createElement('div'); dialog.style.position = 'fixed'; dialog.style.top = '50%'; dialog.style.left = '50%'; dialog.style.transform = 'translate(-50%,-50%)'; dialog.style.background = 'var(--bg-color)'; dialog.style.border = '1px solid var(--border-color)'; dialog.style.padding = '1rem'; dialog.style.zIndex = '10000'; dialog.style.display = 'flex'; dialog.style.flexDirection = 'column'; dialog.style.gap = '0.5rem';
           dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_ALT_PLACEHOLDER) || 'Altテキスト:')); dialog.appendChild(altInput);
           dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_WIDTH_LABEL) || '幅 (px):')); dialog.appendChild(widthInput);
           dialog.appendChild(document.createTextNode((window.UILabels && window.UILabels.IMG_ALIGN_LABEL) || '配置:')); dialog.appendChild(alignSelect);
-          var btns = document.createElement('div'); btns.style.display = 'flex'; btns.style.gap = '8px';
+          var btns = document.createElement('div'); btns.style.display = 'flex'; btns.style.gap = '0.5rem';
           btns.appendChild(saveBtn); btns.appendChild(cancelBtn);
           dialog.appendChild(btns);
           document.body.appendChild(dialog);
@@ -210,9 +210,9 @@
           list.innerHTML = '';
           var images = (API && typeof API._load === 'function') ? API._load() : [];
           images.forEach(function (it) {
-            var row = document.createElement('div'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '8px';
+            var row = document.createElement('div'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '0.5rem';
             var thumb = document.createElement('img'); thumb.src = it.src; thumb.alt = it.alt || ''; thumb.style.width = '40px'; thumb.style.height = '40px'; thumb.style.objectFit = 'cover'; thumb.style.border = '1px solid var(--border-color)';
-            var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex = '1 1 auto'; name.style.fontSize = '12px'; name.style.opacity = '0.8';
+            var name = document.createElement('div'); name.textContent = it.alt || it.id || '(image)'; name.style.flex = '1 1 auto'; name.style.fontSize = '0.75rem'; name.style.opacity = '0.8';
             var editBtn = document.createElement('button'); editBtn.type = 'button'; editBtn.className = 'small'; editBtn.textContent = (window.UILabels && window.UILabels.BTN_EDIT) || '編集'; editBtn.title = (window.UILabels && window.UILabels.BTN_EDIT_TITLE) || 'プロパティ編集';
             editBtn.addEventListener('click', function () { showEditDialog(it.id, it); });
             var rm = document.createElement('button'); rm.type = 'button'; rm.className = 'small'; rm.textContent = (window.UILabels && window.UILabels.BTN_DELETE) || '削除';

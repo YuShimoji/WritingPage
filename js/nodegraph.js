@@ -110,12 +110,12 @@
         node.style.borderRadius='8px';
         node.style.background='var(--bg-color, #fff)';
         node.style.boxShadow='var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.08))';
-        node.style.padding='6px 8px';
+        node.style.padding='0.375rem 0.5rem';
         node.style.cursor='move';
 
         var header = el('div','ng-node-header');
-        header.style.display='flex'; header.style.alignItems='center'; header.style.gap='6px';
-        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='1px 6px'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='var(--success-fg, #fff)';
+        header.style.display='flex'; header.style.alignItems='center'; header.style.gap='0.375rem';
+        var badge = el('span'); badge.textContent = n.type || 'node'; badge.style.fontSize='11px'; badge.style.padding='0.0625rem 0.375rem'; badge.style.borderRadius='999px'; badge.style.background=(n.color||TYPE_COLORS[n.type]||'#888'); badge.style.color='var(--success-fg, #fff)';
         var title = el('div'); title.textContent = n.title || n.id; title.style.fontWeight='700'; title.style.flex='1';
         var del = el('button','small'); del.textContent='削除'; del.title='削除';
         header.appendChild(badge); header.appendChild(title); header.appendChild(del);
@@ -180,9 +180,9 @@
 
     window.ZWGadgets.register('NodeGraph', function(root, _api){
       root.innerHTML = '';
-      root.style.display='grid'; root.style.gap='6px';
+      root.style.display='grid'; root.style.gap='0.375rem';
 
-      var toolbar = el('div','ng-toolbar'); toolbar.style.display='flex'; toolbar.style.gap='6px'; toolbar.style.flexWrap='wrap';
+      var toolbar = el('div','ng-toolbar'); toolbar.style.display='flex'; toolbar.style.gap='0.375rem'; toolbar.style.flexWrap='wrap';
       var btnOpen = el('button','small'); btnOpen.textContent='パネルで開く';
       var btnAdd = el('button','small'); btnAdd.textContent='ノード追加';
       var btnLink = el('button','small'); btnLink.textContent='リンク';
@@ -212,7 +212,7 @@
         data.edges.push({ id: uid('edge_'), from: a.id, to: b.id, label: '関連' }); commit();
       });
       btnOpen.addEventListener('click', function(){
-        var content = el('div'); content.style.minWidth='480px'; content.style.minHeight='280px'; content.style.padding='8px';
+        var content = el('div'); content.style.minWidth='480px'; content.style.minHeight='280px'; content.style.padding='0.5rem';
         var canvas2 = createCanvas(); content.appendChild(canvas2.wrap);
         function commit2(){ saveGraph(getDocId(), data); renderGraph(canvas2, data, commit2); }
         renderGraph(canvas2, data, commit2);

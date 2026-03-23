@@ -29,11 +29,13 @@
 ## 1. `js/modules/editor/RichTextCommandAdapter.js`（新規）
 
 責務:
+
 - Selection/Range の正規化
 - インライン/ブロック操作APIの提供
 - 必要時のみ `execCommand` フォールバック
 
 主要API:
+
 - `toggleInline(type)`
 - `applyBlock(type)`
 - `wrapWithClass(className)`
@@ -43,12 +45,14 @@
 ## 2. `js/modules/editor/RichTextSanitizer.js`（新規）
 
 責務:
+
 - スマートペースト時の許可タグ/属性フィルタ
 - URLスキーム検証（`http`, `https`, `mailto`）
 - 未許可要素のテキスト退避
 - Phase 1-3 は `img` 非許可（テキスト中心運用を優先）
 
 実装メモ:
+
 - 依存追加を避けるため、初期は `DOMParser + 手動フィルタ` で実装
 - 許可対象は tag と class prefix を分離して判定（`span` + `decor-*`/`anim-*`）
 - 将来、必要なら DOMPurify 採用を再評価
@@ -56,6 +60,7 @@
 ## 3. `js/modules/editor/RichTextMarkdownBridge.js`（新規）
 
 責務:
+
 - `markdownToHtml`, `htmlToMarkdown` の変換責務を分離
 - 既存 `processFontDecorations/processTextAnimations` との接続点を提供
 - block 系往復ルールの一元管理
@@ -63,6 +68,7 @@
 ## 4. `js/editor-wysiwyg.js`（改修）
 
 変更点:
+
 - 初期化、イベント束ね、ツールバー制御のオーケストレーションに限定
 - 変換処理/コマンド処理/サニタイズ処理を新規モジュールへ委譲
 - `syncToMarkdown()` の呼び出しタイミングを入力・コマンド完了時に統一

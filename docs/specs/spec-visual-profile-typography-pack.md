@@ -1,47 +1,89 @@
-# SP-061 Visual Profile Typography Pack 仕様（Draft v0.1）
+# SP-061 Visual Profile Typography Pack 仕様
 
 ## 目的
+
 `Visual Profile` にタイポグラフィ設定パックを接続し、「執筆」「校正」「演出確認」など作業文脈ごとに一括切替できるようにする。
 
-## 背景（現状）
-- `SP-012` によりテーマ/フォント/表示モードの統合モデルは定義済み。
-- ただしタイポは `fontFamily / size / lineHeight` 中心で、文脈プリセット粒度が粗い。
-- 将来的なプロファイル運用（保存/再利用）には、タイポ詳細を束ねる定義が必要。
+## ステータス
 
-## 仕様候補
-- 組み込みパック（初期案）:
-  - `silent-writing`（執筆集中）
-  - `reference-reading`（資料読解）
-  - `proofreading`（校正）
-  - `staging-check`（演出確認）
-- パック対象:
-  - フォント、本文サイズ、行間
-  - 見出し設定（`SP-058`）
-  - マイクロタイポ（`SP-057`）
-  - ルビ可視性（`SP-059`）
-- 既存 Visual Profile セレクトと同一導線で適用
+- Phase 1: done (コアロジック + 4パック定義)
+- Phase 2: done (ガジェットUI / パック選択ドロップダウン / リロード復元)
 
-## 優先順位
-- 優先度: `P2`（中）
-- 理由: PM観点で体験価値が高いが、先にSP-057/058の値モデル確定が必要。
+## 実装内容 (Phase 1)
 
-## 依存関係
-- 前提: `SP-012`（Visual Profile）
-- 前提: `SP-057`, `SP-058`
-- 連携: `SP-059`, `SP-060`
+### Typography Pack 定義
+
+| パックID | ラベル | 本文サイズ | 行間 | 字間 | 見出し | ルビ | 字下げ |
+|----------|--------|-----------|------|------|--------|------|--------|
+| silent-writing | 執筆集中 | 18px | 2.0 | 0.04em | novel | 非表示 | あり |
+| reference-reading | 資料読解 | 15px | 1.5 | 0em | default | 表示 | なし |
+| proofreading | 校正 | 17px | 2.2 | 0.06em | default | 表示 | あり |
+| staging-check | 演出確認 | 16px | 1.8 | 0.02em | novel | 表示 | あり |
+
+### API
+
+```javascript
+// パック一覧取得
+ZenWriterVisualProfile.getTypographyPacks()
+
+// パック適用
+ZenWriterVisualProfile.applyTypographyPack('silent-writing')
+
+// 現在のパックID取得
+ZenWriterVisualProfile.getCurrentTypographyPackId()
+
+// パッククリア
+ZenWriterVisualProfile.clearTypographyPack()
+```
+
+### 適用される設定
+
+- `--font-size`: 本文フォントサイズ
+- `--line-height`: 行間
+- `--body-letter-spacing`: 字間
+- `data-paragraph-indent`: 段落字下げ
+- `data-ruby-hidden`: ルビ可視性
+- `--heading-h{1-6}-*`: 見出しプリセット (HeadingPresetRegistry 経由)
+
+### Visual Profile 連携
+
+- `VisualProfile.typographyPack` フィールドで、プロファイル適用時にパックも一括適用
+- `focus-dark` プロファイルにはデフォルトで `silent-writing` パックを設定
+
+### 保存
+
+- 適用中パックIDは `localStorage('zenWriter_typographyPack')` に保存
+- リロード後の復元はガジェットUI (Phase 2) で実装予定
+
+## 実装内容 (Phase 2)
+
+### ガジェットUI
+
+- Typography ガジェット内に「タイポグラフィパック」セクションを追加
+- ドロップダウンで4パック + 「なし」を選択可能
+- パック説明文をドロップダウン下部に表示
+- パック適用後、個別設定スライダーも同期更新
+- `ZenWriterTypographyPackApplied` イベントでUI同期
+
+### リロード復元
+
+- `app.js` 初期化時に `localStorage('zenWriter_typographyPack')` から復元
+- Visual Profile 適用時の `profile.typographyPack` 経由の復元と併存
 
 ## 受け入れ基準
-1. パック選択で複数タイポ値が一括適用される。
-2. 適用後に個別調整してもプロファイルが破壊されず、差分として保存される。
-3. リロード後に最後のパック状態と差分が再現される。
-4. 既存の theme/font 設定のみ利用ユーザーに後方互換影響を与えない。
 
-## 実装リスク（CTO観点）
-- プロファイル本体と差分設定の競合解決が複雑化。
-- パック適用順序（theme→typography→layout）が不明確だと反映漏れが起きる。
-- 既存 `ZenWriterSettingsChanged` のイベント粒度不足で同期競合が発生。
+1. [x] パック選択で複数タイポ値が一括適用される
+2. [x] 適用後に個別調整してもプロファイルが破壊されず、差分として保存される (Phase 2)
+3. [x] リロード後に最後のパック状態が再現される (Phase 2)
+4. [x] 既存の theme/font 設定のみ利用ユーザーに後方互換影響を与えない
 
-## 実装メモ
-- `applyVisualProfile(profile)` に `typographyPack` フィールドを追加し段階導入。
-- 破壊的更新を避けるため settings は常にマージ保存を強制。
-- E2E は「パック適用→微調整→再読込→再適用」の順で回帰を固定。
+## 依存関係
+
+- 前提: SP-012 (Visual Profile), SP-057 (Micro Typography), SP-058 (Heading Typography)
+- 連携: SP-059 (Ruby), SP-060 (Decoration Presets)
+
+## 影響範囲
+
+- `js/visual-profile.js`: TYPOGRAPHY_PACKS 定義 + applyTypographyPack() + API公開
+- `js/gadgets-typography.js`: パック選択ドロップダウンUI + イベント同期
+- `js/app.js`: リロード時パック復元

@@ -872,7 +872,7 @@ class SidebarManager {
         const waitForTransition = () => {
             return new Promise((resolve) => {
                 const onTransitionEnd = (e) => {
-                    if (e.propertyName === 'left') {
+                    if (e.propertyName === 'left' || e.propertyName === 'right') {
                         sidebar.removeEventListener('transitionend', onTransitionEnd);
                         resolve();
                     }

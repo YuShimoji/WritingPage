@@ -7,7 +7,7 @@
       el.innerHTML = '';
       el.style.display = 'flex';
       el.style.flexDirection = 'column';
-      el.style.gap = '12px';
+      el.style.gap = '0.75rem';
 
       var storage = window.ZenWriterStorage;
       if (!storage || !storage.loadSettings) {
@@ -34,7 +34,7 @@
       posLabel.textContent = (window.UILabels && window.UILabels.HUD_POSITION) || '位置:';
       var posSelect = document.createElement('select');
       posSelect.style.width = '100%';
-      posSelect.style.padding = '4px';
+      posSelect.style.padding = '0.25rem';
       posSelect.style.border = '1px solid var(--border-color)';
       posSelect.style.borderRadius = '4px';
       posSelect.style.background = 'var(--bg-color)';
@@ -59,7 +59,7 @@
       durInput.step = '100';
       durInput.value = mergedHud.duration;
       durInput.style.width = '100%';
-      durInput.style.padding = '4px';
+      durInput.style.padding = '0.25rem';
       durInput.style.border = '1px solid var(--border-color)';
       durInput.style.borderRadius = '4px';
 
@@ -94,8 +94,8 @@
 
       var opValue = document.createElement('span');
       opValue.textContent = Math.round(mergedHud.opacity * 100) + '%';
-      opValue.style.fontSize = '12px';
-      opValue.style.marginLeft = '8px';
+      opValue.style.fontSize = '0.75rem';
+      opValue.style.marginLeft = '0.5rem';
 
       opInput.addEventListener('input', function () {
         opValue.textContent = Math.round(this.value * 100) + '%';
@@ -112,7 +112,7 @@
       widthInput.step = '10';
       widthInput.value = mergedHud.width;
       widthInput.style.width = '100%';
-      widthInput.style.padding = '4px';
+      widthInput.style.padding = '0.25rem';
       widthInput.style.border = '1px solid var(--border-color)';
       widthInput.style.borderRadius = '4px';
 
@@ -127,7 +127,7 @@
       fsInput.step = '1';
       fsInput.value = mergedHud.fontSize;
       fsInput.style.width = '100%';
-      fsInput.style.padding = '4px';
+      fsInput.style.padding = '0.25rem';
       fsInput.style.border = '1px solid var(--border-color)';
       fsInput.style.borderRadius = '4px';
 
@@ -139,7 +139,7 @@
       msgInput.placeholder = (window.UILabels && window.UILabels.HUD_MESSAGE_PLACEHOLDER) || 'HUDに表示するメッセージ';
       msgInput.value = mergedHud.message;
       msgInput.style.width = '100%';
-      msgInput.style.padding = '4px';
+      msgInput.style.padding = '0.25rem';
       msgInput.style.border = '1px solid var(--border-color)';
       msgInput.style.borderRadius = '4px';
 
@@ -147,7 +147,7 @@
       var pinLabel = document.createElement('label');
       pinLabel.style.display = 'flex';
       pinLabel.style.alignItems = 'center';
-      pinLabel.style.gap = '8px';
+      pinLabel.style.gap = '0.5rem';
       var pinInput = document.createElement('input');
       pinInput.type = 'checkbox';
       pinInput.checked = mergedHud.pinned;

@@ -538,7 +538,7 @@
       nodeEl.style.top = (node.y - 4) + 'px';
       nodeEl.style.background = color;
       nodeEl.style.color = '#fff';
-      nodeEl.style.padding = '3px 8px';
+      nodeEl.style.padding = '0.1875rem 0.5rem';
       nodeEl.style.borderRadius = '10px';
       nodeEl.style.fontSize = '0.75rem';
       nodeEl.style.whiteSpace = 'nowrap';
@@ -593,10 +593,10 @@
       dot.style.width = '10px';
       dot.style.height = '10px';
       dot.style.borderRadius = '50%';
-      dot.style.marginRight = '4px';
+      dot.style.marginRight = '0.25rem';
       item.appendChild(dot);
       item.appendChild(document.createTextNode(labelMap[k] || k));
-      item.style.marginRight = '12px';
+      item.style.marginRight = '0.75rem';
       item.style.fontSize = '0.8rem';
       container.appendChild(item);
     }
@@ -625,11 +625,11 @@
       root.innerHTML = '';
       root.style.display = 'flex';
       root.style.flexDirection = 'column';
-      root.style.gap = '8px';
+      root.style.gap = '0.5rem';
 
       var toolbar = el('div', 'link-graph-toolbar');
       toolbar.style.display = 'flex';
-      toolbar.style.gap = '6px';
+      toolbar.style.gap = '0.375rem';
       toolbar.style.flexWrap = 'wrap';
 
       var btnRefresh = el('button', 'small');
@@ -659,7 +659,7 @@
       backlinksPanel.style.overflow = 'auto';
       backlinksPanel.style.border = '1px solid var(--border-color)';
       backlinksPanel.style.borderRadius = '4px';
-      backlinksPanel.style.padding = '8px';
+      backlinksPanel.style.padding = '0.5rem';
       backlinksPanel.style.fontSize = '0.9rem';
 
       root.appendChild(toolbar);
@@ -681,12 +681,12 @@
           var title = el('div');
           title.textContent = '「' + target + '」へのバックリンク:';
           title.style.fontWeight = '600';
-          title.style.marginBottom = '8px';
+          title.style.marginBottom = '0.5rem';
           backlinksPanel.appendChild(title);
           for (var i = 0; i < backlinks.length; i++) {
             var bl = backlinks[i];
             var item = el('div');
-            item.style.padding = '4px 0';
+            item.style.padding = '0.25rem 0';
             item.style.borderBottom = '1px solid var(--border-color)';
             var sourceLabel = el('strong');
             sourceLabel.textContent = bl.sourceTitle || bl.source;

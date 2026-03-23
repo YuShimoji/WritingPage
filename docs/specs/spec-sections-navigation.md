@@ -1,6 +1,7 @@
 # セクションツリー/話ナビゲーション 仕様書
 
 > **モード適用範囲 (SP-070 連動)**
+>
 > - SectionsNavigator ガジェット (左サイドツリー): **Editor モード専用**。
 >   Focus モードでは SP-071 の ChapterList が同等の役割を担う。
 > - エディタ下部ナビ: **全モード共通** (Focus / Blank でも利用可能)。
@@ -13,6 +14,7 @@
 左サイドでツリー管理し、選択した話を編集の主対象として扱える導線を追加する。
 
 関連仕様:
+
 - `docs/specs/spec-mode-architecture.md` (SP-070: モード別の適用範囲)
 - `docs/specs/spec-chapter-management.md` (SP-071: Focus モードの ChapterList)
 - `docs/specs/spec-writing-focus-sidebar.md` (SP-053: superseded、設計意図の参照用)

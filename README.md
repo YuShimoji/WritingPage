@@ -40,7 +40,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 詳細は `docs/ROADMAP.md` を参照。現在の優先順位:
 
-1. **執筆体験の基盤** (Priority A): モードアーキテクチャ (partial)、チャプター管理再設計、セクションリンク
+1. **執筆体験の基盤** (Priority A): モードアーキテクチャ (done)、チャプター管理再設計 (done)、セクションリンク (done)
 2. **表現力拡張** (Priority B): Web小説演出、パステキスト、テキスト表現アーキテクチャ
 3. **エコシステム** (Priority C): ドックパネル、Google Keep連携、プラグイン拡張
 
@@ -196,7 +196,7 @@ WritingPage/
 - `docs/ROADMAP.md` - 機能ロードマップ（優先度別）
 - `docs/APP_SPECIFICATION.md` - アプリケーション仕様
 - `docs/ARCHITECTURE.md` - 設計概要
-- `docs/spec-index.json` - 仕様インデックス (全42エントリのステータス・実装率)
+- `docs/spec-index.json` - 仕様インデックス (全53エントリのステータス・実装率)
 - `docs/ISSUES.md` - 検証棚卸しからのアクションリスト
 
 ### 開発ガイド

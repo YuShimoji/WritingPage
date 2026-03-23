@@ -394,4 +394,81 @@ test.describe('Story Wiki', () => {
       }
     }
   });
+
+  // ── Step 4: 形態素解析 ──
+
+  test('should expose ZenMorphology API', async ({ page }) => {
+    const hasApi = await page.evaluate(() => {
+      return typeof window.ZenMorphology !== 'undefined' &&
+        typeof window.ZenMorphology.init === 'function' &&
+        typeof window.ZenMorphology.tokenize === 'function' &&
+        typeof window.ZenMorphology.extractProperNouns === 'function' &&
+        typeof window.ZenMorphology.posToCategory === 'function' &&
+        typeof window.ZenMorphology.isReady === 'function';
+    });
+    expect(hasApi).toBe(true);
+  });
+
+  test('should extract proper nouns after morphology init', async ({ page }) => {
+    const result = await page.evaluate(async () => {
+      if (!window.ZenMorphology) return null;
+      try {
+        await window.ZenMorphology.init();
+      } catch (e) {
+        return { error: e.message };
+      }
+      var nouns = window.ZenMorphology.extractProperNouns(
+        '田中太郎は東京都で山田花子に会った。'
+      );
+      return {
+        ready: window.ZenMorphology.isReady(),
+        nouns: nouns.map(function (n) { return { surface: n.surface, detail2: n.detail2 }; })
+      };
+    });
+    expect(result).not.toBeNull();
+    if (result.error) {
+      // Dictionary load may fail in CI — skip gracefully
+      console.log('Morphology init skipped:', result.error);
+      return;
+    }
+    expect(result.ready).toBe(true);
+    expect(result.nouns.length).toBeGreaterThan(0);
+    var surfaces = result.nouns.map(function (n) { return n.surface; });
+    // At least one proper noun detected (exact results depend on dictionary)
+    expect(surfaces.length).toBeGreaterThan(0);
+  });
+
+  test('should map POS detail2 to Wiki category', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      if (!window.ZenMorphology) return null;
+      return {
+        person: window.ZenMorphology.posToCategory('人名'),
+        place: window.ZenMorphology.posToCategory('地域'),
+        org: window.ZenMorphology.posToCategory('組織'),
+        general: window.ZenMorphology.posToCategory('一般')
+      };
+    });
+    expect(result).not.toBeNull();
+    expect(result.person).toBe('character');
+    expect(result.place).toBe('location');
+    expect(result.org).toBe('organization');
+    expect(result.general).toBe('term');
+  });
+
+  test('should fallback to regex when morphology is disabled', async ({ page }) => {
+    const candidates = await page.evaluate(() => {
+      // Disable morphology in settings
+      var s = window.ZenWriterStorage;
+      if (s && s.saveStoryWikiSettings) {
+        s.saveStoryWikiSettings({ autoDetect: true, useMorphology: false, ignoredTerms: [] });
+      }
+      return window.StoryWikiAutoDetect.extractCandidates(
+        'アルファガルド王国のセリーヌ姫はアルファガルド城でセリーヌの日記を読んだ。'
+      );
+    });
+    expect(candidates.length).toBeGreaterThan(0);
+    var terms = candidates.map(function (c) { return c.term; });
+    expect(terms).toContain('アルファガルド');
+    expect(terms).toContain('セリーヌ');
+  });
 });

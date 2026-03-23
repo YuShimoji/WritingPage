@@ -42,7 +42,7 @@
       wrap.className = 'gadget-outline';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
+      wrap.style.gap = '0.5rem';
 
       var label = document.createElement('label');
       label.textContent = (window.UILabels && window.UILabels.PRESET_LABEL) || 'プリセット';
@@ -58,7 +58,7 @@
       var lvInput = document.createElement('input'); lvInput.type = 'text'; lvInput.id = 'outline-new-levels'; lvInput.placeholder = (window.UILabels && window.UILabels.LEVELS_CSV_PLACEHOLDER) || '部,章,節';
       var createBtn = document.createElement('button'); createBtn.type = 'button'; createBtn.id = 'create-outline-set'; createBtn.textContent = (window.UILabels && window.UILabels.CREATE) || '作成';
       var createBox = document.createElement('div');
-      createBox.style.display = 'grid'; createBox.style.gap = '6px';
+      createBox.style.display = 'grid'; createBox.style.gap = '0.375rem';
       createBox.appendChild(nameLbl); createBox.appendChild(nameInput);
       createBox.appendChild(lvLbl); createBox.appendChild(lvInput);
       createBox.appendChild(createBtn);
@@ -95,9 +95,9 @@
         set.levels.forEach(function (lv, i) {
           var row = document.createElement('div');
           row.className = 'level-row';
-          row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.justifyContent = 'space-between'; row.style.gap = '6px';
+          row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.justifyContent = 'space-between'; row.style.gap = '0.375rem';
           var left = document.createElement('label'); left.textContent = String(lv.label || ''); left.style.flex = '1 1 auto';
-          var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'center'; right.style.gap = '6px';
+          var right = document.createElement('div'); right.style.display = 'flex'; right.style.alignItems = 'center'; right.style.gap = '0.375rem';
           var color = document.createElement('input'); color.type = 'color'; color.value = lv.color || '#888888'; color.setAttribute('data-index', String(i));
           var up = document.createElement('button'); up.type = 'button'; up.className = 'small btn-move'; up.setAttribute('data-dir', 'up'); up.setAttribute('data-index', String(i));
           up.textContent = (window.UILabels && window.UILabels.MOVE_UP) || '上へ';
@@ -402,7 +402,7 @@
           item.style.display = 'flex';
           item.style.justifyContent = 'space-between';
           item.style.alignItems = 'center';
-          item.style.padding = '6px 8px';
+          item.style.padding = '0.375rem 0.5rem';
           item.style.borderRadius = '4px';
           item.style.cursor = 'pointer';
           item.style.fontSize = '0.9rem';
@@ -427,7 +427,7 @@
           var actions = document.createElement('div');
           actions.className = 'doc-actions';
           actions.style.display = 'none';
-          actions.style.gap = '4px';
+          actions.style.gap = '0.25rem';
 
           function makeIconButton(iconName, title, color, handler) {
             var b = document.createElement('button');
@@ -435,7 +435,7 @@
             b.className = 'icon-button-mini';
             b.innerHTML = `<i data-lucide="${iconName}"></i>`;
             b.title = title;
-            b.style.padding = '2px';
+            b.style.padding = '0.125rem';
             b.style.display = 'flex';
             b.style.alignItems = 'center';
             b.style.justifyContent = 'center';
@@ -478,18 +478,18 @@
       listContainer.className = 'docs-list';
       listContainer.style.display = 'flex';
       listContainer.style.flexDirection = 'column';
-      listContainer.style.gap = '2px';
+      listContainer.style.gap = '0.125rem';
       listContainer.style.maxHeight = '300px';
       listContainer.style.overflowY = 'auto';
       listContainer.style.border = '1px solid var(--border-color)';
       listContainer.style.borderRadius = '6px';
-      listContainer.style.padding = '4px';
+      listContainer.style.padding = '0.25rem';
 
       var container = document.createElement('div');
       container.className = 'gadget-documents';
       container.style.display = 'flex';
       container.style.flexDirection = 'column';
-      container.style.gap = '10px';
+      container.style.gap = '0.625rem';
 
       var header = document.createElement('div');
       header.style.display = 'flex';
@@ -520,13 +520,13 @@
       moreSum.textContent = '入出力・復元';
       moreSum.style.cursor = 'pointer';
       moreSum.style.opacity = '0.7';
-      moreSum.style.padding = '4px 0';
+      moreSum.style.padding = '0.25rem 0';
 
       var secondaryRow = document.createElement('div');
       secondaryRow.style.display = 'flex';
       secondaryRow.style.flexWrap = 'wrap';
-      secondaryRow.style.gap = '6px';
-      secondaryRow.style.padding = '8px 4px';
+      secondaryRow.style.gap = '0.375rem';
+      secondaryRow.style.padding = '0.5rem 0.25rem';
 
       function makeSmallButton(text, handler) {
         var btn = document.createElement('button');

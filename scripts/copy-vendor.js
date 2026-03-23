@@ -19,6 +19,7 @@ const jsLibs = [
   ['turndown/dist/turndown.js', 'turndown.js'],
   ['morphdom/dist/morphdom-umd.min.js', 'morphdom-umd.min.js'],
   ['lucide/dist/umd/lucide.min.js', 'lucide.min.js'],
+  ['kuromoji/build/kuromoji.js', 'kuromoji.js'],
 ];
 
 /** Font CSS files to copy */
@@ -72,6 +73,29 @@ if (!fs.existsSync(fontsourceDir)) {
     }
   }
   console.log(`  ${count} woff2 files copied`);
+}
+
+// --- Kuromoji dictionary files (for morphological analysis) ---
+console.log('Copying kuromoji dictionary files...');
+const kuromojiDictSrc = path.join(projectRoot, 'node_modules', 'kuromoji', 'dict');
+const kuromojiDictDest = path.join(vendorDir, 'kuromoji-dict');
+if (!fs.existsSync(kuromojiDictSrc)) {
+  console.warn('  SKIP: kuromoji/dict not found');
+} else {
+  ensureDir(kuromojiDictDest);
+  const dictFiles = fs.readdirSync(kuromojiDictSrc);
+  let dictCount = 0;
+  for (const entry of dictFiles) {
+    if (entry.endsWith('.dat.gz')) {
+      fs.copyFileSync(path.join(kuromojiDictSrc, entry), path.join(kuromojiDictDest, entry));
+      dictCount++;
+    }
+  }
+  const totalSize = (dictFiles
+    .filter(f => f.endsWith('.dat.gz'))
+    .reduce((sum, f) => sum + fs.statSync(path.join(kuromojiDictDest, f)).size, 0) / (1024 * 1024))
+    .toFixed(1);
+  console.log(`  ${dictCount} dictionary files copied (${totalSize} MB)`);
 }
 
 console.log('Vendor copy complete.');

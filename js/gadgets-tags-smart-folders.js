@@ -25,12 +25,12 @@
       wrap.className = 'gadget-tags-smart-folders';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
+      wrap.style.gap = '0.5rem';
 
       // ツールバー
       var toolbar = document.createElement('div');
       toolbar.style.display = 'flex';
-      toolbar.style.gap = '6px';
+      toolbar.style.gap = '0.375rem';
       toolbar.style.flexWrap = 'wrap';
       toolbar.style.alignItems = 'center';
 
@@ -59,7 +59,7 @@
       treeContainer.className = 'tags-smart-folders-tree';
       treeContainer.style.border = '1px solid var(--border-color)';
       treeContainer.style.borderRadius = '4px';
-      treeContainer.style.padding = '6px';
+      treeContainer.style.padding = '0.375rem';
       treeContainer.style.maxHeight = '400px';
       treeContainer.style.overflowY = 'auto';
 
@@ -87,7 +87,7 @@
         
         if (!allTags.length) {
           var empty = document.createElement('div');
-          empty.style.padding = '8px';
+          empty.style.padding = '0.5rem';
           empty.style.opacity = '0.7';
           empty.textContent = 'タグがありません';
           treeContainer.appendChild(empty);
@@ -128,10 +128,10 @@
         item.style.display = 'flex';
         item.style.alignItems = 'center';
         item.style.justifyContent = 'space-between';
-        item.style.padding = '4px 6px';
+        item.style.padding = '0.25rem 0.375rem';
         item.style.cursor = 'pointer';
         item.style.borderRadius = '4px';
-        item.style.marginBottom = '2px';
+        item.style.marginBottom = '0.125rem';
         
         if (isSelected) {
           item.style.background = 'var(--focus-color)';
@@ -149,7 +149,7 @@
         var left = document.createElement('div');
         left.style.display = 'flex';
         left.style.alignItems = 'center';
-        left.style.gap = '6px';
+        left.style.gap = '0.375rem';
         left.style.flex = '1';
 
         var icon = document.createElement('span');

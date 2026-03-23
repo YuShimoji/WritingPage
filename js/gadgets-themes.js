@@ -30,7 +30,7 @@
       wrap.className = 'gadget-themes';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '12px';
+      wrap.style.gap = '0.75rem';
 
       function makeSection(title) {
         var section = document.createElement('div');
@@ -42,7 +42,7 @@
         section.appendChild(heading);
         section.style.display = 'flex';
         section.style.flexDirection = 'column';
-        section.style.gap = '6px';
+        section.style.gap = '0.375rem';
         return section;
       }
 
@@ -50,7 +50,7 @@
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
-        row.style.gap = '4px';
+        row.style.gap = '0.25rem';
         row.textContent = labelText;
         row.appendChild(control);
         return row;
@@ -60,7 +60,7 @@
       var themesSection = makeSection((window.UILabels && window.UILabels.THEME_SECTION) || 'テーマ');
       var themeButtons = document.createElement('div');
       themeButtons.style.display = 'flex';
-      themeButtons.style.gap = '6px';
+      themeButtons.style.gap = '0.375rem';
       themeButtons.style.flexWrap = 'wrap';
 
       // ThemeRegistry からプリセット一覧を取得（フォールバック付き）
@@ -144,7 +144,7 @@
 
       var paletteContainer = document.createElement('div');
       paletteContainer.style.display = 'flex';
-      paletteContainer.style.gap = '4px';
+      paletteContainer.style.gap = '0.25rem';
       paletteContainer.style.flexWrap = 'wrap';
 
       function renderCustomPresets() {
@@ -176,8 +176,8 @@
       // Save current color as preset
       var saveColorRow = document.createElement('div');
       saveColorRow.style.display = 'flex';
-      saveColorRow.style.gap = '4px';
-      saveColorRow.style.marginTop = '6px';
+      saveColorRow.style.gap = '0.25rem';
+      saveColorRow.style.marginTop = '0.375rem';
 
       var saveColorBtn = document.createElement('button');
       saveColorBtn.type = 'button';

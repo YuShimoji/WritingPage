@@ -379,7 +379,7 @@
     var emptyMsg = document.createElement('div');
     emptyMsg.className = 'sections-empty';
     emptyMsg.textContent = '\u898b\u51fa\u3057\u304c\u3042\u308a\u307e\u305b\u3093';
-    emptyMsg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:4px 0;';
+    emptyMsg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:0.25rem 0;';
     treeContainer.appendChild(emptyMsg);
 
     wrap.appendChild(treeContainer);
@@ -416,7 +416,7 @@
         var msg = document.createElement('div');
         msg.className = 'sections-empty';
         msg.textContent = '\u898b\u51fa\u3057\u304c\u3042\u308a\u307e\u305b\u3093';
-        msg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:4px 0;';
+        msg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:0.25rem 0;';
         treeContainer.appendChild(msg);
       } else {
         var minLevel = 6;

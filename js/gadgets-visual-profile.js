@@ -21,7 +21,7 @@
       root.innerHTML = '';
       root.style.display = 'flex';
       root.style.flexDirection = 'column';
-      root.style.gap = '8px';
+      root.style.gap = '0.5rem';
 
       // ===== 作業シーン (Typography Pack) =====
       var TP = window.ZenWriterTypographyPack;
@@ -90,12 +90,12 @@
       // プロファイル選択
       const selectRow = el('div');
       selectRow.style.display = 'flex';
-      selectRow.style.gap = '6px';
+      selectRow.style.gap = '0.375rem';
       selectRow.style.alignItems = 'center';
 
       const selectLabel = el('label');
       selectLabel.textContent = (window.UILabels && window.UILabels.PROFILE_LABEL) || 'プロファイル';
-      selectLabel.style.fontSize = '12px';
+      selectLabel.style.fontSize = '0.75rem';
       selectLabel.style.minWidth = '70px';
 
       const select = el('select');
@@ -149,7 +149,7 @@
       // ボタン行
       const btnRow = el('div');
       btnRow.style.display = 'flex';
-      btnRow.style.gap = '4px';
+      btnRow.style.gap = '0.25rem';
       btnRow.style.flexWrap = 'wrap';
 
       const btnApply = el('button', 'small');
@@ -218,9 +218,9 @@
 
       // 現在のプロファイル情報
       const infoDiv = el('div');
-      infoDiv.style.fontSize = '11px';
+      infoDiv.style.fontSize = '0.6875rem';
       infoDiv.style.opacity = '0.7';
-      infoDiv.style.marginTop = '4px';
+      infoDiv.style.marginTop = '0.25rem';
 
       function updateInfo() {
         const currentId = VP.getCurrentProfileId();

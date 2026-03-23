@@ -32,7 +32,7 @@
       wrap.className = 'gadget-goal';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '8px';
+      wrap.style.gap = '0.5rem';
 
       var target = document.createElement('input');
       target.type = 'number'; target.min = '0'; target.placeholder = (window.UILabels && window.UILabels.GOAL_TARGET_PLACEHOLDER) || '例: 2000';
@@ -65,8 +65,8 @@
       }
       );
 
-      var row1 = document.createElement('label'); row1.style.display = 'flex'; row1.style.flexDirection = 'column'; row1.style.gap = '4px'; row1.textContent = (window.UILabels && window.UILabels.GOAL_TARGET) || '目標文字数'; row1.appendChild(target);
-      var row2 = document.createElement('label'); row2.style.display = 'flex'; row2.style.flexDirection = 'column'; row2.style.gap = '4px'; row2.textContent = (window.UILabels && window.UILabels.DEADLINE) || '締切日'; row2.appendChild(deadline);
+      var row1 = document.createElement('label'); row1.style.display = 'flex'; row1.style.flexDirection = 'column'; row1.style.gap = '0.25rem'; row1.textContent = (window.UILabels && window.UILabels.GOAL_TARGET) || '目標文字数'; row1.appendChild(target);
+      var row2 = document.createElement('label'); row2.style.display = 'flex'; row2.style.flexDirection = 'column'; row2.style.gap = '0.25rem'; row2.textContent = (window.UILabels && window.UILabels.DEADLINE) || '締切日'; row2.appendChild(deadline);
 
       var reset = document.createElement('button'); reset.type = 'button'; reset.className = 'small'; reset.textContent = (window.UILabels && window.UILabels.CLEAR_GOAL) || '目標をクリア';
       reset.addEventListener('click', function () {

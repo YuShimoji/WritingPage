@@ -335,16 +335,16 @@
     var nav = el('div', 'help-nav');
     nav.style.display = 'flex';
     nav.style.flexWrap = 'wrap';
-    nav.style.gap = '4px';
-    nav.style.marginBottom = '8px';
-    nav.style.paddingBottom = '8px';
+    nav.style.gap = '0.25rem';
+    nav.style.marginBottom = '0.5rem';
+    nav.style.paddingBottom = '0.5rem';
     nav.style.borderBottom = '1px solid var(--border-color)';
 
     // コンテンツ表示部分
     var contentArea = el('div', 'help-content');
     contentArea.style.flex = '1';
     contentArea.style.overflow = 'auto';
-    contentArea.style.fontSize = '13px';
+    contentArea.style.fontSize = '0.8125rem';
     contentArea.style.lineHeight = '1.6';
 
     var activeSection = null;

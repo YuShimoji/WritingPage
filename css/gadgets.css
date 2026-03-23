@@ -7,9 +7,9 @@
 .gadget {
   border: 1px solid var(--border-color);
   border-radius: 6px;
-  padding: 6px 8px;
+  padding: 0.375rem 0.5rem;
   background: var(--bg-color);
-  margin-bottom: 10px;
+  margin-bottom: 0.625rem;
   transition:
     all 0.2s ease,
     transform 0.1s ease,
@@ -32,8 +32,8 @@
 .gadget-head {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 0.375rem;
+  margin-bottom: 0.25rem;
   cursor: grab;
 }
 
@@ -51,7 +51,7 @@
   background: transparent;
   color: inherit;
   border: 1px solid var(--border-color);
-  padding: 2px 6px;
+  padding: 0.125rem 0.375rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }
@@ -61,7 +61,7 @@
   background: transparent;
   color: inherit;
   border: 1px solid var(--border-color);
-  padding: 2px 6px;
+  padding: 0.125rem 0.375rem;
   border-radius: 4px;
   transition: all 0.2s ease;
 }
@@ -73,7 +73,7 @@
 }
 
 .gadget-clock {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family:
     system-ui,
     -apple-system,
@@ -88,10 +88,10 @@
   background: transparent;
   color: inherit;
   border: 1px solid var(--border-color);
-  padding: 2px 6px;
+  padding: 0.125rem 0.375rem;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 0.75rem;
   transition: all 0.2s ease;
 }
 
@@ -100,8 +100,8 @@
 }
 
 .gadget-settings {
-  margin-top: 6px;
-  padding: 6px 8px;
+  margin-top: 0.375rem;
+  padding: 0.375rem 0.5rem;
   border-top: 1px dashed var(--border-color);
   background: rgba(0, 0, 0, 0.03);
 }

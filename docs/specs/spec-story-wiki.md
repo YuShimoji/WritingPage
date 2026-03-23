@@ -16,8 +16,7 @@
 | Phase 1 | 基本機能 (CRUD / ツリー / カテゴリ / 検索 / エディタ連携) | done |
 | Phase 2 Step 1-2 | グラフビュー統合 / バックリンク一覧 | done |
 | Phase 2 Step 3 | AI生成 (テンプレート + OpenAI ハイブリッド) | done |
-| Phase 2 Step 4a | リンク候補検出 (簡易版: 既存Wiki用語の未リンク箇所検出) | done |
-| Phase 2 Step 4b | 高度な自動検出 (形態素解析) | todo |
+| Phase 2 Step 4 | 高度な自動検出 | done |
 
 ---
 
@@ -160,33 +159,6 @@ WikiCategory = {
 - 設定でオン/オフ切り替え可能
 - デフォルト: オン
 
-### 4b. リンク候補検出 (Phase 2 Step 4a: done)
-
-登録済みWiki用語が本文内に `[[...]]` なしで出現している箇所を検出し、ワンクリックでリンク化する。
-
-#### 動作フロー
-
-1. 手動スキャンボタン押下 (または保存時トリガー)
-2. 既存 `[[...]]` をマスクして重複検出を防ぐ
-3. 登録済みWiki用語 + aliases を全文検索してヒット数を集計
-4. ヒットがあれば「リンク候補」ダイアログを優先表示
-5. ヒットなしの場合は従来の「新語候補」ダイアログにフォールバック
-
-#### リンク候補ダイアログ
-
-- 用語名・出現回数・カテゴリバッジを表示
-- チェックボックスで選択 (デフォルト全選択)
-- 「選択した用語をリンク化」でContentGuard経由の一括変換
-- Esc / 背景クリックで閉じる
-
-#### 実装
-
-- `findUnlinkedMentions(text)`: 検出ロジック (story-wiki.js)
-- `showLinkCandidatesDialog(candidates)`: UI (story-wiki.js)
-- `applyWikilinks(text, selectedEntries)`: `[[用語]]` 変換 (story-wiki.js)
-- CSS: `.swiki-suggest-*` / `.swiki-dialog-actions` (style.css)
-- `window.StoryWikiAutoDetect.findUnlinkedMentions` / `showLinkCandidates` で公開
-
 ### 5. エディタ連携
 
 #### 5.1 `[[wikilink]]` 構文
@@ -230,7 +202,7 @@ WikiCategory = {
 | Step 1 | グラフビュー統合 (カテゴリ色分け / 力学レイアウト / ノードクリック遷移) | done |
 | Step 2 | バックリンク一覧 (詳細ペイン統合 / Story Wiki + ドキュメント横断) | done |
 | Step 3 | AI生成 (テンプレート + OpenAI ハイブリッド) | done |
-| Step 4 | 高度な自動検出 | todo |
+| Step 4 | 高度な自動検出 | done |
 
 ### Step 1: グラフビュー統合 (done)
 
@@ -301,40 +273,52 @@ WikiCategory = {
   - `aiModel`: モデル名 (デフォルト: `gpt-4o-mini`)
 - 設定 UI: サイドバーのスキャンボタン隣に歯車アイコン、またはフルペインヘッダーに設定リンク
 
-### Step 4: 高度な自動検出 (todo)
-- 形態素解析による精度向上
-- 文脈を考慮した固有名詞判定
+### Step 4: 高度な自動検出 (done)
+
+- kuromoji.js による形態素解析 (IPAdic辞書、遅延読込)
+- 固有名詞の品詞タグ (人名/地域/組織) からWikiカテゴリを自動判定
+- 連続固有名詞トークンの結合 (例: 田中+太郎→田中太郎)
+- 形態素解析確認済み固有名詞は出現1回でも候補に採用 (高信頼度)
+- 既存regex検出との和集合戦略 (ファンタジー造語は辞書にないためregexで補完)
+- 設定UIに「形態素解析を使用」トグル追加 (デフォルトON)
+- ZenMorphology共通モジュールとして分離 (将来のスペルチェック/ルビ自動付与に再利用可能)
 
 ---
 
 ## 実装計画 (Phase 1)
 
 ### Step 1: データ層
+
 - WikiEntry / WikiCategory のデータモデル実装
 - storage.js にCRUD API追加
 - 旧データマイグレーション関数
 
 ### Step 2: ガジェット基盤
+
 - 新 StoryWiki ガジェット登録
 - サイドバー簡易表示UI
 - 全画面ペイン切り替え
 
 ### Step 3: ツリー + 詳細ペイン
+
 - カテゴリ別ツリー表示
 - 記事詳細表示 (Markdownレンダリング)
 - 記事の作成/編集/削除UI
 
 ### Step 4: 自動検出
+
 - 用語候補抽出ロジック
 - 提案UI
 - オン/オフ設定
 
 ### Step 5: エディタ連携
+
 - [[wikilink]] パース (link-graph.js のパーサーを流用)
 - 登録済み用語の自動ハイライト
 - ツールチップ表示
 
 ### Step 6: 統合・テスト
+
 - レガシーガジェット削除
 - E2Eテスト更新
 - ドキュメント更新

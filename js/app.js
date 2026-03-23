@@ -148,6 +148,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // SP-076: ドックパネル初期化
+    if (typeof DockManager === 'function') {
+        var dockManager = new DockManager(sidebarManager);
+        dockManager.init();
+        window.dockManager = dockManager;
+    }
+
+    // SP-061 Phase 2: リロード時にタイポグラフィパックを復元
+    if (window.ZenWriterVisualProfile && window.ZenWriterVisualProfile.getCurrentTypographyPackId) {
+        var savedPackId = window.ZenWriterVisualProfile.getCurrentTypographyPackId();
+        if (savedPackId) {
+            window.ZenWriterVisualProfile.applyTypographyPack(savedPackId);
+        }
+    }
+
     // 要素別フォントサイズを適用
     applyElementFontSizes();
 
@@ -221,8 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const s = window.ZenWriterStorage.loadSettings();
             const fs = (s && s.fontSizes) || {};
             const root = document.documentElement;
-            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', fs.heading + 'px');
-            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', fs.body + 'px');
+            if (typeof fs.heading === 'number') root.style.setProperty('--heading-font-size', (fs.heading / 16) + 'rem');
+            if (typeof fs.body === 'number') root.style.setProperty('--body-font-size', (fs.body / 16) + 'rem');
         } catch (_) { }
     }
 
@@ -245,7 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 group.className = 'plugin-group';
                 group.style.display = 'flex';
                 group.style.flexDirection = 'column';
-                group.style.gap = '6px';
+                group.style.gap = '0.375rem';
 
                 const title = document.createElement('div');
                 title.className = 'plugin-title';
@@ -257,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 actionsWrap.className = 'plugin-actions';
                 actionsWrap.style.display = 'flex';
                 actionsWrap.style.flexWrap = 'wrap';
-                actionsWrap.style.gap = '6px';
+                actionsWrap.style.gap = '0.375rem';
                 (p.actions || []).forEach(a => {
                     const btn = document.createElement('button');
                     btn.className = 'small';
@@ -533,6 +548,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.ZenWriterStorage.saveSettings(s);
             } catch (_) { }
         }
+
+        // SP-076: ドックパネルにモード変更を通知
+        if (window.dockManager && typeof window.dockManager._onUIModeChanged === 'function') {
+            window.dockManager._onUIModeChanged(targetMode);
+        }
     }
 
     const uiModeSelect = document.getElementById('ui-mode-select');
@@ -548,6 +568,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const mode = this.getAttribute('data-mode');
             if (mode) setUIMode(mode);
         });
+    });
+
+    // Visual Profile からの UIモード変更を受信 (SP-012)
+    window.addEventListener('ZenWriterUIModeChanged', function (e) {
+        if (e.detail && e.detail.source === 'visual-profile' && e.detail.mode) {
+            setUIMode(e.detail.mode);
+        }
     });
 
     // SP-070 モード切替ショートカット: app-shortcuts.js に統一 (ui.mode.cycle / ui.mode.exit)

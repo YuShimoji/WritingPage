@@ -6,8 +6,8 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.29
-- **最終更新**: 2026-03-19
-- **ブランチ**: main（origin/main と同期済み）
+- **最終更新**: 2026-03-23 (session 15 nightshift: docs債務解消 + 健全性確認)
+- **ブランチ**: main（origin/main より 15 コミット ahead）
 
 ## 再開手順
 
@@ -25,10 +25,10 @@ npm run lint              # ESLint
 
 | テスト | 状態 | コマンド |
 |--------|------|----------|
-| E2E | 389 passed / 0 failed / 1 skipped (52 spec files, 399 total) | `npx playwright test` |
+| E2E | 430 passed / 1 failed (Canvas Mode既知) / 1 skipped (56 spec files) | `npx playwright test` |
 | Lint | ALL PASSED (0 errors) | `npm run lint` |
 
-### 既知の E2E スキップ (2026-03-19)
+### 既知の E2E スキップ (2026-03-22)
 
 - editor-canvas-mode.spec.js: 1件 skip (Canvas Mode は betaEnabled:false で延期中)
 - +9件: 条件付きskip (Images系/xorigin/split-view等のガジェットloadout依存)
@@ -71,7 +71,7 @@ npm run lint              # ESLint
 | `js/chapter-list.js` | 1026 | Phase 3 目次生成 |
 | `js/gadgets-editor-extras.js` | 1227 | TB DSL / プリセット / ゲームブック分岐UI |
 | `js/gadgets-core.js` | 1020 | 適正 |
-| `js/app.js` | 644 | Phase 3 分割完了 |
+| `js/app.js` | 671 | Phase 3 分割完了 |
 
 ## 決定事項
 
@@ -97,4 +97,6 @@ npm run lint              # ESLint
 - `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
 - `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
 - `docs/specs/` -- 個別仕様書 (spec-index.json で索引)
+- `docs/WRITING_PIPELINE.md` -- 執筆パイプライン定義 (工程別の手動/自動境界)
+- `docs/project-context.md` -- プロジェクトコンテキスト (LANE/SLICE/DELIVERABLE)
 - `CLAUDE.md` -- AI再開用コンテキスト

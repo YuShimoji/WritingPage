@@ -30,7 +30,7 @@
       wrap.className = 'gadget-typography';
       wrap.style.display = 'flex';
       wrap.style.flexDirection = 'column';
-      wrap.style.gap = '12px';
+      wrap.style.gap = '0.75rem';
 
       function makeSection(title) {
         var section = document.createElement('div');
@@ -42,7 +42,7 @@
         section.appendChild(heading);
         section.style.display = 'flex';
         section.style.flexDirection = 'column';
-        section.style.gap = '6px';
+        section.style.gap = '0.375rem';
         return section;
       }
 
@@ -50,7 +50,7 @@
         var row = document.createElement('label');
         row.style.display = 'flex';
         row.style.flexDirection = 'column';
-        row.style.gap = '4px';
+        row.style.gap = '0.25rem';
         row.textContent = labelText;
         row.appendChild(control);
         return row;
@@ -105,7 +105,7 @@
       var uiFontSizeRow = document.createElement('div');
       uiFontSizeRow.style.display = 'flex';
       uiFontSizeRow.style.flexDirection = 'column';
-      uiFontSizeRow.style.gap = '4px';
+      uiFontSizeRow.style.gap = '0.25rem';
       uiFontSizeRow.appendChild(uiFontSizeLabel);
       uiFontSizeRow.appendChild(uiFontSizeInput);
       fontSection.appendChild(uiFontSizeRow);
@@ -131,7 +131,7 @@
       var editorFontSizeRow = document.createElement('div');
       editorFontSizeRow.style.display = 'flex';
       editorFontSizeRow.style.flexDirection = 'column';
-      editorFontSizeRow.style.gap = '4px';
+      editorFontSizeRow.style.gap = '0.25rem';
       editorFontSizeRow.appendChild(editorFontSizeLabel);
       editorFontSizeRow.appendChild(editorFontSizeInput);
       fontSection.appendChild(editorFontSizeRow);
@@ -157,7 +157,7 @@
       var lineHeightRow = document.createElement('div');
       lineHeightRow.style.display = 'flex';
       lineHeightRow.style.flexDirection = 'column';
-      lineHeightRow.style.gap = '4px';
+      lineHeightRow.style.gap = '0.25rem';
       lineHeightRow.appendChild(lineHeightLabel);
       lineHeightRow.appendChild(lineHeightInput);
       fontSection.appendChild(lineHeightRow);
@@ -189,7 +189,7 @@
       var letterSpacingRow = document.createElement('div');
       letterSpacingRow.style.display = 'flex';
       letterSpacingRow.style.flexDirection = 'column';
-      letterSpacingRow.style.gap = '4px';
+      letterSpacingRow.style.gap = '0.25rem';
       letterSpacingRow.appendChild(letterSpacingLabel);
       letterSpacingRow.appendChild(letterSpacingInput);
       microSection.appendChild(letterSpacingRow);
@@ -215,7 +215,7 @@
       var paragraphSpacingRow = document.createElement('div');
       paragraphSpacingRow.style.display = 'flex';
       paragraphSpacingRow.style.flexDirection = 'column';
-      paragraphSpacingRow.style.gap = '4px';
+      paragraphSpacingRow.style.gap = '0.25rem';
       paragraphSpacingRow.appendChild(paragraphSpacingLabel);
       paragraphSpacingRow.appendChild(paragraphSpacingInput);
       microSection.appendChild(paragraphSpacingRow);
@@ -241,7 +241,7 @@
       var paragraphIndentRow = document.createElement('div');
       paragraphIndentRow.style.display = 'flex';
       paragraphIndentRow.style.flexDirection = 'column';
-      paragraphIndentRow.style.gap = '4px';
+      paragraphIndentRow.style.gap = '0.25rem';
       paragraphIndentRow.appendChild(paragraphIndentLabel);
       paragraphIndentRow.appendChild(paragraphIndentInput);
       microSection.appendChild(paragraphIndentRow);
@@ -291,7 +291,7 @@
       var rubySizeRow = document.createElement('div');
       rubySizeRow.style.display = 'flex';
       rubySizeRow.style.flexDirection = 'column';
-      rubySizeRow.style.gap = '4px';
+      rubySizeRow.style.gap = '0.25rem';
       rubySizeRow.appendChild(rubySizeLabel);
       rubySizeRow.appendChild(rubySizeInput);
       rubySection.appendChild(rubySizeRow);
@@ -326,13 +326,75 @@
       var rubyVisibleRow = document.createElement('label');
       rubyVisibleRow.style.display = 'flex';
       rubyVisibleRow.style.alignItems = 'center';
-      rubyVisibleRow.style.gap = '8px';
+      rubyVisibleRow.style.gap = '0.5rem';
       rubyVisibleRow.style.cursor = 'pointer';
       rubyVisibleRow.appendChild(rubyVisibleCheckbox);
       rubyVisibleRow.appendChild(document.createTextNode('ルビを表示'));
       rubySection.appendChild(rubyVisibleRow);
 
       wrap.appendChild(rubySection);
+
+      // ===== タイポグラフィパック (SP-061 Phase 2) =====
+      var vp = window.ZenWriterVisualProfile;
+      if (vp && vp.getTypographyPacks) {
+        var packSection = makeSection('タイポグラフィパック');
+        var packSelect = document.createElement('select');
+        var noneOpt = document.createElement('option');
+        noneOpt.value = '';
+        noneOpt.textContent = '-- なし --';
+        packSelect.appendChild(noneOpt);
+
+        var packs = vp.getTypographyPacks();
+        packs.forEach(function (p) {
+          var opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.label;
+          if (p.description) opt.title = p.description;
+          packSelect.appendChild(opt);
+        });
+
+        // 現在のパックを復元
+        var currentPackId = vp.getCurrentTypographyPackId();
+        if (currentPackId) {
+          packSelect.value = currentPackId;
+        }
+
+        var packDesc = document.createElement('div');
+        packDesc.style.fontSize = '0.8rem';
+        packDesc.style.opacity = '0.6';
+        packDesc.style.minHeight = '1.2em';
+        function updatePackDesc(id) {
+          var pack = id ? vp.getTypographyPack(id) : null;
+          packDesc.textContent = pack ? pack.description : '';
+        }
+        updatePackDesc(currentPackId);
+
+        packSelect.addEventListener('change', function () {
+          var id = packSelect.value;
+          if (id) {
+            vp.applyTypographyPack(id);
+          } else {
+            vp.clearTypographyPack();
+          }
+          updatePackDesc(id);
+          // パック適用後、個別設定UIも同期
+          refreshState();
+        });
+
+        packSection.appendChild(makeRow('パック選択', packSelect));
+        packSection.appendChild(packDesc);
+        wrap.appendChild(packSection);
+
+        // パック変更イベントでUI同期
+        window.addEventListener('ZenWriterTypographyPackApplied', function (e) {
+          if (e.detail && e.detail.packId) {
+            packSelect.value = e.detail.packId;
+            updatePackDesc(e.detail.packId);
+            refreshState();
+          }
+        });
+      }
+
       el.appendChild(wrap);
 
       function applyRubySettings() {

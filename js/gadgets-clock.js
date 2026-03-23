@@ -38,7 +38,7 @@
   // Clock settings UI
   ZWGadgets.registerSettings('Clock', function (el, ctx) {
     try {
-      var row = document.createElement('label'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '6px';
+      var row = document.createElement('label'); row.style.display = 'flex'; row.style.alignItems = 'center'; row.style.gap = '0.375rem';
       var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!ctx.get('hour24', true);
       var txt = document.createElement('span'); txt.textContent = (window.UILabels && window.UILabels.CLOCK_24H) || '24時間表示';
       cb.addEventListener('change', function () { try { ctx.set('hour24', !!cb.checked); } catch (_) { } });
