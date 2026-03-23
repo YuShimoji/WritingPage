@@ -6,7 +6,7 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 17 — Q3決定 + WYSIWYG演出静的プレビュー + バグ修正2件
+- 直近の状態: session 18 — スコープ整理(投機的要件16件除外) + 仕様書一括整合 + Q4決定(WP-003クローズ) + WP-002ガジェット統合計画策定
 
 ### 運用メモ
 
