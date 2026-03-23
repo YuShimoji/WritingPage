@@ -266,3 +266,533 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
     expect(maxWidth).toBe(true);
   });
 });
+
+test.describe('SP-076 Phase 2: Tab Groups', () => {
+  test('Tab bar element exists in DOM', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const tabBar = await page.$('#dock-left-tab-bar');
+    expect(tabBar).toBeTruthy();
+  });
+
+  test('DockManager has tab API methods', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const api = await page.evaluate(() => {
+      var dm = window.dockManager;
+      return {
+        addTab: typeof dm.addTab === 'function',
+        removeTab: typeof dm.removeTab === 'function',
+        setActiveTab: typeof dm.setActiveTab === 'function',
+        reorderTabs: typeof dm.reorderTabs === 'function',
+        getTabs: typeof dm.getTabs === 'function',
+        getActiveTabIndex: typeof dm.getActiveTabIndex === 'function'
+      };
+    });
+
+    expect(api.addTab).toBe(true);
+    expect(api.removeTab).toBe(true);
+    expect(api.setActiveTab).toBe(true);
+    expect(api.reorderTabs).toBe(true);
+    expect(api.getTabs).toBe(true);
+    expect(api.getActiveTabIndex).toBe(true);
+  });
+
+  test('Adding a single tab auto-opens the left panel', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('test-1', 'Test Tab');
+    });
+
+    const isOpen = await page.evaluate(() => {
+      return document.documentElement.getAttribute('data-dock-left-open') === 'true';
+    });
+    expect(isOpen).toBe(true);
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].id).toBe('test-1');
+    expect(tabs[0].title).toBe('Test Tab');
+  });
+
+  test('Tab bar hidden with 0-1 tabs, visible with 2+', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    // 0 tabs: hidden
+    const hidden0 = await page.evaluate(() => {
+      var bar = document.getElementById('dock-left-tab-bar');
+      return window.getComputedStyle(bar).display;
+    });
+    expect(hidden0).toBe('none');
+
+    // 1 tab: hidden
+    await page.evaluate(() => window.dockManager.addTab('t1', 'Tab 1'));
+    const hidden1 = await page.evaluate(() => {
+      var bar = document.getElementById('dock-left-tab-bar');
+      return window.getComputedStyle(bar).display;
+    });
+    expect(hidden1).toBe('none');
+
+    // 2 tabs: visible
+    await page.evaluate(() => window.dockManager.addTab('t2', 'Tab 2'));
+    const visible2 = await page.evaluate(() => {
+      var bar = document.getElementById('dock-left-tab-bar');
+      return window.getComputedStyle(bar).display;
+    });
+    expect(visible2).toBe('flex');
+  });
+
+  test('Tab click switches active tab', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('a', 'Alpha');
+      window.dockManager.addTab('b', 'Beta');
+    });
+
+    // Active tab should be the last added (Beta)
+    const active0 = await page.evaluate(() => window.dockManager.getActiveTabIndex());
+    expect(active0).toBe(1);
+
+    // Click first tab
+    await page.click('.dock-tab[data-tab-index="0"]');
+
+    const active1 = await page.evaluate(() => window.dockManager.getActiveTabIndex());
+    expect(active1).toBe(0);
+
+    // Verify aria-selected
+    const ariaFirst = await page.getAttribute('.dock-tab[data-tab-index="0"]', 'aria-selected');
+    const ariaSecond = await page.getAttribute('.dock-tab[data-tab-index="1"]', 'aria-selected');
+    expect(ariaFirst).toBe('true');
+    expect(ariaSecond).toBe('false');
+  });
+
+  test('Removing a tab updates the tab bar', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('x', 'X');
+      window.dockManager.addTab('y', 'Y');
+      window.dockManager.addTab('z', 'Z');
+    });
+
+    // Remove middle tab
+    await page.evaluate(() => window.dockManager.removeTab('y'));
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(2);
+    expect(tabs[0].id).toBe('x');
+    expect(tabs[1].id).toBe('z');
+  });
+
+  test('Removing active tab adjusts activeTab index', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('a', 'A');
+      window.dockManager.addTab('b', 'B');
+      window.dockManager.addTab('c', 'C');
+      // Active is now 2 (C)
+    });
+
+    // Remove last tab (active)
+    await page.evaluate(() => window.dockManager.removeTab(2));
+
+    const active = await page.evaluate(() => window.dockManager.getActiveTabIndex());
+    expect(active).toBe(1); // Should fall back to B
+  });
+
+  test('Duplicate tab id activates existing instead of adding', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('dup', 'First');
+      window.dockManager.addTab('other', 'Other');
+      // Try adding duplicate
+      window.dockManager.addTab('dup', 'First Again');
+    });
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(2);
+    const active = await page.evaluate(() => window.dockManager.getActiveTabIndex());
+    expect(active).toBe(0); // Should switch to existing 'dup'
+  });
+
+  test('Reorder tabs via API', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('r1', 'One');
+      window.dockManager.addTab('r2', 'Two');
+      window.dockManager.addTab('r3', 'Three');
+      window.dockManager.setActiveTab(0); // activate r1
+    });
+
+    // Move r1 (index 0) to index 2
+    await page.evaluate(() => window.dockManager.reorderTabs(0, 2));
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs[0].id).toBe('r2');
+    expect(tabs[1].id).toBe('r3');
+    expect(tabs[2].id).toBe('r1');
+
+    // Active tab should follow r1 to index 2
+    const active = await page.evaluate(() => window.dockManager.getActiveTabIndex());
+    expect(active).toBe(2);
+  });
+
+  test('Tab state persists after reload', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('p1', 'Persist 1');
+      window.dockManager.addTab('p2', 'Persist 2');
+      window.dockManager.setActiveTab(0);
+    });
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const state = await page.evaluate(() => {
+      return {
+        tabs: window.dockManager.getTabs(),
+        active: window.dockManager.getActiveTabIndex()
+      };
+    });
+
+    expect(state.tabs).toHaveLength(2);
+    expect(state.tabs[0].id).toBe('p1');
+    expect(state.tabs[1].id).toBe('p2');
+    expect(state.active).toBe(0);
+  });
+
+  test('Tab close button removes tab', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('c1', 'Close Me');
+      window.dockManager.addTab('c2', 'Stay');
+    });
+
+    // Click close button on first tab
+    await page.click('.dock-tab[data-tab-index="0"] .dock-tab__close');
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].id).toBe('c2');
+  });
+
+  test('Header title reflects active tab name', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('h1', 'Wiki');
+      window.dockManager.addTab('h2', 'Outline');
+    });
+
+    // Active is h2 (Outline)
+    const title1 = await page.evaluate(() => {
+      return document.querySelector('.dock-panel-left__title').textContent;
+    });
+    expect(title1).toBe('Outline');
+
+    // Switch to h1
+    await page.evaluate(() => window.dockManager.setActiveTab(0));
+    const title2 = await page.evaluate(() => {
+      return document.querySelector('.dock-panel-left__title').textContent;
+    });
+    expect(title2).toBe('Wiki');
+  });
+
+  test('Tab content panels show/hide correctly', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('ct1', 'Content A', function (panel) {
+        panel.textContent = 'Content of A';
+      });
+      window.dockManager.addTab('ct2', 'Content B', function (panel) {
+        panel.textContent = 'Content of B';
+      });
+    });
+
+    // Active is ct2 — its panel should be visible, ct1 hidden
+    const visibility = await page.evaluate(() => {
+      var panels = document.querySelectorAll('#dock-left-content .dock-tab-panel');
+      var result = {};
+      for (var i = 0; i < panels.length; i++) {
+        result[panels[i].getAttribute('data-dock-tab-id')] = panels[i].getAttribute('data-active');
+      }
+      return result;
+    });
+
+    expect(visibility['ct1']).toBe('false');
+    expect(visibility['ct2']).toBe('true');
+
+    // Switch to ct1
+    await page.evaluate(() => window.dockManager.setActiveTab(0));
+
+    const visibility2 = await page.evaluate(() => {
+      var panels = document.querySelectorAll('#dock-left-content .dock-tab-panel');
+      var result = {};
+      for (var i = 0; i < panels.length; i++) {
+        result[panels[i].getAttribute('data-dock-tab-id')] = panels[i].getAttribute('data-active');
+      }
+      return result;
+    });
+
+    expect(visibility2['ct1']).toBe('true');
+    expect(visibility2['ct2']).toBe('false');
+  });
+});
+
+test.describe('SP-076 Phase 3: Floating & Snap', () => {
+  test('DockManager has floating API methods', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const api = await page.evaluate(() => {
+      var dm = window.dockManager;
+      return {
+        floatTab: typeof dm.floatTab === 'function',
+        snapToDock: typeof dm.snapToDock === 'function',
+        getFloating: typeof dm.getFloating === 'function',
+        closeFloating: typeof dm.closeFloating === 'function'
+      };
+    });
+
+    expect(api.floatTab).toBe(true);
+    expect(api.snapToDock).toBe(true);
+    expect(api.getFloating).toBe(true);
+    expect(api.closeFloating).toBe(true);
+  });
+
+  test('Float a tab creates a floating panel', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('f1', 'Float Me', function (panel) {
+        panel.textContent = 'Floating content';
+      });
+    });
+
+    // Float the tab
+    await page.evaluate(() => {
+      window.dockManager.floatTab('f1', { x: 100, y: 100, width: 300, height: 250 });
+    });
+
+    // Tab should be removed from dock
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(0);
+
+    // Floating panel should exist
+    const floatEl = await page.$('.dock-floating[data-float-id="f1"]');
+    expect(floatEl).toBeTruthy();
+
+    // Floating state should be stored
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(1);
+    expect(floating[0].id).toBe('f1');
+    expect(floating[0].x).toBe(100);
+    expect(floating[0].y).toBe(100);
+  });
+
+  test('Floating panel has header, dock button, and close button', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('fh', 'Header Test');
+      window.dockManager.floatTab('fh');
+    });
+
+    const title = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fh"] .dock-floating__title');
+      return el ? el.textContent : null;
+    });
+    expect(title).toBe('Header Test');
+
+    const btns = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating[data-float-id="fh"] .dock-floating__actions');
+      return el ? el.querySelectorAll('.dock-floating__btn').length : 0;
+    });
+    expect(btns).toBe(2); // dock + close
+  });
+
+  test('Snap floating panel back to dock', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('snap1', 'Snap Test');
+      window.dockManager.floatTab('snap1');
+    });
+
+    // Snap back
+    await page.evaluate(() => {
+      window.dockManager.snapToDock('snap1');
+    });
+
+    // Floating should be gone
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(0);
+
+    // Should be back as a dock tab
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].id).toBe('snap1');
+
+    // Floating DOM should be removed
+    const floatEl = await page.$('.dock-floating[data-float-id="snap1"]');
+    expect(floatEl).toBeFalsy();
+  });
+
+  test('Close floating panel removes it completely', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('close1', 'Close Test');
+      window.dockManager.floatTab('close1');
+    });
+
+    await page.evaluate(() => {
+      window.dockManager.closeFloating('close1');
+    });
+
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(0);
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(0); // Not re-docked
+
+    const floatEl = await page.$('.dock-floating[data-float-id="close1"]');
+    expect(floatEl).toBeFalsy();
+  });
+
+  test('Floating panel position is persisted after reload', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('persist-f', 'Persist Float');
+      window.dockManager.floatTab('persist-f', { x: 200, y: 150, width: 350, height: 280 });
+    });
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(1);
+    expect(floating[0].id).toBe('persist-f');
+    expect(floating[0].x).toBe(200);
+    expect(floating[0].y).toBe(150);
+
+    // DOM should be restored
+    const floatEl = await page.$('.dock-floating[data-float-id="persist-f"]');
+    expect(floatEl).toBeTruthy();
+  });
+
+  test('Floating panel hidden in focus/blank modes', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('mode-f', 'Mode Test');
+      window.dockManager.floatTab('mode-f');
+    });
+
+    for (const mode of ['focus', 'blank']) {
+      await page.evaluate((m) => {
+        document.documentElement.setAttribute('data-ui-mode', m);
+        window.dockManager._onUIModeChanged(m);
+      }, mode);
+
+      const isHidden = await page.evaluate(() => {
+        var el = document.querySelector('.dock-floating');
+        if (!el) return true;
+        return window.getComputedStyle(el).display === 'none' || el.style.display === 'none';
+      });
+      expect(isHidden).toBe(true);
+    }
+
+    // Restore normal
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-ui-mode', 'normal');
+      window.dockManager._onUIModeChanged('normal');
+    });
+
+    const visibleAgain = await page.evaluate(() => {
+      var el = document.querySelector('.dock-floating');
+      return el && window.getComputedStyle(el).display !== 'none' && el.style.display !== 'none';
+    });
+    expect(visibleAgain).toBe(true);
+  });
+
+  test('Dock button in floating panel snaps back', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('dock-btn', 'Dock Btn Test');
+      window.dockManager.floatTab('dock-btn');
+    });
+
+    // Click dock button (first button in actions)
+    await page.click('.dock-floating[data-float-id="dock-btn"] .dock-floating__btn:first-child');
+
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(0);
+
+    const tabs = await page.evaluate(() => window.dockManager.getTabs());
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].id).toBe('dock-btn');
+  });
+
+  test('Close button in floating panel closes it', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('close-btn', 'Close Btn Test');
+      window.dockManager.floatTab('close-btn');
+    });
+
+    // Click close button (last button in actions)
+    await page.click('.dock-floating[data-float-id="close-btn"] .dock-floating__btn:last-child');
+
+    const floating = await page.evaluate(() => window.dockManager.getFloating());
+    expect(floating).toHaveLength(0);
+
+    const floatEl = await page.$('.dock-floating');
+    expect(floatEl).toBeFalsy();
+  });
+
+  test('Floating panel has resize handle', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      window.dockManager.addTab('resize-f', 'Resize Test');
+      window.dockManager.floatTab('resize-f');
+    });
+
+    const resizeHandle = await page.$('.dock-floating[data-float-id="resize-f"] .dock-floating__resize');
+    expect(resizeHandle).toBeTruthy();
+  });
+});
