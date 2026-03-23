@@ -71,6 +71,23 @@
             return '{kenten|' + content + '}';
           }
         });
+        // ルビ <ruby> → {漢字|かな} 逆変換
+        this.turndownService.addRule('ruby', {
+          filter: 'ruby',
+          replacement: function (_content, node) {
+            var base = '';
+            var rt = '';
+            for (var i = 0; i < node.childNodes.length; i++) {
+              var child = node.childNodes[i];
+              if (child.nodeName === 'RT') {
+                rt = child.textContent || '';
+              } else if (child.nodeName !== 'RP') {
+                base += child.textContent || '';
+              }
+            }
+            return '{' + base.trim() + '|' + rt.trim() + '}';
+          }
+        });
         // SP-072: chapter-link → [text](chapter://target) 逆変換
         // data-style がある場合は chapter://target#style=card 形式で保持
         this.turndownService.addRule('chapterLink', {
@@ -217,6 +234,26 @@
         linkBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           this.insertLink();
+        });
+      }
+
+      // ルビ挿入/編集ボタン
+      var rubyBtn = document.getElementById('wysiwyg-ruby');
+      if (rubyBtn) {
+        rubyBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          this._handleRubyAction();
+        });
+      }
+
+      // WYSIWYG内のルビクリックで編集ポップアップ
+      if (this.wysiwygEditor) {
+        this.wysiwygEditor.addEventListener('click', (e) => {
+          var rubyEl = e.target.closest('ruby');
+          if (rubyEl && this.isWysiwygMode) {
+            e.preventDefault();
+            this._showRubyEditPopup(rubyEl);
+          }
         });
       }
 
@@ -536,6 +573,181 @@
       while (source.firstChild) fragment.appendChild(source.firstChild);
       tb.parentNode.replaceChild(fragment, tb);
       this._notifyChange();
+    }
+
+    // ---- ルビ挿入/編集 ----
+
+    /**
+     * ルビボタンクリック: 選択テキストにルビを付与、または既存ルビを編集
+     */
+    _handleRubyAction() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      var selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      // 選択範囲内にruby要素があれば編集モード
+      var range = selection.getRangeAt(0);
+      var rubyEl = range.commonAncestorContainer.closest
+        ? range.commonAncestorContainer.closest('ruby')
+        : null;
+      if (!rubyEl && range.commonAncestorContainer.parentElement) {
+        rubyEl = range.commonAncestorContainer.parentElement.closest('ruby');
+      }
+      if (rubyEl) {
+        this._showRubyEditPopup(rubyEl);
+        return;
+      }
+
+      // テキスト選択がなければ何もしない
+      var selectedText = selection.toString().trim();
+      if (!selectedText) return;
+
+      this._showRubyInsertPopup(range, selectedText);
+    }
+
+    /**
+     * ルビ挿入ポップアップ (選択テキストの近くに表示)
+     */
+    _showRubyInsertPopup(range, baseText) {
+      this._removeRubyPopup();
+      var self = this;
+
+      var rect = range.getBoundingClientRect();
+      var popup = document.createElement('div');
+      popup.id = 'ruby-popup';
+      popup.className = 'ruby-popup';
+      popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
+      popup.style.left = rect.left + 'px';
+
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'ruby-popup__input';
+      input.placeholder = 'ルビを入力';
+      input.setAttribute('aria-label', 'ルビ入力');
+      popup.appendChild(input);
+
+      var okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'small ruby-popup__ok';
+      okBtn.textContent = '確定';
+      okBtn.addEventListener('click', function () {
+        var reading = input.value.trim();
+        if (reading) {
+          self._applyRuby(range, baseText, reading);
+        }
+        self._removeRubyPopup();
+      });
+      popup.appendChild(okBtn);
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { okBtn.click(); e.preventDefault(); }
+        if (e.key === 'Escape') { self._removeRubyPopup(); }
+      });
+
+      document.body.appendChild(popup);
+      input.focus();
+    }
+
+    /**
+     * ルビ編集/削除ポップアップ (既存のruby要素をクリック)
+     */
+    _showRubyEditPopup(rubyEl) {
+      this._removeRubyPopup();
+      var self = this;
+
+      var rtEl = rubyEl.querySelector('rt');
+      var currentReading = rtEl ? rtEl.textContent : '';
+      var baseText = '';
+      for (var i = 0; i < rubyEl.childNodes.length; i++) {
+        if (rubyEl.childNodes[i].nodeName !== 'RT' && rubyEl.childNodes[i].nodeName !== 'RP') {
+          baseText += rubyEl.childNodes[i].textContent || '';
+        }
+      }
+
+      var rect = rubyEl.getBoundingClientRect();
+      var popup = document.createElement('div');
+      popup.id = 'ruby-popup';
+      popup.className = 'ruby-popup';
+      popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
+      popup.style.left = rect.left + 'px';
+
+      var label = document.createElement('span');
+      label.className = 'ruby-popup__label';
+      label.textContent = baseText;
+      popup.appendChild(label);
+
+      var input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'ruby-popup__input';
+      input.value = currentReading;
+      input.setAttribute('aria-label', 'ルビ編集');
+      popup.appendChild(input);
+
+      var okBtn = document.createElement('button');
+      okBtn.type = 'button';
+      okBtn.className = 'small ruby-popup__ok';
+      okBtn.textContent = '更新';
+      okBtn.addEventListener('click', function () {
+        var reading = input.value.trim();
+        if (reading) {
+          self._captureUndoSnapshot();
+          rtEl.textContent = reading;
+          self._notifyChange();
+        }
+        self._removeRubyPopup();
+      });
+      popup.appendChild(okBtn);
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'small ruby-popup__delete';
+      delBtn.textContent = '削除';
+      delBtn.addEventListener('click', function () {
+        self._captureUndoSnapshot();
+        rubyEl.replaceWith(document.createTextNode(baseText));
+        self._notifyChange();
+        self._removeRubyPopup();
+      });
+      popup.appendChild(delBtn);
+
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { okBtn.click(); e.preventDefault(); }
+        if (e.key === 'Escape') { self._removeRubyPopup(); }
+      });
+
+      document.body.appendChild(popup);
+      input.focus();
+      input.select();
+    }
+
+    /**
+     * 選択範囲をruby要素で包む
+     */
+    _applyRuby(range, baseText, reading) {
+      this._captureUndoSnapshot();
+      var ruby = document.createElement('ruby');
+      ruby.textContent = baseText;
+      var rt = document.createElement('rt');
+      rt.textContent = reading;
+      ruby.appendChild(rt);
+
+      range.deleteContents();
+      range.insertNode(ruby);
+
+      var sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        var newRange = document.createRange();
+        newRange.selectNodeContents(ruby);
+        newRange.collapse(false);
+        sel.addRange(newRange);
+      }
+      this._notifyChange();
+    }
+
+    _removeRubyPopup() {
+      var existing = document.getElementById('ruby-popup');
+      if (existing) existing.remove();
     }
 
     // ---- DSL 属性設定モーダル ----
@@ -1863,6 +2075,11 @@
       // SP-059 Phase 3: {kenten|text} → <span class="kenten">text</span>
       html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_m, text) {
         return '<span class="kenten">' + text.trim() + '</span>';
+      });
+
+      // ルビ: {漢字|かな} → <ruby>漢字<rt>かな</rt></ruby>
+      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_m, kanji, kana) {
+        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
       });
 
       // SP-072: chapter:// リンク変換

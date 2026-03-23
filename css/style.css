@@ -782,6 +782,52 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
 }
 .dsl-attr-modal__cancel:hover { background: var(--hover-bg-color, rgba(0,0,0,0.05)); }
 
+/* ルビ挿入/編集ポップアップ */
+.ruby-popup {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--bg-color, #fff);
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.15);
+  z-index: 10000;
+  font-size: 0.8125rem;
+}
+.ruby-popup__label {
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+.ruby-popup__input {
+  width: 6rem;
+  padding: 0.125rem 0.375rem;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  background: var(--bg-color, #fff);
+  color: var(--text-color, #333);
+}
+.ruby-popup__ok {
+  background: var(--accent-color, #4a90d9);
+  color: #fff;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.ruby-popup__delete {
+  background: none;
+  color: var(--danger-color, #d32f2f);
+  border: 1px solid var(--danger-color, #d32f2f);
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
 .focus-chapter-panel__add-btn {
   display: flex;
   align-items: center;
