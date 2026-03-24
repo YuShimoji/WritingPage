@@ -83,5 +83,9 @@
 - 次回最初に確認すべきファイル:
   - docs/specs/spec-dock-panel.md (SP-076 Phase 4 仕様)
   - docs/ROADMAP.md (更新済み)
-- 未確定の設計論点: SP-076 Phase 4 の体験ゴール詳細
+- 未確定の設計論点: V-1 サイドバーアコーディオン非表示 (T-2 KNOWN_GROUPS問題が原因候補)
 - 今は触らない範囲: SP-073 Phase 4 実装
+- 次回優先調査:
+  - V-1: サイドバーアコーディオン5/6カテゴリが display:none (gadgets-utils.js KNOWN_GROUPS に sections 未定義が根本原因候補)
+  - T-1: 削除済みガジェット (Clock/Samples/GraphicNovel/NodeGraph) の JS ファイルと register() 残存
+  - T-3: screenplay プリセットに sections グループキーがない
