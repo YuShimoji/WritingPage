@@ -57,6 +57,10 @@
     var applyBtn = createButton('LOADOUT_APPLY', '適用', 'loadout-apply');
     var deleteBtn = createButton('LOADOUT_DELETE', '削除', 'loadout-delete');
 
+    // SP-076 Phase 4: tooltip explaining that layout is included
+    applyBtn.title = 'ガジェット構成とパネル配置を復元します';
+    saveBtn.title = '現在のガジェット構成とパネル配置を保存します';
+
     buttons.appendChild(saveBtn);
     buttons.appendChild(duplicateBtn);
     buttons.appendChild(applyBtn);
@@ -137,7 +141,13 @@
       var newLabel = (nameInput.value.trim() || entry.label) + ((window.UILabels && window.UILabels.LOADOUT_DUPLICATE_SUFFIX) || ' (複製)');
       
       if (window.ZWGadgets.defineLoadout) {
-        window.ZWGadgets.defineLoadout(newName, { label: newLabel, groups: entry.groups || {} });
+        var dupConfig = { label: newLabel, groups: entry.groups || {} };
+        // SP-076 Phase 4: carry over dockLayout when duplicating
+        var srcEntry = window.ZWGadgets._loadouts && window.ZWGadgets._loadouts.entries[selected];
+        if (srcEntry && srcEntry.dockLayout) {
+          dupConfig.dockLayout = srcEntry.dockLayout;
+        }
+        window.ZWGadgets.defineLoadout(newName, dupConfig);
       }
       alert((window.UILabels && window.UILabels.LOADOUT_DUPLICATED) || 'ロードアウトを複製しました');
       refreshList();

@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 100%完了(A-1/2/3/4 done, px→rem done)。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076/75%, 他todo。D: todo。E: done(IndexedDB+章独立保存)"
+    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076/75%(Phase 4=プリセットのみ), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
   },
   {
     "id": "SP-006",
@@ -465,7 +465,7 @@
     "pct": 75,
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
-    "summary": "Phase 1-3完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。E2E 45件。残: Phase 4(上下ドック+プリセット)。",
+    "summary": "Phase 1-3完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。E2E 45件。残: Phase 4(ドックレイアウトプリセット — LoadoutManager統合、top/bottomはスコープ外)。",
     "related": ["SP-070", "SP-051", "SP-071"]
   },
   {
@@ -495,6 +495,6 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/WRITING_PIPELINE.md",
-    "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A/B/C)、設計課題(Q1-Q3解決済み/Q4未決定)。EPUB/DOCX スコープ外 (2026-03-23)。Stage 6完成度95%。"
+    "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A/B/C)、設計課題(Q1-Q4全解決済み)。EPUB/DOCX スコープ外 (2026-03-23)。Stage 6完成度95%。"
   }
 ]

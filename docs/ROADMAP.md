@@ -17,8 +17,8 @@
 - E2E: 514 passed / 1 failed (canvas-mode既知) / 3 skipped / 62 spec files (2026-03-23 session 18)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 33個登録済み (+1 開発専用)
-- 仕様書: spec-index.json に 54 エントリ (active 44, removed 3)
+- ガジェット: 28個登録 (session 19で33→28に整理。削除6: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient)
+- 仕様書: spec-index.json に 54 エントリ (done 41, partial 2, removed 10, superseded 1)
 - 残 partial: SP-073(90%), SP-076(75%)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
@@ -152,17 +152,17 @@ Phase 1完了 (DSL + SVGレンダリング)。Phase 2完了 (WYSIWYG制御点ハ
 ### C-1. ドックパネルシステム (SP-076) -- partial (75%)
 
 上下左右へのパネルドッキング。Editorモード専用。
-Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (上下ドック+プリセット)。E2E 45件。
+Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (ドックレイアウトプリセット — LoadoutManager統合。top/bottomドックはスコープ外)。E2E 45件。
 
 ### ~~C-2. Google Keep 双方向連携 (SP-075)~~ -- スコープ外 (2026-03-23)
 
-### C-3. ガジェット整理
+### C-3. ガジェット整理 -- done (WP-002)
 
-33個は多すぎる可能性。SP-070のモード分離で一部は解消する見込み。
+Session 19 (2026-03-23) で33→28に整理完了。削除: Clock/Samples/NodeGraph/GraphicNovel。無効化: UIDesign/SceneGradient。graphic-novelロードアウト削除。MarkdownReferenceを全ロードアウトのassistに配置。ヘルプモーダルからリファレンス機能を分離。
 
-- ガジェット利用状況分析
-- 類似ガジェット統合
-- ロードアウトプリセット見直し
+- [x] ガジェット利用状況分析
+- [x] 不要ガジェット削除/無効化 (33→28)
+- [x] ロードアウトプリセット見直し
 
 ### ~~C-4. サイドバー Phase 2-3~~ -- スコープ外 (2026-03-23)
 

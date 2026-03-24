@@ -184,11 +184,142 @@ Editor モードからFocusに切り替えた場合:
 - API: floatTab / snapToDock / closeFloating / getFloating
 - E2E: 10件
 
-### Phase 4: 上下ドック & 高度なレイアウト
+### Phase 4: ドックレイアウトプリセット [todo]
 
-- top / bottom ドックの実装
-- 複雑なレイアウト（スプリットビュー等）
-- ユーザープリセットの保存
+> 決定 (2026-03-24): top/bottom ドックはスコープ外。プリセットのみ実装。
+> 決定 (2026-03-24): UIは既存 LoadoutManager ガジェットに統合。
+
+既存のガジェットロードアウトシステムにドックレイアウト状態を統合し、
+一つのプリセットでガジェット配置 + ドックレイアウトの両方を保存・復元する。
+
+#### 体験ゴール
+
+ユーザーが「執筆モード」「リサーチモード」等の作業スタイルをワンクリックで切り替えられる。
+切り替え時にガジェット構成とパネル配置が同時に変わり、作業コンテキストに最適化されたUIになる。
+
+#### ユーザー操作列
+
+1. サイドバー advanced → ロードアウト管理 を開く
+2. ドロップダウンからプリセットを選択 → 「適用」で即座にレイアウト切替
+3. 現在のレイアウトを「保存」で名前を付けて保存 (ガジェット+ドック状態の両方)
+4. 不要なカスタムプリセットを「削除」で消去
+
+#### 機能仕様
+
+##### 4-1. ロードアウトデータモデル拡張
+
+既存の `{label, groups}` 構造に `dockLayout` フィールドを追加:
+
+```javascript
+// localStorage key: 'zenWriter_gadgets:loadouts'
+{
+  active: 'novel-standard',
+  entries: {
+    'novel-standard': {
+      label: '小説・長編',
+      groups: { /* 既存: ガジェット配置 */ },
+      dockLayout: {
+        sidebarDock: 'right',        // サイドバー位置
+        leftPanel: {
+          visible: false,            // 左パネル表示
+          width: 280,                // 左パネル幅
+          tabs: [],                  // 左パネルタブ構成
+          activeTab: 0
+        },
+        rightPanel: {
+          width: 320                 // サイドバー幅
+        }
+        // floating は含めない (フローティング状態はレイアウトプリセットに不向き)
+      }
+    }
+  }
+}
+```
+
+**後方互換**: `dockLayout` が undefined のプリセットは、ドックレイアウトを変更せず
+ガジェット配置のみ適用する (既存動作を維持)。
+
+##### 4-2. 組み込みプリセットのドックレイアウト定義
+
+| プリセット名 | ガジェット | ドックレイアウト |
+|-------------|-----------|----------------|
+| novel-standard (小説・長編) | 既存21個 | right: sidebar(320px), left: 非表示 |
+| novel-minimal (ミニマル) | 既存10個 | right: sidebar(280px), left: 非表示 |
+| vn-layout (ビジュアルノベル) | 既存20個 | right: sidebar(320px), left: 非表示 |
+| screenplay (脚本・シナリオ) | 既存13個 | right: sidebar(300px), left: 非表示 |
+
+> 注: 組み込みプリセットは現行互換 (右サイドバーのみ) を維持する。
+> 左パネル活用プリセットは、ユーザーが自作するか、将来追加する。
+
+##### 4-3. captureCurrentLoadout 拡張
+
+`ZWGadgets.captureCurrentLoadout(label)` が返すオブジェクトに
+`dockLayout` を含めるよう拡張する:
+
+```javascript
+captureCurrentLoadout(label) {
+  const groups = /* 既存: 現在のガジェット配置をキャプチャ */;
+  const dockLayout = window.ZenDockManager
+    ? ZenDockManager.captureLayout()  // 新規API
+    : undefined;
+  return { label, groups, dockLayout };
+}
+```
+
+##### 4-4. applyLoadout 拡張
+
+`ZWGadgets.applyLoadout(name)` がドックレイアウトも適用するよう拡張:
+
+```javascript
+applyLoadout(name) {
+  const entry = /* 既存: ロードアウトエントリ取得 */;
+  /* 既存: ガジェット配置の適用 */;
+  if (entry.dockLayout && window.ZenDockManager) {
+    ZenDockManager.applyLayout(entry.dockLayout);  // 新規API
+  }
+}
+```
+
+##### 4-5. DockManager 新規 API
+
+| メソッド | 説明 |
+|---------|------|
+| `captureLayout()` | 現在のドックレイアウト状態をオブジェクトとして返す (floating除外) |
+| `applyLayout(layout)` | ドックレイアウトを適用 (サイドバー位置/左パネル状態/幅) |
+
+##### 4-6. UI変更 (LoadoutManager ガジェット)
+
+**変更なし**: 既存の save/load/delete/duplicate ボタンがそのまま機能する。
+`captureCurrentLoadout` が自動的にドックレイアウトを含めるため、
+ユーザーは意識せずにレイアウト状態を保存・復元できる。
+
+唯一の追加: プリセット選択時のツールチップまたは説明に
+「ガジェット構成とパネル配置を復元します」の文言を追加。
+
+#### 成功条件
+
+1. プリセット適用時にガジェット配置とドックレイアウト (サイドバー位置/左パネル表示/幅) が同時に切り替わる
+2. 「保存」で現在のガジェット+ドックレイアウトが名前付きプリセットとして保存される
+3. `dockLayout` がないレガシープリセットはガジェットのみ適用 (後方互換)
+4. プリセット切替時にフローティングパネルの状態は維持される (プリセットに含めない)
+5. Focus/Blank/Reader モードではプリセット切替の効果が Editor 復帰時に反映される
+
+#### 影響範囲
+
+- `js/gadgets-core.js`: captureCurrentLoadout / applyLoadout の拡張
+- `js/dock-manager.js`: captureLayout / applyLayout API追加
+- `js/loadouts-presets.js`: 組み込みプリセットに dockLayout 追加
+- `js/gadgets-loadout.js`: ツールチップ文言追加 (最小変更)
+- E2E: 新規テスト 5-8件
+
+#### 実装タスク (別Worker向け)
+
+1. DockManager に captureLayout / applyLayout API 追加
+2. gadgets-core.js の captureCurrentLoadout / applyLoadout 拡張
+3. loadouts-presets.js の組み込みプリセットに dockLayout 追加
+4. normalizeLoadouts で dockLayout の正規化 (undefined許容)
+5. E2E テスト作成
+6. 手動確認: プリセット切替でサイドバー位置+左パネルが連動変更されること
 
 ---
 
@@ -209,7 +340,8 @@ Editor モードからFocusに切り替えた場合:
 - [x] パネルの最小幅 / 最大幅の制約値 → min:180px / max:50vw (ドック), min:200x150 (フローティング)
 - [ ] 右端スナップゾーンの追加（現在は左端のみ）
 - [ ] ドラッグ中のゴースト表示改善
-- [ ] ユーザープリセットの保存（Phase 4候補）
+- [x] ユーザープリセットの保存 → Phase 4 で LoadoutManager に統合 (2026-03-24)
+- [ ] top/bottom ドック → スコープ外 (2026-03-24: ユースケース不明のため延期)
 
 ---
 

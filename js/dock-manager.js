@@ -1,7 +1,7 @@
 /**
- * DockManager — SP-076 Phase 1 + Phase 2
+ * DockManager — SP-076 Phase 1-4
  * Manages sidebar left/right docking, left dock panel, resize, layout persistence,
- * and tab grouping within dock panels.
+ * tab grouping, floating panels, and layout presets.
  */
 (function (root) {
   'use strict';
@@ -983,6 +983,77 @@
     for (var i = 0; i < floats.length; i++) {
       floats[i].style.display = mode === 'normal' ? '' : 'none';
     }
+  };
+
+  // --- Layout Presets (Phase 4) ---
+
+  /**
+   * Capture current dock layout state (excluding floating panels).
+   * Used by loadout system to save layout alongside gadget configuration.
+   * @returns {object} { sidebarDock, leftPanel: { visible, width, tabs, activeTab }, rightPanel: { width } }
+   */
+  DockManager.prototype.captureLayout = function () {
+    var lp = this._layout.leftPanel;
+    return {
+      sidebarDock: this._layout.sidebarDock,
+      leftPanel: {
+        visible: lp.visible,
+        width: lp.width,
+        tabs: lp.tabs.map(function (t) { return { id: t.id, title: t.title }; }),
+        activeTab: lp.activeTab
+      },
+      rightPanel: {
+        width: this._layout.rightPanel.width
+      }
+    };
+  };
+
+  /**
+   * Apply a dock layout from a loadout preset.
+   * Restores sidebar position, left panel visibility/width/tabs, and right panel width.
+   * Floating panels are intentionally not affected.
+   * @param {object} layout - Layout object from captureLayout()
+   */
+  DockManager.prototype.applyLayout = function (layout) {
+    if (!layout || typeof layout !== 'object') return;
+
+    // Sidebar dock position
+    if (layout.sidebarDock === 'left' || layout.sidebarDock === 'right') {
+      if (this._layout.sidebarDock !== layout.sidebarDock) {
+        this._layout.sidebarDock = layout.sidebarDock;
+      }
+    }
+
+    // Left panel
+    if (layout.leftPanel && typeof layout.leftPanel === 'object') {
+      var lp = this._layout.leftPanel;
+      lp.visible = !!layout.leftPanel.visible;
+      if (typeof layout.leftPanel.width === 'number') {
+        lp.width = clamp(layout.leftPanel.width, MIN_WIDTH, getMaxWidth());
+      }
+      if (Array.isArray(layout.leftPanel.tabs)) {
+        lp.tabs = layout.leftPanel.tabs.filter(function (t) {
+          return t && typeof t.id === 'string' && typeof t.title === 'string';
+        });
+      }
+      if (typeof layout.leftPanel.activeTab === 'number') {
+        lp.activeTab = lp.tabs.length > 0
+          ? Math.min(layout.leftPanel.activeTab, lp.tabs.length - 1)
+          : 0;
+      }
+    }
+
+    // Right panel width
+    if (layout.rightPanel && typeof layout.rightPanel === 'object') {
+      if (typeof layout.rightPanel.width === 'number') {
+        this._layout.rightPanel.width = clamp(layout.rightPanel.width, MIN_WIDTH, getMaxWidth());
+      }
+    }
+
+    this._applyLayout();
+    this._renderTabs('left');
+    this._showActiveTabContent('left');
+    this._save();
   };
 
   // --- Export ---

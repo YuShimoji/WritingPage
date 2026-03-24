@@ -157,10 +157,15 @@
       if (!name) return;
       var data = this._ensureLoadouts();
       var safe = String(name);
-      data.entries[safe] = {
+      var entry = {
         label: (config && config.label) || safe,
         groups: normaliseGroups(config && config.groups)
       };
+      // SP-076 Phase 4: preserve dockLayout
+      if (config && config.dockLayout && typeof config.dockLayout === 'object') {
+        entry.dockLayout = config.dockLayout;
+      }
+      data.entries[safe] = entry;
       if (!data.active) data.active = safe;
       saveLoadouts(data);
       this._loadouts = loadLoadouts();
@@ -183,7 +188,12 @@
       data.active = name;
       saveLoadouts(data);
       this._loadouts = loadLoadouts();
-      this._applyLoadoutEntry(this._loadouts.entries[name]);
+      var entry = this._loadouts.entries[name];
+      this._applyLoadoutEntry(entry);
+      // SP-076 Phase 4: apply dock layout if present
+      if (entry && entry.dockLayout && window.dockManager && typeof window.dockManager.applyLayout === 'function') {
+        window.dockManager.applyLayout(entry.dockLayout);
+      }
       try { this._renderLast && this._renderLast(); } catch (_) { }
       emit('ZWLoadoutApplied', { name: name });
       return true;
@@ -240,10 +250,15 @@
         groups[key] = normalizeList(groups[key] || []);
       });
       var active = this.getActiveLoadout();
-      return {
+      var result = {
         label: label || (active && active.label) || '',
         groups: groups
       };
+      // SP-076 Phase 4: capture dock layout
+      if (window.dockManager && typeof window.dockManager.captureLayout === 'function') {
+        result.dockLayout = window.dockManager.captureLayout();
+      }
+      return result;
     }
 
     /**

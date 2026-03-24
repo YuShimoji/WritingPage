@@ -25,10 +25,15 @@
     var normalizedEntries = {};
     Object.keys(entries).forEach(function (key) {
       var entry = entries[key] || {};
-      normalizedEntries[key] = {
+      var normalized = {
         label: entry.label || key,
         groups: normaliseGroups(entry.groups || {})
       };
+      // SP-076 Phase 4: preserve dockLayout if present
+      if (entry.dockLayout && typeof entry.dockLayout === 'object') {
+        normalized.dockLayout = entry.dockLayout;
+      }
+      normalizedEntries[key] = normalized;
     });
     // 既存のロードアウトにも、デフォルト定義されているガジェットを自動で統合する
     // （新規ガジェット追加時にユーザーの保存済みロードアウトへも反映するため）
@@ -42,6 +47,10 @@
           if (!normalized.groups[group]) normalized.groups[group] = [];
           baseList.forEach(function (name) { uniquePush(normalized.groups[group], name); });
         });
+        // SP-076 Phase 4: inherit default dockLayout if user entry lacks one
+        if (!normalized.dockLayout && defEntry.dockLayout) {
+          normalized.dockLayout = clone(defEntry.dockLayout);
+        }
       });
     }
     if (!Object.keys(normalizedEntries).length) {

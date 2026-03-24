@@ -6,7 +6,7 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 20 — session 19 検証 (Playwright自動検証13テスト全通過)
+- 直近の状態: session 21 — 仕様整理 + SP-076 Phase 4 仕様策定
 
 ### 運用メモ
 
@@ -14,15 +14,15 @@
 - E2E: 514 passed / 1 failed (canvas-mode既知) / 5 skipped + 検証spec 13 passed
 - spec-index: 54エントリ (done 41, partial 2, removed 10, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
-- 発見事項: SectionsNavigator が登録済み(28個)だがパネル未配置(配置27個)
+- ガジェット: 28個登録 (session 19で33→28整理、session 21でGADGETS.mdにSectionsNavigator追加)
 - EPUB: スコープ外 (2026-03-23 除外決定)
 
 ---
 
 ## CURRENT DEVELOPMENT AXIS
 
-- 主軸: UI/UX磨き上げ (サイドバー/ドック体験設計 + ガジェット整理)
-- この軸を優先する理由: 機能は95%揃っている。残りは「どう使わせるか」の体験設計と partial 2件 (SP-073/076)
+- 主軸: 仕様整理 + SP-076 Phase 4 仕様策定 + 残 partial 完了
+- この軸を優先する理由: 機能は95%揃っている。仕様書間の不整合解消後、SP-076 Phase 4 (上下ドック+プリセット) の体験ゴール確定が残り最大の仕様課題
 - 今ここで避けるべき脱線: スコープ外項目の復活、新規大型機能の追加
 
 ---
@@ -38,10 +38,10 @@
 
 ## CURRENT SLICE
 
-- スライス名: ガジェット整理 + レガシー仕様クリーンアップ (session 19)
-- ユーザー操作列: RESUME → ガジェット33→27削減 → MarkdownReference修正 → help/reference分離 → legacy仕様removed化
-- 成功状態: ガジェットがシンプルモダンに整理され、MarkdownReferenceが到達可能、legacy仕様が解消
-- 次スライス候補: SP-076 Phase 4 (上下ドック) / SP-073 Phase 4 (フリーハンド)
+- スライス名: 仕様整理 + SP-076 Phase 4 仕様策定 (session 21)
+- ユーザー操作列: RESUME → 仕様不整合I-1〜I-8修正 → SP-076 Phase 4 体験ゴール確定 → 仕様書更新
+- 成功状態: 仕様書間の不整合が解消され、SP-076 Phase 4 の仕様が策定済み (実装は別Worker)
+- 次スライス候補: SP-076 Phase 4 実装 / SP-073 Phase 4 (フリーハンド) 仕様+実装
 
 ---
 
@@ -73,15 +73,15 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Experience Slice / Authoring
-- 現在のスライス: session 19 ガジェット整理の検証完了
-- 今回 (session 20) の変更:
-  - Playwright自動検証スクリプト作成 (e2e/session19-verify.spec.js, 13テスト)
-  - 全13テスト passed: ガジェット削除/無効化/配置/ロードアウト/ヘルプモーダル/ui-labels
-  - スクリーンショット9枚撮影 (e2e/verification-screenshots/)
-  - 発見: SectionsNavigator が登録済み(28個)だがどのパネルにも未配置
+- 現在の主レーン: Authoring / Spec
+- 現在のスライス: session 21 仕様整理 + SP-076 Phase 4 仕様策定
+- 今回 (session 21) の変更:
+  - 仕様不整合 I-1〜I-8 一括修正 (ROADMAP/GADGETS/spec-index/WRITING_PIPELINE/project-context)
+  - SectionsNavigator を GADGETS.md テーブルに追加 (27→28件統一)
+  - SP-076 Phase 4 仕様策定 (進行中)
+  - runtime-state.md 新規作成
 - 次回最初に確認すべきファイル:
-  - e2e/session19-verify.spec.js (検証テスト)
-  - e2e/verification-screenshots/ (スクリーンショット)
-- 未確定の設計論点: SP-076 Phase 4, SectionsNavigatorの扱い
-- 今は触らない範囲: SP-073 Phase 4
+  - docs/specs/spec-dock-panel.md (SP-076 Phase 4 仕様)
+  - docs/ROADMAP.md (更新済み)
+- 未確定の設計論点: SP-076 Phase 4 の体験ゴール詳細
+- 今は触らない範囲: SP-073 Phase 4 実装

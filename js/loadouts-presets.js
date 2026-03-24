@@ -43,6 +43,11 @@
             'GadgetPrefs',
             'Keybinds'
           ]
+        },
+        dockLayout: {
+          sidebarDock: 'right',
+          leftPanel: { visible: false, width: 280, tabs: [], activeTab: 0 },
+          rightPanel: { width: 320 }
         }
       },
       'novel-minimal': {
@@ -70,6 +75,11 @@
             'EditorLayout',
             'GadgetPrefs'
           ]
+        },
+        dockLayout: {
+          sidebarDock: 'right',
+          leftPanel: { visible: false, width: 280, tabs: [], activeTab: 0 },
+          rightPanel: { width: 280 }
         }
       },
       'vn-layout': {
@@ -106,6 +116,11 @@
             'GadgetPrefs',
             'Keybinds'
           ]
+        },
+        dockLayout: {
+          sidebarDock: 'right',
+          leftPanel: { visible: false, width: 280, tabs: [], activeTab: 0 },
+          rightPanel: { width: 320 }
         }
       },
       'screenplay': {
@@ -133,6 +148,11 @@
             'GadgetPrefs',
             'Keybinds'
           ]
+        },
+        dockLayout: {
+          sidebarDock: 'right',
+          leftPanel: { visible: false, width: 280, tabs: [], activeTab: 0 },
+          rightPanel: { width: 300 }
         }
       }
     }
