@@ -514,17 +514,16 @@ function _initIDB() {
                     if (result.migrated) {
                         console.log('[Storage] IDB migration complete:', result.counts);
                     }
-                    // IDB からキャッシュを初期化 (docs, assets, snapshots, wiki, nodegraph)
+                    // IDB からキャッシュを初期化 (docs, assets, snapshots, wiki)
                     return Promise.all([
                         window.ZenWriterIDB.getAllDocs(),
                         window.ZenWriterIDB.getAllAssets(),
                         window.ZenWriterIDB.getSnapshots(),
-                        window.ZenWriterIDB.getWikiPages(),
-                        window.ZenWriterIDB.getAllNodegraphs()
+                        window.ZenWriterIDB.getWikiPages()
                     ]);
                 })
                 .then(function (results) {
-                    var docs = results[0], assets = results[1], snaps = results[2], wiki = results[3], nodegraphs = results[4];
+                    var docs = results[0], assets = results[1], snaps = results[2], wiki = results[3];
                     if (docs && docs.length > 0) _docsCache = docs;
                     if (assets && assets.length > 0) {
                         _assetsCache = {};
@@ -534,14 +533,6 @@ function _initIDB() {
                     }
                     if (snaps && snaps.length > 0) _snapsCache = snaps;
                     if (wiki && wiki.length > 0) _wikiCache = wiki;
-                    if (nodegraphs && nodegraphs.length > 0) {
-                        for (var j = 0; j < nodegraphs.length; j++) {
-                            var ng = nodegraphs[j];
-                            if (ng && ng.docId) {
-                                _nodegraphCache[ng.docId] = { nodes: ng.nodes || [], edges: ng.edges || [] };
-                            }
-                        }
-                    }
                     return true;
                 });
         })

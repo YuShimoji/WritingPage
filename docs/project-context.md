@@ -6,42 +6,43 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 24 — session 22-24 レガシー根絶一括コミット + E2E検証
+- 直近の状態: session 25 — レガシー最終掃除 + 包括調査表 + SP-076 done確認
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 555 passed / 1 failed (canvas-mode既知) / 3 skipped + 検証spec 13 passed
-- spec-index: 54エントリ (done 39, partial 3, removed 11, superseded 1)
+- E2E: 535 passed / 0 failed / 3 skipped + 検証spec 13 passed
+- spec-index: 54エントリ (done 40, partial 2, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録 (session 19で33→28整理)
 - EPUB: スコープ外 (2026-03-23 除外決定)
 - session 22-24 でデッドコード/CSS/API/ドキュメント不整合を一掃 (-5,957行)
+- session 25: SP-076 done確認、レガシー最終掃除、包括調査表作成
 
 ---
 
 ## CURRENT DEVELOPMENT AXIS
 
-- 主軸: 残 partial 完了 (SP-076 Phase 4, SP-073 Phase 4) + 保守モード脱出
-- この軸を優先する理由: 仕様整理・レガシー根絶完了。保守モード3セッション連続。成果物を前進させるフェーズ
+- 主軸: 残 partial 完了 (SP-073 Phase 4) + WP-001 再訪 (SP-076 done トリガー)
+- この軸を優先する理由: SP-076 done で保守モード脱出。残 partial は SP-005 (ROADMAP連動) と SP-073 のみ
 - 今ここで避けるべき脱線: スコープ外項目の復活、追加クリーンアップへの逃避
 
 ---
 
 ## CURRENT LANE
 
-- 主レーン: Experience Slice (SP-076 Phase 4 / SP-073 Phase 4)
-- 副レーン: Visual Audit (stale 3ブロック)
-- 今このレーンを優先する理由: レガシー根絶完了。保守モード脱出のため成果物前進を優先
+- 主レーン: Experience Slice (SP-073 Phase 4 or WP-001 再訪)
+- 副レーン: Visual Audit (stale 4ブロック)
+- 今このレーンを優先する理由: SP-076 done。保守モード脱出完了。残は SP-073 Phase 4 (仕様未策定) or WP-001 再訪
 - いまは深入りしないレーン: Acceptance / クリーンアップ (一掃済み)
 
 ---
 
 ## CURRENT SLICE
 
-- スライス名: (次セッションで選択) SP-076 Phase 4 実装 or SP-073 Phase 4
-- 成功状態: SP-076 done/100% (プリセットUI + LoadoutManager統合) or SP-073 done/100%
-- 前提: SP-076 Phase 4 は仕様策定済み (docs/specs/spec-dock-panel.md)。SP-073 Phase 4 は仕様策定から
+- スライス名: (次セッションで選択) SP-073 Phase 4 仕様策定+実装 or WP-001 再訪
+- 成功状態: SP-073 done/100% or WP-001 の方向性確定
+- 前提: SP-076 done (session 25 確認)。SP-073 Phase 4 は仕様策定から。WP-001 は SP-076 done がトリガー
 
 ---
 
@@ -51,8 +52,7 @@
 - 最終的なユーザーワークフロー: `docs/WRITING_PIPELINE.md` で定義済み (7段階: 起動→執筆→構造化→装飾→プレビュー→出力→保存)。Q1-Q3解決済み。EPUB/DOCX除外済み
 - 受け入れ時の使われ方: ユーザー自身が日常の執筆ツールとして使用
 - 現時点で未確定な要素:
-  - SP-076 Phase 4 の実装詳細 (仕様策定済み、プリセットのみ)
-  - SP-073 Phase 4 フリーハンド描画の仕様
+  - SP-073 Phase 4 フリーハンド描画の仕様 (未策定)
 
 ---
 
@@ -74,18 +74,19 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Experience Slice (保守モード脱出)
-- 現在のスライス: 次セッションで SP-076 Phase 4 実装 or SP-073 Phase 4 を選択
-- 今回 (session 22-24) の変更:
-  - デッドコード/CSS/API/ドキュメント不整合を一掃 (-5,957行)
-  - 37ファイル変更、コミット 6e4269b
-  - E2E: 555 passed / 1 failed (canvas-mode既知) / 3 skipped
-  - 包括調査レポート: docs/verification/session22-investigation.md
+- 現在の主レーン: Experience Slice (保守モード脱出完了)
+- 現在のスライス: SP-073 Phase 4 仕様策定+実装 or WP-001 再訪
+- 今回 (session 25) の変更:
+  - レガシー最終掃除 (ui-labels.js Clock ラベル、storage.js nodegraph キャッシュ初期化)
+  - 包括調査表作成: docs/verification/session25-status-matrix.md
+  - SP-076 Phase 4 が既に実装済みであることを確認、done/100% に更新
+  - E2E: 535 passed / 0 failed / 3 skipped
 - 次回最初に確認すべきファイル:
-  - docs/specs/spec-dock-panel.md (SP-076 Phase 4 仕様策定済み)
-  - docs/verification/session22-investigation.md (調査全記録)
-- 未確定の設計論点: V-2/V-3/V-4 の詳細不明 (Visual Audit 未実施)
+  - docs/verification/session25-status-matrix.md (包括調査表)
+  - docs/specs/spec-path-text.md (SP-073 Phase 4 仕様策定が必要)
+- 未確定の設計論点: V-2/V-3/V-4 の詳細不明 (Visual Audit 未実施、stale 4ブロック)
 - 今は触らない範囲: 追加クリーンアップ (一掃済み)
 - 次回推奨:
-  - SP-076 Phase 4 実装 (仕様策定済み、成果物前進の最短ルート)
-  - Visual Audit (stale 3ブロック、UI変更前に実施推奨)
+  - Visual Audit (stale 4ブロック、V-2/V-3/V-4 特定)
+  - SP-073 Phase 4 仕様策定 (フリーハンド描画、HUMAN_AUTHORITY)
+  - WP-001 再訪 (SP-076 done がトリガー)

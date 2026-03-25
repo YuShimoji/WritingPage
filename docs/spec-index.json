@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076/75%(Phase 4=プリセットのみ), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
+    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076 done(Phase 1-4全完了), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
   },
   {
     "id": "SP-006",
@@ -461,11 +461,11 @@
   {
     "id": "SP-076",
     "title": "ドックパネルシステム仕様",
-    "status": "partial",
-    "pct": 75,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
-    "summary": "Phase 1-3完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。E2E 45件。残: Phase 4(ドックレイアウトプリセット — LoadoutManager統合、top/bottomはスコープ外)。",
+    "summary": "Phase 1-4全完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。Phase 4: ドックレイアウトプリセット(captureLayout/applyLayout API、LoadoutManager統合、全4プリセットにdockLayout定義、複製時dockLayout継承)。E2E 45件+preset spec。top/bottomはスコープ外。",
     "related": ["SP-070", "SP-051", "SP-071"]
   },
   {

@@ -52,7 +52,6 @@ window.UILabels = {
     NO_WIKI_PAGES: 'Wikiページはまだありません。新規作成してください。',
     SEARCH_NO_RESULTS: '検索結果が見つかりません。',
     // ガジェットタイトル
-    GADGET_CLOCK: '時計',
     GADGET_GOAL: '執筆目標',
     GADGET_BACKUP: 'バックアップ',
     GADGET_CHOICE: '選択肢',
@@ -323,9 +322,6 @@ window.UILabels = {
     LAYOUT_WIDTH_PREFIX: '幅: ',
     LAYOUT_PADDING_PREFIX: '左右余白: ',
     LAYOUT_SHOW_BORDER: '枠線を表示',
-
-    // Clock Gadget
-    CLOCK_24H: '24時間表示',
 
     // Story Wiki Gadget
     WIKI_SEARCH_PLACEHOLDER: 'Wikiページを検索...',

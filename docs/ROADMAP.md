@@ -14,12 +14,13 @@
 
 ## 現在の状態
 
-- E2E: -- (要再実行) / 1 failed (canvas-mode既知) / 64 spec files (2026-03-25 session 24)
+- E2E: 555 passed / 1 failed (canvas-mode既知) / 3 skipped / 64 spec files (2026-03-25 session 24)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録 (session 19で33→28に整理。削除4: Clock/Samples/NodeGraph/GraphicNovel。無効化2: UIDesign/SceneGradient。session 22でデッドコード物理削除)
 - 仕様書: spec-index.json に 54 エントリ (done 39, partial 3, removed 11, superseded 1)
-- 残 partial: SP-005(75%), SP-073(90%), SP-076(75%)
+- 残 partial: SP-005(75%), SP-073(90%)
+- 直近 done: SP-076(100%, session 25で実装済み確認)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ---
@@ -149,10 +150,10 @@ Phase 1完了 (DSL + SVGレンダリング)。Phase 2完了 (WYSIWYG制御点ハ
 
 外部連携とカスタマイズ性の拡充。
 
-### C-1. ドックパネルシステム (SP-076) -- partial (75%)
+### C-1. ドックパネルシステム (SP-076) -- done (100%)
 
 上下左右へのパネルドッキング。Editorモード専用。
-Phase 1-3 完了 (左右ドック/タブグループ/フローティング&スナップ)。残: Phase 4 (ドックレイアウトプリセット — LoadoutManager統合。top/bottomドックはスコープ外)。E2E 45件。
+Phase 1-4 全完了。Phase 4: ドックレイアウトプリセット (captureLayout/applyLayout API、LoadoutManager統合、全プリセットにdockLayout定義)。top/bottomドックはスコープ外。E2E 45件+preset spec。
 
 ### ~~C-2. Google Keep 双方向連携 (SP-075)~~ -- スコープ外 (2026-03-23)
 

@@ -184,7 +184,7 @@ Editor モードからFocusに切り替えた場合:
 - API: floatTab / snapToDock / closeFloating / getFloating
 - E2E: 10件
 
-### Phase 4: ドックレイアウトプリセット [todo]
+### Phase 4: ドックレイアウトプリセット [done]
 
 > 決定 (2026-03-24): top/bottom ドックはスコープ外。プリセットのみ実装。
 > 決定 (2026-03-24): UIは既存 LoadoutManager ガジェットに統合。

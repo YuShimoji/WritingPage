@@ -2,6 +2,7 @@
 
 > 調査日: 2026-03-25 / v0.3.29 / branch: main
 > 更新: session 24 で デッドCSS 5件削除 + nodegraph API削除 + spec カウント修正
+> 更新: session 25 で Clock ラベル削除 + nodegraph キャッシュ初期化削除 + ROADMAP/GADGETS 修正
 
 ---
 
@@ -12,9 +13,9 @@
 | JS impl ファイル | 107 | 117 | -10 (デッドコード削除+nodegraph API削除) |
 | CSS ファイル | 4 | 10 | -6 (graphic-novel.css + デッドCSS 5件削除) |
 | E2E spec ファイル | 64 | 63 | +1 |
-| E2E passed | -- (要再実行) | 514 | -- |
-| E2E failed | -- (要再実行) | 1 | -- |
-| E2E skipped | -- (要再実行) | 5 | -2 (Clock/NodeGraph skip 削除) |
+| E2E passed | 555 (session 24 実測) | 514 | +41 |
+| E2E failed | 1 (canvas-mode既知) | 1 | 0 |
+| E2E skipped | 3 | 5 | -2 (Clock/NodeGraph skip 削除) |
 | ガジェット (GADGETS.md) | 28 | 28 | 0 |
 | spec-index エントリ | 54 (done 39, partial 3, removed 11, superseded 1) | 54 | 0 |
 | TODO/FIXME/HACK | 0 | 0 | 0 |
@@ -233,7 +234,16 @@
 | C-06 | `js/storage.js` nodegraph API (loadNodegraph/saveNodegraph/キャッシュ/flush, ~50行) | デッドAPI (呼び出し元ゼロ) | 削除済み |
 | C-07 | `js/storage.js` nodegraph エクスポート (module.exports + window 両方) | デッドエクスポート | 削除済み |
 
-### 5-D. 維持判断
+### 5-E. Session 25 で削除
+
+| # | ファイル/箇所 | 種別 | 状態 |
+|---|-------------|------|------|
+| I1 | `js/ui-labels.js` GADGET_CLOCK + CLOCK_24H ラベル | デッドラベル (gadgets-clock.js 削除済み) | 削除済み |
+| I2 | `js/storage.js` nodegraph キャッシュ初期化 (~10行, getAllNodegraphs呼出+_nodegraphCache書込) | デッドコード (呼出元ゼロ) | 削除済み |
+| I4 | `docs/ROADMAP.md` E2E 通過数 `--` | ドキュメント不整合 | 555 に更新 |
+| I5 | `docs/GADGETS.md` 基本方針「時計」記述 | ドキュメント不整合 | 除去 |
+
+### 5-F. 維持判断
 
 | ファイル | 理由 |
 |---------|------|
