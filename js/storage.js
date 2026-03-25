@@ -1227,58 +1227,6 @@ const STORY_WIKI_PRESET_CATEGORIES = [
     { id: 'concept', label: '概念', icon: 'lightbulb', isPreset: true }
 ];
 
-// SP-077: Nodegraph メモリキャッシュ (docId → { nodes, edges })
-var _nodegraphCache = {};
-var _nodegraphCacheDirty = {};
-
-function _flushNodegraphToIDB(docId) {
-    if (!_nodegraphCacheDirty[docId]) return;
-    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
-        _nodegraphCacheDirty[docId] = false;
-        var data = _nodegraphCache[docId];
-        if (!data) return;
-        window.ZenWriterIDB.putNodegraph({ docId: docId, nodes: data.nodes || [], edges: data.edges || [] })
-            .catch(function (e) {
-                console.warn('[IDB] Nodegraph flush error:', e);
-                _nodegraphCacheDirty[docId] = true;
-            });
-    }
-}
-
-function loadNodegraph(docId) {
-    if (!docId) docId = 'default';
-    if (_nodegraphCache[docId]) return _nodegraphCache[docId];
-    try {
-        var raw = localStorage.getItem('zw_nodegraph:' + docId);
-        var obj = raw ? JSON.parse(raw) : null;
-        if (!obj || typeof obj !== 'object') obj = { nodes: [], edges: [] };
-        if (!Array.isArray(obj.nodes)) obj.nodes = [];
-        if (!Array.isArray(obj.edges)) obj.edges = [];
-        _nodegraphCache[docId] = obj;
-        return obj;
-    } catch (e) {
-        _nodegraphCache[docId] = { nodes: [], edges: [] };
-        return _nodegraphCache[docId];
-    }
-}
-
-function saveNodegraph(docId, data) {
-    if (!docId) docId = 'default';
-    var obj = data || { nodes: [], edges: [] };
-    _nodegraphCache[docId] = obj;
-    _nodegraphCacheDirty[docId] = true;
-    try {
-        localStorage.setItem('zw_nodegraph:' + docId, JSON.stringify(obj));
-    } catch (e) {
-        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
-            console.warn('[Storage] localStorage quota exceeded for nodegraph, using IDB only');
-        } else {
-            console.error('Nodegraph保存エラー:', e);
-        }
-    }
-    setTimeout(function () { _flushNodegraphToIDB(docId); }, 2000);
-}
-
 // SP-077: Story Wiki メモリキャッシュ
 var _wikiCache = null;
 var _wikiCacheDirty = false;
@@ -1536,10 +1484,7 @@ if (typeof module !== 'undefined' && module.exports) {
         getStoryWikiByCategory,
         getStoryWikiCategoryCounts,
         migrateOldWikiToStoryWiki,
-        STORY_WIKI_PRESET_CATEGORIES,
-        // nodegraph
-        loadNodegraph,
-        saveNodegraph
+        STORY_WIKI_PRESET_CATEGORIES
     };
 } else {
     // ブラウザ環境
@@ -1605,9 +1550,6 @@ if (typeof module !== 'undefined' && module.exports) {
         getStoryWikiByCategory,
         getStoryWikiCategoryCounts,
         migrateOldWikiToStoryWiki,
-        STORY_WIKI_PRESET_CATEGORIES,
-        // nodegraph
-        loadNodegraph,
-        saveNodegraph
+        STORY_WIKI_PRESET_CATEGORIES
     };
 }

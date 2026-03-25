@@ -44,36 +44,6 @@ async function waitGadgetsReady(page) {
 
 test.describe('Gadgets E2E', () => {
   test.setTimeout(60000);
-  test.skip('Clock gadget renders in settings modal and respects hour24 setting — Clock removed in session 19', async ({ page }) => {
-    await page.goto(pageUrl);
-    await waitGadgetsReady(page);
-    await openSettingsModal(page);
-    await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
-    await page.waitForTimeout(500);
-
-    const clock = page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="Clock"]');
-    await expect(clock).toBeVisible({ timeout: 10000 });
-
-    await page.evaluate(() => {
-      if (window.ZWGadgets && typeof window.ZWGadgets.setSetting === 'function') {
-        window.ZWGadgets.setSetting('Clock', 'hour24', false);
-      }
-    });
-
-    await page.waitForTimeout(1200);
-
-    const hour24 = await page.evaluate(() => {
-      if (window.ZWGadgets && typeof window.ZWGadgets.getSettings === 'function') {
-        const s = window.ZWGadgets.getSettings('Clock') || {};
-        return !!s.hour24;
-      }
-      return true;
-    });
-
-    expect(hour24).toBe(false);
-    await expect(clock.locator('.gadget-clock')).toHaveText(/AM|PM/);
-  });
-
   test('EditorLayout gadget factory creates basic controls', async ({ page }) => {
     await page.goto(pageUrl);
     await page.waitForSelector('#editor', { timeout: 10000 });

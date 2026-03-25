@@ -14,12 +14,12 @@
 
 ## 現在の状態
 
-- E2E: 514 passed / 1 failed (canvas-mode既知) / 3 skipped / 62 spec files (2026-03-23 session 18)
+- E2E: -- (要再実行) / 1 failed (canvas-mode既知) / 64 spec files (2026-03-25 session 24)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 28個登録 (session 19で33→28に整理。削除6: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient)
-- 仕様書: spec-index.json に 54 エントリ (done 41, partial 2, removed 10, superseded 1)
-- 残 partial: SP-073(90%), SP-076(75%)
+- ガジェット: 28個登録 (session 19で33→28に整理。削除4: Clock/Samples/NodeGraph/GraphicNovel。無効化2: UIDesign/SceneGradient。session 22でデッドコード物理削除)
+- 仕様書: spec-index.json に 54 エントリ (done 39, partial 3, removed 11, superseded 1)
+- 残 partial: SP-005(75%), SP-073(90%), SP-076(75%)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ---

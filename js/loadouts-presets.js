@@ -127,6 +127,9 @@
         label: '脚本・シナリオ',
         description: '映像・舞台脚本向け',
         groups: {
+          sections: [
+            'SectionsNavigator'
+          ],
           structure: [
             'Documents',
             'Outline'

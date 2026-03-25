@@ -46,9 +46,9 @@
   1. **sections**: セクションナビゲーション（SP-052、見出しツリー）
   2. **structure**: ドキュメント階層、アウトライン、スナップショット、タグ
   3. **edit**: StoryWiki、画像、選択肢、プレビュー、装飾、アニメーション
-  4. **theme**: テーマ、フォント、VisualProfile、見出しスタイル、シーングラデーション
-  5. **assist**: 執筆目標、HUD、時計、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
-  6. **advanced**: UI設定、レイアウト、NodeGraph、GraphicNovel、LinkGraph、エクスポート、キーバインド
+  4. **theme**: テーマ、フォント、VisualProfile、見出しスタイル
+  5. **assist**: 執筆目標、HUD、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
+  6. **advanced**: UI設定、レイアウト、LinkGraph、エクスポート、キーバインド
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
 - スクロール負荷軽減のため、非展開カテゴリは `aria-hidden="true"` とし、DOMを保持したままリフローを抑制。
 

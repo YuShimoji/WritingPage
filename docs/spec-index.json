@@ -33,7 +33,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/GADGETS.md",
-    "summary": "ガジェット一覧・API・登録方法 (session 19で33→27に整理)"
+    "summary": "ガジェット一覧・API・登録方法 (session 19で33→28に整理)"
   },
   {
     "id": "SP-005",
@@ -138,7 +138,7 @@
     "id": "SP-022",
     "title": "プラグインシステム設計",
     "status": "removed",
-    "pct": 20,
+    "pct": 0,
     "cat": "system",
     "file": "docs/design/PLUGIN_SYSTEM.md",
     "summary": "正式化はスコープ外 (2026-03-23)。現行manifest駆動ローカルプラグインで十分機能中。設計書は参考として残す。"

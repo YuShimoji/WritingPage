@@ -104,7 +104,7 @@
   // Constants
   var STORAGE_KEY = 'zenWriter_gadgets:prefs';
   var LOADOUT_KEY = 'zenWriter_gadgets:loadouts';
-  var KNOWN_GROUPS = ['structure', 'edit', 'theme', 'assist', 'advanced'];
+  var KNOWN_GROUPS = ['sections', 'structure', 'edit', 'theme', 'assist', 'advanced'];
 
   // ガジェットグループ定義（アコーディオン形式対応）
   // グループ名→メタデータのマッピング
@@ -256,7 +256,7 @@
           structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager'],
           edit: ['StoryWiki'],
           theme: ['Themes', 'Typography', 'VisualProfile'],
-          assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'Clock'],
+          assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'MarkdownReference'],
           advanced: ['EditorLayout', 'Keybinds', 'LoadoutManager']
         }
       }

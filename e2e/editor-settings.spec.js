@@ -340,54 +340,6 @@ test.describe('Editor Settings', () => {
     expect(afterCount).toBeGreaterThan(beforeCount);
   });
 
-  test.skip('should add node graph gadget elements — NodeGraph removed in session 19', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForSelector('#editor', { timeout: 10000 });
-
-    const info = await page.evaluate(() => {
-      try {
-        const apiResult = {
-          registered: false,
-          hasToolbar: false,
-          hasViewport: false,
-          buttonCount: 0,
-        };
-
-        const g = window.ZWGadgets;
-        if (!g || !Array.isArray(g._list)) return apiResult;
-
-        const entry = g._list.find((e) => e && e.name === 'NodeGraph');
-        if (!entry || typeof entry.factory !== 'function') return apiResult;
-
-        apiResult.registered = true;
-        const root = document.createElement('div');
-        entry.factory(root, {
-          get() {
-            return null;
-          },
-          set() {},
-        });
-
-        apiResult.hasToolbar = !!root.querySelector('.ng-toolbar');
-        apiResult.hasViewport = !!root.querySelector('.ng-viewport');
-        apiResult.buttonCount = root.querySelectorAll('button').length;
-        return apiResult;
-      } catch (_) {
-        return {
-          registered: false,
-          hasToolbar: false,
-          hasViewport: false,
-          buttonCount: 0,
-        };
-      }
-    });
-
-    expect(info.registered).toBeTruthy();
-    expect(info.hasToolbar).toBeTruthy();
-    expect(info.hasViewport).toBeTruthy();
-    expect(info.buttonCount).toBeGreaterThanOrEqual(2);
-  });
-
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
     await page.waitForFunction(() => {

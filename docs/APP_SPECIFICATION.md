@@ -100,10 +100,10 @@ Zen Writer v0.3.29
 | 構造 | `structure` | Outline, Documents, Snapshot, Tags/SmartFolders |
 | 編集 | `edit` | StoryWiki, Images, ChoiceTools, プレビュー, 分割ビュー, WYSIWYG切り替え |
 | テーマ | `theme` | Themes, Typography, VisualProfile |
-| 補助 | `assist` | WritingGoal, HUD, Clock, Pomodoro |
+| 補助 | `assist` | WritingGoal, HUD, Pomodoro, MarkdownReference |
 | 詳細設定 | `advanced` | PrintSettings, Help, MarkdownRef |
 
-**ガジェット総数：** 33個 (+1 開発専用)
+**ガジェット総数：** 28個
 **ロードアウト：** 3プリセット（作家モード/全機能/最小限）+ カスタム
 
 ### 5. 装飾・アニメーション
@@ -252,7 +252,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 | フレームワーク | なし（バニラJS） |
 | CSS設計 | CSS変数、Flexbox |
 | ストレージ | IndexedDB + メモリキャッシュ (localStorageフォールバック) |
-| テスト | Playwright E2E（518件 / 62ファイル） |
+| テスト | Playwright E2E（64ファイル） |
 | Lint | ESLint、Prettier、Markdownlint |
 | デスクトップ | Electron v35.0.0 |
 
@@ -260,10 +260,10 @@ manifest駆動のローカルプラグイン機能を実装済み。
 
 | 項目 | 数値 |
 |------|------|
-| JavaScriptファイル | 116ファイル |
-| CSSファイル | style.css（メイン、8200+行） |
-| E2Eテスト | 62ファイル、518テストケース |
-| ガジェット | 33個 (+1 開発専用) |
+| JavaScriptファイル | 108ファイル |
+| CSSファイル | 9ファイル（style.css メイン） |
+| E2Eテスト | 64ファイル |
+| ガジェット | 28個 |
 | 仕様書 | spec-index.json に54エントリ |
 
 ### パフォーマンス

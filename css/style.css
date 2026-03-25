@@ -3716,17 +3716,6 @@ body.dragging-floating-panel {
   transform: translateY(-1px);
 }
 
-.gadget-clock {
-  font-size: 0.875rem;
-  font-family:
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    'Noto Sans JP',
-    Arial,
-    sans-serif;
-}
 
 /* ===== Pomodoro/集中タイマー ===== */
 .gadget-pomodoro {
