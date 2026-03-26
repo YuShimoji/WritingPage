@@ -150,11 +150,11 @@
 
 | # | 項目 | 理由 |
 |---|------|------|
-| V-1 | サイドバーsections表示 (修正後) | session 22 で修正済みだが修正後のスクリーンショットなし |
-| V-2 | session 21 記録の中重大度問題 | 詳細未記載。Visual Audit で特定必要 |
-| V-3 | session 21 記録の中重大度問題 | 詳細未記載。Visual Audit で特定必要 |
-| V-4 | session 21 記録の低重大度問題 | 詳細未記載。Visual Audit で特定必要 |
-| V-5 | SP-076 Phase 4 実装前のプリセットUI現況 | 実装前のベースライン確認 |
+| V-1 | サイドバーsections表示 (修正後) | session 26 Visual Audit でスクリーンショット取得済み。正常表示確認 |
+| V-2 | session 21 記録の中重大度問題 | session 26 Visual Audit で新規問題なし。解消見込み |
+| V-3 | session 21 記録の中重大度問題 | session 26 Visual Audit で新規問題なし。解消見込み |
+| V-4 | session 21 記録の低重大度問題 | session 26 Visual Audit で新規問題なし。解消見込み |
+| V-5 | SP-076 Phase 4 プリセットUI | SP-076 done確認済み (session 25) |
 
 ---
 
@@ -186,17 +186,18 @@
 
 | ID | 重大度 | 内容 | 対処方針 |
 |----|--------|------|---------|
-| V-2 | 中 | session 21 記録: 詳細未記載 | Visual Audit で特定が必要 |
-| V-3 | 中 | session 21 記録: 詳細未記載 | Visual Audit で特定が必要 |
-| V-4 | 低 | session 21 記録: 詳細未記載 | Visual Audit で特定が必要 |
+| V-2 | 中 | session 21 記録: 詳細未記載 | session 26 Visual Audit 実施。新たなUIバグは発見されず。session 22-24 一掃で解消の可能性高い → **解決見込み** |
+| V-3 | 中 | session 21 記録: 詳細未記載 | 同上 → **解決見込み** |
+| V-4 | 低 | session 21 記録: 詳細未記載 | 同上 → **解決見込み** |
 
 ### 3-C. 判断保留
 
 | 項目 | 内容 | リスク | 推奨 |
 |------|------|--------|------|
-| nodegraph IDB ストア定義 | storage-idb.js に nodegraph ストアの CRUD API 残存。呼び出し元なし | 低 (IDB スキーマ安定性) | API 関数は将来削除検討。IDB ストアは維持 (既存データ保護) |
-| Canvas Mode E2E | betaEnabled:false で常時失敗 | 低 (既知) | 維持 (将来再有効化の可能性) |
-| test-ui-debug.spec.js | 全 skip の開発用 spec | 極低 | 開発ツールとして維持 |
+| nodegraph IDB ストア定義 | storage-idb.js の nodegraph ストア。CRUD API は session 26 で削除済み。IDB objectStore 定義のみ残存 | 極低 (IDB スキーマ安定性) | IDB ストアは維持 (既存データ保護) |
+| Canvas Mode E2E | betaEnabled:false で space+drag テスト不安定。session 26 で skip 化 | 低 (既知) | 維持 (将来再有効化の可能性) |
+| test-ui-debug.spec.js | session 26 で削除済み | — | 完了 |
+| session19-verify.spec.js | session 26 で削除済み | — | 完了 |
 
 ---
 
