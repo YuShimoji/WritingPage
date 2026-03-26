@@ -26,7 +26,7 @@ async function enterFocusMode(page) {
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-ui-mode', 'focus');
   });
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(300);
 }
 
 /**
@@ -64,6 +64,9 @@ test.describe('SP-071 ChapterList', () => {
     await page.waitForLoadState('networkidle');
     // Wait for app initialisation
     await page.waitForTimeout(600);
+    // テストは normal モードでエディタ内容を設定してから focus モードに遷移する
+    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await page.waitForTimeout(100);
   });
 
   // -------------------------------------------------------------------------

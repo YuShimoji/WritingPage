@@ -28,7 +28,15 @@ async function getEditorContent(page) {
 
 async function enterFocusMode(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-ui-mode', 'focus');
+    var html = document.documentElement;
+    var current = html.getAttribute('data-ui-mode');
+    if (current === 'focus') {
+      if (window.ZWChapterList && typeof window.ZWChapterList.refresh === 'function') {
+        window.ZWChapterList.refresh();
+      }
+    } else {
+      html.setAttribute('data-ui-mode', 'focus');
+    }
   });
   await page.waitForTimeout(300);
 }

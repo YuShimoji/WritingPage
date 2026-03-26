@@ -101,7 +101,12 @@ function buildMenu() {
                         { label: 'テキスト (.txt)', click: () => sendToRenderer('menu:export', 'txt') },
                         { label: 'HTML (.html)', click: () => sendToRenderer('menu:export', 'html') },
                         { label: 'Markdown (.md)', click: () => sendToRenderer('menu:export', 'md') },
+                        { type: 'separator' },
+                        { label: 'JSON プロジェクト (.zwp.json)', click: () => sendToRenderer('menu:export-project-json') },
                     ],
+                },
+                {
+                    label: 'プロジェクト読込 (.zwp.json)...', click: () => sendToRenderer('menu:import-project-json')
                 },
                 { type: 'separator' },
                 { label: '印刷(&P)...', accelerator: 'CmdOrCtrl+P', click: () => sendToRenderer('menu:print') },

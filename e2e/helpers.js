@@ -16,6 +16,8 @@ async function showFullToolbar(page) {
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-toolbar-mode', 'full');
     document.documentElement.removeAttribute('data-toolbar-hidden');
+    // フォーカスモードではツールバーが CSS で非表示のため、normal に切り替える
+    document.documentElement.setAttribute('data-ui-mode', 'normal');
   });
 }
 

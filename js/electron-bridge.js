@@ -88,6 +88,30 @@
                 handleExport(format);
                 break;
             }
+
+            case 'menu:export-project-json': {
+                const storage = window.ZenWriterStorage;
+                if (storage && storage.exportProjectJSON) {
+                    const docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
+                    if (docId) storage.exportProjectJSON(docId);
+                }
+                break;
+            }
+
+            case 'menu:import-project-json': {
+                const storage2 = window.ZenWriterStorage;
+                if (storage2 && storage2.importProjectJSONFromFile) {
+                    storage2.importProjectJSONFromFile().then(function (docId) {
+                        if (docId) {
+                            if (storage2.setCurrentDocId) storage2.setCurrentDocId(docId);
+                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.loadContent === 'function') {
+                                window.ZenWriterEditor.loadContent();
+                            }
+                        }
+                    });
+                }
+                break;
+            }
         }
     });
 

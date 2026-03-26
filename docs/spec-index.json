@@ -496,5 +496,13 @@
     "cat": "core",
     "file": "docs/WRITING_PIPELINE.md",
     "summary": "執筆→出力の全7工程パイプライン定義。各工程の手動/自動マトリクス、プレビュー段階間機能差、デザイナーワークフローパス(A/B/C)、設計課題(Q1-Q4全解決済み)。EPUB/DOCX スコープ外 (2026-03-23)。Stage 6完成度95%。"
+  },
+  {
+    "id": "SP-080",
+    "title": "JSONプロジェクト保存形式 (zenwriter-v1)",
+    "status": "done",
+    "pct": 100,
+    "cat": "system",
+    "summary": "ドキュメントの章構造・メタデータを保持した .zwp.json 形式での保存/読込。exportProjectJSON/importProjectJSON/importProjectJSONFromFile。ドキュメント階層ガジェットにUI追加。フォーカスモードのデフォルト化。"
   }
 ]
