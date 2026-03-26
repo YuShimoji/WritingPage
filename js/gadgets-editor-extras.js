@@ -585,98 +585,6 @@
       var placementLabel = el('label'); placementLabel.textContent = 'タブ配置'; placementLabel.style.display = 'block';
       placementRow.appendChild(placementLabel); placementRow.appendChild(placementSel);
 
-      // タブ順序変更UI
-      var orderRow = el('div');
-      var orderLabel = el('label'); orderLabel.textContent = 'タブ順序'; orderLabel.style.display = 'block';
-      var orderContainer = el('div'); orderContainer.style.display = 'flex'; orderContainer.style.flexDirection = 'column'; orderContainer.style.gap = '0.25rem';
-      var orderList = el('div'); orderList.id = 'tab-order-list'; orderList.style.display = 'flex'; orderList.style.flexDirection = 'column'; orderList.style.gap = '0.25rem';
-      orderContainer.appendChild(orderList);
-      orderRow.appendChild(orderLabel); orderRow.appendChild(orderContainer);
-
-      // タブ順序リストを更新
-      function refreshTabOrderList() {
-        try {
-          orderList.innerHTML = '';
-          var tabs = [];
-          if (window.sidebarManager) {
-            if (Array.isArray(window.sidebarManager.accordionCategories) && window.sidebarManager.accordionCategories.length) {
-              tabs = window.sidebarManager.accordionCategories
-                .map(function (cat) { return cat && cat.id; })
-                .filter(Boolean);
-            } else if (typeof window.sidebarManager.getTabOrder === 'function') {
-              tabs = window.sidebarManager.getTabOrder();
-            }
-          }
-          if (tabs.length === 0) {
-            var msg = el('div'); msg.textContent = 'タブが見つかりません'; msg.style.fontSize = '0.75rem'; msg.style.color = 'var(--text-color, #666)'; orderList.appendChild(msg);
-            return;
-          }
-          tabs.forEach(function (tabId, index) {
-            var item = el('div');
-            item.style.display = 'flex';
-            item.style.alignItems = 'center';
-            item.style.gap = '0.5rem';
-            item.style.padding = '0.25rem 0.5rem';
-            item.style.border = '1px solid var(--border-color, #e0e0e0)';
-            item.style.borderRadius = '0.25rem';
-            item.style.backgroundColor = 'var(--ui-bg, #fff)';
-            item.draggable = true;
-            item.dataset.tabId = tabId;
-
-            var upBtn = el('button'); upBtn.className = 'small'; upBtn.textContent = '↑'; upBtn.style.flex = '0 0 auto';
-            var downBtn = el('button'); downBtn.className = 'small'; downBtn.textContent = '↓'; downBtn.style.flex = '0 0 auto';
-            var label = el('span'); label.textContent = tabId; label.style.flex = '1';
-            var removeBtn = el('button'); removeBtn.className = 'small'; removeBtn.textContent = '×'; removeBtn.style.flex = '0 0 auto';
-
-            if (index === 0) upBtn.disabled = true;
-            if (index === tabs.length - 1) downBtn.disabled = true;
-
-            upBtn.addEventListener('click', function () {
-              if (index > 0) {
-                var newOrder = tabs.slice();
-                newOrder[index] = tabs[index - 1];
-                newOrder[index - 1] = tabs[index];
-                if (window.sidebarManager && typeof window.sidebarManager.saveTabOrder === 'function') {
-                  window.sidebarManager.saveTabOrder(newOrder);
-                }
-                refreshTabOrderList();
-                // タブを再構築
-                if (window.sidebarManager && typeof window.sidebarManager.bootstrapTabs === 'function') {
-                  window.sidebarManager.bootstrapTabs();
-                }
-              }
-            });
-
-            downBtn.addEventListener('click', function () {
-              if (index < tabs.length - 1) {
-                var newOrder = tabs.slice();
-                newOrder[index] = tabs[index + 1];
-                newOrder[index + 1] = tabs[index];
-                if (window.sidebarManager && typeof window.sidebarManager.saveTabOrder === 'function') {
-                  window.sidebarManager.saveTabOrder(newOrder);
-                }
-                refreshTabOrderList();
-                // タブを再構築
-                if (window.sidebarManager && typeof window.sidebarManager.bootstrapTabs === 'function') {
-                  window.sidebarManager.bootstrapTabs();
-                }
-              }
-            });
-
-            item.appendChild(upBtn);
-            item.appendChild(downBtn);
-            item.appendChild(label);
-            item.appendChild(removeBtn);
-            orderList.appendChild(item);
-          });
-        } catch (e) {
-          console.error('タブ順序リスト更新エラー:', e);
-        }
-      }
-
-      // 初期化時にタブ順序リストを更新
-      setTimeout(refreshTabOrderList, 500);
-
       sel.addEventListener('change', function () { withStorage(function (cfg) { cfg.ui = cfg.ui || {}; cfg.ui.tabsPresentation = String(sel.value || 'tabs'); }); try { var sb = document.getElementById('sidebar'); if (sb) sb.setAttribute('data-tabs-presentation', String(sel.value)); if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') window.sidebarManager.applyTabsPresentationUI(); } catch (_) { } });
       placementSel.addEventListener('change', function () {
         var val = placementSel.value;
@@ -705,44 +613,6 @@
           }
         } catch (_) { }
       });
-
-      var tabRow = el('div');
-      var tabLabel = el('label'); tabLabel.textContent = '新しいタブ'; tabLabel.style.display = 'block';
-      var tabInput = el('input'); tabInput.type = 'text'; tabInput.placeholder = 'タブ名'; tabInput.style.width = '100%';
-      var tabBtn = el('button', 'small'); tabBtn.textContent = '追加';
-      tabRow.appendChild(tabLabel); tabRow.appendChild(tabInput); tabRow.appendChild(tabBtn);
-
-      tabBtn.addEventListener('click', function () {
-        var name = tabInput.value.trim();
-        if (!name) { alert((window.UILabels && window.UILabels.TAB_NAME_REQUIRED) || 'タブ名を入力してください'); return; }
-        try {
-          if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
-            var id = window.sidebarManager.addTab(null, name);
-            if (id && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-              window.sidebarManager.activateSidebarGroup(id);
-            }
-          }
-        } catch (_) { }
-        tabInput.value = '';
-        alert((window.UILabels && window.UILabels.TAB_ADDED) || 'タブを追加しました');
-      });
-
-      var manageRow = el('div');
-      var manageLabel = el('label'); manageLabel.textContent = 'タブ管理'; manageLabel.style.display = 'block';
-      var tabSelect = el('select');
-      var renameInput = el('input'); renameInput.type = 'text'; renameInput.placeholder = '新しい名前';
-      var renameBtn = el('button', 'small'); renameBtn.textContent = '名称変更';
-      var removeBtn = el('button', 'small'); removeBtn.textContent = '削除';
-      manageRow.appendChild(manageLabel); manageRow.appendChild(tabSelect); manageRow.appendChild(renameInput); manageRow.appendChild(renameBtn); manageRow.appendChild(removeBtn);
-
-      function refreshSelect() {
-        while (tabSelect.firstChild) tabSelect.removeChild(tabSelect.firstChild);
-        var list = (window.sidebarManager && window.sidebarManager.sidebarTabConfig) ? window.sidebarManager.sidebarTabConfig : [];
-        list.forEach(function (t) { var o = document.createElement('option'); o.value = t.id; o.textContent = t.label || t.id; tabSelect.appendChild(o); });
-      }
-      refreshSelect();
-      renameBtn.addEventListener('click', function () { var id = tabSelect.value; var name = renameInput.value.trim(); if (!id || !name) return; try { if (window.sidebarManager && typeof window.sidebarManager.renameTab === 'function') window.sidebarManager.renameTab(id, name); } catch (_) { } renameInput.value = ''; refreshSelect(); alert((window.UILabels && window.UILabels.TAB_RENAMED) || '名称を変更しました'); });
-      removeBtn.addEventListener('click', function () { var id = tabSelect.value; if (!id) return; if (!confirm((window.UILabels && window.UILabels.TAB_DELETE_CONFIRM) || '削除しますか？')) return; try { if (window.sidebarManager && typeof window.sidebarManager.removeTab === 'function') window.sidebarManager.removeTab(id); } catch (_) { } refreshSelect(); alert((window.UILabels && window.UILabels.TAB_DELETED) || '削除しました'); });
 
       // 自動保存設定
       var autoSaveCfg = (s && s.autoSave) || {};
@@ -943,7 +813,7 @@
       gadgetUXRow.appendChild(helpIconRow);
       gadgetUXRow.appendChild(bulkToggleRow);
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(orderRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(tabRow); root.appendChild(manageRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
     }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
 
     // Font Decoration Gadget (パネルのミラー)

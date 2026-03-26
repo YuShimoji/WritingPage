@@ -391,14 +391,8 @@
      * @param {string} label - Tab label
      * @param {string} _panelId - Panel ID
      */
-    addTab(group, label, _panelId) {
-      try {
-        if (window.sidebarManager && typeof window.sidebarManager.addTab === 'function') {
-          window.sidebarManager.addTab(group, label, { persist: false });
-        }
-      } catch (e) {
-        console.error('addTab failed:', e);
-      }
+    addTab(_group, _label, _panelId) {
+      // no-op: アコーディオンシステムでは動的タブ追加は非対応
     }
 
     /**

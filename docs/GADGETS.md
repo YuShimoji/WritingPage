@@ -116,9 +116,7 @@
 | advanced | 6 | UI設定・グラフ・管理ツール |
 | sections | 1 | セクションナビゲーション (SP-052) |
 
-- ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、タブ表示と紐づく。
-- `ZWGadgets.addTab(name, label)`: 新しいタブを動的に追加可能。ガジェットグループを拡張。
-- `ZWGadgets.removeTab(name)`: タブを削除。
+- ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、アコーディオン表示と紐づく。
 
 ### Sidebar と ZWGadgets の責務（現行）
 
@@ -141,7 +139,7 @@
 - 役割:
   - `ZWGadgets.register(name, factory, { groups: [...] })` でガジェットを登録。
   - `ZWGadgets.init(selector, { group })` でコンテナに紐づくレンダラを登録し、ロードアウトに応じて再描画。
-  - タブや `.sidebar-group` の生成・表示制御は Sidebar 側が担い、`ZWGadgets.addTab/removeTab` は互換目的で残す。
+  - タブや `.sidebar-group` の生成・表示制御は Sidebar 側が担う。動的タブ追加/削除 API は廃止済み（アコーディオンシステムに移行）。
 
 #### data-属性ベースの安定セレクタ
 

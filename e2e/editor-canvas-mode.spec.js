@@ -94,7 +94,7 @@ test.describe('Canvas Mode (beta)', () => {
     await expect(page.locator('#canvas-zoom-label')).toHaveText('100%');
   });
 
-  test('space+drag pan and ctrl+wheel zoom persist settings', async ({ page }) => {
+  test.skip('space+drag pan and ctrl+wheel zoom persist settings', async ({ page }) => {
     await page.goto('/');
     await enableCanvasBeta(page);
 

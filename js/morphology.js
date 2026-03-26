@@ -42,7 +42,6 @@
           return;
         }
         tokenizer = _tokenizer;
-        console.log('[ZenMorphology] Tokenizer initialized');
         resolve(tokenizer);
       });
     });

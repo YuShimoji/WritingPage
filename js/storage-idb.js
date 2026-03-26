@@ -176,19 +176,10 @@
   function putWikiPage(page) { return put('wiki', page); }
   function deleteWikiPage(id) { return deleteById('wiki', id); }
 
-  // ---- Nodegraph API ----
-
-  function getNodegraph(docId) { return getById('nodegraph', docId); }
-  function putNodegraph(data) { return put('nodegraph', data); }
-
-  // ---- Migration from localStorage ----
-
-  function getAllNodegraphs() { return getAll('nodegraph'); }
-
   // ---- Migration from localStorage ----
 
   function migrateFromLocalStorage() {
-    var counts = { documents: 0, assets: 0, snapshots: 0, wiki: 0, nodegraph: 0 };
+    var counts = { documents: 0, assets: 0, snapshots: 0, wiki: 0 };
     var migrated = false;
 
     return Promise.resolve()
@@ -274,43 +265,6 @@
         }
       })
       .then(function () {
-        // Nodegraph (zw_nodegraph:* keys)
-        var ngKeys = [];
-        for (var k = 0; k < localStorage.length; k++) {
-          var key = localStorage.key(k);
-          if (key && key.indexOf('zw_nodegraph:') === 0) {
-            ngKeys.push(key);
-          }
-        }
-        if (ngKeys.length > 0) {
-          var ngItems = [];
-          for (var n = 0; n < ngKeys.length; n++) {
-            try {
-              var docId = ngKeys[n].slice('zw_nodegraph:'.length);
-              var rawNG = localStorage.getItem(ngKeys[n]);
-              var parsed = rawNG ? JSON.parse(rawNG) : null;
-              if (parsed && typeof parsed === 'object') {
-                parsed.docId = docId;
-                if (!Array.isArray(parsed.nodes)) parsed.nodes = [];
-                if (!Array.isArray(parsed.edges)) parsed.edges = [];
-                ngItems.push(parsed);
-              }
-            } catch (e) {
-              console.warn('[IDB] Failed to parse nodegraph key:', ngKeys[n], e);
-            }
-          }
-          if (ngItems.length > 0) {
-            counts.nodegraph = ngItems.length;
-            migrated = true;
-            return putAll('nodegraph', ngItems).then(function () {
-              for (var r = 0; r < ngKeys.length; r++) {
-                localStorage.removeItem(ngKeys[r]);
-              }
-            });
-          }
-        }
-      })
-      .then(function () {
         if (migrated) {
           console.log('[IDB] Migration complete:', counts);
         }
@@ -345,11 +299,6 @@
     getWikiPages: getWikiPages,
     putWikiPage: putWikiPage,
     deleteWikiPage: deleteWikiPage,
-
-    // Nodegraph
-    getNodegraph: getNodegraph,
-    putNodegraph: putNodegraph,
-    getAllNodegraphs: getAllNodegraphs,
 
     // Migration
     migrateFromLocalStorage: migrateFromLocalStorage

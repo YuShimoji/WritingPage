@@ -1,7 +1,7 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
 
-const BASE = 'http://localhost:8080';
+const BASE = '/index.html';
 const SHOTS = 'e2e/visual-audit-screenshots';
 
 // Helper: wait for app init
