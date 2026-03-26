@@ -2106,94 +2106,6 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   border-radius: 0.25rem;
 }
 
-.collage-controls {
-  display: grid;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: var(--ui-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 0.375rem;
-  margin-top: 0.75rem;
-}
-
-.collage-controls__title {
-  font-weight: 600;
-  font-size: 0.8125rem;
-  color: var(--ui-text);
-  margin-bottom: 0.25rem;
-}
-
-.collage-controls__mode-buttons {
-  display: flex;
-  gap: 0.375rem;
-}
-
-.collage-controls__mode-button {
-  flex: 1;
-  padding: 0.375rem 0.75rem;
-  font-size: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
-}
-
-.collage-controls__mode-button:hover {
-  background: var(--toolbar-bg);
-  border-color: var(--focus-color);
-}
-
-.collage-controls__mode-button.active {
-  background: var(--focus-color);
-  color: #fff;
-  border-color: var(--focus-color);
-}
-
-.collage-controls__grid-config {
-  display: grid;
-  grid-template-columns: auto 1fr auto 1fr;
-  gap: 0.375rem;
-  align-items: center;
-  font-size: 0.75rem;
-}
-
-.collage-controls__grid-config label {
-  font-size: 0.75rem;
-  color: var(--ui-text);
-}
-
-.collage-controls__grid-config input[type='number'] {
-  width: 3.75rem;
-  padding: 0.25rem 0.375rem;
-  font-size: 0.75rem;
-}
-
-.collage-controls__actions {
-  display: flex;
-  gap: 0.375rem;
-  flex-wrap: wrap;
-}
-
-.collage-controls__action-button {
-  flex: 1;
-  min-width: 5rem;
-  padding: 0.375rem 0.625rem;
-  font-size: 0.75rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.collage-controls__action-button:hover {
-  background: var(--toolbar-bg);
-  border-color: var(--focus-color);
-}
-
 .editor-mirror {
   position: absolute;
   top: 0;
@@ -3807,15 +3719,6 @@ body.dragging-floating-panel {
   padding: 0.375rem 0.5rem;
   border-top: 1px dashed var(--border-color);
   background: var(--focus-color-5, rgba(0, 0, 0, 0.03));
-}
-
-/* ===== Wiki ガジェット: 縦リサイズハンドル ===== */
-.wiki-resizer-y {
-  height: 0.375rem;
-  cursor: ns-resize;
-  background: transparent;
-  border-top: 1px dashed var(--border-color);
-  margin-top: 0.125rem;
 }
 
 /* ドラッグ状態 */
@@ -5596,25 +5499,6 @@ html[data-embed='true'] #editor {
   color: #888;
 }
 
-/* ===== Wikiガジェット ===== */
-.wiki-list {
-  scrollbar-gutter: stable;
-}
-
-.wiki-item {
-  background: var(--sidebar-bg) !important;
-  color: var(--ui-text);
-}
-
-.wiki-item span {
-  color: var(--ui-text);
-}
-
-[data-theme='dark'] .wiki-item {
-  background: #252525 !important;
-  border-color: #444 !important;
-}
-
 /* =========================================
    UI Modes (統合済み: 正規定義は上部 L302~ にあり)
    ========================================= */
@@ -7007,39 +6891,6 @@ body.ui-editor-preview {
 .wikilink.is-broken {
   color: var(--error-color, #ff4d4f);
   text-decoration-color: var(--error-color, #ff4d4f);
-}
-
-.wiki-backlinks {
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  font-size: 0.9rem;
-}
-
-.wiki-backlinks h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.8;
-}
-
-.wiki-backlinks-list {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.wiki-backlink-item {
-  padding: 0.125rem 0.5rem;
-  background: var(--toolbar-bg);
-  border-radius: 0.25rem;
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.wiki-backlink-item:hover {
-  background: var(--border-color);
 }
 
 /* ===== モーダルダイアログ ===== */
