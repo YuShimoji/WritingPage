@@ -6,44 +6,45 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 26 — デッドコード根絶(-1,121行) + Visual Audit + ドキュメント同期
+- 直近の状態: session 27 — ミニマル執筆体験 + JSONプロジェクト保存 + Electron統合
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 542 passed / 0 failed / 3 skipped (63 spec files)
-- spec-index: 54エントリ (done 40, partial 2, removed 11, superseded 1)
+- E2E: 542+ passed / 1 failed(既知Legacy) / 3 skipped (63 spec files)
+- spec-index: 55エントリ (done 41, partial 2, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
 - EPUB: スコープ外 (2026-03-23 除外決定)
 - session 22-24 でデッドコード/CSS/API/ドキュメント不整合を一掃 (-5,957行)
 - session 25: SP-076 done確認、レガシー最終掃除、包括調査表作成
 - session 26: デッドコード根絶(-1,121行)、deprecated API削除、Visual Audit実施、V-2/V-3/V-4解消見込み
+- session 27: JSONプロジェクト保存(zenwriter-v1形式)、フォーカスモードデフォルト化、Electron JSON保存メニュー、SP-080追加
 
 ---
 
 ## CURRENT DEVELOPMENT AXIS
 
-- 主軸: 安定版完成 + 残 partial 完了 + WP-001 再訪
-- この軸を優先する理由: SP-076 done, レガシー根絶完了。残 partial は SP-005/SP-073 のみ。WP-001 のトリガー条件成立
+- 主軸: ミニマル執筆体験の深化 + WP-001 再訪
+- この軸を優先する理由: JSONプロジェクト保存+フォーカスモードデフォルト化で基盤完成。執筆ワークフロー統合(WP-001)の具体化が次の焦点
 - 今ここで避けるべき脱線: スコープ外項目の復活、新規大型機能の追加
 
 ---
 
 ## CURRENT LANE
 
-- 主レーン: Advance (次の前進方向を選択)
+- 主レーン: Advance (ミニマル執筆体験)
 - 副レーン: なし
-- 今このレーンを優先する理由: Excise 2ブロック連続完了。保守モード脱出が必要
+- 今このレーンを優先する理由: JSONプロジェクト保存+フォーカスモード改善完了。次は実使用フローの深化
 - いまは深入りしないレーン: Excise (一掃済み)、追加テスト
 
 ---
 
 ## CURRENT SLICE
 
-- スライス名: (次セッションで選択) SP-073 Phase 4 仕様策定 or WP-001 再訪 or 創造的機能提案
-- 成功状態: SP-073 done/100% or WP-001 方向性確定 or 新規 Advance 開始
-- 前提: Excise 完了。Visual Audit fresh。全 E2E 通過
+- スライス名: Minimal Writing + JSON Save (session 27 完了)
+- 成功状態: JSON保存/読込実装済み + フォーカスモードデフォルト化 + Electron統合
+- 前提: SP-080 done。次セッションで WP-001 再訪 or 執筆体験の深化
 
 ---
 
@@ -76,22 +77,25 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Advance 待ち (Excise 完了、保守モード脱出)
-- 現在のスライス: 次セッションで選択
-- 今回 (session 26) の変更:
-  - デッドコード根絶 (-1,121行): nodegraph API, deprecated タブ管理, 非機能UI
-  - テスト整理: 3ファイル削除、visual-audit修正、canvas-mode skip化
-  - Visual Audit: 20枚更新、V-2/V-3/V-4 解消見込み
-  - ドキュメント同期: ISSUES.md archive, ROADMAP/README更新
-  - E2E: 542 passed / 0 failed / 3 skipped
+- 現在の主レーン: Advance (ミニマル執筆体験)
+- 現在のスライス: Minimal Writing + JSON Save (session 27 完了)
+- 今回 (session 27) の変更:
+  - JSONプロジェクト保存/読込 (zenwriter-v1形式): storage.js + gadgets-documents-hierarchy.js
+  - フォーカスモードデフォルト化: storage.js DEFAULT_SETTINGS + index.html head + app.js 自動フォーカス
+  - フォーカスモードUI改善: ツールバー非表示(エッジホバー復帰) + 章パネル左エッジスライドイン
+  - Electron統合: メニューにJSONプロジェクト保存/読込 + electron-bridge.jsハンドラ
+  - spec-index.json: SP-080追加 (done/100%)
+  - E2Eテスト修正: デフォルトfocusモード追従 (13テスト修正)
 - 次回最初に確認すべきファイル:
-  - docs/specs/spec-path-text.md (SP-073 Phase 4 仕様策定が必要)
-  - WRITING_PIPELINE.md (WP-001 再訪の基盤)
+  - index.html をブラウザで開いてフォーカスモードの見え方確認
+  - 章パネルの左エッジホバー動作確認
+  - JSON保存→読込のフロー確認
 - 未確定の設計論点:
-  - SP-073 Phase 4 フリーハンド描画のUX (HUMAN_AUTHORITY)
   - WP-001 方向性 (HUMAN_AUTHORITY)
-- 今は触らない範囲: 追加クリーンアップ (一掃済み)
+  - Google Keep連携の是非 (以前スコープ外に除外、ユーザーが再要望)
+  - 保存状態スナップショットの仕様
+- 今は触らない範囲: 追加クリーンアップ
 - 次回推奨:
-  - [Advance] SP-073 Phase 4 仕様策定 + 実装
+  - [Audit] Visual Audit — フォーカスモードの見え方確認 (visual_evidence_status: stale)
+  - [Advance] ファイルドロップでの.zwp.jsonインポート
   - [Unlock] WP-001 再訪 (トリガー成立)
-  - [Advance] visual-audit テスト品質改善 (サンプル読込/モーダル開封)

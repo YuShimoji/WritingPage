@@ -19,8 +19,8 @@
 | ---- | --- | ---- |
 | セッション番号 | 27 | 26 |
 | ガジェット数 | 28 | 28 |
-| spec-index エントリ | 54 | 54 |
-| spec done | 40 | 40 |
+| spec-index エントリ | 55 | 54 |
+| spec done | 41 | 40 |
 | spec partial | 2 (SP-005/SP-073) | 2 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
@@ -89,7 +89,14 @@
 ### 検証
 - JSON round-trip テスト: 2章のタイトル・本文が完全一致で復元
 - Focus mode: opacity=0, translateY(-100%), pointer-events=none 確認
-- E2E: 43 passed / 0 failed / 1 skipped (ui-mode-consistency + chapter-store + content-guard + editor-settings)
+- E2E: 48 passed / 1 failed(既知Legacy) / 1 skipped (主要5スイート)
+
+### Nightshift 追加作業
+- showFullToolbar ヘルパー: data-ui-mode=normal を追加（テスト信頼性向上）
+- E2E: デフォルトfocusモードに追従 (openAssistPanel, beforeEach, 個別テスト5件)
+- spec-index.json: SP-080 (JSONプロジェクト保存形式) を done で追加
+- Electron: メニューに JSONプロジェクト保存/読込 を追加
+- electron-bridge.js: export-project-json / import-project-json ハンドラ追加
 
 ---
 
