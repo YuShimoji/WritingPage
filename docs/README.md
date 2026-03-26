@@ -25,7 +25,7 @@ v0.3.29 / 2026-03-16
 | ガジェット追加/削除 | GADGETS.md, APP_SPECIFICATION.md（数値） | spec-index.json |
 | テーマ変更 | THEMES.md | — |
 | テスト追加 | — | TESTING.md（方針変更時のみ） |
-| バグ修正 | — | ISSUES.md（該当issueがあれば） |
+| バグ修正 | — | — |
 | 仕様策定 | docs/specs/spec-*.md, spec-index.json | ROADMAP.md |
 
 ### 原則
@@ -74,14 +74,13 @@ v0.3.29 / 2026-03-16
 | ドキュメント | 内容 |
 |-------------|------|
 | [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-E の開発計画） |
-| [ISSUES](ISSUES.md) | 検証棚卸しからのアクションリスト |
 | [spec-index.json](spec-index.json) | 仕様インデックス（全エントリのステータス・実装率） |
 
 ## アーカイブ (archive/)
 
 過去のドキュメントは `archive/` 配下に保管:
 
-- BACKLOG.md, ISSUES.md -- 旧管理系
+- BACKLOG.md, ISSUES.md, ISSUES-resolved.md -- 旧管理系
 - choices-driven-development.md -- 旧開発方針メモ
 - LIVE_PREVIEW_DIFF_DESIGN.md, PALETTE_DESIGN.md, MISSION12_GADGETS.md -- 旧設計ドラフト
 - screenshots/ -- 過去のスクリーンショット

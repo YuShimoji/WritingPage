@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 555 passed / 1 failed (canvas-mode既知) / 3 skipped / 64 spec files (2026-03-25 session 24)
+- E2E: 542 passed / 0 failed / 3 skipped / 63 spec files (2026-03-26 session 26)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録 (session 19で33→28に整理。削除4: Clock/Samples/NodeGraph/GraphicNovel。無効化2: UIDesign/SceneGradient。session 22でデッドコード物理削除)
