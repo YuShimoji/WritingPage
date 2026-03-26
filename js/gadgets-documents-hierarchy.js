@@ -286,10 +286,45 @@
         }
       });
 
+      // JSON プロジェクト保存
+      var exportJsonBtn = document.createElement('button');
+      exportJsonBtn.type = 'button';
+      exportJsonBtn.textContent = 'JSON保存';
+      exportJsonBtn.title = '現在のドキュメントを構造保持JSONで保存';
+      exportJsonBtn.addEventListener('click', function () {
+        saveCurrentContent();
+        var docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
+        if (!docId) { notify('ドキュメントが選択されていません'); return; }
+        if (storage.exportProjectJSON) {
+          var ok = storage.exportProjectJSON(docId);
+          if (ok) notify('JSONプロジェクトを保存しました');
+        }
+      });
+
+      // JSON プロジェクト読込
+      var importJsonBtn = document.createElement('button');
+      importJsonBtn.type = 'button';
+      importJsonBtn.textContent = 'JSON読込';
+      importJsonBtn.title = 'JSONプロジェクトファイルを読み込み';
+      importJsonBtn.addEventListener('click', function () {
+        if (storage.importProjectJSONFromFile) {
+          storage.importProjectJSONFromFile().then(function (docId) {
+            if (docId) {
+              switchDocument(docId);
+              refreshUI();
+              notify('プロジェクトを読み込みました');
+              dispatchChanged();
+            }
+          });
+        }
+      });
+
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(newFolderBtn);
       toolbar.appendChild(saveBtn);
       toolbar.appendChild(exportBtn);
+      toolbar.appendChild(exportJsonBtn);
+      toolbar.appendChild(importJsonBtn);
       toolbar.appendChild(restoreBtn);
 
       // ツリーコンテナ

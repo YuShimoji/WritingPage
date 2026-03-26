@@ -668,4 +668,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.initAppFileManager === 'function') {
         window.initAppFileManager({ elementManager, updateDocumentTitle });
     }
+
+    // 起動時にエディタへ自動フォーカス（即執筆可能にする）
+    requestAnimationFrame(function () {
+        var wysiwyg = document.getElementById('wysiwyg-editor');
+        var textarea = document.getElementById('editor');
+        if (wysiwyg && wysiwyg.style.display !== 'none') {
+            wysiwyg.focus();
+        } else if (textarea) {
+            textarea.focus();
+        }
+    });
 });

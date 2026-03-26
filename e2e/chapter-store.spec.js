@@ -277,9 +277,12 @@ test.describe('SP-071 Phase 2 ChapterStore', () => {
     });
     await page.waitForTimeout(200);
 
-    // Focus モードに切替
+    // Normal モードからスタートして Focus に切替
+    await enterNormalMode(page);
+    // エディタに全文をセットし直す（Normal モードでの全文保持を確認）
+    await setEditorContent(page, testContent);
     await enterFocusMode(page);
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
     // チャプターリストが表示される
     const chapterItems = page.locator('.cl-item');

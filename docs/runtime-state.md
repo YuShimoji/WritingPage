@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-26 session 26
+> 最終更新: 2026-03-27 session 27
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.29
 - ブランチ: main
-- セッション: 26
-- 主レーン: Excise + Audit (デッドコード根絶 + Visual Audit + ドキュメント同期)
-- スライス: 安定版に向けた集中掃除 + Visual Audit 実施
+- セッション: 27
+- 主レーン: Advance (ミニマル執筆体験 + JSON プロジェクト保存)
+- スライス: Minimal Writing + JSON Save
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 26 | 25 |
+| セッション番号 | 27 | 26 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 54 | 54 |
 | spec done | 40 | 40 |
@@ -54,9 +54,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 26 で実施) |
+| blocks_since_visual_audit | 1 (session 26 で実施、今回は未実施) |
 | last_visual_audit_path | e2e/visual-audit-screenshots/ (20枚, 2026-03-26) |
-| visual_evidence_status | fresh |
+| visual_evidence_status | stale |
 
 ---
 
@@ -64,10 +64,32 @@
 
 | 診断項目 | 連続数 |
 | --------- | ------- |
-| Q4 No (成果物未前進) | 0 (バグ修正+A11y改善で前進) |
-| Q6a No (基盤未獲得) | 0 (A11y基盤改善) |
-| Q6b No (ユーザー可視変化なし) | 0 (コマンドパレットフォーカス修正、アコーディオンアニメ修正) |
-| 保守モード連続 | 0 (Advance 実施済み) |
+| Q4 No (成果物未前進) | 0 (JSON保存+フォーカスモード改善で前進) |
+| Q6a No (基盤未獲得) | 0 (JSON保存/読込基盤) |
+| Q6b No (ユーザー可視変化なし) | 0 (フォーカスモードUI変更、JSON保存/読込ボタン) |
+| 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 27 実施内容
+
+### JSON プロジェクト保存/読込 (Advance)
+- storage.js: exportProjectJSON(docId) — ドキュメント+全章を zenwriter-v1 JSON 形式で保存
+- storage.js: importProjectJSON(jsonString) — JSON から章構造を完全復元
+- storage.js: importProjectJSONFromFile() — ファイル選択ダイアログ経由のインポート
+- gadgets-documents-hierarchy.js: 「JSON保存」「JSON読込」ボタンをツールバーに追加
+
+### フォーカスモード改善 (Advance)
+- css/style.css: フォーカスモードでツールバーを非表示化 (transform+opacity、エッジホバーで復帰)
+- css/style.css: 章パネルをデフォルト非表示→左エッジホバーでスライドイン
+- css/style.css: editor padding-top 調整、show-toolbar-fab 非表示
+- edge-hover.js: フォーカスモード時のツールバー/章パネルのエッジホバー対応
+- edge-hover.js: フォーカスモード時のサイドバー開閉スキップ
+
+### 検証
+- JSON round-trip テスト: 2章のタイトル・本文が完全一致で復元
+- Focus mode: opacity=0, translateY(-100%), pointer-events=none 確認
+- E2E: 43 passed / 0 failed / 1 skipped (ui-mode-consistency + chapter-store + content-guard + editor-settings)
 
 ---
 

@@ -119,6 +119,8 @@ test.describe('UI Mode Consistency', () => {
   });
 
   test('Reader mode: exit returns to previous mode', async ({ page }) => {
+    // 遷移前のモードを記録
+    const prevMode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
@@ -128,6 +130,6 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(200);
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
-    expect(mode).toBe('normal');
+    expect(mode).toBe(prevMode);
   });
 });

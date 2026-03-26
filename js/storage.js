@@ -77,7 +77,7 @@ const DEFAULT_SETTINGS = {
         sidebarWidth: 320,
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
-        uiMode: 'normal', // 'normal' | 'focus' | 'blank'
+        uiMode: 'focus', // 'normal' | 'focus' | 'blank'
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
         tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },
@@ -1079,6 +1079,153 @@ function exportText(text, filename, type = 'text/plain') {
     }
 }
 
+// ===== プロジェクト JSON 保存/読込 =====
+
+/**
+ * ドキュメント(+ 全章)を構造保持 JSON としてエクスポート
+ * @param {string} docId - 対象ドキュメントID
+ * @returns {boolean} 成功/失敗
+ */
+function exportProjectJSON(docId) {
+    try {
+        const docs = loadDocuments();
+        const doc = docs.find(d => d.id === docId && d.type === 'document');
+        if (!doc) {
+            console.error('ドキュメントが見つかりません:', docId);
+            return false;
+        }
+
+        const chapters = docs
+            .filter(d => d.type === 'chapter' && d.parentId === docId)
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        const pages = chapters.map(ch => ({
+            title: ch.name || '',
+            content: ch.content || '',
+            order: ch.order || 0,
+            level: ch.level || 2,
+            visibility: ch.visibility || 'visible',
+            metadata: ch.metadata || {}
+        }));
+
+        const project = {
+            format: 'zenwriter-v1',
+            version: (window.ZEN_WRITER_VERSION || '0.3.29'),
+            document: {
+                name: doc.name || '',
+                chapterMode: doc.chapterMode !== false,
+                createdAt: doc.createdAt || null,
+                updatedAt: doc.updatedAt || null
+            },
+            pages: pages,
+            exportedAt: new Date().toISOString()
+        };
+
+        const json = JSON.stringify(project, null, 2);
+        const filename = (doc.name || 'untitled') + '.zwp.json';
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        return true;
+    } catch (e) {
+        console.error('プロジェクト JSON エクスポート中にエラー:', e);
+        return false;
+    }
+}
+
+/**
+ * JSON ファイルからプロジェクトをインポート
+ * @param {string} jsonString - JSON 文字列
+ * @returns {string|null} 作成されたドキュメントID、失敗時 null
+ */
+function importProjectJSON(jsonString) {
+    try {
+        const project = JSON.parse(jsonString);
+
+        if (!project.format || !project.format.startsWith('zenwriter-')) {
+            console.error('未対応のフォーマット:', project.format);
+            return null;
+        }
+
+        const docName = (project.document && project.document.name) || '読み込みドキュメント';
+        const doc = createDocument(docName);
+        if (!doc) return null;
+
+        // chapterMode を設定
+        const docs = loadDocuments();
+        const docRecord = docs.find(d => d.id === doc.id);
+        if (docRecord) {
+            docRecord.chapterMode = project.document ? project.document.chapterMode !== false : true;
+            if (project.document && project.document.createdAt) {
+                docRecord.createdAt = project.document.createdAt;
+            }
+        }
+
+        // createDocument が作った空の初期章を削除
+        const emptyChapters = docs.filter(d => d.type === 'chapter' && d.parentId === doc.id);
+        for (const ch of emptyChapters) {
+            const idx = docs.indexOf(ch);
+            if (idx >= 0) docs.splice(idx, 1);
+        }
+
+        // ページ(章)を復元
+        const pages = project.pages || [];
+        const now = Date.now();
+        for (let i = 0; i < pages.length; i++) {
+            const p = pages[i];
+            docs.push({
+                id: 'ch_' + now + '_' + Math.random().toString(36).slice(2, 8),
+                type: 'chapter',
+                parentId: doc.id,
+                name: p.title || ('ページ ' + (i + 1)),
+                content: p.content || '',
+                order: typeof p.order === 'number' ? p.order : i,
+                level: p.level || 2,
+                visibility: p.visibility || 'visible',
+                metadata: p.metadata || {},
+                createdAt: now,
+                updatedAt: now
+            });
+        }
+
+        saveDocuments(docs);
+        return doc.id;
+    } catch (e) {
+        console.error('プロジェクト JSON インポート中にエラー:', e);
+        return null;
+    }
+}
+
+/**
+ * ファイル選択ダイアログを開いて JSON プロジェクトをインポート
+ * @returns {Promise<string|null>} 作成されたドキュメントID
+ */
+function importProjectJSONFromFile() {
+    return new Promise((resolve) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,.zwp.json';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (!file) { resolve(null); return; }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const docId = importProjectJSON(ev.target.result);
+                resolve(docId);
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsText(file);
+        };
+        input.click();
+    });
+}
+
 // ===== Wiki ページ管理 =====
 
 /**
@@ -1422,6 +1569,9 @@ if (typeof module !== 'undefined' && module.exports) {
         saveOutline,
         loadOutline,
         exportText,
+        exportProjectJSON,
+        importProjectJSON,
+        importProjectJSONFromFile,
         // assets
         loadAssets,
         saveAssetFromDataUrl,
@@ -1487,6 +1637,9 @@ if (typeof module !== 'undefined' && module.exports) {
         saveOutline,
         loadOutline,
         exportText,
+        exportProjectJSON,
+        importProjectJSON,
+        importProjectJSONFromFile,
         // assets
         loadAssets,
         saveAssetFromDataUrl,

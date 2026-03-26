@@ -416,7 +416,7 @@ html:not([data-toolbar-hidden='true']) #wysiwyg-editor {
 
 /* ===== UIモード: Focus / Blank ===== */
 
-/* Focus モード: サイドバーを非表示にし、ChapterListパネルを表示 */
+/* Focus モード: エディタのみ表示。ツールバー/サイドバー非表示。章パネルはエッジホバーで表示 */
 html[data-ui-mode='focus'] .sidebar {
   display: none !important;
 }
@@ -425,8 +425,21 @@ html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
 }
 
+html[data-ui-mode='focus'] .toolbar {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
 html[data-ui-mode='focus'] .main-content {
-  margin-left: var(--focus-panel-width, 15rem) !important;
+  margin-left: 0 !important;
 }
 
 html[data-ui-mode='focus'] .editor-container {
@@ -434,14 +447,33 @@ html[data-ui-mode='focus'] .editor-container {
   width: 100% !important;
 }
 
+html[data-ui-mode='focus'] #editor {
+  padding-top: 2rem !important;
+}
+
 html[data-ui-mode='focus'] #toggle-sidebar-btn,
 html[data-ui-mode='focus'] #toolbar-close-sidebar {
   display: none !important;
 }
 
-/* Focus モード: ChapterListパネルを表示 */
+html[data-ui-mode='focus'] .show-toolbar-fab {
+  display: none !important;
+}
+
+/* Focus モード: 章パネルはエッジホバーで表示(デフォルト非表示) */
 html[data-ui-mode='focus'] .focus-chapter-panel {
   display: flex !important;
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+
+html[data-ui-mode='focus'] .focus-chapter-panel:hover,
+html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel {
+  transform: translateX(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 /* --- Focus ChapterList パネル (SP-070) --- */

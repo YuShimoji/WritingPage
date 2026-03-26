@@ -24,12 +24,17 @@
   // --- ヘルパー ---
 
   function isToolbarNormallyVisible() {
+    var mode = html.getAttribute('data-ui-mode');
     return html.getAttribute('data-toolbar-hidden') !== 'true' &&
-           html.getAttribute('data-ui-mode') !== 'blank';
+           mode !== 'blank' && mode !== 'focus';
   }
 
   function isSidebarNormallyOpen() {
     return html.getAttribute('data-sidebar-open') === 'true';
+  }
+
+  function isFocusMode() {
+    return html.getAttribute('data-ui-mode') === 'focus';
   }
 
   // --- 表示/非表示 ---
@@ -46,8 +51,8 @@
     state[edge].active = false;
     html.removeAttribute('data-edge-hover-' + edge);
 
-    // サイドバーをエッジホバーで開いた場合、閉じる
-    if (edge === 'left' && !isSidebarNormallyOpen()) {
+    // サイドバーをエッジホバーで開いた場合、閉じる (focusモードではサイドバー不使用)
+    if (edge === 'left' && !isFocusMode() && !isSidebarNormallyOpen()) {
       var sidebar = document.getElementById('sidebar');
       if (sidebar && sidebar.classList.contains('open') &&
           window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
@@ -66,8 +71,8 @@
 
       showEdge(edge);
 
-      // 左端: サイドバーを一時的に開く
-      if (edge === 'left' && window.sidebarManager &&
+      // 左端: focusモードでは章パネルのみ(CSS制御)、通常はサイドバーを一時的に開く
+      if (edge === 'left' && !isFocusMode() && window.sidebarManager &&
           typeof window.sidebarManager.forceSidebarState === 'function') {
         window.sidebarManager.forceSidebarState(true);
       }
@@ -129,6 +134,15 @@
         if (state.left.active) startDismiss('left');
       });
     }
+
+    // 章パネル (focusモード用)
+    var chapterPanel = document.querySelector('.focus-chapter-panel');
+    if (chapterPanel) {
+      chapterPanel.addEventListener('mouseenter', function () { cancelDismiss('left'); });
+      chapterPanel.addEventListener('mouseleave', function () {
+        if (state.left.active) startDismiss('left');
+      });
+    }
   }
 
   // エッジゾーンから離れた場合のdismiss開始
@@ -149,11 +163,14 @@
     }
 
     if (state.left.active && x > EDGE_ZONE) {
-      var sidebar = document.getElementById('sidebar');
-      if (sidebar) {
-        var rect2 = sidebar.getBoundingClientRect();
+      // focusモードでは章パネル、通常はサイドバーの矩形を参照
+      var leftTarget = isFocusMode()
+        ? document.querySelector('.focus-chapter-panel')
+        : document.getElementById('sidebar');
+      if (leftTarget) {
+        var rect2 = leftTarget.getBoundingClientRect();
         if (x >= rect2.left && x <= rect2.right && y >= rect2.top && y <= rect2.bottom) {
-          return; // サイドバー上 → dismiss しない
+          return; // パネル/サイドバー上 → dismiss しない
         }
       }
       startDismiss('left');
