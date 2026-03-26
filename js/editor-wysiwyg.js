@@ -616,6 +616,8 @@
       var popup = document.createElement('div');
       popup.id = 'ruby-popup';
       popup.className = 'ruby-popup';
+      popup.setAttribute('role', 'dialog');
+      popup.setAttribute('aria-label', 'ルビ入力');
       popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
       popup.style.left = rect.left + 'px';
 
@@ -668,6 +670,8 @@
       var popup = document.createElement('div');
       popup.id = 'ruby-popup';
       popup.className = 'ruby-popup';
+      popup.setAttribute('role', 'dialog');
+      popup.setAttribute('aria-label', 'ルビ編集');
       popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
       popup.style.left = rect.left + 'px';
 

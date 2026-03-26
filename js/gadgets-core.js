@@ -150,7 +150,7 @@
     }
 
     registerSettings(name, factory) {
-      try { this._settings[String(name || '')] = factory; } catch (_) { }
+      try { this._settings[String(name || '')] = factory; } catch (e) { console.error('[ZWGadgets] registerSettings failed for "' + name + '":', e); }
     }
 
     defineLoadout(name, config) {
