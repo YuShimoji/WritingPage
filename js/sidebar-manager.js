@@ -284,6 +284,9 @@ class SidebarManager {
             content.style.maxHeight = content.scrollHeight + 'px';
             requestAnimationFrame(function () {
                 content.setAttribute('aria-hidden', 'true');
+                requestAnimationFrame(function () {
+                    content.style.maxHeight = '0';
+                });
             });
         }
     }
@@ -399,7 +402,6 @@ class SidebarManager {
                 const onEditorChanged = () => this._scheduleWritingFocusRender();
                 editor.addEventListener('input', onEditorChanged);
                 editor.addEventListener('click', onEditorChanged);
-                editor.addEventListener('keyup', onEditorChanged);
             }
             window.addEventListener('ZWDocumentsChanged', () => this._scheduleWritingFocusRender());
             window.addEventListener('ZWBottomNavNavigate', (ev) => {

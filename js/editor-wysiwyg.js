@@ -790,9 +790,13 @@
 
       var modal = document.createElement('div');
       modal.className = 'dsl-attr-modal';
+      modal.setAttribute('role', 'dialog');
+      modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', 'dsl-attr-modal-title');
 
       var title = document.createElement('div');
       title.className = 'dsl-attr-modal__title';
+      title.id = 'dsl-attr-modal-title';
       var typeNames = { typing: 'タイピング演出', dialog: 'ダイアログ', scroll: 'スクロール演出', pathtext: 'パステキスト' };
       title.textContent = (typeNames[type] || type) + ' の設定';
       modal.appendChild(title);
@@ -2156,7 +2160,7 @@
       if (this.turndownService) {
         try {
           return this.normalizeCustomTagEscapes(this.turndownService.turndown(html));
-        } catch (_) { }
+        } catch (e) { console.warn('HTML to Markdown conversion failed:', e); }
       }
       return String(html)
         .replace(/<br\s*\/?>/gi, '\n')

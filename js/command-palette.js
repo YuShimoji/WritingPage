@@ -23,8 +23,8 @@
     {
       id: 'replace',
       label: '置換',
-      description: '検索・置換パネルを開く',
-      shortcut: 'Ctrl+F / Cmd+F',
+      description: '検索パネルを開いて置換する',
+      shortcut: 'Ctrl+H / Cmd+H',
       category: '検索・置換',
       execute: () => {
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
@@ -583,10 +583,13 @@
       if (this.input) {
         this.input.value = '';
       }
-      // エディタにフォーカスを戻す
-      const editor = document.getElementById('editor');
-      if (editor) {
-        editor.focus();
+      // エディタにフォーカスを戻す (WYSIWYGモード対応)
+      const wysiwyg = document.getElementById('wysiwyg-editor');
+      const textarea = document.getElementById('editor');
+      if (wysiwyg && wysiwyg.style.display !== 'none') {
+        wysiwyg.focus();
+      } else if (textarea) {
+        textarea.focus();
       }
     }
 
