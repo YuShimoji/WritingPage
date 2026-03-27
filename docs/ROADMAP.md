@@ -19,7 +19,7 @@
 - コア機能: 95% 成熟
 - ガジェット: 28個登録 (session 19で33→28に整理。削除4: Clock/Samples/NodeGraph/GraphicNovel。無効化2: UIDesign/SceneGradient。session 22でデッドコード物理削除)
 - 仕様書: spec-index.json に 54 エントリ (done 39, partial 3, removed 11, superseded 1)
-- 残 partial: SP-005(75%), SP-073(90%)
+- 残 partial: SP-005(75%)
 - 直近 done: SP-076(100%, session 25で実装済み確認)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
@@ -107,10 +107,10 @@ chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI +
 テクスチャオーバーレイ / タイピング演出 / ダイアログボックス / スクロール連動 / SE / ジャンルプリセット。
 SP-062 (テキスト表現アーキテクチャ) 基盤上に構築。Phase 1-6 全完了。
 
-### B-2. パステキスト (SP-073) -- partial (90%)
+### B-2. パステキスト (SP-073) -- done (100%)
 
 ベジェ曲線・円弧・フリーハンド曲線に沿ったテキスト配置。SVG textPath使用。
-Phase 1完了 (DSL + SVGレンダリング)。Phase 2完了 (WYSIWYG制御点ハンドルUI)。Phase 3完了 (プリセットパス7種+右クリックメニュー+side切替+パス線トグル)。残: Phase 4 フリーハンド描画。
+Phase 1-4全完了。DSL+SVGレンダリング、WYSIWYG制御点ハンドルUI、プリセットパス7種+右クリックメニュー、フリーハンド描画(RDP簡略化+ベジェ近似)。E2E 27件。
 
 ### B-3. Typography進化トラック
 

@@ -303,4 +303,176 @@ test.describe('PathText Handle Overlay', () => {
     const handlesAfter = await page.locator('.zw-pathtext-handle').count();
     expect(handlesAfter).toBe(4); // M endpoint + C control1 + C control2 + C endpoint
   });
+
+  // ---- SP-073 Phase 4: フリーハンド描画 ----
+
+  test('simplifyRDP reduces point count', async ({ page }) => {
+    const result = await page.evaluate(() => {
+      var PH = window.PathHandleOverlay;
+      if (!PH || !PH.simplifyRDP) return null;
+      var pts = [];
+      for (var i = 0; i <= 100; i++) {
+        pts.push({ x: i * 2, y: 50 + Math.sin(i * 0.1) * 30 });
+      }
+      var simplified = PH.simplifyRDP(pts, 3);
+      return { original: pts.length, simplified: simplified.length };
+    });
+    expect(result).toBeTruthy();
+    expect(result.simplified).toBeLessThan(result.original);
+    expect(result.simplified).toBeGreaterThanOrEqual(2);
+  });
+
+  test('fitBezierCurve generates valid SVG path', async ({ page }) => {
+    const pathD = await page.evaluate(() => {
+      var PH = window.PathHandleOverlay;
+      if (!PH || !PH.fitBezierCurve) return null;
+      var pts = [
+        { x: 0, y: 50 }, { x: 50, y: 10 },
+        { x: 100, y: 80 }, { x: 150, y: 30 }, { x: 200, y: 50 }
+      ];
+      return PH.fitBezierCurve(pts);
+    });
+    expect(pathD).toBeTruthy();
+    expect(pathD).toContain('M');
+    expect(pathD).toContain('C');
+  });
+
+  test('context menu shows freehand drawing button', async ({ page }) => {
+    await page.locator('.zw-pathtext').click({ button: 'right' });
+    await expect(page.locator('.cl-context-menu')).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('.cl-context-menu__item', { hasText: 'フリーハンド描画' })).toBeVisible();
+  });
+
+  test('freehand drawing button enters drawing mode', async ({ page }) => {
+    // まずハンドルをアタッチ
+    await page.locator('.zw-pathtext').click();
+    await expect(page.locator('.zw-pathtext-handle').first()).toBeVisible({ timeout: 3000 });
+
+    // コンテキストメニューからフリーハンド描画開始
+    await page.locator('.zw-pathtext').click({ button: 'right' });
+    await expect(page.locator('.cl-context-menu')).toBeVisible({ timeout: 3000 });
+    await page.locator('.cl-context-menu__item', { hasText: 'フリーハンド描画' }).click();
+
+    // 描画モードに入り、ハンドルが非表示
+    const isDrawing = await page.evaluate(() => {
+      var editor = window.richTextEditor;
+      return editor && editor._pathOverlay ? editor._pathOverlay.isDrawing() : false;
+    });
+    expect(isDrawing).toBe(true);
+
+    // ハンドルが非表示
+    const overlayDisplay = await page.evaluate(() => {
+      var g = document.querySelector('.zw-pathtext-handles');
+      return g ? g.style.display : null;
+    });
+    expect(overlayDisplay).toBe('none');
+  });
+
+  test('ESC exits drawing mode without changing path', async ({ page }) => {
+    await page.locator('.zw-pathtext').click();
+    await expect(page.locator('.zw-pathtext-handle').first()).toBeVisible({ timeout: 3000 });
+
+    const pathBefore = await page.evaluate(() => {
+      return document.querySelector('.zw-pathtext').getAttribute('data-path');
+    });
+
+    // 描画モード開始
+    await page.locator('.zw-pathtext').click({ button: 'right' });
+    await expect(page.locator('.cl-context-menu')).toBeVisible({ timeout: 3000 });
+    await page.locator('.cl-context-menu__item', { hasText: 'フリーハンド描画' }).click();
+
+    // 描画モードに入ったことを確認
+    await page.waitForFunction(() => {
+      var editor = window.richTextEditor;
+      return editor && editor._pathOverlay && editor._pathOverlay.isDrawing();
+    }, { timeout: 3000 });
+
+    // ESCでキャンセル
+    await page.keyboard.press('Escape');
+
+    const pathAfter = await page.evaluate(() => {
+      return document.querySelector('.zw-pathtext').getAttribute('data-path');
+    });
+    expect(pathAfter).toBe(pathBefore);
+
+    const isDrawing = await page.evaluate(() => {
+      var editor = window.richTextEditor;
+      return editor && editor._pathOverlay ? editor._pathOverlay.isDrawing() : false;
+    });
+    expect(isDrawing).toBe(false);
+  });
+
+  test('freehand drag updates path with bezier curve', async ({ page }) => {
+    await page.locator('.zw-pathtext').click();
+    await expect(page.locator('.zw-pathtext-handle').first()).toBeVisible({ timeout: 3000 });
+
+    // 描画モード開始
+    await page.locator('.zw-pathtext').click({ button: 'right' });
+    await expect(page.locator('.cl-context-menu')).toBeVisible({ timeout: 3000 });
+    await page.locator('.cl-context-menu__item', { hasText: 'フリーハンド描画' }).click();
+
+    // SVG上でドラッグ描画
+    const svgBox = await page.locator('.zw-pathtext__svg').boundingBox();
+    if (svgBox) {
+      await page.mouse.move(svgBox.x + 20, svgBox.y + svgBox.height / 2);
+      await page.mouse.down();
+      // 曲線を描く
+      for (let i = 1; i <= 5; i++) {
+        await page.mouse.move(
+          svgBox.x + 20 + i * (svgBox.width - 40) / 5,
+          svgBox.y + svgBox.height / 2 + Math.sin(i) * 20,
+          { steps: 3 }
+        );
+      }
+      await page.mouse.up();
+    }
+
+    // パスが更新されている
+    const pathAfter = await page.evaluate(() => {
+      return document.querySelector('.zw-pathtext').getAttribute('data-path');
+    });
+    expect(pathAfter).toContain('C'); // ベジェ曲線に変換
+
+    // 描画モードを抜けている
+    const isDrawing = await page.evaluate(() => {
+      var editor = window.richTextEditor;
+      return editor && editor._pathOverlay ? editor._pathOverlay.isDrawing() : false;
+    });
+    expect(isDrawing).toBe(false);
+
+    // ハンドルが再表示されている
+    const handleCount = await page.locator('.zw-pathtext-handle').count();
+    expect(handleCount).toBeGreaterThan(0);
+  });
+
+  test('drawing polyline is visible during drag', async ({ page }) => {
+    await page.locator('.zw-pathtext').click();
+    await expect(page.locator('.zw-pathtext-handle').first()).toBeVisible({ timeout: 3000 });
+
+    await page.locator('.zw-pathtext').click({ button: 'right' });
+    await expect(page.locator('.cl-context-menu')).toBeVisible({ timeout: 3000 });
+    await page.locator('.cl-context-menu__item', { hasText: 'フリーハンド描画' }).click();
+
+    // ドラッグ開始
+    const svgBox = await page.locator('.zw-pathtext__svg').boundingBox();
+    if (svgBox) {
+      await page.mouse.move(svgBox.x + 20, svgBox.y + svgBox.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(svgBox.x + 100, svgBox.y + 30, { steps: 5 });
+
+      // ドラッグ中にポリラインが存在
+      const polylineExists = await page.evaluate(() => {
+        return !!document.querySelector('.zw-pathtext-drawing');
+      });
+      expect(polylineExists).toBe(true);
+
+      const points = await page.evaluate(() => {
+        var pl = document.querySelector('.zw-pathtext-drawing');
+        return pl ? pl.getAttribute('points') : '';
+      });
+      expect(points.length).toBeGreaterThan(0);
+
+      await page.mouse.up();
+    }
+  });
 });

@@ -42,7 +42,7 @@
     "pct": 75,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073/90%。C: SP-076 done(Phase 1-4全完了), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
+    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073 done(Phase 1-4全完了)。C: SP-076 done(Phase 1-4全完了), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
   },
   {
     "id": "SP-006",
@@ -432,11 +432,11 @@
   {
     "id": "SP-073",
     "title": "パステキスト仕様",
-    "status": "partial",
-    "pct": 90,
+    "status": "done",
+    "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-path-text.md",
-    "summary": "Phase 1完了: DSL+SVGレンダリング。Phase 2完了: WYSIWYG制御点ハンドルUI。Phase 3完了: プリセットパス7種+右クリックメニュー+side切替+パス線トグル。E2E 20件。残: Phase 4フリーハンド描画。",
+    "summary": "Phase 1-4全完了。DSL+SVGレンダリング、WYSIWYG制御点ハンドルUI、プリセットパス7種+右クリックメニュー、フリーハンド描画(RDP簡略化+ベジェ近似)。E2E 27件。",
     "related": ["SP-016", "SP-062"]
   },
   {

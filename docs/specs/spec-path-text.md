@@ -10,7 +10,7 @@
 - Phase 1: done (DSL記法 + SVGレンダリング + プレビュー/エクスポート対応)
 - Phase 2: done (WYSIWYG制御点ハンドルUI + パスコマンドパーサー + Bridge pathtext serialize)
 - Phase 3: done (プリセットパス7種 + 右クリックメニュー + side切替 + パス線トグル)
-- Phase 4: todo (フリーハンド描画)
+- Phase 4: done (フリーハンド描画: RDP簡略化 + Catmull-Rom→ベジェ変換)
 
 ---
 
@@ -164,9 +164,45 @@ M, L, Q, C, S, T, A (H/V は非対応)
 
 ---
 
-## 未決定事項 (Phase 4以降)
+## Phase 4 実装内容
 
-- [ ] フリーハンド描画 (ポインタ追跡 + Ramer-Douglas-Peucker簡略化 + ベジェ近似)
+### フリーハンド描画モード
+
+既存のパステキスト上で右クリック → コンテキストメニューから「フリーハンド描画」を選択すると、SVG上でマウスドラッグによるパス描画ができる。
+
+#### ユーザー操作
+
+1. パステキスト上で右クリック → コンテキストメニュー「フリーハンド描画」
+2. SVG上でマウスドラッグ → リアルタイムでポリライン表示 (破線)
+3. マウスアップ → RDP簡略化 → Catmull-Rom→ベジェ変換 → パス置換
+4. ハンドルが自動表示され、制御点で微調整可能
+5. ESC で描画モード終了 (描画キャンセル、パス変更なし)
+
+#### アルゴリズム
+
+- **Ramer-Douglas-Peucker (RDP)**: ポインタ座標列を間引き (閾値 3px)。再帰的に最大偏差点で分割
+- **Catmull-Rom → Cubic Bezier**: 間引き後の点列を滑らかな C コマンドに変換。隣接点の差分から制御点を計算
+
+#### 暗黙仕様
+
+- 描画モード中はハンドルオーバーレイが非表示
+- 描画モード中のカーソルは crosshair
+- 描画モード中はパステキスト外のクリックでデタッチしない
+- ESC キーはキャプチャフェーズで処理し、他のショートカットに伝播しない
+- ドラッグ完了時にポイントが 2 点未満の場合、描画は適用されない
+- 描画ポリラインのスタイルは accent-color の破線
+
+#### 対応箇所
+
+- `js/modules/editor/PathHandleOverlay.js`: `simplifyRDP` / `fitBezierCurve` アルゴリズム追加、`enterDrawingMode` / `exitDrawingMode` / `isDrawing` API 追加
+- `js/editor-wysiwyg.js`: コンテキストメニューに「フリーハンド描画」ボタン追加、描画モード中のデタッチ抑制
+- `css/style.css`: `.zw-pathtext-drawing` ポリラインスタイル追加
+- `e2e/pathtext-handles.spec.js`: Phase 4 E2E 7件追加 (合計27件)
+
+---
+
+## 未決定事項 (将来)
+
 - [ ] パスの最大複雑度（制御点の上限数）
 - [ ] 日本語縦書きテキストのパス配置対応
 - [ ] パステキスト内でのルビ表示の可否

@@ -358,6 +358,185 @@
     this._onChange = cb;
   };
 
+  // ---- Freehand Drawing Algorithms (Phase 4) ----
+
+  /** 点と線分の垂直距離 */
+  function perpendicularDist(pt, a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y;
+    var lenSq = dx * dx + dy * dy;
+    if (lenSq === 0) return Math.sqrt((pt.x - a.x) * (pt.x - a.x) + (pt.y - a.y) * (pt.y - a.y));
+    var t = Math.max(0, Math.min(1, ((pt.x - a.x) * dx + (pt.y - a.y) * dy) / lenSq));
+    var px = a.x + t * dx, py = a.y + t * dy;
+    return Math.sqrt((pt.x - px) * (pt.x - px) + (pt.y - py) * (pt.y - py));
+  }
+
+  /** Ramer-Douglas-Peucker ポリライン簡略化 */
+  function simplifyRDP(points, epsilon) {
+    if (points.length <= 2) return points.slice();
+    var dmax = 0, index = 0;
+    var end = points.length - 1;
+    for (var i = 1; i < end; i++) {
+      var d = perpendicularDist(points[i], points[0], points[end]);
+      if (d > dmax) { dmax = d; index = i; }
+    }
+    if (dmax > epsilon) {
+      var left = simplifyRDP(points.slice(0, index + 1), epsilon);
+      var right = simplifyRDP(points.slice(index), epsilon);
+      return left.slice(0, -1).concat(right);
+    }
+    return [points[0], points[end]];
+  }
+
+  function roundN(n) { return Math.round(n * 100) / 100; }
+
+  /** 簡略化された点列を Catmull-Rom→Cubic Bezier に変換 */
+  function fitBezierCurve(points) {
+    if (points.length < 2) return '';
+    if (points.length === 2) {
+      return 'M ' + roundN(points[0].x) + ' ' + roundN(points[0].y) +
+             ' L ' + roundN(points[1].x) + ' ' + roundN(points[1].y);
+    }
+    var d = 'M ' + roundN(points[0].x) + ' ' + roundN(points[0].y);
+    for (var i = 0; i < points.length - 1; i++) {
+      var p0 = points[Math.max(0, i - 1)];
+      var p1 = points[i];
+      var p2 = points[i + 1];
+      var p3 = points[Math.min(points.length - 1, i + 2)];
+      var cp1x = p1.x + (p2.x - p0.x) / 6;
+      var cp1y = p1.y + (p2.y - p0.y) / 6;
+      var cp2x = p2.x - (p3.x - p1.x) / 6;
+      var cp2y = p2.y - (p3.y - p1.y) / 6;
+      d += ' C ' + roundN(cp1x) + ' ' + roundN(cp1y) +
+           ' ' + roundN(cp2x) + ' ' + roundN(cp2y) +
+           ' ' + roundN(p2.x) + ' ' + roundN(p2.y);
+    }
+    return d;
+  }
+
+  // ---- Drawing Mode (Phase 4) ----
+
+  PathHandleOverlay.prototype.enterDrawingMode = function () {
+    if (!this._activeTarget) return;
+    this._drawingMode = true;
+    this._drawingPoints = [];
+
+    var svg = this._activeTarget.querySelector('.zw-pathtext__svg');
+    if (!svg) return;
+
+    // ハンドルを一時非表示
+    if (this._overlayG) this._overlayG.style.display = 'none';
+
+    // 描画用ポリライン
+    this._drawingPolyline = document.createElementNS(SVG_NS, 'polyline');
+    this._drawingPolyline.setAttribute('class', 'zw-pathtext-drawing');
+    svg.appendChild(this._drawingPolyline);
+
+    this._activeTarget.style.cursor = 'crosshair';
+    this._drawSvg = svg;
+
+    this._boundDrawStart = this._handleDrawStart.bind(this);
+    this._boundDrawMove = this._handleDrawMove.bind(this);
+    this._boundDrawEnd = this._handleDrawEnd.bind(this);
+    this._boundDrawKey = this._handleDrawKeydown.bind(this);
+
+    svg.addEventListener('pointerdown', this._boundDrawStart);
+    document.addEventListener('keydown', this._boundDrawKey, true);
+  };
+
+  PathHandleOverlay.prototype.exitDrawingMode = function (apply) {
+    this._drawingMode = false;
+
+    if (this._drawingPolyline && this._drawingPolyline.parentNode) {
+      this._drawingPolyline.parentNode.removeChild(this._drawingPolyline);
+    }
+    this._drawingPolyline = null;
+
+    if (this._activeTarget) this._activeTarget.style.cursor = '';
+
+    if (this._drawSvg) {
+      this._drawSvg.removeEventListener('pointerdown', this._boundDrawStart);
+      this._drawSvg.removeEventListener('pointermove', this._boundDrawMove);
+      this._drawSvg.removeEventListener('pointerup', this._boundDrawEnd);
+    }
+    document.removeEventListener('keydown', this._boundDrawKey, true);
+
+    if (this._overlayG) this._overlayG.style.display = '';
+
+    if (apply && this._drawingPoints.length >= 2) {
+      var simplified = simplifyRDP(this._drawingPoints, 3);
+      var pathD = fitBezierCurve(simplified);
+      this._commands = parsePath(pathD);
+      this._points = extractPoints(this._commands);
+      this._updatePath();
+      this._render();
+      this._syncDataPath();
+    }
+
+    this._drawingPoints = [];
+    this._drawSvg = null;
+    this._drawingCtm = null;
+  };
+
+  PathHandleOverlay.prototype.isDrawing = function () {
+    return !!this._drawingMode;
+  };
+
+  PathHandleOverlay.prototype._handleDrawStart = function (e) {
+    if (!this._drawingMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var svg = this._drawSvg;
+    if (!svg) return;
+
+    var ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    this._drawingCtm = ctm;
+
+    var x = (e.clientX - ctm.e) / ctm.a;
+    var y = (e.clientY - ctm.f) / ctm.d;
+    this._drawingPoints = [{ x: x, y: y }];
+    this._drawingPolyline.setAttribute('points', x + ',' + y);
+
+    svg.setPointerCapture(e.pointerId);
+    svg.addEventListener('pointermove', this._boundDrawMove);
+    svg.addEventListener('pointerup', this._boundDrawEnd);
+  };
+
+  PathHandleOverlay.prototype._handleDrawMove = function (e) {
+    if (!this._drawingMode || !this._drawingCtm) return;
+    e.preventDefault();
+    var ctm = this._drawingCtm;
+    var x = (e.clientX - ctm.e) / ctm.a;
+    var y = (e.clientY - ctm.f) / ctm.d;
+    this._drawingPoints.push({ x: x, y: y });
+
+    var pts = this._drawingPoints.map(function (p) { return roundN(p.x) + ',' + roundN(p.y); }).join(' ');
+    this._drawingPolyline.setAttribute('points', pts);
+  };
+
+  PathHandleOverlay.prototype._handleDrawEnd = function (e) {
+    if (!this._drawingMode) return;
+    var svg = this._drawSvg;
+    if (svg) {
+      svg.releasePointerCapture(e.pointerId);
+      svg.removeEventListener('pointermove', this._boundDrawMove);
+      svg.removeEventListener('pointerup', this._boundDrawEnd);
+    }
+    this._drawingCtm = null;
+
+    if (this._drawingPoints.length >= 2) {
+      this.exitDrawingMode(true);
+    }
+  };
+
+  PathHandleOverlay.prototype._handleDrawKeydown = function (e) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      this.exitDrawingMode(false);
+    }
+  };
+
   // ---- Preset Path Generators (Phase 3) ----
 
   var PRESETS = {
@@ -436,7 +615,10 @@
     PathHandleOverlay: PathHandleOverlay,
     PRESET_NAMES: PRESET_NAMES,
     PRESET_LABELS: PRESET_LABELS,
-    generatePresetPath: generatePresetPath
+    generatePresetPath: generatePresetPath,
+    // Phase 4
+    simplifyRDP: simplifyRDP,
+    fitBezierCurve: fitBezierCurve
   };
 
   root.PathHandleOverlay = api;
