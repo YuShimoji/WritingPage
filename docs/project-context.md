@@ -6,13 +6,13 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.29)
-- 直近の状態: session 27 — ミニマル執筆体験 + JSONプロジェクト保存 + Electron統合
+- 直近の状態: session 28 — SP-073 Phase 4 フリーハンド描画 + WYSIWYG バグ5件修正
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 542+ passed / 1 failed(既知Legacy) / 3 skipped (63 spec files)
-- spec-index: 55エントリ (done 41, partial 2, removed 11, superseded 1)
+- E2E: 60件通過確認 (主要4スイート)。全体は 542+ passed / 0 failed / 3 skipped
+- spec-index: 55エントリ (done 42, partial 1, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
 - EPUB: スコープ外 (2026-03-23 除外決定)
@@ -77,21 +77,20 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Advance (ミニマル執筆体験)
-- 現在のスライス: Minimal Writing + JSON Save (session 27 完了)
-- 今回 (session 27) の変更:
-  - JSONプロジェクト保存/読込 (zenwriter-v1形式): storage.js + gadgets-documents-hierarchy.js
-  - フォーカスモードデフォルト化: storage.js DEFAULT_SETTINGS + index.html head + app.js 自動フォーカス
-  - フォーカスモードUI改善: ツールバー非表示(エッジホバー復帰) + 章パネル左エッジスライドイン
-  - Electron統合: メニューにJSONプロジェクト保存/読込 + electron-bridge.jsハンドラ
-  - spec-index.json: SP-080追加 (done/100%)
-  - E2Eテスト修正: デフォルトfocusモード追従 (13テスト修正)
+- 現在の主レーン: Advance + Bugfix
+- 現在のスライス: SP-073 Phase 4 + WYSIWYG バグ修正 (session 28 完了)
+- 今回 (session 28) の変更:
+  - SP-073 Phase 4 フリーハンド描画: RDP簡略化 + ベジェ近似、E2E 27件
+  - WYSIWYG バグ5件修正: formatBlock/insertList/ツールバー折り返し/textarea復帰/ルビカーソル
+  - dock-preset.spec.js: focus モード対応
+  - Visual Audit 50枚: docs/verification/2026-03-27/
+  - バグパターン記録: docs/verification/session28-bug-patterns.md
 - 次回最初に確認すべきファイル:
-  - index.html をブラウザで開いてフォーカスモードの見え方確認
-  - 章パネルの左エッジホバー動作確認
-  - JSON保存→読込のフロー確認
+  - ブラウザで手動確認 (ESC→normal→見出し/ルビ/ソース復帰の動作)
+  - docs/verification/session28-bug-patterns.md (BP-5 未修正: 構造アコーディオンループ)
 - 未確定の設計論点:
   - WP-001 方向性 (HUMAN_AUTHORITY)
+  - BP-5 構造アコーディオンループの根本原因 (sidebar-manager.js)
   - Google Keep連携の是非 (以前スコープ外に除外、ユーザーが再要望)
   - 保存状態スナップショットの仕様
 - 今は触らない範囲: 追加クリーンアップ

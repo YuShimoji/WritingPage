@@ -1,0 +1,59 @@
+[
+  {
+    "id": 1,
+    "view": "初期ロード",
+    "editorVisible": false
+  },
+  {
+    "id": 2,
+    "view": "サイドバー",
+    "sidebarVisible": false,
+    "catStatus": {
+      "sections": "found",
+      "structure": "found",
+      "edit": "found",
+      "theme": "found",
+      "assist": "found",
+      "advanced": "found"
+    }
+  },
+  {
+    "id": 3,
+    "view": "ツールバー full",
+    "tbVisible": true,
+    "tbCount": 10
+  },
+  {
+    "id": 4,
+    "view": "フォーカスモード",
+    "focusMode": "none"
+  },
+  {
+    "id": 5,
+    "view": "SP-073",
+    "note": "editor box not found"
+  },
+  {
+    "id": 6,
+    "view": "assist MarkdownReference",
+    "assistCount": 1,
+    "mdRef": 0,
+    "mdRefAny": 0
+  },
+  {
+    "id": 7,
+    "view": "LoadoutManager",
+    "loadoutEl": 0,
+    "loadoutManagerGadget": 9
+  },
+  {
+    "id": 8,
+    "view": "Documents Hierarchy JSON",
+    "docH": 0,
+    "jsonBtn": 2
+  },
+  {
+    "id": 9,
+    "view": "全体 UI"
+  }
+]

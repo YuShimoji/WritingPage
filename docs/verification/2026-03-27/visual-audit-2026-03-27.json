@@ -1,0 +1,232 @@
+{
+  "ts": "2026-03-27T08:45:51.846Z",
+  "key": {
+    "cmdPaletteKey": "Ctrl+P",
+    "wrongKey": "Ctrl+Shift+P=browser print",
+    "initUiMode": "focus",
+    "initTbDisp": "none",
+    "twVis": true,
+    "stwVis": false
+  },
+  "steps": {
+    "s1": {
+      "uiMode": "focus",
+      "tbMode": null,
+      "tbDisp": "none",
+      "sbOpen": false
+    },
+    "s2": {
+      "focus": "focus",
+      "esc": "normal"
+    },
+    "s3": {
+      "tad": "flex",
+      "b1": {
+        "f": true,
+        "disp": "flex",
+        "w": 34,
+        "h": 34,
+        "top": 13,
+        "left": 904,
+        "vis": true
+      },
+      "b2": {
+        "f": true,
+        "disp": "flex",
+        "w": 0,
+        "h": 0,
+        "top": 0,
+        "left": 0,
+        "vis": false
+      }
+    },
+    "s4": {
+      "f": true,
+      "st": "block",
+      "cd": "block"
+    },
+    "s5": {
+      "ck": "toggle-wysiwyg",
+      "s": {
+        "wa": false,
+        "wd": "none",
+        "td": "block",
+        "bp": "false"
+      }
+    },
+    "s6": {
+      "tb": {
+        "d": "none",
+        "v": "visible"
+      },
+      "cnt": 37,
+      "bts": [
+        {
+          "t": "太字",
+          "v": true
+        },
+        {
+          "t": "斜体",
+          "v": true
+        },
+        {
+          "t": "下線",
+          "v": true
+        },
+        {
+          "t": "取り消し線",
+          "v": true
+        },
+        {
+          "t": "リンク",
+          "v": true
+        },
+        {
+          "t": "ルビ",
+          "v": true
+        },
+        {
+          "t": "見出し",
+          "v": true
+        },
+        {
+          "t": "見出し 1",
+          "v": true
+        },
+        {
+          "t": "見出し 2",
+          "v": true
+        },
+        {
+          "t": "見出し 3",
+          "v": true
+        },
+        {
+          "t": "段落",
+          "v": true
+        },
+        {
+          "t": "リスト",
+          "v": true
+        },
+        {
+          "t": "箇条書き",
+          "v": true
+        },
+        {
+          "t": "番号付きリスト",
+          "v": true
+        },
+        {
+          "t": "引用",
+          "v": true
+        },
+        {
+          "t": "フォント装飾",
+          "v": true
+        },
+        {
+          "t": "スモールキャップス",
+          "v": true
+        },
+        {
+          "t": "シャドウ",
+          "v": true
+        },
+        {
+          "t": "グロー",
+          "v": true
+        },
+        {
+          "t": "アウトライン",
+          "v": true
+        },
+        {
+          "t": "ワイド",
+          "v": true
+        },
+        {
+          "t": "ナロー",
+          "v": true
+        },
+        {
+          "t": "ライト",
+          "v": true
+        },
+        {
+          "t": "ボールド",
+          "v": true
+        },
+        {
+          "t": "大文字",
+          "v": true
+        },
+        {
+          "t": "小文字",
+          "v": true
+        },
+        {
+          "t": "先頭大文字",
+          "v": true
+        },
+        {
+          "t": "テキストアニメーション",
+          "v": true
+        },
+        {
+          "t": "フェード",
+          "v": true
+        },
+        {
+          "t": "スライド",
+          "v": true
+        },
+        {
+          "t": "タイプライター",
+          "v": true
+        },
+        {
+          "t": "パルス",
+          "v": true
+        },
+        {
+          "t": "シェイク",
+          "v": true
+        },
+        {
+          "t": "バウンス",
+          "v": true
+        },
+        {
+          "t": "フェードイン",
+          "v": true
+        },
+        {
+          "t": "テキストボックス",
+          "v": true
+        },
+        {
+          "t": "テキストエディタに切り替え",
+          "v": true
+        }
+      ]
+    },
+    "s7": {
+      "f": true,
+      "d": "block",
+      "it": [
+        "直線",
+        "上カーブ",
+        "S字カーブ",
+        "円弧",
+        "波線",
+        "下カーブ",
+        "階段",
+        "左 (デフォルト)",
+        "右",
+        "パス線を表示",
+        "フリーハンド描画"
+      ]
+    }
+  }
+}

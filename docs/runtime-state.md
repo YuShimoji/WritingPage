@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-27 session 27
+> 最終更新: 2026-03-27 session 28
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.29
 - ブランチ: main
-- セッション: 27
-- 主レーン: Advance (ミニマル執筆体験 + JSON プロジェクト保存)
-- スライス: Minimal Writing + JSON Save
+- セッション: 28
+- 主レーン: Advance + Bugfix (SP-073 Phase 4 + WYSIWYG バグ修正)
+- スライス: SP-073 Phase 4 フリーハンド描画 + WYSIWYG ツールバーバグ修正
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 27 | 26 |
+| セッション番号 | 28 | 27 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 54 |
 | spec done | 42 | 41 |
@@ -54,9 +54,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 1 (session 26 で実施、今回は未実施) |
-| last_visual_audit_path | e2e/visual-audit-screenshots/ (20枚, 2026-03-26) |
-| visual_evidence_status | stale |
+| blocks_since_visual_audit | 0 (session 28 で実施) |
+| last_visual_audit_path | docs/verification/2026-03-27/ (50枚, 2026-03-27) |
+| visual_evidence_status | fresh |
 
 ---
 
@@ -68,6 +68,37 @@
 | Q6a No (基盤未獲得) | 0 (JSON保存/読込基盤) |
 | Q6b No (ユーザー可視変化なし) | 0 (フォーカスモードUI変更、JSON保存/読込ボタン) |
 | 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 28 実施内容
+
+### SP-073 Phase 4 フリーハンド描画 (Advance)
+- PathHandleOverlay.js: RDP簡略化 + Catmull-Rom→ベジェ近似アルゴリズム追加
+- PathHandleOverlay.js: enterDrawingMode / exitDrawingMode / isDrawing API 追加
+- editor-wysiwyg.js: コンテキストメニューに「フリーハンド描画」ボタン追加
+- css/style.css: .zw-pathtext-drawing ポリラインスタイル追加
+- spec-path-text.md: Phase 4 仕様記述追加、ステータス done/100% に更新
+- spec-index.json: SP-073 done/100%
+- E2E: pathtext-handles 20→27件 (Phase 4 新規7件)
+
+### WYSIWYG バグ修正 (Bugfix)
+- editor-wysiwyg.js: 見出し(H1-H3)/段落/引用を formatBlock コマンドに修正
+- editor-wysiwyg.js: リスト(UL/OL)を insertUnorderedList/insertOrderedList に修正
+- css/style.css: ツールバー overflow-x:auto → overflow:hidden + flex-wrap:wrap
+- index.html + editor-wysiwyg.js: textarea モード「リッチテキストに戻る」バナー追加
+- editor-wysiwyg.js: ルビ挿入後カーソルを ruby 外側に配置、ポップアップ閉じ後にエディタ focus 復帰
+
+### dock-preset.spec.js 修正
+- beforeEach に data-ui-mode=normal 設定追加 (focus モードデフォルト化対応)
+
+### Visual Audit
+- 50枚のスクリーンショット取得 (docs/verification/2026-03-27/)
+- UIバグ5件発見 → 4件修正済み
+- 未修正: 構造アコーディオン展開ループ (textarea モード時)
+
+### 発見した共通バグパターン (docs/verification/session28-bug-patterns.md に記録)
+- execCommand 直接呼び問題、CSS overflow-x:auto の不適切使用、モード切替の復帰導線欠如、contenteditable カーソル配置
 
 ---
 
