@@ -42,9 +42,9 @@
 
 ## CURRENT SLICE
 
-- スライス名: Minimal Writing + JSON Save (session 27 完了)
-- 成功状態: JSON保存/読込実装済み + フォーカスモードデフォルト化 + Electron統合
-- 前提: SP-080 done。次セッションで WP-001 再訪 or 執筆体験の深化
+- スライス名: SP-073 Phase 4 フリーハンド描画 (session 28 完了)
+- 成功状態: SP-073 done/100%。RDP簡略化+ベジェ近似。E2E 27件全通過。残 partial は SP-005 のみ
+- 前提: SP-073/SP-076 全完了。次は WP-001 再訪 or 新しい体験スライス
 
 ---
 

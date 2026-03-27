@@ -1154,6 +1154,25 @@
       });
       menu.appendChild(strokeBtn);
 
+      // -- フリーハンド描画 (Phase 4) --
+      var sep3 = document.createElement('div');
+      sep3.className = 'cl-context-menu__sep';
+      menu.appendChild(sep3);
+
+      var drawBtn = document.createElement('button');
+      drawBtn.className = 'cl-context-menu__item';
+      drawBtn.textContent = 'フリーハンド描画';
+      drawBtn.setAttribute('role', 'menuitem');
+      drawBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        self._closePathtextContextMenu();
+        if (self._pathOverlay) {
+          self._captureUndoSnapshot();
+          self._pathOverlay.enterDrawingMode();
+        }
+      });
+      menu.appendChild(drawBtn);
+
       // 位置調整
       document.body.appendChild(menu);
       var rect = menu.getBoundingClientRect();
@@ -1483,6 +1502,8 @@
 
       // SP-073 Phase 2: パステキスト制御点ハンドル
       this.wysiwygEditor.addEventListener('pointerdown', (e) => {
+        // Phase 4: 描画モード中はデタッチしない
+        if (this._pathOverlay && this._pathOverlay.isDrawing()) return;
         var pathtextEl = e.target.closest('.zw-pathtext');
         // ハンドル自体のpointerdownはPathHandleOverlay内で処理される
         if (e.target.closest('.zw-pathtext-handle')) return;

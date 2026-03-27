@@ -4556,6 +4556,15 @@ html[data-embed='true'] #editor {
   }
 }
 
+/* フリーハンド描画 (SP-073 Phase 4) */
+.zw-pathtext-drawing {
+  fill: none;
+  stroke: var(--accent-color, #5b8dd9);
+  stroke-width: 2;
+  stroke-dasharray: 6 3;
+  pointer-events: none;
+}
+
 /* ===== WYSIWYG DSL ブロック静的プレビュー (Q3) ===== */
 
 /* スクロールブロック: 編集コンテキストでは常時表示 (初期 opacity:0 を上書き) */

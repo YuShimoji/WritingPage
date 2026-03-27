@@ -20,8 +20,8 @@
 | セッション番号 | 27 | 26 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 54 |
-| spec done | 41 | 40 |
-| spec partial | 2 (SP-005/SP-073) | 2 |
+| spec done | 42 | 41 |
+| spec partial | 1 (SP-005) | 2 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
@@ -42,7 +42,7 @@
 | ---- | --- |
 | 体験成果物 | 88% |
 | 基盤 | 92% |
-| 残 partial | SP-005(75%), SP-073(90%) |
+| 残 partial | SP-005(75%) |
 | IDEA POOL open | 1 (WP-001 hold → トリガー成立) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |
