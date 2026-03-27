@@ -163,6 +163,16 @@
         });
       }
 
+      // textarea モードからの復帰ボタン
+      this.textareaModeBar = document.getElementById('textarea-mode-bar');
+      var backBtn = document.getElementById('textarea-back-to-wysiwyg');
+      if (backBtn) {
+        backBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.switchToWysiwyg();
+        });
+      }
+
       // WYSIWYGツールバーボタンのイベント
       this.setupToolbarButtons();
 
@@ -333,7 +343,13 @@
         btn.addEventListener('mousedown', function (e) {
           e.preventDefault();
           var block = btn.getAttribute('data-block');
-          if (block) self.executeCommand(block);
+          if (block === 'ul') {
+            self.executeCommand('insertUnorderedList');
+          } else if (block === 'ol') {
+            self.executeCommand('insertOrderedList');
+          } else if (block) {
+            self.executeCommand('formatBlock', '<' + block + '>');
+          }
           var dd = btn.closest('.wysiwyg-dropdown');
           if (dd) dd.setAttribute('data-open', 'false');
         });
@@ -738,12 +754,13 @@
       range.deleteContents();
       range.insertNode(ruby);
 
+      // カーソルを ruby 要素の後ろに配置 (内部に入らないようにする)
       var sel = window.getSelection();
       if (sel) {
         sel.removeAllRanges();
         var newRange = document.createRange();
-        newRange.selectNodeContents(ruby);
-        newRange.collapse(false);
+        newRange.setStartAfter(ruby);
+        newRange.collapse(true);
         sel.addRange(newRange);
       }
       this._notifyChange();
@@ -752,6 +769,10 @@
     _removeRubyPopup() {
       var existing = document.getElementById('ruby-popup');
       if (existing) existing.remove();
+      // エディタにフォーカスを戻す
+      if (this.wysiwygEditor && this.isWysiwygMode) {
+        this.wysiwygEditor.focus();
+      }
     }
 
     // ---- DSL 属性設定モーダル ----
@@ -1970,6 +1991,9 @@
         this.toggleWysiwygBtn.title = 'ソース表示に切り替え';
       }
 
+      // textarea モードバナーを非表示
+      if (this.textareaModeBar) this.textareaModeBar.style.display = 'none';
+
       // 設定を保存
       try { localStorage.setItem('zenwriter-wysiwyg-mode', 'true'); } catch (_) { /* noop */ }
 
@@ -2035,6 +2059,9 @@
         this.toggleWysiwygBtn.setAttribute('aria-pressed', 'false');
         this.toggleWysiwygBtn.title = 'リッチテキスト編集';
       }
+
+      // textarea モードバナーを表示
+      if (this.textareaModeBar) this.textareaModeBar.style.display = '';
 
       // 設定を保存
       try { localStorage.setItem('zenwriter-wysiwyg-mode', 'false'); } catch (_) { /* noop */ }
