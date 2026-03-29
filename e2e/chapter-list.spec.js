@@ -35,7 +35,8 @@ async function setupChapters(page, chapters) {
 // ---------------------------------------------------------------------------
 async function enterFocusMode(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-ui-mode', 'focus');
+    if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('focus');
+    else document.documentElement.setAttribute('data-ui-mode', 'focus');
     // テスト用: エッジホバーを発火させて章パネルを表示
     document.documentElement.setAttribute('data-edge-hover-left', 'true');
   });
@@ -50,7 +51,10 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(600);
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await page.evaluate(() => {
+      if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('normal');
+      else document.documentElement.setAttribute('data-ui-mode', 'normal');
+    });
     await page.waitForTimeout(100);
   });
 

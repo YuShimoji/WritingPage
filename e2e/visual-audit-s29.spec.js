@@ -16,7 +16,8 @@ async function waitForApp(page) {
 
 async function showNormal(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-ui-mode', 'normal');
+    if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('normal');
+    else document.documentElement.setAttribute('data-ui-mode', 'normal');
     document.documentElement.setAttribute('data-toolbar-hidden', 'false');
     document.documentElement.setAttribute('data-toolbar-mode', 'full');
   });

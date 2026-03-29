@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, setUIMode } = require('./helpers');
 
 /** UIモード (Normal/Focus/Blank) の表示整合性テスト */
 test.describe('UI Mode Consistency', () => {
@@ -18,14 +18,14 @@ test.describe('UI Mode Consistency', () => {
 
   // ===== Focus モード =====
   test('Focus mode: sidebar is hidden by CSS', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'focus'));
+    await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
     const sidebar = page.locator('.sidebar');
     await expect(sidebar).toBeHidden();
   });
 
   test('Focus mode: focus chapter panel appears if present', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'focus'));
+    await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
     const panel = page.locator('.focus-chapter-panel');
     if (await panel.count() > 0) {
@@ -33,44 +33,23 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  // ===== Blank モード =====
-  test('Blank mode: sidebar is hidden by CSS', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'blank'));
-    await page.waitForTimeout(100);
-    const sidebar = page.locator('.sidebar');
-    await expect(sidebar).toBeHidden();
-  });
-
-  test('Blank mode: status bar is hidden if present', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'blank'));
-    const statusBar = page.locator('#editor-bottom-nav');
-    if (await statusBar.count() > 0) {
-      await expect(statusBar).toBeHidden({ timeout: 3000 });
-    }
-  });
+  // ===== Blank モード廃止 (SP-081 Phase 3) =====
 
   // ===== モード遷移 =====
   test('Focus->Normal round-trip: toolbar reappears', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'focus'));
+    await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForTimeout(100);
     const toolbar = page.locator('.toolbar');
     await expect(toolbar).toBeVisible();
   });
 
-  test('Blank->Normal round-trip: toolbar reappears', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'blank'));
-    await page.waitForTimeout(100);
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
-    await page.waitForTimeout(100);
-    const toolbar = page.locator('.toolbar');
-    await expect(toolbar).toBeVisible();
-  });
+  // Blank->Normal テスト削除 (SP-081 Phase 3: Blank 廃止)
 
   // ===== MainHubPanel のモード連携 =====
   test('MainHubPanel can open in Focus mode', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'focus'));
+    await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
     await page.evaluate(() => {
       if (window.MainHubPanel) window.MainHubPanel.show('search');
@@ -82,18 +61,7 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('MainHubPanel can open in Blank mode', async ({ page }) => {
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'blank'));
-    await page.waitForTimeout(100);
-    await page.evaluate(() => {
-      if (window.MainHubPanel) window.MainHubPanel.show('search');
-    });
-    await page.waitForTimeout(200);
-    const panel = page.locator('#main-hub-panel');
-    if (await panel.count() > 0) {
-      await expect(panel).toBeVisible();
-    }
-  });
+  // MainHubPanel Blank テスト削除 (SP-081 Phase 3: Blank 廃止)
 
   // ===== Reader モード (SP-078) =====
   test('Reader mode: sidebar and toolbar are hidden', async ({ page }) => {

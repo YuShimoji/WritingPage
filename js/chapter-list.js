@@ -133,7 +133,8 @@
       getActiveIndex: function () { return activeChapterIdx; },
       navigateTo: navigateToChapter,
       isChapterMode: inChapterMode,
-      flushActive: flushActiveChapter
+      flushActive: flushActiveChapter,
+      addChapter: handleAddChapter
     };
   }
 

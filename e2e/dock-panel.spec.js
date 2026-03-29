@@ -53,7 +53,8 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
 
     // Switch to focus mode
     await page.evaluate(() => {
-      document.documentElement.setAttribute('data-ui-mode', 'focus');
+      if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('focus');
+      else document.documentElement.setAttribute('data-ui-mode', 'focus');
     });
 
     const isHidden = await page.evaluate(() => {
@@ -205,9 +206,10 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
     // Open left panel first
     await page.evaluate(() => window.dockManager.setLeftPanelVisible(true));
 
-    for (const mode of ['blank', 'reader']) {
+    for (const mode of ['focus', 'reader']) {
       await page.evaluate((m) => {
-        document.documentElement.setAttribute('data-ui-mode', m);
+        if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode(m);
+        else document.documentElement.setAttribute('data-ui-mode', m);
       }, mode);
 
       const isHidden = await page.evaluate(() => {
@@ -219,7 +221,8 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
 
     // Restore normal mode — panel should reappear
     await page.evaluate(() => {
-      document.documentElement.setAttribute('data-ui-mode', 'normal');
+      if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('normal');
+      else document.documentElement.setAttribute('data-ui-mode', 'normal');
       window.dockManager._onUIModeChanged('normal');
     });
 
@@ -717,9 +720,10 @@ test.describe('SP-076 Phase 3: Floating & Snap', () => {
       window.dockManager.floatTab('mode-f');
     });
 
-    for (const mode of ['focus', 'blank']) {
+    for (const mode of ['focus']) {
       await page.evaluate((m) => {
-        document.documentElement.setAttribute('data-ui-mode', m);
+        if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode(m);
+        else document.documentElement.setAttribute('data-ui-mode', m);
         window.dockManager._onUIModeChanged(m);
       }, mode);
 
@@ -733,7 +737,8 @@ test.describe('SP-076 Phase 3: Floating & Snap', () => {
 
     // Restore normal
     await page.evaluate(() => {
-      document.documentElement.setAttribute('data-ui-mode', 'normal');
+      if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('normal');
+      else document.documentElement.setAttribute('data-ui-mode', 'normal');
       window.dockManager._onUIModeChanged('normal');
     });
 

@@ -287,9 +287,7 @@
             <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
               <i data-lucide="crosshair" aria-hidden="true"></i>
             </button>
-            <button class="mode-switch-btn" data-mode="blank" aria-pressed="false" title="ブランクモード">
-              <i data-lucide="square" aria-hidden="true"></i>
-            </button>
+            <!-- R-2: Blank モード廃止 (SP-081 Phase 3) -->
           </div>
           <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
             <i data-lucide="maximize" aria-hidden="true"></i>
@@ -315,7 +313,7 @@
         <select id="ui-mode-select" aria-hidden="true" style="display:none;">
           <option value="normal">通常モード</option>
           <option value="focus">フォーカスモード</option>
-          <option value="blank">ブランクモード</option>
+          <!-- R-2: blank 廃止 -->
         </select>
         <!-- ツールバーアクション (装飾はWYSIWYGフローティングツールバーに移行済み) -->
         <div class="toolbar-actions">
@@ -447,50 +445,9 @@
             <i data-lucide="quote" aria-hidden="true"></i>
           </button>
           <div class="wysiwyg-separator"></div>
-          <!-- 装飾ドロップダウン -->
-          <div class="wysiwyg-dropdown" data-dropdown="decor">
-            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="フォント装飾" aria-label="フォント装飾" aria-expanded="false">
-              <i data-lucide="highlighter" aria-hidden="true"></i>
-            </button>
-            <div class="wysiwyg-dropdown-menu" role="menu">
-              <button role="menuitem" data-decor="smallcaps">スモールキャップス</button>
-              <button role="menuitem" data-decor="shadow">シャドウ</button>
-              <button role="menuitem" data-decor="glow">グロー</button>
-              <button role="menuitem" data-decor="outline">アウトライン</button>
-              <button role="menuitem" data-decor="wide">ワイド</button>
-              <button role="menuitem" data-decor="narrow">ナロー</button>
-              <button role="menuitem" data-decor="light">ライト</button>
-              <button role="menuitem" data-decor="black">ボールド</button>
-              <button role="menuitem" data-decor="uppercase">大文字</button>
-              <button role="menuitem" data-decor="lowercase">小文字</button>
-              <button role="menuitem" data-decor="capitalize">先頭大文字</button>
-            </div>
-          </div>
-          <!-- アニメーションドロップダウン -->
-          <div class="wysiwyg-dropdown" data-dropdown="anim">
-            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="テキストアニメーション" aria-label="テキストアニメーション" aria-expanded="false">
-              <i data-lucide="sparkles" aria-hidden="true"></i>
-            </button>
-            <div class="wysiwyg-dropdown-menu" role="menu">
-              <button role="menuitem" data-anim="fade">フェード</button>
-              <button role="menuitem" data-anim="slide">スライド</button>
-              <button role="menuitem" data-anim="type">タイプライター</button>
-              <button role="menuitem" data-anim="pulse">パルス</button>
-              <button role="menuitem" data-anim="shake">シェイク</button>
-              <button role="menuitem" data-anim="bounce">バウンス</button>
-              <button role="menuitem" data-anim="fadein">フェードイン</button>
-            </div>
-          </div>
-          <!-- テキストボックスプリセットドロップダウン -->
-          <div class="wysiwyg-dropdown" data-dropdown="textbox" id="wysiwyg-tb-dropdown">
-            <button class="wysiwyg-btn wysiwyg-dropdown-toggle" type="button" title="テキストボックス" aria-label="テキストボックス" aria-expanded="false">
-              TB
-            </button>
-            <div class="wysiwyg-dropdown-menu" role="menu" id="wysiwyg-tb-menu">
-              <!-- JS で動的に生成 -->
-            </div>
-          </div>
-          <div class="wysiwyg-separator"></div>
+          <button id="wysiwyg-vertical-toggle" class="wysiwyg-btn" type="button" title="縦書き/横書き切替" aria-label="縦書き/横書きを切り替え" aria-pressed="false">
+            <span style="font-size:0.65em;font-weight:600">縦</span>
+          </button>
           <button id="wysiwyg-switch-to-textarea" class="wysiwyg-btn" type="button" title="テキストエディタに切り替え"
             aria-label="テキストエディタに切り替え">
             <i data-lucide="code" aria-hidden="true"></i>

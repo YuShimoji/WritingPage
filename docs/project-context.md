@@ -1,17 +1,25 @@
 # Project Context
 
+## RECENT NOTE (2026-03-30, session 32)
+
+- 章増殖バグ根絶: sidebar-manager.js の直接テキスト挿入経路を封殺 → ZWChapterList.addChapter() 委譲
+- Blank モード完全除去: command-palette.js / dock-panel.css / コメント
+- setUIMode 全経路統一: E2E 12ファイル 30+箇所を setUIMode 経由に統一、helpers.js に setUIMode ヘルパー追加
+- visual-profile.js を setUIMode 経由に修正
+- E2E: 108 passed / 1 failed (既知B-1) / 1 skipped（変更箇所直結テスト）
+
 ## PROJECT CONTEXT
 
 - プロジェクト名: Zen Writer (WritingPage)
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
-- 現フェーズ: β (v0.3.30)
-- 直近の状態: session 30 — SP-081 エディタ体験再構築 Phase 1-2
+- 現フェーズ: β (v0.3.32)
+- 直近の状態: session 32 — SP-081 Phase 3: 章増殖バグ根絶 + Blank完全除去 + setUIMode全経路統一
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 478 passed / 0 failed / 3 skipped (session 30 で 80 failed → 0 failed に改善)
+- E2E: 483 passed / 0 failed / 3 skipped (session 31-32)
 - spec-index: 56エントリ (done 42, partial 2, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
@@ -21,6 +29,8 @@
 - session 28: SP-073 Phase 4 フリーハンド描画 + WYSIWYG バグ5件修正
 - session 29: 傍点GUI + .zwp.jsonドロップインポート + BP-5アコーディオン再入防止
 - session 30: SP-081 エディタ体験再構築 — レガシー章管理削除(-254行)、モード切替安定化、ツールバー整理、エッジホバーヒント
+- session 31: SP-081 Phase 3 — Blank廃止、エッジグロー、Reader導線整備、縦書き入力、E2E 483pass
+- session 32: SP-081 Phase 3 — 章増殖バグ根絶、Blank完全除去、setUIMode全経路統一
 
 ---
 
@@ -79,33 +89,30 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Advance (SP-081 エディタ体験再構築)
-- 現在のスライス: SP-081 Phase 1-2 完了 (session 30)
-- 今回 (session 30) の変更:
-  - SP-081 Phase 1: chapter-list.js からPhase 1 heading-based章管理を全削除(-254行)、chapterMode一本化
-  - chapter-store.js: migrateToChapterMode/revertChapterMode削除、ensureChapterMode追加
-  - app.js: setUIModeにエッジホバーリセット+サイドバー自動閉/復元+フローティングツールバー非表示
-  - editor-wysiwyg.js: フローティングツールバーの状態をdata-visible属性のみで管理
-  - edge-hover.js: Focusモードでエッジホバーヒントテキスト表示(2回表示で自動消去)
-  - SP-081 Phase 2: Canvas Mode+装飾グループをメインツールバーからhidden
-  - session 29追加: BP-5アコーディオン再入防止、ガジェットcleanup API、reader縦書きトグル
-  - Visual Audit 8枚: docs/verification/2026-03-29/
-  - E2E: 478 passed / 0 failed / 3 skipped (修正前80 failed)
+- 現在の主レーン: Advance (SP-081 エディタ体験再構築 Phase 3)
+- 現在のスライス: SP-081 Phase 3 進行中 (session 32)
+- 今回 (session 31-32) の変更:
+  - session 31: Blank廃止→3モード体制、エッジグロー（ヒント→グラデーション）、Reader導線整備（復帰バー+ボタン常時表示）、縦書き入力、E2E 483 pass
+  - session 32: 章増殖バグ根絶（sidebar-manager経路B封殺→ZWChapterList.addChapter委譲）、Blank完全除去（command-palette/dock-panel.css）、setUIMode全経路統一（E2E 12ファイル 30+箇所）、visual-profile.js setUIMode経由化
+  - sidebar-layout.spec.js: setUIMode副作用によるサイドバー復元対応
+  - E2E: 108 passed / 1 failed (既知B-1) / 1 skipped（変更箇所直結テスト）
 - 次回最初に確認すべきファイル:
-  - ブラウザで Focus モードの初期表示+エッジホバー+章パネル+モード切替を手動確認
-  - docs/spec-editor-rebuild.md (SP-081 仕様書)
+  - ブラウザで章追加→モード切替→章が増殖しないか手動確認
+  - js/sidebar-manager.js: _insertQuickSection (委譲に書換済み)
+  - js/chapter-list.js: addChapter 公開API
 - 未確定の設計論点:
-  - Blankモードの存在意義 (Focusとの視覚差が小さい。削除 or 差異化)
   - 装飾グループ/Canvas Mode のHTML要素自体を削除してよいか (現在hidden)
   - WYSIWYGフローティングツールバーのボタン数 (~15個。最小限に絞る方向?)
   - WP-001 方向性 (HUMAN_AUTHORITY)
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
-  - エッジホバーヒントはFocusモードのみ、localStorage記録で2回表示後自動消去
+  - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
+  - setUIMode が全モード切替の単一入口。直接 setAttribute は禁止（フォールバック用 else のみ許可）
+  - エッジグローはFocusモードのみ（テキストヒントは廃止→グラデーションに変更）
   - フローティングツールバーはreaderモードでも非表示
 - 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
-  - [Advance] SP-081 Phase 3: WYSIWYGフローティングツールバーのボタン整理
-  - [Audit] 実機手動確認 — Focus モードの実使用フロー検証
-  - [Advance] 新規章の初期フォーカス改善
-  - [Unlock] 章パネルの常時表示オプション (ピン留め)
+  - [Audit] 実ブラウザで章追加+モード切替の手動確認（visual evidence stale）
+  - [Advance] 残りのGUI連携バグ修正（ユーザー報告の「基盤がガタガタ」の残存確認）
+  - [Advance] Reader導線の最終磨き上げ
+  - [Excise] 既知失敗テスト(B-1)の整理

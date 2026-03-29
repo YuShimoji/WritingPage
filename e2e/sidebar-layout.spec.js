@@ -12,6 +12,11 @@ test.describe('Sidebar Layout', () => {
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     });
+    // setUIMode('normal') がサイドバーを saved settings から復元するため、
+    // テストの前提条件として明示的にサイドバーを閉じる
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
     // sidebar manager の再レンダリング完了を待つ
     await page.waitForTimeout(400);
     // MutationObserver 後に再度カテゴリ表示を強制
@@ -77,6 +82,39 @@ test.describe('Sidebar Layout', () => {
       return window.getComputedStyle(el).left;
     });
     expect(leftClosed).toBe('-320px');
+  });
+
+  test('should open the sidebar on the right when right dock is active', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.dockManager && typeof window.dockManager.moveSidebarTo === 'function') {
+        window.dockManager.moveSidebarTo('right');
+      }
+    });
+    await page.waitForTimeout(200);
+
+    await page.click('#toggle-sidebar');
+    await page.waitForTimeout(400);
+
+    const layout = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.querySelector('.main-content');
+      const rect = sidebar.getBoundingClientRect();
+      const mainStyle = window.getComputedStyle(main);
+      return {
+        viewportWidth: window.innerWidth,
+        dock: document.documentElement.getAttribute('data-dock-sidebar'),
+        sidebarLeft: rect.left,
+        sidebarRight: rect.right,
+        mainMarginLeft: mainStyle.marginLeft,
+        mainMarginRight: mainStyle.marginRight,
+      };
+    });
+
+    expect(layout.dock).toBe('right');
+    expect(layout.sidebarLeft).toBeGreaterThan(layout.viewportWidth / 2);
+    expect(layout.sidebarRight).toBeLessThanOrEqual(layout.viewportWidth + 1);
+    expect(parseInt(layout.mainMarginLeft, 10)).toBe(0);
+    expect(parseInt(layout.mainMarginRight, 10)).toBeGreaterThan(0);
   });
 
   test('should handle multiple accordion switches without issues', async ({ page }) => {

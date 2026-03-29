@@ -10,7 +10,7 @@
   var previewEl = null;
   var innerEl = null;
   var backFab = null;
-  var toggleBtn = null;
+  var toggleButtons = [];
   var previousMode = null;
   var progressBar = null;
   var progressFill = null;
@@ -21,11 +21,46 @@
   var verticalToggle = null;
   var isVertical = false;
 
+  function ensureQuickToggleButton() {
+    var toolbarToggleBtn = document.getElementById('toggle-reader-preview');
+    if (toolbarToggleBtn) {
+      toolbarToggleBtn.setAttribute('data-reader-preview-toggle', 'true');
+    }
+
+    if (document.getElementById('quick-toggle-reader-preview')) return;
+
+    var quickActions = document.querySelector('.toolbar-quick-actions');
+    if (!quickActions) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'quick-toggle-reader-preview';
+    btn.type = 'button';
+    btn.className = 'icon-button iconified';
+    btn.title = '読者プレビュー';
+    btn.setAttribute('aria-label', '読者プレビューモードに切り替え');
+    btn.setAttribute('data-reader-preview-toggle', 'true');
+    btn.innerHTML = '<i data-lucide="eye" aria-hidden="true"></i>';
+
+    var fullscreenBtn = document.getElementById('fullscreen');
+    if (fullscreenBtn && fullscreenBtn.parentNode === quickActions) {
+      quickActions.insertBefore(btn, fullscreenBtn);
+    } else {
+      quickActions.appendChild(btn);
+    }
+
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+  }
+
   function init() {
     previewEl = document.getElementById('reader-preview');
     innerEl = document.getElementById('reader-preview-inner');
     backFab = document.getElementById('reader-back-fab');
-    toggleBtn = document.getElementById('toggle-reader-preview');
+    ensureQuickToggleButton();
+    toggleButtons = Array.prototype.slice.call(
+      document.querySelectorAll('[data-reader-preview-toggle]')
+    );
 
     if (!previewEl || !innerEl) return;
 
@@ -77,8 +112,8 @@
     previewEl.addEventListener('scroll', onScroll, { passive: true });
 
     // ツールバーボタン
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', function () {
+    toggleButtons.forEach(function (btn) {
+      btn.addEventListener('click', function () {
         var mode = document.documentElement.getAttribute('data-ui-mode');
         if (mode === 'reader') {
           exitReaderMode();
@@ -86,7 +121,7 @@
           enterReaderMode();
         }
       });
-    }
+    });
 
     // 戻るFAB
     if (backFab) {
@@ -117,6 +152,9 @@
   function enterReaderMode() {
     previousMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
 
+    // return bar を消す
+    hideReturnToReaderBar();
+
     // ContentGuard: 現在の編集内容を保存してからモード切替
     var G = window.ZWContentGuard;
     if (G && typeof G.ensureSaved === 'function') {
@@ -129,8 +167,12 @@
     // 縦書き設定を適用
     applyVerticalMode(isVertical);
 
-    // モード切替
-    document.documentElement.setAttribute('data-ui-mode', 'reader');
+    // モード切替 (setUIMode 経由で状態管理を統一)
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode('reader');
+    } else {
+      document.documentElement.setAttribute('data-ui-mode', 'reader');
+    }
 
     // スクロール位置を復元
     restoreScrollPosition();
@@ -141,8 +183,15 @@
     saveScrollPosition();
 
     var target = previousMode || 'normal';
-    document.documentElement.setAttribute('data-ui-mode', target);
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode(target);
+    } else {
+      document.documentElement.setAttribute('data-ui-mode', target);
+    }
     previousMode = null;
+
+    // 編集モード復帰後も同じ位置に Reader 復帰導線を残す
+    showReturnToReaderBar(target);
 
     // プログレスバーをリセット
     if (progressFill) progressFill.style.width = '0%';
@@ -170,6 +219,57 @@
 
     // 読者プレビューの内容をクリア（メモリ節約）
     if (innerEl) innerEl.innerHTML = '';
+  }
+
+  // --- 「Reader に戻る」フローティングバー ---
+  var returnBar = null;
+  var returnBarTimer = null;
+
+  function showReturnToReaderBar(targetMode) {
+    // 既存バーがあれば除去
+    if (returnBar && returnBar.parentNode) {
+      returnBar.parentNode.removeChild(returnBar);
+    }
+    clearTimeout(returnBarTimer);
+
+    returnBar = document.createElement('div');
+    returnBar.className = 'reader-return-bar';
+    returnBar.setAttribute('data-return-mode', targetMode || 'normal');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'reader-return-bar__button';
+    btn.textContent = '\u8AAD\u8005\u30D7\u30EC\u30D3\u30E5\u30FC\u3078\u623B\u308B';
+    btn.setAttribute('aria-label', '\u8AAD\u8005\u30D7\u30EC\u30D3\u30E5\u30FC\u306B\u623B\u308B');
+    btn.addEventListener('click', function () {
+      hideReturnToReaderBar();
+      enterReaderMode();
+    });
+    returnBar.appendChild(btn);
+    document.body.appendChild(returnBar);
+
+    // focus 復帰時は導線を残し、normal 復帰時だけ補助的に自動非表示
+    if (targetMode !== 'focus') {
+      returnBarTimer = setTimeout(function () {
+        hideReturnToReaderBar();
+      }, 8000);
+    }
+  }
+
+  function hideReturnToReaderBar() {
+    clearTimeout(returnBarTimer);
+    returnBarTimer = null;
+    if (returnBar && returnBar.parentNode) {
+      returnBar.classList.add('reader-return-bar--hiding');
+      var barToRemove = returnBar;
+      returnBar = null;
+      setTimeout(function () {
+        if (barToRemove && barToRemove.parentNode) {
+          barToRemove.parentNode.removeChild(barToRemove);
+        }
+      }, 300);
+    } else {
+      returnBar = null;
+    }
   }
 
   /**

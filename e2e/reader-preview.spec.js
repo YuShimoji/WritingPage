@@ -272,4 +272,71 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     });
     expect(mode).not.toBe('reader');
   });
+
+  test('focus復帰後も同位置にReader復帰導線が見える', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('focus');
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(250);
+
+    const backFab = page.locator('#reader-back-fab');
+    await expect(backFab).toBeVisible();
+    await backFab.click();
+    await page.waitForTimeout(250);
+
+    const mode = await page.evaluate(() => {
+      return document.documentElement.getAttribute('data-ui-mode');
+    });
+    expect(mode).toBe('focus');
+
+    const returnBtn = page.locator('.reader-return-bar button');
+    await expect(returnBtn).toBeVisible();
+
+    const box = await returnBtn.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.y).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(1280);
+  });
+
+  test('Reader復帰導線から再入場できる', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('focus');
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(250);
+
+    await page.locator('#reader-back-fab').click();
+    await page.waitForTimeout(250);
+
+    const returnBtn = page.locator('.reader-return-bar button');
+    await expect(returnBtn).toBeVisible();
+    await returnBtn.click();
+    await page.waitForTimeout(250);
+
+    const mode = await page.evaluate(() => {
+      return document.documentElement.getAttribute('data-ui-mode');
+    });
+    expect(mode).toBe('reader');
+    await expect(page.locator('#reader-back-fab')).toBeVisible();
+  });
+
+  test('compact toolbarでも読者プレビュー導線が見える', async ({ page }) => {
+    const compactEntry = page.locator('#quick-toggle-reader-preview');
+    await expect(compactEntry).toBeVisible();
+
+    const box = await compactEntry.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(1281);
+
+    await compactEntry.evaluate((el) => el.click());
+    await page.waitForTimeout(250);
+
+    await expect(page.locator('#reader-back-fab')).toBeVisible();
+    const mode = await page.evaluate(() => {
+      return document.documentElement.getAttribute('data-ui-mode');
+    });
+    expect(mode).toBe('reader');
+  });
 });

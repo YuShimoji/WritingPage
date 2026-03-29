@@ -171,16 +171,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ初期化
     initializeSidebarTabs();
 
-    // ツールバーの初期表示を保証（ブランクモードでない限り表示）
+    // ツールバーの初期表示を保証 (SP-081 Phase 3: Blank廃止)
     try {
         const settings = window.ZenWriterStorage.loadSettings();
-        const uiMode = document.documentElement.getAttribute('data-ui-mode') || settings.uiMode || 'normal';
+        // R-2: 保存された blank 設定を focus に移行
+        if (settings.ui && settings.ui.uiMode === 'blank') {
+            settings.ui.uiMode = 'focus';
+            window.ZenWriterStorage.saveSettings(settings);
+        }
+        const uiMode = document.documentElement.getAttribute('data-ui-mode') || (settings.ui && settings.ui.uiMode) || 'focus';
 
-        // ブランクモードでない場合、ツールバーを表示
-        if (uiMode !== 'blank') {
-            const toolbarVisible = settings.toolbarVisible !== false; // デフォルトはtrue
+        // Normal モードではツールバーを表示
+        if (uiMode === 'normal') {
+            const toolbarVisible = settings.toolbarVisible !== false;
             if (toolbarVisible && document.documentElement.getAttribute('data-toolbar-hidden') === 'true') {
-                // LocalStorageでは表示設定だが、DOM属性で非表示になっている場合は修正
                 document.documentElement.removeAttribute('data-toolbar-hidden');
                 logger.info('ツールバーの初期表示を復元しました');
             }
@@ -364,6 +368,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // APIをグローバルに公開（フローティングパネルの位置管理用）
         window.appUIEventsAPI = _appUIEvents;
     }
+
+    // R-1: setUIMode をグローバルに公開 (SP-081 Phase 3)
+    // Electron-bridge / テスト / 外部モジュールは window.ZenWriterApp.setUIMode() を経由すること
+    window.ZenWriterApp = window.ZenWriterApp || {};
+    window.ZenWriterApp.setUIMode = setUIMode;
     // キーボードショートカット（app-shortcuts.js に委譲）
     if (typeof window.initAppShortcuts === 'function') {
         window.initAppShortcuts({
@@ -481,45 +490,17 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) { }
     })();
 
-    // UIモード切り替え
+    // UIモード切り替え (SP-081 Phase 3: Blank廃止、3モード体制)
     function setUIMode(mode, save = true) {
-        const validModes = ['normal', 'focus', 'blank', 'reader'];
-        const targetMode = validModes.includes(mode) ? mode : 'normal';
+        const validModes = ['normal', 'focus', 'reader'];
+        // R-2: blank → focus にフォールバック
+        var targetMode = mode === 'blank' ? 'focus' : mode;
+        targetMode = validModes.includes(targetMode) ? targetMode : 'normal';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
-
-        // ブランクモードに入るときは、ツールバーを一時的に隠して
-        // 再表示用FAB（show-toolbar）を出しておく
-        if (targetMode === 'blank') {
-            try {
-                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
-                    window.sidebarManager.setToolbarVisibility(false);
-                } else {
-                    document.documentElement.setAttribute('data-toolbar-hidden', 'true');
-                }
-            } catch (_) { }
-        }
-
-        // ブランクモードから通常/フォーカスに戻る場合、ツールバー状態を復元
-        if (currentMode === 'blank' && targetMode !== 'blank') {
-            try {
-                const s = window.ZenWriterStorage.loadSettings();
-                const toolbarVisible = s.toolbarVisible !== false; // デフォルトは表示
-                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
-                    window.sidebarManager.setToolbarVisibility(toolbarVisible);
-                }
-            } catch (_) {
-                // エラー時はツールバーを表示状態に戻す
-                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
-                    window.sidebarManager.setToolbarVisibility(true);
-                } else {
-                    document.documentElement.removeAttribute('data-toolbar-hidden');
-                }
-            }
-        }
+        if (currentMode === targetMode) return; // 同一モードなら何もしない
 
         // SP-070 Phase 2: モード変更前に chapterMode のデータを安定化
-        // MutationObserver (chapter-list.js) が発火する前にフラッシュを完了させる
         try {
             var G = window.ZWContentGuard;
             if (G) {
@@ -528,6 +509,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (_) { }
 
+        // R-4: モード遷移前にツールバー状態を確定的にリセット
+        // Normal モードに入る場合: ツールバーを確実に表示
+        if (targetMode === 'normal') {
+            try {
+                document.documentElement.removeAttribute('data-toolbar-hidden');
+                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                    window.sidebarManager.setToolbarVisibility(true);
+                }
+            } catch (_) { }
+        }
+
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
         // M-1: モード切替時にエッジホバー状態をクリア
@@ -535,15 +527,15 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZWEdgeHover.dismissAll();
         }
 
-        // M-1: Focus モードに入る時はサイドバーを閉じる
-        if (targetMode === 'focus') {
+        // Focus / Reader モードに入る時はサイドバーを閉じる
+        if (targetMode === 'focus' || targetMode === 'reader') {
             if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
                 window.sidebarManager.forceSidebarState(false);
             }
         }
 
-        // M-1: Normal モードに戻る時はサイドバー状態を復元
-        if (targetMode === 'normal' && (currentMode === 'focus' || currentMode === 'blank')) {
+        // Normal モードに戻る時はサイドバー/ツールバー状態を復元
+        if (targetMode === 'normal') {
             if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
                 try {
                     var savedSettings = window.ZenWriterStorage.loadSettings();

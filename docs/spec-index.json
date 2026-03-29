@@ -549,10 +549,10 @@
     "id": "SP-081",
     "title": "エディタ体験再構築",
     "status": "partial",
-    "completion": 60,
-    "description": "レガシー章モード削除 + モード切替安定化 + ツールバー整理 + エッジホバーヒント",
-    "specFile": "docs/spec-editor-rebuild.md",
+    "completion": 85,
+    "description": "Phase 3: Blank廃止(3モード体制) + setUIMode公開 + レガシー根絶 + モード切替安定化 + エッジグロー + ツールバー整理(40→10) + Reader導線整備 + 縦書き入力(実験的)",
+    "file": "docs/spec-editor-rebuild.md",
     "createdAt": "2026-03-29",
-    "updatedAt": "2026-03-29"
+    "updatedAt": "2026-03-30"
   }
 ]

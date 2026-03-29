@@ -163,6 +163,21 @@
         });
       }
 
+      // 縦書き/横書きトグル (実験的)
+      this._verticalToggleBtn = document.getElementById('wysiwyg-vertical-toggle');
+      if (this._verticalToggleBtn) {
+        this._verticalToggleBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          this._toggleVerticalWriting();
+        });
+        // 保存された設定を復元
+        try {
+          if (localStorage.getItem('zenwriter-vertical-writing') === 'true') {
+            this._setVerticalWriting(true);
+          }
+        } catch (_) { /* noop */ }
+      }
+
       // textarea モードからの復帰ボタン
       this.textareaModeBar = document.getElementById('textarea-mode-bar');
       var backBtn = document.getElementById('textarea-back-to-wysiwyg');
@@ -2216,6 +2231,28 @@
     /**
      * textareaモードに切り替え (ソース表示)
      */
+    // --- 縦書き/横書きトグル (実験的) ---
+
+    _toggleVerticalWriting() {
+      var isVertical = this.wysiwygEditor.classList.contains('vertical-writing');
+      this._setVerticalWriting(!isVertical);
+    }
+
+    _setVerticalWriting(vertical) {
+      if (!this.wysiwygEditor) return;
+      if (vertical) {
+        this.wysiwygEditor.classList.add('vertical-writing');
+      } else {
+        this.wysiwygEditor.classList.remove('vertical-writing');
+      }
+      if (this._verticalToggleBtn) {
+        this._verticalToggleBtn.setAttribute('aria-pressed', String(vertical));
+      }
+      try {
+        localStorage.setItem('zenwriter-vertical-writing', String(vertical));
+      } catch (_) { /* noop */ }
+    }
+
     switchToTextarea() {
       if (!this.isWysiwygMode) return;
 

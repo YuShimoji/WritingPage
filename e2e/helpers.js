@@ -1,5 +1,20 @@
 // Shared helpers for Playwright E2E tests.
 
+/**
+ * UIモードを setUIMode 経由で切り替える。
+ * 直接 setAttribute するとサイドエフェクト(サイドバー閉じ、ツールバー非表示等)が迂回されるため、
+ * 全E2Eテストはこのヘルパーを使うこと。
+ */
+async function setUIMode(page, mode) {
+  await page.evaluate((m) => {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode(m);
+    } else {
+      document.documentElement.setAttribute('data-ui-mode', m);
+    }
+  }, mode);
+}
+
 async function openCommandPalette(page) {
   await page.evaluate(() => {
     if (window.commandPalette && typeof window.commandPalette.show === 'function') {
@@ -17,7 +32,11 @@ async function showFullToolbar(page) {
     document.documentElement.setAttribute('data-toolbar-mode', 'full');
     document.documentElement.removeAttribute('data-toolbar-hidden');
     // フォーカスモードではツールバーが CSS で非表示のため、normal に切り替える
-    document.documentElement.setAttribute('data-ui-mode', 'normal');
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode('normal');
+    } else {
+      document.documentElement.setAttribute('data-ui-mode', 'normal');
+    }
   });
 }
 
@@ -290,6 +309,7 @@ async function disableWritingFocus(page) {
 }
 
 module.exports = {
+  setUIMode,
   openCommandPalette,
   openSearchPanel,
   openGlobalSearchPanel,

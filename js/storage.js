@@ -77,7 +77,7 @@ const DEFAULT_SETTINGS = {
         sidebarWidth: 320,
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
-        uiMode: 'focus', // 'normal' | 'focus' | 'blank'
+        uiMode: 'focus', // 'normal' | 'focus' | 'reader'
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
         tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },

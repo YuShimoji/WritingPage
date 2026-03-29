@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-29 session 30
+> 最終更新: 2026-03-30 session 32
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
-- バージョン: v0.3.30
+- バージョン: v0.3.31
 - ブランチ: main
-- セッション: 30
-- 主レーン: Advance (SP-081 エディタ体験再構築)
-- スライス: SP-081 Phase 1 完了 — レガシー章モード削除 + モード切替安定化 + エッジホバーヒント
+- セッション: 32
+- 主レーン: Advance (SP-081 エディタ体験再構築 Phase 3)
+- スライス: SP-081 Phase 3 — 章増殖バグ根絶 + Blank完全除去 + setUIMode全経路統一
 
 ---
 
@@ -17,20 +17,20 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 30 | 29 |
+| セッション番号 | 32 | 31 |
 | ガジェット数 | 28 | 28 |
-| spec-index エントリ | 55 | 54 |
-| spec done | 42 | 41 |
-| spec partial | 1 (SP-005) | 2 |
+| spec-index エントリ | 55 | 55 |
+| spec done | 42 | 42 |
+| spec partial | 2 (SP-005, SP-081) | 1 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル | 63 | 65 |
-| E2E passed | 542 | 535 |
+| E2E spec ファイル | 65 | 63 |
+| E2E passed | 483 | 542 |
 | E2E failed | 0 | 0 |
 | E2E skipped | 3 | 3 |
-| 検証spec | 0 | 13 |
+| 検証spec | 3 (sp081-*.spec.js) | 0 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
 
@@ -40,9 +40,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| 体験成果物 | 88% |
-| 基盤 | 92% |
-| 残 partial | SP-005(75%) |
+| 体験成果物 | 90% |
+| 基盤 | 93% |
+| 残 partial | SP-005(75%), SP-081(85%) |
 | IDEA POOL open | 1 (WP-001 hold → トリガー成立) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |
@@ -54,9 +54,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 30 で実施) |
-| last_visual_audit_path | docs/verification/2026-03-29/ (8枚, 2026-03-29) |
-| visual_evidence_status | fresh |
+| blocks_since_visual_audit | 1 (session 31 で実施、session 32 はコード修正のみ) |
+| last_visual_audit_path | docs/verification/2026-03-30/ (20+枚, 2026-03-30) |
+| visual_evidence_status | stale |
 
 ---
 
@@ -64,9 +64,9 @@
 
 | 診断項目 | 連続数 |
 | --------- | ------- |
-| Q4 No (成果物未前進) | 0 (傍点GUI+ドロップインポート+BP-5修正で前進) |
-| Q6a No (基盤未獲得) | 0 (.zwp.jsonドロップインポート基盤) |
-| Q6b No (ユーザー可視変化なし) | 0 (傍点ボタン、ドロップオーバーレイ) |
+| Q4 No (成果物未前進) | 0 (Blank廃止+ツールバー整理+Reader導線+縦書き入力) |
+| Q6a No (基盤未獲得) | 0 (setUIMode公開+エッジグロー基盤) |
+| Q6b No (ユーザー可視変化なし) | 0 (3モード体制+10ボタンツールバー+Reader復帰バー+縦書きトグル) |
 | 保守モード連続 | 0 (Advance 実施) |
 
 ---

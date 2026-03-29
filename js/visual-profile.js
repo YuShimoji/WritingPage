@@ -15,7 +15,7 @@
  * @property {number} editorFontSize - エディタフォントサイズ
  * @property {number} lineHeight - 行間
  * @property {string} editorWidthMode - エディタ幅モード ('narrow' | 'medium' | 'wide')
- * @property {string} uiMode - 表示モード ('normal' | 'focus' | 'blank')
+ * @property {string} uiMode - 表示モード ('normal' | 'focus' | 'reader')
  * @property {string} [typographyPack] - SP-061 タイポグラフィパックID
  */
 
@@ -167,17 +167,15 @@ function applyVisualProfile(profile) {
       window.ZenWriterEditor.applyWidthMode(profile.editorWidthMode);
     }
 
-    // 4) 表示モード（UIモード）を適用
-    // data-ui-mode を直接設定し、モード変更イベントを発火
+    // 4) 表示モード（UIモード）を適用 — setUIMode 経由で副作用を統一
     if (profile.uiMode) {
-      var currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
-      if (currentMode !== profile.uiMode) {
-        document.documentElement.setAttribute('data-ui-mode', profile.uiMode);
-        try {
-          window.dispatchEvent(new CustomEvent('ZenWriterUIModeChanged', {
-            detail: { mode: profile.uiMode, source: 'visual-profile' }
-          }));
-        } catch (_e) { /* ignore */ }
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+        window.ZenWriterApp.setUIMode(profile.uiMode);
+      } else {
+        var currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+        if (currentMode !== profile.uiMode) {
+          document.documentElement.setAttribute('data-ui-mode', profile.uiMode);
+        }
       }
     }
 

@@ -14,7 +14,10 @@ test.describe('SP-076 Phase 4: Dock Layout Presets', () => {
     // Wait for DockManager + ZWGadgets initialization
     await page.waitForFunction(() => window.dockManager && window.ZWGadgets, { timeout: 10000 });
     // Ensure normal mode (focus mode hides dock-left-open attribute)
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await page.evaluate(() => {
+      if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('normal');
+      else document.documentElement.setAttribute('data-ui-mode', 'normal');
+    });
   });
 
   // --- captureLayout / applyLayout API ---

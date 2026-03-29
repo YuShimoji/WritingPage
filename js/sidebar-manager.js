@@ -658,53 +658,14 @@ class SidebarManager {
     }
 
     _insertQuickSection() {
-        const editor = document.getElementById('editor');
-        if (!editor) return;
-
-        // WYSIWYG mode: sync content to textarea before operating
-        const rte = window.richTextEditor || (window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor);
-        const isWysiwyg = rte && rte.isWysiwygMode;
-        if (isWysiwyg && typeof rte.syncToMarkdown === 'function') {
-            rte.syncToMarkdown();
+        // chapterMode では Store.createChapter() 経由の正規経路を使う
+        // エディタへの直接テキスト挿入は uninvited text の原因になるため禁止
+        var cl = window.ZWChapterList;
+        if (cl && typeof cl.addChapter === 'function') {
+            cl.addChapter();
+            this._scheduleWritingFocusRender();
+            return;
         }
-
-        const parsed = this._parseMarkdownHeadings(editor.value || '');
-        const context = this._getWritingFocusContext(editor, parsed);
-        const currentChapter = context.activeChapter;
-        // WYSIWYG mode: cursor position unreliable, insert at end (chapter level)
-        const insideChapter = isWysiwyg
-            ? false
-            : !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
-        const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
-        const marks = '#'.repeat(level);
-        const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';
-        const label = `${marks} ${sectionLabel}`;
-        const start = isWysiwyg
-            ? editor.value.length
-            : (typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length);
-        const needsLeadingBreak = start > 0 && editor.value.charAt(start - 1) !== '\n';
-        const insertion = `${needsLeadingBreak ? '\n' : ''}${label}\n\n`;
-        const before = editor.value.slice(0, start);
-        const after = editor.value.slice(start);
-        editor.value = before + insertion + after;
-        const nextCaret = before.length + insertion.length;
-        editor.selectionStart = nextCaret;
-        editor.selectionEnd = nextCaret;
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
-
-        // WYSIWYG mode: sync textarea back to WYSIWYG editor
-        if (isWysiwyg && typeof rte.setContent === 'function') {
-            rte.setContent(editor.value);
-            // 新セクションへジャンプ (コラプス適用 + スクロール)
-            var sc = window.ZWSectionCollapse;
-            if (sc && typeof sc.jumpToIndex === 'function') {
-                sc.jumpToIndex(-1); // 末尾 = 新しく追加したセクション
-            }
-        } else {
-            editor.focus();
-        }
-
-        this._scheduleWritingFocusRender();
     }
 
     _escapeHtml(value) {

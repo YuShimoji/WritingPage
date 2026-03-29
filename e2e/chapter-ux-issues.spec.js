@@ -33,7 +33,8 @@ async function getEditorContent(page) {
 
 async function enterFocusMode(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-ui-mode', 'focus');
+    if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('focus');
+    else document.documentElement.setAttribute('data-ui-mode', 'focus');
   });
   await page.waitForTimeout(200);
 }
@@ -67,73 +68,8 @@ async function forceLegacyMode(page) {
 }
 
 // ---------------------------------------------------------------------------
-// Issue A: 章モード一方向移行
-// ---------------------------------------------------------------------------
-test.describe('Issue A: 章モード一方向移行', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/?reset=1');
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(600);
-  });
-
-  test('A-1: Legacy モードで見出しがあれば「章モードに変換」ボタンが表示される', async ({ page }) => {
-    await forceLegacyMode(page);
-    await setEditorContent(page, '## 第一章\n\n本文A\n\n## 第二章\n\n本文B');
-    await enterFocusMode(page);
-
-    const migrateBtn = page.locator('.cl-migrate-btn');
-    await expect(migrateBtn).toBeVisible({ timeout: 5000 });
-    await expect(migrateBtn).toHaveText('章モードに変換');
-  });
-
-  test('A-2: 章モードで「章モードを解除」ボタンが存在する', async ({ page }) => {
-    await setEditorContent(page, '## 第一章\n\n本文A\n\n## 第二章\n\n本文B');
-    await enterFocusMode(page);
-
-    // chapterMode (デフォルト) で解除ボタンが表示される
-    const revertBtn = page.locator('.cl-revert-btn');
-    await expect(revertBtn).toBeVisible({ timeout: 5000 });
-    await expect(revertBtn).toHaveText('章モードを解除');
-  });
-
-  test('A-3: migrateToChapterMode API で chapterMode フラグが true になる', async ({ page }) => {
-    // API レベルで Legacy→chapterMode 移行を検証
-    const result = await page.evaluate(() => {
-      var S = window.ZenWriterStorage;
-      var CS = window.ZWChapterStore;
-      if (!S || !CS) return { error: 'Store not available' };
-
-      // Legacy ドキュメントを直接作成 (chapterMode 解除)
-      var doc = S.createDocument('Legacy テスト', '## 章1\n\n本文\n\n## 章2\n\n本文2');
-      var docs = S.loadDocuments();
-      for (var i = 0; i < docs.length; i++) {
-        if (docs[i].id === doc.id) {
-          docs[i].chapterMode = false;
-          // splitIntoChapters で作られた章も削除
-          break;
-        }
-      }
-      // 章レコード削除
-      docs = docs.filter(function(d) {
-        return !(d.type === 'chapter' && d.parentId === doc.id);
-      });
-      S.saveDocuments(docs);
-      S.setCurrentDocId(doc.id);
-
-      var before = CS.isChapterMode(doc.id);
-      var ok = CS.migrateToChapterMode(doc.id);
-      var after = CS.isChapterMode(doc.id);
-      var chapters = CS.getChaptersForDoc(doc.id);
-
-      return { before: before, ok: ok, after: after, count: chapters.length };
-    });
-
-    expect(result.before).toBe(false);
-    expect(result.ok).toBe(true);
-    expect(result.after).toBe(true);
-    expect(result.count).toBeGreaterThanOrEqual(1);
-  });
-});
+// Issue A: 章モード一方向移行 → SP-081 Phase 3 で削除
+// chapterMode は唯一のモード。migrateToChapterMode / revertChapterMode は削除済み
 
 // ---------------------------------------------------------------------------
 // Issue B: 文字数がMarkdownソース全体(DSL込み)でカウントされる
@@ -219,35 +155,16 @@ test.describe('Issue B: 文字数表示の精度問題', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Issue C: Legacy モードの章追加がテキスト本文に見出しを挿入する
+// Issue C: 章追加のテキスト汚染 (SP-081: Legacy モード廃止済み)
 // ---------------------------------------------------------------------------
-test.describe('Issue C: Legacy モード章追加のテキスト汚染', () => {
+test.describe('Issue C: 章追加のテキスト汚染', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(600);
   });
 
-  test('C-1: Legacy モードで「+ 新しい章」を押すとMarkdownに見出しが挿入される', async ({ page }) => {
-    await forceLegacyMode(page);
-    const initialContent = '## 序章\n\nこれは序章の本文です。読者が最初に読む部分。';
-    await setEditorContent(page, initialContent);
-    await enterFocusMode(page);
-
-    // 「+ 新しい章」ボタンをクリック
-    const addBtn = page.locator('#focus-add-chapter');
-    await expect(addBtn).toBeVisible({ timeout: 3000 });
-    await addBtn.click();
-    await page.waitForTimeout(400);
-
-    const contentAfter = await getEditorContent(page);
-    console.log('Content after adding chapter:', JSON.stringify(contentAfter));
-
-    // バグ確認: Markdown テキストに見出し行が挿入されている
-    const hasInsertedHeading = contentAfter.includes('新しい章');
-    expect(hasInsertedHeading).toBe(true);
-    console.log('[CONFIRMED] Adding chapter inserts heading into Markdown text:', hasInsertedHeading);
-  });
+  // C-1: Legacy モードテスト削除 (SP-081 Phase 3: chapterMode 一本化)
 
   test('C-2: chapterMode では章追加がテキストを汚染しない', async ({ page }) => {
     await setEditorContent(page, '## 序章\n\n本文内容。');

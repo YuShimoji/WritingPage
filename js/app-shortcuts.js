@@ -61,7 +61,7 @@
                             if (e.repeat) return;
                             {
                                 const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                                if (currentMode === 'blank') {
+                                if (currentMode === 'focus') {
                                     setUIMode('normal');
                                     return;
                                 }
@@ -94,7 +94,7 @@
                         case 'ui.mode.cycle':
                             {
                                 const mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
-                                const modes = ['normal', 'focus', 'blank'];
+                                const modes = ['normal', 'focus'];
                                 const currentIndex = modes.indexOf(mode);
                                 const nextIndex = (currentIndex + 1) % modes.length;
                                 setUIMode(modes[nextIndex]);
@@ -104,7 +104,7 @@
                         case 'ui.mode.exit':
                             {
                                 const currentMode2 = document.documentElement.getAttribute('data-ui-mode');
-                                if (currentMode2 === 'blank' || currentMode2 === 'focus') {
+                                if (currentMode2 === 'focus') {
                                     setUIMode('normal');
                                 }
                             }
@@ -174,7 +174,7 @@
                 e.preventDefault();
 
                 const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                if (currentMode === 'blank') {
+                if (currentMode === 'focus') {
                     setUIMode('normal');
                     return;
                 }
@@ -230,7 +230,7 @@
             if (e.key === 'F2') {
                 e.preventDefault();
                 const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
-                const modes = ['normal', 'focus', 'blank'];
+                const modes = ['normal', 'focus'];
                 const currentIndex = modes.indexOf(currentMode);
                 const nextIndex = (currentIndex + 1) % modes.length;
                 setUIMode(modes[nextIndex]);
@@ -260,7 +260,7 @@
                 }
 
                 const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                if (currentMode === 'blank' || currentMode === 'focus') {
+                if (currentMode === 'focus') {
                     e.preventDefault();
                     setUIMode('normal');
                     return;

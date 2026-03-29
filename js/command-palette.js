@@ -181,20 +181,6 @@
         }
       }
     },
-    {
-      id: 'ui-mode-blank',
-      label: 'ブランクモード',
-      description: 'UIモードをブランクに切り替え',
-      shortcut: 'F2 (サイクル)',
-      category: 'UIモード',
-      execute: () => {
-        const select = document.getElementById('ui-mode-select');
-        if (select) {
-          select.value = 'blank';
-          select.dispatchEvent(new Event('change'));
-        }
-      }
-    },
     // フォントサイズ
     {
       id: 'font-size-increase',

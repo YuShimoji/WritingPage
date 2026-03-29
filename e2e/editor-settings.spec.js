@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, showFullToolbar, expandAccordion } = require('./helpers');
+const { enableAllGadgets, showFullToolbar, expandAccordion, setUIMode } = require('./helpers');
 
 async function openSettingsPanel(page) {
   await page.waitForFunction(() => {
@@ -28,7 +28,7 @@ async function ensureSidebarSettingsOpen(page) {
 
 async function openAssistPanel(page) {
   // フォーカスモードではサイドバーが非表示のため、normal に戻す
-  await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+  await setUIMode(page, 'normal');
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
@@ -344,7 +344,7 @@ test.describe('Editor Settings', () => {
 
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForFunction(() => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
@@ -375,7 +375,7 @@ test.describe('Editor Settings', () => {
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
     const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
@@ -401,7 +401,7 @@ test.describe('Editor Settings', () => {
 
   test('should confirm unsaved changes on document switch and auto-save', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await page.locator('#editor').fill('Initial content');
 
@@ -480,7 +480,7 @@ test.describe('Editor Settings', () => {
 
   test('should restore from last snapshot via button', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
     await page.evaluate(() => {
@@ -612,7 +612,7 @@ test.describe('Editor Settings', () => {
 
   test('Typography and quick font controls should stay in sync', async ({ page }) => {
     await page.goto('/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-ui-mode', 'normal'));
+    await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openThemePanel(page);
 

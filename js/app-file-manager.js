@@ -81,58 +81,14 @@
                         window.ZenWriterEditor.showNotification('ファイルを切り替えました');
                     }
 
-                    // Legacy ドキュメント変換バナー表示
-                    this._updateLegacyBanner(docId);
+                    // R-3: Legacy バナー削除済み (SP-081 Phase 3)
                 } catch (e) {
                     console.error('ドキュメント切り替えエラー:', e);
                 }
             },
 
-            /** Legacy ドキュメントに chapterMode 変換バナーを表示/非表示 */
-            _updateLegacyBanner(docId) {
-                var Store = window.ZWChapterStore;
-                var isLegacy = docId && Store && !Store.isChapterMode(docId);
-
-                var banner = document.getElementById('legacy-convert-banner');
-                if (!isLegacy) {
-                    if (banner) banner.style.display = 'none';
-                    return;
-                }
-
-                if (!banner) {
-                    banner = document.createElement('div');
-                    banner.id = 'legacy-convert-banner';
-                    banner.className = 'legacy-convert-banner';
-                    banner.innerHTML =
-                        '<span>このドキュメントは旧フォーマットです。章ごとの独立保存に変換すると、より安全に管理できます。</span>' +
-                        '<button type="button" class="small legacy-convert-banner__btn">新フォーマットに変換</button>' +
-                        '<button type="button" class="small legacy-convert-banner__dismiss" title="閉じる" aria-label="閉じる">×</button>';
-
-                    banner.querySelector('.legacy-convert-banner__btn').addEventListener('click', function () {
-                        if (!confirm('章を独立した保存単位に変換しますか？')) return;
-                        var ok = Store.migrateToChapterMode(docId);
-                        if (ok) {
-                            banner.style.display = 'none';
-                            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
-                                window.ZenWriterEditor.showNotification('新フォーマットに変換しました');
-                            }
-                            // チャプターリスト更新
-                            if (window.ZWChapterList && typeof window.ZWChapterList.refresh === 'function') {
-                                window.ZWChapterList.refresh();
-                            }
-                        }
-                    });
-                    banner.querySelector('.legacy-convert-banner__dismiss').addEventListener('click', function () {
-                        banner.style.display = 'none';
-                    });
-
-                    var editorLayer = document.getElementById('editor-classic-layer');
-                    if (editorLayer) {
-                        editorLayer.insertBefore(banner, editorLayer.firstChild);
-                    }
-                }
-                banner.style.display = '';
-            },
+            // R-3: _updateLegacyBanner 削除済み (SP-081 Phase 3)
+            // chapterMode が唯一のモード。旧フォーマット変換バナーは不要
 
             createNewDocument() {
                 const name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいファイルの名前を入力してください:');

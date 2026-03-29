@@ -50,10 +50,12 @@
             }
 
             case 'menu:toggle-focus':
-                if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleFocusMode === 'function') {
+                // R-8: setUIMode を経由 (SP-081 Phase 3)
+                if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+                    var current = document.documentElement.getAttribute('data-ui-mode');
+                    window.ZenWriterApp.setUIMode(current === 'focus' ? 'normal' : 'focus');
+                } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleFocusMode === 'function') {
                     window.ZenWriterEditor.toggleFocusMode();
-                } else {
-                    document.documentElement.setAttribute('data-ui-mode', 'focus');
                 }
                 break;
 
