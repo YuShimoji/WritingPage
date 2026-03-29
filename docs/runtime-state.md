@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-28 session 29
+> 最終更新: 2026-03-29 session 30
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
-- バージョン: v0.3.29
+- バージョン: v0.3.30
 - ブランチ: main
-- セッション: 29
-- 主レーン: Advance (WP-001 実使用ドリブン改善 Phase 1)
-- スライス: 傍点GUI化 + .zwp.json ドロップインポート + BP-5 修正
+- セッション: 30
+- 主レーン: Advance (SP-081 エディタ体験再構築)
+- スライス: SP-081 Phase 1 完了 — レガシー章モード削除 + モード切替安定化 + エッジホバーヒント
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 29 | 28 |
+| セッション番号 | 30 | 29 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 54 |
 | spec done | 42 | 41 |
@@ -54,8 +54,8 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 29 で実施) |
-| last_visual_audit_path | docs/verification/2026-03-28/ (9枚, 2026-03-28) |
+| blocks_since_visual_audit | 0 (session 30 で実施) |
+| last_visual_audit_path | docs/verification/2026-03-29/ (8枚, 2026-03-29) |
 | visual_evidence_status | fresh |
 
 ---
@@ -68,6 +68,38 @@
 | Q6a No (基盤未獲得) | 0 (.zwp.jsonドロップインポート基盤) |
 | Q6b No (ユーザー可視変化なし) | 0 (傍点ボタン、ドロップオーバーレイ) |
 | 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 30 実施内容
+
+### SP-081 エディタ体験再構築 Phase 1 (Advance + Excise)
+- chapter-list.js: Phase 1 (heading-based) 章管理を全削除、chapterMode 一本化 (-254行)
+- chapter-store.js: migrateToChapterMode/revertChapterMode 削除、ensureChapterMode 追加
+- app.js: setUIMode にエッジホバー状態クリア + サイドバー状態管理 + フローティングツールバー非表示
+- editor-wysiwyg.js: フローティングツールバーの状態を data-visible 属性のみで管理
+- edge-hover.js: Focus モードでエッジホバーヒントテキスト表示 (2回表示後自動消去)
+- app-file-manager.js: ensureChapterMode に参照変更
+- css/style.css: edge-hover-hint スタイル、Blank モードでヒント非表示
+- e2e/chapter-list.spec.js: chapterMode ベースに全面書換 (6/6 pass)
+- e2e/content-guard.spec.js: API参照修正
+
+### Session 29 追加コミット (BP-5 + ガジェット cleanup + reader 縦書き)
+- sidebar-manager.js: アコーディオン再入防止フラグ (BP-5)
+- gadgets-core.js: group 再 render 時のクリーンアップ関数実行
+- gadgets-themes.js / gadgets-typography.js: addCleanup API 対応
+- reader-preview.js: 縦書き/横書きトグル
+- index.html: 傍点ボタン + 縦書きトグルボタン
+
+### Visual Audit
+- 8枚のスクリーンショット: docs/verification/2026-03-29/
+- Focus モード: ヒントテキスト正常表示、章パネルスライドイン正常、サイドバー自動非表示正常
+- Normal モード: ツールバー常時表示、サイドバー開閉正常
+- Blank モード: ヒント非表示修正済み
+
+### テスト結果
+- コアスイート 55 passed / 0 failed / 1 skipped
+- Visual Audit 20 passed
 
 ---
 
