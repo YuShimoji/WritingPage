@@ -196,7 +196,10 @@
     "cat": "infra",
     "file": "docs/TESTING.md",
     "summary": "Playwright E2E・スモークテスト・CI実行手順",
-    "related": ["SP-048", "SP-050"]
+    "related": [
+      "SP-048",
+      "SP-050"
+    ]
   },
   {
     "id": "SP-042",
@@ -260,7 +263,10 @@
     "cat": "infra",
     "file": "docs/MANUAL_TEST_GUIDE.md",
     "summary": "手動テスト観点・推奨運用・Playwright画面証跡の取得手順",
-    "related": ["SP-041", "SP-050"]
+    "related": [
+      "SP-041",
+      "SP-050"
+    ]
   },
   {
     "id": "SP-050",
@@ -270,7 +276,10 @@
     "cat": "core",
     "file": "docs/specs/spec-story-wiki.md",
     "summary": "Phase 1-2全完了。グラフビュー/バックリンク/AI生成/形態素解析(kuromoji.js)による高精度自動検出。固有名詞品詞タグからWikiカテゴリ自動判定。ZenMorphology共通モジュール。E2E 27件",
-    "related": ["SP-041", "SP-048"]
+    "related": [
+      "SP-041",
+      "SP-048"
+    ]
   },
   {
     "id": "SP-051",
@@ -298,7 +307,10 @@
     "cat": "ui",
     "file": "docs/specs/spec-writing-focus-sidebar.md",
     "summary": "SP-070 (モードアーキテクチャ) + SP-071 (チャプター管理再設計) に包含された。3段構成→Focusモード、セクション領域→ChapterList、設定表示→オーバーレイ。設計意図の参照用として保存。",
-    "supersededBy": ["SP-070", "SP-071"]
+    "supersededBy": [
+      "SP-070",
+      "SP-071"
+    ]
   },
   {
     "id": "SP-054",
@@ -398,7 +410,9 @@
     "cat": "ui",
     "file": "docs/specs/spec-font-switching-impact-map.md",
     "summary": "SP-054 フォント切り替え実装時の影響範囲分析。変更対象ファイル・関連度・安全な作業順序を整理。",
-    "related": ["SP-054"]
+    "related": [
+      "SP-054"
+    ]
   },
   {
     "id": "SP-070",
@@ -417,7 +431,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
     "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",
-    "related": ["SP-070", "SP-052", "SP-053"]
+    "related": [
+      "SP-070",
+      "SP-052",
+      "SP-053"
+    ]
   },
   {
     "id": "SP-072",
@@ -427,7 +445,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-section-links.md",
     "summary": "Phase 1-5完了。章末ナビバー+chapter://リンク+visibility+リンク挿入モーダル+壊れリンク警告+外部リンク+ゲームブック分岐UI(3階層:choice/emphasis/card, data-style属性方式, URLフラグメント保持, スタイル選択UI, 自動グループ化+区切り線)。E2E 9件。",
-    "related": ["SP-070", "SP-071", "SP-062"]
+    "related": [
+      "SP-070",
+      "SP-071",
+      "SP-062"
+    ]
   },
   {
     "id": "SP-073",
@@ -437,7 +459,10 @@
     "cat": "ui",
     "file": "docs/specs/spec-path-text.md",
     "summary": "Phase 1-4全完了。DSL+SVGレンダリング、WYSIWYG制御点ハンドルUI、プリセットパス7種+右クリックメニュー、フリーハンド描画(RDP簡略化+ベジェ近似)。E2E 27件。",
-    "related": ["SP-016", "SP-062"]
+    "related": [
+      "SP-016",
+      "SP-062"
+    ]
   },
   {
     "id": "SP-074",
@@ -447,7 +472,12 @@
     "cat": "ui",
     "file": "docs/specs/spec-web-novel-effects.md",
     "summary": "Phase 1-6全完了。テクスチャ5種+タイピング3モード+ダイアログ4x3+スクロール5エフェクト+SE合成音5種+ジャンルプリセット4種。Q1: 全DSL型にツールバー挿入GUI+属性設定モーダル。Q3: WYSIWYG静的プレビュー(型バッジ+実スタイル)。フェーズ計画: docs/specs/sp-074-phase-plan.md",
-    "related": ["SP-062", "SP-055", "SP-016", "SP-060"]
+    "related": [
+      "SP-062",
+      "SP-055",
+      "SP-016",
+      "SP-060"
+    ]
   },
   {
     "id": "SP-075",
@@ -466,7 +496,11 @@
     "cat": "ui",
     "file": "docs/specs/spec-dock-panel.md",
     "summary": "Phase 1-4全完了。Phase 1: 左右ドック+リサイズ+永続化。Phase 2: タブグループ(上部タブ、ドラッグ並替、コンテンツ切替、永続化)。Phase 3: フローティング(undock/snap/resize/永続化、左端スナップゾーン)。Phase 4: ドックレイアウトプリセット(captureLayout/applyLayout API、LoadoutManager統合、全4プリセットにdockLayout定義、複製時dockLayout継承)。E2E 45件+preset spec。top/bottomはスコープ外。",
-    "related": ["SP-070", "SP-051", "SP-071"]
+    "related": [
+      "SP-070",
+      "SP-051",
+      "SP-071"
+    ]
   },
   {
     "id": "SP-077",
@@ -476,7 +510,9 @@
     "cat": "system",
     "file": "docs/specs/spec-indexeddb-migration.md",
     "summary": "Phase 1-4完了: IDBラッパー + ドキュメント/アセット/スナップショット/Wiki/ノードグラフ全移行完了。メモリキャッシュ + 非同期IDBフラッシュ。localStorageフォールバック対応。",
-    "related": ["SP-071"]
+    "related": [
+      "SP-071"
+    ]
   },
   {
     "id": "SP-078",
@@ -486,7 +522,11 @@
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
     "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
-    "related": ["SP-070", "SP-071", "SP-072"]
+    "related": [
+      "SP-070",
+      "SP-071",
+      "SP-072"
+    ]
   },
   {
     "id": "SP-079",
@@ -504,5 +544,15 @@
     "pct": 100,
     "cat": "system",
     "summary": "ドキュメントの章構造・メタデータを保持した .zwp.json 形式での保存/読込。exportProjectJSON/importProjectJSON/importProjectJSONFromFile。ドキュメント階層ガジェットにUI追加。フォーカスモードのデフォルト化。"
+  },
+  {
+    "id": "SP-081",
+    "title": "エディタ体験再構築",
+    "status": "partial",
+    "completion": 60,
+    "description": "レガシー章モード削除 + モード切替安定化 + ツールバー整理 + エッジホバーヒント",
+    "specFile": "docs/spec-editor-rebuild.md",
+    "createdAt": "2026-03-29",
+    "updatedAt": "2026-03-29"
   }
 ]
