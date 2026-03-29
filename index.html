@@ -294,7 +294,8 @@
           <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
             <i data-lucide="maximize" aria-hidden="true"></i>
           </button>
-          <button id="toggle-canvas-mode" class="icon-button iconified" title="Canvas Mode (beta)" aria-label="Canvas Mode(beta)を切り替え" aria-pressed="false">
+          <!-- Canvas Mode: beta、デフォルト非表示 -->
+          <button id="toggle-canvas-mode" class="icon-button iconified" title="Canvas Mode (beta)" aria-label="Canvas Mode(beta)を切り替え" aria-pressed="false" hidden>
             <i data-lucide="move" aria-hidden="true"></i>
           </button>
         </div>
@@ -316,9 +317,10 @@
           <option value="focus">フォーカスモード</option>
           <option value="blank">ブランクモード</option>
         </select>
-        <!-- 旧ツールバーアクション (Phase 2-3で段階移行) -->
+        <!-- ツールバーアクション (装飾はWYSIWYGフローティングツールバーに移行済み) -->
         <div class="toolbar-actions">
-          <div class="toolbar-group toolbar-group--decorate" aria-label="装飾">
+          <!-- 装飾グループ: WYSIWYGツールバーに統合済み、メインツールバーでは非表示 -->
+          <div class="toolbar-group toolbar-group--decorate" aria-label="装飾" hidden>
             <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
               <i data-lucide="highlighter" aria-hidden="true"></i>
             </button>
