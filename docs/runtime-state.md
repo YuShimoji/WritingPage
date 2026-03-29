@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-27 session 28
+> 最終更新: 2026-03-28 session 29
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.29
 - ブランチ: main
-- セッション: 28
-- 主レーン: Advance + Bugfix (SP-073 Phase 4 + WYSIWYG バグ修正)
-- スライス: SP-073 Phase 4 フリーハンド描画 + WYSIWYG ツールバーバグ修正
+- セッション: 29
+- 主レーン: Advance (WP-001 実使用ドリブン改善 Phase 1)
+- スライス: 傍点GUI化 + .zwp.json ドロップインポート + BP-5 修正
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 28 | 27 |
+| セッション番号 | 29 | 28 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 54 |
 | spec done | 42 | 41 |
@@ -54,8 +54,8 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 28 で実施) |
-| last_visual_audit_path | docs/verification/2026-03-27/ (50枚, 2026-03-27) |
+| blocks_since_visual_audit | 0 (session 29 で実施) |
+| last_visual_audit_path | docs/verification/2026-03-28/ (9枚, 2026-03-28) |
 | visual_evidence_status | fresh |
 
 ---
@@ -64,10 +64,22 @@
 
 | 診断項目 | 連続数 |
 | --------- | ------- |
-| Q4 No (成果物未前進) | 0 (JSON保存+フォーカスモード改善で前進) |
-| Q6a No (基盤未獲得) | 0 (JSON保存/読込基盤) |
-| Q6b No (ユーザー可視変化なし) | 0 (フォーカスモードUI変更、JSON保存/読込ボタン) |
+| Q4 No (成果物未前進) | 0 (傍点GUI+ドロップインポート+BP-5修正で前進) |
+| Q6a No (基盤未獲得) | 0 (.zwp.jsonドロップインポート基盤) |
+| Q6b No (ユーザー可視変化なし) | 0 (傍点ボタン、ドロップオーバーレイ) |
 | 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 29 実施内容
+
+### WP-001 実使用ドリブン改善 Phase 1 (Advance)
+- editor-wysiwyg.js: 傍点GUI (_handleKentenAction/_applyKenten/_removeKenten/_showKentenRemovePopup)
+- index.html: WYSIWYGツールバーに傍点ボタン (#wysiwyg-kenten) 追加
+- app.js: .zwp.json ドロップインポート (document レベル D&D ハンドラ + オーバーレイ)
+- css/style.css: .zwp-drop-overlay スタイル追加
+- sidebar-manager.js: BP-5 修正 (アコーディオン _toggleAccordion 再入防止フラグ)
+- E2E: 回帰なし (ruby-wysiwyg 5/5, wysiwyg-editor 18/18, pathtext 27/27, content-guard 7/7 など)
 
 ---
 

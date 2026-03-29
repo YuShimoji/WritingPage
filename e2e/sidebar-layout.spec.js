@@ -1,14 +1,24 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { showFullToolbar } = require('./helpers');
 
 test.describe('Sidebar Layout', () => {
+  // focus mode デフォルト化対応: normal mode に切り替えてからテスト
   // 全カテゴリを操作するため執筆集中IAを解除
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await showFullToolbar(page);
+    // writing focus IA を解除し、全カテゴリを表示
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+    });
+    // sidebar manager の再レンダリング完了を待つ
+    await page.waitForTimeout(400);
+    // MutationObserver 後に再度カテゴリ表示を強制
+    await page.evaluate(() => {
       document.querySelectorAll('.accordion-category[data-category]').forEach(cat => {
         cat.style.display = '';
+        cat.removeAttribute('hidden');
         cat.setAttribute('aria-hidden', 'false');
       });
     });
@@ -76,6 +86,17 @@ test.describe('Sidebar Layout', () => {
 
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
+
+    // サイドバー展開後に writing focus IA を再解除 (MutationObserver の再レンダリング対策)
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+      document.querySelectorAll('.accordion-category[data-category]').forEach(cat => {
+        cat.style.display = '';
+        cat.removeAttribute('hidden');
+        cat.setAttribute('aria-hidden', 'false');
+      });
+    });
+    await page.waitForTimeout(200);
 
     const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
     const editHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
