@@ -5,46 +5,47 @@
 - プロジェクト名: Zen Writer (WritingPage)
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
-- 現フェーズ: β (v0.3.29)
-- 直近の状態: session 28 — SP-073 Phase 4 フリーハンド描画 + WYSIWYG バグ5件修正
+- 現フェーズ: β (v0.3.30)
+- 直近の状態: session 30 — SP-081 エディタ体験再構築 Phase 1-2
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 60件通過確認 (主要4スイート)。全体は 542+ passed / 0 failed / 3 skipped
-- spec-index: 55エントリ (done 42, partial 1, removed 11, superseded 1)
+- E2E: 478 passed / 0 failed / 3 skipped (session 30 で 80 failed → 0 failed に改善)
+- spec-index: 56エントリ (done 42, partial 2, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
 - EPUB: スコープ外 (2026-03-23 除外決定)
 - session 22-24 でデッドコード/CSS/API/ドキュメント不整合を一掃 (-5,957行)
-- session 25: SP-076 done確認、レガシー最終掃除、包括調査表作成
-- session 26: デッドコード根絶(-1,121行)、deprecated API削除、Visual Audit実施、V-2/V-3/V-4解消見込み
-- session 27: JSONプロジェクト保存(zenwriter-v1形式)、フォーカスモードデフォルト化、Electron JSON保存メニュー、SP-080追加
+- session 27: JSONプロジェクト保存、フォーカスモードデフォルト化、SP-080追加
+- session 28: SP-073 Phase 4 フリーハンド描画 + WYSIWYG バグ5件修正
+- session 29: 傍点GUI + .zwp.jsonドロップインポート + BP-5アコーディオン再入防止
+- session 30: SP-081 エディタ体験再構築 — レガシー章管理削除(-254行)、モード切替安定化、ツールバー整理、エッジホバーヒント
 
 ---
 
 ## CURRENT DEVELOPMENT AXIS
 
-- 主軸: ミニマル執筆体験の深化 + WP-001 再訪
-- この軸を優先する理由: JSONプロジェクト保存+フォーカスモードデフォルト化で基盤完成。執筆ワークフロー統合(WP-001)の具体化が次の焦点
-- 今ここで避けるべき脱線: スコープ外項目の復活、新規大型機能の追加
+- 主軸: SP-081 エディタ体験再構築 (執筆の最小ループの完成)
+- この軸を優先する理由: 基本機能は揃っているが、モード切替・章管理・ツールバーの状態管理に多数の粗がある。「執筆エディタとして最小限のループが完成していない」状態の解消が最優先
+- 今ここで避けるべき脱線: 新規大型機能、コンテンツ生成系機能、OAuth/Electron配布
 
 ---
 
 ## CURRENT LANE
 
-- 主レーン: Advance (ミニマル執筆体験)
-- 副レーン: なし
-- 今このレーンを優先する理由: JSONプロジェクト保存+フォーカスモード改善完了。次は実使用フローの深化
-- いまは深入りしないレーン: Excise (一掃済み)、追加テスト
+- 主レーン: Advance (SP-081 エディタ体験再構築)
+- 副レーン: Excise (レガシー除去は SP-081 に内包)
+- 今このレーンを優先する理由: ユーザーが11件のUX摩擦を特定。Phase 1-2 でレガシー削除+モード切替+ツールバー整理を完了。Phase 3 以降で執筆フローの洗練を継続
+- いまは深入りしないレーン: 追加テスト、新規ガジェット
 
 ---
 
 ## CURRENT SLICE
 
-- スライス名: SP-073 Phase 4 フリーハンド描画 (session 28 完了)
-- 成功状態: SP-073 done/100%。RDP簡略化+ベジェ近似。E2E 27件全通過。残 partial は SP-005 のみ
-- 前提: SP-073/SP-076 全完了。次は WP-001 再訪 or 新しい体験スライス
+- スライス名: SP-081 エディタ体験再構築 (session 30 で Phase 1-2 完了)
+- 成功条件: モード切替でUI破綻しない / 章作成が増殖しない / ツールバーが整理されている / エッジホバーにヒントがある / E2E回帰なし
+- Phase 1-2 達成済み。Phase 3 以降: WYSIWYGツールバー整理、Blankモードの再検討、章パネルピン留め
 
 ---
 
@@ -54,7 +55,8 @@
 - 最終的なユーザーワークフロー: `docs/WRITING_PIPELINE.md` で定義済み (7段階: 起動→執筆→構造化→装飾→プレビュー→出力→保存)。Q1-Q3解決済み。EPUB/DOCX除外済み
 - 受け入れ時の使われ方: ユーザー自身が日常の執筆ツールとして使用
 - 現時点で未確定な要素:
-  - SP-073 Phase 4 フリーハンド描画の仕様 (未策定)
+  - Blankモードの存在意義 (Focusとの視覚差が小さい。削除 or 差異化)
+  - WYSIWYGフローティングツールバーのボタン数削減方針
   - WP-001 執筆ワークフロー統合の方向性
 
 ---
@@ -77,24 +79,33 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Advance + Bugfix
-- 現在のスライス: SP-073 Phase 4 + WYSIWYG バグ修正 (session 28 完了)
-- 今回 (session 28) の変更:
-  - SP-073 Phase 4 フリーハンド描画: RDP簡略化 + ベジェ近似、E2E 27件
-  - WYSIWYG バグ5件修正: formatBlock/insertList/ツールバー折り返し/textarea復帰/ルビカーソル
-  - dock-preset.spec.js: focus モード対応
-  - Visual Audit 50枚: docs/verification/2026-03-27/
-  - バグパターン記録: docs/verification/session28-bug-patterns.md
+- 現在の主レーン: Advance (SP-081 エディタ体験再構築)
+- 現在のスライス: SP-081 Phase 1-2 完了 (session 30)
+- 今回 (session 30) の変更:
+  - SP-081 Phase 1: chapter-list.js からPhase 1 heading-based章管理を全削除(-254行)、chapterMode一本化
+  - chapter-store.js: migrateToChapterMode/revertChapterMode削除、ensureChapterMode追加
+  - app.js: setUIModeにエッジホバーリセット+サイドバー自動閉/復元+フローティングツールバー非表示
+  - editor-wysiwyg.js: フローティングツールバーの状態をdata-visible属性のみで管理
+  - edge-hover.js: Focusモードでエッジホバーヒントテキスト表示(2回表示で自動消去)
+  - SP-081 Phase 2: Canvas Mode+装飾グループをメインツールバーからhidden
+  - session 29追加: BP-5アコーディオン再入防止、ガジェットcleanup API、reader縦書きトグル
+  - Visual Audit 8枚: docs/verification/2026-03-29/
+  - E2E: 478 passed / 0 failed / 3 skipped (修正前80 failed)
 - 次回最初に確認すべきファイル:
-  - ブラウザで手動確認 (ESC→normal→見出し/ルビ/ソース復帰の動作)
-  - docs/verification/session28-bug-patterns.md (BP-5 未修正: 構造アコーディオンループ)
+  - ブラウザで Focus モードの初期表示+エッジホバー+章パネル+モード切替を手動確認
+  - docs/spec-editor-rebuild.md (SP-081 仕様書)
 - 未確定の設計論点:
+  - Blankモードの存在意義 (Focusとの視覚差が小さい。削除 or 差異化)
+  - 装飾グループ/Canvas Mode のHTML要素自体を削除してよいか (現在hidden)
+  - WYSIWYGフローティングツールバーのボタン数 (~15個。最小限に絞る方向?)
   - WP-001 方向性 (HUMAN_AUTHORITY)
-  - BP-5 構造アコーディオンループの根本原因 (sidebar-manager.js)
-  - Google Keep連携の是非 (以前スコープ外に除外、ユーザーが再要望)
-  - 保存状態スナップショットの仕様
-- 今は触らない範囲: 追加クリーンアップ
+- 暗黙仕様:
+  - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
+  - エッジホバーヒントはFocusモードのみ、localStorage記録で2回表示後自動消去
+  - フローティングツールバーはreaderモードでも非表示
+- 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
-  - [Audit] Visual Audit — フォーカスモードの見え方確認 (visual_evidence_status: stale)
-  - [Advance] ファイルドロップでの.zwp.jsonインポート
-  - [Unlock] WP-001 再訪 (トリガー成立)
+  - [Advance] SP-081 Phase 3: WYSIWYGフローティングツールバーのボタン整理
+  - [Audit] 実機手動確認 — Focus モードの実使用フロー検証
+  - [Advance] 新規章の初期フォーカス改善
+  - [Unlock] 章パネルの常時表示オプション (ピン留め)
