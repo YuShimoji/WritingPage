@@ -416,6 +416,9 @@
           <button id="wysiwyg-ruby" class="wysiwyg-btn" type="button" title="ルビ" aria-label="ルビ">
             <span style="font-size:0.7em;font-weight:600">振</span>
           </button>
+          <button id="wysiwyg-kenten" class="wysiwyg-btn" type="button" title="傍点" aria-label="傍点">
+            <span style="font-size:0.7em;font-weight:600;text-emphasis:filled sesame;text-emphasis-position:over right;-webkit-text-emphasis:filled sesame;-webkit-text-emphasis-position:over right">点</span>
+          </button>
           <div class="wysiwyg-separator"></div>
           <!-- ブロック編集 -->
           <div class="wysiwyg-dropdown" data-dropdown="block-heading">
@@ -908,6 +911,7 @@
   <div class="reader-preview" id="reader-preview" aria-label="読者プレビュー">
     <button class="reader-preview__back-fab" id="reader-back-fab" type="button">編集に戻る</button>
     <button class="reader-preview__export-btn" id="reader-export-html" type="button">HTMLとして保存</button>
+    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替">縦書き</button>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
   </div>
 </body>

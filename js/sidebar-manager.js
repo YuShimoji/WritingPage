@@ -21,6 +21,7 @@ class SidebarManager {
         this._writingFocusRenderTimer = null;
         this._writingFocusObserver = null;
         this._writingFocusSettingsOpen = false;
+        this._toggleAccordionInProgress = false;
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
             {
@@ -218,26 +219,37 @@ class SidebarManager {
     }
 
     _toggleAccordion(categoryId, expand) {
-        if (this._isDevMode()) {
-            console.log(`[Accordion] トグル: ${categoryId} → ${expand ? '展開' : '折りたたみ'}`);
-        }
-        this._setAccordionState(categoryId, expand);
-        this._saveAccordionState();
-
-        // カテゴリ展開時にガジェットを再レンダリング
-        if (expand) {
-            try {
-                this._ensureAccordionGadgetInitialized(categoryId);
-                const renderers = window.ZWGadgets && window.ZWGadgets._renderers;
-                if (renderers && typeof renderers[categoryId] === 'function') {
-                    renderers[categoryId]();
-                }
-                if (this._isDevMode()) {
-                    console.log(`[Accordion] ガジェット再レンダリング成功: ${categoryId}`);
-                }
-            } catch (e) {
-                console.error(`ガジェット再レンダリング失敗: ${categoryId}`, e);
+        if (this._toggleAccordionInProgress) {
+            if (this._isDevMode()) {
+                console.log(`[Accordion] 再入防止: ${categoryId}`);
             }
+            return;
+        }
+        this._toggleAccordionInProgress = true;
+        try {
+            if (this._isDevMode()) {
+                console.log(`[Accordion] トグル: ${categoryId} → ${expand ? '展開' : '折りたたみ'}`);
+            }
+            this._setAccordionState(categoryId, expand);
+            this._saveAccordionState();
+
+            // カテゴリ展開時にガジェットを再レンダリング
+            if (expand) {
+                try {
+                    this._ensureAccordionGadgetInitialized(categoryId);
+                    const renderers = window.ZWGadgets && window.ZWGadgets._renderers;
+                    if (renderers && typeof renderers[categoryId] === 'function') {
+                        renderers[categoryId]();
+                    }
+                    if (this._isDevMode()) {
+                        console.log(`[Accordion] ガジェット再レンダリング成功: ${categoryId}`);
+                    }
+                } catch (e) {
+                    console.error(`ガジェット再レンダリング失敗: ${categoryId}`, e);
+                }
+            }
+        } finally {
+            this._toggleAccordionInProgress = false;
         }
     }
 

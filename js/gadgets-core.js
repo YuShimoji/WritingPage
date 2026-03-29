@@ -46,6 +46,7 @@
       this._activeGroup = 'structure';
       this._defaults = {};
       this._renderPending = null;
+      this._cleanups = {};  // group → [cleanup functions]
     }
 
     _ensureLoadouts() {
@@ -492,6 +493,11 @@
 
       this._renderers[group] = function () {
         try {
+          // 前回の render で登録された cleanup を実行 (global listener 増殖防止)
+          if (self._cleanups[group]) {
+            self._cleanups[group].forEach(function (fn) { try { fn(); } catch (_) {} });
+          }
+          self._cleanups[group] = [];
           root.innerHTML = '';
           var allowedNames = self._getActiveNames();
           var hasActiveForGroup = self._list.some(function (entry) {
@@ -623,7 +629,13 @@
             try {
               var api = {
                 get: function (key, def) { return self.getSetting(entry.name, key, def); },
-                set: function (key, val) { self.setSetting(entry.name, key, val); }
+                set: function (key, val) { self.setSetting(entry.name, key, val); },
+                addCleanup: function (fn) {
+                  if (typeof fn === 'function') {
+                    if (!self._cleanups[group]) self._cleanups[group] = [];
+                    self._cleanups[group].push(fn);
+                  }
+                }
               };
               entry.factory(gadgetEl, api);
             } catch (e) {

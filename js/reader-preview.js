@@ -18,6 +18,8 @@
   var typingCleanup = null;
   var scrollCleanup = null;
   var genreSelect = null;
+  var verticalToggle = null;
+  var isVertical = false;
 
   function init() {
     previewEl = document.getElementById('reader-preview');
@@ -60,6 +62,16 @@
       toolbar.appendChild(genreSelect);
       previewEl.appendChild(toolbar);
     }
+
+    // 縦書きトグルボタン
+    verticalToggle = document.getElementById('reader-vertical-toggle');
+    if (verticalToggle) {
+      verticalToggle.addEventListener('click', toggleVerticalMode);
+    }
+    // 前回の縦書き設定を復元
+    try {
+      isVertical = localStorage.getItem('zenwriter-reader-vertical') === 'true';
+    } catch (_) { /* noop */ }
 
     // スクロール連動
     previewEl.addEventListener('scroll', onScroll, { passive: true });
@@ -114,6 +126,9 @@
     // 読者プレビューHTMLを生成
     buildReaderHTML();
 
+    // 縦書き設定を適用
+    applyVerticalMode(isVertical);
+
     // モード切替
     document.documentElement.setAttribute('data-ui-mode', 'reader');
 
@@ -143,6 +158,9 @@
       scrollCleanup();
       scrollCleanup = null;
     }
+
+    // 縦書きクラスを除去 (次回 enter 時に再適用)
+    if (previewEl) previewEl.classList.remove('reader-preview--vertical');
 
     // ジャンルプリセットをクリア
     if (innerEl && window.GenrePresetRegistry) {
@@ -298,7 +316,43 @@
     }
 
     // 先頭にスクロール
-    previewEl.scrollTop = 0;
+    if (isVertical) {
+      previewEl.scrollLeft = 0;
+    } else {
+      previewEl.scrollTop = 0;
+    }
+  }
+
+  /**
+   * 縦書き/横書きを切り替える
+   */
+  function toggleVerticalMode() {
+    isVertical = !isVertical;
+    applyVerticalMode(isVertical);
+    try {
+      localStorage.setItem('zenwriter-reader-vertical', isVertical ? 'true' : 'false');
+    } catch (_) { /* noop */ }
+  }
+
+  /**
+   * 縦書きモードを適用/解除
+   */
+  function applyVerticalMode(vertical) {
+    if (!previewEl) return;
+    if (vertical) {
+      previewEl.classList.add('reader-preview--vertical');
+    } else {
+      previewEl.classList.remove('reader-preview--vertical');
+    }
+    if (verticalToggle) {
+      verticalToggle.setAttribute('aria-pressed', vertical ? 'true' : 'false');
+      verticalToggle.textContent = vertical ? '横書き' : '縦書き';
+    }
+    // プログレスバーをリセット
+    if (progressFill) {
+      progressFill.style.width = vertical ? '100%' : '0%';
+      progressFill.style.height = vertical ? '0%' : '100%';
+    }
   }
 
   /**
@@ -475,12 +529,17 @@
     tempDiv.querySelectorAll('.chapter-nav-bar').forEach(function (el) { el.remove(); });
     bodyHtml = tempDiv.innerHTML;
 
+    // 縦書きモードの場合、bodyスタイルを変更
+    var bodyStyle = isVertical
+      ? 'writing-mode: vertical-rl; max-height: 100vh; overflow-x: auto; overflow-y: hidden; margin: 2rem; padding: 0 1rem; '
+      : 'max-width: 720px; margin: 2rem auto; padding: 0 1rem; ';
+
     var html = '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
       + '<meta charset="UTF-8">\n'
       + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
       + '<title>' + (title || 'Zen Writer Export').replace(/</g, '&lt;') + '</title>\n'
       + '<style>\n'
-      + '  body { max-width: 720px; margin: 2rem auto; padding: 0 1rem; '
+      + '  body { ' + bodyStyle
       + 'font-family: ' + fontFamily + '; line-height: 1.8; '
       + 'background: ' + bgColor + '; color: ' + textColor + '; }\n'
       + '  a { color: ' + linkColor + '; }\n'
@@ -575,10 +634,22 @@
     scrollRAF = requestAnimationFrame(function () {
       scrollRAF = null;
       if (!previewEl || !progressFill) return;
-      var scrollTop = previewEl.scrollTop;
-      var scrollHeight = previewEl.scrollHeight - previewEl.clientHeight;
-      var pct = scrollHeight > 0 ? Math.min(100, (scrollTop / scrollHeight) * 100) : 0;
-      progressFill.style.width = pct + '%';
+
+      var pct;
+      if (isVertical) {
+        // 縦書き: 横スクロール (右→左方向。scrollLeft は負値)
+        var scrollWidth = previewEl.scrollWidth - previewEl.clientWidth;
+        var scrollLeft = Math.abs(previewEl.scrollLeft);
+        pct = scrollWidth > 0 ? Math.min(100, (scrollLeft / scrollWidth) * 100) : 0;
+        progressFill.style.height = pct + '%';
+        progressFill.style.width = '100%';
+      } else {
+        var scrollTop = previewEl.scrollTop;
+        var scrollHeight = previewEl.scrollHeight - previewEl.clientHeight;
+        pct = scrollHeight > 0 ? Math.min(100, (scrollTop / scrollHeight) * 100) : 0;
+        progressFill.style.width = pct + '%';
+        progressFill.style.height = '100%';
+      }
     });
   }
 
@@ -590,7 +661,9 @@
     var key = getScrollKey();
     if (!key) return;
     try {
-      sessionStorage.setItem(key, String(previewEl.scrollTop));
+      var pos = isVertical ? previewEl.scrollLeft : previewEl.scrollTop;
+      sessionStorage.setItem(key, String(pos));
+      sessionStorage.setItem(key + '-vertical', isVertical ? 'true' : 'false');
     } catch (_e) { /* quota exceeded */ }
   }
 
@@ -602,11 +675,17 @@
     var key = getScrollKey();
     if (!key) return;
     try {
+      var savedVertical = sessionStorage.getItem(key + '-vertical') === 'true';
+      if (savedVertical !== isVertical) return; // モード不一致なら復元しない
       var saved = sessionStorage.getItem(key);
       if (saved !== null) {
         var pos = parseInt(saved, 10);
-        if (!isNaN(pos) && pos > 0) {
-          previewEl.scrollTop = pos;
+        if (!isNaN(pos)) {
+          if (isVertical) {
+            previewEl.scrollLeft = pos;
+          } else if (pos > 0) {
+            previewEl.scrollTop = pos;
+          }
         }
       }
     } catch (_e) { /* not available */ }
@@ -640,8 +719,14 @@
     enter: enterReaderMode,
     exit: exitReaderMode,
     exportHtml: exportHtml,
+    toggleVertical: toggleVerticalMode,
+    get isVertical() { return isVertical; },
     getProgress: function () {
       if (!previewEl) return 0;
+      if (isVertical) {
+        var scrollWidth = previewEl.scrollWidth - previewEl.clientWidth;
+        return scrollWidth > 0 ? Math.min(100, (Math.abs(previewEl.scrollLeft) / scrollWidth) * 100) : 0;
+      }
       var scrollHeight = previewEl.scrollHeight - previewEl.clientHeight;
       return scrollHeight > 0 ? Math.min(100, (previewEl.scrollTop / scrollHeight) * 100) : 0;
     }

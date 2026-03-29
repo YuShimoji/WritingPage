@@ -10,7 +10,7 @@
   var ZWGadgets = window.ZWGadgets;
   if (!utils || !ZWGadgets) return;
 
-  ZWGadgets.register('Typography', function (el) {
+  ZWGadgets.register('Typography', function (el, api) {
     try {
       var theme = window.ZenWriterTheme;
       var storage = window.ZenWriterStorage;
@@ -386,13 +386,17 @@
         wrap.appendChild(packSection);
 
         // パック変更イベントでUI同期
-        window.addEventListener('ZenWriterTypographyPackApplied', function (e) {
+        var onPackApplied = function (e) {
           if (e.detail && e.detail.packId) {
             packSelect.value = e.detail.packId;
             updatePackDesc(e.detail.packId);
             refreshState();
           }
-        });
+        };
+        window.addEventListener('ZenWriterTypographyPackApplied', onPackApplied);
+        if (api && typeof api.addCleanup === 'function') {
+          api.addCleanup(function () { window.removeEventListener('ZenWriterTypographyPackApplied', onPackApplied); });
+        }
       }
 
       el.appendChild(wrap);
@@ -475,6 +479,11 @@
       window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);
       window.addEventListener('ZenWriterSettingsChanged', refreshState);
+      if (api && typeof api.addCleanup === 'function') {
+        api.addCleanup(function () { window.removeEventListener('ZWLoadoutsChanged', refreshState); });
+        api.addCleanup(function () { window.removeEventListener('ZWLoadoutApplied', refreshState); });
+        api.addCleanup(function () { window.removeEventListener('ZenWriterSettingsChanged', refreshState); });
+      }
 
     } catch (e) {
       console.error('Typography gadget failed:', e);

@@ -10,7 +10,7 @@
   var ZWGadgets = window.ZWGadgets;
   if (!utils || !ZWGadgets) return;
 
-  ZWGadgets.register('Themes', function (el) {
+  ZWGadgets.register('Themes', function (el, api) {
     try {
       var theme = window.ZenWriterTheme;
       var storage = window.ZenWriterStorage;
@@ -244,6 +244,11 @@
       window.addEventListener('ZWLoadoutsChanged', refreshState);
       window.addEventListener('ZWLoadoutApplied', refreshState);
       window.addEventListener('ZenWriterSettingsChanged', refreshState);
+      if (api && typeof api.addCleanup === 'function') {
+        api.addCleanup(function () { window.removeEventListener('ZWLoadoutsChanged', refreshState); });
+        api.addCleanup(function () { window.removeEventListener('ZWLoadoutApplied', refreshState); });
+        api.addCleanup(function () { window.removeEventListener('ZenWriterSettingsChanged', refreshState); });
+      }
 
     } catch (e) {
       console.error('Themes gadget failed:', e);

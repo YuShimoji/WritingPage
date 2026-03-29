@@ -352,7 +352,7 @@
   //  ガジェット本体
   // =========================================================
 
-  ZWGadgets.register('SectionsNavigator', function (el) {
+  ZWGadgets.register('SectionsNavigator', function (el, api) {
     var wrap = document.createElement('div');
     wrap.className = 'sections-nav-gadget';
 
@@ -391,6 +391,8 @@
     var debounceTimer = null;
 
     function render() {
+      // BP-5: アコーディオントグル中の再 render をスキップ (循環防止)
+      if (window.sidebarManager && window.sidebarManager._toggleAccordionInProgress) return;
       var wysiwyg = isWysiwygMode();
 
       if (wysiwyg) {
@@ -485,6 +487,8 @@
     }
 
     function scheduleRender() {
+      // BP-5: アコーディオントグル中の再 render をスキップ (循環防止)
+      if (window.sidebarManager && window.sidebarManager._toggleAccordionInProgress) return;
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(render, DEBOUNCE_MS);
     }
@@ -555,15 +559,16 @@
     }
 
     // ドキュメント切替
-    window.addEventListener('ZWDocumentsChanged', function () {
+    var onDocsChanged = function () {
       clearSectionCollapse();
       lastCollapseIndex = -1;
       setTimeout(render, 50);
-    });
+    };
+    window.addEventListener('ZWDocumentsChanged', onDocsChanged);
     document.addEventListener('zen-content-saved', scheduleRender);
 
     // 下部ナビからの操作
-    window.addEventListener('ZWBottomNavNavigate', function (e) {
+    var onBottomNav = function (e) {
       if (e.detail && e.detail.action === 'openSections') {
         var sidebar = document.getElementById('sidebar');
         if (sidebar && !sidebar.classList.contains('open')) {
@@ -575,7 +580,15 @@
           sectionHeader.click();
         }
       }
-    });
+    };
+    window.addEventListener('ZWBottomNavNavigate', onBottomNav);
+
+    // cleanup: render 時に前回のグローバルリスナーを除去
+    if (api && typeof api.addCleanup === 'function') {
+      api.addCleanup(function () { window.removeEventListener('ZWDocumentsChanged', onDocsChanged); });
+      api.addCleanup(function () { document.removeEventListener('zen-content-saved', scheduleRender); });
+      api.addCleanup(function () { window.removeEventListener('ZWBottomNavNavigate', onBottomNav); });
+    }
 
     // 初回レンダリング
     render();
