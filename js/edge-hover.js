@@ -222,7 +222,7 @@
 
   function updateHintVisibility() {
     var mode = html.getAttribute('data-ui-mode');
-    var shouldShow = (mode === 'focus' || mode === 'blank') && getHintShownCount() < HINT_MAX_SHOWS;
+    var shouldShow = mode === 'focus' && getHintShownCount() < HINT_MAX_SHOWS;
 
     if (hintElements.top) hintElements.top.style.display = shouldShow ? '' : 'none';
     if (hintElements.left) hintElements.left.style.display = shouldShow ? '' : 'none';

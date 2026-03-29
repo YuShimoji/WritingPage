@@ -7654,8 +7654,9 @@ details[open] summary {
   text-orientation: mixed;
 }
 
-/* Normal mode ではヒント不要 */
-html[data-ui-mode='normal'] .edge-hover-hint {
+/* Normal/Blank mode ではヒント不要 (Blank は完全非表示が目的) */
+html[data-ui-mode='normal'] .edge-hover-hint,
+html[data-ui-mode='blank'] .edge-hover-hint {
   display: none !important;
 }
 
