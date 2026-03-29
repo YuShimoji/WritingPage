@@ -51,8 +51,9 @@
     state[edge].active = false;
     html.removeAttribute('data-edge-hover-' + edge);
 
-    // サイドバーをエッジホバーで開いた場合、閉じる (focusモードではサイドバー不使用)
-    if (edge === 'left' && !isFocusMode() && !isSidebarNormallyOpen()) {
+    // サイドバーをエッジホバーで開いた場合、閉じる (focus/blankモードではサイドバー不使用)
+    var mode = html.getAttribute('data-ui-mode');
+    if (edge === 'left' && mode === 'normal' && !isSidebarNormallyOpen()) {
       var sidebar = document.getElementById('sidebar');
       if (sidebar && sidebar.classList.contains('open') &&
           window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
@@ -71,8 +72,9 @@
 
       showEdge(edge);
 
-      // 左端: focusモードでは章パネルのみ(CSS制御)、通常はサイドバーを一時的に開く
-      if (edge === 'left' && !isFocusMode() && window.sidebarManager &&
+      // 左端: focus/blankモードでは章パネルのみ(CSS制御)、normalではサイドバーを一時的に開く
+      var mode = html.getAttribute('data-ui-mode');
+      if (edge === 'left' && mode === 'normal' && window.sidebarManager &&
           typeof window.sidebarManager.forceSidebarState === 'function') {
         window.sidebarManager.forceSidebarState(true);
       }
@@ -177,6 +179,68 @@
     }
   }
 
+  // --- ヒントテキスト (M-4) ---
+
+  var HINT_STORAGE_KEY = 'zenwriter-edge-hint-count';
+  var HINT_MAX_SHOWS = 2; // 2回表示したら以後は非表示
+  var hintElements = { top: null, left: null };
+
+  function getHintShownCount() {
+    try {
+      var raw = localStorage.getItem(HINT_STORAGE_KEY);
+      return raw ? parseInt(raw, 10) || 0 : 0;
+    } catch (_) { return 0; }
+  }
+
+  function incrementHintShown() {
+    try {
+      var count = getHintShownCount() + 1;
+      localStorage.setItem(HINT_STORAGE_KEY, String(count));
+      return count;
+    } catch (_) { return 999; }
+  }
+
+  function createHints() {
+    if (getHintShownCount() >= HINT_MAX_SHOWS) return;
+
+    // 上部ヒント
+    var topHint = document.createElement('div');
+    topHint.className = 'edge-hover-hint edge-hover-hint--top';
+    topHint.textContent = '\u2191 \u753b\u9762\u4e0a\u90e8\u306b\u30de\u30a6\u30b9\u3092\u79fb\u52d5\u3059\u308b\u3068\u30c4\u30fc\u30eb\u30d0\u30fc\u304c\u8868\u793a\u3055\u308c\u307e\u3059';
+    topHint.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(topHint);
+    hintElements.top = topHint;
+
+    // 左部ヒント
+    var leftHint = document.createElement('div');
+    leftHint.className = 'edge-hover-hint edge-hover-hint--left';
+    leftHint.textContent = '\u2190 \u753b\u9762\u5de6\u7aef\u306b\u30de\u30a6\u30b9\u3092\u79fb\u52d5\u3059\u308b\u3068\u7ae0\u30d1\u30cd\u30eb\u304c\u8868\u793a\u3055\u308c\u307e\u3059';
+    leftHint.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(leftHint);
+    hintElements.left = leftHint;
+  }
+
+  function updateHintVisibility() {
+    var mode = html.getAttribute('data-ui-mode');
+    var shouldShow = (mode === 'focus' || mode === 'blank') && getHintShownCount() < HINT_MAX_SHOWS;
+
+    if (hintElements.top) hintElements.top.style.display = shouldShow ? '' : 'none';
+    if (hintElements.left) hintElements.left.style.display = shouldShow ? '' : 'none';
+  }
+
+  function dismissHints() {
+    if (hintElements.top) { hintElements.top.style.display = 'none'; }
+    if (hintElements.left) { hintElements.left.style.display = 'none'; }
+    incrementHintShown();
+  }
+
+  // エッジホバーが発火したらヒントを消す
+  var originalShowEdge = showEdge;
+  showEdge = function (edge) {
+    dismissHints();
+    originalShowEdge(edge);
+  };
+
   // --- 初期化 ---
 
   function init() {
@@ -192,6 +256,15 @@
     });
 
     setupUIHoverGuard();
+
+    // ヒントテキスト表示
+    createHints();
+    updateHintVisibility();
+
+    // UIモード変更時にヒント表示を更新
+    new MutationObserver(function () {
+      updateHintVisibility();
+    }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode'] });
   }
 
   // DOMReady後に初期化

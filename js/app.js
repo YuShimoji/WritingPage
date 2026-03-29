@@ -530,6 +530,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
+        // M-1: モード切替時にエッジホバー状態をクリア
+        if (window.ZWEdgeHover && typeof window.ZWEdgeHover.dismissAll === 'function') {
+            window.ZWEdgeHover.dismissAll();
+        }
+
+        // M-1: Focus モードに入る時はサイドバーを閉じる
+        if (targetMode === 'focus') {
+            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                window.sidebarManager.forceSidebarState(false);
+            }
+        }
+
+        // M-1: Normal モードに戻る時はサイドバー状態を復元
+        if (targetMode === 'normal' && (currentMode === 'focus' || currentMode === 'blank')) {
+            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                try {
+                    var savedSettings = window.ZenWriterStorage.loadSettings();
+                    var sidebarOpen = savedSettings && savedSettings.sidebarOpen !== false;
+                    window.sidebarManager.forceSidebarState(sidebarOpen);
+                } catch (_2) { }
+            }
+        }
+
+        // M-2: モード切替時にフローティングツールバーを確実に非表示
+        var wysiwygToolbar = document.getElementById('wysiwyg-toolbar');
+        if (wysiwygToolbar) {
+            wysiwygToolbar.setAttribute('data-visible', 'false');
+        }
+
         const select = document.getElementById('ui-mode-select');
         if (select && select.value !== targetMode) {
             select.value = targetMode;
@@ -668,6 +697,86 @@ document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.initAppFileManager === 'function') {
         window.initAppFileManager({ elementManager, updateDocumentTitle });
     }
+
+    // ===== .zwp.json ドロップインポート =====
+    (function setupJsonDropImport() {
+        var dropOverlay = null;
+
+        function isJsonFile(file) {
+            return file && (file.name.endsWith('.zwp.json') || file.name.endsWith('.json'));
+        }
+
+        function hasJsonFiles(dt) {
+            if (!dt || !dt.files) return false;
+            for (var i = 0; i < dt.files.length; i++) {
+                if (isJsonFile(dt.files[i])) return true;
+            }
+            return false;
+        }
+
+        function showDropOverlay() {
+            if (dropOverlay) return;
+            dropOverlay = document.createElement('div');
+            dropOverlay.className = 'zwp-drop-overlay';
+            dropOverlay.textContent = 'プロジェクトファイルをドロップして読み込み';
+            document.body.appendChild(dropOverlay);
+        }
+
+        function hideDropOverlay() {
+            if (dropOverlay) {
+                dropOverlay.remove();
+                dropOverlay = null;
+            }
+        }
+
+        document.addEventListener('dragover', function (e) {
+            if (!e.dataTransfer) return;
+            // Files が含まれている場合のみ反応（テキストD&D等は無視）
+            if (!Array.from(e.dataTransfer.types || []).includes('Files')) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            showDropOverlay();
+        });
+
+        document.addEventListener('dragleave', function (e) {
+            // document 外に出た場合のみオーバーレイを消す
+            if (!e.relatedTarget || e.relatedTarget === document.documentElement) {
+                hideDropOverlay();
+            }
+        });
+
+        document.addEventListener('drop', function (e) {
+            hideDropOverlay();
+            if (!e.dataTransfer || !hasJsonFiles(e.dataTransfer)) return;
+
+            var storage = window.ZenWriterStorage;
+            if (!storage || !storage.importProjectJSON) return;
+
+            e.preventDefault();
+            var files = Array.from(e.dataTransfer.files).filter(isJsonFile);
+            if (!files.length) return;
+
+            // 最初の JSON ファイルをインポート
+            var reader = new FileReader();
+            reader.onload = function (ev) {
+                var docId = storage.importProjectJSON(ev.target.result);
+                if (docId) {
+                    storage.setCurrentDocId(docId);
+                    window.dispatchEvent(new CustomEvent('ZWDocumentsChanged', {
+                        detail: { docs: storage.loadDocuments() || [] }
+                    }));
+                    // ページをリロードして新しいドキュメントを表示
+                    window.location.reload();
+                } else {
+                    var editor = window.ZenWriterEditor;
+                    if (editor && editor.showNotification) {
+                        editor.showNotification('プロジェクトファイルの読み込みに失敗しました', 3000);
+                    }
+                }
+            };
+            reader.readAsText(files[0]);
+        });
+    })();
 
     // 起動時にエディタへ自動フォーカス（即執筆可能にする）
     requestAnimationFrame(function () {

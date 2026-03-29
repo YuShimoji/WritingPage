@@ -256,13 +256,28 @@
         });
       }
 
-      // WYSIWYG内のルビクリックで編集ポップアップ
+      // 傍点ボタン
+      var kentenBtn = document.getElementById('wysiwyg-kenten');
+      if (kentenBtn) {
+        kentenBtn.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          this._handleKentenAction();
+        });
+      }
+
+      // WYSIWYG内のルビクリックで編集ポップアップ / 傍点クリックで解除
       if (this.wysiwygEditor) {
         this.wysiwygEditor.addEventListener('click', (e) => {
           var rubyEl = e.target.closest('ruby');
           if (rubyEl && this.isWysiwygMode) {
             e.preventDefault();
             this._showRubyEditPopup(rubyEl);
+            return;
+          }
+          var kentenEl = e.target.closest('.kenten');
+          if (kentenEl && this.isWysiwygMode) {
+            e.preventDefault();
+            this._showKentenRemovePopup(kentenEl);
           }
         });
       }
@@ -754,12 +769,16 @@
       range.deleteContents();
       range.insertNode(ruby);
 
-      // カーソルを ruby 要素の後ろに配置 (内部に入らないようにする)
+      // カーソルを ruby 要素の外側に確実に配置する
+      // Chromium は setStartAfter(ruby) だけでは後続入力を <rt> 内に挿入してしまう
+      // ゼロ幅スペースのテキストノードを挿入し、そこにカーソルを配置することで回避
+      var spacer = document.createTextNode('\u200B');
+      ruby.parentNode.insertBefore(spacer, ruby.nextSibling);
       var sel = window.getSelection();
       if (sel) {
         sel.removeAllRanges();
         var newRange = document.createRange();
-        newRange.setStartAfter(ruby);
+        newRange.setStart(spacer, 1);
         newRange.collapse(true);
         sel.addRange(newRange);
       }
@@ -773,6 +792,132 @@
       if (this.wysiwygEditor && this.isWysiwygMode) {
         this.wysiwygEditor.focus();
       }
+    }
+
+    // ---- 傍点 (kenten) ----
+
+    /**
+     * 傍点ボタンクリック: 選択テキストに傍点を付与
+     */
+    _handleKentenAction() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      var selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return;
+
+      var range = selection.getRangeAt(0);
+
+      // 選択範囲内にkenten要素があれば解除
+      var kentenEl = range.commonAncestorContainer.closest
+        ? range.commonAncestorContainer.closest('.kenten')
+        : null;
+      if (!kentenEl && range.commonAncestorContainer.parentElement) {
+        kentenEl = range.commonAncestorContainer.parentElement.closest('.kenten');
+      }
+      if (kentenEl) {
+        this._removeKenten(kentenEl);
+        return;
+      }
+
+      // テキスト選択がなければ何もしない
+      var selectedText = selection.toString().trim();
+      if (!selectedText) return;
+
+      this._applyKenten(range, selectedText);
+    }
+
+    /**
+     * 選択範囲を <span class="kenten"> で包む
+     */
+    _applyKenten(range, text) {
+      this._captureUndoSnapshot();
+      var span = document.createElement('span');
+      span.className = 'kenten';
+      span.textContent = text;
+
+      range.deleteContents();
+      range.insertNode(span);
+
+      // カーソルを傍点要素の外側に確実に配置する
+      var spacer = document.createTextNode('\u200B');
+      span.parentNode.insertBefore(spacer, span.nextSibling);
+      var sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        var newRange = document.createRange();
+        newRange.setStart(spacer, 1);
+        newRange.collapse(true);
+        sel.addRange(newRange);
+      }
+      this._notifyChange();
+    }
+
+    /**
+     * 傍点を解除（テキストノードに戻す）
+     */
+    _removeKenten(kentenEl) {
+      this._captureUndoSnapshot();
+      var text = kentenEl.textContent;
+      var textNode = document.createTextNode(text);
+      kentenEl.replaceWith(textNode);
+      // 隣接テキストノードを結合して選択可能にする
+      if (this.wysiwygEditor) this.wysiwygEditor.normalize();
+      // 解除したテキストを選択状態にする（即座に再適用可能）
+      var sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        var range = document.createRange();
+        range.selectNodeContents(textNode);
+        sel.addRange(range);
+      }
+      this._notifyChange();
+    }
+
+    /**
+     * 傍点クリック時の削除確認ポップアップ
+     */
+    _showKentenRemovePopup(kentenEl) {
+      this._removeRubyPopup(); // 既存ポップアップを閉じる
+      var self = this;
+
+      var rect = kentenEl.getBoundingClientRect();
+      var popup = document.createElement('div');
+      popup.id = 'ruby-popup';
+      popup.className = 'ruby-popup';
+      popup.setAttribute('role', 'dialog');
+      popup.setAttribute('aria-label', '傍点');
+      popup.style.top = (rect.top - 40 + window.scrollY) + 'px';
+      popup.style.left = rect.left + 'px';
+
+      var label = document.createElement('span');
+      label.className = 'ruby-popup__label';
+      label.textContent = kentenEl.textContent;
+      popup.appendChild(label);
+
+      var delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'small ruby-popup__delete';
+      delBtn.textContent = '解除';
+      delBtn.addEventListener('click', function () {
+        self._removeKenten(kentenEl);
+        self._removeRubyPopup();
+      });
+      popup.appendChild(delBtn);
+
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'small ruby-popup__ok';
+      cancelBtn.textContent = '閉じる';
+      cancelBtn.addEventListener('click', function () {
+        self._removeRubyPopup();
+      });
+      popup.appendChild(cancelBtn);
+
+      popup.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { self._removeRubyPopup(); }
+      });
+
+      document.body.appendChild(popup);
+      delBtn.focus();
     }
 
     // ---- DSL 属性設定モーダル ----
@@ -1316,10 +1461,20 @@
     setupFloatingToolbar() {
       if (!this.wysiwygEditor || !this.wysiwygToolbar) return;
       var self = this;
-      this._floatingVisible = false;
+      // 初期状態で非表示を確定
+      this.wysiwygToolbar.setAttribute('data-visible', 'false');
 
       document.addEventListener('selectionchange', function () {
-        if (!self.isWysiwygMode) return;
+        // UIモードが reader の場合は表示しない
+        var uiMode = document.documentElement.getAttribute('data-ui-mode');
+        if (uiMode === 'reader') {
+          self._hideFloatingToolbar();
+          return;
+        }
+        if (!self.isWysiwygMode) {
+          self._hideFloatingToolbar();
+          return;
+        }
         var sel = window.getSelection();
         if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
           self._hideFloatingToolbar();
@@ -1340,13 +1495,18 @@
       });
     }
 
+    /** @private フローティングツールバーの表示状態を属性から取得 */
+    _isFloatingVisible() {
+      return this.wysiwygToolbar && this.wysiwygToolbar.getAttribute('data-visible') === 'true';
+    }
+
     /** @private フローティングツールバーを選択範囲の近くに表示 (position: fixed) */
     _showFloatingToolbar(range) {
       var rect = range.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return;
 
       // ツールバー幅を正確に測定するため、一旦画面外に表示
-      if (!this._floatingVisible) {
+      if (!this._isFloatingVisible()) {
         this.wysiwygToolbar.style.top = '-9999px';
         this.wysiwygToolbar.style.left = '-9999px';
         this.wysiwygToolbar.setAttribute('data-visible', 'true');
@@ -1395,18 +1555,16 @@
       this.wysiwygToolbar.style.left = left + 'px';
       this.wysiwygToolbar.style.transform = 'translateX(-50%)';
       this.wysiwygToolbar.setAttribute('data-visible', 'true');
-      this._floatingVisible = true;
     }
 
     /** @private フローティングツールバーを非表示 */
     _hideFloatingToolbar() {
-      if (!this._floatingVisible) return;
+      if (!this.wysiwygToolbar) return;
       this.wysiwygToolbar.setAttribute('data-visible', 'false');
       // ドロップダウンも閉じる
       this.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
         d.setAttribute('data-open', 'false');
       });
-      this._floatingVisible = false;
     }
 
     // ─── Typewriter Mode ──────────────────────────────────
@@ -1609,13 +1767,40 @@
     }
 
     /**
+     * エディタ内の選択範囲を保存する（focus()による消失防止用）
+     */
+    _saveEditorSelection() {
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return null;
+      var range = sel.getRangeAt(0);
+      if (!this.wysiwygEditor || !this.wysiwygEditor.contains(range.commonAncestorContainer)) return null;
+      return range.cloneRange();
+    }
+
+    /**
+     * 保存した選択範囲を復元する
+     */
+    _restoreEditorSelection(savedRange) {
+      if (!savedRange) return;
+      var sel = window.getSelection();
+      if (sel) {
+        sel.removeAllRanges();
+        sel.addRange(savedRange);
+      }
+    }
+
+    /**
      * コマンドを実行（太字、斜体、下線など）
      * document.execCommandの代わりに、手動でHTMLタグを挿入する実装
      */
     executeCommand(command, value = null) {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
+      // ドロップダウン操作時に focus() で選択範囲が消失するのを防止
+      var savedRange = this._saveEditorSelection();
       this.wysiwygEditor.focus();
+      this._restoreEditorSelection(savedRange);
+
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
 
@@ -1641,7 +1826,11 @@
       // SP-055: カスタム装飾前にスナップショット（アトミックなUndo単位）
       this._captureUndoSnapshot();
 
+      // ドロップダウン操作時に focus() で選択範囲が消失するのを防止
+      var savedRange = this._saveEditorSelection();
       this.wysiwygEditor.focus();
+      this._restoreEditorSelection(savedRange);
+
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
 
@@ -1722,7 +1911,11 @@
     insertLink() {
       if (!this.wysiwygEditor || !this.isWysiwygMode) return;
 
+      // ドロップダウン操作時に focus() で選択範囲が消失するのを防止
+      var savedRange = this._saveEditorSelection();
       this.wysiwygEditor.focus();
+      this._restoreEditorSelection(savedRange);
+
       const selection = window.getSelection();
       if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
         this.notifySelectionRequired();
@@ -1732,15 +1925,15 @@
       const range = selection.getRangeAt(0);
       if (!this.wysiwygEditor.contains(range.commonAncestorContainer)) return;
 
-      const savedRange = range.cloneRange();
+      const linkRange = range.cloneRange();
       const selectedText = selection.toString().trim();
       const self = this;
 
-      this._showLinkInsertModal(savedRange, selectedText, function (url, isChapterLink, linkStyle) {
+      this._showLinkInsertModal(linkRange, selectedText, function (url, isChapterLink, linkStyle) {
         self.wysiwygEditor.focus();
         const sel = window.getSelection();
         sel.removeAllRanges();
-        sel.addRange(savedRange);
+        sel.addRange(linkRange);
 
         const link = document.createElement('a');
         if (isChapterLink) {
@@ -2040,18 +2233,16 @@
       // 表示を切り替え
       this.wysiwygEditor.style.display = 'none';
       this._hideFloatingToolbar();
-      this.wysiwygToolbar.removeAttribute('data-visible');
       this.textareaEditor.style.display = 'block';
       this.isWysiwygMode = false;
 
       // フォーカスを移動
       this.textareaEditor.focus();
 
-      // 保存と更新
+      // 保存と更新 (renderMarkdownPreview は editor-preview.js の責務 — input イベントで自動発火)
       if (this.editorManager) {
         this.editorManager.saveContent();
         this.editorManager.updateWordCount();
-        this.editorManager.renderMarkdownPreview();
       }
 
       // ツールバーボタンの状態を更新
@@ -2154,7 +2345,8 @@
     htmlToMarkdown(html) {
       if (!html) return '';
 
-      let serializedHtml = html;
+      // ルビ挿入時に追加されるゼロ幅スペースを除去
+      let serializedHtml = html.replace(/\u200B/g, '');
       let textboxPlaceholders = [];
       if (window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.serializeHtml === 'function') {
         const bridged = window.TextboxRichTextBridge.serializeHtml(html, {

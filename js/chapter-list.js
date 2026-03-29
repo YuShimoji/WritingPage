@@ -3,10 +3,9 @@
  *
  * Focus モードの左パネルにチャプターリストを表示する。
  *
- * Phase 1: 見出しベースのドキュメントから章を自動検出
- * Phase 2: chapterMode 時は ZWChapterStore から独立章データを使用
+ * chapterMode 専用: ZWChapterStore から独立章データを使用
  *
- * 依存: chapter-model.js (ZWChapterModel), chapter-store.js (ZWChapterStore)
+ * 依存: chapter-store.js (ZWChapterStore)
  */
 (function () {
   'use strict';
@@ -34,8 +33,7 @@
   }
 
   function inChapterMode() {
-    var docId = getCurrentDocId();
-    return !!(docId && Store && Store.isChapterMode(docId));
+    return true;
   }
 
   /**
@@ -59,8 +57,8 @@
   function init() {
     Model = window.ZWChapterModel;
     Store = window.ZWChapterStore;
-    if (!Model) {
-      console.warn('chapter-list: ZWChapterModel not found');
+    if (!Store) {
+      console.warn('chapter-list: ZWChapterStore not found');
       return;
     }
 
@@ -80,11 +78,7 @@
     // エディタ入力時にリフレッシュ / 自動保存
     var editorInputHandler = function () {
       if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
-      if (inChapterMode()) {
-        scheduleSaveActiveChapter();
-      } else {
-        scheduleRefresh();
-      }
+      scheduleSaveActiveChapter();
     };
     var editorEl = document.getElementById('editor');
     if (editorEl) {
@@ -146,41 +140,23 @@
   // ---- Mode Transition (Slice 3) ----
 
   function handleModeTransition(fromMode, toMode) {
-    // ContentGuard: モード遷移前に現在の状態を保全
     var G = window.ZWContentGuard;
 
     if (toMode === 'focus') {
-      // Normal → Focus: 遷移前に保存
       if (G) G.ensureSaved({ snapshot: false });
-      if (inChapterMode()) {
-        // chapterMode: 全文を章に分解
-        var docId = getCurrentDocId();
-        if (docId && fromMode !== 'focus') {
-          var text = getEditorText();
-          Store.splitIntoChapters(docId, text);
-        }
-        refreshChapterMode();
-        // 最初の章を選択
-        if (chapters.length > 0 && activeChapterIdx < 0) {
-          navigateToChapter(0);
-        }
-      } else {
-        refresh();
+      refreshChapterMode();
+      if (chapters.length > 0 && activeChapterIdx < 0) {
+        navigateToChapter(0);
       }
     } else if (fromMode === 'focus') {
       closeContextMenu();
-      if (inChapterMode()) {
-        // Focus → Normal (chapterMode): アクティブ章を保存 → 全文を組み立て
-        if (G) G.flushChapterIfNeeded();
-        else flushActiveChapter();
-        var docId2 = getCurrentDocId();
-        if (docId2) {
-          var fullText = Store.assembleFullText(docId2);
-          setEditorText(fullText);
-        }
-      } else {
-        // Focus → Normal (legacy): 現在の内容を保存
-        if (G) G.ensureSaved({ snapshot: false });
+      if (G) G.flushChapterIfNeeded();
+      else flushActiveChapter();
+      var docId = getCurrentDocId();
+      var chaps = docId && Store ? (Store.getChaptersForDoc(docId) || []) : [];
+      if (docId && chaps.length > 0) {
+        var fullText = Store.assembleFullText(docId);
+        setEditorText(fullText);
       }
     } else {
       if (toMode !== 'focus') {
@@ -197,24 +173,9 @@
   }
 
   function refresh() {
-    if (!Model || !listEl) return;
+    if (!Store || !listEl) return;
     if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
-
-    if (inChapterMode()) {
-      refreshChapterMode();
-    } else {
-      refreshLegacyMode();
-    }
-  }
-
-  /**
-   * Phase 1 互換: 見出しベースのリフレッシュ
-   */
-  function refreshLegacyMode() {
-    var text = getEditorText();
-    chapters = Model.parseChapters(text);
-    render();
-    updateActive();
+    refreshChapterMode();
   }
 
   /**
@@ -247,24 +208,6 @@
 
   function updateActive() {
     if (!listEl || chapters.length === 0) return;
-
-    if (inChapterMode()) {
-      // chapterMode: activeChapterIdx は navigateToChapter で設定済み
-      highlightActive();
-      return;
-    }
-
-    // Phase 1: カーソル位置から判定
-    // WYSIWYG モード中は textarea.selectionStart が信頼できないためスキップ
-    var E = window.ZenWriterEditor;
-    if (E && E.richTextEditor && E.richTextEditor.isWysiwygMode) {
-      highlightActive();
-      return;
-    }
-    var editorEl = document.getElementById('editor');
-    if (!editorEl) return;
-    var cursorPos = editorEl.selectionStart || 0;
-    activeChapterIdx = Model.getActiveChapterIndex(chapters, cursorPos);
     highlightActive();
   }
 
@@ -305,18 +248,11 @@
   function render() {
     listEl.innerHTML = '';
 
-    var isChMode = inChapterMode();
-
     if (chapters.length === 0) {
       var empty = document.createElement('div');
       empty.className = 'cl-empty';
-      empty.textContent = isChMode ? '章がありません' : '見出しがありません';
+      empty.textContent = '章がありません';
       listEl.appendChild(empty);
-
-      // chapterMode でなければ移行ボタンを表示 (Slice 4)
-      if (!isChMode) {
-        renderMigrateButton();
-      }
       return;
     }
 
@@ -334,9 +270,7 @@
       item.appendChild(titleSpan);
 
       // 文字数 (プレーンテキストベース)
-      var chBody = isChMode
-        ? (ch.content || '')
-        : (Model ? Model.getChapterBody(getEditorText(), ch) : '');
+      var chBody = ch.content || '';
       var bodyLen = countPlainChars(chBody);
       if (bodyLen > 0) {
         var countSpan = document.createElement('span');
@@ -345,8 +279,8 @@
         item.appendChild(countSpan);
       }
 
-      // visibility バッジ (chapterMode)
-      if (isChMode && ch.visibility && ch.visibility !== 'visible') {
+      // visibility バッジ
+      if (ch.visibility && ch.visibility !== 'visible') {
         var badge = document.createElement('span');
         badge.className = 'cl-item__badge cl-item__badge--' + ch.visibility;
         badge.textContent = ch.visibility === 'draft' ? '下書き' : '非公開';
@@ -390,15 +324,6 @@
     });
     listEl.appendChild(dropZone);
 
-    // chapterMode でなければ移行ボタンを表示
-    if (!isChMode && chapters.length > 0) {
-      renderMigrateButton();
-    }
-    // chapterMode なら解除ボタンを表示
-    if (isChMode) {
-      renderRevertButton();
-    }
-
     // フッター統計 + 目次コピーボタン
     renderFooterStats();
   }
@@ -413,14 +338,9 @@
 
     if (chapters.length === 0) return;
 
-    var isChMode = inChapterMode();
     var totalChars = 0;
-    var editorText = isChMode ? '' : getEditorText();
     chapters.forEach(function (ch) {
-      var body = isChMode
-        ? (ch.content || '')
-        : (Model ? Model.getChapterBody(editorText, ch) : '');
-      totalChars += countPlainChars(body);
+      totalChars += countPlainChars(ch.content || '');
     });
 
     var stats = document.createElement('div');
@@ -453,73 +373,6 @@
     footer.insertBefore(stats, footer.firstChild);
   }
 
-  // ---- Migration button (Slice 4) ----
-
-  function renderMigrateButton() {
-    if (!Store) return;
-    var docId = getCurrentDocId();
-    if (!docId) return;
-
-    var wrapper = document.createElement('div');
-    wrapper.className = 'cl-migrate-wrapper';
-    wrapper.style.padding = '0.5rem';
-    wrapper.style.marginTop = '0.5rem';
-    wrapper.style.borderTop = '1px solid var(--border-color, #333)';
-
-    var btn = document.createElement('button');
-    btn.className = 'small cl-migrate-btn';
-    btn.textContent = '章モードに変換';
-    btn.title = '見出しベースの章を独立保存に変換します';
-    btn.addEventListener('click', function () {
-      if (!confirm('章を独立した保存単位に変換しますか？\n（元のテキストはバックアップとして保持されます）')) return;
-      var ok = Store.migrateToChapterMode(docId);
-      if (ok) {
-        refreshChapterMode();
-        if (chapters.length > 0) {
-          navigateToChapter(0);
-        }
-      } else {
-        alert('変換に失敗しました');
-      }
-    });
-
-    wrapper.appendChild(btn);
-    listEl.appendChild(wrapper);
-  }
-
-  /**
-   * chapterMode 解除ボタンを表示 (ロールバック)
-   */
-  function renderRevertButton() {
-    if (!Store || !Store.revertChapterMode) return;
-    var docId = getCurrentDocId();
-    if (!docId) return;
-
-    var wrapper = document.createElement('div');
-    wrapper.className = 'cl-revert-wrapper';
-    wrapper.style.padding = '0.5rem';
-    wrapper.style.marginTop = '0.25rem';
-
-    var btn = document.createElement('button');
-    btn.className = 'small cl-revert-btn';
-    btn.textContent = '章モードを解除';
-    btn.title = '全章を結合して通常テキストに戻します';
-    btn.style.opacity = '0.6';
-    btn.addEventListener('click', function () {
-      if (!confirm('章モードを解除して通常テキストに戻しますか？\n（全章が1つのテキストに結合されます）')) return;
-      var restoredText = Store.revertChapterMode(docId);
-      if (restoredText !== false) {
-        setEditorText(restoredText);
-        refreshChapterMode();
-      } else {
-        alert('解除に失敗しました');
-      }
-    });
-
-    wrapper.appendChild(btn);
-    listEl.appendChild(wrapper);
-  }
-
   // ---- Click handlers ----
 
   function handleClick(idx, e) {
@@ -531,44 +384,21 @@
     if (idx < 0 || idx >= chapters.length) return;
     var ch = chapters[idx];
 
-    if (inChapterMode() && ch._storeRecord) {
-      // chapterMode: アクティブ章を保存してから切替
-      flushActiveChapter();
-      activeChapterIdx = idx;
-      setEditorText(ch.content || '');
-      // undo スタック + dirty baseline をリセット（別章の履歴を持ち込まない）
-      var E = window.ZenWriterEditor;
-      if (E && E.richTextEditor && typeof E.richTextEditor.resetUndoStack === 'function') {
-        E.richTextEditor.resetUndoStack();
-      }
-      if (E && typeof E.refreshDirtyBaseline === 'function') {
-        E.refreshDirtyBaseline();
-      }
-      highlightActive();
-      // WYSIWYG 対応: 適切なエディタにフォーカス
-      focusEditor();
-      return;
-    }
-
-    // Phase 1: 見出し位置にスクロール + カーソル設定
-    var E = window.ZenWriterEditor;
-    if (E && E.richTextEditor && E.richTextEditor.isWysiwygMode) {
-      // WYSIWYG: 見出し要素に直接スクロール
-      var wysiwygEl = document.getElementById('wysiwyg-editor');
-      if (wysiwygEl) {
-        var headings = wysiwygEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        if (headings[idx]) {
-          headings[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }
-    // textarea カーソルも設定 (内部整合性・テスト互換)
-    var editor2 = document.getElementById('editor');
-    if (editor2 && typeof editor2.setSelectionRange === 'function') {
-      editor2.setSelectionRange(ch.startOffset, ch.startOffset);
-    }
+    // chapterMode: アクティブ章を保存してから切替
+    flushActiveChapter();
     activeChapterIdx = idx;
+    setEditorText(ch.content || '');
+    // undo スタック + dirty baseline をリセット（別章の履歴を持ち込まない）
+    var E = window.ZenWriterEditor;
+    if (E && E.richTextEditor && typeof E.richTextEditor.resetUndoStack === 'function') {
+      E.richTextEditor.resetUndoStack();
+    }
+    if (E && typeof E.refreshDirtyBaseline === 'function') {
+      E.refreshDirtyBaseline();
+    }
     highlightActive();
+    // WYSIWYG 対応: 適切なエディタにフォーカス
+    focusEditor();
   }
 
   // ---- Double-click: inline rename ----
@@ -600,15 +430,8 @@
     function commit() {
       var newTitle = input.value.trim();
       if (newTitle && newTitle !== ch.title) {
-        if (inChapterMode() && ch._storeRecord) {
-          Store.renameChapter(ch.id, newTitle);
-          refreshChapterMode();
-        } else {
-          var text = getEditorText();
-          var updated = Model.renameChapter(text, ch, newTitle);
-          setEditorText(updated);
-          refresh();
-        }
+        Store.renameChapter(ch.id, newTitle);
+        refreshChapterMode();
       } else {
         refresh();
       }
@@ -638,38 +461,23 @@
   function showContextMenu(idx, x, y) {
     closeContextMenu();
 
-    var isChMode = inChapterMode();
-
     contextMenu = document.createElement('div');
     contextMenu.className = 'cl-context-menu';
     contextMenu.setAttribute('role', 'menu');
 
-    var actions;
-    if (isChMode) {
-      var currentVis = chapters[idx] ? (chapters[idx].visibility || 'visible') : 'visible';
-      actions = [
-        { label: 'リネーム', action: function () { startInlineRename(idx); } },
-        { label: '複製', action: function () { performDuplicate(idx); } },
-        { label: '上へ移動', action: function () { performMove(idx, 'up'); }, disabled: idx === 0 },
-        { label: '下へ移動', action: function () { performMove(idx, 'down'); }, disabled: idx === chapters.length - 1 },
-        { label: '---' },
-        { label: '表示', action: function () { setVisibility(idx, 'visible'); }, disabled: currentVis === 'visible' },
-        { label: '下書き', action: function () { setVisibility(idx, 'draft'); }, disabled: currentVis === 'draft' },
-        { label: '非公開', action: function () { setVisibility(idx, 'hidden'); }, disabled: currentVis === 'hidden' },
-        { label: '---' },
-        { label: '削除', action: function () { performDelete(idx, true); }, dangerous: true }
-      ];
-    } else {
-      actions = [
-        { label: 'リネーム', action: function () { startInlineRename(idx); } },
-        { label: '複製', action: function () { performDuplicate(idx); } },
-        { label: '上へ移動', action: function () { performMove(idx, 'up'); }, disabled: idx === 0 },
-        { label: '下へ移動', action: function () { performMove(idx, 'down'); }, disabled: idx === chapters.length - 1 },
-        { label: '---' },
-        { label: '削除（見出しのみ）', action: function () { performDelete(idx, false); } },
-        { label: '削除（本文含む）', action: function () { performDelete(idx, true); }, dangerous: true }
-      ];
-    }
+    var currentVis = chapters[idx] ? (chapters[idx].visibility || 'visible') : 'visible';
+    var actions = [
+      { label: 'リネーム', action: function () { startInlineRename(idx); } },
+      { label: '複製', action: function () { performDuplicate(idx); } },
+      { label: '上へ移動', action: function () { performMove(idx, 'up'); }, disabled: idx === 0 },
+      { label: '下へ移動', action: function () { performMove(idx, 'down'); }, disabled: idx === chapters.length - 1 },
+      { label: '---' },
+      { label: '表示', action: function () { setVisibility(idx, 'visible'); }, disabled: currentVis === 'visible' },
+      { label: '下書き', action: function () { setVisibility(idx, 'draft'); }, disabled: currentVis === 'draft' },
+      { label: '非公開', action: function () { setVisibility(idx, 'hidden'); }, disabled: currentVis === 'hidden' },
+      { label: '---' },
+      { label: '削除', action: function () { performDelete(idx); }, dangerous: true }
+    ];
 
     actions.forEach(function (a) {
       if (a.label === '---') {
@@ -713,7 +521,6 @@
   // ---- Chapter operations ----
 
   function handleAddChapter() {
-    // 共通ガード: ContentGuard 経由でアクティブ章/ドキュメントを確実に保存
     var G = window.ZWContentGuard;
     if (G) {
       G.flushChapterIfNeeded();
@@ -723,23 +530,14 @@
     }
 
     var docId = getCurrentDocId();
+    if (!docId) return;
     var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
     var afterId = lastChapter ? lastChapter.id : null;
     var level = lastChapter ? lastChapter.level : 2;
 
-    if (inChapterMode()) {
-      if (!docId) return;
-      Store.createChapter(docId, '新しい章', '', afterId, level);
-      refreshChapterMode();
-    } else {
-      // Legacy: テキスト操作 (保存は setEditorText → setContent → saveContent で自動)
-      var text = getEditorText();
-      var result = Model.addChapter(text, chapters, afterId, '新しい章', level);
-      setEditorText(result.text);
-      refresh();
-    }
+    Store.createChapter(docId, '新しい章', '', afterId, level);
+    refreshChapterMode();
 
-    // 共通: 新しい章にナビゲート + インラインリネーム
     setTimeout(function () {
       var newIdx = chapters.length - 1;
       if (newIdx >= 0) {
@@ -762,53 +560,29 @@
   function performDuplicate(idx) {
     var ch = chapters[idx];
     guardBeforeChapterOp();
-
-    if (inChapterMode() && ch._storeRecord) {
-      var docId = getCurrentDocId();
-      if (!docId) return;
-      Store.createChapter(docId, ch.title + ' (コピー)', ch.content || '', ch.id, ch.level);
-      refreshChapterMode();
-      return;
-    }
-
-    var text = getEditorText();
-    var updated = Model.duplicateChapter(text, ch);
-    setEditorText(updated);
-    refresh();
+    var docId = getCurrentDocId();
+    if (!docId) return;
+    Store.createChapter(docId, ch.title + ' (コピー)', ch.content || '', ch.id, ch.level);
+    refreshChapterMode();
   }
 
   function performMove(idx, direction) {
     var ch = chapters[idx];
     guardBeforeChapterOp();
+    var docId = getCurrentDocId();
+    if (!docId) return;
+    var swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= chapters.length) return;
 
-    if (inChapterMode() && ch._storeRecord) {
-      var docId = getCurrentDocId();
-      if (!docId) return;
-      var swapIdx = direction === 'up' ? idx - 1 : idx + 1;
-      if (swapIdx < 0 || swapIdx >= chapters.length) return;
-
-      // order を入れ替え
-      var ids = [];
-      for (var i = 0; i < chapters.length; i++) ids.push(chapters[i].id);
-      // swap
-      var tmp = ids[idx];
-      ids[idx] = ids[swapIdx];
-      ids[swapIdx] = tmp;
-      Store.reorderChapters(docId, ids);
-      refreshChapterMode();
-      var newIdx = direction === 'up' ? idx - 1 : idx + 1;
-      navigateToChapter(newIdx);
-      return;
-    }
-
-    var text = getEditorText();
-    var updated = Model.moveChapter(text, chapters, ch.id, direction);
-    if (updated !== null) {
-      setEditorText(updated);
-      refresh();
-      var newIdx2 = direction === 'up' ? idx - 1 : idx + 1;
-      navigateToChapter(newIdx2);
-    }
+    var ids = [];
+    for (var i = 0; i < chapters.length; i++) ids.push(chapters[i].id);
+    var tmp = ids[idx];
+    ids[idx] = ids[swapIdx];
+    ids[swapIdx] = tmp;
+    Store.reorderChapters(docId, ids);
+    refreshChapterMode();
+    var newIdx = direction === 'up' ? idx - 1 : idx + 1;
+    navigateToChapter(newIdx);
   }
 
   function setVisibility(idx, value) {
@@ -819,59 +593,36 @@
     refreshChapterMode();
   }
 
-  function performDelete(idx, deleteContent) {
+  function performDelete(idx) {
     var ch = chapters[idx];
     guardBeforeChapterOp();
-
-    if (inChapterMode() && ch._storeRecord) {
-      if (!confirm('「' + ch.title + '」を削除しますか？')) return;
-      Store.deleteChapter(ch.id);
-      activeChapterIdx = -1;
-      refreshChapterMode();
-      if (chapters.length > 0) {
-        navigateToChapter(Math.min(idx, chapters.length - 1));
-      } else {
-        setEditorText('');
-      }
-      return;
+    if (!confirm('「' + ch.title + '」を削除しますか？')) return;
+    Store.deleteChapter(ch.id);
+    activeChapterIdx = -1;
+    refreshChapterMode();
+    if (chapters.length > 0) {
+      navigateToChapter(Math.min(idx, chapters.length - 1));
+    } else {
+      setEditorText('');
     }
-
-    if (deleteContent) {
-      if (!confirm('「' + ch.title + '」の本文も含めて削除しますか？')) return;
-    }
-    var text = getEditorText();
-    var updated = Model.deleteChapter(text, ch, deleteContent);
-    setEditorText(updated);
-    refresh();
   }
 
   function performReorder(sourceIdx, targetIdx) {
     if (sourceIdx === targetIdx || sourceIdx === targetIdx - 1) return;
 
-    if (inChapterMode()) {
-      var docId = getCurrentDocId();
-      if (!docId) return;
+    var docId = getCurrentDocId();
+    if (!docId) return;
 
-      var ids = [];
-      for (var i = 0; i < chapters.length; i++) ids.push(chapters[i].id);
+    var ids = [];
+    for (var i = 0; i < chapters.length; i++) ids.push(chapters[i].id);
 
-      // sourceIdx を targetIdx の位置に移動
-      var moved = ids.splice(sourceIdx, 1)[0];
-      var insertAt = sourceIdx < targetIdx ? targetIdx - 1 : targetIdx;
-      ids.splice(insertAt, 0, moved);
+    // sourceIdx を targetIdx の位置に移動
+    var moved = ids.splice(sourceIdx, 1)[0];
+    var insertAt = sourceIdx < targetIdx ? targetIdx - 1 : targetIdx;
+    ids.splice(insertAt, 0, moved);
 
-      Store.reorderChapters(docId, ids);
-      refreshChapterMode();
-      return;
-    }
-
-    var ch = chapters[sourceIdx];
-    var text = getEditorText();
-    var updated = Model.reorderChapter(text, chapters, ch.id, targetIdx);
-    if (updated !== null) {
-      setEditorText(updated);
-      refresh();
-    }
+    Store.reorderChapters(docId, ids);
+    refreshChapterMode();
   }
 
   // ---- Drag & Drop ----
@@ -1023,11 +774,9 @@
     if (G) return G.getEditorContent();
 
     // フォールバック: ContentGuard 未ロード時
-    if (inChapterMode()) {
-      var E = window.ZenWriterEditor;
-      if (E && typeof E.getEditorValue === 'function') {
-        return E.getEditorValue() || '';
-      }
+    var E = window.ZenWriterEditor;
+    if (E && typeof E.getEditorValue === 'function') {
+      return E.getEditorValue() || '';
     }
     var editor = document.getElementById('editor');
     if (!editor) return '';

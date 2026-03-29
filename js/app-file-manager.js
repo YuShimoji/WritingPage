@@ -142,10 +142,10 @@
                     if (window.ZenWriterStorage.createDocument) {
                         const newDoc = window.ZenWriterStorage.createDocument(name.trim());
                         if (newDoc && newDoc.id) {
-                            // chapterMode 初期化: 空の初期チャプターを作成
+                            // chapterMode を自動適用
                             var Store = window.ZWChapterStore;
-                            if (Store && Store.splitIntoChapters) {
-                                Store.splitIntoChapters(newDoc.id, newDoc.content || '');
+                            if (Store && Store.ensureChapterMode) {
+                                Store.ensureChapterMode(newDoc.id);
                             }
                             this.switchDocument(newDoc.id);
                         }
@@ -161,10 +161,10 @@
                     if (docs.length === 0) {
                         const currentContent = window.ZenWriterStorage.loadContent ? (window.ZenWriterStorage.loadContent() || '') : '';
                         const newDoc = window.ZenWriterStorage.createDocument('デフォルト', currentContent);
-                        // chapterMode 初期化
+                        // chapterMode を自動適用
                         var Store = window.ZWChapterStore;
-                        if (newDoc && newDoc.id && Store && Store.splitIntoChapters) {
-                            Store.splitIntoChapters(newDoc.id, currentContent);
+                        if (newDoc && newDoc.id && Store && Store.ensureChapterMode) {
+                            Store.ensureChapterMode(newDoc.id);
                         }
                     }
 

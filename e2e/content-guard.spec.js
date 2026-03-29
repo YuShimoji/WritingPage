@@ -204,7 +204,7 @@ test.describe('ContentGuard データ保全', () => {
 
       var doc = S.createDocument('章テスト', '## 第一章\n\nテスト本文');
       S.setCurrentDocId(doc.id);
-      Store.migrateToChapterMode(doc.id);
+      if (Store.ensureChapterMode) Store.ensureChapterMode(doc.id);
 
       var chapters = Store.getChaptersForDoc(doc.id);
       return { docId: doc.id, chapterId: chapters.length > 0 ? chapters[0].id : null };

@@ -263,6 +263,11 @@
     var chapters = getChaptersForDoc(docId);
     if (chapters.length === 0) return '';
 
+    // 自動生成の単一章 ("本文") の場合、ヘッダーを付加しない
+    if (chapters.length === 1 && chapters[0].name === '\u672C\u6587') {
+      return chapters[0].content || '';
+    }
+
     var parts = [];
     for (var i = 0; i < chapters.length; i++) {
       var ch = chapters[i];
@@ -379,101 +384,9 @@
     }
   }
 
-  // ---- Migration ----
-
-  /**
-   * 見出しベースのドキュメントを chapterMode に変換
-   * @param {string} docId
-   * @returns {boolean}
-   */
-  function migrateToChapterMode(docId) {
-    if (!ensureStorage()) return false;
-    var doc = getDocRecord(docId);
-    if (!doc) return false;
-    if (doc.chapterMode) return true; // 既に移行済み
-
-    var fullText = '';
-    // 現在のドキュメント内容を取得 (WYSIWYG 対応)
-    // 1. ZenWriterEditor API を優先 (WYSIWYG でも Markdown を返す)
-    var E = window.ZenWriterEditor;
-    if (E && typeof E.getEditorValue === 'function') {
-      fullText = E.getEditorValue() || '';
-    }
-    // 2. フォールバック: doc.content
-    if (!fullText && doc.content) {
-      fullText = doc.content;
-    }
-    // 3. フォールバック: textarea 直接
-    if (!fullText) {
-      try {
-        var editorEl = document.getElementById('editor');
-        if (editorEl && editorEl.value) {
-          fullText = editorEl.value;
-        }
-      } catch (e) { void e; }
-    }
-    // 4. フォールバック: localStorage
-    if (!fullText) {
-      try {
-        fullText = localStorage.getItem('zenWriter_content') || '';
-      } catch (e) { void e; }
-    }
-
-    // 見出しベースで章を分解
-    splitIntoChapters(docId, fullText);
-
-    // ドキュメントに chapterMode フラグを付与
-    var docs = STORAGE.loadDocuments();
-    for (var i = 0; i < docs.length; i++) {
-      if (docs[i] && docs[i].id === docId) {
-        docs[i].chapterMode = true;
-        docs[i].updatedAt = Date.now();
-        break;
-      }
-    }
-    STORAGE.saveDocuments(docs);
-    return true;
-  }
-
-  /**
-   * chapterMode を解除して元のテキストに戻す
-   * assembleFullText で全章を結合し、doc.content に書き戻す
-   * @param {string} docId
-   * @returns {string|false} 復元されたテキスト、または失敗時 false
-   */
-  function revertChapterMode(docId) {
-    if (!ensureStorage()) return false;
-    var doc = getDocRecord(docId);
-    if (!doc || !doc.chapterMode) return false;
-
-    // 全章を結合してテキストに戻す
-    var fullText = assembleFullText(docId);
-
-    // 章レコードを削除
-    var docs = STORAGE.loadDocuments();
-    for (var i = docs.length - 1; i >= 0; i--) {
-      if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
-        // IDB からも削除
-        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
-          window.ZenWriterIDB.deleteDoc(docs[i].id).catch(function () {});
-        }
-        docs.splice(i, 1);
-      }
-    }
-
-    // ドキュメントの chapterMode を解除し、content を復元
-    for (var j = 0; j < docs.length; j++) {
-      if (docs[j] && docs[j].id === docId) {
-        docs[j].chapterMode = false;
-        docs[j].content = fullText;
-        docs[j].updatedAt = Date.now();
-        break;
-      }
-    }
-
-    STORAGE.saveDocuments(docs);
-    return fullText;
-  }
+  // ---- Migration (legacy, removed) ----
+  // migrateToChapterMode / revertChapterMode は SP-081 で削除
+  // chapterMode が唯一のモード
 
   // ---- Public API ----
 
@@ -495,8 +408,28 @@
     assembleFullText: assembleFullText,
     splitIntoChapters: splitIntoChapters,
 
-    // Migration
-    migrateToChapterMode: migrateToChapterMode,
-    revertChapterMode: revertChapterMode
+    // ensureChapterMode: 新規ドキュメントは常に chapterMode
+    ensureChapterMode: function (docId) {
+      if (!ensureStorage()) return false;
+      var doc = getDocRecord(docId);
+      if (!doc) return false;
+      if (doc.chapterMode) return true;
+      // 自動変換: chapterMode フラグを設定
+      var docs = STORAGE.loadDocuments();
+      for (var i = 0; i < docs.length; i++) {
+        if (docs[i] && docs[i].id === docId) {
+          docs[i].chapterMode = true;
+          docs[i].updatedAt = Date.now();
+          break;
+        }
+      }
+      STORAGE.saveDocuments(docs);
+      // 既存コンテンツがあれば章に分割
+      var fullText = doc.content || '';
+      if (fullText) {
+        splitIntoChapters(docId, fullText);
+      }
+      return true;
+    }
   };
 })();
