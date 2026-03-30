@@ -5,11 +5,11 @@
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
-- バージョン: v0.3.31
+- バージョン: v0.3.32
 - ブランチ: main
-- セッション: 32
-- 主レーン: Advance (SP-081 エディタ体験再構築 Phase 3)
-- スライス: SP-081 Phase 3 — 章増殖バグ根絶 + Blank完全除去 + setUIMode全経路統一
+- セッション: 34
+- 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
+- スライス: WP-001 Reader モードスイッチ統合 done → 次スライス選定
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 32 | 31 |
+| セッション番号 | 34 | 32 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
 | spec done | 43 | 42 |
@@ -43,7 +43,7 @@
 | 体験成果物 | 90% |
 | 基盤 | 93% |
 | 残 partial | SP-005(75%) |
-| IDEA POOL open | 1 (WP-001 hold → トリガー成立) |
+| IDEA POOL open | 1 (WP-001 着手中: UI磨き上げ・摩擦軽減) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |
 | ビジュアル監査 open | V-2/V-3/V-4: 解消見込み (session 26 Visual Audit で新規問題なし) |
@@ -54,9 +54,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 33 Visual Audit 実施) |
+| blocks_since_visual_audit | 1 (session 33 で実施、session 34 はコード修正) |
 | last_visual_audit_path | docs/verification/2026-03-30/ (19枚, 2026-03-30 session 33) |
-| visual_evidence_status | fresh |
+| visual_evidence_status | stale |
 
 ---
 
@@ -64,10 +64,25 @@
 
 | 診断項目 | 連続数 |
 | --------- | ------- |
-| Q4 No (成果物未前進) | 0 (Blank廃止+ツールバー整理+Reader導線+縦書き入力) |
-| Q6a No (基盤未獲得) | 0 (setUIMode公開+エッジグロー基盤) |
-| Q6b No (ユーザー可視変化なし) | 0 (3モード体制+10ボタンツールバー+Reader復帰バー+縦書きトグル) |
+| Q4 No (成果物未前進) | 0 (Reader モードスイッチ統合) |
+| Q6a No (基盤未獲得) | 0 (モードスイッチ3ボタン統合基盤) |
+| Q6b No (ユーザー可視変化なし) | 0 (3ボタンモードスイッチ) |
 | 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 34 実施内容
+### SP-081 コミット整理 + S4/persist 切り分け
+- session 33 の未コミット変更を2コミット (実装+docs) に分割
+- S4/persist NG: テストスクリプトの保存キーパス誤り (s.ui.sidebarOpen vs s.sidebarOpen)。実装は正常
+- project-context.md の done 件数修正 (42→43)、runtime-state.md ヘッダー更新
+### WP-001 UI 磨き上げ — Reader モードスイッチ統合 (Advance)
+- index.html: mode-switch に Reader ボタン (data-mode="reader", book-open アイコン) 追加
+- app.js: mode-switch-btn クリックハンドラで Reader enter/exit を呼び分け
+- app.js: aria-pressed を全3ボタン (Normal/Focus/Reader) で同期
+- reader-preview.js: exitReaderMode に targetMode 引数追加、動的ボタン生成を削除
+- css/style.css: return-bar z-index 200→1500 (ツールバーアイコンとの重なり解消)
+- E2E: 34 passed (モード関連)、63 passed / 1 failed (wiki: 既知不安定) / 1 skipped
 
 ---
 
