@@ -28,3 +28,6 @@
 ## 運用ルール
 - 一度説明された workflow pain はここへ固定する
 - 「本制作へ進む前に workflow proof が必要」な案件では、その proof 条件もここへ残す
+## 2026-03-31 Handoff Update
+- Screenshot refresh alone is not enough for operator verification; visual evidence must be tied to state assertions or duplicate-image checks.
+- For Reader and Focus regressions, prefer verifying real entry/exit flows over direct DOM mutation because stale event bindings can hide round-trip bugs.

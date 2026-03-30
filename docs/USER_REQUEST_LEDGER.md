@@ -18,3 +18,7 @@
 ## 運用ルール
 - 会話で一度出た要求のうち、次回以降も効くものをここへ残す。
 - 単なる感想ではなく、仕様・設計・backlog に効くものを優先する。
+## 2026-03-31 Handoff Update
+- User reported that visual-audit screenshots were mostly identical and therefore not functioning as a regression signal.
+- User-reported UI issues for this block: Reader empty-state mismatch, Focus toolbar gap, Focus left-panel overlap, Reader return overlay, suspected document multiplication around mode changes.
+- Manual visual confirmation of final button styling and spacing is deferred to a later session by user choice.

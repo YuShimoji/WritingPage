@@ -504,14 +504,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // R-4: モード遷移前にツールバー状態を確定的にリセット
         // Normal モードに入る場合: ツールバーを確実に表示
-        if (targetMode === 'normal') {
-            try {
+        try {
+            if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
+                window.sidebarManager.setToolbarVisibility(targetMode === 'normal');
+            } else if (targetMode === 'normal') {
                 document.documentElement.removeAttribute('data-toolbar-hidden');
-                if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
-                    window.sidebarManager.setToolbarVisibility(true);
-                }
-            } catch (_) { }
-        }
+            } else {
+                document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+            }
+        } catch (_) { }
 
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 

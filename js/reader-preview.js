@@ -102,7 +102,13 @@
 
     // 戻るFAB
     if (backFab) {
-      backFab.addEventListener('click', exitReaderMode);
+      if (backFab.__zwReaderExitHandler) {
+        backFab.removeEventListener('click', backFab.__zwReaderExitHandler);
+      }
+      backFab.__zwReaderExitHandler = function () {
+        exitReaderMode();
+      };
+      backFab.addEventListener('click', backFab.__zwReaderExitHandler);
     }
 
     // Escキーで復帰（app-shortcuts.jsに統合されていない場合のフォールバック）
@@ -156,6 +162,12 @@
   }
 
   function exitReaderMode(targetMode) {
+    if (
+      !targetMode &&
+      document.documentElement.getAttribute('data-ui-mode') !== 'reader'
+    ) {
+      return;
+    }
     // スクロール位置を保存
     saveScrollPosition();
 
@@ -168,7 +180,7 @@
     previousMode = null;
 
     // 編集モード復帰後も同じ位置に Reader 復帰導線を残す
-    showReturnToReaderBar(target);
+    hideReturnToReaderBar();
 
     // プログレスバーをリセット
     if (progressFill) progressFill.style.width = '0%';
@@ -244,7 +256,9 @@
           barToRemove.parentNode.removeChild(barToRemove);
         }
       }, 300);
-    } else {
+    }
+
+    else {
       returnBar = null;
     }
   }
@@ -468,21 +482,30 @@
     var Store = window.ZWChapterStore;
     var S = window.ZenWriterStorage;
     var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
-
+    var currentDoc = null;
     var markdown = '';
+
+    if (docId && S && typeof S.loadDocuments === 'function') {
+      var docs = S.loadDocuments() || [];
+      currentDoc = docs.find(function (d) { return d && d.id === docId; }) || null;
+    }
 
     if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId)) {
       // chapterMode: visible章のみ結合
       var chapters = Store.getChaptersForDoc(docId) || [];
-      var visibleParts = [];
-      chapters.forEach(function (ch) {
-        if (!ch.visibility || ch.visibility === 'visible') {
-          var heading = '## ' + (ch.name || 'Untitled');
-          visibleParts.push(heading + '\n\n' + (ch.content || ''));
-        }
-      });
-      markdown = visibleParts.join('\n\n---\n\n');
-    } else {
+      if (chapters.length > 0) {
+        var visibleParts = [];
+        chapters.forEach(function (ch) {
+          if (!ch.visibility || ch.visibility === 'visible') {
+            var heading = '## ' + (ch.name || 'Untitled');
+            visibleParts.push(heading + '\n\n' + (ch.content || ''));
+          }
+        });
+        markdown = visibleParts.join('\n\n---\n\n');
+      }
+    }
+
+    if (!markdown.trim()) {
       // 通常モード: エディタ全文
       var G = window.ZWContentGuard;
       if (G && typeof G.getEditorContent === 'function') {
@@ -491,6 +514,23 @@
         var editor = document.getElementById('editor');
         markdown = editor ? editor.value || '' : '';
       }
+    }
+
+    if (!markdown.trim() && currentDoc) {
+      markdown = currentDoc.content || '';
+    }
+
+    if (
+      markdown.trim() &&
+      docId &&
+      Store &&
+      typeof Store.isChapterMode === 'function' &&
+      Store.isChapterMode(docId) &&
+      typeof Store.getChaptersForDoc === 'function' &&
+      (Store.getChaptersForDoc(docId) || []).length === 0 &&
+      typeof Store.splitIntoChapters === 'function'
+    ) {
+      Store.splitIntoChapters(docId, markdown);
     }
 
     if (!markdown.trim()) return '';

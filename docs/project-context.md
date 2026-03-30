@@ -115,3 +115,19 @@
   - [Unlock] 装飾グループ/Canvas Mode HTML削除の判断 (HUMAN_AUTHORITY)
   - [Advance] ツールバーボタン数最適化
   - [Docs] SP-005 done化 (ROADMAP更新済み、spec-index.json 更新で完了可能)
+## RECENT NOTE (2026-03-31, session 37)
+- Focus / Reader / visual-audit hardening completed as a direct WP-001 slice.
+- `e2e/visual-audit.spec.js` now uses real content flows plus duplicate-image detection; screenshot refresh alone no longer counts as evidence.
+- `js/reader-preview.js` now falls back to current editor/document content, removes the large return overlay on exit, and stabilizes the Reader back button so Focus -> Reader -> Focus works again.
+- `css/style.css` + `js/app.js` align Focus toolbar hiding with actual layout removal and prevent left panel overlap.
+- Verification passed:
+  - `e2e/visual-audit.spec.js` -> 22 passed
+  - `e2e/ui-mode-consistency.spec.js e2e/reader-preview.spec.js e2e/sp081-reader-audit.spec.js --workers=1` -> 30 passed
+- Human follow-up remains light and stylistic only: Reader button visual fit and Focus left-panel spacing feel.
+- Missing canonical docs still unresolved in repo:
+  - `docs/FEATURE_REGISTRY.md`
+  - `docs/AUTOMATION_BOUNDARY.md`
+
+## DECISION LOG ADDENDUM (2026-03-31)
+- Treat duplicate screenshot collapse as a real regression in visual audit, not as a harmless evidence refresh issue.
+- Prefer the shared toolbar Reader entry over the removed compact quick-toggle path.

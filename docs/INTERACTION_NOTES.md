@@ -17,3 +17,6 @@
 
 ## 報告メモ
 - [例] BLOCK SUMMARY では先に原因分析を示す
+## 2026-03-31 Handoff Update
+- When asking for manual confirmation, give concrete UI checkpoints rather than a broad "please review the UI".
+- Current deferred manual checks are limited to button styling consistency and Focus left-panel spacing feel.

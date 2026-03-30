@@ -403,6 +403,10 @@ textarea:focus-visible {
 /* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
 /* transform方式: エッジホバーでのスライドイン復帰に対応 */
 html[data-toolbar-hidden='true'] .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
@@ -442,6 +446,15 @@ html[data-ui-mode='focus'] .main-content {
 html[data-ui-mode='focus'] .editor-container {
   margin-left: 0 !important;
   width: 100% !important;
+}
+
+html[data-ui-mode='focus'][data-edge-hover-left='true'] .editor-container {
+  margin-left: var(--focus-panel-width, 15rem) !important;
+  width: calc(100% - var(--focus-panel-width, 15rem)) !important;
+}
+
+html[data-ui-mode='focus'][data-edge-hover-left='true'] .main-content {
+  margin-left: 0 !important;
 }
 
 html[data-ui-mode='focus'] #editor {
@@ -7462,6 +7475,10 @@ details[open] summary {
 
 /* ツールバー自体の表示/非表示制御 (transform方式: エッジホバー対応) */
 [data-toolbar-hidden="true"] .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;

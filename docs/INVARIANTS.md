@@ -19,3 +19,7 @@
 ## 運用ルール
 - ユーザーが一度説明した非交渉条件は、同一ブロック内でここへ固定する。
 - `project-context.md` の DECISION LOG には理由を短く残し、ここには条件そのものを残す。
+## 2026-03-31 Handoff Update
+- Visual audit is not valid if screenshots are only refreshed; the audit must prove distinct UI states through real UI flows and duplicate-image detection.
+- Reader exit must not leave a large return overlay on top of editing controls.
+- Focus mode must not leave a top toolbar gap or let the left panel overlap the writing surface.

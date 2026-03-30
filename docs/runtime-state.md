@@ -253,3 +253,19 @@
 - 542 passed / 0 failed / 3 skipped (63 spec files)
 - visual-audit 20件が通過するようになった (+20)
 - session固有spec 2件削除 (-13 tests)
+## 2026-03-31 HANDOFF UPDATE
+- session: 37
+- branch: main
+- active_artifact: WP-001 UI polish and regression closure
+- current_slice: Focus / Reader / visual-audit hardening
+- last_change_relation: direct
+- evidence:
+  - `npx playwright test e2e/visual-audit.spec.js --reporter=line` -> 22 passed
+  - `npx playwright test e2e/ui-mode-consistency.spec.js e2e/reader-preview.spec.js e2e/sp081-reader-audit.spec.js --reporter=line --workers=1` -> 30 passed
+- visual_evidence_status: fresh (hash diversity check added; screenshot collapse now fails the audit)
+- manual_followup_deferred:
+  - Reader button styling consistency
+  - Focus left-panel spacing feel on user's normal window sizes
+- canonical_doc_gaps:
+  - `docs/FEATURE_REGISTRY.md` missing
+  - `docs/AUTOMATION_BOUNDARY.md` missing

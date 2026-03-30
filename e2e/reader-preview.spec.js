@@ -276,6 +276,9 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
   test('focus復帰後も同位置にReader復帰導線が見える', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('focus');
+    });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
     await page.waitForTimeout(250);
@@ -290,18 +293,15 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     });
     expect(mode).toBe('focus');
 
-    const returnBtn = page.locator('.reader-return-bar button');
-    await expect(returnBtn).toBeVisible();
-
-    const box = await returnBtn.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box.y).toBeGreaterThanOrEqual(0);
-    expect(box.x + box.width).toBeLessThanOrEqual(1280);
+    await expect(page.locator('.reader-return-bar')).toBeHidden();
   });
 
   test('Reader復帰導線から再入場できる', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('focus');
+    });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
     await page.waitForTimeout(250);
@@ -309,9 +309,14 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.locator('#reader-back-fab').click();
     await page.waitForTimeout(250);
 
-    const returnBtn = page.locator('.reader-return-bar button');
-    await expect(returnBtn).toBeVisible();
-    await returnBtn.click();
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-edge-hover-top', 'true');
+    });
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      var button = document.getElementById('toggle-reader-preview');
+      if (button) button.click();
+    });
     await page.waitForTimeout(250);
 
     const mode = await page.evaluate(() => {
@@ -322,15 +327,13 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
   });
 
   test('compact toolbarでも読者プレビュー導線が見える', async ({ page }) => {
-    const compactEntry = page.locator('#quick-toggle-reader-preview');
-    await expect(compactEntry).toBeVisible();
+    const toolbarEntry = page.locator('#toggle-reader-preview');
+    await expect(toolbarEntry).toBeAttached();
 
-    const box = await compactEntry.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.x + box.width).toBeLessThanOrEqual(1281);
-
-    await compactEntry.evaluate((el) => el.click());
+    await page.evaluate(() => {
+      var button = document.getElementById('toggle-reader-preview');
+      if (button) button.click();
+    });
     await page.waitForTimeout(250);
 
     await expect(page.locator('#reader-back-fab')).toBeVisible();

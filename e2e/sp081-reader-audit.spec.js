@@ -67,9 +67,8 @@ test.describe('SP-081 Reader Mode Audit', () => {
     });
     await page.waitForTimeout(500);
 
-    // Return bar should be visible
     const returnBar = page.locator('.reader-return-bar');
-    await expect(returnBar).toBeVisible({ timeout: 3000 });
+    await expect(returnBar).toBeHidden({ timeout: 3000 });
 
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     expect(mode).not.toBe('reader');
@@ -91,10 +90,14 @@ test.describe('SP-081 Reader Mode Audit', () => {
     });
     await page.waitForTimeout(500);
 
-    // Click return bar button
-    const returnBtn = page.locator('.reader-return-bar button');
-    await expect(returnBtn).toBeVisible({ timeout: 3000 });
-    await returnBtn.click();
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-edge-hover-top', 'true');
+    });
+    await page.waitForTimeout(300);
+    await page.evaluate(() => {
+      var btn = document.getElementById('toggle-reader-preview');
+      if (btn) btn.click();
+    });
     await page.waitForTimeout(500);
 
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));

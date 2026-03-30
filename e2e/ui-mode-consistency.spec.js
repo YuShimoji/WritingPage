@@ -42,6 +42,48 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
+  test('Focus mode: toolbar does not leave a top gap in the editor layout', async ({ page }) => {
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(200);
+    const layout = await page.evaluate(() => {
+      const visibleEditor = [...document.querySelectorAll('#editor, #wysiwyg-editor')]
+        .find((el) => window.getComputedStyle(el).display !== 'none');
+      const editorContainer = document.querySelector('.editor-container');
+      const toolbar = document.getElementById('toolbar');
+      if (!visibleEditor || !editorContainer || !toolbar) return null;
+      return {
+        toolbarHidden: document.documentElement.getAttribute('data-toolbar-hidden'),
+        containerTop: Math.round(editorContainer.getBoundingClientRect().top),
+        editorTop: Math.round(visibleEditor.getBoundingClientRect().top),
+        toolbarBottom: Math.round(toolbar.getBoundingClientRect().bottom)
+      };
+    });
+    expect(layout).not.toBeNull();
+    expect(layout.toolbarHidden).toBe('true');
+    expect(layout.containerTop).toBe(0);
+    expect(layout.editorTop).toBe(0);
+    expect(layout.toolbarBottom).toBe(0);
+  });
+
+  test('Focus mode: left edge panel does not overlap the writing surface', async ({ page }) => {
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(200);
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-edge-hover-left', 'true');
+    });
+    await page.waitForTimeout(350);
+    const overlap = await page.evaluate(() => {
+      const panel = document.getElementById('focus-chapter-panel');
+      const visibleEditor = [...document.querySelectorAll('#editor, #wysiwyg-editor')]
+        .find((el) => window.getComputedStyle(el).display !== 'none');
+      if (!panel || !visibleEditor) return null;
+      const panelRect = panel.getBoundingClientRect();
+      const editorRect = visibleEditor.getBoundingClientRect();
+      return Math.max(0, Math.round(panelRect.right - editorRect.left));
+    });
+    expect(overlap).toBe(0);
+  });
+
   // ===== Blank モード廃止 (SP-081 Phase 3) =====
 
   // ===== モード遷移 =====
@@ -93,6 +135,30 @@ test.describe('UI Mode Consistency', () => {
     if (await preview.count() > 0) {
       await expect(preview).toBeVisible();
     }
+  });
+
+  test('Reader mode: current editor content is rendered instead of empty state', async ({ page }) => {
+    await page.evaluate(() => {
+      const content = '## 第一章\n本文です\n\n### シーン1\nReader確認';
+      if (window.ZWContentGuard && typeof window.ZWContentGuard.safeSetContent === 'function') {
+        window.ZWContentGuard.safeSetContent(content, { backup: false });
+      } else {
+        const editor = document.getElementById('editor');
+        if (editor) {
+          editor.value = content;
+          editor.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+      if (window.ZWContentGuard && typeof window.ZWContentGuard.ensureSaved === 'function') {
+        window.ZWContentGuard.ensureSaved({ snapshot: false });
+      }
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(300);
+    const text = await page.locator('#reader-preview-inner').innerText();
+    expect(text).toContain('第一章');
+    expect(text).toContain('Reader確認');
+    expect(text).not.toContain('コンテンツがありません');
   });
 
   test('Reader mode: exit returns to previous mode', async ({ page }) => {
