@@ -7,7 +7,7 @@
 | 項目 | 状態 |
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
-| バージョン | v0.3.29 |
+| バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
 | 現在の主軸 | UI/UX の磨き上げと未完了機能の安全な局所化 |
 | 直近の重点仕様 | `SP-053` 執筆集中サイドバー, `SP-062` テキスト表現アーキテクチャ |
@@ -20,6 +20,7 @@
 - `blank` 指定は互換のため `focus` にフォールバックする
 - Electron の「超ミニマル」は `setUIMode` 経由で `focus` 系へ正規化して扱う
 - コマンドパレットの UI モード切替は hidden `select` を使わず、`ZenWriterApp.setUIMode()` と可視モードボタン経由に統一
+- hidden `ui-mode-select` 要素は HTML から完全削除済み (session 36)
 
 ## 2026-03-30 に修正したこと
 
@@ -34,18 +35,13 @@
 
 ## 検証結果
 
-実行済み:
+実行済み (session 36):
 
-- `npm run lint:js:check`
-- `npx playwright test e2e/accessibility.spec.js e2e/ui-regression.spec.js e2e/command-palette.spec.js e2e/sidebar-writing-focus.spec.js --reporter=line`
-
-結果:
-
-- `27 passed`
+- `npm run lint:js:check` → 0 errors / 0 warnings
+- `npx playwright test --reporter=line` → 526 passed / 0 failed / 3 skipped
 
 未実施:
 
-- Playwright 全件
 - Electron 実機でのメニュー経由確認
 
 ## 現在の優先課題
