@@ -19,7 +19,7 @@
 - `normal` モードでは従来のサイドバーアコーディオンを維持する
 - `blank` 指定は互換のため `focus` にフォールバックする
 - Electron の「超ミニマル」は `setUIMode` 経由で `focus` 系へ正規化して扱う
-- コマンドパレットの UI モード切替は hidden `select` ではなくアプリ API を優先して呼ぶ
+- コマンドパレットの UI モード切替は hidden `select` を使わず、`ZenWriterApp.setUIMode()` と可視モードボタン経由に統一
 
 ## 2026-03-30 に修正したこと
 

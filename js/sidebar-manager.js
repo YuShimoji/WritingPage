@@ -180,8 +180,10 @@ class SidebarManager {
 
                     // chevron-downアイコンの前に挿入
                     const accordionChevron = header.querySelector('.accordion-icon');
-                    if (accordionChevron) {
+                    if (accordionChevron && accordionChevron.parentNode === header) {
                         header.insertBefore(bulkBtn, accordionChevron);
+                    } else {
+                        header.appendChild(bulkBtn);
                     }
                 }
 

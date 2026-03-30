@@ -10,10 +10,9 @@
       window.ZenWriterApp.setUIMode(mode);
       return;
     }
-    const select = document.getElementById('ui-mode-select');
-    if (select) {
-      select.value = mode;
-      select.dispatchEvent(new Event('change'));
+    const modeButton = document.querySelector('.mode-switch-btn[data-mode="' + mode + '"]');
+    if (modeButton instanceof HTMLElement) {
+      modeButton.click();
     }
   }
 

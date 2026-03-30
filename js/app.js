@@ -553,10 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const select = document.getElementById('ui-mode-select');
-        if (select && select.value !== targetMode) {
-            select.value = targetMode;
-        }
 
         // モードスイッチボタンの状態を同期
         // 全ボタン (Normal/Focus/Reader) の aria-pressed を更新
@@ -585,13 +581,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return document.documentElement.getAttribute('data-ui-mode') || 'normal';
         }
     });
-
-    const uiModeSelect = document.getElementById('ui-mode-select');
-    if (uiModeSelect) {
-        uiModeSelect.addEventListener('change', (e) => {
-            setUIMode(e.target.value);
-        });
-    }
 
     // モードスイッチボタンのクリックハンドラ
     document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {

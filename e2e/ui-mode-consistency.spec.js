@@ -17,11 +17,20 @@ test.describe('UI Mode Consistency', () => {
   });
 
   // ===== Focus モード =====
-  test('Focus mode: sidebar is hidden by CSS', async ({ page }) => {
+  test('Focus mode: sidebar stays closed and aria-hidden', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
-    const sidebar = page.locator('.sidebar');
-    await expect(sidebar).toBeHidden();
+    const sidebarState = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar) return null;
+      return {
+        open: sidebar.classList.contains('open'),
+        ariaHidden: sidebar.getAttribute('aria-hidden'),
+      };
+    });
+    expect(sidebarState).not.toBeNull();
+    expect(sidebarState.open).toBe(false);
+    expect(sidebarState.ariaHidden).toBe('true');
   });
 
   test('Focus mode: focus chapter panel appears if present', async ({ page }) => {
