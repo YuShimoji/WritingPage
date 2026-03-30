@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-03-23 / v0.3.29
+> 最終更新: 2026-03-30 / v0.3.32
 
 ## ステータス語彙
 
@@ -14,13 +14,13 @@
 
 ## 現在の状態
 
-- E2E: 542 passed / 0 failed / 3 skipped / 63 spec files (2026-03-26 session 26)
+- E2E: 526 passed / 0 failed / 3 skipped / 65 spec files (2026-03-30 session 36)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 28個登録 (session 19で33→28に整理。削除4: Clock/Samples/NodeGraph/GraphicNovel。無効化2: UIDesign/SceneGradient。session 22でデッドコード物理削除)
-- 仕様書: spec-index.json に 54 エントリ (done 39, partial 3, removed 11, superseded 1)
-- 残 partial: SP-005(75%)
-- 直近 done: SP-076(100%, session 25で実装済み確認)
+- ガジェット: 28個登録
+- 仕様書: spec-index.json に 55 エントリ (done 43, partial 1, removed 11, superseded 1)
+- 残 partial: SP-005(本ドキュメント)
+- 直近 done: SP-081(エディタ体験再構築, session 33), SP-080(JSONプロジェクト保存, session 27)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ---
@@ -76,7 +76,16 @@ chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI +
 - [x] Step 3: 文字数を countPlainChars() に統一 (DSL/見出し/装飾記法を除外)
 - [x] Step 4: Legacy ドキュメントに「新フォーマットに変換」バナー表示
 
-### A-5. UI/UX 磨き上げ (残タスク)
+### A-5. エディタ体験再構築 (SP-081) -- done
+
+chapterMode一本化 + Blank廃止 + setUIMode全経路統一 + Reader統合。Phase 1-4 全完了 (session 30-34)。
+
+- [x] Phase 1: レガシー章管理削除 (-254行)、chapterMode一本化
+- [x] Phase 2: メインツールバーの不要ボタン非表示
+- [x] Phase 3: Blank完全除去、エッジグロー、setUIMode全経路統一
+- [x] Phase 4: setUIMode force パラメータ、サイドバー永続化、Reader aria-pressed修正
+
+### A-6. UI/UX 磨き上げ (残タスク)
 
 - px→rem段階移行 -- done (Phase 1: font-size+CSSカスタムプロパティ+JS setProperty / Phase 2: padding+margin / Phase 3: width+height+gap+border-radius+JS静的値)
 
@@ -190,7 +199,8 @@ Session 19 (2026-03-23) で33→28に整理完了。削除: Clock/Samples/NodeGr
 
 - IndexedDB 移行 -- done (SP-077)。ドキュメント/アセット/スナップショット/Wiki/ノードグラフ全移行完了
 - SP-071 Phase 2 (章ごと独立保存) -- done (documents ストア + IDB フラッシュ)
-- クラウド同期基盤 -- 将来のクラウド同期への布石
+- SP-080 JSONプロジェクト保存 -- done (session 27。exportProjectJSON/importProjectJSON + Electronメニュー統合)
+- クラウド同期基盤 -- todo (将来。IDB基盤は整備済み、具体的な同期先は未定)
 
 ---
 

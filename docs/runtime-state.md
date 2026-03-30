@@ -20,8 +20,8 @@
 | セッション番号 | 36 | 34 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
-| spec done | 43 | 42 |
-| spec partial | 1 (SP-005) | 2 |
+| spec done | 44 | 43 |
+| spec partial | 0 | 1 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
@@ -42,7 +42,7 @@
 | ---- | --- |
 | 体験成果物 | 90% |
 | 基盤 | 93% |
-| 残 partial | SP-005(75%) |
+| 残 partial | なし (SP-005 done化) |
 | IDEA POOL open | 1 (WP-001 着手中: UI磨き上げ・摩擦軽減) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |

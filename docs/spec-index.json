@@ -38,11 +38,11 @@
   {
     "id": "SP-005",
     "title": "ロードマップ",
-    "status": "partial",
-    "pct": 75,
+    "status": "done",
+    "pct": 100,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: 100%完了。B: SP-074 done, SP-061 done, SP-050 done, SP-073 done(Phase 1-4全完了)。C: SP-076 done(Phase 1-4全完了), C-3 done(WP-002)。D: PDF done, 他スコープ外。E: done(IndexedDB+章独立保存)。ガジェット28個"
+    "summary": "Priority A-E の開発計画。A: SP-081 done追加。B: 全done。C: 全done/除外。D: PDF done, 他除外。E: SP-077+SP-080 done, クラウド同期はtodo(将来)。v0.3.32 / session 36 同期済み"
   },
   {
     "id": "SP-006",

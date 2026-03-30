@@ -14,12 +14,12 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.32)
-- 直近の状態: session 32 — SP-081 Phase 3: 章増殖バグ根絶 + Blank完全除去 + setUIMode全経路統一
+- 直近の状態: session 36 — lint根絶 + 堆積物削除 + hidden要素削除 + ROADMAP同期
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 483 passed / 0 failed / 3 skipped (session 31-33)
+- E2E: 526 passed / 0 failed / 3 skipped (session 36)
 - spec-index: 56エントリ (done 43, partial 1, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
@@ -46,17 +46,16 @@
 
 ## CURRENT LANE
 
-- 主レーン: (SP-081 完了、次レーン未定)
-- 候補: WP-001 執筆ワークフロー統合 (HUMAN_AUTHORITY) / 既存成果物の直接改善
+- 主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
+- 候補: hidden要素削除 / ツールバー整理 (HUMAN_AUTHORITY判断待ち) / 既存成果物の直接改善
 - いまは深入りしないレーン: 追加テスト、新規ガジェット
 
 ---
 
 ## CURRENT SLICE
 
-- スライス名: (SP-081 done/100%、次スライス未定)
-- SP-081 成功条件: 全9件達成済み
-- 次スライス候補: WP-001 方向性決定待ち
+- スライス名: WP-001 lint根絶 + 堆積物削除 + hidden要素削除 (session 36 done)
+- 次スライス候補: 装飾グループ/Canvas Mode HTML削除 (HUMAN_AUTHORITY) / ツールバーボタン数削減
 
 ---
 
@@ -90,27 +89,29 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: (SP-081 done/100%、次 frontier 未定)
-- 現在のスライス: 次スライス選定待ち
-- 今回 (session 33-34) の変更:
-  - session 33: SP-081 Phase 4 — setUIMode force パラメータ、サイドバー永続化、minimal→setUIMode統一、Reader aria-pressed/return-bar修正。done/100%
-  - session 34: 2コミット(実装+docs)、S4/persist切り分け完了(テストスクリプト側バグ)、docs乖離修正
-- 次回最初に確認すべきファイル:
-  - WP-001 方向性の決定 (HUMAN_AUTHORITY)
-  - 装飾グループ/Canvas Mode のHTML要素削除判断
-- 未確定の設計論点:
-  - WP-001 執筆ワークフロー統合の方向性 (HUMAN_AUTHORITY)
-  - 装飾グループ/Canvas Mode のHTML要素自体を削除してよいか (現在hidden)
-  - WYSIWYGフローティングツールバーのボタン数 (~15個。最小限に絞る方向?)
+- 現在の主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
+- 現在のスライス: lint根絶 + 堆積物削除 + hidden要素削除 done → 次スライス選定
+- 今回 (session 36) の変更:
+  - session 35 未コミット変更のコミット (UI mode flow 整理 + Visual Audit 20枚)
+  - lint 23件解消 (ソース8件 + E2E 15件) → 0 errors / 0 warnings
+  - 堆積物削除: 一時スクリプト3件 + .tmp/ ディレクトリ
+  - hidden ui-mode-select HTML要素を完全削除
+  - runtime-state.md 文字化け修復 (session 35 BOM+混合改行)
+  - ROADMAP.md 同期 (v0.3.32, SP-081追加, SP-080追加, E2E数値更新)
+- 未確定の設計論点 (HUMAN_AUTHORITY):
+  - 装飾グループ (toolbar-group--decorate) のHTML要素を削除してよいか (hidden、E2E/editor.jsから参照あり)
+  - Canvas Mode ボタン (toggle-canvas-mode) のHTML要素を削除してよいか (hidden、E2E/editor.jsから参照あり)
+  - WYSIWYGフローティングツールバーのボタン数 (現在13アクション。最小限に絞る方向?)
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
   - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
   - setUIMode が全モード切替の単一入口。直接 setAttribute は禁止
+  - hidden ui-mode-select は完全削除済み。コマンドパレットは mode-switch-btn.click() 経由
   - サイドバー開閉は toggleSidebar() → s.sidebarOpen に永続化。setUIMode Normal復帰時に復元
   - エッジグローはFocusモードのみ
   - フローティングツールバーはreaderモードでも非表示
 - 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
-  - [Unlock] WP-001 方向性決定 (HUMAN_AUTHORITY)
-  - [Advance] 既存成果物の直接改善 (ボタン数最適化、装飾グループ整理)
-  - [Excise] 一時検証スクリプト削除 (scripts/t.js, scripts/visual-audit-test.js)
+  - [Unlock] 装飾グループ/Canvas Mode HTML削除の判断 (HUMAN_AUTHORITY)
+  - [Advance] ツールバーボタン数最適化
+  - [Docs] SP-005 done化 (ROADMAP更新済み、spec-index.json 更新で完了可能)
