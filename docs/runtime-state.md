@@ -20,8 +20,8 @@
 | セッション番号 | 32 | 31 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
-| spec done | 42 | 42 |
-| spec partial | 2 (SP-005, SP-081) | 1 |
+| spec done | 43 | 42 |
+| spec partial | 1 (SP-005) | 2 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
@@ -42,7 +42,7 @@
 | ---- | --- |
 | 体験成果物 | 90% |
 | 基盤 | 93% |
-| 残 partial | SP-005(75%), SP-081(85%) |
+| 残 partial | SP-005(75%) |
 | IDEA POOL open | 1 (WP-001 hold → トリガー成立) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |
@@ -54,9 +54,9 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 1 (session 31 で実施、session 32 はコード修正のみ) |
-| last_visual_audit_path | docs/verification/2026-03-30/ (20+枚, 2026-03-30) |
-| visual_evidence_status | stale |
+| blocks_since_visual_audit | 0 (session 33 Visual Audit 実施) |
+| last_visual_audit_path | docs/verification/2026-03-30/ (19枚, 2026-03-30 session 33) |
+| visual_evidence_status | fresh |
 
 ---
 

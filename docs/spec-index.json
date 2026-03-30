@@ -548,9 +548,9 @@
   {
     "id": "SP-081",
     "title": "エディタ体験再構築",
-    "status": "partial",
-    "completion": 85,
-    "description": "Phase 3: Blank廃止(3モード体制) + setUIMode公開 + レガシー根絶 + モード切替安定化 + エッジグロー + ツールバー整理(40→10) + Reader導線整備 + 縦書き入力(実験的)",
+    "status": "done",
+    "completion": 100,
+    "description": "3モード体制(Normal/Focus/Reader) + setUIMode公開(force対応) + レガシー根絶 + モード切替安定化 + サイドバー状態永続化 + エッジグロー + ツールバー整理(40→12) + Reader導線整備 + 縦書き入力 + mode-switch aria-pressed修正 + return-barライフサイクル管理",
     "file": "docs/spec-editor-rebuild.md",
     "createdAt": "2026-03-29",
     "updatedAt": "2026-03-30"
