@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test } = require('@playwright/test');
 
 const BASE = '/index.html';
 const SHOTS = 'e2e/visual-audit-screenshots';

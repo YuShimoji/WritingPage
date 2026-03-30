@@ -292,7 +292,7 @@ test.describe('PathText Handle Overlay', () => {
     // まずハンドルを表示
     await page.locator('.zw-pathtext').click();
     await expect(page.locator('.zw-pathtext-handle').first()).toBeVisible({ timeout: 3000 });
-    const handlesBefore = await page.locator('.zw-pathtext-handle').count();
+    await page.locator('.zw-pathtext-handle').count();
 
     // プリセット変更 (S字カーブ: M + C = 4点)
     await page.locator('.zw-pathtext').click({ button: 'right' });

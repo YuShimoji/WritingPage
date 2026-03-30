@@ -4,27 +4,6 @@ const { test, expect } = require('@playwright/test');
 // ---------------------------------------------------------------------------
 // Helper
 // ---------------------------------------------------------------------------
-async function setEditorContent(page, text) {
-  await page.evaluate((t) => {
-    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
-      window.ZenWriterEditor.setContent(t);
-    } else {
-      var editor = document.getElementById('editor');
-      if (editor) editor.value = t;
-    }
-    var editor = document.getElementById('editor');
-    if (editor) editor.dispatchEvent(new Event('input', { bubbles: true }));
-  }, text);
-  await page.waitForTimeout(300);
-}
-
-async function getEditorContent(page) {
-  return page.evaluate(() => {
-    var editor = document.getElementById('editor');
-    if (!editor) return '';
-    return editor.value || editor.textContent || '';
-  });
-}
 
 async function enterFocusMode(page) {
   await page.evaluate(() => {
@@ -61,32 +40,6 @@ async function setupTestDoc(page, content) {
     S.setCurrentDocId(doc.id);
   }, content || '');
   await page.waitForTimeout(200);
-}
-
-/**
- * 現在のドキュメントを Legacy モード (chapterMode: false) に強制する
- */
-async function forceLegacyMode(page) {
-  await page.evaluate(() => {
-    var S = window.ZenWriterStorage;
-    if (!S) return;
-    var docId = S.getCurrentDocId();
-    if (!docId) return;
-    var docs = S.loadDocuments();
-    var cleaned = [];
-    for (var i = 0; i < docs.length; i++) {
-      if (docs[i] && docs[i].id === docId) {
-        docs[i].chapterMode = false;
-        cleaned.push(docs[i]);
-      } else if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
-        // skip chapter records
-      } else {
-        cleaned.push(docs[i]);
-      }
-    }
-    S.saveDocuments(cleaned);
-  });
-  await page.waitForTimeout(100);
 }
 
 // ---------------------------------------------------------------------------

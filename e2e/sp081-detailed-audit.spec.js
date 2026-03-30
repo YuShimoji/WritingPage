@@ -25,12 +25,11 @@ test.describe('SP-081 Phase 3 Detailed Audit', () => {
     await page.waitForTimeout(500);
 
     // Verify toolbar is hidden
-    const toolbar = page.locator('.toolbar');
-    const toolbarBox = await toolbar.boundingBox();
+    page.locator('.toolbar');
 
     // Verify hints exist
-    const topHint = page.locator('.edge-hover-hint--top');
-    const leftHint = page.locator('.edge-hover-hint--left');
+    page.locator('.edge-hover-hint--top');
+    page.locator('.edge-hover-hint--left');
 
     await page.screenshot({ path: path.join(SHOTS, 'A1-focus-hints.png'), fullPage: false });
   });
@@ -106,7 +105,7 @@ test.describe('SP-081 Phase 3 Detailed Audit', () => {
 
     // Count floating toolbar buttons
     const floatingButtons = page.locator('#wysiwyg-toolbar .wysiwyg-btn:visible');
-    const btnCount = await floatingButtons.count();
+    await floatingButtons.count();
 
     await page.screenshot({ path: path.join(SHOTS, 'A4-floating-toolbar-jp.png'), fullPage: false });
   });

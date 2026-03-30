@@ -133,7 +133,7 @@ test.describe('SP-081 Reader Mode Audit', () => {
     await page.waitForTimeout(300);
 
     // Toolbar should appear with reader button
-    const readerBtn = page.locator('#toggle-reader-preview');
+    page.locator('#toggle-reader-preview');
 
     await page.screenshot({ path: path.join(SHOTS, 'R6-focus-edge-toolbar.png'), fullPage: false });
   });

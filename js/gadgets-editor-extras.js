@@ -16,21 +16,6 @@
   function refreshTypewriter() { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTypewriterIfEnabled === 'function') window.ZenWriterEditor.applyTypewriterIfEnabled(); } catch (_) { } }
   function applyWrapCols() { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWrapCols === 'function') window.ZenWriterEditor.applyWrapCols(); } catch (_) { } }
 
-  function hexToRgb(h) { h = String(h || '').replace('#', ''); if (h.length === 3) { h = h.split('').map(x => x + x).join(''); } var n = parseInt(h, 16); return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }; }
-  function rgba(hex, a) { var c = hexToRgb(hex); return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + a + ')'; }
-
-  function createColorPickerRow(c1, c2, gap) {
-    var row = el('div'); row.style.display = 'flex'; row.style.gap = gap || '0.5rem';
-    row.appendChild(c1); row.appendChild(c2);
-    return row;
-  }
-
-  function createRangeRow(labelText, input) {
-    var row = el('div');
-    var lbl = el('div'); lbl.textContent = labelText; lbl.style.fontSize = '0.75rem';
-    row.appendChild(lbl); row.appendChild(input);
-    return row;
-  }
 
   function register() {
     if (!window.ZWGadgets || typeof window.ZWGadgets.register !== 'function') return;

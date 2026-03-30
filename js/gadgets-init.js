@@ -9,8 +9,6 @@
   if (!utils || !loadouts || !ZWGadgetsCore || !ZWGadgets) return;
 
   var ready = utils.ready;
-  var GADGET_GROUPS = utils.GADGET_GROUPS;
-  var getGroupPanel = utils.getGroupPanel;
 
   ready(function () {
     // ガジェット初期化は app-gadgets-init.js に統一 (リトライ機構あり)

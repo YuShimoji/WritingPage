@@ -10,14 +10,12 @@
 (function () {
   'use strict';
 
-  var Model = null; // ZWChapterModel (lazy init)
   var Store = null; // ZWChapterStore (lazy init)
   var panelEl = null;
   var listEl = null;
   var addBtn = null;
   var chapters = [];
   var activeChapterIdx = -1;
-  var refreshTimer = null;
   var saveTimer = null;
   var contextMenu = null;
   var dragState = null;
@@ -55,7 +53,6 @@
   // ---- Init ----
 
   function init() {
-    Model = window.ZWChapterModel;
     Store = window.ZWChapterStore;
     if (!Store) {
       console.warn('chapter-list: ZWChapterStore not found');
@@ -167,11 +164,6 @@
   }
 
   // ---- Refresh ----
-
-  function scheduleRefresh() {
-    clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(refresh, 300);
-  }
 
   function refresh() {
     if (!Store || !listEl) return;
@@ -568,7 +560,6 @@
   }
 
   function performMove(idx, direction) {
-    var ch = chapters[idx];
     guardBeforeChapterOp();
     var docId = getCurrentDocId();
     if (!docId) return;

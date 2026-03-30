@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup, showFullToolbar, openSettingsModal } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup, showFullToolbar } = require('./helpers');
 
 const pageUrl = '/index.html';
 

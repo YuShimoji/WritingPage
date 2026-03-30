@@ -1,5 +1,5 @@
 // @ts-check
-const { test, expect } = require('@playwright/test');
+const { test } = require('@playwright/test');
 const path = require('path');
 
 const BASE = '/index.html';
@@ -68,7 +68,7 @@ test.describe('SP-081 Phase 3 Visual Audit', () => {
       }
     });
     await page.waitForTimeout(500);
-    const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     // blank → focus にフォールバックされている
     await page.screenshot({ path: path.join(SHOTS, '04-blank-fallback.png'), fullPage: false });
   });
@@ -201,7 +201,7 @@ test.describe('SP-081 Phase 3 Visual Audit', () => {
 
     // Capture mode switch buttons state
     const modeButtons = page.locator('.mode-switch-btn');
-    const count = await modeButtons.count();
+    await modeButtons.count();
 
     await page.screenshot({ path: path.join(SHOTS, '10-mode-buttons.png'), fullPage: false });
   });

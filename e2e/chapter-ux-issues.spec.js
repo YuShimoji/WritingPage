@@ -39,34 +39,6 @@ async function enterFocusMode(page) {
   await page.waitForTimeout(200);
 }
 
-/**
- * 現在のドキュメントを Legacy モード (chapterMode: false) に強制する
- * SP-079 で chapterMode がデフォルトになったため、Legacy テストにはこれが必要
- */
-async function forceLegacyMode(page) {
-  await page.evaluate(() => {
-    var S = window.ZenWriterStorage;
-    if (!S) return;
-    var docId = S.getCurrentDocId();
-    if (!docId) return;
-    var docs = S.loadDocuments();
-    // chapterMode フラグを外す + 章レコードを削除
-    var cleaned = [];
-    for (var i = 0; i < docs.length; i++) {
-      if (docs[i] && docs[i].id === docId) {
-        docs[i].chapterMode = false;
-        cleaned.push(docs[i]);
-      } else if (docs[i] && docs[i].type === 'chapter' && docs[i].parentId === docId) {
-        // 章レコードをスキップ (削除)
-      } else {
-        cleaned.push(docs[i]);
-      }
-    }
-    S.saveDocuments(cleaned);
-  });
-  await page.waitForTimeout(100);
-}
-
 // ---------------------------------------------------------------------------
 // Issue A: 章モード一方向移行 → SP-081 Phase 3 で削除
 // chapterMode は唯一のモード。migrateToChapterMode / revertChapterMode は削除済み
