@@ -205,11 +205,11 @@ test.describe('Visual Audit - Session 21', () => {
     await page.screenshot({ path: `${SHOTS}/12-focus-mode.png`, fullPage: false });
   });
 
-  test('13 - Blank mode', async ({ page }) => {
+  test('13 - Focus mode (via Ctrl+Shift+B fallback)', async ({ page }) => {
     await waitForApp(page);
     await page.keyboard.press('Control+Shift+B');
     await page.waitForTimeout(500);
-    await page.screenshot({ path: `${SHOTS}/13-blank-mode.png`, fullPage: false });
+    await page.screenshot({ path: `${SHOTS}/13-focus-via-blank-fallback.png`, fullPage: false });
   });
 
   test('14 - Reader mode', async ({ page }) => {
