@@ -171,26 +171,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ初期化
     initializeSidebarTabs();
 
-    // ツールバーの初期表示を保証 (SP-081 Phase 3: Blank廃止)
+    // R-2: 保存された blank 設定を focus に移行 (ツールバー初期化は setUIMode(force:true) に統合)
     try {
         const settings = window.ZenWriterStorage.loadSettings();
-        // R-2: 保存された blank 設定を focus に移行
         if (settings.ui && settings.ui.uiMode === 'blank') {
             settings.ui.uiMode = 'focus';
             window.ZenWriterStorage.saveSettings(settings);
         }
-        const uiMode = document.documentElement.getAttribute('data-ui-mode') || (settings.ui && settings.ui.uiMode) || 'focus';
-
-        // Normal モードではツールバーを表示
-        if (uiMode === 'normal') {
-            const toolbarVisible = settings.toolbarVisible !== false;
-            if (toolbarVisible && document.documentElement.getAttribute('data-toolbar-hidden') === 'true') {
-                document.documentElement.removeAttribute('data-toolbar-hidden');
-                logger.info('ツールバーの初期表示を復元しました');
-            }
-        }
     } catch (e) {
-        logger.warn('ツールバー初期化エラー:', e);
+        logger.warn('設定マイグレーションエラー:', e);
     }
 
     // ------- 複数ドキュメント管理 -------
@@ -480,9 +469,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.sidebarManager.applyTabPlacement();
                 }
             }
-            // UIモード適用
+            // UIモード適用 — force:true で全コンポーネント状態を確実に初期化
             if (s && s.ui && s.ui.uiMode) {
-                setUIMode(s.ui.uiMode, false); // 初回は保存しない
+                setUIMode(s.ui.uiMode, false, true);
+            } else {
+                setUIMode('focus', false, true);
             }
             if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
                 window.sidebarManager.applyTabsPresentationUI();
@@ -491,23 +482,25 @@ document.addEventListener('DOMContentLoaded', () => {
     })();
 
     // UIモード切り替え (SP-081 Phase 3: Blank廃止、3モード体制)
-    function setUIMode(mode, save = true) {
+    function setUIMode(mode, save = true, force = false) {
         const validModes = ['normal', 'focus', 'reader'];
         // R-2: blank → focus にフォールバック
         var targetMode = mode === 'blank' ? 'focus' : mode;
         targetMode = validModes.includes(targetMode) ? targetMode : 'normal';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
-        if (currentMode === targetMode) return; // 同一モードなら何もしない
+        if (!force && currentMode === targetMode) return;
 
         // SP-070 Phase 2: モード変更前に chapterMode のデータを安定化
-        try {
-            var G = window.ZWContentGuard;
-            if (G) {
-                G.flushChapterIfNeeded();
-                G.ensureSaved({ snapshot: false });
-            }
-        } catch (_) { }
+        if (currentMode !== targetMode) {
+            try {
+                var G = window.ZWContentGuard;
+                if (G) {
+                    G.flushChapterIfNeeded();
+                    G.ensureSaved({ snapshot: false });
+                }
+            } catch (_) { }
+        }
 
         // R-4: モード遷移前にツールバー状態を確定的にリセット
         // Normal モードに入る場合: ツールバーを確実に表示
@@ -551,15 +544,28 @@ document.addEventListener('DOMContentLoaded', () => {
             wysiwygToolbar.setAttribute('data-visible', 'false');
         }
 
+        // M-3: Reader return-bar のクリーンアップ
+        // Reader 以外のモード間遷移 (Normal ↔ Focus) で残存する return-bar を除去
+        if (targetMode !== 'reader') {
+            var returnBar = document.querySelector('.reader-return-bar');
+            if (returnBar && returnBar.parentNode) {
+                returnBar.parentNode.removeChild(returnBar);
+            }
+        }
+
         const select = document.getElementById('ui-mode-select');
         if (select && select.value !== targetMode) {
             select.value = targetMode;
         }
 
         // モードスイッチボタンの状態を同期
-        document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
-            btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
-        });
+        // Reader はプレビューモードのため、mode-switch (Normal/Focus) の状態は
+        // 「戻り先の編集モード」を保持する。Reader 進入時は aria-pressed を変更しない
+        if (targetMode !== 'reader') {
+            document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+                btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
+            });
+        }
 
         if (save) {
             try {

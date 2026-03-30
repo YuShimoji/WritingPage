@@ -1935,6 +1935,11 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   display: flex;
 }
 
+/* Reader モードではフローティングツールバーを常に非表示 */
+html[data-ui-mode='reader'] .wysiwyg-toolbar {
+  display: none !important;
+}
+
 .wysiwyg-btn {
   min-width: 2.125rem;
   height: 2.125rem;

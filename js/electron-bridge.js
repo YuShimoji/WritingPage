@@ -178,19 +178,12 @@
         }
     }
 
-    /* ---------- Minimal mode ---------- */
+    /* ---------- Minimal mode (setUIMode 経由に統一: minimal は focus にマッピング) ---------- */
     function toggleMinimalMode() {
-        const html = document.documentElement;
-        const current = html.getAttribute('data-ui-mode');
-        if (current === 'minimal') {
-            html.setAttribute('data-ui-mode', 'normal');
-            document.body.classList.remove('ultra-minimal');
-        } else {
-            html.setAttribute('data-ui-mode', 'minimal');
-            document.body.classList.add('ultra-minimal');
-            // Hide everything except editor
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) sidebar.classList.remove('open');
+        const current = document.documentElement.getAttribute('data-ui-mode');
+        const target = (current === 'focus') ? 'normal' : 'focus';
+        if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+            window.ZenWriterApp.setUIMode(target);
         }
     }
 

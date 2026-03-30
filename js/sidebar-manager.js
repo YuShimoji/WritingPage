@@ -904,6 +904,14 @@ class SidebarManager {
             console.info(`サイドバーを${willOpen ? '開く' : '閉じる'}`);
         }
         this.forceSidebarState(willOpen);
+        // 手動開閉をモード復帰時の復元用に永続化
+        try {
+            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+                const s = window.ZenWriterStorage.loadSettings();
+                s.sidebarOpen = willOpen;
+                window.ZenWriterStorage.saveSettings(s);
+            }
+        } catch (_) { }
     }
 
     setToolbarVisibility(show) {
