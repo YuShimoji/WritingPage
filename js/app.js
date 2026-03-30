@@ -559,13 +559,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // モードスイッチボタンの状態を同期
-        // Reader はプレビューモードのため、mode-switch (Normal/Focus) の状態は
-        // 「戻り先の編集モード」を保持する。Reader 進入時は aria-pressed を変更しない
-        if (targetMode !== 'reader') {
-            document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
-                btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
-            });
-        }
+        // 全ボタン (Normal/Focus/Reader) の aria-pressed を更新
+        document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
+            btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
+        });
 
         if (save) {
             try {
@@ -593,7 +590,19 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const mode = this.getAttribute('data-mode');
-            if (mode) setUIMode(mode);
+            if (!mode) return;
+            const currentMode = document.documentElement.getAttribute('data-ui-mode');
+            if (mode === 'reader') {
+                // Reader ボタン: 既に Reader なら何もしない、そうでなければ enter
+                if (currentMode !== 'reader' && window.ZWReaderPreview) {
+                    window.ZWReaderPreview.enter();
+                }
+            } else if (currentMode === 'reader' && window.ZWReaderPreview) {
+                // Reader から Normal/Focus へ: exit に遷移先を指定
+                window.ZWReaderPreview.exit(mode);
+            } else {
+                setUIMode(mode);
+            }
         });
     });
 

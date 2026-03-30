@@ -22,35 +22,12 @@
   var isVertical = false;
 
   function ensureQuickToggleButton() {
+    // ツールバー内の読者プレビューボタンに toggle 属性を付与
     var toolbarToggleBtn = document.getElementById('toggle-reader-preview');
     if (toolbarToggleBtn) {
       toolbarToggleBtn.setAttribute('data-reader-preview-toggle', 'true');
     }
-
-    if (document.getElementById('quick-toggle-reader-preview')) return;
-
-    var quickActions = document.querySelector('.toolbar-quick-actions');
-    if (!quickActions) return;
-
-    var btn = document.createElement('button');
-    btn.id = 'quick-toggle-reader-preview';
-    btn.type = 'button';
-    btn.className = 'icon-button iconified';
-    btn.title = '読者プレビュー';
-    btn.setAttribute('aria-label', '読者プレビューモードに切り替え');
-    btn.setAttribute('data-reader-preview-toggle', 'true');
-    btn.innerHTML = '<i data-lucide="eye" aria-hidden="true"></i>';
-
-    var fullscreenBtn = document.getElementById('fullscreen');
-    if (fullscreenBtn && fullscreenBtn.parentNode === quickActions) {
-      quickActions.insertBefore(btn, fullscreenBtn);
-    } else {
-      quickActions.appendChild(btn);
-    }
-
-    if (window.lucide && typeof window.lucide.createIcons === 'function') {
-      window.lucide.createIcons();
-    }
+    // mode-switch に Reader ボタンがあるため、動的ボタン生成は不要 (WP-001)
   }
 
   function init() {
@@ -178,11 +155,11 @@
     restoreScrollPosition();
   }
 
-  function exitReaderMode() {
+  function exitReaderMode(targetMode) {
     // スクロール位置を保存
     saveScrollPosition();
 
-    var target = previousMode || 'normal';
+    var target = targetMode || previousMode || 'normal';
     if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
       window.ZenWriterApp.setUIMode(target);
     } else {
