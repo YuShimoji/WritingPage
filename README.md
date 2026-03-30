@@ -162,12 +162,13 @@ WritingPage/
 ## 設計概要
 
 - 関心毎の分離（SoC）
-  - `theme.js`: CSS変数によるテーマ・配色・フォント適用
-  - `editor.js`: 入力、保存、カウンタ、通知
-  - `app.js`: UIの初期化とイベント配線
+- `theme.js`: CSS変数によるテーマ・配色・フォント適用
+- `editor.js`: 入力、保存、カウンタ、通知
+- `app.js`: UIの初期化とイベント配線
 - CSSカスタムプロパティにより配色・タイポグラフィを一元管理
 
 - 詳しくは `docs/ARCHITECTURE.md` を参照してください。
+- 設計の入口は `docs/ARCHITECTURE.md` と `docs/APP_SPECIFICATION.md` を参照してください。
 
 ## 開発の進め方
 
@@ -191,34 +192,20 @@ WritingPage/
 
 ## 関連ドキュメント
 
-### 主要ドキュメント
-
-- `docs/ROADMAP.md` - 機能ロードマップ（優先度別）
-- `docs/APP_SPECIFICATION.md` - アプリケーション仕様
-- `docs/ARCHITECTURE.md` - 設計概要
-- `docs/spec-index.json` - 仕様インデックス (全54エントリのステータス・実装率)
-
-### 開発ガイド
-
-- `docs/TESTING.md` - テスト手順
-- `docs/CODING_STANDARDS.md` - コーディング規約
-- `docs/BRANCHING.md` - ブランチ運用
-- `docs/EDITOR_EXTENSIONS.md` - エディタ拡張
-- `docs/THEMES.md` - テーマ設計
-- `docs/LABELS.md` - UIラベル管理
-
-### 運用・デプロイ
-
-- `docs/RELEASE.md` - リリース手順
-- `docs/DEPLOY.md` - デプロイ手順
-- `docs/EMBED_SDK.md` - 埋め込みSDK
-- `docs/PLUGIN_GUIDE.md` - プラグイン開発ガイド
-- `docs/GADGETS.md` - ガジェット仕様
-
-### その他
-
-- `CHANGELOG.md` - 変更履歴
-- `HANDOVER.md` - 作業引き継ぎ
+- `docs/CURRENT_STATE.md` - 現在地の正本
+- `HANDOVER.md` - 再開手順
+- `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
+- `docs/ARCHITECTURE.md`
+- `docs/APP_SPECIFICATION.md`
+- `docs/ROADMAP.md`
+- `docs/TESTING.md`
+- `docs/THEMES.md`
+- `docs/EMBED_SDK.md`
+- `docs/EDITOR_EXTENSIONS.md`
+- `docs/BRANCHING.md`
+- `docs/CODING_STANDARDS.md`
+- `docs/LABELS.md`
+- `docs/spec-index.json` - 仕様インデックス
 - `SECURITY.md`
 - `CODE_OF_CONDUCT.md`
 - `CONTRIBUTING.md`

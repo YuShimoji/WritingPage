@@ -2,9 +2,36 @@
 const { test, expect } = require('@playwright/test');
 
 test.describe('Sidebar Writing Focus', () => {
-  test('sidebar defaults to writing IA: title + sections + footer settings', async ({ page }) => {
+  async function ensureSidebarOpen(page) {
+    await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const toggle = document.getElementById('toggle-sidebar');
+      if (sidebar && toggle && !sidebar.classList.contains('open')) {
+        toggle.click();
+      }
+    });
+  }
+
+  async function setUIMode(page, mode) {
+    await page.evaluate((nextMode) => {
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+        window.ZenWriterApp.setUIMode(nextMode);
+      }
+    }, mode);
+  }
+
+  test('normal mode keeps accordion, focus mode enables writing IA', async ({ page }) => {
     await page.goto('/');
-    await page.click('#toggle-sidebar');
+    await setUIMode(page, 'normal');
+    await ensureSidebarOpen(page);
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('#writing-focus-rail')).toBeHidden();
+    await expect(page.locator('.accordion-category[data-category="structure"]')).toBeVisible();
+    await expect(page.locator('.accordion-category[data-category="edit"]')).toBeVisible();
+
+    await setUIMode(page, 'focus');
+    await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
     await expect(page.locator('#writing-focus-title')).toBeVisible();
@@ -48,48 +75,48 @@ test.describe('Sidebar Writing Focus', () => {
     expect(expandedState.others.every((state) => state === 'false')).toBe(true);
   });
 
-  test('+追加 inserts natural level and no longer uses 新しいセクション label', async ({ page }) => {
+  test('+追加 uses chapter path and does not revive 新しいセクション label', async ({ page }) => {
     await page.goto('/');
-    await page.click('#toggle-sidebar');
+    await setUIMode(page, 'focus');
+    await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
-    await page.evaluate(() => {
-      const editor = document.getElementById('editor');
-      if (!editor) return;
-      editor.value = '## 第一章\n本文A\n### シーンA1\n本文A1\n## 第二章\n本文B\n';
-      editor.selectionStart = editor.value.indexOf('本文A');
-      editor.selectionEnd = editor.selectionStart;
-      editor.dispatchEvent(new Event('input', { bubbles: true }));
+    const before = await page.evaluate(() => {
+      const storage = window.ZenWriterStorage;
+      const store = window.ZWChapterStore;
+      if (!storage || !store) return { count: 0, names: [] };
+      const docId = storage.getCurrentDocId();
+      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
+      return {
+        count: chapters.length,
+        names: chapters.map((ch) => ch.name || '')
+      };
     });
+
     await page.click('#writing-focus-add-section');
+    await page.waitForTimeout(300);
 
-    const afterSceneInsert = await page.evaluate(() => {
-      const editor = document.getElementById('editor');
-      return editor ? editor.value : '';
+    const after = await page.evaluate(() => {
+      const storage = window.ZenWriterStorage;
+      const store = window.ZWChapterStore;
+      if (!storage || !store) return { count: 0, names: [] };
+      const docId = storage.getCurrentDocId();
+      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
+      return {
+        count: chapters.length,
+        names: chapters.map((ch) => ch.name || '')
+      };
     });
-    expect(afterSceneInsert).toContain('### 新しいシーン');
-    expect(afterSceneInsert).not.toContain('新しいセクション');
 
-    await page.evaluate(() => {
-      const editor = document.getElementById('editor');
-      if (!editor) return;
-      editor.selectionStart = 0;
-      editor.selectionEnd = 0;
-      editor.dispatchEvent(new Event('keyup', { bubbles: true }));
-    });
-    await page.waitForTimeout(200);
-    await page.click('#writing-focus-add-section');
-
-    const afterChapterInsert = await page.evaluate(() => {
-      const editor = document.getElementById('editor');
-      return editor ? editor.value : '';
-    });
-    expect(afterChapterInsert).toContain('## 新しい章');
+    expect(after.count).toBe(before.count + 1);
+    expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();
+    expect(after.names.some((name) => name.includes('新しいセクション'))).toBeFalsy();
   });
 
   test('章チップクリックでジャンプ (基準#4)', async ({ page }) => {
     await page.goto('/');
-    await page.click('#toggle-sidebar');
+    await setUIMode(page, 'focus');
+    await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -128,7 +155,8 @@ test.describe('Sidebar Writing Focus', () => {
 
   test('前/次シーンボタン (基準#5)', async ({ page }) => {
     await page.goto('/');
-    await page.click('#toggle-sidebar');
+    await setUIMode(page, 'focus');
+    await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -171,7 +199,8 @@ test.describe('Sidebar Writing Focus', () => {
 
   test('空ドキュメント (エッジケース)', async ({ page }) => {
     await page.goto('/');
-    await page.click('#toggle-sidebar');
+    await setUIMode(page, 'focus');
+    await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
     await page.evaluate(() => {
@@ -184,14 +213,34 @@ test.describe('Sidebar Writing Focus', () => {
 
     await expect(page.locator('.writing-focus-empty')).toBeVisible();
 
-    await page.click('#writing-focus-add-section');
-    await page.waitForTimeout(100);
-
-    const editorValue = await page.evaluate(() => {
-      const editor = document.getElementById('editor');
-      return editor ? editor.value : '';
+    const before = await page.evaluate(() => {
+      const storage = window.ZenWriterStorage;
+      const store = window.ZWChapterStore;
+      if (!storage || !store) return { count: 0, names: [] };
+      const docId = storage.getCurrentDocId();
+      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
+      return {
+        count: chapters.length,
+        names: chapters.map((ch) => ch.name || '')
+      };
     });
 
-    expect(editorValue).toContain('## 新しい章');
+    await page.click('#writing-focus-add-section');
+    await page.waitForTimeout(300);
+
+    const after = await page.evaluate(() => {
+      const storage = window.ZenWriterStorage;
+      const store = window.ZWChapterStore;
+      if (!storage || !store) return { count: 0, names: [] };
+      const docId = storage.getCurrentDocId();
+      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
+      return {
+        count: chapters.length,
+        names: chapters.map((ch) => ch.name || '')
+      };
+    });
+
+    expect(after.count).toBe(before.count + 1);
+    expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();
   });
 });

@@ -579,6 +579,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    window.ZenWriterApp = Object.assign({}, window.ZenWriterApp, {
+        setUIMode,
+        getUIMode: function () {
+            return document.documentElement.getAttribute('data-ui-mode') || 'normal';
+        }
+    });
+
     const uiModeSelect = document.getElementById('ui-mode-select');
     if (uiModeSelect) {
         uiModeSelect.addEventListener('change', (e) => {

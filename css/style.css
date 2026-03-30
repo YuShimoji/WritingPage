@@ -416,10 +416,7 @@ html:not([data-toolbar-hidden='true']) #wysiwyg-editor {
 
 /* ===== UIモード: Focus / Blank ===== */
 
-/* Focus モード: エディタのみ表示。ツールバー/サイドバー非表示。章パネルはエッジホバーで表示 */
-html[data-ui-mode='focus'] .sidebar {
-  display: none !important;
-}
+/* Focus モード: HUD/FABを抑えつつ、サイドバーは必要時のみ開ける */
 
 html[data-ui-mode='focus'] .mini-hud {
   display: none !important;

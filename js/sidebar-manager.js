@@ -434,13 +434,30 @@ class SidebarManager {
     }
 
     _isWritingFocusSidebarEffective() {
-        return true;
+        const mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+        return mode === 'focus';
     }
 
     _applyWritingFocusSidebar() {
         const effective = this._isWritingFocusSidebarEffective();
+        const rail = document.getElementById('writing-focus-rail');
+        const footer = document.getElementById('writing-focus-footer');
+        const structurePanel = document.getElementById('structure-gadgets-panel');
+
         document.documentElement.setAttribute('data-writing-sidebar-focus', effective ? 'true' : 'false');
         document.documentElement.setAttribute('data-writing-settings-open', effective && this._writingFocusSettingsOpen ? 'true' : 'false');
+
+        if (rail) {
+            rail.hidden = false;
+            rail.style.display = effective ? '' : 'none';
+            rail.setAttribute('aria-hidden', effective ? 'false' : 'true');
+        }
+        if (footer) {
+            footer.hidden = false;
+            footer.style.display = effective ? '' : 'none';
+            footer.setAttribute('aria-hidden', effective ? 'false' : 'true');
+        }
+
         const settingsBtn = document.getElementById('writing-focus-settings-btn');
         if (settingsBtn) {
             const opened = effective && this._writingFocusSettingsOpen;
@@ -472,11 +489,14 @@ class SidebarManager {
                     if (category.id !== 'structure') this._setAccordionState(category.id, false);
                 });
             }
-            const structurePanel = document.getElementById('structure-gadgets-panel');
             if (structurePanel) {
                 structurePanel.style.display = this._writingFocusSettingsOpen ? '' : 'none';
             }
             return;
+        }
+
+        if (structurePanel) {
+            structurePanel.style.display = '';
         }
 
         const savedState = this._loadAccordionState();
@@ -666,6 +686,29 @@ class SidebarManager {
             this._scheduleWritingFocusRender();
             return;
         }
+
+        const editor = document.getElementById('editor');
+        if (!editor) return;
+        const parsed = this._parseMarkdownHeadings(editor.value || '');
+        const context = this._getWritingFocusContext(editor, parsed);
+        const currentChapter = context.activeChapter;
+        const insideChapter = !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
+        const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
+        const marks = '#'.repeat(level);
+        const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';
+        const label = `${marks} ${sectionLabel}`;
+        const start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
+        const needsLeadingBreak = start > 0 && editor.value.charAt(start - 1) !== '\n';
+        const insertion = `${needsLeadingBreak ? '\n' : ''}${label}\n\n`;
+        const before = editor.value.slice(0, start);
+        const after = editor.value.slice(start);
+        editor.value = before + insertion + after;
+        const nextCaret = before.length + insertion.length;
+        editor.focus();
+        editor.selectionStart = nextCaret;
+        editor.selectionEnd = nextCaret;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+        this._scheduleWritingFocusRender();
     }
 
     _escapeHtml(value) {

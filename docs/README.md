@@ -1,48 +1,20 @@
 # docs/ -- Zen Writer ドキュメント目次
 
-v0.3.29 / 2026-03-16
-
----
-
-## 文書役割の定義
-
-### 分類
-
-| 分類 | 役割 | SSOT（唯一の真の情報源） | 書くべきもの | 書かないもの |
-|------|------|:--:|------|------|
-| **現行仕様** | 今のアプリが何であるかの記述 | 実装コード | 実装済み機能の正確な記述 | 将来予定、設計探索 |
-| **将来計画** | 何を作る予定かの記述 | ROADMAP.md | 優先度付きの開発計画 | 実装済み機能の詳細 |
-| **個別仕様** | 1機能の設計と受入条件 | docs/specs/spec-*.md | 設計判断・受入基準・実装メモ | 他機能の仕様、一般ガイド |
-| **実装ガイド** | 開発作業の進め方 | 各ガイド文書 | 手順・規約・制約 | 現行機能の網羅的説明 |
-| **設計探索** | 実装前の設計ドラフト | docs/design/*.md | 代替案・トレードオフ | 確定仕様（specに昇格すること） |
-
-### 実装変更時の更新対象
-
-| 変更の種類 | 必ず更新 | 必要に応じて更新 |
-|-----------|---------|----------------|
-| 新機能追加 | APP_SPECIFICATION.md, spec-index.json | ROADMAP.md（ステータス更新）, GADGETS.md（ガジェット追加時） |
-| UI構成変更 | APP_SPECIFICATION.md | README.md（キーボードショートカット等） |
-| ガジェット追加/削除 | GADGETS.md, APP_SPECIFICATION.md（数値） | spec-index.json |
-| テーマ変更 | THEMES.md | — |
-| テスト追加 | — | TESTING.md（方針変更時のみ） |
-| バグ修正 | — | — |
-| 仕様策定 | docs/specs/spec-*.md, spec-index.json | ROADMAP.md |
-
-### 原則
-
-1. **実装コードが唯一の真**: ドキュメント同士の相互参照だけで整合性を判断しない
-2. **将来予定は ROADMAP.md に集約**: APP_SPECIFICATION.md に「今後の予定」を書かない
-3. **設計と仕様を分離**: `docs/design/` は探索的。確定したら `docs/specs/` に昇格する
-4. **文書を増やすより重複を減らす**: 同じ情報を複数箇所に書かない
-
----
+v0.3.29 / 2026-03-30
 
 ## はじめに
 
 | ドキュメント | 内容 |
 |-------------|------|
+| [CURRENT_STATE](CURRENT_STATE.md) | 現在地の正本。直近修正・検証結果・次の優先課題 |
+| [PROJECT_HEALTH](PROJECT_HEALTH.md) | 健全性サマリ。主要リスクと次の確認ポイント |
 | [APP_SPECIFICATION](APP_SPECIFICATION.md) | アプリ仕様書（機能一覧・技術仕様・制限事項） |
 | [APP_LAUNCH_GUIDE](APP_LAUNCH_GUIDE.md) | 起動手順書（Web/Electron/PWA） |
+
+注記:
+
+- `docs/spec-index.json` は historical entry を含む。missing file があっても直ちに異常ではない
+- 最新の再開文脈は `CURRENT_STATE.md` と `../HANDOVER.md` を優先する
 
 ## アーキテクチャ・設計
 
@@ -73,14 +45,17 @@ v0.3.29 / 2026-03-16
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-E の開発計画） |
-| [spec-index.json](spec-index.json) | 仕様インデックス（全エントリのステータス・実装率） |
+| [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-D の開発計画） |
+| [../HANDOVER](../HANDOVER.md) | 再開手順・参照順 |
+| [../CLAUDE](../CLAUDE.md) | AI向け再開コンテキスト |
 
-## アーカイブ (archive/)
+## インフラ
 
-過去のドキュメントは `archive/` 配下に保管:
+| ドキュメント | 内容 |
+|-------------|------|
+| [docfx_overview](docfx_overview.md) | DocFX ドキュメントサイト構成 |
 
-- BACKLOG.md, ISSUES.md, ISSUES-resolved.md -- 旧管理系
-- choices-driven-development.md -- 旧開発方針メモ
-- LIVE_PREVIEW_DIFF_DESIGN.md, PALETTE_DESIGN.md, MISSION12_GADGETS.md -- 旧設計ドラフト
-- screenshots/ -- 過去のスクリーンショット
+## 仕様インデックス
+
+- [spec-index.json](spec-index.json) -- 仕様書の status / pct / path の一覧
+- 実在しないファイルを指す entry は、過去の運用履歴が残っている可能性がある

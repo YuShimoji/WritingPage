@@ -6,8 +6,8 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.29
-- **最終更新**: 2026-03-23 (session 15 nightshift: docs債務解消 + 健全性確認)
-- **ブランチ**: main（origin/main より 15 コミット ahead）
+- **最終更新**: 2026-03-30
+- **ブランチ**: main（origin/main と同期済み）
 
 ## 再開手順
 
@@ -19,24 +19,35 @@ npx playwright test       # E2E テスト
 npm run lint              # ESLint
 ```
 
+最初に読む順番:
+
+1. `docs/CURRENT_STATE.md`
+2. `HANDOVER.md`
+3. 必要なら対象仕様 (`docs/specs/` または `docs/ROADMAP.md`)
+
 ## 現在のプロジェクト状態
+
+### 直近の状態
+
+| 項目 | 状態 |
+|------|------|
+| 主軸 | UI/UX の磨き上げと未完了機能の安全な局所化 |
+| 直近修正 | 執筆集中サイドバーを `focus` 限定化 / UI モード経路の一本化 / `+追加` 自然レベル修正 |
+| 重点仕様 | `SP-053` 執筆集中サイドバー, `SP-062` テキスト表現アーキテクチャ |
+| 現在地の正本 | `docs/CURRENT_STATE.md` |
 
 ### テスト状況
 
 | テスト | 状態 | コマンド |
 |--------|------|----------|
-| E2E | 430 passed / 1 failed (Canvas Mode既知) / 1 skipped (56 spec files) | `npx playwright test` |
-| Lint | ALL PASSED (0 errors) | `npm run lint` |
-
-### 既知の E2E スキップ (2026-03-22)
-
-- editor-canvas-mode.spec.js: 1件 skip (Canvas Mode は betaEnabled:false で延期中)
-- +9件: 条件付きskip (Images系/xorigin/split-view等のガジェットloadout依存)
+| 重点 UI suite | ✅ 27 passed | `npx playwright test e2e/accessibility.spec.js e2e/ui-regression.spec.js e2e/command-palette.spec.js e2e/sidebar-writing-focus.spec.js --reporter=line` |
+| Lint | ✅ passed | `npm run lint:js:check` |
+| 全件 E2E | 未再確認 | `npx playwright test` |
 
 ### アーキテクチャ概要
 
-- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js` -- 33個登録済み (+1 開発専用)
-- **サイドバー**: `SidebarManager`(SSOT) -- 6カテゴリアコーディオン: structure / edit / theme / assist / advanced / sections
+- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js`
+- **サイドバー**: `SidebarManager`(SSOT) -- structure / edit / theme / assist / advanced を中心に管理
 - **ツールバー**: コンテキストベース (Layer 1-4) -- ミニマルヘッダー / フローティング装飾バー / サイドバー / エッジホバーUI
 - **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み
 - **WYSIWYG**: `editor-wysiwyg.js` (RichTextEditor, 全15種装飾対応)
@@ -47,31 +58,19 @@ npm run lint              # ESLint
 - **Embed SDK**: `js/embed/` -- 同一/クロスオリジン対応
 - **Electron**: `electron/` -- オフライン完全対応 (vendor/ ローカルバンドル)
 
-### CDN バンドル化 (v0.3.29)
+### 直近の重要判断
 
-| ライブラリ | ソース | パス |
-|-----------|--------|------|
-| markdown-it | npm + postinstall | `vendor/markdown-it.min.js` |
-| turndown | npm + postinstall | `vendor/turndown.js` |
-| morphdom | npm + postinstall | `vendor/morphdom-umd.min.js` |
-| lucide | npm + postinstall | `vendor/lucide.min.js` |
-| Noto Serif JP | npm + postinstall | `vendor/fonts/` (gitignored, Electron用) |
+- UI モードは `setUIMode` を単一入口として扱う
+- 執筆集中サイドバーは `focus` モード限定の partial 機能として扱う
+- Electron の「超ミニマル」は `setUIMode` 経由で通常モード系へ正規化する
+- hidden 互換 UI は残っていても、周辺機能はまず `ZenWriterApp` API を使う
 
-- JS: 常にローカル vendor/ (CDN廃止)
-- フォント: Electron=ローカル / ブラウザ=Google Fonts CDN
+## 既知の課題
 
-### 主要ファイルサイズ
-
-| ファイル | 行数 | 状態 |
-|----------|------|------|
-| `js/storage.js` | 1612 | IDB移行完了 |
-| `js/sidebar-manager.js` | 1370 | SSOT |
-| `js/editor-wysiwyg.js` | 1583 | リンク挿入モーダル + DSL退避方式追加 |
-| `js/story-wiki.js` | 1432 | Phase 2 Step 1-3 完了 (グラフ/バックリンク/AI生成) |
-| `js/chapter-list.js` | 1026 | Phase 3 目次生成 |
-| `js/gadgets-editor-extras.js` | 1227 | TB DSL / プリセット / ゲームブック分岐UI |
-| `js/gadgets-core.js` | 1020 | 適正 |
-| `js/app.js` | 671 | Phase 3 分割完了 |
+- `docs/spec-index.json` に現ワークツリーで欠けている historical entry が残っている
+- UI まわりに旧経路/互換レイヤが残っている
+- テキスト表現 (`SP-062`) は in-progress のため追加整備が必要
+- handoff 指示で想定される canonical docs の一部 (`docs/runtime-state.md`, `docs/project-context.md`, `docs/INVARIANTS.md` など) はこの repo に未作成
 
 ## 決定事項
 
@@ -90,13 +89,14 @@ npm run lint              # ESLint
 
 ## 参照ドキュメント
 
+- `docs/CURRENT_STATE.md` -- 最新の現在地・直近修正・検証結果
+- `docs/PROJECT_HEALTH.md` -- 健全性・主要リスク・次の確認ポイント
 - `docs/ROADMAP.md` -- 機能強化ロードマップ
 - `docs/ARCHITECTURE.md` -- アーキテクチャ概要
 - `docs/TESTING.md` -- テスト方針
 - `docs/GADGETS.md` -- ガジェットAPI仕様
 - `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
 - `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
-- `docs/specs/` -- 個別仕様書 (spec-index.json で索引)
-- `docs/WRITING_PIPELINE.md` -- 執筆パイプライン定義 (工程別の手動/自動境界)
-- `docs/project-context.md` -- プロジェクトコンテキスト (LANE/SLICE/DELIVERABLE)
+- `docs/specs/spec-writing-focus-sidebar.md` -- 執筆集中サイドバー仕様
+- `docs/specs/spec-text-expression-architecture.md` -- テキスト表現 SSOT
 - `CLAUDE.md` -- AI再開用コンテキスト

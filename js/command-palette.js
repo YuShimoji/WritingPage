@@ -5,6 +5,18 @@
 (function () {
   'use strict';
 
+  function setAppUIMode(mode) {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode(mode);
+      return;
+    }
+    const select = document.getElementById('ui-mode-select');
+    if (select) {
+      select.value = mode;
+      select.dispatchEvent(new Event('change'));
+    }
+  }
+
   // コマンド定義
   const COMMANDS = [
     // 検索・置換
@@ -160,11 +172,7 @@
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
-        const select = document.getElementById('ui-mode-select');
-        if (select) {
-          select.value = 'normal';
-          select.dispatchEvent(new Event('change'));
-        }
+        setAppUIMode('normal');
       }
     },
     {
@@ -174,11 +182,7 @@
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
-        const select = document.getElementById('ui-mode-select');
-        if (select) {
-          select.value = 'focus';
-          select.dispatchEvent(new Event('change'));
-        }
+        setAppUIMode('focus');
       }
     },
     // フォントサイズ
