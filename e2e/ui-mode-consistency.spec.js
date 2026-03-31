@@ -175,4 +175,14 @@ test.describe('UI Mode Consistency', () => {
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     expect(mode).toBe(prevMode);
   });
+
+  // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック
+  test('Blank mode fallback: redirected to Focus', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('blank');
+    });
+    await page.waitForTimeout(200);
+    const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    expect(mode).toBe('focus');
+  });
 });

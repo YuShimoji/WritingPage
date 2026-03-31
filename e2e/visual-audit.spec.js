@@ -400,4 +400,18 @@ test.describe('Visual Audit - Session 21', () => {
     expect(new Set(distinctPrimary).size).toBeGreaterThanOrEqual(7);
     expect(new Set(distinctSidebar).size).toBeGreaterThanOrEqual(5);
   });
+
+  // 旧 visual-audit-s29 から移動: WYSIWYG kenten ボタンの存在確認
+  test('WYSIWYG kenten button exists', async ({ page }) => {
+    await waitForApp(page);
+    await page.evaluate(() => {
+      if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('normal');
+    });
+    await page.waitForTimeout(300);
+    const kentenBtn = await page.evaluate(() => {
+      var btn = document.getElementById('wysiwyg-kenten');
+      return btn ? { found: true, id: btn.id } : { found: false };
+    });
+    expect(kentenBtn.found).toBe(true);
+  });
 });
