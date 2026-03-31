@@ -36,8 +36,6 @@ class EditorManager {
         this.imagesPreviewPanel = document.getElementById('images-preview-panel');
         this.previewPanelToggle = document.getElementById('toggle-preview');
         this._markdownRenderer = null;
-        // 旧パネル参照は削除済み (font-decoration-panel, text-animation-panel, search-panel)
-        // → MainHubPanel に統合。ツールバーボタン参照のみ残す
         this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
         this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
         this.editorContainer = document.querySelector('.editor-container');
@@ -113,7 +111,6 @@ class EditorManager {
     clampFontSize(px) { return window.EditorUI.clampFontSize(px); }
     applyFontDecoration(tag) { return window.EditorUI.applyFontDecoration(this, tag); }
     applyTextAnimation(tag) { return window.EditorUI.applyTextAnimation(this, tag); }
-    // 旧パネルtoggle/show/hideメソッドは削除 — MainHubPanel.toggle('decoration'|'animation')を使用
     updateAnimationSpeed(val) { return window.EditorUI.updateAnimationSpeed(val); }
     updateAnimationDuration(val) { return window.EditorUI.updateAnimationDuration(val); }
     updateAnimationReduceMotion(val) { return window.EditorUI.updateAnimationReduceMotion(val); }

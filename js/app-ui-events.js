@@ -10,7 +10,7 @@
      * @param {Function} deps.toggleSidebar
      * @param {Function} deps.toggleToolbar
      * @param {Function} deps._toggleFullscreen
-     * @returns {Object} toggleFeedbackPanel, toggleModal, prepareFloatingPanel, clampPanelToViewport
+     * @returns {Object} toggleModal, prepareFloatingPanel, clampPanelToViewport
      */
     function initAppUIEvents(deps) {
         const {
@@ -184,7 +184,6 @@
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         const fullscreenBtn = elementManager.get('fullscreenBtn');
         const toggleSplitViewBtn = document.getElementById('toggle-split-view');
-        // split-view-mode-panel は MainHubPanel に統合済み (旧参照削除)
         const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
         const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
         const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
@@ -325,8 +324,6 @@
             updateThemeIcon();
         }
 
-        // feedbackBtn は HTML不在のため削除済み。toggleFeedbackPanel は他から呼ばれる可能性あり残存
-
         // スペルチェックのトグル
         if (toggleSpellCheckBtn && window.ZenWriterEditor && window.ZenWriterEditor.spellChecker) {
             toggleSpellCheckBtn.addEventListener('click', () => {
@@ -389,83 +386,6 @@
             });
         }
 
-        // ===== フィードバックパネル =====
-        let feedbackPanel = null;
-        function toggleFeedbackPanel() {
-            if (!feedbackPanel) {
-                feedbackPanel = document.createElement('div');
-                feedbackPanel.className = 'floating-panel';
-                feedbackPanel.id = 'feedback-panel';
-                feedbackPanel.setAttribute('role', 'dialog');
-                feedbackPanel.setAttribute('aria-labelledby', 'feedback-panel-title');
-                feedbackPanel.setAttribute('aria-modal', 'true');
-                feedbackPanel.style.display = 'none';
-                feedbackPanel.innerHTML = `
-                    <div class="panel-header">
-                        <span id="feedback-panel-title">フィードバック</span>
-                        <button class="panel-close" id="close-feedback-panel" aria-label="フィードバックパネルを閉じる">閉じる</button>
-                    </div>
-                    <div class="panel-body">
-                        <p>問題報告や機能要望をお送りください。</p>
-                        <label for="feedback-text" class="sr-only">フィードバック内容</label>
-                        <textarea id="feedback-text" placeholder="詳細を記述してください..." rows="6" style="width:100%; margin:8px 0;" aria-label="フィードバック内容を入力"></textarea>
-                        <div style="display:flex; gap:8px;">
-                            <button id="submit-feedback" class="small">送信</button>
-                            <button id="cancel-feedback" class="small">キャンセル</button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(feedbackPanel);
-                const closeBtn = document.getElementById('close-feedback-panel');
-                const cancelBtn = document.getElementById('cancel-feedback');
-                const submitBtn = document.getElementById('submit-feedback');
-                const textarea = document.getElementById('feedback-text');
-
-                const closePanel = () => {
-                    feedbackPanel.style.display = 'none';
-                    feedbackPanel.setAttribute('aria-hidden', 'true');
-                };
-
-                closeBtn.addEventListener('click', closePanel);
-                closeBtn.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closePanel(); }
-                });
-                cancelBtn.addEventListener('click', closePanel);
-                cancelBtn.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); closePanel(); }
-                });
-                submitBtn.addEventListener('click', () => {
-                    const text = textarea.value.trim();
-                    if (text) {
-                        const url = `https://github.com/YuShimoji/WritingPage/issues/new?title=Feedback&body=${encodeURIComponent(text)}`;
-                        window.open(url, '_blank');
-                        closePanel();
-                        textarea.value = '';
-                    }
-                });
-                submitBtn.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); submitBtn.click(); }
-                });
-
-                feedbackPanel.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape') { closePanel(); }
-                });
-                enableFloatingPanelDrag(feedbackPanel);
-            }
-            const isVisible = feedbackPanel.style.display !== 'none';
-            feedbackPanel.style.display = isVisible ? 'none' : 'block';
-            feedbackPanel.setAttribute('aria-hidden', String(isVisible));
-            if (!isVisible) {
-                prepareFloatingPanel(feedbackPanel);
-                const textarea = document.getElementById('feedback-text');
-                if (textarea) {
-                    setTimeout(() => textarea.focus(), 100);
-                }
-            }
-        }
-
-        // positionFloatingPanel / toggleFontPanel は削除済み (MainHubPanel に統合)
-        // フローティングパネルのドラッグ有効化（旧パネルIDは削除済み）
         ['main-hub-panel'].forEach((id) => {
             const panel = document.getElementById(id);
             if (panel) {
@@ -480,8 +400,6 @@
                 }
             });
         });
-        // toolsFab / closeFontPanelBtn は削除済み (HTML不在)
-
         // フォントパネルのコントロール
         function updateGlobalFontFrom(value) {
             const size = parseFloat(value);
@@ -649,7 +567,6 @@
         }
 
         return {
-            toggleFeedbackPanel,
             toggleModal,
             prepareFloatingPanel,
             clampPanelToViewport

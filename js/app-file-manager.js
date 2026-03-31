@@ -81,14 +81,10 @@
                         window.ZenWriterEditor.showNotification('ファイルを切り替えました');
                     }
 
-                    // R-3: Legacy バナー削除済み (SP-081 Phase 3)
                 } catch (e) {
                     console.error('ドキュメント切り替えエラー:', e);
                 }
             },
-
-            // R-3: _updateLegacyBanner 削除済み (SP-081 Phase 3)
-            // chapterMode が唯一のモード。旧フォーマット変換バナーは不要
 
             createNewDocument() {
                 const name = prompt((window.UILabels && window.UILabels.NEW_DOC_PROMPT) || '新しいファイルの名前を入力してください:');

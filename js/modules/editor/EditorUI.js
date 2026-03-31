@@ -176,9 +176,6 @@
             }
         },
 
-        // 旧パネル管理メソッド (toggleFontDecorationPanel等) は削除
-        // → MainHubPanel.toggle('decoration'|'animation') に統一
-
         updateAnimationSpeed(speed) {
             document.documentElement.style.setProperty('--anim-speed-factor', speed);
         },
