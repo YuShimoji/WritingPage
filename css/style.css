@@ -6077,6 +6077,15 @@ input[type="checkbox"] {
   height: 1rem;
 }
 
+/* === Slim sidebar mode === */
+html[data-sidebar-slim="true"] .gadget-detach-btn { display: none !important; }
+html[data-sidebar-slim="true"] .gadget-help-btn { display: none !important; }
+html[data-sidebar-slim="true"] .gadget-bulk-toggle-btn { display: none !important; }
+html[data-sidebar-slim="true"] .gadget-chevron { display: none !important; }
+html[data-sidebar-slim="true"] .gadget-header { cursor: default; }
+html[data-sidebar-slim="true"] .gadget-wrapper[draggable="true"] { cursor: default; }
+html[data-sidebar-slim="true"] .sidebar-dock-controls { display: none; }
+
 /* ラベルのスタイル統一 */
 .gadget-label {
   font-size: 0.75rem;

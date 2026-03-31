@@ -114,6 +114,9 @@ class SidebarManager {
 
     bootstrapAccordion() {
         try {
+            // Slim sidebar mode: ガジェット chrome を非表示
+            document.documentElement.setAttribute('data-sidebar-slim', 'true');
+
             // localStorageから展開状態を読み込み
             const savedState = this._loadAccordionState();
 
