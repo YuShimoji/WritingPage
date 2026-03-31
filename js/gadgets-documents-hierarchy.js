@@ -229,23 +229,18 @@
       toolbar.style.display = 'flex';
       toolbar.style.gap = '0.25rem';
       toolbar.style.marginBottom = '0.5rem';
+      toolbar.style.alignItems = 'center';
 
       var newDocBtn = document.createElement('button');
       newDocBtn.type = 'button';
-      newDocBtn.id = 'new-document-btn'; // E2Eテスト互換性のため追加
+      newDocBtn.id = 'new-document-btn';
       newDocBtn.textContent = '+ 新規';
       newDocBtn.title = 'ルートに新規ドキュメント作成';
       newDocBtn.addEventListener('click', function () { createDocument(null); });
 
-      var newFolderBtn = document.createElement('button');
-      newFolderBtn.type = 'button';
-      newFolderBtn.textContent = '📁 フォルダ';
-      newFolderBtn.title = 'ルートに新規フォルダ作成';
-      newFolderBtn.addEventListener('click', function () { createFolder(null); });
-
       var saveBtn = document.createElement('button');
       saveBtn.type = 'button';
-      saveBtn.textContent = '💾 ' + (((window.UILabels && window.UILabels.SAVE) || '保存'));
+      saveBtn.textContent = ((window.UILabels && window.UILabels.SAVE) || '保存');
       saveBtn.title = '現在の内容を保存';
       saveBtn.addEventListener('click', function () {
         saveCurrentContent();
@@ -255,11 +250,40 @@
         notify((window.UILabels && window.UILabels.SAVED) || '保存しました');
       });
 
-      var exportBtn = document.createElement('button');
-      exportBtn.type = 'button';
-      exportBtn.textContent = '⬇ ' + (((window.UILabels && window.UILabels.TXT_EXPORT) || 'TXTエクスポート'));
-      exportBtn.title = '現在の内容をテキストで書き出し';
-      exportBtn.addEventListener('click', function () {
+      // overflow メニュー
+      var moreBtn = document.createElement('button');
+      moreBtn.type = 'button';
+      moreBtn.className = 'documents-more-btn';
+      moreBtn.textContent = '\u2026';
+      moreBtn.title = 'その他の操作';
+      moreBtn.style.marginLeft = 'auto';
+
+      var moreMenu = document.createElement('div');
+      moreMenu.className = 'documents-more-menu';
+      moreMenu.style.display = 'none';
+      moreMenu.style.position = 'absolute';
+      moreMenu.style.zIndex = '1001';
+      moreMenu.style.background = 'var(--sidebar-bg, #1e1e1e)';
+      moreMenu.style.border = '1px solid var(--border-color, #444)';
+      moreMenu.style.borderRadius = '0.375rem';
+      moreMenu.style.padding = '0.25rem 0';
+      moreMenu.style.minWidth = '10rem';
+      moreMenu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+
+      function createMenuItem(label, title, handler) {
+        var item = document.createElement('button');
+        item.type = 'button';
+        item.textContent = label;
+        item.title = title;
+        item.style.cssText = 'display:block;width:100%;text-align:left;padding:0.375rem 0.75rem;background:none;border:none;color:inherit;font-size:0.8125rem;cursor:pointer;';
+        item.addEventListener('mouseenter', function () { item.style.background = 'rgba(255,255,255,0.08)'; });
+        item.addEventListener('mouseleave', function () { item.style.background = 'none'; });
+        item.addEventListener('click', function () { moreMenu.style.display = 'none'; handler(); });
+        return item;
+      }
+
+      moreMenu.appendChild(createMenuItem('フォルダ作成', 'ルートに新規フォルダ作成', function () { createFolder(null); }));
+      moreMenu.appendChild(createMenuItem('TXTエクスポート', '現在の内容をテキストで書き出し', function () {
         saveCurrentContent();
         if (editorManager && typeof editorManager.exportAsText === 'function') {
           editorManager.exportAsText();
@@ -272,26 +296,8 @@
           } catch (_) { }
           storage.exportText(text || '', 'document.txt', 'text/plain');
         }
-      });
-
-      // スナップショット復元ボタン
-      var restoreBtn = document.createElement('button');
-      restoreBtn.type = 'button';
-      restoreBtn.id = 'restore-from-snapshot'; // E2Eテスト互換性のため追加
-      restoreBtn.textContent = '📜 復元';
-      restoreBtn.title = '最後のスナップショットから復元';
-      restoreBtn.addEventListener('click', function () {
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
-          window.ZenWriterEditor.restoreLastSnapshot();
-        }
-      });
-
-      // JSON プロジェクト保存
-      var exportJsonBtn = document.createElement('button');
-      exportJsonBtn.type = 'button';
-      exportJsonBtn.textContent = 'JSON保存';
-      exportJsonBtn.title = '現在のドキュメントを構造保持JSONで保存';
-      exportJsonBtn.addEventListener('click', function () {
+      }));
+      moreMenu.appendChild(createMenuItem('JSON保存', '現在のドキュメントを構造保持JSONで保存', function () {
         saveCurrentContent();
         var docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
         if (!docId) { notify('ドキュメントが選択されていません'); return; }
@@ -299,14 +305,8 @@
           var ok = storage.exportProjectJSON(docId);
           if (ok) notify('JSONプロジェクトを保存しました');
         }
-      });
-
-      // JSON プロジェクト読込
-      var importJsonBtn = document.createElement('button');
-      importJsonBtn.type = 'button';
-      importJsonBtn.textContent = 'JSON読込';
-      importJsonBtn.title = 'JSONプロジェクトファイルを読み込み';
-      importJsonBtn.addEventListener('click', function () {
+      }));
+      moreMenu.appendChild(createMenuItem('JSON読込', 'JSONプロジェクトファイルを読み込み', function () {
         if (storage.importProjectJSONFromFile) {
           storage.importProjectJSONFromFile().then(function (docId) {
             if (docId) {
@@ -317,15 +317,34 @@
             }
           });
         }
+      }));
+
+      // スナップショット復元
+      var restoreItem = createMenuItem('復元', '最後のスナップショットから復元', function () {
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
+          window.ZenWriterEditor.restoreLastSnapshot();
+        }
+      });
+      restoreItem.id = 'restore-from-snapshot';
+      moreMenu.appendChild(restoreItem);
+
+      moreBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var isOpen = moreMenu.style.display !== 'none';
+        moreMenu.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen) {
+          var rect = moreBtn.getBoundingClientRect();
+          moreMenu.style.top = (rect.bottom + 2) + 'px';
+          moreMenu.style.left = Math.max(0, rect.right - 160) + 'px';
+        }
       });
 
+      document.addEventListener('click', function () { moreMenu.style.display = 'none'; });
+
       toolbar.appendChild(newDocBtn);
-      toolbar.appendChild(newFolderBtn);
       toolbar.appendChild(saveBtn);
-      toolbar.appendChild(exportBtn);
-      toolbar.appendChild(exportJsonBtn);
-      toolbar.appendChild(importJsonBtn);
-      toolbar.appendChild(restoreBtn);
+      toolbar.appendChild(moreBtn);
+      document.body.appendChild(moreMenu);
 
       // ツリーコンテナ
       var treeContainer = document.createElement('div');
