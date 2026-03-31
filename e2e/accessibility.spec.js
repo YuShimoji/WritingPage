@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { openSearchPanel, disableWritingFocus } = require('./helpers');
+const { openSearchPanel, disableWritingFocus, setUIMode } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -8,6 +8,13 @@ test.describe('Accessibility E2E', () => {
     await page.goto(pageUrl);
     await page.waitForLoadState('networkidle');
     await page.waitForSelector('#editor', { timeout: 10000 });
+    // 保存済み設定で Focus 起動する場合があるため、明示的に Normal へ切り替え
+    await setUIMode(page, 'normal');
+    // サイドバーを閉じた状態に統一
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(200);
   });
 
   test('keyboard can open and close sidebar from toggle button', async ({ page }) => {

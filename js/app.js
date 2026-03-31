@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (s && s.ui && s.ui.uiMode) {
                 setUIMode(s.ui.uiMode, false, true);
             } else {
-                setUIMode('focus', false, true);
+                setUIMode('normal', false, true);
             }
             if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
                 window.sidebarManager.applyTabsPresentationUI();

@@ -35,8 +35,8 @@
         var theme = settings && settings.theme ? settings.theme : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
 
-        // UIモード設定（デフォルト: focus）
-        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'focus';
+        // UIモード設定（デフォルト: normal）
+        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'normal';
         document.documentElement.setAttribute('data-ui-mode', uiMode);
 
         // ツールバー設定
@@ -46,10 +46,10 @@
           document.documentElement.setAttribute('data-toolbar-hidden', 'false');
         }
       } catch (e) {
-        // エラー時はデフォルトでダークモード + フォーカスモード
+        // エラー時はデフォルトでダークモード + ノーマルモード
         document.documentElement.setAttribute('data-theme', 'dark');
         document.documentElement.setAttribute('data-toolbar-hidden', 'false');
-        document.documentElement.setAttribute('data-ui-mode', 'focus');
+        document.documentElement.setAttribute('data-ui-mode', 'normal');
       }
       // 埋め込みモードではツールバーを強制的に隠す（最小UI）
       if (isEmbed) {
