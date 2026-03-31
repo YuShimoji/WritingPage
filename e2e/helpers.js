@@ -308,6 +308,91 @@ async function disableWritingFocus(page) {
   });
 }
 
+/**
+ * サイドバーを Normal モードで開き、指定グループのパネルを表示する。
+ * openAssistPanel / openThemePanel / openSidebarAndStructurePanel の共通化。
+ * @param {import('@playwright/test').Page} page
+ * @param {string} group - 'structure' | 'edit' | 'theme' | 'assist' | 'advanced'
+ * @param {{ expandGadgets?: boolean, waitSelector?: string }} [opts]
+ */
+async function openSidebarPanel(page, group, opts = {}) {
+  await setUIMode(page, 'normal');
+  await page.waitForFunction(() => {
+    try { return !!window.ZWGadgets; } catch (_) { return false; }
+  }, { timeout: 20000 });
+  await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await enableAllGadgets(page);
+
+  await page.evaluate(() => {
+    var sb = document.getElementById('sidebar');
+    var btn = document.getElementById('toggle-sidebar');
+    if (sb && !sb.classList.contains('open') && btn) btn.click();
+    // Focus モードの設定パネルが閉じている場合は開く
+    var settingsBtn = document.getElementById('writing-focus-settings-btn');
+    if (settingsBtn && settingsBtn.getAttribute('aria-pressed') !== 'true') {
+      settingsBtn.click();
+    }
+  });
+
+  await openSidebarGroup(page, group);
+  await page.waitForSelector('#' + group + '-gadgets-panel', { state: 'visible', timeout: 10000 });
+
+  if (opts.expandGadgets) {
+    await page.evaluate(() => {
+      document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+        var name = w.getAttribute('data-gadget-name');
+        if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
+          window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
+        }
+      });
+    });
+  }
+
+  if (opts.waitSelector) {
+    await page.waitForSelector(opts.waitSelector, { state: 'attached', timeout: 10000 });
+  }
+  await page.waitForTimeout(300);
+}
+
+/**
+ * window.confirm / window.prompt をモックし、呼び出しログを記録する。
+ * @param {import('@playwright/test').Page} page
+ * @param {{ confirmReturn?: boolean, promptReturn?: string }} [opts]
+ */
+async function mockDialogs(page, opts = {}) {
+  await page.evaluate(({ cr, pr }) => {
+    window.__zwDialogLog = [];
+    var origConfirm = window.confirm;
+    var origPrompt = window.prompt;
+    window.__zwRestoreDialogs = function() {
+      window.confirm = origConfirm;
+      window.prompt = origPrompt;
+    };
+    window.confirm = function(msg) {
+      window.__zwDialogLog.push({ type: 'confirm', message: String(msg) });
+      return cr;
+    };
+    window.prompt = function(msg, def) {
+      window.__zwDialogLog.push({ type: 'prompt', message: String(msg), defaultValue: def });
+      return pr;
+    };
+  }, { cr: opts.confirmReturn !== false, pr: opts.promptReturn || '' });
+}
+
+/**
+ * mockDialogs で設定したモックを復元し、ログを返す。
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<Array<{type: string, message: string}>>}
+ */
+async function restoreDialogs(page) {
+  var log = await page.evaluate(() => {
+    var l = window.__zwDialogLog || [];
+    if (typeof window.__zwRestoreDialogs === 'function') window.__zwRestoreDialogs();
+    return l;
+  });
+  return log;
+}
+
 module.exports = {
   setUIMode,
   openCommandPalette,
@@ -321,4 +406,7 @@ module.exports = {
   expandAccordion,
   openSettingsModal,
   disableWritingFocus,
+  openSidebarPanel,
+  mockDialogs,
+  restoreDialogs,
 };

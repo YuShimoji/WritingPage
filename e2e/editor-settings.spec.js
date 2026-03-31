@@ -1,153 +1,13 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, showFullToolbar, expandAccordion, setUIMode } = require('./helpers');
-
-async function openSettingsPanel(page) {
-  await page.waitForFunction(() => {
-    try { return !!window.ZWGadgets; } catch (_) { return false; }
-  }, { timeout: 20000 });
-  await enableAllGadgets(page);
-  await showFullToolbar(page);
-  await page.waitForTimeout(200);
-  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
-  await page.click('#toggle-settings');
-  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
-  await page.waitForTimeout(500);
-}
-
-async function ensureSidebarSettingsOpen(page) {
-  const settingsBtn = page.locator('#writing-focus-settings-btn');
-  if (await settingsBtn.count()) {
-    const pressed = await settingsBtn.getAttribute('aria-pressed');
-    if (pressed !== 'true') {
-      await settingsBtn.click();
-    }
-  }
-}
-
-async function openAssistPanel(page) {
-  // フォーカスモードではサイドバーが非表示のため、normal に戻す
-  await setUIMode(page, 'normal');
-  await page.waitForFunction(() => {
-    try { return !!window.ZWGadgets; } catch (_) { return false; }
-  }, { timeout: 20000 });
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-  await enableAllGadgets(page);
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-  await ensureSidebarSettingsOpen(page);
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('assist');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('assist');
-      }
-    } catch (_) { /* noop */ }
-  });
-
-  await expandAccordion(page, 'assist');
-  await page.waitForSelector('#assist-gadgets-panel', { state: 'visible', timeout: 10000 });
-  await page.waitForTimeout(500);
-
-  // すべてのガジェットを展開 (data-gadget-collapsed 属性で制御)
-  await page.evaluate(() => {
-    document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
-      var name = w.getAttribute('data-gadget-name');
-      if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
-        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
-      }
-    });
-  });
-  await page.waitForTimeout(300);
-}
-
-async function openThemePanel(page) {
-  await page.waitForFunction(() => {
-    try { return !!window.ZWGadgets; } catch (_) { return false; }
-  }, { timeout: 20000 });
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-  await enableAllGadgets(page);
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-  await ensureSidebarSettingsOpen(page);
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('theme');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('theme');
-      }
-    } catch (_) {
-      /* noop */
-    }
-  });
-  await expandAccordion(page, 'theme');
-  await page.waitForSelector('#theme-gadgets-panel', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('.gadget-wrapper[data-gadget-name="Typography"]', { state: 'attached', timeout: 10000 });
-}
-
-async function openSidebarAndStructurePanel(page) {
-  await page.waitForFunction(() => {
-    try { return !!window.ZWGadgets; } catch (_) { return false; }
-  }, { timeout: 20000 });
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
-  await enableAllGadgets(page);
-
-  const isOpen = await page.evaluate(() => {
-    const sb = document.getElementById('sidebar');
-    return !!(sb && sb.classList.contains('open'));
-  });
-
-  if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-  }
-  await ensureSidebarSettingsOpen(page);
-
-  await page.evaluate(() => {
-    try {
-      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('structure');
-      }
-      if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-        window.ZWGadgets.setActiveGroup('structure');
-      }
-    } catch (_) {
-      /* noop */
-    }
-  });
-
-  await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
-  await page.waitForTimeout(300);
-}
+const { enableAllGadgets, setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDialogs } = require('./helpers');
 
 test.describe('Editor Settings', () => {
   test.setTimeout(60000);
   test('should toggle typewriter mode and save settings', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await expect(checkbox).toBeVisible();
@@ -161,7 +21,7 @@ test.describe('Editor Settings', () => {
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     await expect(page.locator('#assist-gadgets-panel #typewriter-enabled')).toBeChecked();
     await expect(page.locator('#assist-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
@@ -171,7 +31,7 @@ test.describe('Editor Settings', () => {
   test('should toggle focus mode and save settings', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     const checkbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
     await expect(checkbox).toBeVisible();
@@ -185,7 +45,7 @@ test.describe('Editor Settings', () => {
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     await expect(page.locator('#assist-gadgets-panel #focus-mode-enabled')).toBeChecked();
     await expect(page.locator('#assist-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
@@ -195,7 +55,7 @@ test.describe('Editor Settings', () => {
   test('should work with typewriter mode simultaneously', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     const typewriterCheckbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await typewriterCheckbox.check();
@@ -215,7 +75,7 @@ test.describe('Editor Settings', () => {
   test('should adjust snapshot settings and save', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openSettingsModal(page);
 
     await page.evaluate(() => {
       const writeNumber = (id, value) => {
@@ -237,7 +97,7 @@ test.describe('Editor Settings', () => {
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSettingsPanel(page);
+    await openSettingsModal(page);
     const snapshotConfig = await page.evaluate(() => {
       try {
         const s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
@@ -289,7 +149,7 @@ test.describe('Editor Settings', () => {
       .locator('#editor')
       .fill('Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7\nLine 8\nLine 9\nLine 10\n');
 
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     const chk = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await chk.check();
@@ -344,29 +204,8 @@ test.describe('Editor Settings', () => {
 
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
-    await setUIMode(page, 'normal');
-    await page.waitForFunction(() => {
-      try { return !!window.ZWGadgets; } catch (_) { return false; }
-    }, { timeout: 20000 });
-    await enableAllGadgets(page);
-
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
-    await ensureSidebarSettingsOpen(page);
-    await page.evaluate(() => {
-      try {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('edit');
-        }
-        if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-          window.ZWGadgets.setActiveGroup('edit');
-        }
-      } catch (_) { /* noop */ }
-    });
-
-    const wikiHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
-    await wikiHeader.waitFor({ timeout: 10000 });
-    await wikiHeader.click();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'edit');
 
     // Story Wiki (story-wiki.js) は input[type="text"] を使用
     await page.waitForSelector('#edit-gadgets-panel .swiki-search-input', { timeout: 10000 });
@@ -381,7 +220,7 @@ test.describe('Editor Settings', () => {
     const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
     await page.locator('#editor').fill(lines);
 
-    await openAssistPanel(page);
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
     const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
     await checkbox.check();
@@ -416,44 +255,19 @@ test.describe('Editor Settings', () => {
       return null;
     });
 
-    await openSidebarAndStructurePanel(page);
-
+    await openSidebarPanel(page, 'structure');
     await page.waitForSelector('#new-document-btn', { state: 'attached', timeout: 10000 });
 
-    await page.evaluate(() => {
-      window.__zwDialogLog = [];
-      const origConfirm = window.confirm;
-      const origPrompt = window.prompt;
-      window.__zwRestoreDialogs = () => {
-        window.confirm = origConfirm;
-        window.prompt = origPrompt;
-      };
-      window.confirm = (msg) => {
-        window.__zwDialogLog.push({ type: 'confirm', message: String(msg) });
-        return true;
-      };
-      window.prompt = (msg, def) => {
-        window.__zwDialogLog.push({ type: 'prompt', message: String(msg), defaultValue: def });
-        return 'e2e-doc-2';
-      };
-    });
+    await mockDialogs(page, { confirmReturn: true, promptReturn: 'e2e-doc-2' });
 
     await page.evaluate(() => {
       const btn = document.getElementById('new-document-btn');
       if (btn) btn.click();
     });
 
-    const dialogLog = await page.evaluate(() => window.__zwDialogLog || []);
+    const dialogLog = await restoreDialogs(page);
     expect(dialogLog.some((e) => e.type === 'confirm')).toBeTruthy();
     expect(dialogLog.some((e) => e.type === 'prompt')).toBeTruthy();
-
-    await page.evaluate(() => {
-      try {
-        if (typeof window.__zwRestoreDialogs === 'function') window.__zwRestoreDialogs();
-      } catch (_) {
-        /* noop */
-      }
-    });
 
     const newDocId = await page.evaluate(() => {
       try {
@@ -510,36 +324,18 @@ test.describe('Editor Settings', () => {
 
     await page.locator('#editor').fill('Modified content for restore test');
 
-    await openSidebarAndStructurePanel(page);
+    await openSidebarPanel(page, 'structure');
     await page.waitForSelector('#restore-from-snapshot', { state: 'attached', timeout: 10000 });
 
-    await page.evaluate(() => {
-      window.__zwDialogLog = [];
-      const origConfirm = window.confirm;
-      window.__zwRestoreDialogs = () => {
-        window.confirm = origConfirm;
-      };
-      window.confirm = (msg) => {
-        window.__zwDialogLog.push({ type: 'confirm', message: String(msg) });
-        return true;
-      };
-    });
+    await mockDialogs(page, { confirmReturn: true });
 
     await page.evaluate(() => {
       const btn = document.getElementById('restore-from-snapshot');
       if (btn) btn.click();
     });
 
-    const dialogLog = await page.evaluate(() => window.__zwDialogLog || []);
+    const dialogLog = await restoreDialogs(page);
     expect(dialogLog.some((e) => e.type === 'confirm')).toBeTruthy();
-
-    await page.evaluate(() => {
-      try {
-        if (typeof window.__zwRestoreDialogs === 'function') window.__zwRestoreDialogs();
-      } catch (_) {
-        /* noop */
-      }
-    });
 
     await expect(page.locator('#editor')).toHaveValue(original);
   });
@@ -612,9 +408,10 @@ test.describe('Editor Settings', () => {
 
   test('Typography and quick font controls should stay in sync', async ({ page }) => {
     await page.goto('/');
-    await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openThemePanel(page);
+    await openSidebarPanel(page, 'theme', {
+      waitSelector: '.gadget-wrapper[data-gadget-name="Typography"]'
+    });
 
     await page.evaluate(() => {
       const root = document.querySelector('.gadget-wrapper[data-gadget-name="Typography"] .gadget-typography');
