@@ -418,12 +418,6 @@ class SidebarManager {
                 editor.addEventListener('click', onEditorChanged);
             }
             window.addEventListener('ZWDocumentsChanged', () => this._scheduleWritingFocusRender());
-            window.addEventListener('ZWBottomNavNavigate', (ev) => {
-                const action = ev && ev.detail ? ev.detail.action : '';
-                if (!action) return;
-                this.navigateWritingFocus(action);
-            });
-
             this._writingFocusObserver = new MutationObserver(() => this._scheduleWritingFocusRender());
             this._writingFocusObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-ui-mode'] });
 

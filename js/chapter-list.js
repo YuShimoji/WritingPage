@@ -20,8 +20,22 @@
   var contextMenu = null;
   var dragState = null;
   var previousMode = null; // モード切替検出用
+  var chapterObserver = null; // IntersectionObserver for chapter visibility
 
   // ---- Helpers ----
+
+  function clearChapterVisibility() {
+    if (!listEl) return;
+    var items = listEl.querySelectorAll('[data-focus-chapter-visible]');
+    items.forEach(function (el) { el.removeAttribute('data-focus-chapter-visible'); });
+  }
+
+  function observeChapterItems() {
+    if (!chapterObserver || !listEl) return;
+    chapterObserver.disconnect();
+    var items = listEl.querySelectorAll('.cl-item[data-ch-idx]');
+    items.forEach(function (item) { chapterObserver.observe(item); });
+  }
 
   function getCurrentDocId() {
     if (window.ZenWriterStorage && typeof window.ZenWriterStorage.getCurrentDocId === 'function') {
@@ -111,6 +125,20 @@
     });
     modeObserver.observe(document.documentElement, { attributes: true });
 
+    // IntersectionObserver: Focus モードで章アイテムの可視性を追跡
+    if (typeof IntersectionObserver !== 'undefined' && listEl) {
+      chapterObserver = new IntersectionObserver(function (entries) {
+        if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.setAttribute('data-focus-chapter-visible', '');
+          } else {
+            entry.target.removeAttribute('data-focus-chapter-visible');
+          }
+        });
+      }, { root: listEl, threshold: 0 });
+    }
+
     // 初回: Focusモードならリフレッシュ
     if (document.documentElement.getAttribute('data-ui-mode') === 'focus') {
       setTimeout(refresh, 100);
@@ -148,6 +176,7 @@
       }
     } else if (fromMode === 'focus') {
       closeContextMenu();
+      clearChapterVisibility();
       if (G) G.flushChapterIfNeeded();
       else flushActiveChapter();
       var docId = getCurrentDocId();
@@ -319,6 +348,9 @@
 
     // フッター統計 + 目次コピーボタン
     renderFooterStats();
+
+    // IntersectionObserver: 章アイテムの可視性を追跡
+    observeChapterItems();
   }
 
   function renderFooterStats() {

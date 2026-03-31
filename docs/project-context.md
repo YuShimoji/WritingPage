@@ -1,12 +1,11 @@
 # Project Context
 
-## RECENT NOTE (2026-03-30, session 32)
+## RECENT NOTE (2026-03-31, session 38)
 
-- 章増殖バグ根絶: sidebar-manager.js の直接テキスト挿入経路を封殺 → ZWChapterList.addChapter() 委譲
-- Blank モード完全除去: command-palette.js / dock-panel.css / コメント
-- setUIMode 全経路統一: E2E 12ファイル 30+箇所を setUIMode 経由に統一、helpers.js に setUIMode ヘルパー追加
-- visual-profile.js を setUIMode 経由に修正
-- E2E: 108 passed / 1 failed (既知B-1) / 1 skipped（変更箇所直結テスト）
+- エディタ下部ナビ (editor-bottom-nav) を完全撤去: DOM / CSS / JS / E2E
+- Focus モード tags/smart-folders ガジェットの描画 gating: サイドバー非表示時はツリー DOM を破棄
+- 章パネル IntersectionObserver: Focus モードで章アイテム可視性を data-focus-chapter-visible で追跡
+- sections-nav spec / project-context / runtime-state を同期
 
 ## PROJECT CONTEXT
 
@@ -14,7 +13,7 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.32)
-- 直近の状態: session 36 — lint根絶 + 堆積物削除 + hidden要素削除 + ROADMAP同期
+- 直近の状態: session 38 — 下部ナビ撤去 + Focus描画gating + IntersectionObserver
 
 ### 運用メモ
 

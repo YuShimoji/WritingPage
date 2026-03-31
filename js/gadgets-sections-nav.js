@@ -299,56 +299,6 @@
   }
 
   // =========================================================
-  //  下部ナビ
-  // =========================================================
-
-  function initBottomNav() {
-    var prevBtn = document.getElementById('bottom-nav-prev');
-    var nextBtn = document.getElementById('bottom-nav-next');
-    var titleBtn = document.getElementById('bottom-nav-title');
-    var titleText = document.getElementById('bottom-nav-title-text');
-    if (!prevBtn || !nextBtn || !titleBtn || !titleText) return null;
-
-    var state = { headings: [], activeIndex: -1 };
-
-    prevBtn.addEventListener('click', function () {
-      if (state.activeIndex > 0) {
-        var newIdx = state.activeIndex - 1;
-        jumpToHeading(state.headings[newIdx], newIdx);
-        scheduleRender();
-      }
-    });
-
-    nextBtn.addEventListener('click', function () {
-      if (state.activeIndex < state.headings.length - 1) {
-        var newIdx = state.activeIndex + 1;
-        jumpToHeading(state.headings[newIdx], newIdx);
-        scheduleRender();
-      }
-    });
-
-    titleBtn.addEventListener('click', function () {
-      window.dispatchEvent(new CustomEvent('ZWBottomNavNavigate', {
-        detail: { action: 'openSections' }
-      }));
-    });
-
-    return {
-      update: function (headings, activeIndex) {
-        state.headings = headings;
-        state.activeIndex = activeIndex;
-        prevBtn.disabled = activeIndex <= 0;
-        nextBtn.disabled = activeIndex >= headings.length - 1 || headings.length === 0;
-        if (activeIndex >= 0 && headings[activeIndex]) {
-          titleText.textContent = headings[activeIndex].title;
-        } else {
-          titleText.textContent = '---';
-        }
-      }
-    };
-  }
-
-  // =========================================================
   //  ガジェット本体
   // =========================================================
 
@@ -385,7 +335,6 @@
     wrap.appendChild(treeContainer);
     el.appendChild(wrap);
 
-    var bottomNav = initBottomNav();
     var currentHeadings = [];
     var currentActiveIndex = -1;
     var debounceTimer = null;
@@ -467,11 +416,6 @@
 
           treeContainer.appendChild(node);
         });
-      }
-
-      // 下部ナビ更新
-      if (bottomNav) {
-        bottomNav.update(currentHeadings, currentActiveIndex);
       }
 
       // 同期イベント
@@ -567,27 +511,10 @@
     window.addEventListener('ZWDocumentsChanged', onDocsChanged);
     document.addEventListener('zen-content-saved', scheduleRender);
 
-    // 下部ナビからの操作
-    var onBottomNav = function (e) {
-      if (e.detail && e.detail.action === 'openSections') {
-        var sidebar = document.getElementById('sidebar');
-        if (sidebar && !sidebar.classList.contains('open')) {
-          var toggle = document.getElementById('toggle-sidebar');
-          if (toggle) toggle.click();
-        }
-        var sectionHeader = document.querySelector('.accordion-header[aria-controls="accordion-sections"]');
-        if (sectionHeader && sectionHeader.getAttribute('aria-expanded') !== 'true') {
-          sectionHeader.click();
-        }
-      }
-    };
-    window.addEventListener('ZWBottomNavNavigate', onBottomNav);
-
     // cleanup: render 時に前回のグローバルリスナーを除去
     if (api && typeof api.addCleanup === 'function') {
       api.addCleanup(function () { window.removeEventListener('ZWDocumentsChanged', onDocsChanged); });
       api.addCleanup(function () { document.removeEventListener('zen-content-saved', scheduleRender); });
-      api.addCleanup(function () { window.removeEventListener('ZWBottomNavNavigate', onBottomNav); });
     }
 
     // 初回レンダリング

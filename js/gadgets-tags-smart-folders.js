@@ -71,9 +71,20 @@
         expandedFolders: new Set()
       };
 
+      function isFocusSidebarHidden() {
+        var mode = document.documentElement.getAttribute('data-ui-mode');
+        if (mode !== 'focus') return false;
+        var sidebar = document.getElementById('sidebar');
+        return !sidebar || !sidebar.classList.contains('open');
+      }
+
       function renderTree() {
+        if (isFocusSidebarHidden()) {
+          treeContainer.innerHTML = '';
+          return;
+        }
         treeContainer.innerHTML = '';
-        
+
         if (state.currentView === 'tags') {
           renderTagsTree();
         } else {

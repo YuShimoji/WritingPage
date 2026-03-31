@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-03-30 session 36
+> 最終更新: 2026-03-31 session 38
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 36
+- セッション: 38
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: WP-001 lint根絶 + 堆積物削除 + hidden要素削除 done → 次スライス選定
+- スライス: WP-001 下部ナビ撤去 + Focus 描画最適化 + IntersectionObserver
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 36 | 34 |
+| セッション番号 | 38 | 36 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
 | spec done | 44 | 43 |
@@ -68,6 +68,26 @@
 | Q6a No (基盤未獲得) | 0 (lint clean達成, E2E 526 passed) |
 | Q6b No (ユーザー可視変化なし) | 0 (ui-mode-select削除 = DOM整理) |
 | 保守モード連続 | 0 (Excise + Advance 実施) |
+
+---
+
+## Session 38 実施内容
+
+### エディタ下部ナビ完全撤去 (Excise / WP-001)
+
+- index.html: `<nav id="editor-bottom-nav">` DOM 要素を削除
+- css/style.css: `.editor-status-bar` / `.status-bar-nav-btn` / `.status-bar-title` 全スタイル削除 (タッチ拡大ルール含む)
+- gadgets-sections-nav.js: `initBottomNav()` 関数・`bottomNav.update()` 呼び出し・`ZWBottomNavNavigate` リスナー全削除
+- sidebar-manager.js: `ZWBottomNavNavigate` リスナー削除
+- e2e/sections-nav.spec.js: 存在テスト 2 件を非存在ガード 1 件に差し替え
+- docs/specs/spec-sections-navigation.md: 下部ナビ撤退を記録
+
+### Focus モード描画最適化 (Advance / WP-001)
+
+- gadgets-tags-smart-folders.js: `isFocusSidebarHidden()` gating 追加。サイドバー非表示時はツリー DOM を破棄
+- chapter-list.js: IntersectionObserver 初期化。章アイテムに `data-focus-chapter-visible` 属性を付与/除去
+- chapter-list.js: Focus 離脱時に `clearChapterVisibility()` で属性をクリア
+- css/style.css: `[data-focus-chapter-visible]` で pointer-events 常時有効化
 
 ---
 

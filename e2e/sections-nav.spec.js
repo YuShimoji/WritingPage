@@ -116,51 +116,14 @@ test.describe('SP-052 Sections Navigator', () => {
     expect(cursorPos).toBe(expectedPos);
   });
 
-  test('エディタ下部ナビが表示される', async ({ page }) => {
+  test('エディタ下部ナビ (Legacy) が存在しない', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // 下部ナビが存在する
     const navExists = await page.evaluate(() => {
       return !!document.getElementById('editor-bottom-nav');
     });
-    expect(navExists).toBe(true);
-
-    // ボタンが存在する
-    const prevExists = await page.evaluate(() => {
-      return !!document.getElementById('bottom-nav-prev');
-    });
-    expect(prevExists).toBe(true);
-
-    const nextExists = await page.evaluate(() => {
-      return !!document.getElementById('bottom-nav-next');
-    });
-    expect(nextExists).toBe(true);
-  });
-
-  test('下部ナビにアクティブセクション名が表示される', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-
-    await setEditorContent(page, '# 第1章 始まり\n\n本文...\n\n# 第2章 終わり\n\n本文...');
-
-    // カーソルを先頭に設定して再度renderをトリガー
-    await page.evaluate(() => {
-      var editor = document.getElementById('editor');
-      if (editor) {
-        editor.selectionStart = 0;
-        editor.selectionEnd = 0;
-        editor.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-    });
-    await page.waitForTimeout(300);
-
-    // 下部ナビのタイトルが第1章になっている
-    const titleText = await page.evaluate(() => {
-      var el = document.getElementById('bottom-nav-title-text');
-      return el ? el.textContent : '';
-    });
-    expect(titleText).toBe('第1章 始まり');
+    expect(navExists).toBe(false);
   });
 });
 
@@ -368,59 +331,4 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
     expect(markersAfter).toBe(0);
   });
 
-  test('下部ナビprev/nextでコラプスが追従する', async ({ page }) => {
-    await setupWysiwygContent(page, MULTI_SECTION_MD);
-
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
-
-    // 第1章をクリックしてコラプス適用
-    await page.evaluate(() => {
-      var nodes = document.querySelectorAll('.sections-tree-node');
-      if (nodes[0]) nodes[0].click();
-    });
-    await page.waitForTimeout(500);
-
-    // サイドバーを閉じてからnextボタンをクリック → 第2章へ
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
-    await page.click('#bottom-nav-next');
-    await page.waitForTimeout(500);
-
-    // コラプスがアクティブで、第2章がアクティブセクション
-    const activeTitle = await page.evaluate(() => {
-      var active = document.querySelector('#wysiwyg-editor [data-section-active="true"]');
-      return active ? active.textContent.trim() : '';
-    });
-    expect(activeTitle).toContain('第2章');
-
-    // コラプスが維持されている
-    const collapseActive = await page.evaluate(() => {
-      return document.getElementById('wysiwyg-editor')
-        ?.hasAttribute('data-section-collapse-active') ?? false;
-    });
-    expect(collapseActive).toBe(true);
-  });
-
-  test('ステータスバーがエディタ外に固定表示される', async ({ page }) => {
-    await setupWysiwygContent(page, MULTI_SECTION_MD);
-
-    // ステータスバーがeditor-containerの外にある
-    const isOutsideEditor = await page.evaluate(() => {
-      var nav = document.getElementById('editor-bottom-nav');
-      var editorContainer = document.querySelector('.editor-container');
-      if (!nav || !editorContainer) return false;
-      return !editorContainer.contains(nav);
-    });
-    expect(isOutsideEditor).toBe(true);
-
-    // ステータスバーが表示されている
-    const isVisible = await page.evaluate(() => {
-      var nav = document.getElementById('editor-bottom-nav');
-      if (!nav) return false;
-      var style = window.getComputedStyle(nav);
-      return style.display !== 'none' && style.visibility !== 'hidden';
-    });
-    expect(isVisible).toBe(true);
-  });
 });

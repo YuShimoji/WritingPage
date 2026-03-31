@@ -4,7 +4,7 @@
 >
 > - SectionsNavigator ガジェット (左サイドツリー): **Editor モード専用**。
 >   Focus モードでは SP-071 の ChapterList が同等の役割を担う。
-> - エディタ下部ナビ: **全モード共通** (Focus / Blank でも利用可能)。
+> - ~~エディタ下部ナビ: **全モード共通** (Focus / Blank でも利用可能)。~~ **撤去済み (session 38)**。下部ナビ DOM・CSS・JS を完全削除。ナビゲーションはサイドツリーおよび章パネルに集約。
 > - SectionsNavigator と ChapterList はデータソース (見出し解析結果) を共有する。
 >   Editor で見出しを変更すると、Focus の ChapterList にも反映される。
 
@@ -19,8 +19,8 @@
 - `docs/specs/spec-chapter-management.md` (SP-071: Focus モードの ChapterList)
 - `docs/specs/spec-writing-focus-sidebar.md` (SP-053: superseded、設計意図の参照用)
 
-合わせて、エディタ最下部に「前の話 / 次の話 / 見出しへ移動」ナビを常設し、
-長編執筆時の移動コストを下げる。
+~~合わせて、エディタ最下部に「前の話 / 次の話 / 見出しへ移動」ナビを常設し、
+長編執筆時の移動コストを下げる。~~ (session 38 で撤去。ナビゲーションは左サイドツリーに集約)
 
 ---
 
