@@ -1,0 +1,229 @@
+[
+  {
+    "cat": "sections",
+    "expandResult": {
+      "found": true,
+      "headerText": "セクション",
+      "gadgetCount": 1,
+      "gadgetsPanelStyle": ""
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 1,
+      "gadgets": [
+        {
+          "name": "SectionsNavigator",
+          "headerText": "セクションナビゲーター⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  },
+  {
+    "cat": "structure",
+    "expandResult": {
+      "found": true,
+      "headerText": "構造",
+      "gadgetCount": 4,
+      "gadgetsPanelStyle": ""
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 4,
+      "gadgets": [
+        {
+          "name": "Documents",
+          "headerText": "ドキュメント⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "Outline",
+          "headerText": "アウトライン⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "TagsAndSmartFolders",
+          "headerText": "タグ/スマートフォルダ⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "SnapshotManager",
+          "headerText": "バックアップ⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  },
+  {
+    "cat": "edit",
+    "expandResult": {
+      "found": true,
+      "headerText": "編集",
+      "gadgetCount": 0,
+      "gadgetsPanelStyle": "n/a"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 5,
+      "gadgets": [
+        {
+          "name": "ChoiceTools",
+          "headerText": "選択肢⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "Images",
+          "headerText": "画像⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "MarkdownPreview",
+          "headerText": "Markdown Preview⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "FontDecoration",
+          "headerText": "Font Decoration⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "TextAnimation",
+          "headerText": "Text Animation⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  },
+  {
+    "cat": "theme",
+    "expandResult": {
+      "found": true,
+      "headerText": "テーマ",
+      "gadgetCount": 0,
+      "gadgetsPanelStyle": "n/a"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 4,
+      "gadgets": [
+        {
+          "name": "Themes",
+          "headerText": "テーマ⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "HeadingStyles",
+          "headerText": "見出しスタイル⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "Typography",
+          "headerText": "フォント⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "VisualProfile",
+          "headerText": "Visual Profile⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  },
+  {
+    "cat": "assist",
+    "expandResult": {
+      "found": true,
+      "headerText": "補助",
+      "gadgetCount": 0,
+      "gadgetsPanelStyle": "n/a"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 5,
+      "gadgets": [
+        {
+          "name": "Typewriter",
+          "headerText": "Typewriter⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "FocusMode",
+          "headerText": "Focus Mode⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "HUDSettings",
+          "headerText": "HUD設定⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "WritingGoal",
+          "headerText": "執筆目標⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "MarkdownReference",
+          "headerText": "Markdownリファレンス⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  },
+  {
+    "cat": "advanced",
+    "expandResult": {
+      "found": true,
+      "headerText": "詳細設定",
+      "gadgetCount": 0,
+      "gadgetsPanelStyle": "n/a"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 6,
+      "gadgets": [
+        {
+          "name": "PrintSettings",
+          "headerText": "エクスポート⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "GadgetPrefs",
+          "headerText": "ガジェット設定⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "LoadoutManager",
+          "headerText": "ロードアウト管理⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "UISettings",
+          "headerText": "UI Settings⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "EditorLayout",
+          "headerText": "Editor Layout⇱",
+          "svgCount": 2
+        },
+        {
+          "name": "Keybinds",
+          "headerText": "キーボードショートカット⇱",
+          "svgCount": 2
+        }
+      ]
+    }
+  }
+]

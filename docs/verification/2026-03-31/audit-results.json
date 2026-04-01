@@ -1,0 +1,504 @@
+[
+  {
+    "scenario": 1,
+    "initialMode": "focus",
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": 0
+    },
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 1280,
+      "h": 51,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "toggleBtn": {
+      "exists": true,
+      "sel": "#toggle-sidebar",
+      "display": "inline-flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "icon-button",
+        "iconified"
+      ],
+      "w": 38,
+      "h": 32,
+      "rectTop": 8.203125,
+      "rectLeft": 16
+    },
+    "note": "BUG: started in focus"
+  },
+  {
+    "scenario": "2a",
+    "sidebarOpen": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "true",
+      "classList": [
+        "sidebar"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": -320
+    },
+    "categories": [
+      {
+        "cat": "sections",
+        "display": "block"
+      },
+      {
+        "cat": "structure",
+        "display": "block"
+      },
+      {
+        "cat": "edit",
+        "display": "block"
+      },
+      {
+        "cat": "theme",
+        "display": "block"
+      },
+      {
+        "cat": "assist",
+        "display": "block"
+      },
+      {
+        "cat": "advanced",
+        "display": "block"
+      }
+    ]
+  },
+  {
+    "scenario": "2b",
+    "sidebarClosed": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": 0
+    }
+  },
+  {
+    "scenario": 3,
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "true",
+      "classList": [
+        "sidebar"
+      ],
+      "w": 320,
+      "h": 800,
+      "rectTop": 0,
+      "rectLeft": -320
+    },
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 1280,
+      "h": 51,
+      "rectTop": -51,
+      "rectLeft": 0
+    },
+    "panels": [
+      {
+        "sel": "#focus-rail",
+        "exists": false
+      },
+      {
+        "sel": ".focus-rail",
+        "exists": false
+      },
+      {
+        "sel": "#focus-chapter-panel",
+        "exists": true,
+        "display": "flex",
+        "w": 240
+      },
+      {
+        "sel": ".focus-chapter-panel",
+        "exists": true,
+        "display": "flex",
+        "w": 240
+      }
+    ]
+  },
+  {
+    "scenario": 4,
+    "sidebarState": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 800,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "nonFocusCats": [
+      {
+        "cat": "edit",
+        "exists": true,
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "theme",
+        "exists": true,
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "assist",
+        "exists": true,
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "advanced",
+        "exists": true,
+        "display": "none",
+        "ariaHidden": "true"
+      }
+    ],
+    "allCats": [
+      {
+        "cat": "sections",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "structure",
+        "display": "none",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "edit",
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "theme",
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "assist",
+        "display": "none",
+        "ariaHidden": "true"
+      },
+      {
+        "cat": "advanced",
+        "display": "none",
+        "ariaHidden": "true"
+      }
+    ]
+  },
+  {
+    "scenario": 5,
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 1280,
+      "h": 51,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": 0
+    },
+    "categories": [
+      {
+        "cat": "sections",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "structure",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "edit",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "theme",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "assist",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "advanced",
+        "display": "block",
+        "ariaHidden": "false"
+      }
+    ]
+  },
+  {
+    "scenario": 6,
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "none",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "true",
+      "classList": [
+        "sidebar"
+      ],
+      "w": 0,
+      "h": 0,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "none",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 0,
+      "h": 0,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "readerElements": [
+      {
+        "sel": ".reader-preview",
+        "exists": true,
+        "display": "block",
+        "w": 1280,
+        "h": 800
+      },
+      {
+        "sel": "#reader-preview",
+        "exists": true,
+        "display": "block",
+        "w": 1280,
+        "h": 800
+      },
+      {
+        "sel": "#reader-pane",
+        "exists": false
+      },
+      {
+        "sel": ".reader-pane",
+        "exists": false
+      }
+    ]
+  },
+  {
+    "scenario": 7,
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 1280,
+      "h": 51,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": 0
+    },
+    "categories": [
+      {
+        "cat": "sections",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "structure",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "edit",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "theme",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "assist",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "advanced",
+        "display": "block",
+        "ariaHidden": "false"
+      }
+    ]
+  },
+  {
+    "scenario": 8,
+    "toolbar": {
+      "exists": true,
+      "sel": "#toolbar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": null,
+      "classList": [
+        "toolbar"
+      ],
+      "w": 1280,
+      "h": 51,
+      "rectTop": 0,
+      "rectLeft": 0
+    },
+    "sidebar": {
+      "exists": true,
+      "sel": "#sidebar",
+      "display": "flex",
+      "visibility": "visible",
+      "hidden": false,
+      "ariaHidden": "false",
+      "classList": [
+        "sidebar",
+        "open"
+      ],
+      "w": 320,
+      "h": 749,
+      "rectTop": 51,
+      "rectLeft": 0
+    },
+    "categories": [
+      {
+        "cat": "sections",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "structure",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "edit",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "theme",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "assist",
+        "display": "block",
+        "ariaHidden": "false"
+      },
+      {
+        "cat": "advanced",
+        "display": "block",
+        "ariaHidden": "false"
+      }
+    ]
+  }
+]

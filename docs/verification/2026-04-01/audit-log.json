@@ -1,0 +1,206 @@
+[
+  {
+    "step": 1,
+    "status": "ok",
+    "url": "http://127.0.0.1:9080/index.html"
+  },
+  {
+    "step": 2,
+    "setUIModeResult": "not_found"
+  },
+  {
+    "step": 3,
+    "sidebarState": {
+      "found": true,
+      "id": "sidebar",
+      "className": "sidebar open",
+      "display": "flex",
+      "visibility": "visible",
+      "width": "320px",
+      "transform": "none",
+      "hidden": false
+    },
+    "accordionHeaders": [
+      {
+        "text": "セクション",
+        "ariaControls": "accordion-sections",
+        "ariaExpanded": "true",
+        "tagName": "BUTTON"
+      },
+      {
+        "text": "構造",
+        "ariaControls": "accordion-structure",
+        "ariaExpanded": "false",
+        "tagName": "BUTTON"
+      },
+      {
+        "text": "編集",
+        "ariaControls": "accordion-edit",
+        "ariaExpanded": "false",
+        "tagName": "BUTTON"
+      },
+      {
+        "text": "テーマ",
+        "ariaControls": "accordion-theme",
+        "ariaExpanded": "false",
+        "tagName": "BUTTON"
+      },
+      {
+        "text": "補助",
+        "ariaControls": "accordion-assist",
+        "ariaExpanded": "false",
+        "tagName": "BUTTON"
+      },
+      {
+        "text": "詳細設定",
+        "ariaControls": "accordion-advanced",
+        "ariaExpanded": "false",
+        "tagName": "BUTTON"
+      }
+    ]
+  },
+  {
+    "step": "accordion-sections",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "セクション"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 1,
+      "gadgets": [
+        {
+          "name": "SectionsNavigator",
+          "headerText": "セクションナビゲーター⇱",
+          "svgCount": 2,
+          "imgCount": 0,
+          "iconClassCount": 0
+        }
+      ]
+    }
+  },
+  {
+    "step": "accordion-structure",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "構造"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 4,
+      "gadgets": [
+        {
+          "name": "Documents",
+          "headerText": "ドキュメント⇱",
+          "svgCount": 2,
+          "imgCount": 0,
+          "iconClassCount": 1
+        },
+        {
+          "name": "Outline",
+          "headerText": "アウトライン⇱",
+          "svgCount": 2,
+          "imgCount": 0,
+          "iconClassCount": 0
+        },
+        {
+          "name": "TagsAndSmartFolders",
+          "headerText": "タグ/スマートフォルダ⇱",
+          "svgCount": 2,
+          "imgCount": 0,
+          "iconClassCount": 0
+        },
+        {
+          "name": "SnapshotManager",
+          "headerText": "バックアップ⇱",
+          "svgCount": 2,
+          "imgCount": 0,
+          "iconClassCount": 0
+        }
+      ]
+    }
+  },
+  {
+    "step": "accordion-edit",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "編集"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 0,
+      "gadgets": []
+    }
+  },
+  {
+    "step": "accordion-theme",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "テーマ"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 0,
+      "gadgets": []
+    }
+  },
+  {
+    "step": "accordion-assist",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "補助"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 0,
+      "gadgets": []
+    }
+  },
+  {
+    "step": "accordion-advanced",
+    "expandResult": {
+      "found": true,
+      "headerTagName": "BUTTON",
+      "headerText": "詳細設定"
+    },
+    "domInfo": {
+      "found": true,
+      "hidden": false,
+      "display": "block",
+      "gadgetCount": 0,
+      "gadgets": []
+    }
+  },
+  {
+    "step": 7,
+    "focusResult": "not_found"
+  },
+  {
+    "step": 8,
+    "sidebarState": {
+      "found": true,
+      "id": "sidebar",
+      "className": "sidebar open",
+      "display": "flex",
+      "visibility": "visible",
+      "width": "320px",
+      "transform": "none",
+      "hidden": false
+    }
+  }
+]
