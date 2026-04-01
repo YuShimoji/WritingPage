@@ -14,13 +14,10 @@
 
 ## Backlog Delta
 
-- 装飾グループ (toolbar-group--decorate) HTML要素の削除判断 (HUMAN_AUTHORITY)
-- Canvas Mode ボタン (toggle-canvas-mode) HTML要素の削除判断 (HUMAN_AUTHORITY)
-- WYSIWYG フローティングツールバーのボタン数最適化 (現在 13 アクション)
 - `docs/FEATURE_REGISTRY.md` 作成
 - `docs/AUTOMATION_BOUNDARY.md` 作成
 
-## 解決済み (session 37-39)
+## 解決済み (session 37-40)
 
 - Visual Audit スクリーンショットが重複して回帰シグナルにならない問題 → session 37 で実 UI フロー + 重複検出に改修
 - Reader empty-state mismatch → session 37 で修正 (editor/document content fallback)
@@ -28,10 +25,11 @@
 - Reader return overlay → session 37 で修正
 - E2Eテスト 42件の失敗 → session 39 で修正 (slim モード + viewport 外追従)
 - Reader ボタンスタイル / Focus 左パネル間隔 → 手動確認 deferred (ユーザー選択)
+- 装飾グループ + Canvas Mode hidden HTML 削除 → session 40 で完了 (-355行)
+- WYSIWYG TB 最適化 (13→11ボタン + overflow) → session 40 で完了
 
 ## 今後明文化すべきこと
 
-- WYSIWYG フローティングツールバーの TB dropdown を実装するかどうかの判断 (現在 selection-tooltip のみ)
 
 ## 運用ルール
 

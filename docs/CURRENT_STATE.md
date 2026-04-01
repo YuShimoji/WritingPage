@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-01 (session 39)
+最終更新: 2026-04-02 (session 40)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 39 |
+| セッション | 40 |
 | 現在の主軸 | WP-001 UI/UX の磨き上げ・摩擦軽減 |
-| 直近のスライス | E2Eテスト追従 + slim モード対応 + 堆積物削除 |
+| 直近のスライス | WYSIWYG TB最適化 + 装飾グループ/Canvas Mode削除 |
 
 ## この時点で信頼できること
 
@@ -22,24 +22,25 @@
 - サイドバー slim モード (`data-sidebar-slim="true"`) でガジェット chrome (detach/help/chevron) が非表示
 - コマンドパレットの UI モード切替は `ZenWriterApp.setUIMode()` と可視モードボタン経由に統一
 - hidden `ui-mode-select` 要素は HTML から完全削除済み (session 36)
+- 装飾グループ (toolbar-group--decorate) と Canvas Mode ボタンは HTML から完全削除済み (session 40)
+- WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由 (session 40)
 - E2Eテストの beforeEach では `ensureNormalMode(page)` で Normal モードを保証する
 - `page.click('#toggle-sidebar')` は使わず `openSidebar(page)` (evaluate 経由) を使用する
 
-## Session 39 の変更
+## Session 40 の変更
 
 | 項目 | 変更内容 | 影響ファイル |
 | ---- | -------- | ----------- |
-| E2Eテスト42件の失敗修正 | slim モード + viewport 外問題への追従。helpers.js に共通ヘルパー追加 | `e2e/helpers.js` + 13 テストファイル |
-| Visual Audit スクリーンショット更新 | slim モード適用後のベースライン (16枚) | `e2e/visual-audit-screenshots/` |
-| 堆積物削除 | 一時スクリプト3件 + 検証ディレクトリ (untracked) | 削除済み |
-| デッドテスト3件削除 | 未実装セレクタ参照2件 + chapterMode タイミング問題1件 | `e2e/editor-extended-textbox.spec.js`, `e2e/chapter-ux-issues.spec.js` |
-| ドキュメント同期 | runtime-state / project-context を session 39 に更新 | `docs/runtime-state.md`, `docs/project-context.md` |
+| WYSIWYG TB 最適化 | 13→11ボタン。縦書き/テキストエディタ切替をオーバーフローメニューに移動 | `index.html`, `js/editor-wysiwyg.js`, `e2e/helpers.js` + 6 テストファイル |
+| 装飾グループ完全削除 | toolbar-group--decorate (2ボタン) を HTML/JS/E2E から削除 | `index.html`, `js/editor.js`, `js/modules/editor/EditorUI.js`, `js/tools-registry.js` |
+| Canvas Mode 完全削除 | toggle-canvas-mode ボタンを HTML/JS/CSS/E2E から削除 | `index.html`, `js/editor.js`, `css/style.css`, `e2e/editor-canvas-mode.spec.js` |
+| E2E テスト整理 | ボタン前提テスト 13件削除、Canvas Mode テスト skip 化 | -355行 |
 
 ## 検証結果
 
-実行済み (session 39):
+実行済み (session 40):
 
-- `npx playwright test --reporter=line` → 542 passed / 0 failed / 3 skipped (65 spec files)
+- `npx playwright test --reporter=line --workers=2` → 528 passed / 0 failed / 5 skipped
 
 未実施:
 
@@ -51,8 +52,7 @@
 
 | 優先 | テーマ | 内容 | Actor |
 | ---- | ------ | ---- | ----- |
-| A | WP-001 次スライス | ツールバーボタン数最適化 / 装飾グループ整理 | user (方向判断) |
-| A | 装飾グループ / Canvas Mode | hidden HTML要素の削除判断 (E2E参照あり) | user (HUMAN_AUTHORITY) |
+| A | WP-001 次スライス | Focus 体感向上 / 別の UX 摩擦 | user (方向判断) |
 | B | canonical docs 補完 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` 作成 | shared |
 | B | 手動確認 deferred | Reader ボタン / Focus 左パネル間隔 | user |
 
