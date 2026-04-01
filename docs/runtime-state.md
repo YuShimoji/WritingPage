@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-04-01 session 39
+> 最終更新: 2026-04-02 session 40
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 39
+- セッション: 40
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: E2Eテスト追従 + slim モード対応 + 堆積物削除
+- スライス: WYSIWYG フローティングツールバー最適化 (13→11ボタン + overflow メニュー)
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 39 | 38 |
+| セッション番号 | 40 | 39 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
 | spec done | 44 | 44 |
@@ -27,9 +27,9 @@
 | JS impl ファイル | 107 | 107 |
 | CSS ファイル | 4 | 4 |
 | E2E spec ファイル | 65 | 65 |
-| E2E passed | 545 | 526 |
+| E2E passed | 545 | 545 |
 | E2E failed | 0 | 0 |
-| E2E skipped | 6 | 3 |
+| E2E skipped | 3 | 6 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
@@ -64,10 +64,27 @@
 
 | 診断項目 | 連続数 |
 | --------- | ------- |
-| Q4 No (成果物未前進) | 0 (lint根絶 + hidden要素削除 + 堆積物削除) |
-| Q6a No (基盤未獲得) | 0 (lint clean達成, E2E 545 passed) |
-| Q6b No (ユーザー可視変化なし) | 0 (ui-mode-select削除 = DOM整理) |
-| 保守モード連続 | 0 (Excise + Advance 実施) |
+| Q4 No (成果物未前進) | 0 (WYSIWYG TB 最適化 = ユーザー可視改善) |
+| Q6a No (基盤未獲得) | 0 (E2E 545 passed, switchToTextareaMode ヘルパー統一) |
+| Q6b No (ユーザー可視変化なし) | 0 (ツールバー 13→11ボタン) |
+| 保守モード連続 | 0 (Advance 実施) |
+
+---
+
+## Session 40 実施内容
+
+### WYSIWYG フローティングツールバー最適化 (Advance / WP-001)
+
+- index.html: 縦書きトグル + テキストエディタ切替ボタンをオーバーフローメニュー (`[...]`) に移動
+- js/editor-wysiwyg.js: `setupDropdowns()` に `[data-overflow]` イベントハンドラ追加。旧 `#wysiwyg-vertical-toggle` 直接バインド削除 (localStorage 復元は維持)
+- e2e/helpers.js: `switchToTextareaMode()` 共通ヘルパー追加
+- E2E 6ファイル: `#wysiwyg-switch-to-textarea` セレクタを `switchToTextareaMode()` ヘルパーに統一
+- Visual Audit スクリーンショット 11枚更新
+
+### Visual Audit (session 40)
+- E2E: 545 passed / 0 failed / 3 skipped
+- Visual Audit: 23/23 PASS
+- 目視確認: 重大な問題なし
 
 ---
 
