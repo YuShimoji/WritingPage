@@ -77,42 +77,4 @@ test.describe('Animations and Decorations E2E (TASK_056)', () => {
         // await expect(bounceEl).toHaveCSS('animation-name', 'bounce'); // Removed for reliability
     });
 
-    test('Animation settings are reflected in CSS variables', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForSelector('#editor', { timeout: 10000 });
-        await showFullToolbar(page);
-        await page.waitForFunction(() => {
-            try { return !!window.ZenWriterEditor; } catch (_) { return false; }
-        }, { timeout: 15000 });
-
-        // Ensure full toolbar is visible and button is accessible
-        await showFullToolbar(page);
-        await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
-
-        // Open animation panel
-        await page.click('#toggle-text-animation');
-        await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 });
-
-        // Change speed
-        const speedInput = page.locator('#anim-speed');
-        await speedInput.evaluate(el => { el.value = '2.0'; el.dispatchEvent(new Event('input')); });
-
-        // Check CSS variable on :root
-        const speedFactor = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--anim-speed-factor').trim());
-        expect(speedFactor).toBe('2');
-
-        // Change duration
-        const durationInput = page.locator('#anim-duration');
-        await durationInput.evaluate(el => { el.value = '3.0'; el.dispatchEvent(new Event('input')); });
-
-        const durationFactor = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--anim-duration-factor').trim());
-        expect(durationFactor).toBe('3');
-
-        // Toggle reduce-motion
-        const reduceMotionInput = page.locator('#anim-reduce-motion');
-        await reduceMotionInput.evaluate(el => { el.checked = true; el.dispatchEvent(new Event('change')); });
-
-        const hasAttr = await page.evaluate(() => document.documentElement.getAttribute('data-reduce-motion') === 'true');
-        expect(hasAttr).toBeTruthy();
-    });
 });

@@ -430,21 +430,6 @@
                 }
             });
 
-            // パネルトグル — MainHubPanel に統一
-            if (manager.toggleFontDecorationBtn) {
-                manager.toggleFontDecorationBtn.addEventListener('click', () => {
-                    if (window.MainHubPanel) {
-                        window.MainHubPanel.toggle('decoration');
-                    }
-                });
-            }
-            if (manager.toggleTextAnimationBtn) {
-                manager.toggleTextAnimationBtn.addEventListener('click', () => {
-                    if (window.MainHubPanel) {
-                        window.MainHubPanel.toggle('animation');
-                    }
-                });
-            }
         }
     };
 })();

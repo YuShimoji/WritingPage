@@ -36,11 +36,8 @@ class EditorManager {
         this.imagesPreviewPanel = document.getElementById('images-preview-panel');
         this.previewPanelToggle = document.getElementById('toggle-preview');
         this._markdownRenderer = null;
-        this.toggleFontDecorationBtn = document.getElementById('toggle-font-decoration');
-        this.toggleTextAnimationBtn = document.getElementById('toggle-text-animation');
         this.editorContainer = document.querySelector('.editor-container');
         this.editorClassicLayer = document.getElementById('editor-classic-layer');
-        this.toggleCanvasModeBtn = document.getElementById('toggle-canvas-mode');
         this.canvasRoot = document.getElementById('editor-canvas-root');
         this.canvasViewport = document.getElementById('editor-canvas-viewport');
         this.canvasStage = document.getElementById('editor-canvas-stage');
@@ -175,10 +172,6 @@ class EditorManager {
         this.canvasSettings = { ...defaultCanvas, ...canvasSettings };
         const betaEnabled = this.canvasSettings.betaEnabled !== false;
 
-        if (this.toggleCanvasModeBtn) {
-            this.toggleCanvasModeBtn.style.display = betaEnabled ? '' : 'none';
-            this.toggleCanvasModeBtn.addEventListener('click', () => this.toggleCanvasMode());
-        }
         if (this.canvasRoot) {
             this.canvasRoot.hidden = true;
         }
@@ -233,9 +226,6 @@ class EditorManager {
         if (this.canvasRoot) {
             this.canvasRoot.hidden = !next;
             this.canvasRoot.setAttribute('aria-hidden', next ? 'false' : 'true');
-        }
-        if (this.toggleCanvasModeBtn) {
-            this.toggleCanvasModeBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
         }
         if (this.canvasViewportController) {
             this.canvasViewportController.setEnabled(next);

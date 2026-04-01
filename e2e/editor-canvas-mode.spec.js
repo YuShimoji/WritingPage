@@ -59,7 +59,8 @@ async function enableCanvasBeta(page) {
   });
 }
 
-test.describe('Canvas Mode (beta)', () => {
+// Canvas Mode は SP-056 removed (2026-03-23 スコープ外)。ボタン削除済み。
+test.describe.skip('Canvas Mode (beta)', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await ensureNormalMode(page);

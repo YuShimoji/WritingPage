@@ -8,32 +8,6 @@ const { showFullToolbar, enableAllGadgets, openSidebarGroup } = require('./helpe
 const pageUrl = '/index.html';
 
 test.describe('Toolbar icon rendering', () => {
-    test('font decoration button renders as SVG icon, not text', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForLoadState('networkidle');
-        await showFullToolbar(page);
-
-        const btn = page.locator('#toggle-font-decoration');
-        await expect(btn).toBeVisible();
-
-        // Lucide がアイコンを SVG に変換していることを確認
-        const svg = btn.locator('svg');
-        await expect(svg).toBeVisible();
-
-        // テキストノードとして文字が表示されていないことを確認
-        const textContent = await btn.evaluate((el) => {
-            // SVG 以外の直接テキストノードを収集
-            let text = '';
-            for (const node of el.childNodes) {
-                if (node.nodeType === Node.TEXT_NODE) {
-                    text += node.textContent.trim();
-                }
-            }
-            return text;
-        });
-        expect(textContent).toBe('');
-    });
-
     test('all toolbar icons render as SVG', async ({ page }) => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
@@ -57,78 +31,6 @@ test.describe('Toolbar icon rendering', () => {
     });
 });
 
-test.describe('Floating panel position', () => {
-    test('font decoration panel appears within viewport, not at page bottom', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForLoadState('networkidle');
-        await showFullToolbar(page);
-
-        // フォント装飾ボタンをクリックしてパネルを表示
-        const btn = page.locator('#toggle-font-decoration');
-        await expect(btn).toBeVisible();
-        await btn.click();
-
-        const panel = page.locator('#main-hub-panel');
-        await expect(panel).toBeVisible({ timeout: 5000 });
-
-        // パネルの位置がビューポート内に収まっていることを確認
-        const viewportSize = page.viewportSize();
-        const panelBox = await panel.boundingBox();
-        expect(panelBox).not.toBeNull();
-
-        // パネルの下端がビューポートの高さを超えていないこと
-        expect(panelBox.y + panelBox.height).toBeLessThanOrEqual(viewportSize.height + 5);
-        // パネルの上端が0以上であること
-        expect(panelBox.y).toBeGreaterThanOrEqual(0);
-        // パネルが画面最下部に張り付いていないこと (下端から十分な余裕がある)
-        expect(panelBox.y).toBeLessThan(viewportSize.height - 50);
-    });
-
-    test('floating panel does not stretch editor area', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForLoadState('networkidle');
-        await showFullToolbar(page);
-
-        // パネル表示前のエディタの高さを取得
-        const editorHeightBefore = await page.evaluate(() => {
-            const editor = document.querySelector('.editor-wrapper') ||
-                           document.querySelector('#editor') ||
-                           document.querySelector('.app-container');
-            return editor ? editor.scrollHeight : 0;
-        });
-
-        // フォント装飾パネルを表示
-        await page.locator('#toggle-font-decoration').click();
-        await page.locator('#main-hub-panel').waitFor({ state: 'visible' });
-        await page.waitForTimeout(300); // レイアウト安定待ち
-
-        // パネル表示後のエディタの高さを取得
-        const editorHeightAfter = await page.evaluate(() => {
-            const editor = document.querySelector('.editor-wrapper') ||
-                           document.querySelector('#editor') ||
-                           document.querySelector('.app-container');
-            return editor ? editor.scrollHeight : 0;
-        });
-
-        // エディタの高さが大幅に増加していないこと (100px以上の増加は異常)
-        expect(editorHeightAfter - editorHeightBefore).toBeLessThan(100);
-    });
-
-    test('floating panel uses position:fixed', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForLoadState('networkidle');
-        await showFullToolbar(page);
-
-        await page.locator('#toggle-font-decoration').click();
-        const panel = page.locator('#main-hub-panel');
-        await expect(panel).toBeVisible({ timeout: 5000 });
-
-        const position = await panel.evaluate((el) =>
-            window.getComputedStyle(el).position
-        );
-        expect(position).toBe('fixed');
-    });
-});
 
 test.describe('Gadget header layout', () => {
     test.setTimeout(60000);

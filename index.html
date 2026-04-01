@@ -294,10 +294,6 @@
           <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
             <i data-lucide="maximize" aria-hidden="true"></i>
           </button>
-          <!-- Canvas Mode: beta、デフォルト非表示 -->
-          <button id="toggle-canvas-mode" class="icon-button iconified" title="Canvas Mode (beta)" aria-label="Canvas Mode(beta)を切り替え" aria-pressed="false" hidden>
-            <i data-lucide="move" aria-hidden="true"></i>
-          </button>
         </div>
         <!-- Electron: ウィンドウ操作ボタン (フレームレス時のみ表示) -->
         <div class="window-controls electron-only" role="group" aria-label="ウィンドウ操作">
@@ -311,18 +307,7 @@
             <i data-lucide="x" aria-hidden="true"></i>
           </button>
         </div>
-        <!-- ツールバーアクション (装飾はWYSIWYGフローティングツールバーに移行済み) -->
         <div class="toolbar-actions">
-          <!-- 装飾グループ: WYSIWYGツールバーに統合済み、メインツールバーでは非表示 -->
-          <div class="toolbar-group toolbar-group--decorate" aria-label="装飾" hidden>
-            <button id="toggle-font-decoration" class="icon-button iconified" title="フォント装飾" aria-label="フォント装飾パネルを開く">
-              <i data-lucide="highlighter" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-text-animation" class="icon-button iconified" title="テキストアニメーション" aria-label="テキストアニメーションパネルを開く">
-              <i data-lucide="sparkles" aria-hidden="true"></i>
-            </button>
-          </div>
-
           <div class="toolbar-group toolbar-group--editor" aria-label="編集">
             <button id="toggle-preview" class="icon-button iconified" title="プレビュー" aria-label="プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>

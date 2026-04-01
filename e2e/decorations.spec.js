@@ -66,38 +66,6 @@ test.describe('Font Decoration System', () => {
     await expect(mirror.locator('.decor-underline')).toContainText('下線テキスト');
   });
 
-  test('should open font decoration panel', async ({ page }) => {
-    // Ensure full toolbar is visible
-    await showFullToolbar(page);
-    await page.waitForSelector('#toggle-font-decoration', { state: 'visible', timeout: 5000 });
-
-    // Click font decoration button
-    await page.click('#toggle-font-decoration');
-
-    // Check main hub panel is visible
-    const panel = await page.locator('#main-hub-panel');
-    await expect(panel).toBeVisible();
-
-    // Check buttons exist
-    await expect(page.locator('#decor-bold')).toBeVisible();
-    await expect(page.locator('#decor-italic')).toBeVisible();
-    await expect(page.locator('#decor-outline')).toBeVisible();
-  });
-
-  test('should apply decoration via button click', async ({ page }) => {
-    // Select text
-    const editor = await page.locator('#editor');
-    await editor.fill('テストテキスト');
-    await page.keyboard.press('Control+a'); // Select all
-
-    // Open panel and click bold
-    await page.click('#toggle-font-decoration');
-    await page.click('#decor-bold');
-
-    // Check that [bold] tags were added
-    await expect(editor).toHaveValue('[bold]テストテキスト[/bold]');
-  });
-
   test('should render advanced decorations', async ({ page }) => {
     await page.fill('#editor', '[shadow]影付き[/shadow]\n[outline]輪郭[/outline]\n[glow]発光[/glow]');
 
@@ -114,20 +82,6 @@ test.describe('Font Decoration System', () => {
     await expect(mirror.locator('.anim-pulse')).toContainText('パルス');
     await expect(mirror.locator('.anim-shake')).toContainText('シェイク');
     await expect(mirror.locator('.anim-bounce')).toContainText('バウンス');
-  });
-
-  test('should open text animation panel', async ({ page }) => {
-    // Ensure full toolbar is visible
-    await showFullToolbar(page);
-    await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
-
-    await page.click('#toggle-text-animation');
-
-    const panel = await page.locator('#main-hub-panel');
-    await expect(panel).toBeVisible();
-
-    await expect(page.locator('#anim-fade')).toBeVisible();
-    await expect(page.locator('#anim-pulse')).toBeVisible();
   });
 
   test('should apply bold via applyFontDecoration API', async ({ page }) => {
@@ -215,20 +169,6 @@ test.describe('Font Decoration System', () => {
     await expect(mirror.locator('.anim-shake')).toContainText('シェイク');
   });
 
-  test('should apply text animation via button click', async ({ page }) => {
-    // Select text
-    const editor = await page.locator('#editor');
-    await editor.fill('アニメーションテキスト');
-    await page.keyboard.press('Control+a'); // Select all
-
-    // Open panel and click fade animation
-    await page.click('#toggle-text-animation');
-    await page.click('#anim-fade');
-
-    // Check that [fade] tags were added
-    await expect(editor).toHaveValue('[fade]アニメーションテキスト[/fade]');
-  });
-
   test('should render all animation types', async ({ page }) => {
     await page.fill('#editor', '[fade]フェード[/fade]\n[slide]スライド[/slide]\n[type]タイプ[/type]\n[fadein]遅フェード[/fadein]');
 
@@ -239,94 +179,6 @@ test.describe('Font Decoration System', () => {
     await expect(mirror.locator('.anim-fade-in')).toContainText('遅フェード');
   });
 
-  test('should display animation settings UI', async ({ page }) => {
-    // Ensure full toolbar is visible
-    await showFullToolbar(page);
-    await page.waitForSelector('#toggle-text-animation', { state: 'visible', timeout: 5000 });
-
-    await page.click('#toggle-text-animation');
-
-    const panel = await page.locator('#main-hub-panel');
-    await expect(panel).toBeVisible();
-
-    // Check animation settings controls exist
-    await expect(page.locator('#anim-speed')).toBeVisible();
-    await expect(page.locator('#anim-duration')).toBeVisible();
-    await expect(page.locator('#anim-reduce-motion')).toBeVisible();
-  });
-
-  test('should update animation speed setting', async ({ page }) => {
-    await page.locator('#toggle-text-animation').evaluate(b => b.click());
-    await page.waitForSelector('#anim-speed', { state: 'attached' });
-
-    const speedInput = page.locator('#anim-speed');
-    const speedValue = page.locator('#anim-speed-value');
-
-    // Change speed
-    await speedInput.evaluate(el => { el.value = '2.0'; el.dispatchEvent(new Event('input', { bubbles: true })); });
-    await page.waitForTimeout(200);
-
-    // Check value updated
-    await expect(speedValue).toContainText('2x');
-  });
-
-  test('should update animation duration setting', async ({ page }) => {
-    await page.locator('#toggle-text-animation').click({ force: true });
-    await page.waitForSelector('#anim-duration', { state: 'attached' });
-
-    const durationInput = page.locator('#anim-duration');
-    const durationValue = page.locator('#anim-duration-value');
-
-    // Change duration
-    await durationInput.evaluate((el) => { el.value = '3.0'; el.dispatchEvent(new Event('input', { bubbles: true })); });
-    await page.waitForTimeout(100);
-
-    // Check value updated
-    await expect(durationValue).toContainText('3s');
-  });
-
-  test('should respect reduce motion preference', async ({ page }) => {
-    await page.locator('#toggle-text-animation').click({ force: true });
-    await page.waitForSelector('#anim-reduce-motion', { state: 'attached' });
-
-    const checkbox = page.locator('#anim-reduce-motion');
-
-    // Enable reduce motion
-    await checkbox.check();
-    await page.waitForTimeout(100);
-
-    // Check that documentElement has data-reduce-motion attribute
-    const hasAttr = await page.evaluate(() => document.documentElement.getAttribute('data-reduce-motion') === 'true');
-    expect(hasAttr).toBe(true);
-  });
-
-  test('should save animation settings to storage', async ({ page }) => {
-    await page.locator('#toggle-text-animation').evaluate(b => b.click());
-    await page.waitForSelector('#anim-speed', { state: 'attached' });
-
-    // Set animation settings
-    await page.evaluate(() => {
-      document.getElementById('anim-speed').value = '2.0';
-      document.getElementById('anim-speed').dispatchEvent(new Event('input', { bubbles: true }));
-      document.getElementById('anim-duration').value = '3.0';
-      document.getElementById('anim-duration').dispatchEvent(new Event('input', { bubbles: true }));
-    });
-    await page.waitForTimeout(300);
-
-    // Reload page
-    await page.reload();
-    await page.waitForSelector('#editor', { timeout: 10000 });
-    await page.locator('#toggle-text-animation').evaluate(b => b.click());
-    await page.waitForSelector('#anim-speed', { state: 'attached' });
-    await page.waitForTimeout(300);
-
-    // Check that settings were saved
-    const speedValue = await page.locator('#anim-speed').inputValue();
-    const durationValue = await page.locator('#anim-duration').inputValue();
-
-    expect(parseFloat(speedValue)).toBeCloseTo(2.0, 1);
-    expect(parseFloat(durationValue)).toBeCloseTo(3.0, 1);
-  });
 });
 
 test.describe('HUD Settings', () => {

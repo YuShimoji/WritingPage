@@ -1701,10 +1701,6 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   cursor: grabbing;
 }
 
-#toggle-canvas-mode[aria-pressed='true'] {
-  border-color: var(--focus-color);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--focus-color) 25%, transparent);
-}
 
 /* サイドバー展開時は常に押し出し（PC/タブレット共通） */
 html[data-sidebar-open='true'] .editor-container {

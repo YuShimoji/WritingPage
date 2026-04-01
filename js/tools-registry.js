@@ -1,32 +1,6 @@
 (function (global) {
   var tools = [
     {
-      id: 'text-decoration',
-      label: 'Text Decoration',
-      icon: 'highlighter',
-      group: 'editor',
-      gadgetId: 'font-decoration',
-      domId: 'toggle-font-decoration',
-      entrypoints: {
-        headerIcon: true,
-        sidebarGadget: true,
-        fabMenu: false,
-      },
-    },
-    {
-      id: 'text-animation',
-      label: 'Text Animation',
-      icon: 'sparkles',
-      group: 'editor',
-      gadgetId: 'text-animation',
-      domId: 'toggle-text-animation',
-      entrypoints: {
-        headerIcon: true,
-        sidebarGadget: true,
-        fabMenu: false,
-      },
-    },
-    {
       id: 'editor-layout',
       label: 'Editor Layout',
       icon: 'layout-template',
