@@ -163,20 +163,12 @@
         });
       }
 
-      // 縦書き/横書きトグル (実験的)
-      this._verticalToggleBtn = document.getElementById('wysiwyg-vertical-toggle');
-      if (this._verticalToggleBtn) {
-        this._verticalToggleBtn.addEventListener('mousedown', (e) => {
-          e.preventDefault();
-          this._toggleVerticalWriting();
-        });
-        // 保存された設定を復元
-        try {
-          if (localStorage.getItem('zenwriter-vertical-writing') === 'true') {
-            this._setVerticalWriting(true);
-          }
-        } catch (_) { /* noop */ }
-      }
+      // 縦書き/横書き: 保存された設定を復元
+      try {
+        if (localStorage.getItem('zenwriter-vertical-writing') === 'true') {
+          this._setVerticalWriting(true);
+        }
+      } catch (_) { /* noop */ }
 
       // textarea モードからの復帰ボタン
       this.textareaModeBar = document.getElementById('textarea-mode-bar');
@@ -380,6 +372,18 @@
           } else if (block) {
             self.executeCommand('formatBlock', '<' + block + '>');
           }
+          var dd = btn.closest('.wysiwyg-dropdown');
+          if (dd) dd.setAttribute('data-open', 'false');
+        });
+      });
+
+      // オーバーフローメニュー項目
+      this.wysiwygToolbar.querySelectorAll('[data-overflow]').forEach(function (btn) {
+        btn.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          var action = btn.getAttribute('data-overflow');
+          if (action === 'vertical-toggle') self._toggleVerticalWriting();
+          if (action === 'switch-textarea') self.switchToTextarea();
           var dd = btn.closest('.wysiwyg-dropdown');
           if (dd) dd.setAttribute('data-open', 'false');
         });

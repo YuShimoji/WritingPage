@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, switchToTextareaMode } = require('./helpers');
 
 // WYSIWYGエディタ機能テスト (WYSIWYGがデフォルトモード)
 test.describe('WYSIWYG Editor', () => {
@@ -27,9 +27,7 @@ test.describe('WYSIWYG Editor', () => {
 
   /** textareaモードに切り替えるヘルパー */
   async function switchToTextarea(page) {
-    const switchBtn = page.locator('#wysiwyg-switch-to-textarea');
-    await switchBtn.dispatchEvent('mousedown');
-    await expect(page.locator('#editor')).toBeVisible();
+    await switchToTextareaMode(page);
   }
 
   test('should start in WYSIWYG mode by default', async ({ page }) => {

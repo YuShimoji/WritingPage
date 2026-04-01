@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode } = require('./helpers');
+const { ensureNormalMode, switchToTextareaMode } = require('./helpers');
 
 test.describe('Extended Textbox (SP-016 Phase 1)', () => {
   test('settings.editor.extendedTextbox defaults are available', async ({ page }) => {
@@ -121,7 +121,7 @@ test.describe('Extended Textbox (SP-016 Phase 2: WYSIWYG)', () => {
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
     await expect(page.locator('#wysiwyg-editor .zw-textbox')).toBeVisible();
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     const value = await page.locator('#editor').inputValue();
     expect(value).toContain(':::zw-textbox{preset:"se-animal-fade"');
     expect(value).toContain('ガルルル');
@@ -137,7 +137,7 @@ test.describe('Extended Textbox (SP-016 Phase 2: WYSIWYG)', () => {
     const textbox = page.locator('#wysiwyg-editor .zw-textbox');
     await expect(textbox).toBeVisible();
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     const value = await page.locator('#editor').inputValue();
     expect(value).toContain('zw-textbox');
     expect(value).toContain('太字の心の声');

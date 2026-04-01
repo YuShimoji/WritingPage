@@ -419,6 +419,15 @@ async function openSidebar(page) {
   await page.waitForTimeout(300);
 }
 
+/**
+ * WYSIWYG → textarea モードに切り替える (オーバーフローメニュー経由)。
+ */
+async function switchToTextareaMode(page) {
+  await page.locator('[data-dropdown="overflow"] .wysiwyg-dropdown-toggle').dispatchEvent('mousedown');
+  await page.locator('[data-overflow="switch-textarea"]').dispatchEvent('mousedown');
+  await page.locator('#editor').waitFor({ state: 'visible', timeout: 5000 });
+}
+
 module.exports = {
   setUIMode,
   ensureNormalMode,
@@ -437,4 +446,5 @@ module.exports = {
   openSidebar,
   mockDialogs,
   restoreDialogs,
+  switchToTextareaMode,
 };

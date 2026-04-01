@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, switchToTextareaMode } = require('./helpers');
 
 test.describe('Text Expression Tier 1', () => {
   test('preview projects textbox preset into lower-layer classes', async ({ page }) => {
@@ -41,12 +41,12 @@ test.describe('Text Expression Tier 1', () => {
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     await page.fill('#editor', ':::zw-textbox{preset:"inner-voice", role:"monologue"}\n往復テスト\n:::');
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
     await expect(page.locator('#wysiwyg-editor .zw-textbox[data-preset="inner-voice"]')).toBeVisible();
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     const value = await page.locator('#editor').inputValue();
     expect(value).toContain(':::zw-textbox{preset:"inner-voice"');
     expect(value).toContain('往復テスト');

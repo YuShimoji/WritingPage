@@ -4,6 +4,7 @@
  * 挿入・表示・編集・削除・ラウンドトリップを検証
  */
 const { test, expect } = require('@playwright/test');
+const { switchToTextareaMode } = require('./helpers');
 
 test.describe('ルビ WYSIWYG 統合', () => {
   test.beforeEach(async ({ page }) => {
@@ -44,7 +45,7 @@ test.describe('ルビ WYSIWYG 統合', () => {
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
 
     // WYSIWYG → textarea
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     await page.waitForSelector('#editor', { state: 'visible', timeout: 10000 });
     await page.waitForTimeout(300);
 

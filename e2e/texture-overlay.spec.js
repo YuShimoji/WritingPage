@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, switchToTextareaMode } = require('./helpers');
 
 test.describe('SP-074 Phase 1: Texture Overlay', () => {
   test('TextAnimationDictionary exposes TEXTURES and getTexture API', async ({ page }) => {
@@ -107,7 +107,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     const value = await page.locator('#editor').inputValue();
 
     expect(value).toContain('[sparkle]');

@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, switchToTextareaMode } = require('./helpers');
 
 test.describe('SP-060 Semantic Presets', () => {
   test('TextboxPresetRegistry lists all 8 presets (3 legacy + 5 semantic)', async ({ page }) => {
@@ -89,12 +89,12 @@ test.describe('SP-060 Semantic Presets', () => {
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     await page.fill('#editor', ':::zw-textbox{preset:"narration"}\n語りの文章\n:::');
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
     await expect(page.locator('#wysiwyg-editor .zw-textbox[data-preset="narration"]')).toBeVisible();
 
-    await page.locator('#wysiwyg-switch-to-textarea').dispatchEvent('mousedown');
+    await switchToTextareaMode(page);
     const value = await page.locator('#editor').inputValue();
     expect(value).toContain(':::zw-textbox{preset:"narration"');
     expect(value).toContain('語りの文章');
