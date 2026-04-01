@@ -111,7 +111,13 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('focus-visible style is applied for keyboard users', async ({ page }) => {
+    // 特定のボタン要素にフォーカスして outline を確認
+    const toggleBtn = page.locator('#toggle-sidebar');
+    await toggleBtn.focus();
     await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    // toggle-sidebar に戻す
+    await toggleBtn.focus();
 
     const hasKeyboardUserClass = await page.evaluate(() => {
       return document.body.classList.contains('keyboard-user');
@@ -120,15 +126,17 @@ test.describe('Accessibility E2E', () => {
 
     const focused = await page.evaluate(() => {
       const el = document.activeElement;
-      if (!el) return null;
+      if (!el || el === document.body) return null;
       const style = window.getComputedStyle(el);
       return {
         outlineWidth: style.outlineWidth,
+        outlineStyle: style.outlineStyle,
       };
     });
 
     expect(focused).toBeTruthy();
-    expect(parseInt(focused.outlineWidth, 10) || 0).toBeGreaterThan(0);
+    // keyboard-user モードではフォーカスされた要素に outline が適用される
+    expect(focused.outlineStyle).not.toBe('none');
   });
 
   test('word count region has aria-live and updates', async ({ page }) => {

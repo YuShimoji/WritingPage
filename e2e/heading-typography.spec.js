@@ -1,11 +1,13 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode, openSidebar } = require('./helpers');
 
 test.describe('SP-058 Heading Typography Phase 1', () => {
   test.beforeEach(async ({ page }) => {
     // テストごとに localStorage をクリア
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
   });
 
   test('プリセット適用でCSS変数が変わる', async ({ page }) => {
@@ -144,6 +146,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
   });
 
   test('プリセットselectでCSS変数が変わる', async ({ page }) => {
@@ -151,8 +154,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
     await page.waitForLoadState('networkidle');
 
     // テーマアコーディオンを開く
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(200);
+    await openSidebar(page);
 
     // 設定モードに入る
     const settingsBtn = page.locator('#writing-focus-settings-btn');
@@ -195,8 +197,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(200);
+    await openSidebar(page);
     const settingsBtn = page.locator('#writing-focus-settings-btn');
     if (await settingsBtn.isVisible()) {
       await settingsBtn.click();
@@ -243,8 +244,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
     });
     await page.waitForTimeout(100);
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(200);
+    await openSidebar(page);
     const settingsBtn = page.locator('#writing-focus-settings-btn');
     if (await settingsBtn.isVisible()) {
       await settingsBtn.click();
@@ -282,6 +282,7 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
   test.beforeEach(async ({ page }) => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
   });
 
   test('H1 lineHeightスライダーでCSS変数が変わる', async ({ page }) => {
@@ -350,8 +351,7 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(200);
+    await openSidebar(page);
     const settingsBtn = page.locator('#writing-focus-settings-btn');
     if (await settingsBtn.isVisible()) {
       await settingsBtn.click();
@@ -387,6 +387,7 @@ test.describe('SP-058 Heading Typography Phase 4 - User Presets', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
   });
 
   test('ユーザープリセット保存でlistAllPresetsに含まれる', async ({ page }) => {

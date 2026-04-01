@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode, openSidebar } = require('./helpers');
 
 // モバイル/タブレット向けのレスポンシブUI機能のテスト
 test.describe('Responsive UI (Mobile/Tablet)', () => {
@@ -13,10 +14,8 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
 
     test('サイドバーがフルスクリーンオーバーレイとして表示される', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-
-      // サイドバーを開く
-      await page.click('#toggle-sidebar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
       await page.waitForTimeout(400); // transition duration
 
       const sidebar = page.locator('#sidebar');
@@ -53,10 +52,8 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
 
     test('サイドバーオーバーレイまたはハンバーガーボタンでサイドバーが閉じる', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-
-      // サイドバーを開く
-      await page.click('#toggle-sidebar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
       await page.waitForTimeout(400);
 
       const sidebar = page.locator('#sidebar');
@@ -150,10 +147,8 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
 
     test('サイドバーのスワイプ操作で閉じることができる', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-
-      // サイドバーを開く
-      await page.click('#toggle-sidebar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
       await page.waitForTimeout(400);
 
       const sidebar = page.locator('#sidebar');
@@ -195,10 +190,8 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
 
     test('タブレット向けにサイドバー幅が調整される', async ({ page }) => {
       await page.goto('/');
-      await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-
-      // サイドバーを開く
-      await page.click('#toggle-sidebar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
       await page.waitForTimeout(400);
 
       const sidebar = page.locator('#sidebar');

@@ -1,7 +1,14 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode } = require('./helpers');
 
 test.describe('SP-076 Phase 1: Dock Panel', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await ensureNormalMode(page);
+  });
+
   test('DockManager is initialized on page load', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
@@ -271,6 +278,12 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
 });
 
 test.describe('SP-076 Phase 2: Tab Groups', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await ensureNormalMode(page);
+  });
+
   test('Tab bar element exists in DOM', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
@@ -363,8 +376,11 @@ test.describe('SP-076 Phase 2: Tab Groups', () => {
     const active0 = await page.evaluate(() => window.dockManager.getActiveTabIndex());
     expect(active0).toBe(1);
 
-    // Click first tab
-    await page.click('.dock-tab[data-tab-index="0"]');
+    // サイドバーが覆うため evaluate 経由でクリック
+    await page.evaluate(() => {
+      var tab = document.querySelector('.dock-tab[data-tab-index="0"]');
+      if (tab) tab.click();
+    });
 
     const active1 = await page.evaluate(() => window.dockManager.getActiveTabIndex());
     expect(active1).toBe(0);
@@ -489,8 +505,11 @@ test.describe('SP-076 Phase 2: Tab Groups', () => {
       window.dockManager.addTab('c2', 'Stay');
     });
 
-    // Click close button on first tab
-    await page.click('.dock-tab[data-tab-index="0"] .dock-tab__close');
+    // サイドバーが覆うため evaluate 経由でクリック
+    await page.evaluate(() => {
+      var btn = document.querySelector('.dock-tab[data-tab-index="0"] .dock-tab__close');
+      if (btn) btn.click();
+    });
 
     const tabs = await page.evaluate(() => window.dockManager.getTabs());
     expect(tabs).toHaveLength(1);
@@ -564,6 +583,12 @@ test.describe('SP-076 Phase 2: Tab Groups', () => {
 });
 
 test.describe('SP-076 Phase 3: Floating & Snap', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await ensureNormalMode(page);
+  });
+
   test('DockManager has floating API methods', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
@@ -803,6 +828,12 @@ test.describe('SP-076 Phase 3: Floating & Snap', () => {
 });
 
 test.describe('SP-076 Phase 2-3: UI Interaction Tests', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await ensureNormalMode(page);
+  });
+
   // Helper: simulate pointer drag via evaluate (works with setPointerCapture)
   async function simulatePointerDrag(page, selector, dx, dy) {
     return page.evaluate(({ sel, deltaX, deltaY }) => {

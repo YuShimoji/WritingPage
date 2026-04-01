@@ -1,10 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode, openSidebar } = require('./helpers');
 
 test.describe('SP-052 Sections Navigator', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
   });
 
   /** Helper: set editor content via app API and wait for gadget to update */
@@ -37,8 +39,7 @@ test.describe('SP-052 Sections Navigator', () => {
     await page.waitForLoadState('networkidle');
 
     // サイドバーを開く
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(200);
+    await openSidebar(page);
 
     // sections カテゴリが存在する
     const sectionsCategory = await page.evaluate(() => {
@@ -65,8 +66,7 @@ test.describe('SP-052 Sections Navigator', () => {
     await setEditorContent(page, '# 第1章 序章\n\n本文...\n\n## シーン1\n\nシーン本文\n\n## シーン2\n\nシーン本文\n\n# 第2章 展開\n\n本文...');
 
     // サイドバーを開く
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // ツリーノードが存在する
     const nodeCount = await page.evaluate(() => {
@@ -93,8 +93,7 @@ test.describe('SP-052 Sections Navigator', () => {
     await setEditorContent(page, '# 第1章\n\n本文...\n\n# 第2章\n\n本文...');
 
     // サイドバーを開く
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // 2番目のノード（第2章）をクリック
     await page.evaluate(() => {
@@ -174,6 +173,7 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
   async function setupWysiwygContent(page, text) {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
     await page.waitForTimeout(600);
 
@@ -194,8 +194,7 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
     await setupWysiwygContent(page, MULTI_SECTION_MD);
 
     // サイドバーを開く
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // 第2章をクリック
     await page.evaluate(() => {
@@ -227,8 +226,7 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
   test('折りたたみ時に先頭2段落が表示される', async ({ page }) => {
     await setupWysiwygContent(page, MULTI_SECTION_MD);
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // 第2章をクリック → 第1章と第3章が折りたたまれる
     await page.evaluate(() => {
@@ -267,8 +265,7 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
   test('省略マーカークリックでセクション切替', async ({ page }) => {
     await setupWysiwygContent(page, MULTI_SECTION_MD);
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // 第2章をクリックしてコラプス適用
     await page.evaluate(() => {
@@ -295,8 +292,7 @@ test.describe('SP-052 Phase 2: WYSIWYG Section Collapse', () => {
   test('全展開ボタンでコラプス解除', async ({ page }) => {
     await setupWysiwygContent(page, MULTI_SECTION_MD);
 
-    await page.click('#toggle-sidebar');
-    await page.waitForTimeout(300);
+    await openSidebar(page);
 
     // コラプス適用
     await page.evaluate(() => {

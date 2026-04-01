@@ -4,11 +4,13 @@
  * 型バッジ表示 + スクロールブロック可視化 + スタイル適用の検証
  */
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode } = require('./helpers');
 
 test.describe('WYSIWYG DSL ブロック静的プレビュー', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
+    await ensureNormalMode(page);
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-toolbar-mode', 'full');
     });

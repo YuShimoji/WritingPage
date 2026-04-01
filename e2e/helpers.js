@@ -176,10 +176,11 @@ async function enableAllGadgets(page) {
       gadgets.init('#settings-gadgets-panel', { group: 'settings' });
     }
   });
-  // 執筆集中モードを無効化 (全ガジェットパネルを表示可能にする)
+  // 執筆集中モードと slim モードを無効化 (全ガジェットパネル + chrome を表示可能にする)
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     document.documentElement.setAttribute('data-writing-settings-open', 'false');
+    document.documentElement.removeAttribute('data-sidebar-slim');
     var sp = document.getElementById('structure-gadgets-panel');
     if (sp) sp.style.display = '';
     document.querySelectorAll('.accordion-category[data-category]').forEach(function(s) {
@@ -297,6 +298,7 @@ async function disableWritingFocus(page) {
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     document.documentElement.setAttribute('data-writing-settings-open', 'false');
+    document.documentElement.removeAttribute('data-sidebar-slim');
     // CSS非表示を解除: structure-gadgets-panel
     var sp = document.getElementById('structure-gadgets-panel');
     if (sp) sp.style.display = '';
@@ -393,8 +395,33 @@ async function restoreDialogs(page) {
   return log;
 }
 
+/**
+ * Normal モードを確実に適用する。
+ * localStorage に保存された設定が Focus の場合があるため、
+ * テスト開始時に呼び出して一貫した状態にする。
+ */
+async function ensureNormalMode(page) {
+  await setUIMode(page, 'normal');
+  await page.waitForTimeout(100);
+}
+
+/**
+ * サイドバーを evaluate 経由で開く。
+ * page.click('#toggle-sidebar') はビューポート外でエラーになるため、
+ * DOM API 経由でクリックする。
+ */
+async function openSidebar(page) {
+  await page.evaluate(() => {
+    var sidebar = document.getElementById('sidebar');
+    var btn = document.getElementById('toggle-sidebar');
+    if (sidebar && !sidebar.classList.contains('open') && btn) btn.click();
+  });
+  await page.waitForTimeout(300);
+}
+
 module.exports = {
   setUIMode,
+  ensureNormalMode,
   openCommandPalette,
   openSearchPanel,
   openGlobalSearchPanel,
@@ -407,6 +434,7 @@ module.exports = {
   openSettingsModal,
   disableWritingFocus,
   openSidebarPanel,
+  openSidebar,
   mockDialogs,
   restoreDialogs,
 };

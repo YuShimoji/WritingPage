@@ -1,5 +1,6 @@
 // E2E: コマンドパレット機能の検証
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -154,6 +155,7 @@ test.describe('Command Palette E2E', () => {
 
   test('コマンドパレットでガジェット操作が実行できる', async ({ page }) => {
     await page.goto(pageUrl);
+    await ensureNormalMode(page);
 
     // コマンドパレットを開く
     await openCommandPalette(page);

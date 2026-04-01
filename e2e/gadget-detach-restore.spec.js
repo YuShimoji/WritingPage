@@ -4,11 +4,12 @@
  * サイドバーに戻す機能をテスト
  */
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, openSidebarGroup, disableWritingFocus } = require('./helpers');
+const { enableAllGadgets, openSidebarGroup, disableWritingFocus, ensureNormalMode } = require('./helpers');
 
 const pageUrl = '/index.html';
 
 async function waitGadgetsReady(page) {
+    await ensureNormalMode(page);
     await page.waitForFunction(() => {
         try {
             return !!window.ZWGadgets && !!document.querySelector('#structure-gadgets-panel');
@@ -40,8 +41,9 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
 
     test('detachGadget API exists on ZWGadgets', async ({ page }) => {
         await page.goto(pageUrl);
+        await ensureNormalMode(page);
         await disableWritingFocus(page);
-        await page.waitForSelector('#structure-gadgets-panel', { timeout: 10000 });
+        await page.waitForSelector('#structure-gadgets-panel', { state: 'attached', timeout: 10000 });
 
         const hasDetach = await page.evaluate(() => {
             return typeof window.ZWGadgets?.detachGadget === 'function';
@@ -51,8 +53,9 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
 
     test('restoreGadget API exists on ZWGadgets', async ({ page }) => {
         await page.goto(pageUrl);
+        await ensureNormalMode(page);
         await disableWritingFocus(page);
-        await page.waitForSelector('#structure-gadgets-panel', { timeout: 10000 });
+        await page.waitForSelector('#structure-gadgets-panel', { state: 'attached', timeout: 10000 });
 
         const hasRestore = await page.evaluate(() => {
             return typeof window.ZWGadgets?.restoreGadget === 'function';

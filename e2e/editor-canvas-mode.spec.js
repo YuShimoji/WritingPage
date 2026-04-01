@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode, showFullToolbar } = require('./helpers');
 
 function parseMatrixTranslate(transformText) {
   if (!transformText || transformText === 'none') return { x: 0, y: 0 };
@@ -59,8 +60,13 @@ async function enableCanvasBeta(page) {
 }
 
 test.describe('Canvas Mode (beta)', () => {
-  test('toggle enables canvas root and updates aria state', async ({ page }) => {
+  test.beforeEach(async ({ page }) => {
     await page.goto('/');
+    await ensureNormalMode(page);
+    await showFullToolbar(page);
+  });
+
+  test('toggle enables canvas root and updates aria state', async ({ page }) => {
     await enableCanvasBeta(page);
 
     const toggle = page.locator('#toggle-canvas-mode');
@@ -77,7 +83,6 @@ test.describe('Canvas Mode (beta)', () => {
   });
 
   test('hud zoom controls work for Canvas Mode', async ({ page }) => {
-    await page.goto('/');
     await enableCanvasBeta(page);
 
     await page.click('#toggle-canvas-mode');
