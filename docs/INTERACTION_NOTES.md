@@ -1,22 +1,33 @@
 # Interaction Notes
-# 報告UI・手動確認・質問形式に関する project-local メモ。
+
+報告UI・手動確認・質問形式に関する project-local メモ。
 
 ## 手動確認の出し方
-- 手動確認項目は本文で提示する。
-- AskUserQuestion では `OK / NG番号` だけを聞く。
-- 手動確認依頼と次アクション選択を同じ質問に混ぜない。
+
+- 手動確認項目は本文で提示する
+- AskUserQuestion では `OK / NG番号` だけを聞く
+- 手動確認依頼と次アクション選択を同じ質問に混ぜない
+- 手動確認では具体的な UI チェックポイントを指定する (「UI を確認してください」は不可)
 
 ## 禁止パターン
+
 - AskUserQuestion の `question` に Markdown テーブルを入れる
 - 選択肢を commit / しない の yes/no で埋める
 - 既知文脈を「詳細を教えてください」で再質問する
+- Options に「別プロジェクトへ」「セッション終了」等の脱出選択肢を含めない
 
-## ユーザーが嫌う形式
-- [例] 進路選択を狭める二択
-- [例] 読みにくい崩れた表
+## ユーザーが好む形式
+
+- 作業結果と今後のプランを表形式で分かりやすく提示
+- 意思決定・手動確認地点を目安にプランを区切る
+- 訂正は全体に適用する (部分修正の繰り返し禁止)
 
 ## 報告メモ
-- [例] BLOCK SUMMARY では先に原因分析を示す
-## 2026-03-31 Handoff Update
-- When asking for manual confirmation, give concrete UI checkpoints rather than a broad "please review the UI".
-- Current deferred manual checks are limited to button styling consistency and Focus left-panel spacing feel.
+
+- BLOCK SUMMARY では先に原因分析を示す
+- 見栄えのためにラベルを書き換えない (「手動」→「自動」のような実態と異なる書き換え禁止)
+
+## 現在 deferred の手動確認
+
+- Reader ボタンのスタイル一貫性 (session 37 で機能修正済み、見た目の確認のみ)
+- Focus 左パネル間隔の体感確認 (ユーザーの実使用ウィンドウサイズで)
