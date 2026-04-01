@@ -55,26 +55,6 @@ test.describe('Issue B: 文字数表示の精度問題', () => {
     await page.waitForTimeout(600);
   });
 
-  // chapterMode 一本化後、reset=1 でチャプターが自動生成されるまでにラグがあるため skip
-  test.skip('B-1: DSLなしコンテンツで文字数と実文字数が一致する', async ({ page }) => {
-    const plainText = '## 第一章\n\nこれはプレーンなテキストです。合計20文字程度。';
-    await setEditorContent(page, plainText);
-    await enterFocusMode(page);
-    // チャプターリストのレンダリングを待機
-    await page.waitForSelector('.cl-item__count', { timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(500);
-
-    const displayedCount = await page.evaluate(() => {
-      var countEl = document.querySelector('.cl-item__count');
-      return countEl ? parseInt(countEl.textContent.replace(/,/g, ''), 10) : null;
-    });
-
-    // DSLなしなのでソース文字数と本文字数は近い値のはず
-    expect(displayedCount).not.toBeNull();
-    console.log('Plain text source length:', plainText.trim().length);
-    console.log('Displayed count:', displayedCount);
-  });
-
   test('B-2: DSL構文込みコンテンツで表示文字数がプレーンテキスト文字数を大幅に超える (バグ確認)', async ({ page }) => {
     const dslContent = '## DSLテスト章\n\n:::zw-scroll{effect:"fade-in", delay:"300ms"}\nこれが本文です。\n:::';
     const plainText = 'これが本文です。'; // 8文字

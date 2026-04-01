@@ -305,44 +305,6 @@ test.describe('Extended Textbox (SP-016 Phase 3: Preset Management)', () => {
     expect(presets[1].role).toBe('monologue');
   });
 
-  // WYSIWYG フローティングツールバーには TB dropdown 未実装 (selection-tooltip のみ)
-  test.skip('WYSIWYG TB dropdown exists in toolbar when textbox feature enabled', async ({ page }) => {
-    // WYSIWYG モードに切り替えてフローティングツールバーを初期化
-    await page.fill('#editor', 'テスト');
-    await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
-    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
-
-    // TB ドロップダウンがツールバー内に存在することを確認
-    const exists = await page.evaluate(() => {
-      const tb = document.querySelector('#wysiwyg-toolbar .tb-dropdown-wrapper');
-      if (!tb) return false;
-      return tb.style.display !== 'none';
-    });
-    expect(exists).toBe(true);
-  });
-
-  test.skip('WYSIWYG TB dropdown hidden when textbox feature disabled', async ({ page }) => {
-    await page.evaluate(() => {
-      const s = window.ZenWriterStorage.loadSettings();
-      s.editor = s.editor || {};
-      s.editor.extendedTextbox = s.editor.extendedTextbox || {};
-      s.editor.extendedTextbox.enabled = false;
-      window.ZenWriterStorage.saveSettings(s);
-      window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged'));
-    });
-
-    // WYSIWYG モードに切り替え
-    await page.fill('#editor', 'テスト');
-    await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
-    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
-
-    const isHidden = await page.evaluate(() => {
-      const tb = document.querySelector('#wysiwyg-toolbar .tb-dropdown-wrapper');
-      return !tb || tb.style.display === 'none';
-    });
-    expect(isHidden).toBe(true);
-  });
-
   test('WYSIWYG TB dropdown applies textbox preset to selected text', async ({ page }) => {
     await page.fill('#editor', 'プリセット適用テスト');
     await page.locator('#toggle-wysiwyg').dispatchEvent('mousedown');
