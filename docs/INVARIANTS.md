@@ -10,6 +10,8 @@
 - サイドバー開閉は `toggleSidebar()` → `s.sidebarOpen` に永続化。`setUIMode` Normal 復帰時に復元
 - エッジグローは Focus モードのみ
 - フローティングツールバーは Reader モードでも非表示
+- WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー `[...]` 経由。直接ボタンは存在しない
+- 装飾グループ (toolbar-group--decorate) と Canvas Mode ボタンは HTML から完全削除済み。復活させない
 - Reader exit で大きな return overlay をエディタ操作領域の上に残さない
 - Focus モードでツールバーの top gap やサイドパネルの writing surface 重なりを生じさせない
 

@@ -26,10 +26,10 @@
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル | 65 | 65 |
-| E2E passed | 545 | 545 |
+| E2E spec ファイル | 62 | 65 |
+| E2E passed | 528 | 545 |
 | E2E failed | 0 | 0 |
-| E2E skipped | 3 | 6 |
+| E2E skipped | 5 | 3 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
