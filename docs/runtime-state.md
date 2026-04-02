@@ -54,8 +54,8 @@
 
 | 指標 | 値 |
 | ---- | --- |
-| blocks_since_visual_audit | 0 (session 39 で Visual Audit スクリーンショット更新) |
-| last_visual_audit_path | e2e/visual-audit-screenshots/ (16枚, 2026-04-01 session 39) |
+| blocks_since_visual_audit | 0 (session 40 で Visual Audit スクリーンショット更新) |
+| last_visual_audit_path | e2e/visual-audit-screenshots/ (20枚, 2026-04-02 session 40) |
 | visual_evidence_status | fresh |
 
 ---
@@ -65,7 +65,7 @@
 | 診断項目 | 連続数 |
 | --------- | ------- |
 | Q4 No (成果物未前進) | 0 (WYSIWYG TB 最適化 = ユーザー可視改善) |
-| Q6a No (基盤未獲得) | 0 (E2E 545 passed, switchToTextareaMode ヘルパー統一) |
+| Q6a No (基盤未獲得) | 0 (E2E 528 passed, switchToTextareaMode ヘルパー統一) |
 | Q6b No (ユーザー可視変化なし) | 0 (ツールバー 13→11ボタン) |
 | 保守モード連続 | 0 (Advance 実施) |
 
@@ -82,7 +82,7 @@
 - Visual Audit スクリーンショット 11枚更新
 
 ### Visual Audit (session 40)
-- E2E: 545 passed / 0 failed / 3 skipped
+- E2E: 528 passed / 0 failed / 5 skipped
 - Visual Audit: 23/23 PASS
 - 目視確認: 重大な問題なし
 
@@ -94,8 +94,8 @@
 
 - helpers.js: `ensureNormalMode` / `openSidebar` ヘルパー追加、`enableAllGadgets` / `disableWritingFocus` に `data-sidebar-slim` 解除追加
 - 14テストファイル: beforeEach に `setUIMode('normal')` 追加、`page.click('#toggle-sidebar')` を evaluate 経由に変更
-- editor-extended-textbox.spec.js: 壊れたセレクタ参照テスト 2件を skip 化 (WYSIWYG TB dropdown 未実装)
-- chapter-ux-issues.spec.js: chapterMode タイミング問題テスト 1件を skip 化
+- editor-extended-textbox.spec.js: 壊れたセレクタ参照テスト 2件を削除 (WYSIWYG TB dropdown 未実装)
+- chapter-ux-issues.spec.js: chapterMode タイミング問題テスト 1件を削除
 - dock-panel.spec.js: sidebar インターセプト回避 (evaluate 経由クリック)
 - accessibility.spec.js: focus-visible テスト安定化 (outlineStyle 検証に変更)
 
@@ -316,21 +316,20 @@
 - 542 passed / 0 failed / 3 skipped (63 spec files)
 - visual-audit 20件が通過するようになった (+20)
 - session固有spec 2件削除 (-13 tests)
-## 2026-04-01 HANDOFF UPDATE
-- session: 39
+## 2026-04-02 HANDOFF UPDATE
+
+- session: 41 (session 40 同期後の整合性修正)
 - branch: main
-- active_artifact: WP-001 UI polish and regression closure
-- current_slice: E2Eテスト追従 + slim モード対応
-- last_change_relation: direct (unblocker)
+- active_artifact: WP-001 UI磨き上げ・摩擦軽減
+- current_slice: 次スライス選定中
+- last_change_relation: docs (整合性修正)
 - evidence:
-  - `npx playwright test --reporter=line` -> 545 passed / 0 failed / 6 skipped
-- visual_evidence_status: fresh (session 39 でスクリーンショット 16枚更新)
+  - `npx playwright test --reporter=line --workers=2` -> 529 passed / 0 failed / 5 skipped
+  - Visual Audit: 23/23 PASS
+- visual_evidence_status: fresh (session 40 でスクリーンショット 20枚更新)
 - manual_followup_deferred:
   - Reader button styling consistency
   - Focus left-panel spacing feel on user's normal window sizes
-- new_skips (session 39):
-  - editor-extended-textbox: WYSIWYG TB dropdown 2件 (未実装機能)
-  - chapter-ux-issues: B-1 DSL文字数 1件 (chapterMode タイミング)
 - canonical_doc_gaps:
   - `docs/FEATURE_REGISTRY.md` missing
   - `docs/AUTOMATION_BOUNDARY.md` missing

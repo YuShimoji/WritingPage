@@ -10,28 +10,28 @@ test.describe('Story Wiki', () => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'edit');
-    await page.waitForSelector('#edit-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   });
 
   test('should display Story Wiki gadget in sidebar', async ({ page }) => {
-    const wikiRoot = page.locator('#edit-gadgets-panel .swiki-root');
+    const wikiRoot = page.locator('#structure-gadgets-panel .swiki-root');
     await expect(wikiRoot).toBeAttached({ timeout: 5000 });
   });
 
   test('should show category list with counts', async ({ page }) => {
-    const categoryList = page.locator('#edit-gadgets-panel .swiki-category-list');
+    const categoryList = page.locator('#structure-gadgets-panel .swiki-category-list');
     await expect(categoryList).toBeAttached({ timeout: 5000 });
 
     // プリセットカテゴリが表示される
-    const categoryRows = page.locator('#edit-gadgets-panel .swiki-category-row');
+    const categoryRows = page.locator('#structure-gadgets-panel .swiki-category-row');
     const count = await categoryRows.count();
     expect(count).toBeGreaterThanOrEqual(7); // 7種のプリセットカテゴリ
   });
 
   test('should create new wiki entry via dialog', async ({ page }) => {
     // 新規作成ボタンをクリック
-    const createBtn = page.locator('#edit-gadgets-panel .swiki-btn-new');
+    const createBtn = page.locator('#structure-gadgets-panel .swiki-btn-new');
     await createBtn.waitFor({ timeout: 5000 });
     await createBtn.click();
 
@@ -83,13 +83,13 @@ test.describe('Story Wiki', () => {
     });
 
     // 検索入力
-    const searchInput = page.locator('#edit-gadgets-panel .swiki-search-input').first();
+    const searchInput = page.locator('#structure-gadgets-panel .swiki-search-input').first();
     await searchInput.waitFor({ timeout: 5000 });
     await searchInput.fill('検索テスト');
 
     // 検索結果が表示される
     await page.waitForTimeout(300);
-    const results = page.locator('#edit-gadgets-panel .swiki-search-results .swiki-entry-item');
+    const results = page.locator('#structure-gadgets-panel .swiki-search-results .swiki-entry-item');
     const count = await results.count();
     expect(count).toBeGreaterThan(0);
   });
@@ -104,7 +104,7 @@ test.describe('Story Wiki', () => {
     });
 
     // 展開ボタン
-    const expandBtn = page.locator('#edit-gadgets-panel .swiki-btn-expand');
+    const expandBtn = page.locator('#structure-gadgets-panel .swiki-btn-expand');
     await expandBtn.waitFor({ timeout: 5000 });
     await expandBtn.click();
 
@@ -132,7 +132,7 @@ test.describe('Story Wiki', () => {
     });
 
     // 展開→ツリーのアイテムをクリック
-    const expandBtn = page.locator('#edit-gadgets-panel .swiki-btn-expand');
+    const expandBtn = page.locator('#structure-gadgets-panel .swiki-btn-expand');
     await expandBtn.waitFor({ timeout: 5000 });
     await expandBtn.click();
 
@@ -190,7 +190,7 @@ test.describe('Story Wiki', () => {
   });
 
   test('should have scan button in sidebar', async ({ page }) => {
-    const scanBtn = page.locator('#edit-gadgets-panel .swiki-btn-scan');
+    const scanBtn = page.locator('#structure-gadgets-panel .swiki-btn-scan');
     await expect(scanBtn).toBeAttached({ timeout: 5000 });
     await expect(scanBtn).toHaveText('スキャン');
   });
@@ -373,7 +373,7 @@ test.describe('Story Wiki', () => {
     });
 
     // フルペインを開く
-    const expandBtn = page.locator('#edit-gadgets-panel .swiki-expand-btn');
+    const expandBtn = page.locator('#structure-gadgets-panel .swiki-expand-btn');
     if (await expandBtn.isVisible()) {
       await expandBtn.click();
     }

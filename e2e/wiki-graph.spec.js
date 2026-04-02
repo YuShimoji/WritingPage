@@ -11,8 +11,8 @@ test.describe('Story Wiki グラフビュー統合', () => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'edit');
-    await page.waitForSelector('#edit-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   });
 
   test('should generate graph data from Story Wiki entries', async ({ page }) => {
@@ -87,9 +87,8 @@ test.describe('Story Wiki グラフビュー統合', () => {
       s.createStoryWikiEntry({ title: 'Wonderland', category: 'location', content: '不思議の国。', source: 'manual' });
     });
 
-    // グラフボタンをクリック
-    const graphBtn = page.locator('.swiki-btn-graph').first();
-    await graphBtn.click();
+    // グラフボタンをクリック (evaluate 経由: structure パネル内でスクロール外の場合あり)
+    await page.evaluate(() => document.querySelector('.swiki-btn-graph').click());
     await page.waitForTimeout(500);
 
     // オーバーレイが表示される
@@ -118,9 +117,8 @@ test.describe('Story Wiki グラフビュー統合', () => {
       s.createStoryWikiEntry({ title: 'Knight', category: 'character', content: '[[Dragon]] を倒す者。', source: 'manual' });
     });
 
-    // 展開ボタンで全画面モードに切り替え
-    const expandBtn = page.locator('.swiki-btn-expand').first();
-    await expandBtn.click();
+    // 展開ボタンで全画面モードに切り替え (evaluate 経由: structure パネル内でスクロール外の場合あり)
+    await page.evaluate(() => document.querySelector('.swiki-btn-expand').click());
     await page.waitForTimeout(300);
 
     // Dragon を選択

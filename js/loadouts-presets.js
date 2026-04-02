@@ -1,6 +1,9 @@
 /**
  * ロードアウトプリセット定義
  * ハードコーディングを避けるため外部ファイルに分離
+ *
+ * グループ名は KNOWN_GROUPS と一致させること:
+ *   sections, structure, edit, theme, assist, advanced
  */
 (function () {
   'use strict';
@@ -18,7 +21,17 @@
           structure: [
             'Documents',
             'Outline',
-            'TagsAndSmartFolders'
+            'TagsAndSmartFolders',
+            'StoryWiki'
+          ],
+          edit: [
+            'MarkdownPreview',
+            'ChoiceTools'
+          ],
+          theme: [
+            'Themes',
+            'Typography',
+            'VisualProfile'
           ],
           assist: [
             'Typewriter',
@@ -28,17 +41,10 @@
             'WritingGoal',
             'MarkdownReference'
           ],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: [
-            'Themes',
-            'Typography',
-            'VisualProfile',
+          advanced: [
             'EditorLayout',
-            'MarkdownPreview',
             'UISettings',
             'PrintSettings',
-            'ChoiceTools',
             'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
@@ -59,19 +65,21 @@
           ],
           structure: [
             'Documents',
-            'Outline'
+            'Outline',
+            'StoryWiki'
+          ],
+          edit: [],
+          theme: [
+            'Themes',
+            'Typography',
+            'VisualProfile'
           ],
           assist: [
             'SnapshotManager',
             'WritingGoal',
             'MarkdownReference'
           ],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: [
-            'Themes',
-            'Typography',
-            'VisualProfile',
+          advanced: [
             'EditorLayout',
             'GadgetPrefs'
           ]
@@ -92,7 +100,18 @@
           structure: [
             'Documents',
             'Outline',
-            'TagsAndSmartFolders'
+            'TagsAndSmartFolders',
+            'StoryWiki'
+          ],
+          edit: [
+            'Images',
+            'ChoiceTools',
+            'MarkdownPreview'
+          ],
+          theme: [
+            'Themes',
+            'Typography',
+            'VisualProfile'
           ],
           assist: [
             'Typewriter',
@@ -102,16 +121,8 @@
             'WritingGoal',
             'MarkdownReference'
           ],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: [
-            'Themes',
-            'Typography',
-            'VisualProfile',
+          advanced: [
             'EditorLayout',
-            'Images',
-            'ChoiceTools',
-            'MarkdownPreview',
             'UISettings',
             'GadgetPrefs',
             'Keybinds'
@@ -132,21 +143,24 @@
           ],
           structure: [
             'Documents',
-            'Outline'
+            'Outline',
+            'StoryWiki'
+          ],
+          edit: [
+            'ChoiceTools'
+          ],
+          theme: [
+            'Themes',
+            'Typography',
+            'VisualProfile'
           ],
           assist: [
             'SnapshotManager',
             'WritingGoal',
             'MarkdownReference'
           ],
-          typography: [],
-          wiki: ['StoryWiki'],
-          settings: [
-            'Themes',
-            'Typography',
-            'VisualProfile',
+          advanced: [
             'EditorLayout',
-            'ChoiceTools',
             'UISettings',
             'GadgetPrefs',
             'Keybinds'

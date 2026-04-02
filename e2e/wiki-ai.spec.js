@@ -11,8 +11,8 @@ test.describe('Story Wiki AI生成', () => {
       try { return !!window.ZWGadgets; } catch (_) { return false; }
     }, { timeout: 20000 });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'edit');
-    await page.waitForSelector('#edit-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   });
 
   test('should expose StoryWikiAI global API', async ({ page }) => {

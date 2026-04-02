@@ -19,8 +19,8 @@
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 545 passed / 0 failed / 3 skipped (session 40)
-- spec-index: 56エントリ (done 43, partial 1, removed 11, superseded 1)
+- E2E: 528 passed / 0 failed / 5 skipped (session 40) — session 41 実測: 529 passed
+- spec-index: 55エントリ (done 44, partial 0, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
 - EPUB: スコープ外 (2026-03-23 除外決定)
@@ -47,15 +47,15 @@
 ## CURRENT LANE
 
 - 主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
-- 候補: hidden要素削除 / ツールバー整理 (HUMAN_AUTHORITY判断待ち) / 既存成果物の直接改善
+- 候補: ユーザー要望待ち (session 40 で hidden要素削除 + TB整理が完了)
 - いまは深入りしないレーン: 追加テスト、新規ガジェット
 
 ---
 
 ## CURRENT SLICE
 
-- スライス名: WP-001 WYSIWYG TB最適化 (session 40 done)
-- 次スライス候補: 装飾グループ/Canvas Mode HTML削除 (HUMAN_AUTHORITY) / Focus体感向上
+- スライス名: 次スライス選定中 (session 40 で WYSIWYG TB最適化 + 装飾グループ/Canvas Mode 削除が完了)
+- 次スライス候補: ユーザー要望に基づく方向決定待ち
 
 ---
 
@@ -65,9 +65,7 @@
 - 最終的なユーザーワークフロー: `docs/WRITING_PIPELINE.md` で定義済み (7段階: 起動→執筆→構造化→装飾→プレビュー→出力→保存)。Q1-Q3解決済み。EPUB/DOCX除外済み
 - 受け入れ時の使われ方: ユーザー自身が日常の執筆ツールとして使用
 - 現時点で未確定な要素:
-  - Blankモードの存在意義 (Focusとの視覚差が小さい。削除 or 差異化)
-  - WYSIWYGフローティングツールバーのボタン数削減方針
-  - WP-001 執筆ワークフロー統合の方向性
+  - WP-001 の次スライス方向 (ユーザー要望待ち)
 
 ---
 
@@ -81,7 +79,7 @@
 
 | ID | アイデア | 状態 | 関連領域 | 再訪トリガー |
 | ---- | -------- | ---- | -------- | ------------ |
-| WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** (session 34~) | Experience Slice | WYSIWYG TB最適化 done (session 40)。次: 装飾グループ削除判断/Focus体感向上 |
+| WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** (session 34~) | Experience Slice | session 40 で TB最適化 + hidden要素削除 完了。次スライス: ユーザー要望待ち |
 | WP-002 | ガジェット整理 (33→27完了、追加統合は今後検討) | **done** | UI | session 19で6ガジェット削除/無効化 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
 
@@ -90,15 +88,14 @@
 ## HANDOFF SNAPSHOT
 
 - 現在の主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
-- 現在のスライス: WYSIWYG TB最適化 done → 次スライス選定
+- 現在のスライス: 次スライス選定中 (session 40 で TB最適化 + hidden要素削除 完了)
 - 今回 (session 40) の変更:
   - WYSIWYG フローティングツールバー: 13→11ボタン + overflow メニュー
   - 縦書きトグル + テキストエディタ切替を `[...]` オーバーフローメニューに移動
   - E2E 6ファイルの switchToTextarea を共通ヘルパーに統一
   - Visual Audit スクリーンショット 11枚更新
-- 未確定の設計論点 (HUMAN_AUTHORITY):
-  - 装飾グループ (toolbar-group--decorate) のHTML要素を削除してよいか (hidden、E2E/editor.jsから参照あり)
-  - Canvas Mode ボタン (toggle-canvas-mode) のHTML要素を削除してよいか (hidden、E2E/editor.jsから参照あり)
+- 解決済みの設計論点:
+  - 装飾グループ + Canvas Mode: session 40 で完全削除済み
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
   - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
@@ -110,8 +107,8 @@
   - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由
 - 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
-  - [Unlock] 装飾グループ/Canvas Mode HTML削除の判断 (HUMAN_AUTHORITY)
-  - [Advance] Focus 体感向上 (左パネル間隔・Reader ボタン styling)
+  - ユーザー要望に基づく次スライス選定
+  - [Docs] canonical docs 補完 (FEATURE_REGISTRY / AUTOMATION_BOUNDARY)
 
 ## DECISION LOG ADDENDUM (2026-04-02)
 
