@@ -1750,6 +1750,69 @@
 
       // キーボードショートカット
       this.wysiwygEditor.addEventListener('keydown', (e) => {
+        // BL-002: Enter で書式を切断 (effectBreakAtNewline)
+        if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+          var settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+            ? window.ZenWriterStorage.loadSettings() : {};
+          var breakAtNewline = settings.editor && settings.editor.effectBreakAtNewline !== false;
+          if (breakAtNewline) {
+            // execCommand 系の書式状態を取得
+            var wasBold = document.queryCommandState('bold');
+            var wasItalic = document.queryCommandState('italic');
+            var wasUnderline = document.queryCommandState('underline');
+            var wasStrikeThrough = document.queryCommandState('strikeThrough');
+
+            // カーソル位置の decor-* span を検出
+            var sel = window.getSelection();
+            var decorSpan = null;
+            if (sel && sel.rangeCount > 0) {
+              var node = sel.getRangeAt(0).startContainer;
+              var el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+              while (el && el !== this.wysiwygEditor) {
+                if (el.tagName === 'SPAN' && el.className && /^decor-/.test(el.className)) {
+                  decorSpan = el;
+                  break;
+                }
+                el = el.parentElement;
+              }
+            }
+
+            // デフォルトの改行処理を実行
+            // (ブラウザが <p> を生成)
+
+            // 改行後に書式をクリアする (非同期: ブラウザの段落生成後)
+            setTimeout(() => {
+              if (wasBold) document.execCommand('bold', false, null);
+              if (wasItalic) document.execCommand('italic', false, null);
+              if (wasUnderline) document.execCommand('underline', false, null);
+              if (wasStrikeThrough) document.execCommand('strikeThrough', false, null);
+
+              // decor-* span の外にカーソルを移動
+              if (decorSpan) {
+                var curSel = window.getSelection();
+                if (curSel && curSel.rangeCount > 0) {
+                  var curNode = curSel.getRangeAt(0).startContainer;
+                  var curEl = curNode.nodeType === Node.TEXT_NODE ? curNode.parentElement : curNode;
+                  while (curEl && curEl !== this.wysiwygEditor) {
+                    if (curEl.tagName === 'SPAN' && curEl.className && /^decor-/.test(curEl.className)) {
+                      // span の内容をフラグメントに展開してカーソルを外に出す
+                      var range = document.createRange();
+                      range.setStartAfter(curEl);
+                      range.collapse(true);
+                      curSel.removeAllRanges();
+                      curSel.addRange(range);
+                      break;
+                    }
+                    curEl = curEl.parentElement;
+                  }
+                }
+              }
+            }, 0);
+            // デフォルト動作 (改行挿入) は阻止しない → return して続行
+            return;
+          }
+        }
+
         // Ctrl+Z: Undo (カスタム)
         if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key === 'z') {
           e.preventDefault();

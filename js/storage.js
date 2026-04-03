@@ -84,6 +84,7 @@ const DEFAULT_SETTINGS = {
     // エディタ設定
     editor: {
         richtextEnhanced: true,
+        effectBreakAtNewline: true,
         wordWrap: {
             enabled: false,
             maxChars: 80 // 折り返し文字数
