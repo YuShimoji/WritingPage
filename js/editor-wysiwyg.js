@@ -1492,19 +1492,23 @@
         }
         if (!self.isWysiwygMode) {
           self._hideFloatingToolbar();
+          self._syncFormatState();
           return;
         }
         var sel = window.getSelection();
         if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
           self._hideFloatingToolbar();
+          self._syncFormatState();
           return;
         }
         var range = sel.getRangeAt(0);
         if (!self.wysiwygEditor.contains(range.commonAncestorContainer)) {
           self._hideFloatingToolbar();
+          self._syncFormatState();
           return;
         }
         self._showFloatingToolbar(range);
+        self._syncFormatState();
       });
 
       // ツールバー上のマウスダウンで非表示を防止
@@ -1584,6 +1588,64 @@
       this.wysiwygToolbar.querySelectorAll('.wysiwyg-dropdown').forEach(function (d) {
         d.setAttribute('data-open', 'false');
       });
+    }
+
+    // ─── BL-003: 書式状態インジケータ ──────────────────────
+    /**
+     * @private ツールバーボタンの aria-pressed と書式インジケータを同期
+     */
+    _syncFormatState() {
+      if (!this.isWysiwygMode) {
+        this._updateFormatIndicator([]);
+        return;
+      }
+
+      var states = [
+        { id: 'wysiwyg-bold', cmd: 'bold', label: 'B' },
+        { id: 'wysiwyg-italic', cmd: 'italic', label: 'I' },
+        { id: 'wysiwyg-underline', cmd: 'underline', label: 'U' },
+        { id: 'wysiwyg-strike', cmd: 'strikeThrough', label: 'S' },
+      ];
+
+      var active = [];
+      for (var i = 0; i < states.length; i++) {
+        var s = states[i];
+        var on = false;
+        try { on = document.queryCommandState(s.cmd); } catch (_) {}
+        var btn = document.getElementById(s.id);
+        if (btn) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on) active.push(s.label);
+      }
+
+      // decor-* span の検出
+      var sel = window.getSelection();
+      if (sel && sel.rangeCount > 0 && this.wysiwygEditor) {
+        var node = sel.getRangeAt(0).startContainer;
+        var el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+        while (el && el !== this.wysiwygEditor) {
+          if (el.tagName === 'SPAN' && el.className && /^decor-/.test(el.className)) {
+            active.push(el.className.replace('decor-', ''));
+          }
+          el = el.parentElement;
+        }
+      }
+
+      this._updateFormatIndicator(active);
+    }
+
+    /**
+     * @private 書式インジケータ要素を更新
+     */
+    _updateFormatIndicator(activeLabels) {
+      var indicator = document.getElementById('wysiwyg-format-indicator');
+      if (!indicator) return;
+      if (!activeLabels || activeLabels.length === 0) {
+        indicator.textContent = '';
+        indicator.style.display = 'none';
+        return;
+      }
+      indicator.textContent = activeLabels.join(' + ');
+      indicator.style.display = '';
     }
 
     // ─── Typewriter Mode ──────────────────────────────────
@@ -1731,6 +1793,7 @@
       this.wysiwygEditor.addEventListener('input', () => {
         this._scheduleUndoSnapshot();
         this.syncToMarkdown();
+        this._syncFormatState();
         if (this.editorManager) {
           this.editorManager.markDirty();
           this.editorManager.saveContent();
@@ -1896,6 +1959,7 @@
       document.execCommand(command, false, value);
       this.wysiwygEditor.focus();
       this.syncToMarkdown();
+      this._syncFormatState();
     }
 
     /**
