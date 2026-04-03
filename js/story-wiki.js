@@ -951,7 +951,7 @@
           textContent: 'すべて無視',
           onClick: function () {
             // 無視した用語を除外リストに追加
-            var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true, ignoredTerms: [] };
+            var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: false, ignoredTerms: [] };
             candidateTerms.forEach(function (candidate) {
               if (!settings.ignoredTerms.includes(candidate.term)) {
                 settings.ignoredTerms.push(candidate.term);
@@ -986,7 +986,7 @@
 
     // 手動スキャン: ガジェットUIにスキャンボタン追加
     function scanCurrentDocument() {
-      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true };
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: false };
       if (!settings.autoDetect) return;
 
       // エディタの本文を取得 (WYSIWYG表示中ならそちら、そうでなければtextarea)
@@ -1206,7 +1206,7 @@
      * API キー設定ダイアログ
      */
     function openSettingsDialog() {
-      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true, ignoredTerms: [], apiKey: '', aiModel: 'gpt-4o-mini' };
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: false, ignoredTerms: [], apiKey: '', aiModel: 'gpt-4o-mini' };
 
       var overlay = el('div', { className: 'swiki-overlay' });
       var dialog = el('div', { className: 'swiki-dialog' });
@@ -1285,7 +1285,7 @@
 
     // 保存時フック: ドキュメント保存時に自動検出をトリガー
     document.addEventListener('zen-content-saved', function (e) {
-      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: true };
+      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: false };
       if (!settings.autoDetect) return;
       var content = e.detail && e.detail.content;
       if (!content) return;

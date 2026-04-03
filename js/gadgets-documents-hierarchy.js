@@ -376,9 +376,17 @@
         notify(selectedIds.size + ' 件を削除しました');
       });
 
+      // 「選択」は overflow メニューに移動 (BL-005 修正: ツールバー膨張防止)
+      moreMenu.appendChild(createMenuItem('複数選択', '複数のドキュメントを選択して操作', function () {
+        selectMode = !selectMode;
+        selectedIds.clear();
+        selectModeBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
+        batchDeleteBtn.style.display = 'none';
+        refreshUI();
+      }));
+
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(saveBtn);
-      toolbar.appendChild(selectModeBtn);
       toolbar.appendChild(batchDeleteBtn);
       toolbar.appendChild(moreBtn);
       document.body.appendChild(moreMenu);
