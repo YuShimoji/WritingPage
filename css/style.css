@@ -433,10 +433,15 @@ html[data-ui-mode='focus'] .toolbar {
   transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
+/* BL-004: Focus edge-hover — 半透明スライドイン → hover で不透明 */
 html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar {
   transform: translateY(0) !important;
-  opacity: 1 !important;
+  opacity: 0.35 !important;
   pointer-events: auto !important;
+  transition: transform 0.2s ease, opacity 0.15s ease !important;
+}
+html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar:hover {
+  opacity: 1 !important;
 }
 
 html[data-ui-mode='focus'] .main-content {
@@ -479,8 +484,15 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   transition: transform 0.25s ease, opacity 0.2s ease;
 }
 
-html[data-ui-mode='focus'] .focus-chapter-panel:hover,
+/* BL-004: Focus 左パネル — 半透明スライドイン → hover で不透明 */
 html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel {
+  transform: translateX(0) !important;
+  opacity: 0.35 !important;
+  pointer-events: auto !important;
+  transition: transform 0.25s ease, opacity 0.15s ease !important;
+}
+html[data-ui-mode='focus'] .focus-chapter-panel:hover,
+html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hover {
   transform: translateX(0) !important;
   opacity: 1 !important;
   pointer-events: auto !important;
