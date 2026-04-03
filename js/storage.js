@@ -853,6 +853,21 @@ function deleteFolderRecursive(folderId) {
     return true;
 }
 
+// BL-005: 複数ドキュメントの一括削除
+function deleteMultipleDocuments(ids) {
+    if (!Array.isArray(ids) || ids.length === 0) return false;
+    var docs = loadDocuments();
+    var toDelete = new Set(ids);
+    var next = docs.filter(function (d) { return d && !toDelete.has(d.id); });
+    saveDocuments(next);
+    // 現在のドキュメントが削除対象に含まれていたら解除
+    var currentId = getCurrentDocId();
+    if (currentId && toDelete.has(currentId)) {
+        setCurrentDocId(null);
+    }
+    return true;
+}
+
 function normalizeExtendedTextboxSettings(raw, rootSettings) {
     const defaults = DEFAULT_SETTINGS.editor.extendedTextbox;
     const next = { ...defaults, ...(raw || {}) };
@@ -1594,6 +1609,7 @@ if (typeof module !== 'undefined' && module.exports) {
         updateDocumentContent,
         renameDocument,
         deleteDocument,
+        deleteMultipleDocuments,
         // hierarchy
         createFolder,
         moveItem,
@@ -1661,6 +1677,7 @@ if (typeof module !== 'undefined' && module.exports) {
         updateDocumentContent,
         renameDocument,
         deleteDocument,
+        deleteMultipleDocuments,
         // SP-077: IDB 初期化
         initIDB: _initIDB,
         // hierarchy

@@ -26,6 +26,22 @@
     row.style.cursor = 'pointer';
     row.style.userSelect = 'none';
 
+    // BL-005: 複数選択チェックボックス
+    if (handlers.multiSelect) {
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.className = 'tree-select-cb';
+      cb.dataset.id = item.id;
+      cb.style.marginRight = '0.375rem';
+      cb.style.cursor = 'pointer';
+      cb.style.accentColor = 'var(--accent-color, #4a90e2)';
+      cb.addEventListener('click', function (e) { e.stopPropagation(); });
+      cb.addEventListener('change', function () {
+        if (handlers.onSelectionChange) handlers.onSelectionChange(item.id, cb.checked);
+      });
+      row.appendChild(cb);
+    }
+
     // フォルダの場合: 折りたたみボタン
     if (item.type === 'folder') {
       const toggle = document.createElement('span');
@@ -63,9 +79,18 @@
     label.style.flex = '1';
     row.appendChild(label);
 
-    // クリックイベント
+    // クリックイベント (BL-005: Ctrl/Shift 複数選択対応)
     row.addEventListener('click', (e) => {
       e.stopPropagation();
+      if (handlers.multiSelect && (e.ctrlKey || e.metaKey || e.shiftKey)) {
+        // 複数選択モード: チェックボックスをトグル
+        var cb = row.querySelector('.tree-select-cb');
+        if (cb) {
+          cb.checked = !cb.checked;
+          if (handlers.onSelectionChange) handlers.onSelectionChange(item.id, cb.checked);
+        }
+        return;
+      }
       if (item.type === 'document' && handlers.onSelectDocument) {
         handlers.onSelectDocument(item.id);
       } else if (item.type === 'folder' && handlers.onToggleFolder) {

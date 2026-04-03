@@ -341,8 +341,45 @@
 
       document.addEventListener('click', function () { moreMenu.style.display = 'none'; });
 
+      // BL-005: 選択モードボタン + 一括削除ボタン
+      var selectMode = false;
+      var selectedIds = new Set();
+
+      var selectModeBtn = document.createElement('button');
+      selectModeBtn.type = 'button';
+      selectModeBtn.textContent = '選択';
+      selectModeBtn.title = '複数選択モード';
+      selectModeBtn.addEventListener('click', function () {
+        selectMode = !selectMode;
+        selectedIds.clear();
+        selectModeBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
+        batchDeleteBtn.style.display = 'none';
+        refreshUI();
+      });
+
+      var batchDeleteBtn = document.createElement('button');
+      batchDeleteBtn.type = 'button';
+      batchDeleteBtn.textContent = '一括削除';
+      batchDeleteBtn.title = '選択したドキュメントを一括削除';
+      batchDeleteBtn.style.display = 'none';
+      batchDeleteBtn.style.color = 'var(--danger-color, #e74c3c)';
+      batchDeleteBtn.addEventListener('click', function () {
+        if (selectedIds.size === 0) return;
+        if (!confirm(selectedIds.size + ' 件のドキュメントを削除しますか?')) return;
+        storage.deleteMultipleDocuments(Array.from(selectedIds));
+        selectedIds.clear();
+        selectMode = false;
+        selectModeBtn.setAttribute('aria-pressed', 'false');
+        batchDeleteBtn.style.display = 'none';
+        refreshUI();
+        dispatchChanged();
+        notify(selectedIds.size + ' 件を削除しました');
+      });
+
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(saveBtn);
+      toolbar.appendChild(selectModeBtn);
+      toolbar.appendChild(batchDeleteBtn);
       toolbar.appendChild(moreBtn);
       document.body.appendChild(moreMenu);
 
@@ -358,6 +395,12 @@
 
       // ========== イベントハンドラ ==========
       var handlers = {
+        get multiSelect() { return selectMode; },
+        onSelectionChange: function (id, checked) {
+          if (checked) { selectedIds.add(id); } else { selectedIds.delete(id); }
+          batchDeleteBtn.style.display = selectedIds.size > 0 ? '' : 'none';
+          batchDeleteBtn.textContent = selectedIds.size + ' 件削除';
+        },
         onSelectDocument: function (id) {
           switchDocument(id);
         },

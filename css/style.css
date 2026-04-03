@@ -7340,6 +7340,14 @@ details[open] summary {
   color: var(--success-fg, #ffffff);
 }
 
+/* BL-005: 選択モードボタン */
+button[aria-pressed="true"] + .documents-more-btn,
+.documents-toolbar button[aria-pressed="true"] {
+  background: var(--accent-color, #4a90e2);
+  color: #fff;
+  border-radius: 4px;
+}
+
 .tree-item-row.dragging {
   opacity: 0.5;
 }
