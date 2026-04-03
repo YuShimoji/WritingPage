@@ -1447,12 +1447,22 @@
     });
   }
 
+  // BL-006: ハイライト中フラグ (DOM 変更による input 再発火防止)
+  var _highlightInProgress = false;
+
   // デバウンス付きハイライト更新
   function scheduleHighlight() {
+    if (_highlightInProgress) return;
     if (debounceTimer) clearTimeout(debounceTimer);
     debounceTimer = setTimeout(function () {
-      clearHighlights();
-      highlightWikiTerms();
+      _highlightInProgress = true;
+      try {
+        clearHighlights();
+        highlightWikiTerms();
+      } finally {
+        // DOM 変更による input 再発火を無視するため、次の tick でリセット
+        setTimeout(function () { _highlightInProgress = false; }, 0);
+      }
     }, 500);
   }
 
