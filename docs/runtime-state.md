@@ -9,7 +9,7 @@
 - ブランチ: main
 - セッション: 40
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: WYSIWYG フローティングツールバー最適化 (13→11ボタン + overflow メニュー)
+- スライス: BL-001〜BL-006 完了 (Wiki proof, 改行効果切断, 書式インジケータ, Focus hover, ドキュメント一括操作, Wiki ハイライトループ修正)
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 40 | 39 |
+| セッション番号 | 42 | 40 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
 | spec done | 44 | 44 |
@@ -26,10 +26,10 @@
 | superseded | 1 | 1 |
 | JS impl ファイル | 107 | 107 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル | 62 | 65 |
-| E2E passed | 528 | 545 |
+| E2E spec ファイル | 62 | 62 |
+| E2E passed | 508 | 528 |
 | E2E failed | 0 | 0 |
-| E2E skipped | 5 | 3 |
+| E2E skipped | 5 | 5 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
@@ -316,20 +316,31 @@
 - 542 passed / 0 failed / 3 skipped (63 spec files)
 - visual-audit 20件が通過するようになった (+20)
 - session固有spec 2件削除 (-13 tests)
-## 2026-04-02 HANDOFF UPDATE
+## 2026-04-03 HANDOFF UPDATE
 
-- session: 41 (session 40 同期後の整合性修正)
+- session: 42 (BL-001〜BL-006 実装 + デグレ修正)
 - branch: main
 - active_artifact: WP-001 UI磨き上げ・摩擦軽減
-- current_slice: 次スライス選定中
-- last_change_relation: docs (整合性修正)
+- current_slice: BL-001〜BL-006 完了。次スライス選定中
+- last_change_relation: direct (feature + bugfix)
 - evidence:
-  - `npx playwright test --reporter=line --workers=2` -> 529 passed / 0 failed / 5 skipped
-  - Visual Audit: 23/23 PASS
-- visual_evidence_status: fresh (session 40 でスクリーンショット 20枚更新)
+  - E2E: 508 passed / 0 failed / 5 skipped (1 texture-overlay 既知不安定)
+- visual_evidence_status: fresh (session 41-42)
 - manual_followup_deferred:
+  - BL-006 サイドバー伸縮の実環境確認 (headless では再現せず)
+  - BL-002 改行効果切断の体感確認
+  - BL-004 Focus 半透明 hover の体感確認
   - Reader button styling consistency
-  - Focus left-panel spacing feel on user's normal window sizes
+  - Focus left-panel spacing feel
+- implemented_this_session:
+  - BL-001: Wiki ワークフロー proof (Reader wikilink 正常動作確認)
+  - BL-002: effectBreakAtNewline (改行で書式切断、デフォルトON)
+  - BL-003: 書式インジケータ + ツールバーボタン aria-pressed 同期
+  - BL-004: Focus hover を半透明スライドイン (0.35→hover で 1.0)
+  - BL-005: ドキュメント一括選択・削除 (チェックボックス + Ctrl/Shift)
+  - BL-006: Wiki ハイライト DOM 変更による input 再発火ループ防止
+  - fix: ロードアウトプリセットの仮想グループ名を KNOWN_GROUPS に統合
+  - fix: Wiki 自動検出の保存時トリガーを完全無効化
 - canonical_doc_gaps:
   - `docs/FEATURE_REGISTRY.md` missing
   - `docs/AUTOMATION_BOUNDARY.md` missing
