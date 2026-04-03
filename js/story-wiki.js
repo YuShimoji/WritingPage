@@ -1283,28 +1283,9 @@
       openSettings: openSettingsDialog
     };
 
-    // 保存時フック: ドキュメント保存時に自動検出をトリガー
-    document.addEventListener('zen-content-saved', function (e) {
-      var settings = S.loadStoryWikiSettings ? S.loadStoryWikiSettings() : { autoDetect: false };
-      if (!settings.autoDetect) return;
-      var content = e.detail && e.detail.content;
-      if (!content) return;
-
-      var useMorphology = settings.useMorphology !== false;
-      var M = window.ZenMorphology;
-
-      function runDetection() {
-        var candidates = extractCandidateTerms(content);
-        if (candidates.length > 0) showAutoDetectSuggestions(candidates);
-      }
-
-      // Lazy-init morphology if needed
-      if (useMorphology && M && !M.isReady()) {
-        M.init().then(runDetection).catch(runDetection);
-      } else {
-        runDetection();
-      }
-    });
+    // 保存時フック: 自動検出は手動スキャンのみに限定 (BL-005 fix)
+    // 以前は zen-content-saved で自動検出ダイアログが表示されていたが、
+    // 執筆中に邪魔になるため無効化。手動スキャンボタンから利用可能。
 
     // ── カスタムイベントリスナー ────────
 

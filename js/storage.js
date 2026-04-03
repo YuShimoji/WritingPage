@@ -1456,12 +1456,12 @@ function saveStoryWikiCustomCategories(categories) {
 function loadStoryWikiSettings() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI_SETTINGS);
-        var defaults = { autoDetect: true, ignoredTerms: [] };
+        var defaults = { autoDetect: false, ignoredTerms: [] };
         if (!raw) return defaults;
         var parsed = JSON.parse(raw);
         return Object.assign(defaults, parsed);
     } catch (e) {
-        return { autoDetect: true, ignoredTerms: [] };
+        return { autoDetect: false, ignoredTerms: [] };
     }
 }
 
