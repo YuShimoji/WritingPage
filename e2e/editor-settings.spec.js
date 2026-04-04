@@ -205,11 +205,11 @@ test.describe('Editor Settings', () => {
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSidebarPanel(page, 'edit');
+    await openSidebarPanel(page, 'structure');
 
     // Story Wiki (story-wiki.js) は input[type="text"] を使用
-    await page.waitForSelector('#edit-gadgets-panel .swiki-search-input', { timeout: 10000 });
-    await expect(page.locator('#edit-gadgets-panel .swiki-search-input').first()).toBeVisible();
+    await page.waitForSelector('#structure-gadgets-panel .swiki-search-input', { timeout: 10000 });
+    await expect(page.locator('#structure-gadgets-panel .swiki-search-input').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {

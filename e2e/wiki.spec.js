@@ -265,7 +265,7 @@ test.describe('Story Wiki', () => {
     });
 
     expect(result).not.toBeNull();
-    expect(result.defaultOn).toBe(true);
+    expect(result.defaultOn).toBe(false);
     expect(result.turnedOff).toBe(true);
     expect(result.turnedOn).toBe(true);
   });

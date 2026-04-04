@@ -135,9 +135,6 @@
   function enterReaderMode() {
     previousMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
 
-    // return bar を消す
-    hideReturnToReaderBar();
-
     // ContentGuard: 現在の編集内容を保存してからモード切替
     var G = window.ZWContentGuard;
     if (G && typeof G.ensureSaved === 'function') {
@@ -179,9 +176,6 @@
     }
     previousMode = null;
 
-    // 編集モード復帰後も同じ位置に Reader 復帰導線を残す
-    hideReturnToReaderBar();
-
     // プログレスバーをリセット
     if (progressFill) progressFill.style.width = '0%';
 
@@ -208,59 +202,6 @@
 
     // 読者プレビューの内容をクリア（メモリ節約）
     if (innerEl) innerEl.innerHTML = '';
-  }
-
-  // --- 「Reader に戻る」フローティングバー ---
-  var returnBar = null;
-  var returnBarTimer = null;
-
-  function showReturnToReaderBar(targetMode) {
-    // 既存バーがあれば除去
-    if (returnBar && returnBar.parentNode) {
-      returnBar.parentNode.removeChild(returnBar);
-    }
-    clearTimeout(returnBarTimer);
-
-    returnBar = document.createElement('div');
-    returnBar.className = 'reader-return-bar';
-    returnBar.setAttribute('data-return-mode', targetMode || 'normal');
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'reader-return-bar__button';
-    btn.textContent = '\u8AAD\u8005\u30D7\u30EC\u30D3\u30E5\u30FC\u3078\u623B\u308B';
-    btn.setAttribute('aria-label', '\u8AAD\u8005\u30D7\u30EC\u30D3\u30E5\u30FC\u306B\u623B\u308B');
-    btn.addEventListener('click', function () {
-      hideReturnToReaderBar();
-      enterReaderMode();
-    });
-    returnBar.appendChild(btn);
-    document.body.appendChild(returnBar);
-
-    // focus 復帰時は導線を残し、normal 復帰時だけ補助的に自動非表示
-    if (targetMode !== 'focus') {
-      returnBarTimer = setTimeout(function () {
-        hideReturnToReaderBar();
-      }, 8000);
-    }
-  }
-
-  function hideReturnToReaderBar() {
-    clearTimeout(returnBarTimer);
-    returnBarTimer = null;
-    if (returnBar && returnBar.parentNode) {
-      returnBar.classList.add('reader-return-bar--hiding');
-      var barToRemove = returnBar;
-      returnBar = null;
-      setTimeout(function () {
-        if (barToRemove && barToRemove.parentNode) {
-          barToRemove.parentNode.removeChild(barToRemove);
-        }
-      }, 300);
-    }
-
-    else {
-      returnBar = null;
-    }
   }
 
   /**

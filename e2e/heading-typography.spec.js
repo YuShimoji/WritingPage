@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebar } = require('./helpers');
+const { ensureNormalMode, openSidebar, enableAllGadgets } = require('./helpers');
 
 test.describe('SP-058 Heading Typography Phase 1', () => {
   test.beforeEach(async ({ page }) => {
@@ -147,11 +147,13 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
     await ensureNormalMode(page);
+    await enableAllGadgets(page);
   });
 
   test('プリセットselectでCSS変数が変わる', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await enableAllGadgets(page);
 
     // テーマアコーディオンを開く
     await openSidebar(page);
@@ -196,6 +198,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
   test('H1 sizeスライダーでカスタムオーバーライドが保存される', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await enableAllGadgets(page);
 
     await openSidebar(page);
     const settingsBtn = page.locator('#writing-focus-settings-btn');
@@ -237,6 +240,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
   test('リセットボタンでプリセット値に復帰する', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await enableAllGadgets(page);
 
     // カスタムオーバーライドを設定
     await page.evaluate(() => {
@@ -283,6 +287,7 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
     await page.goto('/?reset=1');
     await page.waitForLoadState('networkidle');
     await ensureNormalMode(page);
+    await enableAllGadgets(page);
   });
 
   test('H1 lineHeightスライダーでCSS変数が変わる', async ({ page }) => {
@@ -350,6 +355,7 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
   test('H4-H6 sizeスライダーがUI上に存在する', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await enableAllGadgets(page);
 
     await openSidebar(page);
     const settingsBtn = page.locator('#writing-focus-settings-btn');
