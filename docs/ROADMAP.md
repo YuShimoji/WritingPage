@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 526 passed / 0 failed / 3 skipped / 65 spec files (2026-03-30 session 36)
+- E2E: 529 passed / 0 failed / 5 skipped / 63 spec files (2026-04-04 session 43)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録
