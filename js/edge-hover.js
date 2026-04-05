@@ -229,6 +229,7 @@
 
     clearTimeout(glowFlashTimer);
     glowFlashTimer = setTimeout(function () {
+      glowFlashTimer = null;
       if (html.getAttribute('data-ui-mode') !== 'focus') return;
       if (glowElements.top) { glowElements.top.style.opacity = String(GLOW_BASELINE); glowElements.top.classList.remove('edge-glow--flash'); }
       if (glowElements.left) { glowElements.left.style.opacity = String(GLOW_BASELINE); glowElements.left.classList.remove('edge-glow--flash'); }
@@ -256,6 +257,7 @@
     if (!glowElements.top && !glowElements.left) return;
     var mode = html.getAttribute('data-ui-mode');
     if (mode !== 'focus') return;
+    if (glowFlashTimer) return;
 
     var topActive = state.top.active;
     var leftActive = state.left.active;
