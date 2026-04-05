@@ -201,12 +201,54 @@
     glowElements.left = leftGlow;
   }
 
+  var GLOW_BASELINE = 0.15;
+
+  // --- グローフラッシュ (Focus 進入時ヒント、2回限定) ---
+  var GLOW_FLASH_OPACITY = 0.4;
+  var GLOW_FLASH_DURATION = 2000;
+  var GLOW_FLASH_MAX_COUNT = 2;
+  var GLOW_FLASH_STORAGE_KEY = 'zw_edge_glow_flash_count';
+  var glowFlashTimer = null;
+
+  function getGlowFlashCount() {
+    try { return parseInt(localStorage.getItem(GLOW_FLASH_STORAGE_KEY), 10) || 0; }
+    catch (e) { return 0; }
+  }
+
+  function incrementGlowFlashCount() {
+    try { localStorage.setItem(GLOW_FLASH_STORAGE_KEY, String(getGlowFlashCount() + 1)); }
+    catch (e) { /* ignore */ }
+  }
+
+  function flashGlows() {
+    if (getGlowFlashCount() >= GLOW_FLASH_MAX_COUNT) return;
+    incrementGlowFlashCount();
+
+    if (glowElements.top) { glowElements.top.classList.add('edge-glow--flash'); glowElements.top.style.opacity = String(GLOW_FLASH_OPACITY); }
+    if (glowElements.left) { glowElements.left.classList.add('edge-glow--flash'); glowElements.left.style.opacity = String(GLOW_FLASH_OPACITY); }
+
+    clearTimeout(glowFlashTimer);
+    glowFlashTimer = setTimeout(function () {
+      if (html.getAttribute('data-ui-mode') !== 'focus') return;
+      if (glowElements.top) { glowElements.top.style.opacity = String(GLOW_BASELINE); glowElements.top.classList.remove('edge-glow--flash'); }
+      if (glowElements.left) { glowElements.left.style.opacity = String(GLOW_BASELINE); glowElements.left.classList.remove('edge-glow--flash'); }
+    }, GLOW_FLASH_DURATION);
+  }
+
   function updateGlowVisibility() {
     var mode = html.getAttribute('data-ui-mode');
     var shouldShow = mode === 'focus';
 
-    if (glowElements.top) glowElements.top.style.display = shouldShow ? '' : 'none';
-    if (glowElements.left) glowElements.left.style.display = shouldShow ? '' : 'none';
+    if (glowElements.top) {
+      glowElements.top.style.display = shouldShow ? '' : 'none';
+      if (shouldShow) glowElements.top.style.opacity = String(GLOW_BASELINE);
+    }
+    if (glowElements.left) {
+      glowElements.left.style.display = shouldShow ? '' : 'none';
+      if (shouldShow) glowElements.left.style.opacity = String(GLOW_BASELINE);
+    }
+
+    if (shouldShow) flashGlows();
   }
 
   // マウス位置に応じてグローの opacity を変化させる
@@ -215,22 +257,25 @@
     var mode = html.getAttribute('data-ui-mode');
     if (mode !== 'focus') return;
 
-    // 上部グロー: y が 0-120px で opacity 0→0.6
+    var topActive = state.top.active;
+    var leftActive = state.left.active;
+
+    // 上部グロー: y が 0-120px で opacity BASELINE→0.6
     if (glowElements.top && glowElements.top.style.display !== 'none') {
-      var topOpacity = y <= 120 ? (1 - y / 120) * 0.6 : 0;
+      var topOpacity = topActive ? 0 : Math.max(GLOW_BASELINE, y <= 120 ? (1 - y / 120) * 0.6 : 0);
       glowElements.top.style.opacity = String(topOpacity);
     }
 
-    // 左部グロー: x が 0-80px で opacity 0→0.6
+    // 左部グロー: x が 0-80px で opacity BASELINE→0.6
     if (glowElements.left && glowElements.left.style.display !== 'none') {
-      var leftOpacity = x <= 80 ? (1 - x / 80) * 0.6 : 0;
+      var leftOpacity = leftActive ? 0 : Math.max(GLOW_BASELINE, x <= 80 ? (1 - x / 80) * 0.6 : 0);
       glowElements.left.style.opacity = String(leftOpacity);
     }
   }
 
   function dismissGlows() {
-    if (glowElements.top) { glowElements.top.style.display = 'none'; }
-    if (glowElements.left) { glowElements.left.style.display = 'none'; }
+    if (glowElements.top) { glowElements.top.style.opacity = '0'; }
+    if (glowElements.left) { glowElements.left.style.opacity = '0'; }
   }
 
   // エッジホバーが発火したらグローを消す
