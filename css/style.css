@@ -412,10 +412,10 @@ html[data-toolbar-hidden='true'] .toolbar {
   pointer-events: none;
 }
 
-/* ツールバー表示時は、エディタ上端に最低限の余白を追加 */
-html:not([data-toolbar-hidden='true']) #editor,
-html:not([data-toolbar-hidden='true']) #wysiwyg-editor {
-  padding-top: calc(var(--toolbar-height) + 1rem);
+/* ツールバー非表示時のみエディタ上端余白を縮小 (Focus モード等) */
+html[data-toolbar-hidden='true'] #editor,
+html[data-toolbar-hidden='true'] #wysiwyg-editor {
+  padding-top: 1rem;
 }
 
 /* ===== UIモード: Focus / Blank ===== */
@@ -427,6 +427,10 @@ html[data-ui-mode='focus'] .mini-hud {
 }
 
 html[data-ui-mode='focus'] .toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   transform: translateY(-100%);
   opacity: 0;
   pointer-events: none;
