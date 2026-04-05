@@ -354,7 +354,7 @@
         btn.addEventListener('mousedown', function (e) {
           e.preventDefault();
           var tag = btn.getAttribute('data-anim');
-          var classMap = { fade: 'anim-fade', slide: 'anim-slide', type: 'anim-typewriter', pulse: 'anim-pulse', shake: 'anim-shake', bounce: 'anim-bounce', fadein: 'anim-fade-in' };
+          var classMap = { fade: 'anim-fade', slide: 'anim-slide', type: 'anim-typewriter', pulse: 'anim-pulse', shake: 'anim-shake', bounce: 'anim-bounce', fadein: 'anim-fade-in', wave: 'tex-wave', sparkle: 'tex-sparkle', cosmic: 'tex-cosmic', fire: 'tex-fire', glitch: 'tex-glitch' };
           if (tag && classMap[tag]) self.wrapSelectionWithSpan(classMap[tag]);
           btn.closest('.wysiwyg-dropdown').setAttribute('data-open', 'false');
         });
@@ -1648,6 +1648,113 @@
       indicator.style.display = '';
     }
 
+    // ─── Wikilink 入力補完 ─────────────────────────────────
+
+    /** @private カーソル直前の [[ を検出し補完ドロップダウンを表示 */
+    _checkWikiLinkTrigger() {
+      // Focus モードでは表示しない (「自分が書いた以外の文字を表示しない」原則)
+      if (document.documentElement.getAttribute('data-ui-mode') === 'focus') {
+        this._dismissWikiComplete();
+        return;
+      }
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) {
+        this._dismissWikiComplete();
+        return;
+      }
+      var node = sel.getRangeAt(0).startContainer;
+      if (node.nodeType !== Node.TEXT_NODE) { this._dismissWikiComplete(); return; }
+      var text = node.textContent.slice(0, sel.getRangeAt(0).startOffset);
+      var idx = text.lastIndexOf('[[');
+      if (idx === -1 || text.indexOf(']]', idx) !== -1) {
+        this._dismissWikiComplete();
+        return;
+      }
+      var query = text.slice(idx + 2);
+      this._showWikiComplete(query);
+    }
+
+    /** @private 補完ドロップダウン表示 */
+    _showWikiComplete(query) {
+      var S = window.ZenWriterStorage;
+      if (!S || !S.loadStoryWiki) { this._dismissWikiComplete(); return; }
+      var entries = S.loadStoryWiki();
+      if (!entries || entries.length === 0) { this._dismissWikiComplete(); return; }
+      var lq = query.toLowerCase();
+      var filtered = entries.filter(function (e) {
+        return e.title && e.title.toLowerCase().indexOf(lq) === 0;
+      }).slice(0, 8);
+      if (filtered.length === 0) { this._dismissWikiComplete(); return; }
+
+      var drop = this._wikiCompleteEl;
+      if (!drop) {
+        drop = document.createElement('div');
+        drop.className = 'wiki-complete-dropdown';
+        document.body.appendChild(drop);
+        this._wikiCompleteEl = drop;
+      }
+      drop.innerHTML = '';
+      var self = this;
+      filtered.forEach(function (entry) {
+        var item = document.createElement('div');
+        item.className = 'wiki-complete-item';
+        item.textContent = entry.title;
+        item.addEventListener('mousedown', function (e) {
+          e.preventDefault();
+          self._insertWikiLink(entry.title);
+        });
+        drop.appendChild(item);
+      });
+      drop.style.display = 'block';
+
+      // カーソル位置にドロップダウンを配置
+      var sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        var range = sel.getRangeAt(0);
+        var rect = range.getBoundingClientRect();
+        drop.style.left = rect.left + 'px';
+        drop.style.top = (rect.bottom + 4) + 'px';
+      }
+    }
+
+    /** @private wikilink テキストを挿入 */
+    _insertWikiLink(title) {
+      this._dismissWikiComplete();
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      var range = sel.getRangeAt(0);
+      var node = range.startContainer;
+      if (node.nodeType !== Node.TEXT_NODE) return;
+      var offset = range.startOffset;
+      var text = node.textContent;
+      var idx = text.lastIndexOf('[[', offset);
+      if (idx === -1) return;
+      // [[ と入力済み部分を置換して [[title]] に
+      var before = text.slice(0, idx);
+      var after = text.slice(offset);
+      node.textContent = before + '[[' + title + ']]' + after;
+      // カーソルを ]] の直後に配置
+      var newOffset = before.length + title.length + 4;
+      range.setStart(node, newOffset);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      // 同期
+      this.syncToMarkdown();
+      if (this.editorManager) {
+        this.editorManager.markDirty();
+        this.editorManager.saveContent();
+        this.editorManager.renderMarkdownPreview();
+      }
+    }
+
+    /** @private 補完ドロップダウンを閉じる */
+    _dismissWikiComplete() {
+      if (this._wikiCompleteEl) {
+        this._wikiCompleteEl.style.display = 'none';
+      }
+    }
+
     // ─── Typewriter Mode ──────────────────────────────────
     /** @private タイプライター設定を読み込む */
     _getTypewriterConfig() {
@@ -1794,6 +1901,7 @@
         this._scheduleUndoSnapshot();
         this.syncToMarkdown();
         this._syncFormatState();
+        this._checkWikiLinkTrigger();
         if (this.editorManager) {
           this.editorManager.markDirty();
           this.editorManager.saveContent();
@@ -1813,6 +1921,12 @@
 
       // キーボードショートカット
       this.wysiwygEditor.addEventListener('keydown', (e) => {
+        // Escape で wikilink 補完を閉じる
+        if (e.key === 'Escape' && this._wikiCompleteEl && this._wikiCompleteEl.style.display !== 'none') {
+          e.preventDefault();
+          this._dismissWikiComplete();
+          return;
+        }
         // BL-002: Enter で書式を切断 (effectBreakAtNewline)
         if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
           var settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
@@ -2585,7 +2699,7 @@
     normalizeCustomTagEscapes(markdown) {
       if (!markdown) return '';
       return markdown.replace(
-        /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein))\\\]/gi,
+        /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein|wave|sparkle|cosmic|fire|glitch))\\\]/gi,
         '[$1]'
       );
     }

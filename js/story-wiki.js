@@ -1291,6 +1291,12 @@
 
     document.addEventListener('swiki-open-entry', function (e) {
       var entryId = e.detail && e.detail.entryId;
+      // editor-preview は title で dispatch するため、title → entryId 変換
+      if (!entryId && e.detail && e.detail.title) {
+        var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+        var match = entries.find(function (en) { return en.title === e.detail.title; });
+        if (match) entryId = match.id;
+      }
       if (entryId) {
         state.selectedId = entryId;
         state.editingId = null;

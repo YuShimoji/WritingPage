@@ -132,6 +132,53 @@
     });
   }
 
+  // --- Reader Wiki ポップオーバー ---
+  var readerWikiPopover = null;
+
+  function escHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function showReaderWikiPopover(anchor, title) {
+    dismissReaderWikiPopover();
+    var S = window.ZenWriterStorage;
+    if (!S || !S.loadStoryWiki) return;
+    var entries = S.loadStoryWiki();
+    var entry = entries.find(function (e) { return e.title === title; });
+    if (!entry) return;
+
+    var pop = document.createElement('div');
+    pop.className = 'reader-wiki-popover';
+    var preview = (entry.content || '').slice(0, 120);
+    if (entry.content && entry.content.length > 120) preview += '...';
+    pop.innerHTML = '<strong>' + escHtml(entry.title) + '</strong>' +
+      (preview ? '<div class="reader-wiki-popover-body">' + escHtml(preview) + '</div>' : '');
+
+    // 位置: アンカー直下
+    document.body.appendChild(pop);
+    var rect = anchor.getBoundingClientRect();
+    pop.style.left = Math.min(rect.left, window.innerWidth - 300) + 'px';
+    pop.style.top = (rect.bottom + 6) + 'px';
+    readerWikiPopover = pop;
+
+    // 外クリックで閉じる
+    setTimeout(function () {
+      document.addEventListener('click', onPopoverOutsideClick, true);
+    }, 0);
+  }
+
+  function onPopoverOutsideClick(e) {
+    if (readerWikiPopover && !readerWikiPopover.contains(e.target)) {
+      dismissReaderWikiPopover();
+    }
+  }
+
+  function dismissReaderWikiPopover() {
+    if (readerWikiPopover) {
+      readerWikiPopover.remove();
+      readerWikiPopover = null;
+    }
+    document.removeEventListener('click', onPopoverOutsideClick, true);
+  }
+
   function enterReaderMode() {
     previousMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
 
@@ -165,6 +212,7 @@
     ) {
       return;
     }
+    dismissReaderWikiPopover();
     // スクロール位置を保存
     saveScrollPosition();
 
@@ -321,11 +369,14 @@
       bindReaderLinks(contentDiv);
     }
 
-    // wikilinkクリックハンドラ
+    // wikilinkクリックハンドラ — ポップオー���ーで用語プレビュー
     var wikiLinks = contentDiv.querySelectorAll('a.wikilink');
     for (var wl = 0; wl < wikiLinks.length; wl++) {
       wikiLinks[wl].addEventListener('click', function (e) {
         e.preventDefault();
+        var title = decodeURIComponent(this.getAttribute('data-wikilink') || '');
+        if (!title) return;
+        showReaderWikiPopover(this, title);
       });
     }
 
