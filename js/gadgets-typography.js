@@ -226,7 +226,7 @@
       paragraphIndentInput.min = '0';
       paragraphIndentInput.max = '3';
       paragraphIndentInput.step = '0.5';
-      paragraphIndentInput.value = typeof micro.paragraphIndent === 'number' ? micro.paragraphIndent : 0;
+      paragraphIndentInput.value = typeof micro.paragraphIndent === 'number' ? micro.paragraphIndent : 1;
 
       var paragraphIndentLabel = document.createElement('div');
       paragraphIndentLabel.style.fontSize = '0.85rem';

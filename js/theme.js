@@ -299,7 +299,7 @@ class ThemeManager {
 
     const ls = typeof m.letterSpacing === 'number' ? m.letterSpacing : 0;
     const ps = typeof m.paragraphSpacing === 'number' ? m.paragraphSpacing : 1;
-    const pi = typeof m.paragraphIndent === 'number' ? m.paragraphIndent : 0;
+    const pi = typeof m.paragraphIndent === 'number' ? m.paragraphIndent : 1;
     const lbm = m.lineBreakMode || 'normal';
 
     root.style.setProperty('--body-letter-spacing', ls + 'em');
