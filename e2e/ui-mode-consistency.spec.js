@@ -19,7 +19,11 @@ test.describe('UI Mode Consistency', () => {
   // ===== Focus モード =====
   test('Focus mode: sidebar stays closed and aria-hidden', async ({ page }) => {
     await setUIMode(page, 'focus');
-    await page.waitForTimeout(100);
+    // forceSidebarState は transition 完了後に aria-hidden を設定するため十分待つ
+    await page.waitForFunction(() => {
+      const sidebar = document.getElementById('sidebar');
+      return sidebar && sidebar.getAttribute('aria-hidden') === 'true';
+    }, { timeout: 5000 });
     const sidebarState = await page.evaluate(() => {
       const sidebar = document.getElementById('sidebar');
       if (!sidebar) return null;

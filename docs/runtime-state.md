@@ -186,7 +186,7 @@
 - chapter-store.js: migrateToChapterMode/revertChapterMode 削除、ensureChapterMode 追加
 - app.js: setUIMode にエッジホバー状態クリア + サイドバー状態管理 + フローティングツールバー非表示
 - editor-wysiwyg.js: フローティングツールバーの状態を data-visible 属性のみで管理
-- edge-hover.js: Focus モードでエッジホバーヒントテキスト表示 (2回表示後自動消去)
+- edge-hover.js: Focus モードでエッジグロー効果を追加 (上端/左端のマウス接近で発光)
 - app-file-manager.js: ensureChapterMode に参照変更
 - css/style.css: edge-hover-hint スタイル、Blank モードでヒント非表示
 - e2e/chapter-list.spec.js: chapterMode ベースに全面書換 (6/6 pass)
