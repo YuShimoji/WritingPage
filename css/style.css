@@ -1698,6 +1698,8 @@ html[data-toolbar-hidden='true'] .editor-container {
 
   /* 折り返し機能 */
   max-width: var(--wrap-ch);
+  margin-left: auto;
+  margin-right: auto;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -1736,6 +1738,8 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   scrollbar-width: none;
   -ms-overflow-style: none;
   max-width: var(--wrap-ch);
+  margin-left: auto;
+  margin-right: auto;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
