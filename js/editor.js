@@ -38,19 +38,6 @@ class EditorManager {
         this._markdownRenderer = null;
         this.editorContainer = document.querySelector('.editor-container');
         this.editorClassicLayer = document.getElementById('editor-classic-layer');
-        this.canvasRoot = document.getElementById('editor-canvas-root');
-        this.canvasViewport = document.getElementById('editor-canvas-viewport');
-        this.canvasStage = document.getElementById('editor-canvas-stage');
-        this.canvasMainNode = document.getElementById('editor-canvas-node-main');
-        this.canvasHud = document.getElementById('editor-canvas-hud');
-        this.canvasZoomInBtn = document.getElementById('canvas-zoom-in');
-        this.canvasZoomOutBtn = document.getElementById('canvas-zoom-out');
-        this.canvasZoomResetBtn = document.getElementById('canvas-zoom-reset');
-        this.canvasViewportController = null;
-        this.canvasSettings = null;
-        this._canvasSaveTimer = null;
-        this._isCanvasMode = false;
-
         // Other specialized managers
         if (typeof window.SpellChecker !== 'undefined') {
             this.spellChecker = new window.SpellChecker(this);
@@ -93,7 +80,6 @@ class EditorManager {
             this.editorOverlay.appendChild(this._focusLineEl);
         }
         this.applyWordWrap();
-        this.setupCanvasMode();
         // Initialize modules with this manager instance
         window.EditorUI.setupEventListeners(this);
     }
@@ -156,109 +142,6 @@ class EditorManager {
     replaceAll() { return window.EditorSearch.replaceAll(this); }
     getTextPosition(s, e) { return window.EditorSearch.getTextPosition(this, s, e); }
     clearSearchHighlights() { return window.EditorSearch.clearSearchHighlights(this); }
-
-    // ===== Canvas Mode (Phase 1) =====
-    setupCanvasMode() {
-        if (!this.editorContainer || !this.editorClassicLayer) return;
-        const settings = (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function')
-            ? window.ZenWriterStorage.loadSettings()
-            : {};
-        const editorSettings = settings && settings.editor ? settings.editor : {};
-        const canvasSettings = editorSettings && editorSettings.canvas ? editorSettings.canvas : {};
-        const defaultCanvas = (window.ZenWriterStorage && window.ZenWriterStorage.DEFAULT_SETTINGS && window.ZenWriterStorage.DEFAULT_SETTINGS.editor)
-            ? window.ZenWriterStorage.DEFAULT_SETTINGS.editor.canvas
-            : { betaEnabled: false, enabled: false, panX: 0, panY: 0, zoom: 1 };
-
-        this.canvasSettings = { ...defaultCanvas, ...canvasSettings };
-        const betaEnabled = this.canvasSettings.betaEnabled !== false;
-
-        if (this.canvasRoot) {
-            this.canvasRoot.hidden = true;
-        }
-        if (!betaEnabled || typeof window.CanvasViewportController === 'undefined') return;
-
-        this.canvasViewportController = new window.CanvasViewportController({
-            containerEl: this.editorContainer,
-            targetEl: this.editorClassicLayer,
-            syncTargets: [this.canvasStage],
-            hudEl: this.canvasHud,
-            initialState: {
-                panX: this.canvasSettings.panX || 0,
-                panY: this.canvasSettings.panY || 0,
-                zoom: this.canvasSettings.zoom || 1
-            },
-            onChange: (next) => {
-                this.canvasSettings.panX = next.panX;
-                this.canvasSettings.panY = next.panY;
-                this.canvasSettings.zoom = next.zoom;
-                this._scheduleCanvasSettingsSave();
-                try {
-                    document.dispatchEvent(new CustomEvent('ZWCanvasViewChanged', { detail: next }));
-                } catch (_) { }
-            }
-        });
-
-        if (this.canvasZoomInBtn) {
-            this.canvasZoomInBtn.addEventListener('click', () => this.canvasViewportController.zoomBy(0.1));
-        }
-        if (this.canvasZoomOutBtn) {
-            this.canvasZoomOutBtn.addEventListener('click', () => this.canvasViewportController.zoomBy(-0.1));
-        }
-        if (this.canvasZoomResetBtn) {
-            this.canvasZoomResetBtn.addEventListener('click', () => this.canvasViewportController.resetView());
-        }
-
-        this.setCanvasMode(!!this.canvasSettings.enabled, { persist: false });
-    }
-
-    toggleCanvasMode() {
-        this.setCanvasMode(!this._isCanvasMode, { persist: true });
-    }
-
-    setCanvasMode(enabled, options = {}) {
-        const next = !!enabled;
-        const persist = options.persist !== false;
-        this._isCanvasMode = next;
-
-        if (this.editorContainer) {
-            this.editorContainer.setAttribute('data-canvas-mode', next ? 'true' : 'false');
-        }
-        if (this.canvasRoot) {
-            this.canvasRoot.hidden = !next;
-            this.canvasRoot.setAttribute('aria-hidden', next ? 'false' : 'true');
-        }
-        if (this.canvasViewportController) {
-            this.canvasViewportController.setEnabled(next);
-            if (next && this.canvasSettings) {
-                this.canvasViewportController.setPan(this.canvasSettings.panX || 0, this.canvasSettings.panY || 0);
-                this.canvasViewportController.setZoom(typeof this.canvasSettings.zoom === 'number' ? this.canvasSettings.zoom : 1);
-            }
-        }
-
-        if (persist) {
-            this.canvasSettings.enabled = next;
-            this._saveCanvasSettingsNow();
-        }
-        try {
-            document.dispatchEvent(new CustomEvent('ZWCanvasModeChanged', { detail: { enabled: next } }));
-        } catch (_) { }
-    }
-
-    _scheduleCanvasSettingsSave() {
-        if (!this._isCanvasMode) return;
-        if (this._canvasSaveTimer) clearTimeout(this._canvasSaveTimer);
-        this._canvasSaveTimer = setTimeout(() => this._saveCanvasSettingsNow(), 120);
-    }
-
-    _saveCanvasSettingsNow() {
-        if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadSettings !== 'function' || typeof window.ZenWriterStorage.saveSettings !== 'function') {
-            return;
-        }
-        const all = window.ZenWriterStorage.loadSettings();
-        all.editor = { ...(all.editor || {}) };
-        all.editor.canvas = { ...(all.editor.canvas || {}), ...(this.canvasSettings || {}) };
-        window.ZenWriterStorage.saveSettings(all);
-    }
 
     // ===== External Logic Delegations (Existing Separate Modules) =====
     setupPreviewPanel() { return (typeof editorPreview_setupPreviewPanel === 'function') ? editorPreview_setupPreviewPanel(this) : null; }

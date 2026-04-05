@@ -1,16 +1,14 @@
 # Project Context
 
-## RECENT NOTE (2026-04-03, session 42)
+## RECENT NOTE (2026-04-05, session 43)
 
-- BL-001〜BL-006 実装完了 + デグレ修正
-- BL-002: 改行で書式効果切断 (effectBreakAtNewline, デフォルトON)
-- BL-003: 適用中エフェクト表示 (書式インジケータ + aria-pressed 同期)
-- BL-004: Focus hover を半透明スライドイン (opacity 0.35→hover 1.0)
-- BL-005: ドキュメント一括選択・削除 (チェックボックス + overflow メニュー)
-- BL-006: Wiki ハイライト DOM 変更による input 再発火ループ防止
-- fix: ロードアウトプリセットの仮想グループ名修正 (StoryWiki 表示問題解消)
-- fix: Wiki 自動検出の保存時トリガー完全無効化
-- E2E: 508 passed / 0 failed / 5 skipped
+- E2E 6件修正 (wiki autoDetect / Wiki パネルセレクタ / HeadingStyles enableAllGadgets)
+- BL-006 サイドバーアコーディオン伸縮バグ修正 (Normal モードでの入力イベント遮断)
+- showReturnToReaderBar デッドコード完全削除 (JS/CSS/E2E)
+- CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
+- HeadingStyles をロードアウトプリセット4種に追加 (theme グループ)
+- 堆積物削除 (WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ)
+- E2E: 528 passed / 0 failed / 3 skipped
 
 ## PROJECT CONTEXT
 
@@ -18,12 +16,12 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.32)
-- 直近の状態: session 42 — BL-001〜BL-006 完了 + デグレ修正
+- 直近の状態: session 43 — デッドコード削除 + Canvas完全削除 + HeadingStyles登録
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 508 passed / 0 failed / 5 skipped (session 42)
+- E2E: 528 passed / 0 failed / 3 skipped (session 43)
 - spec-index: 55エントリ (done 44, partial 0, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
@@ -83,7 +81,7 @@
 
 | ID | アイデア | 状態 | 関連領域 | 再訪トリガー |
 | ---- | -------- | ---- | -------- | ------------ |
-| WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** (session 34~) | Experience Slice | session 42 で BL-001〜BL-006 完了。次スライス: ユーザー要望待ち |
+| WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** (session 34~) | Experience Slice | session 43 でデッドコード削除 + Canvas完全削除。次スライス: ユーザー要望待ち |
 | WP-002 | ガジェット整理 (33→27完了、追加統合は今後検討) | **done** | UI | session 19で6ガジェット削除/無効化 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
 
@@ -92,14 +90,13 @@
 ## HANDOFF SNAPSHOT
 
 - 現在の主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
-- 現在のスライス: BL-001〜BL-006 完了。次スライス選定中
-- 今回 (session 40) の変更:
-  - WYSIWYG フローティングツールバー: 13→11ボタン + overflow メニュー
-  - 縦書きトグル + テキストエディタ切替を `[...]` オーバーフローメニューに移動
-  - E2E 6ファイルの switchToTextarea を共通ヘルパーに統一
-  - Visual Audit スクリーンショット 11枚更新
-- 解決済みの設計論点:
-  - 装飾グループ + Canvas Mode: session 40 で完全削除済み
+- 現在のスライス: デッドコード削除 + Canvas完全削除 + HeadingStyles登録 完了
+- 今回 (session 43) の変更:
+  - E2E 6件修正 + BL-006 サイドバー伸縮バグ修正
+  - showReturnToReaderBar デッドコード完全削除 (JS/CSS/E2E)
+  - CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
+  - HeadingStyles をロードアウトプリセット4種に追加
+  - 堆積物削除 (WORKER_TASKS.md, feature-reference.html 等)
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
   - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
@@ -113,6 +110,7 @@
 - 次回推奨:
   - ユーザー要望に基づく次スライス選定
   - [Docs] canonical docs 補完 (FEATURE_REGISTRY / AUTOMATION_BOUNDARY)
+  - deferred 手動確認 4件の消化
 
 ## DECISION LOG ADDENDUM (2026-04-02)
 

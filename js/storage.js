@@ -89,13 +89,6 @@ const DEFAULT_SETTINGS = {
             enabled: false,
             maxChars: 80 // 折り返し文字数
         },
-        canvas: {
-            betaEnabled: false,
-            enabled: false,
-            panX: 0,
-            panY: 0,
-            zoom: 1
-        },
         extendedTextbox: {
             enabled: true,
             defaultPreset: 'inner-voice',
@@ -908,7 +901,6 @@ function createDefaultSettingsSnapshot() {
         editor: {
             ...DEFAULT_SETTINGS.editor,
             wordWrap: { ...DEFAULT_SETTINGS.editor.wordWrap },
-            canvas: { ...DEFAULT_SETTINGS.editor.canvas },
             extendedTextbox: normalizeExtendedTextboxSettings({ ...DEFAULT_SETTINGS.editor.extendedTextbox }),
             textExpression: { ...DEFAULT_SETTINGS.editor.textExpression }
         },
@@ -944,9 +936,6 @@ function normalizeSettingsShape(raw) {
     if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];
     merged.editor = { ...defaults.editor, ...(parsed.editor || {}) };
     merged.editor.wordWrap = { ...defaults.editor.wordWrap, ...(parsed.editor?.wordWrap || {}) };
-    merged.editor.canvas = { ...defaults.editor.canvas, ...(parsed.editor?.canvas || {}) };
-    // Canvas Mode は Phase 1 (30%) のためデフォルト OFF に強制
-    merged.editor.canvas.betaEnabled = defaults.editor.canvas.betaEnabled;
     merged.editor.extendedTextbox = normalizeExtendedTextboxSettings(parsed.editor?.extendedTextbox || {}, merged);
     merged.editor.textExpression = { ...defaults.editor.textExpression, ...(parsed.editor?.textExpression || {}) };
     if (merged.editor.textExpression.fallbackMode !== 'backlog') {
@@ -1012,9 +1001,6 @@ function mergeSettings(base, patch) {
         merged.editor = { ...current.editor, ...patch.editor };
         if (isPlainObject(patch.editor.wordWrap)) {
             merged.editor.wordWrap = { ...current.editor.wordWrap, ...patch.editor.wordWrap };
-        }
-        if (isPlainObject(patch.editor.canvas)) {
-            merged.editor.canvas = { ...current.editor.canvas, ...patch.editor.canvas };
         }
         if (isPlainObject(patch.editor.extendedTextbox)) {
             merged.editor.extendedTextbox = { ...current.editor.extendedTextbox, ...patch.editor.extendedTextbox };

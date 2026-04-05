@@ -293,7 +293,6 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     });
     expect(mode).toBe('focus');
 
-    await expect(page.locator('.reader-return-bar')).toBeHidden();
   });
 
   test('Reader復帰導線から再入場できる', async ({ page }) => {

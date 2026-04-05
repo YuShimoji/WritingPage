@@ -31,6 +31,7 @@
           theme: [
             'Themes',
             'Typography',
+            'HeadingStyles',
             'VisualProfile'
           ],
           assist: [
@@ -72,6 +73,7 @@
           theme: [
             'Themes',
             'Typography',
+            'HeadingStyles',
             'VisualProfile'
           ],
           assist: [
@@ -111,6 +113,7 @@
           theme: [
             'Themes',
             'Typography',
+            'HeadingStyles',
             'VisualProfile'
           ],
           assist: [
@@ -152,6 +155,7 @@
           theme: [
             'Themes',
             'Typography',
+            'HeadingStyles',
             'VisualProfile'
           ],
           assist: [

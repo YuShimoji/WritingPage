@@ -545,16 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
             wysiwygToolbar.setAttribute('data-visible', 'false');
         }
 
-        // M-3: Reader return-bar のクリーンアップ
-        // Reader 以外のモード間遷移 (Normal ↔ Focus) で残存する return-bar を除去
-        if (targetMode !== 'reader') {
-            var returnBar = document.querySelector('.reader-return-bar');
-            if (returnBar && returnBar.parentNode) {
-                returnBar.parentNode.removeChild(returnBar);
-            }
-        }
-
-
         // モードスイッチボタンの状態を同期
         // 全ボタン (Normal/Focus/Reader) の aria-pressed を更新
         document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {

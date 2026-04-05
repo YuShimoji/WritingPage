@@ -255,7 +255,7 @@
         groups: {
           structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager'],
           edit: ['StoryWiki'],
-          theme: ['Themes', 'Typography', 'VisualProfile'],
+          theme: ['Themes', 'Typography', 'HeadingStyles', 'VisualProfile'],
           assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'MarkdownReference'],
           advanced: ['EditorLayout', 'Keybinds', 'LoadoutManager']
         }

@@ -350,21 +350,6 @@
 
       <!-- エディタエリア -->
       <div class="editor-container" role="region" aria-label="エディタ">
-        <div id="editor-canvas-root" class="editor-canvas-root" aria-hidden="true" hidden>
-          <div id="editor-canvas-viewport" class="editor-canvas-viewport" aria-hidden="true">
-            <div id="editor-canvas-stage" class="editor-canvas-stage">
-              <div id="editor-canvas-node-main" class="editor-canvas-node editor-canvas-node--primary" data-node-id="node-main">
-                <span class="editor-canvas-node__label">Primary node (single)</span>
-              </div>
-            </div>
-          </div>
-          <div id="editor-canvas-hud" class="editor-canvas-hud" role="group" aria-label="Canvasビュー操作">
-            <button id="canvas-zoom-out" type="button" class="small" aria-label="ズームアウト">-</button>
-            <span id="canvas-zoom-label" class="editor-canvas-hud__label" aria-live="polite">100%</span>
-            <button id="canvas-zoom-in" type="button" class="small" aria-label="ズームイン">+</button>
-            <button id="canvas-zoom-reset" type="button" class="small" aria-label="ズームをリセット">100%</button>
-          </div>
-        </div>
         <div id="editor-classic-layer" class="editor-classic-layer">
         <div id="textarea-mode-bar" class="textarea-mode-bar" style="display:none;">
           <span>ソース表示モード</span>
@@ -732,7 +717,6 @@
   <script defer src="js/modules/editor/EditorUI.js"></script>
   <script defer src="js/modules/editor/EditorSearch.js"></script>
   <script defer src="js/modules/editor/RichTextCommandAdapter.js"></script>
-  <script defer src="js/modules/editor/CanvasViewportController.js"></script>
   <script defer src="js/editor.js"></script>
   <script defer src="js/editor-wysiwyg.js"></script>
   <script defer src="js/modules/editor/RichTextEnhancedRuntime.js"></script>

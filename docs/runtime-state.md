@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-04-02 session 40
+> 最終更新: 2026-04-05 session 43
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 40
+- セッション: 43
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: BL-001〜BL-006 完了 (Wiki proof, 改行効果切断, 書式インジケータ, Focus hover, ドキュメント一括操作, Wiki ハイライトループ修正)
+- スライス: E2E修正 + BL-006サイドバー伸縮修正 + デッドコード削除 + Canvas Mode完全削除
 
 ---
 
@@ -17,19 +17,19 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 42 | 40 |
+| セッション番号 | 43 | 42 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 55 | 55 |
 | spec done | 44 | 44 |
 | spec partial | 0 | 0 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
-| JS impl ファイル | 107 | 107 |
+| JS impl ファイル | 104 | 107 |
 | CSS ファイル | 4 | 4 |
 | E2E spec ファイル | 62 | 62 |
-| E2E passed | 508 | 528 |
+| E2E passed | 528 | 508 |
 | E2E failed | 0 | 0 |
-| E2E skipped | 5 | 5 |
+| E2E skipped | 3 | 5 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
@@ -316,31 +316,30 @@
 - 542 passed / 0 failed / 3 skipped (63 spec files)
 - visual-audit 20件が通過するようになった (+20)
 - session固有spec 2件削除 (-13 tests)
-## 2026-04-03 HANDOFF UPDATE
+## 2026-04-05 HANDOFF UPDATE
 
-- session: 42 (BL-001〜BL-006 実装 + デグレ修正)
+- session: 43
 - branch: main
 - active_artifact: WP-001 UI磨き上げ・摩擦軽減
-- current_slice: BL-001〜BL-006 完了。次スライス選定中
-- last_change_relation: direct (feature + bugfix)
+- current_slice: デッドコード削除 + Canvas Mode 完全削除 + HeadingStyles プリセット登録
+- last_change_relation: direct (excise + fix)
 - evidence:
-  - E2E: 508 passed / 0 failed / 5 skipped (1 texture-overlay 既知不安定)
-- visual_evidence_status: fresh (session 41-42)
+  - E2E: 528 passed / 0 failed / 3 skipped
+  - lint: 0 errors / 0 warnings
+- visual_evidence_status: fresh (session 43 でスクリーンショット更新)
 - manual_followup_deferred:
-  - BL-006 サイドバー伸縮の実環境確認 (headless では再現せず)
   - BL-002 改行効果切断の体感確認
   - BL-004 Focus 半透明 hover の体感確認
   - Reader button styling consistency
   - Focus left-panel spacing feel
 - implemented_this_session:
-  - BL-001: Wiki ワークフロー proof (Reader wikilink 正常動作確認)
-  - BL-002: effectBreakAtNewline (改行で書式切断、デフォルトON)
-  - BL-003: 書式インジケータ + ツールバーボタン aria-pressed 同期
-  - BL-004: Focus hover を半透明スライドイン (0.35→hover で 1.0)
-  - BL-005: ドキュメント一括選択・削除 (チェックボックス + Ctrl/Shift)
-  - BL-006: Wiki ハイライト DOM 変更による input 再発火ループ防止
-  - fix: ロードアウトプリセットの仮想グループ名を KNOWN_GROUPS に統合
-  - fix: Wiki 自動検出の保存時トリガーを完全無効化
+  - fix: E2E 6件の失敗修正 (wiki autoDetect / editor-settings Wiki パネル / heading-typography enableAllGadgets)
+  - fix: BL-006 Normal モードでのサイドバーアコーディオン伸縮防止
+  - excise: showReturnToReaderBar デッドコード一式削除 (JS/CSS/E2E)
+  - excise: CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
+  - excise: 堆積物削除 (WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ)
+  - feat: HeadingStyles をロードアウトプリセット4種に追加
+  - docs: APP_SPECIFICATION.md v0.3.32 / ROADMAP.md / PROJECT_HEALTH.md 更新
 - canonical_doc_gaps:
   - `docs/FEATURE_REGISTRY.md` missing
   - `docs/AUTOMATION_BOUNDARY.md` missing

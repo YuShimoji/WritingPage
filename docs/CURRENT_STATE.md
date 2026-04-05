@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-02 (session 40)
+最終更新: 2026-04-05 (session 43)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 40 |
+| セッション | 43 |
 | 現在の主軸 | WP-001 UI/UX の磨き上げ・摩擦軽減 |
-| 直近のスライス | WYSIWYG TB最適化 + 装飾グループ/Canvas Mode削除 |
+| 直近のスライス | E2E修正 + BL-006修正 + デッドコード削除 + Canvas Mode完全削除 |
 
 ## この時点で信頼できること
 
@@ -27,24 +27,27 @@
 - E2Eテストの beforeEach では `ensureNormalMode(page)` で Normal モードを保証する
 - `page.click('#toggle-sidebar')` は使わず `openSidebar(page)` (evaluate 経由) を使用する
 
-## Session 40 の変更
+## Session 43 の変更
 
 | 項目 | 変更内容 | 影響ファイル |
 | ---- | -------- | ----------- |
-| WYSIWYG TB 最適化 | 13→11ボタン。縦書き/テキストエディタ切替をオーバーフローメニューに移動 | `index.html`, `js/editor-wysiwyg.js`, `e2e/helpers.js` + 6 テストファイル |
-| 装飾グループ完全削除 | toolbar-group--decorate (2ボタン) を HTML/JS/E2E から削除 | `index.html`, `js/editor.js`, `js/modules/editor/EditorUI.js`, `js/tools-registry.js` |
-| Canvas Mode 完全削除 | toggle-canvas-mode ボタンを HTML/JS/CSS/E2E から削除 | `index.html`, `js/editor.js`, `css/style.css`, `e2e/editor-canvas-mode.spec.js` |
-| E2E テスト整理 | ボタン前提テスト 13件削除、Canvas Mode テスト skip 化 | -355行 |
+| E2E 6件修正 | wiki autoDetect / Wiki パネルセレクタ / HeadingStyles enableAllGadgets | `e2e/wiki.spec.js`, `e2e/editor-settings.spec.js`, `e2e/heading-typography.spec.js` |
+| BL-006 修正 | Normal モードでのサイドバーアコーディオン伸縮防止 | `js/sidebar-manager.js` |
+| return-bar 削除 | showReturnToReaderBar 一式 (JS/CSS/E2E) | `js/reader-preview.js`, `js/app.js`, `css/style.css`, `e2e/reader-preview.spec.js` |
+| Canvas 完全削除 | CanvasViewportController + editor.js メソッド + CSS + storage設定 + HTML DOM | `js/modules/editor/CanvasViewportController.js` (削除), `js/editor.js`, `js/storage.js`, `index.html`, `css/style.css`, `e2e/editor-canvas-mode.spec.js` (削除) |
+| HeadingStyles 登録 | 4プリセットの theme グループに追加 | `js/loadouts-presets.js`, `js/gadgets-utils.js` |
+| 堆積物削除 | WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ | -496行 |
 
 ## 検証結果
 
-実行済み (session 40):
+実行済み (session 43):
 
-- `npx playwright test --reporter=line --workers=2` → 528 passed / 0 failed / 5 skipped
+- `npx playwright test --reporter=line --workers=2` → 528 passed / 0 failed / 3 skipped
+- `npx eslint js/ --max-warnings=0` → clean
 
 未実施:
 
-- Electron 実機でのメニュー経由確認
+- BL-002 改行効果切断 / BL-004 Focus hover の体感確認 (手動確認 deferred)
 - Reader ボタンのスタイル一貫性 (手動確認 deferred)
 - Focus 左パネル間隔の体感確認 (手動確認 deferred)
 
@@ -52,9 +55,9 @@
 
 | 優先 | テーマ | 内容 | Actor |
 | ---- | ------ | ---- | ----- |
-| A | WP-001 次スライス | Focus 体感向上 / 別の UX 摩擦 | user (方向判断) |
+| A | WP-001 次スライス | ユーザー要望に基づく次の改善 | user (方向判断) |
 | B | canonical docs 補完 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` 作成 | shared |
-| B | 手動確認 deferred | Reader ボタン / Focus 左パネル間隔 | user |
+| B | 手動確認 deferred | BL-002/BL-004/Reader/Focus 体感確認 | user |
 
 ## 既知の注意点
 
