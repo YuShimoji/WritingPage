@@ -2,15 +2,17 @@
 
 ## RECENT NOTE (2026-04-06, session 44)
 
-- Focus グロー初期可視化: ベースライン opacity 0.15 (Focus進入時即表示)
-- Focus グローフラッシュ: 初回2回限定で opacity 0.4 → 2秒後にベースラインへフェード (localStorage永続)
-- フラッシュ中 mousemove 上書き防止ガード追加
-- dismissGlows を display:none → opacity:'0' に変更 (mousemove でベースライン復帰可能に)
-- エッジホバー active 中はグロー opacity:0 に抑制
-- APP_SPECIFICATION.md 数値修正 (E2E 64→62, CSS 9→4, spec 54→56)
-- docs/issues/ 空ディレクトリ削除
+- エッジグロー制御を CSS クラス方式に全面刷新:
+  - 旧: mousemove 毎に style.opacity を計算・上書き → CSS transition と干渉し不安定
+  - 新: JS は近接判定 (200px) のみ、CSS クラス (--near/--flash) + transition で滑らかに制御
+  - ベースライン常時表示 (opacity 0.15) は廃止。近接時のみ opacity 0.5
+- Focus グローフラッシュ: 初回2回限定 (localStorage永続)、CSS クラスで opacity 0.4
+- Focus ツールバー: position fixed 化 (user 変更)
+- APP_SPECIFICATION.md / ROADMAP.md 数値修正
 - BL-001〜BL-006 全解決確認、USER_REQUEST_LEDGER 解決済みに移動
+- docs/issues/ 空ディレクトリ削除
 - E2E: 531 total / 62 spec files
+- **未コミット**: グロー CSS クラス方式 + Focus ツールバー fixed 化 → 体感確認待ち
 
 ## PROJECT CONTEXT
 
@@ -92,29 +94,43 @@
 
 ## HANDOFF SNAPSHOT
 
-- 現在の主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
-- 現在のスライス: Focus グロー初期可視化 + フラッシュヒント + docs数値同期 完了
+- 現在の主レーン: Advance (WP-001 UI磨き上げ + WP-004 Reader-First WYSIWYG)
+- 現在のスライス: Wiki-Editor-Reader ワークフロー統合 + エッジグロー + WP-004 Phase 1
 - 今回 (session 44) の変更:
-  - Focus グロー初期可視化 (ベースライン opacity 0.15)
-  - Focus グローフラッシュ (初回2回限定、localStorage永続)
-  - フラッシュ中 mousemove 干渉防止
-  - APP_SPECIFICATION.md / ROADMAP.md 数値修正
-  - docs/issues/ 空ディレクトリ削除
-  - BL-001〜BL-006 全解決確認、USER_REQUEST_LEDGER 更新
+  - [コミット済み] Focus グローフラッシュ (初回2回限定、localStorage永続)
+  - [コミット済み] フラッシュ中 mousemove 干渉防止
+  - [コミット済み] Wiki Slice 1: swiki-open-entry title→entryId 変換バグ修正
+  - [コミット済み] Wiki Slice 2: Reader wikilink ポップオーバー
+  - [コミット済み] Wiki Slice 3: `[[` 入力時 Wiki エントリ補完ドロップダウン
+  - [コミット済み] WP-004 Phase 1: WYSIWYG エフェクト即時適用 (別会話)
+  - [コミット済み] BL-001〜BL-006 全解決確認、USER_REQUEST_LEDGER 更新
+  - [コミット済み] APP_SPECIFICATION.md / ROADMAP.md 数値修正
+  - [未コミット] グロー制御を CSS クラス方式に刷新 (style.opacity 毎フレーム書換を全廃)
+  - [未コミット] Focus ツールバー fixed 化 (user 変更)
+  - [未コミット] Visual Audit スクリーンショット更新
+- 設計経緯 (グロー刷新):
+  - 当初: ベースライン opacity 0.15 + mousemove で連続的 opacity 計算
+  - 問題: (1) ダークテーマ上で視認困難 (2) CSS transition 0.3s と毎フレーム style 上書きが干渉し不安定 (3) 上部/左部の検知範囲が非対称 (120px/80px) で挙動が不統一 (4) dismissGlows→hideEdge後にグロー残留
+  - 最終形: CSS クラス切替 (--near/--flash) に一本化。JS は近接判定のみ。検知範囲 200px 統一
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
   - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
   - setUIMode が全モード切替の単一入口。直接 setAttribute は禁止
   - hidden ui-mode-select は完全削除済み。コマンドパレットは mode-switch-btn.click() 経由
   - サイドバー開閉は toggleSidebar() → s.sidebarOpen に永続化。setUIMode Normal復帰時に復元
-  - エッジグローはFocusモードのみ。進入時にベースライン0.15で即表示。初回2回フラッシュ(localStorage永続)
+  - エッジグローはFocusモードのみ。CSS クラス方式: --near (近接 0.5) / --flash (フラッシュ 0.4)。JS は style.opacity を直接操作しない
+  - swiki-open-entry イベントは entryId と title の両方を受付 (title→entryId 自動変換)
+  - Reader モードの wikilink クリックはポップオーバー表示 (サイドバーは開かない)
+  - `[[` 入力補完は Normal モードのみ (Focus ではテキスト排除原則に準拠し非表示)
+  - WYSIWYG でアニメーション/テクスチャが即時適用 (WP-004 Phase 1)
   - フローティングツールバーはreaderモードでも非表示
   - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由
 - 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
-  - ユーザー要望に基づく次スライス選定
+  - 体感確認 8件消化 (グロー/Wiki/WP-004/BL-002/BL-004/Reader/Focus)
+  - 未コミット変更の確認 → OK ならコミット
+  - WP-004 Phase 2 方向判断 (デフォルトモード切替 or Reader 統合)
   - [Docs] canonical docs 補完 (FEATURE_REGISTRY / AUTOMATION_BOUNDARY)
-  - deferred 手動確認 5件の消化 (BL-002/BL-004 体感, Reader/Focus 体感, グローフラッシュ体感)
 
 ## DECISION LOG ADDENDUM (2026-04-02)
 

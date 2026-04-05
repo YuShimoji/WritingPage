@@ -320,25 +320,43 @@
 
 - session: 44
 - branch: main
-- active_artifact: WP-001 UI磨き上げ・摩擦軽減
-- current_slice: エッジグローフラッシュ (Focus 進入時ヒント) + BL全解決確認 + docs同期
-- last_change_relation: direct (feat + docs)
+- active_artifact: WP-001 UI磨き上げ + WP-004 Reader-First WYSIWYG
+- current_slice: Wiki-Editor-Reader ワークフロー統合 + エッジグロー CSS クラス方式刷新 + WP-004 Phase 1
+- last_change_relation: direct (feat + fix + docs)
 - evidence:
-  - E2E: 531 total / 511 passed / 5 flaky timeout / 3 skipped (変更起因の失敗なし)
+  - E2E: 531 total / 62 spec files
   - lint: 0 errors / 0 warnings
 - visual_evidence_status: fresh (session 43 baseline)
+- uncommitted_changes:
+  - js/edge-hover.js: グロー制御を CSS クラス方式に刷新 (style.opacity 毎フレーム書換を全廃)
+  - css/style.css: edge-glow--near (0.5) / edge-glow--flash (0.4) 追加 + Focus ツールバー fixed 化
+  - docs/ROADMAP.md: 数値更新
+  - → 体感確認後にコミット予定
+- design_history:
+  - v1: ベースライン 0.15 + mousemove 連続 opacity → CSS transition と干渉、不安定
+  - v2: 検知範囲拡大 (300px/200px) + クールダウン → 複雑化、上部グロー残留
+  - v3 (現在): CSS クラス切替のみ。JS は近接判定 (200px 統一)、opacity は CSS に委任
 - manual_followup_deferred:
+  - グロー CSS クラス方式の体感確認 (近接 200px / opacity 0.5)
+  - フラッシュ (2回限定) の視認性確認
   - BL-002 改行効果切断の体感確認
   - BL-004 Focus 半透明 hover の体感確認
   - Reader ボタンスタイル一貫性
   - Focus 左パネル間隔の体感確認
-  - エッジグローフラッシュの体感確認 (2回限定表示の動作検証)
+  - Wiki ワークフロー統合: `[[` 補完、Reader ポップオーバー、editor-preview click-through
+  - WP-004 Phase 1: WYSIWYG エフェクト即時適用
 - implemented_this_session:
-  - feat: Focus モード進入時エッジグローフラッシュ (2回限定ヒント、localStorage カウント追跡)
-  - fix: グローフラッシュ中のマウス追従 opacity 干渉防止
-  - feat: グローベースライン opacity (0.15) 導入 + エッジホバー時グロー抑制
-  - docs: USER_REQUEST_LEDGER — BL-001〜BL-006 全解決確認・解決済みに移動
-  - docs: runtime-state / project-context 同期
+  - feat: エッジグロー CSS クラス方式 (--near/--flash) に刷新
+  - feat: Focus グローフラッシュ (2回限定、localStorage)
+  - fix: フラッシュ中 mousemove 干渉防止
+  - fix: Focus ツールバー fixed 化 (user)
+  - docs: USER_REQUEST_LEDGER BL-001〜BL-006 解決済み
+  - docs: APP_SPECIFICATION / ROADMAP 数値修正
+  - fix: swiki-open-entry が detail.title も受付 (editor-preview → Wiki バグ修正)
+  - feat: Reader wikilink クリック → ポップオーバー (タイトル+本文120字)
+  - feat: `[[` 入力時 Wiki エントリ補完ドロップダウン (Focus では非表示)
+  - feat: WP-004 Phase 1 — WYSIWYG エフェクト即時適用 (別会話)
+  - docs: runtime-state / project-context / CURRENT_STATE 同期
 - canonical_doc_gaps:
   - `docs/FEATURE_REGISTRY.md` missing (低優先)
   - `docs/AUTOMATION_BOUNDARY.md` missing (低優先)

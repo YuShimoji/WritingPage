@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-05 (session 43)
+最終更新: 2026-04-06 (session 44)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 43 |
-| 現在の主軸 | WP-001 UI/UX の磨き上げ・摩擦軽減 |
-| 直近のスライス | E2E修正 + BL-006修正 + デッドコード削除 + Canvas Mode完全削除 |
+| セッション | 44 |
+| 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
+| 直近のスライス | Wiki-Editor-Reader ワークフロー統合 + グローフラッシュ + WP-004 Phase 1 |
 
 ## この時点で信頼できること
 
@@ -26,38 +26,65 @@
 - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由 (session 40)
 - E2Eテストの beforeEach では `ensureNormalMode(page)` で Normal モードを保証する
 - `page.click('#toggle-sidebar')` は使わず `openSidebar(page)` (evaluate 経由) を使用する
+- Wiki ワークフロー: editor-preview wikilink クリック → Wiki ガジェット表示が正常動作 (session 44 バグ修正)
+- Reader wikilink クリック → ポップオーバー (タイトル + 本文120字) 表示 (session 44 新規)
+- `[[` 入力時に Wiki エントリ補完ドロップダウン表示、Focus モードでは非表示 (session 44 新規)
+- WYSIWYG でアニメーション/テクスチャエフェクトが即時適用される (WP-004 Phase 1)
 
-## Session 43 の変更
+## Session 44 の変更
+
+### コミット済み
 
 | 項目 | 変更内容 | 影響ファイル |
 | ---- | -------- | ----------- |
-| E2E 6件修正 | wiki autoDetect / Wiki パネルセレクタ / HeadingStyles enableAllGadgets | `e2e/wiki.spec.js`, `e2e/editor-settings.spec.js`, `e2e/heading-typography.spec.js` |
-| BL-006 修正 | Normal モードでのサイドバーアコーディオン伸縮防止 | `js/sidebar-manager.js` |
-| return-bar 削除 | showReturnToReaderBar 一式 (JS/CSS/E2E) | `js/reader-preview.js`, `js/app.js`, `css/style.css`, `e2e/reader-preview.spec.js` |
-| Canvas 完全削除 | CanvasViewportController + editor.js メソッド + CSS + storage設定 + HTML DOM | `js/modules/editor/CanvasViewportController.js` (削除), `js/editor.js`, `js/storage.js`, `index.html`, `css/style.css`, `e2e/editor-canvas-mode.spec.js` (削除) |
-| HeadingStyles 登録 | 4プリセットの theme グループに追加 | `js/loadouts-presets.js`, `js/gadgets-utils.js` |
-| 堆積物削除 | WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ | -496行 |
+| グローフラッシュ | Focus 進入時 2回限定ヒント (localStorage カウント) | `js/edge-hover.js`, `css/style.css` |
+| フラッシュバグ修正 | glowFlashTimer null化 + mousemove上書き抑制ガード | `js/edge-hover.js` |
+| Focus不整合根絶 | Blank仕様書更新 + モバイルresponsive + flaky E2E修正 | `docs/specs/spec-mode-architecture.md`, `css/style.css`, `e2e/ui-mode-consistency.spec.js` |
+| APP_SPEC数値修正 | E2E 64→62, CSS 9→4, spec 54→56 | `docs/APP_SPECIFICATION.md` |
+| BL全解決確認 | USER_REQUEST_LEDGER BL-001〜BL-006 を解決済みに移動 | `docs/USER_REQUEST_LEDGER.md` |
+| 堆積物削除 | docs/issues/ 空ディレクトリ削除 | — |
+| Wiki Slice 1 | swiki-open-entry が detail.title も受付、title→entryId 変換 (バグ修正) | `js/story-wiki.js` |
+| Wiki Slice 2 | Reader wikilink クリック → ポップオーバー (タイトル+本文120字) | `js/reader-preview.js`, `css/style.css` |
+| Wiki Slice 3 | `[[` 入力時 Wiki エントリ補完ドロップダウン (Focus では非表示) | `js/editor-wysiwyg.js`, `css/style.css` |
+| WP-004 Phase 1 | WYSIWYG エフェクト即時適用 (EditorUI/EditorCore/classMap/CSS) | `js/modules/editor/EditorUI.js`, `js/modules/editor/EditorCore.js`, `css/style.css` |
+
+### 未コミット (体感確認待ち)
+
+| 項目 | 変更内容 | 影響ファイル | 経緯 |
+| ---- | -------- | ----------- | ---- |
+| グロー制御 CSS クラス方式 | style.opacity 毎フレーム書換を全廃。CSSクラス (--near/--flash) + transition に一本化 | `js/edge-hover.js` | ベースライン/検知範囲/クールダウン等の反復修正が不安定な体験を生んだため、根本から刷新 |
+| グロー近接検知 | 上部・左部とも 200px に統一。2段階 (near/not) でクラス切替 | `js/edge-hover.js` | 旧: 上120px/左80px の非対称。連続的 opacity 計算が CSS transition と干渉 |
+| CSS edge-glow--near | `.edge-glow--near { opacity: 0.5 }` 追加 | `css/style.css` | 新規クラス |
+| CSS edge-glow--flash | `opacity: 0.4` を CSS 側に明示 (JS の style.opacity 直接操作を廃止) | `css/style.css` | フラッシュも CSS に統一 |
+| Focus ツールバー fixed 化 | Focus モードのツールバーを `position: fixed` に変更 | `css/style.css` | エディタ上端余白の問題修正 (user 変更) |
+| ROADMAP 数値 | E2E/spec 数値を最新化 | `docs/ROADMAP.md` | — |
 
 ## 検証結果
 
-実行済み (session 43):
+実行済み (session 44):
 
-- `npx playwright test --reporter=line --workers=2` → 528 passed / 0 failed / 3 skipped
-- `npx eslint js/ --max-warnings=0` → clean
+- `npx eslint js/edge-hover.js` → clean
+- `npx playwright test` (ui-mode-consistency 12/12, visual-audit 35/35) → pass
 
-未実施:
+未実施 (体感確認が必要):
 
-- BL-002 改行効果切断 / BL-004 Focus hover の体感確認 (手動確認 deferred)
-- Reader ボタンのスタイル一貫性 (手動確認 deferred)
-- Focus 左パネル間隔の体感確認 (手動確認 deferred)
+- グロー CSS クラス方式の動作: near (200px 以内) → opacity 0.5 のフェードインは自然か
+- フラッシュ (2回限定): Focus 進入時の一時強調は視認できるか
+- BL-002 改行効果切断の体感確認
+- BL-004 Focus hover の体感確認
+- Reader ボタンのスタイル一貫性
+- Focus 左パネル間隔の体感確認
+- Wiki ワークフロー統合: `[[` 補完、Reader ポップオーバー、editor-preview click-through
+- WP-004 Phase 1: WYSIWYG でのアニメーション/テクスチャ即時適用の体感
 
 ## 現在の優先課題
 
 | 優先 | テーマ | 内容 | Actor |
 | ---- | ------ | ---- | ----- |
-| A | WP-001 次スライス | ユーザー要望に基づく次の改善 | user (方向判断) |
-| B | canonical docs 補完 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` 作成 | shared |
-| B | 手動確認 deferred | BL-002/BL-004/Reader/Focus 体感確認 | user |
+| A | グロー体感確認 | CSS クラス方式の動作確認。OK ならコミット | user |
+| A | 手動確認 deferred | BL-002/BL-004/Reader/Focus 体感確認 | user |
+| B | WP-001 次スライス | ユーザー要望に基づく次の改善方向 | user (方向判断) |
+| C | canonical docs 補完 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` 作成 | shared |
 
 ## 既知の注意点
 
