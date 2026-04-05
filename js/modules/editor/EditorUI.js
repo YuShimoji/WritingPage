@@ -166,8 +166,16 @@
         applyTextAnimation(manager, tag) {
             const rich = manager && manager.richTextEditor;
             if (rich && rich.isWysiwygMode) {
-                if (typeof manager.showNotification === 'function') {
-                    manager.showNotification('アニメーションタグはテキストモードで利用してください', 1600);
+                var classMap = {
+                    fade: 'anim-fade', slide: 'anim-slide', type: 'anim-typewriter',
+                    pulse: 'anim-pulse', shake: 'anim-shake', bounce: 'anim-bounce',
+                    fadein: 'anim-fade-in',
+                    wave: 'tex-wave', sparkle: 'tex-sparkle', cosmic: 'tex-cosmic',
+                    fire: 'tex-fire', glitch: 'tex-glitch'
+                };
+                var cls = classMap[tag];
+                if (cls && typeof rich.wrapSelectionWithSpan === 'function') {
+                    rich.wrapSelectionWithSpan(cls);
                 }
                 return;
             }

@@ -7587,8 +7587,14 @@ button[aria-pressed="true"] + .documents-more-btn,
   background: linear-gradient(to right, rgba(255,255,255,0.08) 0%, transparent 100%);
 }
 
+/* マウス近接時: ゆるやかに光る */
+.edge-glow.edge-glow--near {
+  opacity: 0.5;
+}
+
 /* グローフラッシュ: Focus 進入時の一時強調 (2回限定) */
 .edge-glow.edge-glow--flash {
+  opacity: 0.4;
   transition: opacity 0.6s ease-in !important;
 }
 

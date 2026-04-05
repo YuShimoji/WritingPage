@@ -247,7 +247,7 @@
         normalizeCustomTagEscapes(text) {
             if (!text) return text;
             return String(text).replace(
-                /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein))\\\]/gi,
+                /\\\[(\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein|wave|sparkle|cosmic|fire|glitch))\\\]/gi,
                 '[$1]'
             );
         },

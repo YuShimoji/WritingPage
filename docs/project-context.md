@@ -86,6 +86,7 @@
 | WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** (session 34~) | Experience Slice | session 43 でデッドコード削除 + Canvas完全削除。次スライス: ユーザー要望待ち |
 | WP-002 | ガジェット整理 (33→27完了、追加統合は今後検討) | **done** | UI | session 19で6ガジェット削除/無効化 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
+| WP-004 | Reader-First WYSIWYG (書く画面=読む画面) | **着手中** (session 43~) | Architecture | Phase 1: WYSIWYGエフェクト即時適用。Phase 2: デフォルトモード切替。Phase 3: Reader統合 |
 
 ---
 
