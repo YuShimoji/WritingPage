@@ -1,14 +1,16 @@
 # Project Context
 
-## RECENT NOTE (2026-04-05, session 43)
+## RECENT NOTE (2026-04-06, session 44)
 
-- E2E 6件修正 (wiki autoDetect / Wiki パネルセレクタ / HeadingStyles enableAllGadgets)
-- BL-006 サイドバーアコーディオン伸縮バグ修正 (Normal モードでの入力イベント遮断)
-- showReturnToReaderBar デッドコード完全削除 (JS/CSS/E2E)
-- CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
-- HeadingStyles をロードアウトプリセット4種に追加 (theme グループ)
-- 堆積物削除 (WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ)
-- E2E: 528 passed / 0 failed / 3 skipped
+- Focus グロー初期可視化: ベースライン opacity 0.15 (Focus進入時即表示)
+- Focus グローフラッシュ: 初回2回限定で opacity 0.4 → 2秒後にベースラインへフェード (localStorage永続)
+- フラッシュ中 mousemove 上書き防止ガード追加
+- dismissGlows を display:none → opacity:'0' に変更 (mousemove でベースライン復帰可能に)
+- エッジホバー active 中はグロー opacity:0 に抑制
+- APP_SPECIFICATION.md 数値修正 (E2E 64→62, CSS 9→4, spec 54→56)
+- docs/issues/ 空ディレクトリ削除
+- BL-001〜BL-006 全解決確認、USER_REQUEST_LEDGER 解決済みに移動
+- E2E: 531 total / 62 spec files
 
 ## PROJECT CONTEXT
 
@@ -21,8 +23,8 @@
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: 528 passed / 0 failed / 3 skipped (session 43)
-- spec-index: 55エントリ (done 44, partial 0, removed 11, superseded 1)
+- E2E: 531 total / 62 spec files (session 44)
+- spec-index: 56エントリ (done 44, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
 - EPUB: スコープ外 (2026-03-23 除外決定)
@@ -90,27 +92,28 @@
 ## HANDOFF SNAPSHOT
 
 - 現在の主レーン: Advance (WP-001 UI磨き上げ・摩擦軽減)
-- 現在のスライス: デッドコード削除 + Canvas完全削除 + HeadingStyles登録 完了
-- 今回 (session 43) の変更:
-  - E2E 6件修正 + BL-006 サイドバー伸縮バグ修正
-  - showReturnToReaderBar デッドコード完全削除 (JS/CSS/E2E)
-  - CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
-  - HeadingStyles をロードアウトプリセット4種に追加
-  - 堆積物削除 (WORKER_TASKS.md, feature-reference.html 等)
+- 現在のスライス: Focus グロー初期可視化 + フラッシュヒント + docs数値同期 完了
+- 今回 (session 44) の変更:
+  - Focus グロー初期可視化 (ベースライン opacity 0.15)
+  - Focus グローフラッシュ (初回2回限定、localStorage永続)
+  - フラッシュ中 mousemove 干渉防止
+  - APP_SPECIFICATION.md / ROADMAP.md 数値修正
+  - docs/issues/ 空ディレクトリ削除
+  - BL-001〜BL-006 全解決確認、USER_REQUEST_LEDGER 更新
 - 暗黙仕様:
   - chapterModeは全ドキュメントで自動適用 (ensureChapterMode)
   - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
   - setUIMode が全モード切替の単一入口。直接 setAttribute は禁止
   - hidden ui-mode-select は完全削除済み。コマンドパレットは mode-switch-btn.click() 経由
   - サイドバー開閉は toggleSidebar() → s.sidebarOpen に永続化。setUIMode Normal復帰時に復元
-  - エッジグローはFocusモードのみ
+  - エッジグローはFocusモードのみ。進入時にベースライン0.15で即表示。初回2回フラッシュ(localStorage永続)
   - フローティングツールバーはreaderモードでも非表示
   - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由
 - 今は触らない範囲: 新規大型機能、OAuth、Electron配布
 - 次回推奨:
   - ユーザー要望に基づく次スライス選定
   - [Docs] canonical docs 補完 (FEATURE_REGISTRY / AUTOMATION_BOUNDARY)
-  - deferred 手動確認 4件の消化
+  - deferred 手動確認 5件の消化 (BL-002/BL-004 体感, Reader/Focus 体感, グローフラッシュ体感)
 
 ## DECISION LOG ADDENDUM (2026-04-02)
 

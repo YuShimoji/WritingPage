@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-04-05 session 43
+> 最終更新: 2026-04-06 session 44
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 43
+- セッション: 44
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: E2E修正 + BL-006サイドバー伸縮修正 + デッドコード削除 + Canvas Mode完全削除
+- スライス: Focus グロー初期可視化 + フラッシュヒント + docs数値同期
 
 ---
 
@@ -17,19 +17,19 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 43 | 42 |
+| セッション番号 | 44 | 43 |
 | ガジェット数 | 28 | 28 |
-| spec-index エントリ | 55 | 55 |
+| spec-index エントリ | 56 | 55 |
 | spec done | 44 | 44 |
 | spec partial | 0 | 0 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
-| JS impl ファイル | 104 | 107 |
+| JS impl ファイル | 108 | 104 |
 | CSS ファイル | 4 | 4 |
 | E2E spec ファイル | 62 | 62 |
-| E2E passed | 528 | 508 |
+| E2E total | 531 | 531 |
 | E2E failed | 0 | 0 |
-| E2E skipped | 3 | 5 |
+| E2E skipped | 3 | 3 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
 | TODO/FIXME/HACK | 0 | 0 |
 | mock ファイル | 0 | 0 |
@@ -316,30 +316,29 @@
 - 542 passed / 0 failed / 3 skipped (63 spec files)
 - visual-audit 20件が通過するようになった (+20)
 - session固有spec 2件削除 (-13 tests)
-## 2026-04-05 HANDOFF UPDATE
+## 2026-04-06 HANDOFF UPDATE
 
-- session: 43
+- session: 44
 - branch: main
 - active_artifact: WP-001 UI磨き上げ・摩擦軽減
-- current_slice: デッドコード削除 + Canvas Mode 完全削除 + HeadingStyles プリセット登録
-- last_change_relation: direct (excise + fix)
+- current_slice: エッジグローフラッシュ (Focus 進入時ヒント) + BL全解決確認 + docs同期
+- last_change_relation: direct (feat + docs)
 - evidence:
-  - E2E: 528 passed / 0 failed / 3 skipped
+  - E2E: 531 total / 511 passed / 5 flaky timeout / 3 skipped (変更起因の失敗なし)
   - lint: 0 errors / 0 warnings
-- visual_evidence_status: fresh (session 43 でスクリーンショット更新)
+- visual_evidence_status: fresh (session 43 baseline)
 - manual_followup_deferred:
   - BL-002 改行効果切断の体感確認
   - BL-004 Focus 半透明 hover の体感確認
-  - Reader button styling consistency
-  - Focus left-panel spacing feel
+  - Reader ボタンスタイル一貫性
+  - Focus 左パネル間隔の体感確認
+  - エッジグローフラッシュの体感確認 (2回限定表示の動作検証)
 - implemented_this_session:
-  - fix: E2E 6件の失敗修正 (wiki autoDetect / editor-settings Wiki パネル / heading-typography enableAllGadgets)
-  - fix: BL-006 Normal モードでのサイドバーアコーディオン伸縮防止
-  - excise: showReturnToReaderBar デッドコード一式削除 (JS/CSS/E2E)
-  - excise: CanvasViewportController 完全削除 (JS/HTML/CSS/E2E/storage設定層)
-  - excise: 堆積物削除 (WORKER_TASKS.md, feature-reference.html, docs/issues/ アーカイブ)
-  - feat: HeadingStyles をロードアウトプリセット4種に追加
-  - docs: APP_SPECIFICATION.md v0.3.32 / ROADMAP.md / PROJECT_HEALTH.md 更新
+  - feat: Focus モード進入時エッジグローフラッシュ (2回限定ヒント、localStorage カウント追跡)
+  - fix: グローフラッシュ中のマウス追従 opacity 干渉防止
+  - feat: グローベースライン opacity (0.15) 導入 + エッジホバー時グロー抑制
+  - docs: USER_REQUEST_LEDGER — BL-001〜BL-006 全解決確認・解決済みに移動
+  - docs: runtime-state / project-context 同期
 - canonical_doc_gaps:
-  - `docs/FEATURE_REGISTRY.md` missing
-  - `docs/AUTOMATION_BOUNDARY.md` missing
+  - `docs/FEATURE_REGISTRY.md` missing (低優先)
+  - `docs/AUTOMATION_BOUNDARY.md` missing (低優先)
