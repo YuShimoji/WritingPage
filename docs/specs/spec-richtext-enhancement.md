@@ -24,6 +24,35 @@
 
 ---
 
+## WP-004 Phase 3 との関係
+
+- **WP-004 Phase 3**（`docs/INTERACTION_NOTES.md`）は **MD プレビューと読者プレビュー向けの共通 HTML 後処理**（`js/zw-postmarkdown-html-pipeline.js`, `js/zw-inline-html-postmarkdown.js` 等）の整合が対象である。
+- **本仕様（リッチテキスト・プログラム）**は **WYSIWYG 編集層**（コマンド・ブロック UI・ペースト・MD 往復）が対象である。
+- **ブロック段落の左・中・右揃え**（`spec-rich-text-paragraph-alignment.md`）は本プログラムの **P2** として扱い、WP-004 Phase 3 の単発スライスには含めない。
+
+---
+
+## 実装の正（canonical paths）
+
+| 責務 | 実ファイル | メモ |
+|------|------------|------|
+| コマンド集約・`sanitizeHtml`・`insertHtml`・ブロック `applyBlock` | [`js/modules/editor/RichTextCommandAdapter.js`](../../js/modules/editor/RichTextCommandAdapter.js) | 設計書 `RichTextSanitizer.js` 相当のサニタイズは **本クラス内**の `sanitizeHtml` に実装済み |
+| 既存 WYSIWYG へのフック | [`js/modules/editor/RichTextEnhancedRuntime.js`](../../js/modules/editor/RichTextEnhancedRuntime.js) | |
+| オーケストレーション・ツールバー・ペーストハンドラ | [`js/editor-wysiwyg.js`](../../js/editor-wysiwyg.js) | |
+| 旧表記 | `js/richtext-command-adapter.js` 等 | **廃止・未使用**。検索ヒットしたら本表に置き換える |
+
+---
+
+## 能力階層（優先度の目安）
+
+| 層 | 内容 |
+|----|------|
+| **P0（日常執筆）** | Markdown 正本、インライン/ブロック操作、スマートペースト、主要ブロックの MD 往復（上記受け入れ基準 1〜6） |
+| **P1（品質）** | 下記「Phase 4（表）」の未着手（Undo 粒度、短文時カーソル位置など） |
+| **P2（レイアウト）** | 段落ブロックの `text-align`（左・中央・右）。Reader/エクスポートまでのパイプライン通過は `spec-rich-text-paragraph-alignment.md` に従い、**永続化方針を仕様で固定してから** 実装スライスを切る |
+
+---
+
 ## 非スコープ
 
 - 完全な HTML ドキュメントエディタ化
@@ -134,7 +163,7 @@
 ### Phase 1: コマンドAdapter導入（完了）
 
 **実装日**: 2026-03-11以前
-**主要ファイル**: `js/richtext-command-adapter.js`, `js/richtext-enhanced-runtime.js`
+**主要ファイル**: `js/modules/editor/RichTextCommandAdapter.js`, `js/modules/editor/RichTextEnhancedRuntime.js`（旧草案パス `js/richtext-command-adapter.js` は未使用）
 
 #### 完了内容
 
@@ -152,7 +181,7 @@
 ### Phase 2: ブロック編集UI（完了）
 
 **実装日**: 2026-03-11
-**主要ファイル**: `js/richtext-command-adapter.js`, `js/editor-wysiwyg.js`
+**主要ファイル**: `js/modules/editor/RichTextCommandAdapter.js`, `js/editor-wysiwyg.js`
 
 #### 完了内容
 
@@ -172,7 +201,7 @@
 ### Phase 3: スマートペースト（完了）
 
 **実装日**: 2026-03-11
-**主要ファイル**: `js/richtext-command-adapter.js`, `js/editor-wysiwyg.js`
+**主要ファイル**: `js/modules/editor/RichTextCommandAdapter.js`, `js/editor-wysiwyg.js`
 
 #### 完了内容
 
@@ -194,7 +223,9 @@
   - スマートペースト動作テスト
   - プレーンテキストペースト動作テスト
 
-### Phase 4: 入力体験改善（2026-03-14 完了）
+### ツールバー・入力 UX 改善（2026-03-14 完了）
+
+（下記「段階導入」表の **Phase 4（Undo 等）** とは別。表の Phase 4 は未着手のまま。）
 
 #### 実装済み
 

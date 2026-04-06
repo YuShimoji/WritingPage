@@ -76,6 +76,22 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r.readerHasHashHref).toBe(true);
   });
 
+  test('ZWPostMarkdownHtmlPipeline: preview と reader で |漢字《かな》ルビが同一 HTML（章リンクなし）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWPostMarkdownHtmlPipeline) return null;
+      var html = '<p>|試し《ためし》</p>';
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'reader', settings: {} });
+      return {
+        bothRuby: prev.indexOf('<ruby>') !== -1 && read.indexOf('<ruby>') !== -1,
+        identical: prev === read
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.bothRuby).toBe(true);
+    expect(r.identical).toBe(true);
+  });
+
   test('ZWPostMarkdownHtmlPipeline: preview と reader で wikilink / 傍点が同一経路', async ({ page }) => {
     const r = await page.evaluate(() => {
       if (!window.ZWPostMarkdownHtmlPipeline) return null;

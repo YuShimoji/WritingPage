@@ -5,6 +5,11 @@
     return typeof document !== 'undefined' && !!document.createElement;
   }
 
+  /**
+   * markdown-it 後 HTML 内の :::zw-* DSL を投影する。
+   * @param {string} html
+   * @param {{ settings?: object, target?: 'preview'|'reader'|'wysiwyg' }} [options] target はパイプライン（preview/reader）または WYSIWYG 初期化（wysiwyg）から渡す。EffectRenderer / PresetResolver の面別挙動用。
+   */
   function projectRenderedHtml(html, options) {
     if (!(root.TextboxDslParser && typeof root.TextboxDslParser.parseSegments === 'function')) {
       return html;

@@ -1,5 +1,7 @@
 # リッチテキスト強化 開発設計
 
+> **ステータス（2026-04）**: コマンド Adapter・スマートペースト等の実体は [`docs/specs/spec-richtext-enhancement.md`](../specs/spec-richtext-enhancement.md) 記載のとおり主に [`js/modules/editor/RichTextCommandAdapter.js`](../../js/modules/editor/RichTextCommandAdapter.js) / [`RichTextEnhancedRuntime.js`](../../js/modules/editor/RichTextEnhancedRuntime.js) に集約済み。本ファイルの「新規モジュール名」は当初の分割案であり、**以降の正本・変更判断は `spec-richtext-enhancement.md` を優先**する。
+
 ## 対象
 
 - 仕様: `docs/specs/spec-richtext-enhancement.md`

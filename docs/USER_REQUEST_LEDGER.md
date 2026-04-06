@@ -27,8 +27,9 @@
 | WP-004 | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション） |
 | WP-001 | ~~コマンドパレットからのモード切替後のフォーカス遷移~~ | session 46 で実装・E2E 済み |
 | WP-001 | ~~狭幅時ツールバー折り返し後の余白~~ | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
-| WP-004 | Phase 3 継続（preview / 読者プレビューのレンダリング近接） | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分は **1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
+| WP-004 | Phase 3 継続（preview / 読者プレビューのレンダリング近接） | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分は **1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視。session 50: `|漢字《かな》` ルビの preview/reader 同一 HTML を E2E 固定 |
 | WP-001 | 摩擦削減の次トピック | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
+| リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理 | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（canonical paths・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
 
 ### deferred 手動確認 (user actor)
 

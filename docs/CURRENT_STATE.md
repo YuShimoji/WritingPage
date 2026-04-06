@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 49)
+最終更新: 2026-04-06 (session 50)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 49 |
+| セッション | 50 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | 推奨開発プランを `USER_REQUEST_LEDGER` / `ROADMAP` に反映 + WP-001 Reader 導線ボタン見た目の統一（`style.css`） |
+| 直近のスライス | WP-004 Phase 3: `|漢字《かな》` ルビの preview/reader 同一性を E2E 固定 + リッチテキスト・プログラムと段落揃えのトラック分離（仕様・INTERACTION_NOTES・台帳） |
 
 ## この時点で信頼できること
 
@@ -34,6 +34,8 @@
 - 読者プレビュー UI は `#reader-preview` に `aria-describedby="reader-mode-hint"`、FAB・保存・縦横切替に用途別 `aria-label`。モードスイッチ Reader ボタンは `aria-label` とツールバー目アイコンのラベルを用語で揃える
 - フルツールバー表示時、`#toggle-reader-preview`（目アイコン）の既定色・ホバー・アイコン寸法はモードスイッチの Reader（本アイコン）と同系に揃える（`css/style.css` の `.toolbar-group--editor #toggle-reader-preview`）
 - 開発スライスの進め方（1 トピック・完了時に `CURRENT_STATE` 更新・WP-004 Phase 3 の単発差分修正）は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「開発スライスの進め方（推奨）」を正とする
+- WP-004 Phase 3 は MD→HTML パイプラインの preview/reader 整合。ブロック段落の左・中・右揃えは **リッチテキスト・プログラム**（[`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md) P2 + [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)）で扱い、Phase 3 スライスには含めない
+- リッチテキストの実装正本は `spec-richtext-enhancement.md` の「実装の正（canonical paths）」（`js/modules/editor/RichTextCommandAdapter.js` 等）。設計書 `RICHTEXT_ENHANCEMENT.md` は分割案の歴史として参照し、変更判断は仕様を優先
 - Normal サイドバーは「セクション」「構造」カテゴリを既定で折りたたみ。初回も `app-gadgets-init.js` で両グループのガジェットをマウント
 - Reader 終了時は復帰先 UI モードを正規化し、編集面へフォーカスを戻す（WP-004 Phase 2）。wikilink/傍点/ルビは `js/zw-inline-html-postmarkdown.js`、MD プレビューと読者の装飾〜章リンク順序は `js/zw-postmarkdown-html-pipeline.js`（Reader は `convertChapterLinks` → `convertForExport`、Phase 3）
 - Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する（`css/style.css`）
@@ -105,6 +107,14 @@
 | canonical | FR-003 概要に Phase 3 運用、`AUTOMATION_BOUNDARY` にガードレール記載 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` |
 | Reader ボタン見た目 | フルツールバー目アイコンをモードスイッチ Reader と同系に | `css/style.css` |
 
+### Session 50
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 Phase 3 | `ZWPostMarkdownHtmlPipeline` で `\|漢字《かな》` ルビが preview/reader で同一 HTML になることを E2E 化 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| トラック分離 | 段落揃え・リッチテキスト・プログラムを仕様・INTERACTION_NOTES・台帳・ROADMAP に明記 | `spec-richtext-enhancement.md`, `spec-rich-text-paragraph-alignment.md`, `INTERACTION_NOTES.md`, `USER_REQUEST_LEDGER.md`, `ROADMAP.md`, `RICHTEXT_ENHANCEMENT.md` |
+| JSDoc | `TextboxRichTextBridge.projectRenderedHtml` の `options.target` を文書化 | `js/modules/editor/TextboxRichTextBridge.js` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -128,6 +138,10 @@
 実行済み (session 49):
 
 - `npx playwright test e2e/toolbar-editor-geometry.spec.js` `e2e/reader-preview.spec.js` `e2e/reader-wysiwyg-distinction.spec.js` → pass
+
+実行済み (session 50):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（6 件）
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
