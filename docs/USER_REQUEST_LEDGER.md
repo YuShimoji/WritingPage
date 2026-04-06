@@ -16,8 +16,17 @@
 
 ### 既存 Backlog
 
-- `docs/FEATURE_REGISTRY.md` 作成 (低優先: 直接 UX に影響しない canonical doc 補完)
-- `docs/AUTOMATION_BOUNDARY.md` 作成 (低優先: 同上)
+- ~~`docs/FEATURE_REGISTRY.md` 作成~~ → session 45 でテンプレート追加済み（随時行を追加）
+- ~~`docs/AUTOMATION_BOUNDARY.md` 作成~~ → session 45 でテンプレート追加済み
+
+### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
+
+| 軸 | 候補 | 備考 |
+|----|------|------|
+| WP-004 | Reader と MD プレビューの HTML パイプライン差分の監査（装飾・章リンクの見え方一致） | 既存 `reader-wysiwyg-distinction.spec.js` を拡張可能 |
+| WP-004 | WYSIWYG 既定オフ時の Reader 導線の文言・aria の統一 | 小さな a11y / UX |
+| WP-001 | コマンドパレットからのモード切替後のフォーカス遷移 | 摩擦があれば優先 |
+| WP-001 | 狭幅時ツールバー折り返し後の余白（`--toolbar-height` 同期は既存） | geometry E2E で監視中 |
 
 ### deferred 手動確認 (user actor)
 

@@ -29,7 +29,7 @@
 - IndexedDB + LocalStorageから前回の状態を復元
 - 最後に編集していた文書を自動選択
 - ガジェット配置(loadout)を復元
-- UIモード(Normal/Focus/Blank/Reader)を復元
+- UIモード(Normal/Focus/Reader)を復元（旧 Blank は Focus にフォールバック）
 
 ### 手動が必要な操作
 - 新規文書の作成とタイトル設定

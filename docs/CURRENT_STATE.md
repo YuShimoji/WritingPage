@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 44)
+最終更新: 2026-04-06 (session 45)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 44 |
+| セッション | 45 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | Wiki-Editor-Reader ワークフロー統合 + グローフラッシュ + WP-004 Phase 1 |
+| 直近のスライス | Focus レイアウト安定化（サイドバー漏れ・上端ホバー時本文余白）+ ツールバー/グロー体感確認済み + geometry E2E |
 
 ## この時点で信頼できること
 
@@ -30,6 +30,13 @@
 - Reader wikilink クリック → ポップオーバー (タイトル + 本文120字) 表示 (session 44 新規)
 - `[[` 入力時に Wiki エントリ補完ドロップダウン表示、Focus モードでは非表示 (session 44 新規)
 - WYSIWYG でアニメーション/テクスチャエフェクトが即時適用される (WP-004 Phase 1)
+- 編集面（Markdown / リッチ編集）と UI モード（通常・フォーカス・読者プレビュー）の説明・用語の正本は `docs/INTERACTION_NOTES.md`（状態モデル節）
+- Normal サイドバーは「セクション」「構造」カテゴリを既定で折りたたみ。初回も `app-gadgets-init.js` で両グループのガジェットをマウント
+- Reader 終了時は復帰先 UI モードを正規化し、編集面へフォーカスを戻す（WP-004 Phase 2）。wikilink/傍点/ルビは `js/zw-inline-html-postmarkdown.js`、MD プレビューと読者の装飾〜章リンク順序は `js/zw-postmarkdown-html-pipeline.js`（Reader は `convertChapterLinks` → `convertForExport`、Phase 3）
+- Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する（`css/style.css`）
+- Focus かつ `data-edge-hover-top='true'` の間、`--toolbar-height`（`syncToolbarHeightWithCSSVar` 実測）分だけ `.editor-container` に `padding-top` を付与し、上端スライドインしたツールバーと本文が重ならないようにする
+- ツールバー実高とレイアウトの関係は `e2e/toolbar-editor-geometry.spec.js` で検証（Normal 狭幅・Focus+上端ホバー）
+- 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は未着手）
 
 ## Session 44 の変更
 
@@ -48,16 +55,15 @@
 | Wiki Slice 3 | `[[` 入力時 Wiki エントリ補完ドロップダウン (Focus では非表示) | `js/editor-wysiwyg.js`, `css/style.css` |
 | WP-004 Phase 1 | WYSIWYG エフェクト即時適用 (EditorUI/EditorCore/classMap/CSS) | `js/modules/editor/EditorUI.js`, `js/modules/editor/EditorCore.js`, `css/style.css` |
 
-### 未コミット (体感確認待ち)
+### Session 45（ユーザー確認済み・コミット対象に含める）
 
-| 項目 | 変更内容 | 影響ファイル | 経緯 |
-| ---- | -------- | ----------- | ---- |
-| グロー制御 CSS クラス方式 | style.opacity 毎フレーム書換を全廃。CSSクラス (--near/--flash) + transition に一本化 | `js/edge-hover.js` | ベースライン/検知範囲/クールダウン等の反復修正が不安定な体験を生んだため、根本から刷新 |
-| グロー近接検知 | 上部・左部とも 200px に統一。2段階 (near/not) でクラス切替 | `js/edge-hover.js` | 旧: 上120px/左80px の非対称。連続的 opacity 計算が CSS transition と干渉 |
-| CSS edge-glow--near | `.edge-glow--near { opacity: 0.5 }` 追加 | `css/style.css` | 新規クラス |
-| CSS edge-glow--flash | `opacity: 0.4` を CSS 側に明示 (JS の style.opacity 直接操作を廃止) | `css/style.css` | フラッシュも CSS に統一 |
-| Focus ツールバー fixed 化 | Focus モードのツールバーを `position: fixed` に変更 | `css/style.css` | エディタ上端余白の問題修正 (user 変更) |
-| ROADMAP 数値 | E2E/spec 数値を最新化 | `docs/ROADMAP.md` | — |
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| グロー安定化 | CSS クラス方式 (--near/--flash)、近接 200px 統一（session 44 由来の未コミットを含む） | `js/edge-hover.js`, `css/style.css` |
+| Focus ツールバー | `position: fixed` + 上端ホバー時の本文 `padding-top`（`--toolbar-height`） | `css/style.css` |
+| Focus サイドバー漏れ | 閉じたサイドバーの影・境界のビューポート内漏れ抑制 | `css/style.css` |
+| geometry E2E | Normal / 狭幅 / Focus+上端ホバーの gap 検証 | `e2e/toolbar-editor-geometry.spec.js` |
+| 段落揃え仕様 | キャンバス配置とブロック揃えの分離（記録のみ） | `docs/specs/spec-rich-text-paragraph-alignment.md`, `docs/specs/spec-mode-architecture.md` |
 
 ## 検証結果
 
@@ -66,25 +72,23 @@
 - `npx eslint js/edge-hover.js` → clean
 - `npx playwright test` (ui-mode-consistency 12/12, visual-audit 35/35) → pass
 
-未実施 (体感確認が必要):
+実行済み (session 45 推奨コマンド):
 
-- グロー CSS クラス方式の動作: near (200px 以内) → opacity 0.5 のフェードインは自然か
-- フラッシュ (2回限定): Focus 進入時の一時強調は視認できるか
-- BL-002 改行効果切断の体感確認
-- BL-004 Focus hover の体感確認
-- Reader ボタンのスタイル一貫性
-- Focus 左パネル間隔の体感確認
-- Wiki ワークフロー統合: `[[` 補完、Reader ポップオーバー、editor-preview click-through
-- WP-004 Phase 1: WYSIWYG でのアニメーション/テクスチャ即時適用の体感
+- `npx playwright test e2e/toolbar-editor-geometry.spec.js` → pass（ローカル）
+- `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（回帰）
+
+体感確認（ユーザー OK、優先度低のまま残すもの）:
+
+- BL-002 / BL-004 / Reader ボタン / Focus 左パネル間隔（障害なければ次スライス時にまとめてよい）
+- Wiki ワークフロー統合・WP-004 Phase 1 の継続体感
 
 ## 現在の優先課題
 
 | 優先 | テーマ | 内容 | Actor |
 | ---- | ------ | ---- | ----- |
-| A | グロー体感確認 | CSS クラス方式の動作確認。OK ならコミット | user |
-| A | 手動確認 deferred | BL-002/BL-004/Reader/Focus 体感確認 | user |
-| B | WP-001 次スライス | ユーザー要望に基づく次の改善方向 | user (方向判断) |
-| C | canonical docs 補完 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` 作成 | shared |
+| A | WP-004 次スライス | Reader/WYSIWYG 境界を崩さない小改善（`docs/ROADMAP.md`「次スライス候補」参照） | shared |
+| B | WP-001 次スライス | ユーザー要望に基づく 1 トピック単位の摩擦削減 | user / shared |
+| C | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` をテンプレート作成し、随時追記 | shared |
 
 ## 既知の注意点
 
@@ -100,7 +104,7 @@
 - `docs/INVARIANTS.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/OPERATOR_WORKFLOW.md`, `docs/INTERACTION_NOTES.md`
 - `docs/runtime-state.md`, `docs/project-context.md`
 
-未作成:
+テンプレート作成済み（随時拡張）:
 
 - `docs/FEATURE_REGISTRY.md`
 - `docs/AUTOMATION_BOUNDARY.md`

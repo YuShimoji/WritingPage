@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-03-30 / v0.3.32
+> 最終更新: 2026-04-06 / v0.3.32
 
 ## ステータス語彙
 
@@ -14,7 +14,7 @@
 
 ## 現在の状態
 
-- E2E: 531 total / 62 spec files (2026-04-06 session 44)
+- E2E: `e2e/*.spec.js` 64 本（session 45）。総テスト数は `npx playwright test --list` で確認
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録
@@ -22,6 +22,15 @@
 - 残 partial: SP-005(本ドキュメント)
 - 直近 done: SP-081(エディタ体験再構築, session 33), SP-080(JSONプロジェクト保存, session 27)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
+- session 45: Focus ツールバー/グロー安定化、`e2e/toolbar-editor-geometry.spec.js`、canonical テンプレ（`FEATURE_REGISTRY` / `AUTOMATION_BOUNDARY`）
+
+### 次スライス候補 (WP-004 / WP-001)
+
+詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
+
+- **WP-004**: Reader と MD プレビューのパイプライン差分監査、または WYSIWYG オフ時の Reader 導線の a11y 統一
+- **WP-001**: コマンドパレット経由のモード切替後フォーカス、または狭幅ツールバー周りの体感改善（geometry E2E で回帰監視）
+- **中期（別起票）**: ブロック段落の左・中・右揃え — [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)
 
 ---
 
@@ -201,6 +210,22 @@ Session 19 (2026-03-23) で33→28に整理完了。削除: Clock/Samples/NodeGr
 - SP-071 Phase 2 (章ごと独立保存) -- done (documents ストア + IDB フラッシュ)
 - SP-080 JSONプロジェクト保存 -- done (session 27。exportProjectJSON/importProjectJSON + Electronメニュー統合)
 - クラウド同期基盤 -- todo (将来。IDB基盤は整備済み、具体的な同期先は未定)
+
+---
+
+## WP-004／WP-001 UI ロードマップ（実装順の目安）
+
+WP-004（Reader-First WYSIWYG）と Normal サイドバー簡素化は並行可能だが、**用語・状態モデル**は先に一本化する（`docs/INTERACTION_NOTES.md` の「Zen Writer UI 状態モデル」節）。
+
+| 順序 | トラック | 内容 | 状態 |
+|------|----------|------|------|
+| 0 | 共通 | 編集面 × UI モードの用語表・ラベル・コマンドパレット文言 | done |
+| 1 | WP-001 | Normal サイドバー段階的開示（セクション/構造の既定折りたたみ、編集カテゴリ内ヒント） | done |
+| 2 | WP-004 | Phase 2: 既定編集面・モード復帰ポリシー（`INTERACTION_NOTES` 明文化 + Reader 復帰正規化 + 復帰後フォーカス） | done |
+| 3 | WP-004 | Phase 3: Reader と編集のレンダリング経路の近接化（`ZWPostMarkdownHtmlPipeline`・章リンク正規化修正・typography 等は継続） | partial |
+| 4 | WP-001 | カテゴリ統合・ガジェット既定の再整理（中長期） | todo |
+
+回帰: `e2e/reader-wysiwyg-distinction.spec.js`（Reader 時にメイン編集を隠す／WYSIWYG 切替で `data-ui-mode` は通常のまま）。
 
 ---
 

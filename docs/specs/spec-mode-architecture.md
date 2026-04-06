@@ -57,7 +57,7 @@ Zen Writer のアプリケーション全体を **Normal / Focus / Reader** の3
 | ヘッダーツールバー | 非表示。上端エッジホバーで半透明 (opacity 0.35) → 直上ホバーで完全表示 |
 | フローティング装飾バー | 表示（テキスト選択時のみ） |
 | エッジグロー | 有効（上端・左端にマウス接近で発光） |
-| エディタ | 中央配置 (margin: 0 auto + max-width) |
+| エディタ | 中央配置 (margin: 0 auto + max-width) — **キャンバス／列の配置**。段落の左・中・右揃え（ワープロ的 `text-align`）とは別。将来仕様は `docs/specs/spec-rich-text-paragraph-alignment.md` |
 
 用途: 執筆作業。章間の移動。テキスト装飾は選択時のフローティングバーで行う。
 
