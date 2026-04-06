@@ -1,10 +1,10 @@
 # Project Context
 
-## RECENT NOTE (2026-04-06, session 51)
+## RECENT NOTE (2026-04-06, session 52)
 
-- 次着手準備: `USER_REQUEST_LEDGER` に WP-001 deferred（BL-002 / BL-004 / Focus 左パネル間隔）の簡易再現手順を追加。`ROADMAP` の次スライス候補まわりの `aria-*` 表記を整理
-- 直前までの実装資産（要約）: Focus ツールバー fixed + `--toolbar-height` 同期、エッジグロー CSS クラス方式、geometry / reader-wysiwyg-distinction / command-palette / reader-preview の E2E、WP-004 Phase 3 のルビ共通化 E2E、段落揃えはリッチテキスト P2 トラックに分離
-- 正本: `docs/CURRENT_STATE.md`（session 45〜51 の表）、用語・状態モデルは `docs/INTERACTION_NOTES.md`
+- 開発プランの実装: `WP004_PHASE3_PARITY_AUDIT.md`（preview/Reader 監査）、`spec-textbox-render-targets.md`（`target` は現状未分岐）、`USER_REQUEST_LEDGER` に deferred コード確認メモとスライス完了チェックリスト、段落揃え P2 の推奨スライス順（`spec-rich-text-paragraph-alignment`）と richtext へのポインタ
+- E2E: `reader-wysiwyg-distinction` に最小 `:::zw-textbox` の preview=reader 同一 HTML を追加（8 本）
+- 正本: `docs/CURRENT_STATE.md` session 52、用語・WP-004 は `docs/INTERACTION_NOTES.md`
 - E2E spec ファイル数: 64（`e2e/*.spec.js` 集計）
 
 ## PROJECT CONTEXT
@@ -13,12 +13,12 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.32)
-- 直近の状態: session 51 — 次着手候補のドキュメント整備（実装は session 45〜50 まで蓄積）
+- 直近の状態: session 52 — WP-004 監査台帳・運用チェックリスト・P2 スライス順の文書化 + E2E 1 本
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: spec ファイル 64 本（`e2e/*.spec.js` 集計、session 51）
+- E2E: spec ファイル 64 本（`e2e/*.spec.js` 集計、session 52）
 - spec-index: 56エントリ (done 44, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録

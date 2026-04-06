@@ -54,6 +54,7 @@
 | **P1（品質）**    | 下記「Phase 4（表）」の未着手（Undo 粒度、短文時カーソル位置など）                                                                                          |
 | **P2（レイアウト）** | 段落ブロックの `text-align`（左・中央・右）。Reader/エクスポートまでのパイプライン通過は `spec-rich-text-paragraph-alignment.md` に従い、**永続化方針を仕様で固定してから** 実装スライスを切る |
 
+**P2 の着手順**: [`spec-rich-text-paragraph-alignment.md`](spec-rich-text-paragraph-alignment.md) の「推奨実装スライス順」に従う（永続化モデル → WYSIWYG コマンド → プレビュー/Reader → E2E）。
 
 ---
 

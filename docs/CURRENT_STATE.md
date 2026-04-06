@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 51)
+最終更新: 2026-04-06 (session 52)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 51 |
+| セッション | 52 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | 次着手候補設計: WP-001 deferred の簡易再現手順を台帳へ短文化 + ROADMAP の `aria-*` 表記整備 |
+| 直近のスライス | 開発プラン設計の実装: WP-004 監査台帳・テキストボックス `target` 仕様・P2 スライス順・台帳チェックリスト + E2E 1 本 |
 
 
 ## この時点で信頼できること
@@ -47,6 +47,8 @@
 - 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は未着手）
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
 - コマンドパレット: Normal/Focus 切替後は rAF 二重で執筆面へフォーカス復帰。Reader 切替後は `#reader-back-fab` へフォーカス（隠し textarea へ奪わない）
+- WP-004 Phase 3 の差分列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。`TextboxRichTextBridge` の `target` 現状は [`docs/specs/spec-textbox-render-targets.md`](specs/spec-textbox-render-targets.md)
+- スライス完了時の更新手順は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「スライス完了時チェックリスト」
 
 ## Session 44 の変更
 
@@ -137,6 +139,15 @@
 | 次候補準備（WP-001） | deferred 項目（BL-002 / BL-004 / Focus 左パネル間隔）の簡易再現手順を台帳に追加し、次トピック選定を容易化 | `docs/USER_REQUEST_LEDGER.md` |
 | ROADMAP 整備 | 次スライス候補の `aria-*` 表記崩れを修正 | `docs/ROADMAP.md` |
 
+### Session 52
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 監査台帳 | preview/Reader 整合の手動シナリオ・自動カバー表を追加 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| テキストボックス target | `resolveTextbox` が `options.target` を未参照であることを仕様化 | `docs/specs/spec-textbox-render-targets.md` |
+| E2E | 最小 `:::zw-textbox` DSL が ZWMdItBody+パイプラインで preview=reader | `e2e/reader-wysiwyg-distinction.spec.js` |
+| 今後のプラン実装 | 台帳に deferred コード確認メモ・スライス完了チェックリスト。段落揃え P2 に推奨スライス順。richtext 仕様に着手順のポインタ | `USER_REQUEST_LEDGER.md`, `spec-rich-text-paragraph-alignment.md`, `spec-richtext-enhancement.md`, `INTERACTION_NOTES.md`, `AUTOMATION_BOUNDARY.md`, `FEATURE_REGISTRY.md` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -165,6 +176,10 @@
 
 - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（6 件）
 
+実行済み (session 52):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（8 件）
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - BL-002 / BL-004 / Focus 左パネル間隔（障害なければ次スライス時にまとめてよい）。Reader フルツールバー目アイコンは session 49 でモードスイッチと同系に済み
@@ -177,7 +192,7 @@
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
 | A   | WP-004 次スライス   | Reader/WYSIWYG 境界を崩さない小改善（`docs/ROADMAP.md`「次スライス候補」参照）          | shared        |
 | B   | WP-001 次スライス   | ユーザー要望に基づく 1 トピック単位の摩擦削減                                         | user / shared |
-| C   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` をテンプレート作成し、随時追記 | shared        |
+| C   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 
 
 ## 既知の注意点
@@ -198,6 +213,8 @@
 
 - `docs/FEATURE_REGISTRY.md`
 - `docs/AUTOMATION_BOUNDARY.md`
+- `docs/WP004_PHASE3_PARITY_AUDIT.md`（WP-004 監査）
+- `docs/specs/spec-textbox-render-targets.md`（テキストボックス `target`）
 
 ## 再開時の最短ルート
 

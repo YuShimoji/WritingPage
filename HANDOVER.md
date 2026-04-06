@@ -60,7 +60,7 @@ E2E 全件: `npx playwright test`。回帰の軽い切り出しは `docs/CURRENT
 - **WYSIWYG**: `editor-wysiwyg.js`
 - **UI モード**: `normal` / `focus` / `reader`。`setUIMode` が単一入口。`blank` は互換のため `focus` にフォールバック
 - **章・ストレージ**: ChapterStore、IndexedDB（SP-077）、JSON プロジェクト保存（SP-080）
-- **Reader / プレビュー HTML**: `js/zw-inline-html-postmarkdown.js`、`js/zw-postmarkdown-html-pipeline.js`（WP-004 Phase 3 の正本は仕様・台帳参照）
+- **Reader / プレビュー HTML**: `js/zw-inline-html-postmarkdown.js`、`js/zw-postmarkdown-html-pipeline.js`、`js/zw-markdown-it-body.js`、監査は `docs/WP004_PHASE3_PARITY_AUDIT.md`
 - **Electron**: `electron/` + `vendor/` ローカルバンドル
 
 ### 直近の重要判断

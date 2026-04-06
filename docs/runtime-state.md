@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-04-06 session 51（詳細は `docs/CURRENT_STATE.md`）
+> 最終更新: 2026-04-06 session 52（詳細は `docs/CURRENT_STATE.md`）
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 51
+- セッション: 52
 - 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減 + WP-004 Reader-First WYSIWYG)
-- スライス: 次着手候補整理（台帳 deferred 再現手順・ROADMAP 整備）。実装資産は session 45〜50 を参照
+- スライス: WP-004 監査台帳・運用チェックリスト・P2 スライス順文書化（session 52）
 
 ---
 
@@ -17,7 +17,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 51 | 44 |
+| セッション番号 | 52 | 51 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |

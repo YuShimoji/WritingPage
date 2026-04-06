@@ -116,6 +116,25 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r.countRead).toBe(1);
   });
 
+  test('ZWMdItBody + パイプライン: 最小 zw-textbox DSL が preview / reader で同一 HTML', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
+      var md = ':::zw-textbox\nParityProbe\n:::\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      return {
+        hasTextbox: prev.indexOf('zw-textbox') !== -1 && read.indexOf('zw-textbox') !== -1,
+        identical: prev === read,
+        probeInBoth: prev.indexOf('ParityProbe') !== -1 && read.indexOf('ParityProbe') !== -1
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.hasTextbox).toBe(true);
+    expect(r.probeInBoth).toBe(true);
+    expect(r.identical).toBe(true);
+  });
+
   test('ZWPostMarkdownHtmlPipeline: preview と reader で wikilink / 傍点が同一経路', async ({ page }) => {
     const r = await page.evaluate(() => {
       if (!window.ZWPostMarkdownHtmlPipeline) return null;

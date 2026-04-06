@@ -32,6 +32,8 @@ v0.3.32 / 2026-04-06
 
 | ドキュメント | 内容 |
 |-------------|------|
+| [USER_REQUEST_LEDGER](USER_REQUEST_LEDGER.md) | 次スライス候補・deferred・**スライス完了時チェックリスト** |
+| [WP004_PHASE3_PARITY_AUDIT](WP004_PHASE3_PARITY_AUDIT.md) | WP-004: MD プレビューと Reader の整合監査 |
 | [CODING_STANDARDS](CODING_STANDARDS.md) | コーディング規約 |
 | [TESTING](TESTING.md) | テスト方針・E2Eテストガイド |
 | [PLUGIN_GUIDE](PLUGIN_GUIDE.md) | プラグイン開発ガイド（API・manifest形式） |
