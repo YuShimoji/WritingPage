@@ -27,12 +27,14 @@
 | WP-004 | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション） |
 | WP-001 | ~~コマンドパレットからのモード切替後のフォーカス遷移~~ | session 46 で実装・E2E 済み |
 | WP-001 | ~~狭幅時ツールバー折り返し後の余白~~ | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
+| WP-004 | Phase 3 継続（preview / 読者プレビューのレンダリング近接） | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分は **1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
+| WP-001 | 摩擦削減の次トピック | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
 
 ### deferred 手動確認 (user actor)
 
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
-- Reader ボタンのスタイル一貫性
+- ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）
 - Focus 左パネル間隔の体感確認
 
 ## 解決済み (session 42-44)
@@ -51,9 +53,21 @@
 - Focus toolbar gap / left-panel overlap → session 37 で修正
 - Reader return overlay → session 37 で修正
 - E2Eテスト 42件の失敗 → session 39 で修正 (slim モード + viewport 外追従)
-- Reader ボタンスタイル / Focus 左パネル間隔 → 手動確認 deferred (ユーザー選択)
+- Reader ボタンスタイル → session 49 でフルツールバー目アイコンをモードスイッチと同系に（残りは Focus 左パネル間隔ほか deferred）
 - 装飾グループ + Canvas Mode hidden HTML 削除 → session 40 で完了 (-355行)
 - WYSIWYG TB 最適化 (13→11ボタン + overflow) → session 40 で完了
+
+## 開発スライスの進め方（推奨）
+
+- **1 スライス = 1 トピック**（並行で複数の大きな変更をしない）
+- **着手前**: 下記「次スライス候補」表と [`docs/ROADMAP.md`](ROADMAP.md) の「次スライス候補」を読み、**WP-004（パイプライン／Reader 経路）と WP-001（摩擦削減）のどちらか一方**に絞る
+- **完了時**: [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の Snapshot・「この時点で信頼できること」・検証コマンドを更新する
+- **WP-004 Phase 3**: プレビューと読者プレビューの差分は **1 件ずつ** 潰す。ガードは [`e2e/reader-wysiwyg-distinction.spec.js`](../e2e/reader-wysiwyg-distinction.spec.js)
+- **正本**: UI 状態は [`docs/INTERACTION_NOTES.md`](INTERACTION_NOTES.md)。Reader は「読者プレビュー UI」と支援技術向け機能を混同しない
+
+### 次スライス候補に行を追加するタイミング
+
+WP-004 / WP-001 で表が空に近いときは、ROADMAP の WP-004／WP-001 UI 表（Phase 3 partial・カテゴリ再整理 todo 等）から **1 行** だけ候補として戻す。
 
 ## 運用ルール
 

@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 48)
+最終更新: 2026-04-06 (session 49)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 48 |
+| セッション | 49 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | WP-001 狭幅ツールバー折り返し後の余白（768px 以下 CSS + `toolbar-editor-geometry` 強化） |
+| 直近のスライス | 推奨開発プランを `USER_REQUEST_LEDGER` / `ROADMAP` に反映 + WP-001 Reader 導線ボタン見た目の統一（`style.css`） |
 
 ## この時点で信頼できること
 
@@ -32,6 +32,8 @@
 - WYSIWYG でアニメーション/テクスチャエフェクトが即時適用される (WP-004 Phase 1)
 - 編集面（Markdown / リッチ編集）と UI モード（通常・フォーカス・読者プレビュー）の説明・用語の正本は `docs/INTERACTION_NOTES.md`（状態モデル節）
 - 読者プレビュー UI は `#reader-preview` に `aria-describedby="reader-mode-hint"`、FAB・保存・縦横切替に用途別 `aria-label`。モードスイッチ Reader ボタンは `aria-label` とツールバー目アイコンのラベルを用語で揃える
+- フルツールバー表示時、`#toggle-reader-preview`（目アイコン）の既定色・ホバー・アイコン寸法はモードスイッチの Reader（本アイコン）と同系に揃える（`css/style.css` の `.toolbar-group--editor #toggle-reader-preview`）
+- 開発スライスの進め方（1 トピック・完了時に `CURRENT_STATE` 更新・WP-004 Phase 3 の単発差分修正）は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「開発スライスの進め方（推奨）」を正とする
 - Normal サイドバーは「セクション」「構造」カテゴリを既定で折りたたみ。初回も `app-gadgets-init.js` で両グループのガジェットをマウント
 - Reader 終了時は復帰先 UI モードを正規化し、編集面へフォーカスを戻す（WP-004 Phase 2）。wikilink/傍点/ルビは `js/zw-inline-html-postmarkdown.js`、MD プレビューと読者の装飾〜章リンク順序は `js/zw-postmarkdown-html-pipeline.js`（Reader は `convertChapterLinks` → `convertForExport`、Phase 3）
 - Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する（`css/style.css`）
@@ -95,6 +97,14 @@
 | 狭幅ツールバー | 折り返し・余白: モバイル `.toolbar` から循環しうる `min-height` を除去、行上揃え、高さ系 transition 抑制 | `css/style.css` |
 | geometry E2E | `--toolbar-height` と実測の一致、520px コンパクト（`data-toolbar-mode` なし）ケース追加 | `e2e/toolbar-editor-geometry.spec.js` |
 
+### Session 49
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 推奨開発プラン | スライス運用・WP-004 Phase 3 の単発修正・正本参照を `USER_REQUEST_LEDGER` に明文化。`ROADMAP` に進め方へのポインタ | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md` |
+| canonical | FR-003 概要に Phase 3 運用、`AUTOMATION_BOUNDARY` にガードレール記載 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` |
+| Reader ボタン見た目 | フルツールバー目アイコンをモードスイッチ Reader と同系に | `css/style.css` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -114,6 +124,10 @@
 実行済み (session 48):
 
 - `npx playwright test e2e/toolbar-editor-geometry.spec.js` → pass（4 件）
+
+実行済み (session 49):
+
+- `npx playwright test e2e/toolbar-editor-geometry.spec.js` `e2e/reader-preview.spec.js` `e2e/reader-wysiwyg-distinction.spec.js` → pass
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

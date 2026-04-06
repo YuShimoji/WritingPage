@@ -28,6 +28,7 @@
 
 詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
 
+- **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（本セッション）。次は typography 等 Phase 3 継続や差分発見時の追記
 - **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。次はユーザー要望トリガーの 1 トピック（`USER_REQUEST_LEDGER` 参照）
 - **中期（別起票）**: ブロック段落の左・中・右揃え — [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)

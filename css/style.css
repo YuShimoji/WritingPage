@@ -7472,6 +7472,26 @@ button[aria-pressed="true"] + .documents-more-btn,
   height: 1rem;
 }
 
+/* Reader 導線（WP-001）: フルツールバーの目アイコンをモードスイッチの Reader と同系の既定色・ホバー・アイコン寸法に揃える */
+.toolbar-group--editor #toggle-reader-preview {
+  color: var(--text-secondary, #888);
+}
+
+.toolbar-group--editor #toggle-reader-preview:hover {
+  background: var(--hover-bg, rgba(128, 128, 128, 0.15));
+  color: var(--text-color);
+}
+
+.toolbar-group--editor #toggle-reader-preview:hover svg {
+  stroke-width: 2;
+  opacity: 1;
+}
+
+.toolbar-group--editor #toggle-reader-preview svg {
+  width: 1rem;
+  height: 1rem;
+}
+
 /* --- 旧ツールバーアクション (デフォルト非表示) --- */
 .toolbar-actions {
   display: none;
