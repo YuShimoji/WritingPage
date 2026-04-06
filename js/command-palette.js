@@ -557,10 +557,41 @@
       }
     }
 
+    /** 執筆面（textarea / WYSIWYG）へフォーカスを戻す */
+    _focusEditingSurface() {
+      const wysiwyg = document.getElementById('wysiwyg-editor');
+      const textarea = document.getElementById('editor');
+      if (wysiwyg && wysiwyg.style.display !== 'none') {
+        wysiwyg.focus();
+      } else if (textarea) {
+        textarea.focus();
+      }
+    }
+
+    /** Reader モード時は非表示の textarea にフォーカスを奪わせない */
+    _focusReaderReturnControl() {
+      const fab = document.getElementById('reader-back-fab');
+      if (fab && typeof fab.focus === 'function') {
+        try {
+          fab.focus({ preventScroll: true });
+        } catch (_) {
+          fab.focus();
+        }
+      }
+    }
+
     executeCommand(cmd) {
       try {
+        const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
         cmd.execute();
-        this.hide();
+        this.hide({ skipEditingSurfaceFocus: deferEditingFocus });
+        if (deferEditingFocus) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              this._focusEditingSurface();
+            });
+          });
+        }
       } catch (error) {
         console.error('コマンド実行エラー:', error);
         if (window.ZenWriterEditor && window.ZenWriterEditor.showNotification) {
@@ -588,7 +619,12 @@
       }, 50);
     }
 
-    hide() {
+    /**
+     * @param {object} [options]
+     * @param {boolean} [options.skipEditingSurfaceFocus] true のとき執筆面への即時フォーカスをスキップ（UI モード切替後に rAF で再試行するため）
+     */
+    hide(options) {
+      options = options || {};
       if (this.panel) {
         this.panel.style.display = 'none';
       }
@@ -596,13 +632,11 @@
       if (this.input) {
         this.input.value = '';
       }
-      // エディタにフォーカスを戻す (WYSIWYGモード対応)
-      const wysiwyg = document.getElementById('wysiwyg-editor');
-      const textarea = document.getElementById('editor');
-      if (wysiwyg && wysiwyg.style.display !== 'none') {
-        wysiwyg.focus();
-      } else if (textarea) {
-        textarea.focus();
+      const mode = document.documentElement.getAttribute('data-ui-mode');
+      if (mode === 'reader') {
+        this._focusReaderReturnControl();
+      } else if (!options.skipEditingSurfaceFocus) {
+        this._focusEditingSurface();
       }
     }
 

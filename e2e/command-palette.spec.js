@@ -176,4 +176,38 @@ test.describe('Command Palette E2E', () => {
     const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
     await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
   });
+
+  test('UIモード: フォーカスへ切替後、パレット閉鎖で執筆面にフォーカスが戻る', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await openCommandPalette(page);
+    await page.locator('#command-palette-input').fill('フォーカスモード');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(250);
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
+    const onEditSurface = await page.evaluate(() => {
+      var a = document.activeElement;
+      var ed = document.getElementById('editor');
+      var wys = document.getElementById('wysiwyg-editor');
+      if (!a) return false;
+      if (ed && a === ed) return true;
+      if (wys && a === wys) return true;
+      if (ed && ed.contains(a)) return true;
+      if (wys && wys.contains(a)) return true;
+      return false;
+    });
+    expect(onEditSurface).toBe(true);
+  });
+
+  test('UIモード: 読者プレビューへ切替後、フォーカスは編集に戻るボタンへ（隠し textarea へ奪われない）', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await openCommandPalette(page);
+    await page.locator('#command-palette-input').fill('読者プレビュー');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(400);
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'reader');
+    const activeId = await page.evaluate(() => document.activeElement && document.activeElement.id);
+    expect(activeId).toBe('reader-back-fab');
+  });
 });

@@ -459,8 +459,9 @@
    */
   function convertForExport(html) {
     if (!html) return html;
+    // class に chapter-link--broken 等が付く場合もマッチさせる（属性順は convertChapterLinks 出力に依存）
     return html.replace(
-      /<a[^>]*class="chapter-link"[^>]*data-chapter-target="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi,
+      /<a[^>]*class="[^"]*chapter-link[^"]*"[^>]*data-chapter-target="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi,
       function (_match, target, text) {
         var decoded = decodeURIComponent(target);
         var slug = slugify(decoded);

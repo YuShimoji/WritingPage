@@ -1,6 +1,6 @@
 # Project Context
 
-## RECENT NOTE (2026-04-06, session 45)
+## RECENT NOTE (2026-04-06, session 46)
 
 - 上部ツールバー・エッジグローの挙動をユーザー確認済み（安定）
 - エッジグロー: CSS クラス方式 (--near / --flash)、近接 200px、`js/edge-hover.js` + `css/style.css`
@@ -9,6 +9,7 @@
 - E2E: `e2e/toolbar-editor-geometry.spec.js` で Normal・狭幅・Focus+上端の幾何を検証
 - canonical: `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md` テンプレート追加
 - 段落ブロック揃え仕様: `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は別スライス）
+- session 46: `convertForExport` が `chapter-link--broken` を置換できない不具合を修正。パイプライン差分を E2E 化。コマンドパレットのモード切替後フォーカスを Reader/執筆面で分岐。FEATURE_REGISTRY に FR-001〜005 登録。
 
 ## PROJECT CONTEXT
 

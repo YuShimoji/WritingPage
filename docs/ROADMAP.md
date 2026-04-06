@@ -28,8 +28,8 @@
 
 詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
 
-- **WP-004**: Reader と MD プレビューのパイプライン差分監査、または WYSIWYG オフ時の Reader 導線の a11y 統一
-- **WP-001**: コマンドパレット経由のモード切替後フォーカス、または狭幅ツールバー周りの体感改善（geometry E2E で回帰監視）
+- **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。次は WYSIWYG オフ時の Reader 導線の a11y 統一 等
+- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。次は狭幅ツールバー周りの体感（geometry E2E で監視）
 - **中期（別起票）**: ブロック段落の左・中・右揃え — [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)
 
 ---

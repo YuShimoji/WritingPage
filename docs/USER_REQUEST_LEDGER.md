@@ -23,9 +23,9 @@
 
 | 軸 | 候補 | 備考 |
 |----|------|------|
-| WP-004 | Reader と MD プレビューの HTML パイプライン差分の監査（装飾・章リンクの見え方一致） | 既存 `reader-wysiwyg-distinction.spec.js` を拡張可能 |
+| WP-004 | ~~Reader と MD プレビューの HTML パイプライン差分の監査~~ | session 46 で E2E 拡張 + `convertForExport` 修復済み。継続は差分発見時に追記 |
 | WP-004 | WYSIWYG 既定オフ時の Reader 導線の文言・aria の統一 | 小さな a11y / UX |
-| WP-001 | コマンドパレットからのモード切替後のフォーカス遷移 | 摩擦があれば優先 |
+| WP-001 | ~~コマンドパレットからのモード切替後のフォーカス遷移~~ | session 46 で実装・E2E 済み |
 | WP-001 | 狭幅時ツールバー折り返し後の余白（`--toolbar-height` 同期は既存） | geometry E2E で監視中 |
 
 ### deferred 手動確認 (user actor)

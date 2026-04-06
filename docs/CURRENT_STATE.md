@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 45)
+最終更新: 2026-04-06 (session 46)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 45 |
+| セッション | 46 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | Focus レイアウト安定化（サイドバー漏れ・上端ホバー時本文余白）+ ツールバー/グロー体感確認済み + geometry E2E |
+| 直近のスライス | WP-004 パイプライン差分 E2E + `convertForExport` 修復 / WP-001 コマンドパレットフォーカス / FEATURE_REGISTRY 追記 |
 
 ## この時点で信頼できること
 
@@ -37,6 +37,8 @@
 - Focus かつ `data-edge-hover-top='true'` の間、`--toolbar-height`（`syncToolbarHeightWithCSSVar` 実測）分だけ `.editor-container` に `padding-top` を付与し、上端スライドインしたツールバーと本文が重ならないようにする
 - ツールバー実高とレイアウトの関係は `e2e/toolbar-editor-geometry.spec.js` で検証（Normal 狭幅・Focus+上端ホバー）
 - 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は未着手）
+- `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
+- コマンドパレット: Normal/Focus 切替後は rAF 二重で執筆面へフォーカス復帰。Reader 切替後は `#reader-back-fab` へフォーカス（隠し textarea へ奪わない）
 
 ## Session 44 の変更
 
@@ -65,6 +67,16 @@
 | geometry E2E | Normal / 狭幅 / Focus+上端ホバーの gap 検証 | `e2e/toolbar-editor-geometry.spec.js` |
 | 段落揃え仕様 | キャンバス配置とブロック揃えの分離（記録のみ） | `docs/specs/spec-rich-text-paragraph-alignment.md`, `docs/specs/spec-mode-architecture.md` |
 
+### Session 46
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| convertForExport | `chapter-link--broken` 等の複合 class を正規表現でマッチ | `js/chapter-nav.js` |
+| パイプライン E2E | preview/reader の章リンク差分、wikilink/傍点の同一経路 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| コマンドパレットフォーカス | UI モード別のフォーカス復帰 | `js/command-palette.js`, `e2e/command-palette.spec.js` |
+| FEATURE_REGISTRY | FR-001〜005 を登録 | `docs/FEATURE_REGISTRY.md` |
+| AUTOMATION_BOUNDARY | 上記 E2E の記載 | `docs/AUTOMATION_BOUNDARY.md` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -76,6 +88,10 @@
 
 - `npx playwright test e2e/toolbar-editor-geometry.spec.js` → pass（ローカル）
 - `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（回帰）
+
+実行済み (session 46):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` `e2e/command-palette.spec.js` → pass（ローカル）
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

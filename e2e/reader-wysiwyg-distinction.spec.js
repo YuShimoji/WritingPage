@@ -58,6 +58,40 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(ok).toBe(true);
   });
 
+  test('ZWPostMarkdownHtmlPipeline（preview）は .chapter-link を残し reader は convertForExport 後に除去', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWPostMarkdownHtmlPipeline) return null;
+      var html = '<p><a href="chapter://OnlyProbe">x</a></p>';
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'reader', settings: {} });
+      return {
+        previewHasChapterLink: prev.indexOf('chapter-link') !== -1 && prev.indexOf('data-chapter-target') !== -1,
+        readerLosesChapterLinkClass: read.indexOf('chapter-link') === -1,
+        readerHasHashHref: /href="#[^"]+"/.test(read)
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.previewHasChapterLink).toBe(true);
+    expect(r.readerLosesChapterLinkClass).toBe(true);
+    expect(r.readerHasHashHref).toBe(true);
+  });
+
+  test('ZWPostMarkdownHtmlPipeline: preview と reader で wikilink / 傍点が同一経路', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWPostMarkdownHtmlPipeline) return null;
+      var html = '<p>[[ZProbe]] {kenten|点}</p>';
+      var a = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'preview', settings: {} });
+      var b = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'reader', settings: {} });
+      return {
+        bothWikilink: a.indexOf('wikilink') !== -1 && b.indexOf('wikilink') !== -1,
+        bothKenten: a.indexOf('class="kenten"') !== -1 && b.indexOf('class="kenten"') !== -1
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.bothWikilink).toBe(true);
+    expect(r.bothKenten).toBe(true);
+  });
+
   test('リッチ編集の切替で UI モードは通常のまま', async ({ page }) => {
     await page.evaluate(() => {
       const btn = document.getElementById('toggle-wysiwyg');
