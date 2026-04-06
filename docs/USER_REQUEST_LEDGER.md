@@ -26,7 +26,7 @@
 | WP-004 | ~~Reader と MD プレビューの HTML パイプライン差分の監査~~ | session 46 で E2E 拡張 + `convertForExport` 修復済み。継続は差分発見時に追記 |
 | WP-004 | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション） |
 | WP-001 | ~~コマンドパレットからのモード切替後のフォーカス遷移~~ | session 46 で実装・E2E 済み |
-| WP-001 | 狭幅時ツールバー折り返し後の余白（`--toolbar-height` 同期は既存） | geometry E2E で監視中 |
+| WP-001 | ~~狭幅時ツールバー折り返し後の余白~~ | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
 
 ### deferred 手動確認 (user actor)
 

@@ -3096,12 +3096,15 @@ input[type='color'] {
     width: 100%;
   }
 
-  /* ツールバーの最適化 */
+  /* ツールバーの最適化
+     min-height に --toolbar-height を使わない（ResizeObserver との循環と余白の乗りを避ける）。
+     折り返し行は上揃えで余白の不均一を抑える。 */
   .toolbar {
     padding: 0.5rem 0.75rem;
     height: auto;
-    min-height: var(--toolbar-height, 3.75rem);
     flex-wrap: wrap;
+    align-items: flex-start;
+    align-content: flex-start;
     gap: 0.5rem;
   }
 
@@ -3161,6 +3164,14 @@ input[type='color'] {
 
   html[data-toolbar-hidden='true'] .editor-container {
     height: 100vh;
+  }
+
+  /* 狭幅: ツールバー高さ変化時に執筆域の height が transition: all でアニメーションしないよう除外 */
+  .toolbar,
+  .editor-container {
+    transition-property: background-color, color, border-color, margin, width, opacity, box-shadow, transform;
+    transition-duration: var(--transition-speed);
+    transition-timing-function: ease;
   }
 
   /* フローティングパネルの最適化 */

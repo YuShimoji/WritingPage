@@ -29,7 +29,7 @@
 詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
 
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（本セッション）。次は typography 等 Phase 3 継続や差分発見時の追記
-- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。次は狭幅ツールバー周りの体感（geometry E2E で監視）
+- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。次はユーザー要望トリガーの 1 トピック（`USER_REQUEST_LEDGER` 参照）
 - **中期（別起票）**: ブロック段落の左・中・右揃え — [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)
 
 ---

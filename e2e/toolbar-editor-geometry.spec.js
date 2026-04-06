@@ -4,6 +4,23 @@
 const { test, expect } = require('@playwright/test');
 const { ensureNormalMode, showFullToolbar, setUIMode } = require('./helpers');
 
+/** @param {string|undefined} val */
+function parseCssPx(val) {
+  if (!val || typeof val !== 'string') return NaN;
+  const m = /^([\d.]+)px$/.exec(val.trim());
+  return m ? parseFloat(m[1]) : NaN;
+}
+
+/**
+ * ResizeObserver が設定する --toolbar-height と実測のツールバー高さが一致すること
+ * （執筆域 calc(100vh - var) と sticky ツールバーの幾何整合）。
+ */
+function expectToolbarHeightVarMatchesMeasured(m) {
+  const varPx = parseCssPx(m.toolbarHeightVar);
+  expect(Number.isFinite(varPx)).toBe(true);
+  expect(Math.abs(varPx - m.toolbarHeight)).toBeLessThanOrEqual(2);
+}
+
 async function measureLayout(page) {
   return page.evaluate(() => {
     const toolbar = document.getElementById('toolbar');
@@ -21,6 +38,7 @@ async function measureLayout(page) {
       editorTop: er.top,
       gapEditorTopMinusToolbarBottom: er.top - tr.bottom,
       toolbarHeightVar: getComputedStyle(root).getPropertyValue('--toolbar-height').trim(),
+      toolbarMode: root.getAttribute('data-toolbar-mode'),
       innerHeight: window.innerHeight,
       innerWidth: window.innerWidth
     };
@@ -41,6 +59,7 @@ test.describe('toolbar vs editor-container geometry', () => {
     expect(m.uiMode).toBe('normal');
     expect(m.toolbarHidden).toBeNull();
     expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
+    expectToolbarHeightVarMatchesMeasured(m);
   });
 
   test('narrow 520x720 normal: toolbar wrap must not cover editor top', async ({ page }) => {
@@ -54,6 +73,25 @@ test.describe('toolbar vs editor-container geometry', () => {
     console.log('[geometry narrow]', JSON.stringify(m));
     expect(m).toBeTruthy();
     expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
+    expectToolbarHeightVarMatchesMeasured(m);
+  });
+
+  test('narrow 520x720 compact toolbar: no overlap and --toolbar-height matches measured', async ({ page }) => {
+    await page.setViewportSize({ width: 520, height: 720 });
+    await page.goto('/index.html');
+    await ensureNormalMode(page);
+    await page.evaluate(() => {
+      document.documentElement.removeAttribute('data-toolbar-mode');
+      document.documentElement.removeAttribute('data-toolbar-hidden');
+    });
+    await page.waitForTimeout(200);
+    const m = await measureLayout(page);
+    // eslint-disable-next-line no-console
+    console.log('[geometry narrow compact]', JSON.stringify(m));
+    expect(m).toBeTruthy();
+    expect(m.toolbarMode).toBeNull();
+    expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
+    expectToolbarHeightVarMatchesMeasured(m);
   });
 
   test('focus + top edge hover: editor top clears toolbar (no overlap)', async ({ page }) => {

@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 47)
+最終更新: 2026-04-06 (session 48)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 47 |
+| セッション | 48 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | WP-004 Reader プレビュー枠・ツールバー導線の `aria-*` / 文言統一（読了 UI。支援技術専用設計ではない） |
+| 直近のスライス | WP-001 狭幅ツールバー折り返し後の余白（768px 以下 CSS + `toolbar-editor-geometry` 強化） |
 
 ## この時点で信頼できること
 
@@ -36,7 +36,8 @@
 - Reader 終了時は復帰先 UI モードを正規化し、編集面へフォーカスを戻す（WP-004 Phase 2）。wikilink/傍点/ルビは `js/zw-inline-html-postmarkdown.js`、MD プレビューと読者の装飾〜章リンク順序は `js/zw-postmarkdown-html-pipeline.js`（Reader は `convertChapterLinks` → `convertForExport`、Phase 3）
 - Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する（`css/style.css`）
 - Focus かつ `data-edge-hover-top='true'` の間、`--toolbar-height`（`syncToolbarHeightWithCSSVar` 実測）分だけ `.editor-container` に `padding-top` を付与し、上端スライドインしたツールバーと本文が重ならないようにする
-- ツールバー実高とレイアウトの関係は `e2e/toolbar-editor-geometry.spec.js` で検証（Normal 狭幅・Focus+上端ホバー）
+- ツールバー実高とレイアウトの関係は `e2e/toolbar-editor-geometry.spec.js` で検証（Normal 広幅・狭幅フル・狭幅コンパクト・Focus+上端ホバー）。`--toolbar-height` は実測高と 2px 以内で一致することを assert
+- 768px 以下の `.toolbar` は折り返し行を上揃え（`align-items` / `align-content: flex-start`）、`min-height: var(--toolbar-height)` は使わない。狭幅の `.toolbar` / `.editor-container` は `height` を transition 対象外にし高さ変化時の伸縮アニメーションを抑制
 - 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は未着手）
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
 - コマンドパレット: Normal/Focus 切替後は rAF 二重で執筆面へフォーカス復帰。Reader 切替後は `#reader-back-fab` へフォーカス（隠し textarea へ奪わない）
@@ -87,6 +88,13 @@
 | コマンドパレット | MD プレビュー／WYSIWYG の説明を「読者プレビュー UI ではない」に統一 | `js/command-palette.js` |
 | E2E | 読者プレビュー a11y 属性の回帰テスト | `e2e/reader-preview.spec.js` |
 
+### Session 48
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 狭幅ツールバー | 折り返し・余白: モバイル `.toolbar` から循環しうる `min-height` を除去、行上揃え、高さ系 transition 抑制 | `css/style.css` |
+| geometry E2E | `--toolbar-height` と実測の一致、520px コンパクト（`data-toolbar-mode` なし）ケース追加 | `e2e/toolbar-editor-geometry.spec.js` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -102,6 +110,10 @@
 実行済み (session 46):
 
 - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` `e2e/command-palette.spec.js` → pass（ローカル）
+
+実行済み (session 48):
+
+- `npx playwright test e2e/toolbar-editor-geometry.spec.js` → pass（4 件）
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
