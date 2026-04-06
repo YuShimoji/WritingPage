@@ -568,7 +568,7 @@
       }
     }
 
-    /** Reader モード時は非表示の textarea にフォーカスを奪わせない */
+    /** 読者プレビュー（`data-ui-mode="reader"`）時: 非表示の textarea ではなく「編集に戻る」へフォーカス。スクリーンリーダー向けではない */
     _focusReaderReturnControl() {
       const fab = document.getElementById('reader-back-fab');
       if (fab && typeof fab.focus === 'function') {
