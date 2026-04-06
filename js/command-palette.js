@@ -184,6 +184,20 @@
         setAppUIMode('focus');
       }
     },
+    {
+      id: 'ui-mode-reader',
+      label: '読者プレビュー（閲覧専用）',
+      description: '全画面の読了レイアウトへ（編集は「編集に戻る」から）',
+      shortcut: '',
+      category: 'UIモード',
+      execute: () => {
+        if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+          window.ZWReaderPreview.enter();
+        } else {
+          setAppUIMode('reader');
+        }
+      }
+    },
     // フォントサイズ
     {
       id: 'font-size-increase',
@@ -272,11 +286,21 @@
         }
       }
     },
-    // WIP機能（実験的）
+    {
+      id: 'toggle-markdown-preview',
+      label: 'MD プレビュー（横並び）',
+      description: '編集画面の横に Markdown 表示を開閉（読者モードではない）',
+      shortcut: '',
+      category: '編集',
+      execute: () => {
+        const btn = document.getElementById('toggle-preview');
+        if (btn) btn.click();
+      }
+    },
     {
       id: 'toggle-wysiwyg',
-      label: 'WYSIWYG エディタ',
-      description: 'WYSIWYG エディタを切り替え',
+      label: 'リッチ編集（WYSIWYG）',
+      description: 'リッチ表示で編集。UI モードは変わらず（読者プレビューではない）',
       shortcut: '',
       category: '編集',
       execute: () => {

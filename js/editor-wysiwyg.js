@@ -195,11 +195,10 @@
 
     /**
      * 起動時にWYSIWYGモードを自動有効化
-     * localStorageに明示的にfalseが保存されている場合のみtextareaモード
+     * ポリシー: `zenwriter-wysiwyg-mode` が 'false' のときのみ Markdown のまま。未設定はリッチ編集へ（INTERACTION_NOTES WP-004 Phase 2）
      */
     autoEnableWysiwyg() {
       const saved = localStorage.getItem('zenwriter-wysiwyg-mode');
-      // デフォルトはWYSIWYG ON (savedがnullまたは'true'の場合)
       const shouldEnable = saved !== 'false';
       if (shouldEnable) {
         // textareaにコンテンツが読み込まれた後に切り替え
@@ -2441,7 +2440,7 @@
       // ツールバーボタンの状態を更新
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.setAttribute('aria-pressed', 'true');
-        this.toggleWysiwygBtn.title = 'ソース表示に切り替え';
+        this.toggleWysiwygBtn.title = 'Markdown ソース表示に切り替え';
       }
 
       // textarea モードバナーを非表示
@@ -2530,7 +2529,7 @@
       // ツールバーボタンの状態を更新
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.setAttribute('aria-pressed', 'false');
-        this.toggleWysiwygBtn.title = 'リッチテキスト編集';
+        this.toggleWysiwygBtn.title = 'リッチ編集（WYSIWYG・編集可能）';
       }
 
       // textarea モードバナーを表示

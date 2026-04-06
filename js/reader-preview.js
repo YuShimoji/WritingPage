@@ -179,8 +179,33 @@
     document.removeEventListener('click', onPopoverOutsideClick, true);
   }
 
+  /**
+   * Reader 終了直後に編集面へフォーカスを戻す（WP-004 Phase 2: 復帰ワークフロー）
+   */
+  function scheduleFocusEditingSurfaceAfterReaderExit() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        try {
+          var rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+          if (rte && rte.isWysiwygMode && rte.wysiwygEditor) {
+            var w = rte.wysiwygEditor;
+            if (w && window.getComputedStyle(w).display !== 'none') {
+              w.focus();
+              return;
+            }
+          }
+          var ed = document.getElementById('editor');
+          if (ed && window.getComputedStyle(ed).display !== 'none') {
+            ed.focus();
+          }
+        } catch (_) { /* noop */ }
+      });
+    });
+  }
+
   function enterReaderMode() {
-    previousMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+    var current = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+    previousMode = current === 'reader' ? 'normal' : current;
 
     // ContentGuard: 現在の編集内容を保存してからモード切替
     var G = window.ZWContentGuard;
@@ -217,12 +242,17 @@
     saveScrollPosition();
 
     var target = targetMode || previousMode || 'normal';
+    if (target === 'reader') {
+      target = 'normal';
+    }
     if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
       window.ZenWriterApp.setUIMode(target);
     } else {
       document.documentElement.setAttribute('data-ui-mode', target);
     }
     previousMode = null;
+
+    scheduleFocusEditingSurfaceAfterReaderExit();
 
     // プログレスバーをリセット
     if (progressFill) progressFill.style.width = '0%';
@@ -287,64 +317,14 @@
       return;
     }
 
-    // HTML変換パイプライン (editor-preview.js と同等の装飾処理を適用)
     var html = fullHtml;
-
-    // 1. テキストボックス + semantic preset 投影
-    if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
+    if (html && window.ZWPostMarkdownHtmlPipeline && typeof window.ZWPostMarkdownHtmlPipeline.apply === 'function') {
       var rwSettings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
         ? window.ZenWriterStorage.loadSettings() : {};
-      html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
+      html = window.ZWPostMarkdownHtmlPipeline.apply(html, {
         settings: rwSettings,
-        target: 'reader'
+        surface: 'reader'
       });
-    }
-
-    // 2. フォント装飾
-    var edMgr = window.ZenWriterEditor;
-    if (html && edMgr && typeof edMgr.processFontDecorations === 'function') {
-      html = edMgr.processFontDecorations(html);
-    }
-
-    // 3. テキストアニメーション (wave, sparkle, cosmic, fire, glitch)
-    if (html && edMgr && typeof edMgr.processTextAnimations === 'function') {
-      html = edMgr.processTextAnimations(html);
-    }
-
-    // 4. [[wikilink]] 変換
-    if (html) {
-      html = html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
-        var parts = content.split('|');
-        var link = parts[0].trim();
-        var display = parts.length > 1 ? parts[1].trim() : link;
-        var exists = false;
-        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.searchStoryWiki === 'function') {
-          var results = window.ZenWriterStorage.searchStoryWiki(link);
-          exists = results.some(function (e) {
-            return (e.title || '').toLowerCase() === link.toLowerCase();
-          });
-        }
-        var brokenClass = exists ? '' : ' is-broken';
-        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
-      });
-    }
-
-    // 5. 傍点 + ルビ
-    if (html) {
-      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_match, text) {
-        return '<span class="kenten">' + text.trim() + '</span>';
-      });
-      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
-        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
-      });
-      html = html.replace(/\|([^|《》]+)《([^《》]+)》/g, function (_match, kanji, kana) {
-        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
-      });
-    }
-
-    // 6. chapter://リンクをアンカーに変換
-    if (Nav && typeof Nav.convertForExport === 'function') {
-      html = Nav.convertForExport(html);
     }
 
     // コンテンツ挿入

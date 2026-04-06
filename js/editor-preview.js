@@ -105,64 +105,10 @@
       html = html.replace(new RegExp(dp.token, 'g'), dp.dsl);
     }
 
-    if (html && window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.projectRenderedHtml === 'function') {
-      html = window.TextboxRichTextBridge.projectRenderedHtml(html, {
+    if (html && window.ZWPostMarkdownHtmlPipeline && typeof window.ZWPostMarkdownHtmlPipeline.apply === 'function') {
+      html = window.ZWPostMarkdownHtmlPipeline.apply(html, {
         settings: settings,
-        target: 'preview'
-      });
-    }
-
-    if (html && editorManager.processFontDecorations) {
-      html = editorManager.processFontDecorations(html);
-    }
-    if (html && editorManager.processTextAnimations) {
-      html = editorManager.processTextAnimations(html);
-    }
-
-    if (html) {
-      html = html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
-        var parts = content.split('|');
-        var link = parts[0].trim();
-        var display = parts.length > 1 ? parts[1].trim() : link;
-
-        // W2: StoryWiki API で存在チェック (旧 listWikiPages から移行)
-        var exists = false;
-        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.searchStoryWiki === 'function') {
-          var results = window.ZenWriterStorage.searchStoryWiki(link);
-          exists = results.some(function (e) {
-            return (e.title || '').toLowerCase() === link.toLowerCase();
-          });
-        } else if (window.ZenWriterStorage && typeof window.ZenWriterStorage.listWikiPages === 'function') {
-          // フォールバック: 旧 API
-          var all = window.ZenWriterStorage.listWikiPages();
-          exists = all.some(function (p) {
-            return (p.title || '') === link;
-          });
-        }
-        var brokenClass = exists ? '' : ' is-broken';
-
-        return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
-      });
-    }
-
-    // SP-072: chapter:// リンク変換
-    if (html && window.ZWChapterNav && typeof window.ZWChapterNav.convertChapterLinks === 'function') {
-      html = window.ZWChapterNav.convertChapterLinks(html);
-    }
-
-    if (html) {
-      // Kenten (傍点) support: {kenten|text} -> <span class="kenten">text</span>
-      // Must run before ruby to avoid {kenten|...} being parsed as ruby
-      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_match, text) {
-        return '<span class="kenten">' + text.trim() + '</span>';
-      });
-      // Ruby Text support: {Kanji|Kana} -> <ruby>Kanji<rt>Kana</rt></ruby>
-      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_match, kanji, kana) {
-        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
-      });
-      // Legacy ruby format: |漢字《かな》 -> <ruby>漢字<rt>かな</rt></ruby>
-      html = html.replace(/\|([^|《》]+)《([^《》]+)》/g, function (_match, kanji, kana) {
-        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
+        surface: 'preview'
       });
     }
 

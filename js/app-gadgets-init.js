@@ -22,8 +22,10 @@
                 hasExpandedAccordion = true;
             }
         });
+        // 初回はすべて折りたたみでも、構造・セクションのガジェットはマウントしておく（段階的開示と両立）
         if (!hasExpandedAccordion) {
             initialGroups.add('structure');
+            initialGroups.add('sections');
         }
 
         // ===== ガジェットの初期化（初回は必要グループのみ） =====

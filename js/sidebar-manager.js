@@ -30,7 +30,7 @@ class SidebarManager {
                 icon: 'list-tree',
                 description: '見出しツリーと話ナビゲーション',
                 panelId: 'sections-gadgets-panel',
-                defaultExpanded: true
+                defaultExpanded: false
             },
             {
                 id: 'structure',
@@ -38,7 +38,7 @@ class SidebarManager {
                 icon: 'file-text',
                 description: 'ドキュメント構造・アウトライン',
                 panelId: 'structure-gadgets-panel',
-                defaultExpanded: true
+                defaultExpanded: false
             },
             {
                 id: 'edit',

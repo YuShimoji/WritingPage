@@ -143,24 +143,24 @@
       <div class="sidebar-accordion">
         <!-- sections カテゴリ (SP-052) -->
         <section class="accordion-category" data-category="sections">
-          <button class="accordion-header" aria-expanded="true" aria-controls="accordion-sections">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-sections">
             <i data-lucide="list-tree" aria-hidden="true"></i>
             <span>セクション</span>
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
-          <div class="accordion-content" id="accordion-sections" aria-hidden="false">
+          <div class="accordion-content" id="accordion-sections" aria-hidden="true">
             <div id="sections-gadgets-panel" class="gadgets-panel" data-gadget-group="sections" aria-label="セクションガジェット"></div>
           </div>
         </section>
 
         <!-- structure カテゴリ -->
         <section class="accordion-category" data-category="structure">
-          <button class="accordion-header" aria-expanded="true" aria-controls="accordion-structure">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-structure">
             <i data-lucide="file-text" aria-hidden="true"></i>
             <span>構造</span>
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
-          <div class="accordion-content" id="accordion-structure" aria-hidden="false">
+          <div class="accordion-content" id="accordion-structure" aria-hidden="true">
             <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
           </div>
         </section>
@@ -173,15 +173,22 @@
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
           <div class="accordion-content" id="accordion-edit" aria-hidden="true">
+            <p class="sidebar-edit-hint" id="sidebar-edit-hint">
+              <strong>MD プレビュー</strong>は編集画面の横に表示。ツールバーの<strong>読者プレビュー</strong>は別（閲覧専用モード）。
+            </p>
             <div class="sidebar-editor-controls" role="group" aria-label="エディタ操作">
-              <button class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false" title="プレビュー">
-                <i data-lucide="layout-template" aria-hidden="true"></i><span>プレビュー</span>
+              <button class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false"
+                title="編集画面の横に Markdown の表示確認（読者モードではありません）"
+                aria-label="MD プレビュー（編集の横に表示）">
+                <i data-lucide="layout-template" aria-hidden="true"></i><span>MD プレビュー</span>
               </button>
               <button class="sidebar-control-btn" id="sidebar-toggle-split" aria-pressed="false" title="分割ビュー">
                 <i data-lucide="columns" aria-hidden="true"></i><span>分割ビュー</span>
               </button>
-              <button class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false" title="リッチテキスト">
-                <i data-lucide="pen-tool" aria-hidden="true"></i><span>リッチテキスト</span>
+              <button class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false"
+                title="装飾をリッチ表示で編集（読者プレビューではありません）"
+                aria-label="リッチ編集（WYSIWYG）の切替">
+                <i data-lucide="pen-tool" aria-hidden="true"></i><span>リッチ編集</span>
               </button>
             </div>
             <div id="edit-gadgets-panel" class="gadgets-panel" data-gadget-group="edit" aria-label="編集ガジェット"></div>
@@ -288,7 +295,7 @@
             <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
               <i data-lucide="crosshair" aria-hidden="true"></i>
             </button>
-            <button class="mode-switch-btn" data-mode="reader" aria-pressed="false" title="読者プレビュー">
+            <button class="mode-switch-btn" data-mode="reader" aria-pressed="false" title="読者プレビュー（閲覧専用）">
               <i data-lucide="book-open" aria-hidden="true"></i>
             </button>
           </div>
@@ -310,16 +317,16 @@
         </div>
         <div class="toolbar-actions">
           <div class="toolbar-group toolbar-group--editor" aria-label="編集">
-            <button id="toggle-preview" class="icon-button iconified" title="プレビュー" aria-label="プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
+            <button id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
             <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
               <i data-lucide="columns" aria-hidden="true"></i>
             </button>
-            <button id="toggle-reader-preview" class="icon-button iconified" title="読者プレビュー" aria-label="読者プレビューモードに切り替え">
+            <button id="toggle-reader-preview" class="icon-button iconified" title="読者プレビュー（閲覧専用・全画面）" aria-label="読者プレビューモード（閲覧専用）に切り替え">
               <i data-lucide="eye" aria-hidden="true"></i>
             </button>
-            <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチテキスト編集" aria-label="リッチテキスト編集を切り替え" aria-pressed="false">
+            <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
               <i data-lucide="pen-tool" aria-hidden="true"></i>
             </button>
           </div>
@@ -695,6 +702,8 @@
   <script defer src="js/gadgets-tags-smart-folders.js"></script>
   <script defer src="js/link-graph.js"></script>
   <script defer src="js/hud.js"></script>
+  <script defer src="js/zw-inline-html-postmarkdown.js"></script>
+  <script defer src="js/zw-postmarkdown-html-pipeline.js"></script>
   <script defer src="js/editor-preview.js"></script>
   <script defer src="js/editor-images.js"></script>
   <script defer src="js/editor-overlays.js"></script>
@@ -822,7 +831,8 @@
   </script>
 
   <!-- SP-078: 読者プレビューモード -->
-  <div class="reader-preview" id="reader-preview" aria-label="読者プレビュー">
+  <div class="reader-preview" id="reader-preview" role="document" aria-label="読者プレビュー（閲覧専用）">
+    <p class="reader-preview__mode-hint" id="reader-mode-hint">読者プレビュー · 閲覧のみ（編集は「編集に戻る」）</p>
     <button class="reader-preview__back-fab" id="reader-back-fab" type="button">編集に戻る</button>
     <button class="reader-preview__export-btn" id="reader-export-html" type="button">HTMLとして保存</button>
     <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替">縦書き</button>

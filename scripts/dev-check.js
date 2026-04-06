@@ -159,7 +159,18 @@ async function loadCssWithImports(url) {
     const hasRootHide = /html\[data-toolbar-hidden='true'\] \.toolbar/.test(
       css.body,
     );
-    const hasRootShowPadding = /padding-top:\s*calc\(var\(--toolbar-height\)\s*\+\s*1rem\)/.test(css.body || '');
+    // 旧: ツールバー表示時に editor 上端を calc(toolbar + 1rem) で確保
+    // 現行: 通常は --editor-padding-y、非表示時のみ #editor/#wysiwyg の padding-top を 1rem に縮小
+    const hasRootShowPaddingLegacy = /padding-top:\s*calc\(var\(--toolbar-height\)\s*\+\s*1rem\)/.test(
+      css.body || '',
+    );
+    const hasToolbarHiddenShorterTopPad =
+      /html\[data-toolbar-hidden='true'\]\s*#editor,\s*html\[data-toolbar-hidden='true'\]\s*#wysiwyg-editor\s*\{[^}]*padding-top:\s*1rem/.test(
+        css.body || '',
+      );
+    const hasRootShowPadding =
+      hasRootShowPaddingLegacy ||
+      (hasToolbarHiddenShorterTopPad && /var\(--editor-padding-y/.test(css.body || ''));
     const hasProgressCss = /\.goal-progress__bar/.test(css.body);
     const hasCssSettingsBtn = /\.gadget-settings-btn\b/.test(css.body || '');
     const hasCssSettings = /\.gadget-settings\b/.test(css.body || '');
@@ -177,6 +188,8 @@ async function loadCssWithImports(url) {
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG', {
       hasRootHide,
       hasRootShowPadding,
+      hasRootShowPaddingLegacy,
+      hasToolbarHiddenShorterTopPad,
       hasProgressCss,
       hasCssSettingsBtn,
       hasCssSettings,
@@ -255,15 +268,26 @@ async function loadCssWithImports(url) {
     const hasDocumentsGadget = /register\(['"]Documents['"]/.test(builtinSrc);
     const okGadgetsApi =
       hasStorageKey && hasGetPrefs && hasSetPrefs && hasMove && hasToggle;
-    // 初期化コードは gadgets-init.js に移動済み
+    // 構造ガジェット初期化: 従来 gadgets-init → 現行 app-gadgets-init（ZWGadgets.init(selector, { group })）
     const initPath = path.join(__dirname, '..', 'js', 'gadgets-init.js');
+    const appGadgetsInitPath = path.join(__dirname, '..', 'js', 'app-gadgets-init.js');
     let initSrc = '';
+    let appGadgetsInitSrc = '';
     try {
       initSrc = fs.readFileSync(initPath, 'utf-8');
     } catch (e) {
       console.error('READ FAIL:', initPath, e.message);
     }
-    const hasStructureInit = /init\(panel,\s*\{\s*group:\s*groupName\s*\}\)/.test(initSrc);
+    try {
+      appGadgetsInitSrc = fs.readFileSync(appGadgetsInitPath, 'utf-8');
+    } catch (e) {
+      console.error('READ FAIL:', appGadgetsInitPath, e.message);
+    }
+    const hasStructureInit =
+      /init\(panel,\s*\{\s*group:\s*groupName\s*\}\)/.test(initSrc) ||
+      /ZWGadgets\.init\s*\(\s*info\.selector\s*,\s*\{\s*group:\s*info\.group\s*\}\)/.test(
+        appGadgetsInitSrc,
+      );
     // M5: 設定管理API（ドラッグ&ドロップは将来機能のため除外）
     const okGadgetsM5 =
       hasRegisterSettings &&

@@ -448,6 +448,12 @@ html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar:hover {
   opacity: 1 !important;
 }
 
+/* Focus 上端エッジ: ツールバーは viewport 先頭に fixed 表示され、本文列の上に重なる。
+   syncToolbarHeightWithCSSVar が更新する --toolbar-height 分だけコンテナ上余白を確保する。 */
+html[data-ui-mode='focus'][data-edge-hover-top='true'] .editor-container {
+  padding-top: var(--toolbar-height, 3.75rem);
+}
+
 html[data-ui-mode='focus'] .main-content {
   margin-left: 0 !important;
 }
@@ -962,6 +968,13 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hov
 /* Legacy: 旧 focus-chapter-item クラスのフォールバック（後方互換） */
 .focus-chapter-item { display: none; }
 
+/* Focus: 閉じた #sidebar は right がビューポート左縁 (x=0) に一致する。
+   border-right と右方向 box-shadow だけが画面内に漏れ細い縦帯になるため、オーバーレイ以外では抑制する。 */
+html[data-ui-mode='focus'] .sidebar:not(.open):not(.focus-overlay-open) {
+  box-shadow: none;
+  border-right-color: transparent;
+}
+
 /* Focus モード: サイドバーのオーバーレイ表示 (設定ボタンから) */
 html[data-ui-mode='focus'] .sidebar.focus-overlay-open {
   display: block !important;
@@ -1038,6 +1051,32 @@ html[data-ui-mode='reader'] .reader-preview {
   color: var(--text-color, #333);
   z-index: 50;
   padding: 2rem 1rem;
+}
+
+.reader-preview__mode-hint {
+  position: fixed;
+  top: 0.75rem;
+  left: 1rem;
+  z-index: 199;
+  margin: 0;
+  max-width: min(22rem, 55vw);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--text-muted, #666);
+  opacity: 0.92;
+}
+
+.sidebar-edit-hint {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--text-muted, #666);
+  margin: 0 0 0.5rem;
+  padding: 0 0.125rem;
+}
+
+.sidebar-edit-hint strong {
+  font-weight: 600;
+  color: var(--text-color, #333);
 }
 
 .reader-preview__inner {

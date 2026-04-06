@@ -146,7 +146,13 @@ test.describe('Sidebar Layout', () => {
     await expect(editHeader).toBeVisible();
     await expect(assistHeader).toBeVisible();
 
-    // structure is expanded by default, so first close it then open another
+    // 段階的開示: セクション/構造は既定で折りたたみ。まず構造を開いてから閉じる
+    const structureExpanded = await structureHeader.getAttribute('aria-expanded');
+    if (structureExpanded !== 'true') {
+      await structureHeader.click();
+      await page.waitForTimeout(300);
+    }
+    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
     await structureHeader.click();
     await page.waitForTimeout(300);
     await expect(structureHeader).toHaveAttribute('aria-expanded', 'false');
