@@ -34,22 +34,26 @@
 
 ## 実装の正（canonical paths）
 
-| 責務 | 実ファイル | メモ |
-|------|------------|------|
-| コマンド集約・`sanitizeHtml`・`insertHtml`・ブロック `applyBlock` | [`js/modules/editor/RichTextCommandAdapter.js`](../../js/modules/editor/RichTextCommandAdapter.js) | 設計書 `RichTextSanitizer.js` 相当のサニタイズは **本クラス内**の `sanitizeHtml` に実装済み |
-| 既存 WYSIWYG へのフック | [`js/modules/editor/RichTextEnhancedRuntime.js`](../../js/modules/editor/RichTextEnhancedRuntime.js) | |
-| オーケストレーション・ツールバー・ペーストハンドラ | [`js/editor-wysiwyg.js`](../../js/editor-wysiwyg.js) | |
-| 旧表記 | `js/richtext-command-adapter.js` 等 | **廃止・未使用**。検索ヒットしたら本表に置き換える |
+
+| 責務                                                   | 実ファイル                                                                                                | メモ                                                                   |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| コマンド集約・`sanitizeHtml`・`insertHtml`・ブロック `applyBlock` | `[js/modules/editor/RichTextCommandAdapter.js](../../js/modules/editor/RichTextCommandAdapter.js)`   | 設計書 `RichTextSanitizer.js` 相当のサニタイズは **本クラス内**の `sanitizeHtml` に実装済み |
+| 既存 WYSIWYG へのフック                                     | `[js/modules/editor/RichTextEnhancedRuntime.js](../../js/modules/editor/RichTextEnhancedRuntime.js)` |                                                                      |
+| オーケストレーション・ツールバー・ペーストハンドラ                            | `[js/editor-wysiwyg.js](../../js/editor-wysiwyg.js)`                                                 |                                                                      |
+| 旧表記                                                  | `js/richtext-command-adapter.js` 等                                                                   | **廃止・未使用**。検索ヒットしたら本表に置き換える                                          |
+
 
 ---
 
 ## 能力階層（優先度の目安）
 
-| 層 | 内容 |
-|----|------|
-| **P0（日常執筆）** | Markdown 正本、インライン/ブロック操作、スマートペースト、主要ブロックの MD 往復（上記受け入れ基準 1〜6） |
-| **P1（品質）** | 下記「Phase 4（表）」の未着手（Undo 粒度、短文時カーソル位置など） |
+
+| 層             | 内容                                                                                                                               |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **P0（日常執筆）**  | Markdown 正本、インライン/ブロック操作、スマートペースト、主要ブロックの MD 往復（上記受け入れ基準 1〜6）                                                                    |
+| **P1（品質）**    | 下記「Phase 4（表）」の未着手（Undo 粒度、短文時カーソル位置など）                                                                                          |
 | **P2（レイアウト）** | 段落ブロックの `text-align`（左・中央・右）。Reader/エクスポートまでのパイプライン通過は `spec-rich-text-paragraph-alignment.md` に従い、**永続化方針を仕様で固定してから** 実装スライスを切る |
+
 
 ---
 
@@ -91,7 +95,7 @@
 - 既定: `スマートペースト`
   - 安全な最小タグのみ許可して貼り付け
   - 許可タグ: `p, br, strong, em, u, s, a, h1-h3, ul, ol, li, blockquote, span`
-  - 許可クラス: `decor-*`, `anim-*`（`span` のみ）
+  - 許可クラス: `decor-`*, `anim-*`（`span` のみ）
 - 代替: `プレーンテキストペースト`
   - `Ctrl+Shift+V` または設定で明示選択時に使用
 - 禁止/除去:
@@ -141,12 +145,14 @@
 
 ## 段階導入（推奨）
 
-| Phase | 内容 | 判定 | 状態 |
-| ------ | ------ | ------ | ------ |
-| Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須 | 完了 |
-| Phase 2 | ブロック編集UI追加、変換ルール拡張 | 必須 | 完了 |
-| Phase 3 | スマートペースト実装、設定UI連携 | 必須 | 完了 |
-| Phase 4 | 品質改善（選択範囲維持、Undo粒度最適化） | 推奨 | 未着手 |
+
+| Phase   | 内容                            | 判定  | 状態  |
+| ------- | ----------------------------- | --- | --- |
+| Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須  | 完了  |
+| Phase 2 | ブロック編集UI追加、変換ルール拡張            | 必須  | 完了  |
+| Phase 3 | スマートペースト実装、設定UI連携             | 必須  | 完了  |
+| Phase 4 | 品質改善（選択範囲維持、Undo粒度最適化）        | 推奨  | 未着手 |
+
 
 ---
 
@@ -208,7 +214,7 @@
 - `sanitizeHtml(html)` メソッド実装
   - DOMParser + TreeWalker ベースの安全なHTMLサニタイズ
   - 許可タグ: `p, br, strong, em, u, s, a, h1, h2, h3, ul, ol, li, blockquote, span`
-  - `span` の許可クラス: `decor-*`, `anim-*` のみ
+  - `span` の許可クラス: `decor-`*, `anim-*` のみ
   - `a` の許可URLスキーム: `http`, `https`, `mailto` のみ
   - `on*` イベント属性の除去
 - `insertHtml(html)` メソッド実装

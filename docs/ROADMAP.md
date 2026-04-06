@@ -4,13 +4,15 @@
 
 ## ステータス語彙
 
-| ステータス | 意味 |
-| --------- | ---- |
-| done | 実装完了、E2Eあり |
-| partial | 実装途中（Phase N/M 等で進捗明記） |
-| todo | 未着手 |
-| removed | スコープ外（除外日を併記） |
-| superseded | 後継仕様に置き換え済み |
+
+| ステータス      | 意味                     |
+| ---------- | ---------------------- |
+| done       | 実装完了、E2Eあり             |
+| partial    | 実装途中（Phase N/M 等で進捗明記） |
+| todo       | 未着手                    |
+| removed    | スコープ外（除外日を併記）          |
+| superseded | 後継仕様に置き換え済み            |
+
 
 ## 現在の状態
 
@@ -26,12 +28,12 @@
 
 ### 次スライス候補 (WP-004 / WP-001)
 
-詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
+詳細は `[docs/USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md)` の表を正とする。実装時は **1 トピック** に絞る。
 
 - **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（本セッション）。次は typography 等 Phase 3 継続や差分発見時の追記
 - **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。次はユーザー要望トリガーの 1 トピック（`USER_REQUEST_LEDGER` 参照）
-- **中期（別起票）**: ブロック段落の左・中・右揃え — [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)（**WP-004 ではなく** [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md) のリッチテキスト・プログラム P2 として起票・優先度付けする）
+- **中期（別起票）**: ブロック段落の左・中・右揃え — `[docs/specs/spec-rich-text-paragraph-alignment.md](specs/spec-rich-text-paragraph-alignment.md)`（**WP-004 ではなく** `[docs/specs/spec-richtext-enhancement.md](specs/spec-richtext-enhancement.md)` のリッチテキスト・プログラム P2 として起票・優先度付けする）
 
 ---
 
@@ -43,57 +45,57 @@
 
 Normal / Focus / Blank の3モード分離。Phase 1-3 完了。
 
-- [x] CSS分離（Focus: ChapterListパネル、Blank: エッジホバー復帰）
-- [x] ショートカット（Ctrl+Shift+F / B、Esc復帰）
-- [x] Focus ChapterListスタブ（SectionsNavigatorデータ共有）
-- [x] Focusオーバーレイアクセス（設定ボタン → サイドバースライドイン）
-- [x] SP-071 ChapterList Phase 1 実装
-- [x] SP-071 Phase 2（章ごと独立保存 — chapter-store.js 実装済み）
-- [x] Phase 2: ChapterStore統合ガード（undoスタック章分離、モード遷移前flush）
-- [x] Phase 3: Focusパネルリサイズ（pointer events + localStorage保存）
+- CSS分離（Focus: ChapterListパネル、Blank: エッジホバー復帰）
+- ショートカット（Ctrl+Shift+F / B、Esc復帰）
+- Focus ChapterListスタブ（SectionsNavigatorデータ共有）
+- Focusオーバーレイアクセス（設定ボタン → サイドバースライドイン）
+- SP-071 ChapterList Phase 1 実装
+- SP-071 Phase 2（章ごと独立保存 — chapter-store.js 実装済み）
+- Phase 2: ChapterStore統合ガード（undoスタック章分離、モード遷移前flush）
+- Phase 3: Focusパネルリサイズ（pointer events + localStorage保存）
 
 ### A-2. チャプター管理再設計 (SP-071) -- done
 
 Novlr式2ペイン章管理。SP-070 Focusモードの主要UI。
 
 - 左パネルにチャプターリスト、右にエディタ
-- [x] 見出し自動検出 → チャプターリスト表示
-- [x] クリックナビゲーション
-- [x] ダブルクリックリネーム
-- [x] 右クリックコンテキストメニュー（リネーム/複製/移動/削除）
-- [x] ドラッグ&ドロップ並び替え
-- [x] 「+ 新しい章」ボタン
-- [x] アクティブ章ハイライト + 文字数表示
-- [x] Phase 2: 章ごと独立保存 (documents ストアに type:'chapter' + IDB フラッシュ機構)
-- [x] 目次ページ自動生成 (SP-071 Phase 3 + SP-072連動)
+- 見出し自動検出 → チャプターリスト表示
+- クリックナビゲーション
+- ダブルクリックリネーム
+- 右クリックコンテキストメニュー（リネーム/複製/移動/削除）
+- ドラッグ&ドロップ並び替え
+- 「+ 新しい章」ボタン
+- アクティブ章ハイライト + 文字数表示
+- Phase 2: 章ごと独立保存 (documents ストアに type:'chapter' + IDB フラッシュ機構)
+- 目次ページ自動生成 (SP-071 Phase 3 + SP-072連動)
 
 ### A-3. セクションリンク & インタラクティブナビ (SP-072) -- done (100%)
 
 章末ナビ自動挿入 + ゲームブック的インタラクティブリンク。
 
-- [x] Phase 1: 章末ナビ自動挿入 (前へ / 目次 / 次へ)
-- [x] Phase 2: 章visibility設定 + export変換
-- [x] Phase 3: リンク挿入モーダルUI + 壊れリンク警告
-- [x] Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
-- [x] Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
+- Phase 1: 章末ナビ自動挿入 (前へ / 目次 / 次へ)
+- Phase 2: 章visibility設定 + export変換
+- Phase 3: リンク挿入モーダルUI + 壊れリンク警告
+- Phase 4: 外部リンク新規タブ確認 (target="_blank" + .external-link + URLバリデーション)
+- Phase 5: ゲームブック分岐UI (data-style属性方式 + 3層CSS + スタイル選択UI + 自動グループ化+区切り線。エフェクト転用は将来拡張)
 
 ### A-4. Editor モード UX 統合改善 (SP-071 Phase 3) -- done
 
 chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI + Legacy 変換バナー。
 
-- [x] Step 1: 新規ドキュメントを chapterMode で作成
-- [x] Step 2: chapterMode ロールバック UI (「章モードを解除」ボタン)
-- [x] Step 3: 文字数を countPlainChars() に統一 (DSL/見出し/装飾記法を除外)
-- [x] Step 4: Legacy ドキュメントに「新フォーマットに変換」バナー表示
+- Step 1: 新規ドキュメントを chapterMode で作成
+- Step 2: chapterMode ロールバック UI (「章モードを解除」ボタン)
+- Step 3: 文字数を countPlainChars() に統一 (DSL/見出し/装飾記法を除外)
+- Step 4: Legacy ドキュメントに「新フォーマットに変換」バナー表示
 
 ### A-5. エディタ体験再構築 (SP-081) -- done
 
 chapterMode一本化 + Blank廃止 + setUIMode全経路統一 + Reader統合。Phase 1-4 全完了 (session 30-34)。
 
-- [x] Phase 1: レガシー章管理削除 (-254行)、chapterMode一本化
-- [x] Phase 2: メインツールバーの不要ボタン非表示
-- [x] Phase 3: Blank完全除去、エッジグロー、setUIMode全経路統一
-- [x] Phase 4: setUIMode force パラメータ、サイドバー永続化、Reader aria-pressed修正
+- Phase 1: レガシー章管理削除 (-254行)、chapterMode一本化
+- Phase 2: メインツールバーの不要ボタン非表示
+- Phase 3: Blank完全除去、エッジグロー、setUIMode全経路統一
+- Phase 4: setUIMode force パラメータ、サイドバー永続化、Reader aria-pressed修正
 
 ### A-6. UI/UX 磨き上げ (残タスク)
 
@@ -180,9 +182,9 @@ Phase 1-4 全完了。Phase 4: ドックレイアウトプリセット (captureL
 
 Session 19 (2026-03-23) で33→28に整理完了。削除: Clock/Samples/NodeGraph/GraphicNovel。無効化: UIDesign/SceneGradient。graphic-novelロードアウト削除。MarkdownReferenceを全ロードアウトのassistに配置。ヘルプモーダルからリファレンス機能を分離。
 
-- [x] ガジェット利用状況分析
-- [x] 不要ガジェット削除/無効化 (33→28)
-- [x] ロードアウトプリセット見直し
+- ガジェット利用状況分析
+- 不要ガジェット削除/無効化 (33→28)
+- ロードアウトプリセット見直し
 
 ### ~~C-4. サイドバー Phase 2-3~~ -- スコープ外 (2026-03-23)
 
@@ -218,13 +220,15 @@ Session 19 (2026-03-23) で33→28に整理完了。削除: Clock/Samples/NodeGr
 
 WP-004（Reader-First WYSIWYG）と Normal サイドバー簡素化は並行可能だが、**用語・状態モデル**は先に一本化する（`docs/INTERACTION_NOTES.md` の「Zen Writer UI 状態モデル」節）。
 
-| 順序 | トラック | 内容 | 状態 |
-|------|----------|------|------|
-| 0 | 共通 | 編集面 × UI モードの用語表・ラベル・コマンドパレット文言 | done |
-| 1 | WP-001 | Normal サイドバー段階的開示（セクション/構造の既定折りたたみ、編集カテゴリ内ヒント） | done |
-| 2 | WP-004 | Phase 2: 既定編集面・モード復帰ポリシー（`INTERACTION_NOTES` 明文化 + Reader 復帰正規化 + 復帰後フォーカス） | done |
-| 3 | WP-004 | Phase 3: Reader と編集のレンダリング経路の近接化（`ZWPostMarkdownHtmlPipeline`・章リンク正規化修正・typography 等は継続） | partial |
-| 4 | WP-001 | カテゴリ統合・ガジェット既定の再整理（中長期） | todo |
+
+| 順序  | トラック   | 内容                                                                                       | 状態      |
+| --- | ------ | ---------------------------------------------------------------------------------------- | ------- |
+| 0   | 共通     | 編集面 × UI モードの用語表・ラベル・コマンドパレット文言                                                          | done    |
+| 1   | WP-001 | Normal サイドバー段階的開示（セクション/構造の既定折りたたみ、編集カテゴリ内ヒント）                                           | done    |
+| 2   | WP-004 | Phase 2: 既定編集面・モード復帰ポリシー（`INTERACTION_NOTES` 明文化 + Reader 復帰正規化 + 復帰後フォーカス）              | done    |
+| 3   | WP-004 | Phase 3: Reader と編集のレンダリング経路の近接化（`ZWPostMarkdownHtmlPipeline`・章リンク正規化修正・typography 等は継続） | partial |
+| 4   | WP-001 | カテゴリ統合・ガジェット既定の再整理（中長期）                                                                  | todo    |
+
 
 回帰: `e2e/reader-wysiwyg-distinction.spec.js`（Reader 時にメイン編集を隠す／WYSIWYG 切替で `data-ui-mode` は通常のまま）。
 

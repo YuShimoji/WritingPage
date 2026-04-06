@@ -21,15 +21,17 @@
 
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
-| 軸 | 候補 | 備考 |
-|----|------|------|
-| WP-004 | ~~Reader と MD プレビューの HTML パイプライン差分の監査~~ | session 46 で E2E 拡張 + `convertForExport` 修復済み。継続は差分発見時に追記 |
-| WP-004 | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション） |
-| WP-001 | ~~コマンドパレットからのモード切替後のフォーカス遷移~~ | session 46 で実装・E2E 済み |
-| WP-001 | ~~狭幅時ツールバー折り返し後の余白~~ | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
-| WP-004 | Phase 3 継続（preview / 読者プレビューのレンダリング近接） | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分は **1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視。session 50: `|漢字《かな》` ルビの preview/reader 同一 HTML を E2E 固定 |
-| WP-001 | 摩擦削減の次トピック | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
-| リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理 | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（canonical paths・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
+
+| 軸             | 候補                                           | 備考                                                                                                                                                                                                                                      |
+| ------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| WP-004        | ~~Reader と MD プレビューの HTML パイプライン差分の監査~~      | session 46 で E2E 拡張 + `convertForExport` 修復済み。継続は差分発見時に追記                                                                                                                                                                               |
+| WP-004        | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション）                                                                                                                                                                             |
+| WP-001        | ~~コマンドパレットからのモード切替後のフォーカス遷移~~                | session 46 で実装・E2E 済み                                                                                                                                                                                                                   |
+| WP-001        | ~~狭幅時ツールバー折り返し後の余白~~                         | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
+| WP-004        | Phase 3 継続（preview / 読者プレビューのレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分は **1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視。session 50: `\|漢字《かな》` ルビの preview/reader 同一 HTML を E2E 固定 |
+| WP-001        | 摩擦削減の次トピック                                   | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
+| リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（canonical paths・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
+
 
 ### deferred 手動確認 (user actor)
 
@@ -37,6 +39,12 @@
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）
 - Focus 左パネル間隔の体感確認
+
+#### WP-001 deferred の簡易再現手順（次候補選定用）
+
+- BL-002: 2行以上の本文に改行を含むアニメーション/装飾を適用し、改行位置で効果が切れず連続するかを確認
+- BL-004: Focus へ切替後、上端 hover でヘッダー opacity が 0.35→1.0 の2段階で遷移するかを確認
+- Focus 左パネル間隔: Focus で左端 hover → パネル表示時に本文列との間隔が詰まり/空き過ぎにならないか確認
 
 ## 解決済み (session 42-44)
 
@@ -61,10 +69,10 @@
 ## 開発スライスの進め方（推奨）
 
 - **1 スライス = 1 トピック**（並行で複数の大きな変更をしない）
-- **着手前**: 下記「次スライス候補」表と [`docs/ROADMAP.md`](ROADMAP.md) の「次スライス候補」を読み、**WP-004（パイプライン／Reader 経路）と WP-001（摩擦削減）のどちらか一方**に絞る
-- **完了時**: [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の Snapshot・「この時点で信頼できること」・検証コマンドを更新する
-- **WP-004 Phase 3**: プレビューと読者プレビューの差分は **1 件ずつ** 潰す。ガードは [`e2e/reader-wysiwyg-distinction.spec.js`](../e2e/reader-wysiwyg-distinction.spec.js)
-- **正本**: UI 状態は [`docs/INTERACTION_NOTES.md`](INTERACTION_NOTES.md)。Reader は「読者プレビュー UI」と支援技術向け機能を混同しない
+- **着手前**: 下記「次スライス候補」表と `[docs/ROADMAP.md](ROADMAP.md)` の「次スライス候補」を読み、**WP-004（パイプライン／Reader 経路）と WP-001（摩擦削減）のどちらか一方**に絞る
+- **完了時**: `[docs/CURRENT_STATE.md](CURRENT_STATE.md)` の Snapshot・「この時点で信頼できること」・検証コマンドを更新する
+- **WP-004 Phase 3**: プレビューと読者プレビューの差分は **1 件ずつ** 潰す。ガードは `[e2e/reader-wysiwyg-distinction.spec.js](../e2e/reader-wysiwyg-distinction.spec.js)`
+- **正本**: UI 状態は `[docs/INTERACTION_NOTES.md](INTERACTION_NOTES.md)`。Reader は「読者プレビュー UI」と支援技術向け機能を混同しない
 
 ### 次スライス候補に行を追加するタイミング
 
