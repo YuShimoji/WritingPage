@@ -92,6 +92,30 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r.identical).toBe(true);
   });
 
+  test('ZWMdItBody + パイプライン: フォント装飾記法が preview / reader で同一 HTML（二重後処理なし）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWPostMarkdownHtmlPipeline || !window.ZWMdItBody) return null;
+      var md = '[bold]ZW004[/bold]\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      var countDecor = function (s) {
+        return (s.match(/decor-bold/g) || []).length;
+      };
+      return {
+        rawKeepsMarkers: raw.indexOf('[bold]') !== -1,
+        identical: prev === read,
+        countPrev: countDecor(prev),
+        countRead: countDecor(read)
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.rawKeepsMarkers).toBe(true);
+    expect(r.identical).toBe(true);
+    expect(r.countPrev).toBe(1);
+    expect(r.countRead).toBe(1);
+  });
+
   test('ZWPostMarkdownHtmlPipeline: preview と reader で wikilink / 傍点が同一経路', async ({ page }) => {
     const r = await page.evaluate(() => {
       if (!window.ZWPostMarkdownHtmlPipeline) return null;

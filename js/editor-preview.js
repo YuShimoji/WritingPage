@@ -65,44 +65,15 @@
       ? window.ZenWriterStorage.loadSettings()
       : {};
 
-    // DSL ブロックを退避してから markdown-it に渡す
-    var dslBlockRe = /:::zw-(?:textbox|typing|dialog|scroll|pathtext)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
-    var dslPlaceholders = [];
-    var dslCounter = 0;
-    var mdSrc = src.replace(dslBlockRe, function (match) {
-      var token = '\n\nZWDSLBLOCK' + dslCounter + '\n\n';
-      dslPlaceholders.push({ token: 'ZWDSLBLOCK' + dslCounter, dsl: match });
-      dslCounter++;
-      return token;
-    });
-
     var html = '';
-    try {
-      if (window.markdownit) {
-        if (!editorManager._markdownRenderer) {
-          editorManager._markdownRenderer = window.markdownit({
-            html: false,
-            linkify: true,
-            breaks: true,
-          });
-        }
-        html = editorManager._markdownRenderer.render(mdSrc);
-      } else {
-        html = (mdSrc || '')
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/\n/g, '<br>');
-      }
-    } catch (_) {
-      html = '';
-    }
-
-    // DSL ブロックを復元
-    for (var di = 0; di < dslPlaceholders.length; di++) {
-      var dp = dslPlaceholders[di];
-      html = html.replace(new RegExp('<p>' + dp.token + '</p>', 'g'), dp.dsl);
-      html = html.replace(new RegExp(dp.token, 'g'), dp.dsl);
+    if (window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
+      html = window.ZWMdItBody.renderToHtmlBeforePipeline(src, { editorManager: editorManager });
+    } else {
+      html = (src || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
     }
 
     if (html && window.ZWPostMarkdownHtmlPipeline && typeof window.ZWPostMarkdownHtmlPipeline.apply === 'function') {

@@ -423,36 +423,7 @@
   }
 
   /**
-   * markdown-it 処理前に :::zw-* DSL ブロックをプレースホルダーに退避する。
-   * markdown-it は DSL 構文を認識しないため、<p> で囲まれて壊れるのを防ぐ。
-   */
-  var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog|scroll|pathtext)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
-
-  function extractDslBlocks(markdown) {
-    var placeholders = [];
-    var counter = 0;
-    var processed = markdown.replace(DSL_BLOCK_RE, function (match) {
-      var token = '\n\nZWDSLBLOCK' + counter + '\n\n';
-      placeholders.push({ token: 'ZWDSLBLOCK' + counter, dsl: match });
-      counter++;
-      return token;
-    });
-    return { markdown: processed, placeholders: placeholders };
-  }
-
-  function restoreDslBlocks(html, placeholders) {
-    for (var i = 0; i < placeholders.length; i++) {
-      var p = placeholders[i];
-      // markdown-it が <p>TOKEN</p> で囲んでいる場合
-      html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), p.dsl);
-      // 生テキストとして残っている場合
-      html = html.replace(new RegExp(p.token, 'g'), p.dsl);
-    }
-    return html;
-  }
-
-  /**
-   * エディタの全コンテンツをHTMLとして取得
+   * エディタの全コンテンツをHTMLとして取得（パイプライン直前。後処理は ZWPostMarkdownHtmlPipeline に一本化）
    */
   function getFullContentHtml() {
     var Store = window.ZWChapterStore;
@@ -511,27 +482,10 @@
 
     if (!markdown.trim()) return '';
 
-    // DSL ブロックを退避してから markdown-it に渡す
-    var extracted = extractDslBlocks(markdown);
-    var src = extracted.markdown;
-    var html = '';
-
-    // Markdown→HTML変換
-    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.richTextEditor === 'object' &&
-        typeof window.ZenWriterEditor.richTextEditor.markdownToHtml === 'function') {
-      html = window.ZenWriterEditor.richTextEditor.markdownToHtml(src);
-    } else if (window.markdownit) {
-      // フォールバック: markdown-itが利用可能なら直接変換
-      var md = window.markdownit({ html: false, linkify: true, breaks: true });
-      html = md.render(src);
-    } else {
-      return '<pre>' + markdown.replace(/</g, '&lt;') + '</pre>';
+    if (window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
+      return window.ZWMdItBody.renderToHtmlBeforePipeline(markdown);
     }
 
-    // DSL ブロックを復元
-    return restoreDslBlocks(html, extracted.placeholders);
-
-    // 最終フォールバック: テキストそのまま
     return '<pre>' + markdown.replace(/</g, '&lt;') + '</pre>';
   }
 
