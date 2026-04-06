@@ -295,7 +295,7 @@
             <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
               <i data-lucide="crosshair" aria-hidden="true"></i>
             </button>
-            <button class="mode-switch-btn" data-mode="reader" aria-pressed="false" title="読者プレビュー（閲覧専用）">
+            <button class="mode-switch-btn" data-mode="reader" aria-pressed="false" title="読者プレビュー（閲覧専用）" aria-label="読者プレビュー（閲覧専用）">
               <i data-lucide="book-open" aria-hidden="true"></i>
             </button>
           </div>
@@ -323,7 +323,7 @@
             <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
               <i data-lucide="columns" aria-hidden="true"></i>
             </button>
-            <button id="toggle-reader-preview" class="icon-button iconified" title="読者プレビュー（閲覧専用・全画面）" aria-label="読者プレビューモード（閲覧専用）に切り替え">
+            <button id="toggle-reader-preview" class="icon-button iconified" title="読者プレビュー（閲覧専用・全画面）" aria-label="読者プレビュー（閲覧専用・全画面）を開く">
               <i data-lucide="eye" aria-hidden="true"></i>
             </button>
             <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
@@ -831,11 +831,11 @@
   </script>
 
   <!-- SP-078: 読者プレビューモード -->
-  <div class="reader-preview" id="reader-preview" role="document" aria-label="読者プレビュー（閲覧専用）">
+  <div class="reader-preview" id="reader-preview" role="document" aria-label="読者プレビュー（閲覧専用）" aria-describedby="reader-mode-hint">
     <p class="reader-preview__mode-hint" id="reader-mode-hint">読者プレビュー · 閲覧のみ（編集は「編集に戻る」）</p>
-    <button class="reader-preview__back-fab" id="reader-back-fab" type="button">編集に戻る</button>
-    <button class="reader-preview__export-btn" id="reader-export-html" type="button">HTMLとして保存</button>
-    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替">縦書き</button>
+    <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（読者プレビューを終了）">編集に戻る</button>
+    <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（読者プレビュー）">HTMLとして保存</button>
+    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（読者プレビュー）" aria-label="縦書き表示に切り替え（読者プレビュー）">縦書き</button>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
   </div>
 </body>

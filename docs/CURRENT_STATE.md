@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 46)
+最終更新: 2026-04-06 (session 47)
 
 ## Snapshot
 
@@ -9,9 +9,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 46 |
+| セッション | 47 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | WP-004 パイプライン差分 E2E + `convertForExport` 修復 / WP-001 コマンドパレットフォーカス / FEATURE_REGISTRY 追記 |
+| 直近のスライス | WP-004 Reader プレビュー枠・ツールバー導線の `aria-*` / 文言統一（読了 UI。支援技術専用設計ではない） |
 
 ## この時点で信頼できること
 
@@ -31,6 +31,7 @@
 - `[[` 入力時に Wiki エントリ補完ドロップダウン表示、Focus モードでは非表示 (session 44 新規)
 - WYSIWYG でアニメーション/テクスチャエフェクトが即時適用される (WP-004 Phase 1)
 - 編集面（Markdown / リッチ編集）と UI モード（通常・フォーカス・読者プレビュー）の説明・用語の正本は `docs/INTERACTION_NOTES.md`（状態モデル節）
+- 読者プレビュー UI は `#reader-preview` に `aria-describedby="reader-mode-hint"`、FAB・保存・縦横切替に用途別 `aria-label`。モードスイッチ Reader ボタンは `aria-label` とツールバー目アイコンのラベルを用語で揃える
 - Normal サイドバーは「セクション」「構造」カテゴリを既定で折りたたみ。初回も `app-gadgets-init.js` で両グループのガジェットをマウント
 - Reader 終了時は復帰先 UI モードを正規化し、編集面へフォーカスを戻す（WP-004 Phase 2）。wikilink/傍点/ルビは `js/zw-inline-html-postmarkdown.js`、MD プレビューと読者の装飾〜章リンク順序は `js/zw-postmarkdown-html-pipeline.js`（Reader は `convertChapterLinks` → `convertForExport`、Phase 3）
 - Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する（`css/style.css`）
@@ -76,6 +77,15 @@
 | コマンドパレットフォーカス | UI モード別のフォーカス復帰 | `js/command-palette.js`, `e2e/command-palette.spec.js` |
 | FEATURE_REGISTRY | FR-001〜005 を登録 | `docs/FEATURE_REGISTRY.md` |
 | AUTOMATION_BOUNDARY | 上記 E2E の記載 | `docs/AUTOMATION_BOUNDARY.md` |
+
+### Session 47
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| Reader 導線 a11y | `#reader-preview` に `aria-describedby`、FAB・HTML 保存・縦横切替の `aria-label`、モードスイッチ Reader に `aria-label`、目アイコンと用語統一 | `index.html` |
+| 縦横切替 | `applyVerticalMode` で `aria-label` を表示状態に同期 | `js/reader-preview.js` |
+| コマンドパレット | MD プレビュー／WYSIWYG の説明を「読者プレビュー UI ではない」に統一 | `js/command-palette.js` |
+| E2E | 読者プレビュー a11y 属性の回帰テスト | `e2e/reader-preview.spec.js` |
 
 ## 検証結果
 

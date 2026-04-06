@@ -289,7 +289,7 @@
     {
       id: 'toggle-markdown-preview',
       label: 'MD プレビュー（横並び）',
-      description: '編集画面の横に Markdown 表示を開閉（読者モードではない）',
+      description: '編集画面の横に Markdown 表示を開閉（読者プレビュー UI ではない）',
       shortcut: '',
       category: '編集',
       execute: () => {
@@ -300,7 +300,7 @@
     {
       id: 'toggle-wysiwyg',
       label: 'リッチ編集（WYSIWYG）',
-      description: 'リッチ表示で編集。UI モードは変わらず（読者プレビューではない）',
+      description: 'リッチ表示で編集。UI モードは変わらず（読者プレビュー UI ではない）',
       shortcut: '',
       category: '編集',
       execute: () => {

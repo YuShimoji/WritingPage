@@ -410,6 +410,10 @@
     if (verticalToggle) {
       verticalToggle.setAttribute('aria-pressed', vertical ? 'true' : 'false');
       verticalToggle.textContent = vertical ? '横書き' : '縦書き';
+      verticalToggle.setAttribute(
+        'aria-label',
+        vertical ? '横書き表示に切り替え（読者プレビュー）' : '縦書き表示に切り替え（読者プレビュー）'
+      );
     }
     // プログレスバーをリセット
     if (progressFill) {

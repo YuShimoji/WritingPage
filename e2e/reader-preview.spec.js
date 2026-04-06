@@ -33,7 +33,7 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     });
   });
 
-  test('読者プレビューモードに切り替えられる', async ({ page }) => {
+  test('読者プレビューに切り替えられる', async ({ page }) => {
     // コンテンツを入力
     await page.evaluate(() => {
       var editor = document.getElementById('wysiwyg-editor');
@@ -43,7 +43,7 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
       }
     });
 
-    // 読者プレビューモードに切り替え
+    // 読者プレビューに切り替え
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
@@ -55,7 +55,35 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     expect(mode).toBe('reader');
   });
 
-  test('HTMLとして保存ボタンが読者モードで表示される', async ({ page }) => {
+  test('読者プレビュー枠に aria-describedby と主要ボタンの aria-label がある', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(300);
+
+    const a11y = await page.evaluate(() => {
+      var root = document.getElementById('reader-preview');
+      var back = document.getElementById('reader-back-fab');
+      var exp = document.getElementById('reader-export-html');
+      var vert = document.getElementById('reader-vertical-toggle');
+      return {
+        describedBy: root && root.getAttribute('aria-describedby'),
+        backLabel: back && back.getAttribute('aria-label'),
+        exportLabel: exp && exp.getAttribute('aria-label'),
+        vertLabel: vert && vert.getAttribute('aria-label'),
+        vertPressed: vert && vert.getAttribute('aria-pressed'),
+      };
+    });
+
+    expect(a11y.describedBy).toBe('reader-mode-hint');
+    expect(a11y.backLabel).toContain('編集に戻る');
+    expect(a11y.exportLabel).toContain('HTML');
+    expect(a11y.vertLabel).toContain('縦書き');
+    expect(a11y.vertLabel).toContain('読者プレビュー');
+    expect(a11y.vertPressed).toBe('false');
+  });
+
+  test('HTMLとして保存ボタンが読者プレビューで表示される', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
@@ -155,7 +183,7 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
       }
     });
 
-    // 読者モードに入り、スクロール
+    // 読者プレビューに入り、スクロール
     await page.evaluate(() => window.ZWReaderPreview.enter());
     await page.waitForTimeout(200);
     await page.evaluate(() => {
