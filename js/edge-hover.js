@@ -201,10 +201,7 @@
     glowElements.left = leftGlow;
   }
 
-  var GLOW_BASELINE = 0.15;
-
   // --- グローフラッシュ (Focus 進入時ヒント、2回限定) ---
-  var GLOW_FLASH_OPACITY = 0.4;
   var GLOW_FLASH_DURATION = 2000;
   var GLOW_FLASH_MAX_COUNT = 2;
   var GLOW_FLASH_STORAGE_KEY = 'zw_edge_glow_flash_count';
@@ -224,15 +221,15 @@
     if (getGlowFlashCount() >= GLOW_FLASH_MAX_COUNT) return;
     incrementGlowFlashCount();
 
-    if (glowElements.top) { glowElements.top.classList.add('edge-glow--flash'); glowElements.top.style.opacity = String(GLOW_FLASH_OPACITY); }
-    if (glowElements.left) { glowElements.left.classList.add('edge-glow--flash'); glowElements.left.style.opacity = String(GLOW_FLASH_OPACITY); }
+    if (glowElements.top) glowElements.top.classList.add('edge-glow--flash');
+    if (glowElements.left) glowElements.left.classList.add('edge-glow--flash');
 
     clearTimeout(glowFlashTimer);
     glowFlashTimer = setTimeout(function () {
       glowFlashTimer = null;
       if (html.getAttribute('data-ui-mode') !== 'focus') return;
-      if (glowElements.top) { glowElements.top.style.opacity = String(GLOW_BASELINE); glowElements.top.classList.remove('edge-glow--flash'); }
-      if (glowElements.left) { glowElements.left.style.opacity = String(GLOW_BASELINE); glowElements.left.classList.remove('edge-glow--flash'); }
+      if (glowElements.top) glowElements.top.classList.remove('edge-glow--flash');
+      if (glowElements.left) glowElements.left.classList.remove('edge-glow--flash');
     }, GLOW_FLASH_DURATION);
   }
 
@@ -242,42 +239,35 @@
 
     if (glowElements.top) {
       glowElements.top.style.display = shouldShow ? '' : 'none';
-      if (shouldShow) glowElements.top.style.opacity = String(GLOW_BASELINE);
+      glowElements.top.classList.remove('edge-glow--near');
     }
     if (glowElements.left) {
       glowElements.left.style.display = shouldShow ? '' : 'none';
-      if (shouldShow) glowElements.left.style.opacity = String(GLOW_BASELINE);
+      glowElements.left.classList.remove('edge-glow--near');
     }
 
     if (shouldShow) flashGlows();
   }
 
-  // マウス位置に応じてグローの opacity を変化させる
-  function updateGlowOpacity(x, y) {
+  var GLOW_ZONE = 200; // グロー近接検知ゾーン (px)
+
+  // マウス近接でクラスを切り替え、opacity は CSS transition に委ねる
+  function updateGlowProximity(x, y) {
     if (!glowElements.top && !glowElements.left) return;
     var mode = html.getAttribute('data-ui-mode');
     if (mode !== 'focus') return;
     if (glowFlashTimer) return;
 
-    var topActive = state.top.active;
-    var leftActive = state.left.active;
+    var topNear = !state.top.active && y <= GLOW_ZONE;
+    var leftNear = !state.left.active && x <= GLOW_ZONE;
 
-    // 上部グロー: y が 0-120px で opacity BASELINE→0.6
-    if (glowElements.top && glowElements.top.style.display !== 'none') {
-      var topOpacity = topActive ? 0 : Math.max(GLOW_BASELINE, y <= 120 ? (1 - y / 120) * 0.6 : 0);
-      glowElements.top.style.opacity = String(topOpacity);
-    }
-
-    // 左部グロー: x が 0-80px で opacity BASELINE→0.6
-    if (glowElements.left && glowElements.left.style.display !== 'none') {
-      var leftOpacity = leftActive ? 0 : Math.max(GLOW_BASELINE, x <= 80 ? (1 - x / 80) * 0.6 : 0);
-      glowElements.left.style.opacity = String(leftOpacity);
-    }
+    if (glowElements.top) glowElements.top.classList.toggle('edge-glow--near', topNear);
+    if (glowElements.left) glowElements.left.classList.toggle('edge-glow--near', leftNear);
   }
 
   function dismissGlows() {
-    if (glowElements.top) { glowElements.top.style.opacity = '0'; }
-    if (glowElements.left) { glowElements.left.style.opacity = '0'; }
+    if (glowElements.top) glowElements.top.classList.remove('edge-glow--near');
+    if (glowElements.left) glowElements.left.classList.remove('edge-glow--near');
   }
 
   // エッジホバーが発火したらグローを消す
@@ -293,7 +283,7 @@
     document.addEventListener('mousemove', function (e) {
       onMouseMove(e);
       onMouseLeaveEdge(e);
-      updateGlowOpacity(e.clientX, e.clientY);
+      updateGlowProximity(e.clientX, e.clientY);
     });
 
     // ウィンドウ外にカーソルが出たら全dismiss

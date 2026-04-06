@@ -14,11 +14,11 @@
 
 ## 現在の状態
 
-- E2E: 529 passed / 0 failed / 5 skipped / 63 spec files (2026-04-04 session 43)
+- E2E: 531 total / 62 spec files (2026-04-06 session 44)
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録
-- 仕様書: spec-index.json に 55 エントリ (done 43, partial 1, removed 11, superseded 1)
+- 仕様書: spec-index.json に 56 エントリ (done 44, removed 11, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
 - 直近 done: SP-081(エディタ体験再構築, session 33), SP-080(JSONプロジェクト保存, session 27)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
