@@ -1,6 +1,6 @@
 # アプリケーション起動手順書
 
-Zen Writer v0.3.29
+Zen Writer v0.3.32
 
 ## 目次
 

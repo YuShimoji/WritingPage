@@ -1112,7 +1112,7 @@ function exportProjectJSON(docId) {
 
         const project = {
             format: 'zenwriter-v1',
-            version: (window.ZEN_WRITER_VERSION || '0.3.29'),
+            version: (window.ZEN_WRITER_VERSION || '0.3.32'),
             document: {
                 name: doc.name || '',
                 chapterMode: doc.chapterMode !== false,

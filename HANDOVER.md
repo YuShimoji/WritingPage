@@ -3,27 +3,34 @@
 ## 概要
 
 Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
-Electron デスクトップアプリとしても動作（v0.3.29 で CDN バンドル化によりオフライン完全対応）。
+Electron デスクトップアプリとしても動作（CDN バンドル化によりオフライン完全対応）。
 
-- **バージョン**: 0.3.29
-- **最終更新**: 2026-03-30
-- **ブランチ**: main（origin/main と同期済み）
+- **バージョン**: 0.3.32（`package.json` / `VERSION` と一致）
+- **最終更新**: 2026-04-06
+- **ブランチ**: `main`（`origin/main` と fast-forward 同期想定）
 
 ## 再開手順
 
 ```bash
-git checkout main && git pull --ff-only
-npm ci                    # postinstall で vendor/ にライブラリコピー
-npm run dev               # 開発サーバー (8080)
-npx playwright test       # E2E テスト
-npm run lint              # ESLint
+git checkout main
+git pull --ff-only origin main
+npm ci
+npx playwright install chromium
+npm run test:smoke
+npm run lint:js:check
+npm run dev
 ```
+
+PowerShell では `git checkout main; git pull --ff-only origin main; npm ci` のように `;` で区切る。
+
+E2E 全件: `npx playwright test`。回帰の軽い切り出しは `docs/CURRENT_STATE.md` の検証結果を参照。
 
 最初に読む順番:
 
-1. `docs/CURRENT_STATE.md`
-2. `HANDOVER.md`
-3. 必要なら対象仕様 (`docs/specs/` または `docs/ROADMAP.md`)
+1. `docs/CURRENT_STATE.md`（セッション 51 までが正本）
+2. `docs/ROADMAP.md` の「次スライス候補」
+3. `docs/USER_REQUEST_LEDGER.md`（開発スライスの進め方・deferred 再現手順）
+4. 必要なら `docs/INTERACTION_NOTES.md`（編集面と UI モードの用語・状態モデル）
 
 ## 現在のプロジェクト状態
 
@@ -31,50 +38,45 @@ npm run lint              # ESLint
 
 | 項目 | 状態 |
 |------|------|
-| 主軸 | UI/UX の磨き上げと未完了機能の安全な局所化 |
-| 直近修正 | 執筆集中サイドバーを `focus` 限定化 / UI モード経路の一本化 / `+追加` 自然レベル修正 |
-| 重点仕様 | `SP-053` 執筆集中サイドバー, `SP-062` テキスト表現アーキテクチャ |
-| 現在地の正本 | `docs/CURRENT_STATE.md` |
+| 主軸 | WP-001（UI 摩擦削減）+ WP-004（Reader-First WYSIWYG、Phase 3 継続） |
+| 直近スライス | 次着手候補の整理（台帳・ROADMAP）、WP-004 パイプライン／a11y／geometry E2E まで反映済み |
+| 現在地の正本 | `docs/CURRENT_STATE.md` / `docs/project-context.md` / `docs/runtime-state.md` |
 
 ### テスト状況
 
-| テスト | 状態 | コマンド |
-|--------|------|----------|
-| 重点 UI suite | ✅ 27 passed | `npx playwright test e2e/accessibility.spec.js e2e/ui-regression.spec.js e2e/command-palette.spec.js e2e/sidebar-writing-focus.spec.js --reporter=line` |
-| Lint | ✅ passed | `npm run lint:js:check` |
-| 全件 E2E | 未再確認 | `npx playwright test` |
+| テスト | コマンド |
+|--------|----------|
+| スモーク | `npm run test:smoke`（`scripts/dev-check.js`） |
+| Lint（JS） | `npm run lint:js:check` |
+| E2E | `npx playwright test`（spec ファイル 64 本、`e2e/*.spec.js`） |
+
+`docs/verification/` 配下の一時スクリプトは ESLint 対象外（`.eslintignore`）。
 
 ### アーキテクチャ概要
 
-- **ガジェットシステム**: `gadgets-core.js` / `gadgets-utils.js` / `gadgets-loadouts.js` / `gadgets-init.js` / `gadgets-builtin.js`
-- **サイドバー**: `SidebarManager`(SSOT) -- structure / edit / theme / assist / advanced を中心に管理
-- **ツールバー**: コンテキストベース (Layer 1-4) -- ミニマルヘッダー / フローティング装飾バー / サイドバー / エッジホバーUI
-- **エディタモジュール**: `js/modules/editor/` に EditorCore / EditorUI / EditorSearch を分割済み
-- **WYSIWYG**: `editor-wysiwyg.js` (RichTextEditor, 全15種装飾対応)
-- **テーマ**: `ThemeRegistry` で集中管理 (6テーマ: light/dark/night/sepia/high-contrast/solarized)
-- **モードアーキテクチャ**: Normal / Focus / Blank / Reader の4モード (SP-070/078)
-- **チャプター管理**: ChapterStore + ChapterList 2ペイン (SP-071)
-- **ストレージ**: IndexedDB (SP-077完了) + メモリキャッシュ + localStorageフォールバック
-- **Embed SDK**: `js/embed/` -- 同一/クロスオリジン対応
-- **Electron**: `electron/` -- オフライン完全対応 (vendor/ ローカルバンドル)
+- **ガジェット**: `gadgets-core.js` ほか `gadgets-*.js`
+- **サイドバー**: `SidebarManager`（SSOT）
+- **エディタ**: `js/modules/editor/`（EditorCore / EditorUI 等）
+- **WYSIWYG**: `editor-wysiwyg.js`
+- **UI モード**: `normal` / `focus` / `reader`。`setUIMode` が単一入口。`blank` は互換のため `focus` にフォールバック
+- **章・ストレージ**: ChapterStore、IndexedDB（SP-077）、JSON プロジェクト保存（SP-080）
+- **Reader / プレビュー HTML**: `js/zw-inline-html-postmarkdown.js`、`js/zw-postmarkdown-html-pipeline.js`（WP-004 Phase 3 の正本は仕様・台帳参照）
+- **Electron**: `electron/` + `vendor/` ローカルバンドル
 
 ### 直近の重要判断
 
-- UI モードは `setUIMode` を単一入口として扱う
-- 執筆集中サイドバーは `focus` モード限定の partial 機能として扱う
-- Electron の「超ミニマル」は `setUIMode` 経由で通常モード系へ正規化する
-- hidden 互換 UI は残っていても、周辺機能はまず `ZenWriterApp` API を使う
+- スライスは **1 トピック** に絞る。完了時に `CURRENT_STATE` を更新する（台帳「開発スライスの進め方」参照）
+- ブロック段落の左・中・右揃えは **WP-004 Phase 3 には含めない**。`spec-rich-text-paragraph-alignment.md` と `spec-richtext-enhancement.md`（P2）で別トラック
+- 機能の台帳登録: `docs/FEATURE_REGISTRY.md`、E2E 境界: `docs/AUTOMATION_BOUNDARY.md`
 
 ## 既知の課題
 
-- `docs/spec-index.json` に現ワークツリーで欠けている historical entry が残っている
-- UI まわりに旧経路/互換レイヤが残っている
-- テキスト表現 (`SP-062`) は in-progress のため追加整備が必要
-- handoff 指示で想定される canonical docs の一部 (`docs/runtime-state.md`, `docs/project-context.md`, `docs/INVARIANTS.md` など) はこの repo に未作成
+- `docs/spec-index.json` に historical entry が残る場合がある（現ワークツリーとの差は `CURRENT_STATE` を優先）
+- `npm audit` で依存に moderate/high の指摘あり（必要時に個別判断）
 
 ## 決定事項
 
--> CLAUDE.md の DECISION LOG を参照
+-> `CLAUDE.md` の DECISION LOG を参照
 
 ## ローカル検証
 
@@ -82,21 +84,16 @@ npm run lint              # ESLint
 |----------|------|
 | `npm run dev` | 開発サーバー (8080) |
 | `npx playwright test` | Playwright E2E |
-| `npm run lint` | ESLint |
-| `npm run electron:dev` | Electron 開発モード (cmd.exe から実行) |
-| `npm run electron:build` | Electron ビルド |
-| `node scripts/run-two-servers.js` | 2ポート同時起動 (8080/8081, embed検証用) |
+| `npm run lint` | ESLint + markdownlint |
+| `npm run electron:dev` | Electron 開発モード |
+| `node scripts/run-two-servers.js` | 8080/8081 同時起動（embed 検証用） |
 
 ## 参照ドキュメント
 
-- `docs/CURRENT_STATE.md` -- 最新の現在地・直近修正・検証結果
-- `docs/PROJECT_HEALTH.md` -- 健全性・主要リスク・次の確認ポイント
-- `docs/ROADMAP.md` -- 機能強化ロードマップ
-- `docs/ARCHITECTURE.md` -- アーキテクチャ概要
-- `docs/TESTING.md` -- テスト方針
-- `docs/GADGETS.md` -- ガジェットAPI仕様
-- `docs/APP_SPECIFICATION.md` -- アプリケーション仕様書
-- `docs/spec-context-toolbar.md` -- コンテキストツールバー仕様
-- `docs/specs/spec-writing-focus-sidebar.md` -- 執筆集中サイドバー仕様
-- `docs/specs/spec-text-expression-architecture.md` -- テキスト表現 SSOT
-- `CLAUDE.md` -- AI再開用コンテキスト
+- `docs/CURRENT_STATE.md`
+- `docs/ROADMAP.md`
+- `docs/USER_REQUEST_LEDGER.md`
+- `docs/INTERACTION_NOTES.md`
+- `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md`
+- `docs/ARCHITECTURE.md` / `docs/TESTING.md` / `docs/APP_SPECIFICATION.md`
+- `CLAUDE.md`

@@ -1,15 +1,11 @@
 # Project Context
 
-## RECENT NOTE (2026-04-06, session 46)
+## RECENT NOTE (2026-04-06, session 51)
 
-- 上部ツールバー・エッジグローの挙動をユーザー確認済み（安定）
-- エッジグロー: CSS クラス方式 (--near / --flash)、近接 200px、`js/edge-hover.js` + `css/style.css`
-- Focus ツールバー: `position: fixed`、上端エッジ表示中は `.editor-container` に `padding-top: var(--toolbar-height)`（`app.js` の ResizeObserver 同期と整合）
-- Focus 閉じたサイドバー: ビューポート左縁での影・境界の漏れ抑制（非オーバーレイ時）
-- E2E: `e2e/toolbar-editor-geometry.spec.js` で Normal・狭幅・Focus+上端の幾何を検証
-- canonical: `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md` テンプレート追加
-- 段落ブロック揃え仕様: `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は別スライス）
-- session 46: `convertForExport` が `chapter-link--broken` を置換できない不具合を修正。パイプライン差分を E2E 化。コマンドパレットのモード切替後フォーカスを Reader/執筆面で分岐。FEATURE_REGISTRY に FR-001〜005 登録。
+- 次着手準備: `USER_REQUEST_LEDGER` に WP-001 deferred（BL-002 / BL-004 / Focus 左パネル間隔）の簡易再現手順を追加。`ROADMAP` の次スライス候補まわりの `aria-*` 表記を整理
+- 直前までの実装資産（要約）: Focus ツールバー fixed + `--toolbar-height` 同期、エッジグロー CSS クラス方式、geometry / reader-wysiwyg-distinction / command-palette / reader-preview の E2E、WP-004 Phase 3 のルビ共通化 E2E、段落揃えはリッチテキスト P2 トラックに分離
+- 正本: `docs/CURRENT_STATE.md`（session 45〜51 の表）、用語・状態モデルは `docs/INTERACTION_NOTES.md`
+- E2E spec ファイル数: 64（`e2e/*.spec.js` 集計）
 
 ## PROJECT CONTEXT
 
@@ -17,12 +13,12 @@
 - 環境: Node.js v22 / Playwright E2E / Electron v35
 - ブランチ戦略: trunk-based (main のみ)
 - 現フェーズ: β (v0.3.32)
-- 直近の状態: session 45 — Focus レイアウト安定化 + ツールバー/グロー確認済み
+- 直近の状態: session 51 — 次着手候補のドキュメント整備（実装は session 45〜50 まで蓄積）
 
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- E2E: spec ファイル 64 本（`e2e/*.spec.js` 集計、session 45）
+- E2E: spec ファイル 64 本（`e2e/*.spec.js` 集計、session 51）
 - spec-index: 56エントリ (done 44, removed 11, superseded 1)
 - Q1/Q2/Q3/Q4 全解決済み
 - ガジェット: 28個登録
@@ -57,7 +53,7 @@
 
 ## CURRENT SLICE
 
-- スライス名: Focus/ツールバー/グロー安定化 + geometry E2E（session 45）
+- スライス名: 次着手候補の実行準備（session 51）。直前の実装スライスは geometry / パイプライン / a11y 等（session 45〜50）
 - 次スライス候補: `docs/ROADMAP.md` の「次スライス候補 (WP-004 / WP-001)」および `USER_REQUEST_LEDGER.md`
 
 ---
@@ -92,15 +88,11 @@
 ## HANDOFF SNAPSHOT
 
 - 現在の主レーン: Advance (WP-001 UI磨き上げ + WP-004 Reader-First WYSIWYG)
-- 現在のスライス: Focus レイアウト + ツールバー/グロー安定化 + geometry E2E + canonical テンプレ
-- 今回 (session 45) の変更（コミットに含める想定）:
-  - Focus 閉じたサイドバーの左端漏れ抑制（影・境界）
-  - Focus 上端エッジ時の `.editor-container` 上余白（`--toolbar-height`）
-  - `e2e/toolbar-editor-geometry.spec.js`
-  - `docs/specs/spec-rich-text-paragraph-alignment.md` / `spec-mode-architecture.md` 追記
-  - `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md` テンプレート
-  - ROADMAP / USER_REQUEST_LEDGER に次スライス候補を明記
-- session 44 以前のコミット済み資産（参照）: Wiki-Editor-Reader、グローフラッシュ、WP-004 Phase 1、BL 全解決 等
+- 現在のスライス: session 51 で台帳・ROADMAP を次トピック選定向けに更新済み。実装の最新は `CURRENT_STATE` の session 45〜50 表を参照
+- session 51 の主なドキュメント変更:
+  - `USER_REQUEST_LEDGER`: deferred 項目の簡易再現手順
+  - `ROADMAP`: 次スライス候補の表記整備
+- 参照資産（コミット済み）: geometry E2E、reader-wysiwyg-distinction、コマンドパレットフォーカス分岐、Reader a11y、パイプライン（ルビ等）、FEATURE_REGISTRY / AUTOMATION_BOUNDARY、Wiki ワークフロー、WP-004 Phase 1 等
 - 設計経緯 (グロー刷新):
   - 当初: ベースライン opacity 0.15 + mousemove で連続的 opacity 計算
   - 問題: (1) ダークテーマ上で視認困難 (2) CSS transition 0.3s と毎フレーム style 上書きが干渉し不安定 (3) 上部/左部の検知範囲が非対称 (120px/80px) で挙動が不統一 (4) dismissGlows→hideEdge後にグロー残留

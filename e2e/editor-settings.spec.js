@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { enableAllGadgets, setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDialogs } = require('./helpers');
+const { setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDialogs } = require('./helpers');
 
 test.describe('Editor Settings', () => {
   test.setTimeout(60000);

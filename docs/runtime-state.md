@@ -1,15 +1,15 @@
 # Runtime State — Zen Writer
 
-> 最終更新: 2026-04-06 session 44
+> 最終更新: 2026-04-06 session 51（詳細は `docs/CURRENT_STATE.md`）
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 44
-- 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減)
-- スライス: Focus グロー初期可視化 + フラッシュヒント + docs数値同期
+- セッション: 51
+- 主レーン: Advance (WP-001 UI 磨き上げ・摩擦軽減 + WP-004 Reader-First WYSIWYG)
+- スライス: 次着手候補整理（台帳 deferred 再現手順・ROADMAP 整備）。実装資産は session 45〜50 を参照
 
 ---
 
@@ -17,17 +17,17 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 44 | 43 |
+| セッション番号 | 51 | 44 |
 | ガジェット数 | 28 | 28 |
-| spec-index エントリ | 56 | 55 |
+| spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |
 | spec partial | 0 | 0 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
-| JS impl ファイル | 108 | 104 |
+| JS impl ファイル | 110 | 108 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル | 62 | 62 |
-| E2E total | 531 | 531 |
+| E2E spec ファイル | 64 | 62 |
+| E2E total | （`npx playwright test --list` で再集計） | 531 |
 | E2E failed | 0 | 0 |
 | E2E skipped | 3 | 3 |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
