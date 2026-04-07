@@ -1797,6 +1797,30 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   text-indent: var(--paragraph-indent, 1em);
 }
 
+/* P2 段落揃え: WYSIWYG + MD プレビュー + 読者本文（値は start/center/end。パイプラインは属性を落とさない想定） */
+#wysiwyg-editor [data-zw-align='start'] {
+  text-align: left;
+}
+#wysiwyg-editor [data-zw-align='center'] {
+  text-align: center;
+}
+#wysiwyg-editor [data-zw-align='end'] {
+  text-align: right;
+}
+
+#markdown-preview-panel [data-zw-align='start'],
+.reader-preview__content [data-zw-align='start'] {
+  text-align: left;
+}
+#markdown-preview-panel [data-zw-align='center'],
+.reader-preview__content [data-zw-align='center'] {
+  text-align: center;
+}
+#markdown-preview-panel [data-zw-align='end'],
+.reader-preview__content [data-zw-align='end'] {
+  text-align: right;
+}
+
 /* ===== WYSIWYG 縦書きモード (実験的) ===== */
 #wysiwyg-editor.vertical-writing {
   writing-mode: vertical-rl;
@@ -8323,6 +8347,10 @@ html[data-ui-mode='reader'] .edge-glow {
   opacity: 0.7;
   font-size: 0.75rem;
   line-height: 1.5;
+}
+
+.reader-wiki-popover--broken {
+  border-color: rgba(229, 57, 53, 0.45);
 }
 
 /* Wikilink 入力補完ドロップダウン */

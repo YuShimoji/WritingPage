@@ -120,6 +120,21 @@
             return '[' + texName + ']' + content + '[/' + texName + ']';
           }
         });
+        // P2: data-zw-align 付きブロックは HTML 断片として保持（段落揃えの往復）
+        var zwAlignTags = { P: 'p', H1: 'h1', H2: 'h2', H3: 'h3', BLOCKQUOTE: 'blockquote', LI: 'li' };
+        this.turndownService.addRule('zwBlockAlign', {
+          filter: function (node) {
+            var tag = node.nodeName;
+            if (!zwAlignTags[tag]) return false;
+            var v = node.getAttribute && node.getAttribute('data-zw-align');
+            return v === 'start' || v === 'center' || v === 'end';
+          },
+          replacement: function (content, node) {
+            var t = zwAlignTags[node.nodeName];
+            var v = node.getAttribute('data-zw-align') || 'start';
+            return '<' + t + ' data-zw-align="' + v + '">' + content + '</' + t + '>';
+          }
+        });
       }
 
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
@@ -383,6 +398,9 @@
           var action = btn.getAttribute('data-overflow');
           if (action === 'vertical-toggle') self._toggleVerticalWriting();
           if (action === 'switch-textarea') self.switchToTextarea();
+          if (action === 'align-start') self.executeCommand('alignstart');
+          if (action === 'align-center') self.executeCommand('aligncenter');
+          if (action === 'align-end') self.executeCommand('alignend');
           var dd = btn.closest('.wysiwyg-dropdown');
           if (dd) dd.setAttribute('data-open', 'false');
         });
@@ -1527,44 +1545,57 @@
       var rect = range.getBoundingClientRect();
       if (rect.width === 0 && rect.height === 0) return;
 
-      // ツールバー幅を正確に測定するため、一旦画面外に表示
-      if (!this._isFloatingVisible()) {
-        this.wysiwygToolbar.style.top = '-9999px';
-        this.wysiwygToolbar.style.left = '-9999px';
-        this.wysiwygToolbar.setAttribute('data-visible', 'true');
-      }
-
-      var toolbarH = 44;
       var gap = 8;
-      var top, left;
       var vpW = window.innerWidth;
-
-      var tbRect = this.wysiwygToolbar.getBoundingClientRect();
-      var tbW = tbRect.width || 300;
-      toolbarH = tbRect.height || toolbarH;
-
-      // 選択範囲の上にビューポート余白があれば上、なければ下
-      if (rect.top > toolbarH + gap) {
-        top = rect.top - toolbarH - gap;
-      } else {
-        top = rect.bottom + gap;
-      }
-      left = rect.left + rect.width / 2;
-
       var margin = 12;
 
-      // サイドバーが開いている場合、左端をサイドバー右端に制限
+      // 毎回画面外で測定する（2回目以降に画面内のまま測ると折り返し高さが変わり、上/下分岐がズレる）
+      this.wysiwygToolbar.setAttribute('data-visible', 'true');
+      this.wysiwygToolbar.style.top = '-9999px';
+      this.wysiwygToolbar.style.left = vpW / 2 + 'px';
+      this.wysiwygToolbar.style.transform = 'translateX(-50%)';
+
+      var roughRect = this.wysiwygToolbar.getBoundingClientRect();
+      var roughW = roughRect.width || 300;
+
+      var left = rect.left + rect.width / 2;
       var sidebarEl = document.querySelector('.sidebar.open');
       var leftBound = margin;
       if (sidebarEl) {
         leftBound = sidebarEl.getBoundingClientRect().right + margin;
       }
+      if (left - roughW / 2 < leftBound) {
+        left = roughW / 2 + leftBound;
+      }
+      if (left + roughW / 2 > vpW - margin) {
+        left = vpW - roughW / 2 - margin;
+      }
 
-      // 左端クランプ: translateX(-50%) を考慮
+      this.wysiwygToolbar.style.left = left + 'px';
+      var tbRect = this.wysiwygToolbar.getBoundingClientRect();
+      var tbW = tbRect.width || 300;
+      var toolbarH = tbRect.height || 44;
+
+      var mainTbEl = document.getElementById('toolbar');
+      var minTop = mainTbEl ? mainTbEl.getBoundingClientRect().bottom + gap : gap;
+
+      var top;
+      if (rect.top > toolbarH + gap) {
+        top = rect.top - toolbarH - gap;
+        if (top < minTop) {
+          top = rect.bottom + gap;
+        }
+      } else {
+        top = rect.bottom + gap;
+      }
+      if (top < minTop) {
+        top = minTop;
+      }
+
+      // 左端クランプ: translateX(-50%) を考慮（tbW は確定後）
       if (left - tbW / 2 < leftBound) {
         left = tbW / 2 + leftBound;
       }
-      // 右端クランプ
       if (left + tbW / 2 > vpW - margin) {
         left = vpW - tbW / 2 - margin;
       }
@@ -1791,7 +1822,9 @@
       this.wysiwygEditor.addEventListener('click', this._twHandler);
 
       // 上下余白を追加してカーソルがアンカー位置に到達できるようにする
+      // 下のみだと scrollTop=0 のとき短文ではカーソルがアンカーより上に固定され、寄せられない（session 63）
       this.wysiwygEditor.style.paddingBottom = 'calc(100vh * ' + cfg.anchorRatio + ')';
+      this.wysiwygEditor.style.paddingTop = 'calc(100vh * ' + (1 - cfg.anchorRatio) + ')';
       this.wysiwygEditor.setAttribute('data-typewriter', 'true');
     }
 
@@ -1806,6 +1839,7 @@
         this._twHandler = null;
       }
       this.wysiwygEditor.style.paddingBottom = '';
+      this.wysiwygEditor.style.paddingTop = '';
       this.wysiwygEditor.removeAttribute('data-typewriter');
     }
 
@@ -1835,7 +1869,11 @@
 
       var stickiness = this._twCfg.stickiness;
       var scrollDelta = delta * stickiness;
-      this.wysiwygEditor.scrollTop += scrollDelta;
+      var el = this.wysiwygEditor;
+      el.scrollTop += scrollDelta;
+      var maxScroll = el.scrollHeight - el.clientHeight;
+      if (maxScroll < 0) maxScroll = 0;
+      el.scrollTop = Math.max(0, Math.min(el.scrollTop, maxScroll));
     }
 
     /**
@@ -1909,6 +1947,16 @@
         }
       });
 
+      /** P1（session 62）: blur 時に保留中の入力バッチを Undo スタックへ確定 */
+      this.wysiwygEditor.addEventListener('blur', () => {
+        if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
+      });
+
+      /** IME 確定直後も 1 単位として区切る（連続デバウンスと分離） */
+      this.wysiwygEditor.addEventListener('compositionend', () => {
+        if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
+      });
+
       // ペースト時の処理（プレーンテキスト化を防ぐ）
       this.wysiwygEditor.addEventListener('paste', (e) => {
         e.preventDefault();
@@ -1926,11 +1974,32 @@
           this._dismissWikiComplete();
           return;
         }
+        // P1（session 62）: Space / Enter 直前にデバウンス中のスナップショットを確定（単語・行境界での Undo 粒度）
+        if (!e.isComposing && !(e.ctrlKey || e.metaKey || e.altKey)) {
+          if (e.key === ' ' || e.key === 'Enter') {
+            this._flushPendingUndoSnapshot();
+          }
+        }
+        // Ctrl+Shift+Alt+D: effectPersistDecorAcrossNewline をトグル（設定 UI 未実装時のショートカット）
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.altKey && (e.key === 'd' || e.key === 'D')) {
+          e.preventDefault();
+          if (
+            window.ZenWriterStorage
+            && typeof window.ZenWriterStorage.loadSettings === 'function'
+            && typeof window.ZenWriterStorage.saveSettings === 'function'
+          ) {
+            var s = window.ZenWriterStorage.loadSettings();
+            var on = !!(s.editor && s.editor.effectPersistDecorAcrossNewline === true);
+            window.ZenWriterStorage.saveSettings({ editor: { effectPersistDecorAcrossNewline: !on } });
+          }
+          return;
+        }
         // BL-002: Enter で書式を切断 (effectBreakAtNewline)
         if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
           var settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
             ? window.ZenWriterStorage.loadSettings() : {};
           var breakAtNewline = settings.editor && settings.editor.effectBreakAtNewline !== false;
+          var persistDecorAcrossNewline = settings.editor && settings.editor.effectPersistDecorAcrossNewline === true;
           if (breakAtNewline) {
             // execCommand 系の書式状態を取得
             var wasBold = document.queryCommandState('bold');
@@ -1963,8 +2032,8 @@
               if (wasUnderline) document.execCommand('underline', false, null);
               if (wasStrikeThrough) document.execCommand('strikeThrough', false, null);
 
-              // decor-* span の外にカーソルを移動
-              if (decorSpan) {
+              // decor-* span の外にカーソルを移動（effectPersistDecorAcrossNewline 時は継続のためスキップ）
+              if (decorSpan && !persistDecorAcrossNewline) {
                 var curSel = window.getSelection();
                 if (curSel && curSel.rangeCount > 0) {
                   var curNode = curSel.getRangeAt(0).startContainer;
@@ -2721,6 +2790,17 @@
       this._undoSnapshotTimer = setTimeout(() => {
         this._captureUndoSnapshot();
       }, this._undoBatchTimeout);
+    }
+
+    /**
+     * テキスト入力用デバウンスを打ち切り、現時点の HTML を即座に Undo スタックへ反映する。
+     * Space / Enter / blur / compositionend で呼び、バッチが無意味に長く連なるのを防ぐ。
+     */
+    _flushPendingUndoSnapshot() {
+      clearTimeout(this._undoSnapshotTimer);
+      this._undoSnapshotTimer = null;
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      this._captureUndoSnapshot();
     }
 
     /**

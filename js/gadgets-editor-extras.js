@@ -200,6 +200,74 @@
       placeholderRow.appendChild(placeholderLabel);
       placeholderRow.appendChild(placeholderInput);
 
+      // リッチ編集: 改行で装飾・効果を切る（BL-002・settings.editor.effectBreakAtNewline、既定 true）
+      var effectBreakRow = el('div');
+      effectBreakRow.style.display = 'grid';
+      effectBreakRow.style.gap = '0.25rem';
+      var effectBreakLabel = el('label');
+      effectBreakLabel.style.display = 'flex';
+      effectBreakLabel.style.alignItems = 'flex-start';
+      effectBreakLabel.style.gap = '0.375rem';
+      var effectBreakCheck = el('input');
+      effectBreakCheck.type = 'checkbox';
+      effectBreakCheck.id = 'effect-break-at-newline';
+      effectBreakCheck.checked = !(editorCfg.effectBreakAtNewline === false);
+      var effectBreakTextWrap = el('span');
+      effectBreakTextWrap.style.display = 'grid';
+      effectBreakTextWrap.style.gap = '0.125rem';
+      var effectBreakTitle = el('span');
+      effectBreakTitle.textContent = '改行で装飾・効果を切る（既定オン・BL-002）';
+      var effectBreakHint = el('span');
+      effectBreakHint.style.fontSize = '0.7rem';
+      effectBreakHint.style.opacity = '0.75';
+      effectBreakHint.textContent = 'リッチ編集（WYSIWYG）で Enter 時に、太字等の書式解除や decor 周りの後処理を行います。オフにすると改行挙動が変わります。';
+      effectBreakTextWrap.appendChild(effectBreakTitle);
+      effectBreakTextWrap.appendChild(effectBreakHint);
+      effectBreakLabel.appendChild(effectBreakCheck);
+      effectBreakLabel.appendChild(effectBreakTextWrap);
+      effectBreakRow.appendChild(effectBreakLabel);
+      effectBreakCheck.addEventListener('change', function () {
+        withStorage(function (cfg) {
+          cfg.editor = cfg.editor || {};
+          cfg.editor.effectBreakAtNewline = !!effectBreakCheck.checked;
+        });
+        try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) { }
+      });
+
+      // リッチ編集: Enter 後も decor-* 内にカーソルを残す（settings.editor.effectPersistDecorAcrossNewline）
+      var newlineDecorRow = el('div');
+      newlineDecorRow.style.display = 'grid';
+      newlineDecorRow.style.gap = '0.25rem';
+      var newlineDecorLabel = el('label');
+      newlineDecorLabel.style.display = 'flex';
+      newlineDecorLabel.style.alignItems = 'flex-start';
+      newlineDecorLabel.style.gap = '0.375rem';
+      var newlineDecorCheck = el('input');
+      newlineDecorCheck.type = 'checkbox';
+      newlineDecorCheck.id = 'effect-persist-decor-across-newline';
+      newlineDecorCheck.checked = !!editorCfg.effectPersistDecorAcrossNewline;
+      var newlineDecorTextWrap = el('span');
+      newlineDecorTextWrap.style.display = 'grid';
+      newlineDecorTextWrap.style.gap = '0.125rem';
+      var newlineDecorTitle = el('span');
+      newlineDecorTitle.textContent = '改行後も装飾スパン内にカーソルを残す';
+      var newlineDecorHint = el('span');
+      newlineDecorHint.style.fontSize = '0.7rem';
+      newlineDecorHint.style.opacity = '0.75';
+      newlineDecorHint.textContent = 'リッチ編集（WYSIWYG）専用。Enter 後もカスタム装飾（decor-*）内にカーソルを残します（上の「改行で装飾・効果を切る」がオンのときのみ）。ショートカット: Ctrl+Shift+Alt+D（macOS は ⌘+Shift+Option+D）。';
+      newlineDecorTextWrap.appendChild(newlineDecorTitle);
+      newlineDecorTextWrap.appendChild(newlineDecorHint);
+      newlineDecorLabel.appendChild(newlineDecorCheck);
+      newlineDecorLabel.appendChild(newlineDecorTextWrap);
+      newlineDecorRow.appendChild(newlineDecorLabel);
+      newlineDecorCheck.addEventListener('change', function () {
+        withStorage(function (cfg) {
+          cfg.editor = cfg.editor || {};
+          cfg.editor.effectPersistDecorAcrossNewline = !!newlineDecorCheck.checked;
+        });
+        try { window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged')); } catch (_) { }
+      });
+
       // Extended Textbox 設定
       var textboxCfg = editorCfg.extendedTextbox || {};
       var textboxRow = el('div');
@@ -798,8 +866,8 @@
       gadgetUXRow.appendChild(helpIconRow);
       gadgetUXRow.appendChild(bulkToggleRow);
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
-    }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。' });
+      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(effectBreakRow); root.appendChild(newlineDecorRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
+    }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズ、リッチ編集の改行と装飾（decor 持続）など。' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {

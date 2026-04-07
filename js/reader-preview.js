@@ -139,18 +139,29 @@
 
   function showReaderWikiPopover(anchor, title) {
     dismissReaderWikiPopover();
+    var trimmed = String(title || '').trim();
+    if (!trimmed) return;
+
     var S = window.ZenWriterStorage;
-    if (!S || !S.loadStoryWiki) return;
-    var entries = S.loadStoryWiki();
-    var entry = entries.find(function (e) { return e.title === title; });
-    if (!entry) return;
+    var entry = null;
+    if (S && typeof S.loadStoryWiki === 'function') {
+      var entries = S.loadStoryWiki() || [];
+      entry = entries.find(function (e) { return e && e.title === trimmed; });
+    }
 
     var pop = document.createElement('div');
     pop.className = 'reader-wiki-popover';
-    var preview = (entry.content || '').slice(0, 120);
-    if (entry.content && entry.content.length > 120) preview += '...';
-    pop.innerHTML = '<strong>' + escHtml(entry.title) + '</strong>' +
-      (preview ? '<div class="reader-wiki-popover-body">' + escHtml(preview) + '</div>' : '');
+    if (entry) {
+      var preview = (entry.content || '').slice(0, 120);
+      if (entry.content && entry.content.length > 120) preview += '...';
+      pop.innerHTML = '<strong>' + escHtml(entry.title) + '</strong>' +
+        (preview ? '<div class="reader-wiki-popover-body">' + escHtml(preview) + '</div>' : '');
+    } else {
+      // 壊れ wikilink（is-broken）でもプレビュー意図を伝える（WP-004 / session 58 E2E 対象）
+      pop.classList.add('reader-wiki-popover--broken');
+      pop.innerHTML = '<strong>' + escHtml(trimmed) + '</strong>' +
+        '<div class="reader-wiki-popover-body">' + escHtml('Story Wiki にこの語の項目はまだありません。') + '</div>';
+    }
 
     // 位置: アンカー直下
     document.body.appendChild(pop);

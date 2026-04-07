@@ -135,6 +135,121 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r.identical).toBe(true);
   });
 
+  test('ZWMdItBody + パイプライン: zw-textbox 複合（preset・tilt・anim + 装飾記法）が preview / reader で同一 HTML（監査シナリオ2）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
+      var md =
+        ':::zw-textbox{preset:"inner-voice", tilt:3, anim:pulse}\n'
+        + '[italic]TBParityProbe[/italic]\n'
+        + ':::\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      return {
+        hasTextbox: prev.indexOf('zw-textbox') !== -1 && read.indexOf('zw-textbox') !== -1,
+        hasItalicDecor:
+          prev.indexOf('decor-italic') !== -1 && read.indexOf('decor-italic') !== -1,
+        hasDataAnim: prev.indexOf('data-anim') !== -1 && read.indexOf('data-anim') !== -1,
+        identical: prev === read
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.hasTextbox).toBe(true);
+    expect(r.hasItalicDecor).toBe(true);
+    expect(r.hasDataAnim).toBe(true);
+    expect(r.identical).toBe(true);
+  });
+
+  test('ZWMdItBody + パイプライン: 複数見出し + chapter:// 相互リンクが preview / reader で意図どおり（監査シナリオ1・パイプライン層）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
+      var md =
+        '# ChAlpha\n\nFirst body probe.\n\n# ChBeta\n\n'
+        + 'Cross [to Alpha](chapter://ChAlpha) probe.\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      var h1count = function (s) {
+        return (s.match(/<h1[\s>]/gi) || []).length;
+      };
+      return {
+        h1Prev: h1count(prev),
+        h1Read: h1count(read),
+        previewHasChapterLink:
+          prev.indexOf('chapter-link') !== -1 && prev.indexOf('data-chapter-target') !== -1,
+        readerNoChapterProtocol: read.indexOf('chapter://') === -1,
+        readerHasHashHref: /href="#[^"]+"/.test(read),
+        bothHaveFirstBody: prev.indexOf('First body probe') !== -1 && read.indexOf('First body probe') !== -1,
+        bothHaveLinkText: prev.indexOf('to Alpha') !== -1 && read.indexOf('to Alpha') !== -1,
+        nonChapterIdentical: (function () {
+          var strip = function (html) {
+            return html
+              .replace(/<a[^>]*class="[^"]*chapter-link[^"]*"[^>]*>[\s\S]*?<\/a>/gi, '<a>CHAPTER_LINK</a>')
+              .replace(/<a[^>]*href="#[^"]+"[^>]*>[\s\S]*?<\/a>/gi, '<a>CHAPTER_LINK</a>');
+          };
+          return strip(prev) === strip(read);
+        })()
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.h1Prev).toBe(2);
+    expect(r.h1Read).toBe(2);
+    expect(r.previewHasChapterLink).toBe(true);
+    expect(r.readerNoChapterProtocol).toBe(true);
+    expect(r.readerHasHashHref).toBe(true);
+    expect(r.bothHaveFirstBody).toBe(true);
+    expect(r.bothHaveLinkText).toBe(true);
+    expect(r.nonChapterIdentical).toBe(true);
+  });
+
+  test('ZWMdItBody + パイプライン: zw-typing / zw-dialog 内のルビ記法が preview / reader で同一 HTML（監査シナリオ3）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
+      var md =
+        ':::zw-typing\n|試し《ためし》\n:::\n\n'
+        + ':::zw-dialog\n|会話《かいわ》\n:::\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      return {
+        hasTyping: prev.indexOf('zw-typing') !== -1 && read.indexOf('zw-typing') !== -1,
+        hasDialog: prev.indexOf('zw-dialog') !== -1 && read.indexOf('zw-dialog') !== -1,
+        bothRuby:
+          prev.indexOf('<ruby>') !== -1
+          && read.indexOf('<ruby>') !== -1
+          && prev.split('<ruby>').length === read.split('<ruby>').length,
+        identical: prev === read
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.hasTyping).toBe(true);
+    expect(r.hasDialog).toBe(true);
+    expect(r.bothRuby).toBe(true);
+    expect(r.identical).toBe(true);
+  });
+
+  test('ZWMdItBody + パイプライン: 存在しない Wiki への wikilink が preview / reader で同一（is-broken・監査シナリオ4・パイプライン層）', async ({ page }) => {
+    const r = await page.evaluate(() => {
+      if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
+      var md = '[[ZWBrokenWikiProbeSession56]]\n';
+      var raw = window.ZWMdItBody.renderToHtmlBeforePipeline(md);
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(raw, { surface: 'reader', settings: {} });
+      return {
+        identical: prev === read,
+        bothBroken:
+          prev.indexOf('is-broken') !== -1
+          && read.indexOf('is-broken') !== -1
+          && prev.indexOf('ZWBrokenWikiProbeSession56') !== -1,
+        bothWikilink: prev.indexOf('wikilink') !== -1 && read.indexOf('wikilink') !== -1
+      };
+    });
+    expect(r).toBeTruthy();
+    expect(r.identical).toBe(true);
+    expect(r.bothBroken).toBe(true);
+    expect(r.bothWikilink).toBe(true);
+  });
+
   test('ZWPostMarkdownHtmlPipeline: preview と reader で wikilink / 傍点が同一経路', async ({ page }) => {
     const r = await page.evaluate(() => {
       if (!window.ZWPostMarkdownHtmlPipeline) return null;
@@ -149,6 +264,51 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r).toBeTruthy();
     expect(r.bothWikilink).toBe(true);
     expect(r.bothKenten).toBe(true);
+  });
+
+  test('P2: data-zw-align がパイプライン後も残り、MD プレビュー・Reader 本文で text-align が投影される', async ({ page }) => {
+    const pipelineOk = await page.evaluate(() => {
+      if (!window.ZWPostMarkdownHtmlPipeline) return false;
+      var html = '<p data-zw-align="center">probe</p>';
+      var prev = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'preview', settings: {} });
+      var read = window.ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'reader', settings: {} });
+      return (
+        prev.indexOf('data-zw-align="center"') !== -1
+        && read.indexOf('data-zw-align="center"') !== -1
+        && prev === read
+      );
+    });
+    expect(pipelineOk).toBe(true);
+
+    const mdAlign = await page.evaluate(() => {
+      var panel = document.getElementById('markdown-preview-panel');
+      if (!panel) return null;
+      panel.innerHTML = '<p data-zw-align="center" id="zw-align-md-probe">x</p>';
+      var el = document.getElementById('zw-align-md-probe');
+      return window.getComputedStyle(el).textAlign;
+    });
+    expect(mdAlign).toBe('center');
+
+    await page.evaluate(() => {
+      var ed = document.getElementById('editor');
+      if (ed && !String(ed.value || '').trim()) {
+        ed.value = 'zw-align-e2e-probe\n';
+        ed.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await page.waitForTimeout(400);
+
+    const readerAlign = await page.evaluate(() => {
+      var content = document.querySelector('#reader-preview-inner .reader-preview__content');
+      if (!content) return null;
+      content.innerHTML = '<p data-zw-align="end" id="zw-align-reader-probe">y</p>';
+      var el = document.getElementById('zw-align-reader-probe');
+      return window.getComputedStyle(el).textAlign;
+    });
+    expect(readerAlign).toBe('right');
   });
 
   test('リッチ編集の切替で UI モードは通常のまま', async ({ page }) => {

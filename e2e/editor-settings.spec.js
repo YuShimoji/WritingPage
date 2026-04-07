@@ -52,6 +52,61 @@ test.describe('Editor Settings', () => {
     await expect(page.locator('#assist-gadgets-panel #focus-blur-radius')).toHaveValue('3');
   });
 
+  test('UI Settings: effectPersistDecorAcrossNewline をチェックして永続化する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    var chk = page.locator('#advanced-gadgets-panel #effect-persist-decor-across-newline');
+    await expect(chk).toBeVisible({ timeout: 10000 });
+    await chk.check();
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    await expect(page.locator('#advanced-gadgets-panel #effect-persist-decor-across-newline')).toBeChecked();
+    var on = await page.evaluate(() => {
+      var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings();
+      return !!(s && s.editor && s.editor.effectPersistDecorAcrossNewline === true);
+    });
+    expect(on).toBe(true);
+  });
+
+  test('UI Settings: effectBreakAtNewline をオフ→オンで永続化する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    var breakChk = page.locator('#advanced-gadgets-panel #effect-break-at-newline');
+    await expect(breakChk).toBeVisible({ timeout: 10000 });
+    await expect(breakChk).toBeChecked();
+    await breakChk.uncheck();
+
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    await expect(page.locator('#advanced-gadgets-panel #effect-break-at-newline')).not.toBeChecked();
+    var off = await page.evaluate(() => {
+      var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings();
+      return !!(s && s.editor && s.editor.effectBreakAtNewline === false);
+    });
+    expect(off).toBe(true);
+
+    await page.locator('#advanced-gadgets-panel #effect-break-at-newline').check();
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    await expect(page.locator('#advanced-gadgets-panel #effect-break-at-newline')).toBeChecked();
+    var on = await page.evaluate(() => {
+      var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings();
+      return !!(s && s.editor && s.editor.effectBreakAtNewline === true);
+    });
+    expect(on).toBe(true);
+  });
+
   test('should work with typewriter mode simultaneously', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });

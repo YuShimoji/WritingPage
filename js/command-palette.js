@@ -112,6 +112,45 @@
       }
     },
     {
+      id: 'align-paragraph-start',
+      label: '段落を左揃え',
+      description: 'リッチ編集中のカーソル段落を左揃え（data-zw-align 解除）',
+      shortcut: '',
+      category: 'テキスト装飾',
+      execute: () => {
+        const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+        if (rte && typeof rte.executeCommand === 'function') {
+          rte.executeCommand('alignstart');
+        }
+      }
+    },
+    {
+      id: 'align-paragraph-center',
+      label: '段落を中央揃え',
+      description: 'リッチ編集中のカーソル段落を中央揃え',
+      shortcut: '',
+      category: 'テキスト装飾',
+      execute: () => {
+        const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+        if (rte && typeof rte.executeCommand === 'function') {
+          rte.executeCommand('aligncenter');
+        }
+      }
+    },
+    {
+      id: 'align-paragraph-end',
+      label: '段落を右揃え',
+      description: 'リッチ編集中のカーソル段落を右揃え',
+      shortcut: '',
+      category: 'テキスト装飾',
+      execute: () => {
+        const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+        if (rte && typeof rte.executeCommand === 'function') {
+          rte.executeCommand('alignend');
+        }
+      }
+    },
+    {
       id: 'font-decoration-panel',
       label: 'フォント装飾パネル',
       description: 'フォント装飾パネルを開く',

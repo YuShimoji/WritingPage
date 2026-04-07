@@ -37,6 +37,10 @@
       if (normalized === 'p' || normalized === 'h1' || normalized === 'h2' || normalized === 'h3' || normalized === 'blockquote' || normalized === 'ul' || normalized === 'ol') {
         return this.applyBlock(normalized);
       }
+      if (normalized === 'alignstart' || normalized === 'aligncenter' || normalized === 'alignend') {
+        var alignMap = { alignstart: 'start', aligncenter: 'center', alignend: 'end' };
+        return this.applyBlockAlign(alignMap[normalized]);
+      }
       return this._execCommandWithSelection(command, value);
     }
 
@@ -145,8 +149,33 @@
       return false;
     }
 
+    /**
+     * カーソル（折りたたみ可）のブロック根に data-zw-align を付与（P2 段落揃え）。
+     * start は既定寄りのため属性除去。
+     */
+    applyBlockAlign(align) {
+      var a = String(align || '').toLowerCase();
+      if (a !== 'start' && a !== 'center' && a !== 'end') return false;
+      if (!this.editor) return false;
+      this.editor.focus();
+      var target = this._getCaretOrSelectionRange();
+      if (!target) return false;
+      var node = target.range.commonAncestorContainer;
+      if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+      var block = this._findBlockRoot(node);
+      if (!block || !this.editor.contains(block)) return false;
+      if (a === 'start') {
+        block.removeAttribute('data-zw-align');
+      } else {
+        block.setAttribute('data-zw-align', a);
+      }
+      this.editor.focus();
+      return true;
+    }
+
     sanitizeHtml(html) {
       var ALLOWED_TAGS = { p: 1, br: 1, strong: 1, em: 1, u: 1, s: 1, a: 1, h1: 1, h2: 1, h3: 1, ul: 1, ol: 1, li: 1, blockquote: 1, span: 1 };
+      var BLOCK_ALIGN_TAGS = { p: 1, h1: 1, h2: 1, h3: 1, blockquote: 1, li: 1 };
       var SAFE_URL = /^(https?:|mailto:|\/|#)/i;
       var ALLOWED_CLASS = /^(decor-|anim-)/;
 
@@ -184,6 +213,15 @@
               if (tag === 'span' && name === 'class') {
                 var classes = attrs[j].value.split(/\s+/).filter(function (c) { return ALLOWED_CLASS.test(c); });
                 if (classes.length) { node.setAttribute('class', classes.join(' ')); } else { node.removeAttribute('class'); }
+                continue;
+              }
+              if (BLOCK_ALIGN_TAGS[tag] && name === 'data-zw-align') {
+                var za = attrs[j].value;
+                if (za === 'start' || za === 'center' || za === 'end') {
+                  node.setAttribute('data-zw-align', za);
+                } else {
+                  node.removeAttribute('data-zw-align');
+                }
                 continue;
               }
               node.removeAttribute(attrs[j].name);
@@ -249,6 +287,28 @@
         return null;
       }
       return { selection, range };
+    }
+
+    _getCaretOrSelectionRange() {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return null;
+      const range = selection.getRangeAt(0);
+      if (!this.editor || !this.editor.contains(range.commonAncestorContainer)) {
+        return null;
+      }
+      return { selection, range };
+    }
+
+    _findBlockRoot(el) {
+      const BLOCK = { P: 1, H1: 1, H2: 1, H3: 1, BLOCKQUOTE: 1, LI: 1 };
+      let cur = el;
+      while (cur && cur !== this.editor) {
+        if (cur.nodeType === Node.ELEMENT_NODE && BLOCK[cur.tagName]) {
+          return cur;
+        }
+        cur = cur.parentElement;
+      }
+      return null;
     }
   }
 

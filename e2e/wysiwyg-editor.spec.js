@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar, switchToTextareaMode } = require('./helpers');
+const { showFullToolbar, switchToTextareaMode, openSidebarPanel } = require('./helpers');
 
 // WYSIWYGエディタ機能テスト (WYSIWYGがデフォルトモード)
 test.describe('WYSIWYG Editor', () => {
@@ -29,6 +29,19 @@ test.describe('WYSIWYG Editor', () => {
   async function switchToTextarea(page) {
     await switchToTextareaMode(page);
   }
+
+  test('タイプライター ON で WYSIWYG に上方向余白（短文アンカー用）が付く', async ({ page }) => {
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
+    await page.locator('#assist-gadgets-panel #typewriter-enabled').check();
+    await page.waitForTimeout(150);
+    var topPad = await page.locator('#wysiwyg-editor').evaluate(function (el) { return el.style.paddingTop; });
+    expect(topPad).toMatch(/calc\(/);
+    expect(topPad).toMatch(/vh\)/);
+    await page.locator('#assist-gadgets-panel #typewriter-enabled').uncheck();
+    await page.waitForTimeout(150);
+    var cleared = await page.locator('#wysiwyg-editor').evaluate(function (el) { return el.style.paddingTop; });
+    expect(cleared).toBe('');
+  });
 
   test('should start in WYSIWYG mode by default', async ({ page }) => {
     const textarea = page.locator('#editor');

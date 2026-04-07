@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-06 (session 52)
+最終更新: 2026-04-06 (session 63)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 52 |
+| セッション | 63 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | 開発プラン設計の実装: WP-004 監査台帳・テキストボックス `target` 仕様・P2 スライス順・台帳チェックリスト + E2E 1 本 |
+| 直近のスライス | session 63: リッチテキスト P1（レーン C2）— タイプライター **短文時アンカー**（`paddingTop` 対称 + `scrollTop` クランプ）+ `wysiwyg-editor.spec.js`・仕様・FR-008・自動化境界・WP-001 スキップ・台帳更新 |
 
 
 ## この時点で信頼できること
@@ -44,10 +44,13 @@
 - Focus かつ `data-edge-hover-top='true'` の間、`--toolbar-height`（`syncToolbarHeightWithCSSVar` 実測）分だけ `.editor-container` に `padding-top` を付与し、上端スライドインしたツールバーと本文が重ならないようにする
 - ツールバー実高とレイアウトの関係は `e2e/toolbar-editor-geometry.spec.js` で検証（Normal 広幅・狭幅フル・狭幅コンパクト・Focus+上端ホバー）。`--toolbar-height` は実測高と 2px 以内で一致することを assert
 - 768px 以下の `.toolbar` は折り返し行を上揃え（`align-items` / `align-content: flex-start`）、`min-height: var(--toolbar-height)` は使わない。狭幅の `.toolbar` / `.editor-container` は `height` を transition 対象外にし高さ変化時の伸縮アニメーションを抑制
-- 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（実装は未着手）
+- 段落の左・中央・右揃え（ブロック `text-align`）はキャンバス列配置と別概念。仕様の正本は `docs/specs/spec-rich-text-paragraph-alignment.md`（WYSIWYG の `align*`・paste・Turndown・**コマンドパレット**・**WYSIWYG「その他」メニュー**。**MD プレビュー** `#markdown-preview-panel` と **読者本文** `.reader-preview__content` は `data-zw-align` を `css/style.css` で投影（session 57））
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
 - コマンドパレット: Normal/Focus 切替後は rAF 二重で執筆面へフォーカス復帰。Reader 切替後は `#reader-back-fab` へフォーカス（隠し textarea へ奪わない）
-- WP-004 Phase 3 の差分列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。`TextboxRichTextBridge` の `target` 現状は [`docs/specs/spec-textbox-render-targets.md`](specs/spec-textbox-render-targets.md)
+- WP-004 Phase 3 の差分列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**複数 `#` + `chapter://`**（パイプライン層は `reader-wysiwyg-distinction.spec.js`、**Reader の章末ナビ DOM 注入**は `reader-chapter-nav.spec.js`）、**存在しない Wiki の `[[…]]`（`is-broken`）**（パイプライン HTML は同上、**Reader 未登録ポップオーバー**は `reader-wikilink-popover.spec.js`）、`:::zw-textbox` 複合、`:::zw-typing` / `:::zw-dialog` 内ルビ等を E2E で監視。`TextboxRichTextBridge` の `target` は [`docs/specs/spec-textbox-render-targets.md`](specs/spec-textbox-render-targets.md)
+- 改行と装飾: `effectBreakAtNewline`（既定オン＝改行で切断、BL-002）は **`js/editor-wysiwyg.js`**。**サイドバー詳細設定の UI Settings** からチェックで永続化（session 61、`js/gadgets-editor-extras.js`）。`effectPersistDecorAcrossNewline === true` のとき Enter 後も **decor-* 内にカーソルを残す**（`effectBreakAtNewline !== false` のときのみ）。`effectPersistDecorAcrossNewline` 既定 `false`。WYSIWYG フォーカス時 **Ctrl+Shift+Alt+D**（macOS は ⌘+Shift+Option+D）でトグル永続化（session 57）。同キーは **UI Settings** からもチェックで永続化（session 60）。論点は [`docs/specs/spec-rich-text-newline-effect.md`](specs/spec-rich-text-newline-effect.md)
+- WYSIWYG カスタム Undo（`Ctrl+Z` / `Ctrl+Shift+Z`）: 入力はデバウンスバッチに加え、**Space / Enter / blur / IME compositionend** で `_flushPendingUndoSnapshot` により区切る（session 62、`js/editor-wysiwyg.js`）。仕様・台帳は [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)、[`docs/FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) FR-007
+- WYSIWYG **タイプライター** ON 時: **`paddingTop: calc(100vh * (1 - anchorRatio))`** で上方向スクロール域を確保し、短文でも `_scrollCursorToAnchor` が働きやすい（session 63）。`scrollTop` は更新後クランプ。台帳 [`docs/FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) FR-008
 - スライス完了時の更新手順は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「スライス完了時チェックリスト」
 
 ## Session 44 の変更
@@ -148,6 +151,115 @@
 | E2E | 最小 `:::zw-textbox` DSL が ZWMdItBody+パイプラインで preview=reader | `e2e/reader-wysiwyg-distinction.spec.js` |
 | 今後のプラン実装 | 台帳に deferred コード確認メモ・スライス完了チェックリスト。段落揃え P2 に推奨スライス順。richtext 仕様に着手順のポインタ | `USER_REQUEST_LEDGER.md`, `spec-rich-text-paragraph-alignment.md`, `spec-richtext-enhancement.md`, `INTERACTION_NOTES.md`, `AUTOMATION_BOUNDARY.md`, `FEATURE_REGISTRY.md` |
 
+### Session 53
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| レーン確定 | 次スライスは **WP-004**（監査シナリオ3）を優先実装 | — |
+| WP-004 E2E | `:::zw-typing` / `:::zw-dialog` 内ルビの preview=reader 同一性を `reader-wysiwyg-distinction.spec.js` に追加 | `e2e/reader-wysiwyg-distinction.spec.js`, `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| WP-001 | deferred（BL-002 / BL-004 / Focus 左パネル）は **体感で問題が出たときのみ** 1 トピック化する旨を台帳に明記（コード変更なし） | `docs/USER_REQUEST_LEDGER.md` |
+| P2 段落揃え | 永続化モデル案（`data-zw-align` 等）を `spec-rich-text-paragraph-alignment.md` に追記 | 同上、`docs/specs/spec-richtext-enhancement.md` |
+| 改行・装飾 | 将来の持続モード／ショートカットの置き場として `spec-rich-text-newline-effect.md` を新規 | `docs/specs/spec-rich-text-newline-effect.md` |
+
+### Session 54
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 E2E | `:::zw-textbox` 複合（preset・tilt・anim + italic）の preview=reader 同一性を `reader-wysiwyg-distinction.spec.js` に追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| WP-004 台帳 | シナリオ3に「基本=E2E・複合は手動」脚注、シナリオ2の E2E 追記、自動カバー表に textbox 複合を追加 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| WP-001 | deferred に **新規再現なし** → 専用スライスはスキップ（台帳記録のみ） | `docs/USER_REQUEST_LEDGER.md` |
+| P2 段落揃え | 永続化モデルを **確定**、Turndown 往復の固定範囲を本文に追記 | `docs/specs/spec-rich-text-paragraph-alignment.md` |
+| 改行・装飾 | `effectBreakAtNewline` のキー・既定・ショートカット未割当を spec と INTERACTION_NOTES に表で固定 | `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md` |
+| 台帳 | FR-003 概要、自動化境界の文言を session 54 内容に同期 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` |
+
+### Session 55
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 E2E | 複数見出し MD + `chapter://` のパイプライン整合（preview の `data-chapter-target`・reader の `chapter://` 非残留・章リンク正規化後の構造一致）を `reader-wysiwyg-distinction.spec.js` に追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| WP-004 台帳 | シナリオ1 脚注（パイプライン E2E 済み・章末ナビは手動）、自動カバー表を更新 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行（USER_REQUEST_LEDGER） | `docs/USER_REQUEST_LEDGER.md` |
+| P2 段落揃え | `RichTextCommandAdapter` に `alignstart/center/end`、`sanitizeHtml` で `data-zw-align`、Turndown `zwBlockAlign`、WYSIWYG CSS、E2E `rich-text-block-align.spec.js` | `js/modules/editor/RichTextCommandAdapter.js`, `js/editor-wysiwyg.js`, `css/style.css`, `e2e/rich-text-block-align.spec.js` |
+| 改行・装飾 | `effectPersistDecorAcrossNewline` の仕様確定 + `storage` 既定 | `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md`, `js/storage.js` |
+| 台帳 | FR-006 登録、自動化境界、仕様スライス表の追記 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/specs/spec-rich-text-paragraph-alignment.md` |
+
+### Session 56
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 E2E | 存在しない Wiki への `[[…]]` が preview/reader で同一かつ `is-broken` になることを `reader-wysiwyg-distinction.spec.js` に追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| WP-004 台帳 | シナリオ4 脚注・自動カバー表 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| P2 UI | 段落揃えをコマンドパレット（左・中央・右）と WYSIWYG「その他」メニューから実行 | `js/command-palette.js`, `index.html`, `js/editor-wysiwyg.js`, `e2e/rich-text-block-align.spec.js` |
+| 改行・装飾 | `effectPersistDecorAcrossNewline` を Enter 後の decor カーソル移動に接続 | `js/editor-wysiwyg.js`, `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md` |
+| 台帳 | FR-003/FR-006、自動化境界、`spec-rich-text-paragraph-alignment` スライス2行 | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/specs/spec-rich-text-paragraph-alignment.md` |
+
+### Session 57
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| P2 スライス3 | `#markdown-preview-panel` と `.reader-preview__content` に `data-zw-align` 用 `text-align` 投影。パイプラインは属性を維持する前提のまま | `css/style.css`, `e2e/reader-wysiwyg-distinction.spec.js`, `docs/INTERACTION_NOTES.md`, `docs/specs/spec-rich-text-paragraph-alignment.md` |
+| WP-004 シナリオ5 | `GenrePresetRegistry.apply` / `clear` の浅い E2E | `e2e/reader-genre-preset.spec.js`, `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| 改行・装飾 | `effectPersistDecorAcrossNewline` のキーボードトグル + E2E | `js/editor-wysiwyg.js`, `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md`, `e2e/rich-text-block-align.spec.js` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| 台帳 | FR-003/FR-006、自動化境界、CURRENT_STATE | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/CURRENT_STATE.md` |
+
+### Session 58
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 Reader wikilink | 壊れリンク（Story Wiki 未登録）クリック時もポップオーバーでタイトル＋説明を表示。`reader-wiki-popover--broken` スタイル | `js/reader-preview.js`, `css/style.css`, `e2e/reader-wikilink-popover.spec.js`, `docs/INTERACTION_NOTES.md` |
+| WP-004 台帳 | シナリオ4 脚注・自動カバー表を E2E 追記に合わせ更新 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| 台帳 | FR-003、自動化境界、CURRENT_STATE | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/CURRENT_STATE.md` |
+
+### Session 59
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 Reader 章末ナビ | `chapterNav.enabled` かつ複数章 chapterMode で Reader 本文に `.chapter-nav-bar` が注入される結合 smoke | `e2e/reader-chapter-nav.spec.js`, `docs/INTERACTION_NOTES.md` |
+| WP-004 台帳 | シナリオ1 脚注・自動カバー表 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| 台帳 backlog | 改行まわり backlog をショートカット済みに合わせ短文化 | `docs/USER_REQUEST_LEDGER.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| 台帳 | FR-003、自動化境界、CURRENT_STATE | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/CURRENT_STATE.md` |
+
+### Session 60
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 改行 UX（decor 持続） | UI Settings ガジェットに `effectPersistDecorAcrossNewline` チェックボックス | `js/gadgets-editor-extras.js`, `e2e/editor-settings.spec.js` |
+| 仕様同期 | 設定 UI の場所 | `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| 台帳 | FR-006、自動化境界、CURRENT_STATE | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/CURRENT_STATE.md` |
+
+### Session 61
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 改行 UX（BL-002） | UI Settings ガジェットに `effectBreakAtNewline` チェック（既定オン） | `js/gadgets-editor-extras.js`, `e2e/editor-settings.spec.js` |
+| 仕様同期 | 設定 UI の場所（`effectBreakAtNewline`） | `docs/specs/spec-rich-text-newline-effect.md`, `docs/INTERACTION_NOTES.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| 台帳 | FR-006、自動化境界、CURRENT_STATE | `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/CURRENT_STATE.md` |
+
+### Session 62
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| P1 Undo 粒度 | WYSIWYG カスタム Undo のバッチを Space/Enter/blur/IME compositionend でフラッシュ | `js/editor-wysiwyg.js` |
+| 仕様・台帳 | Phase 4 一部、FR-007、自動化境界（手動） | `docs/specs/spec-richtext-enhancement.md`, `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| CURRENT_STATE | セッション 62 スナップショット | `docs/CURRENT_STATE.md` |
+
+### Session 63
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| P1 短文カーソル | タイプライター ON 時 `paddingTop` 対称 + `_scrollCursorToAnchor` の scroll クランプ | `js/editor-wysiwyg.js` |
+| E2E | タイプライター ON で WYSIWYG に `paddingTop` が付くこと | `e2e/wysiwyg-editor.spec.js` |
+| 仕様・台帳 | Phase 4、FR-008、自動化境界 | `docs/specs/spec-richtext-enhancement.md`, `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md` |
+| WP-001 | deferred **新規再現なし** → スキップ一行 | `docs/USER_REQUEST_LEDGER.md` |
+| CURRENT_STATE | セッション 63 スナップショット | `docs/CURRENT_STATE.md` |
+
 ## 検証結果
 
 実行済み (session 44):
@@ -180,8 +292,61 @@
 
 - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（8 件）
 
+実行済み (session 53):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（9 件）
+
+実行済み (session 54):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（10 件）
+
+実行済み (session 55):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` `e2e/rich-text-block-align.spec.js` → pass（11 + 3 件）
+
+実行済み (session 56):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（12 件）
+- `npx playwright test e2e/rich-text-block-align.spec.js` → pass（4 件）
+- `npx eslint js/command-palette.js js/editor-wysiwyg.js` → clean
+
+実行済み (session 57):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（13 件）
+- `npx playwright test e2e/reader-genre-preset.spec.js` → pass（1 件）
+- `npx playwright test e2e/rich-text-block-align.spec.js` → pass（5 件）
+
+実行済み (session 58):
+
+- `npx playwright test e2e/reader-wikilink-popover.spec.js` → pass（1 件）
+
+実行済み (session 59):
+
+- `npx playwright test e2e/reader-chapter-nav.spec.js` → pass（1 件）
+
+実行済み (session 60):
+
+- `npx playwright test e2e/editor-settings.spec.js -g "effectPersistDecorAcrossNewline"` → pass（1 件）
+
+実行済み (session 61):
+
+- `npx playwright test e2e/editor-settings.spec.js -g "effectBreakAtNewline"` → pass（1 件）
+- `npx eslint js/gadgets-editor-extras.js` → clean
+
+実行済み (session 62):
+
+- `npx eslint js/editor-wysiwyg.js` → clean
+- `npx playwright test e2e/rich-text-block-align.spec.js` → pass（5 件・回帰）
+
+実行済み (session 63):
+
+- `npx eslint js/editor-wysiwyg.js` → clean
+- `npx playwright test e2e/wysiwyg-editor.spec.js -g "タイプライター ON"` → pass（1 件）
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
+- WYSIWYG: Space / Enter / フォーカス移動 / IME 確定のあと **Ctrl+Z** の戻り幅が期待どおりか（session 62・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）
+- WYSIWYG + タイプライター ON: **短文**（数行以下）でカーソル行がアンカー付近に寄る体感（session 63・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md) FR-008）
 - BL-002 / BL-004 / Focus 左パネル間隔（障害なければ次スライス時にまとめてよい）。Reader フルツールバー目アイコンは session 49 でモードスイッチと同系に済み
 - Wiki ワークフロー統合・WP-004 Phase 1 の継続体感
 

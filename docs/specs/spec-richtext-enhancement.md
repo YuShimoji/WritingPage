@@ -51,10 +51,12 @@
 | 層             | 内容                                                                                                                               |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **P0（日常執筆）**  | Markdown 正本、インライン/ブロック操作、スマートペースト、主要ブロックの MD 往復（上記受け入れ基準 1〜6）                                                                    |
-| **P1（品質）**    | 下記「Phase 4（表）」の未着手（Undo 粒度、短文時カーソル位置など）                                                                                          |
+| **P1（品質）**    | 下記「Phase 4（表）」— Undo 粒度（session 62）、タイプライター短文時アンカー（session 63）は **一部着手**。縦書き併用などは **未着手**                                                                                          |
 | **P2（レイアウト）** | 段落ブロックの `text-align`（左・中央・右）。Reader/エクスポートまでのパイプライン通過は `spec-rich-text-paragraph-alignment.md` に従い、**永続化方針を仕様で固定してから** 実装スライスを切る |
 
-**P2 の着手順**: [`spec-rich-text-paragraph-alignment.md`](spec-rich-text-paragraph-alignment.md) の「推奨実装スライス順」に従う（永続化モデル → WYSIWYG コマンド → プレビュー/Reader → E2E）。
+**P2 の着手順**: [`spec-rich-text-paragraph-alignment.md`](spec-rich-text-paragraph-alignment.md) の「推奨実装スライス順」に従う（永続化モデル → WYSIWYG コマンド → プレビュー/Reader → E2E）。**永続化モデル（案）** は同書に記載（session 53）。
+
+**改行と装飾の将来拡張**（持続モード／ショートカット）: [`spec-rich-text-newline-effect.md`](spec-rich-text-newline-effect.md)。
 
 ---
 
@@ -152,7 +154,7 @@
 | Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須  | 完了  |
 | Phase 2 | ブロック編集UI追加、変換ルール拡張            | 必須  | 完了  |
 | Phase 3 | スマートペースト実装、設定UI連携             | 必須  | 完了  |
-| Phase 4 | 品質改善（選択範囲維持、Undo粒度最適化）        | 推奨  | 未着手 |
+| Phase 4 | 品質改善（選択範囲維持、Undo粒度、短文時カーソル等）        | 推奨  | 一部（Undo: session 62。タイプライター短文時の上余白+scroll クランプ: session 63） |
 
 
 ---
@@ -232,7 +234,7 @@
 
 ### ツールバー・入力 UX 改善（2026-03-14 完了）
 
-（下記「段階導入」表の **Phase 4（Undo 等）** とは別。表の Phase 4 は未着手のまま。）
+（下記「段階導入」表の **Phase 4（Undo 等）** とは別。表の Phase 4 は **Undo 境界**（session 62）と **タイプライター短文時カーソル**（session 63）を一部着手。）
 
 #### 実装済み
 
@@ -242,7 +244,7 @@
 - **タイプライターモード** — カーソル行をビューポートのアンカー位置に維持するスクロール制御。anchorRatio/stickiness 設定、input/keyup/click で requestAnimationFrame 経由の追従。WYSIWYG 専用
 - **ドロップダウンメニューのビューポートクランプ** — 画面端でメニューが見切れる問題を修正
 
-#### 未着手
+#### Phase 4 品質（Undo・短文カーソル）
 
-- Undo 粒度の最適化
-- カーソル位置の下部固定問題（コンテンツが少ない場合）
+- **Undo 粒度の最適化（一部・session 62）** — WYSIWYG のカスタム Undo（`Ctrl+Z` / `Ctrl+Shift+Z`）は、従来どおり `input` ごとに `_scheduleUndoSnapshot` で `_undoBatchTimeout`（既定 500ms）バッチする。加えて **Space / Enter** 押下直前（`keydown`、`isComposing` でないとき）、**contenteditable の `blur`**、**IME `compositionend`** で `_flushPendingUndoSnapshot` を呼び、保留タイマーを打ち切って `_captureUndoSnapshot` により現状 HTML を即スタックへ確定する。これにより単語境界・行境界・編集離脱・変換確定で Undo 単位が区切られやすくなる。実装: [`js/editor-wysiwyg.js`](../../js/editor-wysiwyg.js)。引き続き必要ならタイムアウト値の設定化やコマンド単位の細分化を別スライスで検討する。
+- **短文時カーソルとタイプライターアンカー（一部・session 63）** — **対象**: タイプライター **ON** かつ **WYSIWYG**（`settings.typewriter.enabled`、従来の下余白 `paddingBottom: calc(100vh * anchorRatio)` と同じ前提）。**課題**: 本文が短くスクロール域が足りないとき、`scrollTop === 0` のままではカーソル行がビュー内アンカー（`anchorRatio`）より上に留まり、`_scrollCursorToAnchor` が効きにくい。**対応**: 対称に **`paddingTop: calc(100vh * (1 - anchorRatio))`** を付与し、上方向のスクロール可能量を確保する。`_scrollCursorToAnchor` では `scrollTop` 加算後に **`[0, scrollHeight - clientHeight]` にクランプ**する。無効化時は `paddingTop` / `paddingBottom` のインライン指定をともに除去する。**未扱い**: 縦書きモードとの組み合わせ・アンカー以外の細かなタイポグラフィ調整は別スライス。
