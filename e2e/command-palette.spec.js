@@ -199,14 +199,14 @@ test.describe('Command Palette E2E', () => {
     expect(onEditSurface).toBe(true);
   });
 
-  test('UIモード: 読者プレビューへ切替後、フォーカスは編集に戻るボタンへ（隠し textarea へ奪われない）', async ({ page }) => {
+  test('再生オーバーレイ: 切替後、フォーカスは編集に戻るボタンへ', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await openCommandPalette(page);
-    await page.locator('#command-palette-input').fill('読者プレビュー');
+    await page.locator('#command-palette-input').fill('再生オーバーレイ');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(400);
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'reader');
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
     const activeId = await page.evaluate(() => document.activeElement && document.activeElement.id);
     expect(activeId).toBe('reader-back-fab');
   });

@@ -8,10 +8,6 @@
 - デッドコード寄りのリソースは積極的に削除する (session 39 ユーザー指示)
 - 意思決定・手動確認地点で区切りを設け、プランを提示する
 
-## 未反映の是正要求
-
-- 手動確認と次アクション選択を分離する (INTERACTION_NOTES に明記済み)
-
 ## Backlog Delta
 
 ### 既存 Backlog
@@ -31,8 +27,18 @@
 | WP-001        | ~~狭幅時ツールバー折り返し後の余白~~                         | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
 | WP-004        | Phase 3 継続（preview / 読者プレビューのレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分の列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
 | WP-001        | 摩擦削減の次トピック                                   | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
-| リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（canonical paths・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
+| リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（実装パス一覧・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
+| リッチテキスト・プログラム | **Phase 5（表）** — スライス境界は `spec-richtext-enhancement.md` の「Phase 5（未着手）」を正とする。実装は境界確定後の **別スライス** | 同上 |
+| WP-001（中長期） | **サイドバー「編集」カテゴリの情報密度** — ガジェット説明・既定折りたたみの見直し（1 スライス） | [`docs/ROADMAP.md`](ROADMAP.md) 順序 4。`gadgets-registry` / `gadgets-init`・各 `gadgets-*.js` のメタ |
+| WP-001（中長期） | **ロードアウトプリセットとガジェット既定の整合** — 未配置ガジェット・重複カテゴリの整理（1 スライス） | [`js/loadouts-presets.js`](../js/loadouts-presets.js)、[`js/gadgets-loadouts.js`](../js/gadgets-loadouts.js) |
+| WP-001（中長期） | **アシスト／メタ系ガジェットの発見性** — コマンドパレット・サイドバー検索とのラベル揃え（1 スライス） | `js/command-palette.js`、各ガジェット `title` / `description` |
+| WP-001（中長期） | **執筆モード統合の事前整理（保存導線含む）** — `focus` 標準運用、`normal` 補助、保存 UI の常設/ガジェット境界を確定 | [`docs/specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
+| 横断（将来） | **Wiki ワークフロー統合** — Reader / wikilink / グラフの導線をユーザー要望に応じ **1 トピック** で起票（[`docs/CURRENT_STATE.md`](CURRENT_STATE.md) 体感リスト） | `story-wiki.js`、`e2e/wikilinks.spec.js` 等 |
 
+### WP-004 手動パック（リリース前・四半期）
+
+- **手順の正本**: [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) のシナリオ 1〜5 と [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の体感確認リスト。
+- **完了時**: 実施日と結果（差分なし／あり・チケット番号）を `WP004_PHASE3_PARITY_AUDIT` の更新履歴に 1 行追記する。差分ありの場合は WP-004 本線で **1 トピック** に取り込む。
 
 ### deferred 手動確認 (user actor)
 
@@ -47,6 +53,11 @@
 - **session 61**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。
 - **session 62**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。
 - **session 63**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。
+- **session 64**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。WP-004 監査サイクルは自動層のみ実施（`WP004_PHASE3_PARITY_AUDIT` 更新履歴参照）。
+- **session 65**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。次期プラン: WP-004 手動シナリオ記録・FR-007 Enter/Redo E2E・`ROADMAP` テスト数同期（`CURRENT_STATE` 参照）。
+- **session 66**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。WP-004: MD プレビュー／Reader 本文の段落 typography CSS 整合 + E2E 1 件（`CURRENT_STATE`・`WP004_PHASE3_PARITY_AUDIT` 参照）。
+- **session 67**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。別レーン: FR-007/008 E2E 拡張・ドキュメント・アーカイブ・中長期候補行・手動パック運用明文化・`test/hello.test.js` 削除（`CURRENT_STATE` 参照）。
+- **session 68**: モード統合レーンを着手。Reader モードを廃止し再生オーバーレイへ移行、左サイドバー最小化・目次テンプレ挿入導線・ヘルプ任意参照導線を実装。mode/reader 関連 E2E 96 件 pass。
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）
@@ -67,6 +78,10 @@
 | BL-002 | `js/storage.js` 既定 `effectBreakAtNewline: true`、`js/editor-wysiwyg.js` で `!== false` 参照 | 実装済み。deferred は「体感で問題が残っていないか」の確認 |
 | BL-004 | `css/style.css`（Focus ヘッダー・エッジホバー）、`js/edge-hover.js` | 実装済み。同上 |
 | Focus 左パネル間隔 | レイアウト専用 E2E なし | 視覚確認が主。問題が出たら 1 トピックで `CURRENT_STATE` 更新付きで修正 |
+
+## 解決済み（プロセス・台帳）
+
+- **手動確認と次アクション選択の分離** — 正本は [`docs/INTERACTION_NOTES.md`](INTERACTION_NOTES.md)（手動確認の出し方）。オペレーション側は [`docs/OPERATOR_WORKFLOW.md`](OPERATOR_WORKFLOW.md)（Actor / 手動工程）。session 67 で「未反映」からここへ移動（運用遵守が正）。
 
 ## 解決済み (session 42-44)
 
@@ -92,15 +107,17 @@
 
 - **1 スライス = 1 トピック**（並行で複数の大きな変更をしない）
 - **着手前**: 下記「次スライス候補」表と `[docs/ROADMAP.md](ROADMAP.md)` の「次スライス候補」を読み、**WP-004（パイプライン／Reader 経路）と WP-001（摩擦削減）のどちらか一方**に絞る
-- **完了時**: `[docs/CURRENT_STATE.md](CURRENT_STATE.md)` の Snapshot・「この時点で信頼できること」・検証コマンドを更新する
+- **完了時**: `[docs/CURRENT_STATE.md](CURRENT_STATE.md)` の Snapshot・検証結果・地図／リンク集の整合を更新する（不変条件の変更は `INVARIANTS.md`）
 - **WP-004 Phase 3**: プレビューと読者プレビューの差分は **1 件ずつ** 潰す。ガードは `[e2e/reader-wysiwyg-distinction.spec.js](../e2e/reader-wysiwyg-distinction.spec.js)`。監査台帳は [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)
-- **正本**: UI 状態は `[docs/INTERACTION_NOTES.md](INTERACTION_NOTES.md)`。Reader は「読者プレビュー UI」と支援技術向け機能を混同しない
+- **用語・UI 状態**: `[docs/INTERACTION_NOTES.md](INTERACTION_NOTES.md)`。Reader は「読者プレビュー UI」と支援技術向け機能を混同しない
 
-### スライス完了時チェックリスト（必須に近い運用）
+### マージ前チェックリスト（原則すべて。変更がなければ該当行はスキップ可）
 
 各スライスをマージする前に、該当するものを更新する。
 
-- [ ] [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) … Snapshot（セッション番号・直近スライス）・検証コマンド・必要なら「信頼できること」
+- [ ] [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) … Snapshot・検証結果・ドキュメント地図の整合。不変条件の変更があれば [`INVARIANTS.md`](INVARIANTS.md) も
+- [ ] [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の「セッション変更ログ」が肥大したら、古いセッション表を [`docs/archive/`](archive/) の `current-state-sessions-*.md` に巻き上げ、正本には直近数セッションのみ残す
+- [ ] 「検証結果」が肥大したら [`docs/archive/`](archive/) の `current-state-verification-sessions-*.md` に巻き上げ、直近 2〜3 セッションのみ正本に残す
 - [ ] [`docs/FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) … ユーザー向け機能に手を入れたら 1 行追加または「最終確認日」更新
 - [ ] [`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md) … E2E の責務境界が変わったら追記
 - [ ] WP-004 のみ … [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) の「自動検証でカバー済み」または手動シナリオに一言

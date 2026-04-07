@@ -6,7 +6,7 @@ v0.3.32 / 2026-04-06
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [CURRENT_STATE](CURRENT_STATE.md) | 現在地の正本。直近修正・検証結果・次の優先課題 |
+| [CURRENT_STATE](CURRENT_STATE.md) | 現在地の正本。Snapshot・**ドキュメント地図**・検証結果・優先課題 |
 | [PROJECT_HEALTH](PROJECT_HEALTH.md) | 健全性サマリ。主要リスクと次の確認ポイント |
 | [APP_SPECIFICATION](APP_SPECIFICATION.md) | アプリ仕様書（機能一覧・技術仕様・制限事項） |
 | [APP_LAUNCH_GUIDE](APP_LAUNCH_GUIDE.md) | 起動手順書（Web/Electron/PWA） |
@@ -14,7 +14,7 @@ v0.3.32 / 2026-04-06
 注記:
 
 - `docs/spec-index.json` は historical entry を含む。missing file があっても直ちに異常ではない
-- 最新の再開文脈は `CURRENT_STATE.md` と `../HANDOVER.md` を優先する
+- **セッション・検証の正本は `CURRENT_STATE.md`**（表形式の地図で次に読むファイルが分かる）。`../HANDOVER.md` は手続き。メトリクス `runtime-state.md`、背景メモ `project-context.md`
 
 ## アーキテクチャ・設計
 

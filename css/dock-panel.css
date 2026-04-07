@@ -399,9 +399,9 @@ html[data-dock-sidebar="right"] .sidebar .dock-resize-handle--sidebar {
   height: 100vh;
 }
 
-/* フローティングパネル: Focus/Readerで非表示 */
+/* フローティングパネル: Focus/再生オーバーレイで非表示 */
 html[data-ui-mode='focus'] .dock-floating,
-html[data-ui-mode='reader'] .dock-floating {
+html[data-reader-overlay-open='true'] .dock-floating {
   display: none !important;
 }
 
@@ -412,14 +412,14 @@ html[data-ui-mode='reader'] .dock-floating {
   }
 }
 
-/* --- Focus / Reader: ドックパネル非表示 --- */
+/* --- Focus / 再生オーバーレイ: ドックパネル非表示 --- */
 html[data-ui-mode='focus'] .dock-panel-left,
-html[data-ui-mode='reader'] .dock-panel-left {
+html[data-reader-overlay-open='true'] .dock-panel-left {
   display: none !important;
 }
 
 html[data-ui-mode='focus'] .sidebar-dock-controls,
-html[data-ui-mode='reader'] .sidebar-dock-controls {
+html[data-reader-overlay-open='true'] .sidebar-dock-controls {
   display: none !important;
 }
 

@@ -2835,18 +2835,18 @@
 
       // 現在の状態を保存してから一つ前の操作に戻す
       this._captureUndoSnapshot();
-      // captureで現在の状態がpushされたので、それをredoに移す
-      var current = this._undoStack.pop();
-      if (current !== undefined) {
-        this._redoStack.push({
-          html: this._undoLastSnapshot,
-          cursorOffset: this._lastCursorOffset || 0
-        });
-      }
 
-      var prevSnapshot = this._undoStack.length > 0
-        ? this._undoStack.pop()
-        : { html: this._undoLastSnapshot, cursorOffset: 0 };
+      // スタック先頭は「現状態の直前スナップショット」1 件のみ（二重 pop すると履歴が浅いときに 2 段ぶん戻って空になる）
+      var prevSnapshot = this._undoStack.pop();
+      if (prevSnapshot === undefined) return;
+
+      // Redo 用は実 DOM を正とする（`_undoLastSnapshot` とブラウザ DOM がずれると Redo が空振りする）
+      var redoHtml = this.wysiwygEditor.innerHTML;
+      var redoCursor = this._getCursorOffset();
+      this._redoStack.push({
+        html: redoHtml,
+        cursorOffset: redoCursor
+      });
 
       // 後方互換: 旧フォーマット (plain string) にも対応
       var prevHtml = typeof prevSnapshot === 'string' ? prevSnapshot : prevSnapshot.html;

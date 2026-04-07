@@ -50,9 +50,9 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.waitForTimeout(300);
 
     const mode = await page.evaluate(() => {
-      return document.documentElement.getAttribute('data-ui-mode');
+      return document.documentElement.getAttribute('data-reader-overlay-open');
     });
-    expect(mode).toBe('reader');
+    expect(mode).toBe('true');
   });
 
   test('読者プレビュー枠に aria-describedby と主要ボタンの aria-label がある', async ({ page }) => {
@@ -79,7 +79,7 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     expect(a11y.backLabel).toContain('編集に戻る');
     expect(a11y.exportLabel).toContain('HTML');
     expect(a11y.vertLabel).toContain('縦書き');
-    expect(a11y.vertLabel).toContain('読者プレビュー');
+    expect(a11y.vertLabel).toContain('再生オーバーレイ');
     expect(a11y.vertPressed).toBe('false');
   });
 
@@ -296,9 +296,9 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.waitForTimeout(200);
 
     const mode = await page.evaluate(() => {
-      return document.documentElement.getAttribute('data-ui-mode');
+      return document.documentElement.hasAttribute('data-reader-overlay-open');
     });
-    expect(mode).not.toBe('reader');
+    expect(mode).toBe(false);
   });
 
   test('focus復帰後も同位置にReader復帰導線が見える', async ({ page }) => {
@@ -347,9 +347,9 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.waitForTimeout(250);
 
     const mode = await page.evaluate(() => {
-      return document.documentElement.getAttribute('data-ui-mode');
+      return document.documentElement.getAttribute('data-reader-overlay-open');
     });
-    expect(mode).toBe('reader');
+    expect(mode).toBe('true');
     await expect(page.locator('#reader-back-fab')).toBeVisible();
   });
 
@@ -365,8 +365,8 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
 
     await expect(page.locator('#reader-back-fab')).toBeVisible();
     const mode = await page.evaluate(() => {
-      return document.documentElement.getAttribute('data-ui-mode');
+      return document.documentElement.getAttribute('data-reader-overlay-open');
     });
-    expect(mode).toBe('reader');
+    expect(mode).toBe('true');
   });
 });

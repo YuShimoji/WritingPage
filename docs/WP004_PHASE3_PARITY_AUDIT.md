@@ -1,7 +1,7 @@
 # WP-004 Phase 3 — preview / Reader HTML 整合（監査台帳）
 
 > 目的: MD プレビューと読者プレビューの **パイプライン直前〜適用後** の差分を追跡し、1 件ずつ E2E または仕様で固定する。  
-> 正本の運用ルール: [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「開発スライスの進め方」、ガードレール E2E: [`e2e/reader-wysiwyg-distinction.spec.js`](../e2e/reader-wysiwyg-distinction.spec.js)。
+> スライス運用: [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md)「開発スライスの進め方」。パイプライン整合の主 E2E: [`e2e/reader-wysiwyg-distinction.spec.js`](../e2e/reader-wysiwyg-distinction.spec.js)。
 
 ## アーキテクチャ（2026-04 時点）
 
@@ -28,6 +28,8 @@
 | Reader 本文への章末ナビ注入（`chapterNav.enabled`・複数章 chapterMode・`.chapter-nav-bar`） | `reader-chapter-nav.spec.js`（結合層。パイプライン層の E2E とは別） |
 | UI モードと WYSIWYG 切替 | 同上 |
 | ジャンルプリセット（Reader 専用 UI）— `#reader-preview-inner` への `genre-*` クラス付与 | `reader-genre-preset.spec.js`（`GenrePresetRegistry.apply` / `clear` の浅い assert。見た目のピクセル比較はしない） |
+| P2: `data-zw-align` がパイプライン後も残り、MD プレビュー・Reader 本文で `text-align` が投影される | `reader-wysiwyg-distinction.spec.js` |
+| 段落 typography（session 66）: `--paragraph-spacing` / `--paragraph-indent` / `--body-letter-spacing` が MD プレビュー（2 段落目）と Reader 本文（2 段落目）で同一 computed style。先頭段落の字下げ解除を `#markdown-preview-panel` に Reader（`.reader-preview__inner`）と同一規則で適用 | `reader-wysiwyg-distinction.spec.js` |
 
 ## 手動で並べる価値があるシナリオ（差分チケット用）
 
@@ -62,3 +64,7 @@
 | 2026-04-06 | シナリオ5（ジャンルプリセット）を `reader-genre-preset.spec.js` で浅い自動検証に追加 |
 | 2026-04-06 | シナリオ4 脚注: Reader 壊れ wikilink ポップオーバーを `reader-wikilink-popover.spec.js` で E2E 化（session 58） |
 | 2026-04-06 | シナリオ1 脚注: Reader 章末ナビ注入を `reader-chapter-nav.spec.js` で結合 smoke 化（session 59） |
+| 2026-04-07 | 開発プラン session 64: 自動検証層を一括実行（`reader-wysiwyg-distinction`・`reader-chapter-nav`・`reader-wikilink-popover`・`reader-genre-preset` 計 16 件すべて通過）。パイプライン／Reader 結合の **コード差分なし**。長大原稿・見た目・手動シナリオの境界確認は従来どおり人間側のリリース前チェックに委ねる |
+| 2026-04-08 | 次期プラン session 65: 手動シナリオ 1〜5 は台帳どおり **人間による並べ確認が正**。本記録時点で **新規の preview/reader 差分の報告・再現なし**（実装差分なし）。自動層 16 件を再実行しすべて通過 |
+| 2026-04-07 | session 66: **CSS 層**で MD プレビューと Reader 本文の段落 typography を整合（`style.css`）。`reader-wysiwyg-distinction` に computed style 一致 E2E を 1 件追加。reader 関連 4 spec 計 **17** 件を再実行しすべて通過 |
+| 2026-04-07 | session 67（別レーン）: **手動パック運用**を `USER_REQUEST_LEDGER` に明文化（シナリオ 1〜5 + `CURRENT_STATE` 体感リスト・履歴追記ルール）。**本記録時点**: エージェント作業はドキュメント整備のみ。**人間による並べ確認**はリリース前／四半期の手動パックで実施し、結果を本表に追記する（新規 preview/reader 差分の報告は従来どおり WP-004 本線へ） |

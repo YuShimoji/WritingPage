@@ -49,3 +49,4 @@
 
 - 一度説明された workflow pain はここへ固定する
 - 「本制作へ進む前に workflow proof が必要」な案件では、その proof 条件もここへ残す
+- **手動確認依頼と「次に何をするか」の選択肢提示を同一メッセージに混ぜない**（正本: [`docs/INTERACTION_NOTES.md`](INTERACTION_NOTES.md)「手動確認の出し方」）。確認が終わってから別メッセージでアクション候補を出す

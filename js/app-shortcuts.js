@@ -237,7 +237,7 @@
                 return;
             }
 
-            // Escape: Blankモードから Normal に戻る、またはモーダルを閉じる
+            // Escape: Focus終了、またはモーダルを閉じる
             if (e.key === 'Escape') {
                 const openModals = Array.from(document.querySelectorAll('[aria-modal="true"]')).filter((modal) => {
                     try {
@@ -265,13 +265,11 @@
                     setUIMode('normal');
                     return;
                 }
-                // SP-078: reader モードからの復帰
-                if (currentMode === 'reader') {
+                // 再生オーバーレイを閉じる
+                if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' && window.ZWReaderPreview.isOpen()) {
                     e.preventDefault();
-                    if (window.ZWReaderPreview && typeof window.ZWReaderPreview.exit === 'function') {
+                    if (typeof window.ZWReaderPreview.exit === 'function') {
                         window.ZWReaderPreview.exit();
-                    } else {
-                        setUIMode('normal');
                     }
                     return;
                 }

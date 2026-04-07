@@ -6,7 +6,7 @@ Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェット
 Electron デスクトップアプリとしても動作（CDN バンドル化によりオフライン完全対応）。
 
 - **バージョン**: 0.3.32（`package.json` / `VERSION` と一致）
-- **最終更新**: 2026-04-06
+- **セッション・日付・直近スライス**: [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) の Snapshot（このファイルは手続き中心）
 - **ブランチ**: `main`（`origin/main` と fast-forward 同期想定）
 
 ## 再開手順
@@ -23,24 +23,25 @@ npm run dev
 
 PowerShell では `git checkout main; git pull --ff-only origin main; npm ci` のように `;` で区切る。
 
-E2E 全件: `npx playwright test`。回帰の軽い切り出しは `docs/CURRENT_STATE.md` の検証結果を参照。
+E2E 全件: `npx playwright test`。回帰の切り出しは `docs/CURRENT_STATE.md` の検証結果を参照。spec 本数・テスト総数は `npx playwright test --list` または Snapshot 近傍の記載。
 
 最初に読む順番:
 
-1. `docs/CURRENT_STATE.md`（セッション 51 までが正本）
-2. `docs/ROADMAP.md` の「次スライス候補」
-3. `docs/USER_REQUEST_LEDGER.md`（開発スライスの進め方・deferred 再現手順）
-4. 必要なら `docs/INTERACTION_NOTES.md`（編集面と UI モードの用語・状態モデル）
+1. [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md)（**ドキュメント地図**で次に読むファイルが分かる）
+2. [`docs/ROADMAP.md`](docs/ROADMAP.md) の「次スライス候補」
+3. [`docs/USER_REQUEST_LEDGER.md`](docs/USER_REQUEST_LEDGER.md)（スライス運用・deferred）
+4. 必要なら [`docs/INTERACTION_NOTES.md`](docs/INTERACTION_NOTES.md)
+
+メトリクス: [`docs/runtime-state.md`](docs/runtime-state.md)。背景・IDEA・暗黙メモ: [`docs/project-context.md`](docs/project-context.md)。
 
 ## 現在のプロジェクト状態
 
-### 直近の状態
+現在地の事実関係は **常に [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md)**（Snapshot・検証結果）。下表はクイック参照用。
 
-| 項目 | 状態 |
+| 項目 | 参照 |
 |------|------|
-| 主軸 | WP-001（UI 摩擦削減）+ WP-004（Reader-First WYSIWYG、Phase 3 継続） |
-| 直近スライス | 次着手候補の整理（台帳・ROADMAP）、WP-004 パイプライン／a11y／geometry E2E まで反映済み |
-| 現在地の正本 | `docs/CURRENT_STATE.md` / `docs/project-context.md` / `docs/runtime-state.md` |
+| 主軸・直近スライス | `CURRENT_STATE` の Snapshot |
+| 不変条件 | [`docs/INVARIANTS.md`](docs/INVARIANTS.md) |
 
 ### テスト状況
 
@@ -48,7 +49,7 @@ E2E 全件: `npx playwright test`。回帰の軽い切り出しは `docs/CURRENT
 |--------|----------|
 | スモーク | `npm run test:smoke`（`scripts/dev-check.js`） |
 | Lint（JS） | `npm run lint:js:check` |
-| E2E | `npx playwright test`（spec ファイル 64 本、`e2e/*.spec.js`） |
+| E2E | `npx playwright test` |
 
 `docs/verification/` 配下の一時スクリプトは ESLint 対象外（`.eslintignore`）。
 
@@ -90,10 +91,11 @@ E2E 全件: `npx playwright test`。回帰の軽い切り出しは `docs/CURRENT
 
 ## 参照ドキュメント
 
-- `docs/CURRENT_STATE.md`
+- `docs/CURRENT_STATE.md`（地図つき）
 - `docs/ROADMAP.md`
 - `docs/USER_REQUEST_LEDGER.md`
 - `docs/INTERACTION_NOTES.md`
+- `docs/INVARIANTS.md`
 - `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md`
 - `docs/ARCHITECTURE.md` / `docs/TESTING.md` / `docs/APP_SPECIFICATION.md`
 - `CLAUDE.md`

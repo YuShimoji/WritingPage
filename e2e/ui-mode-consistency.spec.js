@@ -118,19 +118,19 @@ test.describe('UI Mode Consistency', () => {
 
   // MainHubPanel Blank テスト削除 (SP-081 Phase 3: Blank 廃止)
 
-  // ===== Reader モード (SP-078) =====
-  test('Reader mode: sidebar and toolbar are hidden', async ({ page }) => {
+  // ===== 再生オーバーレイ (SP-078+) =====
+  test('再生オーバーレイ: sidebar and toolbar are hidden', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
     await page.waitForTimeout(300);
-    const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
-    expect(mode).toBe('reader');
+    const open = await page.evaluate(() => document.documentElement.getAttribute('data-reader-overlay-open'));
+    expect(open).toBe('true');
     const sidebar = page.locator('.sidebar');
     await expect(sidebar).toBeHidden();
   });
 
-  test('Reader mode: reader-preview is visible', async ({ page }) => {
+  test('再生オーバーレイ: reader-preview is visible', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
@@ -141,7 +141,7 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('Reader mode: current editor content is rendered instead of empty state', async ({ page }) => {
+  test('再生オーバーレイ: current editor content is rendered instead of empty state', async ({ page }) => {
     await page.evaluate(() => {
       const content = '## 第一章\n本文です\n\n### シーン1\nReader確認';
       if (window.ZWContentGuard && typeof window.ZWContentGuard.safeSetContent === 'function') {
@@ -165,8 +165,7 @@ test.describe('UI Mode Consistency', () => {
     expect(text).not.toContain('コンテンツがありません');
   });
 
-  test('Reader mode: exit returns to previous mode', async ({ page }) => {
-    // 遷移前のモードを記録
+  test('再生オーバーレイ: exit closes overlay and preserves ui mode', async ({ page }) => {
     const prevMode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
@@ -177,7 +176,9 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(200);
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    const open = await page.evaluate(() => document.documentElement.hasAttribute('data-reader-overlay-open'));
     expect(mode).toBe(prevMode);
+    expect(open).toBe(false);
   });
 
   // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック

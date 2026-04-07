@@ -171,10 +171,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ初期化
     initializeSidebarTabs();
 
-    // R-2: 保存された blank 設定を focus に移行 (ツールバー初期化は setUIMode(force:true) に統合)
+    // R-2: 廃止済みモード値の移行（blank/reader -> focus）
     try {
         const settings = window.ZenWriterStorage.loadSettings();
-        if (settings.ui && settings.ui.uiMode === 'blank') {
+        if (settings.ui && (settings.ui.uiMode === 'blank' || settings.ui.uiMode === 'reader')) {
             settings.ui.uiMode = 'focus';
             window.ZenWriterStorage.saveSettings(settings);
         }
@@ -481,11 +481,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) { }
     })();
 
-    // UIモード切り替え (SP-081 Phase 3: Blank廃止、3モード体制)
+    // UIモード切り替え（2モード体制 + 再生オーバーレイ）
     function setUIMode(mode, save = true, force = false) {
-        const validModes = ['normal', 'focus', 'reader'];
+        const validModes = ['normal', 'focus'];
         // R-2: blank → focus にフォールバック
         var targetMode = mode === 'blank' ? 'focus' : mode;
+        // Readerモード廃止: 既存値は focus へ正規化
+        if (targetMode === 'reader') targetMode = 'focus';
         targetMode = validModes.includes(targetMode) ? targetMode : 'normal';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
@@ -516,13 +518,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
+        // UIモード切替時は再生オーバーレイを閉じる（重なり防止）
+        if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' && window.ZWReaderPreview.isOpen()) {
+            if (typeof window.ZWReaderPreview.exit === 'function') {
+                window.ZWReaderPreview.exit();
+            }
+        }
+
         // M-1: モード切替時にエッジホバー状態をクリア
         if (window.ZWEdgeHover && typeof window.ZWEdgeHover.dismissAll === 'function') {
             window.ZWEdgeHover.dismissAll();
         }
 
-        // Focus / Reader モードに入る時はサイドバーを閉じる
-        if (targetMode === 'focus' || targetMode === 'reader') {
+        // Focus モードに入る時はサイドバーを閉じる
+        if (targetMode === 'focus') {
             if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
                 window.sidebarManager.forceSidebarState(false);
             }
@@ -545,8 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wysiwygToolbar.setAttribute('data-visible', 'false');
         }
 
-        // モードスイッチボタンの状態を同期
-        // 全ボタン (Normal/Focus/Reader) の aria-pressed を更新
+        // モードスイッチボタンの状態を同期（Normal/Focus）
         document.querySelectorAll('.mode-switch-btn').forEach(function (btn) {
             btn.setAttribute('aria-pressed', btn.getAttribute('data-mode') === targetMode ? 'true' : 'false');
         });
@@ -578,18 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', function () {
             const mode = this.getAttribute('data-mode');
             if (!mode) return;
-            const currentMode = document.documentElement.getAttribute('data-ui-mode');
-            if (mode === 'reader') {
-                // Reader ボタン: 既に Reader なら何もしない、そうでなければ enter
-                if (currentMode !== 'reader' && window.ZWReaderPreview) {
-                    window.ZWReaderPreview.enter();
-                }
-            } else if (currentMode === 'reader' && window.ZWReaderPreview) {
-                // Reader から Normal/Focus へ: exit に遷移先を指定
-                window.ZWReaderPreview.exit(mode);
-            } else {
-                setUIMode(mode);
-            }
+            setUIMode(mode);
         });
     });
 

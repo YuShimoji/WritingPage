@@ -206,14 +206,14 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
     expect(layout.leftWidth).toBe('300px');
   });
 
-  test('Dock panel hidden in blank and reader modes', async ({ page }) => {
+  test('Dock panel hidden in focus and replay overlay', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
     // Open left panel first
     await page.evaluate(() => window.dockManager.setLeftPanelVisible(true));
 
-    for (const mode of ['focus', 'reader']) {
+    for (const mode of ['focus']) {
       await page.evaluate((m) => {
         if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode(m);
         else document.documentElement.setAttribute('data-ui-mode', m);
@@ -225,6 +225,16 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
       });
       expect(isHidden).toBe(true);
     }
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(120);
+    const hiddenInOverlay = await page.evaluate(() => {
+      var panel = document.getElementById('dock-panel-left');
+      return window.getComputedStyle(panel).display === 'none';
+    });
+    expect(hiddenInOverlay).toBe(true);
 
     // Restore normal mode — panel should reappear
     await page.evaluate(() => {

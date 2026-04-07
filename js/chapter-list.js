@@ -394,6 +394,23 @@
     });
     stats.appendChild(tocCopyBtn);
 
+    var tocTemplateBtn = document.createElement('button');
+    tocTemplateBtn.type = 'button';
+    tocTemplateBtn.className = 'cl-footer-stats__toc-btn';
+    tocTemplateBtn.textContent = '目次テンプレ挿入';
+    tocTemplateBtn.title = '目次テンプレートを本文へ挿入';
+    tocTemplateBtn.addEventListener('click', function () {
+      var text = '';
+      if (window.ZWChapterNav && typeof window.ZWChapterNav.generateTocText === 'function') {
+        text = window.ZWChapterNav.generateTocText() || '';
+      }
+      if (!text) return;
+      insertTocTemplate(text);
+      tocTemplateBtn.textContent = '挿入しました';
+      setTimeout(function () { tocTemplateBtn.textContent = '目次テンプレ挿入'; }, 1500);
+    });
+    stats.appendChild(tocTemplateBtn);
+
     // addBtn の前に挿入
     footer.insertBefore(stats, footer.firstChild);
   }
@@ -825,6 +842,18 @@
       editor.value = text || '';
       editor.dispatchEvent(new Event('input', { bubbles: true }));
     }
+  }
+
+  function insertTocTemplate(tocText) {
+    var template = '## 目次\n\n' + tocText + '\n\n';
+    var editor = document.getElementById('editor');
+    if (!editor) return;
+    var start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
+    var before = editor.value.slice(0, start);
+    var after = editor.value.slice(start);
+    var leading = before && !before.endsWith('\n') ? '\n\n' : '';
+    var next = before + leading + template + after;
+    setEditorText(next);
   }
 
   function formatCount(n) {

@@ -30,7 +30,7 @@ class SidebarManager {
                 icon: 'list-tree',
                 description: '見出しツリーと話ナビゲーション',
                 panelId: 'sections-gadgets-panel',
-                defaultExpanded: false
+                defaultExpanded: true
             },
             {
                 id: 'structure',

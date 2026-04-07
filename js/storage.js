@@ -77,7 +77,7 @@ const DEFAULT_SETTINGS = {
         sidebarWidth: 320,
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
-        uiMode: 'focus', // 'normal' | 'focus' | 'reader'
+        uiMode: 'focus', // 'normal' | 'focus'
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
         tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },
@@ -933,6 +933,9 @@ function normalizeSettingsShape(raw) {
     merged.preview = { ...defaults.preview, ...(parsed.preview || {}) };
     merged.autoSave = { ...defaults.autoSave, ...(parsed.autoSave || {}) };
     merged.ui = { ...defaults.ui, ...(parsed.ui || {}) };
+    if (merged.ui.uiMode === 'reader' || merged.ui.uiMode === 'blank') {
+        merged.ui.uiMode = 'focus';
+    }
     if (!merged.ui.tabPlacement) merged.ui.tabPlacement = defaults.ui.tabPlacement;
     if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];
     merged.editor = { ...defaults.editor, ...(parsed.editor || {}) };

@@ -224,16 +224,14 @@
       }
     },
     {
-      id: 'ui-mode-reader',
-      label: '読者プレビュー（閲覧専用）',
-      description: '全画面の読了レイアウトへ（編集は「編集に戻る」から）',
-      shortcut: '',
-      category: 'UIモード',
+      id: 'reader-overlay-toggle',
+      label: '再生オーバーレイ',
+      description: '読者視点の再生オーバーレイを開閉',
+      shortcut: 'Ctrl+Shift+R / Cmd+Shift+R',
+      category: 'UI操作',
       execute: () => {
-        if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
-          window.ZWReaderPreview.enter();
-        } else {
-          setAppUIMode('reader');
+        if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
+          window.ZWReaderPreview.toggle();
         }
       }
     },
@@ -607,7 +605,7 @@
       }
     }
 
-    /** 読者プレビュー（`data-ui-mode="reader"`）時: 非表示の textarea ではなく「編集に戻る」へフォーカス。スクリーンリーダー向けではない */
+    /** 再生オーバーレイ表示中は、閉じる導線へフォーカス */
     _focusReaderReturnControl() {
       const fab = document.getElementById('reader-back-fab');
       if (fab && typeof fab.focus === 'function') {
@@ -671,8 +669,7 @@
       if (this.input) {
         this.input.value = '';
       }
-      const mode = document.documentElement.getAttribute('data-ui-mode');
-      if (mode === 'reader') {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' && window.ZWReaderPreview.isOpen()) {
         this._focusReaderReturnControl();
       } else if (!options.skipEditingSurfaceFocus) {
         this._focusEditingSurface();

@@ -32,7 +32,7 @@
 
 ---
 
-## 実装の正（canonical paths）
+## 実装パス一覧（コードの所在）
 
 
 | 責務                                                   | 実ファイル                                                                                                | メモ                                                                   |
@@ -51,7 +51,7 @@
 | 層             | 内容                                                                                                                               |
 | ------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | **P0（日常執筆）**  | Markdown 正本、インライン/ブロック操作、スマートペースト、主要ブロックの MD 往復（上記受け入れ基準 1〜6）                                                                    |
-| **P1（品質）**    | 下記「Phase 4（表）」— Undo 粒度（session 62）、タイプライター短文時アンカー（session 63）は **一部着手**。縦書き併用などは **未着手**                                                                                          |
+| **P1（品質）**    | 下記 Phase 4 — Undo 粒度（session 62・64）、タイプライター短文時アンカー（session 63）は **一部着手**。**Phase 5（表）**は仕様境界のみ（session 64）。縦書き併用などは **未着手**                                                                                          |
 | **P2（レイアウト）** | 段落ブロックの `text-align`（左・中央・右）。Reader/エクスポートまでのパイプライン通過は `spec-rich-text-paragraph-alignment.md` に従い、**永続化方針を仕様で固定してから** 実装スライスを切る |
 
 **P2 の着手順**: [`spec-rich-text-paragraph-alignment.md`](spec-rich-text-paragraph-alignment.md) の「推奨実装スライス順」に従う（永続化モデル → WYSIWYG コマンド → プレビュー/Reader → E2E）。**永続化モデル（案）** は同書に記載（session 53）。
@@ -154,7 +154,8 @@
 | Phase 1 | コマンドAdapter導入、既存操作の置換、回帰テスト追加 | 必須  | 完了  |
 | Phase 2 | ブロック編集UI追加、変換ルール拡張            | 必須  | 完了  |
 | Phase 3 | スマートペースト実装、設定UI連携             | 必須  | 完了  |
-| Phase 4 | 品質改善（選択範囲維持、Undo粒度、短文時カーソル等）        | 推奨  | 一部（Undo: session 62。タイプライター短文時の上余白+scroll クランプ: session 63） |
+| Phase 4 | 品質改善（選択範囲維持、Undo粒度、短文時カーソル等）        | 推奨  | 一部（Undo: session 62・64。タイプライター短文時の上余白+scroll クランプ: session 63） |
+| Phase 5 | Markdown **表**（GFM `|` 表または最小 HTML `<table>`）の WYSIWYG・往復・パイプライン | 任意  | **未着手**（session 64 でスライス境界のみ下記） |
 
 
 ---
@@ -248,3 +249,19 @@
 
 - **Undo 粒度の最適化（一部・session 62）** — WYSIWYG のカスタム Undo（`Ctrl+Z` / `Ctrl+Shift+Z`）は、従来どおり `input` ごとに `_scheduleUndoSnapshot` で `_undoBatchTimeout`（既定 500ms）バッチする。加えて **Space / Enter** 押下直前（`keydown`、`isComposing` でないとき）、**contenteditable の `blur`**、**IME `compositionend`** で `_flushPendingUndoSnapshot` を呼び、保留タイマーを打ち切って `_captureUndoSnapshot` により現状 HTML を即スタックへ確定する。これにより単語境界・行境界・編集離脱・変換確定で Undo 単位が区切られやすくなる。実装: [`js/editor-wysiwyg.js`](../../js/editor-wysiwyg.js)。引き続き必要ならタイムアウト値の設定化やコマンド単位の細分化を別スライスで検討する。
 - **短文時カーソルとタイプライターアンカー（一部・session 63）** — **対象**: タイプライター **ON** かつ **WYSIWYG**（`settings.typewriter.enabled`、従来の下余白 `paddingBottom: calc(100vh * anchorRatio)` と同じ前提）。**課題**: 本文が短くスクロール域が足りないとき、`scrollTop === 0` のままではカーソル行がビュー内アンカー（`anchorRatio`）より上に留まり、`_scrollCursorToAnchor` が効きにくい。**対応**: 対称に **`paddingTop: calc(100vh * (1 - anchorRatio))`** を付与し、上方向のスクロール可能量を確保する。`_scrollCursorToAnchor` では `scrollTop` 加算後に **`[0, scrollHeight - clientHeight]` にクランプ**する。無効化時は `paddingTop` / `paddingBottom` のインライン指定をともに除去する。**未扱い**: 縦書きモードとの組み合わせ・アンカー以外の細かなタイポグラフィ調整は別スライス。
+- **Undo のスタック操作（session 64）** — `_undoAction` は **`_undoStack` を 1 回だけ `pop`** し、その HTML を復元する。従来の二重 `pop` は履歴が浅いとき **1 回の Undo で初期状態まで戻る**不具合の原因だった。
+- **Redo スナップショット（session 65）** — Undo 時に `_redoStack` へ積む HTML は **`wysiwygEditor.innerHTML` の実測**とする（`_undoLastSnapshot` との微妙な不一致で Redo が空振りするのを防ぐ）。Enter 境界の Undo 単位は [`e2e/wysiwyg-editor.spec.js`](../../e2e/wysiwyg-editor.spec.js) の FR-007 で回帰。
+
+### Phase 5（未着手）: 表 — スライス境界（session 64）
+
+**WP-004 Phase 3 や段落揃え（P2）とは別トラック**で起票する。実装に入る前に **1 スライス = 表の読み取りのみ** から始める。
+
+| 項目 | 内容 |
+|------|------|
+| 第 1 スライス（推奨） | GFM 風パイプ表を **Markdown 正本として保持**し、WYSIWYG では **読み取り専用ブロック**（編集は textarea へ誘導）または **セル単位の最小編集**のどちらかを仕様で確定してから実装する |
+| sanitize / ペースト | `RichTextCommandAdapter.sanitizeHtml` の許可タグに `table/thead/tbody/tr/th/td` を足すかは **第 1 スライス後**に判断（Phase 3 の許可リスト拡張は XSS 面のレビュー必須） |
+| Turndown | 表用ルールを追加し、**HTML→MD の損失がない最小形**（例: 単純グリッドのみ）から開始 |
+| パイプライン | `ZWMdItBody` / `zw-postmarkdown-html-pipeline` で Reader・プレビューが **壊れずに通る**ことを E2E またはスナップショットで固定 |
+| 非スコープ（当面） | Word 互換の結合セル・ネスト表・表内画像・CSS テーマの完全再現 |
+
+次の実装スライスを切るときは本節を更新し、[`docs/USER_REQUEST_LEDGER.md`](../USER_REQUEST_LEDGER.md) の「次スライス候補」に 1 行追加する。

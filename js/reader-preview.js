@@ -11,7 +11,7 @@
   var innerEl = null;
   var backFab = null;
   var toggleButtons = [];
-  var previousMode = null;
+  var isOpen = false;
   var progressBar = null;
   var progressFill = null;
   var scrollRAF = null;
@@ -27,7 +27,7 @@
     if (toolbarToggleBtn) {
       toolbarToggleBtn.setAttribute('data-reader-preview-toggle', 'true');
     }
-    // mode-switch に Reader ボタンがあるため、動的ボタン生成は不要 (WP-001)
+    // モードボタンではなく専用トグルボタンで開閉する
   }
 
   function init() {
@@ -91,12 +91,8 @@
     // ツールバーボタン
     toggleButtons.forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var mode = document.documentElement.getAttribute('data-ui-mode');
-        if (mode === 'reader') {
-          exitReaderMode();
-        } else {
-          enterReaderMode();
-        }
+        if (isOpen) exitReaderMode();
+        else enterReaderMode();
       });
     });
 
@@ -113,7 +109,7 @@
 
     // Escキーで復帰（app-shortcuts.jsに統合されていない場合のフォールバック）
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && document.documentElement.getAttribute('data-ui-mode') === 'reader') {
+      if (e.key === 'Escape' && isOpen) {
         exitReaderMode();
       }
     });
@@ -122,12 +118,8 @@
     document.addEventListener('keydown', function (e) {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
         e.preventDefault();
-        var mode = document.documentElement.getAttribute('data-ui-mode');
-        if (mode === 'reader') {
-          exitReaderMode();
-        } else {
-          enterReaderMode();
-        }
+        if (isOpen) exitReaderMode();
+        else enterReaderMode();
       }
     });
   }
@@ -215,8 +207,7 @@
   }
 
   function enterReaderMode() {
-    var current = document.documentElement.getAttribute('data-ui-mode') || 'normal';
-    previousMode = current === 'reader' ? 'normal' : current;
+    if (isOpen) return;
 
     // ContentGuard: 現在の編集内容を保存してからモード切替
     var G = window.ZWContentGuard;
@@ -230,38 +221,23 @@
     // 縦書き設定を適用
     applyVerticalMode(isVertical);
 
-    // モード切替 (setUIMode 経由で状態管理を統一)
-    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
-      window.ZenWriterApp.setUIMode('reader');
-    } else {
-      document.documentElement.setAttribute('data-ui-mode', 'reader');
-    }
+    isOpen = true;
+    document.documentElement.setAttribute('data-reader-overlay-open', 'true');
+    if (previewEl) previewEl.classList.add('is-open');
 
     // スクロール位置を復元
     restoreScrollPosition();
   }
 
-  function exitReaderMode(targetMode) {
-    if (
-      !targetMode &&
-      document.documentElement.getAttribute('data-ui-mode') !== 'reader'
-    ) {
-      return;
-    }
+  function exitReaderMode() {
+    if (!isOpen) return;
     dismissReaderWikiPopover();
     // スクロール位置を保存
     saveScrollPosition();
 
-    var target = targetMode || previousMode || 'normal';
-    if (target === 'reader') {
-      target = 'normal';
-    }
-    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
-      window.ZenWriterApp.setUIMode(target);
-    } else {
-      document.documentElement.setAttribute('data-ui-mode', target);
-    }
-    previousMode = null;
+    isOpen = false;
+    document.documentElement.removeAttribute('data-reader-overlay-open');
+    if (previewEl) previewEl.classList.remove('is-open');
 
     scheduleFocusEditingSurfaceAfterReaderExit();
 
@@ -423,7 +399,7 @@
       verticalToggle.textContent = vertical ? '横書き' : '縦書き';
       verticalToggle.setAttribute(
         'aria-label',
-        vertical ? '横書き表示に切り替え（読者プレビュー）' : '縦書き表示に切り替え（読者プレビュー）'
+        vertical ? '横書き表示に切り替え（再生オーバーレイ）' : '縦書き表示に切り替え（再生オーバーレイ）'
       );
     }
     // プログレスバーをリセット
@@ -776,6 +752,11 @@
   window.ZWReaderPreview = {
     enter: enterReaderMode,
     exit: exitReaderMode,
+    toggle: function () {
+      if (isOpen) exitReaderMode();
+      else enterReaderMode();
+    },
+    isOpen: function () { return isOpen; },
     exportHtml: exportHtml,
     toggleVertical: toggleVerticalMode,
     get isVertical() { return isVertical; },

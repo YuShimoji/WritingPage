@@ -1008,34 +1008,35 @@ html[data-ui-mode='focus'] .sidebar.focus-overlay-open {
 
 /* R-2: Blank モード廃止 (SP-081 Phase 3) — CSS 全削除 */
 
-/* ===== Reader モード (SP-078) ===== */
+/* ===== 再生オーバーレイ (SP-078+) ===== */
 
-html[data-ui-mode='reader'] .toolbar {
+html[data-reader-overlay-open='true'] .toolbar {
   display: none !important;
 }
 
-html[data-ui-mode='reader'] .sidebar {
+html[data-reader-overlay-open='true'] .sidebar {
   display: none !important;
 }
 
-html[data-ui-mode='reader'] .focus-chapter-panel {
+html[data-reader-overlay-open='true'] .focus-chapter-panel {
   display: none !important;
 }
 
-html[data-ui-mode='reader'] .mini-hud {
+html[data-reader-overlay-open='true'] .mini-hud {
   display: none !important;
 }
 
-html[data-ui-mode='reader'] .main-content {
+html[data-reader-overlay-open='true'] .main-content {
   display: none !important;
 }
 
 
-html[data-ui-mode='reader'] .show-toolbar-fab {
+html[data-reader-overlay-open='true'] .show-toolbar-fab {
   display: none !important;
 }
 
-html[data-ui-mode='reader'] .reader-preview {
+html[data-reader-overlay-open='true'] .reader-preview,
+.reader-preview.is-open {
   display: block !important;
 }
 
@@ -1085,6 +1086,7 @@ html[data-ui-mode='reader'] .reader-preview {
   font-family: var(--font-family, 'Noto Serif JP', serif);
   font-size: var(--editor-font-size, 1rem);
   line-height: var(--line-height, 1.8);
+  letter-spacing: var(--body-letter-spacing, 0em);
   word-break: break-word;
   overflow-wrap: break-word;
 }
@@ -1112,8 +1114,8 @@ html[data-ui-mode='reader'] .reader-preview {
 }
 
 .reader-preview__inner p {
-  margin-bottom: 1em;
-  text-indent: 1em;
+  margin-bottom: var(--paragraph-spacing, 1em);
+  text-indent: var(--paragraph-indent, 1em);
 }
 
 .reader-preview__inner p:first-child,
@@ -1722,6 +1724,14 @@ html[data-toolbar-hidden='true'] .editor-container {
   text-indent: var(--paragraph-indent, 1em);
 }
 
+/* WP-004: Reader 本文（.reader-preview__inner）と同じ字下げ規則を MD プレビューにも適用 */
+#markdown-preview-panel p:first-child,
+#markdown-preview-panel h1 + p,
+#markdown-preview-panel h2 + p,
+#markdown-preview-panel h3 + p {
+  text-indent: 0;
+}
+
 #editor {
   flex: 1 1 auto;
   width: 100%;
@@ -1918,8 +1928,8 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   display: flex;
 }
 
-/* Reader モードではフローティングツールバーを常に非表示 */
-html[data-ui-mode='reader'] .wysiwyg-toolbar {
+/* 再生オーバーレイではフローティングツールバーを常に非表示 */
+html[data-reader-overlay-open='true'] .wysiwyg-toolbar {
   display: none !important;
 }
 
@@ -7696,9 +7706,9 @@ button[aria-pressed="true"] + .documents-more-btn,
   transition: opacity 0.6s ease-in !important;
 }
 
-/* Normal / Reader mode ではグロー不要 */
+/* Normal / 再生オーバーレイではグロー不要 */
 html[data-ui-mode='normal'] .edge-glow,
-html[data-ui-mode='reader'] .edge-glow {
+html[data-reader-overlay-open='true'] .edge-glow {
   display: none !important;
 }
 

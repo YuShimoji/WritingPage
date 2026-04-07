@@ -19,7 +19,7 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     });
     await page.waitForTimeout(400);
 
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'reader');
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
     await expect(page.locator('#reader-mode-hint')).toBeVisible();
 
     const mainHidden = await page.evaluate(() => {
@@ -30,7 +30,8 @@ test.describe('Reader vs WYSIWYG distinction', () => {
 
     await page.locator('#reader-back-fab').click();
     await page.waitForTimeout(300);
-    await expect(page.locator('html')).not.toHaveAttribute('data-ui-mode', 'reader');
+    const closed = await page.evaluate(() => !document.documentElement.hasAttribute('data-reader-overlay-open'));
+    expect(closed).toBe(true);
 
     const focusOnEditSurface = await page.evaluate(() => {
       const a = document.activeElement;
@@ -309,6 +310,52 @@ test.describe('Reader vs WYSIWYG distinction', () => {
       return window.getComputedStyle(el).textAlign;
     });
     expect(readerAlign).toBe('right');
+  });
+
+  test('WP-004: MD プレビューと Reader 本文の段落 typography 変数が一致する', async ({ page }) => {
+    await page.evaluate(() => {
+      document.documentElement.style.setProperty('--paragraph-spacing', '13px');
+      document.documentElement.style.setProperty('--paragraph-indent', '17px');
+      document.documentElement.style.setProperty('--body-letter-spacing', '0.05em');
+      var panel = document.getElementById('markdown-preview-panel');
+      if (panel) {
+        panel.innerHTML = '<p>lead</p><p id="typo-md-probe">body</p>';
+      }
+    });
+    const md = await page.evaluate(() => {
+      var el = document.getElementById('typo-md-probe');
+      if (!el) return null;
+      var st = window.getComputedStyle(el);
+      return { mb: st.marginBottom, ti: st.textIndent, ls: st.letterSpacing };
+    });
+    expect(md).toBeTruthy();
+
+    await page.evaluate(() => {
+      var ed = document.getElementById('editor');
+      if (ed && !String(ed.value || '').trim()) {
+        ed.value = 'typography-e2e-probe\n';
+        ed.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await page.waitForTimeout(400);
+
+    await page.evaluate(() => {
+      var content = document.querySelector('#reader-preview-inner .reader-preview__content');
+      if (content) {
+        content.innerHTML = '<p>lead</p><p id="typo-rd-probe">body</p>';
+      }
+    });
+    const rd = await page.evaluate(() => {
+      var el = document.getElementById('typo-rd-probe');
+      if (!el) return null;
+      var st = window.getComputedStyle(el);
+      return { mb: st.marginBottom, ti: st.textIndent, ls: st.letterSpacing };
+    });
+    expect(rd).toBeTruthy();
+    expect(rd).toEqual(md);
   });
 
   test('リッチ編集の切替で UI モードは通常のまま', async ({ page }) => {

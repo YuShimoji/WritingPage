@@ -35,8 +35,9 @@
         var theme = settings && settings.theme ? settings.theme : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
 
-        // UIモード設定（デフォルト: normal）
+        // UIモード設定（デフォルト: normal、readerはfocusへ正規化）
         var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'normal';
+        if (uiMode === 'reader') uiMode = 'focus';
         document.documentElement.setAttribute('data-ui-mode', uiMode);
 
         // ツールバー設定
@@ -174,7 +175,7 @@
           </button>
           <div class="accordion-content" id="accordion-edit" aria-hidden="true">
             <p class="sidebar-edit-hint" id="sidebar-edit-hint">
-              <strong>MD プレビュー</strong>は編集画面の横に表示。ツールバーの<strong>読者プレビュー</strong>は別（閲覧専用モード）。
+              <strong>MD プレビュー</strong>は編集画面の横に表示。ツールバーの<strong>再生オーバーレイ</strong>は別（読者視点確認用）。
             </p>
             <div class="sidebar-editor-controls" role="group" aria-label="エディタ操作">
               <button class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false"
@@ -230,6 +231,12 @@
             <div class="sidebar-editor-controls" role="group" aria-label="システム操作">
               <button class="sidebar-control-btn" id="sidebar-toggle-help" title="ヘルプ">
                 <i data-lucide="help-circle" aria-hidden="true"></i><span>ヘルプ</span>
+              </button>
+              <button class="sidebar-control-btn" id="help-button" title="Wikiガイドを開く">
+                <i data-lucide="book-open" aria-hidden="true"></i><span>Wikiガイド</span>
+              </button>
+              <button class="sidebar-control-btn" id="editor-help-button" title="エディタガイドを開く">
+                <i data-lucide="file-text" aria-hidden="true"></i><span>エディタガイド</span>
               </button>
             </div>
             <div id="advanced-gadgets-panel" class="gadgets-panel" data-gadget-group="advanced" aria-label="詳細設定ガジェット"></div>
@@ -295,9 +302,6 @@
             <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
               <i data-lucide="crosshair" aria-hidden="true"></i>
             </button>
-            <button class="mode-switch-btn" data-mode="reader" aria-pressed="false" title="読者プレビュー（閲覧専用）" aria-label="読者プレビュー（閲覧専用）">
-              <i data-lucide="book-open" aria-hidden="true"></i>
-            </button>
           </div>
           <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
             <i data-lucide="maximize" aria-hidden="true"></i>
@@ -323,7 +327,7 @@
             <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
               <i data-lucide="columns" aria-hidden="true"></i>
             </button>
-            <button id="toggle-reader-preview" class="icon-button iconified" title="読者プレビュー（閲覧専用・全画面）" aria-label="読者プレビュー（閲覧専用・全画面）を開く">
+            <button id="toggle-reader-preview" class="icon-button iconified" title="再生オーバーレイ（読者視点確認）" aria-label="再生オーバーレイ（読者視点確認）を開く">
               <i data-lucide="eye" aria-hidden="true"></i>
             </button>
             <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
@@ -834,12 +838,12 @@
     }
   </script>
 
-  <!-- SP-078: 読者プレビューモード -->
-  <div class="reader-preview" id="reader-preview" role="document" aria-label="読者プレビュー（閲覧専用）" aria-describedby="reader-mode-hint">
-    <p class="reader-preview__mode-hint" id="reader-mode-hint">読者プレビュー · 閲覧のみ（編集は「編集に戻る」）</p>
-    <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（読者プレビューを終了）">編集に戻る</button>
-    <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（読者プレビュー）">HTMLとして保存</button>
-    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（読者プレビュー）" aria-label="縦書き表示に切り替え（読者プレビュー）">縦書き</button>
+  <!-- SP-078+: 再生オーバーレイ -->
+  <div class="reader-preview" id="reader-preview" role="document" aria-label="再生オーバーレイ" aria-describedby="reader-mode-hint">
+    <p class="reader-preview__mode-hint" id="reader-mode-hint">再生オーバーレイ · 閲覧のみ（編集は「編集に戻る」）</p>
+    <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（再生オーバーレイを終了）">編集に戻る</button>
+    <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（再生オーバーレイ）">HTMLとして保存</button>
+    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（再生オーバーレイ）" aria-label="縦書き表示に切り替え（再生オーバーレイ）">縦書き</button>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
   </div>
 </body>

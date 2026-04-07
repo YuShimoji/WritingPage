@@ -1,6 +1,22 @@
 // @ts-nocheck
+const { platform } = require('node:os');
 const { test, expect } = require('@playwright/test');
 const { showFullToolbar, switchToTextareaMode, openSidebarPanel } = require('./helpers');
+
+/** macOS は Meta+Z、それ以外は Control+Z（カスタム Undo） */
+async function pressWysiwygUndo(page) {
+  const mod = platform() === 'darwin' ? 'Meta' : 'Control';
+  await page.keyboard.press(`${mod}+z`);
+}
+
+/** カスタム Redo（エディタにフォーカスして送る）。Windows/Linux は Ctrl+Y、macOS は Meta+Shift+Z（アプリ実装に合わせる） */
+async function pressWysiwygRedo(page, editor) {
+  if (platform() === 'darwin') {
+    await editor.press('Meta+Shift+KeyZ');
+  } else {
+    await editor.press('Control+y');
+  }
+}
 
 // WYSIWYGエディタ機能テスト (WYSIWYGがデフォルトモード)
 test.describe('WYSIWYG Editor', () => {
@@ -29,6 +45,189 @@ test.describe('WYSIWYG Editor', () => {
   async function switchToTextarea(page) {
     await switchToTextareaMode(page);
   }
+
+  test('FR-007: Space 境界のあと 1 回の Undo で直後の入力だけ巻き戻る', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('ab', { delay: 15 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Space');
+    await page.keyboard.type('z');
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    const text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toMatch(/ab/i);
+    expect(text).not.toContain('z');
+  });
+
+  test('FR-007: blur で保留バッチ確定後、Undo で直前セグメントまで戻る', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('first');
+    await page.evaluate(() => {
+      var el = document.getElementById('wysiwyg-editor');
+      if (el) el.blur();
+    });
+    await page.waitForTimeout(150);
+    await editor.click();
+    await page.keyboard.type('second');
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    const text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toContain('first');
+    expect(text).not.toContain('second');
+  });
+
+  test('FR-007: Enter 境界のあと 1 回の Undo で次行の入力だけ巻き戻る', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('aa', { delay: 15 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('bb', { delay: 15 });
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    const text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toMatch(/aa/i);
+    expect(text).not.toContain('bb');
+  });
+
+  test('FR-007: Undo 後に Redo で直前の編集を復元する', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('ab', { delay: 15 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Space');
+    await page.keyboard.type('z');
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    var text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).not.toContain('z');
+    await pressWysiwygRedo(page, editor);
+    text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toContain('z');
+  });
+
+  test('FR-007: 連続 Undo のあと連続 Redo でセグメントを順に復元する', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('aa', { delay: 15 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Space');
+    await page.keyboard.type('bb', { delay: 15 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Space');
+    await page.keyboard.type('cc', { delay: 15 });
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    var text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).not.toContain('cc');
+    await pressWysiwygUndo(page);
+    text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).not.toContain('bb');
+    await pressWysiwygRedo(page, editor);
+    text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toContain('bb');
+    await pressWysiwygRedo(page, editor);
+    text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toContain('cc');
+  });
+
+  test('FR-007: Space 境界後の長い連続入力は 1 回の Undo でまとめて巻き戻る', async ({ page }) => {
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate(() => {
+      var re = window.richTextEditor;
+      re.wysiwygEditor.innerHTML = '<p><br></p>';
+      re.resetUndoStack();
+    });
+    await editor.click();
+    await page.keyboard.type('base', { delay: 10 });
+    await page.waitForTimeout(30);
+    await page.keyboard.press('Space');
+    const longChunk = 'abcdefghijklmnopqr'; // 17 文字・スペースなし連続入力
+    await page.keyboard.type(longChunk, { delay: 8 });
+    await page.waitForTimeout(650);
+    await pressWysiwygUndo(page);
+    const text = await editor.evaluate((el) => (el.innerText || '').replace(/\s+/g, ' ').trim());
+    expect(text).toContain('base');
+    expect(text).not.toContain('abcdefghijklmnopqr');
+  });
+
+  test('FR-008: タイプライター ON かつスクロール可能な本文で input 後 scrollTop がクランプ範囲内', async ({ page }) => {
+    await openSidebarPanel(page, 'assist', { expandGadgets: true });
+    await page.locator('#assist-gadgets-panel #typewriter-enabled').check();
+    await page.waitForTimeout(200);
+    const editor = page.locator('#wysiwyg-editor');
+    await editor.click();
+    await page.waitForFunction(() => !!(window.richTextEditor && window.richTextEditor.wysiwygEditor));
+    await page.evaluate(() => {
+      var el = document.getElementById('wysiwyg-editor');
+      var html = '';
+      for (var i = 0; i < 80; i++) {
+        html += '<p>line' + i + '</p>';
+      }
+      el.innerHTML = html;
+      el.scrollTop = el.scrollHeight;
+    });
+    await editor.click();
+    await page.evaluate(() => {
+      var el = document.getElementById('wysiwyg-editor');
+      var range = document.createRange();
+      var last = el.querySelector('p:last-child');
+      range.selectNodeContents(last);
+      range.collapse(false);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    await page.keyboard.type('X', { delay: 20 });
+    await page.waitForTimeout(100);
+    const scrollState = await editor.evaluate((el) => {
+      var maxScroll = Math.max(0, el.scrollHeight - el.clientHeight);
+      return { scrollTop: el.scrollTop, maxScroll: maxScroll };
+    });
+    expect(scrollState.scrollTop).toBeGreaterThanOrEqual(0);
+    expect(scrollState.scrollTop).toBeLessThanOrEqual(scrollState.maxScroll + 1);
+    await page.locator('#assist-gadgets-panel #typewriter-enabled').uncheck();
+    await page.waitForTimeout(150);
+  });
 
   test('タイプライター ON で WYSIWYG に上方向余白（短文アンカー用）が付く', async ({ page }) => {
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
