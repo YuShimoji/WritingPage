@@ -53,6 +53,13 @@
 - 回帰は `dock-preset` + `gadgets` + `visual-audit`（Loadout/カテゴリ周辺）で **18 件 pass**。`visual-audit` の基準スクリーンショット（Structure/Edit）を更新して差分を確定。
 - 次候補は WP-004 Phase 3 本線（監査台帳に沿った差分 1 件解消）を推奨。
 
+#### session 76 実施結果（WP-004 Phase 3 本線）
+
+- WP-004 Phase 3 の**監査シナリオ5（ジャンルプリセット）**を本線スライスとして固定し、`reader-genre-preset.spec.js` に **computed style 検証 1 件**（`genre-adv` 適用時 `.zw-dialog` の暗色 `background`）を追加。
+- 回帰は `reader-genre-preset` + `reader-wysiwyg-distinction` を再実行し **18 件 pass**（プロダクトコード変更なし）。
+- `npx playwright test --list` は **573 テスト / 68 ファイル**（`ROADMAP` 記載用）。
+- 次候補: WP-004 は台帳の残差分・手動パックに従う。WP-001 は `CURRENT_STATE` / `ROADMAP` の次トピックを 1 件選定。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

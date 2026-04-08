@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 75)
+最終更新: 2026-04-08 (session 76)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 75 |
+| セッション | 76 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 75: **WP-001 ロードアウト整合** — プリセット既定を再整理し、未配置だった `LinkGraph` / `PomodoroTimer` / `FontDecoration` / `TextAnimation` の発見導線を追加。`LoadoutManager` を全プリセットで利用可能に整合。Loadout 関連 E2E 18 件 pass。 |
+| 直近のスライス | session 76: **WP-004 Phase 3 本線（監査シナリオ5）** — ジャンルプリセット `genre-adv` 適用時の `.zw-dialog` computed background を `reader-genre-preset.spec.js` で固定。`reader-genre-preset` + `reader-wysiwyg-distinction` 計 18 件 pass（実装変更なし）。 |
 
 
 ## ドキュメント地図（再開時）
@@ -142,6 +142,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `dock-preset` + `gadgets`（14 件）と `visual-audit` の Loadout/カテゴリ周辺（4 件）を実行し全通過。visual-audit の基準スクリーンショット 2 枚を更新 | `e2e/dock-preset.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js`, `e2e/visual-audit-screenshots/04-structure-gadgets.png`, `e2e/visual-audit-screenshots/05-edit-gadgets.png` |
 | 台帳同期 | Current State / 要求台帳 / Roadmap を session 75 として同期 | `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md` |
 
+### Session 76
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 Phase 3 本線 | 監査シナリオ5（ジャンルプリセット）— `genre-adv` 時 `.zw-dialog` の `backgroundColor`（computed）を E2E で固定 | `e2e/reader-genre-preset.spec.js` |
+| 回帰 | `reader-genre-preset` + `reader-wysiwyg-distinction` → pass（18 件）。`npx playwright test --list` → **573 テスト / 68 ファイル** | — |
+| 台帳同期 | `WP004_PHASE3_PARITY_AUDIT`・`USER_REQUEST_LEDGER`・`CURRENT_STATE`・`ROADMAP`（E2E 件数）を session 76 として同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md`, `docs/ROADMAP.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -189,6 +197,11 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/visual-audit.spec.js --grep "Loadout manager|Structure gadgets|Edit gadgets|Advanced gadgets"` → pass（4 件）
 - `npx playwright test e2e/dock-preset.spec.js e2e/gadgets.spec.js` → pass（14 件）
 
+実行済み (session 76):
+
+- `npx playwright test e2e/reader-genre-preset.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（18 件）
+- `npx playwright test --list` → **573 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - WYSIWYG: **IME 確定**（実機・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）。**極端な長文連打の体感**（パフォーマンス）
@@ -201,8 +214,8 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | WP-001 次スライス | **ロードアウトプリセットとガジェット既定の整合**（未配置ガジェット・重複カテゴリの整理）を 1 スライスで実施 | shared        |
-| B   | WP-004 Phase 3   | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に沿い **差分を 1 件ずつ**、`reader-wysiwyg-distinction` で監視 | shared        |
+| A   | WP-001 次スライス | session 75 でロードアウト整合は完了。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から 1 件選定 | shared        |
+| B   | WP-004 Phase 3   | 監査台帳に沿い差分を **1 件ずつ**。ジャンルプリセットの代表 style は session 76 で `reader-genre-preset` に固定済み | shared        |
 | C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 

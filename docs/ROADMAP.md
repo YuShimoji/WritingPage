@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-04-08 / v0.3.32（session 69: E2E 全件・`main` 一本化後の用語整合）
+> 最終更新: 2026-04-08 / v0.3.32（session 76: E2E 件数・WP-004 ジャンルプリセット style 固定を同期）
 
 ## ステータス語彙
 
@@ -16,7 +16,7 @@
 
 ## 現在の状態
 
-- E2E: `npx playwright test --list` で確認（session 69: **570 テスト / 68 ファイル**。全件実行は session 69 で **568 passed / 2 skipped**。従来の「spec ファイル数のみ」の記載は廃止し、本コマンドを正とする）
+- E2E: `npx playwright test --list` で確認（session 76 時点: **573 テスト / 68 ファイル**。全件実行の最新スナップは `CURRENT_STATE`「検証結果」を正とする）
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録
@@ -31,8 +31,8 @@
 詳細は `[docs/USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md)` の表を正とする。実装時は **1 トピック** に絞る。
 
 - **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
-- **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（session 46 前後）。次は typography 等 Phase 3 継続や差分発見時の追記（読者確認は **再生オーバーレイ** 経路）
-- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73 実施）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。次候補は `USER_REQUEST_LEDGER` の WP-004 本線（Phase 3 差分 1 件）を優先
+- **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（session 46 前後）。~~Phase 3 本線（ジャンルプリセット・シナリオ5 の style 1 項目）~~（session 76: `reader-genre-preset` に computed style 1 件）。typography 等の残差・手動パックは [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従う（読者確認は **再生オーバーレイ** 経路）
+- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73 実施）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。次候補は `USER_REQUEST_LEDGER` / `CURRENT_STATE` の WP-001 候補から 1 件
 - **中期（別起票）**: ブロック段落の左・中・右揃え — `[docs/specs/spec-rich-text-paragraph-alignment.md](specs/spec-rich-text-paragraph-alignment.md)`（**WP-004 ではなく** `[docs/specs/spec-richtext-enhancement.md](specs/spec-richtext-enhancement.md)` のリッチテキスト・プログラム P2 として起票・優先度付けする）
 
 ---

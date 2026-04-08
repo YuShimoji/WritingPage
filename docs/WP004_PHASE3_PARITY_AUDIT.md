@@ -27,7 +27,7 @@
 | Reader 壊れ wikilink クリック → ポップオーバー（未登録語の説明・外クリックで閉じる） | `reader-wikilink-popover.spec.js` |
 | Reader 本文への章末ナビ注入（`chapterNav.enabled`・複数章 chapterMode・`.chapter-nav-bar`） | `reader-chapter-nav.spec.js`（結合層。パイプライン層の E2E とは別） |
 | UI モードと WYSIWYG 切替 | 同上 |
-| ジャンルプリセット（Reader 専用 UI）— `#reader-preview-inner` への `genre-*` クラス付与 | `reader-genre-preset.spec.js`（`GenrePresetRegistry.apply` / `clear` の浅い assert。見た目のピクセル比較はしない） |
+| ジャンルプリセット（Reader 専用 UI）— `#reader-preview-inner` への `genre-*` クラス付与 + **シナリオ5 代表1項目**: `genre-adv` 時 `.zw-dialog` の computed `background`（`css/style.css` と整合） | `reader-genre-preset.spec.js`（`GenrePresetRegistry` + `getComputedStyle`。ピクセル比較はしない） |
 | P2: `data-zw-align` がパイプライン後も残り、MD プレビュー・Reader 本文で `text-align` が投影される | `reader-wysiwyg-distinction.spec.js` |
 | 段落 typography（session 66）: `--paragraph-spacing` / `--paragraph-indent` / `--body-letter-spacing` が MD プレビュー（2 段落目）と Reader 本文（2 段落目）で同一 computed style。先頭段落の字下げ解除を `#markdown-preview-panel` に Reader（`.reader-preview__inner`）と同一規則で適用 | `reader-wysiwyg-distinction.spec.js` |
 
@@ -44,7 +44,7 @@
 4. **壊れ Wiki リンク**（`is-broken`）と Reader ポップオーバー  
    - **脚注**: **パイプライン層**では存在しないタイトルの `[[…]]` が preview/reader で同一 HTML かつ `is-broken` になることを E2E 済み。**Reader で壊れリンクをクリックしたときのポップオーバー**（未登録メッセージ・外クリックで閉じる）は [e2e/reader-wikilink-popover.spec.js](e2e/reader-wikilink-popover.spec.js) で自動検証（session 58）。  
 5. **ジャンルプリセット**（Reader 専用 UI）適用後の見え方（パイプライン後の CSS 層）  
-   - **脚注**: **クラス付与**（`genre-adv` 等）の機械的検証は `e2e/reader-genre-preset.spec.js`。**テーマ配色・タイピング演出の見た目**は手動で確認する。
+   - **脚注**: **クラス付与**に加え、**代表1項目**として `genre-adv` 適用時の `.zw-dialog` の **computed background**（`rgba(0,0,0,0.85)` 相当）を `e2e/reader-genre-preset.spec.js` で固定（session 76）。**タイピング演出・全面の見た目**は手動で確認する。
 
 差分を見つけたら: **1 トピック = 1 PR**、可能なら `reader-wysiwyg-distinction.spec.js` に最小の `evaluate` アサーションを追加。
 
@@ -69,3 +69,4 @@
 | 2026-04-07 | session 66: **CSS 層**で MD プレビューと Reader 本文の段落 typography を整合（`style.css`）。`reader-wysiwyg-distinction` に computed style 一致 E2E を 1 件追加。reader 関連 4 spec 計 **17** 件を再実行しすべて通過 |
 | 2026-04-07 | session 67（別レーン）: **手動パック運用**を `USER_REQUEST_LEDGER` に明文化（シナリオ 1〜5 + `CURRENT_STATE` 体感リスト・履歴追記ルール）。**本記録時点**: エージェント作業はドキュメント整備のみ。**人間による並べ確認**はリリース前／四半期の手動パックで実施し、結果を本表に追記する（新規 preview/reader 差分の報告は従来どおり WP-004 本線へ） |
 | 2026-04-08 | session 74: 次点プラン（予備）として **Reader 章末ナビのクリック遷移**を `reader-chapter-nav.spec.js` で最小 E2E 化。`reader-chapter-nav` + `reader-wysiwyg-distinction` の計 17 件を再実行しすべて通過（実装変更はテスト追加のみ） |
+| 2026-04-08 | session 76: WP-004 Phase 3 **本線** — 監査シナリオ5（ジャンルプリセット）の差分1件を **`genre-adv` 時 `.zw-dialog` の computed `backgroundColor`** で自動固定（`reader-genre-preset.spec.js` 1 件追加、`css/style.css` の `.genre-adv .zw-dialog` と整合）。`reader-genre-preset` + `reader-wysiwyg-distinction` を再実行し **18 件 pass**（プロダクトコード変更なし） |
