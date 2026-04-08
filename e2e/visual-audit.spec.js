@@ -265,11 +265,11 @@ test.describe('Visual Audit - Session 21', () => {
     await page.screenshot({ path: `${SHOTS}/13-focus-via-blank-fallback.png`, fullPage: false });
   });
 
-  test('14 - Reader mode', async ({ page }) => {
+  test('14 - Reader replay overlay', async ({ page }) => {
     await waitForApp(page);
     const content = await loadSample(page, 'samples/full-feature-showcase.md');
     await page.waitForTimeout(300);
-    // Switch to reader mode
+    // Open reader replay overlay (not a separate UI mode; see INTERACTION_NOTES)
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });

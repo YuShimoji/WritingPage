@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 68)
+最終更新: 2026-04-08 (session 69)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 68 |
+| セッション | 69 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 68: **執筆モード統合 初回実装** — `setUIMode` を 2 値（normal/focus）に整理し `reader` 保存値を `focus` へ正規化。Reader モードを廃止し、再生オーバーレイ（`data-reader-overlay-open`）へ移行。左サイドバー初期最小化（sections 既定展開）、章リストへ「目次テンプレ挿入」導線追加、ヘルプ任意参照導線（Wikiガイド/エディタガイド）復旧。関連 E2E 5 spec を更新し 96 件 pass。 |
+| 直近のスライス | session 69: **`main` 一本化** — `feat/focus-mode-unification-replay-overlay` を fast-forward マージしリモートへ反映、ローカル/リモートのフィーチャーブランチを削除。`npx playwright test` 全件 **568 passed / 2 skipped**（約 3.4 分）、`npx playwright test --list` で **570 テスト / 68 ファイル**、`npx eslint js/` clean。session 68 の実装内容は上記ブランチに集約済み（2 値 UI モード・再生オーバーレイ・関連 E2E 更新）。 |
 
 
 ## ドキュメント地図（再開時）
@@ -41,7 +41,7 @@
 
 ### WP-004 とリッチテキスト（リンク集）
 
-- Phase 3（preview / reader の MD→HTML 整合）の差分・手動シナリオ・自動カバー表: [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。回帰の中心は `e2e/reader-wysiwyg-distinction.spec.js`（章末ナビ・wikilink ポップオーバー等は台帳・各 spec ファイル参照）。
+- Phase 3（preview / **再生オーバーレイ** の MD→HTML 整合）の差分・手動シナリオ・自動カバー表: [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。回帰の中心は `e2e/reader-wysiwyg-distinction.spec.js`（章末ナビ・wikilink ポップオーバー等は台帳・各 spec ファイル参照）。
 - ブロック段落の左・中・右揃えは Phase 3 スライス外。[`specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)、[`specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（P2）。
 - 実装パス一覧: **spec-richtext-enhancement.md** の「実装パス一覧（コードの所在）」節。分割案の歴史は `docs/design/RICHTEXT_ENHANCEMENT.md`。
 - 改行・装飾・ショートカット: [`specs/spec-rich-text-newline-effect.md`](specs/spec-rich-text-newline-effect.md)。
@@ -88,6 +88,13 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 左サイドバー・目次・ヘルプ | sections 既定展開、章リストに目次テンプレ挿入、Wiki/Editor ヘルプ導線復旧 | `js/sidebar-manager.js`, `js/chapter-list.js`, `index.html`, `js/app-settings-handlers.js` |
 | テスト/台帳 | mode/reader 依存 E2E 更新（96 pass）、正本ドキュメント同期 | `e2e/*.spec.js`, `docs/INVARIANTS.md`, `docs/FEATURE_REGISTRY.md`, `docs/AUTOMATION_BOUNDARY.md`, `docs/INTERACTION_NOTES.md`, `docs/CURRENT_STATE.md` |
 
+### Session 69
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| トランク | `main` に session 68 を FF マージ、`origin/main` へ push、フィーチャーブランチ削除 | git |
+| 回帰 | 全 E2E・`eslint js/`・用語整合（`ROADMAP` A-1 / WP-004 表、`visual-audit` テスト名） | `e2e/visual-audit.spec.js`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -108,6 +115,12 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 - `npx playwright test e2e/command-palette.spec.js e2e/ui-mode-consistency.spec.js e2e/dock-panel.spec.js e2e/reader-preview.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（96 件）
 
+実行済み (session 69):
+
+- `npx playwright test` → **568 passed / 2 skipped**（全 spec、約 3.4 分）
+- `npx playwright test --list` → **570 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
+- `npx eslint js/` → clean
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - WYSIWYG: **IME 確定**（実機・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）。**極端な長文連打の体感**（パフォーマンス）
@@ -120,9 +133,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | WP-004 次スライス   | Reader/WYSIWYG 境界を崩さない小改善（`docs/ROADMAP.md`「次スライス候補」参照）          | shared        |
-| B   | WP-001 次スライス   | ユーザー要望に基づく 1 トピック単位の摩擦削減                                         | user / shared |
-| C   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
+| A   | 保存導線（WP-001 系） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) の未決（手動保存の要否・配置）を **1 スライス**で確定し実装または明文化 | user / shared |
+| B   | WP-004 Phase 3   | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に沿い **差分を 1 件ずつ**、`reader-wysiwyg-distinction` で監視 | shared        |
+| C   | WP-001 摩擦削減   | 台帳 deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格。それ以外は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) から 1 件選定 | user / shared |
+| D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 
 
 ## 既知の注意点

@@ -15,6 +15,14 @@
 - ~~`docs/FEATURE_REGISTRY.md` 作成~~ → session 45 でテンプレート追加済み（随時行を追加）
 - ~~`docs/AUTOMATION_BOUNDARY.md` 作成~~ → session 45 でテンプレート追加済み
 
+### 推奨スライス順（session 69 / `main` 一本化後）
+
+`docs/CURRENT_STATE.md` の「現在の優先課題」と同順。**常に 1 トピック**に絞る。
+
+1. **保存導線** — [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) の未決（手動保存の要否・配置・ガジェット境界）を 1 スライスで確定し、実装または「現状維持」を正本に書き下ろす。
+2. **WP-004 Phase 3** — [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) のシナリオに沿い、差分を **1 件ずつ** 修正し `reader-wysiwyg-distinction.spec.js` で監視。
+3. **WP-001 摩擦削減** — 台帳の deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格。それ以外は下表から **1 件** を選定。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
@@ -25,7 +33,7 @@
 | WP-004        | ~~WYSIWYG 既定オフ時の Reader 導線の文言・`aria-*` の統一~~ | `index.html` / `reader-preview.js` / コマンドパレット説明文で統一（本セッション）                                                                                                                                                                             |
 | WP-001        | ~~コマンドパレットからのモード切替後のフォーカス遷移~~                | session 46 で実装・E2E 済み                                                                                                                                                                                                                   |
 | WP-001        | ~~狭幅時ツールバー折り返し後の余白~~                         | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
-| WP-004        | Phase 3 継続（preview / 読者プレビューのレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分の列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
+| WP-004        | Phase 3 継続（preview / **再生オーバーレイ** のレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分の列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
 | WP-001        | 摩擦削減の次トピック                                   | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
 | リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（実装パス一覧・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
 | リッチテキスト・プログラム | **Phase 5（表）** — スライス境界は `spec-richtext-enhancement.md` の「Phase 5（未着手）」を正とする。実装は境界確定後の **別スライス** | 同上 |
@@ -58,6 +66,7 @@
 - **session 66**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。WP-004: MD プレビュー／Reader 本文の段落 typography CSS 整合 + E2E 1 件（`CURRENT_STATE`・`WP004_PHASE3_PARITY_AUDIT` 参照）。
 - **session 67**: 同上。**新規再現なし** のため WP-001 専用スライスは **スキップ**（記録のみ）。別レーン: FR-007/008 E2E 拡張・ドキュメント・アーカイブ・中長期候補行・手動パック運用明文化・`test/hello.test.js` 削除（`CURRENT_STATE` 参照）。
 - **session 68**: モード統合レーンを着手。Reader モードを廃止し再生オーバーレイへ移行、左サイドバー最小化・目次テンプレ挿入導線・ヘルプ任意参照導線を実装。mode/reader 関連 E2E 96 件 pass。
+- **session 69**: `main` に FF マージ・リモート同期・フィーチャーブランチ削除。全 E2E **568 passed / 2 skipped**、`eslint js/` clean。`ROADMAP` / 台帳の用語を再生オーバーレイ前提に整理し、推奨スライス順を `CURRENT_STATE` と同期。
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）
