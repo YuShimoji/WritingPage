@@ -1,5 +1,9 @@
 # モードアーキテクチャ仕様書 (SP-070)
 
+> **現行の正本（session 68 以降）**: UI モードは **`normal` / `focus` の 2 値**のみ。読者視点の原稿確認は **再生オーバーレイ**（`data-reader-overlay-open`）で行い、旧 **Reader UI モード**（`data-ui-mode="reader"`）は廃止済み。用語・状態モデルは [`INTERACTION_NOTES.md`](../INTERACTION_NOTES.md)、ロードマップ上の要約は [`ROADMAP.md`](../ROADMAP.md) の **A-1. モードアーキテクチャ** を参照。
+>
+> **本ファイルの位置づけ**: 以下は **session 68 より前の 3 モード設計（Normal / Focus / Reader）** を記録した**歴史仕様**である。新規実装・レビューでは上記正本に従い、本書は経緯把握・差分調査用として残す。
+
 ## 概要
 
 Zen Writer のアプリケーション全体を **Normal / Focus / Reader** の3モードに分離し、

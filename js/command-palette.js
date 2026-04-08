@@ -382,7 +382,7 @@
       id: 'gadget-wiki',
       label: '物語Wikiガジェット',
       description: 'Wikiタブを開く（用語・リンク管理）',
-      keywords: 'story wiki wikilink',
+      keywords: 'story wiki wikilink 物語 百科 用語 リンク 設定',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {

@@ -67,6 +67,14 @@
 - **WP-001（本 session）**: オペレーターワークフロー・長命メモの用語を現行モデルに整合（コード変更なし）。`ui-mode-consistency` **12 件 pass**。
 - **次**: **WP-001 を集中**（台帳表から次トピックを 1 件ずつ）。保存導線は別スライス。
 
+#### session 78 実施結果（WP-001）
+
+- **`spec-mode-architecture.md`**: session 68 以前の 3 モード記述を**歴史仕様**として明示し、現行の正本を `INTERACTION_NOTES` / `ROADMAP` A-1 に指向。
+- **物語Wikiガジェット**: コマンドパレットの `keywords` に日本語（物語・百科・用語・リンク・設定）を追加（Wiki ワークフロー統合の極小スライス）。
+- 回帰: `command-palette` 11 件 + `ui-mode-consistency` 12 件 pass。
+- **WP-004**: 新規差分なし（台帳に記録）。手動パックは未実施。
+- **次**: WP-001 の続き（台帳の摩擦削減トピック）またはガジェット常設／ドック優先度の整理。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

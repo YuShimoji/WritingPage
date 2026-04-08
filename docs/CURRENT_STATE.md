@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 77)
+最終更新: 2026-04-09 (session 78)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 77 |
+| セッション | 78 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 77: **モード用語 SSOT 整理**（`INTERACTION_NOTES`・`INVARIANTS`・執筆モード事前整理・オペレーターワークフロー）+ **WP-004 Phase 3 自動層の区切り**（reader 系 5 spec 34 件回帰）。保存導線の横断は未着手。 |
+| 直近のスライス | session 78: **WP-001** — `spec-mode-architecture.md` に現行正本（2 値 UI モード・再生オーバーレイ）への**歴史注釈**。物語Wikiガジェットのコマンドパレット `keywords` 拡張。`command-palette` 11 件 + `ui-mode-consistency` 12 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -160,6 +160,15 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | WP-001（ドキュメント） | オペレーター・長命メモの用語を現行モードモデルに整合。`ui-mode-consistency` で **12 件 pass** | `docs/OPERATOR_WORKFLOW.md`, `docs/project-context.md` |
 | 台帳 | `WP004_PHASE3_PARITY_AUDIT` 更新履歴・本ファイル・`USER_REQUEST_LEDGER` を同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
 
+### Session 78
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 仕様注釈 | SP-070 モード仕様を**歴史文書**として明示し、現行は `INTERACTION_NOTES` / `ROADMAP` A-1 を正とする旨を冒頭に記載 | `docs/specs/spec-mode-architecture.md` |
+| WP-001 Wiki 極小 | 物語Wikiガジェットのコマンドパレット検索語に日本語語彙を追加 | `js/command-palette.js` |
+| 回帰 | `command-palette` 11 件、`ui-mode-consistency` 12 件 pass | `e2e/command-palette.spec.js`, `e2e/ui-mode-consistency.spec.js` |
+| WP-004 | 新規 preview/reader 差分なし（台帳に記録のみ）。手動パックは未実施 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -216,6 +225,11 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js e2e/reader-chapter-nav.spec.js e2e/reader-wikilink-popover.spec.js e2e/reader-genre-preset.spec.js e2e/reader-preview.spec.js` → pass（34 件）
 - `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（12 件・モード用語整理後のスモーク）
+
+実行済み (session 78):
+
+- `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
+- `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（12 件）
 
 ### 手動確認ゲート（運用メモ）
 
