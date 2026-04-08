@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 70)
+最終更新: 2026-04-08 (session 71)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 70 |
+| セッション | 71 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 70: **推奨開発プランの索引** — [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) を新設（正本リンク＋要約）。ドキュメント地図に入口行を追加。session 69: **`main` 一本化**、全 E2E 568 passed / 2 skipped ほか（詳細は下記 Session 69 ログ）。 |
+| 直近のスライス | session 71: **推奨開発プラン実行（1サイクル）** — 保存導線の未決を仕様で確定（自動保存中心・手動保存はコマンド/ショートカット/ガジェット導線）、WP-004 で再生オーバーレイ中の `data-ui-mode` 不変を回帰追加（`reader-wysiwyg-distinction` 14 pass）、WP-001 次トピックを「アシスト／メタ系ガジェットの発見性」に選定。 |
 
 
 ## ドキュメント地図（再開時）
@@ -102,6 +102,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | ---- | -------- | ----------- |
 | ドキュメント | 推奨開発プランの索引 `RECOMMENDED_DEVELOPMENT_PLAN.md` 新設、`CURRENT_STATE` ドキュメント地図に入口行 | `docs/RECOMMENDED_DEVELOPMENT_PLAN.md`, `docs/CURRENT_STATE.md` |
 
+### Session 71
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 保存導線 | `spec-writing-mode-unification-prep` の未決を確定（自動保存中心、手動保存はコマンド/ショートカット/ガジェット導線） | `docs/specs/spec-writing-mode-unification-prep.md` |
+| WP-004 Phase 3 | 再生オーバーレイ中も `data-ui-mode` を維持する回帰を `reader-wysiwyg-distinction` に追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| WP-001 次トピック | 次スライスを「アシスト／メタ系ガジェットの発見性」に選定 | `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -128,6 +136,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test --list` → **570 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
 - `npx eslint js/` → clean
 
+実行済み (session 71):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（14 件）
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - WYSIWYG: **IME 確定**（実機・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）。**極端な長文連打の体感**（パフォーマンス）
@@ -140,9 +152,9 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | 保存導線（WP-001 系） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) の未決（手動保存の要否・配置）を **1 スライス**で確定し実装または明文化 | user / shared |
+| A   | WP-001 次スライス | **アシスト／メタ系ガジェットの発見性**（`js/command-palette.js` と各ガジェット `title` / `description` のラベル整合）を 1 スライスで実施 | shared        |
 | B   | WP-004 Phase 3   | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に沿い **差分を 1 件ずつ**、`reader-wysiwyg-distinction` で監視 | shared        |
-| C   | WP-001 摩擦削減   | 台帳 deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格。それ以外は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) から 1 件選定 | user / shared |
+| C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 
 

@@ -1,5 +1,5 @@
 /**
- * Reader モード（閲覧専用 UI）とリッチ編集（WYSIWYG）の混同防止の回帰テスト
+ * 再生オーバーレイ（閲覧専用 UI）とリッチ編集（WYSIWYG）の混同防止の回帰テスト
  */
 const { test, expect } = require('@playwright/test');
 const { ensureNormalMode } = require('./helpers');
@@ -11,7 +11,8 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     await ensureNormalMode(page);
   });
 
-  test('Reader モードではメイン編集領域が隠れ、モードヒントが見える', async ({ page }) => {
+  test('再生オーバーレイではメイン編集領域が隠れ、UIモードは維持される', async ({ page }) => {
+    const modeBefore = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     await page.evaluate(() => {
       if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
         window.ZWReaderPreview.enter();
@@ -27,11 +28,15 @@ test.describe('Reader vs WYSIWYG distinction', () => {
       return !!(main && window.getComputedStyle(main).display === 'none');
     });
     expect(mainHidden).toBe(true);
+    const modeDuring = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    expect(modeDuring).toBe(modeBefore);
 
     await page.locator('#reader-back-fab').click();
     await page.waitForTimeout(300);
     const closed = await page.evaluate(() => !document.documentElement.hasAttribute('data-reader-overlay-open'));
     expect(closed).toBe(true);
+    const modeAfter = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
+    expect(modeAfter).toBe(modeBefore);
 
     const focusOnEditSurface = await page.evaluate(() => {
       const a = document.activeElement;
