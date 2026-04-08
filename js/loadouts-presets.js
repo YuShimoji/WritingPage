@@ -22,11 +22,14 @@
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
-            'StoryWiki'
+            'StoryWiki',
+            'LinkGraph'
           ],
           edit: [
             'MarkdownPreview',
-            'ChoiceTools'
+            'ChoiceTools',
+            'FontDecoration',
+            'TextAnimation'
           ],
           theme: [
             'Themes',
@@ -40,7 +43,8 @@
             'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'MarkdownReference'
+            'MarkdownReference',
+            'PomodoroTimer'
           ],
           advanced: [
             'EditorLayout',
@@ -83,6 +87,7 @@
           ],
           advanced: [
             'EditorLayout',
+            'LoadoutManager',
             'GadgetPrefs'
           ]
         },
@@ -103,12 +108,15 @@
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
-            'StoryWiki'
+            'StoryWiki',
+            'LinkGraph'
           ],
           edit: [
             'Images',
             'ChoiceTools',
-            'MarkdownPreview'
+            'MarkdownPreview',
+            'FontDecoration',
+            'TextAnimation'
           ],
           theme: [
             'Themes',
@@ -122,11 +130,13 @@
             'SnapshotManager',
             'HUDSettings',
             'WritingGoal',
-            'MarkdownReference'
+            'MarkdownReference',
+            'PomodoroTimer'
           ],
           advanced: [
             'EditorLayout',
             'UISettings',
+            'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
           ]
@@ -150,7 +160,9 @@
             'StoryWiki'
           ],
           edit: [
-            'ChoiceTools'
+            'ChoiceTools',
+            'FontDecoration',
+            'TextAnimation'
           ],
           theme: [
             'Themes',
@@ -161,11 +173,13 @@
           assist: [
             'SnapshotManager',
             'WritingGoal',
-            'MarkdownReference'
+            'MarkdownReference',
+            'PomodoroTimer'
           ],
           advanced: [
             'EditorLayout',
             'UISettings',
+            'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
           ]

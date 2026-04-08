@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 74)
+最終更新: 2026-04-08 (session 75)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 74 |
+| セッション | 75 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 74: **次点プラン（予備）実行** — WP-004 Phase 3 の差分候補から「章末ナビのクリック遷移」を 1 件固定。`reader-chapter-nav` に最小 E2E を追加し、`reader-wysiwyg-distinction` と合わせて 17 件 pass。 |
+| 直近のスライス | session 75: **WP-001 ロードアウト整合** — プリセット既定を再整理し、未配置だった `LinkGraph` / `PomodoroTimer` / `FontDecoration` / `TextAnimation` の発見導線を追加。`LoadoutManager` を全プリセットで利用可能に整合。Loadout 関連 E2E 18 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -134,6 +134,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `reader-chapter-nav` + `reader-wysiwyg-distinction` を再実行し 17 件通過 | `e2e/reader-chapter-nav.spec.js`, `e2e/reader-wysiwyg-distinction.spec.js` |
 | 台帳同期 | 監査台帳・要求台帳・Current State を session 74 として同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
 
+### Session 75
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 ロードアウト整合 | プリセット既定を再整理し、`LinkGraph` / `PomodoroTimer` / `FontDecoration` / `TextAnimation` を適切カテゴリへ追加。`LoadoutManager` を全プリセットで利用可能に統一 | `js/loadouts-presets.js` |
+| 回帰 | `dock-preset` + `gadgets`（14 件）と `visual-audit` の Loadout/カテゴリ周辺（4 件）を実行し全通過。visual-audit の基準スクリーンショット 2 枚を更新 | `e2e/dock-preset.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js`, `e2e/visual-audit-screenshots/04-structure-gadgets.png`, `e2e/visual-audit-screenshots/05-edit-gadgets.png` |
+| 台帳同期 | Current State / 要求台帳 / Roadmap を session 75 として同期 | `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -175,6 +183,11 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 実行済み (session 74):
 
 - `npx playwright test e2e/reader-chapter-nav.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（17 件）
+
+実行済み (session 75):
+
+- `npx playwright test e2e/visual-audit.spec.js --grep "Loadout manager|Structure gadgets|Edit gadgets|Advanced gadgets"` → pass（4 件）
+- `npx playwright test e2e/dock-preset.spec.js e2e/gadgets.spec.js` → pass（14 件）
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

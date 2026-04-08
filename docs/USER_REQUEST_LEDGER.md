@@ -46,6 +46,13 @@
 - 回帰は `reader-chapter-nav` + `reader-wysiwyg-distinction` を再実行し **17 件 pass**。
 - 次の候補は主プラン優先度を維持し、WP-001 は **「ロードアウトプリセットとガジェット既定の整合」** を継続。WP-004 次点は **ジャンルプリセットの style 反映 1 項目検証**を予備候補とする。
 
+#### session 75 実施結果（WP-001）
+
+- WP-001 優先課題「ロードアウトプリセットとガジェット既定の整合」を実施。`loadouts-presets` を中心に既定配置を整理し、未配置だった `LinkGraph` / `PomodoroTimer` / `FontDecoration` / `TextAnimation` の発見導線を追加。
+- 全プリセットで `LoadoutManager` を利用可能にし、既定構成の一貫性を向上。
+- 回帰は `dock-preset` + `gadgets` + `visual-audit`（Loadout/カテゴリ周辺）で **18 件 pass**。`visual-audit` の基準スクリーンショット（Structure/Edit）を更新して差分を確定。
+- 次候補は WP-004 Phase 3 本線（監査台帳に沿った差分 1 件解消）を推奨。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
