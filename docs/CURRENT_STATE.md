@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 69)
+最終更新: 2026-04-08 (session 70)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 69 |
+| セッション | 70 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 69: **`main` 一本化** — `feat/focus-mode-unification-replay-overlay` を fast-forward マージしリモートへ反映、ローカル/リモートのフィーチャーブランチを削除。`npx playwright test` 全件 **568 passed / 2 skipped**（約 3.4 分）、`npx playwright test --list` で **570 テスト / 68 ファイル**、`npx eslint js/` clean。session 68 の実装内容は上記ブランチに集約済み（2 値 UI モード・再生オーバーレイ・関連 E2E 更新）。 |
+| 直近のスライス | session 70: **推奨開発プランの索引** — [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) を新設（正本リンク＋要約）。ドキュメント地図に入口行を追加。session 69: **`main` 一本化**、全 E2E 568 passed / 2 skipped ほか（詳細は下記 Session 69 ログ）。 |
 
 
 ## ドキュメント地図（再開時）
@@ -22,6 +22,7 @@
 | 不変条件・テスト作法・レイアウト/Wiki の要約 | [`INVARIANTS.md`](INVARIANTS.md) |
 | 用語・編集面と UI モードの状態モデル | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md) |
 | 執筆モード統合の事前整理（引き継ぎ） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
+| 推奨開発プランの入口（索引） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |
 | 次スライス・マージ前手順 | [`ROADMAP.md`](ROADMAP.md)、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) |
 | WP-004 監査・手動シナリオ | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) |
 | 機能台帳・自動化境界 | [`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md)、[`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md) |
@@ -94,6 +95,12 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | ---- | -------- | ----------- |
 | トランク | `main` に session 68 を FF マージ、`origin/main` へ push、フィーチャーブランチ削除 | git |
 | 回帰 | 全 E2E・`eslint js/`・用語整合（`ROADMAP` A-1 / WP-004 表、`visual-audit` テスト名） | `e2e/visual-audit.spec.js`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md` |
+
+### Session 70
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| ドキュメント | 推奨開発プランの索引 `RECOMMENDED_DEVELOPMENT_PLAN.md` 新設、`CURRENT_STATE` ドキュメント地図に入口行 | `docs/RECOMMENDED_DEVELOPMENT_PLAN.md`, `docs/CURRENT_STATE.md` |
 
 ## 検証結果
 
