@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 79)
+最終更新: 2026-04-09 (session 80)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 79 |
+| セッション | 80 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 79: **WP-001** — ガジェット**常設／ドック／優先度**を `spec-writing-mode-unification-prep` に正文化、`loadouts-presets.js` に執筆優先の並び方針コメント。`dock-preset` + `gadgets` 14 件 + `visual-audit`（Loadout/カテゴリ 4 件）pass。 |
+| 直近のスライス | session 80: **保存導線ドキュメント横断**（session 71 決定どおり）— `command-palette`・`README.md`・`gadgets-help.js` で「自動保存が主・手動はショートカット／コマンドパレット」を統一。`spec-writing-mode-unification-prep` に session 80 節を追記。`command-palette` E2E 11 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -178,6 +178,15 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `dock-preset` 10 件 + `gadgets` 4 件 + `visual-audit`（Structure/Edit/Advanced/Loadout）4 件 pass | `e2e/dock-preset.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js` |
 | WP-004 | 新規差分なし。手動パックは**未実施**（リリース前にユーザー判断） | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 80
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 保存導線（文言） | session 71 と整合するよう、コマンドパレットの保存ラベル・説明、`README` の自動/手動の区別、アプリ内ヘルプ（`gadgets-help`）の箇条書き・ショートカット表を横断統一 | `js/command-palette.js`, `README.md`, `js/gadgets-help.js` |
+| 正本 | 上記の記録を `spec-writing-mode-unification-prep`（ユーザー向け文言・session 80）に追記 | `docs/specs/spec-writing-mode-unification-prep.md` |
+| 回帰 | `command-palette` **11 件** pass | `e2e/command-palette.spec.js` |
+| WP-004 | 本スライスは reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -245,6 +254,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/dock-preset.spec.js e2e/gadgets.spec.js` → pass（14 件）
 - `npx playwright test e2e/visual-audit.spec.js --grep "Loadout manager|Structure gadgets|Edit gadgets|Advanced gadgets"` → pass（4 件）
 
+実行済み (session 80):
+
+- `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
+
 ### 手動確認ゲート（運用メモ）
 
 | タイミング | 参照 | 記録先 |
@@ -267,7 +280,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
 | A   | WP-001 集中 | session 75 でロードアウト整合は完了。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から **1 件ずつ**連続スライス | shared        |
-| B   | WP-004 Phase 3   | **自動検証層は session 77 で区切り**。新規差分は台帳・手動パックで発見次第 **1 トピック**で。保存導線の**ドキュメント横断**は別スライス | shared        |
+| B   | WP-004 Phase 3   | **自動検証層は session 77 で区切り**。新規差分は台帳・手動パックで発見次第 **1 トピック**で。保存導線の**ドキュメント横断**は session 80 で実施済み | shared        |
 | C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 

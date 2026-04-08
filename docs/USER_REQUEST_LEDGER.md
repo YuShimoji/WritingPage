@@ -80,7 +80,15 @@
 - **ガジェット常設／ドック／優先度**: [`spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) に現行実装（カテゴリ・`loadouts-presets`・`dockLayout`・折りたたみ）との対応表を追記。[`loadouts-presets.js`](../js/loadouts-presets.js) に執筆優先の並び方針コメント（挙動変更なし）。
 - 回帰: `dock-preset` + `gadgets` **14 件** + `visual-audit`（Loadout/カテゴリ）**4 件** pass。
 - **WP-004**: 新規差分なし。手動パックは**未実施**（リリース前はユーザーが [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従い実施し、結果を更新履歴へ）。
-- **次**: 保存導線のドキュメント横断（別スライス）／WP-001 の摩擦 1 件／`defaultCollapsed` 等の初回折りたたみは要検討。
+- **次**（session 79 時点）: ~~保存導線のドキュメント横断~~（**session 80 で実施**）／WP-001 の摩擦 1 件／`defaultCollapsed` 等の初回折りたたみは要検討。
+
+#### session 80 実施結果（保存導線ドキュメント横断）
+
+- **保存文言**: session 71 決定どおり、`command-palette`（保存コマンドのラベル・説明・検索用 `keywords`）、`README.md`（冒頭・オフライン・データ保存・ショートカット）、`gadgets-help.js`（はじめに／エディタ／キーボード表）を横断整合。
+- **正本**: `spec-writing-mode-unification-prep` に「ユーザー向け文言の横断（session 80）」を追記。
+- 回帰: `command-palette` **11 件** pass。
+- **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。手動パックは**未実施**（リリース前にユーザーが [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従い実施する場合のみ本表へ追記）。
+- **次**: WP-001 の摩擦 1 件、または初回 `defaultCollapsed` 等（要検討）。
 
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 

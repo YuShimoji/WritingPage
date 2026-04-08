@@ -22,13 +22,13 @@
           <p>Zen Writer は小説執筆に特化したエディタです。</p>
           <h4>基本操作</h4>
           <ul>
-            <li><strong>執筆</strong>: 中央のエディタに直接入力。自動保存されます。</li>
+            <li><strong>執筆</strong>: 中央のエディタに直接入力。原稿は<strong>自動保存</strong>が主。必要なときだけ <kbd>Ctrl/Cmd + S</kbd> やコマンドパレットの「保存」で<strong>手動の即時保存</strong>。</li>
             <li><strong>サイドバー</strong>: 左上のメニューボタンで開閉。</li>
             <li><strong>テーマ</strong>: サイドバーのテーマカテゴリから選択。</li>
           </ul>
           <h4>主要ショートカット</h4>
           <ul>
-            <li><kbd>Ctrl/Cmd + S</kbd> — 保存</li>
+            <li><kbd>Ctrl/Cmd + S</kbd> — 手動保存（即時・自動保存に加えて実行）</li>
             <li><kbd>Ctrl/Cmd + F</kbd> — 検索</li>
             <li><kbd>Alt + W</kbd> — ツールバー表示切替</li>
             <li><kbd>F2</kbd> — 表示モード切替</li>
@@ -44,7 +44,7 @@
           <h3>エディタ機能</h3>
           <h4>基本編集</h4>
           <ul>
-            <li>テキストを入力すると自動保存されます</li>
+            <li>入力内容は<strong>自動保存</strong>。明示的に書き出すときは <kbd>Ctrl/Cmd + S</kbd> またはコマンドパレット（<kbd>Ctrl/Cmd + P</kbd>）の「保存」</li>
             <li>Markdown記法に対応 (見出し、リスト、太字など)</li>
             <li>WYSIWYG モードで装飾のリアルタイムプレビュー</li>
           </ul>
@@ -143,7 +143,7 @@
         return `
           <h3>キーボードショートカット</h3>
           <table class="help-table">
-            <tr><td><kbd>Ctrl/Cmd + S</kbd></td><td>保存</td></tr>
+            <tr><td><kbd>Ctrl/Cmd + S</kbd></td><td>手動保存（即時）</td></tr>
             <tr><td><kbd>Ctrl/Cmd + F</kbd></td><td>検索</td></tr>
             <tr><td><kbd>Ctrl/Cmd + Z</kbd></td><td>元に戻す</td></tr>
             <tr><td><kbd>Ctrl/Cmd + Y</kbd></td><td>やり直し</td></tr>

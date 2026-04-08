@@ -179,8 +179,9 @@
     // ファイル操作
     {
       id: 'save',
-      label: '保存',
-      description: '現在の内容を保存',
+      label: '保存（手動・即時）',
+      description: '自動保存に加えて、今すぐディスクへ書き出す。常設の保存ボタンは置かない方針',
+      keywords: '手動保存 即時 書き出し Ctrl+S',
       shortcut: 'Ctrl+S / Cmd+S',
       category: 'ファイル操作',
       execute: () => {
