@@ -34,6 +34,12 @@
 - WP-004 では「フォーカスモード中に再生オーバーレイを開閉しても `data-ui-mode=focus` を維持」を `reader-wysiwyg-distinction` で回帰固定。
 - deferred 体感トリガーは **新規再現なし**。次の WP-001 候補は **「サイドバー『編集』カテゴリの情報密度」** を採用。
 
+#### session 73 実施結果（今回）
+
+- WP-001「サイドバー『編集』カテゴリの情報密度」を実施。`edit` カテゴリ説明を「装飾・プレビュー・画像」中心に統一し、認知負荷を低減。
+- WP-004 は関連回帰（`command-palette` + `reader-wysiwyg-distinction`）を再実行し 26 件通過。
+- deferred 体感トリガーは **新規再現なし**。次の WP-001 候補は **「ロードアウトプリセットとガジェット既定の整合」** を採用。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
@@ -81,6 +87,7 @@
 - **session 70**: [`docs/RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) を新設（正本リンク＋要約の入口）。`CURRENT_STATE` ドキュメント地図へ1行追加。
 - **session 71**: 保存導線の未決を `spec-writing-mode-unification-prep` で確定（自動保存中心・手動保存はコマンド/ショートカット/ガジェット導線）。WP-004 は `reader-wysiwyg-distinction` に「再生オーバーレイ中も `data-ui-mode` 不変」回帰を追加して 14 件 pass。WP-001 次トピックは「アシスト／メタ系ガジェットの発見性」を選定。
 - **session 72**: WP-001「アシスト／メタ系ガジェットの発見性」を実施（`command-palette` 検索語彙拡張 + ガジェット名語彙整合）。WP-004 はフォーカスモードでの再生オーバーレイ開閉時 `data-ui-mode` 維持の回帰を追加。`command-palette` + `reader-wysiwyg-distinction` 計 26 件 pass。deferred 体感トリガーは新規再現なし。
+- **session 73**: WP-001「サイドバー『編集』カテゴリの情報密度」を実施（`edit` 説明を「装飾・プレビュー・画像」中心へ統一）。WP-004 は関連回帰 26 件 pass。deferred 体感トリガーは新規再現なし。次候補を「ロードアウトプリセットとガジェット既定の整合」に更新。
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）

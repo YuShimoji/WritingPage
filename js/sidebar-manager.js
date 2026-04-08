@@ -44,7 +44,7 @@ class SidebarManager {
                 id: 'edit',
                 label: '編集',
                 icon: 'edit',
-                description: '編集支援ツール',
+                description: '編集支援（装飾・プレビュー・画像）',
                 panelId: 'edit-gadgets-panel',
                 defaultExpanded: false
             },
