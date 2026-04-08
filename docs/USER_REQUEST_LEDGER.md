@@ -103,7 +103,14 @@
 - **E2E**: `enableAllGadgets(page, { expandAllGadgets: false })` で LS の全展開上書きを避け、assist の `data-gadget-collapsed` を検証。
 - 回帰: `gadgets` **5 件** pass。
 - **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
-- **次**: 台帳の別摩擦 1 件（ガジェット説明・編集カテゴリ密度等）、または WP-004 差分時のみ。
+- **次**（session 82 時点）: ~~台帳の別摩擦~~／**構造フォールバック**は **session 83 で対応**／または WP-004 差分時のみ。
+
+#### session 83 実施結果（サイドバー構造フォールバック・B2）
+
+- **`sidebar-manager`**: `_applyWritingFocusSidebar` 内、保存済み `accordionState` に展開キーが無いと常に `structure` を開いていたフォールバックを削除（空オブジェクト `{}` でも誤判定していた）。通常モード復帰時は `savedState` と各カテゴリの `defaultExpanded` のみ。
+- 回帰: `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` **22 件** pass。
+- **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
+- **次**: 台帳の **B1 相当**（編集カテゴリ密度・ガジェット説明等の摩擦 1 件）、または WP-004 差分時のみ。
 
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 

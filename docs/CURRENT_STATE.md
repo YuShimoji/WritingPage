@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 82)
+最終更新: 2026-04-09 (session 83)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 82 |
+| セッション | 83 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 82: **初回 defaultCollapsed（A3）** — `ZWGadgets.register` に `defaultCollapsed` を追加し、assist 系ガジェットで明示。`e2e/helpers` に `enableAllGadgets(..., { expandAllGadgets: false })`。`gadgets` E2E 5 件 pass。 |
+| 直近のスライス | session 83: **サイドバー「構造」強制展開の廃止（B2）** — `_applyWritingFocusSidebar` の `hasAnyExpanded` が空の `accordionState` で誤判定し `structure` を開いていた処理を削除。通常復帰時は保存値＋各カテゴリの `defaultExpanded` のみ適用。`sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` **22 件** pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -205,6 +205,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `gadgets` **5 件** pass | `e2e/gadgets.spec.js` |
 | WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 83
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 サイドバー | Normal 復帰時、空の `accordionState` でも「構造」を追加展開しない（`data-ui-mode` 変化などで `_applyWritingFocusSidebar` が走るたびの見かけ上の不具合を解消） | `js/sidebar-manager.js` |
+| 回帰 | `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` → **22 件** pass | `e2e/sidebar-layout.spec.js`, `e2e/sidebar-writing-focus.spec.js`, `e2e/ui-mode-consistency.spec.js` |
+| WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -283,6 +291,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 実行済み (session 82):
 
 - `npx playwright test e2e/gadgets.spec.js` → pass（5 件）
+
+実行済み (session 83):
+
+- `npx playwright test e2e/sidebar-layout.spec.js e2e/sidebar-writing-focus.spec.js e2e/ui-mode-consistency.spec.js` → pass（22 件）
 
 ### 手動確認ゲート（運用メモ）
 

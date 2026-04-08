@@ -502,16 +502,15 @@ class SidebarManager {
         }
 
         const savedState = this._loadAccordionState();
-        const hasAnyExpanded = this.accordionCategories.some((category) => !!savedState[category.id]);
+        // 保存が空でも各カテゴリの defaultExpanded が適用される（例: sections は true）。
+        // 旧フォールバック「saved に展開キーが無いと structure を開く」は、
+        // 空オブジェクト {} で常に誤判定し更新のたびに構造が開いて見えたため廃止。
         this.accordionCategories.forEach((category) => {
             const isExpanded = savedState[category.id] !== undefined
                 ? savedState[category.id]
                 : category.defaultExpanded;
             this._setAccordionState(category.id, isExpanded);
         });
-        if (!hasAnyExpanded) {
-            this._setAccordionState('structure', true);
-        }
     }
 
     _scheduleWritingFocusRender() {
