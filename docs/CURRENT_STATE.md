@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 80)
+最終更新: 2026-04-09 (session 81)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 80 |
+| セッション | 81 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 80: **保存導線ドキュメント横断**（session 71 決定どおり）— `command-palette`・`README.md`・`gadgets-help.js` で「自動保存が主・手動はショートカット／コマンドパレット」を統一。`spec-writing-mode-unification-prep` に session 80 節を追記。`command-palette` E2E 11 件 pass。 |
+| 直近のスライス | session 81: **WP-001 摩擦 1 件** — コマンドパレットの `keywords` を検索・UI・ファイル・モード・フォント・編集・段落揃えなど広範囲に拡張（発見性）。`command-palette` E2E 11 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -187,6 +187,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `command-palette` **11 件** pass | `e2e/command-palette.spec.js` |
 | WP-004 | 本スライスは reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 81
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 発見性 | コマンドパレットの検索対象 `keywords` を、検索・置換・サイドバー／ツールバー・フルスクリーン・スナップショット復元・UI モード・再生オーバーレイ・フォントサイズ・設定・MD プレビュー／WYSIWYG／分割ビュー・段落揃えに拡張 | `js/command-palette.js` |
+| 回帰 | `command-palette` **11 件** pass | `e2e/command-palette.spec.js` |
+| WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -255,6 +263,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/visual-audit.spec.js --grep "Loadout manager|Structure gadgets|Edit gadgets|Advanced gadgets"` → pass（4 件）
 
 実行済み (session 80):
+
+- `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
+
+実行済み (session 81):
 
 - `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
 

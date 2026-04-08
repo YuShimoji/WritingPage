@@ -23,6 +23,7 @@
       id: 'search',
       label: '検索',
       description: '検索パネルを開く',
+      keywords: 'find grep 探す',
       shortcut: 'Ctrl+F / Cmd+F',
       category: '検索・置換',
       execute: () => {
@@ -35,6 +36,7 @@
       id: 'replace',
       label: '置換',
       description: '検索パネルを開いて置換する',
+      keywords: '検索置換 一括 置き換え',
       shortcut: 'Ctrl+H / Cmd+H',
       category: '検索・置換',
       execute: () => {
@@ -48,6 +50,7 @@
       id: 'toggle-sidebar',
       label: 'サイドバーを開閉',
       description: 'サイドバーの表示/非表示を切り替え',
+      keywords: 'パネル 左 メニュー',
       shortcut: 'Alt+1',
       category: 'UI操作',
       execute: () => {
@@ -60,6 +63,7 @@
       id: 'toggle-toolbar',
       label: 'ツールバーを開閉',
       description: 'ツールバーの表示/非表示を切り替え',
+      keywords: '上段 バー',
       shortcut: 'Alt+W',
       category: 'UI操作',
       execute: () => {
@@ -72,6 +76,7 @@
       id: 'toggle-fullscreen',
       label: 'フルスクリーン',
       description: 'フルスクリーンモードに切り替え',
+      keywords: '全画面 immersive',
       shortcut: 'F11',
       category: 'UI操作',
       execute: () => {
@@ -115,6 +120,7 @@
       id: 'align-paragraph-start',
       label: '段落を左揃え',
       description: 'リッチ編集中のカーソル段落を左揃え（data-zw-align 解除）',
+      keywords: '左寄せ align left',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
@@ -128,6 +134,7 @@
       id: 'align-paragraph-center',
       label: '段落を中央揃え',
       description: 'リッチ編集中のカーソル段落を中央揃え',
+      keywords: '中央寄せ センター align center',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
@@ -141,6 +148,7 @@
       id: 'align-paragraph-end',
       label: '段落を右揃え',
       description: 'リッチ編集中のカーソル段落を右揃え',
+      keywords: '右寄せ align right',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
@@ -197,6 +205,7 @@
       id: 'restore-snapshot',
       label: 'スナップショットから復元',
       description: '最後のスナップショットから復元',
+      keywords: 'バックアップ 履歴 自動保存履歴',
       shortcut: 'Ctrl+Shift+Z / Cmd+Shift+Z',
       category: 'ファイル操作',
       execute: () => {
@@ -210,6 +219,7 @@
       id: 'ui-mode-normal',
       label: '通常モード',
       description: 'UIモードを通常に切り替え',
+      keywords: '標準 レイアウト normal',
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
@@ -220,6 +230,7 @@
       id: 'ui-mode-focus',
       label: 'フォーカスモード',
       description: 'UIモードをフォーカスに切り替え',
+      keywords: '集中 執筆 シンプル focus',
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
@@ -230,6 +241,7 @@
       id: 'reader-overlay-toggle',
       label: '再生オーバーレイ',
       description: '読者視点の再生オーバーレイを開閉',
+      keywords: '読者プレビュー リーダー reader 本番表示',
       shortcut: 'Ctrl+Shift+R / Cmd+Shift+R',
       category: 'UI操作',
       execute: () => {
@@ -243,6 +255,7 @@
       id: 'font-size-increase',
       label: 'フォントサイズ拡大',
       description: 'フォントサイズを大きくする',
+      keywords: '文字サイズ 拡大 ズーム zoom in',
       shortcut: 'Ctrl++ / Cmd++',
       category: 'フォント',
       execute: () => {
@@ -255,6 +268,7 @@
       id: 'font-size-decrease',
       label: 'フォントサイズ縮小',
       description: 'フォントサイズを小さくする',
+      keywords: '文字サイズ 縮小 zoom out',
       shortcut: 'Ctrl+- / Cmd+-',
       category: 'フォント',
       execute: () => {
@@ -267,6 +281,7 @@
       id: 'font-size-reset',
       label: 'フォントサイズリセット',
       description: 'フォントサイズを初期値に戻す',
+      keywords: '文字サイズ 初期 デフォルト',
       shortcut: 'Ctrl+0 / Cmd+0',
       category: 'フォント',
       execute: () => {
@@ -300,6 +315,7 @@
       id: 'open-settings',
       label: '設定を開く',
       description: '設定モーダルを表示',
+      keywords: '環境 preferences オプション',
       shortcut: '',
       category: 'UI操作',
       execute: () => {
@@ -332,6 +348,7 @@
       id: 'toggle-markdown-preview',
       label: 'MD プレビュー（横並び）',
       description: '編集画面の横に Markdown 表示を開閉（読者プレビュー UI ではない）',
+      keywords: 'マークダウン 並列 プレビュー 横並び',
       shortcut: '',
       category: '編集',
       execute: () => {
@@ -343,6 +360,7 @@
       id: 'toggle-wysiwyg',
       label: 'リッチ編集（WYSIWYG）',
       description: 'リッチ表示で編集。UI モードは変わらず（読者プレビュー UI ではない）',
+      keywords: '装飾 リッチテキスト 所見即得',
       shortcut: '',
       category: '編集',
       execute: () => {
@@ -371,6 +389,7 @@
       id: 'toggle-split-view',
       label: '分割ビュー',
       description: '分割ビューを切り替え（実験的）',
+      keywords: '二画面 スプリット split',
       shortcut: '',
       category: '実験的機能',
       execute: () => {

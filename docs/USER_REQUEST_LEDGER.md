@@ -88,7 +88,14 @@
 - **正本**: `spec-writing-mode-unification-prep` に「ユーザー向け文言の横断（session 80）」を追記。
 - 回帰: `command-palette` **11 件** pass。
 - **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。手動パックは**未実施**（リリース前にユーザーが [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従い実施する場合のみ本表へ追記）。
-- **次**: WP-001 の摩擦 1 件、または初回 `defaultCollapsed` 等（要検討）。
+- **次**（session 80 時点）: ~~WP-001 の摩擦 1 件~~（**session 81 で実施**）／初回 `defaultCollapsed` 等（要検討）。
+
+#### session 81 実施結果（WP-001 摩擦 1 件・発見性）
+
+- **コマンドパレット**: 多数のコマンドに `keywords` を追加し、日本語・英語の別名から辿りやすくした（検索・UI・ファイル・モード・フォント・編集・段落揃え等）。
+- 回帰: `command-palette` **11 件** pass。
+- **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。手動パックは**未実施**。
+- **次**: 初回 `defaultCollapsed` 等（要検討）、または台帳の別摩擦 1 件。
 
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
