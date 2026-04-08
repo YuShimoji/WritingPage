@@ -371,4 +371,26 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     await page.waitForTimeout(300);
     await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
   });
+
+  test('フォーカスモード中に再生オーバーレイを開閉しても data-ui-mode は focus のまま', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+        window.ZenWriterApp.setUIMode('focus');
+      }
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
+
+    await page.locator('#reader-back-fab').click();
+    await page.waitForTimeout(250);
+    await expect(page.locator('html')).not.toHaveAttribute('data-reader-overlay-open', 'true');
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
+  });
 });

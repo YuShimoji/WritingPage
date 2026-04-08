@@ -59,7 +59,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'Typewriter', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。' });
+    }, { title: 'タイプライター', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。' });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -116,7 +116,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'Focus Mode', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。' });
+    }, { title: 'フォーカスモード', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。' });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 
@@ -136,7 +136,7 @@
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdown Preview', groups: ['edit'], description: 'Markdownのリアルタイムプレビュー表示とスクロール同期。' });
+    }, { title: 'Markdownプレビュー', groups: ['edit'], description: 'Markdownのリアルタイムプレビュー表示とスクロール同期。' });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function (root) {
@@ -867,7 +867,7 @@
       gadgetUXRow.appendChild(bulkToggleRow);
 
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(effectBreakRow); root.appendChild(newlineDecorRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
-    }, { title: 'UI Settings', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズ、リッチ編集の改行と装飾（decor 持続）など。' });
+    }, { title: 'UI設定', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズ、リッチ編集の改行と装飾（decor 持続）など。' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -882,7 +882,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { var tag = btn.dataset.tag; if (tag === 'kenten') { var rich = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor; if (rich && rich.isWysiwygMode && typeof rich.wrapSelectionWithSpan === 'function') { rich.wrapSelectionWithSpan('kenten'); } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') { window.ZenWriterEditor.insertTextAtCursor('{kenten|', { suffix: '}' }); } } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); bind(root);
-    }, { title: 'Font Decoration', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
+    }, { title: 'フォント装飾', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
@@ -895,7 +895,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'Text Animation', groups: ['edit'], description: 'テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。' });
+    }, { title: 'テキストアニメーション', groups: ['edit'], description: 'テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {

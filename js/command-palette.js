@@ -154,6 +154,7 @@
       id: 'font-decoration-panel',
       label: 'フォント装飾パネル',
       description: 'フォント装飾パネルを開く',
+      keywords: '装飾 文字装飾 Font Decoration',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
@@ -166,6 +167,7 @@
       id: 'text-animation-panel',
       label: 'テキストアニメーションパネル',
       description: 'テキストアニメーションパネルを開く',
+      keywords: '文字アニメーション Text Animation',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
@@ -276,8 +278,9 @@
     // ガジェット操作（動的に追加）
     {
       id: 'gadget-structure',
-      label: '構造ガジェット',
-      description: '構造タブを開く',
+      label: '構造（アウトライン）ガジェット',
+      description: '構造タブを開く（見出し・アウトライン）',
+      keywords: 'ドキュメント構造 セクションナビゲーター outline',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
@@ -310,6 +313,7 @@
       id: 'open-help',
       label: 'ヘルプを開く',
       description: 'ヘルプモーダルを表示',
+      keywords: 'ガイド 使い方 editor guide',
       shortcut: '',
       category: 'UI操作',
       execute: () => {
@@ -347,8 +351,9 @@
     },
     {
       id: 'toggle-ui-editor',
-      label: 'UI エディタ',
+      label: 'UI設定ガジェット',
       description: 'UIビジュアルエディタを切り替え（実験的）',
+      keywords: 'UI Settings 表示設定',
       shortcut: '',
       category: '実験的機能',
       execute: () => {
@@ -375,8 +380,9 @@
     },
     {
       id: 'gadget-wiki',
-      label: 'Wikiガジェット',
-      description: 'Wikiタブを開く',
+      label: '物語Wikiガジェット',
+      description: 'Wikiタブを開く（用語・リンク管理）',
+      keywords: 'story wiki wikilink',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
@@ -471,7 +477,7 @@
       const lowerQuery = (query || '').toLowerCase().trim();
       this.filteredCommands = COMMANDS.filter(cmd => {
         if (!lowerQuery) return true;
-        const searchText = `${cmd.label} ${cmd.description} ${cmd.category} ${cmd.shortcut}`.toLowerCase();
+        const searchText = `${cmd.label} ${cmd.description} ${cmd.category} ${cmd.shortcut} ${cmd.keywords || ''}`.toLowerCase();
         return searchText.includes(lowerQuery);
       });
 

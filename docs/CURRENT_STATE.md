@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 71)
+最終更新: 2026-04-08 (session 72)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 71 |
+| セッション | 72 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 71: **推奨開発プラン実行（1サイクル）** — 保存導線の未決を仕様で確定（自動保存中心・手動保存はコマンド/ショートカット/ガジェット導線）、WP-004 で再生オーバーレイ中の `data-ui-mode` 不変を回帰追加（`reader-wysiwyg-distinction` 14 pass）、WP-001 次トピックを「アシスト／メタ系ガジェットの発見性」に選定。 |
+| 直近のスライス | session 72: **推奨開発プラン実行（次回着手用）** — WP-001 発見性スライスとしてコマンドパレット検索語彙を拡張し、英語寄りガジェット名を日本語語彙へ整合。WP-004 ではフォーカスモード中の再生オーバーレイ開閉で `data-ui-mode=focus` を維持する回帰を追加し、関連 E2E 26 件 pass。deferred 体感トリガーは新規再現なし。 |
 
 
 ## ドキュメント地図（再開時）
@@ -110,6 +110,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | WP-004 Phase 3 | 再生オーバーレイ中も `data-ui-mode` を維持する回帰を `reader-wysiwyg-distinction` に追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
 | WP-001 次トピック | 次スライスを「アシスト／メタ系ガジェットの発見性」に選定 | `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
 
+### Session 72
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 発見性 | コマンドパレット検索対象に `keywords` を追加し、ガジェット導線コマンドの語彙を統一。英語寄りガジェット名（Typewriter / Focus Mode / UI Settings など）を日本語へ整合 | `js/command-palette.js`, `js/gadgets-editor-extras.js`, `js/gadgets-visual-profile.js` |
+| WP-004 Phase 3 | フォーカスモード中の再生オーバーレイ開閉で `data-ui-mode` が `focus` のまま維持される回帰を追加 | `e2e/reader-wysiwyg-distinction.spec.js` |
+| WP-001 体感トリガー | BL-002 / BL-004 / Focus 左パネルは **新規再現なし**。次候補は「サイドバー編集カテゴリの情報密度」に設定 | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -140,6 +148,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js` → pass（14 件）
 
+実行済み (session 72):
+
+- `npx playwright test e2e/command-palette.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（26 件）
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - WYSIWYG: **IME 確定**（実機・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）。**極端な長文連打の体感**（パフォーマンス）
@@ -152,7 +164,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | WP-001 次スライス | **アシスト／メタ系ガジェットの発見性**（`js/command-palette.js` と各ガジェット `title` / `description` のラベル整合）を 1 スライスで実施 | shared        |
+| A   | WP-001 次スライス | **サイドバー「編集」カテゴリの情報密度**（ガジェット説明の簡潔化・既定折りたたみ見直し）を 1 スライスで実施 | shared        |
 | B   | WP-004 Phase 3   | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に沿い **差分を 1 件ずつ**、`reader-wysiwyg-distinction` で監視 | shared        |
 | C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |

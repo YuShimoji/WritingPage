@@ -28,6 +28,12 @@
 - 体感トリガー（BL-002 / BL-004 / Focus 左パネル）は引き続き user actor で監視し、**新規再現なし**。
 - WP-001 の次トピックは **「アシスト／メタ系ガジェットの発見性」** を採用（`js/command-palette.js` と各ガジェット `title` / `description` のラベル整合を 1 スライスで実施）。
 
+#### session 72 実施結果（今回）
+
+- WP-001「アシスト／メタ系ガジェットの発見性」を実施。`command-palette` の検索語彙を拡張（`keywords`）し、ガジェット名の語彙を日本語優先へ整合。
+- WP-004 では「フォーカスモード中に再生オーバーレイを開閉しても `data-ui-mode=focus` を維持」を `reader-wysiwyg-distinction` で回帰固定。
+- deferred 体感トリガーは **新規再現なし**。次の WP-001 候補は **「サイドバー『編集』カテゴリの情報密度」** を採用。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
@@ -74,6 +80,7 @@
 - **session 69**: `main` に FF マージ・リモート同期・フィーチャーブランチ削除。全 E2E **568 passed / 2 skipped**、`eslint js/` clean。`ROADMAP` / 台帳の用語を再生オーバーレイ前提に整理し、推奨スライス順を `CURRENT_STATE` と同期。
 - **session 70**: [`docs/RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) を新設（正本リンク＋要約の入口）。`CURRENT_STATE` ドキュメント地図へ1行追加。
 - **session 71**: 保存導線の未決を `spec-writing-mode-unification-prep` で確定（自動保存中心・手動保存はコマンド/ショートカット/ガジェット導線）。WP-004 は `reader-wysiwyg-distinction` に「再生オーバーレイ中も `data-ui-mode` 不変」回帰を追加して 14 件 pass。WP-001 次トピックは「アシスト／メタ系ガジェットの発見性」を選定。
+- **session 72**: WP-001「アシスト／メタ系ガジェットの発見性」を実施（`command-palette` 検索語彙拡張 + ガジェット名語彙整合）。WP-004 はフォーカスモードでの再生オーバーレイ開閉時 `data-ui-mode` 維持の回帰を追加。`command-palette` + `reader-wysiwyg-distinction` 計 26 件 pass。deferred 体感トリガーは新規再現なし。
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）
