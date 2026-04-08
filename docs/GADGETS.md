@@ -311,6 +311,7 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 
 ## 設定保存/折りたたみ/並び替え（v0.3.13+）
 
+- ガジェット単体の開閉（見出しの ▼/▶）の永続化は LocalStorage キー **`zenwriter-gadget-collapsed`**（ガジェット名 → 展開なら `true`）を `gadgets-core.js` が参照する。初回訪問でキーが無い場合のデフォルトは **Documents** と **Themes** のみ展開し、それ以外は閉じる。session 82 以降、**assist** 向けガジェットは `ZWGadgets.register(..., { defaultCollapsed: true })` で上記方針を明示（実効は従来と同様）。
 - 仕組み
   - LocalStorage キー: `zenWriter_gadgets:prefs`
   - 構造: `{ order: string[], collapsed: Record<string, boolean>, settings: Record<string, any> }`

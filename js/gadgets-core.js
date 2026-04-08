@@ -113,6 +113,7 @@
      * @property {boolean} [defaultEnabled] - Whether enabled by default
      * @property {string} [className] - Custom CSS class
      * @property {boolean} [floatable] - Whether this gadget can be detached
+     * @property {boolean} [defaultCollapsed] - 初回のみ（localStorage に折りたたみ状態が無いとき）。true なら閉じた状態で表示。false なら開いた状態。未指定時は従来どおり Documents / Themes のみ初回展開。
      */
 
     /**
@@ -142,6 +143,9 @@
           factory: factory,
           groups: normalizeGroupList(opts.groups || ['structure'])
         };
+        if (typeof opts.defaultCollapsed === 'boolean') {
+          entry.defaultCollapsed = opts.defaultCollapsed;
+        }
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
@@ -447,6 +451,12 @@
     _isGadgetCollapsed(name) {
       var state = this._loadGadgetCollapseState();
       if (state[name] !== undefined) return !state[name];
+      for (var gi = 0; gi < this._list.length; gi++) {
+        var ge = this._list[gi];
+        if (!ge || (ge.name || '') !== name) continue;
+        if (typeof ge.defaultCollapsed === 'boolean') return ge.defaultCollapsed;
+        break;
+      }
       // 初回起動時はドキュメント一覧とテーマを展開して即アクセスできるようにする
       var defaultExpanded = { Documents: true, Themes: true };
       return !defaultExpanded[name];

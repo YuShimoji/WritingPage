@@ -59,7 +59,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'タイプライター', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。' });
+    }, { title: 'タイプライター', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。', defaultCollapsed: true });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -116,7 +116,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'フォーカスモード', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。' });
+    }, { title: 'フォーカスモード', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。', defaultCollapsed: true });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 

@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 81)
+最終更新: 2026-04-09 (session 82)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 81 |
+| セッション | 82 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 81: **WP-001 摩擦 1 件** — コマンドパレットの `keywords` を検索・UI・ファイル・モード・フォント・編集・段落揃えなど広範囲に拡張（発見性）。`command-palette` E2E 11 件 pass。 |
+| 直近のスライス | session 82: **初回 defaultCollapsed（A3）** — `ZWGadgets.register` に `defaultCollapsed` を追加し、assist 系ガジェットで明示。`e2e/helpers` に `enableAllGadgets(..., { expandAllGadgets: false })`。`gadgets` E2E 5 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -195,6 +195,16 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `command-palette` **11 件** pass | `e2e/command-palette.spec.js` |
 | WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 82
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 初回折りたたみ | `gadgets-core` の `register` に `defaultCollapsed`（初回のみ・LS 未設定時）。assist の Typewriter / FocusMode / HUD / 執筆目標 / Pomodoro / MarkdownReference に `defaultCollapsed: true` を明示 | `js/gadgets-core.js`, `js/gadgets-editor-extras.js`, `js/gadgets-hud.js`, `js/gadgets-goal.js`, `js/gadgets-pomodoro.js`, `js/gadgets-markdown-ref.js` |
+| E2E | `enableAllGadgets` で全展開を省略可能に。assist の初回閉を検証するテストを追加 | `e2e/helpers.js`, `e2e/gadgets.spec.js` |
+| 正本 | `spec-writing-mode-unification-prep`・`GADGETS.md` に記述 | `docs/specs/spec-writing-mode-unification-prep.md`, `docs/GADGETS.md` |
+| 回帰 | `gadgets` **5 件** pass | `e2e/gadgets.spec.js` |
+| WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -269,6 +279,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 実行済み (session 81):
 
 - `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
+
+実行済み (session 82):
+
+- `npx playwright test e2e/gadgets.spec.js` → pass（5 件）
 
 ### 手動確認ゲート（運用メモ）
 

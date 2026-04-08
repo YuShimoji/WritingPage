@@ -159,4 +159,44 @@ test.describe('Gadgets E2E', () => {
     });
     await expect(panel).not.toHaveClass(/drag-over-tab/);
   });
+
+  test('assist ガジェットは初回（折りたたみ状態未保存）で defaultCollapsed どおり閉じる', async ({ page }) => {
+    await page.goto(pageUrl);
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.evaluate(() => {
+      try {
+        localStorage.removeItem('zenwriter-gadget-collapsed');
+      } catch (_) {}
+    });
+    await page.reload();
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await enableAllGadgets(page, { expandAllGadgets: false });
+    await showFullToolbar(page);
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
+    });
+    await openSidebarGroup(page, 'assist');
+    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', {
+      state: 'visible',
+      timeout: 15000,
+    });
+
+    const assistCollapsedNames = await page.evaluate(() => {
+      var list = window.ZWGadgets && window.ZWGadgets._list ? window.ZWGadgets._list : [];
+      return list
+        .filter(function (e) {
+          return e && e.groups && e.groups.indexOf('assist') >= 0 && e.defaultCollapsed === true;
+        })
+        .map(function (e) {
+          return e.name;
+        });
+    });
+    expect(assistCollapsedNames.length).toBeGreaterThan(0);
+
+    for (const name of assistCollapsedNames) {
+      const wrap = page.locator(`#assist-gadgets-panel .gadget-wrapper[data-gadget-name="${name}"]`);
+      await expect(wrap).toHaveCount(1);
+      await expect(wrap).toHaveAttribute('data-gadget-collapsed', 'true');
+    }
+  });
 });

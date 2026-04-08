@@ -95,7 +95,15 @@
 - **コマンドパレット**: 多数のコマンドに `keywords` を追加し、日本語・英語の別名から辿りやすくした（検索・UI・ファイル・モード・フォント・編集・段落揃え等）。
 - 回帰: `command-palette` **11 件** pass。
 - **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。手動パックは**未実施**。
-- **次**: 初回 `defaultCollapsed` 等（要検討）、または台帳の別摩擦 1 件。
+- **次**（session 81 時点）: ~~初回 `defaultCollapsed` 等~~（**session 82 で assist を `register` 明示 + E2E**）／または台帳の別摩擦 1 件。
+
+#### session 82 実施結果（初回 defaultCollapsed・A3）
+
+- **`ZWGadgets.register`**: オプション `defaultCollapsed`（初回・`zenwriter-gadget-collapsed` 未設定時）。**assist** の Typewriter / FocusMode / HUDSettings / WritingGoal / PomodoroTimer / MarkdownReference に `true` を付与（従来の「Documents/Themes 以外は初回閉」と整合するようコード上で明示）。
+- **E2E**: `enableAllGadgets(page, { expandAllGadgets: false })` で LS の全展開上書きを避け、assist の `data-gadget-collapsed` を検証。
+- 回帰: `gadgets` **5 件** pass。
+- **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
+- **次**: 台帳の別摩擦 1 件（ガジェット説明・編集カテゴリ密度等）、または WP-004 差分時のみ。
 
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 

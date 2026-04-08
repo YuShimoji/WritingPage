@@ -92,6 +92,6 @@
       console.error('WritingGoal gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.GOAL_INIT_FAILED) || '執筆目標ガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_GOAL_TITLE) || '執筆目標', description: '文字数・時間の目標を設定し、進捗を表示。' });
+  }, { groups: ['assist'], title: (window.UILabels && window.UILabels.GADGET_GOAL_TITLE) || '執筆目標', description: '文字数・時間の目標を設定し、進捗を表示。', defaultCollapsed: true });
 
 })();

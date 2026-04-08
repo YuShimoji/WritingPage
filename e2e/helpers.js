@@ -64,7 +64,13 @@ async function openGlobalSearchPanel(page) {
   await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 }).catch(() => {});
 }
 
-async function enableAllGadgets(page) {
+/**
+ * 全ガジェットをサイドバーに載せるロードアウトを適用する。
+ * @param {import('@playwright/test').Page} page
+ * @param {{ expandAllGadgets?: boolean }} [opts] - `expandAllGadgets: false` で初回折りたたみ状態を上書きしない（defaultCollapsed の E2E 用）
+ */
+async function enableAllGadgets(page, opts) {
+  var expandAll = !opts || opts.expandAllGadgets !== false;
   // Wait for gadgets to be registered
   await page.waitForFunction(() => {
     return window.ZWGadgets && window.ZWGadgets._list && window.ZWGadgets._list.length > 5;
@@ -189,23 +195,25 @@ async function enableAllGadgets(page) {
     });
   });
 
-  // デフォルト折りたたみ状態を全展開にする (localStorage にも保存して再レンダリング時も展開)
-  await page.evaluate(() => {
-    if (!window.ZWGadgets) return;
-    var state = {};
-    window.ZWGadgets._list.forEach(function(g) {
-      state[g.name] = true; // true = 展開
+  if (expandAll) {
+    // デフォルト折りたたみ状態を全展開にする (localStorage にも保存して再レンダリング時も展開)
+    await page.evaluate(() => {
+      if (!window.ZWGadgets) return;
+      var state = {};
+      window.ZWGadgets._list.forEach(function(g) {
+        state[g.name] = true; // true = 展開
+      });
+      localStorage.setItem('zenwriter-gadget-collapsed', JSON.stringify(state));
+      // 現在のDOMも展開
+      document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
+        var name = w.getAttribute('data-gadget-name');
+        if (name && window.ZWGadgets._setGadgetCollapsed) {
+          window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
+        }
+      });
     });
-    localStorage.setItem('zenwriter-gadget-collapsed', JSON.stringify(state));
-    // 現在のDOMも展開
-    document.querySelectorAll('.gadget-wrapper').forEach(function(w) {
-      var name = w.getAttribute('data-gadget-name');
-      if (name && window.ZWGadgets._setGadgetCollapsed) {
-        window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
-      }
-    });
-  });
-  await page.waitForTimeout(300);
+    await page.waitForTimeout(300);
+  }
 }
 
 /**

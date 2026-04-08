@@ -243,7 +243,8 @@
   }, {
     groups: ['assist'],
     title: (window.UILabels && window.UILabels.GADGET_MARKDOWN_REF_TITLE) || 'Markdownリファレンス',
-    description: 'Markdown記法・ショートカット・アプリ拡張の参照'
+    description: 'Markdown記法・ショートカット・アプリ拡張の参照',
+    defaultCollapsed: true
   });
 
 })();
