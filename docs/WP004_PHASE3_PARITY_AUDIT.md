@@ -68,3 +68,4 @@
 | 2026-04-08 | 次期プラン session 65: 手動シナリオ 1〜5 は台帳どおり **人間による並べ確認が正**。本記録時点で **新規の preview/reader 差分の報告・再現なし**（実装差分なし）。自動層 16 件を再実行しすべて通過 |
 | 2026-04-07 | session 66: **CSS 層**で MD プレビューと Reader 本文の段落 typography を整合（`style.css`）。`reader-wysiwyg-distinction` に computed style 一致 E2E を 1 件追加。reader 関連 4 spec 計 **17** 件を再実行しすべて通過 |
 | 2026-04-07 | session 67（別レーン）: **手動パック運用**を `USER_REQUEST_LEDGER` に明文化（シナリオ 1〜5 + `CURRENT_STATE` 体感リスト・履歴追記ルール）。**本記録時点**: エージェント作業はドキュメント整備のみ。**人間による並べ確認**はリリース前／四半期の手動パックで実施し、結果を本表に追記する（新規 preview/reader 差分の報告は従来どおり WP-004 本線へ） |
+| 2026-04-08 | session 74: 次点プラン（予備）として **Reader 章末ナビのクリック遷移**を `reader-chapter-nav.spec.js` で最小 E2E 化。`reader-chapter-nav` + `reader-wysiwyg-distinction` の計 17 件を再実行しすべて通過（実装変更はテスト追加のみ） |

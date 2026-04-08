@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 73)
+最終更新: 2026-04-08 (session 74)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 73 |
+| セッション | 74 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 73: **推奨開発プラン実行（継続版）** — WP-001 で編集カテゴリ説明を「装飾・プレビュー・画像」中心に明確化して情報密度を調整。WP-004 はフォーカスモード + 再生オーバーレイ回帰を維持し、`command-palette` + `reader-wysiwyg-distinction` 26 件 pass。deferred 体感トリガーは新規再現なし。 |
+| 直近のスライス | session 74: **次点プラン（予備）実行** — WP-004 Phase 3 の差分候補から「章末ナビのクリック遷移」を 1 件固定。`reader-chapter-nav` に最小 E2E を追加し、`reader-wysiwyg-distinction` と合わせて 17 件 pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -22,7 +22,7 @@
 | 不変条件・テスト作法・レイアウト/Wiki の要約 | [`INVARIANTS.md`](INVARIANTS.md) |
 | 用語・編集面と UI モードの状態モデル | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md) |
 | 執筆モード統合の事前整理（引き継ぎ） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
-| 推奨開発プランの入口（索引） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |
+| 推奨開発プラン（現状分析 + 短中長期目標 + 機能別ロードマップ） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |
 | 次スライス・マージ前手順 | [`ROADMAP.md`](ROADMAP.md)、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) |
 | WP-004 監査・手動シナリオ | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) |
 | 機能台帳・自動化境界 | [`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md)、[`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md) |
@@ -126,6 +126,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | WP-004 Phase 3 | `command-palette` + `reader-wysiwyg-distinction` の関連回帰を再実行し、focus + overlay 条件を含めて 26 件通過 | `e2e/command-palette.spec.js`, `e2e/reader-wysiwyg-distinction.spec.js` |
 | WP-001 体感トリガー | BL-002 / BL-004 / Focus 左パネルは **新規再現なし**。次候補は「ロードアウトプリセットとガジェット既定の整合」に設定 | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/CURRENT_STATE.md` |
 
+### Session 74
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-004 Phase 3（次点） | Reader 章末ナビの「次へ」クリック遷移を `reader-chapter-nav` に E2E 追加（最小スライス） | `e2e/reader-chapter-nav.spec.js` |
+| 回帰 | `reader-chapter-nav` + `reader-wysiwyg-distinction` を再実行し 17 件通過 | `e2e/reader-chapter-nav.spec.js`, `e2e/reader-wysiwyg-distinction.spec.js` |
+| 台帳同期 | 監査台帳・要求台帳・Current State を session 74 として同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -163,6 +171,10 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 実行済み (session 73):
 
 - `npx playwright test e2e/command-palette.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（26 件）
+
+実行済み (session 74):
+
+- `npx playwright test e2e/reader-chapter-nav.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（17 件）
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

@@ -40,6 +40,12 @@
 - WP-004 は関連回帰（`command-palette` + `reader-wysiwyg-distinction`）を再実行し 26 件通過。
 - deferred 体感トリガーは **新規再現なし**。次の WP-001 候補は **「ロードアウトプリセットとガジェット既定の整合」** を採用。
 
+#### session 74 実施結果（次点プラン・予備）
+
+- WP-004 Phase 3 の次点候補A（章末ナビ遷移）を採用し、`reader-chapter-nav` に **「次へ」クリック遷移**の最小 E2E を 1 件追加。
+- 回帰は `reader-chapter-nav` + `reader-wysiwyg-distinction` を再実行し **17 件 pass**。
+- 次の候補は主プラン優先度を維持し、WP-001 は **「ロードアウトプリセットとガジェット既定の整合」** を継続。WP-004 次点は **ジャンルプリセットの style 反映 1 項目検証**を予備候補とする。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
