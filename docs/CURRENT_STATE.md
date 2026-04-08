@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 78)
+最終更新: 2026-04-09 (session 79)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 78 |
+| セッション | 79 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 78: **WP-001** — `spec-mode-architecture.md` に現行正本（2 値 UI モード・再生オーバーレイ）への**歴史注釈**。物語Wikiガジェットのコマンドパレット `keywords` 拡張。`command-palette` 11 件 + `ui-mode-consistency` 12 件 pass。 |
+| 直近のスライス | session 79: **WP-001** — ガジェット**常設／ドック／優先度**を `spec-writing-mode-unification-prep` に正文化、`loadouts-presets.js` に執筆優先の並び方針コメント。`dock-preset` + `gadgets` 14 件 + `visual-audit`（Loadout/カテゴリ 4 件）pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -169,6 +169,15 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `command-palette` 11 件、`ui-mode-consistency` 12 件 pass | `e2e/command-palette.spec.js`, `e2e/ui-mode-consistency.spec.js` |
 | WP-004 | 新規 preview/reader 差分なし（台帳に記録のみ）。手動パックは未実施 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 79
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 ガジェット方針 | 「次スライスで詰める項目」を **現行コード**（KNOWN_GROUPS・`loadouts-presets`・`dockLayout`・折りたたみ prefs）に対応づけて正文化 | `docs/specs/spec-writing-mode-unification-prep.md` |
+| 保守コメント | プリセット内の執筆優先の並びをファイル頭に記載（挙動変更なし） | `js/loadouts-presets.js` |
+| 回帰 | `dock-preset` 10 件 + `gadgets` 4 件 + `visual-audit`（Structure/Edit/Advanced/Loadout）4 件 pass | `e2e/dock-preset.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js` |
+| WP-004 | 新規差分なし。手動パックは**未実施**（リリース前にユーザー判断） | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -231,6 +240,11 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/command-palette.spec.js` → pass（11 件）
 - `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（12 件）
 
+実行済み (session 79):
+
+- `npx playwright test e2e/dock-preset.spec.js e2e/gadgets.spec.js` → pass（14 件）
+- `npx playwright test e2e/visual-audit.spec.js --grep "Loadout manager|Structure gadgets|Edit gadgets|Advanced gadgets"` → pass（4 件）
+
 ### 手動確認ゲート（運用メモ）
 
 | タイミング | 参照 | 記録先 |
@@ -238,6 +252,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 | WP-004 手動パック（リリース前・四半期） | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) シナリオ 1〜5 | 同ファイルの更新履歴に実施日・差分の有無 |
 | deferred（BL-002 / BL-004 / Focus 左パネル）をスライスに昇格するか | [`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)・上記「体感確認」 | 昇格時は `USER_REQUEST_LEDGER` と本ファイルの優先課題 |
 | モード用語の説明が必要なとき | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)（正本） | 実装変更時は `INVARIANTS` の不変条件と矛盾しないこと |
+| ロードアウト／ガジェットの並びを変えた後 | 初回起動・プリセット切替で**迷いが増えていないか**を短時間確認（問題なければ記録不要） | 問題があれば本ファイルに 1 行 |
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

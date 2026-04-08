@@ -75,6 +75,13 @@
 - **WP-004**: 新規差分なし（台帳に記録）。手動パックは未実施。
 - **次**: WP-001 の続き（台帳の摩擦削減トピック）またはガジェット常設／ドック優先度の整理。
 
+#### session 79 実施結果（WP-001）
+
+- **ガジェット常設／ドック／優先度**: [`spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) に現行実装（カテゴリ・`loadouts-presets`・`dockLayout`・折りたたみ）との対応表を追記。[`loadouts-presets.js`](../js/loadouts-presets.js) に執筆優先の並び方針コメント（挙動変更なし）。
+- 回帰: `dock-preset` + `gadgets` **14 件** + `visual-audit`（Loadout/カテゴリ）**4 件** pass。
+- **WP-004**: 新規差分なし。手動パックは**未実施**（リリース前はユーザーが [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従い実施し、結果を更新履歴へ）。
+- **次**: 保存導線のドキュメント横断（別スライス）／WP-001 の摩擦 1 件／`defaultCollapsed` 等の初回折りたたみは要検討。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

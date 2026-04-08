@@ -77,5 +77,6 @@
 | 2026-04-08 | session 76: WP-004 Phase 3 **本線** — 監査シナリオ5（ジャンルプリセット）の差分1件を **`genre-adv` 時 `.zw-dialog` の computed `backgroundColor`** で自動固定（`reader-genre-preset.spec.js` 1 件追加、`css/style.css` の `.genre-adv .zw-dialog` と整合）。`reader-genre-preset` + `reader-wysiwyg-distinction` を再実行し **18 件 pass**（プロダクトコード変更なし） |
 | 2026-04-09 | session 77: **モード用語 SSOT** 整理（`INTERACTION_NOTES` 関係図を `normal`/`focus` と再生オーバーレイの別軸に修正ほか）。**Reader 系 E2E 一括回帰**（`reader-wysiwyg-distinction`・`reader-chapter-nav`・`reader-wikilink-popover`・`reader-genre-preset`・`reader-preview`）**34 件 pass**。Phase 3 **自動検証層は現状で区切り**、手動シナリオはリリース前／四半期。**保存導線のドキュメント横断**（`RECOMMENDED_DEVELOPMENT_PLAN` 短期「3」相当）は**未着手** |
 | 2026-04-09 | session 78: **新規の preview/reader パイプライン差分の報告なし**（コード変更なし）。**手動パック**（シナリオ 1〜5 の並べ確認）は**未実施** — リリース前／四半期にユーザー実施し、本表へ結果を 1 行追記する |
+| 2026-04-09 | session 79: **新規の preview/reader パイプライン差分の報告なし**（WP-001 ドキュメント中心のため reader コード変更なし）。**手動パック**は**未実施** — リリース前にユーザーが実施する場合のみ本表へ追記 |
 
 

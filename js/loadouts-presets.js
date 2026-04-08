@@ -4,6 +4,14 @@
  *
  * グループ名は KNOWN_GROUPS と一致させること:
  *   sections, structure, edit, theme, assist, advanced
+ *
+ * 執筆優先の並び（方針）:
+ * - sections: 章・セクション移動を最上段に
+ * - structure: 原稿ツリー・アウトライン・Wiki・リンク系を続ける
+ * - edit: プレビュー・装飾・表現ツール
+ * - theme / assist / advanced: 低頻度・補助を後方カテゴリへ
+ * 各配列の先頭に近いほど、サイドバー一覧では上側に表示されやすい（カテゴリ内順）。
+ * ドック初期値は各エントリの dockLayout を参照（spec-writing-mode-unification-prep.md session 79）。
  */
 (function () {
   'use strict';
