@@ -70,10 +70,10 @@
 - サイドバー開閉は toggleSidebar() → s.sidebarOpen に永続化。setUIMode Normal復帰時に復元
 - エッジグローはFocusモードのみ。CSS クラス方式: --near (近接 0.5) / --flash (フラッシュ 0.4)。JS は style.opacity を直接操作しない
 - swiki-open-entry イベントは entryId と title の両方を受付 (title→entryId 自動変換)
-- Reader モードの wikilink クリックはポップオーバー表示 (サイドバーは開かない)
+- 再生オーバーレイ表示中の wikilink クリックはポップオーバー表示 (サイドバーは開かない)
 - `[[` 入力補完は Normal モードのみ (Focus ではテキスト排除原則に準拠し非表示)
 - WYSIWYG でアニメーション/テクスチャが即時適用 (WP-004 Phase 1)
-- フローティングツールバーはreaderモードでも非表示
+- フローティングツールバーは再生オーバーレイ表示中も非表示
 - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー経由
 
 ### 設計経緯メモ（エッジグロー）

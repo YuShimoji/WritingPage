@@ -60,6 +60,13 @@
 - `npx playwright test --list` は **573 テスト / 68 ファイル**（`ROADMAP` 記載用）。
 - 次候補: WP-004 は台帳の残差分・手動パックに従う。WP-001 は `CURRENT_STATE` / `ROADMAP` の次トピックを 1 件選定。
 
+#### session 77 実施結果（モード SSOT + WP-004 区切り）
+
+- **モード用語**: `INTERACTION_NOTES` の関係図を UI モード 2 値と再生オーバーレイ別軸に修正。`INVARIANTS`・`spec-writing-mode-unification-prep`・`OPERATOR_WORKFLOW` から正本への参照を追加。`project-context` の旧「Reader モード」表記を更新。
+- **WP-004**: reader 系 5 spec を一括回帰し **34 件 pass**。Phase 3 自動層は現状で区切り、**保存導線の横断スライス**は未着手。
+- **WP-001（本 session）**: オペレーターワークフロー・長命メモの用語を現行モデルに整合（コード変更なし）。`ui-mode-consistency` **12 件 pass**。
+- **次**: **WP-001 を集中**（台帳表から次トピックを 1 件ずつ）。保存導線は別スライス。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

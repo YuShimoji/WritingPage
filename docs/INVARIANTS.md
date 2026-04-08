@@ -2,6 +2,8 @@
 
 破ってはいけない条件・責務境界・UX不変量を保持する正本。
 
+**用語**: UI モードと**再生オーバーレイ**の区別・編集面との関係の**説明**は [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md) の「Zen Writer UI 状態モデル」を正とする。本ファイルは挙動上の不変条件のみを列挙する。
+
 ## UX / Algorithmic Invariants
 
 - UI モードは `normal` / `focus` の 2 種。切替の単一入口は `setUIMode`。直接 `setAttribute('data-ui-mode', ...)` は禁止

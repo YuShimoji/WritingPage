@@ -67,12 +67,16 @@
 
 ### 関係図（概念）
 
+UI モードは **`normal` / `focus` のみ**（`setUIMode`）。**再生オーバーレイ**は別軸（`data-reader-overlay-open`・閲覧専用）。第4の UI モードとしての「Reader」は廃止済み（session 68）。
+
 ```mermaid
 flowchart LR
-  subgraph uiModes [UIMode]
-    Normal[通常]
-    Focus[フォーカス]
-    Reader[読者プレビュー]
+  subgraph uiMode [UIMode_setUIMode]
+    Normal[通常normal]
+    Focus[フォーカスfocus]
+  end
+  subgraph overlay [ReplayOverlay別軸]
+    Replay[再生オーバーレイ]
   end
   subgraph editSurface [編集面]
     Md[Markdownソース]
@@ -82,10 +86,11 @@ flowchart LR
   Normal --> Wys
   Focus --> Md
   Focus --> Wys
-  Reader --> Prev[閲覧レイアウト]
 ```
 
-ヘルプ・ツールチップ・コマンドパレットの文言は上表に揃える（英語 UI では `Reader preview` / `Rich edit` / `Markdown preview` など対応語を固定）。
+`Replay` は `Normal` / `Focus` のどちらでも開ける（入場直前の `data-ui-mode` は維持）。オーバーレイと編集面は同時に操作対象にはならない（閉じてから執筆へ復帰）。
+
+ヘルプ・ツールチップ・コマンドパレットの文言は上表に揃える（英語 UI では `Replay overlay` / `Rich edit` / `Markdown preview` など対応語を固定）。
 
 ### WP-004 Phase 2: 既定・復帰ポリシー（実装準拠）
 

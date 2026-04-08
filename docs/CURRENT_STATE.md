@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-08 (session 76)
+最終更新: 2026-04-09 (session 77)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 76 |
+| セッション | 77 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 76: **WP-004 Phase 3 本線（監査シナリオ5）** — ジャンルプリセット `genre-adv` 適用時の `.zw-dialog` computed background を `reader-genre-preset.spec.js` で固定。`reader-genre-preset` + `reader-wysiwyg-distinction` 計 18 件 pass（実装変更なし）。 |
+| 直近のスライス | session 77: **モード用語 SSOT 整理**（`INTERACTION_NOTES`・`INVARIANTS`・執筆モード事前整理・オペレーターワークフロー）+ **WP-004 Phase 3 自動層の区切り**（reader 系 5 spec 34 件回帰）。保存導線の横断は未着手。 |
 
 
 ## ドキュメント地図（再開時）
@@ -21,7 +21,8 @@
 |-------------|----------|
 | 不変条件・テスト作法・レイアウト/Wiki の要約 | [`INVARIANTS.md`](INVARIANTS.md) |
 | 用語・編集面と UI モードの状態モデル | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md) |
-| 執筆モード統合の事前整理（引き継ぎ） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
+| UI モード（2 値）・再生オーバーレイ・編集面の SSOT | 上記 `INTERACTION_NOTES`（関係図・表）。不変条件は [`INVARIANTS.md`](INVARIANTS.md) |
+| 執筆モード統合の事前整理（引き継ぎ・合意の境界） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
 | 推奨開発プラン（現状分析 + 短中長期目標 + 機能別ロードマップ） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |
 | 次スライス・マージ前手順 | [`ROADMAP.md`](ROADMAP.md)、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) |
 | WP-004 監査・手動シナリオ | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) |
@@ -150,6 +151,15 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `reader-genre-preset` + `reader-wysiwyg-distinction` → pass（18 件）。`npx playwright test --list` → **573 テスト / 68 ファイル** | — |
 | 台帳同期 | `WP004_PHASE3_PARITY_AUDIT`・`USER_REQUEST_LEDGER`・`CURRENT_STATE`・`ROADMAP`（E2E 件数）を session 76 として同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md`, `docs/ROADMAP.md` |
 
+### Session 77
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| モード SSOT | UI モードは `normal`/`focus` のみ・再生オーバーレイは別軸を関係図で明示。`INVARIANTS`・`spec-writing-mode-unification-prep` から `INTERACTION_NOTES` への参照を追加。オペレーターフロー・`project-context` の旧「Reader モード」表記を更新 | `docs/INTERACTION_NOTES.md`, `docs/INVARIANTS.md`, `docs/specs/spec-writing-mode-unification-prep.md`, `docs/OPERATOR_WORKFLOW.md`, `docs/project-context.md` |
+| WP-004 区切り | reader 系 5 spec を一括回帰し **34 件 pass**。Phase 3 自動層は現状で区切り、次の横断は保存導線スライス（別途） | — |
+| WP-001（ドキュメント） | オペレーター・長命メモの用語を現行モードモデルに整合。`ui-mode-consistency` で **12 件 pass** | `docs/OPERATOR_WORKFLOW.md`, `docs/project-context.md` |
+| 台帳 | `WP004_PHASE3_PARITY_AUDIT` 更新履歴・本ファイル・`USER_REQUEST_LEDGER` を同期 | `docs/WP004_PHASE3_PARITY_AUDIT.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -202,6 +212,19 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/reader-genre-preset.spec.js e2e/reader-wysiwyg-distinction.spec.js` → pass（18 件）
 - `npx playwright test --list` → **573 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
 
+実行済み (session 77):
+
+- `npx playwright test e2e/reader-wysiwyg-distinction.spec.js e2e/reader-chapter-nav.spec.js e2e/reader-wikilink-popover.spec.js e2e/reader-genre-preset.spec.js e2e/reader-preview.spec.js` → pass（34 件）
+- `npx playwright test e2e/ui-mode-consistency.spec.js` → pass（12 件・モード用語整理後のスモーク）
+
+### 手動確認ゲート（運用メモ）
+
+| タイミング | 参照 | 記録先 |
+|------------|------|--------|
+| WP-004 手動パック（リリース前・四半期） | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) シナリオ 1〜5 | 同ファイルの更新履歴に実施日・差分の有無 |
+| deferred（BL-002 / BL-004 / Focus 左パネル）をスライスに昇格するか | [`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)・上記「体感確認」 | 昇格時は `USER_REQUEST_LEDGER` と本ファイルの優先課題 |
+| モード用語の説明が必要なとき | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)（正本） | 実装変更時は `INVARIANTS` の不変条件と矛盾しないこと |
+
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 
 - WYSIWYG: **IME 確定**（実機・[`docs/AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)）。**極端な長文連打の体感**（パフォーマンス）
@@ -214,8 +237,8 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | WP-001 次スライス | session 75 でロードアウト整合は完了。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から 1 件選定 | shared        |
-| B   | WP-004 Phase 3   | 監査台帳に沿い差分を **1 件ずつ**。ジャンルプリセットの代表 style は session 76 で `reader-genre-preset` に固定済み | shared        |
+| A   | WP-001 集中 | session 75 でロードアウト整合は完了。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から **1 件ずつ**連続スライス | shared        |
+| B   | WP-004 Phase 3   | **自動検証層は session 77 で区切り**。新規差分は台帳・手動パックで発見次第 **1 トピック**で。保存導線の**ドキュメント横断**は別スライス | shared        |
 | C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |
 

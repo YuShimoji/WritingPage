@@ -8,7 +8,7 @@
 2. 執筆: WYSIWYG / textarea モードで本文を書く
 3. 構造化: 章管理 (chapterMode)、セクションナビ
 4. 装飾: テーマ・見出しプリセット・傍点・ルビ
-5. プレビュー: Reader モード / 分割ビュー
+5. プレビュー: 再生オーバーレイ（読者視点）・MD プレビュー分割 など（UI モードとしての Reader は廃止。用語は [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)）
 6. 出力: JSON プロジェクト保存 (.zwp.json)
 7. 保存: IndexedDB + localStorage フォールバック
 
