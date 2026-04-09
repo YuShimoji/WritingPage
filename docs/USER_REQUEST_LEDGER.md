@@ -112,6 +112,16 @@
 - **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
 - **次**: 台帳の **B1 相当**（編集カテゴリ密度・ガジェット説明等の摩擦 1 件）、または WP-004 差分時のみ。
 
+#### session 84 実施結果（WP-001 B1）
+
+- **編集カテゴリの個別説明**: `MarkdownPreview` / `FontDecoration` / `TextAnimation` / `Images` / `ChoiceTools` の `description` を、カテゴリ見出し（装飾・プレビュー・画像）と語彙整合するよう短文化。
+- **コマンドパレット**: `toggle-markdown-preview`・`font-decoration-panel`・`text-animation-panel` の説明をガジェット側と横断整合。`keywords` に `Markdownプレビュー` / `ガジェット` を追加。
+- **`activateSidebarGroup`**: アコーディオン UI 時は対象カテゴリを展開し、コマンドから「構造」等を開いたとき中身が見えるようにした（session 83 後の `command-palette` E2E 整合を含む）。
+- **正本**: `docs/GADGETS.md`（一覧表・カテゴリ行の Story Wiki 配置修正）。
+- 回帰: `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` + `gadgets` + `command-palette` **38 件**、`visual-audit`「05 - Edit gadgets」**1 件** pass。
+- **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
+- **次**: 台帳の **WP-001 摩擦 1 件**（別カテゴリの説明整理、または deferred 体感の昇格）／WP-004 は手動パックで差分が出たときのみ。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

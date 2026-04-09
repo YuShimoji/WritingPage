@@ -161,7 +161,7 @@
     {
       id: 'font-decoration-panel',
       label: 'フォント装飾パネル',
-      description: 'フォント装飾パネルを開く',
+      description: '装飾用フローティングパネルを開く（サイドバー編集の「フォント装飾」ガジェットと同系）',
       keywords: '装飾 文字装飾 Font Decoration',
       shortcut: '',
       category: 'テキスト装飾',
@@ -174,7 +174,7 @@
     {
       id: 'text-animation-panel',
       label: 'テキストアニメーションパネル',
-      description: 'テキストアニメーションパネルを開く',
+      description: '演出用フローティングパネルを開く（サイドバー編集の「テキストアニメーション」ガジェットと同系）',
       keywords: '文字アニメーション Text Animation',
       shortcut: '',
       category: 'テキスト装飾',
@@ -347,8 +347,8 @@
     {
       id: 'toggle-markdown-preview',
       label: 'MD プレビュー（横並び）',
-      description: '編集画面の横に Markdown 表示を開閉（読者プレビュー UI ではない）',
-      keywords: 'マークダウン 並列 プレビュー 横並び',
+      description: '編集画面の横に Markdown 表示を開閉。読者向けの再生オーバーレイではない。サイドバー「Markdownプレビュー」ガジェットのスクロール同期はそちらで設定',
+      keywords: 'マークダウン 並列 プレビュー 横並び Markdownプレビュー ガジェット',
       shortcut: '',
       category: '編集',
       execute: () => {

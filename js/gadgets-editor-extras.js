@@ -136,7 +136,7 @@
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
       root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdownプレビュー', groups: ['edit'], description: 'Markdownのリアルタイムプレビュー表示とスクロール同期。' });
+    }, { title: 'Markdownプレビュー', groups: ['edit'], description: 'プレビュー。編集画面の横に Markdown を並列表示し、本文とスクロール同期します。' });
 
     // UI Settings Gadget
     window.ZWGadgets.register('UISettings', function (root) {
@@ -882,7 +882,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { var tag = btn.dataset.tag; if (tag === 'kenten') { var rich = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor; if (rich && rich.isWysiwygMode && typeof rich.wrapSelectionWithSpan === 'function') { rich.wrapSelectionWithSpan('kenten'); } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') { window.ZenWriterEditor.insertTextAtCursor('{kenten|', { suffix: '}' }); } } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); bind(root);
-    }, { title: 'フォント装飾', groups: ['edit'], description: 'テキストに太字・斜体・下線・影などの装飾を適用。' });
+    }, { title: 'フォント装飾', groups: ['edit'], description: '装飾。太字・斜体・傍点・影などを選択範囲に適用します（ツールバー装飾と同系）。' });
 
     // Text Animation Gadget (パネルのミラー)
     window.ZWGadgets.register('TextAnimation', function (root) {
@@ -895,7 +895,7 @@
         btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
       }
       root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'テキストアニメーション', groups: ['edit'], description: 'テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。' });
+    }, { title: 'テキストアニメーション', groups: ['edit'], description: '装飾・演出。フェード・タイプライター・バウンスなどを選択範囲に適用します。' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {

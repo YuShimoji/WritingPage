@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 83)
+最終更新: 2026-04-09 (session 84)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 83 |
+| セッション | 84 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 83: **サイドバー「構造」強制展開の廃止（B2）** — `_applyWritingFocusSidebar` の `hasAnyExpanded` が空の `accordionState` で誤判定し `structure` を開いていた処理を削除。通常復帰時は保存値＋各カテゴリの `defaultExpanded` のみ適用。`sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` **22 件** pass。 |
+| 直近のスライス | session 84: **WP-001 B1（編集カテゴリの個別ガジェット説明）** — `edit` 配下の title/description をカテゴリ見出し（装飾・プレビュー・画像）と語彙整合。コマンドパレットの MD プレビュー／装飾・演出パネル説明を横断調整。`activateSidebarGroup` からアコーディオン該当カテゴリを展開（コマンドパレット「構造」導線と session 83 後の E2E 整合）。`sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` + `gadgets` + `command-palette` **38 件**、`visual-audit`「05 - Edit gadgets」**1 件** pass。 |
 
 
 ## ドキュメント地図（再開時）
@@ -213,6 +213,16 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` → **22 件** pass | `e2e/sidebar-layout.spec.js`, `e2e/sidebar-writing-focus.spec.js`, `e2e/ui-mode-consistency.spec.js` |
 | WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 84
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 B1 | 編集カテゴリ各ガジェットの説明を「プレビュー／装飾／画像／分岐」軸で短文化し、コマンドパレットの関連コマンド説明を整合 | `js/gadgets-editor-extras.js`, `js/gadgets-images.js`, `js/gadgets-choice.js`, `js/command-palette.js` |
+| WP-001 導線 | `activateSidebarGroup` 完了時に `.accordion-header` があれば該当カテゴリを展開（コマンドからの「構造」等で中身が見えるように） | `js/sidebar-manager.js` |
+| 正本 | `GADGETS.md` の一覧・カテゴリ行を同期 | `docs/GADGETS.md` |
+| 回帰 | `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` + `gadgets` + `command-palette` → **38 件** pass。`visual-audit`「05 - Edit gadgets」→ **1 件** pass | 各 `e2e/*.spec.js` |
+| WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -296,6 +306,13 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 - `npx playwright test e2e/sidebar-layout.spec.js e2e/sidebar-writing-focus.spec.js e2e/ui-mode-consistency.spec.js` → pass（22 件）
 
+実行済み (session 84):
+
+- `npx playwright test e2e/sidebar-layout.spec.js e2e/sidebar-writing-focus.spec.js e2e/ui-mode-consistency.spec.js e2e/gadgets.spec.js e2e/command-palette.spec.js` → pass（38 件）
+- `npx playwright test e2e/visual-audit.spec.js -g "05 - Edit"` → pass（1 件）
+- `npx playwright test --list` → **574 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
+- `npx eslint js/gadgets-editor-extras.js js/gadgets-images.js js/gadgets-choice.js js/command-palette.js js/sidebar-manager.js` → clean
+
 ### 手動確認ゲート（運用メモ）
 
 | タイミング | 参照 | 記録先 |
@@ -304,6 +321,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 | deferred（BL-002 / BL-004 / Focus 左パネル）をスライスに昇格するか | [`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md)・上記「体感確認」 | 昇格時は `USER_REQUEST_LEDGER` と本ファイルの優先課題 |
 | モード用語の説明が必要なとき | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)（正本） | 実装変更時は `INVARIANTS` の不変条件と矛盾しないこと |
 | ロードアウト／ガジェットの並びを変えた後 | 初回起動・プリセット切替で**迷いが増えていないか**を短時間確認（問題なければ記録不要） | 問題があれば本ファイルに 1 行 |
+| 編集カテゴリの説明文を変えた後（session 84） | サイドバー「編集」を開き、各ガジェットの説明が読みやすいか **5〜10 分** 目視（任意・リリース前推奨） | 問題があれば次スライスで 1 トピック化 |
 
 体感確認（ユーザー OK、優先度低のまま残すもの）:
 

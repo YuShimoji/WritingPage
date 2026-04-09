@@ -45,7 +45,7 @@
 - 現行カテゴリ（`index.html` の `data-category` 属性と一致）:
   1. **sections**: セクションナビゲーション（SP-052、見出しツリー）
   2. **structure**: ドキュメント階層、アウトライン、スナップショット、タグ
-  3. **edit**: StoryWiki、画像、選択肢、プレビュー、装飾、アニメーション
+  3. **edit**: 画像、選択肢、プレビュー、装飾、アニメーション（Story Wiki は **structure**）
   4. **theme**: テーマ、フォント、VisualProfile、見出しスタイル
   5. **assist**: 執筆目標、HUD、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
   6. **advanced**: UI設定、レイアウト、LinkGraph、エクスポート、キーバインド
@@ -73,11 +73,11 @@
 | 4 | StoryWiki | Story Wiki | structure | Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。 | story-wiki.js |
 | 5 | TagsAndSmartFolders | タグ/スマートフォルダ | structure | タグでページを分類し、スマートフォルダで自動フィルタリング。 | gadgets-tags-smart-folders.js |
 | 6 | SnapshotManager | バックアップ | structure | スナップショットの保存・復元・履歴管理。自動バックアップ設定も。 | gadgets-snapshot.js |
-| 7 | Images | 画像 | edit | 画像の挿入・管理・コラージュレイアウト設定。 | gadgets-images.js |
-| 8 | ChoiceTools | 選択肢 | edit | インタラクティブ小説用の選択肢・分岐・ジャンプを挿入。 | gadgets-choice.js |
-| 9 | MarkdownPreview | Markdown Preview | edit | Markdownのリアルタイムプレビュー表示とスクロール同期。 | gadgets-editor-extras.js |
-| 10 | FontDecoration | Font Decoration | edit | テキストに太字・斜体・下線・影などの装飾を適用。 | gadgets-editor-extras.js |
-| 11 | TextAnimation | Text Animation | edit | テキストにフェード・スライド・バウンスなどのアニメーション効果を適用。 | gadgets-editor-extras.js |
+| 7 | Images | 画像 | edit | 画像。挿入・管理と、コラージュ用レイアウト設定。 | gadgets-images.js |
+| 8 | ChoiceTools | 選択肢 | edit | 分岐。インタラクティブ小説向けの選択肢・ジャンプ記法を本文に挿入します。 | gadgets-choice.js |
+| 9 | MarkdownPreview | Markdownプレビュー | edit | プレビュー。編集画面の横に Markdown を並列表示し、本文とスクロール同期します。 | gadgets-editor-extras.js |
+| 10 | FontDecoration | フォント装飾 | edit | 装飾。太字・斜体・傍点・影などを選択範囲に適用（ツールバー装飾と同系）。 | gadgets-editor-extras.js |
+| 11 | TextAnimation | テキストアニメーション | edit | 装飾・演出。フェード・タイプライター・バウンスなどを選択範囲に適用します。 | gadgets-editor-extras.js |
 | 12 | Typography | フォント | theme | フォントファミリー、サイズ、行間の設定。 | gadgets-typography.js |
 | 13 | Themes | テーマ | theme | テーマプリセットとカスタムカラーの設定。 | gadgets-themes.js |
 | 14 | VisualProfile | Visual Profile | theme | テーマ・フォント・レイアウトをまとめた複合プロファイルの管理・適用。 | gadgets-visual-profile.js |

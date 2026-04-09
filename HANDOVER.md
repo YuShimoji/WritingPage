@@ -59,7 +59,7 @@ E2E 全件: `npx playwright test`。回帰の切り出しは `docs/CURRENT_STATE
 - **サイドバー**: `SidebarManager`（SSOT）
 - **エディタ**: `js/modules/editor/`（EditorCore / EditorUI 等）
 - **WYSIWYG**: `editor-wysiwyg.js`
-- **UI モード**: `normal` / `focus` / `reader`。`setUIMode` が単一入口。`blank` は互換のため `focus` にフォールバック
+- **UI モード**: `normal` / `focus` の 2 値。読者向けの画面確認は **再生オーバーレイ**（別軸）。`setUIMode` / `ZenWriterApp` API を優先。`blank` は互換のため `focus` にフォールバック
 - **章・ストレージ**: ChapterStore、IndexedDB（SP-077）、JSON プロジェクト保存（SP-080）
 - **Reader / プレビュー HTML**: `js/zw-inline-html-postmarkdown.js`、`js/zw-postmarkdown-html-pipeline.js`、`js/zw-markdown-it-body.js`、監査は `docs/WP004_PHASE3_PARITY_AUDIT.md`
 - **Electron**: `electron/` + `vendor/` ローカルバンドル
@@ -69,6 +69,20 @@ E2E 全件: `npx playwright test`。回帰の切り出しは `docs/CURRENT_STATE
 - スライスは **1 トピック** に絞る。完了時に `CURRENT_STATE` を更新する（台帳「開発スライスの進め方」参照）
 - ブロック段落の左・中・右揃えは **WP-004 Phase 3 には含めない**。`spec-rich-text-paragraph-alignment.md` と `spec-richtext-enhancement.md`（P2）で別トラック
 - 機能の台帳登録: `docs/FEATURE_REGISTRY.md`、E2E 境界: `docs/AUTOMATION_BOUNDARY.md`
+
+## 次セッション準備（P0 完了・レーン A 移譲用）
+
+以下は **プラン作成の直前**まで揃えた状態のメモ。実装プラン本文は次担当が 1 トピック確定後に書く。
+
+| 項目 | 内容 |
+|------|------|
+| 正本 | `docs/CURRENT_STATE.md` Snapshot = **session 84**。検証結果に E2E 38+1 件・`playwright test --list` = **574** を記載済み。 |
+| 次スライス（レーン A） | `docs/USER_REQUEST_LEDGER.md` session 84「次」: **WP-001 摩擦 1 件**を表から 1 本だけ選ぶ（例: 他カテゴリのカテゴリ説明／ガジェット `title`・`description` の同型整理）。**WP-004 は同一スライスに混ぜない**。 |
+| WP-004 | 自動層は session 77 で区切り。**手動パックで差分が出たときだけ** 別スライス。 |
+| Value Validation（`docs/ai/DECISION_GATES.md`） | 候補トピックごとに「出力の行き先」「削る手作業」「外部 GUI 依存で手運用が残るか」を各 1 文で埋められるか確認してからプラン化。 |
+| 触ってよい（レーン A） | `js/sidebar-manager.js`、`js/gadgets-*.js`、`js/command-palette.js`、必要なら `css/style.css`（**スコープ内のみ**）。 |
+| 触らない（レーン A） | `js/reader-preview.js`、`js/zw-*` パイプライン、`e2e/reader-*.spec.js`（WP-004 専用）。 |
+| 並行時の衝突注意 | `sidebar-manager.js` / `command-palette.js` は WP-004 レーンと**同一イテレーションで共有しない**。 |
 
 ## 既知の課題
 

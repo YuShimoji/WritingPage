@@ -1146,6 +1146,33 @@ class SidebarManager {
         return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
+    /**
+     * アコーディオン型サイドバー（.accordion-header）があるとき、該当カテゴリを展開する。
+     * コマンドパレット等からの activateSidebarGroup と整合させ、折りたたんだまま見えない問題を防ぐ。
+     */
+    _expandAccordionForSidebarGroup(groupId) {
+        if (!groupId) return;
+        const header = document.querySelector(
+            `.accordion-header[aria-controls="accordion-${groupId}"]`
+        );
+        if (!header) return;
+        try {
+            if (header.getAttribute('aria-expanded') === 'true') {
+                this._ensureAccordionGadgetInitialized(groupId);
+                return;
+            }
+            this._setAccordionState(groupId, true);
+            this._saveAccordionState();
+            this._ensureAccordionGadgetInitialized(groupId);
+            const renderers = window.ZWGadgets && window.ZWGadgets._renderers;
+            if (renderers && typeof renderers[groupId] === 'function') {
+                renderers[groupId]();
+            }
+        } catch (e) {
+            console.error('_expandAccordionForSidebarGroup failed:', e);
+        }
+    }
+
     activateSidebarGroup(groupId, options) {
         if (!groupId || !window.elementManager) {
             console.warn('activateSidebarGroup: groupId または elementManager が存在しません');
@@ -1178,6 +1205,7 @@ class SidebarManager {
             if (!skipPresentationUpdate) {
                 this.applyTabsPresentationUI({ skipActivate: true });
             }
+            this._expandAccordionForSidebarGroup(groupId);
             return;
         }
 
@@ -1225,6 +1253,8 @@ class SidebarManager {
         if (!skipPresentationUpdate) {
             this.applyTabsPresentationUI({ skipActivate: true });
         }
+
+        this._expandAccordionForSidebarGroup(groupId);
     }
 
 }

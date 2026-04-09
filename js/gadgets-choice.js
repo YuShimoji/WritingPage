@@ -39,6 +39,6 @@
       wrap.appendChild(makeBtn((window.UILabels && window.UILabels.BTN_JUMP) || 'ジャンプ', insertJump));
       el.appendChild(wrap);
     } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.CHOICE_TOOL_INIT_FAILED) || '選択肢ツールの初期化に失敗しました。'; } catch (_) { } }
-  }, { groups: ['edit'], title: (window.UILabels && window.UILabels.GADGET_CHOICE_TITLE) || '選択肢', description: 'インタラクティブ小説用の選択肢・分岐・ジャンプを挿入。' });
+  }, { groups: ['edit'], title: (window.UILabels && window.UILabels.GADGET_CHOICE_TITLE) || '選択肢', description: '分岐。インタラクティブ小説向けの選択肢・ジャンプ記法を本文に挿入します。' });
 
 })();
