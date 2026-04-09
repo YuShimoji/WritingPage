@@ -122,6 +122,14 @@
 - **WP-004**: reader コード変更なし。台帳に **差分なし** を 1 行追記。
 - **次**: 台帳の **WP-001 摩擦 1 件**（別カテゴリの説明整理、または deferred 体感の昇格）／WP-004 は手動パックで差分が出たときのみ。
 
+#### session 85 実施結果（レーンA: structure/theme）
+
+- **カテゴリ文言**: `structure` を「構成管理（ドキュメント・アウトライン・バックアップ）」、`theme` を「表示調整（テーマ・フォント・見出しスタイル）」へ更新。
+- **個別ガジェット説明**: `structure/theme` 配下の主要ガジェット説明を「構造。〜」「表示。〜」で統一（session 84 の edit トーンに整合）。
+- 回帰: `sidebar-layout` + `gadgets` **10 件**、`visual-audit`（Structure/Theme）**2 件** pass。
+- **WP-004**: reader コード変更なし。手動パックで差分が出た場合のみ別スライス。
+- **次（1トピック固定）**: **WP-001 摩擦 1 件 — 他カテゴリ（assist / advanced）のガジェット説明整理**。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

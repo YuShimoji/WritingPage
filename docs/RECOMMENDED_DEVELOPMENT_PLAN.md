@@ -1,6 +1,6 @@
 # 推奨開発プラン
 
-最終更新: 2026-04-09（session 84 同期）
+最終更新: 2026-04-09（session 85 同期）
 
 次のプラン策定で迷わないよう、現状分析・時間軸目標・機能別ロードマップを 1 枚に集約する。詳細仕様は下記の正本へ委譲し、本書は「次に何を、どの順序で進めるか」の判断基準として使う。
 
@@ -26,7 +26,7 @@
 
 ### 短期（1〜2 スライス）
 
-1. **WP-001**: ~~ロードアウトプリセットとガジェット既定の整合~~（session 75 完了）。~~session 77: モード用語のオペレーター／長命メモ整合~~。~~session 78: 歴史 spec 注釈 + Wiki コマンド検索語~~。~~session 79: **ガジェット常設／ドック／優先度の正文化**（`spec-writing-mode-unification-prep` + `loadouts-presets` コメント）~~。~~session 81: コマンドパレット `keywords` 拡張（発見性）~~。~~session 82: assist の初回 `defaultCollapsed` 明示 + `gadgets` E2E~~。~~session 83: 通常モード復帰時の「構造」強制展開フォールバック削除~~。~~session 84: 編集カテゴリの個別ガジェット説明（B1）+ `activateSidebarGroup` でアコーディオン展開~~。次は **台帳の摩擦 1 件**（他カテゴリの説明整理、または deferred の体感昇格など **1 トピック**）。
+1. **WP-001**: ~~ロードアウトプリセットとガジェット既定の整合~~（session 75 完了）。~~session 77: モード用語のオペレーター／長命メモ整合~~。~~session 78: 歴史 spec 注釈 + Wiki コマンド検索語~~。~~session 79: **ガジェット常設／ドック／優先度の正文化**（`spec-writing-mode-unification-prep` + `loadouts-presets` コメント）~~。~~session 81: コマンドパレット `keywords` 拡張（発見性）~~。~~session 82: assist の初回 `defaultCollapsed` 明示 + `gadgets` E2E~~。~~session 83: 通常モード復帰時の「構造」強制展開フォールバック削除~~。~~session 84: 編集カテゴリの個別ガジェット説明（B1）+ `activateSidebarGroup` でアコーディオン展開~~。~~session 85: `structure/theme` のカテゴリ・ガジェット説明を「構造／表示」軸で整理~~。次は **台帳の摩擦 1 件（他カテゴリ: assist / advanced の説明整理）** を **1 トピック**で実施。
 2. **WP-004 Phase 3**: ~~監査台帳に基づき差分を 1 件ずつ~~（session 76–77: ジャンル style 固定 + reader 系回帰。**自動検証層は session 77 で区切り**。新規差分は手動パック／起票時に 1 トピックで）。
 3. **保存導線**: ~~自動保存中心 + 手動導線（コマンド/ショートカット/ヘルプ）の語彙をドキュメント横断で統一~~（**session 80 完了** — `command-palette`・`README`・`gadgets-help`、`spec-writing-mode-unification-prep` に記録）。
 

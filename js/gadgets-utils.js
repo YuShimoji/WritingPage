@@ -121,7 +121,7 @@
       id: 'structure',
       label: '構造',
       icon: 'file-text',
-      description: 'ドキュメント構造・アウトライン',
+      description: '構成管理（ドキュメント・アウトライン・バックアップ）',
       panelSelector: '[data-gadget-group="structure"]',
       sectionSelector: '[data-category="structure"]'
     },
@@ -137,7 +137,7 @@
       id: 'theme',
       label: 'テーマ',
       icon: 'palette',
-      description: '見た目のカスタマイズ',
+      description: '表示調整（テーマ・フォント・見出しスタイル）',
       panelSelector: '[data-gadget-group="theme"]',
       sectionSelector: '[data-category="theme"]'
     },

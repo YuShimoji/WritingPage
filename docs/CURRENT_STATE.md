@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 84)
+最終更新: 2026-04-09 (session 85)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 84 |
+| セッション | 85 |
 | 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 84: **WP-001 B1（編集カテゴリの個別ガジェット説明）** — `edit` 配下の title/description をカテゴリ見出し（装飾・プレビュー・画像）と語彙整合。コマンドパレットの MD プレビュー／装飾・演出パネル説明を横断調整。`activateSidebarGroup` からアコーディオン該当カテゴリを展開（コマンドパレット「構造」導線と session 83 後の E2E 整合）。`sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` + `gadgets` + `command-palette` **38 件**、`visual-audit`「05 - Edit gadgets」**1 件** pass。 |
+| 直近のスライス | session 85: **レーンA（WP-001: structure/theme 説明密度）** — `structure` / `theme` のカテゴリ説明と配下ガジェット説明を「構造／表示」軸で短文化し、session 84 の `edit` 文言トーンに整合。`sidebar-layout` + `gadgets` **10 件**、`visual-audit`（Structure/Theme）**2 件** pass。WP-004 実装差分なし。 |
 
 
 ## ドキュメント地図（再開時）
@@ -223,6 +223,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `sidebar-layout` + `sidebar-writing-focus` + `ui-mode-consistency` + `gadgets` + `command-palette` → **38 件** pass。`visual-audit`「05 - Edit gadgets」→ **1 件** pass | 各 `e2e/*.spec.js` |
 | WP-004 | reader コード変更なし。台帳に **差分なし** を 1 行追記 | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 85
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 レーンA | `structure` / `theme` のカテゴリ説明を「構成管理」「表示調整」へ更新。配下ガジェット説明を「構造。〜」「表示。〜」で統一し、説明密度を調整 | `js/sidebar-manager.js`, `js/gadgets-utils.js`, `js/gadgets-builtin.js`, `js/gadgets-documents-hierarchy.js`, `js/gadgets-tags-smart-folders.js`, `js/gadgets-snapshot.js`, `js/gadgets-themes.js`, `js/gadgets-typography.js`, `js/gadgets-heading.js`, `js/gadgets-visual-profile.js` |
+| 回帰 | `sidebar-layout` + `gadgets` → **10 件** pass。`visual-audit`（`04 - Structure gadgets` / `06 - Theme gadgets`）→ **2 件** pass | `e2e/sidebar-layout.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js` |
+| WP-004 | reader 実装差分なし（手動パック待ち） | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -312,6 +320,12 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/visual-audit.spec.js -g "05 - Edit"` → pass（1 件）
 - `npx playwright test --list` → **574 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載用）
 - `npx eslint js/gadgets-editor-extras.js js/gadgets-images.js js/gadgets-choice.js js/command-palette.js js/sidebar-manager.js` → clean
+
+実行済み (session 85):
+
+- `npx eslint js/` → clean
+- `npx playwright test e2e/sidebar-layout.spec.js e2e/gadgets.spec.js` → pass（10 件）
+- `npx playwright test e2e/visual-audit.spec.js -g "04 - Structure gadgets|06 - Theme gadgets"` → pass（2 件）
 
 ### 手動確認ゲート（運用メモ）
 

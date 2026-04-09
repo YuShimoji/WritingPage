@@ -36,7 +36,7 @@ class SidebarManager {
                 id: 'structure',
                 label: '構造',
                 icon: 'file-text',
-                description: 'ドキュメント構造・アウトライン',
+                description: '構成管理（ドキュメント・アウトライン・バックアップ）',
                 panelId: 'structure-gadgets-panel',
                 defaultExpanded: false
             },
@@ -52,7 +52,7 @@ class SidebarManager {
                 id: 'theme',
                 label: 'テーマ',
                 icon: 'palette',
-                description: '見た目のカスタマイズ',
+                description: '表示調整（テーマ・フォント・見出しスタイル）',
                 panelId: 'theme-gadgets-panel',
                 defaultExpanded: false
             },

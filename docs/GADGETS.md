@@ -44,9 +44,9 @@
 - サイドバーはアコーディオン形式で6カテゴリに分類。各カテゴリは折りたたみ可能。
 - 現行カテゴリ（`index.html` の `data-category` 属性と一致）:
   1. **sections**: セクションナビゲーション（SP-052、見出しツリー）
-  2. **structure**: ドキュメント階層、アウトライン、スナップショット、タグ
+  2. **structure**: 構成管理（ドキュメント、アウトライン、スナップショット、タグ）
   3. **edit**: 画像、選択肢、プレビュー、装飾、アニメーション（Story Wiki は **structure**）
-  4. **theme**: テーマ、フォント、VisualProfile、見出しスタイル
+  4. **theme**: 表示調整（テーマ、フォント、VisualProfile、見出しスタイル）
   5. **assist**: 執筆目標、HUD、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
   6. **advanced**: UI設定、レイアウト、LinkGraph、エクスポート、キーバインド
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
@@ -68,20 +68,20 @@
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
 | 1 | SectionsNavigator | セクションナビ | sections | 見出しツリーのリアルタイムナビゲーション (SP-052)。独立アコーディオンカテゴリに配置。 | gadgets-sections-nav.js |
-| 2 | Outline | アウトライン | structure | 見出し構造をツリー表示。クリックで該当箇所にジャンプ。 | gadgets-builtin.js |
-| 3 | Documents | ドキュメント | structure | ドキュメントの階層ツリー表示と管理。 | gadgets-documents-hierarchy.js |
+| 2 | Outline | アウトライン | structure | 構造。見出しをツリー表示し、クリックで本文へ移動。 | gadgets-builtin.js |
+| 3 | Documents | ドキュメント | structure | 構造。ドキュメント階層をツリー表示し、並び替え・移動を管理。 | gadgets-documents-hierarchy.js |
 | 4 | StoryWiki | Story Wiki | structure | Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。 | story-wiki.js |
-| 5 | TagsAndSmartFolders | タグ/スマートフォルダ | structure | タグでページを分類し、スマートフォルダで自動フィルタリング。 | gadgets-tags-smart-folders.js |
-| 6 | SnapshotManager | バックアップ | structure | スナップショットの保存・復元・履歴管理。自動バックアップ設定も。 | gadgets-snapshot.js |
+| 5 | TagsAndSmartFolders | タグ/スマートフォルダ | structure | 構造。タグ分類とスマートフォルダでページを整理。 | gadgets-tags-smart-folders.js |
+| 6 | SnapshotManager | バックアップ | structure | 構造。スナップショットの保存・復元と履歴管理。 | gadgets-snapshot.js |
 | 7 | Images | 画像 | edit | 画像。挿入・管理と、コラージュ用レイアウト設定。 | gadgets-images.js |
 | 8 | ChoiceTools | 選択肢 | edit | 分岐。インタラクティブ小説向けの選択肢・ジャンプ記法を本文に挿入します。 | gadgets-choice.js |
 | 9 | MarkdownPreview | Markdownプレビュー | edit | プレビュー。編集画面の横に Markdown を並列表示し、本文とスクロール同期します。 | gadgets-editor-extras.js |
 | 10 | FontDecoration | フォント装飾 | edit | 装飾。太字・斜体・傍点・影などを選択範囲に適用（ツールバー装飾と同系）。 | gadgets-editor-extras.js |
 | 11 | TextAnimation | テキストアニメーション | edit | 装飾・演出。フェード・タイプライター・バウンスなどを選択範囲に適用します。 | gadgets-editor-extras.js |
-| 12 | Typography | フォント | theme | フォントファミリー、サイズ、行間の設定。 | gadgets-typography.js |
-| 13 | Themes | テーマ | theme | テーマプリセットとカスタムカラーの設定。 | gadgets-themes.js |
-| 14 | VisualProfile | Visual Profile | theme | テーマ・フォント・レイアウトをまとめた複合プロファイルの管理・適用。 | gadgets-visual-profile.js |
-| 15 | HeadingStyles | 見出しスタイル | theme | 見出し(H1-H6)のフォント・サイズ・色をプリセットで管理・適用。 | gadgets-heading.js |
+| 12 | Typography | フォント | theme | 表示。フォント・文字サイズ・行間を調整。 | gadgets-typography.js |
+| 13 | Themes | テーマ | theme | 表示。テーマプリセットと背景・文字色を調整。 | gadgets-themes.js |
+| 14 | VisualProfile | Visual Profile | theme | 表示。テーマ・フォント・レイアウトをまとめたプロファイルを管理・適用。 | gadgets-visual-profile.js |
+| 15 | HeadingStyles | 見出しスタイル | theme | 表示。見出しプリセット選択と H1-H6 の個別調整。 | gadgets-heading.js |
 | 16 | WritingGoal | 執筆目標 | assist | 文字数・時間の目標を設定し、進捗を表示。 | gadgets-goal.js |
 | 17 | Typewriter | Typewriter | assist | タイプライター風スクロール。カーソル行を常に画面中央に維持。 | gadgets-editor-extras.js |
 | 18 | FocusMode | Focus Mode | assist | 集中モード。編集中の段落以外を薄暗くして注意を集中させます。 | gadgets-editor-extras.js |
