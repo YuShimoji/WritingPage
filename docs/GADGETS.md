@@ -47,8 +47,8 @@
   2. **structure**: 構成管理（ドキュメント、アウトライン、スナップショット、タグ）
   3. **edit**: 画像、選択肢、プレビュー、装飾、アニメーション（Story Wiki は **structure**）
   4. **theme**: 表示調整（テーマ、フォント、VisualProfile、見出しスタイル）
-  5. **assist**: 執筆目標、HUD、Pomodoro、タイプライター、FocusMode、Markdownリファレンス
-  6. **advanced**: UI設定、レイアウト、LinkGraph、エクスポート、キーバインド
+  5. **assist**: 執筆継続の補助（目標、集中、参照、タイマー）
+  6. **advanced**: 詳細設定と運用管理（表示、出力、ショートカット、ロードアウト）
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
 - スクロール負荷軽減のため、非展開カテゴリは `aria-hidden="true"` とし、DOMを保持したままリフローを抑制。
 
@@ -82,19 +82,19 @@
 | 13 | Themes | テーマ | theme | 表示。テーマプリセットと背景・文字色を調整。 | gadgets-themes.js |
 | 14 | VisualProfile | Visual Profile | theme | 表示。テーマ・フォント・レイアウトをまとめたプロファイルを管理・適用。 | gadgets-visual-profile.js |
 | 15 | HeadingStyles | 見出しスタイル | theme | 表示。見出しプリセット選択と H1-H6 の個別調整。 | gadgets-heading.js |
-| 16 | WritingGoal | 執筆目標 | assist | 文字数・時間の目標を設定し、進捗を表示。 | gadgets-goal.js |
-| 17 | Typewriter | Typewriter | assist | タイプライター風スクロール。カーソル行を常に画面中央に維持。 | gadgets-editor-extras.js |
-| 18 | FocusMode | Focus Mode | assist | 集中モード。編集中の段落以外を薄暗くして注意を集中させます。 | gadgets-editor-extras.js |
-| 19 | HUDSettings | HUD設定 | assist | ヘッドアップディスプレイの表示項目・位置・フェード時間を設定。 | gadgets-hud.js |
-| 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | ポモドーロテクニックで集中と休憩を管理。カスタム時間設定も可能。 | gadgets-pomodoro.js |
-| 21 | MarkdownReference | Markdownリファレンス | assist | Markdown構文のクイックリファレンス表示。 | gadgets-markdown-ref.js |
-| 22 | UISettings | UI Settings | advanced | UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズなど。 | gadgets-editor-extras.js |
-| 23 | EditorLayout | Editor Layout | advanced | エディタの最大幅、内余白、余白背景色を調整。 | gadgets-editor-extras.js |
+| 16 | WritingGoal | 執筆目標 | assist | 補助。文字数・期限の目標を設定し進捗を可視化。 | gadgets-goal.js |
+| 17 | Typewriter | Typewriter | assist | 補助。カーソル行を画面中央へ寄せて視線移動を低減。 | gadgets-editor-extras.js |
+| 18 | FocusMode | Focus Mode | assist | 補助。編集中の段落以外を減光して集中を維持。 | gadgets-editor-extras.js |
+| 19 | HUDSettings | HUD設定 | assist | 補助。HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
+| 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | 補助。作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
+| 21 | MarkdownReference | Markdownリファレンス | assist | 補助。Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
+| 22 | UISettings | UI Settings | advanced | 詳細。表示方式・サイドバー配置・改行時の装飾挙動を調整。 | gadgets-editor-extras.js |
+| 23 | EditorLayout | Editor Layout | advanced | 詳細。本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
 | 24 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
-| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェットの表示・非表示やグループ割り当てを管理。 | gadgets-prefs.js |
-| 26 | LoadoutManager | ロードアウト管理 | advanced | ロードアウトの保存・適用・管理を行います。 | gadgets-loadout.js |
-| 27 | Keybinds | キーボードショートカット | advanced | キーボードショートカットの一覧表示とカスタマイズ。 | gadgets-keybinds.js |
-| 28 | PrintSettings | エクスポート | advanced | PDF・テキスト・HTML形式でのエクスポートと印刷設定。 | gadgets-print.js |
+| 25 | GadgetPrefs | ガジェット設定 | advanced | 詳細。ガジェット表示状態と設定JSONの入出力を管理。 | gadgets-prefs.js |
+| 26 | LoadoutManager | ロードアウト管理 | advanced | 詳細。用途別ロードアウトの保存・複製・適用を管理。 | gadgets-loadout.js |
+| 27 | Keybinds | キーボードショートカット | advanced | 詳細。ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
+| 28 | PrintSettings | エクスポート | advanced | 詳細。印刷プレビューとTXT出力を実行。 | gadgets-print.js |
 
 | # | Name | 状態 | 理由 |
 |---|------|------|------|

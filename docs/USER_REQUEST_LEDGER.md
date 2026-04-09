@@ -130,6 +130,22 @@
 - **WP-004**: reader コード変更なし。手動パックで差分が出た場合のみ別スライス。
 - **次（1トピック固定）**: **WP-001 摩擦 1 件 — 他カテゴリ（assist / advanced）のガジェット説明整理**。
 
+#### session 86 実施結果（コア本開発レーン実行）
+
+- **WP-001（LaneA）**: `assist` / `advanced` のカテゴリ説明と配下ガジェット説明を「補助。〜」「詳細。〜」トーンへ統一し、`GADGETS.md` の一覧説明も同期。
+- **WP-004（LaneB）**: parity 監査台帳へ差分メモを 1 件追加（シナリオ4: 壊れ wikilink の体感遅延。HTML/状態差分は再現せず修正なし）。
+- **同期要件（LaneC）**: クラウド同期 PoC の方式比較（A/B/C）と、`LWW + 競合時複製`・セキュリティ最低要件を `ROADMAP` / `APP_SPECIFICATION` / `SECURITY` にドラフト反映。
+- **品質ゲート**: `test:smoke` + `test:unit` + `test:e2e:ui`（計 41 件）pass。
+- **次（1トピック固定）**: WP-001 は文言整合の次として「assist/advanced のコマンドパレット導線（description/keywords）整合」または deferred 体感トリガー昇格のいずれか 1 件を選定。
+
+#### session 87 実施結果（章ストア安全化・リモート同期）
+
+- **章ストア / 執筆レール**: 読者プレビュー `getFullContentHtml` から自動 `splitIntoChapters` を除去。`chapter-list` に `getDocumentIdForChapterOps`（親ドキュメント ID 正規化）。章追加時は `ensureSaved` を使わず `flush` のみ。フォーカス入場時も `flush` のみ。`ZWChapterStoreChanged` を章追加直後に発火。執筆レール「+ 追加」の連打ガード・単回バインド。
+- **ドキュメント**: [`docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) を新設（プロジェクト全体の同種パターン監査目安）。`CURRENT_STATE` / `HANDOVER` / `INVARIANTS` を同期。
+- **その他**: 未コミットの WP-001 系（プレビュー・ガジェット・CSS・`index.html` 等）を同一コミットで `origin/main` に反映。
+- **品質ゲート**: `npm run test:smoke` pass。`sidebar-writing-focus` + `chapter-list` E2E **11 件** pass。
+- **次（1 トピック固定）**: WP-001 表から 1 件、または `REFACTORING_SAFETY_CHAPTER_STORAGE` に沿った「副作用の塊」の監査を 1 スライス。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

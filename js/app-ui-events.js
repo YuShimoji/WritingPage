@@ -529,7 +529,8 @@
 
         // サイドバーボタン: 直接API呼び出し (ツールバー.click()中継を廃止)
         if (sidebarPreviewBtn) {
-            sidebarPreviewBtn.addEventListener('click', () => {
+            sidebarPreviewBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
                     window.ZenWriterEditor.togglePreview();
                 }
@@ -537,7 +538,8 @@
         }
 
         if (sidebarSplitBtn) {
-            sidebarSplitBtn.addEventListener('click', () => {
+            sidebarSplitBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 if (window.MainHubPanel) {
                     window.MainHubPanel.toggle('split-view');
                 }
@@ -545,7 +547,8 @@
         }
 
         if (sidebarWysiwygBtn) {
-            sidebarWysiwygBtn.addEventListener('click', () => {
+            sidebarWysiwygBtn.addEventListener('click', (e) => {
+                e.preventDefault();
                 const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
                 if (rte) {
                     if (rte.isWysiwygMode) {

@@ -1,18 +1,32 @@
 ﻿(function () {
+  function syncPreviewToggleChrome(editorManager, isOpen) {
+    var panel = editorManager && editorManager.previewPanel;
+    var toolbarToggle = editorManager && editorManager.previewPanelToggle;
+    var sidebarBtn = document.getElementById('sidebar-toggle-preview');
+    if (panel) {
+      panel.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    }
+    if (toolbarToggle) {
+      toolbarToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    if (sidebarBtn) {
+      sidebarBtn.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
+    }
+  }
+
   function setupPreviewPanel(editorManager) {
     if (!editorManager) return;
 
     var panel = editorManager.previewPanel;
     var toggle = editorManager.previewPanelToggle;
-    if (!panel || !toggle) return;
+    if (!panel) return;
 
     function syncPreviewAria() {
       var isCollapsed = panel.classList.contains('editor-preview--collapsed');
-      toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
-      panel.setAttribute('aria-hidden', isCollapsed ? 'true' : 'false');
+      syncPreviewToggleChrome(editorManager, !isCollapsed);
     }
 
-    if (!toggle.__zwPreviewBound) {
+    if (toggle && !toggle.__zwPreviewBound) {
       toggle.addEventListener('click', function () {
         togglePreview(editorManager);
       });
@@ -29,17 +43,15 @@
   }
 
   function togglePreview(editorManager) {
-    if (!editorManager || !editorManager.previewPanel || !editorManager.previewPanelToggle) {
+    if (!editorManager || !editorManager.previewPanel) {
       return false;
     }
 
     var panel = editorManager.previewPanel;
-    var toggle = editorManager.previewPanelToggle;
     var willOpen = panel.classList.contains('editor-preview--collapsed');
 
     panel.classList.toggle('editor-preview--collapsed', !willOpen);
-    toggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-    panel.setAttribute('aria-hidden', willOpen ? 'false' : 'true');
+    syncPreviewToggleChrome(editorManager, willOpen);
 
     if (willOpen) {
       renderMarkdownPreview(editorManager);

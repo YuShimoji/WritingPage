@@ -156,6 +156,9 @@
             manager.saveContent();
             manager._updateWordCountImmediate();
             manager.renderImagePreview();
+            if (typeof manager.renderMarkdownPreview === 'function') {
+                manager.renderMarkdownPreview();
+            }
             this.refreshDirtyBaseline(manager);
         },
 

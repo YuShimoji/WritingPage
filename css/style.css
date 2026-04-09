@@ -1300,7 +1300,8 @@ html[data-reader-overlay-open='true'] .reader-preview,
   writing-mode: vertical-rl;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2rem 1rem;
+  /* 右上固定の「編集に戻る」等と、縦組み本文の開始位置が重ならないよう余白を確保 */
+  padding: 3.5rem 11rem 2rem 1rem;
 }
 
 .reader-preview--vertical .reader-preview__inner {

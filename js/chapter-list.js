@@ -44,6 +44,28 @@
     return null;
   }
 
+  /**
+   * CURRENT_DOC_ID が章レコード等のとき、章ストアの親キーとして使うドキュメント ID に正規化する。
+   */
+  function getDocumentIdForChapterOps() {
+    var rawId = getCurrentDocId();
+    if (!rawId) return null;
+    if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadDocuments !== 'function') {
+      return rawId;
+    }
+    var docs = window.ZenWriterStorage.loadDocuments() || [];
+    var rec = docs.find(function (d) { return d && d.id === rawId; });
+    if (!rec) return rawId;
+    if (rec.type === 'document') return rawId;
+    if (rec.type === 'chapter' && rec.parentId) {
+      var parent = docs.find(function (d) { return d && d.id === rec.parentId; });
+      if (parent && parent.type === 'document') return parent.id;
+      return rec.parentId;
+    }
+    var firstDoc = docs.find(function (d) { return d && d.type === 'document'; });
+    return firstDoc ? firstDoc.id : rawId;
+  }
+
   function inChapterMode() {
     return true;
   }
@@ -169,7 +191,7 @@
     var G = window.ZWContentGuard;
 
     if (toMode === 'focus') {
-      if (G) G.ensureSaved({ snapshot: false });
+      if (G) G.flushChapterIfNeeded();
       refreshChapterMode();
       if (chapters.length > 0 && activeChapterIdx < 0) {
         navigateToChapter(0);
@@ -179,7 +201,7 @@
       clearChapterVisibility();
       if (G) G.flushChapterIfNeeded();
       else flushActiveChapter();
-      var docId = getCurrentDocId();
+      var docId = getDocumentIdForChapterOps();
       var chaps = docId && Store ? (Store.getChaptersForDoc(docId) || []) : [];
       if (docId && chaps.length > 0) {
         var fullText = Store.assembleFullText(docId);
@@ -204,7 +226,7 @@
    * Phase 2: chapterMode のリフレッシュ
    */
   function refreshChapterMode() {
-    var docId = getCurrentDocId();
+    var docId = getDocumentIdForChapterOps();
     if (!docId || !Store) return;
 
     var storeChapters = Store.getChaptersForDoc(docId);
@@ -441,6 +463,9 @@
     highlightActive();
     // WYSIWYG 対応: 適切なエディタにフォーカス
     focusEditor();
+    try {
+      window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
+    } catch (_) { /* noop */ }
   }
 
   // ---- Double-click: inline rename ----
@@ -566,12 +591,13 @@
     var G = window.ZWContentGuard;
     if (G) {
       G.flushChapterIfNeeded();
-      G.ensureSaved({ snapshot: false });
+      // ensureSaved は chapterMode でも doc.content をエディタ1画面分で上書きしうるため、
+      // 章追加のたびに結合本文と不整合になりプレビュー経路で問題化しやすい。flush のみにする。
     } else {
       flushActiveChapter();
     }
 
-    var docId = getCurrentDocId();
+    var docId = getDocumentIdForChapterOps();
     if (!docId) return;
     var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
     var afterId = lastChapter ? lastChapter.id : null;
@@ -579,6 +605,9 @@
 
     Store.createChapter(docId, '新しい章', '', afterId, level);
     refreshChapterMode();
+    try {
+      window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
+    } catch (_) { /* noop */ }
 
     setTimeout(function () {
       var newIdx = chapters.length - 1;
@@ -602,7 +631,7 @@
   function performDuplicate(idx) {
     var ch = chapters[idx];
     guardBeforeChapterOp();
-    var docId = getCurrentDocId();
+    var docId = getDocumentIdForChapterOps();
     if (!docId) return;
     Store.createChapter(docId, ch.title + ' (コピー)', ch.content || '', ch.id, ch.level);
     refreshChapterMode();
@@ -610,7 +639,7 @@
 
   function performMove(idx, direction) {
     guardBeforeChapterOp();
-    var docId = getCurrentDocId();
+    var docId = getDocumentIdForChapterOps();
     if (!docId) return;
     var swapIdx = direction === 'up' ? idx - 1 : idx + 1;
     if (swapIdx < 0 || swapIdx >= chapters.length) return;
@@ -651,7 +680,7 @@
   function performReorder(sourceIdx, targetIdx) {
     if (sourceIdx === targetIdx || sourceIdx === targetIdx - 1) return;
 
-    var docId = getCurrentDocId();
+    var docId = getDocumentIdForChapterOps();
     if (!docId) return;
 
     var ids = [];

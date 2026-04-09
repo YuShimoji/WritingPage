@@ -59,7 +59,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'タイプライター', groups: ['assist'], description: 'タイプライター風スクロール。カーソル行を常に画面中央に維持します。', defaultCollapsed: true });
+    }, { title: 'タイプライター', groups: ['assist'], description: '補助。カーソル行を画面中央へ寄せて視線移動を減らします。', defaultCollapsed: true });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -116,7 +116,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'フォーカスモード', groups: ['assist'], description: '集中モード。編集中の段落以外を薄暗くして注意を集中させます。', defaultCollapsed: true });
+    }, { title: 'フォーカスモード', groups: ['assist'], description: '補助。編集中の段落以外を減光して集中を維持します。', defaultCollapsed: true });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
 
@@ -130,8 +130,11 @@
       var sync = el('input'); sync.type = 'checkbox'; sync.checked = !!prev.syncScroll; var lbl = el('label'); lbl.textContent = 'スクロール同期'; lbl.style.marginLeft = '0.375rem'; row.appendChild(sync); row.appendChild(lbl);
 
       var btnToggle = el('button', 'small'); btnToggle.textContent = 'プレビュー開閉';
+      btnToggle.type = 'button';
       btnToggle.addEventListener('click', function () {
-        var pv = document.getElementById('editor-preview'); if (!pv) return; pv.classList.toggle('editor-preview--collapsed');
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+          window.ZenWriterEditor.togglePreview();
+        }
       });
       sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
 
@@ -867,7 +870,7 @@
       gadgetUXRow.appendChild(bulkToggleRow);
 
       root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(effectBreakRow); root.appendChild(newlineDecorRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
-    }, { title: 'UI設定', groups: ['advanced'], description: 'UIの表示設定。プレゼンテーション、サイドバー配置、フォントサイズ、リッチ編集の改行と装飾（decor 持続）など。' });
+    }, { title: 'UI設定', groups: ['advanced'], description: '詳細。表示方式・サイドバー配置・文字サイズ・改行時の装飾挙動を調整。' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {
@@ -964,7 +967,7 @@
       root.appendChild(paddingRow);
       root.appendChild(marginBgRow);
       root.appendChild(applyBtn);
-    }, { title: 'Editor Layout', groups: ['advanced'], description: 'エディタの最大幅、内余白、余白背景色を調整。' });
+    }, { title: 'Editor Layout', groups: ['advanced'], description: '詳細。本文の最大幅・内余白・余白背景色を調整。' });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', register); else register();

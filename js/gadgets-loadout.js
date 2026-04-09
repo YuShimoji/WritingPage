@@ -190,7 +190,7 @@
   }, {
     groups: ['advanced'], // 設定モーダルに配置
     title: (window.UILabels && window.UILabels.GADGET_LOADOUT_TITLE) || 'ロードアウト管理',
-    description: 'ロードアウトの保存・適用・管理を行います',
+    description: '詳細。用途別ロードアウトの保存・複製・適用を管理。',
     icon: 'save'
   });
 })();

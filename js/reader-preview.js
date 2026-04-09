@@ -409,19 +409,35 @@
     }
   }
 
+  function resolveDocumentIdForChapterStore(rawId, docs) {
+    if (!rawId) return null;
+    var list = docs || [];
+    var rec = list.find(function (d) { return d && d.id === rawId; });
+    if (!rec) return rawId;
+    if (rec.type === 'document') return rawId;
+    if (rec.type === 'chapter' && rec.parentId) {
+      var parent = list.find(function (d) { return d && d.id === rec.parentId; });
+      if (parent && parent.type === 'document') return parent.id;
+      return rec.parentId;
+    }
+    var firstDoc = list.find(function (d) { return d && d.type === 'document'; });
+    return firstDoc ? firstDoc.id : rawId;
+  }
+
   /**
    * エディタの全コンテンツをHTMLとして取得（パイプライン直前。後処理は ZWPostMarkdownHtmlPipeline に一本化）
    */
   function getFullContentHtml() {
     var Store = window.ZWChapterStore;
     var S = window.ZenWriterStorage;
-    var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var rawDocId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docs = S && typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : [];
+    var docId = resolveDocumentIdForChapterStore(rawDocId, docs);
     var currentDoc = null;
     var markdown = '';
 
-    if (docId && S && typeof S.loadDocuments === 'function') {
-      var docs = S.loadDocuments() || [];
-      currentDoc = docs.find(function (d) { return d && d.id === docId; }) || null;
+    if (docId) {
+      currentDoc = docs.find(function (d) { return d && d.id === docId && d.type === 'document'; }) || null;
     }
 
     if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId)) {
@@ -454,18 +470,9 @@
       markdown = currentDoc.content || '';
     }
 
-    if (
-      markdown.trim() &&
-      docId &&
-      Store &&
-      typeof Store.isChapterMode === 'function' &&
-      Store.isChapterMode(docId) &&
-      typeof Store.getChaptersForDoc === 'function' &&
-      (Store.getChaptersForDoc(docId) || []).length === 0 &&
-      typeof Store.splitIntoChapters === 'function'
-    ) {
-      Store.splitIntoChapters(docId, markdown);
-    }
+    // プレビュー描画のたびに splitIntoChapters を走らせない（ensureSaved 等で doc.content と
+    // エディタが一時的に不整合なとき、## 見出しが一斉に章レコード化される事故の原因になる）。
+    // 章への分解は ensureChapterMode や明示的な移行処理に限定する。
 
     if (!markdown.trim()) return '';
 

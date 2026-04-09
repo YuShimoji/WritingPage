@@ -113,6 +113,6 @@
         root.textContent = (window.UILabels && window.UILabels.GADGET_INIT_FAILED) || 'ガジェットの初期化に失敗しました。';
       } catch (_) { }
     }
-  }, { groups: ['advanced'], title: (window.UILabels && window.UILabels.GADGET_PREFS_TITLE) || 'ガジェット設定', description: 'ガジェットの表示・非表示やグループ割り当てを管理。' });
+  }, { groups: ['advanced'], title: (window.UILabels && window.UILabels.GADGET_PREFS_TITLE) || 'ガジェット設定', description: '詳細。ガジェットの表示状態と設定JSONの入出力を管理。' });
 
 })();

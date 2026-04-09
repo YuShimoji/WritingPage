@@ -145,7 +145,7 @@
       id: 'assist',
       label: '補助',
       icon: 'zap',
-      description: '執筆支援ツール',
+      description: '補助。執筆の継続を支える進捗・集中・参照。',
       panelSelector: '[data-gadget-group="assist"]',
       sectionSelector: '[data-category="assist"]'
     },
@@ -153,7 +153,7 @@
       id: 'advanced',
       label: '詳細設定',
       icon: 'settings',
-      description: '高度な設定と管理',
+      description: '詳細。環境設定・運用管理・出力を調整。',
       panelSelector: '[data-gadget-group="advanced"]',
       sectionSelector: '[data-category="advanced"]'
     },

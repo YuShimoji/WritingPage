@@ -21,6 +21,7 @@ class SidebarManager {
         this._writingFocusRenderTimer = null;
         this._writingFocusObserver = null;
         this._writingFocusSettingsOpen = false;
+        this._writingFocusAddBusy = false;
         this._toggleAccordionInProgress = false;
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
@@ -60,7 +61,7 @@ class SidebarManager {
                 id: 'assist',
                 label: '補助',
                 icon: 'zap',
-                description: '執筆支援ツール',
+                description: '補助。執筆の継続を支える進捗・集中・参照。',
                 panelId: 'assist-gadgets-panel',
                 defaultExpanded: false
             },
@@ -68,7 +69,7 @@ class SidebarManager {
                 id: 'advanced',
                 label: '詳細設定',
                 icon: 'settings',
-                description: '高度な設定と管理',
+                description: '詳細。環境設定・運用管理・出力を調整。',
                 panelId: 'advanced-gadgets-panel',
                 defaultExpanded: false
             }
@@ -258,6 +259,34 @@ class SidebarManager {
         }
     }
 
+    /**
+     * アニメーションなしで開閉状態だけ同期（フォーカスモードで非表示カテゴリを毎フレーム閉じる用途）
+     */
+    _silentAccordionSetExpanded(categoryId, expand) {
+        const header = document.querySelector(
+            `.accordion-header[aria-controls="accordion-${categoryId}"]`
+        );
+        const content = document.getElementById(`accordion-${categoryId}`);
+        if (!header || !content) return;
+        header.setAttribute('aria-expanded', expand ? 'true' : 'false');
+        content.setAttribute('aria-hidden', expand ? 'false' : 'true');
+        if (expand) {
+            content.style.display = 'block';
+            content.style.maxHeight = 'none';
+        } else {
+            content.style.maxHeight = '0';
+        }
+    }
+
+    /** 既に開いていればアニメ再実行しない */
+    _expandAccordionIfCollapsed(categoryId) {
+        const header = document.querySelector(
+            `.accordion-header[aria-controls="accordion-${categoryId}"]`
+        );
+        if (header && header.getAttribute('aria-expanded') === 'true') return;
+        this._setAccordionState(categoryId, true);
+    }
+
     _setAccordionState(categoryId, expand) {
         const header = document.querySelector(
             `.accordion-header[aria-controls="accordion-${categoryId}"]`
@@ -381,12 +410,19 @@ class SidebarManager {
                 rail.innerHTML = `
                     <h3 id="writing-focus-title" class="writing-focus-title">ドキュメント</h3>
                     <div class="writing-focus-section-head">
-                      <span>セクション</span>
-                      <button id="writing-focus-add-section" class="writing-focus-add" type="button" title="セクション追加">+ 追加</button>
+                      <span class="writing-focus-section-head-label">章ナビ</span>
+                      <button id="writing-focus-add-section" class="writing-focus-add" type="button" title="チャプターストアに章を追加（左端の「チャプター」パネルにも表示されます）">+ 追加</button>
                     </div>
                     <div id="writing-focus-nav" class="writing-focus-nav" aria-live="polite"></div>
                 `;
                 accordion.insertBefore(rail, accordion.firstChild);
+            } else {
+                const headRow = rail.querySelector('.writing-focus-section-head');
+                const firstSpan = headRow && headRow.querySelector('span:first-of-type');
+                if (firstSpan && String(firstSpan.textContent || '').trim() === 'セクション') {
+                    firstSpan.textContent = '章ナビ';
+                    firstSpan.classList.add('writing-focus-section-head-label');
+                }
             }
 
             let footer = document.getElementById('writing-focus-footer');
@@ -408,8 +444,11 @@ class SidebarManager {
             }
 
             const addSectionBtn = document.getElementById('writing-focus-add-section');
-            if (addSectionBtn) {
-                addSectionBtn.addEventListener('click', () => {
+            if (addSectionBtn && !addSectionBtn.dataset.zwWritingFocusAddBound) {
+                addSectionBtn.dataset.zwWritingFocusAddBound = '1';
+                addSectionBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     this._insertQuickSection();
                 });
             }
@@ -421,6 +460,10 @@ class SidebarManager {
                 editor.addEventListener('click', onEditorChanged);
             }
             window.addEventListener('ZWDocumentsChanged', () => this._scheduleWritingFocusRender());
+            window.addEventListener('ZWChapterStoreChanged', () => {
+                this._scheduleWritingFocusRender();
+                requestAnimationFrame(() => this._scrollWritingFocusRailIntoView());
+            });
             this._writingFocusObserver = new MutationObserver(() => {
                 this._applyWritingFocusSidebar();
                 this._renderWritingFocusNavigator();
@@ -473,7 +516,7 @@ class SidebarManager {
             if (effective && !this._writingFocusSettingsOpen && categoryId !== 'sections') {
                 section.style.display = 'none';
                 section.setAttribute('aria-hidden', 'true');
-                this._setAccordionState(categoryId, false);
+                this._silentAccordionSetExpanded(categoryId, false);
             } else {
                 section.style.display = '';
                 section.setAttribute('aria-hidden', 'false');
@@ -481,7 +524,7 @@ class SidebarManager {
         });
 
         if (effective) {
-            this._setAccordionState('sections', true);
+            this._expandAccordionIfCollapsed('sections');
             this._ensureAccordionGadgetInitialized('sections');
             if (this._writingFocusSettingsOpen) {
                 // 設定表示時: structure を展開し他を閉じる
@@ -517,9 +560,20 @@ class SidebarManager {
         if (!this._isWritingFocusSidebarEffective()) return;
         if (this._writingFocusRenderTimer) clearTimeout(this._writingFocusRenderTimer);
         this._writingFocusRenderTimer = setTimeout(() => {
-            this._applyWritingFocusSidebar();
+            // レイアウト再適用はモード切替・設定トグルで _applyWritingFocusSidebar が既に走る。
+            // 章ストア更新のたびに呼ぶと sections の展開アニメが毎回走りガジェットが伸縮するため、ここではナビだけ更新する。
             this._renderWritingFocusNavigator();
         }, 80);
+    }
+
+    _scrollWritingFocusRailIntoView() {
+        if (!this._isWritingFocusSidebarEffective()) return;
+        const sidebar = document.getElementById('sidebar');
+        const rail = document.getElementById('writing-focus-rail');
+        if (!sidebar || !rail || !sidebar.classList.contains('open')) return;
+        try {
+            rail.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } catch (_) { /* noop */ }
     }
 
     _parseMarkdownHeadings(text) {
@@ -680,12 +734,19 @@ class SidebarManager {
     }
 
     _insertQuickSection() {
+        if (this._writingFocusAddBusy) return;
+        this._writingFocusAddBusy = true;
+        try {
         // chapterMode では Store.createChapter() 経由の正規経路を使う
         // エディタへの直接テキスト挿入は uninvited text の原因になるため禁止
         var cl = window.ZWChapterList;
         if (cl && typeof cl.addChapter === 'function') {
             cl.addChapter();
+            if (this._isWritingFocusSidebarEffective()) {
+                this._renderWritingFocusNavigator();
+            }
             this._scheduleWritingFocusRender();
+            requestAnimationFrame(() => this._scrollWritingFocusRailIntoView());
             return;
         }
 
@@ -711,6 +772,11 @@ class SidebarManager {
         editor.selectionEnd = nextCaret;
         editor.dispatchEvent(new Event('input', { bubbles: true }));
         this._scheduleWritingFocusRender();
+        } finally {
+            window.setTimeout(() => {
+                this._writingFocusAddBusy = false;
+            }, 320);
+        }
     }
 
     _escapeHtml(value) {
@@ -720,6 +786,133 @@ class SidebarManager {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    /**
+     * CURRENT_DOC_ID が document 以外（例: 章レコード）や無効なときでも、章一覧クエリ用の親ドキュメント ID を返す。
+     */
+    _resolveChapterNavDocId(rawId) {
+        if (!rawId) return null;
+        try {
+            const storage = window.ZenWriterStorage;
+            if (!storage || typeof storage.loadDocuments !== 'function') return rawId;
+            const docs = storage.loadDocuments() || [];
+            const rec = docs.find((d) => d && d.id === rawId);
+            if (!rec) return rawId;
+            if (rec.type === 'document') return rawId;
+            if (rec.type === 'chapter' && rec.parentId) {
+                const parent = docs.find((d) => d && d.id === rec.parentId);
+                if (parent && parent.type === 'document') return parent.id;
+                return rec.parentId;
+            }
+            const firstDoc = docs.find((d) => d && d.type === 'document');
+            return firstDoc ? firstDoc.id : rawId;
+        } catch (_) {
+            return rawId;
+        }
+    }
+
+    _writingFocusDocTitleFromId(curId, docs) {
+        if (!curId || !docs || !docs.length) return null;
+        const rec = docs.find((d) => d && d.id === curId);
+        if (!rec) return null;
+        if (rec.type === 'document' && rec.name) return rec.name;
+        if (rec.type === 'chapter' && rec.parentId) {
+            const parent = docs.find((d) => d && d.id === rec.parentId && d.type === 'document');
+            if (parent && parent.name) return parent.name;
+        }
+        return null;
+    }
+
+    /**
+     * chapterMode（ZWChapterStore）時: 執筆レールの「章」チップをストアの章一覧に同期。
+     * 従来の ## 見出しパースは「単一バッファ原稿」向けのため、章ストアと齟齬が出ないように分岐する。
+     */
+    _renderWritingFocusNavigatorChapterStore(docName, editor, storeChapters, title, nav) {
+        const cl = window.ZWChapterList;
+        let activeIdx = 0;
+        if (cl && typeof cl.getActiveIndex === 'function') {
+            const ai = cl.getActiveIndex();
+            if (ai >= 0 && ai < storeChapters.length) activeIdx = ai;
+        }
+
+        title.textContent = docName;
+        const safeDocName = this._escapeHtml(docName);
+
+        const chapterButtons = storeChapters.map((sc, idx) => {
+            const activeClass = idx === activeIdx ? ' is-active' : '';
+            const t = String((sc && (sc.name != null && sc.name !== '' ? sc.name : sc.title)) || '').trim() || '無題';
+            return `<button type="button" class="writing-focus-chip${activeClass}" data-wf-store-chapter-index="${idx}">${this._escapeHtml(t)}</button>`;
+        }).join('');
+
+        const parsed = this._parseMarkdownHeadings(editor.value || '');
+        const sceneLevel = parsed.sceneLevel;
+        const sceneHeadings = (parsed.headings || []).filter((h) => h.level === sceneLevel);
+        const cursor = editor && typeof editor.selectionStart === 'number' ? editor.selectionStart : 0;
+        let activeSceneIndex = -1;
+        for (let i = 0; i < sceneHeadings.length; i += 1) {
+            if (cursor >= sceneHeadings[i].index) activeSceneIndex = i;
+        }
+        const hasPrevScene = activeSceneIndex > 0;
+        const hasNextScene = activeSceneIndex >= 0 && activeSceneIndex < sceneHeadings.length - 1;
+        const sceneButtons = sceneHeadings.map((scene, idx) => {
+            const activeClass = idx === activeSceneIndex ? ' is-active' : '';
+            return `<button type="button" class="writing-focus-scene${activeClass}" data-wf-jump="${scene.index}"># ${this._escapeHtml(scene.title)}</button>`;
+        }).join('');
+
+        nav.innerHTML = `
+            <p class="writing-focus-empty" style="margin:0 0 0.35rem 0;font-size:0.6875rem;opacity:0.85;line-height:1.35;">
+              下のチップが<strong>章一覧</strong>です（<strong>左端の「チャプター」パネル</strong>と同じ並び）。下の「シーン」は現在の章の本文の <strong>### 見出し</strong> だけです。
+            </p>
+            <div class="writing-focus-seek">
+              <button type="button" class="writing-focus-seek-btn" data-wf-prev-scene ${hasPrevScene ? '' : 'disabled'}>前のシーン</button>
+              <button type="button" class="writing-focus-seek-btn" data-wf-next-scene ${hasNextScene ? '' : 'disabled'}>次のシーン</button>
+            </div>
+            <div class="writing-focus-chips" aria-label="${safeDocName} の章（ストア）">${chapterButtons}</div>
+            <div class="writing-focus-scenes">
+              ${sceneButtons || '<p class="writing-focus-empty">この章に ### シーン見出しはまだありません。</p>'}
+            </div>
+        `;
+
+        nav.querySelectorAll('[data-wf-store-chapter-index]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const idx = Number(btn.getAttribute('data-wf-store-chapter-index'));
+                if (!cl || typeof cl.navigateTo !== 'function') return;
+                if (idx >= 0 && idx < storeChapters.length) cl.navigateTo(idx);
+            });
+        });
+        nav.querySelectorAll('[data-wf-jump]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                this._moveEditorCaretTo(Number(btn.getAttribute('data-wf-jump')));
+            });
+        });
+        const prevBtn = nav.querySelector('[data-wf-prev-scene]');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (!hasPrevScene) return;
+                this._moveEditorCaretTo(sceneHeadings[activeSceneIndex - 1].index);
+            });
+        }
+        const nextBtn = nav.querySelector('[data-wf-next-scene]');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (!hasNextScene) return;
+                this._moveEditorCaretTo(sceneHeadings[activeSceneIndex + 1].index);
+            });
+        }
+
+        const activeCh = storeChapters[activeIdx];
+        const activeScene = activeSceneIndex >= 0 ? sceneHeadings[activeSceneIndex] : null;
+        const activeTitle = activeCh ? String(activeCh.name != null && activeCh.name !== '' ? activeCh.name : activeCh.title || '') : '';
+        this._emitWritingFocusLocationChanged({
+            docName,
+            chapterTitle: activeTitle,
+            chapterIndex: activeIdx,
+            chapterCount: storeChapters.length,
+            sceneTitle: activeScene && activeScene.title ? activeScene.title : '',
+            sceneIndex: activeSceneIndex,
+            sceneCount: sceneHeadings.length
+        });
     }
 
     _renderWritingFocusNavigator() {
@@ -742,13 +935,40 @@ class SidebarManager {
         }
 
         let docName = '無題ドキュメント';
+        let currentDocId = null;
+        let docs = [];
         try {
             const storage = window.ZenWriterStorage;
-            const docs = storage && typeof storage.loadDocuments === 'function' ? (storage.loadDocuments() || []) : [];
+            docs = storage && typeof storage.loadDocuments === 'function' ? (storage.loadDocuments() || []) : [];
             const cur = storage && typeof storage.getCurrentDocId === 'function' ? storage.getCurrentDocId() : null;
-            const doc = docs.find((d) => d && d.id === cur);
-            if (doc && doc.name) docName = doc.name;
+            currentDocId = cur;
+            const named = this._writingFocusDocTitleFromId(cur, docs);
+            if (named) docName = named;
+            else {
+                const doc = docs.find((d) => d && d.id === cur);
+                if (doc && doc.name) docName = doc.name;
+            }
         } catch (_) { }
+
+        // 左の「チャプター」パネルと同じメモリ一覧を優先（CURRENT_DOC_ID とストアキーがずれてもチップが空にならない）
+        const cl = window.ZWChapterList;
+        if (cl && typeof cl.getChapters === 'function') {
+            const memChapters = cl.getChapters() || [];
+            if (memChapters.length > 0) {
+                this._renderWritingFocusNavigatorChapterStore(docName, editor, memChapters, title, nav);
+                return;
+            }
+        }
+
+        const Store = window.ZWChapterStore;
+        const navDocId = this._resolveChapterNavDocId(currentDocId);
+        if (navDocId && Store && typeof Store.getChaptersForDoc === 'function') {
+            const storeChapters = Store.getChaptersForDoc(navDocId) || [];
+            if (storeChapters.length > 0) {
+                this._renderWritingFocusNavigatorChapterStore(docName, editor, storeChapters, title, nav);
+                return;
+            }
+        }
 
         const parsed = this._parseMarkdownHeadings(editor.value || '');
         const context = this._getWritingFocusContext(editor, parsed);

@@ -11,6 +11,8 @@
 - 執筆集中サイドバー（writing focus 系 UI）は `focus` モード時のみ有効。`normal` では従来のサイドバーアコーディオンを維持する
 - hidden `ui-mode-select` は HTML から削除済み。コマンドパレットのモード切替は `ZenWriterApp.setUIMode()` と可視の mode-switch ボタン経由に統一する
 - chapterMode は全ドキュメントで自動適用 (`ensureChapterMode`)。章追加は `Store.createChapter()` 経路のみ
+- **読者プレビュー／HTML 組み立てなどの「読み取り」経路**では `splitIntoChapters` や `saveDocuments` による章モデルの暗黙更新を行わない（分解・移行は `ensureChapterMode` や明示的な処理に限定。目安は [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md)）
+- `ZWChapterStore.getChaptersForDoc` / `createChapter` / `assembleFullText` には **親ドキュメント ID** を渡す。`getCurrentDocId()` が章レコードを指す可能性があるため、章 UI では正規化ヘルパ（例: `getDocumentIdForChapterOps`）を通す
 - サイドバー開閉は `toggleSidebar()` → `s.sidebarOpen` に永続化。`setUIMode` Normal 復帰時に復元
 - エッジグローは Focus モードのみ
 - 再生オーバーレイ表示中（`data-reader-overlay-open='true'`）はフローティングツールバーを非表示

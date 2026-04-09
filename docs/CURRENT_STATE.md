@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-09 (session 85)
+最終更新: 2026-04-10 (session 87)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 85 |
-| 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG |
-| 直近のスライス | session 85: **レーンA（WP-001: structure/theme 説明密度）** — `structure` / `theme` のカテゴリ説明と配下ガジェット説明を「構造／表示」軸で短文化し、session 84 の `edit` 文言トーンに整合。`sidebar-layout` + `gadgets` **10 件**、`visual-audit`（Structure/Theme）**2 件** pass。WP-004 実装差分なし。 |
+| セッション | 87 |
+| 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG。session 87 で章ストア／執筆レールの安全化とリファクタ目安ドキュメントを追加 |
+| 直近のスライス | session 87: **章ストア安全化 + 未同期ワークツリーのリモート反映** — 読者プレビュー `getFullContentHtml` から自動 `splitIntoChapters` を除去（表示経路での永続化禁止）。`chapter-list` に `getDocumentIdForChapterOps`、章追加時は `flush` のみ（`ensureSaved` での `doc.content` 単一章化を回避）。執筆レール「+ 追加」の連打対策・`ZWChapterStoreChanged` 通知。横断リファクタ目安を [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) に新設。WP-001 系のプレビュー・ガジェット・CSS 等、累積変更を同一コミットで `origin/main` へ同期。検証: `npm run test:smoke`、`npx playwright test e2e/sidebar-writing-focus.spec.js e2e/chapter-list.spec.js` → **11 件** pass。`npx playwright test --list` = **574** テスト / 68 ファイル。 |
 
 
 ## ドキュメント地図（再開時）
@@ -26,6 +26,7 @@
 | 推奨開発プラン（現状分析 + 短中長期目標 + 機能別ロードマップ） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |
 | 次スライス・マージ前手順 | [`ROADMAP.md`](ROADMAP.md)、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) |
 | WP-004 監査・手動シナリオ | [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) |
+| 章ストア／プレビューの副作用防止（リファクタ目安） | [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) |
 | 機能台帳・自動化境界 | [`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md)、[`AUTOMATION_BOUNDARY.md`](AUTOMATION_BOUNDARY.md) |
 | カウンター・量的指標 | [`runtime-state.md`](runtime-state.md) |
 | 長命背景・IDEA・暗黙仕様メモ | [`project-context.md`](project-context.md) |
@@ -231,6 +232,25 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | 回帰 | `sidebar-layout` + `gadgets` → **10 件** pass。`visual-audit`（`04 - Structure gadgets` / `06 - Theme gadgets`）→ **2 件** pass | `e2e/sidebar-layout.spec.js`, `e2e/gadgets.spec.js`, `e2e/visual-audit.spec.js` |
 | WP-004 | reader 実装差分なし（手動パック待ち） | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
+### Session 86
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 レーンA | `assist` / `advanced` のカテゴリ説明と配下ガジェット説明を「補助。〜」「詳細。〜」トーンへ統一し、サイドバー内の説明密度を整合 | `js/sidebar-manager.js`, `js/gadgets-utils.js`, `js/gadgets-editor-extras.js`, `js/gadgets-goal.js`, `js/gadgets-hud.js`, `js/gadgets-pomodoro.js`, `js/gadgets-markdown-ref.js`, `js/gadgets-prefs.js`, `js/gadgets-loadout.js`, `js/gadgets-keybinds.js`, `js/gadgets-print.js`, `docs/GADGETS.md` |
+| WP-004 レーンB | parity 手動パック差分メモを 1 件追加（シナリオ4: 壊れ wikilink の体感遅延、実装差分なし） | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| 同期要件 レーンC | クラウド同期 PoC の方式比較・競合解決（LWW+競合複製）・セキュリティ最低要件をドラフト化 | `docs/ROADMAP.md`, `docs/APP_SPECIFICATION.md`, `SECURITY.md` |
+| 回帰 | GateA/B: `test:smoke` + `test:unit` + `test:e2e:ui` → **41 件** pass | `package.json` scripts（実行のみ） |
+
+### Session 87
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 章ストア安全 | 読者プレビュー組み立てで `splitIntoChapters` を呼ばない。プレビュー用 docId を親ドキュメントに正規化 | `js/reader-preview.js` |
+| 章 UI / ID | `getDocumentIdForChapterOps` でストア操作の親 ID を統一。章追加は `flush` のみ。フォーカス入場時も `flush` のみ。章追加後 `ZWChapterStoreChanged` | `js/chapter-list.js` |
+| 執筆レール | 「+ 追加」の単回バインド・連打ガード・章ナビ表示経路の整理（既存） | `js/sidebar-manager.js` |
+| プレビュー / エディタ | サイドバー MD プレビュー同期、EditorCore プレビュー再描画、編集ガジェット・`app-ui-events`・CSS 等（累積） | `js/editor-preview.js`, `js/modules/editor/EditorCore.js`, `js/gadgets-*.js`, `js/app-ui-events.js`, `index.html`, `css/style.css` ほか |
+| ドキュメント | リファクタ目安新設、`HANDOVER` / `INVARIANTS` / 台帳更新 | `docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`, `HANDOVER.md`, `docs/INVARIANTS.md`, `docs/USER_REQUEST_LEDGER.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -326,6 +346,18 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx eslint js/` → clean
 - `npx playwright test e2e/sidebar-layout.spec.js e2e/gadgets.spec.js` → pass（10 件）
 - `npx playwright test e2e/visual-audit.spec.js -g "04 - Structure gadgets|06 - Theme gadgets"` → pass（2 件）
+
+実行済み (session 86):
+
+- `npm run test:smoke` → pass
+- `npm run test:unit` → pass（11 件）
+- `npm run test:e2e:ui` → pass（30 件）
+
+実行済み (session 87):
+
+- `npm run test:smoke` → pass
+- `npx playwright test e2e/sidebar-writing-focus.spec.js e2e/chapter-list.spec.js` → pass（11 件）
+- `npx playwright test --list` → **574 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載と一致）
 
 ### 手動確認ゲート（運用メモ）
 

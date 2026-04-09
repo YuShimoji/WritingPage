@@ -320,7 +320,7 @@
   }, {
     groups: ['assist'],
     title: (window.UILabels && window.UILabels.GADGET_POMODORO_TITLE) || 'Pomodoro/集中タイマー',
-    description: 'ポモドーロテクニックで集中と休憩を管理。カスタム時間設定も可能。',
+    description: '補助。作業と休憩のタイマーを切り替えて集中を維持。',
     defaultCollapsed: true
   });
 
