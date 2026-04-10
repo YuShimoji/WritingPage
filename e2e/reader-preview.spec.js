@@ -16,6 +16,9 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-toolbar-mode', 'full');
+    });
     // chapterMode をオフにし、Legacy パス (editor.value) でコンテンツを読ませる
     await page.evaluate(() => {
       var S = window.ZenWriterStorage;
@@ -309,12 +312,12 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') === 'true');
 
     const backFab = page.locator('#reader-back-fab');
     await expect(backFab).toBeVisible();
     await backFab.click();
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') !== 'true');
 
     const mode = await page.evaluate(() => {
       return document.documentElement.getAttribute('data-ui-mode');
@@ -331,20 +334,20 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') === 'true');
 
     await page.locator('#reader-back-fab').click();
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') !== 'true');
 
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-edge-hover-top', 'true');
     });
     await page.waitForTimeout(150);
     await page.evaluate(() => {
-      var button = document.getElementById('toggle-reader-preview');
+      var button = document.querySelector('[data-reader-preview-toggle]');
       if (button) button.click();
     });
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') === 'true');
 
     const mode = await page.evaluate(() => {
       return document.documentElement.getAttribute('data-reader-overlay-open');
@@ -354,19 +357,101 @@ test.describe('SP-078 Reader Preview HTML Export', () => {
   });
 
   test('compact toolbarでも読者プレビュー導線が見える', async ({ page }) => {
-    const toolbarEntry = page.locator('#toggle-reader-preview');
+    const toolbarEntry = page.locator('[data-reader-preview-toggle]').first();
     await expect(toolbarEntry).toBeAttached();
 
     await page.evaluate(() => {
-      var button = document.getElementById('toggle-reader-preview');
+      var button = document.querySelector('[data-reader-preview-toggle]');
       if (button) button.click();
     });
-    await page.waitForTimeout(250);
+    await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') === 'true');
 
     await expect(page.locator('#reader-back-fab')).toBeVisible();
     const mode = await page.evaluate(() => {
       return document.documentElement.getAttribute('data-reader-overlay-open');
     });
     expect(mode).toBe('true');
+  });
+
+  test('章ナビ操作はFocus用 navigateTo を呼ばず Reader 内でスクロールする', async ({ page }) => {
+    await page.evaluate(() => {
+      var paras = '';
+      var htmlParas = '';
+      for (var p = 0; p < 30; p++) {
+        paras += '段落' + p + 'の本文を少し長めにしてスクロール量を確保します。\n\n';
+        htmlParas += '<p>段落' + p + 'の本文を少し長めにしてスクロール量を確保します。</p>';
+      }
+      var md = '## 第1章\n\n' + paras + '\n## 第2章\n\n' + paras;
+      var textEditor = document.getElementById('editor');
+      if (textEditor) textEditor.value = md;
+      var editor = document.getElementById('wysiwyg-editor');
+      if (editor) {
+        editor.innerHTML = '<h2>第1章</h2>' + htmlParas + '<h2>第2章</h2>' + htmlParas;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      var S = window.ZenWriterStorage;
+      if (S && typeof S.saveContent === 'function') S.saveContent(md);
+      var st = S.loadSettings();
+      st.chapterNav = { enabled: true, style: 'minimal' };
+      S.saveSettings(st);
+    });
+
+    await page.evaluate(() => {
+      if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('focus');
+    });
+    await page.waitForTimeout(150);
+
+    await page.evaluate(() => {
+      var CL = window.ZWChapterList;
+      if (!CL || typeof CL.navigateTo !== 'function') return;
+      if (CL.__zwOrigNavigateTo) return;
+      CL.__zwOrigNavigateTo = CL.navigateTo;
+      CL.__zwNavigateToCalls = [];
+      CL.navigateTo = function (idx) {
+        CL.__zwNavigateToCalls.push(idx);
+        return CL.__zwOrigNavigateTo.call(this, idx);
+      };
+    });
+
+    try {
+      await page.evaluate(() => {
+        if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+      });
+      await page.waitForFunction(() => document.documentElement.getAttribute('data-reader-overlay-open') === 'true');
+
+      const nextNav = page.locator('#reader-preview-inner .chapter-nav-bar__link.chapter-nav-bar__next').filter({ hasText: /\u2192/ });
+      await expect(nextNav).toBeVisible({ timeout: 10000 });
+
+      const scrollBefore = await page.evaluate(() => {
+        var el = document.getElementById('reader-preview');
+        return el ? el.scrollTop : 0;
+      });
+
+      await nextNav.click();
+      await page.waitForFunction(
+        (before) => {
+          var el = document.getElementById('reader-preview');
+          return el && el.scrollTop > before + 5;
+        },
+        scrollBefore,
+        { timeout: 8000 }
+      );
+
+      const calls = await page.evaluate(() => {
+        var CL = window.ZWChapterList;
+        return CL && CL.__zwNavigateToCalls ? CL.__zwNavigateToCalls.slice() : [];
+      });
+
+      expect(calls.length).toBe(0);
+    } finally {
+      await page.evaluate(() => {
+        var CL = window.ZWChapterList;
+        if (CL && CL.__zwOrigNavigateTo) {
+          CL.navigateTo = CL.__zwOrigNavigateTo;
+          delete CL.__zwOrigNavigateTo;
+          delete CL.__zwNavigateToCalls;
+        }
+      });
+    }
   });
 });

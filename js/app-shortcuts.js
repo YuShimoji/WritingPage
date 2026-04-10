@@ -259,18 +259,19 @@
                     }
                 }
 
-                const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                if (currentMode === 'focus') {
-                    e.preventDefault();
-                    setUIMode('normal');
-                    return;
-                }
-                // 再生オーバーレイを閉じる
+                // 再生オーバーレイを先に閉じる（Focus 維持のまま Reader のみ終了）
                 if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' && window.ZWReaderPreview.isOpen()) {
                     e.preventDefault();
                     if (typeof window.ZWReaderPreview.exit === 'function') {
                         window.ZWReaderPreview.exit();
                     }
+                    return;
+                }
+
+                const currentMode = document.documentElement.getAttribute('data-ui-mode');
+                if (currentMode === 'focus') {
+                    e.preventDefault();
+                    setUIMode('normal');
                     return;
                 }
             }

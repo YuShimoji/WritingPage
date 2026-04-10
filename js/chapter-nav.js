@@ -25,6 +25,66 @@
     window.ZenWriterStorage.saveSettings(s);
   }
 
+  // ---- Navigate handler（Reader オーバーレイ等が章ジャンプを横取りするための単一登録枠） ----
+
+  var customNavigateHandler = null;
+
+  function registerNavigateHandler(handler) {
+    if (typeof handler !== 'function') return;
+    customNavigateHandler = handler;
+  }
+
+  function unregisterNavigateHandler(handler) {
+    if (customNavigateHandler === handler) customNavigateHandler = null;
+  }
+
+  /**
+   * ToC・章末ナビ・chapter:// 解決後の遷移の共通入口。
+   * 登録ハンドラが true を返したら既定処理（ChapterList / MD プレビュー内スクロール）は行わない。
+   *
+   * @param {{ type: 'chapterIndex'|'scrollToToc', index?: number, source?: string }} detail
+   */
+  function dispatchChapterNavigation(detail) {
+    if (typeof customNavigateHandler === 'function') {
+      try {
+        if (customNavigateHandler(detail)) return;
+      } catch (err) {
+        if (window.console && typeof console.error === 'function') console.error('[ZWChapterNav]', err);
+      }
+    }
+    defaultNavigateFromDispatch(detail);
+  }
+
+  function defaultNavigateFromDispatch(detail) {
+    if (!detail || !detail.type) return;
+    if (detail.type === 'scrollToToc') {
+      var tocEl = document.querySelector('.chapter-toc');
+      if (tocEl) {
+        tocEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      defaultNavigateToChapter(0);
+      return;
+    }
+    if (detail.type === 'chapterIndex') {
+      var idx = typeof detail.index === 'number' ? detail.index : parseInt(detail.index, 10);
+      if (!isNaN(idx)) defaultNavigateToChapter(idx);
+    }
+  }
+
+  function defaultNavigateToChapter(index) {
+    if (window.ZWChapterList && typeof window.ZWChapterList.navigateTo === 'function') {
+      window.ZWChapterList.navigateTo(index);
+      return;
+    }
+    var container = document.getElementById('markdown-preview') || document.querySelector('.markdown-preview');
+    if (!container) return;
+    var headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    if (headings[index]) {
+      headings[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   // ---- Chapter resolution ----
 
   function getChapters() {
@@ -118,7 +178,11 @@
       link.dataset.chapterIndex = allIdx >= 0 ? allIdx : visIdx;
       link.addEventListener('click', function (e) {
         e.preventDefault();
-        navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
+        dispatchChapterNavigation({
+          type: 'chapterIndex',
+          index: parseInt(this.dataset.chapterIndex, 10),
+          source: 'toc'
+        });
       });
 
       li.appendChild(link);
@@ -211,7 +275,11 @@
       prevBtn.dataset.chapterIndex = prevAllIdx >= 0 ? prevAllIdx : visIdx - 1;
       prevBtn.addEventListener('click', function (e) {
         e.preventDefault();
-        navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
+        dispatchChapterNavigation({
+          type: 'chapterIndex',
+          index: parseInt(this.dataset.chapterIndex, 10),
+          source: 'navBarPrev'
+        });
       });
     } else {
       prevBtn.textContent = '';
@@ -225,12 +293,7 @@
     tocBtn.href = '#';
     tocBtn.addEventListener('click', function (e) {
       e.preventDefault();
-      var tocEl = document.querySelector('.chapter-toc');
-      if (tocEl) {
-        tocEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      } else {
-        navigateToChapter(0);
-      }
+      dispatchChapterNavigation({ type: 'scrollToToc', source: 'navBarToc' });
     });
 
     // 次の章
@@ -243,7 +306,11 @@
       nextBtn.dataset.chapterIndex = nextAllIdx >= 0 ? nextAllIdx : visIdx + 1;
       nextBtn.addEventListener('click', function (e) {
         e.preventDefault();
-        navigateToChapter(parseInt(this.dataset.chapterIndex, 10));
+        dispatchChapterNavigation({
+          type: 'chapterIndex',
+          index: parseInt(this.dataset.chapterIndex, 10),
+          source: 'navBarNext'
+        });
       });
     } else {
       nextBtn.textContent = '';
@@ -254,21 +321,6 @@
     nav.appendChild(tocBtn);
     nav.appendChild(nextBtn);
     return nav;
-  }
-
-  function navigateToChapter(index) {
-    // ChapterList のナビゲーション機能を利用
-    if (window.ZWChapterList && typeof window.ZWChapterList.navigateTo === 'function') {
-      window.ZWChapterList.navigateTo(index);
-      return;
-    }
-    // フォールバック: プレビュー内のH要素にスクロール
-    var container = document.getElementById('markdown-preview') || document.querySelector('.markdown-preview');
-    if (!container) return;
-    var headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-    if (headings[index]) {
-      headings[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }
 
   // ---- chapter:// link conversion ----
@@ -353,14 +405,14 @@
     // タイトルマッチ
     var found = findChapterByTitle(chapters, target);
     if (found) {
-      navigateToChapter(found.index);
+      dispatchChapterNavigation({ type: 'chapterIndex', index: found.index, source: 'chapterLink' });
       return;
     }
 
     // インデックスマッチ (ch-0 形式)
     for (var i = 0; i < chapters.length; i++) {
       if (chapters[i].id === target || chapters[i].id === 'ch-' + target) {
-        navigateToChapter(i);
+        dispatchChapterNavigation({ type: 'chapterIndex', index: i, source: 'chapterLink' });
         return;
       }
     }
@@ -496,6 +548,10 @@
     saveSettings: saveSettings,
     injectNavBars: injectNavBars,
     injectToc: injectToc,
-    generateTocText: generateTocText
+    generateTocText: generateTocText,
+    registerNavigateHandler: registerNavigateHandler,
+    unregisterNavigateHandler: unregisterNavigateHandler,
+    dispatchChapterNavigation: dispatchChapterNavigation,
+    bindChapterLinks: bindChapterLinks
   };
 })();

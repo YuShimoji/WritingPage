@@ -20,6 +20,54 @@
   var genreSelect = null;
   var verticalToggle = null;
   var isVertical = false;
+  var readerChapterNavHandlerBound = null;
+
+  /**
+   * 再生オーバーレイ表示中は章ナビを執筆側 ChapterList に渡さず、Reader 面内でスクロールのみ行う。
+   * @param {{ type: string, index?: number, source?: string }} detail
+   * @returns {boolean}
+   */
+  function readerChapterNavigateHandler(detail) {
+    if (!isOpen || !innerEl) return false;
+    var content = innerEl.querySelector('.reader-preview__content');
+    if (!content) return false;
+    if (detail.type === 'scrollToToc') {
+      var tocEl = content.querySelector('.chapter-toc');
+      if (tocEl) {
+        tocEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return true;
+      }
+      var heads0 = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      if (heads0[0]) {
+        heads0[0].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return true;
+    }
+    if (detail.type === 'chapterIndex') {
+      var idx = typeof detail.index === 'number' ? detail.index : parseInt(detail.index, 10);
+      if (isNaN(idx)) return true;
+      var headings = content.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      if (headings[idx]) {
+        headings[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return true;
+    }
+    return false;
+  }
+
+  function registerReaderChapterNavHandler() {
+    var Nav = window.ZWChapterNav;
+    if (!Nav || typeof Nav.registerNavigateHandler !== 'function') return;
+    readerChapterNavHandlerBound = readerChapterNavigateHandler;
+    Nav.registerNavigateHandler(readerChapterNavHandlerBound);
+  }
+
+  function unregisterReaderChapterNavHandler() {
+    var Nav = window.ZWChapterNav;
+    if (!Nav || typeof Nav.unregisterNavigateHandler !== 'function' || !readerChapterNavHandlerBound) return;
+    Nav.unregisterNavigateHandler(readerChapterNavHandlerBound);
+    readerChapterNavHandlerBound = null;
+  }
 
   function ensureQuickToggleButton() {
     // ツールバー内の読者プレビューボタンに toggle 属性を付与
@@ -215,6 +263,8 @@
       G.ensureSaved();
     }
 
+    registerReaderChapterNavHandler();
+
     // 読者プレビューHTMLを生成
     buildReaderHTML();
 
@@ -231,6 +281,7 @@
 
   function exitReaderMode() {
     if (!isOpen) return;
+    unregisterReaderChapterNavHandler();
     dismissReaderWikiPopover();
     // スクロール位置を保存
     saveScrollPosition();
@@ -332,7 +383,10 @@
       if (typeof Nav.autoGroupChoices === 'function') {
         Nav.autoGroupChoices(contentDiv);
       }
-      // chapter-linkのクリックハンドラ（読者プレビュー内でのジャンプ）
+      if (typeof Nav.bindChapterLinks === 'function') {
+        Nav.bindChapterLinks(contentDiv);
+      }
+      // アンカーリンクのみ（ToC/章末ナビは ZWChapterNav.dispatch 経路の単一リスナ）
       bindReaderLinks(contentDiv);
     }
 
@@ -512,33 +566,6 @@
             headings[i].scrollIntoView({ behavior: 'smooth', block: 'start' });
             return;
           }
-        }
-      });
-    });
-
-    // 目次リンク
-    var tocLinks = container.querySelectorAll('.chapter-toc__link');
-    tocLinks.forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        var idx = parseInt(this.dataset.chapterIndex, 10);
-        var headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        if (headings[idx]) {
-          headings[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    });
-
-    // 章末ナビのリンク
-    var navLinks = container.querySelectorAll('.chapter-nav-bar__link');
-    navLinks.forEach(function (link) {
-      link.addEventListener('click', function (e) {
-        e.preventDefault();
-        var idx = parseInt(this.dataset.chapterIndex, 10);
-        if (isNaN(idx)) return;
-        var headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
-        if (headings[idx]) {
-          headings[idx].scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     });
