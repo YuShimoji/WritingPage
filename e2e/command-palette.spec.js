@@ -177,6 +177,46 @@ test.describe('Command Palette E2E', () => {
     await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
   });
 
+  test('コマンドパレットで補助カテゴリを開ける', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+
+    await openCommandPalette(page);
+    await expect(page.locator('#command-palette')).toBeVisible();
+
+    const input = page.locator('#command-palette-input');
+    await input.fill('ポモドロ');
+
+    await page.keyboard.press('Enter');
+
+    await page.waitForTimeout(300);
+    const sidebar = page.locator('#sidebar');
+    await expect(sidebar).toHaveClass(/open/);
+
+    const assistHeader = page.locator('.accordion-header[aria-controls="accordion-assist"]');
+    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('コマンドパレットで詳細設定カテゴリを開ける', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+
+    await openCommandPalette(page);
+    await expect(page.locator('#command-palette')).toBeVisible();
+
+    const input = page.locator('#command-palette-input');
+    await input.fill('ロードアウト');
+
+    await page.keyboard.press('Enter');
+
+    await page.waitForTimeout(300);
+    const sidebar = page.locator('#sidebar');
+    await expect(sidebar).toHaveClass(/open/);
+
+    const advancedHeader = page.locator('.accordion-header[aria-controls="accordion-advanced"]');
+    await expect(advancedHeader).toHaveAttribute('aria-expanded', 'true');
+  });
+
   test('UIモード: フォーカスへ切替後、パレット閉鎖で執筆面にフォーカスが戻る', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);

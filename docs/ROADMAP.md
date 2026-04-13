@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-04-09 / v0.3.32（session 85: レーンA `structure/theme` 説明密度整理・E2E 574 件を維持）
+> 最終更新: 2026-04-13 / v0.3.32（session 88: WP-001 コマンドパレット `assist`/`advanced` 導線・`command-palette` E2E 13 件）
 
 ## ステータス語彙
 
@@ -16,7 +16,7 @@
 
 ## 現在の状態
 
-- E2E: `npx playwright test --list` で確認（session 84 時点: **574 テスト / 68 ファイル**。全件実行の最新スナップは `CURRENT_STATE`「検証結果」を正とする）
+- E2E: `npx playwright test --list` で確認（session 88 時点: **585 テスト / 69 ファイル**。全件実行の最新スナップは `CURRENT_STATE`「検証結果」を正とする）
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
 - ガジェット: 28個登録
@@ -32,7 +32,7 @@
 
 - **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（session 46 前後）。~~Phase 3 本線（ジャンルプリセット・シナリオ5 の style 1 項目）~~（session 76: `reader-genre-preset` に computed style 1 件）。typography 等の残差・手動パックは [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従う（読者確認は **再生オーバーレイ** 経路）
-- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73: カテゴリ見出し）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。~~編集カテゴリの個別ガジェット説明（B1）~~（session 84 実施）。~~他カテゴリ（assist / advanced）のガジェット説明整理~~（session 86 実施）。**次候補（1トピック）**: assist/advanced 導線のコマンドパレット説明・`keywords` 整合
+- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73: カテゴリ見出し）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。~~編集カテゴリの個別ガジェット説明（B1）~~（session 84 実施）。~~他カテゴリ（assist / advanced）のガジェット説明整理~~（session 86 実施）。~~assist/advanced のコマンドパレット導線（`gadget-assist` / `gadget-advanced` + E2E）~~（session 88 実施）。**次候補（1トピック）**: [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の摩擦表から **1 件**、または [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) に沿った章ストア副作用の監査 **1 スライス**
 - **中期（別起票）**: ブロック段落の左・中・右揃え — `[docs/specs/spec-rich-text-paragraph-alignment.md](specs/spec-rich-text-paragraph-alignment.md)`（**WP-004 ではなく** `[docs/specs/spec-richtext-enhancement.md](specs/spec-richtext-enhancement.md)` のリッチテキスト・プログラム P2 として起票・優先度付けする）
 
 ---

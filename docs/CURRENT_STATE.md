@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-10 (session 87)
+最終更新: 2026-04-13 (session 88)
 
 ## Snapshot
 
@@ -10,9 +10,9 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 87 |
-| 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG。session 87 で章ストア／執筆レールの安全化とリファクタ目安ドキュメントを追加 |
-| 直近のスライス | session 87: **章ストア安全化 + 未同期ワークツリーのリモート反映** — 読者プレビュー `getFullContentHtml` から自動 `splitIntoChapters` を除去（表示経路での永続化禁止）。`chapter-list` に `getDocumentIdForChapterOps`、章追加時は `flush` のみ（`ensureSaved` での `doc.content` 単一章化を回避）。執筆レール「+ 追加」の連打対策・`ZWChapterStoreChanged` 通知。横断リファクタ目安を [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) に新設。WP-001 系のプレビュー・ガジェット・CSS 等、累積変更を同一コミットで `origin/main` へ同期。検証: `npm run test:smoke`、`npx playwright test e2e/sidebar-writing-focus.spec.js e2e/chapter-list.spec.js` → **11 件** pass。`npx playwright test --list` = **574** テスト / 68 ファイル。 |
+| セッション | 88 |
+| 現在の主軸 | WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG。session 88 でコマンドパレットから補助・詳細設定サイドバーへの導線を追加 |
+| 直近のスライス | session 88: **WP-001 パレット摩擦** — [`js/command-palette.js`](js/command-palette.js) に `gadget-assist` / `gadget-advanced` を追加（サイドバー `assist` / `advanced` へ `activateSidebarGroup`、未オープン時は `toggleSidebar`）。`ui-mode-focus` の `keywords` に `フォーカスモード` を追加（パレット検索と assist 内ガジェット名の衝突を避けつつ E2E 整合）。[`e2e/command-palette.spec.js`](e2e/command-palette.spec.js) に補助・詳細設定の展開確認を **2 件**追加。検証: `npx playwright test e2e/command-palette.spec.js` → **13 件** pass、`npx eslint js/command-palette.js` → clean。`npx playwright test --list` = **585** テスト / 69 ファイル（実測）。 |
 
 
 ## ドキュメント地図（再開時）
@@ -252,6 +252,14 @@ Session 44〜61 の表形式ログは [`docs/archive/current-state-sessions-44-6
 | プレビュー / エディタ | サイドバー MD プレビュー同期、EditorCore プレビュー再描画、編集ガジェット・`app-ui-events`・CSS 等（累積） | `js/editor-preview.js`, `js/modules/editor/EditorCore.js`, `js/gadgets-*.js`, `js/app-ui-events.js`, `index.html`, `css/style.css` ほか |
 | ドキュメント | リファクタ目安新設、`HANDOVER` / `INVARIANTS` / 台帳更新 | `docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`, `HANDOVER.md`, `docs/INVARIANTS.md`, `docs/USER_REQUEST_LEDGER.md` |
 
+### Session 88
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 パレット | `gadget-assist` / `gadget-advanced` 追加。`ui-mode-focus` にキーワード `フォーカスモード` | `js/command-palette.js` |
+| E2E | 補助・詳細設定アコーディオン展開の回帰 **2 件** | `e2e/command-palette.spec.js` |
+| 台帳 | `ROADMAP` / `USER_REQUEST_LEDGER` の「次」更新 | `docs/ROADMAP.md`, `docs/USER_REQUEST_LEDGER.md` |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -360,6 +368,12 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/sidebar-writing-focus.spec.js e2e/chapter-list.spec.js` → pass（11 件）
 - `npx playwright test --list` → **574 テスト / 68 ファイル**（`docs/ROADMAP.md` 記載と一致）
 
+実行済み (session 88):
+
+- `npx playwright test e2e/command-palette.spec.js` → pass（13 件）
+- `npx eslint js/command-palette.js` → clean
+- `npx playwright test --list` → **585 テスト / 69 ファイル**（実測）
+
 ### 手動確認ゲート（運用メモ）
 
 | タイミング | 参照 | 記録先 |
@@ -382,7 +396,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 | 優先  | テーマ            | 内容                                                               | Actor         |
 | --- | -------------- | ---------------------------------------------------------------- | ------------- |
-| A   | WP-001 集中 | session 75 でロードアウト整合は完了。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から **1 件ずつ**連続スライス | shared        |
+| A   | WP-001 集中 | session 88 でコマンドパレットから **補助** / **詳細設定** へ到達可能に。**次トピック**は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) / [`ROADMAP.md`](ROADMAP.md) から **1 件ずつ**連続スライス | shared        |
 | B   | WP-004 Phase 3   | **自動検証層は session 77 で区切り**。新規差分は台帳・手動パックで発見次第 **1 トピック**で。保存導線の**ドキュメント横断**は session 80 で実施済み | shared        |
 | C   | WP-001 体感トリガー   | deferred（BL-002 / BL-004 / Focus 左パネル等）は **体感で問題が出たときだけ** 1 トピックに昇格 | user / shared |
 | D   | canonical docs | `FEATURE_REGISTRY.md` / `AUTOMATION_BOUNDARY.md` はテンプレート済み。変更時は台帳チェックリストに従い随時追記 | shared        |

@@ -62,6 +62,35 @@
   }
 
   /**
+   * rawId が章レコード等のとき、章ストア（getChaptersForDoc / createChapter / assembleFullText）の親キーとなる document ID に正規化する。
+   * @param {string|null} rawId
+   * @param {Array<Object>|null} [docsOptional] 省略時はストレージから loadDocuments
+   * @returns {string|null}
+   */
+  function resolveParentDocumentId(rawId, docsOptional) {
+    try {
+      if (!rawId) return null;
+      var list = docsOptional;
+      if (!list || !list.length) {
+        if (!ensureStorage()) return rawId;
+        list = STORAGE.loadDocuments() || [];
+      }
+      var rec = list.find(function (d) { return d && d.id === rawId; });
+      if (!rec) return rawId;
+      if (rec.type === 'document') return rawId;
+      if (rec.type === 'chapter' && rec.parentId) {
+        var parent = list.find(function (d) { return d && d.id === rec.parentId; });
+        if (parent && parent.type === 'document') return parent.id;
+        return rec.parentId;
+      }
+      var firstDoc = list.find(function (d) { return d && d.type === 'document'; });
+      return firstDoc ? firstDoc.id : rawId;
+    } catch (_e) {
+      return rawId;
+    }
+  }
+
+  /**
    * 指定ドキュメントの章一覧を order 順で返す
    */
   function getChaptersForDoc(docId) {
@@ -398,6 +427,7 @@
   window.ZWChapterStore = {
     // Query
     isChapterMode: isChapterMode,
+    resolveParentDocumentId: resolveParentDocumentId,
     getChaptersForDoc: getChaptersForDoc,
     getChapter: getChapter,
 

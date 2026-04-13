@@ -235,7 +235,7 @@
       id: 'ui-mode-focus',
       label: 'ミニマル',
       description: 'UIモードをミニマル（エッジ／ショートカットでChrome）に切り替え',
-      keywords: '集中 執筆 シンプル focus フォーカス',
+      keywords: '集中 執筆 シンプル focus フォーカス フォーカスモード',
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
@@ -307,6 +307,44 @@
       execute: () => {
         if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
           window.sidebarManager.activateSidebarGroup('structure');
+          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('open')) {
+              window.sidebarManager.toggleSidebar();
+            }
+          }
+        }
+      }
+    },
+    {
+      id: 'gadget-assist',
+      label: '補助',
+      description: '補助。執筆の継続を支える進捗・集中・参照。',
+      keywords: 'アシスト assist タイプライター Typewriter ポモドロ Pomodoro 執筆目標 HUD Markdownリファレンス 集中タイマー',
+      shortcut: '',
+      category: 'ガジェット',
+      execute: () => {
+        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+          window.sidebarManager.activateSidebarGroup('assist');
+          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.classList.contains('open')) {
+              window.sidebarManager.toggleSidebar();
+            }
+          }
+        }
+      }
+    },
+    {
+      id: 'gadget-advanced',
+      label: '詳細設定',
+      description: '詳細。環境設定・運用管理・出力を調整。',
+      keywords: 'advanced キー割り当て ショートカット keybind 印刷 ロードアウト Loadout スナップショット UI設定 プリセット',
+      shortcut: '',
+      category: 'ガジェット',
+      execute: () => {
+        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+          window.sidebarManager.activateSidebarGroup('advanced');
           if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
             const sidebar = document.getElementById('sidebar');
             if (sidebar && !sidebar.classList.contains('open')) {

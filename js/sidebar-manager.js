@@ -838,24 +838,11 @@ class SidebarManager {
      * CURRENT_DOC_ID が document 以外（例: 章レコード）や無効なときでも、章一覧クエリ用の親ドキュメント ID を返す。
      */
     _resolveChapterNavDocId(rawId) {
-        if (!rawId) return null;
-        try {
-            const storage = window.ZenWriterStorage;
-            if (!storage || typeof storage.loadDocuments !== 'function') return rawId;
-            const docs = storage.loadDocuments() || [];
-            const rec = docs.find((d) => d && d.id === rawId);
-            if (!rec) return rawId;
-            if (rec.type === 'document') return rawId;
-            if (rec.type === 'chapter' && rec.parentId) {
-                const parent = docs.find((d) => d && d.id === rec.parentId);
-                if (parent && parent.type === 'document') return parent.id;
-                return rec.parentId;
-            }
-            const firstDoc = docs.find((d) => d && d.type === 'document');
-            return firstDoc ? firstDoc.id : rawId;
-        } catch (_) {
-            return rawId;
+        const Store = window.ZWChapterStore;
+        if (Store && typeof Store.resolveParentDocumentId === 'function') {
+            return Store.resolveParentDocumentId(rawId);
         }
+        return rawId || null;
     }
 
     _writingFocusDocTitleFromId(curId, docs) {

@@ -35,9 +35,14 @@
   }
 
   function _isChapterMode() {
-    var docId = _getCurrentDocId();
+    var rawId = _getCurrentDocId();
     var Store = _getChapterStore();
-    return !!(docId && Store && Store.isChapterMode(docId));
+    if (!rawId || !Store) return false;
+    var docId =
+      typeof Store.resolveParentDocumentId === 'function'
+        ? Store.resolveParentDocumentId(rawId)
+        : rawId;
+    return !!(docId && Store.isChapterMode(docId));
   }
 
   // ---- Public API ----

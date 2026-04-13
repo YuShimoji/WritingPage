@@ -146,6 +146,14 @@
 - **品質ゲート**: `npm run test:smoke` pass。`sidebar-writing-focus` + `chapter-list` E2E **11 件** pass。
 - **次（1 トピック固定）**: WP-001 表から 1 件、または `REFACTORING_SAFETY_CHAPTER_STORAGE` に沿った「副作用の塊」の監査を 1 スライス。
 
+#### session 88 実施結果（WP-001 コマンドパレット摩擦）
+
+- **コマンドパレット**: `gadget-assist` / `gadget-advanced` を追加（`activateSidebarGroup('assist'|'advanced')`、サイドバー未オープン時は `toggleSidebar`）。説明・`keywords` は [`js/sidebar-manager.js`](../js/sidebar-manager.js) の `accordionCategories` と配下ガジェット語彙に整合。
+- **UI モード検索**: `ui-mode-focus` の `keywords` に `フォーカスモード` を追加（「フォーカスモード」検索で assist 内ガジェットに吸われずミニマル UI へ遷移できるよう明示）。
+- **E2E**: [`e2e/command-palette.spec.js`](../e2e/command-palette.spec.js) に補助・詳細設定アコーディオン展開のテスト **2 件**追加（計 **13 件**）。
+- **回帰**: `npx playwright test e2e/command-palette.spec.js` → **13 件** pass。`npx eslint js/command-palette.js` → clean。
+- **次（1 トピック固定）**: 下表の WP-001 摩擦から **1 件**、または [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) の監査 **1 スライス**。
+
 ### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
@@ -157,6 +165,7 @@
 | WP-001        | ~~コマンドパレットからのモード切替後のフォーカス遷移~~                | session 46 で実装・E2E 済み                                                                                                                                                                                                                   |
 | WP-001        | ~~狭幅時ツールバー折り返し後の余白~~                         | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
 | WP-004        | Phase 3 継続（preview / **再生オーバーレイ** のレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分の列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
+| WP-001        | ~~assist/advanced のコマンドパレット導線（`gadget-assist` / `gadget-advanced`）~~ | session 88 実施。[`js/command-palette.js`](../js/command-palette.js)、[`e2e/command-palette.spec.js`](../e2e/command-palette.spec.js) |
 | WP-001        | 摩擦削減の次トピック                                   | 下記 deferred・ユーザー要望から **1 件** 選定（表が正） |
 | リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（実装パス一覧・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
 | リッチテキスト・プログラム | **Phase 5（表）** — スライス境界は `spec-richtext-enhancement.md` の「Phase 5（未着手）」を正とする。実装は境界確定後の **別スライス** | 同上 |

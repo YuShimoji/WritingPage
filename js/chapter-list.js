@@ -113,20 +113,11 @@
   function getDocumentIdForChapterOps() {
     var rawId = getCurrentDocId();
     if (!rawId) return null;
-    if (!window.ZenWriterStorage || typeof window.ZenWriterStorage.loadDocuments !== 'function') {
-      return rawId;
+    var St = window.ZWChapterStore;
+    if (St && typeof St.resolveParentDocumentId === 'function') {
+      return St.resolveParentDocumentId(rawId);
     }
-    var docs = window.ZenWriterStorage.loadDocuments() || [];
-    var rec = docs.find(function (d) { return d && d.id === rawId; });
-    if (!rec) return rawId;
-    if (rec.type === 'document') return rawId;
-    if (rec.type === 'chapter' && rec.parentId) {
-      var parent = docs.find(function (d) { return d && d.id === rec.parentId; });
-      if (parent && parent.type === 'document') return parent.id;
-      return rec.parentId;
-    }
-    var firstDoc = docs.find(function (d) { return d && d.type === 'document'; });
-    return firstDoc ? firstDoc.id : rawId;
+    return rawId;
   }
 
   function inChapterMode() {

@@ -91,7 +91,11 @@
     // chapterMode: Store から visibility 付きデータを取得
     var Store = window.ZWChapterStore;
     var S = window.ZenWriterStorage;
-    var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docId =
+      rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+        ? Store.resolveParentDocumentId(rawId)
+        : rawId;
     if (docId && Store && Store.isChapterMode(docId)) {
       var storeChapters = Store.getChaptersForDoc(docId);
       return storeChapters.map(function (sc, _i) {

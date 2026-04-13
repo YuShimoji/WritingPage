@@ -2486,7 +2486,11 @@
     _getAllChaptersForLinkModal() {
       var Store = window.ZWChapterStore;
       var S = window.ZenWriterStorage;
-      var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+      var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+      var docId =
+        rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+          ? Store.resolveParentDocumentId(rawId)
+          : rawId;
       if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId)) {
         return (Store.getChaptersForDoc(docId) || []).map(function (sc) {
           return { id: sc.id, title: sc.name || '', visibility: sc.visibility || 'visible' };

@@ -81,8 +81,8 @@ E2E 全件: `npx playwright test`。回帰の切り出しは `docs/CURRENT_STATE
 
 | 項目                                            | 内容                                                                                                                                                     |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 正本                                            | `docs/CURRENT_STATE.md` Snapshot = **session 87**。章ストア安全化・リファクタ目安は [`docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md)。`playwright test --list` = **574**。                                           |
-| 次スライス（レーン A）                                  | `docs/USER_REQUEST_LEDGER.md` session 84「次」: **WP-001 摩擦 1 件**を表から 1 本だけ選ぶ（例: 他カテゴリのカテゴリ説明／ガジェット `title`・`description` の同型整理）。**WP-004 は同一スライスに混ぜない**。 |
+| 正本                                            | `docs/CURRENT_STATE.md` Snapshot = **session 88**。章ストア安全化・リファクタ目安は [`docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md)。`playwright test --list` = **585**（69 ファイル、実測）。                                           |
+| 次スライス（レーン A）                                  | `docs/USER_REQUEST_LEDGER.md` session 88「次」: **WP-001 摩擦表から 1 件**、または [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md) の監査 1 スライス。**WP-004 は同一スライスに混ぜない**。 |
 | WP-004                                        | 自動層は session 77 で区切り。**手動パックで差分が出たときだけ** 別スライス。                                                                                                        |
 | Value Validation（`docs/ai/DECISION_GATES.md`） | 候補トピックごとに「出力の行き先」「削る手作業」「外部 GUI 依存で手運用が残るか」を各 1 文で埋められるか確認してからプラン化。                                                                                    |
 | 触ってよい（レーン A）                                  | `js/sidebar-manager.js`、`js/gadgets-*.js`、`js/command-palette.js`、必要なら `css/style.css`（**スコープ内のみ**）。                                                   |

@@ -33,7 +33,11 @@
                         // chapterMode: アクティブ章だけでなく全文を組み立てて保存
                         var _Store = window.ZWChapterStore;
                         var _S = window.ZenWriterStorage;
-                        var _docId = _S && typeof _S.getCurrentDocId === 'function' ? _S.getCurrentDocId() : null;
+                        var _rawId = _S && typeof _S.getCurrentDocId === 'function' ? _S.getCurrentDocId() : null;
+                        var _docId =
+                            _rawId && _Store && typeof _Store.resolveParentDocumentId === 'function'
+                                ? _Store.resolveParentDocumentId(_rawId)
+                                : _rawId;
                         if (_docId && _Store && _Store.isChapterMode(_docId)) {
                             content = _Store.assembleFullText(_docId);
                         }
@@ -79,7 +83,11 @@
                     // chapterMode: 全文で上書き（ensureSaved はアクティブ章テキストのみ保存するため）
                     var _Store2 = window.ZWChapterStore;
                     var _S2 = window.ZenWriterStorage;
-                    var _dId = _S2 && typeof _S2.getCurrentDocId === 'function' ? _S2.getCurrentDocId() : null;
+                    var _raw2 = _S2 && typeof _S2.getCurrentDocId === 'function' ? _S2.getCurrentDocId() : null;
+                    var _dId =
+                        _raw2 && _Store2 && typeof _Store2.resolveParentDocumentId === 'function'
+                            ? _Store2.resolveParentDocumentId(_raw2)
+                            : _raw2;
                     if (_dId && _Store2 && _Store2.isChapterMode(_dId)) {
                         _S2.saveContent(_Store2.assembleFullText(_dId));
                     }
@@ -114,7 +122,11 @@
                 if (G) G.flushChapterIfNeeded();
                 var _Store3 = window.ZWChapterStore;
                 var _S3 = window.ZenWriterStorage;
-                var _dId3 = _S3 && typeof _S3.getCurrentDocId === 'function' ? _S3.getCurrentDocId() : null;
+                var _raw3 = _S3 && typeof _S3.getCurrentDocId === 'function' ? _S3.getCurrentDocId() : null;
+                var _dId3 =
+                    _raw3 && _Store3 && typeof _Store3.resolveParentDocumentId === 'function'
+                        ? _Store3.resolveParentDocumentId(_raw3)
+                        : _raw3;
                 if (_dId3 && _Store3 && _Store3.isChapterMode(_dId3)) {
                     content = _Store3.assembleFullText(_dId3);
                 }

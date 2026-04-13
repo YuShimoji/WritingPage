@@ -334,10 +334,15 @@
     // 作品タイトル
     var docTitle = '';
     if (S && typeof S.getCurrentDocId === 'function') {
-      var docId = S.getCurrentDocId();
-      if (docId && S.loadDocuments) {
+      var rawTitleId = S.getCurrentDocId();
+      if (rawTitleId && S.loadDocuments) {
         var docs = S.loadDocuments() || [];
-        var doc = docs.find(function (d) { return d.id === docId; });
+        var StoreTitle = window.ZWChapterStore;
+        var titleDocId =
+          StoreTitle && typeof StoreTitle.resolveParentDocumentId === 'function'
+            ? StoreTitle.resolveParentDocumentId(rawTitleId, docs)
+            : rawTitleId;
+        var doc = docs.find(function (d) { return d && d.id === titleDocId; });
         if (doc) docTitle = doc.name || doc.title || '';
       }
     }
@@ -464,21 +469,6 @@
     }
   }
 
-  function resolveDocumentIdForChapterStore(rawId, docs) {
-    if (!rawId) return null;
-    var list = docs || [];
-    var rec = list.find(function (d) { return d && d.id === rawId; });
-    if (!rec) return rawId;
-    if (rec.type === 'document') return rawId;
-    if (rec.type === 'chapter' && rec.parentId) {
-      var parent = list.find(function (d) { return d && d.id === rec.parentId; });
-      if (parent && parent.type === 'document') return parent.id;
-      return rec.parentId;
-    }
-    var firstDoc = list.find(function (d) { return d && d.type === 'document'; });
-    return firstDoc ? firstDoc.id : rawId;
-  }
-
   /**
    * エディタの全コンテンツをHTMLとして取得（パイプライン直前。後処理は ZWPostMarkdownHtmlPipeline に一本化）
    */
@@ -487,7 +477,10 @@
     var S = window.ZenWriterStorage;
     var rawDocId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
     var docs = S && typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : [];
-    var docId = resolveDocumentIdForChapterStore(rawDocId, docs);
+    var docId =
+      Store && typeof Store.resolveParentDocumentId === 'function'
+        ? Store.resolveParentDocumentId(rawDocId, docs)
+        : rawDocId;
     var currentDoc = null;
     var markdown = '';
 
@@ -765,7 +758,12 @@
    */
   function getScrollKey() {
     var S = window.ZenWriterStorage;
-    var docId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var StoreK = window.ZWChapterStore;
+    var docId =
+      rawId && StoreK && typeof StoreK.resolveParentDocumentId === 'function'
+        ? StoreK.resolveParentDocumentId(rawId)
+        : rawId;
     return docId ? 'reader-scroll-' + docId : 'reader-scroll-default';
   }
 
