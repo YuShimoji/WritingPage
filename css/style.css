@@ -24,7 +24,8 @@
   --transition-speed: 0.3s;
   --sidebar-sticky-offset: 3.5rem;
   --sidebar-width: 20rem;
-  --toolbar-height: 3.75rem;
+  /* メイン横帯ツールバー廃止後は 0（Electron 窓ボタン等のフォールバックは各所で固定値） */
+  --toolbar-height: 0px;
 
   /* 背景ビジュアル設定 */
   --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -400,58 +401,12 @@ textarea:focus-visible {
   outline: none;
 }
 
-/* 初期描画でのツールバー非表示（head内スクリプトが data-toolbar-hidden を付与） */
-/* transform方式: エッジホバーでのスライドイン復帰に対応 */
-html[data-toolbar-hidden='true'] .toolbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-}
+/* ===== UIモード: Focus ===== */
 
-/* ツールバー非表示時のみエディタ上端余白を縮小 (Focus モード等) */
-html[data-toolbar-hidden='true'] #editor,
-html[data-toolbar-hidden='true'] #wysiwyg-editor {
-  padding-top: 1rem;
-}
-
-/* ===== UIモード: Focus / Blank ===== */
-
-/* Focus モード: HUD/FABを抑えつつ、サイドバーは必要時のみ開ける */
+/* Focus モード: HUD を抑えつつ、サイドバーは必要時のみ開ける */
 
 html[data-ui-mode='focus'] .mini-hud {
   display: none !important;
-}
-
-html[data-ui-mode='focus'] .toolbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-/* BL-004: Focus edge-hover — 半透明スライドイン → hover で不透明 */
-html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar {
-  transform: translateY(0) !important;
-  opacity: 0.35 !important;
-  pointer-events: auto !important;
-  transition: transform 0.2s ease, opacity 0.15s ease !important;
-}
-html[data-ui-mode='focus'][data-edge-hover-top='true'] .toolbar:hover {
-  opacity: 1 !important;
-}
-
-/* Focus 上端エッジ: ツールバーは viewport 先頭に fixed 表示され、本文列の上に重なる。
-   syncToolbarHeightWithCSSVar が更新する --toolbar-height 分だけコンテナ上余白を確保する。 */
-html[data-ui-mode='focus'][data-edge-hover-top='true'] .editor-container {
-  padding-top: var(--toolbar-height, 3.75rem);
 }
 
 html[data-ui-mode='focus'] .main-content {
@@ -476,11 +431,7 @@ html[data-ui-mode='focus'] #editor {
   padding-top: 2rem !important;
 }
 
-html[data-ui-mode='focus'] #toggle-sidebar-btn,
-html[data-ui-mode='focus'] #toolbar-close-sidebar {
-  display: none !important;
-}
-
+/* Focus: メインハブは上端ホバー・Alt+W 等で開く。執筆エリア中央の FAB は廃止（邪魔防止） */
 html[data-ui-mode='focus'] .show-toolbar-fab {
   display: none !important;
 }
@@ -491,7 +442,7 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   transform: translateX(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.25s ease, opacity 0.2s ease;
+  transition: transform 0.05s ease-out, opacity 0.05s ease-out;
 }
 
 /* BL-004: Focus 左パネル — 半透明スライドイン → hover で不透明 */
@@ -499,7 +450,7 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel {
   transform: translateX(0) !important;
   opacity: 0.35 !important;
   pointer-events: auto !important;
-  transition: transform 0.25s ease, opacity 0.15s ease !important;
+  transition: transform 0.05s ease-out, opacity 0.05s ease-out !important;
 }
 html[data-ui-mode='focus'] .focus-chapter-panel:hover,
 html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hover {
@@ -554,6 +505,30 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hov
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-color, #333);
+}
+
+.focus-chapter-panel__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.focus-chapter-panel__exit-btn {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 0.28rem 0.45rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  background: color-mix(in srgb, var(--sidebar-bg, #fff) 92%, var(--text-color, #333) 8%);
+  color: var(--text-color, #333);
+  cursor: pointer;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.focus-chapter-panel__exit-btn:hover {
+  background: var(--hover-bg, rgba(0, 0, 0, 0.06));
 }
 
 .focus-chapter-panel__settings-btn {
@@ -975,18 +950,32 @@ html[data-ui-mode='focus'] .sidebar:not(.open):not(.focus-overlay-open) {
   border-right-color: transparent;
 }
 
-/* Focus モード: サイドバーのオーバーレイ表示 (設定ボタンから) */
+/* Focus モード: サイドバーのオーバーレイ（.focus-overlay-open。旧導線用スタイルを維持）
+   既定は左ドックと同じく左縁から。右ドック時のみ右縁（data-dock-sidebar で切替） */
 html[data-ui-mode='focus'] .sidebar.focus-overlay-open {
   display: block !important;
   position: fixed !important;
   top: 0;
-  right: 0;
-  left: auto !important;
+  left: 0 !important;
+  right: auto !important;
   width: 20rem;
+  max-width: min(20rem, calc(100vw - 1rem));
   height: 100vh;
   z-index: 200;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+  animation: focus-overlay-slide-in-left 0.2s ease;
+}
+
+html[data-ui-mode='focus'][data-dock-sidebar='right'] .sidebar.focus-overlay-open {
+  left: auto !important;
+  right: 0 !important;
   box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
   animation: focus-overlay-slide-in 0.2s ease;
+}
+
+@keyframes focus-overlay-slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 @keyframes focus-overlay-slide-in {
@@ -1010,7 +999,8 @@ html[data-ui-mode='focus'] .sidebar.focus-overlay-open {
 
 /* ===== 再生オーバーレイ (SP-078+) ===== */
 
-html[data-reader-overlay-open='true'] .toolbar {
+html[data-reader-overlay-open='true'] .sidebar-chrome-toolbar,
+html[data-reader-overlay-open='true'] .zw-offscreen-sidebar-toggle {
   display: none !important;
 }
 
@@ -1589,18 +1579,14 @@ html[data-sidebar-open='true'] .main-content {
   margin-left: 0;
 }
 
-/* サイドバー展開時もメニューボタンの表示位置を固定する */
-html[data-sidebar-open] #toolbar-close-sidebar {
-  margin-left: calc(var(--sidebar-width, 20rem) * -1);
-}
-
-/* エディタコンテナ: ツールバーを除いた残りの高さを占有 */
+/* エディタコンテナ: メイン列の残り高さを占有（上部横帯ツールバーなし） */
 .editor-container {
   flex: 1;
   padding: 0;
   display: flex;
   align-items: stretch;
-  height: calc(100vh - var(--toolbar-height));
+  height: 100vh;
+  height: 100dvh;
   position: relative;
   /* オーバーレイの基準 */
   background-color: var(--bg-color);
@@ -1608,12 +1594,31 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   width: 100%;
   cursor: text;
   /* エディタ外の空きスペースでもテキスト入力を示唆 */
-  transition: margin-left var(--transition-speed), width var(--transition-speed);
+  /* レイアウト（margin/width）は補間しない（サイドバー開閉時の本文の滑りを防ぐ） */
+  transition: none;
+  flex-direction: column;
+}
+
+/* フォーカス・章モードで本文が空のときの案内（本文ストアには書かない） */
+.zw-empty-chapter-hint {
+  flex: 0 0 auto;
+  display: block;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-color-muted, #888);
+  background: var(--toolbar-bg, rgba(40, 40, 40, 0.92));
+  border-bottom: 1px solid var(--border-color, #444);
+}
+
+.zw-empty-chapter-hint[hidden] {
+  display: none !important;
 }
 
 .editor-classic-layer {
   position: relative;
   flex: 1;
+  min-height: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -1647,12 +1652,6 @@ html[data-sidebar-open] #toolbar-close-sidebar {
   color: var(--bg-color, #1a1a1a);
 }
 
-/* サイドバー展開時は常に押し出し（PC/タブレット共通） */
-html[data-sidebar-open='true'] .editor-container {
-  margin-left: var(--sidebar-width, 20rem);
-  width: calc(100% - var(--sidebar-width, 20rem));
-}
-
 /* モバイルではオーバーレイ表示にして押し出さない */
 @media (max-width: 768px) {
   html[data-sidebar-open='true'] .editor-container {
@@ -1676,9 +1675,32 @@ html[data-sidebar-open='true'] .editor-container {
   }
 }
 
-/* ツールバー非表示時は画面全高を執筆エリアで埋める */
-html[data-toolbar-hidden='true'] .editor-container {
-  height: 100vh;
+/* デスクトップ: サイドバーは本文上にオーバーレイ。執筆エリアは幅を維持（押し出さない） */
+@media (min-width: 769px) {
+  html[data-sidebar-open='true'] .editor-container {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 990;
+    background: rgba(0, 0, 0, 0.22);
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-speed) ease;
+  }
+
+  html[data-sidebar-open='true'] .sidebar-overlay {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 .editor-canvas {
@@ -1735,7 +1757,7 @@ html[data-toolbar-hidden='true'] .editor-container {
 
 #editor {
   flex: 1 1 auto;
-  width: 100%;
+  width: min(100%, var(--wrap-ch));
   height: 100%;
   border: none;
   outline: none;
@@ -1755,10 +1777,11 @@ html[data-toolbar-hidden='true'] .editor-container {
   scrollbar-width: none;
   -ms-overflow-style: none;
 
-  /* 折り返し機能 */
+  /* 折り返し機能（親が column flex + stretch のとき margin:auto だけでは中央にならない環境があるため align-self も明示） */
   max-width: var(--wrap-ch);
   margin-left: auto;
   margin-right: auto;
+  align-self: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -1780,7 +1803,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 
 #wysiwyg-editor {
   flex: 1 1 auto;
-  width: 100%;
+  width: min(100%, var(--wrap-ch));
   height: 100%;
   min-height: 12.5rem;
   /* Ensure visibility when empty */
@@ -1799,6 +1822,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   max-width: var(--wrap-ch);
   margin-left: auto;
   margin-right: auto;
+  align-self: center;
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -1838,7 +1862,9 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   overflow-x: auto;
   overflow-y: hidden;
   max-width: none;
-  height: calc(100vh - var(--toolbar-height, 48px) - 2rem);
+  width: 100%;
+  align-self: stretch;
+  height: calc(100dvh - 2rem);
   padding: 2rem 1.5rem;
   text-orientation: mixed;
 }
@@ -1971,6 +1997,12 @@ html[data-reader-overlay-open='true'] .wysiwyg-toolbar {
   background: var(--border-color);
   opacity: 0.8;
   flex: 0 0 auto;
+}
+
+/* Markdown ソース切替は開発者モード時のみ UI に出す */
+html:not([data-developer-mode='true']) [data-overflow='switch-textarea'],
+html:not([data-developer-mode='true']) #wysiwyg-switch-to-textarea {
+  display: none !important;
 }
 
 /* --- 装飾ドロップダウン --- */
@@ -2287,10 +2319,6 @@ html[data-reader-overlay-open='true'] .wysiwyg-toolbar {
   background-color: var(--toolbar-bg);
   color: var(--toolbar-text);
   border-bottom: 1px solid var(--border-color);
-  transition:
-    background-color var(--transition-speed),
-    color var(--transition-speed),
-    border-color var(--transition-speed);
   position: sticky;
   /* スクロール時も上部に固定 */
   top: 0;
@@ -2384,37 +2412,97 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   transition: width 0.2s ease;
 }
 
-/* サイドバー */
+/* サイドバー — ビューポート全高（上部メインツールバーなし） */
 .sidebar {
   position: fixed;
-  top: var(--toolbar-height, 3.75rem);
+  top: 0;
   left: calc(var(--sidebar-width, 20rem) * -1);
-  height: calc(100vh - var(--toolbar-height, 3.75rem));
+  height: 100vh;
   width: var(--sidebar-width, 20rem);
+  box-sizing: border-box;
+  padding-top: 1rem;
   background-color: var(--sidebar-bg);
   color: var(--sidebar-text);
   border-right: 1px solid var(--border-color);
-  padding: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
   overflow-y: auto;
   overflow-x: hidden;
-  /* スクロールバーの表示/非表示によるレイアウト崩れを防止 */
   scrollbar-gutter: stable;
-  transition: left var(--transition-speed);
   z-index: 1000;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
 
-/* ツールバーが非表示の場合は画面全体を使う */
-html[data-toolbar-hidden='true'] .sidebar {
-  top: 0;
-  height: 100vh;
-}
-
 .sidebar.open {
   left: 0;
   /* インラインスタイルを上書き */
+}
+
+/* サイドバー先頭の操作帯（旧メインツールバーの可視操作を集約） */
+.sidebar-chrome-toolbar {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem 0 0.75rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-chrome-toolbar .toolbar-quick-actions {
+  margin-left: auto;
+}
+
+.sidebar-chrome-toolbar .toolbar-actions--sidebar {
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* #toggle-sidebar: レイアウト非参加の操作専用スロット（可視 FAB は廃止） */
+.zw-offscreen-sidebar-toggle {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
+}
+
+.zw-offscreen-sidebar-toggle__ph {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Electron フレームレス: 窓操作を body 固定右上 */
+.electron-window-bar {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  right: env(safe-area-inset-right, 0px);
+  z-index: 1210;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  -webkit-app-region: no-drag;
+}
+
+body.is-electron .electron-window-bar .window-control-btn {
+  height: 2.75rem;
+  min-width: 2.75rem;
 }
 
 .sidebar-header {
@@ -2655,11 +2743,37 @@ html[data-toolbar-hidden='true'] .sidebar {
   padding-top: 0.5rem;
 }
 
+.writing-focus-footer__row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
 .writing-focus-settings-btn {
-  width: 100%;
+  flex: 1 1 8rem;
+  min-width: 0;
+  width: auto;
   font-size: 0.75rem;
   border-radius: 0.5rem;
   padding: 0.5rem 0.625rem;
+}
+
+.writing-focus-exit-full {
+  flex: 0 0 auto;
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.writing-focus-exit-full:hover {
+  background: color-mix(in srgb, var(--sidebar-text) 8%, transparent);
 }
 
 .writing-focus-settings-btn[aria-pressed="true"] {
@@ -3086,16 +3200,12 @@ input[type='color'] {
     width: 100%;
     max-width: 100%;
     left: -100%;
-    padding: 0.75rem;
-    top: var(--toolbar-height, 3.75rem);
-    height: calc(100vh - var(--toolbar-height, 3.75rem));
-    z-index: var(--z-sidebar, 1000);
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
-  }
-
-  html[data-toolbar-hidden='true'] .sidebar {
     top: 0;
     height: 100vh;
+    box-sizing: border-box;
+    padding: 0.75rem;
+    z-index: var(--z-sidebar, 1000);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
   }
 
   .sidebar.open {
@@ -3194,11 +3304,8 @@ input[type='color'] {
 
   /* エディタコンテナの高さ調整 */
   .editor-container {
-    height: calc(100vh - var(--toolbar-height, 3.75rem));
-  }
-
-  html[data-toolbar-hidden='true'] .editor-container {
     height: 100vh;
+    height: 100dvh;
   }
 
   /* 狭幅: ツールバー高さ変化時に執筆域の height が transition: all でアニメーションしないよう除外 */
@@ -3466,6 +3573,13 @@ body.dragging-floating-panel {
   width: 26.25rem;
   max-width: calc(100vw - 2rem);
   animation: panel-fade-in 0.15s ease-out;
+}
+
+/* Focus: フローティングパネル既定の右寄せをやめ、本文側（左基準）に寄せる */
+html[data-ui-mode='focus'] #main-hub-panel.main-hub-panel {
+  left: max(0.75rem, env(safe-area-inset-left, 0px));
+  right: auto;
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
 }
 
 @keyframes panel-fade-in {
@@ -4029,6 +4143,8 @@ body.dragging-floating-panel {
   /* 画面UIは隠す */
   .sidebar,
   .toolbar,
+  .sidebar-chrome-toolbar,
+  .zw-offscreen-sidebar-toggle,
   .fab-toggle-toolbar,
   .fab-tools,
   .floating-panel {
@@ -4054,6 +4170,8 @@ body.dragging-floating-panel {
 /* ===== 埋め込みモード（?embed=1） ===== */
 html[data-embed='true'] .sidebar,
 html[data-embed='true'] .toolbar,
+html[data-embed='true'] .sidebar-chrome-toolbar,
+html[data-embed='true'] .zw-offscreen-sidebar-toggle,
 html[data-embed='true'] .fab-toggle-toolbar,
 html[data-embed='true'] .fab-tools,
 html[data-embed='true'] .floating-panel {
@@ -5682,12 +5800,33 @@ html[data-embed='true'] #editor {
    UI Modes (統合済み: 正規定義は上部 L302~ にあり)
    ========================================= */
 
-/* Mode switching transition */
-.sidebar,
-.toolbar,
+/* モード切替: レイアウト全体を transition:all しない（本文 margin/width の補間を防ぐ） */
+.sidebar {
+  transition:
+    left var(--transition-speed) ease,
+    box-shadow var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
+}
+
+.toolbar {
+  transition:
+    background-color var(--transition-speed) ease,
+    color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease,
+    transform var(--transition-speed) ease,
+    opacity var(--transition-speed) ease;
+}
+
 .editor-container,
 .main-content {
-  transition: all var(--transition-speed) ease;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .toolbar {
+    transition: none;
+  }
 }
 
 /* ===== ヘルプガジェット ===== */
@@ -6297,7 +6436,8 @@ html:not([data-focus-mode='enabled']) #editor::after {
 .split-view-container {
   display: flex;
   width: 100%;
-  height: calc(100vh - var(--toolbar-height, 3.75rem));
+  height: 100%;
+  min-height: 0;
   position: relative;
   overflow: hidden;
 }
@@ -7479,17 +7619,28 @@ button[aria-pressed="true"] + .documents-more-btn,
 
 .mode-switch-btn {
   display: inline-flex;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
+  gap: 0.1875rem;
+  width: auto;
+  min-width: 1.75rem;
   height: 1.75rem;
-  padding: 0;
+  padding: 0 0.3125rem;
   border: none;
   border-radius: 0.25rem;
   background: transparent;
   color: var(--text-secondary, #888);
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
+}
+
+.mode-switch-btn__label {
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .mode-switch-btn:hover {
@@ -7507,58 +7658,50 @@ button[aria-pressed="true"] + .documents-more-btn,
   height: 1rem;
 }
 
-/* Reader 導線（WP-001）: フルツールバーの目アイコンをモードスイッチの Reader と同系の既定色・ホバー・アイコン寸法に揃える */
-.toolbar-group--editor #toggle-reader-preview {
+/* Reader 導線（WP-001）: 読者オーバーレイ起動ボタンの見た目統一 */
+.toolbar-group--editor #toggle-reader-preview,
+.sidebar-chrome-toolbar #toggle-reader-preview {
   color: var(--text-secondary, #888);
 }
 
-.toolbar-group--editor #toggle-reader-preview:hover {
+.toolbar-group--editor #toggle-reader-preview:hover,
+.sidebar-chrome-toolbar #toggle-reader-preview:hover {
   background: var(--hover-bg, rgba(128, 128, 128, 0.15));
   color: var(--text-color);
 }
 
-.toolbar-group--editor #toggle-reader-preview:hover svg {
+.toolbar-group--editor #toggle-reader-preview:hover svg,
+.sidebar-chrome-toolbar #toggle-reader-preview:hover svg {
   stroke-width: 2;
   opacity: 1;
 }
 
-.toolbar-group--editor #toggle-reader-preview svg {
+.toolbar-group--editor #toggle-reader-preview svg,
+.sidebar-chrome-toolbar #toggle-reader-preview svg {
   width: 1rem;
   height: 1rem;
 }
 
-/* --- 旧ツールバーアクション (デフォルト非表示) --- */
-.toolbar-actions {
-  display: none;
+/* サイドバー内の操作行は常に表示 */
+.sidebar-chrome-toolbar .toolbar-actions {
+  display: flex;
 }
 
-.toolbar-group-label {
-  display: none;
+html[data-ui-mode='normal'] .show-toolbar-fab {
+  display: none !important;
 }
 
-/* ツールバー自体の表示/非表示制御 (transform方式: エッジホバー対応) */
-[data-toolbar-hidden="true"] .toolbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  transform: translateY(-100%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-/* ツールバー復元FAB */
+/* クイックツール FAB（メインハブの quick-tools を開く） */
 .show-toolbar-fab {
   position: fixed;
-  top: 0.25rem;
+  top: max(0.35rem, env(safe-area-inset-top, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 1200;
-  width: 2rem;
-  height: 1.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
   border: 1px solid var(--border-color);
-  border-radius: 0 0 0.5rem 0.5rem;
+  border-radius: 50%;
   background: var(--toolbar-bg, var(--ui-bg));
   color: var(--toolbar-text, var(--text-color));
   cursor: pointer;
@@ -7566,8 +7709,9 @@ button[aria-pressed="true"] + .documents-more-btn,
   display: none;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
+  opacity: 0.75;
   transition: opacity 0.15s;
+  -webkit-app-region: no-drag;
 }
 
 .show-toolbar-fab:hover {
@@ -7575,27 +7719,73 @@ button[aria-pressed="true"] + .documents-more-btn,
 }
 
 .show-toolbar-fab svg {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1rem;
+  height: 1rem;
 }
 
-/* フルツールバーモード（E2Eテスト/オプション用） */
-[data-toolbar-mode="full"] .toolbar-actions {
-  display: flex;
-}
-
-[data-toolbar-mode="full"] .toolbar-group-label {
-  display: inline;
-}
-
-/* --- サイドバー内エディタ制御ボタン --- */
+/* --- サイドバー内エディタ制御（details で折りたたみ） --- */
 .sidebar-editor-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
   padding: 0.5rem 0.5rem 0.25rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 0.25rem;
+}
+
+.sidebar-editor-view-details.sidebar-editor-controls {
+  border-radius: 0.375rem;
+}
+
+.sidebar-editor-view-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--sidebar-text, var(--text-color));
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--sidebar-bg, #f5f5f5) 92%, #000 8%);
+  user-select: none;
+}
+
+.sidebar-editor-view-summary::-webkit-details-marker {
+  display: none;
+}
+
+.sidebar-editor-view-summary::marker {
+  display: none;
+  content: '';
+}
+
+.sidebar-editor-view-summary:hover {
+  background: var(--hover-bg, rgba(128, 128, 128, 0.12));
+}
+
+.sidebar-editor-view-details[open] > .sidebar-editor-view-summary {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.sidebar-editor-view-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.35rem 0.25rem 0.5rem;
+  margin-top: -1px;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 0.375rem 0.375rem;
+  background: var(--sidebar-bg, #f5f5f5);
+}
+
+/* 詳細設定カテゴリのヘルプ行（従来どおり横並びボタン） */
+div.sidebar-editor-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .sidebar-control-btn {
@@ -7629,42 +7819,14 @@ button[aria-pressed="true"] + .documents-more-btn,
 
 /* ===== エッジホバーUI ===== */
 
-/* エッジホバー: 上端 → ツールバー表示 */
-[data-edge-hover-top="true"] .toolbar {
-  transform: translateY(0) !important;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
+/* 上端ホバーは JS でメインハブ表示（メイン横帯ツールバー廃止） */
 
-/* エッジホバー: 左端 → サイドバー表示
+/* エッジホバー: 左端 → サイドバー / 章パネル
    (sidebar.open は JS 側で付与されるため CSS は既存ルールで対応) */
 
 /* エッジホバー時のサイドバーにスライドイン感を追加 */
 [data-edge-hover-left="true"] .sidebar {
-  transition: left 0.2s ease !important;
-}
-
-/* エッジ検知インジケーター (ホバー前の薄いライン) */
-.toolbar::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 0.1875rem;
-  background: var(--accent-color, #4a9eff);
-  opacity: 0;
-  transition: opacity 0.15s;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-[data-toolbar-hidden="true"] .toolbar::before {
-  opacity: 0;
-}
-
-[data-edge-hover-top="true"] .toolbar::before {
-  opacity: 0.6;
+  transition: left 0.05s ease-out !important;
 }
 
 /* ===== Edge Glow (R-5: SP-081 Phase 3) ===== */
@@ -7696,20 +7858,52 @@ button[aria-pressed="true"] + .documents-more-btn,
   background: linear-gradient(to right, rgba(255,255,255,0.08) 0%, transparent 100%);
 }
 
-/* マウス近接時: ゆるやかに光る */
+/* マウス近接時: ごく弱いヒント（常時目立たないよう抑える） */
 .edge-glow.edge-glow--near {
-  opacity: 0.5;
+  opacity: 0.14;
 }
 
 /* グローフラッシュ: Focus 進入時の一時強調 (2回限定) */
 .edge-glow.edge-glow--flash {
-  opacity: 0.4;
+  opacity: 0.12;
   transition: opacity 0.6s ease-in !important;
 }
 
 /* Normal / 再生オーバーレイではグロー不要 */
 html[data-ui-mode='normal'] .edge-glow,
 html[data-reader-overlay-open='true'] .edge-glow {
+  display: none !important;
+}
+
+/* Focus 上端: メインハブへの可視アフォーダンス（テキストラベルは aria-label のみ） */
+.edge-hover-hub-affordance {
+  position: fixed;
+  z-index: 10;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 6px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--border-color, #888) 55%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--bg-color, #1a1a1a) 90%, var(--accent-color, #6a9fb5) 10%);
+  cursor: pointer;
+  opacity: 0.48;
+  transition: opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.edge-hover-hub-affordance:hover,
+.edge-hover-hub-affordance:focus-visible {
+  opacity: 0.95;
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color, #6a9fb5) 40%, transparent);
+}
+
+html[data-ui-mode='normal'] .edge-hover-hub-affordance,
+html[data-reader-overlay-open='true'] .edge-hover-hub-affordance {
   display: none !important;
 }
 
@@ -8406,13 +8600,13 @@ body.is-electron {
   -webkit-app-region: drag;
 }
 
-body.is-electron .toolbar,
+body.is-electron .sidebar-chrome-toolbar,
+body.is-electron .electron-window-bar,
 body.is-electron .sidebar,
 body.is-electron #editor,
 body.is-electron #wysiwyg-editor,
 body.is-electron .editor-preview,
 body.is-electron .mini-hud,
-body.is-electron .window-controls,
 body.is-electron .command-palette-overlay,
 body.is-electron .modal-overlay,
 body.is-electron button,
@@ -8437,7 +8631,7 @@ body.is-electron a {
   align-items: center;
   justify-content: center;
   width: 2.875rem;
-  height: var(--toolbar-height, 3.75rem);
+  height: 2.75rem;
   border: none;
   background: transparent;
   color: var(--toolbar-text, var(--text-color));

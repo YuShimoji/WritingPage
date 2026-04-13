@@ -1,8 +1,8 @@
 /**
- * ツールバーと執筆域の幾何プローブ（重なり検証用）
+ * メイン横帯ツールバー廃止後のレイアウト検証（エディタ列の高さ・サイドバー上端）。
  */
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, showFullToolbar, setUIMode } = require('./helpers');
+const { ensureNormalMode, showFullToolbar, setUIMode, openSidebar } = require('./helpers');
 
 /** @param {string|undefined} val */
 function parseCssPx(val) {
@@ -11,115 +11,117 @@ function parseCssPx(val) {
   return m ? parseFloat(m[1]) : NaN;
 }
 
-/**
- * ResizeObserver が設定する --toolbar-height と実測のツールバー高さが一致すること
- * （執筆域 calc(100vh - var) と sticky ツールバーの幾何整合）。
- */
-function expectToolbarHeightVarMatchesMeasured(m) {
-  const varPx = parseCssPx(m.toolbarHeightVar);
-  expect(Number.isFinite(varPx)).toBe(true);
-  expect(Math.abs(varPx - m.toolbarHeight)).toBeLessThanOrEqual(2);
-}
-
-async function measureLayout(page) {
-  return page.evaluate(() => {
-    const toolbar = document.getElementById('toolbar');
-    const ec = document.querySelector('.editor-container');
-    if (!toolbar || !ec) return null;
-    const tr = toolbar.getBoundingClientRect();
-    const er = ec.getBoundingClientRect();
-    const root = document.documentElement;
-    return {
-      uiMode: root.getAttribute('data-ui-mode'),
-      toolbarHidden: root.getAttribute('data-toolbar-hidden'),
-      toolbarPosition: getComputedStyle(toolbar).position,
-      toolbarHeight: tr.height,
-      toolbarBottom: tr.bottom,
-      editorTop: er.top,
-      gapEditorTopMinusToolbarBottom: er.top - tr.bottom,
-      toolbarHeightVar: getComputedStyle(root).getPropertyValue('--toolbar-height').trim(),
-      toolbarMode: root.getAttribute('data-toolbar-mode'),
-      innerHeight: window.innerHeight,
-      innerWidth: window.innerWidth
-    };
-  });
-}
-
-test.describe('toolbar vs editor-container geometry', () => {
-  test('desktop 1280x720 normal: no vertical overlap', async ({ page }) => {
+test.describe('chrome vs editor-container geometry', () => {
+  test('desktop 1280x720 normal: editor fills viewport and --toolbar-height is 0', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/index.html');
     await ensureNormalMode(page);
     await showFullToolbar(page);
     await page.waitForTimeout(200);
-    const m = await measureLayout(page);
-    // eslint-disable-next-line no-console
-    console.log('[geometry]', JSON.stringify(m));
+    const m = await page.evaluate(() => {
+      const ec = document.querySelector('.editor-container');
+      const root = document.documentElement;
+      if (!ec) return null;
+      const er = ec.getBoundingClientRect();
+      const th = getComputedStyle(root).getPropertyValue('--toolbar-height').trim();
+      return {
+        uiMode: root.getAttribute('data-ui-mode'),
+        editorHeight: er.height,
+        innerHeight: window.innerHeight,
+        toolbarHeightVar: th
+      };
+    });
     expect(m).toBeTruthy();
     expect(m.uiMode).toBe('normal');
-    expect(m.toolbarHidden).toBeNull();
-    expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
-    expectToolbarHeightVarMatchesMeasured(m);
+    expect(m.toolbarHeightVar === '0px' || m.toolbarHeightVar === '0').toBeTruthy();
+    expect(m.editorHeight).toBeGreaterThan(m.innerHeight * 0.92);
   });
 
-  test('narrow 520x720 normal: toolbar wrap must not cover editor top', async ({ page }) => {
+  test('narrow 520x720 normal: editor still fills most of viewport', async ({ page }) => {
     await page.setViewportSize({ width: 520, height: 720 });
     await page.goto('/index.html');
     await ensureNormalMode(page);
     await showFullToolbar(page);
     await page.waitForTimeout(200);
-    const m = await measureLayout(page);
-    // eslint-disable-next-line no-console
-    console.log('[geometry narrow]', JSON.stringify(m));
+    const m = await page.evaluate(() => {
+      const ec = document.querySelector('.editor-container');
+      if (!ec) return null;
+      return {
+        editorHeight: ec.getBoundingClientRect().height,
+        innerHeight: window.innerHeight
+      };
+    });
     expect(m).toBeTruthy();
-    expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
-    expectToolbarHeightVarMatchesMeasured(m);
+    expect(m.editorHeight).toBeGreaterThan(m.innerHeight * 0.88);
   });
 
-  test('narrow 520x720 compact toolbar: no overlap and --toolbar-height matches measured', async ({ page }) => {
-    await page.setViewportSize({ width: 520, height: 720 });
+  test('desktop normal sidebar open: sidebar top flush and chrome toolbar present', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/index.html');
     await ensureNormalMode(page);
-    await page.evaluate(() => {
-      document.documentElement.removeAttribute('data-toolbar-mode');
-      document.documentElement.removeAttribute('data-toolbar-hidden');
+    await showFullToolbar(page);
+    await openSidebar(page);
+    await page.waitForTimeout(250);
+    const m = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const chrome = document.querySelector('.sidebar-chrome-toolbar');
+      if (!sidebar || !chrome) return null;
+      const sr = sidebar.getBoundingClientRect();
+      const padTop = getComputedStyle(sidebar).paddingTop.trim();
+      return {
+        sidebarTop: sr.top,
+        paddingTop: padTop,
+        chromeInSidebar: !!chrome.closest('#sidebar')
+      };
     });
-    await page.waitForTimeout(200);
-    const m = await measureLayout(page);
-    // eslint-disable-next-line no-console
-    console.log('[geometry narrow compact]', JSON.stringify(m));
     expect(m).toBeTruthy();
-    expect(m.toolbarMode).toBeNull();
-    expect(m.gapEditorTopMinusToolbarBottom).toBeGreaterThanOrEqual(-2);
-    expectToolbarHeightVarMatchesMeasured(m);
+    expect(m.sidebarTop).toBeLessThanOrEqual(0.5);
+    expect(m.chromeInSidebar).toBe(true);
+    const padPx = parseCssPx(m.paddingTop);
+    expect(Number.isFinite(padPx)).toBe(true);
+    expect(padPx).toBeGreaterThanOrEqual(12);
+    expect(padPx).toBeLessThanOrEqual(32);
   });
 
-  test('focus + top edge hover: editor top clears toolbar (no overlap)', async ({ page }) => {
+  test('focus with left+top edge flags: chapter panel above sidebar chrome (z-index)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 720 });
+    await page.goto('/index.html');
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(150);
+    const z = await page.evaluate(() => {
+      document.documentElement.setAttribute('data-edge-hover-left', 'true');
+      document.documentElement.setAttribute('data-edge-hover-top', 'true');
+      const panel = document.querySelector('.focus-chapter-panel');
+      const chrome = document.querySelector('.sidebar-chrome-toolbar');
+      document.documentElement.removeAttribute('data-edge-hover-left');
+      document.documentElement.removeAttribute('data-edge-hover-top');
+      if (!panel || !chrome) return null;
+      const pz = parseInt(getComputedStyle(panel).zIndex, 10) || 0;
+      const cz = parseInt(getComputedStyle(chrome).zIndex, 10) || 0;
+      return { panelZ: pz, chromeZ: cz };
+    });
+    expect(z).toBeTruthy();
+    expect(z.panelZ).toBeGreaterThanOrEqual(z.chromeZ);
+  });
+
+  test('focus + top edge hover: opens main hub quick-tools', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.goto('/index.html');
     await setUIMode(page, 'focus');
     await page.waitForTimeout(200);
     await page.mouse.move(8, 8);
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(350);
     const m = await page.evaluate(() => {
-      const toolbar = document.getElementById('toolbar');
-      const editor = document.getElementById('editor');
-      if (!toolbar || !editor) return null;
-      const tr = toolbar.getBoundingClientRect();
-      const er = editor.getBoundingClientRect();
+      const hub = document.getElementById('main-hub-panel');
       return {
         dataEdgeHoverTop: document.documentElement.getAttribute('data-edge-hover-top'),
         uiMode: document.documentElement.getAttribute('data-ui-mode'),
-        toolbarBottom: tr.bottom,
-        editorTop: er.top,
-        gap: er.top - tr.bottom
+        hubDisplay: hub ? hub.style.display : null
       };
     });
-    // eslint-disable-next-line no-console
-    console.log('[geometry focus edge top]', JSON.stringify(m));
     expect(m).toBeTruthy();
     expect(m.uiMode).toBe('focus');
     expect(m.dataEdgeHoverTop).toBe('true');
-    expect(m.gap).toBeGreaterThanOrEqual(-2);
+    expect(m.hubDisplay).not.toBe('none');
   });
 });

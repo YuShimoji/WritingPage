@@ -133,7 +133,7 @@ function buildMenu() {
             label: '表示(&V)',
             submenu: [
                 { label: 'サイドバー(&S)', accelerator: 'CmdOrCtrl+B', click: () => sendToRenderer('menu:toggle-sidebar') },
-                { label: 'ツールバー(&T)', click: () => sendToRenderer('menu:toggle-toolbar') },
+                { label: 'クイックツール(&T)', click: () => sendToRenderer('menu:toggle-toolbar') },
                 { type: 'separator' },
                 { label: 'フォーカスモード(&F)', click: () => sendToRenderer('menu:toggle-focus') },
                 { label: 'タイプライターモード(&Y)', click: () => sendToRenderer('menu:toggle-typewriter') },

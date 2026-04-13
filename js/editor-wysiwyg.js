@@ -159,11 +159,15 @@
     init() {
       if (!this.wysiwygEditor || !this.textareaEditor) return;
 
-      // エディタ切り替えボタン: 双方向トグル
+      // エディタ切り替えボタン: 双方向トグル（Markdown ソースへは開発者モード時のみ）
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
           if (this.isWysiwygMode) {
+            if (!this._isDeveloperModeEnabled()) {
+              this._notifyMarkdownSourceLocked();
+              return;
+            }
             this.switchToTextarea();
           } else {
             this.switchToWysiwyg();
@@ -174,6 +178,10 @@
       if (this.switchToTextareaBtn) {
         this.switchToTextareaBtn.addEventListener('mousedown', (e) => {
           e.preventDefault();
+          if (!this._isDeveloperModeEnabled()) {
+            this._notifyMarkdownSourceLocked();
+            return;
+          }
           this.switchToTextarea();
         });
       }
@@ -214,11 +222,29 @@
      */
     autoEnableWysiwyg() {
       const saved = localStorage.getItem('zenwriter-wysiwyg-mode');
-      const shouldEnable = saved !== 'false';
+      var dev = this._isDeveloperModeEnabled();
+      // 一般ユーザーは Markdown 固定を許さずリッチ編集へ寄せる
+      var shouldEnable = saved !== 'false' || !dev;
+      if (!dev && saved === 'false') {
+        try { localStorage.setItem('zenwriter-wysiwyg-mode', 'true'); } catch (_) { /* noop */ }
+        shouldEnable = true;
+      }
       if (shouldEnable) {
-        // textareaにコンテンツが読み込まれた後に切り替え
         requestAnimationFrame(() => this.switchToWysiwyg());
       }
+    }
+
+    _isDeveloperModeEnabled() {
+      return !!(window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.isEnabled === 'function' &&
+        window.ZenWriterDeveloperMode.isEnabled());
+    }
+
+    _notifyMarkdownSourceLocked() {
+      try {
+        if (this.editorManager && typeof this.editorManager.showNotification === 'function') {
+          this.editorManager.showNotification('Markdown ソース表示は開発者モード時のみ利用できます', 2200);
+        }
+      } catch (_) { /* noop */ }
     }
 
     /**
@@ -397,7 +423,13 @@
           e.preventDefault();
           var action = btn.getAttribute('data-overflow');
           if (action === 'vertical-toggle') self._toggleVerticalWriting();
-          if (action === 'switch-textarea') self.switchToTextarea();
+          if (action === 'switch-textarea') {
+            if (!self._isDeveloperModeEnabled()) {
+              self._notifyMarkdownSourceLocked();
+            } else {
+              self.switchToTextarea();
+            }
+          }
           if (action === 'align-start') self.executeCommand('alignstart');
           if (action === 'align-center') self.executeCommand('aligncenter');
           if (action === 'align-end') self.executeCommand('alignend');
@@ -1576,8 +1608,7 @@
       var tbW = tbRect.width || 300;
       var toolbarH = tbRect.height || 44;
 
-      var mainTbEl = document.getElementById('toolbar');
-      var minTop = mainTbEl ? mainTbEl.getBoundingClientRect().bottom + gap : gap;
+      var minTop = gap;
 
       var top;
       if (rect.top > toolbarH + gap) {
@@ -2487,6 +2518,35 @@
       } catch (_) { }
     }
 
+    /**
+     * ツールバーとサイドバーの WYSIWYG トグル表示を同期（editor-preview のプレビュー同期と同系）
+     */
+    _syncWysiwygToggleChrome() {
+      var on = this.isWysiwygMode;
+      var dev = this._isDeveloperModeEnabled();
+      if (this.toggleWysiwygBtn) {
+        this.toggleWysiwygBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on && !dev) {
+          this.toggleWysiwygBtn.title = 'リッチ編集中（ソース表示は開発者モード）';
+        } else if (on && dev) {
+          this.toggleWysiwygBtn.title = 'Markdown ソース表示に切り替え';
+        } else {
+          this.toggleWysiwygBtn.title = 'リッチ編集（WYSIWYG・編集可能）';
+        }
+      }
+      var sidebarBtn = document.getElementById('sidebar-toggle-wysiwyg');
+      if (sidebarBtn) {
+        sidebarBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        if (on && !dev) {
+          sidebarBtn.title = 'リッチ編集中（ソースは開発者モード）';
+        } else if (on && dev) {
+          sidebarBtn.title = 'Markdown ソース表示に切り替え（リッチ表示中）';
+        } else {
+          sidebarBtn.title = '装飾をリッチ表示で編集（読者プレビューではありません）';
+        }
+      }
+    }
+
     switchToWysiwyg() {
       if (this.isWysiwygMode) return;
 
@@ -2506,11 +2566,7 @@
       // フォーカスを移動
       this.wysiwygEditor.focus();
 
-      // ツールバーボタンの状態を更新
-      if (this.toggleWysiwygBtn) {
-        this.toggleWysiwygBtn.setAttribute('aria-pressed', 'true');
-        this.toggleWysiwygBtn.title = 'Markdown ソース表示に切り替え';
-      }
+      this._syncWysiwygToggleChrome();
 
       // textarea モードバナーを非表示
       if (this.textareaModeBar) this.textareaModeBar.style.display = 'none';
@@ -2568,6 +2624,10 @@
 
     switchToTextarea() {
       if (!this.isWysiwygMode) return;
+      if (!this._isDeveloperModeEnabled()) {
+        this._notifyMarkdownSourceLocked();
+        return;
+      }
 
       // SP-052 Phase 2: コラプスをクリアしてから変換
       var sc = window.ZWSectionCollapse;
@@ -2595,11 +2655,7 @@
         this.editorManager.updateWordCount();
       }
 
-      // ツールバーボタンの状態を更新
-      if (this.toggleWysiwygBtn) {
-        this.toggleWysiwygBtn.setAttribute('aria-pressed', 'false');
-        this.toggleWysiwygBtn.title = 'リッチ編集（WYSIWYG・編集可能）';
-      }
+      this._syncWysiwygToggleChrome();
 
       // textarea モードバナーを表示
       if (this.textareaModeBar) this.textareaModeBar.style.display = '';

@@ -38,14 +38,19 @@
                 break;
 
             case 'menu:toggle-sidebar': {
-                const btn = document.getElementById('toggle-sidebar');
-                if (btn) btn.click();
+                if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
+                    window.sidebarManager.toggleSidebar();
+                } else {
+                    const btn = document.getElementById('toggle-sidebar');
+                    if (btn) btn.click();
+                }
                 break;
             }
 
             case 'menu:toggle-toolbar': {
-                const btn = document.getElementById('toggle-toolbar');
-                if (btn) btn.click();
+                if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
+                    window.sidebarManager.toggleToolbar();
+                }
                 break;
             }
 
@@ -54,8 +59,13 @@
                 if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
                     var current = document.documentElement.getAttribute('data-ui-mode');
                     window.ZenWriterApp.setUIMode(current === 'focus' ? 'normal' : 'focus');
-                } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleFocusMode === 'function') {
-                    window.ZenWriterEditor.toggleFocusMode();
+                } else {
+                    var curMode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
+                    var nextMode = curMode === 'focus' ? 'normal' : 'focus';
+                    var modeBtn = document.querySelector('.mode-switch-btn[data-mode="' + nextMode + '"]');
+                    if (modeBtn instanceof HTMLElement) {
+                        modeBtn.click();
+                    }
                 }
                 break;
 

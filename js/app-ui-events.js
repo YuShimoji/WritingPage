@@ -47,15 +47,26 @@
             if (rect.right > viewportWidth - FLOATING_PANEL_MARGIN) {
                 nextLeft = viewportWidth - rect.width - FLOATING_PANEL_MARGIN;
             }
-            // サイドバーが開いている場合、左端をサイドバー右端に制限
+            // サイドバーが開いている場合の水平方向クランプ
             var sidebarEl = document.querySelector('.sidebar.open');
+            var dock = document.documentElement.getAttribute('data-dock-sidebar') || 'left';
             var leftBound = FLOATING_PANEL_MARGIN;
             if (sidebarEl) {
-                var sidebarRight = sidebarEl.getBoundingClientRect().right;
-                if (sidebarRight > leftBound) leftBound = sidebarRight + FLOATING_PANEL_MARGIN;
-            }
-            if (rect.left < leftBound) {
-                nextLeft = leftBound;
+                var sRect = sidebarEl.getBoundingClientRect();
+                if (dock === 'right') {
+                    // 右ドック時: パネル右端がサイドバー左端より左に入るよう制限（左ドック用の leftBound 誤適用を避ける）
+                    var maxRight = sRect.left - FLOATING_PANEL_MARGIN;
+                    if (rect.right > maxRight) {
+                        nextLeft = maxRight - rect.width;
+                    }
+                    if (nextLeft < leftBound) nextLeft = leftBound;
+                } else {
+                    var sidebarRight = sRect.right;
+                    if (sidebarRight > leftBound) leftBound = sidebarRight + FLOATING_PANEL_MARGIN;
+                    if (rect.left < leftBound) {
+                        nextLeft = leftBound;
+                    }
+                }
             }
             if (rect.bottom > viewportHeight - FLOATING_PANEL_MARGIN) {
                 nextTop = viewportHeight - rect.height - FLOATING_PANEL_MARGIN;
@@ -179,8 +190,6 @@
 
         // ===== ボタンイベントリスナー =====
         const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
-        const toolbarCloseSidebar = elementManager.get('toolbarCloseSidebar');
-        const toggleToolbarBtn = elementManager.get('toggleToolbarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         const fullscreenBtn = elementManager.get('fullscreenBtn');
         const toggleSplitViewBtn = document.getElementById('toggle-split-view');
@@ -198,14 +207,6 @@
                 toggleSidebar();
             });
         }
-        if (toolbarCloseSidebar) {
-            toolbarCloseSidebar.addEventListener('click', toggleSidebar);
-            toolbarCloseSidebar.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                toggleSidebar();
-            });
-        }
-
         // サイドバーオーバーレイのクリック/タッチでサイドバーを閉じる（モバイル用）
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         if (sidebarOverlay) {
@@ -261,15 +262,6 @@
         })();
 
         // その他のボタン
-        if (toggleToolbarBtn) {
-            toggleToolbarBtn.addEventListener('click', toggleToolbar);
-            toggleToolbarBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleToolbar();
-                }
-            });
-        }
         if (showToolbarBtn) {
             showToolbarBtn.addEventListener('click', toggleToolbar);
             showToolbarBtn.addEventListener('keydown', (e) => {
@@ -461,30 +453,45 @@
             }
         }
 
+        /** アプリ設定モーダルを開く（歯車アイコン・コマンドパレット等の唯一の実装） */
+        function openSettingsModal() {
+            toggleModal('settings-modal', true);
+        }
+
+        function closeSettingsModal() {
+            toggleModal('settings-modal', false);
+        }
+
+        /** ヘルプモーダルを開く（? ボタン等の唯一の実装） */
+        function openHelpModal() {
+            toggleModal('help-modal', true);
+            if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
+                window.ZenWriterHelpModal.render();
+            }
+        }
+
+        function closeHelpModal() {
+            toggleModal('help-modal', false);
+        }
+
         // 設定モーダル
         const toggleSettingsBtn = document.getElementById('toggle-settings');
         const closeSettingsBtn = document.getElementById('close-settings-modal');
         if (toggleSettingsBtn) {
-            toggleSettingsBtn.addEventListener('click', () => toggleModal('settings-modal', true));
+            toggleSettingsBtn.addEventListener('click', () => openSettingsModal());
         }
         if (closeSettingsBtn) {
-            closeSettingsBtn.addEventListener('click', () => toggleModal('settings-modal', false));
+            closeSettingsBtn.addEventListener('click', () => closeSettingsModal());
         }
 
         // ヘルプモーダル
         const toggleHelpBtn = document.getElementById('toggle-help-modal');
         const closeHelpBtn = document.getElementById('close-help-modal');
         if (toggleHelpBtn) {
-            toggleHelpBtn.addEventListener('click', () => {
-                toggleModal('help-modal', true);
-                // ヘルプコンテンツの初期化（まだ未レンダリングの場合）
-                if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
-                    window.ZenWriterHelpModal.render();
-                }
-            });
+            toggleHelpBtn.addEventListener('click', () => openHelpModal());
         }
         if (closeHelpBtn) {
-            closeHelpBtn.addEventListener('click', () => toggleModal('help-modal', false));
+            closeHelpBtn.addEventListener('click', () => closeHelpModal());
         }
 
         // モーダルオーバーレイクリックで閉じる
@@ -521,7 +528,12 @@
             }
         });
 
-        // サイドバー内エディタ制御ボタン
+        // サイドバー内エディタ制御（details 内のボタン。操作後はメニューを閉じて視覚的ノイズを減らす）
+        const closeSidebarEditorViewDetails = () => {
+            const det = document.querySelector('details.sidebar-editor-view-details');
+            if (det) det.open = false;
+        };
+
         const sidebarPreviewBtn = document.getElementById('sidebar-toggle-preview');
         const sidebarSplitBtn = document.getElementById('sidebar-toggle-split');
         const sidebarWysiwygBtn = document.getElementById('sidebar-toggle-wysiwyg');
@@ -534,6 +546,7 @@
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
                     window.ZenWriterEditor.togglePreview();
                 }
+                closeSidebarEditorViewDetails();
             });
         }
 
@@ -543,6 +556,7 @@
                 if (window.MainHubPanel) {
                     window.MainHubPanel.toggle('split-view');
                 }
+                closeSidebarEditorViewDetails();
             });
         }
 
@@ -557,22 +571,22 @@
                         rte.switchToWysiwyg();
                     }
                 }
+                closeSidebarEditorViewDetails();
             });
         }
 
         if (sidebarHelpBtn) {
-            sidebarHelpBtn.addEventListener('click', () => {
-                toggleModal('help-modal', true);
-                if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
-                    window.ZenWriterHelpModal.render();
-                }
-            });
+            sidebarHelpBtn.addEventListener('click', () => openHelpModal());
         }
 
         return {
             toggleModal,
             prepareFloatingPanel,
-            clampPanelToViewport
+            clampPanelToViewport,
+            openSettingsModal,
+            closeSettingsModal,
+            openHelpModal,
+            closeHelpModal
         };
     }
 

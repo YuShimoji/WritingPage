@@ -142,7 +142,7 @@ async function loadCssWithImports(url) {
       /<title>\s*Zen Writer\s*-\s*小説執筆ツール\s*<\/title>/i.test(
         index.body,
       ) &&
-      /<div\s+class=\"toolbar\"/i.test(index.body) &&
+      /class=\"sidebar-chrome-toolbar\"/i.test(index.body) &&
       /<textarea\s+id=\"editor\"/i.test(index.body) &&
       /id=\"goal-progress\"/i.test(index.body) &&
       /id=\"goal-target\"/i.test(index.body) &&
@@ -156,21 +156,10 @@ async function loadCssWithImports(url) {
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await loadCssWithImports('/css/style.css');
-    const hasRootHide = /html\[data-toolbar-hidden='true'\] \.toolbar/.test(
-      css.body,
-    );
-    // 旧: ツールバー表示時に editor 上端を calc(toolbar + 1rem) で確保
-    // 現行: 通常は --editor-padding-y、非表示時のみ #editor/#wysiwyg の padding-top を 1rem に縮小
-    const hasRootShowPaddingLegacy = /padding-top:\s*calc\(var\(--toolbar-height\)\s*\+\s*1rem\)/.test(
+    const hasZeroToolbarHeight = /--toolbar-height:\s*0px/.test(css.body || '');
+    const hasEditorFullHeight = /\.editor-container\s*\{[^}]*height:\s*100vh/.test(
       css.body || '',
     );
-    const hasToolbarHiddenShorterTopPad =
-      /html\[data-toolbar-hidden='true'\]\s*#editor,\s*html\[data-toolbar-hidden='true'\]\s*#wysiwyg-editor\s*\{[^}]*padding-top:\s*1rem/.test(
-        css.body || '',
-      );
-    const hasRootShowPadding =
-      hasRootShowPaddingLegacy ||
-      (hasToolbarHiddenShorterTopPad && /var\(--editor-padding-y/.test(css.body || ''));
     const hasProgressCss = /\.goal-progress__bar/.test(css.body);
     const hasCssSettingsBtn = /\.gadget-settings-btn\b/.test(css.body || '');
     const hasCssSettings = /\.gadget-settings\b/.test(css.body || '');
@@ -179,17 +168,15 @@ async function loadCssWithImports(url) {
       /\.gadget\.drag-over\b/.test(css.body || '');
     const okCss =
       css.status === 200 &&
-      hasRootHide &&
-      hasRootShowPadding &&
+      hasZeroToolbarHeight &&
+      hasEditorFullHeight &&
       hasProgressCss &&
       hasCssSettingsBtn &&
       hasCssSettings &&
       hasCssDrag;
     console.log('GET /css/style.css ->', css.status, okCss ? 'OK' : 'NG', {
-      hasRootHide,
-      hasRootShowPadding,
-      hasRootShowPaddingLegacy,
-      hasToolbarHiddenShorterTopPad,
+      hasZeroToolbarHeight,
+      hasEditorFullHeight,
       hasProgressCss,
       hasCssSettingsBtn,
       hasCssSettings,

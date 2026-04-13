@@ -162,13 +162,14 @@
       }
     });
 
-    // Ctrl+Shift+R ショートカット
+    // Alt+Shift+R（ブラウザの Ctrl+Shift+R ハードリロードと被らない）
     document.addEventListener('keydown', function (e) {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'R') {
-        e.preventDefault();
-        if (isOpen) exitReaderMode();
-        else enterReaderMode();
-      }
+      if (e.isComposing) return;
+      if (!e.altKey || !e.shiftKey || e.ctrlKey || e.metaKey) return;
+      if (e.key !== 'r' && e.key !== 'R') return;
+      e.preventDefault();
+      if (isOpen) exitReaderMode();
+      else enterReaderMode();
     });
   }
 

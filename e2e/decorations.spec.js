@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar, openSidebarGroup, enableAllGadgets } = require('./helpers');
+const { showFullToolbar, openSidebarGroup, enableAllGadgets, openSidebar } = require('./helpers');
 
 async function _openSidebarAndStructurePanel(page) {
   // サイドバーを開き、structure グループを正式なAPI経由でアクティブにする
@@ -14,8 +14,7 @@ async function _openSidebarAndStructurePanel(page) {
   });
 
   if (!isOpen) {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
   }
 
   // SidebarManager に委譲して structure タブをアクティブ化

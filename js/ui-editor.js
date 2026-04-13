@@ -545,7 +545,7 @@
           elements.push(...document.querySelectorAll('#sidebar, .sidebar, [class*="sidebar"]'));
           break;
         case 'toolbar':
-          elements.push(...document.querySelectorAll('#toolbar, .toolbar, [class*="toolbar"]'));
+          elements.push(...document.querySelectorAll('#main-hub-panel, .sidebar-chrome-toolbar, .toolbar, [class*="toolbar"]'));
           break;
       }
       // エディタ内の要素は除外

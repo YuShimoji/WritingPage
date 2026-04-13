@@ -197,7 +197,7 @@ Markdown + DSL テキスト
 ## Stage 5: プレビュー / 検証
 
 ### ユーザー操作
-- Readerモードに切り替え (Ctrl+Shift+R またはモードメニュー)
+- Readerモードに切り替え (Alt+Shift+R またはモードメニュー)
 - プレビューでスクロールしながら最終表示を確認
 - Story Wikiで用語の一貫性を確認
 

@@ -24,14 +24,12 @@ async function openCommandPalette(page) {
 }
 
 /**
- * ツールバーをフル表示モードに切り替える。
- * ミニマル化により非表示になっているボタンを全て表示する。
+ * E2E 用にフル Chrome（Normal）へ寄せる。旧メイン横帯ツールバー廃止後は setUIMode のみ。
  */
 async function showFullToolbar(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-toolbar-mode', 'full');
+    document.documentElement.removeAttribute('data-toolbar-mode');
     document.documentElement.removeAttribute('data-toolbar-hidden');
-    // フォーカスモードではツールバーが CSS で非表示のため、normal に切り替える
     if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
       window.ZenWriterApp.setUIMode('normal');
     } else {
@@ -238,10 +236,14 @@ async function expandAllGadgets(page, panelSelector) {
  */
 async function openSidebarGroup(page, group) {
   await page.evaluate((g) => {
-    var toggleBtn = document.getElementById('toggle-sidebar');
     var sidebar = document.getElementById('sidebar');
-    if (sidebar && !sidebar.classList.contains('open') && toggleBtn) {
-      toggleBtn.click();
+    if (sidebar && !sidebar.classList.contains('open')) {
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(true);
+      } else {
+        var toggleBtn = document.getElementById('toggle-sidebar');
+        if (toggleBtn) toggleBtn.click();
+      }
     }
 
     if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
@@ -288,10 +290,11 @@ async function openMainHubPanel(page, tab) {
 }
 
 /**
- * 設定モーダルを開く（ツールバーのボタン経由）。
+ * 設定モーダルを開く（サイドバー内の設定ボタン経由）。
  */
 async function openSettingsModal(page) {
   await showFullToolbar(page);
+  await openSidebar(page);
   await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 5000 });
   await page.click('#toggle-settings');
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 5000 });
@@ -335,8 +338,14 @@ async function openSidebarPanel(page, group, opts = {}) {
 
   await page.evaluate(() => {
     var sb = document.getElementById('sidebar');
-    var btn = document.getElementById('toggle-sidebar');
-    if (sb && !sb.classList.contains('open') && btn) btn.click();
+    if (sb && !sb.classList.contains('open')) {
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(true);
+      } else {
+        var btn = document.getElementById('toggle-sidebar');
+        if (btn) btn.click();
+      }
+    }
     // Focus モードの設定パネルが閉じている場合は開く
     var settingsBtn = document.getElementById('writing-focus-settings-btn');
     if (settingsBtn && settingsBtn.getAttribute('aria-pressed') !== 'true') {
@@ -421,8 +430,28 @@ async function ensureNormalMode(page) {
 async function openSidebar(page) {
   await page.evaluate(() => {
     var sidebar = document.getElementById('sidebar');
+    if (!sidebar || sidebar.classList.contains('open')) return;
+    if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+      window.sidebarManager.forceSidebarState(true);
+      return;
+    }
     var btn = document.getElementById('toggle-sidebar');
-    if (sidebar && !sidebar.classList.contains('open') && btn) btn.click();
+    if (btn) btn.click();
+  });
+  await page.waitForTimeout(300);
+}
+
+/** サイドバーを閉じる（#toggle-sidebar は画面外のため API 優先） */
+async function closeSidebar(page) {
+  await page.evaluate(() => {
+    var sidebar = document.getElementById('sidebar');
+    if (!sidebar || !sidebar.classList.contains('open')) return;
+    if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+      window.sidebarManager.forceSidebarState(false);
+      return;
+    }
+    var btn = document.getElementById('toggle-sidebar');
+    if (btn) btn.click();
   });
   await page.waitForTimeout(300);
 }
@@ -430,7 +459,24 @@ async function openSidebar(page) {
 /**
  * WYSIWYG → textarea モードに切り替える (オーバーフローメニュー経由)。
  */
+/**
+ * 開発者モードを有効化（Markdown ソース切替の E2E 用。localhost 以外では必須）
+ */
+async function enableDeveloperMode(page) {
+  await page.evaluate(() => {
+    try {
+      localStorage.setItem('zenwriter-developer-mode', 'true');
+    } catch (_) { /* noop */ }
+    if (window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.syncDocumentAttr === 'function') {
+      window.ZenWriterDeveloperMode.syncDocumentAttr();
+    } else {
+      document.documentElement.setAttribute('data-developer-mode', 'true');
+    }
+  });
+}
+
 async function switchToTextareaMode(page) {
+  await enableDeveloperMode(page);
   await page.locator('[data-dropdown="overflow"] .wysiwyg-dropdown-toggle').dispatchEvent('mousedown');
   await page.locator('[data-overflow="switch-textarea"]').dispatchEvent('mousedown');
   await page.locator('#editor').waitFor({ state: 'visible', timeout: 5000 });
@@ -452,7 +498,9 @@ module.exports = {
   disableWritingFocus,
   openSidebarPanel,
   openSidebar,
+  closeSidebar,
   mockDialogs,
   restoreDialogs,
   switchToTextareaMode,
+  enableDeveloperMode,
 };

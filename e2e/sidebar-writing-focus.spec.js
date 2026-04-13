@@ -5,9 +5,12 @@ test.describe('Sidebar Writing Focus', () => {
   async function ensureSidebarOpen(page) {
     await page.evaluate(() => {
       const sidebar = document.getElementById('sidebar');
-      const toggle = document.getElementById('toggle-sidebar');
-      if (sidebar && toggle && !sidebar.classList.contains('open')) {
-        toggle.click();
+      if (!sidebar || sidebar.classList.contains('open')) return;
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(true);
+      } else {
+        const toggle = document.getElementById('toggle-sidebar');
+        if (toggle) toggle.click();
       }
     });
   }
@@ -37,6 +40,7 @@ test.describe('Sidebar Writing Focus', () => {
     await expect(page.locator('#writing-focus-title')).toBeVisible();
     await expect(page.locator('#writing-focus-add-section')).toBeVisible();
     await expect(page.locator('#writing-focus-settings-btn')).toBeVisible();
+    await expect(page.locator('#writing-focus-exit-to-normal-btn')).toBeVisible();
 
     const nonStructureHidden = await page.evaluate(() => {
       const ids = ['structure', 'edit', 'theme', 'assist', 'advanced'];
@@ -73,6 +77,10 @@ test.describe('Sidebar Writing Focus', () => {
     });
     expect(expandedState.structure).toBe('true');
     expect(expandedState.others.every((state) => state === 'false')).toBe(true);
+
+    await page.locator('#writing-focus-exit-to-normal-btn').click();
+    await page.waitForTimeout(200);
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
   });
 
   test('+追加 uses chapter path and does not revive 新しいセクション label', async ({ page }) => {

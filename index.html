@@ -35,26 +35,13 @@
         var theme = settings && settings.theme ? settings.theme : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
 
-        // UIモード設定（デフォルト: normal、readerはfocusへ正規化）
-        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'normal';
-        if (uiMode === 'reader') uiMode = 'focus';
+        // UIモード設定（既定: focus。reader/blank は focus へ正規化）
+        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'focus';
+        if (uiMode === 'reader' || uiMode === 'blank') uiMode = 'focus';
         document.documentElement.setAttribute('data-ui-mode', uiMode);
-
-        // ツールバー設定
-        if (settings && settings.toolbarVisible === false) {
-          document.documentElement.setAttribute('data-toolbar-hidden', 'true');
-        } else {
-          document.documentElement.setAttribute('data-toolbar-hidden', 'false');
-        }
       } catch (e) {
-        // エラー時はデフォルトでダークモード + ノーマルモード
         document.documentElement.setAttribute('data-theme', 'dark');
-        document.documentElement.setAttribute('data-toolbar-hidden', 'false');
-        document.documentElement.setAttribute('data-ui-mode', 'normal');
-      }
-      // 埋め込みモードではツールバーを強制的に隠す（最小UI）
-      if (isEmbed) {
-        document.documentElement.setAttribute('data-toolbar-hidden', 'true');
+        document.documentElement.setAttribute('data-ui-mode', 'focus');
       }
     })();
   </script>
@@ -115,6 +102,22 @@
 </head>
 
 <body>
+  <div class="electron-window-bar electron-only" role="group" aria-label="ウィンドウ操作">
+    <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
+      <i data-lucide="minus" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
+      <i data-lucide="square" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
+      <i data-lucide="x" aria-hidden="true"></i>
+    </button>
+  </div>
+  <!-- 操作専用: 画面上には出さず左端ホバー・ショートカット等からのみ到達（互換のため id 維持） -->
+  <button type="button" id="toggle-sidebar" class="zw-offscreen-sidebar-toggle" tabindex="-1" aria-label="サイドバーを開閉"
+    aria-expanded="false" aria-controls="sidebar" title="サイドバー（左端ホバー・Alt+1 等）">
+    <span class="zw-offscreen-sidebar-toggle__ph" aria-hidden="true"></span>
+  </button>
   <div class="app-container">
     <!-- 左ドックパネル (SP-076) -->
     <aside class="dock-panel-left" id="dock-panel-left" role="complementary" aria-label="左パネル">
@@ -140,6 +143,68 @@
           <i data-lucide="panel-left" aria-hidden="true"></i>
           <span>左パネル</span>
         </button>
+      </div>
+      <div class="sidebar-chrome-toolbar" role="toolbar" aria-label="アプリ操作">
+        <div class="word-count" role="status" aria-live="polite" aria-atomic="true">0 文字</div>
+        <div id="wysiwyg-format-indicator" role="status" aria-live="polite" style="display:none"></div>
+        <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display: none" role="progressbar"
+          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="執筆目標の進捗">
+          <div class="goal-progress__track">
+            <div class="goal-progress__bar" style="width: 0%"></div>
+          </div>
+        </div>
+        <label for="goal-target" class="sr-only">目標文字数</label>
+        <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER" aria-hidden="true"
+          style="width: 100px; margin-right: 8px; display: none;" aria-label="目標文字数" />
+        <label for="goal-deadline" class="sr-only">締切日</label>
+        <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
+          style="margin-right: 8px; display: none;" />
+        <div class="toolbar-quick-actions" role="group" aria-label="クイックアクション">
+          <div class="mode-switch" role="radiogroup" aria-label="画面レイアウト（フルChrome／ミニマル）">
+            <button type="button" class="mode-switch-btn" data-mode="normal" aria-pressed="false"
+              title="フルChrome: サイドバーは設定どおり表示"
+              aria-label="フルChrome: サイドバーは設定どおり表示">
+              <i data-lucide="layout" aria-hidden="true"></i>
+              <span class="mode-switch-btn__label">フル</span>
+            </button>
+            <button type="button" class="mode-switch-btn" data-mode="focus" aria-pressed="true"
+              title="ミニマル: 左端ホバーで章一覧など"
+              aria-label="ミニマル: 左端ホバーで章一覧など">
+              <i data-lucide="crosshair" aria-hidden="true"></i>
+              <span class="mode-switch-btn__label">最小</span>
+            </button>
+          </div>
+          <button type="button" id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
+            <i data-lucide="maximize" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div class="toolbar-actions toolbar-actions--sidebar">
+          <div class="toolbar-group toolbar-group--editor" aria-label="編集">
+            <button type="button" id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
+              <i data-lucide="layout-template" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
+              <i data-lucide="columns" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="toggle-reader-preview" class="icon-button iconified" title="再生オーバーレイ（読者視点確認）" aria-label="再生オーバーレイ（読者視点確認）を開く">
+              <i data-lucide="eye" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
+              <i data-lucide="pen-tool" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="toolbar-group toolbar-group--system" aria-label="環境と表示">
+            <button type="button" id="toggle-settings" class="icon-button iconified" title="設定" aria-label="設定を開く">
+              <i data-lucide="settings" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="toggle-help-modal" class="icon-button iconified" title="ヘルプ" aria-label="ヘルプを開く">
+              <i data-lucide="help-circle" aria-hidden="true"></i>
+            </button>
+            <button type="button" id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="ライト/ダークモードを切り替え">
+              <i data-lucide="moon" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
       </div>
       <div class="sidebar-accordion">
         <!-- sections カテゴリ (SP-052) -->
@@ -175,23 +240,30 @@
           </button>
           <div class="accordion-content" id="accordion-edit" aria-hidden="true">
             <p class="sidebar-edit-hint" id="sidebar-edit-hint">
-              <strong>MD プレビュー</strong>は編集画面の横に表示。ツールバーの<strong>再生オーバーレイ</strong>は別（読者視点確認用）。
+              主な切替は<strong>サイドバー先頭の操作帯</strong>（フルChrome時）または<strong>メインハブ</strong>（ミニマル時・Alt+W 等）。ここ（折りたたみ）からも同じ操作が可能です。
+              <strong>MD プレビュー</strong>は横並びの表示確認。<strong>再生オーバーレイ</strong>は読了確認用（別物）。
             </p>
-            <div class="sidebar-editor-controls" role="group" aria-label="エディタ操作">
-              <button type="button" class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false"
-                title="編集画面の横に Markdown の表示確認（読者モードではありません）"
-                aria-label="MD プレビュー（編集の横に表示）">
-                <i data-lucide="layout-template" aria-hidden="true"></i><span>MD プレビュー</span>
-              </button>
-              <button type="button" class="sidebar-control-btn" id="sidebar-toggle-split" aria-pressed="false" title="分割ビュー">
-                <i data-lucide="columns" aria-hidden="true"></i><span>分割ビュー</span>
-              </button>
-              <button type="button" class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false"
-                title="装飾をリッチ表示で編集（読者プレビューではありません）"
-                aria-label="リッチ編集（WYSIWYG）の切替">
-                <i data-lucide="pen-tool" aria-hidden="true"></i><span>リッチ編集</span>
-              </button>
-            </div>
+            <details class="sidebar-editor-view-details sidebar-editor-controls" aria-label="エディタ表示メニュー">
+              <summary class="sidebar-editor-view-summary">
+                <i data-lucide="layout" aria-hidden="true"></i>
+                <span>エディタ表示</span>
+              </summary>
+              <div class="sidebar-editor-view-menu" role="group" aria-label="エディタ操作">
+                <button type="button" class="sidebar-control-btn" id="sidebar-toggle-preview" aria-pressed="false"
+                  title="編集画面の横に Markdown の表示確認（読者モードではありません）"
+                  aria-label="MD プレビュー（編集の横に表示）">
+                  <i data-lucide="layout-template" aria-hidden="true"></i><span>MD プレビュー</span>
+                </button>
+                <button type="button" class="sidebar-control-btn" id="sidebar-toggle-split" aria-pressed="false" title="分割ビュー">
+                  <i data-lucide="columns" aria-hidden="true"></i><span>分割ビュー</span>
+                </button>
+                <button type="button" class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false"
+                  title="装飾をリッチ表示で編集（読者プレビューではありません）"
+                  aria-label="リッチ編集（WYSIWYG）の切替">
+                  <i data-lucide="pen-tool" aria-hidden="true"></i><span>リッチ編集</span>
+                </button>
+              </div>
+            </details>
             <div id="edit-gadgets-panel" class="gadgets-panel" data-gadget-group="edit" aria-label="編集ガジェット"></div>
           </div>
         </section>
@@ -249,10 +321,14 @@
     <aside class="focus-chapter-panel" id="focus-chapter-panel" role="complementary" aria-label="チャプターリスト">
       <div class="focus-chapter-panel__header">
         <span class="focus-chapter-panel__title">チャプター</span>
-        <button class="focus-chapter-panel__settings-btn" id="focus-open-settings"
-          title="設定を開く" aria-label="設定パネルを開く">
-          <i data-lucide="settings" aria-hidden="true"></i>
-        </button>
+        <div class="focus-chapter-panel__header-actions" role="group" aria-label="チャプターパネル操作">
+          <button type="button" id="focus-exit-to-normal-btn" class="focus-chapter-panel__exit-btn"
+            title="フルChrome表示に切替（サイドバー先頭のモード切替と同じ）" aria-label="フルChrome表示に切替">フル</button>
+          <button class="focus-chapter-panel__settings-btn" id="focus-open-settings"
+            title="設定" aria-label="設定を開く">
+            <i data-lucide="settings" aria-hidden="true"></i>
+          </button>
+        </div>
       </div>
       <nav class="focus-chapter-panel__list" id="focus-chapter-list" aria-label="チャプター一覧">
         <!-- chapter-list.js が動的生成 -->
@@ -271,85 +347,7 @@
 
     <!-- メインコンテンツ -->
     <main class="main-content">
-      <!-- ツールバー -->
-      <div class="toolbar" role="toolbar" aria-label="メインツールバー" id="toolbar">
-        <div class="sidebar-controls">
-          <button id="toggle-sidebar" class="icon-button iconified" aria-label="サイドバーを開閉" aria-expanded="false"
-            aria-controls="sidebar" title="メニュー">
-            <i data-lucide="menu" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="word-count" role="status" aria-live="polite" aria-atomic="true">0 文字</div>
-        <div id="wysiwyg-format-indicator" role="status" aria-live="polite" style="display:none"></div>
-        <div id="goal-progress" class="goal-progress" aria-hidden="true" style="display: none" role="progressbar"
-          aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="執筆目標の進捗">
-          <div class="goal-progress__track">
-            <div class="goal-progress__bar" style="width: 0%"></div>
-          </div>
-        </div>
-        <label for="goal-target" class="sr-only">目標文字数</label>
-        <input type="number" id="goal-target" min="0" data-i18n-placeholder="GOAL_TARGET_PLACEHOLDER" aria-hidden="true"
-          style="width: 100px; margin-right: 8px; display: none;" aria-label="目標文字数" />
-        <label for="goal-deadline" class="sr-only">締切日</label>
-        <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
-          style="margin-right: 8px; display: none;" />
-        <!-- 常時表示クイックアクション -->
-        <div class="toolbar-quick-actions" role="group" aria-label="クイックアクション">
-          <div class="mode-switch" role="radiogroup" aria-label="表示モード">
-            <button class="mode-switch-btn" data-mode="normal" aria-pressed="true" title="通常モード">
-              <i data-lucide="layout" aria-hidden="true"></i>
-            </button>
-            <button class="mode-switch-btn" data-mode="focus" aria-pressed="false" title="フォーカスモード">
-              <i data-lucide="crosshair" aria-hidden="true"></i>
-            </button>
-          </div>
-          <button id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
-            <i data-lucide="maximize" aria-hidden="true"></i>
-          </button>
-        </div>
-        <!-- Electron: ウィンドウ操作ボタン (フレームレス時のみ表示) -->
-        <div class="window-controls electron-only" role="group" aria-label="ウィンドウ操作">
-          <button class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
-            <i data-lucide="minus" aria-hidden="true"></i>
-          </button>
-          <button class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
-            <i data-lucide="square" aria-hidden="true"></i>
-          </button>
-          <button class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
-            <i data-lucide="x" aria-hidden="true"></i>
-          </button>
-        </div>
-        <div class="toolbar-actions">
-          <div class="toolbar-group toolbar-group--editor" aria-label="編集">
-            <button id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
-              <i data-lucide="layout-template" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
-              <i data-lucide="columns" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-reader-preview" class="icon-button iconified" title="再生オーバーレイ（読者視点確認）" aria-label="再生オーバーレイ（読者視点確認）を開く">
-              <i data-lucide="eye" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
-              <i data-lucide="pen-tool" aria-hidden="true"></i>
-            </button>
-          </div>
-
-          <div class="toolbar-group toolbar-group--system" aria-label="環境と表示">
-            <button id="toggle-settings" class="icon-button iconified" title="設定" aria-label="設定を開く">
-              <i data-lucide="settings" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-help-modal" class="icon-button iconified" title="ヘルプ" aria-label="ヘルプを開く">
-              <i data-lucide="help-circle" aria-hidden="true"></i>
-            </button>
-            <button id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="ライト/ダークモードを切り替え">
-              <i data-lucide="moon" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- WYSIWYGツールバー（メインツールバー直下: editor-classic-layer の z-index 文脈に閉じ込めない） -->
+      <!-- WYSIWYGツールバー（main-content 直下: editor-classic-layer の z-index 文脈に閉じ込めない） -->
       <div id="wysiwyg-toolbar" class="wysiwyg-toolbar wysiwyg-toolbar--floating" role="toolbar"
         aria-label="リッチテキスト編集ツールバー">
         <button id="wysiwyg-bold" class="wysiwyg-btn" type="button" title="太字" aria-label="太字">
@@ -426,6 +424,7 @@
 
       <!-- エディタエリア -->
       <div class="editor-container" role="region" aria-label="エディタ">
+        <div id="zw-empty-chapter-hint" class="zw-empty-chapter-hint" role="status" aria-live="polite" hidden></div>
         <div id="editor-classic-layer" class="editor-classic-layer">
         <div id="textarea-mode-bar" class="textarea-mode-bar" style="display:none;">
           <span>ソース表示モード</span>
@@ -451,10 +450,10 @@
         </div>
       </div>
     </main>
-    <!-- ツールバー復元FAB (ツールバー非表示時のみ表示) -->
+    <!-- メインハブ用スロット（Focus では非表示。Alt+W / 上端エッジホバー / コマンドパレットから開く） -->
     <button id="show-toolbar" class="show-toolbar-fab" type="button"
-      aria-label="ツールバーを表示" title="ツールバーを表示 (Alt+W)" style="display: none;">
-      <i data-lucide="chevron-down" aria-hidden="true"></i>
+      aria-label="クイックツールパネルを開く" title="クイックツール (Alt+W)">
+      <i data-lucide="layout-grid" aria-hidden="true"></i>
     </button>
   </div>
 
@@ -511,6 +510,19 @@
             px
           </div>
           <div class="panel-hint" data-i18n="HINT_FONT_SIZE_SHORTCUT">Ctrl+Plus/Minus でも調整可能</div>
+        </section>
+        <section class="panel-section">
+          <h4 class="panel-section__title">クイック操作</h4>
+          <p class="panel-hint">サイドバー先頭の操作と同じ機能を、ここからも実行できます。</p>
+          <div class="panel-row panel-row--wrap" id="main-hub-toolbar-proxy" role="group" aria-label="クイック操作">
+            <button type="button" class="small" data-proxy-click="toggle-preview">プレビュー</button>
+            <button type="button" class="small" data-proxy-click="toggle-split-view">分割ビュー</button>
+            <button type="button" class="small" data-proxy-click="toggle-reader-preview">読者オーバーレイ</button>
+            <button type="button" class="small" data-proxy-click="toggle-wysiwyg">WYSIWYG</button>
+            <button type="button" class="small" data-proxy-click="toggle-settings">設定</button>
+            <button type="button" class="small" data-proxy-click="toggle-help-modal">ヘルプ</button>
+            <button type="button" class="small" data-proxy-click="toggle-theme">テーマ</button>
+          </div>
         </section>
         <section class="panel-section">
           <h4 class="panel-section__title" data-i18n="HUD_CONTROL">HUD制御</h4>
@@ -734,6 +746,7 @@
   <script defer src="js/modules/editor/EditorUI.js"></script>
   <script defer src="js/modules/editor/EditorSearch.js"></script>
   <script defer src="js/modules/editor/RichTextCommandAdapter.js"></script>
+  <script defer src="js/zw-developer-mode.js"></script>
   <script defer src="js/editor.js"></script>
   <script defer src="js/editor-wysiwyg.js"></script>
   <script defer src="js/modules/editor/RichTextEnhancedRuntime.js"></script>

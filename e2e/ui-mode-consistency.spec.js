@@ -11,30 +11,39 @@ test.describe('UI Mode Consistency', () => {
   });
 
   // ===== Normal モード (デフォルト) =====
-  test('Normal mode: toolbar is visible', async ({ page }) => {
-    const toolbar = page.locator('.toolbar');
-    await expect(toolbar).toBeVisible();
+  test('Normal mode: sidebar chrome toolbar exists', async ({ page }) => {
+    const chrome = page.locator('.sidebar-chrome-toolbar');
+    await expect(chrome).toHaveCount(1);
   });
 
   // ===== Focus モード =====
-  test('Focus mode: sidebar stays closed and aria-hidden', async ({ page }) => {
-    await setUIMode(page, 'focus');
-    // forceSidebarState は transition 完了後に aria-hidden を設定するため十分待つ
-    await page.waitForFunction(() => {
-      const sidebar = document.getElementById('sidebar');
-      return sidebar && sidebar.getAttribute('aria-hidden') === 'true';
-    }, { timeout: 5000 });
-    const sidebarState = await page.evaluate(() => {
-      const sidebar = document.getElementById('sidebar');
-      if (!sidebar) return null;
-      return {
-        open: sidebar.classList.contains('open'),
-        ariaHidden: sidebar.getAttribute('aria-hidden'),
-      };
+  test('Focus mode: UI mode toggle preserves sidebar open/closed', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    expect(sidebarState).not.toBeNull();
-    expect(sidebarState.open).toBe(false);
-    expect(sidebarState.ariaHidden).toBe('true');
+    await page.waitForTimeout(350);
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(350);
+    let closed = await page.evaluate(() => {
+      const s = document.getElementById('sidebar');
+      return !!(s && !s.classList.contains('open'));
+    });
+    expect(closed).toBe(true);
+
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(true);
+    });
+    await page.waitForTimeout(350);
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(350);
+    const stillOpen = await page.evaluate(() => {
+      const s = document.getElementById('sidebar');
+      return !!(s && s.classList.contains('open'));
+    });
+    expect(stillOpen).toBe(true);
   });
 
   test('Focus mode: focus chapter panel appears if present', async ({ page }) => {
@@ -46,27 +55,40 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('Focus mode: toolbar does not leave a top gap in the editor layout', async ({ page }) => {
+  test('Focus chapter panel: フル button exits minimal to normal', async ({ page }) => {
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-edge-hover-left', 'true');
+    });
+    await page.waitForTimeout(250);
+    await expect(page.locator('#focus-exit-to-normal-btn')).toBeVisible();
+    await page.locator('#focus-exit-to-normal-btn').click();
+    await page.waitForTimeout(200);
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
+  });
+
+  test('Focus mode: editor layout has no main toolbar strip', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(200);
     const layout = await page.evaluate(() => {
       const visibleEditor = [...document.querySelectorAll('#editor, #wysiwyg-editor')]
         .find((el) => window.getComputedStyle(el).display !== 'none');
       const editorContainer = document.querySelector('.editor-container');
-      const toolbar = document.getElementById('toolbar');
-      if (!visibleEditor || !editorContainer || !toolbar) return null;
+      if (!visibleEditor || !editorContainer) return null;
       return {
         toolbarHidden: document.documentElement.getAttribute('data-toolbar-hidden'),
         containerTop: Math.round(editorContainer.getBoundingClientRect().top),
         editorTop: Math.round(visibleEditor.getBoundingClientRect().top),
-        toolbarBottom: Math.round(toolbar.getBoundingClientRect().bottom)
+        noMainToolbar: !document.getElementById('toolbar')
       };
     });
     expect(layout).not.toBeNull();
-    expect(layout.toolbarHidden).toBe('true');
-    expect(layout.containerTop).toBe(0);
-    expect(layout.editorTop).toBe(0);
-    expect(layout.toolbarBottom).toBe(0);
+    expect(layout.toolbarHidden).toBeNull();
+    expect(layout.noMainToolbar).toBe(true);
+    // ミニ HUD 等の薄い Chrome で数 px〜数十 px のオフセットがあり得る
+    expect(layout.containerTop).toBeLessThanOrEqual(48);
+    expect(layout.editorTop).toBeGreaterThanOrEqual(0);
   });
 
   test('Focus mode: left edge panel does not overlap the writing surface', async ({ page }) => {
@@ -91,13 +113,31 @@ test.describe('UI Mode Consistency', () => {
   // ===== Blank モード廃止 (SP-081 Phase 3) =====
 
   // ===== モード遷移 =====
-  test('Focus->Normal round-trip: toolbar reappears', async ({ page }) => {
+  test('Focus->Normal round-trip: sidebar chrome remains in DOM', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(100);
     await setUIMode(page, 'normal');
     await page.waitForTimeout(100);
-    const toolbar = page.locator('.toolbar');
-    await expect(toolbar).toBeVisible();
+    const chrome = page.locator('.sidebar-chrome-toolbar');
+    await expect(chrome).toHaveCount(1);
+  });
+
+  test('Normal→Focus: persisted 詳細(sidebarSettingsOpen) is collapsed for minimal rail', async ({ page }) => {
+    await page.evaluate(() => {
+      const s = window.ZenWriterStorage.loadSettings();
+      s.ui = s.ui || {};
+      s.ui.sidebarSettingsOpen = true;
+      window.ZenWriterStorage.saveSettings(s);
+    });
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await showFullToolbar(page);
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(250);
+    const wso = await page.evaluate(() => document.documentElement.getAttribute('data-writing-settings-open'));
+    expect(wso).toBe('false');
   });
 
   // Blank->Normal テスト削除 (SP-081 Phase 3: Blank 廃止)
@@ -119,7 +159,7 @@ test.describe('UI Mode Consistency', () => {
   // MainHubPanel Blank テスト削除 (SP-081 Phase 3: Blank 廃止)
 
   // ===== 再生オーバーレイ (SP-078+) =====
-  test('再生オーバーレイ: sidebar and toolbar are hidden', async ({ page }) => {
+  test('再生オーバーレイ: sidebar and floating chrome controls are hidden', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
     });

@@ -80,6 +80,12 @@
   function flushChapterIfNeeded() {
     if (!_isChapterMode()) return false;
 
+    var root = document.documentElement;
+    // 結合本文をエディタに表示している間は、1章分としてフラッシュしない（データ破損防止）
+    if (root.getAttribute('data-zw-chapter-editor-sync') === 'assembled') return false;
+    // 章スライス編集はフォーカスモードのみ。通常モードの結合本文を章レコードへ書かない。
+    if ((root.getAttribute('data-ui-mode') || 'normal') !== 'focus') return false;
+
     var CL = _getChapterList();
     if (!CL) return false;
 

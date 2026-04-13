@@ -93,7 +93,7 @@
 
                         case 'ui.mode.cycle':
                             {
-                                const mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+                                const mode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
                                 const modes = ['normal', 'focus'];
                                 const currentIndex = modes.indexOf(mode);
                                 const nextIndex = (currentIndex + 1) % modes.length;
@@ -229,7 +229,7 @@
             // F2: UIモードサイクル切替
             if (e.key === 'F2') {
                 e.preventDefault();
-                const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+                const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
                 const modes = ['normal', 'focus'];
                 const currentIndex = modes.indexOf(currentMode);
                 const nextIndex = (currentIndex + 1) % modes.length;

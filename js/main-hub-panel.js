@@ -52,6 +52,61 @@
     if (window.ZenWriterFloatingPanels) {
       window.ZenWriterFloatingPanels.preparePanel(mainHubPanel);
     }
+
+    function runHubProxyAction(domId) {
+      if (!domId) return;
+      switch (domId) {
+        case 'toggle-preview':
+          if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+            window.ZenWriterEditor.togglePreview();
+          }
+          break;
+        case 'toggle-split-view':
+          if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
+            window.MainHubPanel.toggle('split-view');
+          }
+          break;
+        case 'toggle-reader-preview':
+          if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
+            window.ZWReaderPreview.toggle();
+          }
+          break;
+        case 'toggle-settings':
+          if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+            window.ZenWriterApp.openSettingsModal();
+          } else {
+            const s = document.getElementById('toggle-settings');
+            if (s && typeof s.click === 'function') s.click();
+          }
+          break;
+        case 'toggle-help-modal':
+          if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+            window.ZenWriterApp.openHelpModal();
+          } else {
+            const h = document.getElementById('toggle-help-modal');
+            if (h && typeof h.click === 'function') h.click();
+          }
+          break;
+        case 'toggle-wysiwyg':
+        case 'toggle-theme': {
+          const el = document.getElementById(domId);
+          if (el && typeof el.click === 'function') el.click();
+          break;
+        }
+        default:
+          break;
+      }
+    }
+
+    const proxyRoot = document.getElementById('main-hub-toolbar-proxy');
+    if (proxyRoot) {
+      proxyRoot.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-proxy-click]');
+        if (!btn) return;
+        const id = btn.getAttribute('data-proxy-click');
+        runHubProxyAction(id);
+      });
+    }
   }
 
   // メインハブパネルを表示する関数
@@ -89,11 +144,17 @@
     }
   }
 
+  function hideMainHubPanel() {
+    const mainHubPanel = document.getElementById('main-hub-panel');
+    if (mainHubPanel) mainHubPanel.style.display = 'none';
+  }
+
   // グローバルAPIを公開
   window.MainHubPanel = {
     init: initMainHubPanel,
     show: showMainHubPanel,
-    toggle: toggleMainHubPanel
+    toggle: toggleMainHubPanel,
+    hide: hideMainHubPanel
   };
 
   // DOMContentLoaded時に初期化

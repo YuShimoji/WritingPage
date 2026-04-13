@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, openSidebar } = require('./helpers');
 
 /**
  * UIエディタのE2Eテスト
@@ -24,6 +24,7 @@ test.describe('UI Visual Editor', () => {
     await page.waitForLoadState('networkidle');
     // Show full toolbar to access hidden buttons
     await showFullToolbar(page);
+    await openSidebar(page);
     // UIエディタの初期化を待つ
     await page.waitForFunction(() => {
       return !!(window.uiVisualEditor && typeof window.uiVisualEditor.activate === 'function');
@@ -52,7 +53,7 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // ツールバーのボタンをクリックして選択（UIエディタモードではクリックで選択される）
-    const toolbarButton = page.locator('#toggle-sidebar');
+    const toolbarButton = page.locator('#toggle-settings');
     await toolbarButton.dispatchEvent('click');
 
     // 少し待機してから確認
@@ -71,7 +72,7 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // ツールバーのボタンを選択
-    const toolbarButton = page.locator('#toggle-sidebar');
+    const toolbarButton = page.locator('#toggle-settings');
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 
@@ -127,7 +128,7 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // 要素を選択して色を変更
-    const toolbarButton = page.locator('#toggle-sidebar');
+    const toolbarButton = page.locator('#toggle-settings');
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 
@@ -157,7 +158,7 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // 要素を選択して色を変更
-    const toolbarButton = page.locator('#toggle-sidebar');
+    const toolbarButton = page.locator('#toggle-settings');
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 

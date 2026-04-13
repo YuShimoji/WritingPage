@@ -53,11 +53,14 @@ async function loadSample(page, samplePath) {
   return content;
 }
 
-// Helper: show full toolbar
+// Helper: Normal モードへ（旧フルツールバー属性は廃止）
 async function showFullToolbar(page) {
   await page.evaluate(() => {
-    document.documentElement.setAttribute('data-toolbar-mode', 'full');
+    document.documentElement.removeAttribute('data-toolbar-mode');
     document.documentElement.removeAttribute('data-toolbar-hidden');
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+      window.ZenWriterApp.setUIMode('normal');
+    }
   });
 }
 

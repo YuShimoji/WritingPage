@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { openSearchPanel, disableWritingFocus, setUIMode } = require('./helpers');
+const { openSearchPanel, disableWritingFocus, setUIMode, openSidebar } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -17,20 +17,20 @@ test.describe('Accessibility E2E', () => {
     await page.waitForTimeout(200);
   });
 
-  test('keyboard can open and close sidebar from toggle button', async ({ page }) => {
+  test('keyboard shortcut Alt+1 opens and closes sidebar', async ({ page }) => {
     const sidebar = page.locator('#sidebar');
     const toggleBtn = page.locator('#toggle-sidebar');
 
     await expect(sidebar).not.toHaveClass(/open/);
 
-    await toggleBtn.focus();
-    await expect(toggleBtn).toBeFocused();
-
-    await page.keyboard.press('Enter');
+    await page.locator('#editor').focus();
+    await page.keyboard.press('Alt+1');
+    await page.waitForTimeout(200);
     await expect(sidebar).toHaveClass(/open/);
     await expect(toggleBtn).toHaveAttribute('aria-expanded', 'true');
 
-    await page.keyboard.press('Space');
+    await page.keyboard.press('Alt+1');
+    await page.waitForTimeout(200);
     await expect(sidebar).not.toHaveClass(/open/);
     await expect(toggleBtn).toHaveAttribute('aria-expanded', 'false');
   });
@@ -63,7 +63,7 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('Enter/Space keys activate accordion headers', async ({ page }) => {
-    await page.locator('#toggle-sidebar').click();
+    await openSidebar(page);
     await page.waitForTimeout(300);
     await disableWritingFocus(page);
     // writing-focus 再適用を確実に停止 (_isWritingFocusSidebarEffective を無効化)
@@ -101,8 +101,9 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('ARIA attributes exist on key regions and controls', async ({ page }) => {
+    await openSidebar(page);
     await expect(page.locator('#sidebar')).toHaveAttribute('role', 'complementary');
-    await expect(page.locator('.toolbar')).toHaveAttribute('role', 'toolbar');
+    await expect(page.locator('.sidebar-chrome-toolbar')).toHaveAttribute('role', 'toolbar');
     await expect(page.locator('#editor')).toHaveAttribute('role', 'textbox');
     await expect(page.locator('#toggle-sidebar')).toHaveAttribute('aria-expanded');
 
@@ -111,13 +112,14 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('focus-visible style is applied for keyboard users', async ({ page }) => {
-    // 特定のボタン要素にフォーカスして outline を確認
-    const toggleBtn = page.locator('#toggle-sidebar');
-    await toggleBtn.focus();
+    await openSidebar(page);
+    await page.waitForTimeout(150);
+    // サイドバー内の可視ボタンでフォーカスリングを確認
+    const settingsBtn = page.locator('#toggle-settings');
+    await settingsBtn.focus();
     await page.keyboard.press('Tab');
     await page.keyboard.press('Shift+Tab');
-    // toggle-sidebar に戻す
-    await toggleBtn.focus();
+    await settingsBtn.focus();
 
     const hasKeyboardUserClass = await page.evaluate(() => {
       return document.body.classList.contains('keyboard-user');
@@ -163,11 +165,8 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('preview toggle updates aria-expanded and panel collapsed class', async ({ page }) => {
-    // Make sure toolbar is visible
-    await page.evaluate(() => {
-      document.documentElement.setAttribute('data-toolbar-mode', 'full');
-    });
-    await page.waitForTimeout(100);
+    await openSidebar(page);
+    await page.waitForTimeout(150);
 
     const previewToggle = page.locator('#toggle-preview');
     const previewPanel = page.locator('#editor-preview');

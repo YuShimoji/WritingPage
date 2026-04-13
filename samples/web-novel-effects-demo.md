@@ -1,7 +1,7 @@
 # 演出統合デモ -- Web小説向け
 
 Zen Writer の Web 小説演出機能を一つのストーリーで確認するためのサンプルです。
-Reader Preview (Ctrl+Shift+R) で全演出が動作します。
+Reader Preview (Alt+Shift+R) で全演出が動作します。
 
 ---
 

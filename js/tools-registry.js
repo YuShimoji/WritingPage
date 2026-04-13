@@ -6,11 +6,10 @@
       icon: 'layout-template',
       group: 'editor',
       gadgetId: 'editor-layout',
-      // toggle-preview maps to this icon but behaves differently (toggles preview panel)
-      // For now, let's map it to keep visual consistency if that's the intention
+      // MD プレビューはサイドバー先頭の #toggle-preview（ヘッダ帯外）。動的ヘッダ生成は付けない。
       domId: 'toggle-preview',
       entrypoints: {
-        headerIcon: true, // Changing to true to verify dynamic generation
+        headerIcon: false,
         sidebarGadget: true,
         fabMenu: false,
       },
@@ -21,24 +20,11 @@
       icon: 'panel-top',
       group: 'system',
       gadgetId: 'hud-settings',
-      domId: 'toggle-toolbar', // Assuming this is the main toolbar toggle
+      domId: 'show-toolbar', // メインハブ（クイックツール）への補助 FAB（常時可視ではないため headerIcon は false）
       entrypoints: {
-        headerIcon: true, // Changing to true
+        headerIcon: false,
         sidebarGadget: true,
         fabMenu: true,
-      },
-    },
-    {
-      id: 'search-replace',
-      label: 'Search & Replace',
-      icon: 'search',
-      group: 'editor',
-      gadgetId: 'search-panel',
-      domId: 'toggle-search', // No existing button found? Or maybe trigger by shortcut.
-      entrypoints: {
-        headerIcon: false, // Keep false if no button exists
-        sidebarGadget: false,
-        fabMenu: false,
       },
     },
   ];

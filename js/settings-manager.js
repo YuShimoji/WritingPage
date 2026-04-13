@@ -38,11 +38,6 @@ class SettingsManager {
             lineHeightInput.value = settings.lineHeight;
             if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight;
         }
-        // ツールバー表示状態
-        if (typeof settings.toolbarVisible !== 'undefined') {
-            window.sidebarManager.setToolbarVisibility(!!settings.toolbarVisible);
-        }
-
         // サイドバー表示状態
         if (typeof settings.sidebarVisible !== 'undefined') {
             window.sidebarManager.forceSidebarState(!!settings.sidebarVisible);

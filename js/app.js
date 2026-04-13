@@ -117,29 +117,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.settingsManager && typeof window.settingsManager.applySettingsToUI === 'function') {
                 window.settingsManager.applySettingsToUI();
             }
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyWrapCols === 'function') {
+                window.ZenWriterEditor.applyWrapCols();
+            }
         });
     } catch (_) { }
-
-    function syncToolbarHeightWithCSSVar() {
-        try {
-            const toolbarEl = document.querySelector('.toolbar');
-            if (!toolbarEl) return;
-            const root = document.documentElement;
-            const update = () => {
-                const rect = toolbarEl.getBoundingClientRect();
-                if (!rect || !rect.height) return;
-                const h = Math.round(rect.height);
-                root.style.setProperty('--toolbar-height', h + 'px');
-            };
-            update();
-            if (typeof ResizeObserver === 'function') {
-                const ro = new ResizeObserver(() => update());
-                ro.observe(toolbarEl);
-            } else {
-                window.addEventListener('resize', update);
-            }
-        } catch (_) { }
-    }
 
     // タブボタンを動的に生成
     function initializeSidebarTabs() {
@@ -166,7 +148,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 要素別フォントサイズを適用
     applyElementFontSizes();
 
-    syncToolbarHeightWithCSSVar();
+    if (typeof window.ZenWriterEditor.applyWrapCols === 'function') {
+        window.ZenWriterEditor.applyWrapCols();
+    }
 
     // タブ初期化
     initializeSidebarTabs();
@@ -237,52 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // サイドバータブの表示方式を反映
     window.sidebarManager.applyTabsPresentationUI();
 
-    // プラグインを描画
-    function renderPlugins() {
-        const pluginsPanel = elementManager.get('pluginsPanel');
-        if (!pluginsPanel || !window.ZenWriterPlugins) return;
-        try {
-            const list = window.ZenWriterPlugins.list ? (window.ZenWriterPlugins.list() || []) : [];
-            pluginsPanel.innerHTML = '';
-            if (!list.length) {
-                // メッセージを表示しない
-                return;
-            }
-            list.forEach(p => {
-                const group = document.createElement('div');
-                group.className = 'plugin-group';
-                group.style.display = 'flex';
-                group.style.flexDirection = 'column';
-                group.style.gap = '0.375rem';
-
-                const title = document.createElement('div');
-                title.className = 'plugin-title';
-                title.textContent = p.name || p.id;
-                title.style.fontWeight = 'bold';
-                group.appendChild(title);
-
-                const actionsWrap = document.createElement('div');
-                actionsWrap.className = 'plugin-actions';
-                actionsWrap.style.display = 'flex';
-                actionsWrap.style.flexWrap = 'wrap';
-                actionsWrap.style.gap = '0.375rem';
-                (p.actions || []).forEach(a => {
-                    const btn = document.createElement('button');
-                    btn.className = 'small';
-                    btn.textContent = a.label || a.id;
-                    btn.addEventListener('click', () => {
-                        try { if (a && typeof a.run === 'function') a.run(); } catch (e) { console.error(e); }
-                    });
-                    actionsWrap.appendChild(btn);
-                });
-                group.appendChild(actionsWrap);
-                pluginsPanel.appendChild(group);
-            });
-        } catch (e) {
-            console.error('プラグイン描画エラー:', e);
-        }
-    }
-
     // サイドバーの表示/非表示を切り替え
     function toggleSidebar() {
         window.sidebarManager.toggleSidebar();
@@ -295,26 +233,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ツールバーの表示/非表示を切り替え（状態保存）
+    /** 旧「ツールバー表示」ショートカット互換: メインハブのクイックツールを開閉 */
     function toggleToolbar() {
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
-        // ブランクモード時にツールバー操作が行われた場合は、
-        // まず通常モードへ戻してから処理する（脱出用エスケープ）
         if (currentMode === 'blank') {
             setUIMode('normal');
             return;
         }
-        window.sidebarManager.toggleToolbar();
-        // aria-expanded属性を更新
-        const toggleBtn = elementManager.get('toggleToolbarBtn');
-        const showBtn = elementManager.get('showToolbarBtn');
-        const toolbar = elementManager.get('toolbar');
-        const isVisible = toolbar && !document.documentElement.getAttribute('data-toolbar-hidden');
-        if (toggleBtn) {
-            toggleBtn.setAttribute('aria-expanded', String(!!isVisible));
-        }
-        if (showBtn) {
-            showBtn.setAttribute('aria-expanded', String(!isVisible));
+        if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
+            window.sidebarManager.toggleToolbar();
         }
     }
 
@@ -362,6 +289,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Electron-bridge / テスト / 外部モジュールは window.ZenWriterApp.setUIMode() を経由すること
     window.ZenWriterApp = window.ZenWriterApp || {};
     window.ZenWriterApp.setUIMode = setUIMode;
+    if (_appUIEvents) {
+        window.ZenWriterApp.openSettingsModal = _appUIEvents.openSettingsModal;
+        window.ZenWriterApp.closeSettingsModal = _appUIEvents.closeSettingsModal;
+        window.ZenWriterApp.openHelpModal = _appUIEvents.openHelpModal;
+        window.ZenWriterApp.closeHelpModal = _appUIEvents.closeHelpModal;
+    }
     // キーボードショートカット（app-shortcuts.js に委譲）
     if (typeof window.initAppShortcuts === 'function') {
         window.initAppShortcuts({
@@ -439,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期: ドキュメント管理セットアップ
     ensureInitialDocument();
     updateDocumentTitle();
-    renderPlugins();
 
     // サイドバー初期表示は設定しない（E2Eはボタンで開閉する前提）
 
@@ -469,11 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.sidebarManager.applyTabPlacement();
                 }
             }
-            // UIモード適用 — force:true で全コンポーネント状態を確実に初期化
+            // UIモード適用 — force:true で全コンポーネント状態を確実に初期化（未設定は focus）
             if (s && s.ui && s.ui.uiMode) {
                 setUIMode(s.ui.uiMode, false, true);
             } else {
-                setUIMode('normal', false, true);
+                setUIMode('focus', false, true);
             }
             if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
                 window.sidebarManager.applyTabsPresentationUI();
@@ -488,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
         var targetMode = mode === 'blank' ? 'focus' : mode;
         // Readerモード廃止: 既存値は focus へ正規化
         if (targetMode === 'reader') targetMode = 'focus';
-        targetMode = validModes.includes(targetMode) ? targetMode : 'normal';
+        targetMode = validModes.includes(targetMode) ? targetMode : 'focus';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
         if (!force && currentMode === targetMode) return;
@@ -500,21 +432,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (G) {
                     G.flushChapterIfNeeded();
                     G.ensureSaved({ snapshot: false });
+                    // 通常→フォーカス: data-ui-mode 更新より前に章へ split（Observer 後だとエディタ取得が空になることがある）
+                    if (currentMode === 'normal' && targetMode === 'focus' && window.ZWChapterList && typeof window.ZWChapterList.syncAssembledEditorToChaptersBeforeFocus === 'function') {
+                        window.ZWChapterList.syncAssembledEditorToChaptersBeforeFocus();
+                    }
                 }
             } catch (_) { }
         }
-
-        // R-4: モード遷移前にツールバー状態を確定的にリセット
-        // Normal モードに入る場合: ツールバーを確実に表示
-        try {
-            if (window.sidebarManager && typeof window.sidebarManager.setToolbarVisibility === 'function') {
-                window.sidebarManager.setToolbarVisibility(targetMode === 'normal');
-            } else if (targetMode === 'normal') {
-                document.documentElement.removeAttribute('data-toolbar-hidden');
-            } else {
-                document.documentElement.setAttribute('data-toolbar-hidden', 'true');
-            }
-        } catch (_) { }
 
         document.documentElement.setAttribute('data-ui-mode', targetMode);
 
@@ -530,23 +454,49 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZWEdgeHover.dismissAll();
         }
 
-        // Focus モードに入る時はサイドバーを閉じる
-        if (targetMode === 'focus') {
-            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
-                window.sidebarManager.forceSidebarState(false);
+        // M-1a: Focus→Normal では dismiss で章レール相当が消える。本体 #sidebar が閉じたままだと左が空に見えるため、
+        // 直前にサイドバーが閉じていたときだけフルChrome用に開く（既に開いている場合は触らない）。
+        if (currentMode === 'focus' && targetMode === 'normal') {
+            var sidebarElForExit = document.getElementById('sidebar');
+            var sidebarWasOpenBeforeExit = !!(sidebarElForExit && sidebarElForExit.classList.contains('open'));
+            if (!sidebarWasOpenBeforeExit && window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                window.sidebarManager.forceSidebarState(true);
+                try {
+                    sessionStorage.setItem('zw_focus_exit_opened_sidebar', '1');
+                } catch (_) { }
+                try {
+                    var stOpen = window.ZenWriterStorage.loadSettings();
+                    stOpen.sidebarOpen = true;
+                    window.ZenWriterStorage.saveSettings(stOpen);
+                } catch (_) { }
             }
         }
 
-        // Normal モードに戻る時はサイドバー/ツールバー状態を復元
-        if (targetMode === 'normal') {
-            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        // M-1b: Normal→Focus（最小）— 執筆レールの「詳細」永続を畳す。章レールの自動表示は「章パネルからフルへ」補助直後のみ。
+        if (currentMode === 'normal' && targetMode === 'focus') {
+            var reopenCh = false;
+            try {
+                reopenCh = sessionStorage.getItem('zw_focus_exit_opened_sidebar') === '1';
+                sessionStorage.removeItem('zw_focus_exit_opened_sidebar');
+            } catch (_) { }
+            if (reopenCh && window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                window.sidebarManager.forceSidebarState(false);
                 try {
-                    var savedSettings = window.ZenWriterStorage.loadSettings();
-                    var sidebarOpen = savedSettings && savedSettings.sidebarOpen !== false;
-                    window.sidebarManager.forceSidebarState(sidebarOpen);
-                } catch (_2) { }
+                    var stCl = window.ZenWriterStorage.loadSettings();
+                    stCl.sidebarOpen = false;
+                    window.ZenWriterStorage.saveSettings(stCl);
+                } catch (_) { }
+            }
+            if (window.sidebarManager && typeof window.sidebarManager.collapseWritingFocusDetailForUIModeFocus === 'function') {
+                window.sidebarManager.collapseWritingFocusDetailForUIModeFocus();
+            }
+            if (reopenCh && window.ZWEdgeHover && typeof window.ZWEdgeHover.peekFocusLeftChapterRail === 'function') {
+                window.ZWEdgeHover.peekFocusLeftChapterRail();
             }
         }
+
+        // サイドバー開閉はモード切替では原則触らない（上記 M-1a/M-1b は章レールとフルChromeの整合の例外）。
+        // 永続化された開閉は起動時・明示トグル・Alt+1 等の経路で反映される。
 
         // M-2: モード切替時にフローティングツールバーを確実に非表示
         var wysiwygToolbar = document.getElementById('wysiwyg-toolbar');
@@ -577,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.ZenWriterApp = Object.assign({}, window.ZenWriterApp, {
         setUIMode,
         getUIMode: function () {
-            return document.documentElement.getAttribute('data-ui-mode') || 'normal';
+            return document.documentElement.getAttribute('data-ui-mode') || 'focus';
         }
     });
 
@@ -602,9 +552,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SP-071: Focus チャプターパネル ---
     // チャプターリストは chapter-list.js (ZWChapterList) が管理。
-    // ここではオーバーレイサイドバーの開閉のみ管理する。
-    (function initFocusOverlay() {
-        var settingsBtn = document.getElementById('focus-open-settings');
+    // 章パネルの歯車は ZenWriterApp.openSettingsModal（ツールバー歯車と同一処理）。
+    (function initFocusChapterSettingsShortcut() {
+        var gearBtn = document.getElementById('focus-open-settings');
 
         function closeFocusOverlay() {
             var sidebar = document.getElementById('sidebar');
@@ -613,32 +563,25 @@ document.addEventListener('DOMContentLoaded', () => {
             if (overlay) overlay.style.display = 'none';
         }
 
-        function openFocusOverlay() {
-            var sidebar = document.getElementById('sidebar');
-            if (!sidebar) return;
-            sidebar.classList.add('focus-overlay-open');
-            sidebar.style.display = '';
-            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
-                window.sidebarManager.forceSidebarState(true);
-            }
-            var overlay = document.getElementById('focus-overlay-backdrop');
-            if (!overlay) {
-                overlay = document.createElement('div');
-                overlay.id = 'focus-overlay-backdrop';
-                overlay.className = 'focus-overlay-backdrop';
-                overlay.addEventListener('click', closeFocusOverlay);
-                document.body.appendChild(overlay);
-            }
-            overlay.style.display = 'block';
+        if (gearBtn) {
+            gearBtn.addEventListener('click', function () {
+                closeFocusOverlay();
+                if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+                    window.ZenWriterApp.openSettingsModal();
+                } else {
+                    var fallback = document.getElementById('toggle-settings');
+                    if (fallback && typeof fallback.click === 'function') fallback.click();
+                }
+            });
         }
 
-        if (settingsBtn) {
-            settingsBtn.addEventListener('click', function () {
-                var sidebar = document.getElementById('sidebar');
-                if (sidebar && sidebar.classList.contains('focus-overlay-open')) {
-                    closeFocusOverlay();
-                } else {
-                    openFocusOverlay();
+        var focusExitFullBtn = document.getElementById('focus-exit-to-normal-btn');
+        if (focusExitFullBtn) {
+            focusExitFullBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                closeFocusOverlay();
+                if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+                    window.ZenWriterApp.setUIMode('normal');
                 }
             });
         }

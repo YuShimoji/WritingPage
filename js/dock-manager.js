@@ -94,7 +94,7 @@
 
   DockManager.prototype._applyLayout = function () {
     var html = document.documentElement;
-    var mode = html.getAttribute('data-ui-mode') || 'normal';
+    var mode = html.getAttribute('data-ui-mode') || 'focus';
 
     // Sidebar dock position
     html.setAttribute('data-dock-sidebar', this._layout.sidebarDock);

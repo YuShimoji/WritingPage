@@ -2,17 +2,22 @@
  * edge-hover.js — スクリーンエッジホバーUI (SP-081 Phase 3)
  *
  * マウスカーソルが画面端に近づくと、隠れたUIを一時的にスライドイン表示する。
- * - 上端: ツールバー
- * - 左端: 章パネル (Focus モード)
+ * - 上端 (Focus のみ): メインハブのクイックツールを表示
+ * - 左端: 章パネル (Focus) / サイドバー一時表示 (Normal)
  *
- * Focus モードでツールバー/章パネルが隠れている場合に操作へ到達する。
+ * メイン横帯ツールバー廃止後、上端はツールバーではなく MainHubPanel に接続する。
+ *
+ * 左エッジは y > EDGE_ZONE のみ（左上隅は上端ホバーとトグル競合を避けるため除外）。
  */
 (function () {
   'use strict';
 
-  var EDGE_ZONE = 24;       // エッジ検知ゾーン (px)
-  var DWELL_MS = 120;       // 滞在時間閾値 (ms)
-  var DISMISS_MS = 300;     // 離脱後の非表示ディレイ (ms)
+  /** エッジ検知ゾーン (px)。画面端からこの距離内でホバー扱い（spec-mode-architecture と一致）。 */
+  var EDGE_ZONE = 24;
+  /** エッジ内に留まってから UI を出すまでの遅延。mousemove ごとにリセットしない（初回入帯で1本のタイマー）。 */
+  var DWELL_MS = 280;
+  /** エッジ外へ出たあと非表示までの遅延（境界付近のチラつき抑制）。0 のときは即 dismiss。 */
+  var DISMISS_MS = 500;
 
   var state = {
     top: { active: false, dwellTimer: null, dismissTimer: null },
@@ -21,11 +26,18 @@
 
   var html = document.documentElement;
 
+  /** 上端エッジで MainHub を開いたときだけ true（手動オープンのハブを誤って閉じない） */
+  var openedHubFromTopEdge = false;
+
   // --- ヘルパー ---
 
-  function isToolbarNormallyVisible() {
+  /** Normal では上端ホバーを使わない */
+  function shouldSkipTopEdgeDwell() {
     var mode = html.getAttribute('data-ui-mode');
-    return html.getAttribute('data-toolbar-hidden') !== 'true' && mode !== 'focus';
+    if (mode !== 'focus') return true;
+    var hub = document.getElementById('main-hub-panel');
+    if (hub && hub.style.display !== 'none') return true;
+    return false;
   }
 
   function isSidebarNormallyOpen() {
@@ -50,6 +62,13 @@
     state[edge].active = false;
     html.removeAttribute('data-edge-hover-' + edge);
 
+    if (edge === 'top' && openedHubFromTopEdge) {
+      openedHubFromTopEdge = false;
+      if (window.MainHubPanel && typeof window.MainHubPanel.hide === 'function') {
+        window.MainHubPanel.hide();
+      }
+    }
+
     // サイドバーをエッジホバーで開いた場合、閉じる (focusモードではサイドバー不使用)
     var mode = html.getAttribute('data-ui-mode');
     if (edge === 'left' && mode === 'normal' && !isSidebarNormallyOpen()) {
@@ -61,35 +80,79 @@
     }
   }
 
-  function startDwell(edge) {
-    clearTimeout(state[edge].dwellTimer);
-    clearTimeout(state[edge].dismissTimer);
-    state[edge].dwellTimer = setTimeout(function () {
-      // 対象エッジのUIが既に表示中なら何もしない
-      if (edge === 'top' && isToolbarNormallyVisible()) return;
-      if (edge === 'left' && isSidebarNormallyOpen()) return;
+  function runDwellAction(edge) {
+    if (edge === 'top' && shouldSkipTopEdgeDwell()) return;
+    if (edge === 'left' && isSidebarNormallyOpen()) return;
 
-      showEdge(edge);
+    showEdge(edge);
 
-      // 左端: focusモードでは章パネルのみ(CSS制御)、normalではサイドバーを一時的に開く
-      var mode = html.getAttribute('data-ui-mode');
-      if (edge === 'left' && mode === 'normal' && window.sidebarManager &&
-          typeof window.sidebarManager.forceSidebarState === 'function') {
-        window.sidebarManager.forceSidebarState(true);
+    if (edge === 'top' && isFocusMode()) {
+      if (window.MainHubPanel && typeof window.MainHubPanel.show === 'function') {
+        window.MainHubPanel.show('quick-tools');
+        openedHubFromTopEdge = true;
       }
+    }
+
+    // 左端: focusモードでは章パネルのみ(CSS制御)、normalではサイドバーを一時的に開く
+    var mode = html.getAttribute('data-ui-mode');
+    if (edge === 'left' && mode === 'normal' && window.sidebarManager &&
+        typeof window.sidebarManager.forceSidebarState === 'function') {
+      window.sidebarManager.forceSidebarState(true);
+    }
+  }
+
+  function startDwell(edge) {
+    if (DWELL_MS <= 0) {
+      clearTimeout(state[edge].dwellTimer);
+      clearTimeout(state[edge].dismissTimer);
+      state[edge].dwellTimer = null;
+      state[edge].dismissTimer = null;
+      runDwellAction(edge);
+      return;
+    }
+    clearTimeout(state[edge].dismissTimer);
+    state[edge].dismissTimer = null;
+    if (state[edge].dwellTimer) return;
+    state[edge].dwellTimer = setTimeout(function () {
+      state[edge].dwellTimer = null;
+      runDwellAction(edge);
     }, DWELL_MS);
   }
 
   function startDismiss(edge) {
     clearTimeout(state[edge].dwellTimer);
     clearTimeout(state[edge].dismissTimer);
+    state[edge].dismissTimer = null;
+    if (DISMISS_MS <= 0) {
+      hideEdge(edge);
+      return;
+    }
     state[edge].dismissTimer = setTimeout(function () {
+      state[edge].dismissTimer = null;
       hideEdge(edge);
     }, DISMISS_MS);
   }
 
   function cancelDismiss(edge) {
     clearTimeout(state[edge].dismissTimer);
+    state[edge].dismissTimer = null;
+  }
+
+  /** メインハブが上端 EDGE_ZONE より下にあり、そこへカーソルを運ぶ途中で dismiss しないための拡張ヒット領域 */
+  var TOP_HUB_BRIDGE_PAD = 24;
+
+  function isPointerInTopHubSafeZone(x, y) {
+    var mainHub = document.getElementById('main-hub-panel');
+    if (!mainHub || mainHub.style.display === 'none') return false;
+    var rect = mainHub.getBoundingClientRect();
+    var p = TOP_HUB_BRIDGE_PAD;
+    var left = rect.left - p;
+    var right = rect.right + p;
+    var top = rect.top - p;
+    var bottom = rect.bottom + p;
+    if (x >= left && x <= right && y >= top && y <= bottom) return true;
+    if (y > EDGE_ZONE && y < rect.top + p && x >= left && x <= right) return true;
+    return false;
   }
 
   // --- マウス検知 ---
@@ -100,31 +163,34 @@
 
     // 上端判定
     if (y <= EDGE_ZONE) {
-      if (!state.top.active) startDwell('top');
+      if (state.top.active) cancelDismiss('top');
+      else startDwell('top');
     } else {
       if (!state.top.active) {
         clearTimeout(state.top.dwellTimer);
+        state.top.dwellTimer = null;
       }
     }
 
-    // 左端判定
-    if (x <= EDGE_ZONE) {
-      if (!state.left.active) startDwell('left');
+    // 左端判定（上端 EDGE_ZONE と重なる領域は除外）
+    if (x <= EDGE_ZONE && y > EDGE_ZONE) {
+      if (state.left.active) cancelDismiss('left');
+      else startDwell('left');
     } else {
       if (!state.left.active) {
         clearTimeout(state.left.dwellTimer);
+        state.left.dwellTimer = null;
       }
     }
   }
 
-  // ツールバー/サイドバー上にいる間はdismissをキャンセル
   function setupUIHoverGuard() {
-    var toolbar = document.querySelector('.toolbar');
+    var mainHub = document.getElementById('main-hub-panel');
     var sidebar = document.getElementById('sidebar');
 
-    if (toolbar) {
-      toolbar.addEventListener('mouseenter', function () { cancelDismiss('top'); });
-      toolbar.addEventListener('mouseleave', function () {
+    if (mainHub) {
+      mainHub.addEventListener('mouseenter', function () { cancelDismiss('top'); });
+      mainHub.addEventListener('mouseleave', function () {
         if (state.top.active) startDismiss('top');
       });
     }
@@ -152,14 +218,7 @@
     var y = e.clientY;
 
     if (state.top.active && y > EDGE_ZONE) {
-      // ツールバー上にいるかチェック
-      var toolbar = document.querySelector('.toolbar');
-      if (toolbar) {
-        var rect = toolbar.getBoundingClientRect();
-        if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-          return; // ツールバー上 → dismiss しない
-        }
-      }
+      if (isPointerInTopHubSafeZone(x, y)) return;
       startDismiss('top');
     }
 
@@ -184,6 +243,32 @@
   // マウスが近づくとグローが強くなり、UIの存在を示唆する。
 
   var glowElements = { top: null, left: null };
+  var hubAffordanceEl = null;
+
+  /** Focus 時のみ: 上端中央の極小ハンドル（クリックでメインハブ。ホバー帯の可視アフォーダンス）。 */
+  function createHubAffordance() {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'edge-hover-hub-affordance';
+    btn.className = 'edge-hover-hub-affordance';
+    btn.setAttribute('aria-label', 'メインハブを開く');
+    btn.tabIndex = 0;
+    btn.addEventListener('click', function () {
+      if (html.getAttribute('data-ui-mode') !== 'focus') return;
+      if (window.MainHubPanel && typeof window.MainHubPanel.show === 'function') {
+        window.MainHubPanel.show('quick-tools');
+      }
+    });
+    document.body.appendChild(btn);
+    hubAffordanceEl = btn;
+  }
+
+  function updateHubAffordanceVisibility() {
+    if (!hubAffordanceEl) return;
+    var mode = html.getAttribute('data-ui-mode');
+    var reader = html.getAttribute('data-reader-overlay-open') === 'true';
+    hubAffordanceEl.style.display = mode === 'focus' && !reader ? '' : 'none';
+  }
 
   function createEdgeGlows() {
     // 上部グロー
@@ -233,7 +318,8 @@
     }, GLOW_FLASH_DURATION);
   }
 
-  function updateGlowVisibility() {
+  /** @param {boolean} [skipFlash] data-reader-overlay のみ変化したとき true（進入フラッシュを重ねない） */
+  function updateGlowVisibility(skipFlash) {
     var mode = html.getAttribute('data-ui-mode');
     var shouldShow = mode === 'focus';
 
@@ -246,10 +332,12 @@
       glowElements.left.classList.remove('edge-glow--near');
     }
 
-    if (shouldShow) flashGlows();
+    if (shouldShow && !skipFlash) flashGlows();
+    updateHubAffordanceVisibility();
   }
 
-  var GLOW_ZONE = 200; // グロー近接検知ゾーン (px)
+  /** グロー近接検知 (px)。EDGE_ZONE より広く「近づいている」ヒントのみ出す。 */
+  var GLOW_ZONE = 96;
 
   // マウス近接でクラスを切り替え、opacity は CSS transition に委ねる
   function updateGlowProximity(x, y) {
@@ -296,12 +384,16 @@
 
     // エッジグロー表示
     createEdgeGlows();
+    createHubAffordance();
     updateGlowVisibility();
 
     // UIモード変更時にグロー表示を更新
-    new MutationObserver(function () {
-      updateGlowVisibility();
-    }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode'] });
+    new MutationObserver(function (mutations) {
+      var onlyReaderOverlay = mutations.length > 0 && mutations.every(function (m) {
+        return m.attributeName === 'data-reader-overlay-open';
+      });
+      updateGlowVisibility(onlyReaderOverlay);
+    }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode', 'data-reader-overlay-open'] });
   }
 
   // DOMReady後に初期化
@@ -316,6 +408,14 @@
     /** 特定エッジのホバー状態を即時解除 */
     dismiss: function (edge) { hideEdge(edge); },
     /** 全エッジのホバー状態を解除 */
-    dismissAll: function () { hideEdge('top'); hideEdge('left'); }
+    dismissAll: function () { hideEdge('top'); hideEdge('left'); },
+    /**
+     * Focus へ入った直後に左章レール（data-edge-hover-left）だけ立ち上げる。
+     * setUIMode が dismissAll するため、ホバー無しで章パネルを復帰させる用。
+     */
+    peekFocusLeftChapterRail: function () {
+      if (!isFocusMode()) return;
+      showEdge('left');
+    }
   };
 })();

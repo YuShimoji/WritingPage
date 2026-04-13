@@ -173,7 +173,7 @@ function applyVisualProfile(profile) {
       if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
         window.ZenWriterApp.setUIMode(uiMode);
       } else {
-        var currentMode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+        var currentMode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
         if (currentMode !== uiMode) {
           document.documentElement.setAttribute('data-ui-mode', uiMode);
         }

@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, openSidebar, closeSidebar } = require('./helpers');
 
 test.describe('Sidebar Layout', () => {
   // focus mode デフォルト化対応: normal mode に切り替えてからテスト
@@ -31,8 +31,7 @@ test.describe('Sidebar Layout', () => {
 
   test('should not hide main content when sidebar is open', async ({ page }) => {
     // Open sidebar
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
     
     // Wait for sidebar to open
     await page.waitForTimeout(400); // transition duration
@@ -63,8 +62,7 @@ test.describe('Sidebar Layout', () => {
     const sidebar = page.locator('#sidebar');
     
     // Open sidebar
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
     await page.waitForTimeout(400);
     
     // Check sidebar position when open
@@ -74,7 +72,7 @@ test.describe('Sidebar Layout', () => {
     expect(leftOpen).toBe('0px');
     
     // Close sidebar
-    await page.click('#toggle-sidebar');
+    await closeSidebar(page);
     await page.waitForTimeout(400);
     
     // Check sidebar position when closed
@@ -92,7 +90,7 @@ test.describe('Sidebar Layout', () => {
     });
     await page.waitForTimeout(200);
 
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
     await page.waitForTimeout(400);
 
     const layout = await page.evaluate(() => {
@@ -118,8 +116,7 @@ test.describe('Sidebar Layout', () => {
   });
 
   test('should handle multiple accordion switches without issues', async ({ page }) => {
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
     await page.waitForTimeout(300);
 
     const sidebar = page.locator('#sidebar');
@@ -184,8 +181,7 @@ test.describe('Sidebar Layout', () => {
 
   test('should maintain sidebar state after reload', async ({ page }) => {
     // Open sidebar
-    await page.waitForSelector('#toggle-sidebar', { state: 'visible' });
-    await page.click('#toggle-sidebar');
+    await openSidebar(page);
     await page.waitForTimeout(400);
 
     // Expand assist accordion

@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebar } = require('./helpers');
+const { ensureNormalMode, openSidebar, closeSidebar } = require('./helpers');
 
 // モバイル/タブレット向けのレスポンシブUI機能のテスト
 test.describe('Responsive UI (Mobile/Tablet)', () => {
@@ -70,8 +70,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
           el.click();
         });
       } else {
-        // オーバーレイがない場合はトグルボタンで閉じる
-        await page.click('#toggle-sidebar');
+        await closeSidebar(page);
       }
       await page.waitForTimeout(400);
 
@@ -82,30 +81,27 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       expect(hasOpenClass).toBe(false);
     });
 
-    test('ハンバーガーメニューボタンが適切なサイズで表示される', async ({ page }) => {
+    test('サイドバーは API で開閉できる（トグルは画面外スロット）', async ({ page }) => {
       await page.goto('/');
-      const toggleBtn = page.locator('#toggle-sidebar');
-
-      // ボタンが表示されていることを確認
-      await expect(toggleBtn).toBeVisible();
-
-      // ボタンのサイズがタッチ操作に適していることを確認（最小44px）
-      const btnSize = await toggleBtn.boundingBox();
-      if (btnSize) {
-        expect(btnSize.width).toBeGreaterThanOrEqual(44);
-        expect(btnSize.height).toBeGreaterThanOrEqual(44);
-      }
+      await ensureNormalMode(page);
+      await openSidebar(page);
+      await expect(page.locator('#sidebar')).toHaveClass(/open/);
+      await closeSidebar(page);
+      await expect(page.locator('#sidebar')).not.toHaveClass(/open/);
     });
 
-    test('ツールバーのアイコンボタンがタッチ操作に最適化されている', async ({ page }) => {
+    test('サイドバー操作帯のアイコンボタンがタッチ操作に最適化されている', async ({ page }) => {
       await page.goto('/');
-      const toolbar = page.locator('.toolbar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
+      await page.waitForTimeout(300);
+      const toolbar = page.locator('.sidebar-chrome-toolbar');
       const toolbarExists = await toolbar.count();
       if (!toolbarExists) { test.skip(); return; }
       await expect(toolbar).toBeVisible();
 
       // アイコンボタンのサイズを確認
-      const iconButtons = page.locator('.toolbar .icon-button');
+      const iconButtons = page.locator('.sidebar-chrome-toolbar .icon-button');
       const count = await iconButtons.count();
       if (count === 0) { test.skip(); return; }
 
@@ -205,12 +201,15 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       expect(sidebarWidth).toBeGreaterThanOrEqual(200);
     });
 
-    test('ツールバーのアイコンサイズが適切に調整される', async ({ page }) => {
+    test('サイドバー操作帯のアイコンサイズが適切に調整される', async ({ page }) => {
       await page.goto('/');
-      const toolbar = page.locator('.toolbar');
+      await ensureNormalMode(page);
+      await openSidebar(page);
+      await page.waitForTimeout(300);
+      const toolbar = page.locator('.sidebar-chrome-toolbar');
       await expect(toolbar).toBeVisible();
 
-      const iconButton = page.locator('.toolbar .icon-button').first();
+      const iconButton = page.locator('.sidebar-chrome-toolbar .icon-button').first();
       const box = await iconButton.boundingBox();
 
       if (box) {
@@ -237,13 +236,15 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
     test('分割ビューが縦並びで表示される', async ({ page }) => {
       await page.goto('/');
       await page.waitForLoadState('networkidle');
-      const { showFullToolbar } = require('./helpers');
+      const { showFullToolbar, openSidebar } = require('./helpers');
       await showFullToolbar(page);
+      await openSidebar(page);
+      await page.waitForTimeout(250);
 
       // 分割ビューボタンをクリック
       const splitViewBtn = page.locator('#toggle-split-view');
       if (!(await splitViewBtn.isVisible())) return;
-      await splitViewBtn.click();
+      await splitViewBtn.click({ force: true });
       await page.waitForTimeout(300);
 
       // Main Hub Panel内のsplit-viewタブ
@@ -272,11 +273,13 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
 
     test('タッチ操作に最適化されたボタンサイズ', async ({ page }) => {
       await page.goto('/');
+      await ensureNormalMode(page);
+      await openSidebar(page);
+      await page.waitForTimeout(200);
 
       // 各種ボタンのサイズを確認
       const buttons = [
-        '#toggle-sidebar',
-        '.toolbar .icon-button',
+        '.sidebar-chrome-toolbar .icon-button',
         '.gadget button',
         '.accordion-header'
       ];

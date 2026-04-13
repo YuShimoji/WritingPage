@@ -54,7 +54,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'UIモード切替 (Normal → Focus → Blank)'
+      description: 'UIモード切替 (フルChrome ↔ ミニマル)'
     },
     'ui.mode.exit': {
       key: 'Escape',
@@ -62,7 +62,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'Focus/Blankモードから Normal に戻る'
+      description: 'ミニマルモードからフルChromeに戻る'
     },
     'command-palette.toggle': {
       key: 'p',

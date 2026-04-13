@@ -158,7 +158,17 @@ class EditorManager {
     installFocusModeHandlers() { return (typeof focusMode_installHandlers === 'function') ? focusMode_installHandlers(this) : null; }
     setFocusModeLine(y) { return (typeof focusMode_setLine === 'function') ? focusMode_setLine(this, y) : null; }
     applyTypewriterIfEnabled() { if (this.richTextEditor && typeof this.richTextEditor.applyTypewriterIfEnabled === 'function') this.richTextEditor.applyTypewriterIfEnabled(); }
-    applyWrapCols() { /* wrapCols は CSS変数 --wrap-ch で制御。ガジェット側で localStorage に保存済み */ var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings(); var tw = (s && s.typewriter) || {}; if (tw.wrapCols) document.documentElement.style.setProperty('--wrap-ch', tw.wrapCols + 'ch'); }
+    applyWrapCols() {
+        /* wrapCols は CSS変数 --wrap-ch で制御。未設定時は :root の値に戻すため inline を削除する */
+        var s = window.ZenWriterStorage && window.ZenWriterStorage.loadSettings();
+        var tw = (s && s.typewriter) || {};
+        var root = document.documentElement;
+        if (tw.wrapCols) {
+            root.style.setProperty('--wrap-ch', tw.wrapCols + 'ch');
+        } else {
+            root.style.removeProperty('--wrap-ch');
+        }
+    }
 }
 
 // Global instantiation

@@ -21,6 +21,7 @@
 |-------------|----------|
 | 不変条件・テスト作法・レイアウト/Wiki の要約 | [`INVARIANTS.md`](INVARIANTS.md) |
 | 用語・編集面と UI モードの状態モデル | [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md) |
+| UI 表面（ウィンドウ／DOM ブロック）・コントロール台帳・重複導線 | [`UI_SURFACE_AND_CONTROLS.md`](UI_SURFACE_AND_CONTROLS.md) |
 | UI モード（2 値）・再生オーバーレイ・編集面の SSOT | 上記 `INTERACTION_NOTES`（関係図・表）。不変条件は [`INVARIANTS.md`](INVARIANTS.md) |
 | 執筆モード統合の事前整理（引き継ぎ・合意の境界） | [`specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
 | 推奨開発プラン（現状分析 + 短中長期目標 + 機能別ロードマップ） | [`RECOMMENDED_DEVELOPMENT_PLAN.md`](RECOMMENDED_DEVELOPMENT_PLAN.md) |

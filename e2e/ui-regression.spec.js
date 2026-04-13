@@ -3,7 +3,7 @@
  * ツールバーアイコン、フローティングパネル位置、ガジェットヘッダーレイアウトを検証
  */
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar, enableAllGadgets, openSidebarGroup } = require('./helpers');
+const { showFullToolbar, enableAllGadgets, openSidebarGroup, openSidebar } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -12,9 +12,11 @@ test.describe('Toolbar icon rendering', () => {
         await page.goto(pageUrl);
         await page.waitForLoadState('networkidle');
         await showFullToolbar(page);
+        await openSidebar(page);
+        await page.waitForTimeout(300);
 
         // .iconified ボタン内の <i data-lucide> が全て SVG に変換されているか
-        const iconButtons = page.locator('.toolbar-actions .icon-button.iconified');
+        const iconButtons = page.locator('.sidebar-chrome-toolbar .toolbar-actions--sidebar .icon-button.iconified');
         const count = await iconButtons.count();
         expect(count).toBeGreaterThan(0);
 

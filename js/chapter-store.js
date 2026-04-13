@@ -290,6 +290,11 @@
     var Model = window.ZWChapterModel;
     if (!Model) return;
 
+    /** assemble 由来の見出し直後／章境界の余分な改行を除き、章レコード content と整合させる */
+    function trimChapterSliceBody(body) {
+      return String(body || '').replace(/^\n+/, '').replace(/\n+$/, '');
+    }
+
     var parsed = Model.parseChapters(fullText);
     var existing = getChaptersForDoc(docId);
     var docs = STORAGE.loadDocuments();
@@ -303,7 +308,7 @@
           type: 'chapter',
           parentId: docId,
           name: '本文',
-          content: fullText,
+          content: trimChapterSliceBody(fullText),
           order: 0,
           level: 2,
           visibility: 'visible',
@@ -315,7 +320,7 @@
         // 最初の章に全文を入れ、残りを削除
         for (var d = 0; d < docs.length; d++) {
           if (docs[d] && docs[d].id === existing[0].id) {
-            docs[d].content = fullText;
+            docs[d].content = trimChapterSliceBody(fullText);
             docs[d].updatedAt = now;
             break;
           }
@@ -332,7 +337,7 @@
     // 簡易方式: order 順に対応付け。数が異なる場合は作成/削除
     for (var i = 0; i < parsed.length; i++) {
       var p = parsed[i];
-      var body = Model.getChapterBody(fullText, p);
+      var body = trimChapterSliceBody(Model.getChapterBody(fullText, p));
 
       if (i < existing.length) {
         // 既存章を更新

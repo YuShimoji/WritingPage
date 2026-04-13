@@ -1,7 +1,7 @@
 # ゲームブック分岐スタイルデモ
 
 SP-072 Phase 5 のゲームブック分岐UIスタイルを確認するためのサンプルです。
-Reader Preview (Ctrl+Shift+R) で各スタイルの表示を確認してください。
+Reader Preview (Alt+Shift+R) で各スタイルの表示を確認してください。
 
 ---
 

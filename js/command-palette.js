@@ -16,6 +16,11 @@
     }
   }
 
+  function isCommandPaletteDevMode() {
+    return !!(window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.isEnabled === 'function' &&
+      window.ZenWriterDeveloperMode.isEnabled());
+  }
+
   // コマンド定義
   const COMMANDS = [
     // 検索・置換
@@ -61,9 +66,9 @@
     },
     {
       id: 'toggle-toolbar',
-      label: 'ツールバーを開閉',
-      description: 'ツールバーの表示/非表示を切り替え',
-      keywords: '上段 バー',
+      label: 'クイックツールパネル',
+      description: 'メインハブのクイックツールを開閉（旧: ツールバー表示）',
+      keywords: '上段 バー ハブ',
       shortcut: 'Alt+W',
       category: 'UI操作',
       execute: () => {
@@ -217,9 +222,9 @@
     // UIモード
     {
       id: 'ui-mode-normal',
-      label: '通常モード',
-      description: 'UIモードを通常に切り替え',
-      keywords: '標準 レイアウト normal',
+      label: 'フルChrome',
+      description: 'UIモードをフルChrome（ツールバー常時・サイドバー復元）に切り替え',
+      keywords: '標準 レイアウト normal 通常',
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
@@ -228,9 +233,9 @@
     },
     {
       id: 'ui-mode-focus',
-      label: 'フォーカスモード',
-      description: 'UIモードをフォーカスに切り替え',
-      keywords: '集中 執筆 シンプル focus',
+      label: 'ミニマル',
+      description: 'UIモードをミニマル（エッジ／ショートカットでChrome）に切り替え',
+      keywords: '集中 執筆 シンプル focus フォーカス',
       shortcut: 'F2 (サイクル)',
       category: 'UIモード',
       execute: () => {
@@ -242,7 +247,7 @@
       label: '再生オーバーレイ',
       description: '読者視点の再生オーバーレイを開閉',
       keywords: '読者プレビュー リーダー reader 本番表示',
-      shortcut: 'Ctrl+Shift+R / Cmd+Shift+R',
+      shortcut: 'Alt+Shift+R',
       category: 'UI操作',
       execute: () => {
         if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
@@ -319,10 +324,8 @@
       shortcut: '',
       category: 'UI操作',
       execute: () => {
-        const modal = document.getElementById('settings-modal');
-        if (modal) {
-          modal.style.display = 'flex';
-          modal.setAttribute('aria-hidden', 'false');
+        if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+          window.ZenWriterApp.openSettingsModal();
         }
       }
     },
@@ -334,13 +337,8 @@
       shortcut: '',
       category: 'UI操作',
       execute: () => {
-        const modal = document.getElementById('help-modal');
-        if (modal) {
-          modal.style.display = 'flex';
-          modal.setAttribute('aria-hidden', 'false');
-          if (window.ZenWriterHelpModal && typeof window.ZenWriterHelpModal.render === 'function') {
-            window.ZenWriterHelpModal.render();
-          }
+        if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+          window.ZenWriterApp.openHelpModal();
         }
       }
     },
@@ -363,6 +361,7 @@
       keywords: '装飾 リッチテキスト 所見即得',
       shortcut: '',
       category: '編集',
+      devOnly: true,
       execute: () => {
         const btn = document.getElementById('toggle-wysiwyg');
         if (btn) btn.click();
@@ -375,6 +374,7 @@
       keywords: 'UI Settings 表示設定',
       shortcut: '',
       category: '実験的機能',
+      devOnly: true,
       execute: () => {
         if (window.uiVisualEditor) {
           if (window.uiVisualEditor.isActive) {
@@ -496,6 +496,7 @@
     filterCommands(query) {
       const lowerQuery = (query || '').toLowerCase().trim();
       this.filteredCommands = COMMANDS.filter(cmd => {
+        if (cmd.devOnly && !isCommandPaletteDevMode()) return false;
         if (!lowerQuery) return true;
         const searchText = `${cmd.label} ${cmd.description} ${cmd.category} ${cmd.shortcut} ${cmd.keywords || ''}`.toLowerCase();
         return searchText.includes(lowerQuery);

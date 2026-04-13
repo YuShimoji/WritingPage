@@ -22,7 +22,70 @@
   var previousMode = null; // モード切替検出用
   var chapterObserver = null; // IntersectionObserver for chapter visibility
 
+  /** 結合本文表示中は章フラッシュ禁止（data-zw-chapter-editor-sync=assembled） */
+  var CHAPTER_SYNC_ATTR = 'data-zw-chapter-editor-sync';
+
   // ---- Helpers ----
+
+  function setChapterEditorSync(state) {
+    var root = document.documentElement;
+    if (!state) {
+      root.removeAttribute(CHAPTER_SYNC_ATTR);
+      return;
+    }
+    root.setAttribute(CHAPTER_SYNC_ATTR, state);
+  }
+
+  function isChapterEditorAssembled() {
+    return document.documentElement.getAttribute(CHAPTER_SYNC_ATTR) === 'assembled';
+  }
+
+  /** 新規章の見出しレベル: 直前章に合わせる。直前が不正なときは既存章の最頻出（1–6、既定 2） */
+  function dominantChapterLevelForNew() {
+    var defaultLv = 2;
+    if (!chapters.length) return defaultLv;
+    var last = chapters[chapters.length - 1];
+    if (last && last.level >= 1 && last.level <= 6) return last.level;
+    var freq = {};
+    for (var i = 0; i < chapters.length; i++) {
+      var L = (chapters[i] && chapters[i].level >= 1 && chapters[i].level <= 6) ? chapters[i].level : defaultLv;
+      freq[L] = (freq[L] || 0) + 1;
+    }
+    var bestL = defaultLv;
+    var bestC = 0;
+    for (var lv in freq) {
+      if (freq[lv] > bestC) {
+        bestC = freq[lv];
+        bestL = parseInt(lv, 10);
+      }
+    }
+    return bestL;
+  }
+
+  function updateEmptyChapterHint() {
+    var el = document.getElementById('zw-empty-chapter-hint');
+    if (!el) return;
+    if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') {
+      el.hidden = true;
+      el.textContent = '';
+      return;
+    }
+    if (activeChapterIdx < 0 || !chapters.length) {
+      el.hidden = true;
+      el.textContent = '';
+      return;
+    }
+    var G = window.ZWContentGuard;
+    var body = G ? G.getEditorContent() : getEditorText();
+    var isEmpty = !String(body || '').trim();
+    if (isEmpty) {
+      el.hidden = false;
+      el.textContent = '\u3053\u306e\u7ae0\u306e\u672c\u6587\u306f\u307e\u3060\u7a7a\u3067\u3059\u3002\u7ae0\u30bf\u30a4\u30c8\u30eb\u306f\u5de6\u306e\u300c\u30c1\u30e3\u30d7\u30bf\u30fc\u300d\u4e00\u89a7\u3067\u5909\u66f4\u3067\u304d\u307e\u3059\u3002';
+    } else {
+      el.hidden = true;
+      el.textContent = '';
+    }
+  }
 
   function clearChapterVisibility() {
     if (!listEl) return;
@@ -112,6 +175,7 @@
     var editorInputHandler = function () {
       if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
       scheduleSaveActiveChapter();
+      updateEmptyChapterHint();
     };
     var editorEl = document.getElementById('editor');
     if (editorEl) {
@@ -161,9 +225,17 @@
       }, { root: listEl, threshold: 0 });
     }
 
-    // 初回: Focusモードならリフレッシュ
+    // 初回: 保存 UI がフォーカスのとき、結合本文のまま置かれていても章スライスへ同期
     if (document.documentElement.getAttribute('data-ui-mode') === 'focus') {
-      setTimeout(refresh, 100);
+      setTimeout(function () {
+        refreshChapterMode();
+        if (chapters.length > 0) {
+          var idx = activeChapterIdx >= 0 ? activeChapterIdx : 0;
+          if (idx >= chapters.length) idx = chapters.length - 1;
+          navigateToChapter(idx);
+        }
+        updateEmptyChapterHint();
+      }, 100);
     }
 
     // クリック外でコンテキストメニューを閉じる
@@ -181,8 +253,51 @@
       navigateTo: navigateToChapter,
       isChapterMode: inChapterMode,
       flushActive: flushActiveChapter,
-      addChapter: handleAddChapter
+      addChapter: handleAddChapter,
+      syncAssembledEditorToChaptersBeforeFocus: syncAssembledEditorToChaptersBeforeFocus
     };
+  }
+
+  /**
+   * 通常→フォーカス遷移の「属性更新より前」に app.js から呼ぶ。
+   * MutationObserver 経由だと data-ui-mode=focus 後に走り、エディタ取得が空になることがあるため。
+   */
+  function syncAssembledEditorToChaptersBeforeFocus() {
+    if (!Store || typeof Store.splitIntoChapters !== 'function') return;
+    if ((document.documentElement.getAttribute('data-ui-mode') || 'normal') !== 'normal') return;
+    var docIdForSplit = getDocumentIdForChapterOps();
+    var chapsBeforeNav = docIdForSplit ? (Store.getChaptersForDoc(docIdForSplit) || []) : [];
+    if (!docIdForSplit || chapsBeforeNav.length === 0) return;
+
+    var G = window.ZWContentGuard;
+    var fromEditor = G ? String(G.getEditorContent() || '') : getEditorText();
+    var fromStore = '';
+    try {
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function') {
+        fromStore = String(window.ZenWriterStorage.loadContent() || '');
+      }
+    } catch (eSt) { void eSt; }
+    var assembledForSplit = fromEditor;
+    if (fromEditor.indexOf('#') < 0 && fromStore.indexOf('#') >= 0) {
+      assembledForSplit = fromStore;
+    }
+
+    var storeAssembled = '';
+    try {
+      storeAssembled = String(Store.assembleFullText(docIdForSplit) || '');
+    } catch (eAsm) { void eAsm; }
+    var candNorm = String(assembledForSplit || '').replace(/\r\n/g, '\n').trim();
+    var storeNorm = storeAssembled.replace(/\r\n/g, '\n').trim();
+
+    // 1) フォーカス→ノーマル後の assembled は常に反映
+    // 2) 複数章かつ未 assembled でも、エディタ全文が章からの結合と異なり # を含むなら結合編集とみなす（プレーンのみの誤 split を避ける）
+    var shouldSplit = isChapterEditorAssembled();
+    if (!shouldSplit && chapsBeforeNav.length > 1) {
+      shouldSplit = candNorm.length > 0 && candNorm !== storeNorm && candNorm.indexOf('#') >= 0;
+    }
+    if (!shouldSplit) return;
+
+    Store.splitIntoChapters(docIdForSplit, assembledForSplit);
   }
 
   // ---- Mode Transition (Slice 3) ----
@@ -191,11 +306,15 @@
     var G = window.ZWContentGuard;
 
     if (toMode === 'focus') {
-      if (G) G.flushChapterIfNeeded();
+      // ノーマル→フォーカス: ここでは flush しない（結合本文が1章に書き戻る事故を防ぐ）。
+      // 章ストアへの結合本文の反映は app.js setUIMode 内（data-ui-mode 更新前）で実施済み。
       refreshChapterMode();
-      if (chapters.length > 0 && activeChapterIdx < 0) {
-        navigateToChapter(0);
+      if (chapters.length > 0) {
+        var idx = activeChapterIdx >= 0 ? activeChapterIdx : 0;
+        if (idx >= chapters.length) idx = chapters.length - 1;
+        navigateToChapter(idx);
       }
+      updateEmptyChapterHint();
     } else if (fromMode === 'focus') {
       closeContextMenu();
       clearChapterVisibility();
@@ -206,7 +325,11 @@
       if (docId && chaps.length > 0) {
         var fullText = Store.assembleFullText(docId);
         setEditorText(fullText);
+        setChapterEditorSync('assembled');
+      } else {
+        setChapterEditorSync(null);
       }
+      updateEmptyChapterHint();
     } else {
       if (toMode !== 'focus') {
         closeContextMenu();
@@ -274,6 +397,8 @@
 
   function flushActiveChapter() {
     if (!inChapterMode()) return;
+    if (isChapterEditorAssembled()) return;
+    if ((document.documentElement.getAttribute('data-ui-mode') || 'normal') !== 'focus') return;
     if (activeChapterIdx < 0 || activeChapterIdx >= chapters.length) return;
 
     var ch = chapters[activeChapterIdx];
@@ -448,10 +573,11 @@
     if (idx < 0 || idx >= chapters.length) return;
     var ch = chapters[idx];
 
-    // chapterMode: アクティブ章を保存してから切替
+    // chapterMode: アクティブ章を保存してから切替（結合本文表示中はスキップ）
     flushActiveChapter();
     activeChapterIdx = idx;
     setEditorText(ch.content || '');
+    setChapterEditorSync('slice');
     // undo スタック + dirty baseline をリセット（別章の履歴を持ち込まない）
     var E = window.ZenWriterEditor;
     if (E && E.richTextEditor && typeof E.richTextEditor.resetUndoStack === 'function') {
@@ -463,6 +589,7 @@
     highlightActive();
     // WYSIWYG 対応: 適切なエディタにフォーカス
     focusEditor();
+    updateEmptyChapterHint();
     try {
       window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
     } catch (_) { /* noop */ }
@@ -601,7 +728,7 @@
     if (!docId) return;
     var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
     var afterId = lastChapter ? lastChapter.id : null;
-    var level = lastChapter ? lastChapter.level : 2;
+    var level = dominantChapterLevelForNew();
 
     Store.createChapter(docId, '新しい章', '', afterId, level);
     refreshChapterMode();
@@ -674,6 +801,8 @@
       navigateToChapter(Math.min(idx, chapters.length - 1));
     } else {
       setEditorText('');
+      setChapterEditorSync(null);
+      updateEmptyChapterHint();
     }
   }
 

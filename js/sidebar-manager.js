@@ -3,7 +3,7 @@
  *
  * 責務:
  * - サイドバーの開閉制御（forceSidebarState, toggleSidebar）
- * - ツールバーの表示/非表示制御（setToolbarVisibility, toggleToolbar）
+ * - 旧ツールバー API 互換（setToolbarVisibility はノーアップ、toggleToolbar はメインハブ）
  * - アコーディオンカテゴリの管理（bootstrapAccordion）
  * - サイドバーグループの切り替え（activateSidebarGroup）
  *
@@ -430,8 +430,29 @@ class SidebarManager {
                 footer = document.createElement('section');
                 footer.id = 'writing-focus-footer';
                 footer.className = 'writing-focus-footer';
-                footer.innerHTML = `<button id="writing-focus-settings-btn" class="writing-focus-settings-btn" type="button">設定</button>`;
+                footer.innerHTML = `
+                    <div class="writing-focus-footer__row" role="group" aria-label="執筆集中サイドバー操作">
+                        <button id="writing-focus-settings-btn" class="writing-focus-settings-btn" type="button" title="サイドバーで構成・テーマなどを表示">詳細</button>
+                        <button type="button" id="writing-focus-exit-to-normal-btn" class="writing-focus-exit-full" title="フルChrome表示に切替">フルChrome</button>
+                    </div>`;
                 accordion.appendChild(footer);
+            } else if (!document.getElementById('writing-focus-exit-to-normal-btn')) {
+                const existingSettings = document.getElementById('writing-focus-settings-btn');
+                if (existingSettings && existingSettings.parentElement === footer) {
+                    const row = document.createElement('div');
+                    row.className = 'writing-focus-footer__row';
+                    row.setAttribute('role', 'group');
+                    row.setAttribute('aria-label', '執筆集中サイドバー操作');
+                    footer.insertBefore(row, existingSettings);
+                    row.appendChild(existingSettings);
+                    const exitBtn = document.createElement('button');
+                    exitBtn.type = 'button';
+                    exitBtn.id = 'writing-focus-exit-to-normal-btn';
+                    exitBtn.className = 'writing-focus-exit-full';
+                    exitBtn.title = 'フルChrome表示に切替';
+                    exitBtn.textContent = 'フルChrome';
+                    row.appendChild(exitBtn);
+                }
             }
 
             const settingsBtn = document.getElementById('writing-focus-settings-btn');
@@ -440,6 +461,17 @@ class SidebarManager {
                     this._writingFocusSettingsOpen = !this._writingFocusSettingsOpen;
                     this._saveSidebarUISettingsPatch({ sidebarSettingsOpen: this._writingFocusSettingsOpen });
                     this._applyWritingFocusSidebar();
+                });
+            }
+
+            const exitNormalBtn = document.getElementById('writing-focus-exit-to-normal-btn');
+            if (exitNormalBtn && !exitNormalBtn.dataset.zwExitFullBound) {
+                exitNormalBtn.dataset.zwExitFullBound = '1';
+                exitNormalBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+                        window.ZenWriterApp.setUIMode('normal');
+                    }
                 });
             }
 
@@ -483,6 +515,19 @@ class SidebarManager {
         return mode === 'focus';
     }
 
+    /**
+     * Normal→Focus（最小）へ入ったとき、永続の「詳細」展開を畳み章ナビ中心に揃える。
+     * フルChromeに戻ったあと再度最小にしたときに、サイドバーが「最小なのに構造まで出る」状態を防ぐ。
+     */
+    collapseWritingFocusDetailForUIModeFocus() {
+        if (!this._isWritingFocusSidebarEffective()) return;
+        if (this._writingFocusSettingsOpen) {
+            this._writingFocusSettingsOpen = false;
+            this._saveSidebarUISettingsPatch({ sidebarSettingsOpen: false });
+        }
+        this._applyWritingFocusSidebar();
+    }
+
     _applyWritingFocusSidebar() {
         const effective = this._isWritingFocusSidebarEffective();
         const rail = document.getElementById('writing-focus-rail');
@@ -507,7 +552,8 @@ class SidebarManager {
         if (settingsBtn) {
             const opened = effective && this._writingFocusSettingsOpen;
             settingsBtn.setAttribute('aria-pressed', opened ? 'true' : 'false');
-            settingsBtn.textContent = opened ? '執筆へ戻る' : '設定';
+            settingsBtn.textContent = opened ? '執筆へ戻る' : '詳細';
+            settingsBtn.title = opened ? '章ナビ中心の表示に戻す' : 'サイドバーで構成・テーマなどを表示';
         }
 
         const categories = document.querySelectorAll('.accordion-category[data-category]');
@@ -1179,33 +1225,21 @@ class SidebarManager {
         } catch (_) { }
     }
 
-    setToolbarVisibility(show) {
-        const toolbar = this.elementManager.get('toolbar');
-        const showToolbarBtn = this.elementManager.get('showToolbarBtn');
-        if (!toolbar) return;
-        // インライン style ではなく、ルート属性 + クラスで一元制御
-        // これにより computedStyle の不整合や一時的な二重描画を回避
-        if (showToolbarBtn) showToolbarBtn.style.display = show ? 'none' : 'inline-flex';
-        document.body.classList.toggle('toolbar-hidden', !show);
-        if (!show) {
-            document.documentElement.setAttribute('data-toolbar-hidden', 'true');
-        } else {
+    /** メイン横帯ツールバー廃止後は互換用のノーアップ（旧設定 toolbarVisible は無視） */
+    setToolbarVisibility(_show) {
+        try {
             document.documentElement.removeAttribute('data-toolbar-hidden');
-        }
+            document.body.classList.remove('toolbar-hidden');
+        } catch (_) { }
     }
 
+    /** 旧ショートカット名互換: クイックツール（メインハブ）をトグル */
     toggleToolbar() {
-        // ルート属性（early-boot と setToolbarVisibility が管理）に基づき判定
-        const rootHidden = document.documentElement.getAttribute('data-toolbar-hidden') === 'true';
-        const willShow = !!rootHidden;
-        this.setToolbarVisibility(willShow);
-        // 状態保存
-        const s = window.ZenWriterStorage.loadSettings();
-        s.toolbarVisible = willShow;
-        window.ZenWriterStorage.saveSettings(s);
-        // ツールバーを表示にしたらHUDを隠す
-        if (willShow && window.ZenWriterHUD && typeof window.ZenWriterHUD.hide === 'function') {
-            window.ZenWriterHUD.hide();
+        if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
+            window.MainHubPanel.toggle('quick-tools');
+        }
+        if (window.ZWEdgeHover && typeof window.ZWEdgeHover.dismissAll === 'function') {
+            window.ZWEdgeHover.dismissAll();
         }
     }
 

@@ -202,8 +202,8 @@
 
             if (toolbarActions) {
                 const groupTargets = {
-                    editor: toolbarActions.querySelector('.toolbar-group[data-group="editor"]'),
-                    system: toolbarActions.querySelector('.toolbar-group[data-group="window"]'),
+                    editor: toolbarActions.querySelector('.toolbar-group.toolbar-group--editor'),
+                    system: toolbarActions.querySelector('.toolbar-group.toolbar-group--system'),
                 };
 
                 headerTools.forEach(tool => {
@@ -224,7 +224,8 @@
                         logger.info(`Tool button created: ${tool.domId}`);
                     } else if (tool.group) {
                         btn.dataset.toolGroup = tool.group;
-                        if (targetGroup && btn.parentElement !== targetGroup) {
+                        // FAB 等、ツールバー外に置かれた既存ボタンは移動しない（CSS 表示が壊れる）
+                        if (targetGroup && btn.parentElement !== targetGroup && toolbarActions.contains(btn)) {
                             targetGroup.appendChild(btn);
                         }
                     }

@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar } = require('./helpers');
+const { showFullToolbar, openSidebar } = require('./helpers');
 
 /** サイドバー⇔ツールバー⇔MainHubPanel 機能等価性テスト */
 test.describe('UI Parity', () => {
@@ -8,6 +8,8 @@ test.describe('UI Parity', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     await showFullToolbar(page);
+    await openSidebar(page);
+    await page.waitForTimeout(200);
   });
 
   // ===== プレビュー切替 =====

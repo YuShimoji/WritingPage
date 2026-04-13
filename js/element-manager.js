@@ -9,15 +9,13 @@ class ElementManager {
         const elementMap = {
             // サイドバー関連
             toggleSidebarBtn: 'toggle-sidebar',
-            toolbarCloseSidebar: 'toolbar-close-sidebar',
             sidebar: 'sidebar',
             sidebarTabs: '.sidebar-tab',
             sidebarGroups: '.sidebar-group',
 
-            // ツールバー関連
-            toggleToolbarBtn: 'toggle-toolbar',
+            // ツールバー関連（クイックツールは #show-toolbar FAB / ショートカット / メニュー）
             showToolbarBtn: 'show-toolbar',
-            toolbar: '.toolbar',
+            toolbar: '.sidebar-chrome-toolbar',
             fullscreenBtn: 'fullscreen',
 
             // テーマ関連
@@ -63,7 +61,6 @@ class ElementManager {
             // HUD設定UI
             goalTargetInput: 'goal-target',
             goalDeadlineInput: 'goal-deadline',
-            pluginsPanel: 'plugins-panel',
             helpButton: 'help-button',
             editorHelpButton: 'editor-help-button',
 
@@ -106,7 +103,7 @@ class ElementManager {
                 sidebarTabs: this.elements.sidebarTabs?.length || 0,
                 sidebarGroups: this.elements.sidebarGroups?.length || 0,
                 toggleSidebarBtn: !!this.elements.toggleSidebarBtn,
-                toolbarCloseSidebar: !!this.elements.toolbarCloseSidebar
+                showToolbarBtn: !!this.elements.showToolbarBtn
             });
         }
     }
