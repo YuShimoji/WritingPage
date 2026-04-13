@@ -171,21 +171,21 @@
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
-        if (window.MainHubPanel) {
-          window.MainHubPanel.toggle('decoration');
+        if (window.sidebarManager) {
+          window.sidebarManager.activateSidebarGroup('edit');
         }
       }
     },
     {
       id: 'text-animation-panel',
       label: 'テキストアニメーションパネル',
-      description: '演出用フローティングパネルを開く（サイドバー編集の「テキストアニメーション」ガジェットと同系）',
+      description: 'サイドバーの編集カテゴリを開く（テキストアニメーション）',
       keywords: '文字アニメーション Text Animation',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
-        if (window.MainHubPanel) {
-          window.MainHubPanel.toggle('animation');
+        if (window.sidebarManager) {
+          window.sidebarManager.activateSidebarGroup('edit');
         }
       }
     },
@@ -431,9 +431,8 @@
       shortcut: '',
       category: '実験的機能',
       execute: () => {
-        if (window.MainHubPanel) {
-          window.MainHubPanel.toggle('split-view');
-        }
+        var btn = document.getElementById('toggle-split-view');
+        if (btn) btn.click();
       }
     },
     {

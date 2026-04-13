@@ -5,7 +5,7 @@
  * - 上端 (Focus のみ): メインハブのクイックツールを表示
  * - 左端: 章パネル (Focus) / サイドバー一時表示 (Normal)
  *
- * メイン横帯ツールバー廃止後、上端はツールバーではなく MainHubPanel に接続する。
+ * 上端ホバーはツールバーのスライドイン表示（Focus のみ）。MainHubPanel は廃止済み。
  *
  * 左エッジは y > EDGE_ZONE のみ（左上隅は上端ホバーとトグル競合を避けるため除外）。
  */
@@ -27,16 +27,12 @@
   var html = document.documentElement;
 
   /** 上端エッジで MainHub を開いたときだけ true（手動オープンのハブを誤って閉じない） */
-  var openedHubFromTopEdge = false;
-
   // --- ヘルパー ---
 
   /** Normal では上端ホバーを使わない */
   function shouldSkipTopEdgeDwell() {
     var mode = html.getAttribute('data-ui-mode');
     if (mode !== 'focus') return true;
-    var hub = document.getElementById('main-hub-panel');
-    if (hub && hub.style.display !== 'none') return true;
     return false;
   }
 
@@ -62,13 +58,6 @@
     state[edge].active = false;
     html.removeAttribute('data-edge-hover-' + edge);
 
-    if (edge === 'top' && openedHubFromTopEdge) {
-      openedHubFromTopEdge = false;
-      if (window.MainHubPanel && typeof window.MainHubPanel.hide === 'function') {
-        window.MainHubPanel.hide();
-      }
-    }
-
     // サイドバーをエッジホバーで開いた場合、閉じる (focusモードではサイドバー不使用)
     var mode = html.getAttribute('data-ui-mode');
     if (edge === 'left' && mode === 'normal' && !isSidebarNormallyOpen()) {
@@ -85,13 +74,6 @@
     if (edge === 'left' && isSidebarNormallyOpen()) return;
 
     showEdge(edge);
-
-    if (edge === 'top' && isFocusMode()) {
-      if (window.MainHubPanel && typeof window.MainHubPanel.show === 'function') {
-        window.MainHubPanel.show('quick-tools');
-        openedHubFromTopEdge = true;
-      }
-    }
 
     // 左端: focusモードでは章パネルのみ(CSS制御)、normalではサイドバーを一時的に開く
     var mode = html.getAttribute('data-ui-mode');
@@ -138,23 +120,6 @@
     state[edge].dismissTimer = null;
   }
 
-  /** メインハブが上端 EDGE_ZONE より下にあり、そこへカーソルを運ぶ途中で dismiss しないための拡張ヒット領域 */
-  var TOP_HUB_BRIDGE_PAD = 24;
-
-  function isPointerInTopHubSafeZone(x, y) {
-    var mainHub = document.getElementById('main-hub-panel');
-    if (!mainHub || mainHub.style.display === 'none') return false;
-    var rect = mainHub.getBoundingClientRect();
-    var p = TOP_HUB_BRIDGE_PAD;
-    var left = rect.left - p;
-    var right = rect.right + p;
-    var top = rect.top - p;
-    var bottom = rect.bottom + p;
-    if (x >= left && x <= right && y >= top && y <= bottom) return true;
-    if (y > EDGE_ZONE && y < rect.top + p && x >= left && x <= right) return true;
-    return false;
-  }
-
   // --- マウス検知 ---
 
   function onMouseMove(e) {
@@ -185,15 +150,7 @@
   }
 
   function setupUIHoverGuard() {
-    var mainHub = document.getElementById('main-hub-panel');
     var sidebar = document.getElementById('sidebar');
-
-    if (mainHub) {
-      mainHub.addEventListener('mouseenter', function () { cancelDismiss('top'); });
-      mainHub.addEventListener('mouseleave', function () {
-        if (state.top.active) startDismiss('top');
-      });
-    }
 
     if (sidebar) {
       sidebar.addEventListener('mouseenter', function () { cancelDismiss('left'); });
@@ -218,7 +175,6 @@
     var y = e.clientY;
 
     if (state.top.active && y > EDGE_ZONE) {
-      if (isPointerInTopHubSafeZone(x, y)) return;
       startDismiss('top');
     }
 
@@ -245,18 +201,18 @@
   var glowElements = { top: null, left: null };
   var hubAffordanceEl = null;
 
-  /** Focus 時のみ: 上端中央の極小ハンドル（クリックでメインハブ。ホバー帯の可視アフォーダンス）。 */
+  /** Focus 時のみ: 上端中央の極小ハンドル（クリックでサイドバートグル）。 */
   function createHubAffordance() {
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.id = 'edge-hover-hub-affordance';
     btn.className = 'edge-hover-hub-affordance';
-    btn.setAttribute('aria-label', 'メインハブを開く');
+    btn.setAttribute('aria-label', 'サイドバーを開く');
     btn.tabIndex = 0;
     btn.addEventListener('click', function () {
       if (html.getAttribute('data-ui-mode') !== 'focus') return;
-      if (window.MainHubPanel && typeof window.MainHubPanel.show === 'function') {
-        window.MainHubPanel.show('quick-tools');
+      if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
+        window.sidebarManager.toggleSidebar();
       }
     });
     document.body.appendChild(btn);

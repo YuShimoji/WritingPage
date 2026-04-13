@@ -1220,14 +1220,9 @@ class SidebarManager {
         } catch (_) { }
     }
 
-    /** 旧ショートカット名互換: クイックツール（メインハブ）をトグル */
+    /** Alt+W: サイドバートグル（旧メインハブ互換） */
     toggleToolbar() {
-        if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
-            window.MainHubPanel.toggle('quick-tools');
-        }
-        if (window.ZWEdgeHover && typeof window.ZWEdgeHover.dismissAll === 'function') {
-            window.ZWEdgeHover.dismissAll();
-        }
+        this.toggleSidebar();
     }
 
     _ensureSidebarPanel(groupId, label, panelId) {

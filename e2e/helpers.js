@@ -35,7 +35,15 @@ async function showFullToolbar(page) {
     } else {
       document.documentElement.setAttribute('data-ui-mode', 'normal');
     }
+    // Focus→Normal 遷移でサイドバー未オープンの場合は明示的に開く
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar && !sidebar.classList.contains('open') &&
+        window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+      window.sidebarManager.forceSidebarState(true);
+    }
   });
+  // サイドバーの CSS 遷移完了を待つ
+  await page.waitForTimeout(200);
 }
 
 /**
@@ -419,6 +427,14 @@ async function restoreDialogs(page) {
  */
 async function ensureNormalMode(page) {
   await setUIMode(page, 'normal');
+  // Focus→Normal 遷移で sidebar-overlay が pointer-events: auto になる副作用を解消
+  await page.evaluate(() => {
+    var overlay = document.getElementById('sidebar-overlay');
+    if (overlay) {
+      overlay.style.pointerEvents = 'none';
+      overlay.style.display = 'none';
+    }
+  });
   await page.waitForTimeout(100);
 }
 

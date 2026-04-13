@@ -9,9 +9,13 @@
          * @param {EditorManager} manager
          */
         showSearchPanel(manager) {
-            // MainHubPanel経由で検索タブを開く
-            if (window.MainHubPanel) {
-                window.MainHubPanel.show('search');
+            // 検索パネルを直接表示（独立フローティング）
+            var panel = document.getElementById('search-floating-panel');
+            if (panel) {
+                panel.style.display = 'block';
+                if (window.ZenWriterFloatingPanels) {
+                    window.ZenWriterFloatingPanels.preparePanel(panel);
+                }
             }
 
             const input = document.getElementById('search-input');
@@ -34,10 +38,8 @@
          * @param {EditorManager} manager
          */
         hideSearchPanel(manager) {
-            // MainHubPanel経由で閉じる
-            if (window.MainHubPanel) {
-                window.MainHubPanel.hide();
-            }
+            var panel = document.getElementById('search-floating-panel');
+            if (panel) panel.style.display = 'none';
             this.clearSearchHighlights(manager);
             // エディタにフォーカスを戻す
             if (manager.editor) {

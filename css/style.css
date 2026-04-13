@@ -1624,8 +1624,14 @@ html[data-sidebar-open='true'] .main-content {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  /* 左右余白クリックを .editor-container に透過し、フォーカス転送を発火させる */
+  pointer-events: none;
   z-index: 1;
   transform-origin: center center;
+}
+
+.editor-classic-layer > * {
+  pointer-events: auto;
 }
 
 .textarea-mode-bar {
@@ -1683,23 +1689,9 @@ html[data-sidebar-open='true'] .main-content {
   }
 
   .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 990;
-    background: rgba(0, 0, 0, 0.22);
-    display: none;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--transition-speed) ease;
-  }
-
-  html[data-sidebar-open='true'] .sidebar-overlay {
-    display: block;
-    opacity: 1;
-    pointer-events: auto;
+    /* デスクトップではサイドバーが横に並ぶため overlay は不要 */
+    display: none !important;
+    pointer-events: none !important;
   }
 }
 

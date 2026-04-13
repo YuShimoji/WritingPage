@@ -334,12 +334,10 @@
             }
         }
 
-        // 分割ビュー — MainHubPanel に統一
-        if (toggleSplitViewBtn) {
+        // 分割ビュー — 直接 SplitView をトグル
+        if (toggleSplitViewBtn && window.ZenWriterSplitView) {
             toggleSplitViewBtn.addEventListener('click', () => {
-                if (window.MainHubPanel) {
-                    window.MainHubPanel.toggle('split-view');
-                }
+                window.ZenWriterSplitView.toggle('edit-preview');
             });
         }
 
@@ -356,34 +354,24 @@
             });
         }
 
-        // 分割ビューモード選択ボタン — MainHubPanel内に配置済み
+        // 分割ビューモード選択ボタン
         if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
             splitViewEditPreviewBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('edit-preview');
-                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
 
         if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
             splitViewChapterCompareBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('chapter-compare');
-                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
 
         if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
             splitViewSnapshotDiffBtn.addEventListener('click', () => {
                 window.ZenWriterSplitView.toggle('snapshot-diff');
-                if (window.MainHubPanel) window.MainHubPanel.hide();
             });
         }
-
-        ['main-hub-panel'].forEach((id) => {
-            const panel = document.getElementById(id);
-            if (panel) {
-                enableFloatingPanelDrag(panel);
-            }
-        });
         window.addEventListener('resize', () => {
             document.querySelectorAll('.floating-panel').forEach((panel) => {
                 const style = window.getComputedStyle(panel);
@@ -553,8 +541,8 @@
         if (sidebarSplitBtn) {
             sidebarSplitBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                if (window.MainHubPanel) {
-                    window.MainHubPanel.toggle('split-view');
+                if (window.ZenWriterSplitView) {
+                    window.ZenWriterSplitView.toggle('edit-preview');
                 }
                 closeSidebarEditorViewDetails();
             });
