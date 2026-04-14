@@ -7849,37 +7849,8 @@ html[data-reader-overlay-open='true'] .edge-glow {
   display: none !important;
 }
 
-/* Focus 上端: メインハブへの可視アフォーダンス（テキストラベルは aria-label のみ） */
-.edge-hover-hub-affordance {
-  position: fixed;
-  z-index: 10;
-  top: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 56px;
-  height: 6px;
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  border: 1px solid color-mix(in srgb, var(--border-color, #888) 55%, transparent);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--bg-color, #1a1a1a) 90%, var(--accent-color, #6a9fb5) 10%);
-  cursor: pointer;
-  opacity: 0.48;
-  transition: opacity 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.edge-hover-hub-affordance:hover,
-.edge-hover-hub-affordance:focus-visible {
-  opacity: 0.95;
-  outline: none;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent-color, #6a9fb5) 40%, transparent);
-}
-
-html[data-ui-mode='normal'] .edge-hover-hub-affordance,
-html[data-reader-overlay-open='true'] .edge-hover-hub-affordance {
-  display: none !important;
-}
+/* session 93: .edge-hover-hub-affordance を廃止 (中央上部ボタンでレガシー mode-switch 到達の
+   導線を撤去)。JS 側でも createHubAffordance() を削除済み。 */
 
 /* ===== Story Wiki ===== */
 .swiki-root {

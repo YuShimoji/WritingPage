@@ -192,7 +192,10 @@
       startDismiss('top');
     }
 
-    if (state.left.active && x > EDGE_ZONE) {
+    // session 93: 上端用定数 EDGE_ZONE(24) の誤用を修正し、左端は getLeftEdgeZone() を使う。
+    // 旧実装ではマウスがトリガーゾーン内 (例 50px) でも毎 mousemove で x > 24 が true となり
+    // dismiss が即発火、パネルが開いても即閉じる race condition が発生していた。
+    if (state.left.active && x > getLeftEdgeZone()) {
       // focusモードでは章パネル、通常はサイドバーの矩形を参照
       var leftTarget = isFocusMode()
         ? document.querySelector('.focus-chapter-panel')
@@ -213,31 +216,11 @@
   // マウスが近づくとグローが強くなり、UIの存在を示唆する。
 
   var glowElements = { top: null, left: null };
-  var hubAffordanceEl = null;
-
-  /** Focus 時のみ: 上端中央の極小ハンドル（クリックでサイドバートグル）。 */
-  function createHubAffordance() {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'edge-hover-hub-affordance';
-    btn.className = 'edge-hover-hub-affordance';
-    btn.setAttribute('aria-label', 'サイドバーを開く');
-    btn.tabIndex = 0;
-    btn.addEventListener('click', function () {
-      if (html.getAttribute('data-ui-mode') !== 'focus') return;
-      if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-        window.sidebarManager.toggleSidebar();
-      }
-    });
-    document.body.appendChild(btn);
-    hubAffordanceEl = btn;
-  }
+  // session 93: hub affordance (中央上部の極小ハンドル) を廃止。
+  // createHubAffordance / updateHubAffordanceVisibility 関数は削除、関連 CSS もクリーンアップ。
 
   function updateHubAffordanceVisibility() {
-    if (!hubAffordanceEl) return;
-    var mode = html.getAttribute('data-ui-mode');
-    var reader = html.getAttribute('data-reader-overlay-open') === 'true';
-    hubAffordanceEl.style.display = mode === 'focus' && !reader ? '' : 'none';
+    // session 93: 互換のため関数は残すが実質 no-op (呼出側が存在するため)
   }
 
   function createEdgeGlows() {
@@ -354,7 +337,10 @@
 
     // エッジグロー表示
     createEdgeGlows();
-    createHubAffordance();
+    // session 93: createHubAffordance() 呼出を撤廃。
+    // 中央上部の極小ボタン (#edge-hover-hub-affordance) は Focus モードで通常サイドバーを
+    // toggle するが、Focus では .focus-chapter-panel が主ナビゲーションで、通常サイドバー内の
+    // mode-switch (最小/フル) はレガシー導線として混乱の原因だった。ボタン自体を生成しない。
     updateGlowVisibility();
 
     // UIモード変更時にグロー表示を更新
