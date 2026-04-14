@@ -2,16 +2,16 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-07（`CURRENT_STATE.md` session 64 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 90 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 64（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: WP-001 UI/UX 磨き上げ + WP-004 Reader-First WYSIWYG
-- スライス（要約）: WP-004 監査・FR-007 E2E・`_undoAction` 修正・Phase 5 境界追記 等（詳細は正本）
+- セッション: 90（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **WP-004 Reader-First WYSIWYG（単独）** — WP-001 は session 90 closeout で監視モードへ
+- スライス（要約）: session 90 は **WP-001 closeout** — 既知摩擦 11 件消化完了、deferred 3 項目は 36 セッション連続で新規再現なしのため「closed unless re-reported」に格上げ。docs 同期のみ（コード変更なし）。
 
 ---
 
@@ -19,7 +19,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 64 | 63 |
+| セッション番号 | 90 | 89 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |
@@ -45,7 +45,7 @@
 | 体験成果物 | 90% |
 | 基盤 | 93% |
 | 残 partial | なし (SP-005 done化) |
-| IDEA POOL open | 1 (WP-001 着手中: UI磨き上げ・摩擦軽減) |
+| IDEA POOL open | 0 (WP-001 は session 90 で closeout → 監視モード) |
 | IDEA POOL done | 2 (WP-002, WP-003) |
 | 設計課題 open | 0 (Q1-Q4 全解決) |
 | ビジュアル監査 open | V-2/V-3/V-4: 解消見込み (session 26 Visual Audit で新規問題なし) |

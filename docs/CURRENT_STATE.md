@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-14 (session 89)
+最終更新: 2026-04-15 (session 90)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 89 |
-| 現在の主軸 | 過剰テスト・デッドコードの第二次クリーンアップ (session 88 までの一次整理後の残留対応) |
-| 直近のスライス | session 89: **クリーンアップ** — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
+| セッション | 90 |
+| 現在の主軸 | **WP-001 摩擦削減レーン完了宣言（監視モードへ移行）** + WP-004 Phase 3 継続 |
+| 直近のスライス | session 90: **WP-001 closeout** — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
+| 前スライス (参考) | session 89: 過剰テスト・デッドコード第二次クリーンアップ — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
 
 
 ## ドキュメント地図（再開時）
@@ -259,6 +260,26 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | WP-001 パレット | `gadget-assist` / `gadget-advanced` 追加。`ui-mode-focus` にキーワード `フォーカスモード` | `js/command-palette.js` |
 | E2E | 補助・詳細設定アコーディオン展開の回帰 **2 件** | `e2e/command-palette.spec.js` |
 | 台帳 | `ROADMAP` / `USER_REQUEST_LEDGER` の「次」更新 | `docs/ROADMAP.md`, `docs/USER_REQUEST_LEDGER.md` |
+
+### Session 89
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| クリーンアップ | ルート不要ファイル 4 件削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html` / `debug-ui.html`) + `MILESTONE_2025-01-04.md` を `docs/archive/` へ移動 | ルート各ファイル |
+| package.json | 未使用 `test:e2e:ci` と重複 `test:build:stable` を削除 (22→20 scripts) | `package.json` |
+| E2E 削除 | `animations-decorations.spec.js` (2 件, `decorations.spec.js` に包含) / `reader-preview.spec.js` (16 件, Reader モード廃止済) | `e2e/*.spec.js` |
+| E2E 統合 | `chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`。`gadget-detach-restore.spec.js` 6 件 → `gadgets.spec.js` | `e2e/chapter-store.spec.js`, `e2e/gadgets.spec.js` |
+| docs 整合 | `DEVELOPMENT.md` 該当 `debug-ui.html` 誘導を DevTools コンソールに。`docs/archive/` 旧セッションログ 3 ファイル → `session-history.md` 統合 | `DEVELOPMENT.md`, `docs/archive/*` |
+| 検証 | `lint:js:check` clean / `test:smoke` pass / `playwright --list` = **566 / 65** (前回 585/69、−19 テスト/−4 ファイル)。`editor-settings:464` failure は stash 比較で **pre-existing** を確認 | — |
+
+### Session 90
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 closeout | 既知摩擦 11 件 (session 72〜88) を消化完了 → 台帳・ROADMAP・推奨プラン・runtime-state に「監視モード」を明示。体感トリガー発火時のみ 1 トピックに昇格 | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/RECOMMENDED_DEVELOPMENT_PLAN.md`, `docs/runtime-state.md` |
+| deferred 格上げ | BL-002 / BL-004 / Focus 左パネル は session 54〜89 の 36 セッション連続で新規再現なし → 「closed unless re-reported」扱いに | `docs/USER_REQUEST_LEDGER.md` |
+| 主軸切替 | 主レーンを **WP-004 Phase 3 継続**単独に。WP-001 は監視モードの副レーン扱い | `docs/CURRENT_STATE.md`, `docs/RECOMMENDED_DEVELOPMENT_PLAN.md` |
+| 検証 | `lint:js:check` clean。コード変更なし | — |
 
 ## 検証結果
 
