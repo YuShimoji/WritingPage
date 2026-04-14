@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-15 (session 91)
+最終更新: 2026-04-15 (session 93)
 
 ## Snapshot
 
@@ -10,9 +10,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 91 |
-| 現在の主軸 | **WP-001 監視モード復帰スライス** → Focus パネル UI 摩擦 6 件を 1 スライスで修正 → 再 closeout 宣言。次は WP-004 Phase 3 |
-| 直近のスライス | session 91: **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — Electron ビルド手動確認中にユーザーが 6 件の具体摩擦を特定 → 監視モードから 1 スライス復帰。(1) エッジホバー即応化 ([js/edge-hover.js](js/edge-hover.js) `DWELL_MS=0` / `DISMISS_MS=0`) + トリガー範囲を左端 y 全域に拡張。(2) Focus パネル overlay 化 ([css/style.css](css/style.css) `.editor-container` の `margin-left` 削除、`.focus-chapter-panel` は既 `position: fixed` のため押し出しなし)。(3) セクション折りたたみ機能を廃止 ([js/gadgets-sections-nav.js](js/gadgets-sections-nav.js) `applySectionCollapse` を no-op、「全展開」ボタン + 関連 CSS 撤去)。(4) 「見出しがありません」メッセージ撤去 (同ファイル)。(5) Focus パネル下部 UI (目次コピー/目次テンプレ/カウンター) を撤去 ([js/chapter-list.js](js/chapter-list.js) `renderFooterStats` 呼出除去 + 関連 CSS 削除)。(6) 「新しい章」ボタンを章リスト直下へ移動 ([index.html](index.html) `__footer` 撤去、CSS で `__list` を `flex: 0 1 auto` + `max-height` に変更)。再ビルド: `dist/` `build/win-unpacked/` ともに 2026-04-14 16:56-17:01 JST 更新。検証: `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` の 1 件 failure は stash 比較で **pre-existing** (`#main-hub-panel` は session 88 前後に削除済み、該当テストは古い)。|
+| セッション | 93 |
+| 現在の主軸 | **WP-001 復帰 3 連スライス (session 91/92/93)** で Focus パネル UI の体感摩擦を消化 → 再度監視モード。次は WP-004 Phase 3 |
+| 直近のスライス | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
+| 前スライス (参考) | session 92: Focus パネル幅・トリガー範囲をウィンドウ幅 1/6 (`clamp(12rem, 100vw/6, 24rem)`) に連動化、transition 0.05s→0.2s (フェードアウト可視化)。CSS `--focus-panel-width` を `:root` で clamp 定義、JS `getLeftEdgeZone()` で同式を JS から参照。|
+| 前スライス (参考) | session 91: **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — Electron ビルド手動確認中にユーザーが 6 件の具体摩擦を特定 → 監視モードから 1 スライス復帰。(1) エッジホバー即応化 ([js/edge-hover.js](js/edge-hover.js) `DWELL_MS=0` / `DISMISS_MS=0`) + トリガー範囲を左端 y 全域に拡張。(2) Focus パネル overlay 化 ([css/style.css](css/style.css) `.editor-container` の `margin-left` 削除、`.focus-chapter-panel` は既 `position: fixed` のため押し出しなし)。(3) セクション折りたたみ機能を廃止 ([js/gadgets-sections-nav.js](js/gadgets-sections-nav.js) `applySectionCollapse` を no-op、「全展開」ボタン + 関連 CSS 撤去)。(4) 「見出しがありません」メッセージ撤去 (同ファイル)。(5) Focus パネル下部 UI (目次コピー/目次テンプレ/カウンター) を撤去 ([js/chapter-list.js](js/chapter-list.js) `renderFooterStats` 呼出除去 + 関連 CSS 削除)。(6) 「新しい章」ボタンを章リスト直下へ移動 ([index.html](index.html) `__footer` 撤去、CSS で `__list` を `flex: 0 1 auto` + `max-height` に変更)。再ビルド: `dist/` `build/win-unpacked/` ともに 2026-04-14 16:56-17:01 JST 更新。検証: `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` の 1 件 failure は stash 比較で **pre-existing** (`#main-hub-panel` は session 88 前後に削除済み、該当テストは古い)。|
 | 前スライス (参考) | session 90: WP-001 closeout 宣言 (docs のみ) — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
 | 前スライス (参考) | session 89: 過剰テスト・デッドコード第二次クリーンアップ — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
 
@@ -295,6 +297,23 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | 再ビルド | `npm run build` + `npm run electron:build` 実行。`dist/BUILD_INFO.txt` = 2026-04-14T16:56:55Z、`build/win-unpacked/Zen Writer.exe` 再生成 | `dist/`, `build/win-unpacked/` |
 | 検証 | `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` failure は stash 比較で pre-existing (`#main-hub-panel` 削除済み、テスト側が古い) | — |
 | WP-001 再 closeout | 本スライスで体感摩擦を消化 → 再び監視モードへ。台帳・ROADMAP・推奨プランは session 91 行を追記、ステータス行は「監視モード (session 91 復帰実績あり)」に更新 | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/RECOMMENDED_DEVELOPMENT_PLAN.md`, `docs/runtime-state.md` |
+
+### Session 92
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| パネル幅連動化 | CSS `:root` に `--focus-panel-width: clamp(12rem, 100vw/6, 24rem)` を定義 (192〜384px、viewport の 1/6 に連動)。モバイル用 `min(15rem, 40vw)` 上書きは撤廃して全画面で統一 | `css/style.css` |
+| トリガー範囲連動化 | `js/edge-hover.js` に `getLeftEdgeZone()` (ratio 1/6 + clamp 192-384) を追加。`onMouseMove` 左端判定を `EDGE_ZONE` 固定値から動的計算に変更 | `js/edge-hover.js` |
+| フェード可視化 | `.focus-chapter-panel` の transition を 0.05s → 0.2s に延長、フェードイン/アウト対称 | `css/style.css` |
+| 検証 | `lint:js:check` clean、`test:smoke` pass、再ビルド実施 | — |
+
+### Session 93
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| 左端 dismiss bug 修正 | `onMouseLeaveEdge` の左端判定が `x > EDGE_ZONE (24)` で上端用定数を誤用 → `x > getLeftEdgeZone()` に修正。session 92 の動的化で dismiss 側を更新忘れしていた副作用を是正。wide window でパネルが出ない / state 壊れ / フェードアウト不発の全 3 症状の根本原因 | `js/edge-hover.js` |
+| hub affordance 廃止 | `#edge-hover-hub-affordance` (Focus 時中央上部 56×6px ハンドル) と `createHubAffordance()` を撤廃。クリックで通常サイドバーを開きレガシー mode-switch (最小/フル) に到達する導線を撤去 | `js/edge-hover.js`, `css/style.css` |
+| 検証 | `lint:js:check` clean、`test:smoke` pass、再ビルド実施 | — |
 
 ## 検証結果
 
