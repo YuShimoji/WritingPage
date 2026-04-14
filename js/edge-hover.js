@@ -12,8 +12,19 @@
 (function () {
   'use strict';
 
-  /** エッジ検知ゾーン (px)。画面端からこの距離内でホバー扱い（spec-mode-architecture と一致）。 */
+  /** 上端エッジ検知ゾーン (px)。画面上端からこの距離内でホバー扱い（ツールバー用、固定）。 */
   var EDGE_ZONE = 24;
+  /** 左端エッジ検知ゾーン: ウィンドウ幅の 1/6、最小 192px (12rem)、最大 384px (24rem)。
+      CSS 側の --focus-panel-width: clamp(12rem, 100vw/6, 24rem) と同じ式で連動 (session 92)。 */
+  var LEFT_EDGE_RATIO = 1 / 6;
+  var LEFT_EDGE_MIN = 192;
+  var LEFT_EDGE_MAX = 384;
+  function getLeftEdgeZone() {
+    var target = window.innerWidth * LEFT_EDGE_RATIO;
+    if (target < LEFT_EDGE_MIN) return LEFT_EDGE_MIN;
+    if (target > LEFT_EDGE_MAX) return LEFT_EDGE_MAX;
+    return target;
+  }
   /** エッジ内に留まってから UI を出すまでの遅延。0 で即座表示（session 91: ユーザー要望により即応化）。 */
   var DWELL_MS = 0;
   /** エッジ外へ出たあと非表示までの遅延。0 で即座 dismiss（session 91: 同上）。 */
@@ -137,8 +148,11 @@
       }
     }
 
-    // 左端判定（session 91: 画面高さ全域で発火。従来は y > EDGE_ZONE で上端除外していたが、ユーザー要望でトリガー範囲を拡張）
-    if (x <= EDGE_ZONE) {
+    // 左端判定 (session 92: トリガー幅をサイドバー幅と連動。ウィンドウ幅の 1/6、最小 192px / 最大 384px)
+    // 画面高さは全域で発火 (session 91 で y > EDGE_ZONE 除外撤廃)
+    // パネルそのものの上をマウスオーバーすればフェードイン発火、パネル外へ出ればフェードアウトする
+    var leftZone = getLeftEdgeZone();
+    if (x <= leftZone) {
       if (state.left.active) cancelDismiss('left');
       else startDwell('left');
     } else {

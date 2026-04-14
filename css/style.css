@@ -106,6 +106,10 @@
   --radius-sm: 0.1875rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.625rem;
+
+  /* session 92: Focus パネル幅をウィンドウ幅の 1/6 に連動 (最小 12rem / 最大 24rem)。
+     JS 側 edge-hover.js の左端トリガー範囲もこの値と同じ式で連動させる。 */
+  --focus-panel-width: clamp(12rem, 100vw / 6, 24rem);
 }
 
 /* 小さめのボタン汎用スタイル */
@@ -434,13 +438,14 @@ html[data-ui-mode='focus'] .show-toolbar-fab {
   display: none !important;
 }
 
-/* Focus モード: 章パネルはエッジホバーで表示(デフォルト非表示) */
+/* Focus モード: 章パネルはエッジホバーで表示(デフォルト非表示)
+   session 92: transition 0.05s → 0.2s (フェードアウトが可視化されるよう延長、フェードインと対称) */
 html[data-ui-mode='focus'] .focus-chapter-panel {
   display: flex !important;
   transform: translateX(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.05s ease-out, opacity 0.05s ease-out;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
 /* BL-004: Focus 左パネル — 半透明スライドイン → hover で不透明 */
@@ -448,7 +453,7 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel {
   transform: translateX(0) !important;
   opacity: 0.35 !important;
   pointer-events: auto !important;
-  transition: transform 0.05s ease-out, opacity 0.05s ease-out !important;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out !important;
 }
 html[data-ui-mode='focus'] .focus-chapter-panel:hover,
 html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hover {
@@ -1654,10 +1659,8 @@ html[data-sidebar-open='true'] .main-content {
     display: none !important;
   }
 
-  /* Focus モードの章パネル幅を小画面に適応 */
-  html[data-ui-mode='focus'] {
-    --focus-panel-width: min(15rem, 40vw);
-  }
+  /* session 92: モバイル上書きは撤廃。全画面で --focus-panel-width: clamp(12rem, 100vw/6, 24rem) を使用。
+     小画面では clamp の最小側 12rem(=192px) に張り付く (1/6 が 192px 未満のとき)。 */
 }
 
 /* デスクトップ: サイドバーは本文上にオーバーレイ。執筆エリアは幅を維持（押し出さない） */
