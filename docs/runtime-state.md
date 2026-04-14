@@ -2,7 +2,7 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-07（`CURRENT_STATE.md` session 64 に合わせて更新）。セッション別の詳細ログは [`docs/archive/runtime-state-session-log.md`](archive/runtime-state-session-log.md)。
+> 最終カウンター同期: 2026-04-07（`CURRENT_STATE.md` session 64 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
@@ -28,8 +28,8 @@
 | superseded | 1 | 1 |
 | JS impl ファイル (`js/**/*.js`) | 111 | 110 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル (`e2e/*.spec.js`) | 68 | 64 |
-| E2E total | `npx playwright test --list` で再集計 | （変動） |
+| E2E spec ファイル (`e2e/*.spec.js`) | 65 | 68 |
+| E2E total | 566 (session 89 実測) | 585 |
 | E2E failed | （正本: `CURRENT_STATE.md` 検証節） | — |
 | E2E skipped | （同上） | — |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
@@ -75,4 +75,4 @@
 
 ## セッション別詳細ログ
 
-session 26〜40 台の実施内容・2026-04-06 HANDOFF メモは **[`docs/archive/runtime-state-session-log.md`](archive/runtime-state-session-log.md)** に移した。session 41 以降は **`docs/CURRENT_STATE.md`** のセクションを正とする。
+session 26〜40 台の実施内容・2026-04-06 HANDOFF メモは **[`docs/archive/session-history.md`](archive/session-history.md)** に統合移動した。session 41 以降は **`docs/CURRENT_STATE.md`** のセクションを正とする。

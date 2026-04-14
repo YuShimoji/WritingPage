@@ -9,12 +9,7 @@
 - **localStorageをクリア**: `http://localhost:8080?reset=1`
 - **Service Workerとキャッシュをクリア**: `http://localhost:8080?clearCache=1`
 
-### 方法2: デバッグUIを使用
-
-1. ブラウザで `http://localhost:8080/debug-ui.html` を開く
-2. 「アプリを開く（キャッシュクリア）」ボタンをクリック
-
-### 方法3: ブラウザの開発者ツール
+### 方法2: ブラウザの開発者ツール
 
 1. F12で開発者ツールを開く
 2. Applicationタブ > Storage > Clear site data
@@ -43,7 +38,7 @@ npx playwright test e2e/test-ui-debug.spec.js --headed
 
 ### ブラウザコンソールでのデバッグ
 
-debug-ui.htmlからコードスニペットをコピーして、開発者ツールのコンソールで実行できます。
+F12で開発者ツールを開き、Console タブで `ZenWriterStorage` / `ZWGadgets` などのグローバルAPIを直接呼び出せます。
 
 ## 開発サーバー
 

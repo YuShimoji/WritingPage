@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode } = require('./helpers');
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -203,5 +204,74 @@ test.describe('SP-071 Phase 2 ChapterStore', () => {
     // エラーなくモード切替が完了
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     expect(mode).toBe('normal');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SP-079 Issue C: chapterMode では章追加がアクティブ章のテキストを汚染しない
+// (元 chapter-ux-issues.spec.js Issue C-2 を統合。Issue A/B/C-1 は SP-081 で
+//  機能削除済、B-2/B-3 はバグ記録型テストのため削除)
+// ---------------------------------------------------------------------------
+test.describe('SP-079 Issue C: chapterMode 章追加の非汚染', () => {
+  async function setEditorContent(page, text) {
+    await page.evaluate((t) => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+        window.ZenWriterEditor.setContent(t);
+      } else {
+        var editor = document.getElementById('editor');
+        if (editor) editor.value = t;
+      }
+      var editor = document.getElementById('editor');
+      if (editor) editor.dispatchEvent(new Event('input', { bubbles: true }));
+    }, text);
+    await page.waitForTimeout(400);
+  }
+
+  async function getEditorContent(page) {
+    return page.evaluate(() => {
+      var G = window.ZWContentGuard;
+      if (G && typeof G.getEditorContent === 'function') return G.getEditorContent();
+      var e = document.getElementById('editor');
+      return e ? e.value : '';
+    });
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/?reset=1');
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
+    await page.waitForTimeout(600);
+  });
+
+  test('C-2: chapterMode では章追加がテキストを汚染しない', async ({ page }) => {
+    await setEditorContent(page, '## 序章\n\n本文内容。');
+    await enterFocusMode(page);
+
+    const migrateBtn = page.locator('.cl-migrate-btn');
+    if (await migrateBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      page.once('dialog', d => d.accept());
+      await migrateBtn.click();
+      await page.waitForTimeout(500);
+    }
+
+    const isChMode = await page.evaluate(() => {
+      var Store = window.ZWChapterStore;
+      var docId = window.ZenWriterEditor && typeof window.ZenWriterEditor.getCurrentDocId === 'function'
+        ? window.ZenWriterEditor.getCurrentDocId()
+        : null;
+      if (!Store || !docId) return false;
+      return Store.isChapterMode(docId);
+    });
+
+    if (!isChMode) {
+      test.skip(true, 'Could not enter chapterMode');
+      return;
+    }
+
+    await page.locator('#focus-add-chapter').click();
+    await page.waitForTimeout(400);
+
+    const activeContent = await getEditorContent(page);
+    expect(activeContent.includes('新しい章')).toBe(false);
   });
 });

@@ -17,7 +17,7 @@
 ### 運用メモ
 
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- 過去のセッション列挙・メトリクス表は `CURRENT_STATE` / `runtime-state` / [`archive/runtime-state-session-log.md`](archive/runtime-state-session-log.md) を参照
+- 過去のセッション列挙・メトリクス表は `CURRENT_STATE` / `runtime-state` / [`archive/session-history.md`](archive/session-history.md) を参照
 - EPUB: スコープ外 (2026-03-23 除外決定)
 
 ---
