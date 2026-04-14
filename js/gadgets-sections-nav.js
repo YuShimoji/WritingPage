@@ -126,8 +126,13 @@
   //  Phase 2: コラプス適用/解除
   // =========================================================
 
-  /** 非アクティブセクションを折りたたむ */
+  /** 非アクティブセクションを折りたたむ
+   * session 91: ユーザー要望により折りたたみ機能を廃止。
+   * ZWSectionCollapse API 互換のため関数は残置するが、常に no-op。
+   * 呼び出し側 (jumpToHeading / jumpToIndex 等) もそのままで副作用なし。 */
   function applySectionCollapse(activeIndex) {
+    return;
+    /* eslint-disable no-unreachable */
     var wysiwygEl = document.getElementById('wysiwyg-editor');
     if (!wysiwygEl) return;
 
@@ -176,6 +181,7 @@
     wysiwygEl.setAttribute('data-section-collapse-active', 'true');
     collapseActive = true;
     lastCollapseIndex = activeIndex;
+    /* eslint-enable no-unreachable */
   }
 
   /** コラプス状態をすべて解除 */
@@ -306,31 +312,15 @@
     var wrap = document.createElement('div');
     wrap.className = 'sections-nav-gadget';
 
-    // 「全展開」ボタン
-    var expandAllBtn = document.createElement('button');
-    expandAllBtn.type = 'button';
-    expandAllBtn.className = 'sections-expand-all-btn';
-    expandAllBtn.textContent = '\u5168\u5c55\u958b'; // 全展開
-    expandAllBtn.title = '\u6298\u308a\u305f\u305f\u307f\u3092\u89e3\u9664'; // 折りたたみを解除
-    expandAllBtn.style.display = 'none';
-    expandAllBtn.addEventListener('click', function () {
-      clearSectionCollapse();
-      lastCollapseIndex = -1;
-      expandAllBtn.style.display = 'none';
-      scheduleRender();
-    });
-    wrap.appendChild(expandAllBtn);
+    // session 91: 「全展開」ボタンおよび折りたたみ機能廃止に伴い、ボタン生成を削除
 
     var treeContainer = document.createElement('div');
     treeContainer.className = 'sections-tree';
     treeContainer.setAttribute('role', 'tree');
     treeContainer.setAttribute('aria-label', '\u898b\u51fa\u3057\u30c4\u30ea\u30fc');
 
-    var emptyMsg = document.createElement('div');
-    emptyMsg.className = 'sections-empty';
-    emptyMsg.textContent = '\u898b\u51fa\u3057\u304c\u3042\u308a\u307e\u305b\u3093';
-    emptyMsg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:0.25rem 0;';
-    treeContainer.appendChild(emptyMsg);
+    // session 91: 「見出しがありません」メッセージを撤去（フォーカス外表示で混乱の原因）。
+    // 見出し 0 件時は treeContainer を空のまま返し、視覚的に静かなガジェットとする。
 
     wrap.appendChild(treeContainer);
     el.appendChild(wrap);
@@ -357,18 +347,13 @@
         currentActiveIndex = findActiveIndex(currentHeadings, cursorPos);
       }
 
-      // 全展開ボタンの表示切替
-      expandAllBtn.style.display = collapseActive ? '' : 'none';
+      // session 91: 全展開ボタンおよび「見出しがありません」メッセージ撤去
 
       // ツリー描画
       treeContainer.innerHTML = '';
 
       if (currentHeadings.length === 0) {
-        var msg = document.createElement('div');
-        msg.className = 'sections-empty';
-        msg.textContent = '\u898b\u51fa\u3057\u304c\u3042\u308a\u307e\u305b\u3093';
-        msg.style.cssText = 'font-size:0.85rem;opacity:0.6;padding:0.25rem 0;';
-        treeContainer.appendChild(msg);
+        // session 91: 見出し 0 件時は空のまま（メッセージ表示なし）
       } else {
         var minLevel = 6;
         for (var k = 0; k < currentHeadings.length; k++) {

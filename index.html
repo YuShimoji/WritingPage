@@ -333,13 +333,13 @@
       <nav class="focus-chapter-panel__list" id="focus-chapter-list" aria-label="チャプター一覧">
         <!-- chapter-list.js が動的生成 -->
       </nav>
-      <div class="focus-chapter-panel__footer">
-        <button class="focus-chapter-panel__add-btn" id="focus-add-chapter"
-          title="新しい章を追加" aria-label="新しい章を追加">
-          <i data-lucide="plus" aria-hidden="true"></i>
-          <span>新しい章</span>
-        </button>
-      </div>
+      <!-- session 91: 「新しい章」ボタンを章リスト直下へ移動（ユーザー要望: 挿入位置と直感的に一致させる）。
+           旧 .focus-chapter-panel__footer は session 91 で目次コピー/テンプレ/カウンター撤去により不要となり削除。 -->
+      <button class="focus-chapter-panel__add-btn" id="focus-add-chapter"
+        title="新しい章を追加" aria-label="新しい章を追加">
+        <i data-lucide="plus" aria-hidden="true"></i>
+        <span>新しい章</span>
+      </button>
     </aside>
 
     <!-- サイドバーオーバーレイ（モバイル用） -->

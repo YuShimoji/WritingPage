@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-15 (session 90)
+最終更新: 2026-04-15 (session 91)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 90 |
-| 現在の主軸 | **WP-001 摩擦削減レーン完了宣言（監視モードへ移行）** + WP-004 Phase 3 継続 |
-| 直近のスライス | session 90: **WP-001 closeout** — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
+| セッション | 91 |
+| 現在の主軸 | **WP-001 監視モード復帰スライス** → Focus パネル UI 摩擦 6 件を 1 スライスで修正 → 再 closeout 宣言。次は WP-004 Phase 3 |
+| 直近のスライス | session 91: **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — Electron ビルド手動確認中にユーザーが 6 件の具体摩擦を特定 → 監視モードから 1 スライス復帰。(1) エッジホバー即応化 ([js/edge-hover.js](js/edge-hover.js) `DWELL_MS=0` / `DISMISS_MS=0`) + トリガー範囲を左端 y 全域に拡張。(2) Focus パネル overlay 化 ([css/style.css](css/style.css) `.editor-container` の `margin-left` 削除、`.focus-chapter-panel` は既 `position: fixed` のため押し出しなし)。(3) セクション折りたたみ機能を廃止 ([js/gadgets-sections-nav.js](js/gadgets-sections-nav.js) `applySectionCollapse` を no-op、「全展開」ボタン + 関連 CSS 撤去)。(4) 「見出しがありません」メッセージ撤去 (同ファイル)。(5) Focus パネル下部 UI (目次コピー/目次テンプレ/カウンター) を撤去 ([js/chapter-list.js](js/chapter-list.js) `renderFooterStats` 呼出除去 + 関連 CSS 削除)。(6) 「新しい章」ボタンを章リスト直下へ移動 ([index.html](index.html) `__footer` 撤去、CSS で `__list` を `flex: 0 1 auto` + `max-height` に変更)。再ビルド: `dist/` `build/win-unpacked/` ともに 2026-04-14 16:56-17:01 JST 更新。検証: `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` の 1 件 failure は stash 比較で **pre-existing** (`#main-hub-panel` は session 88 前後に削除済み、該当テストは古い)。|
+| 前スライス (参考) | session 90: WP-001 closeout 宣言 (docs のみ) — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
 | 前スライス (参考) | session 89: 過剰テスト・デッドコード第二次クリーンアップ — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
 
 
@@ -280,6 +281,20 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | deferred 格上げ | BL-002 / BL-004 / Focus 左パネル は session 54〜89 の 36 セッション連続で新規再現なし → 「closed unless re-reported」扱いに | `docs/USER_REQUEST_LEDGER.md` |
 | 主軸切替 | 主レーンを **WP-004 Phase 3 継続**単独に。WP-001 は監視モードの副レーン扱い | `docs/CURRENT_STATE.md`, `docs/RECOMMENDED_DEVELOPMENT_PLAN.md` |
 | 検証 | `lint:js:check` clean。コード変更なし | — |
+
+### Session 91
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 復帰 #1 | エッジホバー即応化: `DWELL_MS 280→0`、`DISMISS_MS 500→0`、左端検知で `y > EDGE_ZONE` 除外を撤廃 (画面高さ全域で発火) | `js/edge-hover.js` |
+| WP-001 復帰 #2 | Focus パネル overlay 化: `.editor-container` の `margin-left` 適用を削除。`.focus-chapter-panel` は既 `position: fixed` のため push-out なし | `css/style.css` |
+| WP-001 復帰 #3 | セクション折りたたみ機能廃止: `applySectionCollapse` を no-op 化、「全展開」ボタンと関連 CSS 撤去 | `js/gadgets-sections-nav.js`, `css/style.css` |
+| WP-001 復帰 #4 | 「見出しがありません」メッセージ撤去 (フォーカス外表示で混乱の原因)。見出し 0 件時は空の treeContainer | `js/gadgets-sections-nav.js` |
+| WP-001 復帰 #5 | Focus パネル下部 UI 撤去: `renderFooterStats` 削除 (目次コピー/目次テンプレ/カウンター)、`insertTocTemplate` 廃止、関連 CSS 削除 | `js/chapter-list.js`, `css/style.css` |
+| WP-001 復帰 #6 | 「新しい章」ボタンを章リスト直下へ移動: `__footer` 要素ごと削除、`__list` を `flex: 0 1 auto` + `max-height: calc(100vh - 8rem)` に変更、`__add-btn` に margin + border-top | `index.html`, `css/style.css` |
+| 再ビルド | `npm run build` + `npm run electron:build` 実行。`dist/BUILD_INFO.txt` = 2026-04-14T16:56:55Z、`build/win-unpacked/Zen Writer.exe` 再生成 | `dist/`, `build/win-unpacked/` |
+| 検証 | `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` failure は stash 比較で pre-existing (`#main-hub-panel` 削除済み、テスト側が古い) | — |
+| WP-001 再 closeout | 本スライスで体感摩擦を消化 → 再び監視モードへ。台帳・ROADMAP・推奨プランは session 91 行を追記、ステータス行は「監視モード (session 91 復帰実績あり)」に更新 | `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/RECOMMENDED_DEVELOPMENT_PLAN.md`, `docs/runtime-state.md` |
 
 ## 検証結果
 

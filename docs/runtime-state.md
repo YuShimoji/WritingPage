@@ -2,16 +2,16 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 90 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 91 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 90（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **WP-004 Reader-First WYSIWYG（単独）** — WP-001 は session 90 closeout で監視モードへ
-- スライス（要約）: session 90 は **WP-001 closeout** — 既知摩擦 11 件消化完了、deferred 3 項目は 36 セッション連続で新規再現なしのため「closed unless re-reported」に格上げ。docs 同期のみ（コード変更なし）。
+- セッション: 91（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **WP-004 Reader-First WYSIWYG（単独）** — WP-001 は session 90 closeout、session 91 で体感トリガーにより 1 スライス復帰消化 → 再び監視モード
+- スライス（要約）: session 91 は **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — edge-hover 即応化 + overlay 化 + セクション折りたたみ廃止 + 「見出しがありません」撤去 + 下部 UI 撤去 + 「新しい章」ボタン再配置。Electron 再ビルド完了。
 
 ---
 
@@ -19,7 +19,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 90 | 89 |
+| セッション番号 | 91 | 90 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |

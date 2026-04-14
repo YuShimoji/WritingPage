@@ -166,7 +166,7 @@
 | WP-001        | ~~狭幅時ツールバー折り返し後の余白~~                         | `style.css` 768px 以下の折り返し・transition 調整、`toolbar-editor-geometry` で `--toolbar-height` 一致＋コンパクト狭幅を追加（session 48） |
 | WP-004        | Phase 3 継続（preview / **再生オーバーレイ** のレンダリング近接）       | [`docs/ROADMAP.md`](ROADMAP.md) 表参照。差分の列挙・手動シナリオは [`docs/WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md)。**1 件ずつ** 修正、`reader-wysiwyg-distinction.spec.js` で監視 |
 | WP-001        | ~~assist/advanced のコマンドパレット導線（`gadget-assist` / `gadget-advanced`）~~ | session 88 実施。[`js/command-palette.js`](../js/command-palette.js)、[`e2e/command-palette.spec.js`](../e2e/command-palette.spec.js) |
-| WP-001        | ~~摩擦削減の次トピック~~ → **監視モード** (session 90) | 既知摩擦 11 件は session 72〜88 で消化完了。deferred 体感項目は 36 セッション連続で新規再現なし。以降は **ユーザーが体感で問題を特定したときのみ** 1 トピックに昇格 |
+| WP-001        | ~~摩擦削減の次トピック~~ → **監視モード** (session 90、session 91 で 1 件復帰実施) | 既知摩擦 11 件は session 72〜88 で消化完了。session 91 でユーザー体感トリガー発火 → Focus パネル UI 摩擦 6 件を 1 スライスで消化し再 closeout。deferred 体感項目は 36 セッション連続で新規再現なしを維持 |
 | リッチテキスト・プログラム | 段落揃え（P2）・P1 品質（Undo 等）・仕様と実装の正本整理            | [`docs/specs/spec-richtext-enhancement.md`](specs/spec-richtext-enhancement.md)（実装パス一覧・P0/P1/P2）+ [`docs/specs/spec-rich-text-paragraph-alignment.md`](specs/spec-rich-text-paragraph-alignment.md)。**WP-004 Phase 3 とは別トラック** |
 | リッチテキスト・プログラム | **Phase 5（表）** — スライス境界は `spec-richtext-enhancement.md` の「Phase 5（未着手）」を正とする。実装は境界確定後の **別スライス** | 同上 |
 | WP-001（中長期） | **サイドバー「編集」カテゴリの情報密度** — ガジェット説明・既定折りたたみの見直し（1 スライス） | [`docs/ROADMAP.md`](ROADMAP.md) 順序 4。`gadgets-registry` / `gadgets-init`・各 `gadgets-*.js` のメタ |
@@ -205,6 +205,7 @@
 - **session 73**: WP-001「サイドバー『編集』カテゴリの情報密度」を実施（`edit` 説明を「装飾・プレビュー・画像」中心へ統一）。WP-004 は関連回帰 26 件 pass。deferred 体感トリガーは新規再現なし。次候補を「ロードアウトプリセットとガジェット既定の整合」に更新。
 - **session 89**: 過剰テスト・デッドコード第二次クリーンアップ（ルート不要ファイル・`package.json` scripts・E2E spec 2 削除 2 統合・`docs/archive/` ログ統合）。**-19 テスト / -4 E2E ファイル**（566/65）。コード変更なしの別軸作業、WP-001 deferred は本セッション対象外。
 - **session 90**: **WP-001 摩擦削減レーン closeout 宣言**。session 72〜88 で既知摩擦 11 件を消化完了、本表の候補列はすべて消化済。deferred 3 項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の **36 セッション連続**で新規再現なし → 「closed unless re-reported」扱いに格上げ。以降 WP-001 は **監視モード**（ユーザーが体感で問題を特定した時点で 1 トピックに昇格）。以下 deferred 行は参照履歴として保持。
+- **session 91**: **WP-001 復帰 → 再 closeout**。ユーザーが Electron ビルド手動確認中に Focus パネル UI の具体摩擦 6 件を特定 → 監視モードから 1 スライスで復帰消化。(#1) エッジホバー即応化 (DWELL=0/DISMISS=0) + トリガー範囲 y 全域拡張、(#2) Focus パネル overlay 化 (編集エリア push-out 回避)、(#3) セクション折りたたみ廃止 + 全展開ボタン除去、(#4) 「見出しがありません」メッセージ撤去、(#5) 下部 UI (目次コピー/テンプレ/カウンター) 撤去、(#6) 「新しい章」ボタンを章リスト直下へ移動。影響: `js/edge-hover.js` / `js/gadgets-sections-nav.js` / `js/chapter-list.js` / `css/style.css` / `index.html`。再ビルド完了 (`dist/`, `build/win-unpacked/`)。再 closeout: 監視モード維持。
 - BL-002 改行効果切断の体感確認
 - BL-004 Focus 半透明 hover の体感確認
 - ~~Reader ボタンのスタイル一貫性~~ → session 49: フルツールバーの目アイコンをモードスイッチ Reader と同系色・ホバー・アイコン寸法に揃えた（`style.css`）

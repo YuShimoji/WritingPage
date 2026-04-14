@@ -484,74 +484,14 @@
     });
     listEl.appendChild(dropZone);
 
-    // フッター統計 + 目次コピーボタン
-    renderFooterStats();
+    // session 91: フッター統計 (目次コピー/テンプレ/カウンター) を廃止
 
     // IntersectionObserver: 章アイテムの可視性を追跡
     observeChapterItems();
   }
 
-  function renderFooterStats() {
-    var footer = panelEl && panelEl.querySelector('.focus-chapter-panel__footer');
-    if (!footer) return;
-
-    // 既存の統計要素を除去
-    var existing = footer.querySelector('.cl-footer-stats');
-    if (existing) existing.remove();
-
-    if (chapters.length === 0) return;
-
-    var totalChars = 0;
-    chapters.forEach(function (ch) {
-      totalChars += countPlainChars(ch.content || '');
-    });
-
-    var stats = document.createElement('div');
-    stats.className = 'cl-footer-stats';
-
-    var countText = document.createElement('span');
-    countText.className = 'cl-footer-stats__count';
-    countText.textContent = formatCount(totalChars) + ' / ' + chapters.length + '\u7ae0';
-    stats.appendChild(countText);
-
-    var tocCopyBtn = document.createElement('button');
-    tocCopyBtn.type = 'button';
-    tocCopyBtn.className = 'cl-footer-stats__toc-btn';
-    tocCopyBtn.textContent = '\u76ee\u6b21\u30b3\u30d4\u30fc';
-    tocCopyBtn.title = '\u76ee\u6b21\u3092\u30af\u30ea\u30c3\u30d7\u30dc\u30fc\u30c9\u306b\u30b3\u30d4\u30fc';
-    tocCopyBtn.addEventListener('click', function () {
-      if (window.ZWChapterNav && typeof window.ZWChapterNav.generateTocText === 'function') {
-        var text = window.ZWChapterNav.generateTocText();
-        if (text && navigator.clipboard) {
-          navigator.clipboard.writeText(text).then(function () {
-            tocCopyBtn.textContent = '\u30b3\u30d4\u30fc\u3057\u307e\u3057\u305f';
-            setTimeout(function () { tocCopyBtn.textContent = '\u76ee\u6b21\u30b3\u30d4\u30fc'; }, 1500);
-          });
-        }
-      }
-    });
-    stats.appendChild(tocCopyBtn);
-
-    var tocTemplateBtn = document.createElement('button');
-    tocTemplateBtn.type = 'button';
-    tocTemplateBtn.className = 'cl-footer-stats__toc-btn';
-    tocTemplateBtn.textContent = '目次テンプレ挿入';
-    tocTemplateBtn.title = '目次テンプレートを本文へ挿入';
-    tocTemplateBtn.addEventListener('click', function () {
-      var text = '';
-      if (window.ZWChapterNav && typeof window.ZWChapterNav.generateTocText === 'function') {
-        text = window.ZWChapterNav.generateTocText() || '';
-      }
-      if (!text) return;
-      insertTocTemplate(text);
-      tocTemplateBtn.textContent = '挿入しました';
-      setTimeout(function () { tocTemplateBtn.textContent = '目次テンプレ挿入'; }, 1500);
-    });
-    stats.appendChild(tocTemplateBtn);
-
-    // addBtn の前に挿入
-    footer.insertBefore(stats, footer.firstChild);
-  }
+  // session 91: renderFooterStats() / insertTocTemplate 依存は廃止。
+  // ZWChapterNav.generateTocText はコマンドパレットなど他経路からも呼ばれる可能性を考慮して helper は保持。
 
   // ---- Click handlers ----
 
@@ -993,17 +933,8 @@
     }
   }
 
-  function insertTocTemplate(tocText) {
-    var template = '## 目次\n\n' + tocText + '\n\n';
-    var editor = document.getElementById('editor');
-    if (!editor) return;
-    var start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
-    var before = editor.value.slice(0, start);
-    var after = editor.value.slice(start);
-    var leading = before && !before.endsWith('\n') ? '\n\n' : '';
-    var next = before + leading + template + after;
-    setEditorText(next);
-  }
+  // session 91: insertTocTemplate は renderFooterStats 廃止で未使用化、削除。
+  // 復活が必要な場合は ZWChapterNav.generateTocText() + setEditorText() で再構築可能。
 
   function formatCount(n) {
     if (n >= 10000) return (n / 10000).toFixed(1) + '万';

@@ -14,10 +14,10 @@
 
   /** エッジ検知ゾーン (px)。画面端からこの距離内でホバー扱い（spec-mode-architecture と一致）。 */
   var EDGE_ZONE = 24;
-  /** エッジ内に留まってから UI を出すまでの遅延。mousemove ごとにリセットしない（初回入帯で1本のタイマー）。 */
-  var DWELL_MS = 280;
-  /** エッジ外へ出たあと非表示までの遅延（境界付近のチラつき抑制）。0 のときは即 dismiss。 */
-  var DISMISS_MS = 500;
+  /** エッジ内に留まってから UI を出すまでの遅延。0 で即座表示（session 91: ユーザー要望により即応化）。 */
+  var DWELL_MS = 0;
+  /** エッジ外へ出たあと非表示までの遅延。0 で即座 dismiss（session 91: 同上）。 */
+  var DISMISS_MS = 0;
 
   var state = {
     top: { active: false, dwellTimer: null, dismissTimer: null },
@@ -137,8 +137,8 @@
       }
     }
 
-    // 左端判定（上端 EDGE_ZONE と重なる領域は除外）
-    if (x <= EDGE_ZONE && y > EDGE_ZONE) {
+    // 左端判定（session 91: 画面高さ全域で発火。従来は y > EDGE_ZONE で上端除外していたが、ユーザー要望でトリガー範囲を拡張）
+    if (x <= EDGE_ZONE) {
       if (state.left.active) cancelDismiss('left');
       else startDwell('left');
     } else {
