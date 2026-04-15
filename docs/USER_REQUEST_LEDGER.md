@@ -7,6 +7,7 @@
 - WP-001 UI 磨き上げ・摩擦軽減の継続 (session 34 で着手、方向はユーザー判断)
 - デッドコード寄りのリソースは積極的に削除する (session 39 ユーザー指示)
 - 意思決定・手動確認地点で区切りを設け、プランを提示する
+- **WP-005 プレビュー・比較ツール再設計** (session 94 で方針合意、実装未着手)
 
 ## Backlog Delta
 
@@ -154,7 +155,16 @@
 - **回帰**: `npx playwright test e2e/command-palette.spec.js` → **13 件** pass。`npx eslint js/command-palette.js` → clean。
 - **次（1 トピック固定）**: 下表の WP-001 摩擦から **1 件**、または [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md) の監査 **1 スライス**。
 
-### 次スライス候補（WP-004 / WP-001、1 トピックずつ選定）
+#### session 94 実施結果（E2E 整理・手動テスト環境・WP-005 方針）
+
+- **E2E テスト整理**: MainHubPanel 廃止 (session 88) / セクション折りたたみ廃止 (session 91) / hub affordance 廃止 (session 93) / クイックフォントサイズ UI 削除 / textarea スペルチェック非実用化に伴うレガシーテストを積極削除。566→514 テスト / 65→60 ファイル / **512 passed / 2 skipped / 0 failed**。`EditorSearch.toggleSearchPanel` を `search-floating-panel` 直接操作に修正。
+- **手動テスト環境整備**: `.zwp.json` サンプル 3 件 (小説章管理・演出ショーケース・ファイル管理操作ガイド) + `MANUAL_TEST_GUIDE.md` 全面改訂 (11 セクション・80+ チェック項目)。
+- **WP-005 方針策定**: 分割ビューの edit-preview が MD プレビューと重複しており設計思想が浮いている問題を分析。(A) edit-preview 廃止 (B) MD プレビューをリッチプレビュー化 (タイピング/スクロール Controller アクティベート) (C) 比較ツール (chapter-compare / snapshot-diff) を隔離・将来は別ファイル比較も。3 スライスの段階実装で合意。
+- **未実装確認**: Google Keep 連携はコード・UI ともに存在しない。Markdown (.md) 直接インポートも未実装。
+- **品質ゲート**: `lint:js:check` clean。全件 E2E **512 passed / 2 skipped / 0 failed**。
+- **次**: WP-005 スライスA (edit-preview 廃止 + 導線整理) を推奨。
+
+### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
 
@@ -174,6 +184,9 @@
 | WP-001（中長期） | **アシスト／メタ系ガジェットの発見性** — コマンドパレット・サイドバー検索とのラベル揃え（1 スライス） | `js/command-palette.js`、各ガジェット `title` / `description` |
 | WP-001（中長期） | **執筆モード統合の事前整理（保存導線含む）** — `focus` 標準運用、`normal` 補助、保存 UI の常設/ガジェット境界を確定 | [`docs/specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
 | 横断（将来） | **Wiki ワークフロー統合** — Reader / wikilink / グラフの導線をユーザー要望に応じ **1 トピック** で起票（[`docs/CURRENT_STATE.md`](CURRENT_STATE.md) 体感リスト） | `story-wiki.js`、`e2e/wikilinks.spec.js` 等 |
+| **WP-005 スライスA** | **分割ビュー edit-preview モード廃止 + 導線整理** — `split-view.js` から edit-preview を削除。ツールバー `#toggle-split-view` ボタンの用途を再定義（比較ツール導線 or 撤去）。コマンドパレットの「分割ビュー」を比較ツール系に整理 | `js/split-view.js`, `js/app-ui-events.js`, `js/command-palette.js`, `index.html`, `css/style.css` |
+| **WP-005 スライスB** | **MD プレビューのリッチプレビュー化** — `editor-preview.js` の `renderMarkdownPreviewImmediate` に `TypingEffectController.activate()` / `ScrollTriggerController.activate()` を追加。WYSIWYG 編集面の横で「読者が見る表示」を並べて確認可能に。`surface: 'preview'` でもタイピング/ダイアログ/スクロール演出をアクティベート | `js/editor-preview.js`, `css/style.css` |
+| **WP-005 スライスC** | **比較ツールの隔離と拡張** — chapter-compare / snapshot-diff を「比較ツール」としてコマンドパレットとサイドバー「構造」カテゴリに導線集約。将来的に別ドキュメント比較モードを追加可能な構造にする | `js/split-view.js`, `js/command-palette.js`, `js/sidebar-manager.js` |
 
 ### WP-004 手動パック（リリース前・四半期）
 

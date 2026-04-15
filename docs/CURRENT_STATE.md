@@ -11,8 +11,8 @@
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
 | セッション | 94 |
-| 現在の主軸 | E2E テスト信頼性回復 → 開発再開可能状態。次は WP-004 Phase 3 または判断待ち項目 |
-| 直近のスライス | session 94: **E2E テスト整理 — 廃止機能テスト 52 件削除、0 failed 回復**。MainHubPanel (session 88)・セクション折りたたみ (session 91)・hub affordance (session 93)・クイックフォントサイズ UI・textarea スペルチェック UI の廃止に伴うレガシーテストを積極削除。`EditorSearch.toggleSearchPanel` を `search-floating-panel` 直接操作に修正。566→514 テスト / 65→60 ファイル / **512 passed / 2 skipped / 0 failed** |
+| 現在の主軸 | **WP-005 プレビュー・比較ツール再設計** (方針確定済み・実装未着手) + 手動テスト環境整備完了 |
+| 直近のスライス | session 94: (1) **E2E テスト整理** — 廃止機能テスト 52 件削除、0 failed 回復。566→514 テスト / 65→60 ファイル。(2) **手動テスト環境整備** — `.zwp.json` サンプル 3 件 + `MANUAL_TEST_GUIDE.md` 全面改訂。(3) **WP-005 方針策定** — 分割ビュー edit-preview 廃止・MD プレビューのリッチプレビュー化・比較ツール隔離の 3 スライス計画を合意 |
 | 前スライス (参考) | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
 | 前スライス (参考) | session 92: Focus パネル幅・トリガー範囲をウィンドウ幅 1/6 (`clamp(12rem, 100vw/6, 24rem)`) に連動化、transition 0.05s→0.2s (フェードアウト可視化)。CSS `--focus-panel-width` を `:root` で clamp 定義、JS `getLeftEdgeZone()` で同式を JS から参照。|
 | 前スライス (参考) | session 91: **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — Electron ビルド手動確認中にユーザーが 6 件の具体摩擦を特定 → 監視モードから 1 スライス復帰。(1) エッジホバー即応化 ([js/edge-hover.js](js/edge-hover.js) `DWELL_MS=0` / `DISMISS_MS=0`) + トリガー範囲を左端 y 全域に拡張。(2) Focus パネル overlay 化 ([css/style.css](css/style.css) `.editor-container` の `margin-left` 削除、`.focus-chapter-panel` は既 `position: fixed` のため押し出しなし)。(3) セクション折りたたみ機能を廃止 ([js/gadgets-sections-nav.js](js/gadgets-sections-nav.js) `applySectionCollapse` を no-op、「全展開」ボタン + 関連 CSS 撤去)。(4) 「見出しがありません」メッセージ撤去 (同ファイル)。(5) Focus パネル下部 UI (目次コピー/目次テンプレ/カウンター) を撤去 ([js/chapter-list.js](js/chapter-list.js) `renderFooterStats` 呼出除去 + 関連 CSS 削除)。(6) 「新しい章」ボタンを章リスト直下へ移動 ([index.html](index.html) `__footer` 撤去、CSS で `__list` を `flex: 0 1 auto` + `max-height` に変更)。再ビルド: `dist/` `build/win-unpacked/` ともに 2026-04-14 16:56-17:01 JST 更新。検証: `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` の 1 件 failure は stash 比較で **pre-existing** (`#main-hub-panel` は session 88 前後に削除済み、該当テストは古い)。|
@@ -327,6 +327,8 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | ヘルパー整理 | `openSearchPanel` / `openGlobalSearchPanel` / `openMainHubPanel` の 3 関数を削除 | `e2e/helpers.js` |
 | アプリ修正 | `EditorSearch.toggleSearchPanel` を `MainHubPanel.toggle('search')` から `search-floating-panel` 直接操作に修正 | `js/modules/editor/EditorSearch.js` |
 | 検証 | `lint:js:check` clean。全件: **512 passed / 2 skipped / 0 failed**。`npx playwright test --list` = **514 テスト / 60 ファイル** | — |
+| 手動テスト環境 | `.zwp.json` サンプル 3 件 (小説章管理・演出ショーケース・ファイル管理) を `samples/` に追加。`MANUAL_TEST_GUIDE.md` を全面改訂 (11 セクション・80+ チェック項目) | `samples/*.zwp.json`, `samples/README.md`, `docs/MANUAL_TEST_GUIDE.md` |
+| WP-005 方針策定 | プレビュー・比較ツール再設計の方向性を合意。(A) 分割ビュー edit-preview 廃止 (B) MD プレビューにタイピング/スクロール Controller を追加しリッチプレビュー化 (C) 比較ツール (chapter-compare / snapshot-diff) を隔離・将来は別ファイル比較も | `docs/USER_REQUEST_LEDGER.md` に起票 |
 
 ## 検証結果
 

@@ -56,6 +56,7 @@
 | WP-002 | ガジェット整理 (33→27完了、追加統合は今後検討) | **done** | UI | session 19で6ガジェット削除/無効化 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
 | WP-004 | Reader-First WYSIWYG (書く画面=読む画面) | **着手中** | Architecture | Phase 1–3 進捗は `CURRENT_STATE`・`INTERACTION_NOTES.md` |
+| WP-005 | プレビュー・比較ツール再設計 (edit-preview 廃止→リッチプレビュー化→比較ツール隔離) | **方針確定** | Architecture | session 94 で 3 スライス計画合意。`USER_REQUEST_LEDGER` の WP-005 行 |
 
 ---
 

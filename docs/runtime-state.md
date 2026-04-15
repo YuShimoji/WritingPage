@@ -2,16 +2,16 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 93 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 94 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 93（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **WP-004 Reader-First WYSIWYG（単独）** — WP-001 は session 91-93 の 3 連復帰スライスで Focus パネル UI 摩擦を消化 → 再び監視モード
-- スライス（要約）: session 91 Focus パネル UI 摩擦 6 件消化 / session 92 パネル幅・トリガー範囲をウィンドウ 1/6 連動化 + フェード可視化 / session 93 Electron 版 state bug 修正 + hub affordance 廃止
+- セッション: 94（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **WP-005 プレビュー・比較ツール再設計**（方針確定済み・実装未着手）。WP-001 は監視モード
+- スライス（要約）: session 94 E2E テスト整理 (52 件削除・0 failed 回復) + 手動テスト環境整備 (.zwp.json 3 件 + テストガイド) + WP-005 方針策定
 
 ---
 
@@ -19,17 +19,17 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 93 | 91 |
+| セッション番号 | 94 | 93 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |
 | spec partial | 0 | 0 |
 | spec removed | 11 | 11 |
 | superseded | 1 | 1 |
-| JS impl ファイル (`js/**/*.js`) | 111 | 110 |
+| JS impl ファイル (`js/**/*.js`) | 110 | 111 |
 | CSS ファイル | 4 | 4 |
-| E2E spec ファイル (`e2e/*.spec.js`) | 65 | 68 |
-| E2E total | 566 (session 89 実測) | 585 |
+| E2E spec ファイル (`e2e/*.spec.js`) | 60 | 65 |
+| E2E total | 514 (session 94 実測) | 566 |
 | E2E failed | （正本: `CURRENT_STATE.md` 検証節） | — |
 | E2E skipped | （同上） | — |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |
