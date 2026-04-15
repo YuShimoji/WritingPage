@@ -197,6 +197,13 @@
 - **品質ゲート（最小）**: `npm run lint:js:check` clean。手動実機確認は user によるビルド再確認で実施予定。
 - **次**: Phase B (option 2: リッチ編集改行まわりの発見性向上 — コマンドパレットへ昇格) を推奨。
 
+#### session 99 実施結果（WP-001 Phase B: リッチ編集改行の発見性向上）
+
+- **コマンドパレットへの昇格**: `effectBreakAtNewline` と `effectPersistDecorAcrossNewline` の切替を Ctrl+P から直接トグル可能に ([js/command-palette.js](../js/command-palette.js))。新カテゴリ「リッチ編集」を追加。
+- **設定UIとの同期**: `ZenWriterSettingsChanged` イベント発火で、サイドバー設定ガジェット (`gadgets-editor-extras.js`) のチェックボックスも自動同期。
+- **品質ゲート**: `npm run lint:js:check` clean、`npx playwright test e2e/command-palette.spec.js` = **13 passed**。
+- **次**: Phase C (option 3: WP-001 執筆モード整理) は user と 1 スライス選定後に着手。
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

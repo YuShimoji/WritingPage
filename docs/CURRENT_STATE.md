@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-16 (session 98)
+最終更新: 2026-04-16 (session 99)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 98 |
-| 現在の主軸 | **Electron ビルド版バグ修正バッチ** (終了失敗 / サイドバー表示不全 / フォント過大 の3件) |
-| 直近のスライス | session 98: **Electron ビルド版 3バグ修正** — (1) `beforeunload` で Electron 時に `preventDefault` を避けて終了 hang を解消 ([js/app-autosave-api.js](js/app-autosave-api.js))。(2) `settings.sidebarVisible` / `sidebarOpen` のキー不整合を両対応に統一 + 既定値を `true` に変更 ([js/settings-manager.js](js/settings-manager.js), [js/storage.js](js/storage.js))。edge-hover で開いたサイドバーが閉じない問題を `leftEdgeOpenedSidebar` 所有権フラグで修正 ([js/edge-hover.js](js/edge-hover.js))。(3) Windows DPI 依存のフォント過大を `webPreferences.zoomFactor: 0.9` + `:root { font-size: 16px }` で緩和 ([electron/main.js](electron/main.js), [css/style.css](css/style.css))。 |
+| セッション | 99 |
+| 現在の主軸 | **WP-001 発見性向上** (リッチ編集改行トグルをコマンドパレットへ昇格) |
+| 直近のスライス | session 99: **WP-001 Phase B** — リッチ編集の改行まわり設定2件 (`effectBreakAtNewline` / `effectPersistDecorAcrossNewline`) をコマンドパレットに「リッチ編集」カテゴリとして追加。サイドバー設定ガジェットに埋もれていた機能を Ctrl+P から直接トグル可能に。検証: `lint:js:check` clean、`command-palette` 13 passed |
+| 前スライス (参考) | session 98: **Electron ビルド版 3バグ修正** — (1) `beforeunload` で Electron 時に `preventDefault` を避けて終了 hang を解消 ([js/app-autosave-api.js](js/app-autosave-api.js))。(2) `settings.sidebarVisible` / `sidebarOpen` のキー不整合を両対応に統一 + 既定値を `true` に変更 ([js/settings-manager.js](js/settings-manager.js), [js/storage.js](js/storage.js))。edge-hover で開いたサイドバーが閉じない問題を `leftEdgeOpenedSidebar` 所有権フラグで修正 ([js/edge-hover.js](js/edge-hover.js))。(3) Windows DPI 依存のフォント過大を `webPreferences.zoomFactor: 0.9` + `:root { font-size: 16px }` で緩和 ([electron/main.js](electron/main.js), [css/style.css](css/style.css))。 |
 | 前スライス (参考) | session 97: **WP-005 スライスC** — 比較導線を「章比較 / スナップショット差分」の2コマンドへ分離し、サイドバー「構造」カテゴリに集約。編集カテゴリ/ツールバーの重複導線を撤去し、`SplitViewManager.open(mode)` で到達経路を統一。検証: `lint:js:check` clean、`command-palette` 13 pass、`visual-audit (Structure)` 1 pass |
 | 前スライス (参考) | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
 | 前スライス (参考) | session 92: Focus パネル幅・トリガー範囲をウィンドウ幅 1/6 (`clamp(12rem, 100vw/6, 24rem)`) に連動化、transition 0.05s→0.2s (フェードアウト可視化)。CSS `--focus-panel-width` を `:root` で clamp 定義、JS `getLeftEdgeZone()` で同式を JS から参照。|
@@ -367,6 +368,13 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | Bug 2-b edge-hover サイドバー閉じ不能 | `leftEdgeOpenedSidebar` 所有権フラグを導入し、edge-hover 自身が開いたサイドバーだけ閉じる仕様に修正。`isSidebarNormallyOpen()` による誤判定を回避 | `js/edge-hover.js` |
 | Bug 3 フォント過大 | `webPreferences.zoomFactor: 0.9` で Windows DPI (125% 等) を相殺、`:root { font-size: 16px }` で rem 計算基準を固定 | `electron/main.js`, `css/style.css` |
 | 検証 | `npm run lint:js:check` clean。Phase A 検証セクション参照 | — |
+
+### Session 99
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| リッチ編集トグル | コマンドパレットに `toggle-effect-break-at-newline` / `toggle-effect-persist-decor` を追加、「リッチ編集」カテゴリ新設。`ZenWriterSettingsChanged` イベントで既存のガジェット設定UIと同期 | `js/command-palette.js` |
+| 検証 | `npm run lint:js:check` clean。`npx playwright test e2e/command-palette.spec.js` = **13 passed** | — |
 
 ## 検証結果
 

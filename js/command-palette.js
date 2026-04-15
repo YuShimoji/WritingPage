@@ -296,6 +296,45 @@
         }
       }
     },
+    // リッチ編集（WYSIWYG）改行挙動の切替 — サイドバー設定に埋もれている機能を発見性の高いコマンドパレットへ昇格
+    {
+      id: 'toggle-effect-break-at-newline',
+      label: 'リッチ編集: 改行で装飾を切る (ON/OFF)',
+      description: 'WYSIWYG で Enter 時に書式解除・decor 後処理を行うかを切替 (BL-002)',
+      keywords: 'リッチ 装飾 改行 Enter BL-002 effectBreakAtNewline',
+      shortcut: '',
+      category: 'リッチ編集',
+      execute: () => {
+        try {
+          if (!window.ZenWriterStorage) return;
+          const s = window.ZenWriterStorage.loadSettings();
+          s.editor = s.editor || {};
+          const current = s.editor.effectBreakAtNewline !== false;
+          s.editor.effectBreakAtNewline = !current;
+          window.ZenWriterStorage.saveSettings(s);
+          window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged'));
+        } catch (_) { }
+      }
+    },
+    {
+      id: 'toggle-effect-persist-decor',
+      label: 'リッチ編集: 改行後も decor を継続 (ON/OFF)',
+      description: 'WYSIWYG で Enter 後もカーソルを decor-* 要素内に残すかを切替',
+      keywords: 'リッチ 装飾 改行 Enter decor effectPersistDecorAcrossNewline',
+      shortcut: '',
+      category: 'リッチ編集',
+      execute: () => {
+        try {
+          if (!window.ZenWriterStorage) return;
+          const s = window.ZenWriterStorage.loadSettings();
+          s.editor = s.editor || {};
+          const current = !!s.editor.effectPersistDecorAcrossNewline;
+          s.editor.effectPersistDecorAcrossNewline = !current;
+          window.ZenWriterStorage.saveSettings(s);
+          window.dispatchEvent(new CustomEvent('ZenWriterSettingsChanged'));
+        } catch (_) { }
+      }
+    },
     // ガジェット操作（動的に追加）
     {
       id: 'gadget-structure',
