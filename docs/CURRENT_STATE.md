@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-15 (session 93)
+最終更新: 2026-04-15 (session 94)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 93 |
-| 現在の主軸 | **WP-001 復帰 3 連スライス (session 91/92/93)** で Focus パネル UI の体感摩擦を消化 → 再度監視モード。次は WP-004 Phase 3 |
-| 直近のスライス | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
+| セッション | 94 |
+| 現在の主軸 | E2E テスト信頼性回復 → 開発再開可能状態。次は WP-004 Phase 3 または判断待ち項目 |
+| 直近のスライス | session 94: **E2E テスト整理 — 廃止機能テスト 52 件削除、0 failed 回復**。MainHubPanel (session 88)・セクション折りたたみ (session 91)・hub affordance (session 93)・クイックフォントサイズ UI・textarea スペルチェック UI の廃止に伴うレガシーテストを積極削除。`EditorSearch.toggleSearchPanel` を `search-floating-panel` 直接操作に修正。566→514 テスト / 65→60 ファイル / **512 passed / 2 skipped / 0 failed** |
+| 前スライス (参考) | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
 | 前スライス (参考) | session 92: Focus パネル幅・トリガー範囲をウィンドウ幅 1/6 (`clamp(12rem, 100vw/6, 24rem)`) に連動化、transition 0.05s→0.2s (フェードアウト可視化)。CSS `--focus-panel-width` を `:root` で clamp 定義、JS `getLeftEdgeZone()` で同式を JS から参照。|
 | 前スライス (参考) | session 91: **WP-001 復帰 (Focus パネル UI 摩擦 6 件)** — Electron ビルド手動確認中にユーザーが 6 件の具体摩擦を特定 → 監視モードから 1 スライス復帰。(1) エッジホバー即応化 ([js/edge-hover.js](js/edge-hover.js) `DWELL_MS=0` / `DISMISS_MS=0`) + トリガー範囲を左端 y 全域に拡張。(2) Focus パネル overlay 化 ([css/style.css](css/style.css) `.editor-container` の `margin-left` 削除、`.focus-chapter-panel` は既 `position: fixed` のため押し出しなし)。(3) セクション折りたたみ機能を廃止 ([js/gadgets-sections-nav.js](js/gadgets-sections-nav.js) `applySectionCollapse` を no-op、「全展開」ボタン + 関連 CSS 撤去)。(4) 「見出しがありません」メッセージ撤去 (同ファイル)。(5) Focus パネル下部 UI (目次コピー/目次テンプレ/カウンター) を撤去 ([js/chapter-list.js](js/chapter-list.js) `renderFooterStats` 呼出除去 + 関連 CSS 削除)。(6) 「新しい章」ボタンを章リスト直下へ移動 ([index.html](index.html) `__footer` 撤去、CSS で `__list` を `flex: 0 1 auto` + `max-height` に変更)。再ビルド: `dist/` `build/win-unpacked/` ともに 2026-04-14 16:56-17:01 JST 更新。検証: `lint:js:check` clean、`test:smoke` pass、`e2e/gadgets.spec.js` + `e2e/chapter-store.spec.js` pass。`command-palette.spec.js:60` の 1 件 failure は stash 比較で **pre-existing** (`#main-hub-panel` は session 88 前後に削除済み、該当テストは古い)。|
 | 前スライス (参考) | session 90: WP-001 closeout 宣言 (docs のみ) — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
@@ -315,6 +316,18 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | hub affordance 廃止 | `#edge-hover-hub-affordance` (Focus 時中央上部 56×6px ハンドル) と `createHubAffordance()` を撤廃。クリックで通常サイドバーを開きレガシー mode-switch (最小/フル) に到達する導線を撤去 | `js/edge-hover.js`, `css/style.css` |
 | 検証 | `lint:js:check` clean、`test:smoke` pass、再ビルド実施 | — |
 
+### Session 94
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| E2E spec 削除 (5 files) | `global-search` / `ui-parity` / `floating-panel-drag` / `split-view` / `spell-check` を全削除。MainHubPanel 廃止・textarea スペルチェック非実用化に伴う | `e2e/*.spec.js` (5 ファイル削除) |
+| JS デッドコード削除 | `js/main-hub-panel.js` 削除、`index.html` の廃止コメント除去 | `js/main-hub-panel.js`, `index.html` |
+| E2E 部分削除 | decorations (Search and Replace 7 件) / sections-nav (Section Collapse 4 件) / ui-mode-consistency (1 件) / toolbar-editor-geometry (1 件) / responsive-ui (1 件) / editor-settings (1 件) | `e2e/*.spec.js` (6 ファイル修正) |
+| E2E 書き換え | command-palette (1 件) / accessibility (2 件) を `#search-floating-panel` に移行 | `e2e/command-palette.spec.js`, `e2e/accessibility.spec.js` |
+| ヘルパー整理 | `openSearchPanel` / `openGlobalSearchPanel` / `openMainHubPanel` の 3 関数を削除 | `e2e/helpers.js` |
+| アプリ修正 | `EditorSearch.toggleSearchPanel` を `MainHubPanel.toggle('search')` から `search-floating-panel` 直接操作に修正 | `js/modules/editor/EditorSearch.js` |
+| 検証 | `lint:js:check` clean。全件: **512 passed / 2 skipped / 0 failed**。`npx playwright test --list` = **514 テスト / 60 ファイル** | — |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -428,6 +441,12 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 - `npx playwright test e2e/command-palette.spec.js` → pass（13 件）
 - `npx eslint js/command-palette.js` → clean
 - `npx playwright test --list` → **585 テスト / 69 ファイル**（実測）
+
+実行済み (session 94):
+
+- `npx playwright test` → **512 passed / 2 skipped / 0 failed**（全 spec、約 2.7 分）
+- `npx playwright test --list` → **514 テスト / 60 ファイル**
+- `npm run lint:js:check` → clean
 
 ### 手動確認ゲート（運用メモ）
 
