@@ -7,7 +7,7 @@
 - WP-001 UI 磨き上げ・摩擦軽減の継続 (session 34 で着手、方向はユーザー判断)
 - デッドコード寄りのリソースは積極的に削除する (session 39 ユーザー指示)
 - 意思決定・手動確認地点で区切りを設け、プランを提示する
-- **WP-005 プレビュー・比較ツール再設計** (session 94 で方針合意、実装未着手)
+- **WP-005 プレビュー・比較ツール再設計** (session 97: スライスC完了)
 
 ## Backlog Delta
 
@@ -164,6 +164,30 @@
 - **品質ゲート**: `lint:js:check` clean。全件 E2E **512 passed / 2 skipped / 0 failed**。
 - **次**: WP-005 スライスA (edit-preview 廃止 + 導線整理) を推奨。
 
+#### session 95 実施結果（WP-005 スライスA）
+
+- **edit-preview 廃止**: `split-view.js` から `edit-preview` を削除し、比較ビューは `chapter-compare` / `snapshot-diff` のみを残す構成に整理。
+- **導線統一**: `#toggle-split-view`（ツールバー/サイドバー）・コマンドパレット・Electron メニューを「比較ビュー（章比較）」文言に統一し、プレビュー用途との混同を解消。
+- **デッドコード整理**: `app-ui-events.js` の `split-view-edit-preview` 参照を削除し、`style.css` から未使用 `split-view-editor-wrapper` / `split-view-preview-wrapper` / `split-view-mode-panel` を削除。
+- **品質ゲート（最小）**: `npm run lint:js:check` clean、`npx playwright test e2e/command-palette.spec.js e2e/responsive-ui.spec.js` で **24 passed**。
+- **次**: WP-005 スライスB（MD プレビューのリッチプレビュー化）を推奨。
+
+#### session 96 実施結果（WP-005 スライスB）
+
+- **リッチプレビュー化**: `editor-preview.js` の `renderMarkdownPreviewImmediate` 後段で、`surface: 'preview'` の描画結果に対して `TypingEffectController.activate()` / `ScrollTriggerController.activate()` を実行するよう更新。
+- **cleanup ライフサイクル**: cleanup参照を `editorManager` に保持し、再描画時は cleanup → 再activate、プレビュー閉時（`editor-preview--collapsed`）は cleanup のみ実行して重複監視を防止。
+- **CSS 方針**: `#editor-preview .zw-scroll` など既存スタイルで要件を満たすため、スライスBでは CSS 追加なし。
+- **品質ゲート（最小）**: `npm run lint:js:check` clean、`npx playwright test e2e/typing-effect.spec.js e2e/wysiwyg-dsl-preview.spec.js` で **24 passed**。
+- **次**: WP-005 スライスC（比較ツールの隔離と導線集約）を推奨。
+
+#### session 97 実施結果（WP-005 スライスC）
+
+- **比較導線の分離**: コマンドパレットを `compare-chapter` / `compare-snapshot` の2コマンドに分離し、「比較ツール」カテゴリとして独立。
+- **導線集約**: 比較導線をサイドバー「構造」カテゴリの専用ボタン（章比較/スナップショット差分）へ移動。編集カテゴリの比較導線とツールバー側の重複導線を撤去。
+- **ルーティング統一**: `SplitViewManager.open(mode)` を追加し、比較導線を `open()` 経由に統一。Electron メニュー導線も新しい「章比較」ボタンへ接続。
+- **品質ゲート（最小）**: `npm run lint:js:check` clean、`npx playwright test e2e/command-palette.spec.js` で **13 passed**、`npx playwright test e2e/visual-audit.spec.js -g "Structure gadgets"` で **1 passed**。
+- **次**: WP-005 は A/B/C の計画スライスが完了。次段は比較ツールの別ドキュメント比較拡張を別トピックで起票。
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。
@@ -184,9 +208,9 @@
 | WP-001（中長期） | **アシスト／メタ系ガジェットの発見性** — コマンドパレット・サイドバー検索とのラベル揃え（1 スライス） | `js/command-palette.js`、各ガジェット `title` / `description` |
 | WP-001（中長期） | **執筆モード統合の事前整理（保存導線含む）** — `focus` 標準運用、`normal` 補助、保存 UI の常設/ガジェット境界を確定 | [`docs/specs/spec-writing-mode-unification-prep.md`](specs/spec-writing-mode-unification-prep.md) |
 | 横断（将来） | **Wiki ワークフロー統合** — Reader / wikilink / グラフの導線をユーザー要望に応じ **1 トピック** で起票（[`docs/CURRENT_STATE.md`](CURRENT_STATE.md) 体感リスト） | `story-wiki.js`、`e2e/wikilinks.spec.js` 等 |
-| **WP-005 スライスA** | **分割ビュー edit-preview モード廃止 + 導線整理** — `split-view.js` から edit-preview を削除。ツールバー `#toggle-split-view` ボタンの用途を再定義（比較ツール導線 or 撤去）。コマンドパレットの「分割ビュー」を比較ツール系に整理 | `js/split-view.js`, `js/app-ui-events.js`, `js/command-palette.js`, `index.html`, `css/style.css` |
-| **WP-005 スライスB** | **MD プレビューのリッチプレビュー化** — `editor-preview.js` の `renderMarkdownPreviewImmediate` に `TypingEffectController.activate()` / `ScrollTriggerController.activate()` を追加。WYSIWYG 編集面の横で「読者が見る表示」を並べて確認可能に。`surface: 'preview'` でもタイピング/ダイアログ/スクロール演出をアクティベート | `js/editor-preview.js`, `css/style.css` |
-| **WP-005 スライスC** | **比較ツールの隔離と拡張** — chapter-compare / snapshot-diff を「比較ツール」としてコマンドパレットとサイドバー「構造」カテゴリに導線集約。将来的に別ドキュメント比較モードを追加可能な構造にする | `js/split-view.js`, `js/command-palette.js`, `js/sidebar-manager.js` |
+| **WP-005 スライスA** | ~~**分割ビュー edit-preview モード廃止 + 導線整理**~~（session 95 実施済み） | `js/split-view.js`, `js/app-ui-events.js`, `js/command-palette.js`, `index.html`, `css/style.css`, `electron/main.js` |
+| **WP-005 スライスB** | ~~**MD プレビューのリッチプレビュー化**~~（session 96 実施済み） | `js/editor-preview.js`, `css/style.css` |
+| **WP-005 スライスC** | ~~**比較ツールの隔離と拡張**~~（session 97 実施済み）— chapter-compare / snapshot-diff を比較ツールとしてコマンドパレット + サイドバー構造へ集約 | `js/split-view.js`, `js/command-palette.js`, `js/sidebar-manager.js`, `js/app-ui-events.js`, `index.html`, `js/electron-bridge.js` |
 
 ### WP-004 手動パック（リリース前・四半期）
 

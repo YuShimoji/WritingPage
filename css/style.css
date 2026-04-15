@@ -6452,38 +6452,6 @@ html:not([data-focus-mode='enabled']) #editor::after {
   background: var(--accent-color, var(--focus-color));
 }
 
-/* 分割ビュー内のエディタ */
-.split-view-editor-wrapper {
-  width: 100%;
-  height: 100%;
-  padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
-}
-
-.split-view-editor-wrapper textarea {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: inherit;
-  resize: none;
-}
-
-/* 分割ビュー内のプレビュー */
-.split-view-preview-wrapper {
-  width: 100%;
-  height: 100%;
-  padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
-  overflow-y: auto;
-}
-
-.split-view-preview-wrapper .markdown-preview-panel {
-  max-width: 100%;
-}
-
 /* 章間比較 */
 .split-view-chapter-select {
   width: 100%;
@@ -6576,55 +6544,11 @@ html:not([data-focus-mode='enabled']) #editor::after {
   }
 }
 
-/* 分割ビューモード選択パネル */
-#split-view-mode-panel {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: var(--z-floating-panel, 200);
-  min-width: 18.75rem;
-}
-
 /* 分割ビューのリサイズハンドルのキーボード操作 */
 #split-view-resize-handle:focus-visible {
   outline: 0.125rem solid var(--ui-focus-color);
   outline-offset: 0.125rem;
   background: var(--ui-focus-color);
-}
-
-#split-view-mode-panel .panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-#split-view-mode-panel .panel-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-#split-view-mode-panel button {
-  width: 100%;
-  padding: 0.75rem;
-  text-align: left;
-  border: 1px solid var(--border-color);
-  border-radius: 0.25rem;
-  background: var(--ui-bg);
-  color: var(--ui-text);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-#split-view-mode-panel button:hover {
-  background: var(--hover-bg-color, rgba(0, 0, 0, 0.05));
-  border-color: var(--accent-color);
-}
-
-#split-view-mode-panel button:active {
-  background: var(--accent-color);
-  color: #fff;
 }
 
 /* =========================================

@@ -139,7 +139,7 @@ function buildMenu() {
                 { label: 'タイプライターモード(&Y)', click: () => sendToRenderer('menu:toggle-typewriter') },
                 { label: '超ミニマルモード(&M)', accelerator: 'CmdOrCtrl+Shift+M', click: () => sendToRenderer('menu:toggle-minimal') },
                 { type: 'separator' },
-                { label: '分割ビュー(&P)', click: () => sendToRenderer('menu:toggle-split-view') },
+                { label: '比較ビュー（章比較）(&P)', click: () => sendToRenderer('menu:toggle-split-view') },
                 { type: 'separator' },
                 { label: '拡大', accelerator: 'CmdOrCtrl+Plus', click: () => sendToRenderer('menu:zoom-in') },
                 { label: '縮小', accelerator: 'CmdOrCtrl+-', click: () => sendToRenderer('menu:zoom-out') },

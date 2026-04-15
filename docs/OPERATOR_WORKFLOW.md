@@ -50,3 +50,29 @@
 - 一度説明された workflow pain はここへ固定する
 - 「本制作へ進む前に workflow proof が必要」な案件では、その proof 条件もここへ残す
 - **手動確認依頼と「次に何をするか」の選択肢提示を同一メッセージに混ぜない**（正本: [`docs/INTERACTION_NOTES.md`](INTERACTION_NOTES.md)「手動確認の出し方」）。確認が終わってから別メッセージでアクション候補を出す
+
+## Build Checkpoint Policy (2026-04-16 確立)
+
+Electron パッケージ版 (`npm run build` → `dist/` / `build/win-unpacked/`) はビルドしないと反映されない。コミット基準で再ビルドを走らせる。
+
+### コミット時の再ビルド判定
+
+| コミット内容 | 再ビルド |
+|---|---|
+| 実行コード (js/ css/ electron/ index.html) を含む | **要** (コミット完了後に自動で `npm run build`) |
+| docs/*.md のみ | 不要 |
+| samples/ のみ | 不要 |
+| e2e/ のみ | 不要 (パッケージ対象外) |
+| コメント・typo・lint 自動修正のみ | 不要 |
+
+### 実行手順
+
+1. コミット成立を確認する (pre-commit フック通過含む)
+2. 上記表で「要」判定なら、assistant は続けて `npm run build` を `run_in_background: true` で起動する
+3. ビルド完了を user に報告し、`.exe` パスを明示する (`dist/win-unpacked/Zen Writer.exe` 等)
+4. ビルド失敗時は即座に user に報告し、修正方針を問う
+
+### 複数コミットを連続して作成する場合
+
+- 実行コードに影響するコミットが連続するなら、**最後のコミット後に 1 回だけ** ビルドする (個別コミット毎ビルドは時間コストが重い)
+- バッチ途中で中断・方針変更があった場合はその時点の HEAD でビルドする

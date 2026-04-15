@@ -183,9 +183,6 @@
             <button type="button" id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
-            <button type="button" id="toggle-split-view" class="icon-button iconified" title="分割ビュー" aria-label="分割ビューを切り替え" aria-expanded="false" aria-controls="split-view-container">
-              <i data-lucide="columns" aria-hidden="true"></i>
-            </button>
             <button type="button" id="toggle-reader-preview" class="icon-button iconified" title="再生オーバーレイ（読者視点確認）" aria-label="再生オーバーレイ（読者視点確認）を開く">
               <i data-lucide="eye" aria-hidden="true"></i>
             </button>
@@ -227,6 +224,18 @@
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
           <div class="accordion-content" id="accordion-structure" aria-hidden="true">
+            <div class="sidebar-editor-controls sidebar-compare-controls" role="group" aria-label="比較ツール">
+              <button type="button" class="sidebar-control-btn" id="open-compare-chapter"
+                title="2つの章を比較表示"
+                aria-label="比較ツール: 章比較を開く">
+                <i data-lucide="columns" aria-hidden="true"></i><span>章比較</span>
+              </button>
+              <button type="button" class="sidebar-control-btn" id="open-compare-snapshot"
+                title="2つのスナップショット差分を比較表示"
+                aria-label="比較ツール: スナップショット差分を開く">
+                <i data-lucide="git-compare" aria-hidden="true"></i><span>スナップショット差分</span>
+              </button>
+            </div>
             <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
           </div>
         </section>
@@ -253,9 +262,6 @@
                   title="編集画面の横に Markdown の表示確認（読者モードではありません）"
                   aria-label="MD プレビュー（編集の横に表示）">
                   <i data-lucide="layout-template" aria-hidden="true"></i><span>MD プレビュー</span>
-                </button>
-                <button type="button" class="sidebar-control-btn" id="sidebar-toggle-split" aria-pressed="false" title="分割ビュー">
-                  <i data-lucide="columns" aria-hidden="true"></i><span>分割ビュー</span>
                 </button>
                 <button type="button" class="sidebar-control-btn" id="sidebar-toggle-wysiwyg" aria-pressed="false"
                   title="装飾をリッチ表示で編集（読者プレビューではありません）"

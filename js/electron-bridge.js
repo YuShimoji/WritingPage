@@ -80,7 +80,7 @@
                 break;
 
             case 'menu:toggle-split-view': {
-                const btn = document.getElementById('toggle-split-view');
+                const btn = document.getElementById('open-compare-chapter');
                 if (btn) btn.click();
                 break;
             }

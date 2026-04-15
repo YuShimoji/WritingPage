@@ -37,7 +37,7 @@ class SidebarManager {
                 id: 'structure',
                 label: '構造',
                 icon: 'file-text',
-                description: '構成管理（ドキュメント・アウトライン・バックアップ）',
+                description: '構成管理（ドキュメント・アウトライン・比較）',
                 panelId: 'structure-gadgets-panel',
                 defaultExpanded: false
             },

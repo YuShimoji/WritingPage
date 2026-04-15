@@ -192,10 +192,8 @@
         const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         const fullscreenBtn = elementManager.get('fullscreenBtn');
-        const toggleSplitViewBtn = document.getElementById('toggle-split-view');
-        const splitViewEditPreviewBtn = document.getElementById('split-view-edit-preview');
-        const splitViewChapterCompareBtn = document.getElementById('split-view-chapter-compare');
-        const splitViewSnapshotDiffBtn = document.getElementById('split-view-snapshot-diff');
+        const compareChapterBtn = document.getElementById('open-compare-chapter');
+        const compareSnapshotBtn = document.getElementById('open-compare-snapshot');
         const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
         const toggleSpellCheckBtn = document.getElementById('toggle-spell-check');
 
@@ -334,10 +332,15 @@
             }
         }
 
-        // 分割ビュー — 直接 SplitView をトグル
-        if (toggleSplitViewBtn && window.ZenWriterSplitView) {
-            toggleSplitViewBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.toggle('edit-preview');
+        // 比較ツール（構造カテゴリ）— 直接 SplitView をオープン
+        if (compareChapterBtn && window.ZenWriterSplitView) {
+            compareChapterBtn.addEventListener('click', () => {
+                window.ZenWriterSplitView.open('chapter-compare');
+            });
+        }
+        if (compareSnapshotBtn && window.ZenWriterSplitView) {
+            compareSnapshotBtn.addEventListener('click', () => {
+                window.ZenWriterSplitView.open('snapshot-diff');
             });
         }
 
@@ -354,24 +357,6 @@
             });
         }
 
-        // 分割ビューモード選択ボタン
-        if (splitViewEditPreviewBtn && window.ZenWriterSplitView) {
-            splitViewEditPreviewBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.toggle('edit-preview');
-            });
-        }
-
-        if (splitViewChapterCompareBtn && window.ZenWriterSplitView) {
-            splitViewChapterCompareBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.toggle('chapter-compare');
-            });
-        }
-
-        if (splitViewSnapshotDiffBtn && window.ZenWriterSplitView) {
-            splitViewSnapshotDiffBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.toggle('snapshot-diff');
-            });
-        }
         window.addEventListener('resize', () => {
             document.querySelectorAll('.floating-panel').forEach((panel) => {
                 const style = window.getComputedStyle(panel);
@@ -523,7 +508,6 @@
         };
 
         const sidebarPreviewBtn = document.getElementById('sidebar-toggle-preview');
-        const sidebarSplitBtn = document.getElementById('sidebar-toggle-split');
         const sidebarWysiwygBtn = document.getElementById('sidebar-toggle-wysiwyg');
         const sidebarHelpBtn = document.getElementById('sidebar-toggle-help');
 
@@ -533,16 +517,6 @@
                 e.preventDefault();
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
                     window.ZenWriterEditor.togglePreview();
-                }
-                closeSidebarEditorViewDetails();
-            });
-        }
-
-        if (sidebarSplitBtn) {
-            sidebarSplitBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (window.ZenWriterSplitView) {
-                    window.ZenWriterSplitView.toggle('edit-preview');
                 }
                 closeSidebarEditorViewDetails();
             });

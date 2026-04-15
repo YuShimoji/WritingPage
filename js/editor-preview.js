@@ -1,4 +1,28 @@
 ﻿(function () {
+  function cleanupPreviewControllers(editorManager) {
+    if (!editorManager) return;
+    if (typeof editorManager._previewTypingCleanup === 'function') {
+      try { editorManager._previewTypingCleanup(); } catch (_) { /* noop */ }
+    }
+    if (typeof editorManager._previewScrollCleanup === 'function') {
+      try { editorManager._previewScrollCleanup(); } catch (_) { /* noop */ }
+    }
+    editorManager._previewTypingCleanup = null;
+    editorManager._previewScrollCleanup = null;
+  }
+
+  function activatePreviewControllers(editorManager) {
+    if (!editorManager || !editorManager.markdownPreviewPanel) return;
+    cleanupPreviewControllers(editorManager);
+    var container = editorManager.markdownPreviewPanel;
+    if (window.TypingEffectController && typeof window.TypingEffectController.activate === 'function') {
+      editorManager._previewTypingCleanup = window.TypingEffectController.activate(container);
+    }
+    if (window.ScrollTriggerController && typeof window.ScrollTriggerController.activate === 'function') {
+      editorManager._previewScrollCleanup = window.ScrollTriggerController.activate(container);
+    }
+  }
+
   function syncPreviewToggleChrome(editorManager, isOpen) {
     var panel = editorManager && editorManager.previewPanel;
     var toolbarToggle = editorManager && editorManager.previewPanelToggle;
@@ -24,6 +48,9 @@
     function syncPreviewAria() {
       var isCollapsed = panel.classList.contains('editor-preview--collapsed');
       syncPreviewToggleChrome(editorManager, !isCollapsed);
+      if (isCollapsed) {
+        cleanupPreviewControllers(editorManager);
+      }
     }
 
     if (toggle && !toggle.__zwPreviewBound) {
@@ -55,6 +82,8 @@
 
     if (willOpen) {
       renderMarkdownPreview(editorManager);
+    } else {
+      cleanupPreviewControllers(editorManager);
     }
 
     return willOpen;
@@ -127,6 +156,9 @@
       });
       editorManager.markdownPreviewPanel.__zwWikilinkBound = true;
     }
+
+    // WP-005 Slice B: preview surface でも演出 Controller を有効化
+    activatePreviewControllers(editorManager);
   }
 
   window.editorPreview_setupPreviewPanel = setupPreviewPanel;

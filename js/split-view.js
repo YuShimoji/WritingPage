@@ -3,8 +3,8 @@
   'use strict';
 
   /**
-   * SplitViewManager - 分割ビュー機能を管理
-   * 編集/プレビュー、章間比較、スナップショット差分の3つのモードをサポート
+   * SplitViewManager - 比較ビュー機能を管理
+   * 章間比較とスナップショット差分の2モードをサポート
    */
   class SplitViewManager {
     constructor() {
@@ -12,7 +12,7 @@
       this.leftPanel = null;
       this.rightPanel = null;
       this.resizeHandle = null;
-      this.mode = 'none'; // 'none' | 'edit-preview' | 'chapter-compare' | 'snapshot-diff'
+      this.mode = 'none'; // 'none' | 'chapter-compare' | 'snapshot-diff'
       this.isResizing = false;
       this.splitRatio = 0.5; // デフォルトは50:50
       this.editorManager = window.ZenWriterEditor;
@@ -183,51 +183,6 @@
 
       this.leftPanel.style.width = `${leftPercent}%`;
       this.rightPanel.style.width = `${rightPercent}%`;
-    }
-
-    /**
-     * 編集/プレビューモードを有効化
-     */
-    showEditPreview() {
-      this.mode = 'edit-preview';
-      this.show();
-      this.renderEditPreview();
-    }
-
-    /**
-     * 編集/プレビューをレンダリング
-     */
-    renderEditPreview() {
-      if (!this.leftPanel || !this.rightPanel) return;
-
-      // 左パネル: エディタ（実際のエディタを移動）
-      this.leftPanel.innerHTML = '';
-      const editorWrapper = document.createElement('div');
-      editorWrapper.className = 'split-view-editor-wrapper';
-      const editor = document.getElementById('editor');
-      if (editor && editor.parentNode) {
-        // エディタを左パネルに移動
-        editorWrapper.appendChild(editor);
-      }
-      this.leftPanel.appendChild(editorWrapper);
-
-      // 右パネル: プレビュー（実際のプレビューパネルを移動）
-      this.rightPanel.innerHTML = '';
-      const previewWrapper = document.createElement('div');
-      previewWrapper.className = 'split-view-preview-wrapper';
-      const previewPanel = document.getElementById('markdown-preview-panel');
-      if (previewPanel && previewPanel.parentNode) {
-        // プレビューパネルを右パネルに移動
-        previewWrapper.appendChild(previewPanel);
-      }
-      this.rightPanel.appendChild(previewWrapper);
-
-      // プレビューを更新
-      if (this.editorManager && typeof this.editorManager.renderMarkdownPreview === 'function') {
-        this.editorManager.renderMarkdownPreview();
-      }
-
-      this.updateLayout();
     }
 
     /**
@@ -583,29 +538,8 @@
      */
     hide() {
       if (!this.container) return;
-      
-      // エディタとプレビューパネルを元の位置に戻す
-      const editor = document.getElementById('editor');
-      const previewPanel = document.getElementById('markdown-preview-panel');
       const editorContainer = document.querySelector('.editor-container');
-      
-      if (editor && editorContainer) {
-        // エディタが左パネル内にある場合は元の位置に戻す
-        const leftPanel = this.leftPanel;
-        if (leftPanel && leftPanel.contains(editor)) {
-          editorContainer.insertBefore(editor, editorContainer.firstChild);
-        }
-      }
-      
-      if (previewPanel) {
-        // プレビューパネルが右パネル内にある場合は元の位置に戻す
-        const rightPanel = this.rightPanel;
-        const previewBody = document.getElementById('editor-preview-body');
-        if (rightPanel && rightPanel.contains(previewPanel) && previewBody) {
-          previewBody.insertBefore(previewPanel, previewBody.firstChild);
-        }
-      }
-      
+
       this.container.style.display = 'none';
       // 通常のエディタを表示
       if (editorContainer) {
@@ -615,25 +549,30 @@
     }
 
     /**
+     * 指定モードを開く（同一モード時でも閉じない）
+     * @param {'chapter-compare'|'snapshot-diff'} mode
+     */
+    open(mode) {
+      switch (mode) {
+        case 'chapter-compare':
+          this.showChapterCompare();
+          break;
+        case 'snapshot-diff':
+          this.showSnapshotDiff();
+          break;
+        default:
+          this.hide();
+      }
+    }
+
+    /**
      * モードを切り替え
      */
     toggle(mode) {
       if (this.mode === mode) {
         this.hide();
       } else {
-        switch (mode) {
-          case 'edit-preview':
-            this.showEditPreview();
-            break;
-          case 'chapter-compare':
-            this.showChapterCompare();
-            break;
-          case 'snapshot-diff':
-            this.showSnapshotDiff();
-            break;
-          default:
-            this.hide();
-        }
+        this.open(mode);
       }
     }
   }
