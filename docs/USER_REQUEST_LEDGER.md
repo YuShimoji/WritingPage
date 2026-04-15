@@ -188,6 +188,15 @@
 - **品質ゲート（最小）**: `npm run lint:js:check` clean、`npx playwright test e2e/command-palette.spec.js` で **13 passed**、`npx playwright test e2e/visual-audit.spec.js -g "Structure gadgets"` で **1 passed**。
 - **次**: WP-005 は A/B/C の計画スライスが完了。次段は比較ツールの別ドキュメント比較拡張を別トピックで起票。
 
+#### session 98 実施結果（Electron ビルド版 3バグ修正）
+
+- **Bug 1 終了失敗**: `beforeunload` の `preventDefault` が Electron で終了シーケンスを hang させていた。`window.electronAPI` 存在時はスキップするよう修正 ([js/app-autosave-api.js](../js/app-autosave-api.js))。
+- **Bug 2-a サイドバー初期非表示**: 読み取りキー `sidebarVisible` / 書き込みキー `sidebarOpen` の不整合で localStorage 復元が効かず、ビルド版初回起動で常に非表示になっていた。両キー互換読み + storage 既定値 `true` に変更 ([js/settings-manager.js](../js/settings-manager.js), [js/storage.js](../js/storage.js))。
+- **Bug 2-b edge-hover サイドバー閉じ不能**: `forceSidebarState(true)` が常に `data-sidebar-open` を付与するため `isSidebarNormallyOpen()` が手動オープンと edge-hover オープンを判別できず、hideEdge で閉じ処理がスキップされていた。`leftEdgeOpenedSidebar` 所有権フラグで責任分離 ([js/edge-hover.js](../js/edge-hover.js))。
+- **Bug 3 フォント過大**: `webPreferences.zoomFactor: 0.9` で Windows DPI スケールを相殺、`:root { font-size: 16px }` で rem 基準を固定 ([electron/main.js](../electron/main.js), [css/style.css](../css/style.css))。
+- **品質ゲート（最小）**: `npm run lint:js:check` clean。手動実機確認は user によるビルド再確認で実施予定。
+- **次**: Phase B (option 2: リッチ編集改行まわりの発見性向上 — コマンドパレットへ昇格) を推奨。
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

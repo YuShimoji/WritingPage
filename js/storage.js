@@ -27,8 +27,8 @@ const DEFAULT_SETTINGS = {
     useCustomColors: false,
     // ツールバー（文字数バー含む）の表示状態（初回は非表示）
     toolbarVisible: true,
-    // 左サイドバー開閉（既定は閉＝ミニマル。true/false で永続化）
-    sidebarOpen: false,
+    // 左サイドバー開閉（初回起動時の発見性を優先して既定は開。true/false で永続化）
+    sidebarOpen: true,
     // 執筆目標
     goal: {
         target: 0,       // 目標文字数（0 は未設定）

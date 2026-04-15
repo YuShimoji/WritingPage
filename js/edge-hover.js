@@ -35,6 +35,12 @@
     left: { active: false, dwellTimer: null, dismissTimer: null }
   };
 
+  /** 左エッジホバー自身が開いたサイドバーの所有権フラグ。
+      forceSidebarState(true) が常に data-sidebar-open を付けるため、
+      isSidebarNormallyOpen() だけでは「手動で開いた」と「ホバーで一時的に開いた」を判別できず、
+      hideEdge の閉じ処理が無効化される問題への対処 (Bug 2-b)。 */
+  var leftEdgeOpenedSidebar = false;
+
   var html = document.documentElement;
 
   /** 上端エッジで MainHub を開いたときだけ true（手動オープンのハブを誤って閉じない） */
@@ -71,12 +77,13 @@
 
     // サイドバーをエッジホバーで開いた場合、閉じる (focusモードではサイドバー不使用)
     var mode = html.getAttribute('data-ui-mode');
-    if (edge === 'left' && mode === 'normal' && !isSidebarNormallyOpen()) {
+    if (edge === 'left' && mode === 'normal' && leftEdgeOpenedSidebar) {
       var sidebar = document.getElementById('sidebar');
       if (sidebar && sidebar.classList.contains('open') &&
           window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
         window.sidebarManager.forceSidebarState(false);
       }
+      leftEdgeOpenedSidebar = false;
     }
   }
 
@@ -90,6 +97,11 @@
     var mode = html.getAttribute('data-ui-mode');
     if (edge === 'left' && mode === 'normal' && window.sidebarManager &&
         typeof window.sidebarManager.forceSidebarState === 'function') {
+      var sidebar = document.getElementById('sidebar');
+      var alreadyOpen = sidebar && sidebar.classList.contains('open');
+      if (!alreadyOpen) {
+        leftEdgeOpenedSidebar = true;
+      }
       window.sidebarManager.forceSidebarState(true);
     }
   }

@@ -233,8 +233,10 @@
         updateBackgroundScroll();
 
         // 未保存変更の警告
+        // Electron ではダイアログ未対応のため preventDefault すると終了が hang する。autoSave に任せる。
         window.addEventListener('beforeunload', (e) => {
             try {
+                if (window.electronAPI) return;
                 if (window.ZenWriterEditor && typeof window.ZenWriterEditor.isDirty === 'function' && window.ZenWriterEditor.isDirty()) {
                     e.preventDefault();
                     e.returnValue = '';

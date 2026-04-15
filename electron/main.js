@@ -372,6 +372,9 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
+            // Windows DPI スケール (125% 等) 下でフォントが大きく見える問題への対処。
+            // 開発版 (Chrome dev-server) と近い見た目にするため 0.9 に縮小。
+            zoomFactor: 0.9,
         },
     });
 

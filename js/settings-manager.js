@@ -38,9 +38,12 @@ class SettingsManager {
             lineHeightInput.value = settings.lineHeight;
             if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight;
         }
-        // サイドバー表示状態
-        if (typeof settings.sidebarVisible !== 'undefined') {
-            window.sidebarManager.forceSidebarState(!!settings.sidebarVisible);
+        // サイドバー表示状態 (書き込みキーは sidebarOpen だが旧キー sidebarVisible も互換で受ける)
+        const savedSidebarState = (typeof settings.sidebarOpen !== 'undefined')
+            ? settings.sidebarOpen
+            : settings.sidebarVisible;
+        if (typeof savedSidebarState !== 'undefined') {
+            window.sidebarManager.forceSidebarState(!!savedSidebarState);
         }
 
         // 執筆目標の初期反映

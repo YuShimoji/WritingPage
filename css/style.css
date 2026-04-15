@@ -1,4 +1,6 @@
 :root {
+  /* rem 計算の基準を固定 (OS DPI / ブラウザ既定に依存しない) */
+  font-size: 16px;
   --bg-color: #ffffff;
   --app-bg: #f6f7f9;
   /* アプリ全体の背景（白すぎ防止） */
