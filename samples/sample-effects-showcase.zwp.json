@@ -1,0 +1,29 @@
+{
+  "format": "zenwriter-v1",
+  "version": "0.3.32",
+  "document": {
+    "name": "演出ショーケース",
+    "chapterMode": true,
+    "createdAt": "2026-04-15T00:00:00.000Z",
+    "updatedAt": "2026-04-15T00:00:00.000Z"
+  },
+  "pages": [
+    {
+      "title": "装飾・書式",
+      "content": "## 装飾・書式サンプル\n\nこの章では WYSIWYG で確認できる装飾を一通り含んでいます。\n\n### 基本装飾\n\n**太字テキスト**、*斜体テキスト*、~~取り消し線~~。\n\n**太字の中に*斜体を含む*パターン**。\n\n### ルビと傍点\n\n|漢字《かんじ》にルビを振る。|邂逅《かいこう》の|刹那《せつな》。\n\n{傍点|ここが重要}な箇所に傍点を付ける。\n\n### リスト\n\n- 箇条書き項目1\n- 箇条書き項目2\n  - ネストされた項目\n- 箇条書き項目3\n\n1. 番号付き項目1\n2. 番号付き項目2\n3. 番号付き項目3\n\n### 引用\n\n> 月は、いつも片方の顔しか見せない。\n> だからこそ、裏側に何があるのか知りたくなる。\n\n### テキストアニメーション\n\nWYSIWYG モードで即時確認できます。\n\n[fade]フェードインするテキスト[/fade]\n\n[shake]震えるテキスト[/shake]\n\n[pulse]脈動するテキスト[/pulse]\n\n[bounce]弾むテキスト[/bounce]\n\n### テクスチャエフェクト\n\n[shadow]影付きテキスト[/shadow]\n\n[outline]輪郭テキスト[/outline]\n\n[glow]発光テキスト[/glow]\n\n[smallcaps]スモールキャップス[/smallcaps]\n\n### テキストボックス\n\n:::zw-textbox\nシンプルなテキストボックス。背景と枠線で区切られた領域。\n:::\n\n:::zw-textbox{preset=\"parchment\"}\n羊皮紙風のテキストボックス。古風な雰囲気の注釈やメモに。\n:::\n\n:::zw-textbox{preset=\"glass\"}\nガラス風の透明感あるボックス。近未来的な演出に。\n:::\n\n:::zw-textbox{preset=\"neon\"}\nネオン風のボックス。派手な強調や警告に。\n:::",
+      "order": 0,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    },
+    {
+      "title": "再生オーバーレイ演出",
+      "content": "## 再生オーバーレイ演出\n\nこの章の演出は**再生オーバーレイ**（コマンドパレット > 再生オーバーレイ）で確認してください。\n\n---\n\n### タイピング演出\n\n:::zw-typing\n文字が一文字ずつ表示されるタイピング演出です。\n読者の没入感を高めます。\n:::\n\n:::zw-typing{speed=\"fast\"}\n高速タイピング。緊迫した場面や、早口のセリフに。\n:::\n\n:::zw-typing{speed=\"slow\"}\nゆっくりとしたタイピング。重要な独白や、余韻を残す場面に。\n:::\n\n---\n\n### ダイアログ演出\n\n:::zw-dialog\n「普通のダイアログ。会話シーンの基本形」\n:::\n\n:::zw-dialog{position=\"left\"}\n「左寄せのダイアログ。登場人物Aのセリフに」\n:::\n\n:::zw-dialog{position=\"right\"}\n「右寄せのダイアログ。登場人物Bのセリフに」\n:::\n\n:::zw-dialog{position=\"center\"}\n「中央配置のダイアログ。ナレーションや心の声に」\n:::\n\n---\n\n### 複合演出\n\n:::zw-typing\n暗闇の中に、かすかな光が見えた。\n:::\n\n:::zw-dialog{position=\"center\"}\n「ここは――どこだ？」\n:::\n\n:::zw-typing{speed=\"slow\"}\n記憶が、|少《すこ》しずつ戻ってくる。\n:::\n\n:::zw-dialog{position=\"left\"}\n「思い出した。あの日の約束を」\n:::",
+      "order": 1,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    }
+  ],
+  "exportedAt": "2026-04-15T00:00:00.000Z"
+}
