@@ -2,16 +2,26 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-15（`CURRENT_STATE.md` session 94 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-16（`CURRENT_STATE.md` session 99 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 94（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **WP-005 プレビュー・比較ツール再設計**（方針確定済み・実装未着手）。WP-001 は監視モード
-- スライス（要約）: session 94 E2E テスト整理 (52 件削除・0 failed 回復) + 手動テスト環境整備 (.zwp.json 3 件 + テストガイド) + WP-005 方針策定
+- セッション: 99（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **WP-001 継続 (Phase C: 執筆モード整理)** を候補として保留。直近は Electron ビルド版 3バグ修正 + Phase B (リッチ編集改行トグル昇格) を完了。
+- スライス（要約）:
+  - session 97 WP-005 スライスC 完了 (比較ツール導線集約)
+  - session 98 Electron 3バグ修正 (終了 hang / サイドバー初期非表示 / edge-hover 閉じ不能 / フォント過大)
+  - session 99 WP-001 Phase B (リッチ編集改行トグルをコマンドパレットへ昇格)
+
+## 次セッション再開ポイント
+
+1. **実機検証の消化**: user が `build-new/win-unpacked/Zen Writer.exe` (2026-04-16 03:54 ビルド) を起動し Phase A/B の 6 点 (終了挙動 / サイドバー初期表示 / edge-hover 閉じる / フォントサイズ / 状態保持 / コマンドパレットのリッチ編集カテゴリ) を確認する
+2. **旧 build/ ディレクトリの掃除**: `build/win-unpacked/resources/app.asar` が OS/Defender ロック残留で削除不能。**PC 再起動後** に `rm -rf build/win-unpacked` → 次回ビルドから `build/` に戻す (electron-builder 既定)
+3. **Phase C 候補選定**: WP-001 執筆モード整理の 3 候補 (保存UI常設境界 / focus モードでのガジェット露出 / normal 時の補助操作導線) から 1 スライス選定
+4. **検証で NG 発生時の優先修正**: zoomFactor 0.9 が違和感あれば 0.85 〜 1.0 で再調整、サイドバー既定値が違和感あれば storage.js を再検討
 
 ---
 
@@ -19,7 +29,7 @@
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 94 | 93 |
+| セッション番号 | 99 | 97 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |

@@ -8,6 +8,8 @@ Thumbs.db
 # Build outputs (not used now but reserved)
 dist/
 build/
+# 退避用出力ディレクトリ (session 98-99: build/ ロック時の workaround)
+build-new/
 
 # Node
 node_modules/
