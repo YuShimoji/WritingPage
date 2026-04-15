@@ -461,41 +461,7 @@ test.describe('Editor Settings', () => {
     expect(normalized.uiFontSize).toBe(19);
   });
 
-  test('Typography and quick font controls should stay in sync', async ({ page }) => {
-    await page.goto('/');
-    await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSidebarPanel(page, 'theme', {
-      waitSelector: '.gadget-wrapper[data-gadget-name="Typography"]'
-    });
-
-    await page.evaluate(() => {
-      const root = document.querySelector('.gadget-wrapper[data-gadget-name="Typography"] .gadget-typography');
-      if (!root) return;
-      const ranges = Array.from(root.querySelectorAll('input[type="range"]'));
-      const editorSizeInput = ranges[1];
-      if (!editorSizeInput) return;
-      editorSizeInput.value = '24';
-      editorSizeInput.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-
-    await expect(page.locator('#global-font-size')).toHaveValue('24');
-    await expect(page.locator('#global-font-size-number')).toHaveValue('24');
-
-    await page.evaluate(() => {
-      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setGlobalFontSize === 'function') {
-        window.ZenWriterEditor.setGlobalFontSize(21);
-      }
-    });
-
-    await expect.poll(async () => {
-      return page.evaluate(() => {
-        const root = document.querySelector('.gadget-wrapper[data-gadget-name="Typography"] .gadget-typography');
-        if (!root) return null;
-        const ranges = Array.from(root.querySelectorAll('input[type="range"]'));
-        return ranges[1] ? ranges[1].value : null;
-      });
-    }).toBe('21');
-  });
+  // Typography quick font controls sync テスト削除 — #global-font-size / #global-font-size-number は HTML から削除済み
 
   test('font family change should persist after reload', async ({ page }) => {
     await page.goto('/');

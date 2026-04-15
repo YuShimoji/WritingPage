@@ -141,22 +141,7 @@ test.describe('UI Mode Consistency', () => {
   });
 
   // Blank->Normal テスト削除 (SP-081 Phase 3: Blank 廃止)
-
-  // ===== MainHubPanel のモード連携 =====
-  test('MainHubPanel can open in Focus mode', async ({ page }) => {
-    await setUIMode(page, 'focus');
-    await page.waitForTimeout(100);
-    await page.evaluate(() => {
-      if (window.MainHubPanel) window.MainHubPanel.show('search');
-    });
-    await page.waitForTimeout(200);
-    const panel = page.locator('#main-hub-panel');
-    if (await panel.count() > 0) {
-      await expect(panel).toBeVisible();
-    }
-  });
-
-  // MainHubPanel Blank テスト削除 (SP-081 Phase 3: Blank 廃止)
+  // MainHubPanel テスト削除 (session 94: パネル廃止)
 
   // ===== 再生オーバーレイ (SP-078+) =====
   test('再生オーバーレイ: sidebar and floating chrome controls are hidden', async ({ page }) => {

@@ -46,29 +46,6 @@ async function showFullToolbar(page) {
   await page.waitForTimeout(200);
 }
 
-/**
- * 検索パネルを開く（メインハブパネルの検索タブ）。
- */
-async function openSearchPanel(page) {
-  await page.evaluate(() => {
-    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
-      window.ZenWriterEditor.toggleSearchPanel();
-    }
-  });
-  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 }).catch(() => {});
-}
-
-/**
- * 全文検索パネルを開く（メインハブパネルの全文検索タブ）。
- */
-async function openGlobalSearchPanel(page) {
-  await page.evaluate(() => {
-    if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
-      window.MainHubPanel.toggle('global-search');
-    }
-  });
-  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 }).catch(() => {});
-}
 
 /**
  * 全ガジェットをサイドバーに載せるロードアウトを適用する。
@@ -283,19 +260,6 @@ async function expandAccordion(page, categoryId) {
   await page.waitForTimeout(300);
 }
 
-/**
- * メインハブパネルを指定タブで開く。
- * @param {import('@playwright/test').Page} page
- * @param {string} tab - 'decoration' | 'animation' | 'search' | 'global-search'
- */
-async function openMainHubPanel(page, tab) {
-  await page.evaluate((t) => {
-    if (window.MainHubPanel && typeof window.MainHubPanel.toggle === 'function') {
-      window.MainHubPanel.toggle(t);
-    }
-  }, tab);
-  await page.waitForSelector('#main-hub-panel', { state: 'visible', timeout: 5000 });
-}
 
 /**
  * 設定モーダルを開く（サイドバー内の設定ボタン経由）。
@@ -502,9 +466,6 @@ module.exports = {
   setUIMode,
   ensureNormalMode,
   openCommandPalette,
-  openSearchPanel,
-  openGlobalSearchPanel,
-  openMainHubPanel,
   showFullToolbar,
   enableAllGadgets,
   expandAllGadgets,

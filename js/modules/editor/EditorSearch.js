@@ -321,9 +321,12 @@
          * 検索パネルを表示/非表示
          * @param {EditorManager} manager
          */
-        toggleSearchPanel(_manager) {
-            if (window.MainHubPanel) {
-                window.MainHubPanel.toggle('search');
+        toggleSearchPanel(manager) {
+            var panel = document.getElementById('search-floating-panel');
+            if (panel && panel.style.display !== 'none' && panel.style.display !== '') {
+                panel.style.display = 'none';
+            } else {
+                this.showSearchPanel(manager);
             }
         }
     };

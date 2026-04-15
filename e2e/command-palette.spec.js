@@ -72,7 +72,7 @@ test.describe('Command Palette E2E', () => {
     await page.keyboard.press('Enter');
 
     // 検索パネルが開くことを確認
-    await expect(page.locator('#main-hub-panel')).toBeVisible();
+    await expect(page.locator('#search-floating-panel')).toBeVisible();
 
     // コマンドパレットが閉じることを確認
     await expect(page.locator('#command-palette')).not.toBeVisible();

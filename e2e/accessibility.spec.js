@@ -1,5 +1,5 @@
 ﻿const { test, expect } = require('@playwright/test');
-const { openSearchPanel, disableWritingFocus, setUIMode, openSidebar } = require('./helpers');
+const { disableWritingFocus, setUIMode, openSidebar } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -51,12 +51,19 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('ESC closes search panel dialog', async ({ page }) => {
-    await openSearchPanel(page);
-    const searchPanel = page.locator('#main-hub-panel');
+    // 検索フローティングパネルを開く
+    await page.evaluate(() => {
+      const panel = document.getElementById('search-floating-panel');
+      if (panel) {
+        panel.style.display = 'block';
+        if (window.ZenWriterFloatingPanels) window.ZenWriterFloatingPanels.preparePanel(panel);
+      }
+    });
+    const searchPanel = page.locator('#search-floating-panel');
     await expect(searchPanel).toBeVisible();
 
-    // ESC or close button to dismiss the panel
-    const closeBtn = page.locator('#close-main-hub-panel');
+    // 閉じるボタンでパネルを閉じる
+    const closeBtn = searchPanel.locator('.panel-close');
     await closeBtn.click();
     await page.waitForTimeout(300);
     await expect(searchPanel).not.toBeVisible({ timeout: 5000 });
@@ -155,13 +162,20 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('search dialog moves focus to input when opened', async ({ page }) => {
-    await openSearchPanel(page);
-    await expect(page.locator('#main-hub-panel')).toBeVisible();
+    // 検索フローティングパネルを開く
+    await page.evaluate(() => {
+      const panel = document.getElementById('search-floating-panel');
+      if (panel) {
+        panel.style.display = 'block';
+        if (window.ZenWriterFloatingPanels) window.ZenWriterFloatingPanels.preparePanel(panel);
+      }
+    });
+    await expect(page.locator('#search-floating-panel')).toBeVisible();
     await page.waitForTimeout(300);
-    // フォーカスが検索入力に移ることを確認（移らない場合はクリックでフォーカス）
-    const searchInput = page.locator('#main-hub-panel input[type="text"], #main-hub-panel input[type="search"], #search-input');
-    await searchInput.first().click();
-    await expect(searchInput.first()).toBeFocused();
+    // フォーカスが検索入力に移ることを確認
+    const searchInput = page.locator('#search-floating-panel #search-input');
+    await searchInput.click();
+    await expect(searchInput).toBeFocused();
   });
 
   test('preview toggle updates aria-expanded and panel collapsed class', async ({ page }) => {

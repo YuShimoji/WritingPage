@@ -104,24 +104,5 @@ test.describe('chrome vs editor-container geometry', () => {
     expect(z.panelZ).toBeGreaterThanOrEqual(z.chromeZ);
   });
 
-  test('focus + top edge hover: opens main hub quick-tools', async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 720 });
-    await page.goto('/index.html');
-    await setUIMode(page, 'focus');
-    await page.waitForTimeout(200);
-    await page.mouse.move(8, 8);
-    await page.waitForTimeout(350);
-    const m = await page.evaluate(() => {
-      const hub = document.getElementById('main-hub-panel');
-      return {
-        dataEdgeHoverTop: document.documentElement.getAttribute('data-edge-hover-top'),
-        uiMode: document.documentElement.getAttribute('data-ui-mode'),
-        hubDisplay: hub ? hub.style.display : null
-      };
-    });
-    expect(m).toBeTruthy();
-    expect(m.uiMode).toBe('focus');
-    expect(m.dataEdgeHoverTop).toBe('true');
-    expect(m.hubDisplay).not.toBe('none');
-  });
+  // hub quick-tools テスト削除 (session 94: hub affordance 廃止)
 });

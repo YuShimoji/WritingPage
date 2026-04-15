@@ -233,39 +233,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       expect(padding).toBeGreaterThanOrEqual(0);
     });
 
-    test('分割ビューが縦並びで表示される', async ({ page }) => {
-      await page.goto('/');
-      await page.waitForLoadState('networkidle');
-      const { showFullToolbar, openSidebar } = require('./helpers');
-      await showFullToolbar(page);
-      await openSidebar(page);
-      await page.waitForTimeout(250);
-
-      // 分割ビューボタンをクリック
-      const splitViewBtn = page.locator('#toggle-split-view');
-      if (!(await splitViewBtn.isVisible())) return;
-      await splitViewBtn.click({ force: true });
-      await page.waitForTimeout(300);
-
-      // Main Hub Panel内のsplit-viewタブ
-      const modePanel = page.locator('#tab-split-view');
-      if (!(await modePanel.isVisible())) return;
-
-      // 編集/プレビューモードを選択
-      const editPreviewBtn = page.locator('#split-view-edit-preview');
-      if (!(await editPreviewBtn.isVisible())) return;
-      await editPreviewBtn.click();
-      await page.waitForTimeout(400);
-
-      const splitContainer = page.locator('#split-view-container');
-      if (!(await splitContainer.isVisible())) return;
-
-      // タブレットビューポートではコンテナが縦並び（flex-direction: column）であることを確認
-      const flexDirection = await splitContainer.evaluate((el) => {
-        return window.getComputedStyle(el).flexDirection;
-      });
-      expect(flexDirection).toBe('column');
-    });
+    // 分割ビュー縦並びテスト削除 — MainHubPanel 内タブ (#tab-split-view) 廃止
   });
 
   test.describe('Touch Device Optimization', () => {
