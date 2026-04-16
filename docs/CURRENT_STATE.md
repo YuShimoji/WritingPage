@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-17 (session 103)
+最終更新: 2026-04-17 (session 103.1 — handoff)
 
 ## Snapshot
 
@@ -9,9 +9,11 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| 想定ブランチ | `main` |
-| セッション | 103 |
-| 現在の主軸 | **WP-001 hotfix: 設定モーダル空問題 → 動線をサイドバー詳細設定カテゴリ展開に変更** |
+| 想定ブランチ | `main` (origin に対して +5 ahead、未 push) |
+| セッション | 103.1 (handoff) |
+| 現在の主軸 | **設定動線 hotfix 未完** — Focus 歯車レイアウト崩壊が session 103.1 でも実機で解消せず。次セッションで根本対応 (遅延実行 or revert 検討) |
+| 最新ビルド | `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、未解消) / `build-session103/` (session 103 反映、同) |
+| 直近のスライス | session 103.1: **Focus 歯車レイアウト崩壊 hotfix — 実機で未解消**
 | 直近のスライス | session 103: **設定動線 hotfix** — user 報告で Focus 章パネル歯車を押すと空モーダルが開く問題が判明。原因は `gadgets-utils.js` で `settings` グループが deprecated で `advanced` に統合済みのため `#settings-gadgets-panel` には何も描画されない構造的バグ (session 102 とは無関係、長期間気付かれていなかった)。`openSettingsModal()` の実装を「`activateSidebarGroup('advanced')` + サイドバー展開」に変更し、Focus 歯車 / `Ctrl+,` / コマンドパレット `open-settings` の 3 経路すべてを統一動線に。`#settings-modal` DOM は当面残存 (no-op `closeSettingsModal()` 経由で互換性維持)。E2E 影響: `helpers.js` の `openSettingsModal` ヘルパが `#advanced-gadgets-panel` 待ちに、`enableAllGadgets` のガジェット強制登録先も `'settings'` → `'advanced'`、`keybinds.spec.js` / `theme-colors.spec.js` / `collage.spec.js` の `#settings-gadgets-panel` 全置換 (15 箇所)、`scope` 変数は `#advanced-gadgets-panel` に。検証: `lint:js:check` clean、全 E2E **512 passed / 0 failed / 2 skipped**。 |
 | 前スライス (参考) | session 102: **WP-001 スライス2 (トップバー 2 ボタン撤去 + Ctrl+, / F1 ショートカット導入)** — `toolbar-group--system` の 3 ボタン (歯車 / ヘルプ / テーマ) をテーマ単独に縮減。`#toggle-settings` / `#toggle-help-modal` を [index.html](../index.html) から削除し、関連リスナーを [app-ui-events.js](../js/app-ui-events.js) / [app.js](../js/app.js) `gearBtn` fallback から掃除。代替アクセスとして [keybind-editor.js](../js/keybind-editor.js) `DEFAULT_KEYBINDS` に `app.settings.open` (`Ctrl+,`) と `app.help.open` (`F1`) を追加し、[app-shortcuts.js](../js/app-shortcuts.js) の switch + フォールバックブロック双方にハンドラ実装 (Mac `Cmd+,` を metaKey 経路で拾う対策含む)。[command-palette.js](../js/command-palette.js) の `open-settings` / `open-help` の `shortcut` 表示も更新。[scripts/dev-check.js](../scripts/dev-check.js) 検査条件削除、[scripts/capture-ui-verification.js](../scripts/capture-ui-verification.js) / [scripts/capture-full-showcase.js](../scripts/capture-full-showcase.js) の click を `window.ZenWriterApp.openSettingsModal()` / `openHelpModal()` API 経由に置換。E2E 6 ファイル ([helpers.js](../e2e/helpers.js) / [keybinds.spec.js](../e2e/keybinds.spec.js) / [theme-colors.spec.js](../e2e/theme-colors.spec.js) は API 経由、[accessibility.spec.js](../e2e/accessibility.spec.js) / [ui-editor.spec.js](../e2e/ui-editor.spec.js) は `#toggle-theme` 差替、[visual-audit.spec.js](../e2e/visual-audit.spec.js) は API 経由) を書換。docs SSOT として [EDITOR_HELP.md](EDITOR_HELP.md) のショートカット表に `Ctrl+, = 設定` / `F1 = ヘルプ` を追加し撤去注記を明示。[UI_SURFACE_AND_CONTROLS.md](UI_SURFACE_AND_CONTROLS.md) / [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) FR-009 / [USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md) も同期。検証: `lint:js:check` clean、関連 6 spec **63 passed / 0 failed**、`test:smoke` pass、全 E2E **511 passed / 1 flaky (pathtext-handles, 単独再実行で pass) / 2 skipped**。 |
 | 前スライス (参考) | session 101: **WP-001 スライス1 (UI 説明文削減 + 死体ボタン撤去 + docs SSOT 化)** — Normal モードで常時表示されていた過多テキストを整理。`#sidebar-edit-hint` (99字) / `sidebar-manager.js` の Focus チップ説明 (70字) / ガジェット description 冠詞 26 箇所 / title 属性「〜ではありません」系 2 箇所 を削除。詳細設定カテゴリの死体3ボタン (`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`) を DOM・JS 参照ごと撤去。削除した情報は [`EDITOR_HELP.md`](EDITOR_HELP.md) に集約。[`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源 (SSOT: EDITOR_HELP.md)」** 追加。合計 約 300 字 + DOM 5 要素削減。 |
@@ -419,9 +421,11 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 
 | 項目 | 変更内容 | 影響ファイル |
 | ---- | -------- | ----------- |
-| Focus 歯車レイアウト崩壊 hotfix | session 103 の `openSettingsModal()` は Focus モード時に呼ばれてもそのままサイドバーを open していたため、Focus 状態の overlay と Normal 状態の sidebar カテゴリ表示が CSS 上で競合 → サイドバーが viewport 全幅占有 + 異常レイアウト。冒頭に Focus 判定を追加し、Focus 時は `setUIMode('normal')` で Normal 切替してから advanced 展開する | `js/app-ui-events.js` |
-| 検証 | `lint:js:check` clean、関連 3 spec (keybinds/theme-colors/collage) **15 passed / 0 failed** | — |
+| Focus 歯車レイアウト崩壊 hotfix (試行) | session 103 の `openSettingsModal()` は Focus モード時に呼ばれてもそのままサイドバーを open していたため、Focus 状態の overlay と Normal 状態の sidebar カテゴリ表示が CSS 上で競合 → サイドバーが viewport 全幅占有 + 異常レイアウト。冒頭に Focus 判定を追加し、Focus 時は `setUIMode('normal')` で Normal 切替してから advanced 展開する | `js/app-ui-events.js` |
+| 自動検証 | `lint:js:check` clean、関連 3 spec (keybinds/theme-colors/collage) **15 passed / 0 failed** | — |
+| **実機検証 (user 報告)** | **`build-session104/win-unpacked/Zen Writer.exe` でも症状は解消せず**、左サイドバーが出っぱなしになる。session 103.1 の修正は不十分 → session 104 で根本対応 | — |
 | user 提起 (session 104 候補追加) | ウィンドウ最小時に左サイドバーが viewport 全画面を占有する現象。session 102/103 起源か既存 bug か未切り分け | (調査対象) |
+| handoff (session 103.1 締め) | docs 同期: `runtime-state.md` の「次セッション再開ポイント」に Focus 歯車根本修正の試す候補 4 件を明記 (遅延実行 / revert / Focus 歯車ハンドラ書換 / モード別分岐)。再開時のコマンドも記載 | `docs/runtime-state.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/CURRENT_STATE.md` |
 
 ## 検証結果
 

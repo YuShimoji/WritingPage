@@ -2,26 +2,87 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-17（`CURRENT_STATE.md` session 103 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-17（`CURRENT_STATE.md` session 103.1 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
-- ブランチ: main
-- セッション: 103（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **設定動線 hotfix** 完了 (空モーダル問題を `activateSidebarGroup('advanced')` で解消)。次は user 提起の **session 104 候補: フルドキュメント一覧 UX 改善** または スライス2 残候補
+- ブランチ: main (origin に対して +5 ahead、未 push)
+- セッション: 103.1（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **設定動線 hotfix** 未完 — session 103 で空モーダル問題を解消したが、Focus モード時のサイドバー全画面崩壊が session 103.1 の修正でも **実機で解消せず**。session 104 で根本対応が必要
 - スライス（要約）:
   - session 101 WP-001 スライス1 (UI 説明文削減 +約 300 字 + DOM 5 要素 / 死体3ボタン撤去 / docs/EDITOR_HELP.md SSOT 化 / FR-009 追加)
   - session 102 WP-001 スライス2 (トップバー歯車・ヘルプ撤去 / `Ctrl+,` `F1` ショートカット導入 / scripts + E2E 6 ファイル書換)
   - session 103 設定動線 hotfix (空モーダル問題解消 / `openSettingsModal` を advanced カテゴリ展開動線に / E2E 4 ファイル書換 15 箇所置換)
+  - session 103.1 Focus 歯車レイアウト崩壊 hotfix (`setUIMode('normal')` 先行呼び出し追加) — **実機で未解消**
 
-## 次セッション再開ポイント
+## 最新ビルド
 
-1. **session 104 候補 (user 提起)**: フルのドキュメント一覧 UX 3 件 — (a) チェックボックス外クリックで全外し+選択数表示残存バグ (b) ドキュメント多数で見切れ (c) 複数選択が一つ一つしか選べない。影響領域: `js/gadgets-documents-hierarchy.js` / `js/gadgets-documents-tree.js` / 関連 CSS
-2. **スライス2 残候補**: 再生オーバーレイボタン (`#toggle-reader-preview`) の撤去 + ショートカット昇格、リーダーモード関連の整理、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除 のうち 1 トピック選定
-3. **スライス3 候補（中期）**: サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、FEATURE_REGISTRY に 28 ガジェット分の FR エントリ一括追加
-4. **手動検証** (session 103): 実機ビルドで (a) Focus 章パネル歯車 / `Ctrl+,` / コマンドパレット `open-settings` を押すと **サイドバー詳細設定カテゴリが展開され中身が見える** こと (b) `F1` ヘルプは引き続き正常動作すること (c) 旧 `#settings-modal` は開かないこと
+- 最新 Electron ビルド: `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、201 MB, 2026-04-17 01:31)
+- 直近のビルド: `build-session103/win-unpacked/Zen Writer.exe` (session 103 反映、同上)
+- 通常の `build/` と `build-new/` は `app.asar` がロックされて使用不可 (原因プロセス未特定)
+
+## 次セッション再開ポイント (**最優先**)
+
+### 1. Focus 歯車レイアウト崩壊の根本修正 (継続)
+
+**症状**: Focus 章パネルの歯車アイコンを押すとサイドバーが viewport 全幅占有する状態になる。session 103.1 の hotfix (openSettingsModal で `setUIMode('normal')` を先行呼び出し) でも解消しない。
+
+**関連ファイル**:
+- [js/app-ui-events.js](../js/app-ui-events.js) `openSettingsModal()` (session 103 / 103.1 で改修、L430 前後)
+- [js/app.js](../js/app.js) Focus 章パネル歯車ハンドラ (`#focus-open-settings`, L591 前後の `initFocusChapterSettingsShortcut` IIFE)
+- [js/sidebar-manager.js](../js/sidebar-manager.js) `activateSidebarGroup` / `toggleSidebar` / `_applyWritingFocusSidebar`
+- [css/style.css](../css/style.css) `.sidebar.focus-overlay-open` / `.sidebar.open` / `[data-ui-mode="focus"]` 関連ルール
+
+**試す候補 (優先順)**:
+1. `setUIMode('normal')` 後の処理を `setTimeout(fn, 50)` または `requestAnimationFrame` で遅延させ、CSS 再計算後に `activateSidebarGroup` + `toggleSidebar` を呼ぶ
+2. session 103 / 103.1 を revert (`git revert 1b52678 40510e0`) で session 102 の状態 (Focus 歯車 = 空モーダル) に戻し、設定動線 hotfix は別アプローチで再設計
+3. Focus 章パネル歯車のハンドラ自体を変更し、`closeFocusOverlay()` ではなく `setUIMode('normal')` を呼ぶ + 次フレーム後に `openSettingsModal()` を呼ぶ方式に置換
+4. `openSettingsModal()` を復元モード別に分岐: Focus 時は設定モーダル (空でも) 開く / Normal 時のみ advanced 展開
+
+**コマンドパレット経由は user 実機で正常動作** (user 報告) → Normal モード状態からの呼び出しは OK、Focus 状態からの呼び出し固有の問題と確定。ただし Focus 状態でコマンドパレットから呼んだ場合も同じ症状が出るかは未検証。
+
+### 2. ウィンドウ最小時の左サイドバー全画面占有 (user 報告、session 104 調査対象)
+
+**症状**: ウィンドウを最小幅に縮めた時、左サイドバーが viewport 全画面を占有する。
+
+**切り分け未完**:
+- session 102/103 起源か、それ以前の既存 bug か不明
+- 怪しい箇所: CSS のメディアクエリ、Focus モード × narrow viewport の組合せ、session 98 の `sidebarOpen` 既定値 `true` 化の副作用
+
+**調査方針**: `git bisect` で session 97 以前と比較、または手動で古いビルドと比較
+
+### 3. フルドキュメント一覧 UX 3 件 (user 提起、session 104 候補)
+
+- (a) 複数削除中にチェックボックス外クリックで全選択外しされるが、選択数表示は残る (状態管理バグ)
+- (b) ドキュメント多数で見切れる (CSS overflow / max-height 不足)
+- (c) 複数選択が一つ一つしか選べない (Shift+Click 範囲選択 / 全選択ボタン未実装)
+
+**影響領域 (推定)**: `js/gadgets-documents-hierarchy.js` / `js/gadgets-documents-tree.js` / 関連 CSS
+
+### 4. その他の積み残し (低優先)
+
+- スライス2 残候補: `#toggle-reader-preview` の撤去 + ショートカット昇格、リーダーモード関連の整理、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除
+- スライス3 候補 (中期): サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、FEATURE_REGISTRY に 28 ガジェット分の FR エントリ一括追加
+
+## 再開時のコマンド
+
+```bash
+# プロジェクト移動
+cd "c:/Users/thank/Storage/Media Contents Projects/WritingPage"
+
+# 最新化
+git fetch origin
+git status -sb
+
+# 最新ビルド確認
+ls -la build-session104/win-unpacked/  # session 103.1 反映版
+
+# 自動検証
+npm run lint:js:check
+npx playwright test e2e/keybinds.spec.js e2e/theme-colors.spec.js e2e/collage.spec.js --reporter=line
+```
 
 ---
 

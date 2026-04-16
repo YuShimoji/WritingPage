@@ -253,13 +253,22 @@
   3. 複数選択が一つ一つクリックしないとできず使いづらい (Shift+Click 範囲選択 / 全選択ボタン未実装)
   - 影響領域 (推定): `js/gadgets-documents-hierarchy.js`, `js/gadgets-documents-tree.js`, 関連 CSS
 
-#### session 103.1 実施結果 (Focus モード歯車レイアウト崩壊 hotfix)
+#### session 103.1 実施結果 (Focus モード歯車レイアウト崩壊 hotfix) — **実機で未解決**
 
 - **背景**: session 103 ビルド (`build-session103/`) を user が実機検証で Focus 章パネル歯車を押すと、サイドバーが viewport 全幅占有 + 「フル」表示への遷移異常を報告。コマンドパレット経由は正常 → Focus モード状態で `openSettingsModal()` を呼んだ時固有の問題と特定。
-- **原因**: Focus モード (`data-ui-mode="focus"`) のままサイドバーを `toggleSidebar()` で open するとサイドバーが Focus 状態の章パネル overlay と Normal 状態の sidebar カテゴリ表示が競合し、CSS が崩壊する。session 103 の `openSettingsModal()` は Focus 判定なしで強制 open していた。
-- **修正**: `openSettingsModal()` の冒頭に Focus 判定を追加し、Focus モード時は `window.ZenWriterApp.setUIMode('normal')` で Normal 切替してから `activateSidebarGroup('advanced')` + サイドバー展開を実施 ([js/app-ui-events.js](../js/app-ui-events.js))。
-- **検証**: `lint:js:check` clean、関連 3 spec **15 passed / 0 failed**。
-- **未対応 (session 104 候補に追加)**: user 報告の「ウィンドウ最小時、左サイドバーが全画面占有」現象は session 102/103 起源か既存 bug か未切り分け。ドキュメント一覧 UX 改善と合わせて調査対象に追加。
+- **実施した修正**: `openSettingsModal()` の冒頭に Focus 判定を追加し、Focus モード時は `window.ZenWriterApp.setUIMode('normal')` で Normal 切替してから `activateSidebarGroup('advanced')` + サイドバー展開を実施 ([js/app-ui-events.js](../js/app-ui-events.js))。
+- **自動検証**: `lint:js:check` clean、関連 3 spec **15 passed / 0 failed**。
+- **実機検証結果 (user 報告)**: **`build-session104/win-unpacked/Zen Writer.exe` でも症状は解消せず**、左サイドバーが出っぱなしになる。session 103.1 の修正は不十分。
+- **推定される根本原因 (次セッションで検証すべき仮説)**:
+  1. `setUIMode('normal')` は DOM attribute を同期更新するが、サイドバーの CSS 再計算・レイアウトは次のフレームを待つ可能性 → 直後の `toggleSidebar()` 時点では Focus 用 CSS がまだ適用されたまま
+  2. `activateSidebarGroup('advanced')` 自体が内部で toggleSidebar と競合する副作用を持つ可能性
+  3. そもそも session 102 以前から存在した潜在 bug で、session 102 のトップバー歯車撤去で初めて発覚した可能性
+- **session 104 でまず試す候補**:
+  1. **`setTimeout(fn, 50)` で Normal 切替後の処理を次イベントループに遅延** (最も素直)
+  2. **`requestAnimationFrame` を2回挟む** (CSS 反映を確実に待つ)
+  3. **session 103 / 103.1 を revert** (`git revert 1b52678 40510e0` → session 102 状態へ)。Focus 歯車は空モーダルに戻るが、レイアウト崩壊はなくなる。hotfix は別アプローチで再設計
+  4. **Focus 章パネル歯車ハンドラそのものを変更** ([js/app.js](../js/app.js) 591-598 あたり) — `closeFocusOverlay()` の代わりに `setUIMode('normal')` を先に呼び、次のフレームで `openSettingsModal` を呼ぶ
+- **ウィンドウ最小時の左サイドバー全画面占有**: session 103.1 後も症状継続の可能性。session 102/103 起源か既存か未切り分け。CSS のメディアクエリ (`@media (max-width: ???)`) で Focus モード × narrow viewport の組合せが怪しい。
 
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
