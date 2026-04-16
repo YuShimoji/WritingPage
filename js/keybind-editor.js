@@ -151,6 +151,22 @@
       shiftKey: true,
       metaKey: false,
       description: '次の章へ移動'
+    },
+    'app.settings.open': {
+      key: ',',
+      altKey: false,
+      ctrlKey: true,
+      shiftKey: false,
+      metaKey: false,
+      description: '設定モーダルを開く'
+    },
+    'app.help.open': {
+      key: 'F1',
+      altKey: false,
+      ctrlKey: false,
+      shiftKey: false,
+      metaKey: false,
+      description: 'ヘルプモーダルを開く'
     }
   };
 

@@ -262,13 +262,14 @@ async function expandAccordion(page, categoryId) {
 
 
 /**
- * 設定モーダルを開く（サイドバー内の設定ボタン経由）。
+ * 設定モーダルを開く (session 102 でトップバーボタン撤去 → API 経由)。
  */
 async function openSettingsModal(page) {
-  await showFullToolbar(page);
-  await openSidebar(page);
-  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 5000 });
-  await page.click('#toggle-settings');
+  await page.evaluate(() => {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+      window.ZenWriterApp.openSettingsModal();
+    }
+  });
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 5000 });
 }
 

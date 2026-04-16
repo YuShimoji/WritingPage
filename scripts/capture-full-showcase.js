@@ -291,8 +291,9 @@ async function captureAll(baseUrl, outDir) {
 
     // 07: 設定モーダル
     await safeEvalClick(page, () => {
-      const btn = document.getElementById('toggle-settings');
-      if (btn) btn.click();
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+        window.ZenWriterApp.openSettingsModal();
+      }
     });
     await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(300);
@@ -305,8 +306,9 @@ async function captureAll(baseUrl, outDir) {
 
     // 08: ヘルプモーダル
     await safeEvalClick(page, () => {
-      const btn = document.getElementById('toggle-help-modal');
-      if (btn) btn.click();
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+        window.ZenWriterApp.openHelpModal();
+      }
     });
     await page.waitForSelector('#help-modal', { state: 'visible', timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(300);

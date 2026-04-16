@@ -80,9 +80,9 @@ flowchart TB
 | 分割ビュー | `#toggle-split-view`、`#sidebar-toggle-split`、メインハブ、パレット | 同上。 |
 | リッチ編集トグル | `#toggle-wysiwyg`、`#sidebar-toggle-wysiwyg`、メインハブ、パレット | 開発者モード外ではソース編集 UI を出さない既定（[`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)）。 |
 | 再生オーバーレイ | `#toggle-reader-preview`、メインハブ、パレット | 「読者**モード**」表記は避ける（オーバーレイが正）。 |
-| 設定 | `#toggle-settings`、`#focus-open-settings`、メインハブ、パレット | Focus では章パネルからの導線が重要。 |
-| ヘルプ | `#toggle-help-modal`、`#sidebar-toggle-help`、メインハブ | 詳細カテゴリ内の導線は発見性用。 |
-| テーマ | `#toggle-theme`、メインハブ | — |
+| 設定 | `#focus-open-settings`、コマンドパレット (`open-settings`)、`Ctrl+,` / `Cmd+,` | session 102 でトップバー `#toggle-settings` 撤去。Focus では章パネル `#focus-open-settings` が主導線。 |
+| ヘルプ | コマンドパレット (`open-help`)、`F1` | session 101 でサイドバー死体3ボタン撤去 → session 102 でトップバー `#toggle-help-modal` も撤去。SSOT は [`EDITOR_HELP.md`](EDITOR_HELP.md)。 |
+| テーマ | `#toggle-theme`、メインハブ | トップバー右端の唯一の常駐ボタン (session 102 以降)。 |
 | メインハブ自体 | `#show-toolbar`、ショートカット、エッジホバー | FAB は `element-manager` 経由で接続済み。 |
 
 **メインハブのプロキシ**: `#main-hub-toolbar-proxy` 内の `data-proxy-click` は [`js/main-hub-panel.js`](../js/main-hub-panel.js) の `runHubProxyAction` で上表の `id` にディスパッチされる。`switch` の `default` は **無操作**（未知の `data-proxy-click` を置くと no-op）。
@@ -105,7 +105,8 @@ flowchart TB
 | `#toggle-split-view` | 分割ビュー | `ZenWriterEditor` / `MainHubPanel` | works |
 | `#toggle-reader-preview` | 再生オーバーレイ | `ZWReaderPreview.toggle` | works |
 | `#toggle-wysiwyg` | リッチ／ソース切替（制限あり） | `editor` 系 | needs_manual_verify（開発者モードゲート） |
-| `#toggle-settings` / `#toggle-help-modal` / `#toggle-theme` | 各モーダル・テーマ | `ZenWriterApp` / テーマハンドラ | works |
+| `#toggle-theme` | テーマ切替 (ライト/ダーク) | テーマハンドラ | works |
+| `Ctrl+,` (Cmd+,) / `F1` ショートカット | 設定 / ヘルプモーダル | `app-shortcuts.js` + `keybind-editor.js` (`app.settings.open` / `app.help.open`) | works (session 102) |
 | `#dock-move-sidebar` / `#dock-toggle-left` | ドック位置・左パネル | `dock-manager.js` | works |
 | `#dock-left-close` | 左パネル閉じる | `dock-manager.js` | works |
 

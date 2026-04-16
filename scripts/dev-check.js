@@ -150,9 +150,7 @@ async function loadCssWithImports(url) {
       /id=\"structure-gadgets-panel\"/i.test(index.body) &&
       /class=\"sidebar-accordion\"/i.test(index.body) &&
       /id=\"settings-modal\"/i.test(index.body) &&
-      /id=\"help-modal\"/i.test(index.body) &&
-      /id=\"toggle-settings\"/i.test(index.body) &&
-      /id=\"toggle-help-modal\"/i.test(index.body);
+      /id=\"help-modal\"/i.test(index.body);
     console.log('GET / ->', index.status, okIndex ? 'OK' : 'NG');
 
     const css = await loadCssWithImports('/css/style.css');

@@ -447,22 +447,14 @@
             toggleModal('help-modal', false);
         }
 
-        // 設定モーダル
-        const toggleSettingsBtn = document.getElementById('toggle-settings');
+        // 設定モーダル: トップバー入口は撤去 (session 102)。コマンドパレット / Ctrl+, / #focus-open-settings 経由で到達
         const closeSettingsBtn = document.getElementById('close-settings-modal');
-        if (toggleSettingsBtn) {
-            toggleSettingsBtn.addEventListener('click', () => openSettingsModal());
-        }
         if (closeSettingsBtn) {
             closeSettingsBtn.addEventListener('click', () => closeSettingsModal());
         }
 
-        // ヘルプモーダル
-        const toggleHelpBtn = document.getElementById('toggle-help-modal');
+        // ヘルプモーダル: トップバー入口は撤去 (session 102)。コマンドパレット / F1 経由で到達
         const closeHelpBtn = document.getElementById('close-help-modal');
-        if (toggleHelpBtn) {
-            toggleHelpBtn.addEventListener('click', () => openHelpModal());
-        }
         if (closeHelpBtn) {
             closeHelpBtn.addEventListener('click', () => closeHelpModal());
         }

@@ -14,11 +14,15 @@ async function openKeybindsPanel(page) {
   }, { timeout: 20000 });
 
   // enableAllGadgets を呼んでから設定モーダルを開く（settings ガジェットをレンダリング）
+  // session 102: トップバーボタン撤去 → API 経由で開く
   await enableAllGadgets(page);
   await showFullToolbar(page);
   await page.waitForTimeout(200);
-  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
-  await page.click('#toggle-settings');
+  await page.evaluate(() => {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+      window.ZenWriterApp.openSettingsModal();
+    }
+  });
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
   await page.waitForSelector(scope + ' .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(500);

@@ -31,8 +31,12 @@ async function openThemePanel(page) {
   });
   await showFullToolbar(page);
   await page.waitForTimeout(200);
-  await page.waitForSelector('#toggle-settings', { state: 'visible', timeout: 10000 });
-  await page.click('#toggle-settings');
+  // session 102: トップバー設定ボタン撤去 → API 経由で開く
+  await page.evaluate(() => {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+      window.ZenWriterApp.openSettingsModal();
+    }
+  });
   await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
   await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 15000 });
   await page.waitForTimeout(500);

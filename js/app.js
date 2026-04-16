@@ -593,9 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeFocusOverlay();
                 if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
                     window.ZenWriterApp.openSettingsModal();
-                } else {
-                    var fallback = document.getElementById('toggle-settings');
-                    if (fallback && typeof fallback.click === 'function') fallback.click();
                 }
             });
         }

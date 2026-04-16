@@ -150,6 +150,18 @@
                                 window.sidebarManager.moveWritingFocusChapter(1);
                             }
                             break;
+
+                        case 'app.settings.open':
+                            if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+                                window.ZenWriterApp.openSettingsModal();
+                            }
+                            break;
+
+                        case 'app.help.open':
+                            if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+                                window.ZenWriterApp.openHelpModal();
+                            }
+                            break;
                     }
                     return;
                 }
@@ -208,6 +220,24 @@
                 e.preventDefault();
                 if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
                     window.commandPalette.toggle();
+                }
+                return;
+            }
+
+            // Ctrl+, / Cmd+,: 設定モーダル (Mac metaKey フォールバック含む)
+            if ((e.ctrlKey || e.metaKey) && e.key === ',') {
+                e.preventDefault();
+                if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+                    window.ZenWriterApp.openSettingsModal();
+                }
+                return;
+            }
+
+            // F1: ヘルプモーダル
+            if (e.key === 'F1') {
+                e.preventDefault();
+                if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+                    window.ZenWriterApp.openHelpModal();
                 }
                 return;
             }

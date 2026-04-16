@@ -121,12 +121,13 @@ test.describe('Accessibility E2E', () => {
   test('focus-visible style is applied for keyboard users', async ({ page }) => {
     await openSidebar(page);
     await page.waitForTimeout(150);
-    // サイドバー内の可視ボタンでフォーカスリングを確認
-    const settingsBtn = page.locator('#toggle-settings');
-    await settingsBtn.focus();
+    // トップバーの可視ボタンでフォーカスリングを確認
+    // session 102: #toggle-settings 撤去 → #toggle-theme で代替 (任意の可視ボタンの代理)
+    const themeBtn = page.locator('#toggle-theme');
+    await themeBtn.focus();
     await page.keyboard.press('Tab');
     await page.keyboard.press('Shift+Tab');
-    await settingsBtn.focus();
+    await themeBtn.focus();
 
     const hasKeyboardUserClass = await page.evaluate(() => {
       return document.body.classList.contains('keyboard-user');

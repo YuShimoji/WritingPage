@@ -216,11 +216,23 @@
 - **ガジェット description 冠詞削除**: 26 箇所のガジェット description から先頭冠詞（「補助。」「詳細。」「構造。」「装飾。」「表示。」「プレビュー。」「画像。」「分岐。」「装飾・演出。」）を除去（[gadgets-editor-extras.js](../js/gadgets-editor-extras.js) ほか 14 ファイル）。`docs/GADGETS.md` の description 列も同期。
 - **集約先（SSOT）**: [docs/EDITOR_HELP.md](EDITOR_HELP.md) に 1-3「エディタ表示の切り替え」節と 14「章管理とシーンナビゲーション」節を新設。UI から削除した情報はここに集約。
 - **機能洗い出し足場**: [docs/FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源（SSOT: EDITOR_HELP.md）」** を追加。
-- **ヘルプ到達性維持**: トップバー `#toggle-help-modal` とコマンドパレット経由は残存。サイドバー詳細設定カテゴリからの直接ヘルプ到達は意図的に喪失（後続スライスでヘルプモーダル本体を再設計予定）。
+- **ヘルプ到達性維持** (session 101 時点): トップバー `#toggle-help-modal` とコマンドパレット経由は残存。サイドバー詳細設定カテゴリからの直接ヘルプ到達は意図的に喪失（後続スライスでヘルプモーダル本体を再設計予定）。**※ session 102 でトップバーボタン自体も撤去 → コマンドパレット + `F1` のみへ縮減**
 - **品質ゲート**: `sidebar-writing-focus.spec.js` **5 passed**（削除前後で緑維持）。
 - **後続スライス候補**:
-  - スライス2: トップバー歯車 / ヘルプアイコン / 再生オーバーレイボタンの撤去、リーダーモード廃止、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` の削除
+  - ~~スライス2: トップバー歯車 / ヘルプアイコン~~ → session 102 で歯車・ヘルプを撤去 + ショートカット導入で消化。残: 再生オーバーレイボタンの撤去、リーダーモード廃止、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` の削除
   - スライス3: サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、`docs/FEATURE_REGISTRY.md` に 28 ガジェット分の FR エントリ一括追加
+
+#### session 102 実施結果（WP-001 スライス2: トップバー歯車・ヘルプボタン撤去 + ショートカット導入）
+
+- **背景**: session 101 のヘルプ動線縮小方針 + トップバー視覚密度削減を継承。トップバー `toolbar-group--system` の 3 ボタン (歯車 / ヘルプ / テーマ) を 1 ボタン (テーマのみ) に縮減。
+- **DOM 撤去**: [index.html](../index.html) から `#toggle-settings` / `#toggle-help-modal` の 2 button 要素削除。
+- **JS ハンドラ整理**: [app-ui-events.js](../js/app-ui-events.js) の `toggleSettingsBtn` / `toggleHelpBtn` リスナー削除 (close リスナー・モーダル本体・`openSettingsModal()` / `openHelpModal()` は維持)。[app.js](../js/app.js) の `gearBtn` 内 `#toggle-settings` fallback click を削除。
+- **ショートカット追加**: [keybind-editor.js](../js/keybind-editor.js) `DEFAULT_KEYBINDS` に `app.settings.open` (`Ctrl+,`) と `app.help.open` (`F1`) の 2 エントリ追加。[app-shortcuts.js](../js/app-shortcuts.js) の switch + フォールバックブロック双方にハンドラ追加 (Mac `Cmd+,` を metaKey 経路で拾う対策含む)。
+- **コマンドパレット表示**: [command-palette.js](../js/command-palette.js) の `open-settings` / `open-help` の `shortcut` 表示を `'Ctrl+, / Cmd+,'` / `'F1'` に更新。
+- **scripts 更新**: [scripts/dev-check.js](../scripts/dev-check.js) の `id="toggle-settings"` / `id="toggle-help-modal"` 検査削除。[scripts/capture-ui-verification.js](../scripts/capture-ui-verification.js) / [scripts/capture-full-showcase.js](../scripts/capture-full-showcase.js) の click を `window.ZenWriterApp.openSettingsModal()` / `openHelpModal()` API 経由に置換。
+- **E2E 書換 (6 ファイル)**: [helpers.js](../e2e/helpers.js) の `openSettingsModal` を API 経由に変更。[keybinds.spec.js](../e2e/keybinds.spec.js) / [theme-colors.spec.js](../e2e/theme-colors.spec.js) も同様。[accessibility.spec.js](../e2e/accessibility.spec.js) / [ui-editor.spec.js](../e2e/ui-editor.spec.js) (4 箇所) は `#toggle-settings` を `#toggle-theme` に差替 (任意の可視ボタンの代理として意図同等)。[visual-audit.spec.js](../e2e/visual-audit.spec.js) は `openHelpModal()` API 経由に置換。
+- **品質ゲート**: `npm run lint:js:check` clean、関連 6 spec **63 passed / 0 failed**、`npm run test:smoke` pass、全 E2E **511 passed / 1 flaky (pathtext-handles, 単独再実行で pass) / 2 skipped**。
+- **次**: スライス2 残候補 (再生オーバーレイボタン撤去 / ヘルプモーダル本体再設計 / 静的 help HTML 削除) または スライス3 (アコーディオン統廃合)。
 
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 

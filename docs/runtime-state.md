@@ -2,25 +2,25 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-16（`CURRENT_STATE.md` session 101 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-16（`CURRENT_STATE.md` session 102 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
 - ブランチ: main
-- セッション: 101（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **WP-001 スライス1** 完了（UI システム説明文削減 + 死体ボタン撤去 + docs SSOT 化）。次はスライス2（トップバー整理 / ヘルプモーダル再設計）候補選定
+- セッション: 102（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **WP-001 スライス2** 完了（トップバー歯車・ヘルプ撤去 + `Ctrl+,` / `F1` ショートカット導入）。次はスライス2 残候補（再生オーバーレイボタン撤去 / ヘルプモーダル本体再設計 / 静的 help HTML 削除）または スライス3（アコーディオン統廃合）選定
 - スライス（要約）:
-  - session 99 WP-001 Phase B (リッチ編集改行トグル昇格)
   - session 100 E2E 安定化 (sidebarOpen 既定値変更の副作用 5 件修正、0 failed 復帰)
   - session 101 WP-001 スライス1 (UI 説明文削減 +約 300 字 + DOM 5 要素 / 死体3ボタン撤去 / docs/EDITOR_HELP.md SSOT 化 / FR-009 追加)
+  - session 102 WP-001 スライス2 (トップバー歯車・ヘルプ撤去 / `Ctrl+,` `F1` ショートカット導入 / scripts + E2E 6 ファイル書換)
 
 ## 次セッション再開ポイント
 
-1. **スライス2 候補選定**: トップバー歯車 / ヘルプアイコン / 再生オーバーレイボタンの撤去、リーダーモード廃止、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除 のうち 1 トピック選定
+1. **スライス2 残候補**: 再生オーバーレイボタン (`#toggle-reader-preview`) の撤去 + ショートカット昇格、リーダーモード関連の整理、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除 のうち 1 トピック選定
 2. **スライス3 候補（中期）**: サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、FEATURE_REGISTRY に 28 ガジェット分の FR エントリ一括追加
-3. **手動検証**: 実機ビルドで (a) サイドバー詳細設定カテゴリからヘルプ関連3ボタンが消えていること (b) トップバーヘルプアイコン / コマンドパレットからヘルプモーダルが開くこと (c) 各ガジェット description で冠詞が消えていること
+3. **手動検証** (session 102): 実機ビルドで (a) トップバー右端が `#toggle-theme` のみになっていること (b) `Ctrl+,` (Mac `Cmd+,`) で設定モーダル / `F1` でヘルプモーダルが開くこと (c) Focus 章パネル `#focus-open-settings` 歯車から設定が開けること (d) コマンドパレット内で `open-settings` / `open-help` 検索時に右側にショートカット表示が出ること
 
 ---
 

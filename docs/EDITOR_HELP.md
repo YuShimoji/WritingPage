@@ -187,13 +187,23 @@ Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォン
 |----------------|------|
 | Alt+1 | サイドバー開閉 |
 | Alt+W | ツールバー表示/非表示切り替え |
+| Ctrl+P (Cmd+P) | コマンドパレット |
+| Ctrl+, (Cmd+,) | 設定モーダルを開く |
+| F1 | ヘルプモーダルを開く |
 | Ctrl+F | 検索パネル開閉 |
+| Ctrl+Shift+F | 全文検索パネル開閉 |
 | Ctrl+Shift+Z | 最後のスナップショットから復元 |
-| F2 | UIモード切替 (Normal → Focus → Blank) |
-| Esc | Focus/Blankモードから Normal に戻る |
+| F2 | UIモード切替 (Normal ↔ Focus) |
+| Esc | Focusモードから Normal に戻る / モーダル・再生オーバーレイを閉じる |
+| Ctrl+S | 保存 |
 | Ctrl+B | 太字 |
 | Ctrl+I | 斜体 |
+| Ctrl+Plus/Minus/0 | フォントサイズ拡大/縮小/リセット |
 | Tab | インデント挿入 |
+| Alt+↑/↓ | 前後シーン移動 |
+| Alt+Shift+↑/↓ | 前後章移動 |
+
+> 設定とヘルプはトップバーから到達するボタンを撤去しました (session 102)。コマンドパレット (`open-settings` / `open-help`) または上記ショートカットで開いてください。
 
 ## 14. 章管理とシーンナビゲーション
 

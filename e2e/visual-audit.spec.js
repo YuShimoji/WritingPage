@@ -289,9 +289,11 @@ test.describe('Visual Audit - Session 21', () => {
   test('15 - Help modal', async ({ page }) => {
     await waitForApp(page);
     await showFullToolbar(page);
+    // session 102: トップバー #toggle-help-modal 撤去 → API 経由で開く
     await page.evaluate(() => {
-      var button = document.getElementById('toggle-help-modal');
-      if (button) button.click();
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+        window.ZenWriterApp.openHelpModal();
+      }
     });
     await page.waitForSelector('#help-modal', { state: 'visible' });
     await page.screenshot({ path: `${SHOTS}/15-help-modal.png`, fullPage: false });

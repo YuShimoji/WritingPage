@@ -398,7 +398,7 @@
       label: '設定を開く',
       description: '設定モーダルを表示',
       keywords: '環境 preferences オプション',
-      shortcut: '',
+      shortcut: 'Ctrl+, / Cmd+,',
       category: 'UI操作',
       execute: () => {
         if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
@@ -411,7 +411,7 @@
       label: 'ヘルプを開く',
       description: 'ヘルプモーダルを表示',
       keywords: 'ガイド 使い方 editor guide',
-      shortcut: '',
+      shortcut: 'F1',
       category: 'UI操作',
       execute: () => {
         if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {

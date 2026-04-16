@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-16 (session 101)
+最終更新: 2026-04-16 (session 102)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 101 |
-| 現在の主軸 | **WP-001 スライス1: UI システム説明文の削減** |
-| 直近のスライス | session 101: **WP-001 スライス1 (UI 説明文削減 + 死体ボタン撤去 + docs SSOT 化)** — Normal モードで常時表示されていた過多テキストを整理。`#sidebar-edit-hint` (99字) / `sidebar-manager.js` の Focus チップ説明 (70字) / ガジェット description 冠詞 26 箇所 / title 属性「〜ではありません」系 2 箇所 を削除。詳細設定カテゴリの死体3ボタン (`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`) を DOM・JS 参照 (`app-ui-events.js` / `element-manager.js` / `app-settings-handlers.js`) ごと撤去。削除した情報は [`EDITOR_HELP.md`](EDITOR_HELP.md) に集約 (1-3「エディタ表示の切り替え」節、14「章管理とシーンナビゲーション」節を新設)。[`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源 (SSOT: EDITOR_HELP.md)」** 追加。合計 約 300 字 + DOM 5 要素削減。ヘルプ到達性はトップバー `#toggle-help-modal` とコマンドパレット経由で維持。事前検証で `sidebar-writing-focus.spec.js` **5 passed** (削除前後で緑維持) を確認。 |
+| セッション | 102 |
+| 現在の主軸 | **WP-001 スライス2: トップバー歯車・ヘルプボタン撤去 + ショートカット導入** |
+| 直近のスライス | session 102: **WP-001 スライス2 (トップバー 2 ボタン撤去 + Ctrl+, / F1 ショートカット導入)** — `toolbar-group--system` の 3 ボタン (歯車 / ヘルプ / テーマ) をテーマ単独に縮減。`#toggle-settings` / `#toggle-help-modal` を [index.html](../index.html) から削除し、関連リスナーを [app-ui-events.js](../js/app-ui-events.js) / [app.js](../js/app.js) `gearBtn` fallback から掃除。代替アクセスとして [keybind-editor.js](../js/keybind-editor.js) `DEFAULT_KEYBINDS` に `app.settings.open` (`Ctrl+,`) と `app.help.open` (`F1`) を追加し、[app-shortcuts.js](../js/app-shortcuts.js) の switch + フォールバックブロック双方にハンドラ実装 (Mac `Cmd+,` を metaKey 経路で拾う対策含む)。[command-palette.js](../js/command-palette.js) の `open-settings` / `open-help` の `shortcut` 表示も更新。[scripts/dev-check.js](../scripts/dev-check.js) 検査条件削除、[scripts/capture-ui-verification.js](../scripts/capture-ui-verification.js) / [scripts/capture-full-showcase.js](../scripts/capture-full-showcase.js) の click を `window.ZenWriterApp.openSettingsModal()` / `openHelpModal()` API 経由に置換。E2E 6 ファイル ([helpers.js](../e2e/helpers.js) / [keybinds.spec.js](../e2e/keybinds.spec.js) / [theme-colors.spec.js](../e2e/theme-colors.spec.js) は API 経由、[accessibility.spec.js](../e2e/accessibility.spec.js) / [ui-editor.spec.js](../e2e/ui-editor.spec.js) は `#toggle-theme` 差替、[visual-audit.spec.js](../e2e/visual-audit.spec.js) は API 経由) を書換。docs SSOT として [EDITOR_HELP.md](EDITOR_HELP.md) のショートカット表に `Ctrl+, = 設定` / `F1 = ヘルプ` を追加し撤去注記を明示。[UI_SURFACE_AND_CONTROLS.md](UI_SURFACE_AND_CONTROLS.md) / [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) FR-009 / [USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md) も同期。検証: `lint:js:check` clean、関連 6 spec **63 passed / 0 failed**、`test:smoke` pass、全 E2E **511 passed / 1 flaky (pathtext-handles, 単独再実行で pass) / 2 skipped**。 |
+| 前スライス (参考) | session 101: **WP-001 スライス1 (UI 説明文削減 + 死体ボタン撤去 + docs SSOT 化)** — Normal モードで常時表示されていた過多テキストを整理。`#sidebar-edit-hint` (99字) / `sidebar-manager.js` の Focus チップ説明 (70字) / ガジェット description 冠詞 26 箇所 / title 属性「〜ではありません」系 2 箇所 を削除。詳細設定カテゴリの死体3ボタン (`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`) を DOM・JS 参照ごと撤去。削除した情報は [`EDITOR_HELP.md`](EDITOR_HELP.md) に集約。[`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源 (SSOT: EDITOR_HELP.md)」** 追加。合計 約 300 字 + DOM 5 要素削減。 |
 | 前スライス (参考) | session 100: **E2E 安定化** — session 98 の `sidebarOpen` 既定値 `true` 変更に起因するサイドバー遮蔽で 5 テストが失敗していた問題を修正。CSS に `pointer-events: auto` を 2 箇所追加 (`.focus-chapter-panel__exit-btn` / `.editor-overlay__image`)。テスト 4 ファイルでサイドバーを明示的に閉じる前処理を追加。chapter-list の flaky を `waitForFunction` に変更。検証: `lint:js:check` clean、全件 **512 passed / 0 failed / 2 skipped** |
 | 前スライス (参考) | session 98: **Electron ビルド版 3バグ修正** — (1) `beforeunload` で Electron 時に `preventDefault` を避けて終了 hang を解消 ([js/app-autosave-api.js](js/app-autosave-api.js))。(2) `settings.sidebarVisible` / `sidebarOpen` のキー不整合を両対応に統一 + 既定値を `true` に変更 ([js/settings-manager.js](js/settings-manager.js), [js/storage.js](js/storage.js))。edge-hover で開いたサイドバーが閉じない問題を `leftEdgeOpenedSidebar` 所有権フラグで修正 ([js/edge-hover.js](js/edge-hover.js))。(3) Windows DPI 依存のフォント過大を `webPreferences.zoomFactor: 0.9` + `:root { font-size: 16px }` で緩和 ([electron/main.js](electron/main.js), [css/style.css](css/style.css))。 |
 | 前スライス (参考) | session 97: **WP-005 スライスC** — 比較導線を「章比較 / スナップショット差分」の2コマンドへ分離し、サイドバー「構造」カテゴリに集約。編集カテゴリ/ツールバーの重複導線を撤去し、`SplitViewManager.open(mode)` で到達経路を統一。検証: `lint:js:check` clean、`command-palette` 13 pass、`visual-audit (Structure)` 1 pass |
@@ -387,6 +388,19 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | テスト修正 | `chapter-list` の章追加テストで `waitForTimeout(500)` を `waitForFunction` (章数ポーリング) に変更し flaky を解消 | `e2e/chapter-list.spec.js` |
 | テスト修正 | `image-position-size` の `beforeEach` に `ensureNormalMode` を追加 (Focus 既定起動対策) | `e2e/image-position-size.spec.js` |
 | 検証 | `npm run lint:js:check` clean。全件: **512 passed / 0 failed / 2 skipped** | — |
+
+### Session 102
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| WP-001 スライス2 DOM | トップバー `toolbar-group--system` から `#toggle-settings` (歯車) と `#toggle-help-modal` (ヘルプ) の 2 button 要素を削除。残るは `#toggle-theme` のみ | `index.html` |
+| JS ハンドラ整理 | `app-ui-events.js` の `toggleSettingsBtn` / `toggleHelpBtn` リスナー削除 (close リスナー・モーダル本体・関数本体は維持)。`app.js` の `gearBtn` 内 `#toggle-settings` fallback click 削除 | `js/app-ui-events.js`, `js/app.js` |
+| ショートカット追加 | `DEFAULT_KEYBINDS` に `app.settings.open` (`Ctrl+,`, Mac `Cmd+,`) と `app.help.open` (`F1`) を追加。`app-shortcuts.js` の switch + フォールバックブロック双方にハンドラ追加 (Mac `metaKey` 経路カバー) | `js/keybind-editor.js`, `js/app-shortcuts.js` |
+| パレット表示 | `open-settings` / `open-help` の `shortcut` を `'Ctrl+, / Cmd+,'` / `'F1'` に更新 | `js/command-palette.js` |
+| scripts | `dev-check.js` の 2 検査削除。`capture-ui-verification.js` / `capture-full-showcase.js` の click を `window.ZenWriterApp.openSettingsModal()` / `openHelpModal()` API 経由に置換 | `scripts/dev-check.js`, `scripts/capture-ui-verification.js`, `scripts/capture-full-showcase.js` |
+| E2E 書換 (6 ファイル) | `helpers.js` の `openSettingsModal` / `keybinds.spec.js` / `theme-colors.spec.js` を API 経由に変更。`accessibility.spec.js` / `ui-editor.spec.js` (4 箇所) は `#toggle-settings` を `#toggle-theme` に差替。`visual-audit.spec.js` 15-help-modal は `openHelpModal()` API 経由に置換 | `e2e/helpers.js`, `e2e/keybinds.spec.js`, `e2e/theme-colors.spec.js`, `e2e/accessibility.spec.js`, `e2e/ui-editor.spec.js`, `e2e/visual-audit.spec.js` |
+| docs SSOT | `EDITOR_HELP.md` のショートカット表に `Ctrl+, = 設定` / `F1 = ヘルプ` 追加 + 撤去注記。`UI_SURFACE_AND_CONTROLS.md` 設定/ヘルプ/テーマ行とコントロール台帳更新。`FEATURE_REGISTRY.md` FR-009 のヘルプ UI 入口記述を「コマンドパレット + `F1`」に。`USER_REQUEST_LEDGER.md` に session 102 節追記 + L219 文言修正 | `docs/EDITOR_HELP.md`, `docs/UI_SURFACE_AND_CONTROLS.md`, `docs/FEATURE_REGISTRY.md`, `docs/USER_REQUEST_LEDGER.md` |
+| 検証 | `npm run lint:js:check` clean。関連 6 spec **63 passed / 0 failed**。`test:smoke` pass。全 E2E **511 passed / 1 flaky (pathtext-handles 単独再実行で pass) / 2 skipped** | — |
 
 ## 検証結果
 

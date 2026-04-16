@@ -287,8 +287,9 @@ async function captureDesktop(baseUrl, outDir) {
     });
 
     await page.evaluate(() => {
-      const btn = document.getElementById('toggle-settings');
-      if (btn) btn.click();
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+        window.ZenWriterApp.openSettingsModal();
+      }
     });
     await page.waitForSelector('#settings-modal', { state: 'visible' });
     await page.waitForTimeout(200);
@@ -303,8 +304,9 @@ async function captureDesktop(baseUrl, outDir) {
     await page.waitForTimeout(150);
 
     await page.evaluate(() => {
-      const btn = document.getElementById('toggle-help-modal');
-      if (btn) btn.click();
+      if (window.ZenWriterApp && typeof window.ZenWriterApp.openHelpModal === 'function') {
+        window.ZenWriterApp.openHelpModal();
+      }
     });
     await page.waitForSelector('#help-modal', { state: 'visible' });
     await page.waitForTimeout(300);
