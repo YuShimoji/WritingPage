@@ -10,6 +10,8 @@ dist/
 build/
 # 退避用出力ディレクトリ (session 98-99: build/ ロック時の workaround)
 build-new/
+# セッション別退避用 (session 103: build/ + build-new/ 同時ロック時の追加 workaround)
+build-session*/
 
 # Node
 node_modules/
