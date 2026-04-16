@@ -430,8 +430,14 @@
          * アプリ設定の入口（歯車アイコン・コマンドパレット・Ctrl+, 等の唯一の実装）
          * session 103: `#settings-modal` は `gadgets-utils.js` で settings グループが deprecated → advanced 統合済みのため空モーダル化していた。
          * 動線をサイドバー詳細設定 (advanced) カテゴリの展開に変更。`gadget-advanced` コマンドと同等。
+         * session 103.1: Focus モード時に呼ばれるとサイドバーが Focus 状態のまま open されてレイアウトが崩壊するため、
+         * 先に Normal モードに切り替えてから advanced カテゴリを展開する。
          */
         function openSettingsModal() {
+            const currentMode = document.documentElement.getAttribute('data-ui-mode');
+            if (currentMode === 'focus' && window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
+                window.ZenWriterApp.setUIMode('normal');
+            }
             if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
                 window.sidebarManager.activateSidebarGroup('advanced');
                 const sidebar = document.getElementById('sidebar');

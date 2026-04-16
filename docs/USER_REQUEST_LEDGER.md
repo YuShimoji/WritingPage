@@ -253,6 +253,14 @@
   3. 複数選択が一つ一つクリックしないとできず使いづらい (Shift+Click 範囲選択 / 全選択ボタン未実装)
   - 影響領域 (推定): `js/gadgets-documents-hierarchy.js`, `js/gadgets-documents-tree.js`, 関連 CSS
 
+#### session 103.1 実施結果 (Focus モード歯車レイアウト崩壊 hotfix)
+
+- **背景**: session 103 ビルド (`build-session103/`) を user が実機検証で Focus 章パネル歯車を押すと、サイドバーが viewport 全幅占有 + 「フル」表示への遷移異常を報告。コマンドパレット経由は正常 → Focus モード状態で `openSettingsModal()` を呼んだ時固有の問題と特定。
+- **原因**: Focus モード (`data-ui-mode="focus"`) のままサイドバーを `toggleSidebar()` で open するとサイドバーが Focus 状態の章パネル overlay と Normal 状態の sidebar カテゴリ表示が競合し、CSS が崩壊する。session 103 の `openSettingsModal()` は Focus 判定なしで強制 open していた。
+- **修正**: `openSettingsModal()` の冒頭に Focus 判定を追加し、Focus モード時は `window.ZenWriterApp.setUIMode('normal')` で Normal 切替してから `activateSidebarGroup('advanced')` + サイドバー展開を実施 ([js/app-ui-events.js](../js/app-ui-events.js))。
+- **検証**: `lint:js:check` clean、関連 3 spec **15 passed / 0 failed**。
+- **未対応 (session 104 候補に追加)**: user 報告の「ウィンドウ最小時、左サイドバーが全画面占有」現象は session 102/103 起源か既存 bug か未切り分け。ドキュメント一覧 UX 改善と合わせて調査対象に追加。
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

@@ -415,6 +415,14 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | 検証 | `npm run lint:js:check` clean。全 E2E **512 passed / 0 failed / 2 skipped** | — |
 | user 提起 (session 104 候補) | フルのドキュメント一覧 UX 不安定: (1) チェックボックス外クリックで全外しされるが選択数表示が残る (2) ドキュメント多数で見切れる (3) 複数選択が一つ一つしか選べない | `js/gadgets-documents-hierarchy.js`, `js/gadgets-documents-tree.js` (推定) |
 
+### Session 103.1
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| Focus 歯車レイアウト崩壊 hotfix | session 103 の `openSettingsModal()` は Focus モード時に呼ばれてもそのままサイドバーを open していたため、Focus 状態の overlay と Normal 状態の sidebar カテゴリ表示が CSS 上で競合 → サイドバーが viewport 全幅占有 + 異常レイアウト。冒頭に Focus 判定を追加し、Focus 時は `setUIMode('normal')` で Normal 切替してから advanced 展開する | `js/app-ui-events.js` |
+| 検証 | `lint:js:check` clean、関連 3 spec (keybinds/theme-colors/collage) **15 passed / 0 failed** | — |
+| user 提起 (session 104 候補追加) | ウィンドウ最小時に左サイドバーが viewport 全画面を占有する現象。session 102/103 起源か既存 bug か未切り分け | (調査対象) |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
