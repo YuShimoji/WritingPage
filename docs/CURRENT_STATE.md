@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-16 (session 99)
+最終更新: 2026-04-16 (session 101)
 
 ## Snapshot
 
@@ -10,9 +10,10 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | 想定ブランチ | `main` |
-| セッション | 99 |
-| 現在の主軸 | **WP-001 発見性向上** (リッチ編集改行トグルをコマンドパレットへ昇格) |
-| 直近のスライス | session 99: **WP-001 Phase B** — リッチ編集の改行まわり設定2件 (`effectBreakAtNewline` / `effectPersistDecorAcrossNewline`) をコマンドパレットに「リッチ編集」カテゴリとして追加。サイドバー設定ガジェットに埋もれていた機能を Ctrl+P から直接トグル可能に。検証: `lint:js:check` clean、`command-palette` 13 passed |
+| セッション | 101 |
+| 現在の主軸 | **WP-001 スライス1: UI システム説明文の削減** |
+| 直近のスライス | session 101: **WP-001 スライス1 (UI 説明文削減 + 死体ボタン撤去 + docs SSOT 化)** — Normal モードで常時表示されていた過多テキストを整理。`#sidebar-edit-hint` (99字) / `sidebar-manager.js` の Focus チップ説明 (70字) / ガジェット description 冠詞 26 箇所 / title 属性「〜ではありません」系 2 箇所 を削除。詳細設定カテゴリの死体3ボタン (`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`) を DOM・JS 参照 (`app-ui-events.js` / `element-manager.js` / `app-settings-handlers.js`) ごと撤去。削除した情報は [`EDITOR_HELP.md`](EDITOR_HELP.md) に集約 (1-3「エディタ表示の切り替え」節、14「章管理とシーンナビゲーション」節を新設)。[`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源 (SSOT: EDITOR_HELP.md)」** 追加。合計 約 300 字 + DOM 5 要素削減。ヘルプ到達性はトップバー `#toggle-help-modal` とコマンドパレット経由で維持。事前検証で `sidebar-writing-focus.spec.js` **5 passed** (削除前後で緑維持) を確認。 |
+| 前スライス (参考) | session 100: **E2E 安定化** — session 98 の `sidebarOpen` 既定値 `true` 変更に起因するサイドバー遮蔽で 5 テストが失敗していた問題を修正。CSS に `pointer-events: auto` を 2 箇所追加 (`.focus-chapter-panel__exit-btn` / `.editor-overlay__image`)。テスト 4 ファイルでサイドバーを明示的に閉じる前処理を追加。chapter-list の flaky を `waitForFunction` に変更。検証: `lint:js:check` clean、全件 **512 passed / 0 failed / 2 skipped** |
 | 前スライス (参考) | session 98: **Electron ビルド版 3バグ修正** — (1) `beforeunload` で Electron 時に `preventDefault` を避けて終了 hang を解消 ([js/app-autosave-api.js](js/app-autosave-api.js))。(2) `settings.sidebarVisible` / `sidebarOpen` のキー不整合を両対応に統一 + 既定値を `true` に変更 ([js/settings-manager.js](js/settings-manager.js), [js/storage.js](js/storage.js))。edge-hover で開いたサイドバーが閉じない問題を `leftEdgeOpenedSidebar` 所有権フラグで修正 ([js/edge-hover.js](js/edge-hover.js))。(3) Windows DPI 依存のフォント過大を `webPreferences.zoomFactor: 0.9` + `:root { font-size: 16px }` で緩和 ([electron/main.js](electron/main.js), [css/style.css](css/style.css))。 |
 | 前スライス (参考) | session 97: **WP-005 スライスC** — 比較導線を「章比較 / スナップショット差分」の2コマンドへ分離し、サイドバー「構造」カテゴリに集約。編集カテゴリ/ツールバーの重複導線を撤去し、`SplitViewManager.open(mode)` で到達経路を統一。検証: `lint:js:check` clean、`command-palette` 13 pass、`visual-audit (Structure)` 1 pass |
 | 前スライス (参考) | session 93: **Electron 版 Focus パネル 3 不具合修正** — (1) `onMouseLeaveEdge` の左端 dismiss 判定で上端用定数 `EDGE_ZONE (24px)` を誤用していた bug を `getLeftEdgeZone()` に置換 (ウィンドウ幅 1/6、192-384px クランプ)。session 92 で左端トリガーを動的化した際に dismiss 側を更新し忘れた副作用。(2) `#edge-hover-hub-affordance` (Focus 時中央上部の 56×6px ハンドル) を廃止 — クリックで通常サイドバーを開き、レガシーの `mode-switch (最小/フル)` に到達する導線になっていた。`createHubAffordance` 関数本体・CSS 30 行を撤去。検証: `lint:js:check` clean、`test:smoke` pass。再ビルド: `dist/` `build/win-unpacked/` 更新。|
@@ -376,6 +377,17 @@ Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/s
 | リッチ編集トグル | コマンドパレットに `toggle-effect-break-at-newline` / `toggle-effect-persist-decor` を追加、「リッチ編集」カテゴリ新設。`ZenWriterSettingsChanged` イベントで既存のガジェット設定UIと同期 | `js/command-palette.js` |
 | 検証 | `npm run lint:js:check` clean。`npx playwright test e2e/command-palette.spec.js` = **13 passed** | — |
 
+### Session 100
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| CSS 修正 | `.focus-chapter-panel__exit-btn` に `pointer-events: auto` を追加 (Focus パネルのボタンが親の `pointer-events: none` で遮られていた) | `css/style.css` |
+| CSS 修正 | `.editor-overlay__image` に `pointer-events: auto` を追加 (画像オーバーレイが親 `.editor-overlay` の `pointer-events: none` を継承していた) | `css/style.css` |
+| テスト修正 | `sidebarOpen` 既定値 `true` (session 98) によるサイドバー遮蔽対策。`dock-panel` / `ui-mode-consistency` / `image-position-size` / `chapter-list` の各テストでサイドバーを明示的に閉じる前処理を追加 | `e2e/dock-panel.spec.js`, `e2e/ui-mode-consistency.spec.js`, `e2e/image-position-size.spec.js`, `e2e/chapter-list.spec.js` |
+| テスト修正 | `chapter-list` の章追加テストで `waitForTimeout(500)` を `waitForFunction` (章数ポーリング) に変更し flaky を解消 | `e2e/chapter-list.spec.js` |
+| テスト修正 | `image-position-size` の `beforeEach` に `ensureNormalMode` を追加 (Focus 既定起動対策) | `e2e/image-position-size.spec.js` |
+| 検証 | `npm run lint:js:check` clean。全件: **512 passed / 0 failed / 2 skipped** | — |
+
 ## 検証結果
 
 Session 44〜62 の実行ログは [`docs/archive/current-state-verification-sessions-44-62.md`](archive/current-state-verification-sessions-44-62.md)。Session 63〜65 の詳細は [`docs/archive/current-state-verification-sessions-63-65.md`](archive/current-state-verification-sessions-63-65.md)。
@@ -494,6 +506,11 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 - `npx playwright test` → **512 passed / 2 skipped / 0 failed**（全 spec、約 2.7 分）
 - `npx playwright test --list` → **514 テスト / 60 ファイル**
+- `npm run lint:js:check` → clean
+
+実行済み (session 100):
+
+- `npx playwright test` → **512 passed / 0 failed / 2 skipped**（全 spec、約 2.9 分）
 - `npm run lint:js:check` → clean
 
 実行済み (session 95):

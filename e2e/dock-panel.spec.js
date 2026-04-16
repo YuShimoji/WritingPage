@@ -254,6 +254,11 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
+    // サイドバーを閉じてドックパネルの遮蔽を防ぐ
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+
     // Open left panel
     await page.evaluate(() => window.dockManager.setLeftPanelVisible(true));
 
@@ -787,6 +792,11 @@ test.describe('SP-076 Phase 3: Floating & Snap', () => {
   test('Dock button in floating panel snaps back', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
+
+    // サイドバーを閉じてドックパネルの遮蔽を防ぐ
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
 
     await page.evaluate(() => {
       window.dockManager.addTab('dock-btn', 'Dock Btn Test');

@@ -242,20 +242,6 @@
             });
         }
 
-        // Help buttons
-        const helpButton = elementManager.get('helpButton');
-        if (helpButton) {
-            helpButton.addEventListener('click', function () {
-                try { window.open('docs/wiki-help.html', '_blank', 'noopener'); } catch (e) { console.error('Failed to open wiki help:', e); }
-            });
-        }
-        const editorHelpButton = elementManager.get('editorHelpButton');
-        if (editorHelpButton) {
-            editorHelpButton.addEventListener('click', function () {
-                try { window.open('docs/editor-help.html', '_blank', 'noopener'); } catch (e) { console.error('Failed to open editor help:', e); }
-            });
-        }
-
         return { updateSettingsPatch };
     }
 

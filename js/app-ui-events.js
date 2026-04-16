@@ -509,7 +509,6 @@
 
         const sidebarPreviewBtn = document.getElementById('sidebar-toggle-preview');
         const sidebarWysiwygBtn = document.getElementById('sidebar-toggle-wysiwyg');
-        const sidebarHelpBtn = document.getElementById('sidebar-toggle-help');
 
         // サイドバーボタン: 直接API呼び出し (ツールバー.click()中継を廃止)
         if (sidebarPreviewBtn) {
@@ -535,10 +534,6 @@
                 }
                 closeSidebarEditorViewDetails();
             });
-        }
-
-        if (sidebarHelpBtn) {
-            sidebarHelpBtn.addEventListener('click', () => openHelpModal());
         }
 
         return {

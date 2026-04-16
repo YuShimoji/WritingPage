@@ -35,6 +35,8 @@ async function setupChapters(page, chapters) {
 // ---------------------------------------------------------------------------
 async function enterFocusMode(page) {
   await page.evaluate(() => {
+    // サイドバーを閉じて章パネルの遮蔽を防ぐ
+    if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     if (window.ZenWriterApp && window.ZenWriterApp.setUIMode) window.ZenWriterApp.setUIMode('focus');
     else document.documentElement.setAttribute('data-ui-mode', 'focus');
     // テスト用: エッジホバーを発火させて章パネルを表示
@@ -131,7 +133,9 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
     await expect(addBtn).toBeVisible({ timeout: 5000 });
 
     await addBtn.click();
-    await page.waitForTimeout(500);
+    await page.waitForFunction(() => {
+      return document.querySelectorAll('#focus-chapter-list .cl-item').length >= 2;
+    }, { timeout: 5000 });
 
     // 章が2つになっている
     const itemCount = await page.evaluate(() => {

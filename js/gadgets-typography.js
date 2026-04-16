@@ -494,7 +494,7 @@
   }, {
     groups: ['theme'],
     title: (window.UILabels && window.UILabels.GADGET_TYPOGRAPHY_TITLE) || 'フォント',
-    description: '表示。フォント・文字サイズ・行間を調整。'
+    description: 'フォント・文字サイズ・行間を調整。'
   });
 
 })();

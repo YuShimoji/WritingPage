@@ -413,9 +413,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) { }
     })();
 
+    // 初回起動時の setUIMode 呼び出しを判定するフラグ。
+    // index.html のインラインスクリプトで data-ui-mode が先に設定されるため、
+    // currentMode === null は発火せず、初回起動を検出できない問題への対策。
+    var _setUIModeInvokedOnce = false;
+
     // UIモード切り替え（2モード体制 + 再生オーバーレイ）
     function setUIMode(mode, save = true, force = false) {
         const validModes = ['normal', 'focus'];
+        const isInitialBoot = !_setUIModeInvokedOnce;
+        _setUIModeInvokedOnce = true;
         // R-2: blank → focus にフォールバック
         var targetMode = mode === 'blank' ? 'focus' : mode;
         // Readerモード廃止: 既存値は focus へ正規化
@@ -472,7 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // M-1b: Normal→Focus（最小）— 執筆レールの「詳細」永続を畳す。章レールの自動表示は「章パネルからフルへ」補助直後のみ。
+        // M-1b: Focus 入場時 — Normal→Focus の通常遷移に加え、初回起動 (currentMode===null) でも
+        // 通常サイドバーは閉じる。session 98 で settings.sidebarOpen 既定値を true に変更した副作用で、
+        // Focus モードで起動しても通常サイドバーが開いたまま古い UI が露出するケースを打ち消す。
+        // 手動で開かれたサイドバーは Normal→Focus 経由では維持される（既存仕様）。
         if (currentMode === 'normal' && targetMode === 'focus') {
             var reopenCh = false;
             try {
@@ -492,6 +502,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             if (reopenCh && window.ZWEdgeHover && typeof window.ZWEdgeHover.peekFocusLeftChapterRail === 'function') {
                 window.ZWEdgeHover.peekFocusLeftChapterRail();
+            }
+        }
+        // 初回起動で Focus モードに入る場合: settings 復元で自動オープンされた通常サイドバーを閉じる。
+        // index.html のインラインスクリプトで data-ui-mode が先に設定されるため currentMode===null は
+        // 発火しない。_setUIModeInvokedOnce フラグで初回呼び出しを判定する。
+        // 設定 settings.sidebarOpen 自体は保持し、Normal 復帰時は従来どおり開く（ユーザー意図を尊重）。
+        if (isInitialBoot && targetMode === 'focus') {
+            if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+                var sidebarElInitial = document.getElementById('sidebar');
+                if (sidebarElInitial && sidebarElInitial.classList.contains('open')) {
+                    window.sidebarManager.forceSidebarState(false);
+                }
+            }
+            if (window.sidebarManager && typeof window.sidebarManager.collapseWritingFocusDetailForUIModeFocus === 'function') {
+                window.sidebarManager.collapseWritingFocusDetailForUIModeFocus();
             }
         }
 

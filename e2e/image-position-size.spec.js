@@ -1,5 +1,6 @@
 // E2E: 画像位置調整・サイズ変更機能の検証
 const { test, expect } = require('@playwright/test');
+const { ensureNormalMode } = require('./helpers');
 
 const pageUrl = '/index.html';
 
@@ -27,6 +28,11 @@ test.describe('Image Position and Size Adjustment E2E', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto(pageUrl);
     await waitEditorReady(page);
+    await ensureNormalMode(page);
+    // サイドバーを閉じてオーバーレイの遮蔽を防ぐ
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
     // エディタの内容をクリア
     await page.evaluate(() => {
       if (window.ZenWriterEditor && window.ZenWriterEditor.editor) {

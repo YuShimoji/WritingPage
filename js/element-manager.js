@@ -61,8 +61,6 @@ class ElementManager {
             // HUD設定UI
             goalTargetInput: 'goal-target',
             goalDeadlineInput: 'goal-deadline',
-            helpButton: 'help-button',
-            editorHelpButton: 'editor-help-button',
 
             searchInput: 'search-input',
             replaceInput: 'replace-input',

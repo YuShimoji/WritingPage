@@ -450,18 +450,22 @@ html[data-ui-mode='focus'] .focus-chapter-panel {
   transition: transform 0.2s ease-out, opacity 0.2s ease-out;
 }
 
-/* BL-004: Focus 左パネル — 半透明スライドイン → hover で不透明 */
+/* Focus 左パネル — 2段階 opacity（予告フェードイン → 到達後は不透明固定）。
+   - edge-hover-left 発火直後 (まだ hover 到達していない): opacity 0.35 で予告フェードイン
+     → 「突然現れる」感を避け、パネルが近づいていることを視覚的に予告
+   - 一度 hover に到達 (edge-hover-left-touched): opacity 1 に固定
+   - dismiss zone に入って離れても touched であれば opacity 1 を維持
+     → 「閉じかけ」と誤認される問題 (旧 BL-004 の 2 段階に回帰) を回避
+   - 完全に閉じる (edge-hover-left が外れる) と touched も JS 側でクリア */
 html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel {
   transform: translateX(0) !important;
-  opacity: 0.35 !important;
+  opacity: 0.35;
   pointer-events: auto !important;
   transition: transform 0.2s ease-out, opacity 0.2s ease-out !important;
 }
-html[data-ui-mode='focus'] .focus-chapter-panel:hover,
-html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hover {
-  transform: translateX(0) !important;
+html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hover,
+html[data-ui-mode='focus'][data-edge-hover-left='true'][data-edge-hover-left-touched='true'] .focus-chapter-panel {
   opacity: 1 !important;
-  pointer-events: auto !important;
 }
 
 /* --- Focus ChapterList パネル (SP-070) --- */
@@ -528,6 +532,7 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'] .focus-chapter-panel:hov
   background: color-mix(in srgb, var(--sidebar-bg, #fff) 92%, var(--text-color, #333) 8%);
   color: var(--text-color, #333);
   cursor: pointer;
+  pointer-events: auto;
   line-height: 1.2;
   white-space: nowrap;
 }
@@ -2099,6 +2104,10 @@ html:not([data-developer-mode='true']) #wysiwyg-switch-to-textarea {
   width: 0.5625rem;
   height: 1px;
   background-color: var(--border-color);
+}
+
+.editor-overlay__image {
+  pointer-events: auto;
 }
 
 .editor-overlay__image img {

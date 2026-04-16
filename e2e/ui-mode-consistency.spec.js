@@ -58,7 +58,9 @@ test.describe('UI Mode Consistency', () => {
   test('Focus chapter panel: フル button exits minimal to normal', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(150);
+    // サイドバーを閉じて章パネルの遮蔽を防ぐ
     await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
       document.documentElement.setAttribute('data-edge-hover-left', 'true');
     });
     await page.waitForTimeout(250);

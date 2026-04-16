@@ -273,7 +273,7 @@
   }, {
     title: (window.UILabels && window.UILabels.KEYBINDS_GADGET_TITLE) || 'キーボードショートカット',
     groups: ['advanced'],
-    description: '詳細。ショートカットの確認・変更・競合解決を管理。'
+    description: 'ショートカットの確認・変更・競合解決を管理。'
   });
 
 })();

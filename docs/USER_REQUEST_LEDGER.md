@@ -204,6 +204,24 @@
 - **品質ゲート**: `npm run lint:js:check` clean、`npx playwright test e2e/command-palette.spec.js` = **13 passed**。
 - **次**: Phase C (option 3: WP-001 執筆モード整理) は user と 1 スライス選定後に着手。
 
+#### session 101 実施結果（WP-001 スライス1: UI システム説明文削減 + 死体ボタン撤去 + docs SSOT 化）
+
+- **背景**: Normal モード UI の常時表示テキスト過多（約 300 字）をユーザーが指摘。既存ヘルプモーダルは「分かりづらい」評価のため集約先として却下。トップバー系ボタン撤去予定の方針と整合する「**案α（docs のみ・UI 入口なし）**」を採択。
+- **UI 削減（合計 約 300 字 + DOM 5 要素）**:
+  - `#sidebar-edit-hint`（99字）削除 ([index.html](../index.html))
+  - `sidebar-manager.js:897-899` の `.writing-focus-empty` チップ説明（70字）削除
+  - サイドバー `#sidebar-toggle-preview` / `#sidebar-toggle-wysiwyg` の title を `"MD プレビュー"` / `"リッチ編集"` に短縮
+  - 詳細設定カテゴリの**死体3ボタン**（`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`）撤去
+  - `app-ui-events.js` の `sidebarHelpBtn` リスナーと `element-manager.js` / `app-settings-handlers.js` の `helpButton` / `editorHelpButton` 参照も全掃除
+- **ガジェット description 冠詞削除**: 26 箇所のガジェット description から先頭冠詞（「補助。」「詳細。」「構造。」「装飾。」「表示。」「プレビュー。」「画像。」「分岐。」「装飾・演出。」）を除去（[gadgets-editor-extras.js](../js/gadgets-editor-extras.js) ほか 14 ファイル）。`docs/GADGETS.md` の description 列も同期。
+- **集約先（SSOT）**: [docs/EDITOR_HELP.md](EDITOR_HELP.md) に 1-3「エディタ表示の切り替え」節と 14「章管理とシーンナビゲーション」節を新設。UI から削除した情報はここに集約。
+- **機能洗い出し足場**: [docs/FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源（SSOT: EDITOR_HELP.md）」** を追加。
+- **ヘルプ到達性維持**: トップバー `#toggle-help-modal` とコマンドパレット経由は残存。サイドバー詳細設定カテゴリからの直接ヘルプ到達は意図的に喪失（後続スライスでヘルプモーダル本体を再設計予定）。
+- **品質ゲート**: `sidebar-writing-focus.spec.js` **5 passed**（削除前後で緑維持）。
+- **後続スライス候補**:
+  - スライス2: トップバー歯車 / ヘルプアイコン / 再生オーバーレイボタンの撤去、リーダーモード廃止、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` の削除
+  - スライス3: サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、`docs/FEATURE_REGISTRY.md` に 28 ガジェット分の FR エントリ一括追加
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

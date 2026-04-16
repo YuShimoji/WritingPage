@@ -470,7 +470,7 @@
   }, {
     groups: ['theme'],
     title: '見出しスタイル',
-    description: '表示。見出しプリセット選択と H1-H6 の個別調整。'
+    description: '見出しプリセット選択と H1-H6 の個別調整。'
   });
 
 })();

@@ -249,6 +249,6 @@
         }
       } catch (_) { }
     } catch (e) { try { el.textContent = (window.UILabels && window.UILabels.IMG_INIT_FAILED) || '画像ガジェットの初期化に失敗しました。'; } catch (_) { } }
-  }, { groups: ['edit'], title: (window.UILabels && window.UILabels.GADGET_IMAGES_TITLE) || '画像', description: '画像。挿入・管理と、コラージュ用レイアウト設定。' });
+  }, { groups: ['edit'], title: (window.UILabels && window.UILabels.GADGET_IMAGES_TITLE) || '画像', description: '挿入・管理と、コラージュ用レイアウト設定。' });
 
 })();

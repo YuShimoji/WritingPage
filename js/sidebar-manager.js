@@ -894,9 +894,6 @@ class SidebarManager {
         }).join('');
 
         nav.innerHTML = `
-            <p class="writing-focus-empty" style="margin:0 0 0.35rem 0;font-size:0.6875rem;opacity:0.85;line-height:1.35;">
-              下のチップが<strong>章一覧</strong>です（<strong>左端の「チャプター」パネル</strong>と同じ並び）。下の「シーン」は現在の章の本文の <strong>### 見出し</strong> だけです。
-            </p>
             <div class="writing-focus-seek">
               <button type="button" class="writing-focus-seek-btn" data-wf-prev-scene ${hasPrevScene ? '' : 'disabled'}>前のシーン</button>
               <button type="button" class="writing-focus-seek-btn" data-wf-next-scene ${hasNextScene ? '' : 'disabled'}>次のシーン</button>
