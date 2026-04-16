@@ -3,47 +3,42 @@ const { test, expect } = require('@playwright/test');
 const { showFullToolbar } = require('./helpers');
 
 /**
- * v0.3.27: テーマ設定は settings グループの Themes ガジェットに移動。
- * 設定モーダルを開いて Themes ガジェット内のテーマプリセットボタンと
- * カラーピッカーにアクセスする。サイドバー経由だと二重レンダリングが
- * 発生するため、モーダルのみを使用する。
+ * session 103: テーマ設定は theme グループの Themes ガジェット (サイドバー「表示調整」カテゴリ)。
+ * 詳細設定 (advanced) カテゴリにも動的追加して `#advanced-gadgets-panel` で描画させ、
+ * `openSettingsModal()` 経由で開く統一動線を踏む。
  */
 async function openThemePanel(page) {
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
 
-  // enableAllGadgets を使わない（loadout 再適用でサイドバーにも settings パネルが
-  // 生成され、#bg-color が重複する問題を回避）。Themes ガジェットを settings グループに
-  // 直接追加して設定モーダルで描画させる。
+  // Themes ガジェットを advanced グループに動的追加し、#advanced-gadgets-panel を再初期化
   await page.evaluate(() => {
     var g = window.ZWGadgets;
     if (!g || !g._list) return;
     g._list.forEach(function(entry) {
       if (entry.name === 'Themes') {
         if (!Array.isArray(entry.groups)) entry.groups = [];
-        if (entry.groups.indexOf('settings') < 0) entry.groups.push('settings');
+        if (entry.groups.indexOf('advanced') < 0) entry.groups.push('advanced');
       }
     });
-    // settings パネルの renderer を再初期化
-    if (g._renderers) delete g._renderers['settings'];
-    g.init('#settings-gadgets-panel', { group: 'settings' });
+    if (g._renderers) delete g._renderers['advanced'];
+    g.init('#advanced-gadgets-panel', { group: 'advanced' });
   });
   await showFullToolbar(page);
   await page.waitForTimeout(200);
-  // session 102: トップバー設定ボタン撤去 → API 経由で開く
+  // session 103: openSettingsModal はサイドバー advanced カテゴリ展開に変更
   await page.evaluate(() => {
     if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
       window.ZenWriterApp.openSettingsModal();
     }
   });
-  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
-  await page.waitForSelector('#settings-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 15000 });
+  await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 15000 });
   await page.waitForTimeout(500);
 
   // すべてのガジェットを展開 (data-gadget-collapsed 属性で制御)
   await page.evaluate(() => {
-    document.querySelectorAll('#settings-gadgets-panel .gadget-wrapper').forEach(function(w) {
+    document.querySelectorAll('#advanced-gadgets-panel .gadget-wrapper').forEach(function(w) {
       var name = w.getAttribute('data-gadget-name');
       if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
         window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
@@ -53,9 +48,9 @@ async function openThemePanel(page) {
   await page.waitForTimeout(300);
 
   // Themes ガジェット内のコントロールがDOMに存在することを確認
-  await page.waitForSelector('#settings-gadgets-panel .gadget-themes #bg-color', { state: 'attached', timeout: 15000 });
-  await page.waitForSelector('#settings-gadgets-panel .gadget-themes #text-color', { state: 'attached', timeout: 10000 });
-  await page.waitForSelector('#settings-gadgets-panel .gadget-themes button[data-theme-preset="light"]', { state: 'attached', timeout: 10000 });
+  await page.waitForSelector('#advanced-gadgets-panel .gadget-themes #bg-color', { state: 'attached', timeout: 15000 });
+  await page.waitForSelector('#advanced-gadgets-panel .gadget-themes #text-color', { state: 'attached', timeout: 10000 });
+  await page.waitForSelector('#advanced-gadgets-panel .gadget-themes button[data-theme-preset="light"]', { state: 'attached', timeout: 10000 });
 }
 
 test.describe('Theme Colors', () => {
@@ -104,7 +99,7 @@ test.describe('Theme Colors', () => {
 
     // Set custom colors
     await page.evaluate(() => {
-      const themesGadget = document.querySelector('#settings-gadgets-panel .gadget-themes');
+      const themesGadget = document.querySelector('#advanced-gadgets-panel .gadget-themes');
       if (!themesGadget) return;
       const bgInput = themesGadget.querySelector('#bg-color');
       const textInput = themesGadget.querySelector('#text-color');
@@ -119,7 +114,7 @@ test.describe('Theme Colors', () => {
     });
     await page.waitForTimeout(500);
 
-    const scope = '#settings-gadgets-panel .gadget-themes';
+    const scope = '#advanced-gadgets-panel .gadget-themes';
 
     // Verify color pickers have the custom values
     await expect(page.locator(`${scope} #bg-color`)).toHaveValue('#ffcccc');
@@ -139,7 +134,7 @@ test.describe('Theme Colors', () => {
 
     // Set custom colors
     await page.evaluate(() => {
-      const themesGadget = document.querySelector('#settings-gadgets-panel .gadget-themes');
+      const themesGadget = document.querySelector('#advanced-gadgets-panel .gadget-themes');
       if (!themesGadget) return;
       const bgInput = themesGadget.querySelector('#bg-color');
       const textInput = themesGadget.querySelector('#text-color');
@@ -154,7 +149,7 @@ test.describe('Theme Colors', () => {
     });
     await page.waitForTimeout(500);
 
-    const scope = '#settings-gadgets-panel .gadget-themes';
+    const scope = '#advanced-gadgets-panel .gadget-themes';
 
     // Click reset button
     await page.locator(`${scope} #reset-colors`).evaluate(b => b.click());

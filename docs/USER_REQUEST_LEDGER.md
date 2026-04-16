@@ -234,6 +234,25 @@
 - **品質ゲート**: `npm run lint:js:check` clean、関連 6 spec **63 passed / 0 failed**、`npm run test:smoke` pass、全 E2E **511 passed / 1 flaky (pathtext-handles, 単独再実行で pass) / 2 skipped**。
 - **次**: スライス2 残候補 (再生オーバーレイボタン撤去 / ヘルプモーダル本体再設計 / 静的 help HTML 削除) または スライス3 (アコーディオン統廃合)。
 
+#### session 103 実施結果（hotfix: 設定モーダル空問題 → サイドバー詳細設定動線へ）
+
+- **背景**: user が session 102 ビルドの実機検証で Focus 章パネル歯車を押すと「中身がカラのモーダル」が開く問題を報告。`F1` ヘルプは正常動作。
+- **原因究明**: `js/gadgets-utils.js:181-190` で `settings` グループは **deprecated** で `advanced` (詳細設定) に統合済み (`migratesTo: 'advanced'`)。`#settings-gadgets-panel` (`data-gadget-group="settings"`) には何もレンダリングされない構造的バグ。session 102 とは無関係で、長期間トップバー歯車も同じく空モーダルだったが user は気付かず使用していた (詳細設定カテゴリはサイドバーから直接アクセスしていた可能性)。session 102 でトップバー歯車撤去 → Focus 歯車を初使用 → 発覚。
+- **修正**: `openSettingsModal()` の実装を `toggleModal('settings-modal', true)` から `window.sidebarManager.activateSidebarGroup('advanced')` + サイドバー展開に変更 ([js/app-ui-events.js](../js/app-ui-events.js))。これにより Focus 章パネル歯車 / `Ctrl+,` (Mac `Cmd+,`) / コマンドパレット `open-settings` の 3 経路すべてが「サイドバー詳細設定カテゴリを開く」に統一動線化。`gadget-advanced` コマンド (session 88 追加) と同等動作。
+- **コマンドパレット表示更新**: `open-settings` の description を「サイドバー詳細設定カテゴリを開く (キー割当・ロードアウト・スナップショット等)」に、keywords を `advanced` / `keybind` / `Loadout` / `スナップショット` 等に拡張 ([js/command-palette.js](../js/command-palette.js))。`Ctrl+, / Cmd+,` ショートカット表示は維持。
+- **互換維持**: `#settings-modal` DOM 本体は当面残存、`closeSettingsModal()` は no-op として残置。`scripts/dev-check.js` の DOM 検査は通る。
+- **E2E 影響 (4 ファイル)**:
+  - [helpers.js](../e2e/helpers.js): `enableAllGadgets` のガジェット強制登録先を `'settings'` → `'advanced'` に。`#settings-gadgets-panel` の強制 init を `#advanced-gadgets-panel` に変更。`openSettingsModal` ヘルパは `#advanced-gadgets-panel` の attached 待ちに (詳細設定アコーディオン折り畳み状態でも DOM は存在する)。
+  - [keybinds.spec.js](../e2e/keybinds.spec.js): `scope` 変数と全ハードコード参照を `#advanced-gadgets-panel` に置換。
+  - [theme-colors.spec.js](../e2e/theme-colors.spec.js): Themes ガジェットの動的登録先を `'advanced'` グループに、全ハードコード参照を `#advanced-gadgets-panel` 系に置換。
+  - [collage.spec.js](../e2e/collage.spec.js): Images ガジェットの locator を `#advanced-gadgets-panel` ベースに置換。
+- **品質ゲート**: `npm run lint:js:check` clean、全 E2E **512 passed / 0 failed / 2 skipped** (前回の pathtext-handles flaky も含めて green)。
+- **session 104 候補 (user 提起)**: **フルのドキュメント一覧 UX 改善** — 以下 3 件の不安定さを user が報告。
+  1. 複数削除中にチェックボックス外をクリックすると全選択が外れるが、選択中の数字表示はそのまま残る (状態管理バグ)
+  2. ドキュメント数が多いとリストが見切れる (CSS overflow / max-height 不足)
+  3. 複数選択が一つ一つクリックしないとできず使いづらい (Shift+Click 範囲選択 / 全選択ボタン未実装)
+  - 影響領域 (推定): `js/gadgets-documents-hierarchy.js`, `js/gadgets-documents-tree.js`, 関連 CSS
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

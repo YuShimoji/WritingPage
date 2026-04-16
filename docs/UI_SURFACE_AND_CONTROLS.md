@@ -80,7 +80,7 @@ flowchart TB
 | 分割ビュー | `#toggle-split-view`、`#sidebar-toggle-split`、メインハブ、パレット | 同上。 |
 | リッチ編集トグル | `#toggle-wysiwyg`、`#sidebar-toggle-wysiwyg`、メインハブ、パレット | 開発者モード外ではソース編集 UI を出さない既定（[`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)）。 |
 | 再生オーバーレイ | `#toggle-reader-preview`、メインハブ、パレット | 「読者**モード**」表記は避ける（オーバーレイが正）。 |
-| 設定 | `#focus-open-settings`、コマンドパレット (`open-settings`)、`Ctrl+,` / `Cmd+,` | session 102 でトップバー `#toggle-settings` 撤去。Focus では章パネル `#focus-open-settings` が主導線。 |
+| 設定 | `#focus-open-settings`、コマンドパレット (`open-settings`)、`Ctrl+,` / `Cmd+,` | session 102 でトップバー `#toggle-settings` 撤去。session 103 で空モーダル問題を解消し、3 経路すべてが `activateSidebarGroup('advanced')` (サイドバー詳細設定カテゴリ展開) に統一。`#settings-modal` DOM は互換のため残存 (no-op)。 |
 | ヘルプ | コマンドパレット (`open-help`)、`F1` | session 101 でサイドバー死体3ボタン撤去 → session 102 でトップバー `#toggle-help-modal` も撤去。SSOT は [`EDITOR_HELP.md`](EDITOR_HELP.md)。 |
 | テーマ | `#toggle-theme`、メインハブ | トップバー右端の唯一の常駐ボタン (session 102 以降)。 |
 | メインハブ自体 | `#show-toolbar`、ショートカット、エッジホバー | FAB は `element-manager` 経由で接続済み。 |

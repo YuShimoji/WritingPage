@@ -145,24 +145,18 @@ async function enableAllGadgets(page, opts) {
     gadgets.defineLoadout('__e2e_all__', { label: 'E2E All', groups: sidebarGroups });
     gadgets.applyLoadout('__e2e_all__');
 
-    // After loadout is applied, add 'settings' to ALL gadgets so they render
-    // in the settings modal panel. normaliseGroups strips 'settings' from loadouts,
-    // so we must assign directly.
+    // session 103: settings グループは deprecated → advanced に統合済み。
+    // ALL ガジェットを advanced グループに登録し、`#advanced-gadgets-panel` に集約描画する。
     gadgets._list.forEach(function (g) {
       if (!Array.isArray(g.groups)) g.groups = [];
-      if (g.groups.indexOf('settings') < 0) g.groups.push('settings');
+      if (g.groups.indexOf('advanced') < 0) g.groups.push('advanced');
     });
 
-    // Force-correct _roots['settings'] to the actual settings panel element.
-    // GADGET_GROUPS.settings has migratesTo:'advanced', causing _roots['settings']
-    // to incorrectly point to #advanced-gadgets-panel. We must fix this.
-    var settingsPanel = document.querySelector('#settings-gadgets-panel');
-    if (settingsPanel) {
-      // Clear stale renderer (closured over wrong root element)
-      if (gadgets._renderers) delete gadgets._renderers['settings'];
-      if (gadgets._roots) gadgets._roots['settings'] = settingsPanel;
-      // Re-init with correct panel — creates fresh renderer with correct root
-      gadgets.init('#settings-gadgets-panel', { group: 'settings' });
+    var advancedPanel = document.querySelector('#advanced-gadgets-panel');
+    if (advancedPanel) {
+      if (gadgets._renderers) delete gadgets._renderers['advanced'];
+      if (gadgets._roots) gadgets._roots['advanced'] = advancedPanel;
+      gadgets.init('#advanced-gadgets-panel', { group: 'advanced' });
     }
   });
   // 執筆集中モードと slim モードを無効化 (全ガジェットパネル + chrome を表示可能にする)
@@ -262,7 +256,8 @@ async function expandAccordion(page, categoryId) {
 
 
 /**
- * 設定モーダルを開く (session 102 でトップバーボタン撤去 → API 経由)。
+ * 設定モーダルを開く (session 103: 動線をサイドバー詳細設定 (advanced) カテゴリ展開に変更)。
+ * 詳細設定アコーディオンが折りたたみ状態でも DOM 上に存在するため state: 'attached' で確認。
  */
 async function openSettingsModal(page) {
   await page.evaluate(() => {
@@ -270,7 +265,7 @@ async function openSettingsModal(page) {
       window.ZenWriterApp.openSettingsModal();
     }
   });
-  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 5000 });
+  await page.waitForSelector('#advanced-gadgets-panel', { state: 'attached', timeout: 5000 });
 }
 
 /**

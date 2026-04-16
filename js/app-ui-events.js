@@ -426,11 +426,22 @@
             }
         }
 
-        /** アプリ設定モーダルを開く（歯車アイコン・コマンドパレット等の唯一の実装） */
+        /**
+         * アプリ設定の入口（歯車アイコン・コマンドパレット・Ctrl+, 等の唯一の実装）
+         * session 103: `#settings-modal` は `gadgets-utils.js` で settings グループが deprecated → advanced 統合済みのため空モーダル化していた。
+         * 動線をサイドバー詳細設定 (advanced) カテゴリの展開に変更。`gadget-advanced` コマンドと同等。
+         */
         function openSettingsModal() {
-            toggleModal('settings-modal', true);
+            if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+                window.sidebarManager.activateSidebarGroup('advanced');
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar && !sidebar.classList.contains('open') && typeof window.sidebarManager.toggleSidebar === 'function') {
+                    window.sidebarManager.toggleSidebar();
+                }
+            }
         }
 
+        /** session 103 以降は no-op (旧 settings-modal は開かれない)。互換のため残す。 */
         function closeSettingsModal() {
             toggleModal('settings-modal', false);
         }

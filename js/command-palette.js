@@ -396,8 +396,8 @@
     {
       id: 'open-settings',
       label: '設定を開く',
-      description: '設定モーダルを表示',
-      keywords: '環境 preferences オプション',
+      description: 'サイドバー詳細設定カテゴリを開く (キー割当・ロードアウト・スナップショット等)',
+      keywords: '環境 preferences オプション 詳細 advanced キーバインド shortcut keybind ロードアウト Loadout スナップショット',
       shortcut: 'Ctrl+, / Cmd+,',
       category: 'UI操作',
       execute: () => {

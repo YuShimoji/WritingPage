@@ -4,26 +4,25 @@ const { showFullToolbar, enableAllGadgets } = require('./helpers');
 
 const pageUrl = '/index.html';
 
-// v0.3.27: Keybinds は settings グループ。サイドバーには settings タブがないため
-// 設定モーダルを開いてアクセスする。enableAllGadgets は使わない（重複回避）。
-const scope = '#settings-gadgets-panel';
+// session 103: settings グループは deprecated → advanced に統合済み。
+// Keybinds ガジェットはサイドバー詳細設定 (advanced) カテゴリに表示される。
+const scope = '#advanced-gadgets-panel';
 
 async function openKeybindsPanel(page) {
   await page.waitForFunction(() => {
     try { return !!window.ZenWriterKeybinds && !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
 
-  // enableAllGadgets を呼んでから設定モーダルを開く（settings ガジェットをレンダリング）
-  // session 102: トップバーボタン撤去 → API 経由で開く
+  // enableAllGadgets を呼んでサイドバー詳細設定カテゴリを開く
   await enableAllGadgets(page);
   await showFullToolbar(page);
   await page.waitForTimeout(200);
   await page.evaluate(() => {
+    // session 103: openSettingsModal はサイドバー advanced カテゴリ展開に変更
     if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
       window.ZenWriterApp.openSettingsModal();
     }
   });
-  await page.waitForSelector('#settings-modal', { state: 'visible', timeout: 10000 });
   await page.waitForSelector(scope + ' .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(500);
 
@@ -70,7 +69,7 @@ test.describe('Keybinds E2E', () => {
     expect(originalKeybind).toBeTruthy();
 
     await page.evaluate(() => {
-      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      var item = document.querySelector('#advanced-gadgets-panel .keybind-item .keybind-display');
       if (item) item.click();
     });
     await expect(keyDisplay).toHaveText('...');
@@ -103,7 +102,7 @@ test.describe('Keybinds E2E', () => {
     });
 
     await page.evaluate(() => {
-      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      var item = document.querySelector('#advanced-gadgets-panel .keybind-item .keybind-display');
       if (item) item.click();
     });
     await page.waitForTimeout(100);
@@ -130,7 +129,7 @@ test.describe('Keybinds E2E', () => {
     const firstItem = page.locator(`${scope} .keybind-item`).first();
     const _firstKeyDisplay = firstItem.locator('.keybind-display');
     await page.evaluate(() => {
-      var item = document.querySelector('#settings-gadgets-panel .keybind-item .keybind-display');
+      var item = document.querySelector('#advanced-gadgets-panel .keybind-item .keybind-display');
       if (item) item.click();
     });
     await page.waitForTimeout(100);
@@ -141,8 +140,8 @@ test.describe('Keybinds E2E', () => {
     await page.waitForTimeout(500);
 
     await page.evaluate(() => {
-      var _btn = document.querySelector('#settings-gadgets-panel button');
-      var all = document.querySelectorAll('#settings-gadgets-panel button');
+      var _btn = document.querySelector('#advanced-gadgets-panel button');
+      var all = document.querySelectorAll('#advanced-gadgets-panel button');
       for (var i = 0; i < all.length; i++) {
         if (all[i].textContent.includes('デフォルトに戻す')) { all[i].click(); break; }
       }

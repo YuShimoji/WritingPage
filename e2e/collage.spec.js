@@ -27,14 +27,14 @@ async function checkImagesApiAvailable(page) {
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#settings-gadgets-panel');
+      return !!window.ZWGadgets && !!document.querySelector('#advanced-gadgets-panel');
     } catch (_) { return false; }
   });
   await enableAllGadgets(page);
   await openSettingsModal(page);
   // 設定モーダル内のガジェットを展開 (data-gadget-collapsed 属性で制御)
   await page.evaluate(() => {
-    document.querySelectorAll('#settings-gadgets-panel .gadget-wrapper').forEach(function(w) {
+    document.querySelectorAll('#advanced-gadgets-panel .gadget-wrapper').forEach(function(w) {
       var name = w.getAttribute('data-gadget-name');
       if (name && window.ZWGadgets && window.ZWGadgets._setGadgetCollapsed) {
         window.ZWGadgets._setGadgetCollapsed(name, false, w, true);
@@ -261,7 +261,7 @@ test.describe('Collage Layout E2E', () => {
     await waitGadgetsReady(page);
 
     // Imagesガジェットを探す
-    const imagesGadget = page.locator('#settings-gadgets-panel .gadget-wrapper[data-gadget-name="Images"]');
+    const imagesGadget = page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="Images"]');
     const gadgetCount = await imagesGadget.count();
     if (gadgetCount === 0) { test.skip(); return; } // Images not in active loadout
     await expect(imagesGadget).toBeVisible({ timeout: 5000 });
