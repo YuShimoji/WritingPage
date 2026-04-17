@@ -55,25 +55,10 @@
     if (isFocusMode()) {
       var focusPanel = document.querySelector('.focus-chapter-panel');
       if (focusPanel && focusPanel.offsetWidth > 0) {
-        if (debugLastSidebarWidth !== focusPanel.offsetWidth) {
-          debugLastSidebarWidth = focusPanel.offsetWidth;
-          sendDebugLog('H1', 'edge-hover.js:getActivePanelWidthPx', 'focus-chapter-panel width observed', {
-            width: focusPanel.offsetWidth,
-            source: 'focus-chapter-panel'
-          });
-        }
         return focusPanel.offsetWidth;
       }
     }
-    var sidebarWidth = getSidebarWidthPx();
-    if (debugLastSidebarWidth !== sidebarWidth) {
-      debugLastSidebarWidth = sidebarWidth;
-      sendDebugLog('H1', 'edge-hover.js:getActivePanelWidthPx', 'sidebar width observed', {
-        width: sidebarWidth,
-        source: 'sidebar'
-      });
-    }
-    return sidebarWidth;
+    return getSidebarWidthPx();
   }
 
   /** 開く閾値: **アクティブパネル実幅**（Focus=章パネル / Normal=サイドバー）と連動。
@@ -83,17 +68,7 @@
   function getLeftEdgeZone() {
     var panelWidth = getActivePanelWidthPx();
     var windowCap = Math.max(LEFT_EDGE_OPEN_MIN_PX, window.innerWidth - WINDOW_RIGHT_SAFE_PX);
-    var openZone = Math.max(LEFT_EDGE_OPEN_MIN_PX, Math.min(windowCap, panelWidth));
-    if (debugLastOpenZone !== openZone) {
-      debugLastOpenZone = openZone;
-      sendDebugLog('H2', 'edge-hover.js:getLeftEdgeZone', 'left open zone recalculated', {
-        windowWidth: window.innerWidth,
-        panelWidth: panelWidth,
-        windowCap: windowCap,
-        openZone: openZone
-      });
-    }
-    return openZone;
+    return Math.max(LEFT_EDGE_OPEN_MIN_PX, Math.min(windowCap, panelWidth));
   }
 
   /** 閉じる閾値: **アクティブパネル右端 + 固定バッファ (120px)**。
@@ -105,18 +80,7 @@
     var rawDismiss = panelWidth + LEFT_EDGE_CLOSE_BUFFER_PX;
     // ウィンドウ右端 - 8px より内側にクランプ
     var windowCap = Math.max(getLeftEdgeZone() + 4, window.innerWidth - 8);
-    var dismissZone = Math.min(rawDismiss, windowCap);
-    if (debugLastDismissZone !== dismissZone) {
-      debugLastDismissZone = dismissZone;
-      sendDebugLog('H3', 'edge-hover.js:getLeftEdgeDismissZone', 'left dismiss zone recalculated', {
-        panelWidth: panelWidth,
-        rawDismiss: rawDismiss,
-        windowCap: windowCap,
-        dismissZone: dismissZone,
-        closeBuffer: LEFT_EDGE_CLOSE_BUFFER_PX
-      });
-    }
-    return dismissZone;
+    return Math.min(rawDismiss, windowCap);
   }
   /** エッジ内に留まってから UI を出すまでの遅延。0 で即座表示（session 91: ユーザー要望により即応化）。 */
   var DWELL_MS = 0;
@@ -127,17 +91,6 @@
     top: { active: false, dwellTimer: null, dismissTimer: null },
     left: { active: false, dwellTimer: null, dismissTimer: null }
   };
-  var debugLastSidebarWidth = null;
-  var debugLastOpenZone = null;
-  var debugLastDismissZone = null;
-  var debugRunId = 'run-initial';
-
-  function sendDebugLog(hypothesisId, location, message, data) {
-    // #region agent log
-    fetch('http://127.0.0.1:7416/ingest/098d6a5f-d8af-4eb7-95ba-2f5a854b921a',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'76c44c'},body:JSON.stringify({sessionId:'76c44c',runId:debugRunId,hypothesisId:hypothesisId,location:location,message:message,data:data,timestamp:Date.now()})}).catch(function () {});
-    // #endregion
-  }
-
   /** 左エッジホバー自身が開いたサイドバーの所有権フラグ。
       forceSidebarState(true) が常に data-sidebar-open を付けるため、
       isSidebarNormallyOpen() だけでは「手動で開いた」と「ホバーで一時的に開いた」を判別できず、
@@ -225,14 +178,6 @@
       state[edge].dwellTimer = null;
       state[edge].dismissTimer = null;
       runDwellAction(edge);
-      if (edge === 'left') {
-        sendDebugLog('H4', 'edge-hover.js:startDwell', 'left dwell triggered', {
-          x: lastPointer.x,
-          openZone: getLeftEdgeZone(),
-          dismissZone: getLeftEdgeDismissZone(),
-          stateActive: state.left.active
-        });
-      }
       return;
     }
     clearTimeout(state[edge].dismissTimer);
@@ -249,14 +194,6 @@
     clearTimeout(state[edge].dismissTimer);
     state[edge].dismissTimer = null;
     if (DISMISS_MS <= 0) {
-      if (edge === 'left') {
-        sendDebugLog('H5', 'edge-hover.js:startDismiss', 'left dismiss triggered', {
-          x: lastPointer.x,
-          openZone: getLeftEdgeZone(),
-          dismissZone: getLeftEdgeDismissZone(),
-          stateActive: state.left.active
-        });
-      }
       hideEdge(edge);
       return;
     }
@@ -329,11 +266,6 @@
       sidebar.addEventListener('mouseleave', function (e) {
         if (!state.left.active) return;
         var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
-        sendDebugLog('H5', 'edge-hover.js:sidebarMouseleave', 'sidebar mouseleave evaluated', {
-          x: x,
-          dismissAt: getLeftEdgeDismissZone(),
-          willDismiss: shouldDismissLeftAt(x)
-        });
         if (shouldDismissLeftAt(x)) startDismiss('left');
       });
     }
@@ -348,11 +280,6 @@
       chapterPanel.addEventListener('mouseleave', function (e) {
         if (!state.left.active) return;
         var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
-        sendDebugLog('H5', 'edge-hover.js:chapterPanelMouseleave', 'chapter panel mouseleave evaluated', {
-          x: x,
-          dismissAt: getLeftEdgeDismissZone(),
-          willDismiss: shouldDismissLeftAt(x)
-        });
         if (shouldDismissLeftAt(x)) startDismiss('left');
       });
     }
@@ -526,14 +453,6 @@
       updateGlowVisibility(onlyReaderOverlay);
     }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode', 'data-reader-overlay-open'] });
 
-    // ウィンドウリサイズ時にゾーンキャッシュを無効化し、直後の mousemove で再計算ログが出るようにする。
-    // ゾーン値自体は毎回 mousemove で再計算されているため挙動には影響しないが、
-    // デバッグ追跡 (debugLast*) を最新化するための保険。
-    window.addEventListener('resize', function () {
-      debugLastSidebarWidth = null;
-      debugLastOpenZone = null;
-      debugLastDismissZone = null;
-    });
   }
 
   // DOMReady後に初期化

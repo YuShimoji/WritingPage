@@ -12,7 +12,7 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
   test.describe('Mobile Viewport (max-width: 768px)', () => {
     test.use({ viewport: mobileViewport, hasTouch: true });
 
-    test('サイドバーがフルスクリーンオーバーレイとして表示される', async ({ page }) => {
+    test('サイドバーがオーバーレイとして表示される（全幅化しない）', async ({ page }) => {
       await page.goto('/');
       await ensureNormalMode(page);
       await openSidebar(page);
@@ -21,15 +21,16 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       const sidebar = page.locator('#sidebar');
       await expect(sidebar).toHaveClass(/open/);
 
-      // サイドバーが画面幅と同等またはそれ以上の幅であることを確認
+      // サイドバーが通常幅を維持し、viewport 全幅にならないことを確認
       const { sidebarPx, viewportW } = await sidebar.evaluate((el) => {
         return {
           sidebarPx: parseFloat(window.getComputedStyle(el).width),
           viewportW: window.innerWidth
         };
       });
-      // Mobile overlay mode: sidebar width should be >= 90% of viewport
-      expect(sidebarPx).toBeGreaterThanOrEqual(viewportW * 0.9);
+      // デスクトップアプリ: サイドバーは通常幅 (max-width: 100vw - 2rem) で viewport 全幅にはしない
+      expect(sidebarPx).toBeLessThanOrEqual(viewportW);
+      expect(sidebarPx).toBeGreaterThan(0);
 
       // サイドバーオーバーレイが表示されていることを確認
       const overlay = page.locator('#sidebar-overlay');

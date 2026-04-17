@@ -219,27 +219,41 @@ html[data-dock-left-open="true"][data-dock-sidebar="left"][data-sidebar-open] .d
   z-index: 102;
   background: transparent;
   transition: background 0.15s;
+  touch-action: none;
 }
 
 .dock-resize-handle:hover,
 .dock-resize-handle--active {
   background: var(--accent-color, #4a90e2);
-  opacity: 0.5;
+  opacity: 0.3;
 }
 
 .dock-panel-left .dock-resize-handle {
   right: -0.125rem;
 }
 
-/* サイドバーが右ドック時のリサイズハンドル */
-html[data-dock-sidebar="right"] .sidebar .dock-resize-handle--sidebar {
-  position: absolute;
-  left: -0.125rem;
+/* サイドバーリサイズハンドル（サイドバーの外側に配置）。
+   .sidebar は overflow-x: hidden のため子にすると切られる。
+   .app-container の直接の子として fixed 配置し、サイドバー右端に追従させる。 */
+.dock-resize-handle--sidebar {
+  position: fixed;
   top: 0;
-  width: 0.25rem;
-  height: 100%;
-  cursor: col-resize;
+  /* サイドバーの完全に外側 (右隣) に配置。スクロールバーと重ならない */
+  left: var(--sidebar-width, 20rem);
+  width: 8px;
+  height: 100vh;
   z-index: 1001;
+  display: none;
+}
+
+html[data-sidebar-open='true'] .dock-resize-handle--sidebar {
+  display: block;
+}
+
+/* サイドバーが右ドック時のリサイズハンドル */
+html[data-dock-sidebar="right"] .dock-resize-handle--sidebar {
+  left: auto;
+  right: calc(var(--sidebar-width, 20rem) - 0.125rem);
 }
 
 /* --- サイドバー内ドック操作ボタン --- */

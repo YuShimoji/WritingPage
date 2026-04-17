@@ -1736,12 +1736,15 @@ html[data-sidebar-open='true'] .main-content {
   text-indent: 0;
 }
 
-#editor {
+#editor,
+#editor:focus,
+#editor:focus-visible {
   flex: 1 1 auto;
   width: min(100%, var(--wrap-ch));
   height: 100%;
   border: none;
   outline: none;
+  box-shadow: none;
   /* 余白を変数化 */
   padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
   background-color: var(--editor-bg, var(--bg-color));
@@ -1782,14 +1785,16 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   line-break: strict;
 }
 
-#wysiwyg-editor {
+#wysiwyg-editor,
+#wysiwyg-editor:focus,
+#wysiwyg-editor:focus-visible {
   flex: 1 1 auto;
   width: min(100%, var(--wrap-ch));
   height: 100%;
   min-height: 12.5rem;
-  /* Ensure visibility when empty */
   border: none;
   outline: none;
+  box-shadow: none;
   padding: var(--editor-padding-y, 2rem) var(--editor-padding-x, 2.5rem);
   background-color: var(--editor-bg, var(--bg-color));
   color: var(--editor-text, var(--text-color));
@@ -3180,11 +3185,10 @@ input[type='color'] {
     flex-direction: column;
   }
 
-  /* サイドバー: フルスクリーンオーバーレイ */
+  /* サイドバー: 狭幅でも通常幅を維持 (デスクトップアプリではモバイル全幅化しない) */
   .sidebar {
-    width: 100%;
-    max-width: 100%;
-    left: -100%;
+    width: var(--sidebar-width, 20rem);
+    max-width: calc(100vw - 2rem);
     top: 0;
     height: 100vh;
     box-sizing: border-box;

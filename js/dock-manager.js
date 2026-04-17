@@ -529,7 +529,57 @@
     var startX = 0;
     var startWidth = 0;
 
-    function onPointerDown(e) {
+    function onPointerMove(e) {
+      if (!self._resizing) return;
+      var delta = e.clientX - startX;
+      var newWidth;
+
+      if (side === 'left') {
+        newWidth = clamp(startWidth + delta, MIN_WIDTH, getMaxWidth());
+        document.documentElement.style.setProperty('--dock-left-width', newWidth + 'px');
+      } else {
+        var dockSide = self._layout.sidebarDock;
+        if (dockSide === 'right') {
+          newWidth = clamp(startWidth - delta, MIN_WIDTH, getMaxWidth());
+        } else {
+          newWidth = clamp(startWidth + delta, MIN_WIDTH, getMaxWidth());
+        }
+        document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
+        // app.js が設定復元時にインライン width を設定するため、同時に更新する
+        var sb = document.getElementById('sidebar');
+        if (sb) sb.style.width = newWidth + 'px';
+      }
+    }
+
+    function onPointerUp() {
+      if (!self._resizing) return;
+      self._resizing = false;
+      handle.classList.remove('dock-resize-handle--active');
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+
+      // Save final width
+      if (side === 'left') {
+        var panel = document.getElementById('dock-panel-left');
+        if (panel) self.setDockWidth('left', panel.offsetWidth);
+      } else {
+        var sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+          var finalWidth = sidebar.offsetWidth;
+          self.setDockWidth('sidebar', finalWidth);
+          // app.js の設定復元と整合させるため ui.sidebarWidth も保存
+          try {
+            var s = window.ZenWriterStorage.loadSettings();
+            if (s && s.ui) {
+              s.ui.sidebarWidth = finalWidth;
+              window.ZenWriterStorage.saveSettings(s);
+            }
+          } catch (_e) { /* ignore */ }
+        }
+      }
+    }
+
+    handle.addEventListener('pointerdown', function (e) {
       e.preventDefault();
       self._resizing = true;
       handle.classList.add('dock-resize-handle--active');
@@ -543,48 +593,9 @@
       }
       startX = e.clientX;
 
-      handle.setPointerCapture(e.pointerId);
-    }
-
-    function onPointerMove(e) {
-      if (!self._resizing) return;
-      var delta = e.clientX - startX;
-      var newWidth;
-
-      if (side === 'left') {
-        newWidth = clamp(startWidth + delta, MIN_WIDTH, getMaxWidth());
-        document.documentElement.style.setProperty('--dock-left-width', newWidth + 'px');
-      } else {
-        // Sidebar: if docked right, drag left = increase width
-        var dockSide = self._layout.sidebarDock;
-        if (dockSide === 'right') {
-          newWidth = clamp(startWidth - delta, MIN_WIDTH, getMaxWidth());
-        } else {
-          newWidth = clamp(startWidth + delta, MIN_WIDTH, getMaxWidth());
-        }
-        document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
-      }
-    }
-
-    function onPointerUp() {
-      if (!self._resizing) return;
-      self._resizing = false;
-      handle.classList.remove('dock-resize-handle--active');
-
-      // Save final width
-      if (side === 'left') {
-        var panel = document.getElementById('dock-panel-left');
-        if (panel) self.setDockWidth('left', panel.offsetWidth);
-      } else {
-        var sidebar = document.getElementById('sidebar');
-        if (sidebar) self.setDockWidth('sidebar', sidebar.offsetWidth);
-      }
-    }
-
-    handle.addEventListener('pointerdown', onPointerDown);
-    handle.addEventListener('pointermove', onPointerMove);
-    handle.addEventListener('pointerup', onPointerUp);
-    handle.addEventListener('pointercancel', onPointerUp);
+      document.addEventListener('pointermove', onPointerMove);
+      document.addEventListener('pointerup', onPointerUp);
+    });
   };
 
   // --- Floating Panels (Phase 3) ---
