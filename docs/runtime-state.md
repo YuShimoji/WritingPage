@@ -2,28 +2,28 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-17（`CURRENT_STATE.md` session 103.1 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-17（`CURRENT_STATE.md` session 104 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
-- ブランチ: main (origin に対して +5 ahead、未 push)
-- セッション: 103.1（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **設定動線 hotfix** 未完 — session 103 で空モーダル問題を解消したが、Focus モード時のサイドバー全画面崩壊が session 103.1 の修正でも **実機で解消せず**。session 104 で根本対応が必要
+- ブランチ: main (origin に対して +2 ahead、未 push)
+- セッション: 104（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **サイドバーリサイズ修正 + UI 整備** — インラインスタイル競合で動作しなかったサイドバーリサイズを解消。edge-hover デバッグ撤去、エディタ focus 枠線消去、狭幅サイドバー修正も実施
 - スライス（要約）:
-  - session 101 WP-001 スライス1 (UI 説明文削減 +約 300 字 + DOM 5 要素 / 死体3ボタン撤去 / docs/EDITOR_HELP.md SSOT 化 / FR-009 追加)
-  - session 102 WP-001 スライス2 (トップバー歯車・ヘルプ撤去 / `Ctrl+,` `F1` ショートカット導入 / scripts + E2E 6 ファイル書換)
-  - session 103 設定動線 hotfix (空モーダル問題解消 / `openSettingsModal` を advanced カテゴリ展開動線に / E2E 4 ファイル書換 15 箇所置換)
-  - session 103.1 Focus 歯車レイアウト崩壊 hotfix (`setUIMode('normal')` 先行呼び出し追加) — **実機で未解消**
+  - session 104 サイドバーリサイズ修正 + edge-hover デバッグ撤去 + エディタ focus 枠線消去
+  - session 103.1 Focus 歯車レイアウト崩壊 hotfix — **実機で未解消**
+  - session 103 設定動線 hotfix (空モーダル問題解消 / `openSettingsModal` を advanced カテゴリ展開動線に)
+  - session 102 WP-001 スライス2 (トップバー歯車・ヘルプ撤去 / `Ctrl+,` `F1` ショートカット導入)
 
 ## 最新ビルド
 
-- 最新 Electron ビルド: `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、201 MB, 2026-04-17 01:31)
-- 直近のビルド: `build-session103/win-unpacked/Zen Writer.exe` (session 103 反映、同上)
+- 最新 Electron ビルド: 未ビルド (session 104 コミット後)
+- 直近のビルド: `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、201 MB, 2026-04-17 01:31)
 - 通常の `build/` と `build-new/` は `app.asar` がロックされて使用不可 (原因プロセス未特定)
 
-## 次セッション再開ポイント (**最優先**)
+## 次セッション再開ポイント
 
 ### 1. Focus 歯車レイアウト崩壊の根本修正 (継続)
 
@@ -43,17 +43,15 @@
 
 **コマンドパレット経由は user 実機で正常動作** (user 報告) → Normal モード状態からの呼び出しは OK、Focus 状態からの呼び出し固有の問題と確定。ただし Focus 状態でコマンドパレットから呼んだ場合も同じ症状が出るかは未検証。
 
-### 2. ウィンドウ最小時の左サイドバー全画面占有 (user 報告、session 104 調査対象)
+### 2. 狭幅サイドバー全画面占有 (session 104 で部分修正済み)
 
 **症状**: ウィンドウを最小幅に縮めた時、左サイドバーが viewport 全画面を占有する。
 
-**切り分け未完**:
-- session 102/103 起源か、それ以前の既存 bug か不明
-- 怪しい箇所: CSS のメディアクエリ、Focus モード × narrow viewport の組合せ、session 98 の `sidebarOpen` 既定値 `true` 化の副作用
+**session 104 での修正**: `style.css` の 1024px 以下メディアクエリで `width: 100%` を `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` に変更。これにより狭幅時もサイドバーが全幅化せず通常幅を維持する。
 
-**調査方針**: `git bisect` で session 97 以前と比較、または手動で古いビルドと比較
+**残存リスク**: Electron ビルドでの実機確認は未実施。次回ビルド時に検証が必要。
 
-### 3. フルドキュメント一覧 UX 3 件 (user 提起、session 104 候補)
+### 3. フルドキュメント一覧 UX 3 件 (user 提起)
 
 - (a) 複数削除中にチェックボックス外クリックで全選択外しされるが、選択数表示は残る (状態管理バグ)
 - (b) ドキュメント多数で見切れる (CSS overflow / max-height 不足)
@@ -61,7 +59,13 @@
 
 **影響領域 (推定)**: `js/gadgets-documents-hierarchy.js` / `js/gadgets-documents-tree.js` / 関連 CSS
 
-### 4. その他の積み残し (低優先)
+### 4. インラインスタイル vs CSS 変数の二重管理 (技術的負債)
+
+**背景**: session 104 でサイドバーリサイズが動作しなかった根本原因は `app.js:388` がインライン `style.width` を設定し、CSS 変数 `--sidebar-width` を上書きしていたこと。session 104 では dock-manager 側で両方を同時更新する対症的修正を適用。根本的には `app.js` 側をインラインスタイル廃止 → CSS 変数一本化すべきだが影響範囲が広いため保留。
+
+**調査結果 (session 104)**: サイドバー以外の同種競合は現時点でなし。`--focus-panel-width` (chapter-list.js)、`--dock-left-width` (dock-manager.js) は CSS 変数のみで安全。`--editor-max-width` (EditorUI.js) は JS で設定するが CSS 側で未使用 (無害だが不要コード)。
+
+### 5. その他の積み残し (低優先)
 
 - スライス2 残候補: `#toggle-reader-preview` の撤去 + ショートカット昇格、リーダーモード関連の整理、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除
 - スライス3 候補 (中期): サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、FEATURE_REGISTRY に 28 ガジェット分の FR エントリ一括追加
@@ -70,18 +74,15 @@
 
 ```bash
 # プロジェクト移動
-cd "c:/Users/thank/Storage/Media Contents Projects/WritingPage"
+cd "c:/Users/PLANNER007/WritingPage"
 
 # 最新化
 git fetch origin
 git status -sb
 
-# 最新ビルド確認
-ls -la build-session104/win-unpacked/  # session 103.1 反映版
-
 # 自動検証
 npm run lint:js:check
-npx playwright test e2e/keybinds.spec.js e2e/theme-colors.spec.js e2e/collage.spec.js --reporter=line
+npx playwright test e2e/responsive-ui.spec.js --reporter=line
 ```
 
 ---
@@ -90,7 +91,7 @@ npx playwright test e2e/keybinds.spec.js e2e/theme-colors.spec.js e2e/collage.sp
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 101 | 100 |
+| セッション番号 | 104 | 103.1 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |

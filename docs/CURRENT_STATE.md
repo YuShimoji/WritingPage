@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-17 (session 103.1 — handoff)
+最終更新: 2026-04-17 (session 104)
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| 想定ブランチ | `main` (origin に対して +5 ahead、未 push) |
-| セッション | 103.1 (handoff) |
-| 現在の主軸 | **設定動線 hotfix 未完** — Focus 歯車レイアウト崩壊が session 103.1 でも実機で解消せず。次セッションで根本対応 (遅延実行 or revert 検討) |
-| 最新ビルド | `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、未解消) / `build-session103/` (session 103 反映、同) |
-| 直近のスライス | session 103.1: **Focus 歯車レイアウト崩壊 hotfix — 実機で未解消**
+| 想定ブランチ | `main` (origin に対して +2 ahead、未 push) |
+| セッション | 104 |
+| 現在の主軸 | **サイドバーリサイズ修正 + UI 整備** — サイドバーリサイズがインラインスタイル競合で動作しなかった問題を解消。edge-hover デバッグログ撤去、エディタ focus 枠線消去、狭幅サイドバー修正も同時実施 |
+| 最新ビルド | 未ビルド (session 104 コミット後) |
+| 直近のスライス | session 104: **サイドバーリサイズ修正 + edge-hover デバッグ撤去 + エディタ focus 枠線消去** — (1) `dock-manager.js` のリサイズ時に `--sidebar-width` CSS 変数だけでなくインライン `style.width` も同時更新 (`app.js:388` が設定復元時にインライン width を設定するため変数のみでは効かなかった)。リサイズ完了時に `ui.sidebarWidth` を設定に保存。(2) `dock-panel.css` のリサイズハンドルを sidebar 子要素から `app-container` 直下の fixed 配置に変更 (sidebar の `overflow-x: hidden` で切られていた)。(3) `edge-hover.js` のデバッグ用 `sendDebugLog` / `fetch` / `debugLast*` 変数を全撤去。(4) `style.css` で `#editor` / `#wysiwyg-editor` の `:focus` / `:focus-visible` に `box-shadow: none` を明示。(5) 狭幅時サイドバーを `width: 100%` 全幅化せず `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` でクランプ。(6) `responsive-ui.spec.js` のアサーションを全幅前提から通常幅維持に更新 |
 | 直近のスライス | session 103: **設定動線 hotfix** — user 報告で Focus 章パネル歯車を押すと空モーダルが開く問題が判明。原因は `gadgets-utils.js` で `settings` グループが deprecated で `advanced` に統合済みのため `#settings-gadgets-panel` には何も描画されない構造的バグ (session 102 とは無関係、長期間気付かれていなかった)。`openSettingsModal()` の実装を「`activateSidebarGroup('advanced')` + サイドバー展開」に変更し、Focus 歯車 / `Ctrl+,` / コマンドパレット `open-settings` の 3 経路すべてを統一動線に。`#settings-modal` DOM は当面残存 (no-op `closeSettingsModal()` 経由で互換性維持)。E2E 影響: `helpers.js` の `openSettingsModal` ヘルパが `#advanced-gadgets-panel` 待ちに、`enableAllGadgets` のガジェット強制登録先も `'settings'` → `'advanced'`、`keybinds.spec.js` / `theme-colors.spec.js` / `collage.spec.js` の `#settings-gadgets-panel` 全置換 (15 箇所)、`scope` 変数は `#advanced-gadgets-panel` に。検証: `lint:js:check` clean、全 E2E **512 passed / 0 failed / 2 skipped**。 |
 | 前スライス (参考) | session 102: **WP-001 スライス2 (トップバー 2 ボタン撤去 + Ctrl+, / F1 ショートカット導入)** — `toolbar-group--system` の 3 ボタン (歯車 / ヘルプ / テーマ) をテーマ単独に縮減。`#toggle-settings` / `#toggle-help-modal` を [index.html](../index.html) から削除し、関連リスナーを [app-ui-events.js](../js/app-ui-events.js) / [app.js](../js/app.js) `gearBtn` fallback から掃除。代替アクセスとして [keybind-editor.js](../js/keybind-editor.js) `DEFAULT_KEYBINDS` に `app.settings.open` (`Ctrl+,`) と `app.help.open` (`F1`) を追加し、[app-shortcuts.js](../js/app-shortcuts.js) の switch + フォールバックブロック双方にハンドラ実装 (Mac `Cmd+,` を metaKey 経路で拾う対策含む)。[command-palette.js](../js/command-palette.js) の `open-settings` / `open-help` の `shortcut` 表示も更新。[scripts/dev-check.js](../scripts/dev-check.js) 検査条件削除、[scripts/capture-ui-verification.js](../scripts/capture-ui-verification.js) / [scripts/capture-full-showcase.js](../scripts/capture-full-showcase.js) の click を `window.ZenWriterApp.openSettingsModal()` / `openHelpModal()` API 経由に置換。E2E 6 ファイル ([helpers.js](../e2e/helpers.js) / [keybinds.spec.js](../e2e/keybinds.spec.js) / [theme-colors.spec.js](../e2e/theme-colors.spec.js) は API 経由、[accessibility.spec.js](../e2e/accessibility.spec.js) / [ui-editor.spec.js](../e2e/ui-editor.spec.js) は `#toggle-theme` 差替、[visual-audit.spec.js](../e2e/visual-audit.spec.js) は API 経由) を書換。docs SSOT として [EDITOR_HELP.md](EDITOR_HELP.md) のショートカット表に `Ctrl+, = 設定` / `F1 = ヘルプ` を追加し撤去注記を明示。[UI_SURFACE_AND_CONTROLS.md](UI_SURFACE_AND_CONTROLS.md) / [FEATURE_REGISTRY.md](FEATURE_REGISTRY.md) FR-009 / [USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md) も同期。検証: `lint:js:check` clean、関連 6 spec **63 passed / 0 failed**、`test:smoke` pass、全 E2E **511 passed / 1 flaky (pathtext-handles, 単独再実行で pass) / 2 skipped**。 |
 | 前スライス (参考) | session 101: **WP-001 スライス1 (UI 説明文削減 + 死体ボタン撤去 + docs SSOT 化)** — Normal モードで常時表示されていた過多テキストを整理。`#sidebar-edit-hint` (99字) / `sidebar-manager.js` の Focus チップ説明 (70字) / ガジェット description 冠詞 26 箇所 / title 属性「〜ではありません」系 2 箇所 を削除。詳細設定カテゴリの死体3ボタン (`#sidebar-toggle-help` / `#help-button` / `#editor-help-button`) を DOM・JS 参照ごと撤去。削除した情報は [`EDITOR_HELP.md`](EDITOR_HELP.md) に集約。[`FEATURE_REGISTRY.md`](FEATURE_REGISTRY.md) に **FR-009「アプリ内ヘルプ資源 (SSOT: EDITOR_HELP.md)」** 追加。合計 約 300 字 + DOM 5 要素削減。 |
@@ -68,6 +68,18 @@
 ## セッション変更ログ
 
 Session 26〜64 の履歴ログは [`docs/archive/session-history.md`](archive/session-history.md) に統合退避（旧 `current-state-sessions-44-61.md` / `current-state-sessions-62-64.md` / `runtime-state-session-log.md` を 1 ファイル化）。
+
+### Session 104
+
+| 項目 | 変更内容 | 影響ファイル |
+| ---- | -------- | ----------- |
+| サイドバーリサイズ | `dock-manager.js` の `_setupResize` でインライン `style.width` も同時更新。`app.js:388` がインライン width を設定するため CSS 変数のみでは効かなかった根本原因を解消。リサイズ完了時に `ui.sidebarWidth` を設定に永続化 | `js/dock-manager.js` |
+| リサイズハンドル配置 | sidebar 子要素 → `app-container` 直下の fixed 配置に変更。sidebar の `overflow-x: hidden` でハンドルが切られていた問題を解消 | `css/dock-panel.css`, `index.html` |
+| edge-hover デバッグ撤去 | `sendDebugLog` / `fetch` / `debugLast*` 変数を全撤去 (エージェントデバッグ用の残骸) | `js/edge-hover.js` |
+| エディタ focus 枠線消去 | `#editor` / `#wysiwyg-editor` の `:focus` / `:focus-visible` に `box-shadow: none` を明示 | `css/style.css` |
+| 狭幅サイドバー修正 | `width: 100%` 全幅化を廃止し `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` に | `css/style.css` |
+| E2E | `responsive-ui.spec.js` のアサーションを全幅前提から通常幅維持に更新 | `e2e/responsive-ui.spec.js` |
+| Visual Audit | スクリーンショット 10 枚更新 | `e2e/visual-audit-screenshots/` |
 
 ### Session 65
 

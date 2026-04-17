@@ -268,7 +268,16 @@
   2. **`requestAnimationFrame` を2回挟む** (CSS 反映を確実に待つ)
   3. **session 103 / 103.1 を revert** (`git revert 1b52678 40510e0` → session 102 状態へ)。Focus 歯車は空モーダルに戻るが、レイアウト崩壊はなくなる。hotfix は別アプローチで再設計
   4. **Focus 章パネル歯車ハンドラそのものを変更** ([js/app.js](../js/app.js) 591-598 あたり) — `closeFocusOverlay()` の代わりに `setUIMode('normal')` を先に呼び、次のフレームで `openSettingsModal` を呼ぶ
-- **ウィンドウ最小時の左サイドバー全画面占有**: session 103.1 後も症状継続の可能性。session 102/103 起源か既存か未切り分け。CSS のメディアクエリ (`@media (max-width: ???)`) で Focus モード × narrow viewport の組合せが怪しい。
+- **ウィンドウ最小時の左サイドバー全画面占有**: session 104 で部分修正 — `style.css` の 1024px 以下メディアクエリで `width: 100%` を `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` に変更。Electron 実機確認は未実施。
+
+#### session 104 実施結果 (サイドバーリサイズ修正 + UI 整備)
+
+- **サイドバーリサイズ**: `dock-manager.js` のリサイズ時にインライン `style.width` も同時更新。`app.js:388` が設定復元時にインライン width を設定するため CSS 変数 `--sidebar-width` のみでは効かなかった根本原因を解消。リサイズ完了時に `ui.sidebarWidth` を設定に永続化。リサイズハンドルを sidebar 子要素から `app-container` 直下の fixed 配置に変更 (sidebar の `overflow-x: hidden` で切られていた)。
+- **edge-hover デバッグ撤去**: `sendDebugLog` / `fetch` (エージェントデバッグ用の残骸) / `debugLast*` 変数を全撤去。リサイズ時 window resize リスナーも不要のため削除。
+- **エディタ focus 枠線消去**: `#editor` / `#wysiwyg-editor` の `:focus` / `:focus-visible` に `box-shadow: none` を明示。
+- **狭幅サイドバー修正**: `width: 100%` 全幅化を廃止し `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` に変更。
+- **インラインスタイル競合の調査**: サイドバー以外の同種競合は現時点でなし (`--focus-panel-width`, `--dock-left-width` は CSS 変数のみで安全)。`--editor-max-width` (EditorUI.js) は JS で設定するが CSS 側で未使用 (無害だが不要コード)。
+- **次**: Focus 歯車レイアウト崩壊 (継続)、ドキュメント一覧 UX 3 件、またはインラインスタイル一本化。
 
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
