@@ -199,9 +199,19 @@
       category: 'ファイル操作',
       execute: () => {
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.saveContent === 'function') {
-          window.ZenWriterEditor.saveContent();
-          if (window.ZenWriterEditor.showNotification) {
-            window.ZenWriterEditor.showNotification('保存しました');
+          try {
+            window.ZenWriterEditor.saveContent();
+            if (window.ZenWriterEditor.showNotification) {
+              window.ZenWriterEditor.showNotification('保存しました');
+            }
+          } catch (e) {
+            console.error('手動保存に失敗:', e);
+            var msg = '保存に失敗しました' + (e && e.message ? ': ' + e.message : '');
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+              window.ZenWriterHUD.show(msg, 3000, { type: 'error' });
+            } else if (window.ZenWriterEditor && window.ZenWriterEditor.showNotification) {
+              window.ZenWriterEditor.showNotification(msg, 3000);
+            }
           }
         }
       }
@@ -219,14 +229,14 @@
         }
       }
     },
-    // UIモード
+    // 表示 (session 107: view-menu と一対一対応)
     {
       id: 'ui-mode-normal',
       label: 'フルChrome',
-      description: 'UIモードをフルChrome（ツールバー常時・サイドバー復元）に切り替え',
-      keywords: '標準 レイアウト normal 通常',
-      shortcut: 'F2 (サイクル)',
-      category: 'UIモード',
+      description: 'ツールバー常時表示・サイドバー復元',
+      keywords: '標準 レイアウト normal 通常 表示',
+      shortcut: 'F2',
+      category: '表示',
       execute: () => {
         setAppUIMode('normal');
       }
@@ -234,24 +244,62 @@
     {
       id: 'ui-mode-focus',
       label: 'ミニマル',
-      description: 'UIモードをミニマル（エッジ／ショートカットでChrome）に切り替え',
-      keywords: '集中 執筆 シンプル focus フォーカス フォーカスモード',
-      shortcut: 'F2 (サイクル)',
-      category: 'UIモード',
+      description: 'エッジ／ショートカットでChrome',
+      keywords: '集中 執筆 シンプル focus フォーカス フォーカスモード 表示',
+      shortcut: 'F2',
+      category: '表示',
       execute: () => {
         setAppUIMode('focus');
       }
     },
     {
+      id: 'ui-mode-next',
+      label: '表示を切替',
+      description: 'フルChrome ⇄ ミニマルを循環',
+      keywords: 'サイクル 切替 cycle toggle 表示',
+      shortcut: 'F2',
+      category: '表示',
+      execute: () => {
+        var cur = document.documentElement.getAttribute('data-ui-mode') || 'focus';
+        setAppUIMode(cur === 'focus' ? 'normal' : 'focus');
+      }
+    },
+    {
       id: 'reader-overlay-toggle',
       label: '再生オーバーレイ',
-      description: '読者視点の再生オーバーレイを開閉',
-      keywords: '読者プレビュー リーダー reader 本番表示',
+      description: '読者視点の全画面閲覧を開閉',
+      keywords: '読者プレビュー リーダー reader 本番表示 表示',
       shortcut: 'Alt+Shift+R',
-      category: 'UI操作',
+      category: '表示',
       execute: () => {
         if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
           window.ZWReaderPreview.toggle();
+        }
+      }
+    },
+    {
+      id: 'editor-surface-wysiwyg',
+      label: 'リッチ編集',
+      description: 'エディタを WYSIWYG 面に切替',
+      keywords: 'WYSIWYG リッチ 編集面 surface',
+      category: '表示',
+      execute: () => {
+        var shim = document.getElementById('toggle-wysiwyg');
+        if (shim && shim.getAttribute('aria-pressed') !== 'true') {
+          shim.dispatchEvent(new Event('mousedown', { bubbles: true }));
+        }
+      }
+    },
+    {
+      id: 'editor-surface-markdown',
+      label: 'Markdown ソース',
+      description: 'エディタを Markdown ソース面に切替',
+      keywords: 'Markdown ソース 編集面 surface',
+      category: '表示',
+      execute: () => {
+        var shim = document.getElementById('toggle-wysiwyg');
+        if (shim && shim.getAttribute('aria-pressed') === 'true') {
+          shim.dispatchEvent(new Event('mousedown', { bubbles: true }));
         }
       }
     },
@@ -422,7 +470,7 @@
     {
       id: 'toggle-markdown-preview',
       label: 'MD プレビュー（横並び）',
-      description: '編集画面の横に Markdown 表示を開閉。読者向けの再生オーバーレイではない。サイドバー「Markdownプレビュー」ガジェットのスクロール同期はそちらで設定',
+      description: '編集画面の横に Markdown 表示を開閉。全画面閲覧ではなく並べて表示。サイドバー「Markdownプレビュー」ガジェットのスクロール同期はそちらで設定',
       keywords: 'マークダウン 並列 プレビュー 横並び Markdownプレビュー ガジェット',
       shortcut: '',
       category: '編集',

@@ -2,73 +2,69 @@
 
 > **補助ドキュメント**: 主要指標・カウンター・自己診断用。**セッション番号・直近スライス・検証結果・「信頼できること」の正本は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) のみ。**
 >
-> 最終カウンター同期: 2026-04-17（`CURRENT_STATE.md` session 104 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
+> 最終カウンター同期: 2026-04-20（`CURRENT_STATE.md` session 110 に合わせて更新）。セッション別の詳細ログは [`docs/archive/session-history.md`](archive/session-history.md)。
 
 ## 現在位置
 
 - プロジェクト: Zen Writer (WritingPage)
 - バージョン: v0.3.32
-- ブランチ: main (origin に対して +2 ahead、未 push)
-- セッション: 104（正本は `CURRENT_STATE.md` の Snapshot）
-- 主レーン: **サイドバーリサイズ修正 + UI 整備** — インラインスタイル競合で動作しなかったサイドバーリサイズを解消。edge-hover デバッグ撤去、エディタ focus 枠線消去、狭幅サイドバー修正も実施
+- ブランチ: main (**`origin/main` と FF 同期済み・2026-04-20 push**)
+- セッション: 110（正本は `CURRENT_STATE.md` の Snapshot）
+- 主レーン: **SectionsNavigator 同名章欠落の根治**（`mergeVirtualChapterHeadings` の 1 対 1 突き合わせ + `_chapterId`）+ 既存ワーキングツリー（session 109 系・E2E・UI 等）の一本化コミット
 - スライス（要約）:
-  - session 104 サイドバーリサイズ修正 + edge-hover デバッグ撤去 + エディタ focus 枠線消去
-  - session 103.1 Focus 歯車レイアウト崩壊 hotfix — **実機で未解消**
-  - session 103 設定動線 hotfix (空モーダル問題解消 / `openSettingsModal` を advanced カテゴリ展開動線に)
-  - session 102 WP-001 スライス2 (トップバー歯車・ヘルプ撤去 / `Ctrl+,` `F1` ショートカット導入)
+  - session 110 push: SectionsNavigator 修正・ドキュメント同期・`sections-nav` 回帰、ほか未コミット変更をまとめてリモート反映（検証: 全 E2E 515 passed / 2 skipped）
+  - session 109 virtual heading → navigateTo 配線 / `_triggerAutoSave` デッドコード削除 / autoSave.enabled ガード / 「フルChrome」統一 / 回帰 E2E 2 件
+  - session 108 session 107 応急修正 (view-menu 同期 / Focus HUD / sections 章反映 / 全画面項目)
+  - session 107 view-menu 集約 + autoSave up-migration (v2)
+  - session 105 Slice 1-3 (Focus 歯車 / 一覧 UX / autoSave デフォルト ON)
 
 ## 最新ビルド
 
-- 最新 Electron ビルド: 未ビルド (session 104 コミット後)
-- 直近のビルド: `build-session104/win-unpacked/Zen Writer.exe` (session 103.1 反映、201 MB, 2026-04-17 01:31)
-- 通常の `build/` と `build-new/` は `app.asar` がロックされて使用不可 (原因プロセス未特定)
+- 最新 Electron ビルド: `build-session109/win-unpacked/Zen Writer.exe` (virtual heading navigate + autoSave 一本化 + 文言統一 + 回帰 E2E 2 件)
+- session 108 ビルド: `build-session108/win-unpacked/Zen Writer.exe`
+- session 107 ビルド: `build-session107/win-unpacked/Zen Writer.exe`
+- session 105 ビルド: `build-session106/` (Slice 2+3), `build-session105/` (Slice 1)
+- 通常の `build/` と `build-new/` は `app.asar` がロックされて使用不可 (原因プロセス未特定)。`--config.directories.output=build-sessionN` で退避出力を継続
 
 ## 次セッション再開ポイント
 
-### 1. Focus 歯車レイアウト崩壊の根本修正 (継続)
+### 0. 最短再開（コマンド）
 
-**症状**: Focus 章パネルの歯車アイコンを押すとサイドバーが viewport 全幅占有する状態になる。session 103.1 の hotfix (openSettingsModal で `setUIMode('normal')` を先行呼び出し) でも解消しない。
+```powershell
+cd "C:\Users\thank\Storage\Media Contents Projects\WritingPage"
+git checkout main
+git pull --ff-only origin main
+npm run lint:js:check
+```
 
-**関連ファイル**:
-- [js/app-ui-events.js](../js/app-ui-events.js) `openSettingsModal()` (session 103 / 103.1 で改修、L430 前後)
-- [js/app.js](../js/app.js) Focus 章パネル歯車ハンドラ (`#focus-open-settings`, L591 前後の `initFocusChapterSettingsShortcut` IIFE)
-- [js/sidebar-manager.js](../js/sidebar-manager.js) `activateSidebarGroup` / `toggleSidebar` / `_applyWritingFocusSidebar`
-- [css/style.css](../css/style.css) `.sidebar.focus-overlay-open` / `.sidebar.open` / `[data-ui-mode="focus"]` 関連ルール
+続けて `docs/CURRENT_STATE.md` の Snapshot と「検証結果」の **session 110** 行を読む。
 
-**試す候補 (優先順)**:
-1. `setUIMode('normal')` 後の処理を `setTimeout(fn, 50)` または `requestAnimationFrame` で遅延させ、CSS 再計算後に `activateSidebarGroup` + `toggleSidebar` を呼ぶ
-2. session 103 / 103.1 を revert (`git revert 1b52678 40510e0`) で session 102 の状態 (Focus 歯車 = 空モーダル) に戻し、設定動線 hotfix は別アプローチで再設計
-3. Focus 章パネル歯車のハンドラ自体を変更し、`closeFocusOverlay()` ではなく `setUIMode('normal')` を呼ぶ + 次フレーム後に `openSettingsModal()` を呼ぶ方式に置換
-4. `openSettingsModal()` を復元モード別に分岐: Focus 時は設定モーダル (空でも) 開く / Normal 時のみ advanced 展開
+### 1. 実機確認 (user actor・最小限)
 
-**コマンドパレット経由は user 実機で正常動作** (user 報告) → Normal モード状態からの呼び出しは OK、Focus 状態からの呼び出し固有の問題と確定。ただし Focus 状態でコマンドパレットから呼んだ場合も同じ症状が出るかは未検証。
+session 109 の根治修正を `build-session109/win-unpacked/Zen Writer.exe` で確認。**ショートカットや既確認機能の再テストは不要** (INTERACTION_NOTES 方針)。
 
-### 2. 狭幅サイドバー全画面占有 (session 104 で部分修正済み)
+- **同名章**: セクションガジェットで同名の章が複数あっても一覧に全部出ること・各行クリックで該当章へ飛ぶこと（session 110 でロジック + E2E 固定済み。実機で気になるときだけ）
 
-**症状**: ウィンドウを最小幅に縮めた時、左サイドバーが viewport 全画面を占有する。
+- **C-1 virtual heading クリック根治**: ミニマル モードで「+追加」→ 「セクション」アコーディオン内に出る新章タイトルをクリック → editor 内容が該当章に切り替わる (session 108 の応急処置では未定義動作だった箇所)
+- **C-2 保存神経系 SSOT**: サイドバー詳細設定で autoSave 設定を OFF → 入力しても HUD 通知が出ない。章内容自体は保存される (DevTools で確認可)。ON に戻すと HUD が出る
+- **C-3 UI 文言統一**: view-menu の表示と docs が全て「フルChrome」(空白なし) で一致
+- **C-4 回帰 E2E**: 自動的に検出 (以降のビルドで退行を防止)
 
-**session 104 での修正**: `style.css` の 1024px 以下メディアクエリで `width: 100%` を `var(--sidebar-width)` + `max-width: calc(100vw - 2rem)` に変更。これにより狭幅時もサイドバーが全幅化せず通常幅を維持する。
+### 1.5 session 105 Slice 2 実務確認 (本文サンプル必要)
 
-**残存リスク**: Electron ビルドでの実機確認は未実施。次回ビルド時に検証が必要。
+本文入りの状態で Slice 2 (a)(b)(c) を確認する場合、サイドバー「構造」カテゴリのドキュメントガジェット → 「...」メニュー → 「JSON読込」から `samples/sample-novel-chapters.zwp.json` 等をインポートしてください。
 
-### 3. フルドキュメント一覧 UX 3 件 (user 提起)
-
-- (a) 複数削除中にチェックボックス外クリックで全選択外しされるが、選択数表示は残る (状態管理バグ)
-- (b) ドキュメント多数で見切れる (CSS overflow / max-height 不足)
-- (c) 複数選択が一つ一つしか選べない (Shift+Click 範囲選択 / 全選択ボタン未実装)
-
-**影響領域 (推定)**: `js/gadgets-documents-hierarchy.js` / `js/gadgets-documents-tree.js` / 関連 CSS
-
-### 4. インラインスタイル vs CSS 変数の二重管理 (技術的負債)
+### 2. インラインスタイル vs CSS 変数の二重管理 (技術的負債)
 
 **背景**: session 104 でサイドバーリサイズが動作しなかった根本原因は `app.js:388` がインライン `style.width` を設定し、CSS 変数 `--sidebar-width` を上書きしていたこと。session 104 では dock-manager 側で両方を同時更新する対症的修正を適用。根本的には `app.js` 側をインラインスタイル廃止 → CSS 変数一本化すべきだが影響範囲が広いため保留。
 
 **調査結果 (session 104)**: サイドバー以外の同種競合は現時点でなし。`--focus-panel-width` (chapter-list.js)、`--dock-left-width` (dock-manager.js) は CSS 変数のみで安全。`--editor-max-width` (EditorUI.js) は JS で設定するが CSS 側で未使用 (無害だが不要コード)。
 
-### 5. その他の積み残し (低優先)
+### 3. その他の積み残し (低優先)
 
 - スライス2 残候補: `#toggle-reader-preview` の撤去 + ショートカット昇格、リーダーモード関連の整理、ヘルプモーダル本体の再設計、`docs/wiki-help.html` / `docs/editor-help.html` 削除
 - スライス3 候補 (中期): サイドバーアコーディオン 6→4 カテゴリ統廃合、カテゴリ description の冠詞統一、FEATURE_REGISTRY に 28 ガジェット分の FR エントリ一括追加
+- 保存機能の残ギャップ: 保存ファイルの物理場所指定 (Electron dialog API)、sessionStorage クラッシュ復旧、複数タブ同時編集ロック — 実機確認で顕在化したら 1 スライスに昇格
 
 ## 再開時のコマンド
 
@@ -91,7 +87,7 @@ npx playwright test e2e/responsive-ui.spec.js --reporter=line
 
 | 指標 | 値 | 前回 |
 | ---- | --- | ---- |
-| セッション番号 | 104 | 103.1 |
+| セッション番号 | 110 | 109 |
 | ガジェット数 | 28 | 28 |
 | spec-index エントリ | 56 | 56 |
 | spec done | 44 | 44 |
@@ -101,7 +97,7 @@ npx playwright test e2e/responsive-ui.spec.js --reporter=line
 | JS impl ファイル (`js/**/*.js`) | 110 | 110 |
 | CSS ファイル | 4 | 4 |
 | E2E spec ファイル (`e2e/*.spec.js`) | 60 | 60 |
-| E2E total | 514 (session 100 実測) | 514 |
+| E2E total | 517 tests（session 110 で sections-nav +1）、実測 **515 passed / 2 skipped** | 516 |
 | E2E failed | （正本: `CURRENT_STATE.md` 検証節） | — |
 | E2E skipped | （同上） | — |
 | 検証spec | 3 (sp081-*.spec.js) | 3 |

@@ -16,7 +16,7 @@ class ElementManager {
             // ツールバー関連（クイックツールは #show-toolbar FAB / ショートカット / メニュー）
             showToolbarBtn: 'show-toolbar',
             toolbar: '.sidebar-chrome-toolbar',
-            fullscreenBtn: 'fullscreen',
+            // session 107: fullscreenBtn 撤去 (Electron F11 / メニューで代替)
 
             // テーマ関連
             bgColorInput: 'bg-color',

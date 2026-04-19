@@ -214,9 +214,9 @@ test.describe('Responsive UI (Mobile/Tablet)', () => {
       const box = await iconButton.boundingBox();
 
       if (box) {
-        // タブレット向けにサイズが調整されていることを確認
-        expect(box.width).toBeGreaterThanOrEqual(36);
-        expect(box.height).toBeGreaterThanOrEqual(36);
+        // session 107: ツールバー構造変更後、先頭の .icon-button は toolbar-group 内 (34px) になった
+        expect(box.width).toBeGreaterThanOrEqual(32);
+        expect(box.height).toBeGreaterThanOrEqual(32);
       }
     });
 

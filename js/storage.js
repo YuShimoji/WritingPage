@@ -68,9 +68,9 @@ const DEFAULT_SETTINGS = {
     preview: {
         syncScroll: false
     },
-    // 自動保存設定
+    // 自動保存設定 (session 105: 既定値を ON に変更。既存 localStorage に明示 false が保存済みの場合はそちら尊重)
     autoSave: {
-        enabled: false,
+        enabled: true,
         delayMs: 2000
     },
     // UI設定
@@ -1054,6 +1054,21 @@ function loadSettings() {
         const savedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (savedSettings) {
             const parsed = JSON.parse(savedSettings);
+            // session 107: autoSave up-migration (v2)
+            // 旧ユーザーの localStorage に autoSave.enabled=false が保存済みの場合、
+            // 既定 ON への up-migration を 1 回だけ実行。user が再度 OFF に戻せば尊重される。
+            if (parsed && parsed.autoSave && parsed.autoSave.enabled === false && parsed.__autoSaveMigrationV2 !== true) {
+                parsed.autoSave.enabled = true;
+                parsed.__autoSaveMigrationV2 = true;
+                try {
+                    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(parsed));
+                } catch (_) { /* 失敗しても致命的でない */ }
+            } else if (parsed && !parsed.__autoSaveMigrationV2) {
+                parsed.__autoSaveMigrationV2 = true;
+                try {
+                    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(parsed));
+                } catch (_) { /* 失敗しても致命的でない */ }
+            }
             return normalizeSettingsShape(parsed);
         }
     } catch (e) {

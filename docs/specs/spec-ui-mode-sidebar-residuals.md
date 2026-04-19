@@ -10,7 +10,7 @@
 
 | 軸 | 主な表現 | 役割 |
 |----|-----------|------|
-| UI モード | `data-ui-mode` = `normal` \| `focus` | フル Chrome（通常）とミニマル執筆の切替。`setUIMode` が唯一の集約入口（コマンドパレット等もここ経由が望ましい）。 |
+| UI モード | `data-ui-mode` = `normal` \| `focus` | フルChrome（通常）とミニマル執筆の切替。`setUIMode` が唯一の集約入口（コマンドパレット等もここ経由が望ましい）。 |
 | 執筆サイドバー「詳細」 | `settings.ui.sidebarSettingsOpen` + `data-writing-settings-open` | Focus かつ本体 `#sidebar` を開いたとき、構造ガジェット等を出すか。永続。 |
 | 左端レール | `data-edge-hover-left` + `#focus-chapter-panel` の CSS | 左端ホバーで章一覧パネルを出す。`ZWEdgeHover.dismissAll()` で毎回クリアされる。 |
 | フル遷移の補助 | `sessionStorage` キー `zw_focus_exit_opened_sidebar` | **本体サイドバーが閉じた Focus から Normal へ**出たときだけ、空左防止で `#sidebar` を開いたことを記録。戻りの Focus で一度だけ閉じ直し＋必要なら章レールを `peekFocusLeftChapterRail` で立ち上げる。 |
@@ -75,7 +75,7 @@
 
 ### 3.7 製品判断として固定した仕様
 
-- **「最小」で Normal→Focus に入るたび、`sidebarSettingsOpen` は畳む**（フル Chrome に戻ったあと再度最小にしたときに、構造まで出た状態を持ち越さない）。長期利用で「詳細を常に開いた Focus」を望む場合は、**別フラグ**や **詳細専用の復帰**が必要になる（現状は意図的に単純化）。
+- **「最小」で Normal→Focus に入るたび、`sidebarSettingsOpen` は畳む**（フルChrome に戻ったあと再度最小にしたときに、構造まで出た状態を持ち越さない）。長期利用で「詳細を常に開いた Focus」を望む場合は、**別フラグ**や **詳細専用の復帰**が必要になる（現状は意図的に単純化）。
 
 ---
 

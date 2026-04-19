@@ -44,6 +44,8 @@
   function findActiveIndex(headings, cursorPos) {
     var active = -1;
     for (var i = 0; i < headings.length; i++) {
+      // chapterMode の virtual heading は offset:-1 のためカーソル判定から除外（誤ハイライト防止）
+      if (headings[i]._virtual) continue;
       if (cursorPos >= headings[i].offset) active = i;
       else break;
     }
@@ -238,6 +240,26 @@
   function jumpToHeading(heading, headingIndex) {
     if (!heading) return;
 
+    // session 109: virtual heading (chapterMode の ChapterStore 由来) は章ナビゲーションで移動
+    if (heading._virtual && heading._chapterId) {
+      try {
+        var cl = window.ZWChapterList;
+        var Store = window.ZWChapterStore;
+        var S = window.ZenWriterStorage;
+        if (cl && Store && S && typeof cl.navigateTo === 'function') {
+          var rawId = typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+          var docId = rawId && typeof Store.resolveParentDocumentId === 'function'
+            ? Store.resolveParentDocumentId(rawId) : rawId;
+          var chapters = Store.getChaptersForDoc(docId) || [];
+          var chapterIdx = chapters.findIndex(function (c) { return c && c.id === heading._chapterId; });
+          if (chapterIdx >= 0) {
+            cl.navigateTo(chapterIdx);
+          }
+        }
+      } catch (_) { /* ignore */ }
+      return; // virtual は navigate のみ。offset: -1 を editor に渡さない
+    }
+
     if (isWysiwygMode()) {
       var wysiwygEl = document.getElementById('wysiwyg-editor');
       if (!wysiwygEl) return;
@@ -329,6 +351,51 @@
     var currentActiveIndex = -1;
     var debounceTimer = null;
 
+    // session 109: chapterMode のとき、ChapterStore の章タイトルも「見出し」として統合表示。
+    // WYSIWYG / textarea いずれでも同じ virtual heading ルールを適用 (編集面非依存)。
+    function mergeVirtualChapterHeadings(list) {
+      try {
+        var Store = window.ZWChapterStore;
+        var S = window.ZenWriterStorage;
+        var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+        var docId = rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+          ? Store.resolveParentDocumentId(rawId) : rawId;
+        if (!docId || !Store || typeof Store.isChapterMode !== 'function' || !Store.isChapterMode(docId)) return list;
+        var storeChapters = Store.getChaptersForDoc(docId) || [];
+        // 実見出しと章を「先頭から同タイトルで 1 対 1」で突き合わせる。同名章が複数あっても欠落しない。
+        // タイトルのみでの重複判定は、2 件目以降の章が sections に出ない bug になるため禁止。
+        var consumed = [];
+        for (var ci = 0; ci < list.length; ci++) consumed[ci] = false;
+
+        storeChapters.forEach(function (ch) {
+          var name = (ch && ch.name) || '';
+          if (!name) return;
+          var matchedIdx = -1;
+          for (var hi = 0; hi < list.length; hi++) {
+            if (consumed[hi]) continue;
+            var h = list[hi];
+            if (!h._virtual && h.title === name) {
+              matchedIdx = hi;
+              break;
+            }
+          }
+          if (matchedIdx >= 0) {
+            consumed[matchedIdx] = true;
+            return;
+          }
+          list.push({
+            level: ch.level || 2,
+            title: name,
+            offset: -1, // virtual (editor テキスト上の位置なし)
+            endOffset: -1,
+            _virtual: true,
+            _chapterId: ch.id // クリック時 navigate のアンカー（章 id で一意）
+          });
+        });
+      } catch (_) { /* ignore */ }
+      return list;
+    }
+
     function render() {
       // BP-5: アコーディオントグル中の再 render をスキップ (循環防止)
       if (window.sidebarManager && window.sidebarManager._toggleAccordionInProgress) return;
@@ -338,6 +405,8 @@
         // WYSIWYG: DOM から直接見出しを取得 (syncToMarkdown 不要)
         currentHeadings = parseWysiwygHeadings();
         currentActiveIndex = findWysiwygActiveIndex(currentHeadings);
+        // session 109: WYSIWYG でも ChapterStore 由来の virtual heading を統合
+        mergeVirtualChapterHeadings(currentHeadings);
       } else {
         var editor = document.getElementById('editor');
         if (!editor) return;
@@ -345,6 +414,7 @@
         currentHeadings = parseHeadings(text);
         var cursorPos = typeof editor.selectionStart === 'number' ? editor.selectionStart : 0;
         currentActiveIndex = findActiveIndex(currentHeadings, cursorPos);
+        mergeVirtualChapterHeadings(currentHeadings);
       }
 
       // session 91: 全展開ボタンおよび「見出しがありません」メッセージ撤去
@@ -496,10 +566,15 @@
     window.addEventListener('ZWDocumentsChanged', onDocsChanged);
     document.addEventListener('zen-content-saved', scheduleRender);
 
+    // session 108: Focus モードでの章追加・削除・リネームにも追従する
+    var onChapterStoreChanged = function () { scheduleRender(); };
+    window.addEventListener('ZWChapterStoreChanged', onChapterStoreChanged);
+
     // cleanup: render 時に前回のグローバルリスナーを除去
     if (api && typeof api.addCleanup === 'function') {
       api.addCleanup(function () { window.removeEventListener('ZWDocumentsChanged', onDocsChanged); });
       api.addCleanup(function () { document.removeEventListener('zen-content-saved', scheduleRender); });
+      api.addCleanup(function () { window.removeEventListener('ZWChapterStoreChanged', onChapterStoreChanged); });
     }
 
     // 初回レンダリング

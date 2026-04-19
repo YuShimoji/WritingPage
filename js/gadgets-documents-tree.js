@@ -35,9 +35,19 @@
       cb.style.marginRight = '0.375rem';
       cb.style.cursor = 'pointer';
       cb.style.accentColor = 'var(--accent-color, #4a90e2)';
-      cb.addEventListener('click', function (e) { e.stopPropagation(); });
+      if (handlers.isSelected && handlers.isSelected(item.id)) cb.checked = true;
+      cb.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (e.shiftKey && handlers.onRangeSelect) {
+          // Shift+クリック: 直前クリック位置から範囲選択
+          handlers.onRangeSelect(item.id, cb.checked);
+          // チェック状態は onRangeSelect 側で refreshUI され確定するため先に反映
+        } else if (handlers.onSelectionChange) {
+          handlers.onSelectionChange(item.id, cb.checked);
+        }
+      });
       cb.addEventListener('change', function () {
-        if (handlers.onSelectionChange) handlers.onSelectionChange(item.id, cb.checked);
+        // click ハンドラで処理済み (Shift 経路含む) のため、ここでは何もしない
       });
       row.appendChild(cb);
     }
@@ -83,11 +93,16 @@
     row.addEventListener('click', (e) => {
       e.stopPropagation();
       if (handlers.multiSelect && (e.ctrlKey || e.metaKey || e.shiftKey)) {
-        // 複数選択モード: チェックボックスをトグル
+        // 複数選択モード: 行クリックでチェックボックスをトグル
         var cb = row.querySelector('.tree-select-cb');
         if (cb) {
-          cb.checked = !cb.checked;
-          if (handlers.onSelectionChange) handlers.onSelectionChange(item.id, cb.checked);
+          var willBeChecked = !cb.checked;
+          cb.checked = willBeChecked;
+          if (e.shiftKey && handlers.onRangeSelect) {
+            handlers.onRangeSelect(item.id, willBeChecked);
+          } else if (handlers.onSelectionChange) {
+            handlers.onSelectionChange(item.id, willBeChecked);
+          }
         }
         return;
       }

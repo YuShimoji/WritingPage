@@ -16,6 +16,7 @@
 
 ### 運用メモ
 
+- session 110: SectionsNavigator の chapterMode virtual 統合は **章 id (`_chapterId`) 基準**。同名章は実見出しとの貪欲マッチ後にのみ virtual を追加する方針を `INVARIANTS` に固定済み。
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
 - 過去のセッション列挙・メトリクス表は `CURRENT_STATE` / `runtime-state` / [`archive/session-history.md`](archive/session-history.md) を参照
 - EPUB: スコープ外 (2026-03-23 除外決定)

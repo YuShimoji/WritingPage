@@ -55,17 +55,10 @@
             }
 
             case 'menu:toggle-focus':
-                // R-8: setUIMode を経由 (SP-081 Phase 3)
+                // R-8: setUIMode を経由 (SP-081 Phase 3)。session 107: .mode-switch-btn fallback は撤去
                 if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
                     var current = document.documentElement.getAttribute('data-ui-mode');
                     window.ZenWriterApp.setUIMode(current === 'focus' ? 'normal' : 'focus');
-                } else {
-                    var curMode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
-                    var nextMode = curMode === 'focus' ? 'normal' : 'focus';
-                    var modeBtn = document.querySelector('.mode-switch-btn[data-mode="' + nextMode + '"]');
-                    if (modeBtn instanceof HTMLElement) {
-                        modeBtn.click();
-                    }
                 }
                 break;
 

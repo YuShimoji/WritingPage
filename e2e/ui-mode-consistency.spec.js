@@ -55,19 +55,31 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('Focus chapter panel: フル button exits minimal to normal', async ({ page }) => {
+  test('F2 shortcut exits focus to normal (session 107)', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(150);
-    // サイドバーを閉じて章パネルの遮蔽を防ぐ
-    await page.evaluate(() => {
-      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
-      document.documentElement.setAttribute('data-edge-hover-left', 'true');
-    });
-    await page.waitForTimeout(250);
-    await expect(page.locator('#focus-exit-to-normal-btn')).toBeVisible();
-    await page.locator('#focus-exit-to-normal-btn').click();
+    await page.keyboard.press('F2');
     await page.waitForTimeout(200);
     await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
+  });
+
+  test('session 108: view-menu の現モード表示は setUIMode で更新される', async ({ page }) => {
+    // 回帰テスト — session 107 で setUIMode が ZenWriterUIModeChanged を発火していなかったため
+    // view-menu summary 内の現モード表示が初期値「ミニマル」のまま固定されていた問題を固定化
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(150);
+    const initial = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
+    expect(initial.trim()).toBe('ミニマル');
+
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    const afterNormal = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
+    expect(afterNormal.trim()).toBe('フルChrome');
+
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(150);
+    const backToFocus = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
+    expect(backToFocus.trim()).toBe('ミニマル');
   });
 
   test('Focus mode: editor layout has no main toolbar strip', async ({ page }) => {

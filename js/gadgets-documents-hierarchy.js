@@ -344,6 +344,22 @@
       // BL-005: 選択モードボタン + 一括削除ボタン
       var selectMode = false;
       var selectedIds = new Set();
+      var lastClickedId = null; // Shift+Click 範囲選択のアンカー
+
+      // ツリーを DFS で展開し選択可能な document id を順序付きで返す
+      function getFlatSelectableIds() {
+        var result = [];
+        function walk(nodes) {
+          if (!nodes) return;
+          nodes.forEach(function (n) {
+            if (!n) return;
+            if (n.type === 'document') result.push(n.id);
+            if (n.children && n.children.length) walk(n.children);
+          });
+        }
+        try { walk(storage.buildTree()); } catch (_) { }
+        return result;
+      }
 
       var selectModeBtn = document.createElement('button');
       selectModeBtn.type = 'button';
@@ -352,8 +368,30 @@
       selectModeBtn.addEventListener('click', function () {
         selectMode = !selectMode;
         selectedIds.clear();
+        lastClickedId = null;
         selectModeBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
         batchDeleteBtn.style.display = 'none';
+        selectAllBtn.style.display = selectMode ? '' : 'none';
+        refreshUI();
+      });
+
+      var selectAllBtn = document.createElement('button');
+      selectAllBtn.type = 'button';
+      selectAllBtn.textContent = '全選択';
+      selectAllBtn.title = '表示中のドキュメントをすべて選択';
+      selectAllBtn.style.display = 'none';
+      selectAllBtn.addEventListener('click', function () {
+        if (!selectMode) return;
+        var ids = getFlatSelectableIds();
+        var allSelected = ids.length > 0 && ids.every(function (id) { return selectedIds.has(id); });
+        selectedIds.clear();
+        if (!allSelected) {
+          ids.forEach(function (id) { selectedIds.add(id); });
+        }
+        lastClickedId = null;
+        batchDeleteBtn.style.display = selectedIds.size > 0 ? '' : 'none';
+        batchDeleteBtn.textContent = selectedIds.size > 0 ? (selectedIds.size + ' 件削除') : '一括削除';
+        selectAllBtn.textContent = allSelected ? '全選択' : '全解除';
         refreshUI();
       });
 
@@ -364,29 +402,37 @@
       batchDeleteBtn.style.display = 'none';
       batchDeleteBtn.style.color = 'var(--danger-color, #e74c3c)';
       batchDeleteBtn.addEventListener('click', function () {
-        if (selectedIds.size === 0) return;
-        if (!confirm(selectedIds.size + ' 件のドキュメントを削除しますか?')) return;
+        var count = selectedIds.size;
+        if (count === 0) return;
+        if (!confirm(count + ' 件のドキュメントを削除しますか?')) return;
         storage.deleteMultipleDocuments(Array.from(selectedIds));
         selectedIds.clear();
+        lastClickedId = null;
         selectMode = false;
         selectModeBtn.setAttribute('aria-pressed', 'false');
         batchDeleteBtn.style.display = 'none';
+        batchDeleteBtn.textContent = '一括削除';
+        selectAllBtn.style.display = 'none';
+        selectAllBtn.textContent = '全選択';
         refreshUI();
         dispatchChanged();
-        notify(selectedIds.size + ' 件を削除しました');
+        notify(count + ' 件を削除しました');
       });
 
       // 「選択」は overflow メニューに移動 (BL-005 修正: ツールバー膨張防止)
       moreMenu.appendChild(createMenuItem('複数選択', '複数のドキュメントを選択して操作', function () {
         selectMode = !selectMode;
         selectedIds.clear();
+        lastClickedId = null;
         selectModeBtn.setAttribute('aria-pressed', selectMode ? 'true' : 'false');
         batchDeleteBtn.style.display = 'none';
+        selectAllBtn.style.display = selectMode ? '' : 'none';
         refreshUI();
       }));
 
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(saveBtn);
+      toolbar.appendChild(selectAllBtn);
       toolbar.appendChild(batchDeleteBtn);
       toolbar.appendChild(moreBtn);
       document.body.appendChild(moreMenu);
@@ -401,13 +447,51 @@
       container.appendChild(treeContainer);
       el.appendChild(container);
 
+      function syncSelectionToolbar() {
+        batchDeleteBtn.style.display = selectedIds.size > 0 ? '' : 'none';
+        batchDeleteBtn.textContent = selectedIds.size > 0 ? (selectedIds.size + ' 件削除') : '一括削除';
+        var ids = getFlatSelectableIds();
+        var allSelected = ids.length > 0 && ids.every(function (id) { return selectedIds.has(id); });
+        selectAllBtn.textContent = allSelected ? '全解除' : '全選択';
+      }
+
       // ========== イベントハンドラ ==========
       var handlers = {
         get multiSelect() { return selectMode; },
+        isSelected: function (id) { return selectedIds.has(id); },
         onSelectionChange: function (id, checked) {
           if (checked) { selectedIds.add(id); } else { selectedIds.delete(id); }
-          batchDeleteBtn.style.display = selectedIds.size > 0 ? '' : 'none';
-          batchDeleteBtn.textContent = selectedIds.size + ' 件削除';
+          lastClickedId = id;
+          syncSelectionToolbar();
+        },
+        onRangeSelect: function (targetId, checked) {
+          var ids = getFlatSelectableIds();
+          var targetIdx = ids.indexOf(targetId);
+          if (targetIdx < 0) {
+            // 範囲外(folder など) は単体選択にフォールバック
+            if (checked) { selectedIds.add(targetId); } else { selectedIds.delete(targetId); }
+            lastClickedId = targetId;
+            syncSelectionToolbar();
+            refreshUI();
+            return;
+          }
+          var anchorIdx = lastClickedId ? ids.indexOf(lastClickedId) : -1;
+          if (anchorIdx < 0) {
+            // アンカーなし: 単体選択として扱う
+            if (checked) { selectedIds.add(targetId); } else { selectedIds.delete(targetId); }
+            lastClickedId = targetId;
+            syncSelectionToolbar();
+            refreshUI();
+            return;
+          }
+          var lo = Math.min(anchorIdx, targetIdx);
+          var hi = Math.max(anchorIdx, targetIdx);
+          for (var i = lo; i <= hi; i++) {
+            if (checked) { selectedIds.add(ids[i]); } else { selectedIds.delete(ids[i]); }
+          }
+          lastClickedId = targetId;
+          syncSelectionToolbar();
+          refreshUI();
         },
         onSelectDocument: function (id) {
           switchDocument(id);

@@ -160,33 +160,39 @@
         <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
           style="margin-right: 8px; display: none;" />
         <div class="toolbar-quick-actions" role="group" aria-label="クイックアクション">
-          <div class="mode-switch" role="radiogroup" aria-label="画面レイアウト（フルChrome／ミニマル）">
-            <button type="button" class="mode-switch-btn" data-mode="normal" aria-pressed="false"
-              title="フルChrome: サイドバーは設定どおり表示"
-              aria-label="フルChrome: サイドバーは設定どおり表示">
+          <!-- session 107: 画面全体モード切替を #view-menu 1 点に集約。F2 で normal ⇄ focus 循環。 -->
+          <details id="view-menu" class="view-menu">
+            <summary class="view-menu__summary" aria-haspopup="menu" aria-expanded="false" title="表示 (F2)" aria-label="表示メニュー">
               <i data-lucide="layout" aria-hidden="true"></i>
-              <span class="mode-switch-btn__label">フル</span>
-            </button>
-            <button type="button" class="mode-switch-btn" data-mode="focus" aria-pressed="true"
-              title="ミニマル: 左端ホバーで章一覧など"
-              aria-label="ミニマル: 左端ホバーで章一覧など">
-              <i data-lucide="crosshair" aria-hidden="true"></i>
-              <span class="mode-switch-btn__label">最小</span>
-            </button>
-          </div>
-          <button type="button" id="fullscreen" class="icon-button iconified" title="全画面表示" aria-label="全画面表示を切り替え">
-            <i data-lucide="maximize" aria-hidden="true"></i>
-          </button>
+              <span class="view-menu__label">表示</span>
+              <span class="view-menu__current" data-current-mode>ミニマル</span>
+              <i class="view-menu__caret" data-lucide="chevron-down" aria-hidden="true"></i>
+            </summary>
+            <div role="menu" class="view-menu__panel">
+              <div role="group" aria-label="表示レイアウト" class="view-menu__group">
+                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-normal" aria-checked="false">フルChrome</button>
+                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-focus" aria-checked="true">ミニマル</button>
+              </div>
+              <hr role="separator" class="view-menu__sep">
+              <div class="view-menu__group">
+                <button role="menuitem" type="button" class="view-menu__item" data-view-action="reader-overlay-toggle">再生オーバーレイ</button>
+                <button role="menuitem" type="button" class="view-menu__item" data-view-action="toggle-fullscreen">全画面 (F11)</button>
+              </div>
+              <hr role="separator" class="view-menu__sep" data-dev-only>
+              <div role="group" aria-label="編集面" class="view-menu__group" data-dev-only>
+                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-wysiwyg" aria-checked="true">リッチ編集</button>
+                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-markdown" aria-checked="false">Markdown ソース</button>
+              </div>
+            </div>
+          </details>
         </div>
         <div class="toolbar-actions toolbar-actions--sidebar">
           <div class="toolbar-group toolbar-group--editor" aria-label="編集">
             <button type="button" id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
               <i data-lucide="layout-template" aria-hidden="true"></i>
             </button>
-            <button type="button" id="toggle-reader-preview" class="icon-button iconified" title="再生オーバーレイ（読者視点確認）" aria-label="再生オーバーレイ（読者視点確認）を開く">
-              <i data-lucide="eye" aria-hidden="true"></i>
-            </button>
-            <button type="button" id="toggle-wysiwyg" class="icon-button iconified" title="リッチ編集（WYSIWYG・編集可能）" aria-label="リッチ編集（WYSIWYG）を切り替え" aria-pressed="false">
+            <!-- session 107: #toggle-wysiwyg は view-menu に昇格。E2E 互換のため DOM は残し視覚的に隠蔽 (view-menu 経由で click proxy)。 -->
+            <button type="button" id="toggle-wysiwyg" class="icon-button iconified view-menu__compat-shim" title="リッチ編集 (view-menu 経由)" aria-label="リッチ編集トグル (互換シム)" aria-pressed="false" tabindex="-1" aria-hidden="true">
               <i data-lucide="pen-tool" aria-hidden="true"></i>
             </button>
           </div>
@@ -308,8 +314,7 @@
       <div class="focus-chapter-panel__header">
         <span class="focus-chapter-panel__title">チャプター</span>
         <div class="focus-chapter-panel__header-actions" role="group" aria-label="チャプターパネル操作">
-          <button type="button" id="focus-exit-to-normal-btn" class="focus-chapter-panel__exit-btn"
-            title="フルChrome表示に切替（サイドバー先頭のモード切替と同じ）" aria-label="フルChrome表示に切替">フル</button>
+          <!-- session 107: 「フル」復帰ボタン撤去。view-menu / F2 / ハブ経由で代替。 -->
           <button class="focus-chapter-panel__settings-btn" id="focus-open-settings"
             title="設定" aria-label="設定を開く">
             <i data-lucide="settings" aria-hidden="true"></i>

@@ -87,7 +87,7 @@
         { syntax: null, shortcut: 'Ctrl+F', desc: '検索パネルを開く' },
         { syntax: null, shortcut: 'Ctrl+P', desc: 'コマンドパレットを開く' },
         { syntax: null, shortcut: 'Ctrl++/-/0', desc: 'フォントサイズ拡大/縮小/リセット' },
-        { syntax: null, shortcut: 'F2', desc: 'UIモード切替（通常→集中→空白）' },
+        { syntax: null, shortcut: 'F2', desc: 'UIモード切替（フルChrome ↔ ミニマル）' },
         { syntax: null, shortcut: 'Alt+1', desc: 'サイドバー開閉' },
         { syntax: null, shortcut: 'Alt+W', desc: 'ツールバー表示切替' },
         { syntax: null, shortcut: 'Esc', desc: 'モーダルを閉じる / 通常モードに戻る' }

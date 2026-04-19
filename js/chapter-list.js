@@ -401,6 +401,29 @@
     Store.updateChapterContent(ch.id, text);
     // 内部キャッシュも更新
     ch.content = text;
+
+    // session 108: 保存通知を user 実機で視認可能に。連続入力での連打を避けるため節約
+    notifyAutoSaved();
+  }
+
+  // 自動保存の HUD 通知 (連打節約 — 最新発火から 3 秒以内は再表示しない)
+  // session 109: `autoSave.enabled` を HUD 通知の有無のみに利用。
+  // 章内容の保存は autoSave 設定と無関係に常時実行される (執筆基盤)。
+  var lastAutoSaveHudAt = 0;
+  function notifyAutoSaved() {
+    try {
+      var s = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings() : null;
+      if (!s || !s.autoSave || s.autoSave.enabled !== true) return;
+    } catch (_) { return; }
+    var now = Date.now();
+    if (now - lastAutoSaveHudAt < 3000) return;
+    lastAutoSaveHudAt = now;
+    if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+      try {
+        window.ZenWriterHUD.show('自動保存されました', 1500, { type: 'success' });
+      } catch (_) { /* ignore */ }
+    }
   }
 
   // ---- Render ----

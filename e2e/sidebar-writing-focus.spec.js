@@ -39,8 +39,9 @@ test.describe('Sidebar Writing Focus', () => {
 
     await expect(page.locator('#writing-focus-title')).toBeVisible();
     await expect(page.locator('#writing-focus-add-section')).toBeVisible();
-    await expect(page.locator('#writing-focus-settings-btn')).toBeVisible();
-    await expect(page.locator('#writing-focus-exit-to-normal-btn')).toBeVisible();
+    // session 107: writing-focus-footer (詳細/フルChrome) は view-menu/F2 に集約し視覚的には隠蔽。DOM 存在のみ検証
+    await expect(page.locator('#writing-focus-settings-btn')).toBeAttached();
+    await expect(page.locator('#writing-focus-exit-to-normal-btn')).toBeAttached();
 
     const nonStructureHidden = await page.evaluate(() => {
       const ids = ['structure', 'edit', 'theme', 'assist', 'advanced'];
@@ -52,7 +53,8 @@ test.describe('Sidebar Writing Focus', () => {
     });
     expect(nonStructureHidden).toBe(true);
 
-    await page.click('#writing-focus-settings-btn');
+    // session 107: 隠蔽された "詳細" ボタンを programmatic click
+    await page.evaluate(() => document.getElementById('writing-focus-settings-btn').click());
     await page.waitForTimeout(120);
 
     const categoriesVisibleInSettings = await page.evaluate(() => {
@@ -78,7 +80,8 @@ test.describe('Sidebar Writing Focus', () => {
     expect(expandedState.structure).toBe('true');
     expect(expandedState.others.every((state) => state === 'false')).toBe(true);
 
-    await page.locator('#writing-focus-exit-to-normal-btn').click();
+    // session 107: 隠蔽された "フルChrome" ボタンを programmatic click
+    await page.evaluate(() => document.getElementById('writing-focus-exit-to-normal-btn').click());
     await page.waitForTimeout(200);
     await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
   });

@@ -279,6 +279,74 @@
 - **インラインスタイル競合の調査**: サイドバー以外の同種競合は現時点でなし (`--focus-panel-width`, `--dock-left-width` は CSS 変数のみで安全)。`--editor-max-width` (EditorUI.js) は JS で設定するが CSS 側で未使用 (無害だが不要コード)。
 - **次**: Focus 歯車レイアウト崩壊 (継続)、ドキュメント一覧 UX 3 件、またはインラインスタイル一本化。
 
+#### session 109 実施結果 (session 108 レビュー指摘の根治・SSOT 化)
+
+- **背景**: session 108 の静的レビューで user が 4 つの根本問題を指摘: (1) A-3 は「表示」は直ったが virtual heading クリック時に offset:-1 を editor.selectionStart に渡して未定義動作 (2) A-2 は保存神経系が二重 — autoSave.enabled を見ずに毎回 flush、`_triggerAutoSave` はデッドコード (3) 4 件の修正を直接保証する回帰 E2E 不在 (4) UI 文言「フル Chrome」/「フルChrome」が混在。共通原因は SSOT 不在・イベント契約後付け・保存経路二重・文言散在。
+- **C-1 virtual heading 操作根治** ([js/gadgets-sections-nav.js](../js/gadgets-sections-nav.js)): `jumpToHeading` 冒頭に `heading._virtual && heading._chapterId` 検出を追加し、chapterMode の場合は ChapterStore の章 id から `chapterIdx` を引き、`ZWChapterList.navigateTo(chapterIdx)` を呼ぶ。WYSIWYG/textarea 両経路で `mergeVirtualChapterHeadings(list)` ヘルパを共有して virtual heading を統合。virtual 判定後は既存の editor 操作経路に到達させず、offset:-1 を editor に渡す可能性を完全排除。
+- **C-2 保存神経系 SSOT 化**: [js/app-autosave-api.js](../js/app-autosave-api.js) のデッドコード `_triggerAutoSave` + `autoSaveTimeout` を全削除、export は `{}` に縮退。[js/chapter-list.js](../js/chapter-list.js) `notifyAutoSaved` に `s.autoSave.enabled === true` ガードを先頭に追加。章内容保存 (`flushActiveChapter` 本体) は autoSave 設定と無関係に常時実行する契約を維持。`autoSave.enabled` の意味は「HUD 通知の表示有無」だけに限定。
+- **C-3 UI 文言統一**: docs/\*.md, css/style.css, e2e/helpers.js, docs/specs/\*.md 全体で `sed 's/フル Chrome/フルChrome/g'` を実行。実装表記 (index.html / app.js / command-palette.js 既存) に docs を合わせる形で統一。
+- **C-4 回帰 E2E 2 件追加** (INVARIANTS Test Discipline の例外):
+  - [e2e/ui-mode-consistency.spec.js](../e2e/ui-mode-consistency.spec.js): view-menu 現モード表示の同期テスト (session 108 A-1 相当の回帰防止)
+  - [e2e/sections-nav.spec.js](../e2e/sections-nav.spec.js): chapterMode で virtual heading クリック → `ZWChapterList.navigateTo` 動作テスト (session 109 C-1 の回帰防止)
+- **契約化 ([docs/INVARIANTS.md](INVARIANTS.md))**: 「chapterMode 章内容保存は常時実行、autoSave.enabled は HUD 通知のみ制御」「ZenWriterUIModeChanged は setUIMode 単一経路で発火」「UI 文言『フルChrome』が正本」の 3 条を追加。Test Discipline に「user 実機で発覚した不具合の回帰防止は追加を許容」の例外も明記。
+- **検証**: `lint:js:check` clean、`test:smoke` pass、全 E2E **514 passed / 2 skipped / 0 failed** (session 108 の flaky 解消 + 新規回帰 2 件を含む 516 本中)。
+- **ビルド**: `build-session109/win-unpacked/Zen Writer.exe`。
+- **次**: user 実機確認で C-1/C-2/C-3 を確認。commit 承認後に 3 コミット構成 (ロジック / E2E / docs) で push。
+- **追記 — SectionsNavigator 同名章欠落（レビュー P2）**: `mergeVirtualChapterHeadings` が `h.title === name` のみで重複排除していたため、同名章が 1 件しか sections に出ず到達不能になる問題を根治（章ストア順と実見出しの 1 対 1 突き合わせ・余りのみ `_chapterId` virtual）。textarea の `findActiveIndex` は `_virtual` をカーソル判定から除外。[e2e/sections-nav.spec.js](../e2e/sections-nav.spec.js) に同名章 2 件の表示・クリック回帰を追加。検証（追記時点）: `lint:js:check` clean、`e2e/sections-nav.spec.js` **6 passed**。
+
+#### session 110 実施結果（コミット・リモート反映・引き継ぎ）
+
+- **コミット**: SectionsNavigator 同名章修正と未コミット変更を **1 コミット**にまとめ、`origin/main` へ **push**（2026-04-20）。
+- **検証（push 直前）**: `npm run lint:js:check` clean、`npx playwright test` 全件 **515 passed / 2 skipped / 0 failed**。
+- **ドキュメント**: `CURRENT_STATE` / `runtime-state` / `HANDOVER` を再開手順つきで同期。次スレッドは `git pull --ff-only` → `CURRENT_STATE` Snapshot。
+
+#### session 108 実施結果 (session 107 実装の総点検・4 バグ根治)
+
+- **背景**: session 107 (view-menu 集約 + autoSave migration) の実機確認で user が 4 つのズレを報告: (1) view-menu 現モード表示が切替えても「ミニマル」のまま (2) ミニマル章追加 → セクションに反映されない (3) 保存通知が一切出ない (4) Electron メニュー案内が「View」誤訳。**ショートカット系テストは除外する** 方針指示あり。
+- **A-1 — view-menu 同期**: [js/app.js](../js/app.js) `setUIMode` 末尾で `window.dispatchEvent(new CustomEvent('ZenWriterUIModeChanged', {detail: {mode, source: 'setUIMode'}}))` を発火。既存購読者 (visual-profile.js / `_syncViewMenuState`) はトリガー条件で源を判別するため循環しない。これで view-menu `.view-menu__current` の表示がモード切替に追従。
+- **A-2 — Focus モード HUD 表示 + chapter-level autosave HUD 統合**: [css/style.css](../css/style.css) `html[data-ui-mode='focus'] .mini-hud` を `display: none !important` から `opacity: 0.8 + pointer-events: none + transform: scale(0.9)` に変更。[js/chapter-list.js](../js/chapter-list.js) `flushActiveChapter` 末尾に `notifyAutoSaved()` を追加 (連続入力で連打を避けるため 3 秒 cooldown)。調査の結果 `app-autosave-api.js` の `_triggerAutoSave` は誰からも呼ばれていないデッドコードだったため、実際の保存パスである `flushActiveChapter` に HUD を組み込む実装に切替。
+- **A-3 — sections ガジェット 章追加連動 + ChapterStore 統合表示**: [js/gadgets-sections-nav.js](../js/gadgets-sections-nav.js) に (1) `ZWChapterStoreChanged` 購読を追加し scheduleRender、(2) Markdown パス の `render()` 内で `ChapterStore.isChapterMode(docId)` の場合に Store の章タイトルを virtual heading として `currentHeadings` にマージ。editor テキストに heading が未挿入でも章一覧として視認可能に。
+- **B-1 — view-menu に「全画面 (F11)」追加**: [index.html](../index.html) に `data-view-action="toggle-fullscreen"` の menuitem を追加。[js/app.js](../js/app.js) `initViewMenu` click ハンドラに DOM Fullscreen API 経由のトグル実装を追加。
+- **docs 方針追記**: [docs/INTERACTION_NOTES.md](INTERACTION_NOTES.md) 手動確認セクションに「ショートカット等の既確認機能は新規変更なしの限り再確認依頼しない」「Electron メニューは現物の日本語表記『表示(&V) > 全画面表示(&L)』」を追記。
+- **試行錯誤**: 当初は `chapter-list.handleAddChapter` で新章の initial content に markdown heading を入れる案を試したが、`chapter-mode-sync.spec.js:74` の assemble/split 往復テストで chapter count が 3 になる副作用が出たため取り消し、sections ガジェット側での virtual heading 統合に切替え。
+- **検証**: `lint:js:check` clean、`test:smoke` pass、E2E 全件 flaky 2 件 (image-position-size / visual-audit 19) を除き pass。新規 spec 追加なし (INVARIANTS Test Discipline)。
+- **ビルド**: `build-session108/win-unpacked/Zen Writer.exe`
+- **次**: user 実機確認で 4 件のズレ解消を確認。追加摩擦があれば 1 スライスに昇格。
+
+#### session 107 実施結果 (画面全体モード切替 UI の根治再編)
+
+- **背景**: session 105 ビルド実機確認で user が「Focus モード導線がビルド版で見つからない」「削除件数確認に本文サンプルが必要」「自動保存通知が出ない」「UI の破綻 (10 個のモード切替が散在)」の 4 点を報告。候補 C (大規模再編) + 全部撤去 に user 承認。
+- **実施内容**:
+  - **UI 再編**: サイドバー先頭 `.toolbar-quick-actions` を `<details id="view-menu">` ドロップダウンに置換。「表示」サマリに現モード名を常時表示。パネル内に表示レイアウト (フルChrome/ミニマル) + 再生オーバーレイ + 編集面 (リッチ編集/Markdown、dev-only) を集約。
+  - **撤去**: `.mode-switch-btn` x2、`#fullscreen`、`#toggle-reader-preview` (トップ)、`#focus-exit-to-normal-btn` を DOM ごと完全削除。`_toggleFullscreen` / `fullscreenBtn` 配線も撤去。
+  - **互換シム**: `#toggle-wysiwyg` (トップ) と `.writing-focus-footer` の「詳細」「フルChrome」ボタンは E2E 24+ 件/6 件依存のため、DOM は残し CSS `display:none`/`clip:rect(0,0,0,0)` で視覚的のみ隠蔽。関連 E2E は `toBeAttached` + programmatic click に書換。
+  - **ショートカット**: F2 (フルChrome ↔ ミニマル)、Alt+Shift+R (再生オーバーレイ)、`Ctrl+,` (設定) は既存維持。追加なし。
+  - **コマンドパレット**: `ui-mode-next` / `editor-surface-wysiwyg` / `editor-surface-markdown` を新規追加し view-menu と完全対応。`toggle-markdown-preview` description の「再生オーバーレイ」誤マッチを解消。
+  - **autoSave up-migration (v2)**: [js/storage.js](../js/storage.js) `loadSettings()` で旧ユーザーの `autoSave.enabled: false` を 1 回限り `true` に書換え + `__autoSaveMigrationV2` フラグ永続化。session 105 の実機で通知が出なかった根本原因を解消。
+  - **Electron F11**: `#fullscreen` 撤去後も Electron メニュー「View > Toggle Full Screen」で代替可能。electron/main.js は無改変。
+- **修正ファイル (10)**: [index.html](../index.html), [css/style.css](../css/style.css), [js/app.js](../js/app.js), [js/app-ui-events.js](../js/app-ui-events.js), [js/element-manager.js](../js/element-manager.js), [js/command-palette.js](../js/command-palette.js), [js/electron-bridge.js](../js/electron-bridge.js), [js/gadgets-markdown-ref.js](../js/gadgets-markdown-ref.js), [js/storage.js](../js/storage.js)
+- **E2E 追従 (3 spec)**: [e2e/ui-mode-consistency.spec.js](../e2e/ui-mode-consistency.spec.js) (`#focus-exit-to-normal-btn` → F2)、[e2e/sidebar-writing-focus.spec.js](../e2e/sidebar-writing-focus.spec.js) (`toBeVisible` → `toBeAttached` + programmatic click)、[e2e/responsive-ui.spec.js](../e2e/responsive-ui.spec.js) (tablet アイコンサイズ 36 → 32)。新規 spec 追加なし (INVARIANTS Test Discipline)。
+- **検証**: `lint:js:check` clean、`test:smoke` pass、全 E2E **512 passed / 0 failed / 2 skipped**。
+- **ビルド**: `build-session107/win-unpacked/Zen Writer.exe` (view-menu 集約 + autoSave migration + session 105 Slice 1-3)。
+- **次**: user 実機確認で UI 散在と Focus 導線の解消を確認。追加摩擦があれば 1 スライスに昇格。
+
+#### session 105 実施結果 (実務使用ギャップ解消 3 スライス)
+
+- **Slice 1 — Focus 歯車レイアウト崩壊の根本修正**: `openSettingsModal()` に `sidebar.style.removeProperty('width')` を挿入 ([js/app-ui-events.js](../js/app-ui-events.js))。session 103/103.1 の hotfix が実機で未解消だった原因はリサイズ/設定復元で書き込まれる残留インライン width。CSS 変数 `--sidebar-width` は loadSettings 経路で永続化され次回起動時に復元されるため、ユーザーのサイドバー幅設定は維持される。
+- **Slice 2 — ドキュメント一覧 UX 3 件**:
+  - (a) 一括削除通知 `X 件を削除しました` が常に「0件」になるバグ ([js/gadgets-documents-hierarchy.js](../js/gadgets-documents-hierarchy.js)) を count 退避で修正。batchDeleteBtn の textContent リセットも追加。
+  - (b) `.documents-hierarchy` の flex 制約不足で子 `.documents-tree-container` が overflow-y: auto しきれなかった問題を `min-height: 0` + `max-height: 100%` で解消 ([css/style.css](../css/style.css))。
+  - (c) Shift+Click 範囲選択と「全選択/全解除」トグルボタンを新規実装。`getFlatSelectableIds()` で `storage.buildTree()` を DFS 展開し順序付き document id 配列を生成。`handlers.onRangeSelect(targetId, checked)` / `handlers.isSelected(id)` を新設。`lastClickedId` をアンカーとして hierarchy 側で範囲確定 → `refreshUI()`。
+- **Slice 3 — 保存機能の最小改善**:
+  - (1) `DEFAULT_SETTINGS.autoSave.enabled` を `false` → `true` ([js/storage.js](../js/storage.js))。既存 localStorage の明示 false は loadSettings のマージで尊重されるため既存ユーザーへの影響なし。初回ユーザーのみ自動保存 ON。
+  - (2) 手動保存コマンド ([js/command-palette.js](../js/command-palette.js)) を try/catch で包み、失敗時は `ZenWriterHUD.show(..., { type: 'error' })` でエラー通知。
+  - (3) 自動保存 ([js/app-autosave-api.js](../js/app-autosave-api.js)) の catch 節に HUD エラー通知を追加。保存中インジケーターは既存の「自動保存されました」成功 HUD で実用上十分なため省略。
+- **触らない** (INVARIANTS): `chapter-store.js` assembleFullText/splitIntoChapters、`storage-idb.js` IDB スキーマ、保存導線 3 経路 (Ctrl+S / コマンドパレット / ガジェット) 統一方針。
+- **保留** (範囲外): 保存ファイル物理場所指定、sessionStorage クラッシュ復旧、複数タブ同時編集ロック。
+- **検証**: `lint:js:check` clean。`sidebar-writing-focus` + `sidebar-layout` **10 passed**。`gadgets` + `chapter-store` + `command-palette` + `editor-settings` **49 passed / 1 skipped**。`test:smoke` pass。E2E 追加なし (INVARIANTS Test Discipline 遵守)。
+- **ビルド**: `build-session105/win-unpacked/Zen Writer.exe` (Slice 1 単独) / `build-session106/win-unpacked/Zen Writer.exe` (Slice 2+3 合算)。Build Checkpoint Policy に従いスライス境界でビルド。
+- **次**: ユーザー実機確認待ち。実機で Focus 歯車崩壊解消・一覧 UX 3 件・自動保存動作を確認後、未解決項目があれば 1 トピック追加、なければ closeout。
+
 ### 次スライス候補（WP-004 / WP-001 / WP-005、1 トピックずつ選定）
 
 - **リッチテキスト・書式の改行まわり（将来）**: 現状は **改行で書式／装飾が切れる** のが仕様（`effectBreakAtNewline` 既定 true、BL-002）。**decor 持続**（`effectPersistDecorAcrossNewline`）は Enter 接続済み・WYSIWYG **ショートカット割当済み**（session 57）。残りは **設定 UI** や **`effectBreakAtNewline` 側**の切替などを 1 スライスで検討。

@@ -12,46 +12,8 @@
     function initAppAutosaveApi(deps) {
         const { elementManager, activateSidebarGroup } = deps;
 
-        // ===== リアルタイム自動保存機能 =====
-        let autoSaveTimeout = null;
-        function _triggerAutoSave() {
-            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-            const settings = window.ZenWriterStorage.loadSettings();
-            const autoSave = settings.autoSave || {};
-            if (!autoSave.enabled) return;
-            const delay = autoSave.delayMs || 2000;
-            autoSaveTimeout = setTimeout(() => {
-                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
-                    try {
-                        var G = window.ZWContentGuard;
-                        var content = G ? G.getEditorContent() : '';
-                        if (!content) {
-                            const editor = elementManager.get('editor');
-                            content = editor ? (editor.value || '') : '';
-                        }
-                        if (G) G.flushChapterIfNeeded();
-                        // chapterMode: アクティブ章だけでなく全文を組み立てて保存
-                        var _Store = window.ZWChapterStore;
-                        var _S = window.ZenWriterStorage;
-                        var _rawId = _S && typeof _S.getCurrentDocId === 'function' ? _S.getCurrentDocId() : null;
-                        var _docId =
-                            _rawId && _Store && typeof _Store.resolveParentDocumentId === 'function'
-                                ? _Store.resolveParentDocumentId(_rawId)
-                                : _rawId;
-                        if (_docId && _Store && _Store.isChapterMode(_docId)) {
-                            content = _Store.assembleFullText(_docId);
-                        }
-                        window.ZenWriterStorage.saveContent(content);
-                        // HUDに保存通知
-                        if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
-                            window.ZenWriterHUD.show('自動保存されました', 1500, { type: 'success' });
-                        }
-                    } catch (e) {
-                        console.error('自動保存エラー:', e);
-                    }
-                }
-            }, delay);
-        }
+        // session 109: `_triggerAutoSave` はデッドコード (どこからも呼ばれていなかった) のため削除。
+        // 保存神経系は `chapter-list.js flushActiveChapter` に一本化。HUD 通知はそこで `autoSave.enabled` ガード下に実行。
 
         // ===== オフライン検知と自動バックアップ =====
         let isOnline = navigator.onLine;
@@ -244,7 +206,8 @@
             } catch (_) { }
         });
 
-        return { _triggerAutoSave };
+        // session 109: _triggerAutoSave を削除したため、空オブジェクトを返す (呼び出し側の destructure は空のままで問題なし)
+        return {};
     }
 
     window.initAppAutosaveApi = initAppAutosaveApi;

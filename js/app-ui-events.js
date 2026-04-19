@@ -9,7 +9,6 @@
      * @param {Object}   deps.elementManager
      * @param {Function} deps.toggleSidebar
      * @param {Function} deps.toggleToolbar
-     * @param {Function} deps._toggleFullscreen
      * @returns {Object} toggleModal, prepareFloatingPanel, clampPanelToViewport
      */
     function initAppUIEvents(deps) {
@@ -17,7 +16,6 @@
             elementManager,
             toggleSidebar,
             toggleToolbar,
-            _toggleFullscreen,
             _syncHudQuickControls
         } = deps;
         const FLOATING_PANEL_MARGIN = 12;
@@ -191,7 +189,7 @@
         // ===== ボタンイベントリスナー =====
         const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
-        const fullscreenBtn = elementManager.get('fullscreenBtn');
+        // session 107: fullscreenBtn 撤去
         const compareChapterBtn = document.getElementById('open-compare-chapter');
         const compareSnapshotBtn = document.getElementById('open-compare-snapshot');
         const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
@@ -269,15 +267,7 @@
                 }
             });
         }
-        if (fullscreenBtn) {
-            fullscreenBtn.addEventListener('click', _toggleFullscreen);
-            fullscreenBtn.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    _toggleFullscreen();
-                }
-            });
-        }
+        // session 107: #fullscreen 撤去。Electron の F11 / メニュー「View > Toggle Full Screen」で代替
 
         // テーマ切り替えボタン
         const toggleThemeBtn = elementManager.get('toggleThemeBtn');
@@ -428,19 +418,22 @@
 
         /**
          * アプリ設定の入口（歯車アイコン・コマンドパレット・Ctrl+, 等の唯一の実装）
-         * session 103: `#settings-modal` は `gadgets-utils.js` で settings グループが deprecated → advanced 統合済みのため空モーダル化していた。
-         * 動線をサイドバー詳細設定 (advanced) カテゴリの展開に変更。`gadget-advanced` コマンドと同等。
-         * session 103.1: Focus モード時に呼ばれるとサイドバーが Focus 状態のまま open されてレイアウトが崩壊するため、
-         * 先に Normal モードに切り替えてから advanced カテゴリを展開する。
+         * session 105: Focus→Normal 遷移後に残留する sidebar のインライン style.width (dock-manager
+         * リサイズや app.js:388 の設定復元が書き込み)が .sidebar.open 付与時に viewport 幅化を招いていた。
+         * setUIMode('normal') 後・activateSidebarGroup 前にインライン width をクリアし、CSS 変数
+         * --sidebar-width のフォールバックを効かせる。永続化値 s.ui.sidebarWidth は loadSettings 経路で保持。
          */
         function openSettingsModal() {
             const currentMode = document.documentElement.getAttribute('data-ui-mode');
             if (currentMode === 'focus' && window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
                 window.ZenWriterApp.setUIMode('normal');
             }
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.style.removeProperty('width');
+            }
             if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
                 window.sidebarManager.activateSidebarGroup('advanced');
-                const sidebar = document.getElementById('sidebar');
                 if (sidebar && !sidebar.classList.contains('open') && typeof window.sidebarManager.toggleSidebar === 'function') {
                     window.sidebarManager.toggleSidebar();
                 }

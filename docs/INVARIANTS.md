@@ -11,8 +11,12 @@
 - 執筆集中サイドバー（writing focus 系 UI）は `focus` モード時のみ有効。`normal` では従来のサイドバーアコーディオンを維持する
 - hidden `ui-mode-select` は HTML から削除済み。コマンドパレットのモード切替は `ZenWriterApp.setUIMode()` と可視の mode-switch ボタン経由に統一する
 - chapterMode は全ドキュメントで自動適用 (`ensureChapterMode`)。章追加は `Store.createChapter()` 経路のみ
+- **chapterMode の章内容保存は常時実行 (必須)**。`settings.autoSave.enabled` はあくまで「自動保存 **通知 HUD** の表示有無」のみを制御する。保存そのものを止める設定ではない (session 109 で SSOT 化)
+- **`ZenWriterUIModeChanged` イベントは `setUIMode` から必ず発火する**。view-menu / visual-profile 等の全購読者の同期はこのイベント 1 本に寄せる。DOM attribute の直接設定や独自経路で UI を更新してはならない (session 108-109 契約化)
+- **UI 文言「フルChrome」(空白なし) が正本**。docs / 実装 / コメント / テストにおいて空白付きの「フル Chrome」は禁止
 - **読者プレビュー／HTML 組み立てなどの「読み取り」経路**では `splitIntoChapters` や `saveDocuments` による章モデルの暗黙更新を行わない（分解・移行は `ensureChapterMode` や明示的な処理に限定。目安は [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md)）
 - `ZWChapterStore.getChaptersForDoc` / `createChapter` / `assembleFullText` には **親ドキュメント ID** を渡す。`getCurrentDocId()` が章レコードを指す可能性があるため、章 UI では正規化ヘルパ（例: `getDocumentIdForChapterOps`）を通す
+- **SectionsNavigator（chapterMode）**: Store の章を virtual heading として足すとき、**タイトルだけの重複判定は禁止**（同名章が欠落する）。エディタ上の実見出しと章リストを **先頭から同タイトルで 1 対 1** で突き合わせ、余った章のみ `_chapterId` 付き virtual を追加する。クリック遷移は `_chapterId` が正本
 - サイドバー開閉は `toggleSidebar()` → `s.sidebarOpen` に永続化。`setUIMode` Normal 復帰時に復元
 - エッジグローは Focus モードのみ
 - 再生オーバーレイ表示中（`data-reader-overlay-open='true'`）はフローティングツールバーを非表示
@@ -59,6 +63,14 @@
 - テストの beforeEach では `ensureNormalMode(page)` を呼び、保存設定が Focus の場合の暴走を防ぐ
 - `page.click('#toggle-sidebar')` は viewport 外エラーの原因になるため、`openSidebar(page)` (evaluate 経由) を使用する
 - Visual Audit は screenshot refresh だけでは有効ではない。実 UI フローを通じた状態証明 + 重複画像検出が必要
+
+## Test Discipline (テスト過剰禁止 — session 94/108 方針 + session 109 例外)
+
+- テスト追加は「検証目的が明確」かつ「回帰リスクが顕在化している」ときだけ行う
+- 成功済みパスの定期再実行・確認目的の手動チェックリスト拡張は行わない
+- 存在確認 (`toBeAttached` / `toBeVisible` のみで挙動未検証) テストは書かない
+- **user 実機で発覚した不具合に対しては、同種の回帰を防ぐ最小テストの追加を許容する** (session 109 例外: session 108 の 4 件は既存 E2E で検出不能だったため追加が正当化された)
+- E2E・手動チェックリストの件数は凍結ではなく慎重に管理。追加時は LEDGER に理由を記録
 
 ## Responsibility Boundaries
 
