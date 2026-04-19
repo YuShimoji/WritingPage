@@ -453,7 +453,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 実行済み (session 110 / push 直前):
 
-- Git: **`a0e4558`** on **`origin/main`**（2026-04-20）
+- Git: **`origin/main` @ `44b6acf`**（直前コミットはドキュメント追記のみ。機能・テストの塊は **`a0e4558`**、2026-04-20）
 - `npm run lint:js:check` → clean
 - `npx playwright test --reporter=line` → **515 passed / 2 skipped / 0 failed**（全 spec）
 
