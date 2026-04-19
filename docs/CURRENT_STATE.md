@@ -453,7 +453,7 @@ Session 44〜62 の実行ログは [`docs/archive/current-state-verification-ses
 
 実行済み (session 110 / push 直前):
 
-- Git: **`origin/main` @ `d9ffa47`**（ドキュメント追記のみのコミットが続く場合あり。機能・テスト・多数ファイルの塊は **`a0e4558`**、2026-04-20）
+- Git（session 110）: **機能・E2E・ワーキングツリー統合のまとまりはコミット `a0e4558`**。その後 `origin/main` にドキュメント追記のみのコミットが続く場合がある。**再開時は `git pull --ff-only origin main` で先端を取得**（2026-04-20）。
 - `npm run lint:js:check` → clean
 - `npx playwright test --reporter=line` → **515 passed / 2 skipped / 0 failed**（全 spec）
 
