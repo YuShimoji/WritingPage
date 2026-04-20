@@ -232,7 +232,7 @@
     // 表示 (session 107: view-menu と一対一対応)
     {
       id: 'ui-mode-normal',
-      label: 'フルChrome',
+      label: '通常表示',
       description: 'ツールバー常時表示・サイドバー復元',
       keywords: '標準 レイアウト normal 通常 表示',
       shortcut: 'F2',
@@ -255,7 +255,7 @@
     {
       id: 'ui-mode-next',
       label: '表示を切替',
-      description: 'フルChrome ⇄ ミニマルを循環',
+      description: '通常表示 ⇄ ミニマルを循環',
       keywords: 'サイクル 切替 cycle toggle 表示',
       shortcut: 'F2',
       category: '表示',

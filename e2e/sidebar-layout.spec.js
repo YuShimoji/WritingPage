@@ -82,6 +82,143 @@ test.describe('Sidebar Layout', () => {
     expect(leftClosed).toBe('-320px');
   });
 
+  test('should normalize mismatched stored sidebar widths on reload and keep the closed sidebar fully off-canvas', async ({ page }) => {
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.sidebarOpen = false;
+      settings.ui = settings.ui || {};
+      settings.ui.uiMode = 'normal';
+      settings.ui.sidebarWidth = 420;
+      window.ZenWriterStorage.saveSettings(settings);
+
+      localStorage.setItem('zenwriter-dock-layout', JSON.stringify({
+        sidebarDock: 'left',
+        leftPanel: { visible: false, width: 280, tabs: [], activeTab: 0 },
+        rightPanel: { width: 320 }
+      }));
+    });
+
+    await page.reload();
+    await page.waitForTimeout(300);
+
+    const state = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const settings = window.ZenWriterStorage.loadSettings();
+      const dock = JSON.parse(localStorage.getItem('zenwriter-dock-layout') || '{}');
+      return {
+        cssWidth: getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width').trim(),
+        inlineWidth: sidebar ? sidebar.style.width : '',
+        sidebarRight: sidebar ? sidebar.getBoundingClientRect().right : null,
+        uiSidebarWidth: settings && settings.ui ? settings.ui.sidebarWidth : null,
+        dockSidebarWidth: dock && dock.rightPanel ? dock.rightPanel.width : null,
+      };
+    });
+
+    expect(state.cssWidth).toBe('420px');
+    expect(state.inlineWidth).toBe('420px');
+    expect(state.uiSidebarWidth).toBe(420);
+    expect(state.dockSidebarWidth).toBe(420);
+    expect(state.sidebarRight).toBeLessThanOrEqual(0);
+  });
+
+  test('should keep the closed sidebar inert and expose only the dedicated edge rail', async ({ page }) => {
+    const state = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const handle = document.getElementById('dock-sidebar-resize-handle');
+      const rail = document.getElementById('sidebar-edge-rail');
+      const sidebarStyle = window.getComputedStyle(sidebar);
+      const handleStyle = window.getComputedStyle(handle);
+      const edgeNode = document.elementFromPoint(2, 100);
+      return {
+        sidebarVisibility: sidebarStyle.visibility,
+        sidebarPointerEvents: sidebarStyle.pointerEvents,
+        sidebarOverflowY: sidebarStyle.overflowY,
+        sidebarRight: sidebar.getBoundingClientRect().right,
+        handleDisplay: handleStyle.display,
+        handlePointerEvents: handleStyle.pointerEvents,
+        railVisibility: rail ? window.getComputedStyle(rail).visibility : null,
+        edgeNodeId: edgeNode ? edgeNode.id : null,
+      };
+    });
+
+    expect(state.sidebarVisibility).toBe('hidden');
+    expect(state.sidebarPointerEvents).toBe('none');
+    expect(state.sidebarOverflowY).toBe('hidden');
+    expect(state.sidebarRight).toBeLessThanOrEqual(0);
+    expect(state.handleDisplay).toBe('none');
+    expect(state.handlePointerEvents).toBe('none');
+    expect(state.railVisibility).toBe('visible');
+    expect(state.edgeNodeId).not.toBe('sidebar');
+  });
+
+  test('should keep left edge hover open after resizing and a quick move into the upper-left sidebar area', async ({ page }) => {
+    await page.evaluate(() => {
+      var width = 220;
+      var sidebar = document.getElementById('sidebar');
+      document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+      if (sidebar) {
+        sidebar.style.width = width + 'px';
+      }
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(250);
+
+    await page.mouse.move(2, 72);
+    await page.waitForTimeout(80);
+    await page.mouse.move(18, 34, { steps: 1 });
+    await page.waitForTimeout(160);
+
+    const state = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
+      var rect = sidebar ? sidebar.getBoundingClientRect() : null;
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+        left: rect ? rect.left : null,
+        right: rect ? rect.right : null,
+      };
+    });
+
+    expect(state.edgeHoverLeft).toBe('true');
+    expect(state.isOpen).toBe(true);
+    expect(state.left).toBeLessThanOrEqual(1);
+    expect(state.right).toBeGreaterThan(150);
+  });
+
+  test('should not dismiss a hover-opened sidebar just because the document emits mouseleave near the left edge', async ({ page }) => {
+    await page.evaluate(() => {
+      var width = 220;
+      var sidebar = document.getElementById('sidebar');
+      document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+      if (sidebar) {
+        sidebar.style.width = width + 'px';
+      }
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(250);
+
+    await page.mouse.move(2, 84);
+    await page.waitForTimeout(80);
+    await page.mouse.move(14, 38, { steps: 1 });
+    await page.waitForTimeout(80);
+
+    await page.evaluate(() => {
+      document.dispatchEvent(new MouseEvent('mouseleave'));
+    });
+    await page.waitForTimeout(160);
+
+    const state = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+      };
+    });
+
+    expect(state.edgeHoverLeft).toBe('true');
+    expect(state.isOpen).toBe(true);
+  });
+
   test('should open the sidebar on the right when right dock is active', async ({ page }) => {
     await page.evaluate(() => {
       if (window.dockManager && typeof window.dockManager.moveSidebarTo === 'function') {
@@ -113,6 +250,60 @@ test.describe('Sidebar Layout', () => {
     expect(layout.sidebarRight).toBeLessThanOrEqual(layout.viewportWidth + 1);
     expect(parseInt(layout.mainMarginLeft, 10)).toBe(0);
     expect(parseInt(layout.mainMarginRight, 10)).toBeGreaterThan(0);
+  });
+
+  test('should open the right-docked sidebar from the right edge rail', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.dockManager && typeof window.dockManager.moveSidebarTo === 'function') {
+        window.dockManager.moveSidebarTo('right');
+      }
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(250);
+
+    const viewport = page.viewportSize();
+    await page.mouse.move(viewport.width - 2, 92);
+    await page.waitForTimeout(80);
+    await page.mouse.move(viewport.width - 18, 40, { steps: 1 });
+    await page.waitForTimeout(180);
+
+    const state = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const rect = sidebar.getBoundingClientRect();
+      return {
+        dock: document.documentElement.getAttribute('data-dock-sidebar'),
+        isOpen: sidebar.classList.contains('open'),
+        right: rect.right,
+        left: rect.left,
+      };
+    });
+
+    expect(state.dock).toBe('right');
+    expect(state.isOpen).toBe(true);
+    expect(state.right).toBeLessThanOrEqual(viewport.width + 1);
+    expect(state.left).toBeGreaterThan(viewport.width / 2);
+  });
+
+  test('should not create horizontal page overflow when the sidebar is closed or docked right', async ({ page }) => {
+    const base = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(base.scrollWidth).toBe(base.clientWidth);
+
+    await page.evaluate(() => {
+      if (window.dockManager && typeof window.dockManager.moveSidebarTo === 'function') {
+        window.dockManager.moveSidebarTo('right');
+      }
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(250);
+
+    const rightDock = await page.evaluate(() => ({
+      scrollWidth: document.documentElement.scrollWidth,
+      clientWidth: document.documentElement.clientWidth,
+    }));
+    expect(rightDock.scrollWidth).toBe(rightDock.clientWidth);
   });
 
   test('should handle multiple accordion switches without issues', async ({ page }) => {

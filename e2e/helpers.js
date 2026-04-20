@@ -24,7 +24,7 @@ async function openCommandPalette(page) {
 }
 
 /**
- * E2E 用にフルChrome（Normal）へ寄せる。旧メイン横帯ツールバー廃止後は setUIMode のみ。
+ * E2E 用に通常表示（Normal）へ寄せる。旧メイン横帯ツールバー廃止後は setUIMode のみ。
  */
 async function showFullToolbar(page) {
   await page.evaluate(() => {

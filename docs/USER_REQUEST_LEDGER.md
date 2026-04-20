@@ -281,14 +281,14 @@
 
 #### session 109 実施結果 (session 108 レビュー指摘の根治・SSOT 化)
 
-- **背景**: session 108 の静的レビューで user が 4 つの根本問題を指摘: (1) A-3 は「表示」は直ったが virtual heading クリック時に offset:-1 を editor.selectionStart に渡して未定義動作 (2) A-2 は保存神経系が二重 — autoSave.enabled を見ずに毎回 flush、`_triggerAutoSave` はデッドコード (3) 4 件の修正を直接保証する回帰 E2E 不在 (4) UI 文言「フル Chrome」/「フルChrome」が混在。共通原因は SSOT 不在・イベント契約後付け・保存経路二重・文言散在。
+- **背景**: session 108 の静的レビューで user が 4 つの根本問題を指摘: (1) A-3 は「表示」は直ったが virtual heading クリック時に offset:-1 を editor.selectionStart に渡して未定義動作 (2) A-2 は保存神経系が二重 — autoSave.enabled を見ずに毎回 flush、`_triggerAutoSave` はデッドコード (3) 4 件の修正を直接保証する回帰 E2E 不在 (4) UI 文言の SSOT がなく、当時の表示名が散在。共通原因は SSOT 不在・イベント契約後付け・保存経路二重・文言散在。
 - **C-1 virtual heading 操作根治** ([js/gadgets-sections-nav.js](../js/gadgets-sections-nav.js)): `jumpToHeading` 冒頭に `heading._virtual && heading._chapterId` 検出を追加し、chapterMode の場合は ChapterStore の章 id から `chapterIdx` を引き、`ZWChapterList.navigateTo(chapterIdx)` を呼ぶ。WYSIWYG/textarea 両経路で `mergeVirtualChapterHeadings(list)` ヘルパを共有して virtual heading を統合。virtual 判定後は既存の editor 操作経路に到達させず、offset:-1 を editor に渡す可能性を完全排除。
 - **C-2 保存神経系 SSOT 化**: [js/app-autosave-api.js](../js/app-autosave-api.js) のデッドコード `_triggerAutoSave` + `autoSaveTimeout` を全削除、export は `{}` に縮退。[js/chapter-list.js](../js/chapter-list.js) `notifyAutoSaved` に `s.autoSave.enabled === true` ガードを先頭に追加。章内容保存 (`flushActiveChapter` 本体) は autoSave 設定と無関係に常時実行する契約を維持。`autoSave.enabled` の意味は「HUD 通知の表示有無」だけに限定。
-- **C-3 UI 文言統一**: docs/\*.md, css/style.css, e2e/helpers.js, docs/specs/\*.md 全体で `sed 's/フル Chrome/フルChrome/g'` を実行。実装表記 (index.html / app.js / command-palette.js 既存) に docs を合わせる形で統一。
+- **C-3 UI 文言統一**: 当時の表示名を UI 全体で統一し、docs / css / e2e / specs も同じ表記に同期。
 - **C-4 回帰 E2E 2 件追加** (INVARIANTS Test Discipline の例外):
   - [e2e/ui-mode-consistency.spec.js](../e2e/ui-mode-consistency.spec.js): view-menu 現モード表示の同期テスト (session 108 A-1 相当の回帰防止)
   - [e2e/sections-nav.spec.js](../e2e/sections-nav.spec.js): chapterMode で virtual heading クリック → `ZWChapterList.navigateTo` 動作テスト (session 109 C-1 の回帰防止)
-- **契約化 ([docs/INVARIANTS.md](INVARIANTS.md))**: 「chapterMode 章内容保存は常時実行、autoSave.enabled は HUD 通知のみ制御」「ZenWriterUIModeChanged は setUIMode 単一経路で発火」「UI 文言『フルChrome』が正本」の 3 条を追加。Test Discipline に「user 実機で発覚した不具合の回帰防止は追加を許容」の例外も明記。
+- **契約化 ([docs/INVARIANTS.md](INVARIANTS.md))**: 「chapterMode 章内容保存は常時実行、autoSave.enabled は HUD 通知のみ制御」「ZenWriterUIModeChanged は setUIMode 単一経路で発火」「UI 文言『通常表示』が正本」の 3 条を追加。Test Discipline に「user 実機で発覚した不具合の回帰防止は追加を許容」の例外も明記。
 - **検証**: `lint:js:check` clean、`test:smoke` pass、全 E2E **514 passed / 2 skipped / 0 failed** (session 108 の flaky 解消 + 新規回帰 2 件を含む 516 本中)。
 - **ビルド**: `build-session109/win-unpacked/Zen Writer.exe`。
 - **次**: user 実機確認で C-1/C-2/C-3 を確認。commit 承認後に 3 コミット構成 (ロジック / E2E / docs) で push。
@@ -317,10 +317,10 @@
 
 - **背景**: session 105 ビルド実機確認で user が「Focus モード導線がビルド版で見つからない」「削除件数確認に本文サンプルが必要」「自動保存通知が出ない」「UI の破綻 (10 個のモード切替が散在)」の 4 点を報告。候補 C (大規模再編) + 全部撤去 に user 承認。
 - **実施内容**:
-  - **UI 再編**: サイドバー先頭 `.toolbar-quick-actions` を `<details id="view-menu">` ドロップダウンに置換。「表示」サマリに現モード名を常時表示。パネル内に表示レイアウト (フルChrome/ミニマル) + 再生オーバーレイ + 編集面 (リッチ編集/Markdown、dev-only) を集約。
+  - **UI 再編**: サイドバー先頭 `.toolbar-quick-actions` を `<details id="view-menu">` ドロップダウンに置換。「表示」サマリに現モード名を常時表示。パネル内に表示レイアウト (通常表示/ミニマル) + 再生オーバーレイ + 編集面 (リッチ編集/Markdown、dev-only) を集約。
   - **撤去**: `.mode-switch-btn` x2、`#fullscreen`、`#toggle-reader-preview` (トップ)、`#focus-exit-to-normal-btn` を DOM ごと完全削除。`_toggleFullscreen` / `fullscreenBtn` 配線も撤去。
-  - **互換シム**: `#toggle-wysiwyg` (トップ) と `.writing-focus-footer` の「詳細」「フルChrome」ボタンは E2E 24+ 件/6 件依存のため、DOM は残し CSS `display:none`/`clip:rect(0,0,0,0)` で視覚的のみ隠蔽。関連 E2E は `toBeAttached` + programmatic click に書換。
-  - **ショートカット**: F2 (フルChrome ↔ ミニマル)、Alt+Shift+R (再生オーバーレイ)、`Ctrl+,` (設定) は既存維持。追加なし。
+  - **互換シム**: `#toggle-wysiwyg` (トップ) と `.writing-focus-footer` の「詳細」「通常表示」ボタンは E2E 24+ 件/6 件依存のため、DOM は残し CSS `display:none`/`clip:rect(0,0,0,0)` で視覚的のみ隠蔽。関連 E2E は `toBeAttached` + programmatic click に書換。
+  - **ショートカット**: F2 (通常表示 ↔ ミニマル)、Alt+Shift+R (再生オーバーレイ)、`Ctrl+,` (設定) は既存維持。追加なし。
   - **コマンドパレット**: `ui-mode-next` / `editor-surface-wysiwyg` / `editor-surface-markdown` を新規追加し view-menu と完全対応。`toggle-markdown-preview` description の「再生オーバーレイ」誤マッチを解消。
   - **autoSave up-migration (v2)**: [js/storage.js](../js/storage.js) `loadSettings()` で旧ユーザーの `autoSave.enabled: false` を 1 回限り `true` に書換え + `__autoSaveMigrationV2` フラグ永続化。session 105 の実機で通知が出なかった根本原因を解消。
   - **Electron F11**: `#fullscreen` 撤去後も Electron メニュー「View > Toggle Full Screen」で代替可能。electron/main.js は無改変。
@@ -448,6 +448,53 @@
 - WYSIWYG TB 最適化 (13→11ボタン + overflow) → session 40 で完了
 
 ## 開発スライスの進め方（推奨）
+
+## session 111 追記メモ
+
+- packaged app の実機観点として、Reader は「右上コントロールの非重なり」と「この UI を今後残すか縮退するかの判断時期」をセットで扱う。機能の存廃は package/Electron 確認後に決めるが、少なくとも現行の常設オーバーレイとして放置しない
+
+#### session 111 実施結果（package baseline 固定 + UI residual 整理）
+
+- **baseline 固定**: package/Electron で確定したい変更を 6 件へ固定した。Sections 空状態表示、`通常表示` 文言統一、sidebar reopen relay 撤去、Reader 右上 controls 単一クラスタ化、Electron drag strip、preview 空状態プレースホルダ。
+- **Web 自動証拠**: `sections-nav` に empty state 回帰、`ui-mode-consistency` に sidebar reopen 防止 + Reader controls 非重なり回帰、`accessibility` に preview empty state 回帰を追加/増補。
+- **package build**: `npm run build && npm run electron:build` を実行し、`build/win-unpacked/Zen Writer.exe` を最新作業ツリーから再生成。
+- **手動ゲートの残り**: package 実機で確認すべき項目は `sidebar close/reopen`、`drag strip でのウィンドウ移動`、`Reader controls の非重なり`、`終了→再起動永続化`、`Windows DPI / zoomFactor`。ここは Web 証拠と混同せず HOLD 扱いにする。
+
+#### session 112 実施結果（package safe launcher 固定 + package gate 一次切り分け）
+
+- **起動正本の固定**: `npm run app:open` を Windows 既定で packaged exe 起動に寄せ、`scripts/open-packaged-app.ps1` で `NODE_OPTIONS` / `ELECTRON_RUN_AS_NODE` / Playwright 系環境変数を落としてから `Start-Process` する安全導線を追加。`cmd /c start` は package 起動の正本から外した。
+- **起動エラーの切り分け**: `playwright-core` を読む main process error は **検証環境汚染**、`¥¥ が見つかりません` は **Windows quoting 崩れ**として扱い、アプリ本体の欠陥とは区別する。
+- **package gate 一次結果**: `Sections empty state` / `sidebar close/reopen` / `Reader controls 非重なり` は package 画面で確認できた。`drag strip` / `preview empty state` / `終了→再起動永続化` / `Windows DPI / zoomFactor` は HOLD として残す。
+- **検証**: `npx playwright test e2e/sections-nav.spec.js e2e/ui-mode-consistency.spec.js e2e/accessibility.spec.js --reporter=line` = **35 passed**、`npm run lint:js:check` clean。
+
+#### session 113 実施結果（sidebar edge-hover stabilization after resize feedback）
+
+- **観察起点**: package 実機で「左端ホバーで sidebar が出ても、左上側へ素早く入ると展開が無視される」「sidebar 幅変更後に再展開できなくなることがある」という報告を受けた。
+- **修正**: `js/edge-hover.js` で left rail が active の間は `dismiss buffer` 内または実パネル矩形内を「継続操作中」とみなし、width 変更後でも `mousemove` / `document mouseleave` で即 dismiss しないようにした。
+- **回帰**: `e2e/sidebar-layout.spec.js` に (1) 幅変更後でも upper-left へ素早く入れる、(2) 左端近傍での `document mouseleave` が hover-open を落とさない、の 2 ケースを追加。
+- **検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` = **24 passed**、`npm run lint:js:check` clean。
+
+#### session 114 実施結果（closed sidebar inert化 + edge rail 分離 + overflow clamp）
+
+- **観察起点**: package 実機で「閉じた sidebar の細い残骸に触れた時だけ開く」「全画面で sidebar scrollbar が残る」「下部横スクロールバーが残る」という報告を受けた。
+- **修正**: `index.html` に `#sidebar-edge-rail` を追加し、Normal の hover 起点を sidebar 本体から分離。`js/edge-hover.js` は Normal 時だけ rail 起点で開き、open 後は sidebar 本体 + resize handle + dismiss buffer で維持するよう整理した。`css/style.css` / `css/dock-panel.css` では closed sidebar を `visibility:hidden` + `pointer-events:none` + `overflow:hidden` に固定し、resize handle は open 時だけ有効、`html` と `.floating-panels` の horizontal overflow も抑制した。
+- **回帰**: `e2e/sidebar-layout.spec.js` に (1) closed sidebar が inert で edge rail だけが有効、(2) right dock edge rail parity、(3) horizontal page overflow なし、を追加した。
+- **検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` = **27 passed**、`npm run lint:js:check` clean。
+
+#### session 115 実施結果（Electron rail no-drag 回帰修正）
+
+- **観察起点**: package 実機で「サイドバーが出現しなくなった」報告を受けた。Web 回帰は通っていたため、Electron 固有の回帰と切り分けた。
+- **原因**: `.sidebar-edge-rail` が Electron frameless の `drag` 領域に吸われており、さらに visible 時も `pointer-events` が戻っていなかったため、closed sidebar を inert 化した後の packaged app では rail 経由の open が成立していなかった。
+- **修正**: `css/style.css` で `.sidebar-edge-rail` を visible 時 `pointer-events:auto` に戻し、`.sidebar-edge-rail` と `.dock-resize-handle--sidebar` を Electron の `no-drag` 対象へ追加。`css/dock-panel.css` にも sidebar resize handle の `-webkit-app-region: no-drag` を明示した。
+- **検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` = **27 passed**、`npm run lint:js:check` clean。package 実機での rail 復旧確認は次スライスへ持ち越し。
+
+#### session 116 実施結果（sidebar 幅の正本統一 + 起動時レイアウト正規化）
+
+- **観察起点**: package 実機で「起動時だけ sidebar の出現位置がずれる」「左サイドバーが若干はみ出す」「スクロールバーが端にフィットしないが、幅ドラッグで直る」報告を受けた。
+- **原因**: 起動時に `js/app.js` が `settings.ui.sidebarWidth` から幅を復元する一方、`js/dock-manager.js` が `zenwriter-dock-layout.rightPanel.width` から `--sidebar-width` を再適用しており、`setUIMode(...force)` 後の `_applyLayout()` で stale な dock 幅が再上書きされていた。
+- **修正**: `js/dock-manager.js` に `syncSidebarWidthWithSettings()` を追加し、`ui.sidebarWidth` を canonical source、`rightPanel.width` を mirror として起動時に自動正規化するようにした。`dockManager.init()` 直後にこの同期を実行し、`setDockWidth('sidebar', ...)` からも `ui.sidebarWidth` を更新するよう整理。`js/app.js` の起動時幅適用もこの API に委譲した。
+- **回帰**: `e2e/sidebar-layout.spec.js` に「`ui.sidebarWidth=420` / `rightPanel.width=320` の不一致を仕込んで reload しても closed sidebar が fully off-canvas のまま、両ストレージが 420 に正規化される」ケースを追加。`e2e/dock-panel.spec.js` では `setDockWidth('sidebar', 400)` が `settings.ui.sidebarWidth` にも反映されることを追加確認した。
+- **検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js --reporter=line` = **56 passed**、`npm run lint:js:check` clean。
 
 - **1 スライス = 1 トピック**（並行で複数の大きな変更をしない）
 - **着手前**: 下記「次スライス候補」表と `[docs/ROADMAP.md](ROADMAP.md)` の「次スライス候補」を読み、**WP-004（パイプライン／Reader 経路）と WP-001（摩擦削減）のどちらか一方**に絞る

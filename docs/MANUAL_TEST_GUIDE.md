@@ -2,7 +2,38 @@
 
 Zen Writer の全機能を一通り確認するための手順書。サンプルプロジェクトと組み合わせて使う。
 
-最終更新: 2026-04-15 (session 94)
+最終更新: 2026-04-20 (session 112 package safe launcher 追記)
+
+## 0. package / Electron 固有の最小確認
+
+対象 build: `build/win-unpacked/Zen Writer.exe`
+
+推奨起動:
+
+```bash
+npm run app:open
+```
+
+Windows ではこの経路が packaged app の正本起動です。`NODE_OPTIONS` /
+`ELECTRON_RUN_AS_NODE` / Playwright 系環境変数を落としてから PowerShell
+`Start-Process` で起動します。
+
+この節は Web E2E の代替ではなく、**package でしか確定できない項目だけ**を確認する。
+
+- [ ] `通常表示` で edge rail から sidebar を開けて、閉じた状態では細い残骸が残らない
+- [ ] `通常表示 → ミニマル → 通常表示` 後も sidebar 状態が勝手に reopen しない
+- [ ] drag strip でウィンドウを移動できる
+- [ ] Reader 右上ボタン群が重ならず操作できる
+- [ ] Sections が空のとき、現在の状態と理由が読める
+- [ ] preview を開いたとき、空なら理由が表示される
+- [ ] アプリ終了 → 再起動後に直前状態が不自然に失われない
+- [ ] Windows DPI / zoomFactor / 枠込み描画差で操作不能にならない
+
+記録形式:
+
+- `PASS`: 期待どおり
+- `FAIL`: 再現手順 / 実際の結果 / 期待結果 / Webとの差分
+- `HOLD`: package では見えたが仕様判断待ち
 
 ## 1. 環境準備
 

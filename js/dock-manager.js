@@ -19,6 +19,24 @@
     return Math.max(min, Math.min(max, val));
   }
 
+  function getSettingsSnapshot() {
+    try {
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
+        return window.ZenWriterStorage.loadSettings();
+      }
+    } catch (_e) { /* ignore */ }
+    return null;
+  }
+
+  function saveSettingsSnapshot(settings) {
+    try {
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveSettings === 'function') {
+        return !!window.ZenWriterStorage.saveSettings(settings);
+      }
+    } catch (_e) { /* ignore */ }
+    return false;
+  }
+
   /**
    * @param {object} sidebarManager - SidebarManager instance
    */
@@ -35,6 +53,7 @@
 
   DockManager.prototype.init = function () {
     this._load();
+    this.syncSidebarWidthWithSettings();
     this._applyLayout();
     this._bindControls();
     this._initResizeHandles();
@@ -88,6 +107,53 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this._layout));
     } catch (_e) { /* ignore */ }
+  };
+
+  DockManager.prototype._resolveCanonicalSidebarWidth = function (settings) {
+    var candidate = null;
+    if (settings && settings.ui && typeof settings.ui.sidebarWidth === 'number') {
+      candidate = settings.ui.sidebarWidth;
+    } else if (this._layout && this._layout.rightPanel && typeof this._layout.rightPanel.width === 'number') {
+      candidate = this._layout.rightPanel.width;
+    } else {
+      candidate = DEFAULT_SIDEBAR_WIDTH;
+    }
+    return clamp(candidate, MIN_WIDTH, getMaxWidth());
+  };
+
+  DockManager.prototype.syncSidebarWidthWithSettings = function (settings) {
+    var snapshot = settings || getSettingsSnapshot();
+    var canonicalWidth = this._resolveCanonicalSidebarWidth(snapshot);
+    var dockChanged = this._layout.rightPanel.width !== canonicalWidth;
+
+    this._layout.rightPanel.width = canonicalWidth;
+
+    var html = document.documentElement;
+    html.style.setProperty('--sidebar-width', canonicalWidth + 'px');
+
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+      var isDesktop = window.matchMedia('(min-width: 1025px)').matches;
+      if (isDesktop) {
+        sidebar.style.width = canonicalWidth + 'px';
+      } else {
+        sidebar.style.removeProperty('width');
+      }
+    }
+
+    var settingsChanged = false;
+    if (snapshot && typeof snapshot === 'object') {
+      if (!snapshot.ui || typeof snapshot.ui !== 'object') snapshot.ui = {};
+      if (snapshot.ui.sidebarWidth !== canonicalWidth) {
+        snapshot.ui.sidebarWidth = canonicalWidth;
+        settingsChanged = true;
+      }
+    }
+
+    if (dockChanged) this._save();
+    if (settingsChanged) saveSettingsSnapshot(snapshot);
+
+    return canonicalWidth;
   };
 
   // --- Layout Application ---
@@ -461,6 +527,18 @@
     } else if (side === 'sidebar') {
       this._layout.rightPanel.width = w;
       document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar && window.matchMedia('(min-width: 1025px)').matches) {
+        sidebar.style.width = w + 'px';
+      }
+      var settings = getSettingsSnapshot();
+      if (settings && typeof settings === 'object') {
+        if (!settings.ui || typeof settings.ui !== 'object') settings.ui = {};
+        if (settings.ui.sidebarWidth !== w) {
+          settings.ui.sidebarWidth = w;
+          saveSettingsSnapshot(settings);
+        }
+      }
     }
     this._save();
   };

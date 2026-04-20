@@ -369,12 +369,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const s = window.ZenWriterStorage.loadSettings();
             const sidebar = elementManager.get('sidebar');
             if (sidebar && s && s.ui) {
-                if (typeof s.ui.sidebarWidth === 'number') {
+                if (window.dockManager && typeof window.dockManager.syncSidebarWidthWithSettings === 'function') {
+                    window.dockManager.syncSidebarWidthWithSettings(s);
+                } else if (typeof s.ui.sidebarWidth === 'number') {
                     const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
                     if (isDesktop) {
                         const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
                         sidebar.style.width = w + 'px';
-                        // CSS変数にも反映（main-content のオフセットと同期）
                         document.documentElement.style.setProperty('--sidebar-width', w + 'px');
                     } else {
                         sidebar.style.removeProperty('width');
@@ -449,47 +450,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.ZWEdgeHover.dismissAll();
         }
 
-        // M-1a: Focus→Normal では dismiss で章レール相当が消える。本体 #sidebar が閉じたままだと左が空に見えるため、
-        // 直前にサイドバーが閉じていたときだけフルChrome用に開く（既に開いている場合は触らない）。
-        if (currentMode === 'focus' && targetMode === 'normal') {
-            var sidebarElForExit = document.getElementById('sidebar');
-            var sidebarWasOpenBeforeExit = !!(sidebarElForExit && sidebarElForExit.classList.contains('open'));
-            if (!sidebarWasOpenBeforeExit && window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
-                window.sidebarManager.forceSidebarState(true);
-                try {
-                    sessionStorage.setItem('zw_focus_exit_opened_sidebar', '1');
-                } catch (_) { }
-                try {
-                    var stOpen = window.ZenWriterStorage.loadSettings();
-                    stOpen.sidebarOpen = true;
-                    window.ZenWriterStorage.saveSettings(stOpen);
-                } catch (_) { }
-            }
-        }
-
-        // M-1b: Focus 入場時 — Normal→Focus の通常遷移に加え、初回起動 (currentMode===null) でも
-        // 通常サイドバーは閉じる。session 98 で settings.sidebarOpen 既定値を true に変更した副作用で、
-        // Focus モードで起動しても通常サイドバーが開いたまま古い UI が露出するケースを打ち消す。
-        // 手動で開かれたサイドバーは Normal→Focus 経由では維持される（既存仕様）。
         if (currentMode === 'normal' && targetMode === 'focus') {
-            var reopenCh = false;
-            try {
-                reopenCh = sessionStorage.getItem('zw_focus_exit_opened_sidebar') === '1';
-                sessionStorage.removeItem('zw_focus_exit_opened_sidebar');
-            } catch (_) { }
-            if (reopenCh && window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
-                window.sidebarManager.forceSidebarState(false);
-                try {
-                    var stCl = window.ZenWriterStorage.loadSettings();
-                    stCl.sidebarOpen = false;
-                    window.ZenWriterStorage.saveSettings(stCl);
-                } catch (_) { }
-            }
             if (window.sidebarManager && typeof window.sidebarManager.collapseWritingFocusDetailForUIModeFocus === 'function') {
                 window.sidebarManager.collapseWritingFocusDetailForUIModeFocus();
-            }
-            if (reopenCh && window.ZWEdgeHover && typeof window.ZWEdgeHover.peekFocusLeftChapterRail === 'function') {
-                window.ZWEdgeHover.peekFocusLeftChapterRail();
             }
         }
         // 初回起動で Focus モードに入る場合: settings 復元で自動オープンされた通常サイドバーを閉じる。
@@ -508,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // サイドバー開閉はモード切替では原則触らない（上記 M-1a/M-1b は章レールとフルChromeの整合の例外）。
+        // サイドバー開閉はモード切替では原則触らない。
         // 永続化された開閉は起動時・明示トグル・Alt+1 等の経路で反映される。
 
         // M-2: モード切替時にフローティングツールバーを確実に非表示
@@ -616,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = menu.querySelector('[data-current-mode]');
         const normalBtn = menu.querySelector('[data-view-action="ui-mode-normal"]');
         const focusBtn = menu.querySelector('[data-view-action="ui-mode-focus"]');
-        const label = mode === 'normal' ? 'フルChrome' : 'ミニマル';
+        const label = mode === 'normal' ? '通常表示' : 'ミニマル';
         if (current) current.textContent = label;
         if (normalBtn) normalBtn.setAttribute('aria-checked', mode === 'normal' ? 'true' : 'false');
         if (focusBtn) focusBtn.setAttribute('aria-checked', mode === 'focus' ? 'true' : 'false');

@@ -341,10 +341,17 @@
     treeContainer.setAttribute('role', 'tree');
     treeContainer.setAttribute('aria-label', '\u898b\u51fa\u3057\u30c4\u30ea\u30fc');
 
-    // session 91: 「見出しがありません」メッセージを撤去（フォーカス外表示で混乱の原因）。
-    // 見出し 0 件時は treeContainer を空のまま返し、視覚的に静かなガジェットとする。
+    var emptyState = document.createElement('div');
+    emptyState.className = 'sections-empty-state';
+    emptyState.hidden = true;
+    emptyState.innerHTML = [
+      '<p class="sections-empty-state__title">表示できるセクションがまだありません</p>',
+      '<p class="sections-empty-state__meta" data-sections-empty-meta></p>',
+      '<p class="sections-empty-state__hint" data-sections-empty-hint></p>'
+    ].join('');
 
     wrap.appendChild(treeContainer);
+    wrap.appendChild(emptyState);
     el.appendChild(wrap);
 
     var currentHeadings = [];
@@ -396,6 +403,36 @@
       return list;
     }
 
+    function getEmptyStateInfo() {
+      var Store = window.ZWChapterStore;
+      var S = window.ZenWriterStorage;
+      var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+      var docId = rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+        ? Store.resolveParentDocumentId(rawId) : rawId;
+      var chapterMode = !!(docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId));
+      var chapters = chapterMode && typeof Store.getChaptersForDoc === 'function'
+        ? (Store.getChaptersForDoc(docId) || [])
+        : [];
+      var editor = document.getElementById('editor');
+      var content = editor ? (editor.value || '') : '';
+      var surface = isWysiwygMode() ? 'リッチ編集' : 'Markdown ソース';
+      var meta = '現在: ' + surface + ' / 本文 ' + content.trim().length + ' 文字';
+      var hint = '本文に # 見出し を追加すると、ここに一覧が出ます。';
+
+      if (chapterMode) {
+        meta += ' / 章モード / 章 ' + chapters.length + ' 件';
+        if (chapters.length === 0) {
+          hint = '章モードです。章を追加するか、本文に # 見出し を入れるとここに表示されます。';
+        } else {
+          hint = '章はありますが、表示対象の見出しがまだありません。';
+        }
+      } else if (!content.trim()) {
+        hint = '本文がまだ空です。まず見出し付きで書き始めると、ここに現在位置が出ます。';
+      }
+
+      return { meta: meta, hint: hint };
+    }
+
     function render() {
       // BP-5: アコーディオントグル中の再 render をスキップ (循環防止)
       if (window.sidebarManager && window.sidebarManager._toggleAccordionInProgress) return;
@@ -423,8 +460,14 @@
       treeContainer.innerHTML = '';
 
       if (currentHeadings.length === 0) {
-        // session 91: 見出し 0 件時は空のまま（メッセージ表示なし）
+        var emptyInfo = getEmptyStateInfo();
+        var metaEl = emptyState.querySelector('[data-sections-empty-meta]');
+        var hintEl = emptyState.querySelector('[data-sections-empty-hint]');
+        if (metaEl) metaEl.textContent = emptyInfo.meta;
+        if (hintEl) hintEl.textContent = emptyInfo.hint;
+        emptyState.hidden = false;
       } else {
+        emptyState.hidden = true;
         var minLevel = 6;
         for (var k = 0; k < currentHeadings.length; k++) {
           if (currentHeadings[k].level < minLevel) minLevel = currentHeadings[k].level;

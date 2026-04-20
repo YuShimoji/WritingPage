@@ -433,7 +433,7 @@ class SidebarManager {
                 footer.innerHTML = `
                     <div class="writing-focus-footer__row" role="group" aria-label="執筆集中サイドバー操作">
                         <button id="writing-focus-settings-btn" class="writing-focus-settings-btn" type="button" title="サイドバーで構成・テーマなどを表示">詳細</button>
-                        <button type="button" id="writing-focus-exit-to-normal-btn" class="writing-focus-exit-full" title="フルChrome表示に切替">フルChrome</button>
+                        <button type="button" id="writing-focus-exit-to-normal-btn" class="writing-focus-exit-full" title="通常表示に切替">通常表示</button>
                     </div>`;
                 accordion.appendChild(footer);
             } else if (!document.getElementById('writing-focus-exit-to-normal-btn')) {
@@ -449,8 +449,8 @@ class SidebarManager {
                     exitBtn.type = 'button';
                     exitBtn.id = 'writing-focus-exit-to-normal-btn';
                     exitBtn.className = 'writing-focus-exit-full';
-                    exitBtn.title = 'フルChrome表示に切替';
-                    exitBtn.textContent = 'フルChrome';
+                    exitBtn.title = '通常表示に切替';
+                    exitBtn.textContent = '通常表示';
                     row.appendChild(exitBtn);
                 }
             }
@@ -517,7 +517,7 @@ class SidebarManager {
 
     /**
      * Normal→Focus（最小）へ入ったとき、永続の「詳細」展開を畳み章ナビ中心に揃える。
-     * フルChromeに戻ったあと再度最小にしたときに、サイドバーが「最小なのに構造まで出る」状態を防ぐ。
+     * 通常表示に戻ったあと再度最小にしたときに、サイドバーが「最小なのに構造まで出る」状態を防ぐ。
      */
     collapseWritingFocusDetailForUIModeFocus() {
         if (!this._isWritingFocusSidebarEffective()) return;

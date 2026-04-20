@@ -60,11 +60,22 @@ npm run electron:dev
 ### 方法2：ビルドしてから起動
 
 ```bash
-# dist版をビルド
+# packaged app をビルド
 npm run build
+npm run electron:build
 
-# ビルド済みアプリを開く
+# ビルド済み packaged app を安全に開く
 npm run app:open
+```
+
+`npm run app:open` は Windows では `build/win-unpacked/Zen Writer.exe` を優先し、
+起動前に `NODE_OPTIONS` / `ELECTRON_RUN_AS_NODE` / Playwright 系環境変数をクリアします。
+Playwright 検証後でも packaged app を汚染なしで起動するための正本導線です。
+
+dist の `index.html` を直接開きたいときだけ、次を使います。
+
+```bash
+npm run app:open:dist
 ```
 
 ### 方法3：インストーラー作成
@@ -162,6 +173,17 @@ taskkill /PID <プロセスID> /F
 npm ci
 ```
 
+### Q: packaged app で `playwright-core` や `JavaScript error in the main process` が出る
+
+**A:** アプリ本体ではなく、Playwright の Electron preload や `NODE_OPTIONS` が
+起動環境へ混入している可能性があります。`npm run app:open` を使って再起動してください。
+
+### Q: packaged app 起動時に `¥¥ が見つかりません` のような Windows エラーが出る
+
+**A:** `cmd /c start` 経由の quoting 崩れが原因になりやすいです。
+Windows では `npm run app:open` の PowerShell `Start-Process` 経路を正本とし、
+手動で `cmd /c start` を組み立てないでください。
+
 ### Q: PWAがインストールできない
 
 **A:** 以下を確認してください：
@@ -204,7 +226,9 @@ http://localhost:8080?reset=1
 | `npm run electron:build` | Electronアプリビルド（dir出力） |
 | `npm run electron:dist` | Electronアプリビルド（配布版） |
 | `npm run build` | dist版作成 |
-| `npm run app:open` | ビルド済みアプリ起動 |
+| `npm run app:open` | packaged app を安全に起動 |
+| `npm run app:open:package` | packaged app を明示起動 |
+| `npm run app:open:dist` | dist/index.html を直接開く |
 | `npm run app:install` | インストール＋ショートカット作成 |
 | `npm run app:install:open` | インストール＋起動 |
 

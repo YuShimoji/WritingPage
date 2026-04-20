@@ -107,7 +107,9 @@
       : {};
 
     var html = '';
-    if (window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
+    if (!src.trim()) {
+      html = '<p class="editor-preview__empty">プレビューできる本文がまだありません。本文を書くとここに反映されます。</p>';
+    } else if (window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
       html = window.ZWMdItBody.renderToHtmlBeforePipeline(src, { editorManager: editorManager });
     } else {
       html = (src || '')

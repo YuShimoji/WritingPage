@@ -185,6 +185,7 @@ test.describe('Accessibility E2E', () => {
 
     const previewToggle = page.locator('#toggle-preview');
     const previewPanel = page.locator('#editor-preview');
+    const previewBody = page.locator('#markdown-preview-panel');
 
     const initialExpanded = await previewToggle.getAttribute('aria-expanded');
     const initialCollapsed = await previewPanel.evaluate((el) => el.classList.contains('editor-preview--collapsed'));
@@ -196,5 +197,6 @@ test.describe('Accessibility E2E', () => {
 
     expect(newExpanded).not.toBe(initialExpanded);
     expect(newCollapsed).not.toBe(initialCollapsed);
+    await expect(previewBody).toContainText('プレビューできる本文がまだありません');
   });
 });

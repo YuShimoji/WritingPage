@@ -14,6 +14,8 @@
 
   /** 上端エッジ検知ゾーン (px)。画面上端からこの距離内でホバー扱い（ツールバー用、固定）。 */
   var EDGE_ZONE = 24;
+  /** Normal モードのサイドバー専用 edge rail 幅。sidebar 本体の幾何から分離する。 */
+  var SIDEBAR_EDGE_RAIL_PX = 14;
   /** 開く側トリガー下限 (px): パネル実幅が極端に狭い場合の保険。 */
   var LEFT_EDGE_OPEN_MIN_PX = 120;
   /** 閉じる側バッファ (px)。パネル右端からこの距離を超えたら閉じる（ヒステリシス）。
@@ -118,8 +120,107 @@
     return html.getAttribute('data-ui-mode') === 'focus';
   }
 
+  function isReaderOverlayOpen() {
+    return html.getAttribute('data-reader-overlay-open') === 'true';
+  }
+
+  function getSidebarDockSide() {
+    return html.getAttribute('data-dock-sidebar') === 'right' ? 'right' : 'left';
+  }
+
+  function isSidebarDockedRight() {
+    return getSidebarDockSide() === 'right';
+  }
+
   function shouldDismissLeftAt(x) {
     return x > getLeftEdgeDismissZone();
+  }
+
+  function getLeftHoverTarget() {
+    if (isFocusMode()) {
+      return document.querySelector('.focus-chapter-panel');
+    }
+    return document.getElementById('sidebar');
+  }
+
+  function getLeftHoverTargetRect() {
+    var target = getLeftHoverTarget();
+    if (!target) return null;
+    var rect = target.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return null;
+    return rect;
+  }
+
+  function isPointInsideRect(x, y, rect, extra) {
+    if (!rect) return false;
+    var pad = typeof extra === 'number' ? extra : 0;
+    return x >= rect.left - pad &&
+      x <= rect.right + pad &&
+      y >= rect.top - pad &&
+      y <= rect.bottom + pad;
+  }
+
+  function getSidebarEdgeRailRect() {
+    var rail = document.getElementById('sidebar-edge-rail');
+    if (rail) {
+      var rect = rail.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) return rect;
+    }
+
+    if (isSidebarDockedRight()) {
+      return {
+        left: window.innerWidth - SIDEBAR_EDGE_RAIL_PX,
+        right: window.innerWidth,
+        top: 0,
+        bottom: window.innerHeight,
+        width: SIDEBAR_EDGE_RAIL_PX,
+        height: window.innerHeight
+      };
+    }
+
+    return {
+      left: 0,
+      right: SIDEBAR_EDGE_RAIL_PX,
+      top: 0,
+      bottom: window.innerHeight,
+      width: SIDEBAR_EDGE_RAIL_PX,
+      height: window.innerHeight
+    };
+  }
+
+  function getSidebarResizeHandleRect() {
+    var handle = document.getElementById('dock-sidebar-resize-handle');
+    if (!handle) return null;
+    var style = getComputedStyle(handle);
+    if (style.display === 'none' || style.visibility === 'hidden') return null;
+    var rect = handle.getBoundingClientRect();
+    if (!(rect.width > 0 && rect.height > 0)) return null;
+    return rect;
+  }
+
+  function isPointInNormalSidebarRail(x, y) {
+    return isPointInsideRect(x, y, getSidebarEdgeRailRect(), 0);
+  }
+
+  function isNormalSidebarInteractionActiveAt(x, y) {
+    var sidebarRect = getLeftHoverTargetRect();
+    if (!sidebarRect) return false;
+    if (isPointInsideRect(x, y, sidebarRect, 8)) return true;
+    if (isPointInsideRect(x, y, getSidebarResizeHandleRect(), 4)) return true;
+    if (isSidebarDockedRight()) {
+      return x >= Math.max(0, sidebarRect.left - LEFT_EDGE_CLOSE_BUFFER_PX);
+    }
+    return x <= Math.min(window.innerWidth, sidebarRect.right + LEFT_EDGE_CLOSE_BUFFER_PX);
+  }
+
+  /** 左レールが一度開いた後は、パネル本体か dismiss buffer の内側にいる限り
+      「まだ操作継続中」とみなし、window 端の mouseleave や一時的な高速移動で閉じない。 */
+  function isLeftInteractionActiveAt(x, y) {
+    if (isFocusMode()) {
+      if (x <= getLeftEdgeDismissZone()) return true;
+      return isPointInsideRect(x, y, getLeftHoverTargetRect(), 8);
+    }
+    return isNormalSidebarInteractionActiveAt(x, y);
   }
 
   // --- 表示/非表示 ---
@@ -232,16 +333,20 @@
     //  - 閉じる: パネル右端 + LEFT_EDGE_CLOSE_BUFFER_PX (120px) を超えたら dismiss 開始
     // パネル幅を変えても、右端からの緩衝距離は一定 (リサイズハンドル col-resize を跨いでも閉じない)。
     // 画面高さは全域で発火 (session 91 で y > EDGE_ZONE 除外撤廃)
-    var leftZone = getLeftEdgeZone();
+    var inLeftTriggerZone = isFocusMode()
+      ? x <= getLeftEdgeZone()
+      : (!isReaderOverlayOpen() && isPointInNormalSidebarRail(x, y));
     var leftDismissZone = getLeftEdgeDismissZone();
-    if (x <= leftZone) {
+    if (inLeftTriggerZone) {
       if (state.left.active) cancelDismiss('left');
       else startDwell('left');
     } else {
       if (!state.left.active) {
         clearTimeout(state.left.dwellTimer);
         state.left.dwellTimer = null;
-      } else if (x > leftDismissZone) {
+      } else if (isLeftInteractionActiveAt(x, y)) {
+        cancelDismiss('left');
+      } else if (!isFocusMode() || x > leftDismissZone) {
         // 境界近傍では閉じない。バッファを超えたら dismiss 開始。
         startDismiss('left');
       }
@@ -267,6 +372,20 @@
         if (!state.left.active) return;
         var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
         if (shouldDismissLeftAt(x)) startDismiss('left');
+      });
+    }
+
+    var sidebarHandle = document.getElementById('dock-sidebar-resize-handle');
+    if (sidebarHandle) {
+      sidebarHandle.addEventListener('mouseenter', function () {
+        cancelDismiss('left');
+        markLeftEdgeTouched();
+      });
+      sidebarHandle.addEventListener('mouseleave', function (e) {
+        if (!state.left.active) return;
+        var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
+        var y = e && typeof e.clientY === 'number' ? e.clientY : lastPointer.y;
+        if (!isLeftInteractionActiveAt(x, y)) startDismiss('left');
       });
     }
 
@@ -297,18 +416,15 @@
     // session 93: 上端用定数 EDGE_ZONE(24) の誤用を修正し、左端は getLeftEdgeZone() を使う。
     // 旧実装ではマウスがトリガーゾーン内 (例 50px) でも毎 mousemove で x > 24 が true となり
     // dismiss が即発火、パネルが開いても即閉じる race condition が発生していた。
-    if (state.left.active && shouldDismissLeftAt(x)) {
-      // focusモードでは章パネル、通常はサイドバーの矩形を参照
-      var leftTarget = isFocusMode()
-        ? document.querySelector('.focus-chapter-panel')
-        : document.getElementById('sidebar');
-      if (leftTarget) {
-        var rect2 = leftTarget.getBoundingClientRect();
-        if (x >= rect2.left && x <= rect2.right && y >= rect2.top && y <= rect2.bottom) {
-          return; // パネル/サイドバー上 → dismiss しない
+    if (state.left.active) {
+      if (isFocusMode()) {
+        if (shouldDismissLeftAt(x)) {
+          if (isLeftInteractionActiveAt(x, y)) return;
+          startDismiss('left');
         }
+      } else if (!isLeftInteractionActiveAt(x, y)) {
+        startDismiss('left');
       }
-      startDismiss('left');
     }
   }
 
@@ -432,7 +548,9 @@
     // ウィンドウ外にカーソルが出たら全dismiss
     document.addEventListener('mouseleave', function () {
       if (state.top.active) startDismiss('top');
-      if (state.left.active) startDismiss('left');
+      if (state.left.active && !isLeftInteractionActiveAt(lastPointer.x, lastPointer.y)) {
+        startDismiss('left');
+      }
     });
 
     setupUIHoverGuard();

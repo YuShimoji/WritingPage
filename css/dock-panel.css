@@ -244,16 +244,24 @@ html[data-dock-left-open="true"][data-dock-sidebar="left"][data-sidebar-open] .d
   height: 100vh;
   z-index: 1001;
   display: none;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
 }
 
 html[data-sidebar-open='true'] .dock-resize-handle--sidebar {
   display: block;
+  pointer-events: auto;
 }
 
 /* サイドバーが右ドック時のリサイズハンドル */
 html[data-dock-sidebar="right"] .dock-resize-handle--sidebar {
   left: auto;
   right: calc(var(--sidebar-width, 20rem) - 0.125rem);
+}
+
+html[data-reader-overlay-open='true'] .dock-resize-handle--sidebar {
+  display: none !important;
+  pointer-events: none !important;
 }
 
 /* --- サイドバー内ドック操作ボタン --- */

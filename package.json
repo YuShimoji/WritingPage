@@ -11,6 +11,8 @@
     "dev:two": "node scripts/run-two-servers.js",
     "build": "node scripts/build-dist.js",
     "app:open": "node scripts/open-built-app.js",
+    "app:open:dist": "node scripts/open-built-app.js --dist-html",
+    "app:open:package": "node scripts/open-built-app.js --packaged",
     "app:install": "npm run build && node scripts/install-start-menu-shortcut.js",
     "app:install:open": "npm run app:install && npm run app:open",
     "electron:dev": "electron electron/main.js",

@@ -10,6 +10,7 @@
   var previewEl = null;
   var innerEl = null;
   var backFab = null;
+  var controlsEl = null;
   var toggleButtons = [];
   var isOpen = false;
   var progressBar = null;
@@ -82,6 +83,7 @@
     previewEl = document.getElementById('reader-preview');
     innerEl = document.getElementById('reader-preview-inner');
     backFab = document.getElementById('reader-back-fab');
+    controlsEl = document.getElementById('reader-preview-controls');
     ensureQuickToggleButton();
     toggleButtons = Array.prototype.slice.call(
       document.querySelectorAll('[data-reader-preview-toggle]')
@@ -120,7 +122,11 @@
         }
       });
       toolbar.appendChild(genreSelect);
-      previewEl.appendChild(toolbar);
+      if (controlsEl) {
+        controlsEl.appendChild(toolbar);
+      } else {
+        previewEl.appendChild(toolbar);
+      }
     }
 
     // 縦書きトグルボタン

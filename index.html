@@ -102,6 +102,9 @@
 </head>
 
 <body>
+  <div class="electron-drag-strip electron-only" aria-hidden="true">
+    <span class="electron-drag-strip__title">Zen Writer</span>
+  </div>
   <div class="electron-window-bar electron-only" role="group" aria-label="ウィンドウ操作">
     <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
       <i data-lucide="minus" aria-hidden="true"></i>
@@ -170,7 +173,7 @@
             </summary>
             <div role="menu" class="view-menu__panel">
               <div role="group" aria-label="表示レイアウト" class="view-menu__group">
-                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-normal" aria-checked="false">フルChrome</button>
+                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-normal" aria-checked="false">通常表示</button>
                 <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-focus" aria-checked="true">ミニマル</button>
               </div>
               <hr role="separator" class="view-menu__sep">
@@ -307,6 +310,7 @@
         </section>
       </div>
     </aside>
+    <div class="sidebar-edge-rail" id="sidebar-edge-rail" aria-hidden="true"></div>
     <div class="dock-resize-handle dock-resize-handle--sidebar" id="dock-sidebar-resize-handle"></div>
 
     <!-- Focusモード: チャプターリストパネル (SP-070/SP-071) -->
@@ -697,9 +701,11 @@
   <!-- SP-078+: 再生オーバーレイ -->
   <div class="reader-preview" id="reader-preview" role="document" aria-label="再生オーバーレイ" aria-describedby="reader-mode-hint">
     <p class="reader-preview__mode-hint" id="reader-mode-hint">再生オーバーレイ · 閲覧のみ（編集は「編集に戻る」）</p>
-    <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（再生オーバーレイを終了）">編集に戻る</button>
-    <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（再生オーバーレイ）">HTMLとして保存</button>
-    <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（再生オーバーレイ）" aria-label="縦書き表示に切り替え（再生オーバーレイ）">縦書き</button>
+    <div class="reader-preview__controls" id="reader-preview-controls">
+      <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（再生オーバーレイを終了）">編集に戻る</button>
+      <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（再生オーバーレイ）">HTMLとして保存</button>
+      <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（再生オーバーレイ）" aria-label="縦書き表示に切り替え（再生オーバーレイ）">縦書き</button>
+    </div>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
   </div>
 </body>

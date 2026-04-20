@@ -173,6 +173,12 @@ test.describe('SP-076 Phase 1: Dock Panel', () => {
     });
     expect(stored).toBeTruthy();
     expect(stored.rightPanel.width).toBe(400);
+
+    const settingsWidth = await page.evaluate(() => {
+      var settings = window.ZenWriterStorage.loadSettings();
+      return settings && settings.ui ? settings.ui.sidebarWidth : null;
+    });
+    expect(settingsWidth).toBe(400);
   });
 
   test('Dock layout restores after reload', async ({ page }) => {

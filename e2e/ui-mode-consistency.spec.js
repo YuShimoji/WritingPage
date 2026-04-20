@@ -74,7 +74,7 @@ test.describe('UI Mode Consistency', () => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
     const afterNormal = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(afterNormal.trim()).toBe('フルChrome');
+    expect(afterNormal.trim()).toBe('通常表示');
 
     await setUIMode(page, 'focus');
     await page.waitForTimeout(150);
@@ -134,6 +134,26 @@ test.describe('UI Mode Consistency', () => {
     await page.waitForTimeout(100);
     const chrome = page.locator('.sidebar-chrome-toolbar');
     await expect(chrome).toHaveCount(1);
+  });
+
+  test('Focus->Normal: closed sidebar is not reopened implicitly', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(350);
+
+    await setUIMode(page, 'focus');
+    await page.waitForTimeout(200);
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(350);
+
+    const isOpen = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
+      return !!(sidebar && sidebar.classList.contains('open'));
+    });
+    expect(isOpen).toBe(false);
   });
 
   test('Normal→Focus: persisted 詳細(sidebarSettingsOpen) is collapsed for minimal rail', async ({ page }) => {
@@ -204,6 +224,38 @@ test.describe('UI Mode Consistency', () => {
     expect(text).not.toContain('コンテンツがありません');
   });
 
+  test('再生オーバーレイ: 右上コントロールが重ならない', async ({ page }) => {
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview) window.ZWReaderPreview.enter();
+    });
+    await page.waitForTimeout(300);
+
+    const layout = await page.evaluate(() => {
+      var controls = document.getElementById('reader-preview-controls');
+      if (!controls) return null;
+      var items = Array.from(controls.children).filter(function (el) {
+        return window.getComputedStyle(el).display !== 'none';
+      }).map(function (el) {
+        var r = el.getBoundingClientRect();
+        return { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
+      });
+      var overlap = false;
+      for (var i = 0; i < items.length; i++) {
+        for (var j = i + 1; j < items.length; j++) {
+          var a = items[i];
+          var b = items[j];
+          var separated = a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top;
+          if (!separated) overlap = true;
+        }
+      }
+      return { count: items.length, overlap: overlap };
+    });
+
+    expect(layout).not.toBeNull();
+    expect(layout.count).toBeGreaterThanOrEqual(3);
+    expect(layout.overlap).toBe(false);
+  });
+
   test('再生オーバーレイ: exit closes overlay and preserves ui mode', async ({ page }) => {
     const prevMode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
     await page.evaluate(() => {
@@ -218,6 +270,39 @@ test.describe('UI Mode Consistency', () => {
     const open = await page.evaluate(() => document.documentElement.hasAttribute('data-reader-overlay-open'));
     expect(mode).toBe(prevMode);
     expect(open).toBe(false);
+  });
+
+  test('session 110: view-menu パネルからのモード切替が data-ui-mode と表示ラベルに反映される', async ({ page }) => {
+    // view-menu の click handler 経由で setUIMode が呼ばれ、
+    // data-ui-mode と [data-current-mode] の両方が同期することを検証
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
+    // view-menu を開いてミニマルを click
+    await page.evaluate(() => {
+      var menu = document.getElementById('view-menu');
+      if (menu) menu.open = true;
+    });
+    await page.waitForTimeout(100);
+    await page.click('#view-menu [data-view-action="ui-mode-focus"]');
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
+    const labelFocus = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
+    expect(labelFocus.trim()).toBe('ミニマル');
+
+    // view-menu を開いて通常表示を click
+    await page.evaluate(() => {
+      var menu = document.getElementById('view-menu');
+      if (menu) menu.open = true;
+    });
+    await page.waitForTimeout(100);
+    await page.click('#view-menu [data-view-action="ui-mode-normal"]');
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
+    const labelNormal = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
+    expect(labelNormal.trim()).toBe('通常表示');
   });
 
   // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック
