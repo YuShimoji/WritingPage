@@ -543,6 +543,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const wantWysiwyg = action === 'editor-surface-wysiwyg';
                 const isWysiwyg = shim && shim.getAttribute('aria-pressed') === 'true';
                 if (shim && wantWysiwyg !== isWysiwyg) shim.dispatchEvent(new Event('mousedown', { bubbles: true }));
+            } else if (action === 'memo-lab-toggle') {
+                if (window.ZWFloatingMemoField && typeof window.ZWFloatingMemoField.toggle === 'function') {
+                    window.ZWFloatingMemoField.toggle();
+                }
             } else if (action === 'toggle-fullscreen') {
                 // session 108: DOM Fullscreen API (Electron 上でも動作)。
                 // Electron メニュー「表示 > 全画面表示」 / F11 と併用可能

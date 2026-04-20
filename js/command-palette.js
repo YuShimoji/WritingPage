@@ -511,6 +511,20 @@
       }
     },
     {
+      id: 'toggle-floating-memo-lab',
+      label: '浮遊メモ実験',
+      description: 'DOM + CSS 3D の浮遊メモ実験を開閉',
+      keywords: 'memo メモ 実験 3D floating drift',
+      shortcut: '',
+      category: '実験的機能',
+      devOnly: true,
+      execute: () => {
+        if (window.ZWFloatingMemoField && typeof window.ZWFloatingMemoField.toggle === 'function') {
+          window.ZWFloatingMemoField.toggle();
+        }
+      }
+    },
+    {
       id: 'compare-chapter',
       label: '比較ツール: 章比較',
       description: '2つの章を横並びで比較する',

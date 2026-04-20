@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-20 (session 116 — sidebar 幅の正本統一 + 起動時レイアウト正規化)
+最終更新: 2026-04-21 (session 117 - memo-lab 再統合 + packaged gate follow-up / handoff)
 
 ## Snapshot
 
@@ -9,11 +9,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| 想定ブランチ | `main` (**2026-04-20 に `origin/main` へ push 済み**。再開は `git pull --ff-only`) |
-| セッション | 116（package safe launcher 固定を維持しつつ、sidebar 幅の正本を `ui.sidebarWidth` に統一し起動時ズレを正規化） |
-| 現在の主軸 | **package 実機ゲートの残件整理**: packaged exe の正本起動経路は維持したまま、package 実機で見つかった sidebar / drag / preview 系の残件を個別に切り分けて固定する。 |
-| 最新ビルド | `build/win-unpacked/Zen Writer.exe` (session 111 作業ツリーから `npm run build && npm run electron:build` で再生成) |
-| 直近のスライス | session 116: **sidebar 幅の正本統一 + 起動時レイアウト正規化** — package 実機で「起動時だけ sidebar の出現位置がずれる」「左サイドバーがわずかにはみ出す」「スクロールバーが端にフィットしないが、幅ドラッグ後は直る」報告を受け、原因を `settings.ui.sidebarWidth` と `zenwriter-dock-layout.rightPanel.width` の二重管理に特定。[js/dock-manager.js](../js/dock-manager.js) に `syncSidebarWidthWithSettings()` を追加し、起動時は `ui.sidebarWidth` を canonical として `rightPanel.width` を mirror 同期、`--sidebar-width` と inline width を同じ値で確定してから layout を適用するよう修正。[js/app.js](../js/app.js) も起動時の sidebar 幅適用をこの API に委譲。`setDockWidth('sidebar', ...)` からも `ui.sidebarWidth` を更新するようにして再発経路を閉じた。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js --reporter=line` **56 passed**、`npm run lint:js:check` clean。package 実機の再ゲート（起動直後のはみ出し / fullscreen scrollbar / drag strip / preview / 永続化 / DPI）は未実施。 |
+| 詳細ブランチ | `main` (**2026-04-21 にこの handoff commit を `origin/main` へ反映**。次スレッドは `git pull --ff-only` から再開) |
+| セッション | 117 - memo-lab 再統合 + packaged gate follow-up / handoff |
+| 現在の主軸 | **package 実機ゲートの残り 2 点を最短で閉じる**: 最新 packaged build では fullscreen scrollbar / preview empty-state / width persistence は確認済み。最新 fix 後に人手で残っているのは **起動直後 Normal sidebar reopen** と **中央上部 drag strip 実機確認** のみ。 |
+| 最新ビルド | `build/win-unpacked/Zen Writer.exe` (2026-04-21; `npm run build && npm run electron:build` 後に `npm run app:open` で起動確認) |
+| 進行中スライス | session 117: **memo-lab を dev-only side quest として main に再着地** + **package gate follow-up**。Verified web checks: `floating-memo-lab`, `sidebar-layout`, `dock-panel`, `ui-mode-consistency`, `command-palette`。最新 local fix は `js/edge-hover.js` の Normal edge-rail startup suppression と `css/style.css` の center-top drag strip 拡張。package 実機では 2 点の最終人手確認だけ未了。 |
+| 隔離サイドクエスト | **浮遊メモ実験 v2.1**: `#view-menu` の dev-only 項目 / コマンドパレット / `?memoLab=1` で開く独立 overlay。`js/floating-memo-field.js` が DOM + CSS 3D + `requestAnimationFrame` で **edge-to-edge flow + 画面外 despawn / respawn**、**背景面ドラッグ + foreground 編集昇格**、**強い release 時だけ shell strip に flutter** を検証する。touch / coarse pointer では **1 本指即ドラッグ + 8px slop**、**背景 tap で foreground 化 / 次の tap で編集**、**2 本指 gesture 無効** を採用し、`visualViewport` が使える環境では foreground textarea focus 中にキーボード回避の y 補正を入れる。8 枚固定表示を既定とし、本文は memo identity ごとに localStorage へ保持。既存 editor data model / autosave 契約には接続しない。 |
 | 前スライス (参考) | session 115: **Electron rail no-drag 回帰修正** — package 実機で「サイドバーが出現しない」報告を受け、原因を Electron frameless の drag 領域設定に特定。`[css/style.css](../css/style.css)` で `.sidebar-edge-rail` を visible 時 `pointer-events:auto` に戻し、Electron の `no-drag` 除外リストへ `.sidebar-edge-rail` と `.dock-resize-handle--sidebar` を追加。[css/dock-panel.css](../css/dock-panel.css) にも sidebar resize handle の `-webkit-app-region: no-drag` を明示し、closed sidebar を inert 化したまま packaged app でも rail がイベントを受け取れるようにした。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` **27 passed**、`npm run lint:js:check` clean。package 実機の再ゲート（rail 復旧 / fullscreen scrollbar / drag strip / preview / 永続化 / DPI）は未実施。 |
 | 前スライス (参考) | session 114: **closed sidebar inert化 + edge rail 分離 + overflow clamp** — package 実機フィードバックで「閉じた sidebar の細い残骸に触れた時だけ開く」「全画面で sidebar scrollbar が残る」「下部横スクロールが残る」報告を受け、(1) [index.html](../index.html) に `#sidebar-edge-rail` を追加し、Normal の hover 起点を sidebar 本体から分離。(2) [js/edge-hover.js](../js/edge-hover.js) を更新し、Normal は fixed rail 幾何で open、open 後は sidebar 本体 + resize handle + dismiss buffer で維持、right dock でも同じ edge rail から開くよう整理。(3) [css/style.css](../css/style.css) で closed `#sidebar` を `visibility:hidden` + `pointer-events:none` + `overflow:hidden` に固定し、open / focus overlay のみ scroll container 化。`html` の horizontal overflow を閉じ、`.floating-panels` を `inset: 0` に変更して root 横 overflow を抑制。(4) [css/dock-panel.css](../css/dock-panel.css) で sidebar resize handle を closed 時 `pointer-events:none` にし、reader overlay 中も非表示化。(5) [e2e/sidebar-layout.spec.js](../e2e/sidebar-layout.spec.js) に「closed sidebar が inert」「right dock edge rail parity」「horizontal overflow なし」を追加。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` **27 passed**、`npm run lint:js:check` clean。 |
 | 前スライス (参考) | session 113: **sidebar edge-hover stabilization after resize feedback** — package 実機フィードバックで「左端ホバーで一瞬開くが左上側へ素早く入ると無視される」「サイドバー幅変更後に再展開しづらい」報告を受け、[js/edge-hover.js](../js/edge-hover.js) の left rail 判定を補強。左レールが一度開いた後は、`dismiss buffer` 内または実パネル矩形内にいる限り dismiss を抑止し、`document mouseleave` が左端近傍で発火しても即閉じしないよう修正。加えて [e2e/sidebar-layout.spec.js](../e2e/sidebar-layout.spec.js) に「幅変更後も upper-left へ素早く入れる」「document mouseleave でも hover-open が落ちない」回帰 2 件を追加。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` **24 passed**、`npm run lint:js:check` clean。 |
@@ -38,6 +39,30 @@
 | 前スライス (参考) | session 90: WP-001 closeout 宣言 (docs のみ) — session 72〜88 で既知摩擦 11 件を消化し、[`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の「次スライス候補」表・[`ROADMAP.md`](ROADMAP.md) L35 の WP-001 候補列はすべて消化済。本セッションは **docs 同期のみ**の closeout スライスとして、台帳・ロードマップ・推奨プラン・runtime-state に「WP-001 は監視モード（体感トリガー発火時のみ 1 トピックに昇格）」を明示。deferred 体感項目 (BL-002 / BL-004 / Focus 左パネル) は session 54〜89 の 36 セッション連続で新規再現なし → 台帳上で「closed unless re-reported」扱いに格上げ。コード変更なし。検証: `npm run lint:js:check` clean。 |
 | 前スライス (参考) | session 89: 過剰テスト・デッドコード第二次クリーンアップ — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
 
+
+## Restart Handoff (2026-04-21 / session 117)
+
+- Shared focus: packaged app gate の残り 2 点 (`normal` 起動直後の sidebar reopen / 中央上部 `Zen Writer` drag strip) を閉じる。memo-lab は dev-only side quest として main に再着地済み。
+- Current trust assessment:
+  - trusted: memo-lab 再統合、`floating-memo-lab` / `sidebar-layout` / `dock-panel` / `ui-mode-consistency` / `command-palette` の Web checks、fresh packaged build (`npm run build && npm run electron:build`)
+  - needs re-check: 最新 packaged build での (1) 起動直後 Normal sidebar が勝手に reopen しないか (2) 中央上部 `Zen Writer` 帯で window drag できるか
+  - dangerous / rollback candidate: なし
+- New fossils:
+  - `js/edge-hover.js`: Normal edge rail を起動直後 / `Focus -> Normal` 直後だけ 450ms サスペンド
+  - `css/style.css`: `.electron-drag-strip` を中央上部の明示帯へ拡張
+- Verified in this thread:
+  - `npm run lint:js:check`
+  - `npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line`
+  - `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line`
+  - `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line`
+  - after package-gate fix: `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js --workers=1 --reporter=line`
+  - packaged flow: `npm run build` -> `npm run electron:build` -> `npm run app:open`
+- Safe next-thread plan:
+  1. `npm run app:open`
+  2. packaged app で 2 点だけ人手確認 (`normal` 起動直後 sidebar / 中央上部 drag strip)
+  3. 両方 PASS なら `CURRENT_STATE` と `USER_REQUEST_LEDGER` を closeout 更新して終了
+  4. FAIL ならその surface だけ修正し、`lint:js:check` + 該当 narrow test + `npm run electron:build` まで
+- What not to do next: package gate を広い再監査に戻さない / memo-lab を autosave・editor 本線へ統合しない / unrelated E2E 全面再実行をしない
 
 ## ドキュメント地図（再開時）
 

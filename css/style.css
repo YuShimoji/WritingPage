@@ -2535,15 +2535,15 @@ html[data-dock-sidebar='right'] .sidebar-edge-rail {
 .electron-drag-strip {
   position: fixed;
   top: env(safe-area-inset-top, 0px);
-  left: auto;
+  left: clamp(17rem, 26vw, 22rem);
   right: calc(env(safe-area-inset-right, 0px) + 8.5rem);
   z-index: 1205;
-  width: min(14rem, 28vw);
+  width: auto;
   height: 2.75rem;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  padding: 0 0.75rem;
+  justify-content: center;
+  padding: 0 1rem;
   color: color-mix(in srgb, var(--toolbar-text, var(--text-color)) 72%, transparent);
   background: linear-gradient(180deg, color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 92%, transparent), transparent);
   border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
@@ -8901,5 +8901,347 @@ html[data-ruby-hidden='true'] rt {
     visibility: hidden;
     font-size: 0;
     line-height: 0;
+  }
+}
+
+/* ==========================================================================
+   Experimental floating memo field
+   ========================================================================== */
+
+.memo-field-lab {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--editor-bg, #111827) 84%, rgba(8, 12, 18, 0.78));
+  color: var(--ui-text, #f4f7fb);
+  overscroll-behavior: contain;
+}
+
+.memo-field-lab[hidden] {
+  display: none;
+}
+
+.memo-field-lab__chrome {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.25rem 0.5rem 1rem;
+}
+
+.memo-field-lab__heading {
+  max-width: min(42rem, 100%);
+}
+
+.memo-field-lab__eyebrow {
+  margin: 0 0 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.68;
+}
+
+.memo-field-lab__heading h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 1.2vw + 1rem, 1.9rem);
+}
+
+.memo-field-lab__hint {
+  margin: 0.35rem 0 0;
+  max-width: 40rem;
+  color: color-mix(in srgb, var(--ui-text, #ffffff) 76%, transparent);
+}
+
+.memo-field-lab__close {
+  align-self: flex-start;
+  min-width: 5.25rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--border-color, #52606d) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--toolbar-bg, #101722) 88%, transparent);
+  color: inherit;
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.memo-field-lab__close:hover {
+  background: color-mix(in srgb, var(--toolbar-bg, #101722) 76%, #ffffff 12%);
+}
+
+.memo-field-lab__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 26rem;
+  border: 1px solid color-mix(in srgb, var(--border-color, #52606d) 58%, transparent);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg, #111827) 26%, transparent), transparent 30%),
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg, #111827) 12%, transparent), transparent 72%);
+}
+
+.memo-field-lab__scene {
+  position: absolute;
+  inset: 0;
+  perspective: 1400px;
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.memo-field-lab__scene::before {
+  content: '';
+  position: absolute;
+  inset: auto 14% 10% 14%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--ui-text, #ffffff) 10%, transparent) 0, transparent 70%);
+  opacity: 0.42;
+}
+
+.memo-field-lab__memo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 17.5rem;
+  height: 14.5rem;
+  will-change: transform, opacity;
+  transform-style: preserve-3d;
+  pointer-events: auto;
+  contain: layout paint style;
+  touch-action: none;
+  user-select: none;
+}
+
+.memo-field-lab__memo[data-memo-state='respawning'] {
+  pointer-events: none;
+}
+
+.memo-field-lab__memo-shell {
+  position: relative;
+  height: 100%;
+  border: 1px solid color-mix(in srgb, var(--border-color, #7a8794) 70%, transparent);
+  border-radius: 1rem;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg, #f8f2d8) 86%, #fdf7e6 14%), color-mix(in srgb, var(--editor-bg, #f8f2d8) 92%, #f3ebce 8%));
+  color: color-mix(in srgb, var(--editor-text, #2f2512) 92%, #1e1205 8%);
+  transform-style: preserve-3d;
+  will-change: transform;
+  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.18);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  touch-action: none;
+}
+
+html[data-theme='dark'] .memo-field-lab__memo-shell {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--editor-bg, #1a2230) 86%, #3b4354 14%), color-mix(in srgb, var(--editor-bg, #1a2230) 94%, #202a3a 6%));
+  color: color-mix(in srgb, var(--editor-text, #f3ead0) 92%, #ffffff 8%);
+}
+
+.memo-field-lab__memo-shell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 36%);
+  pointer-events: none;
+}
+
+.memo-field-lab__memo-strips {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transform-style: preserve-3d;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.memo-field-lab__memo-strip {
+  flex: 1 1 20%;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 26%, rgba(0, 0, 0, 0.03));
+  border-left: 1px solid color-mix(in srgb, currentColor 10%, transparent);
+  transform-origin: center center;
+  will-change: transform, opacity;
+  opacity: 0.12;
+}
+
+.memo-field-lab__memo-strip:first-child {
+  border-left: none;
+}
+
+.memo-field-lab__memo-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0.9rem;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.memo-field-lab__memo-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.memo-field-lab__memo[data-memo-editable='true'] .memo-field-lab__memo-hit {
+  pointer-events: none;
+}
+
+.memo-field-lab__memo[data-memo-editable='false'] .memo-field-lab__memo-shell,
+.memo-field-lab__memo[data-memo-editable='false'] .memo-field-lab__memo-content {
+  -webkit-touch-callout: none;
+}
+
+.memo-field-lab__memo[data-memo-state='foreground'] .memo-field-lab__memo-shell,
+.memo-field-lab__memo[data-memo-state='dragging'] .memo-field-lab__memo-shell {
+  border-color: color-mix(in srgb, var(--ui-focus-color, #4a90e2) 66%, transparent);
+  box-shadow: 0 24px 54px rgba(0, 0, 0, 0.28);
+}
+
+.memo-field-lab__memo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.7rem;
+  cursor: grab;
+  -webkit-touch-callout: none;
+}
+
+.memo-field-lab__memo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.memo-field-lab__memo-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.memo-field-lab__memo-state {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+}
+
+.memo-field-lab__memo-grab {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  color: inherit;
+  cursor: grab;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  -webkit-touch-callout: none;
+}
+
+.memo-field-lab__memo[data-memo-state='dragging'] .memo-field-lab__memo-header,
+.memo-field-lab__memo[data-memo-state='dragging'] .memo-field-lab__memo-grab {
+  cursor: grabbing;
+}
+
+.memo-field-lab__memo-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, currentColor 5%, transparent);
+}
+
+.memo-field-lab__memo-text {
+  flex: 1;
+  width: 100%;
+  border: none;
+  resize: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.5;
+  outline: none;
+  user-select: text;
+}
+
+.memo-field-lab__memo[data-memo-editable='false'] .memo-field-lab__memo-text {
+  pointer-events: none;
+  user-select: none;
+  cursor: grab;
+}
+
+.memo-field-lab__memo[data-memo-editable='true'] .memo-field-lab__memo-text::selection {
+  background: color-mix(in srgb, var(--ui-focus-color, #4a90e2) 28%, transparent);
+}
+
+@media (pointer: coarse) {
+  .memo-field-lab__close {
+    min-width: 5.5rem;
+    min-height: 2.75rem;
+    padding: 0.7rem 1rem;
+  }
+
+  .memo-field-lab__memo-content {
+    padding: 1rem;
+  }
+
+  .memo-field-lab__memo-header {
+    min-height: 2.75rem;
+    padding: 0.15rem 0;
+  }
+
+  .memo-field-lab__memo-grab {
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .memo-field-lab__memo-body {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 820px) {
+  .memo-field-lab {
+    padding: 0.75rem;
+  }
+
+  .memo-field-lab__chrome {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .memo-field-lab__close {
+    align-self: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .memo-field-lab__memo,
+  .memo-field-lab__memo-shell,
+  .memo-field-lab__memo-content,
+  .memo-field-lab__memo-strip,
+  .memo-field-lab__close {
+    transition-duration: 0.01ms;
   }
 }

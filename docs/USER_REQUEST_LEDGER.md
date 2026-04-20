@@ -7,9 +7,20 @@
 - WP-001 UI 磨き上げ・摩擦軽減の継続 (session 34 で着手、方向はユーザー判断)
 - デッドコード寄りのリソースは積極的に削除する (session 39 ユーザー指示)
 - 意思決定・手動確認地点で区切りを設け、プランを提示する
+- **package 実機ゲート follow-up** — latest packaged build では `fullscreen scrollbar` / `preview empty-state` / `width persistence` は確認済み。残りは **起動直後 Normal sidebar reopen** と **中央上部 `Zen Writer` drag strip の実機確認**。local fix は投入済みで、次スレッドはこの 2 点だけ確認して closeout する。
 - **WP-005 プレビュー・比較ツール再設計** (session 97: スライスC完了)
+- **隔離サイドクエスト: 浮遊メモ実験** — 本流 editor を書き換えず、hidden / experimental entry から DOM + CSS 3D のメモ漂流プロトタイプを検証する (2026-04-21 user request)。v2 方針: edge-to-edge flow / respawn、背景面ドラッグ + foreground 編集昇格、強投げ時の軽量 paper flutter を優先し、mock dataset + localStorage の隔離を維持する。v2.1 では touch / coarse pointer の既定を **背景 1 本指即ドラッグ + 8px slop**、**背景 tap で foreground 化 / 次の tap で編集**、**2 本指 gesture 無効**、**`visualViewport` ベースのソフトキーボード回避** として固定した。
 
 ## Backlog Delta
+
+### session 117 (2026-04-21)
+- memo-lab side quest は `main` に dev-only / experimental overlay として再着地済み。対象は `js/floating-memo-field.js` / `e2e/floating-memo-lab.spec.js` / `index.html` / `js/app.js` / `js/command-palette.js` / `css/style.css`。
+- memo-lab 再統合の確認: `npm run lint:js:check` PASS, `npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line` PASS, `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line` PASS, `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line` PASS。
+- package 実機ゲートは軽量版で再開し、fullscreen scrollbar / preview empty-state / width persistence は確認済み。
+- user manual pass で拾えた follow-up は 2 点: (1) 起動直後 Normal で sidebar が reopen しやすい (2) drag strip が狭く、どこが draggable か分かりにくい。
+- local fix は投入済み: `js/edge-hover.js` に Normal edge-rail startup suppression (450ms) を追加、`css/style.css` の `.electron-drag-strip` を中央上部の帯へ拡張。
+- fix 後の narrow verification: `npm run lint:js:check` PASS, `npx playwright test e2e/sidebar-layout.spec.js e2e/dock-panel.spec.js --workers=1 --reporter=line` PASS, `npm run build` PASS, `npm run electron:build` PASS, `npm run app:open` で packaged app 起動確認。
+- next thread の最短手順は packaged app で 2 点だけ人手確認し、両方 PASS なら docs closeout -> push。FAIL ならその surface だけ修正して narrow rerun まで。
 
 ### 既存 Backlog
 

@@ -186,6 +186,10 @@
                 <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-wysiwyg" aria-checked="true">リッチ編集</button>
                 <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-markdown" aria-checked="false">Markdown ソース</button>
               </div>
+              <hr role="separator" class="view-menu__sep" data-dev-only>
+              <div role="group" aria-label="実験" class="view-menu__group" data-dev-only>
+                <button role="menuitem" type="button" class="view-menu__item" data-view-action="memo-lab-toggle">浮遊メモ実験</button>
+              </div>
             </div>
           </details>
         </div>
@@ -616,6 +620,7 @@
   <script defer src="js/chapter-nav.js"></script>
   <script defer src="js/reader-preview.js"></script>
   <script defer src="js/electron-bridge.js"></script>
+  <script defer src="js/floating-memo-field.js"></script>
   <script defer src="js/app.js"></script>
   <!-- Lucide Icons -->
   <script defer src="vendor/lucide.min.js"></script>
@@ -707,6 +712,20 @@
       <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（再生オーバーレイ）" aria-label="縦書き表示に切り替え（再生オーバーレイ）">縦書き</button>
     </div>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
+  </div>
+
+  <div class="memo-field-lab" id="memo-field-lab" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="memo-field-lab-title">
+    <div class="memo-field-lab__chrome">
+      <div class="memo-field-lab__heading">
+        <p class="memo-field-lab__eyebrow">Experimental / Side Quest</p>
+        <h2 id="memo-field-lab-title">浮遊メモ実験</h2>
+        <p class="memo-field-lab__hint">DOM + CSS 3D で空中を漂うメモを検証します。つかむと前面へ、離すと慣性つきで背景へ戻ります。</p>
+      </div>
+      <button class="memo-field-lab__close" id="memo-field-lab-close" type="button" aria-label="浮遊メモ実験を閉じる">閉じる</button>
+    </div>
+    <div class="memo-field-lab__viewport" id="memo-field-lab-viewport" aria-label="浮遊メモ実験のシーン">
+      <div class="memo-field-lab__scene" id="memo-field-lab-scene" aria-hidden="true"></div>
+    </div>
   </div>
 </body>
 

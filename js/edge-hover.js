@@ -88,6 +88,9 @@
   var DWELL_MS = 0;
   /** エッジ外へ出たあと非表示までの遅延。0 で即座 dismiss（session 91: 同上）。 */
   var DISMISS_MS = 0;
+  /** packaged app 起動直後や Focus→Normal 遷移直後は、左端に残ったカーソルで
+      sidebar が即 reopen しやすいため、Normal の edge rail を短時間だけ遅延させる。 */
+  var NORMAL_RAIL_ARM_DELAY_MS = 450;
 
   var state = {
     top: { active: false, dwellTimer: null, dismissTimer: null },
@@ -99,6 +102,7 @@
       hideEdge の閉じ処理が無効化される問題への対処 (Bug 2-b)。 */
   var leftEdgeOpenedSidebar = false;
   var lastPointer = { x: 0, y: 0 };
+  var normalRailSuppressedUntil = 0;
 
   var html = document.documentElement;
 
@@ -122,6 +126,21 @@
 
   function isReaderOverlayOpen() {
     return html.getAttribute('data-reader-overlay-open') === 'true';
+  }
+
+  function nowMs() {
+    if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+      return performance.now();
+    }
+    return Date.now();
+  }
+
+  function suspendNormalSidebarRail(delayMs) {
+    normalRailSuppressedUntil = nowMs() + (typeof delayMs === 'number' ? delayMs : NORMAL_RAIL_ARM_DELAY_MS);
+  }
+
+  function isNormalSidebarRailSuppressed() {
+    return !isFocusMode() && nowMs() < normalRailSuppressedUntil;
   }
 
   function getSidebarDockSide() {
@@ -338,6 +357,13 @@
       : (!isReaderOverlayOpen() && isPointInNormalSidebarRail(x, y));
     var leftDismissZone = getLeftEdgeDismissZone();
     if (inLeftTriggerZone) {
+      if (isNormalSidebarRailSuppressed()) {
+        if (!state.left.active) {
+          clearTimeout(state.left.dwellTimer);
+          state.left.dwellTimer = null;
+        }
+        return;
+      }
       if (state.left.active) cancelDismiss('left');
       else startDwell('left');
     } else {
@@ -539,6 +565,8 @@
   // --- 初期化 ---
 
   function init() {
+    suspendNormalSidebarRail();
+
     document.addEventListener('mousemove', function (e) {
       onMouseMove(e);
       onMouseLeaveEdge(e);
@@ -554,6 +582,12 @@
     });
 
     setupUIHoverGuard();
+
+    window.addEventListener('ZenWriterUIModeChanged', function (e) {
+      if (e && e.detail && e.detail.mode === 'normal') {
+        suspendNormalSidebarRail();
+      }
+    });
 
     // エッジグロー表示
     createEdgeGlows();
