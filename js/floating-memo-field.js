@@ -8,7 +8,8 @@
   var DRAG_Z = 320;
   var PAPER_STRIP_COUNT = 5;
   var TOUCH_SLOP_PX = 8;
-  var TOUCH_FOCUS_LOCK_MS = 250;
+  // Only guard the same touch hand-off; fast re-taps should enter edit immediately.
+  var TOUCH_FOCUS_LOCK_MS = 16;
   var KEYBOARD_MARGIN_PX = 16;
   var EDGE_ORDER = ['top', 'right', 'bottom', 'left'];
   var EDGE_OPPOSITES = {
@@ -879,6 +880,26 @@
     this.ensureLoop();
   };
 
+  FloatingMemoField.prototype.resetMemoGestureForClose = function (memo) {
+    if (memo.pointerId !== null) {
+      this.detachDragListeners(memo, memo.pointerId);
+    }
+    this.clearPointerGesture(memo);
+    memo.pendingBlurMode = '';
+    memo.touchFocusLockUntil = 0;
+
+    if (memo.state !== 'dragging') return;
+
+    memo.releaseSpeed = 0;
+    memo.vx = 0;
+    memo.vy = 0;
+    memo.vz = 0;
+    memo.state = 'returning';
+    memo.focusAnchorX = memo.x;
+    memo.focusAnchorY = memo.y;
+    memo.stackOrder = ++this.topStack;
+  };
+
   FloatingMemoField.prototype.endPointerInteraction = function (memo, event) {
     if (memo.pointerId === null) return;
 
@@ -1037,10 +1058,7 @@
     this.isOpen = false;
     this.stopLoop();
     for (var i = 0; i < this.memos.length; i++) {
-      if (this.memos[i].pointerId !== null) {
-        this.detachDragListeners(this.memos[i], this.memos[i].pointerId);
-        this.memos[i].pointerId = null;
-      }
+      this.resetMemoGestureForClose(this.memos[i]);
     }
     this.overlay.hidden = true;
     this.overlay.setAttribute('aria-hidden', 'true');

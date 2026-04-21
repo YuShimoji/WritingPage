@@ -198,6 +198,12 @@
         document.dispatchEvent(new CustomEvent('electron:theme', { detail: theme }));
     });
 
+    api.onMoved(() => {
+        if (window.ZWEdgeHover && typeof window.ZWEdgeHover.notifyWindowMoved === 'function') {
+            window.ZWEdgeHover.notifyWindowMoved();
+        }
+    });
+
     /* ---------- Auto-updater UI ---------- */
     api.onUpdateAvailable((info) => {
         showNotification(`新しいバージョン ${info.version} が利用可能です`, 'update');

@@ -305,6 +305,107 @@ test.describe('UI Mode Consistency', () => {
     expect(labelNormal.trim()).toBe('通常表示');
   });
 
+  test('session 118: Electron titlebar lane reserves top chrome and keeps drag ownership on strip root', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
+    const dragCss = await page.evaluate(() => {
+      document.documentElement.classList.add('is-electron');
+      document.body.classList.add('is-electron');
+
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(true);
+      }
+
+      const viewMenu = document.getElementById('view-menu');
+      if (viewMenu) viewMenu.open = true;
+
+      const strip = document.querySelector('.electron-drag-strip');
+      const title = document.querySelector('.electron-drag-strip__title');
+      const main = document.querySelector('.main-content');
+      const sidebar = document.getElementById('sidebar');
+      const rail = document.getElementById('sidebar-edge-rail');
+      const panel = document.querySelector('.view-menu__panel');
+      const bodyStyle = window.getComputedStyle(document.body);
+      const stripStyle = strip ? window.getComputedStyle(strip) : null;
+      const titleStyle = title ? window.getComputedStyle(title) : null;
+      const stripRect = strip ? strip.getBoundingClientRect() : null;
+      const titlebarHeight = stripRect ? stripRect.height : 0;
+      const laneY = Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2)));
+      const laneX = Math.round(window.innerWidth / 2);
+      const topStack = document.elementsFromPoint(laneX, laneY).slice(0, 3).map((element) => ({
+        id: element.id || '',
+        className: typeof element.className === 'string' ? element.className : '',
+        tagName: element.tagName,
+      }));
+
+      return {
+        bodyAppRegion: bodyStyle.getPropertyValue('-webkit-app-region').trim(),
+        stripAppRegion: stripStyle ? stripStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        titleAppRegion: titleStyle ? titleStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        titlePointerEvents: titleStyle ? titleStyle.pointerEvents : null,
+        titlebarHeight,
+        stripTop: stripRect ? stripRect.top : null,
+        mainTop: main ? main.getBoundingClientRect().top : null,
+        sidebarTop: sidebar ? sidebar.getBoundingClientRect().top : null,
+        railTop: rail ? rail.getBoundingClientRect().top : null,
+        viewMenuPanelTop: panel ? panel.getBoundingClientRect().top : null,
+        topStack,
+      };
+    });
+
+    expect(dragCss.bodyAppRegion).toBe('no-drag');
+    expect(dragCss.stripAppRegion).toBe('drag');
+    expect(dragCss.titleAppRegion).not.toBe('drag');
+    expect(dragCss.titlePointerEvents).toBe('none');
+    expect(dragCss.titlebarHeight).toBeGreaterThan(0);
+    expect(Math.abs(dragCss.stripTop || 0)).toBeLessThanOrEqual(1);
+    expect(dragCss.mainTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
+    expect(dragCss.sidebarTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
+    expect(dragCss.railTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
+    expect(dragCss.viewMenuPanelTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
+    expect(dragCss.topStack[0]?.className || '').toContain('electron-drag-strip');
+  });
+
+  test('session 119: packaged window move interruption dismisses hover-opened sidebar', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(350);
+
+    await page.mouse.move(2, 90);
+    await page.waitForTimeout(120);
+
+    let before = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+      };
+    });
+    expect(before.edgeHoverLeft).toBe('true');
+    expect(before.isOpen).toBe(true);
+
+    await page.evaluate(() => {
+      if (window.ZWEdgeHover && typeof window.ZWEdgeHover.notifyWindowMoved === 'function') {
+        window.ZWEdgeHover.notifyWindowMoved();
+      }
+    });
+    await page.waitForTimeout(150);
+
+    const after = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+      };
+    });
+    expect(after.edgeHoverLeft).toBeNull();
+    expect(after.isOpen).toBe(false);
+  });
+
   // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック
   test('Blank mode fallback: redirected to Focus', async ({ page }) => {
     await page.evaluate(() => {

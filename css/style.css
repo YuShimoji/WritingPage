@@ -28,6 +28,7 @@
   --sidebar-width: 20rem;
   /* メイン横帯ツールバー廃止後は 0（Electron 窓ボタン等のフォールバックは各所で固定値） */
   --toolbar-height: 0px;
+  --electron-titlebar-height: 0px;
 
   /* 背景ビジュアル設定 */
   --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -2443,6 +2444,11 @@ html[data-writing-goal-enabled='true'] .goal-progress {
   pointer-events: none;
 }
 
+.sidebar:not(.open):not(.focus-overlay-open) {
+  box-shadow: none;
+  border-right-color: transparent;
+}
+
 .sidebar.open {
   left: 0;
   visibility: visible;
@@ -2534,37 +2540,47 @@ html[data-dock-sidebar='right'] .sidebar-edge-rail {
 /* Electron フレームレス: ドラッグ領域と窓操作 */
 .electron-drag-strip {
   position: fixed;
-  top: env(safe-area-inset-top, 0px);
-  left: clamp(17rem, 26vw, 22rem);
+  top: 0;
+  left: env(safe-area-inset-left, 0px);
   right: calc(env(safe-area-inset-right, 0px) + 8.5rem);
   z-index: 1205;
   width: auto;
-  height: 2.75rem;
+  height: var(--electron-titlebar-height, 2.75rem);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 1rem;
-  color: color-mix(in srgb, var(--toolbar-text, var(--text-color)) 72%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 92%, transparent), transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
+  padding: 0 1.25rem;
+  color: color-mix(in srgb, var(--toolbar-text, var(--text-color)) 62%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-bg, var(--ui-bg)) 82%, transparent), color-mix(in srgb, var(--app-bg, var(--ui-bg)) 28%, transparent));
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 36%, transparent);
+  cursor: move;
   -webkit-app-region: drag;
 }
 
 .electron-drag-strip__title {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  padding: 0 1rem;
   user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
 }
 
 .electron-window-bar {
   position: fixed;
-  top: env(safe-area-inset-top, 0px);
+  top: 0;
   right: env(safe-area-inset-right, 0px);
   z-index: 1210;
+  height: var(--electron-titlebar-height, 2.75rem);
   flex-direction: row;
   align-items: stretch;
   gap: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--app-bg, var(--ui-bg)) 82%, transparent), color-mix(in srgb, var(--app-bg, var(--ui-bg)) 28%, transparent));
   -webkit-app-region: no-drag;
 }
 
@@ -8652,9 +8668,44 @@ body.is-electron .electron-only {
   display: flex !important;
 }
 
-/* ドラッグ領域: body全体をドラッグ可能にし、インタラクティブ要素を除外 */
+/* ドラッグ領域は opt-in。body 全体を drag にすると hidden sidebar 境界や
+   editor の余白まで draggable になり、package 実機で判定がぶれる。 */
 body.is-electron {
-  -webkit-app-region: drag;
+  --electron-titlebar-height: calc(env(safe-area-inset-top, 0px) + 2.75rem);
+  -webkit-app-region: no-drag;
+}
+
+body.is-electron .app-container {
+  min-height: calc(100vh - var(--electron-titlebar-height));
+  padding-top: var(--electron-titlebar-height);
+}
+
+body.is-electron .main-content {
+  min-height: calc(100vh - var(--electron-titlebar-height));
+}
+
+body.is-electron .editor-container {
+  height: calc(100vh - var(--electron-titlebar-height));
+  min-height: calc(100vh - var(--electron-titlebar-height));
+}
+
+body.is-electron .sidebar,
+body.is-electron .sidebar.focus-overlay-open,
+body.is-electron .focus-chapter-panel {
+  top: var(--electron-titlebar-height) !important;
+  height: calc(100vh - var(--electron-titlebar-height));
+}
+
+body.is-electron .sidebar-edge-rail,
+body.is-electron .dock-resize-handle--sidebar,
+body.is-electron .sidebar-overlay,
+body.is-electron .focus-overlay-backdrop {
+  top: var(--electron-titlebar-height);
+  height: calc(100vh - var(--electron-titlebar-height));
+}
+
+body.is-electron .sidebar-overlay {
+  bottom: auto;
 }
 
 body.is-electron .sidebar-chrome-toolbar,

@@ -91,6 +91,8 @@
   /** packaged app 起動直後や Focus→Normal 遷移直後は、左端に残ったカーソルで
       sidebar が即 reopen しやすいため、Normal の edge rail を短時間だけ遅延させる。 */
   var NORMAL_RAIL_ARM_DELAY_MS = 450;
+  /** Electron のウィンドウ移動後は hover 状態が stale になりやすいため、再検知を少し待つ。 */
+  var WINDOW_MOVE_RAIL_SUSPEND_MS = 700;
 
   var state = {
     top: { active: false, dwellTimer: null, dismissTimer: null },
@@ -103,6 +105,10 @@
   var leftEdgeOpenedSidebar = false;
   var lastPointer = { x: 0, y: 0 };
   var normalRailSuppressedUntil = 0;
+  var lastWindowScreenPos = {
+    x: typeof window.screenX === 'number' ? window.screenX : (typeof window.screenLeft === 'number' ? window.screenLeft : 0),
+    y: typeof window.screenY === 'number' ? window.screenY : (typeof window.screenTop === 'number' ? window.screenTop : 0)
+  };
 
   var html = document.documentElement;
 
@@ -141,6 +147,21 @@
 
   function isNormalSidebarRailSuppressed() {
     return !isFocusMode() && nowMs() < normalRailSuppressedUntil;
+  }
+
+  function getWindowScreenPos() {
+    return {
+      x: typeof window.screenX === 'number' ? window.screenX : (typeof window.screenLeft === 'number' ? window.screenLeft : 0),
+      y: typeof window.screenY === 'number' ? window.screenY : (typeof window.screenTop === 'number' ? window.screenTop : 0)
+    };
+  }
+
+  function notifyWindowMoved() {
+    if (state.top.active) startDismiss('top');
+    if ((state.left.active || leftEdgeOpenedSidebar) && !isFocusMode()) {
+      suspendNormalSidebarRail(WINDOW_MOVE_RAIL_SUSPEND_MS);
+      startDismiss('left');
+    }
   }
 
   function getSidebarDockSide() {
@@ -252,7 +273,8 @@
   }
 
   function hideEdge(edge) {
-    if (!state[edge].active) return;
+    var forceCloseOwnedSidebar = edge === 'left' && !isFocusMode() && leftEdgeOpenedSidebar;
+    if (!state[edge].active && !forceCloseOwnedSidebar) return;
     state[edge].active = false;
     html.removeAttribute('data-edge-hover-' + edge);
     if (edge === 'left') {
@@ -566,6 +588,7 @@
 
   function init() {
     suspendNormalSidebarRail();
+    lastWindowScreenPos = getWindowScreenPos();
 
     document.addEventListener('mousemove', function (e) {
       onMouseMove(e);
@@ -588,6 +611,15 @@
         suspendNormalSidebarRail();
       }
     });
+
+    // frameless packaged window を drag した後は、hover-open のまま stale になりやすい。
+    // screenX/screenY の変化を軽く監視し、一時表示のサイドバーだけを閉じて再検知を待つ。
+    window.setInterval(function () {
+      var pos = getWindowScreenPos();
+      if (pos.x === lastWindowScreenPos.x && pos.y === lastWindowScreenPos.y) return;
+      lastWindowScreenPos = pos;
+      notifyWindowMoved();
+    }, 150);
 
     // エッジグロー表示
     createEdgeGlows();
@@ -620,6 +652,8 @@
     dismiss: function (edge) { hideEdge(edge); },
     /** 全エッジのホバー状態を解除 */
     dismissAll: function () { hideEdge('top'); hideEdge('left'); },
+    /** 外部要因（例: frameless window drag）で hover 状態が stale になった時の解除 */
+    notifyWindowMoved: function () { notifyWindowMoved(); },
     /**
      * Focus へ入った直後に左章レール（data-edge-hover-left）だけ立ち上げる。
      * setUIMode が dismissAll するため、ホバー無しで章パネルを復帰させる用。

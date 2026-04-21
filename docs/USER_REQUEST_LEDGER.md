@@ -7,11 +7,17 @@
 - WP-001 UI 磨き上げ・摩擦軽減の継続 (session 34 で着手、方向はユーザー判断)
 - デッドコード寄りのリソースは積極的に削除する (session 39 ユーザー指示)
 - 意思決定・手動確認地点で区切りを設け、プランを提示する
-- **package 実機ゲート follow-up** — latest packaged build では `fullscreen scrollbar` / `preview empty-state` / `width persistence` は確認済み。残りは **起動直後 Normal sidebar reopen** と **中央上部 `Zen Writer` drag strip の実機確認**。local fix は投入済みで、次スレッドはこの 2 点だけ確認して closeout する。
+- **package 実機ゲート follow-up** — `npm run app:open` のコマンドプロンプト起動失敗は解消済み、中央上部 `Zen Writer` drag strip は機能 PASS まで到達。latest packaged build の残りは **左サイドバーが開かない / hover-open できない surface** のみ。次スレッドはこの 1 点だけ狙って closeout する。
 - **WP-005 プレビュー・比較ツール再設計** (session 97: スライスC完了)
 - **隔離サイドクエスト: 浮遊メモ実験** — 本流 editor を書き換えず、hidden / experimental entry から DOM + CSS 3D のメモ漂流プロトタイプを検証する (2026-04-21 user request)。v2 方針: edge-to-edge flow / respawn、背景面ドラッグ + foreground 編集昇格、強投げ時の軽量 paper flutter を優先し、mock dataset + localStorage の隔離を維持する。v2.1 では touch / coarse pointer の既定を **背景 1 本指即ドラッグ + 8px slop**、**背景 tap で foreground 化 / 次の tap で編集**、**2 本指 gesture 無効**、**`visualViewport` ベースのソフトキーボード回避** として固定した。
 
 ## Backlog Delta
+
+### session 118 (2026-04-21)
+- `npm run app:open` がコマンドプロンプトから「Opened」とだけ出て実際には起動していなかった原因は、hidden / detached の PowerShell launcher が `cmd.exe` 配下で失敗を黙って飲み込んでいたこと。`scripts/open-built-app.js` は packaged launcher を同期実行する正本へ更新し、user 確認でも packaged app 起動を回復した。
+- package 実機ゲートの手動 status は更新: `drag strip` は機能 PASS、上部見た目の tune は任意フォローアップ。未解決は **左サイドバーが packaged app でまだ開かない** 1 点だけ。
+- memo-lab P2 2 件は `js/floating-memo-field.js` と `e2e/floating-memo-lab.spec.js` のみで修正。touch 背景 tap -> foreground 化後の**速い再タップで即編集**を復旧し、overlay close 中の drag gesture は close 時点で破棄して reopen 後に `returning` / `floating` から再開するよう整理した。non-primary touch 無効の回帰も spec へ追加。
+- 検証: `npm run lint:js:check` PASS, `npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line` PASS (**7 passed**), `npm run build` PASS, `npm run electron:build` PASS。
 
 ### session 117 (2026-04-21)
 - memo-lab side quest は `main` に dev-only / experimental overlay として再着地済み。対象は `js/floating-memo-field.js` / `e2e/floating-memo-lab.spec.js` / `index.html` / `js/app.js` / `js/command-palette.js` / `css/style.css`。

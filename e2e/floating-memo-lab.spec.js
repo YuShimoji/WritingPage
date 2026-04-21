@@ -132,12 +132,14 @@ test.describe('floating memo lab touch interactions', () => {
     viewport: { width: 430, height: 932 },
   });
 
-  test('promotes on first touch tap, edits on second tap, and backdrop blur is two-stage', async ({ page }) => {
+  test('promotes on first touch tap, edits on second tap, ignores non-primary touch, and backdrop blur is two-stage', async ({ page }) => {
     await page.goto('/index.html?memoLab=1');
 
     const memo = page.locator('[data-memo-id="memo-03-3"]');
     const hit = memo.locator('.memo-field-lab__memo-hit');
     const textarea = memo.locator('.memo-field-lab__memo-text');
+    const blockedMemo = page.locator('[data-memo-id="memo-05-5"]');
+    const blockedHit = blockedMemo.locator('.memo-field-lab__memo-hit');
     const viewport = page.locator('#memo-field-lab-viewport');
     const viewportBox = await viewport.boundingBox();
     expect(viewportBox).toBeTruthy();
@@ -151,11 +153,16 @@ test.describe('floating memo lab touch interactions', () => {
     await expect(memo).toHaveAttribute('data-memo-state', 'foreground');
     await expect(textarea).not.toBeFocused();
 
-    await page.waitForTimeout(300);
     await textarea.tap();
     await expect(textarea).toBeFocused();
     await textarea.fill('touch edit path');
     await expect(textarea).toHaveValue('touch edit path');
+
+    const blockedBox = await blockedHit.boundingBox();
+    expect(blockedBox).toBeTruthy();
+    await dispatchSyntheticPointer(blockedHit, 'pointerdown', blockedBox, 0, 0, { pointerId: 2, isPrimary: false });
+    await dispatchSyntheticPointer(blockedHit, 'pointerup', blockedBox, 0, 0, { pointerId: 2, isPrimary: false });
+    await expect(blockedMemo).toHaveAttribute('data-memo-state', 'floating');
 
     await dispatchSyntheticPointer(viewport, 'pointerdown', viewportBox, blurDx, blurDy);
     await dispatchSyntheticPointer(viewport, 'pointerup', viewportBox, blurDx, blurDy);
@@ -203,6 +210,32 @@ test.describe('floating memo lab touch interactions', () => {
     await expect(foregroundMemo).toHaveAttribute('data-memo-state', 'foreground');
     await dispatchSyntheticPointer(foregroundText, 'pointerup', textBox, 42, 0);
     await expect(foregroundMemo).toHaveAttribute('data-memo-state', 'foreground');
+  });
+
+  test('clears drag state when the overlay closes mid-drag', async ({ page }) => {
+    await page.goto('/index.html?memoLab=1');
+
+    const overlay = page.locator('#memo-field-lab');
+    const memo = page.locator('[data-memo-id="memo-04-4"]');
+    const hit = memo.locator('.memo-field-lab__memo-hit');
+    const hitBox = await hit.boundingBox();
+    expect(hitBox).toBeTruthy();
+
+    await dispatchSyntheticPointer(hit, 'pointerdown', hitBox, 0, 0, { pointerId: 11 });
+    await dispatchSyntheticPointer(hit, 'pointermove', hitBox, 40, -32, { pointerId: 11 });
+    await expect(memo).toHaveAttribute('data-memo-state', 'dragging');
+
+    await page.evaluate(() => {
+      window.ZWFloatingMemoField.close();
+    });
+    await expect(overlay).toBeHidden();
+
+    await page.evaluate(() => {
+      window.ZWFloatingMemoField.open();
+    });
+    await expect(overlay).toBeVisible();
+    await expect(memo).not.toHaveAttribute('data-memo-state', 'dragging');
+    await expect(memo).toHaveAttribute('data-memo-state', /returning|floating/);
   });
 
   test('shifts the active memo upward when visualViewport reports keyboard inset', async ({ page }) => {

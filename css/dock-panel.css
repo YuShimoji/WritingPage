@@ -38,6 +38,11 @@ html[data-dock-sidebar="right"][data-sidebar-open] .toolbar {
   border-right: 1px solid var(--border-color, #444);
 }
 
+body.is-electron .dock-panel-left {
+  top: var(--electron-titlebar-height);
+  height: calc(100vh - var(--electron-titlebar-height));
+}
+
 html[data-dock-left-open="true"] .dock-panel-left {
   display: flex;
 }
@@ -246,6 +251,11 @@ html[data-dock-left-open="true"][data-dock-sidebar="left"][data-sidebar-open] .d
   display: none;
   pointer-events: none;
   -webkit-app-region: no-drag;
+}
+
+body.is-electron .dock-resize-handle--sidebar {
+  top: var(--electron-titlebar-height);
+  height: calc(100vh - var(--electron-titlebar-height));
 }
 
 html[data-sidebar-open='true'] .dock-resize-handle--sidebar {

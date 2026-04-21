@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     setTitle: (title) => ipcRenderer.send('window:set-title', title),
     isMaximized: () => ipcRenderer.invoke('window:is-maximized'),
     onMaximizedChanged: (callback) => ipcRenderer.on('window:maximized-changed', (_e, v) => callback(v)),
+    onMoved: (callback) => ipcRenderer.on('window:moved', () => callback()),
     toggleFrameless: (frameless) => ipcRenderer.send('window:toggle-frameless', frameless),
     onFramelessChanged: (callback) => ipcRenderer.on('window:frameless-changed', (_e, v) => callback(v)),
 

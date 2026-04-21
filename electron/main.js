@@ -398,6 +398,7 @@ function createWindow() {
     // Notify renderer of maximize/unmaximize
     mainWindow.on('maximize', () => sendToRenderer('window:maximized-changed', true));
     mainWindow.on('unmaximize', () => sendToRenderer('window:maximized-changed', false));
+    mainWindow.on('move', () => sendToRenderer('window:moved'));
 
     // Save window state on resize/move
     ['resize', 'move'].forEach(evt => {

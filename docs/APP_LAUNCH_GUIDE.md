@@ -68,9 +68,14 @@ npm run electron:build
 npm run app:open
 ```
 
-`npm run app:open` は Windows では `build/win-unpacked/Zen Writer.exe` を優先し、
-起動前に `NODE_OPTIONS` / `ELECTRON_RUN_AS_NODE` / Playwright 系環境変数をクリアします。
+`npm run app:open` は Windows ホスト（PowerShell / WSL 含む）では
+`build/win-unpacked/Zen Writer.exe` を優先し、起動前に
+`NODE_OPTIONS` / `ELECTRON_RUN_AS_NODE` / Playwright 系環境変数をクリアします。
+さらに、この repo 由来の `playwright-core/lib/server/electron/loader` を抱えた stray
+`electron.exe` を終了してから packaged app を開きます。
 Playwright 検証後でも packaged app を汚染なしで起動するための正本導線です。
+コマンドプロンプトから実行しても hidden PowerShell を同期実行するため、
+起動失敗が黙って握りつぶされず、packaged app が実際に開く状態を優先します。
 
 dist の `index.html` を直接開きたいときだけ、次を使います。
 
@@ -175,14 +180,22 @@ npm ci
 
 ### Q: packaged app で `playwright-core` や `JavaScript error in the main process` が出る
 
-**A:** アプリ本体ではなく、Playwright の Electron preload や `NODE_OPTIONS` が
-起動環境へ混入している可能性があります。`npm run app:open` を使って再起動してください。
+**A:** アプリ本体ではなく、Playwright の Electron preload や `NODE_OPTIONS`、
+あるいは残留した `electron.exe -r ...playwright-core/lib/server/electron/loader.js`
+が起動環境へ混入している可能性があります。`npm run app:open` はこれらを片付けてから
+packaged app を再起動する正本導線です。
 
 ### Q: packaged app 起動時に `¥¥ が見つかりません` のような Windows エラーが出る
 
 **A:** `cmd /c start` 経由の quoting 崩れが原因になりやすいです。
 Windows では `npm run app:open` の PowerShell `Start-Process` 経路を正本とし、
 手動で `cmd /c start` を組み立てないでください。
+
+### Q: コマンドプロンプトから `npm run app:open` しても、エラーなく何も開かない
+
+**A:** hidden PowerShell を detached で投げると、`cmd.exe` 配下では起動前に失敗が
+黙って消えることがあります。現在の `npm run app:open` は packaged launcher を
+同期実行するので、コマンドプロンプトからでも起動結果が反映されます。
 
 ### Q: PWAがインストールできない
 

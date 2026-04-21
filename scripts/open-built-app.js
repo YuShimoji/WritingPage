@@ -1,6 +1,7 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
-const { execFile } = require('child_process');
+const { execFileSync, spawn } = require('child_process');
 
 const projectRoot = process.cwd();
 const indexPath = path.join(projectRoot, 'dist', 'index.html');
@@ -15,6 +16,26 @@ function parseArgs() {
   };
 }
 
+function isWsl() {
+  return process.platform === 'linux' &&
+    (Boolean(process.env.WSLENV) || /microsoft/i.test(os.release()));
+}
+
+function canUseWindowsLauncher() {
+  return process.platform === 'win32' || isWsl();
+}
+
+function toLauncherPath(targetPath) {
+  if (!isWsl()) return targetPath;
+  try {
+    return execFileSync('wslpath', ['-w', targetPath], {
+      encoding: 'utf8',
+    }).trim();
+  } catch (_) {
+    return targetPath;
+  }
+}
+
 function chooseTarget() {
   const args = parseArgs();
   if (args.forceDistHtml) {
@@ -23,7 +44,7 @@ function chooseTarget() {
   if (args.forcePackaged) {
     return { type: 'packaged', path: packagedAppPath };
   }
-  if (process.platform === 'win32' && fs.existsSync(packagedAppPath)) {
+  if (canUseWindowsLauncher() && fs.existsSync(packagedAppPath)) {
     return { type: 'packaged', path: packagedAppPath };
   }
   return { type: 'dist-html', path: indexPath };
@@ -40,32 +61,51 @@ if (!fs.existsSync(target.path)) {
   process.exit(1);
 }
 
+function launchDetached(command, args) {
+  const child = spawn(command, args, {
+    detached: true,
+    stdio: 'ignore',
+    windowsHide: true,
+  });
+  child.unref();
+}
+
+function runLauncher(command, args) {
+  execFileSync(command, args, {
+    cwd: projectRoot,
+    stdio: 'inherit',
+    windowsHide: true,
+  });
+}
+
 function openOnWindows(target) {
   if (target.type === 'packaged') {
-    execFile(
-      'powershell.exe',
-      [
-        '-NoProfile',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-File',
-        windowsLauncher,
-        '-AppPath',
-        target.path,
-      ],
-      { windowsHide: true }
-    );
+    // Keep the packaged launcher synchronous on Windows so cmd.exe does not
+    // swallow a hidden PowerShell failure before Start-Process runs.
+    runLauncher('powershell.exe', [
+      '-NoProfile',
+      '-ExecutionPolicy',
+      'Bypass',
+      '-File',
+      toLauncherPath(windowsLauncher),
+      '-AppPath',
+      toLauncherPath(target.path),
+    ]);
     return;
   }
-  execFile('cmd', ['/c', 'start', '', target.path], { windowsHide: true });
+  launchDetached('cmd.exe', ['/c', 'start', '', target.path]);
 }
 
 function openOnMac(target) {
-  execFile('open', [target.path]);
+  launchDetached('open', [target.path]);
 }
 
 function openOnLinux(target) {
-  execFile('xdg-open', [target.path]);
+  if (target.type === 'packaged' && canUseWindowsLauncher()) {
+    openOnWindows(target);
+    return;
+  }
+  launchDetached('xdg-open', [target.path]);
 }
 
 if (process.platform === 'win32') {

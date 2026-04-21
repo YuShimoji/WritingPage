@@ -133,6 +133,7 @@ test.describe('Sidebar Layout', () => {
         sidebarVisibility: sidebarStyle.visibility,
         sidebarPointerEvents: sidebarStyle.pointerEvents,
         sidebarOverflowY: sidebarStyle.overflowY,
+        sidebarBoxShadow: sidebarStyle.boxShadow,
         sidebarRight: sidebar.getBoundingClientRect().right,
         handleDisplay: handleStyle.display,
         handlePointerEvents: handleStyle.pointerEvents,
@@ -144,6 +145,7 @@ test.describe('Sidebar Layout', () => {
     expect(state.sidebarVisibility).toBe('hidden');
     expect(state.sidebarPointerEvents).toBe('none');
     expect(state.sidebarOverflowY).toBe('hidden');
+    expect(state.sidebarBoxShadow).toBe('none');
     expect(state.sidebarRight).toBeLessThanOrEqual(0);
     expect(state.handleDisplay).toBe('none');
     expect(state.handlePointerEvents).toBe('none');
