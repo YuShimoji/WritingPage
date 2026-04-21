@@ -1,131 +1,109 @@
-# 作業申し送り: Zen Writer
+# Handover: Zen Writer
 
-## 概要
+最終更新: 2026-04-21
 
-Zen Writer -- ブラウザベースの小説執筆エディタ。ガジェットアーキテクチャによるモジュラー設計。
-Electron デスクトップアプリとしても動作（CDN バンドル化によりオフライン完全対応）。
+## Shared Focus
 
-- **バージョン**: 0.3.32（`package.json` / `VERSION` と一致）
-- **セッション・日付・直近スライス**: `[docs/CURRENT_STATE.md](docs/CURRENT_STATE.md)` の Snapshot（このファイルは手続き中心）
-- **ブランチ**: `main`（**2026-04-20 に `origin/main` へ push 済み**。再開は `git pull --ff-only origin main`）
+- main / origin/main には **浮遊メモ実験 v2.1** と **package gate follow-up** が反映済み
+- 次スレッドの主対象は packaged app の残課題 2 件の実機確認
+  - Normal 起動直後に左 sidebar が期待どおり reopen するか
+  - 中央上部の `Zen Writer` drag strip が packaged app で自然にドラッグ動作するか
+- 浮遊メモは side quest として main に隔離着地済み。editor/chapter/autosave 本流には未接続
 
-### 直近コミットの要点（session 110）
+## Non-Negotiables
 
-- **SectionsNavigator**: 同名章が複数でも `sections` に欠落しないよう `mergeVirtualChapterHeadings` を実見出しとの 1 対 1 突き合わせに変更。`findActiveIndex` は virtual を除外。
-- **その他**: 未コミットだった session 109 周辺の変更（UI・E2E・Visual Audit スクリーンショット等）をワーキングツリーごと統合。
-- **検証**: `lint:js:check` clean、全 E2E **515 passed / 2 skipped**（詳細は `CURRENT_STATE` の検証結果）。
+- 事実確認の起点は `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\CURRENT_STATE.md`
+- 不変条件は `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\INVARIANTS.md`
+- backlog / feature 状態は `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\USER_REQUEST_LEDGER.md` と `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\FEATURE_REGISTRY.md`
+- packaged gate を閉じる前に unrelated refactor や本流統合へ広げない
+- 浮遊メモは引き続き dev-only / experimental overlay のまま扱う
 
-## 再開手順
+## Reused Canonical Context
 
-```bash
-git checkout main
-git pull --ff-only origin main
-npm ci
-npx playwright install chromium
-npm run test:smoke
-npm run lint:js:check
-npm run dev
-```
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\CURRENT_STATE.md`
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\FEATURE_REGISTRY.md`
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\USER_REQUEST_LEDGER.md`
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\INTERACTION_NOTES.md`
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\project-context.md`
 
-PowerShell では `git checkout main; git pull --ff-only origin main; npm ci` のように `;` で区切る。
+## Current Trust Assessment
 
-E2E 全件: `npx playwright test`。回帰の切り出しは `docs/CURRENT_STATE.md` の検証結果を参照。spec 本数・テスト総数は `npx playwright test --list` または Snapshot 近傍の記載。
+- trusted
+  - 浮遊メモ v2.1 の web 検証
+  - docs への context 定着
+  - 最新 build / electron build
+- needs re-check
+  - packaged app 実機での left sidebar reopen
+  - packaged app 実機での center-top drag strip
+- dangerous / rollback candidate
+  - なし
 
-最初に読む順番:
+## Active Artifact And Bottleneck
 
-1. `[docs/CURRENT_STATE.md](docs/CURRENT_STATE.md)`（**ドキュメント地図**で次に読むファイルが分かる）
-2. `[docs/ROADMAP.md](docs/ROADMAP.md)` の「次スライス候補」
-3. `[docs/USER_REQUEST_LEDGER.md](docs/USER_REQUEST_LEDGER.md)`（スライス運用・deferred）
-4. 必要なら `[docs/INTERACTION_NOTES.md](docs/INTERACTION_NOTES.md)`
+- Active artifact: packaged Windows app の最終ゲート
+- Bottleneck: web 側では通っているが packaged 実機でしか確定できない 2 症状が残っている
 
-メトリクス: `[docs/runtime-state.md](docs/runtime-state.md)`。背景・IDEA・暗黙メモ: `[docs/project-context.md](docs/project-context.md)`。
+## What Landed
 
-## 現在のプロジェクト状態
+- **浮遊メモ実験 v2.1**
+  - `C:\Users\thank\Storage\Media Contents Projects\WritingPage\js\floating-memo-field.js`
+  - `C:\Users\thank\Storage\Media Contents Projects\WritingPage\css\style.css`
+  - `C:\Users\thank\Storage\Media Contents Projects\WritingPage\e2e\floating-memo-lab.spec.js`
+  - touch / coarse pointer 仕様:
+    - 背景 1 本指即ドラッグ + 8px slop
+    - 背景 tap で foreground 化
+    - 次の tap で textarea 編集
+    - 2 本指 gesture 無効
+    - `visualViewport` が使える環境では keyboard 回避
+- **package gate follow-up**
+  - `C:\Users\thank\Storage\Media Contents Projects\WritingPage\js\edge-hover.js`
+  - `C:\Users\thank\Storage\Media Contents Projects\WritingPage\css\style.css`
+  - packaged app 向けの sidebar reopen / drag strip 調整が入っている
 
-現在地の事実関係は **常に `[docs/CURRENT_STATE.md](docs/CURRENT_STATE.md)`**（Snapshot・検証結果）。下表はクイック参照用。
+## New Fossils
 
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\CURRENT_STATE.md:17`
+  - session 117 snapshot と memo-lab v2.1 / package gate follow-up の現況
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\FEATURE_REGISTRY.md:24`
+  - FR-010 に touch / coarse pointer / `visualViewport` 回避を追記
+- `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\USER_REQUEST_LEDGER.md:11`
+  - memo-lab v2.1 の採用仕様を記録
 
-| 項目        | 参照                                         |
-| --------- | ------------------------------------------ |
-| 主軸・直近スライス | `CURRENT_STATE` の Snapshot                 |
-| 不変条件      | `[docs/INVARIANTS.md](docs/INVARIANTS.md)` |
+## Verification Already Run
 
+- `npm run lint:js:check`
+- `npx playwright test e2e/floating-memo-lab.spec.js --reporter=line`
+- `npm run test:unit`
+- `npm run test:smoke`
+- `npm run test:e2e`
+- `npm run build`
+- `npm run electron:build`
 
-### テスト状況
+直近結果:
+- unit: 11 passed
+- memo-lab spec: 6 passed
+- full e2e: 536 passed / 2 skipped
+- build: passed
 
+## Safe Restart Plan
 
-| テスト      | コマンド                                         |
-| -------- | -------------------------------------------- |
-| スモーク     | `npm run test:smoke`（`scripts/dev-check.js`） |
-| Lint（JS） | `npm run lint:js:check`                      |
-| E2E      | `npx playwright test`                        |
+1. `git pull --ff-only origin main`
+2. `npm run app:open`
+3. packaged app で以下を手動確認
+   - Normal 起動直後に左 sidebar が reopen するか
+   - 中央上部 drag strip で window drag できるか
+4. PASS なら `C:\Users\thank\Storage\Media Contents Projects\WritingPage\docs\CURRENT_STATE.md` に closeout を追記
+5. FAIL なら該当 surface のみを最小修正し、`lint:js:check` + narrow test + `npm run electron:build` で再確認
 
+## What Not To Do Next
 
-`docs/verification/` 配下の一時スクリプトは ESLint 対象外（`.eslintignore`）。
+- packaged gate 未確認のまま closeout しない
+- 浮遊メモを editor / chapter / autosave 本流へ接続しない
+- unrelated UI / sidebar / reader refactor を混ぜない
+- 全量 E2E を回しただけで packaged 実機確認を省略しない
 
-### アーキテクチャ概要
+## Remote Status
 
-- **ガジェット**: `gadgets-core.js` ほか `gadgets-*.js`
-- **サイドバー**: `SidebarManager`（SSOT）
-- **エディタ**: `js/modules/editor/`（EditorCore / EditorUI 等）
-- **WYSIWYG**: `editor-wysiwyg.js`
-- **UI モード**: `normal` / `focus` の 2 値。読者向けの画面確認は **再生オーバーレイ**（別軸）。`setUIMode` / `ZenWriterApp` API を優先。`blank` は互換のため `focus` にフォールバック
-- **章・ストレージ**: ChapterStore、IndexedDB（SP-077）、JSON プロジェクト保存（SP-080）
-- **Reader / プレビュー HTML**: `js/zw-inline-html-postmarkdown.js`、`js/zw-postmarkdown-html-pipeline.js`、`js/zw-markdown-it-body.js`、監査は `docs/WP004_PHASE3_PARITY_AUDIT.md`
-- **Electron**: `electron/` + `vendor/` ローカルバンドル
-
-### 直近の重要判断
-
-- スライスは **1 トピック** に絞る。完了時に `CURRENT_STATE` を更新する（台帳「開発スライスの進め方」参照）
-- ブロック段落の左・中・右揃えは **WP-004 Phase 3 には含めない**。`spec-rich-text-paragraph-alignment.md` と `spec-richtext-enhancement.md`（P2）で別トラック
-- 機能の台帳登録: `docs/FEATURE_REGISTRY.md`、E2E 境界: `docs/AUTOMATION_BOUNDARY.md`
-
-## 次セッション準備（P0 完了・レーン A 移譲用）
-
-以下は **プラン作成の直前**まで揃えた状態のメモ。実装プラン本文は次担当が 1 トピック確定後に書く。
-
-
-| 項目                                            | 内容                                                                                                                                                     |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 正本                                            | `docs/CURRENT_STATE.md` Snapshot = **session 88**。章ストア安全化・リファクタ目安は [`docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md)。`playwright test --list` = **585**（69 ファイル、実測）。                                           |
-| 次スライス（レーン A）                                  | `docs/USER_REQUEST_LEDGER.md` session 88「次」: **WP-001 摩擦表から 1 件**、または [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md) の監査 1 スライス。**WP-004 は同一スライスに混ぜない**。 |
-| WP-004                                        | 自動層は session 77 で区切り。**手動パックで差分が出たときだけ** 別スライス。                                                                                                        |
-| Value Validation（`docs/ai/DECISION_GATES.md`） | 候補トピックごとに「出力の行き先」「削る手作業」「外部 GUI 依存で手運用が残るか」を各 1 文で埋められるか確認してからプラン化。                                                                                    |
-| 触ってよい（レーン A）                                  | `js/sidebar-manager.js`、`js/gadgets-*.js`、`js/command-palette.js`、必要なら `css/style.css`（**スコープ内のみ**）。                                                   |
-| 触らない（レーン A）                                   | 原則: `js/zw-`* パイプライン、`e2e/reader-*.spec.js`（WP-004 Phase 3 本線）。**例外**: データ破壊・誤ミューテーションの修正（session 87 の `reader-preview` 等）は 1 トピックで可。目安は [`docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`](docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md)。                                                                             |
-| 並行時の衝突注意                                      | `sidebar-manager.js` / `command-palette.js` は WP-004 レーンと**同一イテレーションで共有しない**。                                                                          |
-
-
-## 既知の課題
-
-- `docs/spec-index.json` に historical entry が残る場合がある（現ワークツリーとの差は `CURRENT_STATE` を優先）
-- `npm audit` で依存に moderate/high の指摘あり（必要時に個別判断）
-
-## 決定事項
-
--> `CLAUDE.md` の DECISION LOG を参照
-
-## ローカル検証
-
-
-| コマンド                              | 用途                        |
-| --------------------------------- | ------------------------- |
-| `npm run dev`                     | 開発サーバー (8080)             |
-| `npx playwright test`             | Playwright E2E            |
-| `npm run lint`                    | ESLint + markdownlint     |
-| `npm run electron:dev`            | Electron 開発モード            |
-| `node scripts/run-two-servers.js` | 8080/8081 同時起動（embed 検証用） |
-
-
-## 参照ドキュメント
-
-- `docs/CURRENT_STATE.md`（地図つき）
-- `docs/ROADMAP.md`
-- `docs/USER_REQUEST_LEDGER.md`
-- `docs/INTERACTION_NOTES.md`
-- `docs/INVARIANTS.md`
-- `docs/FEATURE_REGISTRY.md` / `docs/AUTOMATION_BOUNDARY.md`
-- `docs/REFACTORING_SAFETY_CHAPTER_STORAGE.md`（章ストア・プレビュー経路の副作用防止・監査 grep）
-- `docs/ARCHITECTURE.md` / `docs/TESTING.md` / `docs/APP_SPECIFICATION.md`
-- `CLAUDE.md`
-
+- branch: `main`
+- remote: `origin`
+- この handoff 更新も remote へ反映して、次スレッドはそのまま再開可能な状態にする
