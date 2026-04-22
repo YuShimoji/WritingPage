@@ -12,6 +12,16 @@
     function initAppAutosaveApi(deps) {
         const { elementManager, activateSidebarGroup } = deps;
 
+        function getCurrentChapterStoreDocId() {
+            var Store = window.ZWChapterStore;
+            var S = window.ZenWriterStorage;
+            var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+            var docs = S && typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+            return rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+                ? Store.resolveParentDocumentId(rawId, docs)
+                : rawId;
+        }
+
         // session 109: `_triggerAutoSave` はデッドコード (どこからも呼ばれていなかった) のため削除。
         // 保存神経系は `chapter-list.js flushActiveChapter` に一本化。HUD 通知はそこで `autoSave.enabled` ガード下に実行。
 
@@ -45,11 +55,7 @@
                     // chapterMode: 全文で上書き（ensureSaved はアクティブ章テキストのみ保存するため）
                     var _Store2 = window.ZWChapterStore;
                     var _S2 = window.ZenWriterStorage;
-                    var _raw2 = _S2 && typeof _S2.getCurrentDocId === 'function' ? _S2.getCurrentDocId() : null;
-                    var _dId =
-                        _raw2 && _Store2 && typeof _Store2.resolveParentDocumentId === 'function'
-                            ? _Store2.resolveParentDocumentId(_raw2)
-                            : _raw2;
+                    var _dId = getCurrentChapterStoreDocId();
                     if (_dId && _Store2 && _Store2.isChapterMode(_dId)) {
                         _S2.saveContent(_Store2.assembleFullText(_dId));
                     }
@@ -83,12 +89,7 @@
                 // chapterMode: アクティブ章をフラッシュしてから全文をスナップショット
                 if (G) G.flushChapterIfNeeded();
                 var _Store3 = window.ZWChapterStore;
-                var _S3 = window.ZenWriterStorage;
-                var _raw3 = _S3 && typeof _S3.getCurrentDocId === 'function' ? _S3.getCurrentDocId() : null;
-                var _dId3 =
-                    _raw3 && _Store3 && typeof _Store3.resolveParentDocumentId === 'function'
-                        ? _Store3.resolveParentDocumentId(_raw3)
-                        : _raw3;
+                var _dId3 = getCurrentChapterStoreDocId();
                 if (_dId3 && _Store3 && _Store3.isChapterMode(_dId3)) {
                     content = _Store3.assembleFullText(_dId3);
                 }

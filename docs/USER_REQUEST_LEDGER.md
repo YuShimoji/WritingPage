@@ -13,6 +13,13 @@
 
 ## Backlog Delta
 
+### session 119 (2026-04-22)
+- Side Quest 1 を完了。`ZWChapterStore.resolveParentDocumentId` を正本のまま、`js/reader-preview.js` / `js/app-autosave-api.js` / `js/gadgets-sections-nav.js` の重複 callsite を file-local helper へ寄せ、`e2e/helpers.js` に chapterMode seed / assertion 用 helper を追加した。
+- chapter 系 E2E は raw `getCurrentDocId()` 前提を縮小。`chapter-mode-sync` / `chapter-list` / `reader-chapter-nav` / `sections-nav` / `sidebar-writing-focus` を helper 経由へ寄せ、`chapter-store.spec.js` に **chapter id -> parent doc id** と **current selection が章レコードでも親 document に対して章操作できる** の 2 回帰を追加した。
+- Side Quest 2 を完了。`samples/sample-wp004-parity-pack.zwp.json` を新設し、manual scenario 1〜5（`01 chapter-link+nav` / `02 textbox combo` / `03 typing+dialog+ruby` / `04 broken wikilink` / `05 genre preset probe`）を 1 つの chapterMode project に集約した。
+- `docs/MANUAL_TEST_GUIDE.md` に **3.7 WP-004 parity pack** を追加、`samples/README.md` と `docs/WP004_PHASE3_PARITY_AUDIT.md` を更新。**手動実施自体は user actor** のままで、差分が出た場合だけ台帳へ追記する運用を明記した。
+- 検証: `npm run lint:js:check` PASS。`npx playwright test e2e/chapter-store.spec.js e2e/chapter-mode-sync.spec.js e2e/sections-nav.spec.js e2e/chapter-list.spec.js e2e/sidebar-writing-focus.spec.js e2e/reader-chapter-nav.spec.js --reporter=line --workers=1` → **34 passed / 1 skipped**。`npx playwright test e2e/reader-wysiwyg-distinction.spec.js e2e/reader-chapter-nav.spec.js e2e/reader-wikilink-popover.spec.js e2e/reader-genre-preset.spec.js --reporter=line --workers=1` → **20 passed**。
+
 ### session 118 (2026-04-21)
 - `npm run app:open` がコマンドプロンプトから「Opened」とだけ出て実際には起動していなかった原因は、hidden / detached の PowerShell launcher が `cmd.exe` 配下で失敗を黙って飲み込んでいたこと。`scripts/open-built-app.js` は packaged launcher を同期実行する正本へ更新し、user 確認でも packaged app 起動を回復した。
 - package 実機ゲートの手動 status は更新: `drag strip` は機能 PASS、上部見た目の tune は任意フォローアップ。未解決は **左サイドバーが packaged app でまだ開かない** 1 点だけ。

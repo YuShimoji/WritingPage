@@ -237,6 +237,15 @@
     return !!(rte && rte.isWysiwygMode);
   }
 
+  function getCurrentChapterDocId() {
+    var Store = window.ZWChapterStore;
+    var S = window.ZenWriterStorage;
+    var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    return rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId)
+      : rawId;
+  }
+
   function jumpToHeading(heading, headingIndex) {
     if (!heading) return;
 
@@ -245,11 +254,8 @@
       try {
         var cl = window.ZWChapterList;
         var Store = window.ZWChapterStore;
-        var S = window.ZenWriterStorage;
-        if (cl && Store && S && typeof cl.navigateTo === 'function') {
-          var rawId = typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
-          var docId = rawId && typeof Store.resolveParentDocumentId === 'function'
-            ? Store.resolveParentDocumentId(rawId) : rawId;
+        if (cl && Store && typeof cl.navigateTo === 'function') {
+          var docId = getCurrentChapterDocId();
           var chapters = Store.getChaptersForDoc(docId) || [];
           var chapterIdx = chapters.findIndex(function (c) { return c && c.id === heading._chapterId; });
           if (chapterIdx >= 0) {
@@ -363,10 +369,7 @@
     function mergeVirtualChapterHeadings(list) {
       try {
         var Store = window.ZWChapterStore;
-        var S = window.ZenWriterStorage;
-        var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
-        var docId = rawId && Store && typeof Store.resolveParentDocumentId === 'function'
-          ? Store.resolveParentDocumentId(rawId) : rawId;
+        var docId = getCurrentChapterDocId();
         if (!docId || !Store || typeof Store.isChapterMode !== 'function' || !Store.isChapterMode(docId)) return list;
         var storeChapters = Store.getChaptersForDoc(docId) || [];
         // 実見出しと章を「先頭から同タイトルで 1 対 1」で突き合わせる。同名章が複数あっても欠落しない。
@@ -405,10 +408,7 @@
 
     function getEmptyStateInfo() {
       var Store = window.ZWChapterStore;
-      var S = window.ZenWriterStorage;
-      var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
-      var docId = rawId && Store && typeof Store.resolveParentDocumentId === 'function'
-        ? Store.resolveParentDocumentId(rawId) : rawId;
+      var docId = getCurrentChapterDocId();
       var chapterMode = !!(docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId));
       var chapters = chapterMode && typeof Store.getChaptersForDoc === 'function'
         ? (Store.getChaptersForDoc(docId) || [])

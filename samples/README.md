@@ -11,6 +11,7 @@
 | sample-novel-chapters.zwp.json | 3章構成の短編小説 | 章管理, 章切替, 再生オーバーレイ章ナビ, ルビ, 傍点, Wikilink |
 | sample-effects-showcase.zwp.json | 装飾・演出の全種サンプル | テキストアニメ, テクスチャ, テキストボックス, タイピング演出, ダイアログ, 再生オーバーレイ |
 | sample-file-management.zwp.json | ファイル管理操作ガイド | インポート/エクスポート, フォルダ作成, D&D移動, スナップショット, 複数選択削除 |
+| sample-wp004-parity-pack.zwp.json | WP-004 手動パック専用の 5 章サンプル | chapter:// 相互リンク, textbox 複合, typing/dialog + ルビ, broken wikilink, Reader genre preset 手動比較 |
 
 ## Markdown サンプル (.md)
 

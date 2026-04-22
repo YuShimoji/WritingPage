@@ -1,6 +1,12 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode } = require('./helpers');
+const {
+  ensureNormalMode,
+  setupChapterModeChapters,
+  getCurrentChapterStoreDocId,
+  getChaptersForCurrentDoc,
+  assembleCurrentChapterDoc,
+} = require('./helpers');
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -181,7 +187,77 @@ test.describe('SP-071 Phase 2 ChapterStore', () => {
   });
 
   // -----------------------------------------------------------------------
-  // 6. Normal ↔ Focus モード切替で内容が維持される
+  // 6. 章レコード current selection から親 document を解決できる
+  // -----------------------------------------------------------------------
+  test('resolveParentDocumentId が章レコードから親 document を返す', async ({ page }) => {
+    await setupTestDoc(page, '');
+
+    const result = await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      var CS = window.ZWChapterStore;
+      var docId = S.getCurrentDocId();
+      CS.ensureChapterMode(docId);
+      var chapter = CS.createChapter(docId, '第一章', '本文A', null, 2);
+      if (chapter && typeof S.setCurrentDocId === 'function') {
+        S.setCurrentDocId(chapter.id);
+      }
+      var rawId = S.getCurrentDocId();
+      var docs = typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+      var resolved = rawId && typeof CS.resolveParentDocumentId === 'function'
+        ? CS.resolveParentDocumentId(rawId, docs)
+        : rawId;
+      return {
+        docId: docId,
+        rawId: rawId,
+        resolved: resolved
+      };
+    });
+
+    expect(result.rawId).not.toBe(result.docId);
+    expect(result.resolved).toBe(result.docId);
+  });
+
+  // -----------------------------------------------------------------------
+  // 7. current selection が章レコードでも親 document 単位で章操作できる
+  // -----------------------------------------------------------------------
+  test('current selection が章レコードでも親 document に対して章ストア操作が動く', async ({ page }) => {
+    await setupTestDoc(page, '');
+    await setupChapterModeChapters(page, [
+      { title: '第一章', content: '本文A' },
+      { title: '第二章', content: '本文B' }
+    ]);
+
+    const rawSelection = await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      var CS = window.ZWChapterStore;
+      var docId = S.getCurrentDocId();
+      var chapters = CS.getChaptersForDoc(docId) || [];
+      if (chapters[1] && typeof S.setCurrentDocId === 'function') {
+        S.setCurrentDocId(chapters[1].id);
+      }
+      return S.getCurrentDocId();
+    });
+    const docId = await getCurrentChapterStoreDocId(page);
+    expect(rawSelection).not.toBe(docId);
+
+    await page.evaluate((resolvedDocId) => {
+      var CS = window.ZWChapterStore;
+      var chapters = resolvedDocId ? (CS.getChaptersForDoc(resolvedDocId) || []) : [];
+      var prevId = chapters.length ? chapters[chapters.length - 1].id : null;
+      if (resolvedDocId) {
+        CS.createChapter(resolvedDocId, '第三章', '本文C', prevId, 2);
+      }
+    }, docId);
+
+    const chapters = await getChaptersForCurrentDoc(page);
+    const assembled = await assembleCurrentChapterDoc(page);
+    expect(chapters.map((chapter) => chapter.name)).toEqual(['第一章', '第二章', '第三章']);
+    expect(assembled).toContain('## 第三章');
+    expect(assembled).toContain('本文C');
+  });
+
+  // -----------------------------------------------------------------------
+  // 8. Normal ↔ Focus モード切替で内容が維持される
   // -----------------------------------------------------------------------
   test('chapterMode で Normal → Focus → Normal の切替でエラーが出ない', async ({ page }) => {
     // ensureChapterMode で章モード適用

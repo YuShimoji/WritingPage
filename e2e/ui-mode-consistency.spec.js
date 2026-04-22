@@ -22,7 +22,7 @@ test.describe('UI Mode Consistency', () => {
     await page.evaluate(() => {
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    await page.waitForTimeout(350);
+    await page.waitForTimeout(520);
     await setUIMode(page, 'focus');
     await page.waitForTimeout(350);
     let closed = await page.evaluate(() => {
@@ -370,12 +370,27 @@ test.describe('UI Mode Consistency', () => {
   test('session 119: packaged window move interruption dismisses hover-opened sidebar', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
-    await page.evaluate(() => {
+    const lane = await page.evaluate(() => {
+      document.documentElement.classList.add('is-electron');
+      document.body.classList.add('is-electron');
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+      const strip = document.querySelector('.electron-drag-strip');
+      const rail = document.getElementById('sidebar-edge-rail');
+      const stripRect = strip ? strip.getBoundingClientRect() : null;
+      const rect = rail ? rail.getBoundingClientRect() : null;
+      const titlebarHeight = stripRect ? stripRect.height : 0;
+      return {
+        dragLaneY: Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2))),
+        railHoverY: rect
+          ? Math.max(Math.round(rect.top + 24), Math.round(rect.top + Math.min(rect.height - 1, 8)))
+          : 90
+      };
     });
-    await page.waitForTimeout(350);
+    await page.waitForTimeout(400);
 
-    await page.mouse.move(2, 90);
+    await page.mouse.move(2, lane.dragLaneY);
+    await page.waitForTimeout(120);
+    await page.mouse.move(2, lane.railHoverY);
     await page.waitForTimeout(120);
 
     let before = await page.evaluate(() => {
@@ -404,6 +419,66 @@ test.describe('UI Mode Consistency', () => {
     });
     expect(after.edgeHoverLeft).toBeNull();
     expect(after.isOpen).toBe(false);
+  });
+
+  test('session 120: Electron left rail hover opens below the titlebar lane only', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
+    const lane = await page.evaluate(() => {
+      document.documentElement.classList.add('is-electron');
+      document.body.classList.add('is-electron');
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+
+      const strip = document.querySelector('.electron-drag-strip');
+      const rail = document.getElementById('sidebar-edge-rail');
+      const stripRect = strip ? strip.getBoundingClientRect() : null;
+      const railRect = rail ? rail.getBoundingClientRect() : null;
+      const titlebarHeight = stripRect ? stripRect.height : 0;
+      const dragLaneY = Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2)));
+      const railHoverY = railRect
+        ? Math.max(Math.round(railRect.top + 24), Math.round(railRect.top + Math.min(railRect.height - 1, 8)))
+        : null;
+
+      return {
+        titlebarHeight,
+        railTop: railRect ? railRect.top : null,
+        dragLaneY,
+        railHoverY,
+      };
+    });
+
+    await page.waitForTimeout(400);
+
+    expect(lane.titlebarHeight).toBeGreaterThan(0);
+    expect(lane.railTop || 0).toBeGreaterThanOrEqual(lane.titlebarHeight - 1);
+    expect(lane.railHoverY).toBeGreaterThan(lane.dragLaneY);
+
+    await page.mouse.move(2, lane.dragLaneY);
+    await page.waitForTimeout(120);
+
+    let state = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+      };
+    });
+    expect(state.edgeHoverLeft).toBeNull();
+    expect(state.isOpen).toBe(false);
+
+    await page.mouse.move(2, lane.railHoverY);
+    await page.waitForTimeout(120);
+
+    state = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      return {
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
+        isOpen: !!(sidebar && sidebar.classList.contains('open')),
+      };
+    });
+    expect(state.edgeHoverLeft).toBe('true');
+    expect(state.isOpen).toBe(true);
   });
 
   // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック

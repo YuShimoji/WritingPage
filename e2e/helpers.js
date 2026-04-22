@@ -433,6 +433,96 @@ async function closeSidebar(page) {
 }
 
 /**
+ * chapter-store 操作用に current selection を親 document ID へ正規化する。
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<string|null>}
+ */
+async function getCurrentChapterStoreDocId(page) {
+  return page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    var Store = window.ZWChapterStore;
+    var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docs = S && typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+    return rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId, docs)
+      : rawId;
+  });
+}
+
+/**
+ * current selection が章レコードでも安全な親 document 単位で章一覧を返す。
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<Array<any>>}
+ */
+async function getChaptersForCurrentDoc(page) {
+  return page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    var Store = window.ZWChapterStore;
+    if (!S || !Store) return [];
+    var rawId = typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docs = typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+    var docId = rawId && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId, docs)
+      : rawId;
+    return docId ? (Store.getChaptersForDoc(docId) || []) : [];
+  });
+}
+
+/**
+ * chapterMode ドキュメントへ章セットを投入する。
+ * @param {import('@playwright/test').Page} page
+ * @param {{ title: string, content?: string, level?: number }[]} chapters
+ * @returns {Promise<string|null>}
+ */
+async function setupChapterModeChapters(page, chapters) {
+  await page.evaluate((chs) => {
+    var S = window.ZenWriterStorage;
+    var Store = window.ZWChapterStore;
+    if (!S || !Store) return;
+    var rawId = typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docs = typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+    var docId = rawId && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId, docs)
+      : rawId;
+    if (!docId) return;
+    if (typeof S.setCurrentDocId === 'function') S.setCurrentDocId(docId);
+    if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
+    var existing = Store.getChaptersForDoc(docId) || [];
+    for (var i = 0; i < existing.length; i++) {
+      Store.deleteChapter(existing[i].id);
+    }
+    var prevId = null;
+    for (var j = 0; j < chs.length; j++) {
+      var ch = chs[j];
+      Store.createChapter(docId, ch.title, ch.content || '', prevId, ch.level || 2);
+      var created = Store.getChaptersForDoc(docId) || [];
+      if (created.length > 0) prevId = created[created.length - 1].id;
+    }
+  }, chapters);
+  await page.waitForTimeout(200);
+  return getCurrentChapterStoreDocId(page);
+}
+
+/**
+ * current selection が章レコードでも親 document の assembled 本文を返す。
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<string>}
+ */
+async function assembleCurrentChapterDoc(page) {
+  return page.evaluate(() => {
+    var S = window.ZenWriterStorage;
+    var Store = window.ZWChapterStore;
+    if (!S || !Store) return '';
+    var rawId = typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+    var docs = typeof S.loadDocuments === 'function' ? (S.loadDocuments() || []) : null;
+    var docId = rawId && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId, docs)
+      : rawId;
+    return docId ? (Store.assembleFullText(docId) || '') : '';
+  });
+}
+
+/**
  * WYSIWYG → textarea モードに切り替える (オーバーフローメニュー経由)。
  */
 /**
@@ -476,4 +566,8 @@ module.exports = {
   restoreDialogs,
   switchToTextareaMode,
   enableDeveloperMode,
+  getCurrentChapterStoreDocId,
+  getChaptersForCurrentDoc,
+  setupChapterModeChapters,
+  assembleCurrentChapterDoc,
 };

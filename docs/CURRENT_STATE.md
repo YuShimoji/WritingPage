@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-21 (session 118 - cmd launch recovery + memo-lab P2 follow-up / handoff)
+最終更新: 2026-04-22 (session 119 - chapter resolver audit + WP-004 parity pack prep)
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| 詳細ブランチ | `main` (**2026-04-21 にこの handoff commit を `origin/main` へ反映**。次スレッドは `git pull --ff-only` から再開) |
-| セッション | 118 - cmd launch recovery + memo-lab P2 follow-up / handoff |
+| 詳細ブランチ | `main` （`origin/main` の最新同期点は **2026-04-21 / session 118 handoff**。session 119 の side quest はまだ local 作業） |
+| セッション | 119 - chapter resolver audit + WP-004 parity pack prep |
 | 現在の主軸 | **package 実機ゲートの単独残件を閉じる**: `npm run app:open` のコマンドプロンプト起動失敗は解消済み。最新 user manual では中央上部 `Zen Writer` drag strip は機能 PASS だが、**左サイドバーが packaged app でまだ開かない**。次スレッドはこの 1 surface だけを最短で詰める。 |
 | 最新ビルド | `build/win-unpacked/Zen Writer.exe` (2026-04-21; `npm run build && npm run electron:build` green。`npm run app:open` はコマンドプロンプトから user 確認で起動回復) |
-| 進行中スライス | session 118: **Windows packaged launcher の silent failure 回復** + **memo-lab review P2 2件の最小修正**。Verified local checks: `floating-memo-lab`, `build`, `electron:build`, `lint:js:check`。package 実機の最新観測は「left sidebar still does not open」「drag strip is functional PASS, top chrome visual tune is optional」。 |
+| 進行中スライス | session 119: **Side Quest 1-2 完了**。`ZWChapterStore.resolveParentDocumentId` の callsite を `reader-preview` / `app-autosave-api` / `gadgets-sections-nav` で統一し、`e2e/helpers.js` に chapterMode seed/assertion helper を追加。さらに `samples/sample-wp004-parity-pack.zwp.json` と `docs/MANUAL_TEST_GUIDE.md` 3.7 を追加し、WP-004 手動パックの正本 sample/guide を整備した。package 実機の主残件は引き続き **left sidebar still does not open**。 |
 | 隔離サイドクエスト | **浮遊メモ実験 v2.1**: `#view-menu` の dev-only 項目 / コマンドパレット / `?memoLab=1` で開く独立 overlay。`js/floating-memo-field.js` が DOM + CSS 3D + `requestAnimationFrame` で **edge-to-edge flow + 画面外 despawn / respawn**、**背景面ドラッグ + foreground 編集昇格**、**強い release 時だけ shell strip に flutter** を検証する。touch / coarse pointer では **1 本指即ドラッグ + 8px slop**、**背景 tap で foreground 化 / 次の tap で即編集**、**2 本指 gesture 無効** を採用し、close/reopen では drag 張り付きが残らないよう pointer gesture を close 時点で破棄する。`visualViewport` が使える環境では foreground textarea focus 中にキーボード回避の y 補正を入れる。8 枚固定表示を既定とし、本文は memo identity ごとに localStorage へ保持。既存 editor data model / autosave 契約には接続しない。 |
 | 前スライス (参考) | session 115: **Electron rail no-drag 回帰修正** — package 実機で「サイドバーが出現しない」報告を受け、原因を Electron frameless の drag 領域設定に特定。`[css/style.css](../css/style.css)` で `.sidebar-edge-rail` を visible 時 `pointer-events:auto` に戻し、Electron の `no-drag` 除外リストへ `.sidebar-edge-rail` と `.dock-resize-handle--sidebar` を追加。[css/dock-panel.css](../css/dock-panel.css) にも sidebar resize handle の `-webkit-app-region: no-drag` を明示し、closed sidebar を inert 化したまま packaged app でも rail がイベントを受け取れるようにした。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` **27 passed**、`npm run lint:js:check` clean。package 実機の再ゲート（rail 復旧 / fullscreen scrollbar / drag strip / preview / 永続化 / DPI）は未実施。 |
 | 前スライス (参考) | session 114: **closed sidebar inert化 + edge rail 分離 + overflow clamp** — package 実機フィードバックで「閉じた sidebar の細い残骸に触れた時だけ開く」「全画面で sidebar scrollbar が残る」「下部横スクロールが残る」報告を受け、(1) [index.html](../index.html) に `#sidebar-edge-rail` を追加し、Normal の hover 起点を sidebar 本体から分離。(2) [js/edge-hover.js](../js/edge-hover.js) を更新し、Normal は fixed rail 幾何で open、open 後は sidebar 本体 + resize handle + dismiss buffer で維持、right dock でも同じ edge rail から開くよう整理。(3) [css/style.css](../css/style.css) で closed `#sidebar` を `visibility:hidden` + `pointer-events:none` + `overflow:hidden` に固定し、open / focus overlay のみ scroll container 化。`html` の horizontal overflow を閉じ、`.floating-panels` を `inset: 0` に変更して root 横 overflow を抑制。(4) [css/dock-panel.css](../css/dock-panel.css) で sidebar resize handle を closed 時 `pointer-events:none` にし、reader overlay 中も非表示化。(5) [e2e/sidebar-layout.spec.js](../e2e/sidebar-layout.spec.js) に「closed sidebar が inert」「right dock edge rail parity」「horizontal overflow なし」を追加。**Web 検証**: `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --reporter=line` **27 passed**、`npm run lint:js:check` clean。 |
@@ -40,29 +40,28 @@
 | 前スライス (参考) | session 89: 過剰テスト・デッドコード第二次クリーンアップ — (1) ルート不要ファイル削除 (`test-write.txt` / `prompt-resume.md` / `spec-wiki.html`)、`MILESTONE_2025-01-04.md` を `docs/archive/` へ移動。(2) `package.json` から未使用 `test:e2e:ci` と重複 `test:build:stable` を削除。(3) E2E spec 2 件削除 (`animations-decorations.spec.js` [`decorations.spec.js` に包含]、`reader-preview.spec.js` [session 68 で Reader モード廃止済])。(4) E2E spec 2 件統合 (`chapter-ux-issues.spec.js` Issue C-2 → `chapter-store.spec.js`、`gadget-detach-restore.spec.js` 全件 → `gadgets.spec.js`)。(5) `debug-ui.html` 削除 + `DEVELOPMENT.md` の該当記述を DevTools コンソール誘導に差し替え。(6) `docs/archive/` の旧セッションログ 3 ファイルを `session-history.md` に統合。検証: `npm run lint:js:check` clean、`npm run test:smoke` pass、`npx playwright test --list` = **566** テスト / **65** ファイル (前回 585/69、-19 テスト / -4 ファイル)。`test:e2e:stable` の 1 件 failure (`editor-settings.spec.js:464 typography sync`) は stash 比較で **pre-existing** を確認、本スライス無関係。 |
 
 
-## Restart Handoff (2026-04-21 / session 118)
+## Restart Handoff (2026-04-22 / session 119)
 
-- Shared focus: packaged app gate の残件は **左サイドバーが開かない / hover-open できない** 1 点だけ。`npm run app:open` の cmd 起動失敗は解消済み、drag strip は機能 PASS。
+- Shared focus: main の最優先はまだ **packaged app の左サイドバー no-open** 1 点。session 119 はそこへ触れず、chapter/store と sample/docs に閉じた side quest だけを消化した。
 - Current trust assessment:
-  - trusted: `scripts/open-built-app.js` / `scripts/open-packaged-app.ps1` の packaged launcher recovery、memo-lab P2 2 件 (`js/floating-memo-field.js`)、`npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line`、`npm run build`、`npm run electron:build`
-  - needs re-check: packaged app 実機で left sidebar が still no-open な surface
-  - dangerous / rollback candidate: なし
+  - trusted: `js/reader-preview.js` / `js/app-autosave-api.js` / `js/gadgets-sections-nav.js` の parent doc resolver helper、`e2e/helpers.js` の chapterMode helper、`e2e/chapter-store.spec.js` の 2 回帰、`samples/sample-wp004-parity-pack.zwp.json`
+  - needs re-check: packaged app 実機で left sidebar が still no-open な surface、WP-004 parity pack の**人手実施結果**
+  - dangerous / rollback candidate: `js/edge-hover.js` と `e2e/ui-mode-consistency.spec.js` は別端末の未 push 作業があるため、この side quest では未変更
 - New fossils:
-  - `scripts/open-built-app.js`: Windows packaged launcher を同期実行にし、`cmd.exe` 配下で hidden PowerShell failure が黙って消えないようにした
-  - `js/floating-memo-field.js`: touch promote 後の再タップ編集を frame-sized lock へ短縮し、close 時に live drag gesture を `returning` 側へ落として reopen 後の張り付き状態を防止
-  - `e2e/floating-memo-lab.spec.js`: immediate re-tap edit / non-primary touch ignore / close-mid-drag cleanup の回帰を追加
+  - `e2e/helpers.js`: current selection が章レコードでも `resolveParentDocumentId` 経由で seed / chapter assertion / assembled text を親 document 単位へ正規化
+  - `js/reader-preview.js` / `js/app-autosave-api.js` / `js/gadgets-sections-nav.js`: raw current doc id -> parent document id の重複式を file-local helper に集約
+  - `samples/sample-wp004-parity-pack.zwp.json`: manual scenario 1〜5 の正本 sample。Story Wiki データは同梱せず、scenario 4 は broken wikilink 確認専用
+  - `docs/MANUAL_TEST_GUIDE.md`: 3.7 `WP-004 parity pack` を追加。manual 実施自体は user actor、差分記録先は `docs/WP004_PHASE3_PARITY_AUDIT.md`
 - Verified in this thread:
   - `npm run lint:js:check`
-  - `npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line`
-  - `npm run build`
-  - `npm run electron:build`
-  - user manual: コマンドプロンプトから app launch 回復、drag strip は機能 PASS、left sidebar は未解決
+  - `npx playwright test e2e/chapter-store.spec.js e2e/chapter-mode-sync.spec.js e2e/sections-nav.spec.js e2e/chapter-list.spec.js e2e/sidebar-writing-focus.spec.js e2e/reader-chapter-nav.spec.js --reporter=line --workers=1`
+  - `npx playwright test e2e/reader-wysiwyg-distinction.spec.js e2e/reader-chapter-nav.spec.js e2e/reader-wikilink-popover.spec.js e2e/reader-genre-preset.spec.js --reporter=line --workers=1`
 - Safe next-thread plan:
   1. `npm run app:open`
   2. packaged app の left sidebar no-open だけを再現し、`css/style.css` / `js/edge-hover.js` / Electron no-drag 面のどこで止まっているかを narrow に切る
   3. `npx playwright test e2e/sidebar-layout.spec.js e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line` + `npm run electron:build`
-  4. user manual で left sidebar 復旧だけ再確認し、PASS なら closeout docs を更新
-- What not to do next: package gate を広い再監査に戻さない / memo-lab を autosave・editor 本線へ統合しない / memo-lab のために `css/style.css` を広く触り直さない / drag strip 修正を巻き戻さない
+  4. package gate の修正が止まったら、必要に応じて user が `sample-wp004-parity-pack.zwp.json` で manual parity を実施し、差分が出たものだけ `WP004_PHASE3_PARITY_AUDIT.md` に 1 行追記
+- What not to do next: package gate を広い再監査に戻さない / memo-lab を autosave・editor 本線へ統合しない / parity pack を runtime helper 追加で肥大化しない / `js/edge-hover.js` の別端末未 push 変更を巻き戻さない
 
 ## ドキュメント地図（再開時）
 

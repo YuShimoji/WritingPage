@@ -3,34 +3,7 @@
  * パイプライン HTML 同一性ではなく、reader-preview + ZWChapterNav.injectNavBars の層を検証する。
  */
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode } = require('./helpers');
-
-/**
- * @param {import('@playwright/test').Page} page
- * @param {{ title: string, content?: string, level?: number }[]} chapters
- */
-async function setupChapters(page, chapters) {
-  await page.evaluate((chs) => {
-    var S = window.ZenWriterStorage;
-    var Store = window.ZWChapterStore;
-    if (!S || !Store) return;
-    var docId = S.getCurrentDocId();
-    if (!docId) return;
-    if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-    var existing = Store.getChaptersForDoc(docId) || [];
-    for (var i = 0; i < existing.length; i++) {
-      Store.deleteChapter(existing[i].id);
-    }
-    var prevId = null;
-    for (var j = 0; j < chs.length; j++) {
-      var ch = chs[j];
-      Store.createChapter(docId, ch.title, ch.content || '', prevId, ch.level || 2);
-      var created = Store.getChaptersForDoc(docId) || [];
-      if (created.length > 0) prevId = created[created.length - 1].id;
-    }
-  }, chapters);
-  await page.waitForTimeout(200);
-}
+const { ensureNormalMode, setupChapterModeChapters } = require('./helpers');
 
 test.describe('Reader chapter nav injection', () => {
   test.beforeEach(async ({ page }) => {
@@ -48,7 +21,7 @@ test.describe('Reader chapter nav injection', () => {
   });
 
   test('複数章 chapterMode で Reader 本文に .chapter-nav-bar が注入される', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'ReaderNavProbeCh1', content: 'body-one' },
       { title: 'ReaderNavProbeCh2', content: 'body-two' }
     ]);
@@ -69,7 +42,7 @@ test.describe('Reader chapter nav injection', () => {
   });
 
   test('Reader 章末ナビの「次へ」クリックで次章付近へ遷移する', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'ReaderNavJumpCh1', content: new Array(30).fill('alpha body line').join('\n') },
       { title: 'ReaderNavJumpCh2', content: new Array(30).fill('beta body line').join('\n') },
       { title: 'ReaderNavJumpCh3', content: new Array(30).fill('gamma body line').join('\n') }

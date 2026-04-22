@@ -1,34 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-
-// ---------------------------------------------------------------------------
-// Helper: chapterMode でドキュメントと章を設定
-// ---------------------------------------------------------------------------
-async function setupChapters(page, chapters) {
-  await page.evaluate((chs) => {
-    var S = window.ZenWriterStorage;
-    var Store = window.ZWChapterStore;
-    if (!S || !Store) return;
-    var docId = S.getCurrentDocId();
-    if (!docId) return;
-    // chapterMode を確保
-    if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-    // 既存章を削除
-    var existing = Store.getChaptersForDoc(docId) || [];
-    for (var i = 0; i < existing.length; i++) {
-      Store.deleteChapter(existing[i].id);
-    }
-    // 新しい章を作成
-    var prevId = null;
-    for (var j = 0; j < chs.length; j++) {
-      var ch = chs[j];
-      Store.createChapter(docId, ch.title, ch.content || '', prevId, ch.level || 2);
-      var created = Store.getChaptersForDoc(docId) || [];
-      if (created.length > 0) prevId = created[created.length - 1].id;
-    }
-  }, chapters);
-  await page.waitForTimeout(200);
-}
+const { setupChapterModeChapters } = require('./helpers');
 
 // ---------------------------------------------------------------------------
 // Helper: Focusモードを有効化する
@@ -64,7 +36,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 1. Chapter display
   // -------------------------------------------------------------------------
   test('章レコードからチャプターアイテムが生成される', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' },
       { title: 'Chapter 2', content: '本文B' },
       { title: 'Chapter 3', content: '本文C' }
@@ -95,7 +67,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 2. Chapter navigation
   // -------------------------------------------------------------------------
   test('チャプターアイテムクリックでエディタ内容が章のコンテンツに切り替わる', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' },
       { title: 'Chapter 2', content: '本文B' }
     ]);
@@ -124,7 +96,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 3. Add chapter
   // -------------------------------------------------------------------------
   test('「新しい章」ボタンで章レコードが追加される', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' }
     ]);
     await enterFocusMode(page);
@@ -148,7 +120,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 4. Inline rename
   // -------------------------------------------------------------------------
   test('ダブルクリックでインライン編集フィールドが表示される', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' },
       { title: 'Chapter 2', content: '本文B' }
     ]);
@@ -175,7 +147,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 5. Context menu
   // -------------------------------------------------------------------------
   test('右クリックでコンテキストメニューが表示される', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' },
       { title: 'Chapter 2', content: '本文B' }
     ]);
@@ -210,7 +182,7 @@ test.describe('SP-071 ChapterList (chapterMode)', () => {
   // 6. Active chapter highlight
   // -------------------------------------------------------------------------
   test('クリックしたアイテムに .cl-item--active クラスが付く', async ({ page }) => {
-    await setupChapters(page, [
+    await setupChapterModeChapters(page, [
       { title: 'Chapter 1', content: '本文A' },
       { title: 'Chapter 2', content: '本文B' },
       { title: 'Chapter 3', content: '本文C' }

@@ -1,0 +1,53 @@
+{
+  "format": "zenwriter-v1",
+  "version": "0.3.32",
+  "document": {
+    "name": "WP-004 Parity Pack",
+    "chapterMode": true,
+    "createdAt": "2026-04-22T00:00:00.000Z",
+    "updatedAt": "2026-04-22T00:00:00.000Z"
+  },
+  "pages": [
+    {
+      "title": "01 chapter-link+nav",
+      "content": "## 01 chapter-link+nav\n\nこの章は chapter:// 相互リンクと Reader 章末ナビの手動確認用です。\n\n- [02 textbox combo へ](chapter://02 textbox combo)\n- [03 typing+dialog+ruby へ](chapter://03 typing+dialog+ruby)\n\nReader では上のリンクが章見出しへ遷移し、章末ナビの「前へ / 次へ」も連続して使えるかを見ます。",
+      "order": 0,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    },
+    {
+      "title": "02 textbox combo",
+      "content": "## 02 textbox combo\n\nこの章は preview / Reader の HTML 整合を目視するための textbox 複合です。\n\n:::zw-textbox{preset:\"inner-voice\", tilt:3, anim:pulse}\n[italic]ここは pulse + tilt + inner-voice の複合確認。[/italic]\n二行目でも枠と装飾が崩れないことを見ます。\n:::",
+      "order": 1,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    },
+    {
+      "title": "03 typing+dialog+ruby",
+      "content": "## 03 typing+dialog+ruby\n\n:::zw-typing{speed:\"slow\"}\n|試し《ためし》の文字が順に現れ、|静寂《せいじゃく》が少しずつほどけていく。\n:::\n\n:::zw-dialog{speaker:\"案内役\", position:\"left\"}\n「|会話《かいわ》ブロックの中でも、|ルビ《るび》が preview と Reader で揃うか確認しよう」\n:::",
+      "order": 2,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    },
+    {
+      "title": "04 broken wikilink",
+      "content": "## 04 broken wikilink\n\nこの章は Story Wiki を同梱しない前提の broken wikilink 確認用です。\n\n[[ParityGhostEntry]]\n[[ParityMissingTerm|未登録用語]]\n\nReader では壊れリンクの見た目と、クリック時ポップオーバーの未登録メッセージを確認します。",
+      "order": 3,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    },
+    {
+      "title": "05 genre preset probe",
+      "content": "## 05 genre preset probe\n\nReader でジャンルを `ADV / ビジュアルノベル` に切り替えて確認します。\n\n:::zw-dialog{speaker:\"主人公\", position:\"left\", style:\"bubble\"}\n「黒いダイアログ面と金色寄りの話者名が乗るかを見たい」\n:::\n\n:::zw-typing{speed:\"slow\", mode:\"click\"}\n選択の直後から、余韻を残す地の文が暗い背景で読めるかを確認する。\n:::",
+      "order": 4,
+      "level": 2,
+      "visibility": "visible",
+      "metadata": {}
+    }
+  ],
+  "exportedAt": "2026-04-22T00:00:00.000Z"
+}

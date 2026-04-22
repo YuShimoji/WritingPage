@@ -105,6 +105,7 @@
   var leftEdgeOpenedSidebar = false;
   var lastPointer = { x: 0, y: 0 };
   var normalRailSuppressedUntil = 0;
+  var lastSidebarOpenState = false;
   var lastWindowScreenPos = {
     x: typeof window.screenX === 'number' ? window.screenX : (typeof window.screenLeft === 'number' ? window.screenLeft : 0),
     y: typeof window.screenY === 'number' ? window.screenY : (typeof window.screenTop === 'number' ? window.screenTop : 0)
@@ -263,6 +264,44 @@
     return isNormalSidebarInteractionActiveAt(x, y);
   }
 
+  function clearLeftDwellIfInactive() {
+    if (!state.left.active) {
+      clearTimeout(state.left.dwellTimer);
+      state.left.dwellTimer = null;
+    }
+  }
+
+  function handleLeftTriggerZoneHover() {
+    if (isFocusMode()) {
+      if (state.left.active) cancelDismiss('left');
+      else startDwell('left');
+      return;
+    }
+
+    if (isReaderOverlayOpen()) {
+      clearLeftDwellIfInactive();
+      return;
+    }
+
+    if (isNormalSidebarRailSuppressed()) {
+      clearLeftDwellIfInactive();
+      return;
+    }
+
+    if (state.left.active) cancelDismiss('left');
+    else startDwell('left');
+  }
+
+  function syncSidebarOpenState() {
+    var isOpen = isSidebarNormallyOpen();
+    if (isOpen === lastSidebarOpenState) return;
+    lastSidebarOpenState = isOpen;
+    if (!isOpen && !isFocusMode()) {
+      suspendNormalSidebarRail();
+      clearLeftDwellIfInactive();
+    }
+  }
+
   // --- 表示/非表示 ---
 
   function showEdge(edge) {
@@ -379,19 +418,10 @@
       : (!isReaderOverlayOpen() && isPointInNormalSidebarRail(x, y));
     var leftDismissZone = getLeftEdgeDismissZone();
     if (inLeftTriggerZone) {
-      if (isNormalSidebarRailSuppressed()) {
-        if (!state.left.active) {
-          clearTimeout(state.left.dwellTimer);
-          state.left.dwellTimer = null;
-        }
-        return;
-      }
-      if (state.left.active) cancelDismiss('left');
-      else startDwell('left');
+      handleLeftTriggerZoneHover();
     } else {
       if (!state.left.active) {
-        clearTimeout(state.left.dwellTimer);
-        state.left.dwellTimer = null;
+        clearLeftDwellIfInactive();
       } else if (isLeftInteractionActiveAt(x, y)) {
         cancelDismiss('left');
       } else if (!isFocusMode() || x > leftDismissZone) {
@@ -409,7 +439,32 @@
   }
 
   function setupUIHoverGuard() {
+    var sidebarRail = document.getElementById('sidebar-edge-rail');
     var sidebar = document.getElementById('sidebar');
+
+    if (sidebarRail) {
+      var handleSidebarRailHover = function (e) {
+        if (!e || typeof e.clientX !== 'number' || typeof e.clientY !== 'number') return;
+        if (isFocusMode() || isReaderOverlayOpen()) return;
+        if (!isPointInNormalSidebarRail(e.clientX, e.clientY)) return;
+        lastPointer.x = e.clientX;
+        lastPointer.y = e.clientY;
+        handleLeftTriggerZoneHover();
+      };
+
+      sidebarRail.addEventListener('mouseenter', handleSidebarRailHover);
+      sidebarRail.addEventListener('mousemove', handleSidebarRailHover);
+      sidebarRail.addEventListener('mouseleave', function (e) {
+        if (state.left.active) return;
+        if (!e || typeof e.clientX !== 'number' || typeof e.clientY !== 'number') {
+          clearLeftDwellIfInactive();
+          return;
+        }
+        if (!isPointInNormalSidebarRail(e.clientX, e.clientY)) {
+          clearLeftDwellIfInactive();
+        }
+      });
+    }
 
     if (sidebar) {
       sidebar.addEventListener('mouseenter', function () {
@@ -588,6 +643,7 @@
 
   function init() {
     suspendNormalSidebarRail();
+    lastSidebarOpenState = isSidebarNormallyOpen();
     lastWindowScreenPos = getWindowScreenPos();
 
     document.addEventListener('mousemove', function (e) {
@@ -634,8 +690,12 @@
       var onlyReaderOverlay = mutations.length > 0 && mutations.every(function (m) {
         return m.attributeName === 'data-reader-overlay-open';
       });
+      var hasSidebarStateChange = mutations.some(function (m) {
+        return m.attributeName === 'data-sidebar-open';
+      });
+      if (hasSidebarStateChange) syncSidebarOpenState();
       updateGlowVisibility(onlyReaderOverlay);
-    }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode', 'data-reader-overlay-open'] });
+    }).observe(html, { attributes: true, attributeFilter: ['data-ui-mode', 'data-reader-overlay-open', 'data-sidebar-open'] });
 
   }
 

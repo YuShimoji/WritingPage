@@ -2,7 +2,7 @@
 
 Zen Writer の全機能を一通り確認するための手順書。サンプルプロジェクトと組み合わせて使う。
 
-最終更新: 2026-04-20 (session 112 package safe launcher 追記)
+最終更新: 2026-04-22 (session 119 WP-004 parity pack 追記)
 
 ## 0. package / Electron 固有の最小確認
 
@@ -98,6 +98,18 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 - [ ] `:::zw-dialog` が会話ボックスとして表示される
 - [ ] 速度指定 (fast/slow) が反映される
 - [ ] 左/右/中央配置が反映される
+
+### 3.7 WP-004 parity pack
+
+`samples/sample-wp004-parity-pack.zwp.json` を別ドキュメントとして読み込み、MD プレビューと Reader を並べて確認する。差分があれば `docs/WP004_PHASE3_PARITY_AUDIT.md` に 1 行追記する。
+
+| 章 | MD preview で見る点 | Reader で見る点 | 差分の記録先 |
+|----|---------------------|-----------------|--------------|
+| `01 chapter-link+nav` | `chapter://` リンクが章リンクとして整形され、見出し順が崩れない | リンク遷移と章末ナビ `前へ / 次へ` が素直に繋がる | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| `02 textbox combo` | `:::zw-textbox{preset:"inner-voice", tilt:3, anim:pulse}` と `[italic]...[/italic]` の組み合わせが崩れない | 同じ textbox の枠・傾き・装飾が Reader でも揃う | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| `03 typing+dialog+ruby` | `:::zw-typing` / `:::zw-dialog` 内のルビが preview で読める | タイピング演出とダイアログの中でもルビ位置が揃う | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| `04 broken wikilink` | broken wikilink が未登録リンクとして見分けられる | クリック時に未登録メッセージのポップオーバーが出て閉じられる | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
+| `05 genre preset probe` | 基本文字組が崩れず dialog / typing ブロックが並ぶ | Reader のジャンルを `ADV / ビジュアルノベル` に切り替え、暗色 dialog と typing の見え方を確認する | `docs/WP004_PHASE3_PARITY_AUDIT.md` |
 
 ## 4. 章管理
 

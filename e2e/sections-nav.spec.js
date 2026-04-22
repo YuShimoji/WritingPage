@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebar, setUIMode } = require('./helpers');
+const { ensureNormalMode, openSidebar, setUIMode, setupChapterModeChapters } = require('./helpers');
 
 test.describe('SP-052 Sections Navigator', () => {
   test.beforeEach(async ({ page }) => {
@@ -158,19 +158,10 @@ test.describe('SP-052 Sections Navigator', () => {
     await page.waitForLoadState('networkidle');
 
     // chapterMode で 2 章をセットアップ (直接 Store 操作)
-    await page.evaluate(() => {
-      var S = window.ZenWriterStorage;
-      var Store = window.ZWChapterStore;
-      var docId = S.getCurrentDocId();
-      if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-      var existing = Store.getChaptersForDoc(docId) || [];
-      for (var i = 0; i < existing.length; i++) Store.deleteChapter(existing[i].id);
-      Store.createChapter(docId, '章Alpha', 'alpha-body', null, 2);
-      var chs = Store.getChaptersForDoc(docId) || [];
-      var prevId = chs.length ? chs[chs.length - 1].id : null;
-      Store.createChapter(docId, '章Beta', 'beta-body', prevId, 2);
-    });
-    await page.waitForTimeout(200);
+    await setupChapterModeChapters(page, [
+      { title: '章Alpha', content: 'alpha-body' },
+      { title: '章Beta', content: 'beta-body' }
+    ]);
 
     // Focus モードに入る → chapter-list が refresh され内部 chapters 配列が populate される
     await setUIMode(page, 'focus');
@@ -229,20 +220,11 @@ test.describe('SP-052 Sections Navigator', () => {
     await page.waitForLoadState('networkidle');
 
     // 同名タイトル 3 章をセットアップ
-    await page.evaluate(() => {
-      var S = window.ZenWriterStorage;
-      var Store = window.ZWChapterStore;
-      var docId = S.getCurrentDocId();
-      if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-      var existing = Store.getChaptersForDoc(docId) || [];
-      for (var i = 0; i < existing.length; i++) Store.deleteChapter(existing[i].id);
-      Store.createChapter(docId, 'SameTitle', 'body-FIRST', null, 2);
-      var chs = Store.getChaptersForDoc(docId) || [];
-      Store.createChapter(docId, 'SameTitle', 'body-SECOND', chs[chs.length - 1].id, 2);
-      chs = Store.getChaptersForDoc(docId) || [];
-      Store.createChapter(docId, 'SameTitle', 'body-THIRD', chs[chs.length - 1].id, 2);
-    });
-    await page.waitForTimeout(200);
+    await setupChapterModeChapters(page, [
+      { title: 'SameTitle', content: 'body-FIRST' },
+      { title: 'SameTitle', content: 'body-SECOND' },
+      { title: 'SameTitle', content: 'body-THIRD' }
+    ]);
 
     await setUIMode(page, 'focus');
     await page.waitForTimeout(400);
@@ -317,18 +299,10 @@ test.describe('SP-052 Sections Navigator', () => {
     await page.waitForLoadState('networkidle');
 
     // chapterMode で 2 章セットアップ
-    await page.evaluate(() => {
-      var S = window.ZenWriterStorage;
-      var Store = window.ZWChapterStore;
-      var docId = S.getCurrentDocId();
-      if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-      var existing = Store.getChaptersForDoc(docId) || [];
-      for (var i = 0; i < existing.length; i++) Store.deleteChapter(existing[i].id);
-      Store.createChapter(docId, 'Ch-A', 'content-A', null, 2);
-      var chs = Store.getChaptersForDoc(docId) || [];
-      Store.createChapter(docId, 'Ch-B', 'content-B', chs[chs.length - 1].id, 2);
-    });
-    await page.waitForTimeout(200);
+    await setupChapterModeChapters(page, [
+      { title: 'Ch-A', content: 'content-A' },
+      { title: 'Ch-B', content: 'content-B' }
+    ]);
 
     // autoSave OFF に設定
     await page.evaluate(() => {
@@ -400,14 +374,11 @@ test.describe('SP-052 Sections Navigator', () => {
     await page.waitForLoadState('networkidle');
 
     // chapterMode + autoSave OFF
+    await setupChapterModeChapters(page, [
+      { title: 'TestCh', content: 'test-content' }
+    ]);
     await page.evaluate(() => {
       var S = window.ZenWriterStorage;
-      var Store = window.ZWChapterStore;
-      var docId = S.getCurrentDocId();
-      if (Store.ensureChapterMode) Store.ensureChapterMode(docId);
-      var existing = Store.getChaptersForDoc(docId) || [];
-      for (var i = 0; i < existing.length; i++) Store.deleteChapter(existing[i].id);
-      Store.createChapter(docId, 'TestCh', 'test-content', null, 2);
       var s = S.loadSettings();
       s.autoSave = { ...(s.autoSave || {}), enabled: false };
       S.saveSettings(s);

@@ -1,5 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
+const { getChaptersForCurrentDoc } = require('./helpers');
 
 test.describe('Sidebar Writing Focus', () => {
   async function ensureSidebarOpen(page) {
@@ -92,32 +93,20 @@ test.describe('Sidebar Writing Focus', () => {
     await ensureSidebarOpen(page);
     await page.waitForTimeout(300);
 
-    const before = await page.evaluate(() => {
-      const storage = window.ZenWriterStorage;
-      const store = window.ZWChapterStore;
-      if (!storage || !store) return { count: 0, names: [] };
-      const docId = storage.getCurrentDocId();
-      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
-      return {
-        count: chapters.length,
-        names: chapters.map((ch) => ch.name || '')
-      };
-    });
+    const beforeChapters = await getChaptersForCurrentDoc(page);
+    const before = {
+      count: beforeChapters.length,
+      names: beforeChapters.map((ch) => ch.name || '')
+    };
 
     await page.click('#writing-focus-add-section');
     await page.waitForTimeout(300);
 
-    const after = await page.evaluate(() => {
-      const storage = window.ZenWriterStorage;
-      const store = window.ZWChapterStore;
-      if (!storage || !store) return { count: 0, names: [] };
-      const docId = storage.getCurrentDocId();
-      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
-      return {
-        count: chapters.length,
-        names: chapters.map((ch) => ch.name || '')
-      };
-    });
+    const afterChapters = await getChaptersForCurrentDoc(page);
+    const after = {
+      count: afterChapters.length,
+      names: afterChapters.map((ch) => ch.name || '')
+    };
 
     expect(after.count).toBe(before.count + 1);
     expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();
@@ -224,32 +213,20 @@ test.describe('Sidebar Writing Focus', () => {
 
     await expect(page.locator('.writing-focus-empty')).toBeVisible();
 
-    const before = await page.evaluate(() => {
-      const storage = window.ZenWriterStorage;
-      const store = window.ZWChapterStore;
-      if (!storage || !store) return { count: 0, names: [] };
-      const docId = storage.getCurrentDocId();
-      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
-      return {
-        count: chapters.length,
-        names: chapters.map((ch) => ch.name || '')
-      };
-    });
+    const beforeChapters = await getChaptersForCurrentDoc(page);
+    const before = {
+      count: beforeChapters.length,
+      names: beforeChapters.map((ch) => ch.name || '')
+    };
 
     await page.click('#writing-focus-add-section');
     await page.waitForTimeout(300);
 
-    const after = await page.evaluate(() => {
-      const storage = window.ZenWriterStorage;
-      const store = window.ZWChapterStore;
-      if (!storage || !store) return { count: 0, names: [] };
-      const docId = storage.getCurrentDocId();
-      const chapters = docId ? (store.getChaptersForDoc(docId) || []) : [];
-      return {
-        count: chapters.length,
-        names: chapters.map((ch) => ch.name || '')
-      };
-    });
+    const afterChapters = await getChaptersForCurrentDoc(page);
+    const after = {
+      count: afterChapters.length,
+      names: afterChapters.map((ch) => ch.name || '')
+    };
 
     expect(after.count).toBe(before.count + 1);
     expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();

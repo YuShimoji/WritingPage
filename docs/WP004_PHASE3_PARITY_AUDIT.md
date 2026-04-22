@@ -39,6 +39,10 @@
 
 以下は **原稿の組み合わせ** で初めて出る差分がありうるため、リリース前またはスライス単位で MD プレビューと Reader を並べて確認する。
 
+session 119 以降の手動パック正本は `samples/sample-wp004-parity-pack.zwp.json` と
+`docs/MANUAL_TEST_GUIDE.md` の「3.7 WP-004 parity pack」。**実施自体は user actor**
+で、差分が出たときだけ本台帳へ追記する。
+
 1. **chapterMode 複数章** + 章末ナビ + `chapter://` 相互リンク
   - **脚注**: **パイプライン層**では複数 `#` 見出し + `[t](chapter://…)` の preview/reader 整合（`data-chapter-target` 付与・reader で `chapter://` 非残留・章リンク以外の HTML 正規化一致）を E2E 済み。**章末ナビの DOM 注入**（[js/reader-preview.js](js/reader-preview.js) / [js/chapter-nav.js](js/chapter-nav.js)）は別層。**Reader 内で `.chapter-nav-bar` が注入される最小結合**は [e2e/reader-chapter-nav.spec.js](e2e/reader-chapter-nav.spec.js) で自動検証（session 59）。**長大原稿・chapter:// 相互リンク・ナビ操作の手応え**は引き続き手動で確認する。
 2. **:::zw-textbox** にプリセット・tilt・anim 付き + 同段落に `[italic]…[/italic]`
@@ -86,3 +90,4 @@
 | 2026-04-09 | session 85: **新規の preview/reader パイプライン差分の報告なし**（レーンA: `structure/theme` の説明文整理のみ）。**手動パック**は**未実施** — リリース前にユーザーが実施する場合のみ本表へ追記                                                                                                                                                                                                                               |
 | 2026-04-09 | session 85（WP-004 レーンB 条件付き起動判定）: 起動条件を監査した結果、**手動シナリオでの差分再現なし** かつ **日常利用での証拠（再現手順/スクショ/ログ）付き差分報告なし**。本スライスは **差分なし報告で終了**（実装・E2E追加なし、WP-001領域への影響なし）                                                                                                                                                                                                        |
 | 2026-04-09 | session 86（WP-004 レーンB）: 手動パックの差分記録を 1 件更新。**シナリオ4（壊れ wikilink）で Reader ポップオーバー閉じの体感が環境依存でわずかに遅いケースを観測**したが、HTML/状態の不一致は再現せず（E2E 既存カバー範囲内）。今回の扱いは **監査メモのみ・修正なし**。                                                                                                                                                                                            |
+| 2026-04-22 | session 119: **専用 parity pack** `samples/sample-wp004-parity-pack.zwp.json` と `docs/MANUAL_TEST_GUIDE.md` の **3.7 WP-004 parity pack** を追加。manual scenario 1〜5 の正本サンプル/手順は揃ったが、**実施自体は引き続き user actor**。コード側は reader/chapter resolver の監査回帰を先に通し、Reader 系 4 spec **20 pass** を再確認。 |
