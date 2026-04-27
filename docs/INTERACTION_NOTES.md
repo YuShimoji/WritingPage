@@ -39,6 +39,7 @@
 
 - BLOCK SUMMARY では先に原因分析を示す
 - 見栄えのためにラベルを書き換えない (「手動」→「自動」のような実態と異なる書き換え禁止)
+- **UI action label consistency**: 同じ surface に `保存` / `書き出し` / `読み込み` / `管理` / `適用` が並ぶ場合は、対象または役割をラベルに含める。例: `+ 文書` / `+ フォルダ`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用`。ダイアログ内など対象が明示される局所操作だけ `保存` / `削除` の短縮を許容する。
 
 ## 現在 deferred の手動確認
 
@@ -56,26 +57,26 @@
 - この節が **現行のユーザー向け UI 正本**。下の `normal` / `focus` 中心の説明は internal compatibility の履歴として残っているが、新規判断はこの節を優先する。
 - 公開 UI 状態は `display mode` ではなく、**top chrome の表示状態 / left nav の階層状態 (`root` / `category`) / Reader・Replay surface の開閉** で表現する。
 - **top chrome**: hidden が通常状態。常用ツールバーではなく、`F2` / Electron menu / command palette から明示表示する一時シェル。執筆中の誤発火を避けるため、fine pointer の上端 hover reveal と visible handle は使わない。hidden 時に上部バーや seam を見せず、誤表示時は `Escape` / 外側操作で即時に閉じる。
-- **left nav**: hover 専用入口ではなく常設ミニレール。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
-- **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents `...`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は single-gadget / slim でも開閉操作として残し、`aria-expanded` / `aria-hidden` を同期する。
+- **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
+- **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents の `+ 文書` / `+ フォルダ` / `保存` / `入出力` / `管理`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は開閉操作、専用 drag handle は並び替え操作として分離し、`aria-expanded` / `aria-hidden` を同期する。
 - **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
 - **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
 - **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `トップクロームを表示`, `Reader を開く / 閉じる`, `左ナビのルートへ戻る` を基準にし、`ui-mode-*` と `toggle-fullscreen` は visible list に残さない。
 - **shortcut semantics**: `F2` は top chrome を表示してフォーカスする動作へ再割当て。`toolbar.toggle` も top chrome toggle を第一候補にする。
-- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻し、旧 Normal left-edge hover-open は主導線ではなく互換挙動。
+- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻し、left-edge hover は root rail の一時 fade-in に限定する。
 
 ---
 
 ## Zen Writer UI 状態モデル（ユーザー向け・正本）
 
-執筆 UI の混乱（WYSIWYG と読者プレビュー、プレビュー周り）を防ぐため、現行の公開 UI は **シェル状態** と **編集面** で説明する。`normal` / `focus` は互換 API の値であり、新規仕様・手動確認・ユーザー向け説明の主語にしない。
+執筆 UI の混乱（リッチ編集表示、Markdown source、読者プレビュー、プレビュー周り）を防ぐため、現行の公開 UI は **シェル状態** と **Editor surface** で説明する。`normal` / `focus` は互換 API の値であり、新規仕様・手動確認・ユーザー向け説明の主語にしない。
 
 ### 軸 1: 公開シェル状態
 
 | 状態 | 主な用途 | 操作入口 |
 |------|----------|----------|
 | top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を明示表示する | `F2` / Electron menu / command palette |
-| left nav root | 常設ミニレール。カテゴリ一覧と last active cue を表示する | 左ナビ |
+| left nav root | 通常時は完全非表示。left edge hover でカテゴリ一覧と last active cue を一時表示する | 左端 hover |
 | left nav category | active category の label / icon / panel / gadget loadout を表示する | root からカテゴリ選択 |
 | replay surface | **閲覧専用**の読者視点確認。編集面とは同時操作しない | Reader / Replay command |
 
@@ -88,19 +89,21 @@
 
 内部互換 API: `ZenWriterApp.setUIMode('normal'|'focus')`。visible command は `ui-mode-*` ではなく、top chrome / left nav / Reader surface の操作名に寄せる。
 
-### 軸 2: 編集面（ミニマル／通常表示 いずれでも同じ）
+### 軸 2: Editor surface（ミニマル／通常表示 いずれでも同じ）
+
+Editor は唯一の執筆面。`Rich editing` と `Markdown source` は同じ原稿データの **表示・編集表現** であり、UI モードを増やすものではない。
 
 | 表示 | 日本語 | 主な用途 |
 |------|--------|----------|
-| Markdown ソース | テキストエリア | `# 見出し` など記法で入力（**開発者モード時のみ** UI から切替可能） |
-| WYSIWYG | リッチ編集 | 既定の執筆面。装飾を視覚的に編集（UI モードは変わらない） |
+| Rich editing | リッチ編集表示 | 既定の執筆表示。見出し・段落・装飾を視覚的に編集する（UI モードは変わらない） |
+| Markdown source | Markdown source | raw Markdown を直接確認・修正する escape hatch（**開発者モード時のみ** UI から切替可能） |
 
-**開発者モード**（`ZenWriterDeveloperMode.isEnabled()`）: `localStorage` キー `zenwriter-developer-mode` が `'true'`、またはホストが `localhost` / `127.0.0.1` のとき真。真のときのみ Markdown ソースへの切替（サイドバー操作帯・WYSIWYG オーバーフロー・一部コマンド）が有効。一般配布では `file://` 等では既定オフ。
+**開発者モード**（`ZenWriterDeveloperMode.isEnabled()`）: `localStorage` キー `zenwriter-developer-mode` が `'true'`、またはホストが `localhost` / `127.0.0.1` のとき真。真のときのみ Markdown source への切替（サイドバー操作帯・リッチ編集オーバーフロー・一部コマンド）が有効。一般配布では `file://` 等では既定オフ。
 
 補足:
 
 - **MD プレビュー**（shell UI／サイドバー内「MD プレビュー」）は、編集画面の横またはパネルに **レンダリング結果を並べて表示**するもの（再生オーバーレイではない）。
-- **再生オーバーレイ**は `ZWReaderPreview.enter()/exit()/toggle()` で開閉。編集は「編集に戻る」で執筆面へ復帰する。
+- **再生オーバーレイ / Reader surface**は `ZWReaderPreview.enter()/exit()/toggle()` で開閉する編集不可の読者確認面。中央揃え・左寄せなど Editor の表示調整とは別に、出力パイプライン・演出・縦書き・export 前の見え方確認を担う。編集は「編集に戻る」で執筆面へ復帰する。
 
 ### 関係図（概念）
 
@@ -118,8 +121,8 @@ flowchart LR
     Replay[再生オーバーレイ]
   end
   subgraph editSurface [編集面]
-    Md[Markdownソース]
-    Wys[リッチ編集WYSIWYG]
+    Md[Markdown source]
+    Wys[Rich editing]
   end
   TopChrome --> Md
   TopChrome --> Wys
@@ -140,12 +143,12 @@ flowchart LR
 ### WP-004 Phase 3（進行中）
 
 - **差分の列挙と手動シナリオ**: [docs/WP004_PHASE3_PARITY_AUDIT.md](WP004_PHASE3_PARITY_AUDIT.md)。テキストボックス `target`（preview/reader/wysiwyg）の現状仕様: [docs/specs/spec-textbox-render-targets.md](specs/spec-textbox-render-targets.md)
-- **markdown-it 前段の共有**: [js/zw-markdown-it-body.js](js/zw-markdown-it-body.js) の `ZWMdItBody.renderToHtmlBeforePipeline(markdown, { editorManager? })` が、:::zw-* DSL 退避・markdown-it 変換・DSL 復元までを担当する。MD プレビューは `editorManager` を渡して従来どおり `_markdownRenderer` を共用する。読者プレビューは `ZenWriterEditor.richTextEditor.markdownRenderer`（なければ同一設定のフォールバック）を使い、**`RichTextEditor.markdownToHtml` は経由しない**（WYSIWYG キャンバス用の経路と分離し、パイプライン後処理の二重適用を防ぐ）。
+- **markdown-it 前段の共有**: [js/zw-markdown-it-body.js](js/zw-markdown-it-body.js) の `ZWMdItBody.renderToHtmlBeforePipeline(markdown, { editorManager? })` が、:::zw-* DSL 退避・markdown-it 変換・DSL 復元までを担当する。MD プレビューは `editorManager` を渡して従来どおり `_markdownRenderer` を共用する。読者プレビューは `ZenWriterEditor.richTextEditor.markdownRenderer`（なければ同一設定のフォールバック）を使い、**`RichTextEditor.markdownToHtml` は経由しない**（リッチ編集キャンバス用の経路と分離し、パイプライン後処理の二重適用を防ぐ）。
 - **インライン記法**（wikilink / 傍点 / ルビ）: [js/zw-inline-html-postmarkdown.js](js/zw-inline-html-postmarkdown.js)
 - **Reader の wikilink クリック**: Story Wiki に項目があるときはタイトル＋抜粋のポップオーバー。**未登録**（`a.wikilink.is-broken`）のときも同様にポップオーバーでタイトルと「項目はまだありません」を示す（[js/reader-preview.js](js/reader-preview.js) `showReaderWikiPopover`）。外クリックで閉じる。
 - **MD→装飾→章リンクの共通順序**: [js/zw-postmarkdown-html-pipeline.js](js/zw-postmarkdown-html-pipeline.js) の `ZWPostMarkdownHtmlPipeline.apply(html, { surface: 'preview'|'reader' })`。`reader` では `convertChapterLinks` の後に `convertForExport` を実行し、`chapter://` をページ内 `#` アンカーへ揃える（以前 Reader だけ `convertForExport` のみで `.chapter-link` 前提を満たせないケースがあった）。
 - **章末ナビ（Reader）**: `settings.chapterNav.enabled` が真で複数 visible 章があるとき、[js/chapter-nav.js](js/chapter-nav.js) の `injectNavBars` が読者本文（`.reader-preview__content`）にも `.chapter-nav-bar` を注入する（[js/reader-preview.js](js/reader-preview.js) から呼び出し）。結合 smoke: [e2e/reader-chapter-nav.spec.js](../e2e/reader-chapter-nav.spec.js)。
-- **テキストボックス DSL 投影**: パイプラインは `TextboxRichTextBridge.projectRenderedHtml(html, { settings, target: 'preview'|'reader' })` を先に実行する。`target` は `TextboxEffectRenderer` → `TextExpressionPresetResolver.resolveTextbox` に渡り、将来の面別調整用（現状は主に `reduceMotion` 等と併用可能）。**ブロック段落の `text-align`（左・中・右）**は **リッチテキスト・プログラム**（P2）で扱う。`data-zw-align` は WYSIWYG・paste・Turndown で付与され、**MD プレビューは `#markdown-preview-panel` 内**、**読者本文は `.reader-preview__content` 内**で `css/style.css` が `text-align` に投影する（`ZWPostMarkdownHtmlPipeline` は揃え用に改変しない）。
+- **テキストボックス DSL 投影**: パイプラインは `TextboxRichTextBridge.projectRenderedHtml(html, { settings, target: 'preview'|'reader' })` を先に実行する。`target` は `TextboxEffectRenderer` → `TextExpressionPresetResolver.resolveTextbox` に渡り、将来の面別調整用（現状は主に `reduceMotion` 等と併用可能）。**ブロック段落の `text-align`（左・中・右）**は **リッチテキスト・プログラム**（P2）で扱う。`data-zw-align` はリッチ編集・paste・Turndown で付与され、**MD プレビューは `#markdown-preview-panel` 内**、**読者本文は `.reader-preview__content` 内**で `css/style.css` が `text-align` に投影する（`ZWPostMarkdownHtmlPipeline` は揃え用に改変しない）。
 
 **手動確認推奨**: `chapter://` や章末ナビを含む原稿で、MD プレビューと読者プレビューの見え方・リンク挙動を並べて確認する。
 
@@ -156,7 +159,7 @@ flowchart LR
 | **設定キー** | `effectBreakAtNewline`（`settings.editor`） |
 | **既定** | `true`（改行で装飾・効果を切断） |
 | **追加キー（Enter 接続済み）** | `effectPersistDecorAcrossNewline`（既定 `false`。`true` で Enter 後も decor-* 内にカーソルを残す。詳細は `spec-rich-text-newline-effect.md`） |
-| **ショートカット** | `effectPersistDecorAcrossNewline`: **Ctrl+Shift+Alt+D**（macOS: **⌘+Shift+Option+D**）。WYSIWYG フォーカス時のみ有効。`effectBreakAtNewline` 用ショートカットは未割当 |
+| **ショートカット** | `effectPersistDecorAcrossNewline`: **Ctrl+Shift+Alt+D**（macOS: **⌘+Shift+Option+D**）。リッチ編集フォーカス時のみ有効。`effectBreakAtNewline` 用ショートカットは未割当 |
 | **設定 UI** | サイドバー **詳細設定** の **UI Settings** 内: `effectBreakAtNewline` はチェック **改行で装飾・効果を切る**（id: `effect-break-at-newline`）。`effectPersistDecorAcrossNewline` は **改行後も装飾スパン内にカーソルを残す**（id: `effect-persist-decor-across-newline`） |
 
 正本の論点: [`docs/specs/spec-rich-text-newline-effect.md`](specs/spec-rich-text-newline-effect.md)。

@@ -6,9 +6,14 @@
 
 - **統合シェル UI 再設計**: 公開 UI は `display mode` ではなく、`top chrome` の表示状態、left nav の `root/category` 階層、再生オーバーレイの開閉で扱う。
 - **Left nav category/icon mapping**: `sections` は「セクション」+ `list-tree` + `sections-gadgets-panel` + SectionsNavigator、`structure` は「構造」+ `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系に固定する。
-- **Sidebar / Gadget UI foundation**: Documents `...`、gadget controls、fields、menus、scrollbars、collapse affordance は unified shell token と ARIA 契約へ寄せる。
+- **Sidebar / Gadget UI foundation**: Documents の作成 / 保存 / 入出力 / 管理 controls、gadget controls、fields、menus、scrollbars、collapse affordance は unified shell token と ARIA 契約へ寄せる。
+- **Documents action lanes**: `+ 文書` / `+ フォルダ` は作成、`保存` は現在本文保存、`入出力` は TXT / JSON 書き出し・読み込み、`管理` は復元・複数選択に分ける。`JSON保存` という保存ボタンと紛れる表現は使わず `JSON書き出し` と呼ぶ。
+- **UI label consistency sweep**: 同じ surface で操作対象が衝突しうる label は対象または lane を明示する。現行正本は `+ Wikiページ`、`+ 構成プリセット`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用`。局所 dialog 内で対象が明示される `保存` / `削除` は短縮可。
 - **Top chrome 非侵襲化**: `top chrome` は常用ツールバーではなく、`F2` / menu / command palette で明示表示する一時シェル。上端 hover reveal と visible handle は使わない。
-- **Package / Electron manual gate**: 自動検証と packaged 体感確認を混同しない。top chrome seam / drag lane / left nav root→category→root / shell menu wording は user actor の確認対象。
+- **Package / Electron closeout 完了**: 自動検証と packaged 体感確認を混同しない。2026-04-27 closeout で top chrome seam / drag lane / left nav root→category→root / shell menu wording は PASS。今後は新規 FAIL 報告時のみ narrow fix。
+- **Daily writing workflow before Floating memo**: Floating memo lab の前に、起動→Rich editing 執筆→セクション確認→保存復元→Reader 往復の新規ミニ原稿導線を再現する。2026-04-27 proof の初回 FAIL（public `sections` の「新しい章」追加導線、手動保存 HUD）は narrow fix 済み。続く friction sweep で gadget drag、left nav、低価値 loadout、章作成テンプレート導線も PASS。文字数常時表示は HOLD。
+- **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
+- **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、back icon のみ root 戻り。`LoadoutManager` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
 - **Floating memo lab**: dev-only / experimental overlay として隔離する。editor / chapter / autosave 本流へ接続しない。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
@@ -17,11 +22,12 @@
 
 | 優先 | 候補 | Bottleneck | Actor / Owner |
 |------|------|------------|---------------|
-| A | Unified shell manual closeout | packaged / Electron の体感だけが未確定 | user / packaged app |
-| B | Unified shell narrow fix | manual FAIL が出た surface を局所修正する | assistant / affected UI surface |
-| C | WP-004 parity follow-up | preview / replay overlay / WYSIWYG 差分が新規報告された時だけ扱う | shared / WP004 audit |
-| D | Floating memo lab follow-up | 本流に混ぜず、実験 UI のみを進める | assistant / memo overlay |
+| A | Floating memo lab follow-up | Daily writing / friction sweep は PASS。本流へ混ぜず実験 UI のみ進める | assistant / memo overlay |
+| B | Gadget usefulness pruning | `LoadoutManager` は hide-by-default + object-specific label 済み。`GadgetPrefs` などは keep / hide-by-default / delete-candidate を次回使用実態で判断する | shared / gadget UX |
+| C | Writing status visibility decision | top chrome hidden 時の文字数・保存状態を常時見せるかは HOLD。必要なら別スライス化する | shared / writing UX |
+| D | WP-004 parity follow-up | preview / replay overlay / Rich editing 差分が新規報告された時だけ扱う | shared / WP004 audit |
 | E | Docs hygiene sweep | 正本汚染・旧語彙・重複導線を見つけたら削除または役割限定化する | assistant / docs |
+| Watch | Unified shell narrow fix | packaged closeout は PASS。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
 ## 完了時チェックリスト
 

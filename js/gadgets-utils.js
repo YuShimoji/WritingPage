@@ -257,7 +257,7 @@
           edit: ['StoryWiki'],
           theme: ['Themes', 'Typography', 'HeadingStyles', 'VisualProfile'],
           assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'MarkdownReference'],
-          advanced: ['EditorLayout', 'Keybinds', 'LoadoutManager']
+          advanced: ['EditorLayout', 'Keybinds']
         }
       }
     }

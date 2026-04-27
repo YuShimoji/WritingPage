@@ -24,6 +24,8 @@
 
   /** 結合本文表示中は章フラッシュ禁止（data-zw-chapter-editor-sync=assembled） */
   var CHAPTER_SYNC_ATTR = 'data-zw-chapter-editor-sync';
+  var UNTITLED_CHAPTER_LABEL = '章タイトル未設定';
+  var CHAPTER_TITLE_PLACEHOLDER = '章タイトルを入力';
 
   // ---- Helpers ----
 
@@ -449,7 +451,12 @@
 
       var titleSpan = document.createElement('span');
       titleSpan.className = 'cl-item__title';
-      titleSpan.textContent = ch.title;
+      if (ch.title) {
+        titleSpan.textContent = ch.title;
+      } else {
+        titleSpan.textContent = UNTITLED_CHAPTER_LABEL;
+        titleSpan.classList.add('cl-item__title--placeholder');
+      }
       item.appendChild(titleSpan);
 
       // 文字数 (プレーンテキストベース)
@@ -569,6 +576,7 @@
     input.type = 'text';
     input.className = 'cl-item__rename-input';
     input.value = ch.title;
+    input.placeholder = CHAPTER_TITLE_PLACEHOLDER;
     input.setAttribute('aria-label', '章タイトルを編集');
 
     titleSpan.replaceWith(input);
@@ -577,7 +585,7 @@
 
     function commit() {
       var newTitle = input.value.trim();
-      if (newTitle && newTitle !== ch.title) {
+      if (newTitle !== ch.title) {
         Store.renameChapter(ch.id, newTitle);
         refreshChapterMode();
       } else {
@@ -684,7 +692,7 @@
     var afterId = lastChapter ? lastChapter.id : null;
     var level = dominantChapterLevelForNew();
 
-    Store.createChapter(docId, '新しい章', '', afterId, level);
+    Store.createChapter(docId, '', '', afterId, level);
     refreshChapterMode();
     try {
       window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));

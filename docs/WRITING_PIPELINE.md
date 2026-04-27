@@ -235,8 +235,8 @@ Markdown + DSL テキスト
 
 | 形式 | 操作経路 | ブラウザ | Electron | 自動化度 |
 |------|----------|:--------:|:--------:|---------|
-| **プレーンテキスト (.txt)** | サイドバー Documents → TXTボタン | OK | OK | 1クリック |
-| **Markdown (.md)** | サイドバー Documents → MDボタン | OK | OK | 1クリック |
+| **プレーンテキスト (.txt)** | サイドバー Documents → 入出力 → TXT書き出し | OK | OK | 1クリック |
+| **Markdown / Project JSON** | サイドバー Documents → 入出力 → JSON書き出し / JSON読み込み | OK | OK | 1クリック |
 | **HTML (装飾付き)** | 再生オーバーレイ → Exportボタン | OK | OK | 1クリック。自己完結HTML (CSS埋め込み、アニメーション含む) |
 | **PDF** | ブラウザ印刷 (Ctrl+P) | OK | OK | 2ステップ (印刷ダイアログ経由) |
 
@@ -295,7 +295,7 @@ Markdown + DSL テキスト
 各プレビュー段階で対応している機能の差を示す。
 デザイナーが「どこで確認すれば演出を見られるか」を判断する根拠になる。
 
-| 機能 | WYSIWYG | Editor Preview | Reader Preview |
+| 機能 | Rich editing | Editor Preview | Reader Preview |
 |------|:-------:|:--------------:|:--------------:|
 | テキスト装飾 (太字/斜体等) | ○ | ○ | ○ |
 | テキストアニメーション (shake/fade/wave等) | ○ (CSS) | ○ (CSS) | ○ (CSS) |
@@ -319,7 +319,7 @@ Markdown + DSL テキスト
 ### パス A: テキスト中心の小説
 
 ```
-1. WYSIWYG で本文を執筆
+1. Rich editing で本文を執筆
 2. ツールバーで太字/斜体/傍点を適用
 3. Editor Preview で確認
 4. ブラウザ印刷 or HTML エクスポート
@@ -330,7 +330,7 @@ Markdown + DSL テキスト
 ### パス B: 演出付き Web 小説
 
 ```
-1. WYSIWYG で本文を執筆
+1. Rich editing で本文を執筆
 2. テキストボックスプリセットをツールバーから適用
 3. タイピング/ダイアログ/スクロール演出をツールバーGUIから挿入 (Q1解決済み。DSL手書きも可)
 4. Reader Preview で演出を確認・調整
@@ -390,7 +390,7 @@ Markdown + DSL テキスト
 **実装**: editor-wysiwyg.js に _handleRubyAction/_showRubyInsertPopup/_showRubyEditPopup/_applyRuby + Turndown双方向ルール
 **重要**: 双方向性 (テキスト→ルビ/ルビ→テキストに戻す) が核心要件
 
-### Q3: WYSIWYG での演出プレビュー範囲 — **解決済み (A)**
+### Q3: Rich editing での演出プレビュー範囲 — **解決済み (A)**
 
 **決定**: 型バッジ + 実スタイル。各DSLブロックに型ラベル (タイピング/ダイアログ/スクロール) を表示し、実CSSスタイルを適用。アニメーションは静止。
 **実装**: css/style.css に `.wysiwyg-editor .zw-*::before` 擬似要素バッジ + スクロールブロック opacity:1 上書き + editor-preview 同等対応

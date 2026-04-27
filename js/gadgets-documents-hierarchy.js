@@ -73,7 +73,7 @@
       function saveCurrentContent() {
         try {
           if (editorManager && typeof storage.saveContent === 'function') {
-            // WYSIWYG モード対応: getEditorValue() で正しい Markdown を取得
+            // リッチ編集表示対応: getEditorValue() で正しい Markdown を取得
             var content = '';
             if (typeof editorManager.getEditorValue === 'function') {
               content = editorManager.getEditorValue() || '';
@@ -235,14 +235,17 @@
       newDocBtn.type = 'button';
       newDocBtn.className = 'zw-shell-control zw-shell-control--text';
       newDocBtn.id = 'new-document-btn';
-      newDocBtn.textContent = '+ 新規';
+      newDocBtn.textContent = '+ 文書';
       newDocBtn.title = 'ルートに新規ドキュメント作成';
+      newDocBtn.setAttribute('aria-label', '新規文書を作成');
       newDocBtn.addEventListener('click', function () { createDocument(null); });
 
       var saveBtn = document.createElement('button');
       saveBtn.type = 'button';
       saveBtn.className = 'zw-shell-control zw-shell-control--text';
+      saveBtn.id = 'documents-save-current-btn';
       saveBtn.textContent = ((window.UILabels && window.UILabels.SAVE) || '保存');
+      saveBtn.setAttribute('aria-label', '現在の本文を保存');
       saveBtn.title = '現在の内容を保存';
       saveBtn.addEventListener('click', function () {
         saveCurrentContent();
@@ -252,40 +255,104 @@
         notify((window.UILabels && window.UILabels.SAVED) || '保存しました');
       });
 
-      // overflow メニュー
-      var moreBtn = document.createElement('button');
-      moreBtn.type = 'button';
-      moreBtn.className = 'documents-more-btn zw-shell-control zw-shell-control--icon';
-      moreBtn.textContent = '\u2026';
-      moreBtn.setAttribute('aria-label', 'ドキュメント操作メニュー');
-      moreBtn.setAttribute('aria-haspopup', 'menu');
-      moreBtn.setAttribute('aria-expanded', 'false');
-      moreBtn.title = 'その他の操作';
+      var newFolderBtn = document.createElement('button');
+      newFolderBtn.type = 'button';
+      newFolderBtn.className = 'zw-shell-control zw-shell-control--text';
+      newFolderBtn.id = 'new-folder-btn';
+      newFolderBtn.textContent = '+ フォルダ';
+      newFolderBtn.title = 'ルートに新規フォルダ作成';
+      newFolderBtn.addEventListener('click', function () { createFolder(null); });
 
-      var moreMenu = document.createElement('div');
-      moreMenu.className = 'documents-more-menu zw-shell-menu';
-      moreMenu.setAttribute('role', 'menu');
-      moreMenu.style.display = 'none';
-      moreMenu.style.position = 'absolute';
-      moreMenu.style.zIndex = '1001';
+      // 役割別メニュー: 「保存」ボタンと混同しないよう、入出力と管理を分離する
+      var openMenus = [];
 
-      function createMenuItem(label, title, handler) {
+      function createMenu(id, label) {
+        var menu = document.createElement('div');
+        menu.id = id;
+        menu.className = 'documents-action-menu documents-more-menu zw-shell-menu';
+        menu.setAttribute('role', 'menu');
+        menu.setAttribute('aria-label', label);
+        menu.style.display = 'none';
+        menu.style.position = 'absolute';
+        menu.style.zIndex = '1001';
+        openMenus.push(menu);
+        return menu;
+      }
+
+      function createMenuButton(id, label, ariaLabel, title) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'documents-menu-btn zw-shell-control zw-shell-control--text';
+        btn.id = id;
+        btn.textContent = label;
+        btn.setAttribute('aria-label', ariaLabel);
+        btn.setAttribute('aria-haspopup', 'menu');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.title = title;
+        return btn;
+      }
+
+      function closeDocumentMenus(exceptMenu) {
+        openMenus.forEach(function (menu) {
+          if (exceptMenu && menu === exceptMenu) return;
+          menu.style.display = 'none';
+          var controlId = menu.getAttribute('data-control-id');
+          var control = controlId ? document.getElementById(controlId) : null;
+          if (control) control.setAttribute('aria-expanded', 'false');
+        });
+      }
+
+      function positionMenu(menu, button) {
+        var rect = button.getBoundingClientRect();
+        var menuWidth = Math.max(192, menu.offsetWidth || 192);
+        menu.style.top = (rect.bottom + 2) + 'px';
+        menu.style.left = Math.max(8, Math.min(window.innerWidth - menuWidth - 8, rect.right - menuWidth)) + 'px';
+      }
+
+      function bindMenuButton(button, menu) {
+        menu.setAttribute('data-control-id', button.id);
+        button.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = menu.style.display !== 'none';
+          closeDocumentMenus(menu);
+          menu.style.display = isOpen ? 'none' : 'block';
+          button.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+          if (!isOpen) positionMenu(menu, button);
+        });
+      }
+
+      var ioBtn = createMenuButton(
+        'documents-io-menu-btn',
+        '入出力',
+        'ドキュメントの読み込み・書き出し',
+        '読み込み・書き出し'
+      );
+      var ioMenu = createMenu('documents-io-menu', 'ドキュメントの読み込み・書き出し');
+
+      var manageBtn = createMenuButton(
+        'documents-manage-menu-btn',
+        '管理',
+        'ドキュメント管理メニュー',
+        '復元・複数選択など'
+      );
+      var manageMenu = createMenu('documents-manage-menu', 'ドキュメント管理');
+
+      function createMenuItem(label, title, handler, options) {
         var item = document.createElement('button');
         item.type = 'button';
         item.className = 'zw-shell-menu__item';
         item.setAttribute('role', 'menuitem');
         item.textContent = label;
         item.title = title;
+        if (options && options.id) item.id = options.id;
         item.addEventListener('click', function () {
-          moreMenu.style.display = 'none';
-          moreBtn.setAttribute('aria-expanded', 'false');
+          closeDocumentMenus();
           handler();
         });
         return item;
       }
 
-      moreMenu.appendChild(createMenuItem('フォルダ作成', 'ルートに新規フォルダ作成', function () { createFolder(null); }));
-      moreMenu.appendChild(createMenuItem('TXTエクスポート', '現在の内容をテキストで書き出し', function () {
+      ioMenu.appendChild(createMenuItem('TXT書き出し', '現在の内容をテキストで書き出し', function () {
         saveCurrentContent();
         if (editorManager && typeof editorManager.exportAsText === 'function') {
           editorManager.exportAsText();
@@ -299,16 +366,16 @@
           storage.exportText(text || '', 'document.txt', 'text/plain');
         }
       }));
-      moreMenu.appendChild(createMenuItem('JSON保存', '現在のドキュメントを構造保持JSONで保存', function () {
+      ioMenu.appendChild(createMenuItem('JSON書き出し', '現在のドキュメントを構造保持JSONで書き出し', function () {
         saveCurrentContent();
         var docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
         if (!docId) { notify('ドキュメントが選択されていません'); return; }
         if (storage.exportProjectJSON) {
           var ok = storage.exportProjectJSON(docId);
-          if (ok) notify('JSONプロジェクトを保存しました');
+          if (ok) notify('JSONプロジェクトを書き出しました');
         }
       }));
-      moreMenu.appendChild(createMenuItem('JSON読込', 'JSONプロジェクトファイルを読み込み', function () {
+      ioMenu.appendChild(createMenuItem('JSON読み込み', 'JSONプロジェクトファイルを読み込み', function () {
         if (storage.importProjectJSONFromFile) {
           storage.importProjectJSONFromFile().then(function (docId) {
             if (docId) {
@@ -322,29 +389,18 @@
       }));
 
       // スナップショット復元
-      var restoreItem = createMenuItem('復元', '最後のスナップショットから復元', function () {
+      var restoreItem = createMenuItem('スナップショット復元', '最後のスナップショットから復元', function () {
         if (window.ZenWriterEditor && typeof window.ZenWriterEditor.restoreLastSnapshot === 'function') {
           window.ZenWriterEditor.restoreLastSnapshot();
         }
-      });
-      restoreItem.id = 'restore-from-snapshot';
-      moreMenu.appendChild(restoreItem);
+      }, { id: 'restore-from-snapshot' });
+      manageMenu.appendChild(restoreItem);
 
-      moreBtn.addEventListener('click', function (e) {
-        e.stopPropagation();
-        var isOpen = moreMenu.style.display !== 'none';
-        moreMenu.style.display = isOpen ? 'none' : 'block';
-        moreBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
-        if (!isOpen) {
-          var rect = moreBtn.getBoundingClientRect();
-          moreMenu.style.top = (rect.bottom + 2) + 'px';
-          moreMenu.style.left = Math.max(0, rect.right - 160) + 'px';
-        }
-      });
+      bindMenuButton(ioBtn, ioMenu);
+      bindMenuButton(manageBtn, manageMenu);
 
       document.addEventListener('click', function () {
-        moreMenu.style.display = 'none';
-        moreBtn.setAttribute('aria-expanded', 'false');
+        closeDocumentMenus();
       });
 
       // BL-005: 選択モードボタン + 一括削除ボタン
@@ -427,8 +483,8 @@
         notify(count + ' 件を削除しました');
       });
 
-      // 「選択」は overflow メニューに移動 (BL-005 修正: ツールバー膨張防止)
-      moreMenu.appendChild(createMenuItem('複数選択', '複数のドキュメントを選択して操作', function () {
+      // 「選択」は管理メニューに配置 (BL-005 修正: ツールバー膨張防止)
+      manageMenu.appendChild(createMenuItem('複数選択', '複数のドキュメントを選択して操作', function () {
         selectMode = !selectMode;
         selectedIds.clear();
         lastClickedId = null;
@@ -439,11 +495,14 @@
       }));
 
       toolbar.appendChild(newDocBtn);
+      toolbar.appendChild(newFolderBtn);
       toolbar.appendChild(saveBtn);
       toolbar.appendChild(selectAllBtn);
       toolbar.appendChild(batchDeleteBtn);
-      toolbar.appendChild(moreBtn);
-      document.body.appendChild(moreMenu);
+      toolbar.appendChild(ioBtn);
+      toolbar.appendChild(manageBtn);
+      document.body.appendChild(ioMenu);
+      document.body.appendChild(manageMenu);
 
       // ツリーコンテナ
       var treeContainer = document.createElement('div');

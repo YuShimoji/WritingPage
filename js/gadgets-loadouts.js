@@ -16,8 +16,20 @@
   var LOADOUT_KEY = utils.LOADOUT_KEY;
   var _KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
+  var HIDE_BY_DEFAULT_GADGETS = { LoadoutManager: true };
 
   var loadoutState = null;
+
+  function isBuiltInLoadout(key) {
+    return !!(DEFAULT_LOADOUTS && DEFAULT_LOADOUTS.entries && DEFAULT_LOADOUTS.entries[key]);
+  }
+
+  function filterDefaultHiddenGadgets(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (name) {
+      return !HIDE_BY_DEFAULT_GADGETS[name];
+    });
+  }
 
   function normalizeLoadouts(raw) {
     var data = raw && typeof raw === 'object' ? clone(raw) : clone(DEFAULT_LOADOUTS);
@@ -33,6 +45,11 @@
       if (entry.dockLayout && typeof entry.dockLayout === 'object') {
         normalized.dockLayout = entry.dockLayout;
       }
+      if (isBuiltInLoadout(key)) {
+        Object.keys(normalized.groups || {}).forEach(function (group) {
+          normalized.groups[group] = filterDefaultHiddenGadgets(normalized.groups[group]);
+        });
+      }
       normalizedEntries[key] = normalized;
     });
     // 既存のロードアウトにも、デフォルト定義されているガジェットを自動で統合する
@@ -43,7 +60,7 @@
         var normalized = normalizedEntries[key];
         if (!defEntry || !normalized || !defEntry.groups) return;
         Object.keys(defEntry.groups || {}).forEach(function (group) {
-          var baseList = defEntry.groups[group] || [];
+          var baseList = filterDefaultHiddenGadgets(defEntry.groups[group] || []);
           if (!normalized.groups[group]) normalized.groups[group] = [];
           baseList.forEach(function (name) { uniquePush(normalized.groups[group], name); });
         });

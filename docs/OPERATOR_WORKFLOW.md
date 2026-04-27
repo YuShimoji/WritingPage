@@ -5,7 +5,7 @@
 ## 全体フロー
 
 1. 起動: `node scripts/dev-server.js` (port 8080) または Electron
-2. 執筆: WYSIWYG / textarea モードで本文を書く
+2. 執筆: リッチ編集表示を既定の執筆面とし、Markdown source は確認・修正用に使う
 3. 構造化: 章管理 (chapterMode)、セクションナビ
 4. 装飾: テーマ・見出しプリセット・傍点・ルビ
 5. プレビュー: 再生オーバーレイ（読者視点）・MD プレビュー分割 など（UI モードとしての Reader は廃止。用語は [`INTERACTION_NOTES.md`](INTERACTION_NOTES.md)）

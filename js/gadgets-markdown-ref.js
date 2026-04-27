@@ -81,7 +81,7 @@
       title: 'キーボードショートカット',
       defaultOpen: false,
       items: [
-        { syntax: null, shortcut: 'Ctrl+S', desc: '保存' },
+        { syntax: null, shortcut: 'Ctrl+S', desc: '手動保存' },
         { syntax: null, shortcut: 'Ctrl+Z', desc: '元に戻す' },
         { syntax: null, shortcut: 'Ctrl+Y', desc: 'やり直し' },
         { syntax: null, shortcut: 'Ctrl+F', desc: '検索パネルを開く' },

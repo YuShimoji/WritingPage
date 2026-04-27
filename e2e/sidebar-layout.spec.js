@@ -49,13 +49,12 @@ test.describe('Sidebar Layout', () => {
     const isVisible = await editorContainer.isVisible();
     expect(isVisible).toBe(true);
     
-    // Verify main content is not pushed by sidebar (overlay mode)
+    // Verify main content remains usable while the category panel is open
     const mainContent = page.locator('.main-content');
     const marginLeft = await mainContent.evaluate((el) => {
       return window.getComputedStyle(el).marginLeft;
     });
-    // In overlay mode, margin should stay at 0px even when sidebar is open
-    expect(parseInt(marginLeft)).toBe(0);
+    expect(parseInt(marginLeft, 10)).toBeGreaterThanOrEqual(0);
   });
 
   test('should animate sidebar open and close smoothly', async ({ page }) => {
@@ -75,14 +74,23 @@ test.describe('Sidebar Layout', () => {
     await closeSidebar(page);
     await page.waitForTimeout(400);
     
-    // Check sidebar position when closed
-    const leftClosed = await sidebar.evaluate((el) => {
-      return window.getComputedStyle(el).left;
+    // Check root rail is visually hidden when closed
+    const closedState = await sidebar.evaluate((el) => {
+      const style = window.getComputedStyle(el);
+      return {
+        left: style.left,
+        opacity: Number(style.opacity),
+        visibility: style.visibility,
+        pointerEvents: style.pointerEvents,
+      };
     });
-    expect(leftClosed).toBe('-320px');
+    expect(closedState.left).toBe('0px');
+    expect(closedState.opacity).toBeLessThan(0.1);
+    expect(closedState.visibility).toBe('hidden');
+    expect(closedState.pointerEvents).toBe('none');
   });
 
-  test('should normalize mismatched stored sidebar widths on reload and keep the closed sidebar fully off-canvas', async ({ page }) => {
+  test('should normalize mismatched stored sidebar widths on reload and keep the root rail hidden', async ({ page }) => {
     await page.evaluate(() => {
       const settings = window.ZenWriterStorage.loadSettings();
       settings.sidebarOpen = false;
@@ -109,16 +117,20 @@ test.describe('Sidebar Layout', () => {
         cssWidth: getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width').trim(),
         inlineWidth: sidebar ? sidebar.style.width : '',
         sidebarRight: sidebar ? sidebar.getBoundingClientRect().right : null,
+        sidebarVisibility: sidebar ? getComputedStyle(sidebar).visibility : null,
+        sidebarPointerEvents: sidebar ? getComputedStyle(sidebar).pointerEvents : null,
         uiSidebarWidth: settings && settings.ui ? settings.ui.sidebarWidth : null,
         dockSidebarWidth: dock && dock.rightPanel ? dock.rightPanel.width : null,
       };
     });
 
     expect(state.cssWidth).toBe('420px');
-    expect(state.inlineWidth).toBe('420px');
+    expect(state.inlineWidth).toBe('');
     expect(state.uiSidebarWidth).toBe(420);
     expect(state.dockSidebarWidth).toBe(420);
-    expect(state.sidebarRight).toBeLessThanOrEqual(0);
+    expect(state.sidebarRight).toBeGreaterThan(0);
+    expect(state.sidebarVisibility).toBe('hidden');
+    expect(state.sidebarPointerEvents).toBe('none');
   });
 
   test('should keep the closed sidebar inert and expose only the dedicated edge rail', async ({ page }) => {
@@ -146,7 +158,7 @@ test.describe('Sidebar Layout', () => {
     expect(state.sidebarPointerEvents).toBe('none');
     expect(state.sidebarOverflowY).toBe('hidden');
     expect(state.sidebarBoxShadow).toBe('none');
-    expect(state.sidebarRight).toBeLessThanOrEqual(0);
+    expect(state.sidebarRight).toBeGreaterThan(0);
     expect(state.handleDisplay).toBe('none');
     expect(state.handlePointerEvents).toBe('none');
     expect(state.railVisibility).toBe('visible');
@@ -163,7 +175,7 @@ test.describe('Sidebar Layout', () => {
       }
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(650);
 
     await page.mouse.move(2, 72);
     await page.waitForTimeout(80);
@@ -176,15 +188,19 @@ test.describe('Sidebar Layout', () => {
       return {
         edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
         isOpen: !!(sidebar && sidebar.classList.contains('open')),
+        opacity: sidebar ? Number(window.getComputedStyle(sidebar).opacity) : -1,
+        visibility: sidebar ? window.getComputedStyle(sidebar).visibility : null,
         left: rect ? rect.left : null,
         right: rect ? rect.right : null,
       };
     });
 
     expect(state.edgeHoverLeft).toBe('true');
-    expect(state.isOpen).toBe(true);
+    expect(state.isOpen).toBe(false);
+    expect(state.opacity).toBeGreaterThan(0.5);
+    expect(state.visibility).toBe('visible');
     expect(state.left).toBeLessThanOrEqual(1);
-    expect(state.right).toBeGreaterThan(150);
+    expect(state.right).toBeGreaterThan(40);
   });
 
   test('should not dismiss a hover-opened sidebar just because the document emits mouseleave near the left edge', async ({ page }) => {
@@ -197,7 +213,7 @@ test.describe('Sidebar Layout', () => {
       }
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(650);
 
     await page.mouse.move(2, 84);
     await page.waitForTimeout(80);
@@ -214,11 +230,15 @@ test.describe('Sidebar Layout', () => {
       return {
         edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
         isOpen: !!(sidebar && sidebar.classList.contains('open')),
+        opacity: sidebar ? Number(window.getComputedStyle(sidebar).opacity) : -1,
+        visibility: sidebar ? window.getComputedStyle(sidebar).visibility : null,
       };
     });
 
     expect(state.edgeHoverLeft).toBe('true');
-    expect(state.isOpen).toBe(true);
+    expect(state.isOpen).toBe(false);
+    expect(state.opacity).toBeGreaterThan(0.5);
+    expect(state.visibility).toBe('visible');
   });
 
   test('should open the sidebar on the right when right dock is active', async ({ page }) => {
@@ -254,14 +274,14 @@ test.describe('Sidebar Layout', () => {
     expect(parseInt(layout.mainMarginRight, 10)).toBeGreaterThan(0);
   });
 
-  test('should open the right-docked sidebar from the right edge rail', async ({ page }) => {
+  test('right-docked edge rail does not force-open a category sidebar', async ({ page }) => {
     await page.evaluate(() => {
       if (window.dockManager && typeof window.dockManager.moveSidebarTo === 'function') {
         window.dockManager.moveSidebarTo('right');
       }
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    await page.waitForTimeout(250);
+    await page.waitForTimeout(650);
 
     const viewport = page.viewportSize();
     await page.mouse.move(viewport.width - 2, 92);
@@ -274,16 +294,19 @@ test.describe('Sidebar Layout', () => {
       const rect = sidebar.getBoundingClientRect();
       return {
         dock: document.documentElement.getAttribute('data-dock-sidebar'),
+        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
         isOpen: sidebar.classList.contains('open'),
+        opacity: Number(window.getComputedStyle(sidebar).opacity),
+        visibility: window.getComputedStyle(sidebar).visibility,
         right: rect.right,
         left: rect.left,
       };
     });
 
     expect(state.dock).toBe('right');
-    expect(state.isOpen).toBe(true);
-    expect(state.right).toBeLessThanOrEqual(viewport.width + 1);
-    expect(state.left).toBeGreaterThan(viewport.width / 2);
+    expect(state.isOpen).toBe(false);
+    expect(state.left).toBeGreaterThanOrEqual(viewport.width - 1);
+    expect(state.right).toBeGreaterThan(viewport.width);
   });
 
   test('should not create horizontal page overflow when the sidebar is closed or docked right', async ({ page }) => {
@@ -326,49 +349,26 @@ test.describe('Sidebar Layout', () => {
     });
     await page.waitForTimeout(200);
 
-    const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
-    const editHeader = page.locator('.accordion-header[aria-controls="accordion-edit"]');
-    const assistHeader = page.locator('.accordion-header[aria-controls="accordion-assist"]');
+    async function activate(group) {
+      await page.evaluate((target) => {
+        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+          window.sidebarManager.activateSidebarGroup(target);
+        }
+      }, group);
+      await page.waitForTimeout(180);
+      return page.evaluate(() => ({
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        active: document.documentElement.getAttribute('data-left-nav-active'),
+      }));
+    }
+
+    expect(await activate('structure')).toMatchObject({ navState: 'category', active: 'structure' });
+    expect(await activate('edit')).toMatchObject({ navState: 'category', active: 'edit' });
+    expect(await activate('assist')).toMatchObject({ navState: 'category', active: 'assist' });
+    expect(await activate('structure')).toMatchObject({ navState: 'category', active: 'structure' });
+    expect(await activate('assist')).toMatchObject({ navState: 'category', active: 'assist' });
 
     const assistPanel = page.locator('#accordion-assist');
-
-    await expect(structureHeader).toBeVisible();
-    await expect(editHeader).toBeVisible();
-    await expect(assistHeader).toBeVisible();
-
-    // 段階的開示: セクション/構造は既定で折りたたみ。まず構造を開いてから閉じる
-    const structureExpanded = await structureHeader.getAttribute('aria-expanded');
-    if (structureExpanded !== 'true') {
-      await structureHeader.click();
-      await page.waitForTimeout(300);
-    }
-    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
-    await structureHeader.click();
-    await page.waitForTimeout(300);
-    await expect(structureHeader).toHaveAttribute('aria-expanded', 'false');
-
-    // Switch between existing accordions multiple times (edit / assist / structure)
-    await editHeader.click();
-    await page.waitForTimeout(300);
-    await expect(editHeader).toHaveAttribute('aria-expanded', 'true');
-
-    await assistHeader.click();
-    await page.waitForTimeout(300);
-    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
-
-    await structureHeader.click();
-    await page.waitForTimeout(300);
-    await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
-
-    // assist was already expanded (step 3), clicking toggles it closed
-    await assistHeader.click();
-    await page.waitForTimeout(300);
-    await expect(assistHeader).toHaveAttribute('aria-expanded', 'false');
-
-    // Re-open assist to verify final state
-    await assistHeader.click();
-    await page.waitForTimeout(300);
-    await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
     await expect(assistPanel).toHaveAttribute('aria-hidden', 'false');
   });
 
@@ -377,9 +377,12 @@ test.describe('Sidebar Layout', () => {
     await openSidebar(page);
     await page.waitForTimeout(400);
 
-    // Expand assist accordion
-    await page.locator('.accordion-header[aria-controls="accordion-assist"]').waitFor();
-    await page.click('.accordion-header[aria-controls="accordion-assist"]');
+    // Activate assist category
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('assist');
+      }
+    });
 
     // Reload page
     await page.reload();

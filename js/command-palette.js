@@ -246,8 +246,8 @@
     {
       id: 'save',
       label: '保存（手動・即時）',
-      description: '自動保存に加えて、今すぐディスクへ書き出す。常設の保存ボタンは置かない方針',
-      keywords: '手動保存 即時 書き出し Ctrl+S',
+      description: '自動保存に加えて、現在の本文をすぐローカル保存する。',
+      keywords: '手動保存 即時保存 ローカル保存 Ctrl+S',
       shortcut: 'Ctrl+S / Cmd+S',
       category: 'ファイル操作',
       execute: () => {
@@ -347,8 +347,8 @@
     {
       id: 'editor-surface-wysiwyg',
       label: 'リッチ編集',
-      description: 'エディタを WYSIWYG 面に切替',
-      keywords: 'WYSIWYG リッチ 編集面 surface',
+      description: 'エディタをリッチ編集表示に切替',
+      keywords: 'リッチ 編集面 surface',
       category: '表示',
       execute: () => {
         var shim = document.getElementById('toggle-wysiwyg');
@@ -411,11 +411,11 @@
         }
       }
     },
-    // リッチ編集（WYSIWYG）改行挙動の切替 — サイドバー設定に埋もれている機能を発見性の高いコマンドパレットへ昇格
+    // リッチ編集の改行挙動の切替 — サイドバー設定に埋もれている機能を発見性の高いコマンドパレットへ昇格
     {
       id: 'toggle-effect-break-at-newline',
       label: 'リッチ編集: 改行で装飾を切る (ON/OFF)',
-      description: 'WYSIWYG で Enter 時に書式解除・decor 後処理を行うかを切替 (BL-002)',
+      description: 'リッチ編集で Enter 時に書式解除・decor 後処理を行うかを切替 (BL-002)',
       keywords: 'リッチ 装飾 改行 Enter BL-002 effectBreakAtNewline',
       shortcut: '',
       category: 'リッチ編集',
@@ -434,7 +434,7 @@
     {
       id: 'toggle-effect-persist-decor',
       label: 'リッチ編集: 改行後も decor を継続 (ON/OFF)',
-      description: 'WYSIWYG で Enter 後もカーソルを decor-* 要素内に残すかを切替',
+      description: 'リッチ編集で Enter 後もカーソルを decor-* 要素内に残すかを切替',
       keywords: 'リッチ 装飾 改行 Enter decor effectPersistDecorAcrossNewline',
       shortcut: '',
       category: 'リッチ編集',
@@ -548,7 +548,7 @@
     },
     {
       id: 'toggle-wysiwyg',
-      label: 'リッチ編集（WYSIWYG）',
+      label: 'リッチ編集表示',
       description: 'リッチ表示で編集。UI モードは変わらず（読者プレビュー UI ではない）',
       keywords: '装飾 リッチテキスト 所見即得',
       shortcut: '',

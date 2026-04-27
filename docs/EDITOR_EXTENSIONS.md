@@ -1,6 +1,6 @@
 # EDITOR_EXTENSIONS — 装飾/挿入UI・選択ツールチップ仕様（v1）
 
-textarea モードでは装飾を Markdown ベースで実現します。テキスト選択に連動するツールチップ（Quick Actions）を提供し、最小の操作で装飾/挿入を可能にします。WYSIWYG モード（`editor-wysiwyg.js`）では別途フローティング装飾バーが提供されます。
+Markdown source では装飾を Markdown ベースで実現します。テキスト選択に連動するツールチップ（Quick Actions）を提供し、最小の操作で装飾/挿入を可能にします。リッチ編集表示（実装: `editor-wysiwyg.js`）では別途フローティング装飾バーが提供されます。
 
 ## 目的
 

@@ -285,15 +285,8 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
     await expandDocumentsGadget(page);
 
     await page.evaluate(() => {
-      var panel = document.getElementById('structure-gadgets-panel');
-      if (!panel) return;
-      var btns = panel.querySelectorAll('button');
-      for (var i = 0; i < btns.length; i++) {
-        if (btns[i].textContent.trim() === '...' || btns[i].textContent.trim() === '\u2026') {
-          btns[i].click();
-          return;
-        }
-      }
+      var btn = document.getElementById('documents-manage-menu-btn');
+      if (btn) btn.click();
     });
     await page.waitForTimeout(300);
 
@@ -315,6 +308,46 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
     await page.waitForTimeout(500);
     return true;
   }
+
+  test('Documents toolbar separates create, save, import/export, and management actions', async ({ page }) => {
+    await setupDocsAndOpenGadget(page, 2);
+    await expandDocumentsGadget(page);
+
+    const toolbarState = await page.evaluate(() => {
+      const text = (selector) => {
+        const el = document.querySelector(selector);
+        return el ? (el.textContent || '').trim() : null;
+      };
+      return {
+        newDoc: text('#new-document-btn'),
+        newFolder: text('#new-folder-btn'),
+        save: text('#documents-save-current-btn'),
+        io: text('#documents-io-menu-btn'),
+        manage: text('#documents-manage-menu-btn')
+      };
+    });
+
+    expect(toolbarState).toEqual({
+      newDoc: '+ 文書',
+      newFolder: '+ フォルダ',
+      save: '保存',
+      io: '入出力',
+      manage: '管理'
+    });
+
+    await page.locator('#documents-io-menu-btn').click();
+    await expect(page.locator('#documents-io-menu')).toBeVisible();
+    await expect(page.locator('#documents-io-menu')).toContainText('TXT書き出し');
+    await expect(page.locator('#documents-io-menu')).toContainText('JSON書き出し');
+    await expect(page.locator('#documents-io-menu')).toContainText('JSON読み込み');
+    await expect(page.locator('#documents-io-menu')).not.toContainText('複数選択');
+
+    await page.locator('#documents-manage-menu-btn').click();
+    await expect(page.locator('#documents-manage-menu')).toBeVisible();
+    await expect(page.locator('#documents-manage-menu')).toContainText('スナップショット復元');
+    await expect(page.locator('#documents-manage-menu')).toContainText('複数選択');
+    await expect(page.locator('#documents-manage-menu')).not.toContainText('JSON書き出し');
+  });
 
   async function getMultiSelectState(page) {
     return page.evaluate(() => {

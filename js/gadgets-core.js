@@ -549,15 +549,32 @@
             var wrapper = document.createElement('div');
             wrapper.className = 'gadget-wrapper';
             wrapper.setAttribute('data-gadget-name', entry.name);
-            // ドラッグ&ドロップ対応: ガジェットをドラッグ可能にする
-            wrapper.setAttribute('draggable', 'true');
             wrapper.setAttribute('role', 'group');
-            wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」を移動');
+            wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」');
 
             // ガジェットヘッダーを作成
             var header = document.createElement('div');
             header.className = 'gadget-header';
             var safeBodyId = 'gadget-body-' + group + '-' + String(entry.name || 'gadget').replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
+
+            var dragHandle = document.createElement('button');
+            dragHandle.type = 'button';
+            dragHandle.className = 'gadget-drag-handle';
+            dragHandle.setAttribute('draggable', 'true');
+            dragHandle.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」を移動');
+            dragHandle.title = 'ドラッグして移動';
+            var dragIcon = document.createElement('i');
+            dragIcon.setAttribute('data-lucide', 'grip-vertical');
+            dragIcon.setAttribute('aria-hidden', 'true');
+            dragHandle.appendChild(dragIcon);
+            dragHandle.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+            });
+            dragHandle.addEventListener('mousedown', function (e) {
+              e.stopPropagation();
+            });
+            header.appendChild(dragHandle);
 
             var titleEl = document.createElement('span');
             titleEl.className = 'gadget-title';
@@ -623,11 +640,12 @@
             header.setAttribute('tabindex', '0');
             header.setAttribute('aria-controls', safeBodyId);
             header.addEventListener('click', function(e) {
-              if (e.target.closest('.gadget-detach-btn') || e.target.closest('.gadget-help-btn')) return;
+              if (e.target.closest('.gadget-detach-btn') || e.target.closest('.gadget-help-btn') || e.target.closest('.gadget-drag-handle')) return;
               var collapsed = wrapper.getAttribute('data-gadget-collapsed') === 'true';
               self._setGadgetCollapsed(entry.name, !collapsed, wrapper);
             });
             header.addEventListener('keydown', function(e) {
+              if (e.target !== header) return;
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 var collapsed = wrapper.getAttribute('data-gadget-collapsed') === 'true';
@@ -904,24 +922,29 @@
     _setupGadgetDragHandlers(wrapper, gadgetName, currentGroup) {
       var _self = this;
       var gadgetEl = wrapper.querySelector('.gadget');
+      var dragHandle = wrapper.querySelector('.gadget-drag-handle');
+      if (!dragHandle) return;
 
       // ドラッグ開始
-      wrapper.addEventListener('dragstart', function (e) {
+      dragHandle.addEventListener('dragstart', function (e) {
         try {
+          var currentGadgetEl = wrapper.querySelector('.gadget') || gadgetEl;
+          e.stopPropagation();
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setData('text/plain', gadgetName);
           e.dataTransfer.setData('application/x-gadget-name', gadgetName);
           e.dataTransfer.setData('application/x-gadget-group', currentGroup || '');
-          if (gadgetEl) gadgetEl.classList.add('is-dragging');
+          if (currentGadgetEl) currentGadgetEl.classList.add('is-dragging');
         } catch (err) {
           console.error('Drag start error:', err);
         }
       });
 
       // ドラッグ終了
-      wrapper.addEventListener('dragend', function (_e) {
+      dragHandle.addEventListener('dragend', function (_e) {
         try {
-          if (gadgetEl) gadgetEl.classList.remove('is-dragging');
+          var currentGadgetEl = wrapper.querySelector('.gadget') || gadgetEl;
+          if (currentGadgetEl) currentGadgetEl.classList.remove('is-dragging');
           // すべてのドロップゾーンのハイライトを解除
           document.querySelectorAll('.gadgets-panel.drag-over-tab').forEach(function (panel) {
             panel.classList.remove('drag-over-tab');

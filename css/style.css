@@ -614,6 +614,12 @@ html[data-ui-mode='focus'][data-edge-hover-left='true'][data-edge-hover-left-tou
   white-space: nowrap;
 }
 
+.cl-item__title--placeholder {
+  color: var(--text-muted, #888);
+  font-style: italic;
+  font-weight: 400;
+}
+
 .cl-item__count {
   font-size: 0.6875rem;
   color: var(--text-muted, #888);
@@ -1922,6 +1928,14 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   margin: var(--heading-h4-margin-top) 0 var(--heading-h4-margin-bottom);
   line-height: var(--heading-h4-line-height);
   letter-spacing: var(--heading-h4-letter-spacing);
+}
+
+#wysiwyg-editor [data-zw-empty-heading='true']::before {
+  content: attr(data-placeholder);
+  color: var(--text-muted, #888);
+  font-style: italic;
+  opacity: 0.78;
+  pointer-events: none;
 }
 
 .wysiwyg-toolbar {
@@ -6144,6 +6158,41 @@ input[type="checkbox"] {
   white-space: nowrap;
 }
 
+.gadget-drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 auto;
+  margin: 0 -0.125rem 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: inherit;
+  cursor: grab;
+  opacity: 0.45;
+  -webkit-app-region: no-drag;
+}
+
+.gadget-drag-handle:active {
+  cursor: grabbing;
+}
+
+.gadget-drag-handle:hover,
+.gadget-drag-handle:focus-visible {
+  background: color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 72%, transparent);
+  opacity: 0.9;
+}
+
+.gadget-drag-handle svg,
+.gadget-drag-handle i {
+  width: 0.95rem;
+  height: 0.95rem;
+  pointer-events: none;
+}
+
 .gadget-controls {
   display: flex;
   align-items: center;
@@ -6190,14 +6239,6 @@ input[type="checkbox"] {
 .gadget-wrapper + .gadget-wrapper {
   border-top: 1px solid var(--border-color);
   padding-top: 0.125rem;
-}
-
-.gadget-wrapper[draggable="true"] {
-  cursor: grab;
-}
-
-.gadget-wrapper[draggable="true"]:active {
-  cursor: grabbing;
 }
 
 /* ガジェット内のフォーム要素の間隔統一 (ヘッダーは除外) */
@@ -6339,9 +6380,9 @@ input[type="checkbox"] {
 html[data-sidebar-slim="true"] .gadget-detach-btn { display: none !important; }
 html[data-sidebar-slim="true"] .gadget-help-btn { display: none !important; }
 html[data-sidebar-slim="true"] .gadget-bulk-toggle-btn { display: none !important; }
+html[data-sidebar-slim="true"] .gadget-drag-handle { display: none !important; }
 html[data-sidebar-slim="true"] .gadget-chevron { display: none !important; }
 html[data-sidebar-slim="true"] .gadget-header { cursor: default; }
-html[data-sidebar-slim="true"] .gadget-wrapper[draggable="true"] { cursor: default; }
 html[data-sidebar-slim="true"] .sidebar-dock-controls { display: none; }
 
 /* ラベルのスタイル統一 */
@@ -8792,6 +8833,18 @@ body.is-electron a {
   gap: 0.25rem;
 }
 
+.sections-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0 0.125rem 0.25rem;
+}
+
+.sections-add-chapter {
+  justify-content: center;
+  width: 100%;
+}
+
 .sections-tree {
   display: flex;
   flex-direction: column;
@@ -8886,6 +8939,11 @@ body.is-electron a {
   white-space: nowrap;
   flex: 1;
   min-width: 0;
+}
+
+.sections-node-title--placeholder {
+  color: var(--text-muted, #888);
+  font-style: italic;
 }
 
 /* --- SP-052 Phase 2: セクションコラプス (session 91 で機能廃止、CSS は dead code として残置) --- */
@@ -9485,15 +9543,9 @@ body.is-electron .focus-overlay-backdrop {
 }
 
 .show-toolbar-fab,
-html[data-ui-mode='normal'] .sidebar-edge-rail,
 html[data-ui-mode='normal'] .writing-focus-rail,
 html[data-ui-mode='normal'] .writing-focus-footer {
   display: none !important;
-}
-
-html[data-ui-mode='normal'] .sidebar-edge-rail {
-  visibility: hidden !important;
-  pointer-events: none !important;
 }
 
 html[data-ui-mode='normal'] .sidebar {
@@ -9508,13 +9560,25 @@ html[data-ui-mode='normal'] .sidebar {
   backdrop-filter: blur(14px) saturate(1.08);
   box-shadow: none;
   border-right: 1px solid color-mix(in srgb, var(--border-color) 58%, transparent);
-  transition: width 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
-  will-change: width;
+  transition: width 180ms ease, box-shadow 180ms ease, background-color 180ms ease, opacity 160ms ease, transform 160ms ease, visibility 160ms ease;
+  will-change: width, opacity, transform;
   font-size: var(--shell-font-size);
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='root'] .sidebar {
   width: var(--left-nav-root-width);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-0.85rem);
+  visibility: hidden;
+}
+
+html[data-ui-mode='normal'][data-left-nav-state='root'][data-edge-hover-left='true'] .sidebar,
+html[data-ui-mode='normal'][data-left-nav-state='root'] .sidebar:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+  visibility: visible;
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar {
@@ -9527,7 +9591,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar {
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='root'] .main-content {
-  margin-left: var(--left-nav-root-width);
+  margin-left: 0;
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='category'] .main-content {
@@ -9816,6 +9880,14 @@ html[data-ui-mode='normal'] .documents-more-btn {
   margin-left: auto;
 }
 
+html[data-ui-mode='normal'] #documents-io-menu-btn {
+  margin-left: auto;
+}
+
+html[data-ui-mode='normal'] .documents-menu-btn {
+  min-width: 4.25rem;
+}
+
 html[data-ui-mode='normal'] .zw-shell-menu,
 html[data-ui-mode='normal'] .documents-more-menu,
 html[data-ui-mode='normal'] .context-menu {
@@ -9828,6 +9900,10 @@ html[data-ui-mode='normal'] .context-menu {
   box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.18);
   scrollbar-width: thin;
   scrollbar-color: var(--shell-scrollbar-thumb) var(--shell-scrollbar-track);
+}
+
+html[data-ui-mode='normal'] .documents-action-menu {
+  min-width: 12rem;
 }
 
 html[data-ui-mode='normal'] .zw-shell-menu__item,

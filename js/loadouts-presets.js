@@ -58,7 +58,6 @@
             'EditorLayout',
             'UISettings',
             'PrintSettings',
-            'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
           ]
@@ -95,7 +94,6 @@
           ],
           advanced: [
             'EditorLayout',
-            'LoadoutManager',
             'GadgetPrefs'
           ]
         },
@@ -144,7 +142,6 @@
           advanced: [
             'EditorLayout',
             'UISettings',
-            'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
           ]
@@ -187,7 +184,6 @@
           advanced: [
             'EditorLayout',
             'UISettings',
-            'LoadoutManager',
             'GadgetPrefs',
             'Keybinds'
           ]

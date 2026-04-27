@@ -376,7 +376,11 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(200);
 
-    await page.click('.accordion-category[data-category="theme"] .accordion-header');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('theme');
+      }
+    });
     await page.waitForTimeout(150);
 
     const state = await page.evaluate(() => {
@@ -414,7 +418,11 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(150);
 
-    await page.click('.accordion-category[data-category="advanced"] .accordion-header');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('advanced');
+      }
+    });
     await page.waitForTimeout(150);
     await page.click('#sidebar-nav-back');
     await page.waitForTimeout(150);
@@ -469,7 +477,7 @@ test.describe('UI Mode Consistency', () => {
     expect(metrics.navState).toBe('root');
     expect(metrics.inlineWidth).toBe('');
     expect(metrics.sidebarWidth).toBeLessThanOrEqual(90);
-    expect(Math.abs(metrics.sidebarWidth - metrics.mainMarginLeft)).toBeLessThanOrEqual(2);
+    expect(metrics.mainMarginLeft).toBe(0);
   });
 
   test('session 126: left nav category content does not collapse during shell expansion', async ({ page }) => {
@@ -480,7 +488,11 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(100);
 
-    await page.click('.accordion-category[data-category="advanced"] .accordion-header');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('advanced');
+      }
+    });
     await page.evaluate(() => {
       const sidebar = document.getElementById('sidebar');
       if (sidebar) {
@@ -749,6 +761,87 @@ test.describe('UI Mode Consistency', () => {
     expect(sectionsAgain.icon).toBe('list-tree');
   });
 
+  test('friction sweep: left nav title icon is display-only and back icon returns root', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await openSidebarGroup(page, 'sections');
+    await page.waitForTimeout(150);
+
+    await page.evaluate(() => {
+      var anchor = document.getElementById('sidebar-nav-anchor');
+      if (anchor) {
+        anchor.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      }
+    });
+    await page.waitForTimeout(120);
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'sections');
+
+    await page.click('#sidebar-nav-back');
+    await page.waitForTimeout(120);
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'root');
+    await expect(page.locator('html')).not.toHaveAttribute('data-left-nav-active', 'sections');
+  });
+
+  test('friction sweep: root left nav is hidden until edge hover fades it in', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
+        window.sidebarManager.returnToLeftNavRoot();
+      } else if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(false);
+      }
+    });
+    await page.waitForTimeout(650);
+
+    const atRest = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
+      var rail = document.getElementById('sidebar-edge-rail');
+      var sidebarStyle = sidebar ? window.getComputedStyle(sidebar) : null;
+      var railStyle = rail ? window.getComputedStyle(rail) : null;
+      return {
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        sidebarOpacity: sidebarStyle ? Number(sidebarStyle.opacity) : -1,
+        sidebarVisibility: sidebarStyle ? sidebarStyle.visibility : '',
+        sidebarPointerEvents: sidebarStyle ? sidebarStyle.pointerEvents : '',
+        railVisibility: railStyle ? railStyle.visibility : '',
+        railPointerEvents: railStyle ? railStyle.pointerEvents : ''
+      };
+    });
+
+    expect(atRest.navState).toBe('root');
+    expect(atRest.sidebarOpacity).toBeLessThan(0.1);
+    expect(atRest.sidebarVisibility).toBe('hidden');
+    expect(atRest.sidebarPointerEvents).toBe('none');
+    expect(atRest.railVisibility).toBe('visible');
+    expect(atRest.railPointerEvents).toBe('auto');
+
+    await page.evaluate(() => {
+      var rail = document.getElementById('sidebar-edge-rail');
+      if (rail) {
+        rail.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, clientX: 1, clientY: 180 }));
+        rail.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
+      }
+      document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
+    });
+    await page.waitForTimeout(220);
+
+    const hovered = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
+      var sidebarStyle = sidebar ? window.getComputedStyle(sidebar) : null;
+      return {
+        edgeHover: document.documentElement.getAttribute('data-edge-hover-left'),
+        opacity: sidebarStyle ? Number(sidebarStyle.opacity) : -1,
+        visibility: sidebarStyle ? sidebarStyle.visibility : '',
+        pointerEvents: sidebarStyle ? sidebarStyle.pointerEvents : ''
+      };
+    });
+
+    expect(hovered.edgeHover).toBe('true');
+    expect(hovered.opacity).toBeGreaterThan(0.5);
+    expect(hovered.visibility).toBe('visible');
+    expect(hovered.pointerEvents).toBe('auto');
+  });
+
   test('session 129: sections and structure keep distinct gadget panels', async ({ page }) => {
     await setUIMode(page, 'normal');
 
@@ -810,8 +903,9 @@ test.describe('UI Mode Consistency', () => {
     await page.waitForTimeout(150);
 
     await page.evaluate(() => {
-      const header = document.querySelector('.accordion-category[data-category="advanced"] .accordion-header');
-      if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('advanced');
+      }
     });
     await page.waitForTimeout(150);
     await page.click('#sidebar-nav-back');

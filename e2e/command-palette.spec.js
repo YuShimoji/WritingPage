@@ -78,6 +78,28 @@ test.describe('Command Palette E2E', () => {
     await expect(page.locator('#command-palette')).not.toBeVisible();
   });
 
+  test('daily writing: 保存コマンドは保存完了HUDを表示する', async ({ page }) => {
+    await page.goto('/?reset=1');
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+        window.ZenWriterEditor.setContent('保存HUDテスト');
+      }
+      if (window.ZenWriterHUD && typeof window.ZenWriterHUD.clear === 'function') {
+        window.ZenWriterHUD.clear();
+      }
+    });
+
+    await openCommandPalette(page);
+    await page.locator('.command-palette-item[data-command-id="save"]').click();
+
+    const hud = page.locator('.mini-hud');
+    await expect(hud).toHaveClass(/show/);
+    await expect(hud).toContainText('保存しました');
+  });
+
   test('コマンドパレットでキーボードナビゲーションが機能する', async ({ page }) => {
     await page.goto(pageUrl);
     

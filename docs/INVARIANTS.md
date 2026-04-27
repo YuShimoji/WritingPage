@@ -10,7 +10,7 @@
 
 - Left nav の category anchor は、active category の `label` / `icon` / `panelId` / gadget loadout と常に同じ対象を指す。`sections` は `セクション` + `list-tree` + `sections-gadgets-panel` + `SectionsNavigator`、`structure` は `構造` + `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系を持つ。
 - Lucide は初回描画後に `<i data-lucide>` を `<svg>` へ置換するため、category 切替で icon を更新するときは `<i>` だけを探して属性変更しない。既存 `<svg>` を新しい `<i data-lucide>` に差し替え、Lucide 再描画に渡す。
-- `#sidebar-nav-anchor` は `data-group` と `data-current-icon` を active category と同期する。E2E は label だけでなく icon と panel/gadget 対応も見る。
+- `#sidebar-nav-anchor` は `data-group` と `data-current-icon` を active category と同期する表示専用 anchor。root 戻りは `#sidebar-nav-back` のみが担う。E2E は label だけでなく icon と panel/gadget 対応も見る。
 
 ## Session 121 Override: Unified Shell UI
 
@@ -18,11 +18,11 @@
 - 公開 UI は `display mode` を第一級概念にしない。ユーザー向け状態は **top chrome visibility / left nav hierarchy / Reader・Replay surface open state** で表す。
 - `setUIMode('normal'|'focus')` は移行期の内部互換 API としてのみ扱う。新規 UI 仕様・visible command・manual test の起点にしない。
 - top chrome は hidden が既定で、常用ツールバーではなく **F2 / menu / command palette で明示表示する一時シェル**として扱う。fine pointer の上端 hover reveal と常時 visible handle は使わない。hidden 時に常設上部バーや seam を残さず、誤表示時は Escape / 外側操作で即時に閉じる。
-- left nav は常設ミニレール + 階層ナビ。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
-- sidebar / gadget / documents の visible UI は unified shell の共通 token（`--shell-space-*`, `--shell-control-*`, `--shell-radius-*`, `--shell-scrollbar-*`, `--shell-field-bg`）を使う。normal unified shell では dock / chrome 系の上段 clutter を常設表示せず、gadget header は single-gadget / slim でも collapse affordance として残す。`aria-expanded` と gadget body `aria-hidden` は必ず同期する。
+- left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
+- sidebar / gadget / documents の visible UI は unified shell の共通 token（`--shell-space-*`, `--shell-control-*`, `--shell-radius-*`, `--shell-scrollbar-*`, `--shell-field-bg`）を使う。normal unified shell では dock / chrome 系の上段 clutter を常設表示せず、gadget header は collapse affordance、専用 drag handle は並び替え affordance として分離する。`aria-expanded` と gadget body `aria-hidden` は必ず同期する。
 - gadget body は `.gadget` class を保持する。Story Wiki などの gadget 内 render が `root.className` を上書きする場合も `.gadget` を消してはならない。collapsed body は height だけでなく padding / margin / pointer area も残さない。
 - category activation は shell を先に表示し、重い gadget render は次 frame / idle へ遅延する。表示前に hidden 幅で重い graph/canvas を同期描画しない。
-- command palette と visible UI から `ui-mode-*` / `toggle-fullscreen` を外し、`F2` は top chrome 表示に割り当てる。Electron menu の visible shell wording もこれに揃える。Normal left-edge hover-open は主導線ではなく互換扱い。
+- command palette と visible UI から `ui-mode-*` / `toggle-fullscreen` を外し、`F2` は top chrome 表示に割り当てる。Electron menu の visible shell wording もこれに揃える。Normal left-edge hover は sidebar を force-open せず、root rail の一時 fade-in のみを行う。
 
 - UI モードは `normal` / `focus` の 2 種。切替の単一入口は `setUIMode`。直接 `setAttribute('data-ui-mode', ...)` は禁止
 - legacy stored UI values and saved `focus` mode指定は、公開 UI 縮退後の統合シェルでは `normal` に吸収する
@@ -43,7 +43,7 @@
 - 再生オーバーレイ exit で大きな return overlay をエディタ操作領域の上に残さない。編集面へフォーカスを戻す
 - Focus モードでツールバーの top gap やサイドパネルの writing surface 重なりを生じさせない
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
-- WYSIWYG でアニメーション/テクスチャエフェクトは即時適用する（WP-004 Phase 1）
+- リッチ編集表示（`editor-wysiwyg.js`）でアニメーション/テクスチャエフェクトは即時適用する（WP-004 Phase 1）
 
 ## Wiki と Reader プレビュー（コンテンツ経路）
 

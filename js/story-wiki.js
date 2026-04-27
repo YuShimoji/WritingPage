@@ -100,7 +100,9 @@
       var footer = el('div', { className: 'swiki-footer' }, [
         el('button', {
           className: 'swiki-btn swiki-btn-new',
-          textContent: '+ 新規作成',
+          textContent: (window.UILabels && window.UILabels.BTN_NEW_WIKI_PAGE) || '+ Wikiページ',
+          title: '新規 Wiki ページを作成',
+          'aria-label': '新規 Wiki ページを作成',
           onClick: function () { openCreateDialog(); }
         }),
         el('button', {
@@ -328,7 +330,9 @@
         }),
         el('button', {
           className: 'swiki-btn swiki-btn-new',
-          textContent: '+ 新規作成',
+          textContent: (window.UILabels && window.UILabels.BTN_NEW_WIKI_PAGE) || '+ Wikiページ',
+          title: '新規 Wiki ページを作成',
+          'aria-label': '新規 Wiki ページを作成',
           onClick: function () { openCreateDialog(); }
         }),
         el('button', {

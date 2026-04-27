@@ -12,6 +12,8 @@ build/
 build-new/
 # セッション別退避用 (session 103: build/ + build-new/ 同時ロック時の追加 workaround)
 build-session*/
+# Packaged verification workaround output (when build/ is locked)
+build-friction/
 
 # Node
 node_modules/

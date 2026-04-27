@@ -244,6 +244,20 @@
     return x <= Math.min(window.innerWidth, sidebarRect.right + LEFT_EDGE_CLOSE_BUFFER_PX);
   }
 
+  function isPointInNormalSidebarRail(x, y) {
+    var rail = document.getElementById('sidebar-edge-rail');
+    if (rail) {
+      var rect = rail.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      }
+    }
+    if (isSidebarDockedRight()) {
+      return x >= window.innerWidth - 14;
+    }
+    return x <= 14;
+  }
+
   /** 左レールが一度開いた後は、パネル本体か dismiss buffer の内側にいる限り
       「まだ操作継続中」とみなし、window 端の mouseleave や一時的な高速移動で閉じない。 */
   function isLeftInteractionActiveAt(x, y) {
@@ -325,21 +339,14 @@
 
   function runDwellAction(edge) {
     if (edge === 'top' && shouldSkipTopEdgeDwell()) return;
-    if (edge === 'left' && !isFocusMode()) return;
     if (edge === 'left' && isSidebarNormallyOpen()) return;
 
     showEdge(edge);
 
-    // 左端: focusモードでは章パネルのみ(CSS制御)、normalではサイドバーを一時的に開く
+    // 左端: Focus は章パネル、Normal は root rail のフェードインのみ(CSS制御)。
     var mode = html.getAttribute('data-ui-mode');
-    if (edge === 'left' && mode === 'normal' && window.sidebarManager &&
-        typeof window.sidebarManager.forceSidebarState === 'function') {
-      var sidebar = document.getElementById('sidebar');
-      var alreadyOpen = sidebar && sidebar.classList.contains('open');
-      if (!alreadyOpen) {
-        leftEdgeOpenedSidebar = true;
-      }
-      window.sidebarManager.forceSidebarState(true);
+    if (edge === 'left' && mode === 'normal') {
+      leftEdgeOpenedSidebar = false;
     }
   }
 
@@ -406,7 +413,7 @@
     // 画面高さは全域で発火 (session 91 で y > EDGE_ZONE 除外撤廃)
     var inLeftTriggerZone = isFocusMode()
       ? x <= getLeftEdgeZone()
-      : false;
+      : isPointInNormalSidebarRail(x, y);
     var leftDismissZone = getLeftEdgeDismissZone();
     if (inLeftTriggerZone) {
       handleLeftTriggerZoneHover();

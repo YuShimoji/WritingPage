@@ -69,7 +69,7 @@
 |---|------|-------|-------|-------------|------|
 | 1 | SectionsNavigator | セクションナビ | sections | 見出しツリーのリアルタイムナビゲーション (SP-052)。left nav の `sections` category に配置。 | gadgets-sections-nav.js |
 | 2 | Outline | アウトライン | structure | 見出しをツリー表示し、クリックで本文へ移動。 | gadgets-builtin.js |
-| 3 | Documents | ドキュメント | structure | ドキュメント階層をツリー表示し、並び替え・移動を管理。 | gadgets-documents-hierarchy.js |
+| 3 | Documents | ドキュメント | structure | ドキュメント階層をツリー表示し、作成・保存・入出力・管理を役割別 controls で扱う。 | gadgets-documents-hierarchy.js |
 | 4 | StoryWiki | Story Wiki | structure | Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。 | story-wiki.js |
 | 5 | TagsAndSmartFolders | タグ/スマートフォルダ | structure | タグ分類とスマートフォルダでページを整理。 | gadgets-tags-smart-folders.js |
 | 6 | SnapshotManager | バックアップ | structure | スナップショットの保存・復元と履歴管理。 | gadgets-snapshot.js |
@@ -91,8 +91,8 @@
 | 22 | UISettings | UI Settings | advanced | 表示方式・サイドバー配置・改行時の装飾挙動を調整。 | gadgets-editor-extras.js |
 | 23 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
 | 24 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
-| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。 | gadgets-prefs.js |
-| 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。 | gadgets-loadout.js |
+| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。通常導線の有用性は HOLD。 | gadgets-prefs.js |
+| 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
 | 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
 | 28 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
 
@@ -104,6 +104,33 @@
 | - | GraphicNovel | 削除 | ニッチ (6モジュール含む) |
 | - | UIDesign | 無効化 | 背景グラデーション、テーマに概念統合 |
 | - | SceneGradient | 無効化 | 3層グラデーション、ニッチ |
+
+#### Writing workflow friction sweep: 既定表示の扱い
+
+| Gadget | 分類 | 既定表示 | 理由 |
+|--------|------|----------|------|
+| LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
+| GadgetPrefs | keep / HOLD | 維持 | 設定の import/export 用途はあるが、通常導線の有用性は継続観察 |
+
+#### Documents action lanes
+
+| Control | 役割 | 含める操作 |
+|---------|------|------------|
+| `+ 文書` | 作成 | ルートに新規ドキュメントを作成 |
+| `+ フォルダ` | 作成 | ルートに新規フォルダを作成 |
+| `保存` | 現在本文 | 現在の Editor 内容を保存し、保存 HUD を出す |
+| `入出力` | ファイル入出庫 | `TXT書き出し` / `JSON書き出し` / `JSON読み込み` |
+| `管理` | 文書管理 | `スナップショット復元` / `複数選択` |
+
+#### UI action label consistency
+
+| Surface | 以前の曖昧表現 | 現行表現 | 理由 |
+|---------|----------------|----------|------|
+| Outline preset | `+ 新規` | `+ 構成プリセット` | 文書作成ではなくアウトライン構成を作る操作だと示す |
+| Story Wiki | `+ 新規作成` / `+ 新規Wikiページ` | `+ Wikiページ` | 何を新規作成するかを visible label で明示する |
+| PrintSettings | `TXTエクスポート` | `TXT書き出し` | Documents の入出力レーンと語彙を揃える |
+| VisualProfile | `適用` / `保存` / `削除` | `プロファイル適用` / `プロファイル保存` / `プロファイル削除` | 現在本文の保存や文書操作と混同しない |
+| LoadoutManager | `保存` / `適用` / `削除` | `ロードアウト保存` / `ロードアウト適用` / `ロードアウト削除` | 低頻度の advanced 操作でも対象を明示する |
 
 #### グループ別集計
 
@@ -186,11 +213,11 @@
 - `index.html` の `.sidebar-loadout` に `js/gadgets-loadout.js` がロードアウトUIを動的生成します。
   - セレクト: `#loadout-select`
   - 名前入力: `#loadout-name`
-  - 操作: `#loadout-save`（保存/新規定義）、`#loadout-duplicate`（複製）、`#loadout-apply`（適用）、`#loadout-delete`（削除）
+  - 操作: `#loadout-save`（ロードアウト保存/新規定義）、`#loadout-duplicate`（ロードアウト複製）、`#loadout-apply`（ロードアウト適用）、`#loadout-delete`（ロードアウト削除）
 - 保存時は現在のガジェット配置を `captureCurrentLoadout()` で採取し、`defineLoadout()` → `applyLoadout()` の順に反映。
-- 複製は「対象を選択→適用→名前を入力→保存」で実現可能（専用ボタンは今後の候補）。
+- 複製は「対象を選択→ロードアウト適用→名前を入力→ロードアウト保存」で実現可能（専用ボタンは今後の候補）。
 - UI
-  - category panel 内にプリセットドロップダウンを配置し、「保存」「複製」「削除」操作を提供。
+  - category panel 内にプリセットドロップダウンを配置し、「ロードアウト保存」「ロードアウト複製」「ロードアウト削除」操作を提供。
   - プリセット切替後は `ZWGadgets.importPrefs()` に近いフローで order/collapsed/settings を再構成。
 - **(将来案)** Embed モードではホストから `sdk.setLoadout(name)` を呼び出すことでロードアウトを同期できるよう、Embed SDK v2 でイベント定義を計画しています。
 
@@ -263,7 +290,7 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 1. 並び順・折りたたみは自動保存
 
 - ヘッダの「↑/↓」「▼/▶」操作は `prefs.order` / `prefs.collapsed` に自動保存されます。
-- ドラッグ＆ドロップでも並び替え可能です。
+- ドラッグ＆ドロップは gadget header 内の専用 drag handle からのみ開始します。slider / input / button / gadget body 操作では drag を発火させません。
 
 1. テスト
 

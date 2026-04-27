@@ -37,7 +37,7 @@
         const exportBtn = document.createElement('button');
         exportBtn.type = 'button';
         exportBtn.className = 'small';
-        exportBtn.textContent = (window.UILabels && window.UILabels.TXT_EXPORT) || 'TXTエクスポート';
+        exportBtn.textContent = (window.UILabels && window.UILabels.TXT_EXPORT) || 'TXT書き出し';
         exportBtn.addEventListener('click', function () {
           const text = editorEl && editorEl.value ? editorEl.value : '';
           const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });

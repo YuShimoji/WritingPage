@@ -161,7 +161,7 @@
       id: uid(),
       type: 'chapter',
       parentId: docId,
-      name: String(title || '新しい章'),
+      name: title == null ? '新しい章' : String(title),
       content: String(content || ''),
       order: order,
       level: level || 2,

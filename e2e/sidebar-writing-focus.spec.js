@@ -109,7 +109,8 @@ test.describe('Sidebar Writing Focus', () => {
     };
 
     expect(after.count).toBe(before.count + 1);
-    expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();
+    expect(after.names).toContain('');
+    expect(after.names.some((name) => name.includes('新しい章'))).toBeFalsy();
     expect(after.names.some((name) => name.includes('新しいセクション'))).toBeFalsy();
   });
 
@@ -229,6 +230,7 @@ test.describe('Sidebar Writing Focus', () => {
     };
 
     expect(after.count).toBe(before.count + 1);
-    expect(after.names.some((name) => name.includes('新しい章'))).toBeTruthy();
+    expect(after.names).toContain('');
+    expect(after.names.some((name) => name.includes('新しい章'))).toBeFalsy();
   });
 });

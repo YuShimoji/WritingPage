@@ -10,9 +10,11 @@
   var ZWGadgets = window.ZWGadgets;
   if (!ZWGadgets) return;
 
-  var HEADING_RE = /^(#{1,6})\s+(.+)$/gm;
+  var HEADING_RE = /^(#{1,6})(?:[ \t]+(.*))?$/gm;
   var DEBOUNCE_MS = 120;
   var COLLAPSE_PREVIEW_COUNT = 2; // 折りたたみ時に表示する段落数
+  var UNTITLED_CHAPTER_LABEL = '章タイトル未設定';
+  var CHAPTER_TITLE_PLACEHOLDER = '章タイトルを入力';
 
   // --- Collapse state ---
   var collapseActive = false;
@@ -29,8 +31,9 @@
     while ((match = HEADING_RE.exec(text)) !== null) {
       headings.push({
         level: match[1].length,
-        title: match[2].trim(),
-        offset: match.index
+        title: (match[2] || '').trim(),
+        offset: match.index,
+        titleOffset: match.index + match[1].length + (match[0].charAt(match[1].length) === ' ' ? 1 : 0)
       });
     }
     for (var i = 0; i < headings.length; i++) {
@@ -58,6 +61,27 @@
 
   var HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 
+  function syncEmptyHeadingPlaceholder(headingEl) {
+    if (!headingEl || !/^H[1-6]$/.test(headingEl.tagName || '')) return;
+    var isEmpty = !(headingEl.textContent || '').trim();
+    if (isEmpty) {
+      headingEl.setAttribute('data-zw-empty-heading', 'true');
+      headingEl.setAttribute('data-placeholder', CHAPTER_TITLE_PLACEHOLDER);
+    } else {
+      headingEl.removeAttribute('data-zw-empty-heading');
+      headingEl.removeAttribute('data-placeholder');
+    }
+  }
+
+  function syncAllEmptyHeadingPlaceholders() {
+    var wysiwygEl = document.getElementById('wysiwyg-editor');
+    if (!wysiwygEl) return;
+    var els = wysiwygEl.querySelectorAll(HEADING_SELECTOR);
+    for (var i = 0; i < els.length; i++) {
+      syncEmptyHeadingPlaceholder(els[i]);
+    }
+  }
+
   /** WYSIWYG DOM から見出し一覧を取得 (ツリー構築用) */
   function parseWysiwygHeadings() {
     var wysiwygEl = document.getElementById('wysiwyg-editor');
@@ -65,6 +89,7 @@
     var headings = [];
     var els = wysiwygEl.querySelectorAll(HEADING_SELECTOR);
     for (var i = 0; i < els.length; i++) {
+      syncEmptyHeadingPlaceholder(els[i]);
       headings.push({
         level: parseInt(els[i].tagName.charAt(1), 10),
         title: els[i].textContent.trim(),
@@ -246,6 +271,152 @@
       : rawId;
   }
 
+  function getChapterStoreChapters() {
+    try {
+      var Store = window.ZWChapterStore;
+      var docId = getCurrentChapterDocId();
+      if (!Store || !docId || typeof Store.isChapterMode !== 'function' || !Store.isChapterMode(docId)) return [];
+      if (typeof Store.getChaptersForDoc !== 'function') return [];
+      return Store.getChaptersForDoc(docId) || [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  function isWysiwygVisible() {
+    var rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+    if (rte && rte.isWysiwygMode) return true;
+    var wysiwygEl = document.getElementById('wysiwyg-editor');
+    return !!(wysiwygEl && window.getComputedStyle(wysiwygEl).display !== 'none');
+  }
+
+  function getEditorMarkdown() {
+    var editorManager = window.ZenWriterEditor;
+    if (editorManager && typeof editorManager.getEditorValue === 'function') {
+      return editorManager.getEditorValue() || '';
+    }
+    var editor = document.getElementById('editor');
+    return editor ? (editor.value || '') : '';
+  }
+
+  function appendChapterHeading(markdown) {
+    var base = String(markdown || '').replace(/\s+$/g, '');
+    return (base ? base + '\n\n' : '') + '## \n\n';
+  }
+
+  function getAppendedHeadingTitlePosition(markdown) {
+    var markerIndex = String(markdown || '').lastIndexOf('## ');
+    return markerIndex >= 0 ? markerIndex + 3 : String(markdown || '').length;
+  }
+
+  function appendEmptyHeadingToWysiwyg() {
+    var editorManager = window.ZenWriterEditor;
+    var rte = editorManager && editorManager.richTextEditor;
+    var wysiwygEl = document.getElementById('wysiwyg-editor');
+    if (!wysiwygEl || !rte || !rte.isWysiwygMode) return false;
+
+    if (wysiwygEl.childNodes.length > 0) {
+      wysiwygEl.appendChild(document.createElement('p'));
+    }
+    var heading = document.createElement('h2');
+    heading.appendChild(document.createElement('br'));
+    syncEmptyHeadingPlaceholder(heading);
+    wysiwygEl.appendChild(heading);
+    syncAllEmptyHeadingPlaceholders();
+
+    try {
+      var range = document.createRange();
+      var sel = window.getSelection();
+      range.selectNodeContents(heading);
+      range.collapse(false);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      wysiwygEl.focus();
+    } catch (_) { /* noop */ }
+
+    if (typeof rte.syncToMarkdown === 'function') {
+      rte.syncToMarkdown();
+    }
+    if (editorManager && typeof editorManager.saveContent === 'function') {
+      editorManager.saveContent();
+    }
+    wysiwygEl.dispatchEvent(new Event('input', { bubbles: true }));
+    return true;
+  }
+
+  function notifySectionAction(message) {
+    if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+      window.ZenWriterHUD.show(message, 1400, { type: 'success' });
+      return;
+    }
+    if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+      window.ZenWriterEditor.showNotification(message, 1400);
+    }
+  }
+
+  function focusLastHeading() {
+    setTimeout(function () {
+      var headings = isWysiwygMode() ? parseWysiwygHeadings() : parseHeadings(getEditorMarkdown());
+      if (headings.length > 0) {
+        jumpToHeading(headings[headings.length - 1], headings.length - 1);
+      }
+    }, 80);
+  }
+
+  function addChapterHeadingToEditor() {
+    if (appendEmptyHeadingToWysiwyg()) {
+      notifySectionAction('新しい章を追加しました');
+      focusLastHeading();
+      return;
+    }
+
+    var next = appendChapterHeading(getEditorMarkdown());
+    var editorManager = window.ZenWriterEditor;
+    if (editorManager && typeof editorManager.setContent === 'function') {
+      editorManager.setContent(next);
+      syncAllEmptyHeadingPlaceholders();
+      if (typeof editorManager.saveContent === 'function') {
+        editorManager.saveContent();
+      }
+    } else {
+      var editor = document.getElementById('editor');
+      if (editor) {
+        var titlePos = getAppendedHeadingTitlePosition(next);
+        editor.value = next;
+        editor.selectionStart = titlePos;
+        editor.selectionEnd = titlePos;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+        window.ZenWriterStorage.saveContent(next);
+      }
+    }
+
+    var wysiwygEl = document.getElementById('wysiwyg-editor');
+    var editorEl = document.getElementById('editor');
+    if (wysiwygEl) wysiwygEl.dispatchEvent(new Event('input', { bubbles: true }));
+    if (editorEl) editorEl.dispatchEvent(new Event('input', { bubbles: true }));
+    if (!isWysiwygVisible() && editorEl) {
+      var headingTitlePos = getAppendedHeadingTitlePosition(next);
+      editorEl.focus();
+      editorEl.selectionStart = headingTitlePos;
+      editorEl.selectionEnd = headingTitlePos;
+    }
+    notifySectionAction('新しい章を追加しました');
+    focusLastHeading();
+  }
+
+  function handleAddChapterFromSections() {
+    var storeChapters = getChapterStoreChapters();
+    var chapterList = window.ZWChapterList;
+    if (storeChapters.length > 0 && chapterList && typeof chapterList.addChapter === 'function') {
+      chapterList.addChapter();
+      notifySectionAction('新しい章を追加しました');
+      return;
+    }
+    addChapterHeadingToEditor();
+  }
+
   function jumpToHeading(heading, headingIndex) {
     if (!heading) return;
 
@@ -321,10 +492,11 @@
       // textarea モード (既存動作)
       var editor = document.getElementById('editor');
       if (!editor) return;
-      editor.selectionStart = heading.offset;
-      editor.selectionEnd = heading.offset;
+      var cursorOffset = heading.title ? heading.offset : (heading.titleOffset || heading.offset);
+      editor.selectionStart = cursorOffset;
+      editor.selectionEnd = cursorOffset;
       editor.focus();
-      var linesBefore = editor.value.substring(0, heading.offset).split('\n').length;
+      var linesBefore = editor.value.substring(0, cursorOffset).split('\n').length;
       var lineHeight = parseFloat(getComputedStyle(editor).lineHeight) || 20;
       var scrollTarget = (linesBefore - 3) * lineHeight;
       editor.scrollTop = Math.max(0, scrollTarget);
@@ -340,7 +512,22 @@
     var wrap = document.createElement('div');
     wrap.className = 'sections-nav-gadget';
 
-    // session 91: 「全展開」ボタンおよび折りたたみ機能廃止に伴い、ボタン生成を削除
+    var actions = document.createElement('div');
+    actions.className = 'sections-nav-actions';
+
+    var addChapterBtn = document.createElement('button');
+    addChapterBtn.type = 'button';
+    addChapterBtn.id = 'sections-add-chapter';
+    addChapterBtn.className = 'sections-add-chapter zw-shell-control zw-shell-control--text';
+    addChapterBtn.textContent = '+ 新しい章';
+    addChapterBtn.title = '現在の原稿に新しい章を追加';
+    addChapterBtn.setAttribute('aria-label', '新しい章を追加');
+    addChapterBtn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddChapterFromSections();
+    });
+    actions.appendChild(addChapterBtn);
 
     var treeContainer = document.createElement('div');
     treeContainer.className = 'sections-tree';
@@ -356,6 +543,7 @@
       '<p class="sections-empty-state__hint" data-sections-empty-hint></p>'
     ].join('');
 
+    wrap.appendChild(actions);
     wrap.appendChild(treeContainer);
     wrap.appendChild(emptyState);
     el.appendChild(wrap);
@@ -378,8 +566,7 @@
         for (var ci = 0; ci < list.length; ci++) consumed[ci] = false;
 
         storeChapters.forEach(function (ch) {
-          var name = (ch && ch.name) || '';
-          if (!name) return;
+          var name = ch && ch.name != null ? String(ch.name) : ((ch && ch.title) || '');
           var matchedIdx = -1;
           for (var hi = 0; hi < list.length; hi++) {
             if (consumed[hi]) continue;
@@ -495,7 +682,12 @@
 
           var titleSpan = document.createElement('span');
           titleSpan.className = 'sections-node-title';
-          titleSpan.textContent = h.title;
+          if (h.title) {
+            titleSpan.textContent = h.title;
+          } else {
+            titleSpan.textContent = UNTITLED_CHAPTER_LABEL;
+            titleSpan.classList.add('sections-node-title--placeholder');
+          }
 
           node.appendChild(levelBadge);
           node.appendChild(titleSpan);
@@ -549,7 +741,7 @@
       });
     }
 
-    // WYSIWYG モード
+    // リッチ編集表示
     var wysiwygEl = document.getElementById('wysiwyg-editor');
     if (wysiwygEl) {
       wysiwygEl.addEventListener('input', scheduleRender);
@@ -626,7 +818,8 @@
   }, {
     groups: ['sections'],
     title: '\u30bb\u30af\u30b7\u30e7\u30f3\u30ca\u30d3\u30b2\u30fc\u30bf\u30fc',
-    description: '\u898b\u51fa\u3057\u30c4\u30ea\u30fc\u3068\u8a71\u30ca\u30d3\u30b2\u30fc\u30b7\u30e7\u30f3 (SP-052)'
+    description: '\u898b\u51fa\u3057\u30c4\u30ea\u30fc\u3068\u8a71\u30ca\u30d3\u30b2\u30fc\u30b7\u30e7\u30f3 (SP-052)',
+    defaultCollapsed: false
   });
 
 })();

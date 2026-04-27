@@ -301,7 +301,7 @@ async function openSidebarPanel(page, group, opts = {}) {
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
   }, { timeout: 20000 });
-  await page.waitForSelector('#sidebar', { timeout: 10000 });
+  await page.waitForSelector('#sidebar', { state: 'attached', timeout: 10000 });
   await enableAllGadgets(page);
 
   await page.evaluate(() => {

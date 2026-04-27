@@ -46,7 +46,7 @@
           <ul>
             <li>入力内容は<strong>自動保存</strong>。明示的に書き出すときは <kbd>Ctrl/Cmd + S</kbd> またはコマンドパレット（<kbd>Ctrl/Cmd + P</kbd>）の「保存」</li>
             <li>Markdown記法に対応 (見出し、リスト、太字など)</li>
-            <li>WYSIWYG モードで装飾のリアルタイムプレビュー</li>
+            <li>リッチ編集表示で装飾のリアルタイムプレビュー</li>
           </ul>
           <h4>検索と置換</h4>
           <ul>

@@ -97,11 +97,11 @@ Zen Writer v0.3.32
 | カテゴリ | ID | 主なガジェット |
 |---------|-----|---------------|
 | セクション | `sections` | SectionsNavigator（見出しツリー、Phase 1+2実装済み） |
-| 構造 | `structure` | Outline, Documents, Snapshot, Tags/SmartFolders |
-| 編集 | `edit` | StoryWiki, Images, ChoiceTools, プレビュー, 分割ビュー, WYSIWYG切り替え |
-| テーマ | `theme` | Themes, Typography, VisualProfile |
-| 補助 | `assist` | WritingGoal, HUD, Pomodoro, MarkdownReference |
-| 詳細設定 | `advanced` | PrintSettings, Help, MarkdownRef |
+| 構造 | `structure` | Documents, Outline, StoryWiki, Tags/SmartFolders, SnapshotManager |
+| 編集 | `edit` | MarkdownPreview, ChoiceTools, FontDecoration, TextAnimation, Images |
+| テーマ | `theme` | Themes, HeadingStyles, EditorLayout, VisualProfile |
+| 補助 | `assist` | WritingGoal, HUDSettings, Pomodoro, MarkdownReference |
+| 詳細設定 | `advanced` | UISettings, PrintSettings, GadgetPrefs, Keybinds, Help, LoadoutManager（標準 preset からは除外） |
 
 **ガジェット総数：** 28個
 **ロードアウト：** 3プリセット（作家モード/全機能/最小限）+ カスタム
@@ -141,8 +141,8 @@ Zen Writer v0.3.32
 #### UIアクセス経路
 
 - **Browser/PWA**
-  - Import: サイドバー → Documentsガジェット → 「読込」ボタン（`.txt`, `.md` のみ）
-  - Export: サイドバー → Documentsガジェット → 「TXT」「MD」ボタン / Advancedガジェット → 「印刷プレビュー」「TXTエクスポート」
+  - Import: サイドバー → Documentsガジェット → 「入出力」→「JSON読み込み」
+  - Export: サイドバー → Documentsガジェット → 「入出力」→「TXT書き出し」/「JSON書き出し」/ Advancedガジェット → 「印刷プレビュー」「TXT書き出し」
 - **Electron**
   - Import: ファイル → 開く（`Ctrl+O`）— `.txt`, `.md`, `.html`, `.htm`, 任意ファイル
   - Export: ファイル → エクスポート → テキスト / HTML / Markdown

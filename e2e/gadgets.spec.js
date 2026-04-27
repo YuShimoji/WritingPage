@@ -23,18 +23,21 @@ async function waitGadgetsReady(page) {
     if (panel) panel.style.display = '';
   });
   await openSidebarGroup(page, 'structure');
-  // expandAccordion が aria-expanded=true で skip する場合があるため直接クリック
-  await page.click('.accordion-header[aria-controls="accordion-structure"]');
-  await page.waitForTimeout(200);
-  // まだ閉じている場合は再クリック
-  const isHidden = await page.evaluate(() => {
-    var c = document.getElementById('accordion-structure');
-    return c && c.getAttribute('aria-hidden') === 'true';
+  await page.evaluate(() => {
+    if (window.sidebarManager && typeof window.sidebarManager._setAccordionState === 'function') {
+      window.sidebarManager._setAccordionState('structure', true);
+    }
+    var header = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
+    var content = document.getElementById('accordion-structure');
+    if (header) header.setAttribute('aria-expanded', 'true');
+    if (content) {
+      content.hidden = false;
+      content.style.display = '';
+      content.style.maxHeight = '';
+      content.setAttribute('aria-hidden', 'false');
+    }
   });
-  if (isHidden) {
-    await page.click('.accordion-header[aria-controls="accordion-structure"]');
-    await page.waitForTimeout(200);
-  }
+  await page.waitForTimeout(200);
   await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
     state: 'visible',
     timeout: 10000,
@@ -130,15 +133,65 @@ test.describe('Gadgets E2E', () => {
     expect(updateResult.hasWikiInItem).toBeTruthy();
   });
 
-  test('Gadget wrappers expose draggable semantics', async ({ page }) => {
+  test('Gadget wrappers expose dedicated drag handle semantics', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
     const wrapper = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
     await expect(wrapper).toBeVisible();
-    await expect(wrapper).toHaveAttribute('draggable', 'true');
-    await expect(wrapper).toHaveAttribute('role', 'button');
+    await expect(wrapper).not.toHaveAttribute('draggable', 'true');
+    await expect(wrapper).toHaveAttribute('role', 'group');
     await expect(wrapper).toHaveAttribute('data-gadget-name');
+
+    const handle = wrapper.locator('.gadget-drag-handle');
+    await expect(handle).toBeVisible();
+    await expect(handle).toHaveAttribute('draggable', 'true');
+    await expect(handle).toHaveAttribute('aria-label', /移動/);
+  });
+
+  test('Gadget range controls do not start gadget dragging', async ({ page }) => {
+    await page.goto(pageUrl);
+    await waitGadgetsReady(page);
+    await openSidebarGroup(page, 'theme');
+
+    const state = await page.evaluate(() => {
+      var range = document.querySelector('#theme-gadgets-panel .gadget-wrapper input[type="range"]');
+      if (!range) {
+        range = document.querySelector('.gadget-wrapper input[type="range"]');
+      }
+      var wrapper = range ? range.closest('.gadget-wrapper') : null;
+      var gadget = wrapper ? wrapper.querySelector('.gadget') : null;
+      var handle = wrapper ? wrapper.querySelector('.gadget-drag-handle') : null;
+      if (!range || !wrapper || !gadget || !handle) {
+        return { hasRange: !!range, hasWrapper: !!wrapper, hasGadget: !!gadget, hasHandle: !!handle };
+      }
+
+      var rangeTransfer = new DataTransfer();
+      range.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: rangeTransfer }));
+      var rangeStartedDrag = gadget.classList.contains('is-dragging');
+
+      var handleTransfer = new DataTransfer();
+      handle.dispatchEvent(new DragEvent('dragstart', { bubbles: true, cancelable: true, dataTransfer: handleTransfer }));
+      var handleStartedDrag = gadget.classList.contains('is-dragging');
+      handle.dispatchEvent(new DragEvent('dragend', { bubbles: true, cancelable: true, dataTransfer: handleTransfer }));
+      var dragCleared = !gadget.classList.contains('is-dragging');
+
+      return {
+        hasRange: true,
+        hasWrapper: true,
+        hasGadget: true,
+        hasHandle: true,
+        rangeStartedDrag,
+        handleStartedDrag,
+        dragCleared
+      };
+    });
+
+    expect(state.hasRange).toBeTruthy();
+    expect(state.hasHandle).toBeTruthy();
+    expect(state.rangeStartedDrag).toBeFalsy();
+    expect(state.handleStartedDrag).toBeTruthy();
+    expect(state.dragCleared).toBeTruthy();
   });
 
   test('Panel drag-over class is added and removed by drag events', async ({ page }) => {

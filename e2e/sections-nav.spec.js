@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebar, setUIMode, setupChapterModeChapters } = require('./helpers');
+const { ensureNormalMode, openSidebar, openSidebarGroup, setUIMode, setupChapterModeChapters, switchToTextareaMode } = require('./helpers');
 
 test.describe('SP-052 Sections Navigator', () => {
   test.beforeEach(async ({ page }) => {
@@ -109,6 +109,189 @@ test.describe('SP-052 Sections Navigator', () => {
     expect(emptyState.title).toContain('表示できるセクションがまだありません');
     expect(emptyState.meta).toContain('現在:');
     expect(emptyState.hint).toContain('見出し');
+  });
+
+  test('daily writing: セクションから新しい章をリッチ編集表示へ追加できる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await setEditorContent(page, '## 既存章\n\n本文');
+    await openSidebarGroup(page, 'sections');
+
+    const addButton = page.locator('#sections-add-chapter');
+    await expect(addButton).toBeVisible();
+    await addButton.click();
+    await page.waitForTimeout(400);
+
+    const state = await page.evaluate(() => {
+      var wysiwyg = document.getElementById('wysiwyg-editor');
+      return {
+        markdown: window.ZenWriterEditor && typeof window.ZenWriterEditor.getEditorValue === 'function'
+          ? window.ZenWriterEditor.getEditorValue()
+          : '',
+        saved: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : '',
+        richHtml: wysiwyg ? wysiwyg.innerHTML : '',
+        titles: Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
+          return node.textContent || '';
+        })
+      };
+    });
+
+    expect(state.markdown).not.toContain('新しい章');
+    expect(state.saved).not.toContain('新しい章');
+    expect(state.markdown).toMatch(/^##\s*$/m);
+    expect(state.saved).toMatch(/^##\s*$/m);
+    expect(state.richHtml).toContain('data-zw-empty-heading="true"');
+    expect(state.titles).toContain('章タイトル未設定');
+
+    const renamed = await page.evaluate(() => {
+      var wysiwyg = document.getElementById('wysiwyg-editor');
+      var headings = wysiwyg ? Array.from(wysiwyg.querySelectorAll('h2')) : [];
+      var heading = headings[headings.length - 1];
+      if (!heading) return null;
+      heading.textContent = '自分の章';
+      heading.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: '自分の章' }));
+      if (wysiwyg) wysiwyg.dispatchEvent(new Event('input', { bubbles: true }));
+      if (window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor &&
+          typeof window.ZenWriterEditor.richTextEditor.syncToMarkdown === 'function') {
+        window.ZenWriterEditor.richTextEditor.syncToMarkdown();
+      }
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.saveContent === 'function') {
+        window.ZenWriterEditor.saveContent();
+      }
+      return {
+        markdown: window.ZenWriterEditor && typeof window.ZenWriterEditor.getEditorValue === 'function'
+          ? window.ZenWriterEditor.getEditorValue()
+          : '',
+        saved: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : ''
+      };
+    });
+    await page.waitForTimeout(300);
+    const renamedTitles = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
+        return node.textContent || '';
+      });
+    });
+
+    expect(renamed.markdown).toContain('## 自分の章');
+    expect(renamed.saved).toContain('## 自分の章');
+    expect(renamedTitles).toContain('自分の章');
+  });
+
+  test('daily writing: セクションから新しい章をMarkdown sourceへ追加できる', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await setEditorContent(page, '## 既存章\n\n本文');
+    await switchToTextareaMode(page);
+    await openSidebarGroup(page, 'sections');
+
+    await page.locator('#sections-add-chapter').click();
+    await page.waitForTimeout(300);
+
+    const state = await page.evaluate(() => {
+      var editor = document.getElementById('editor');
+      return {
+        sourceValue: editor ? editor.value : '',
+        selectionStart: editor ? editor.selectionStart : -1,
+        saved: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : '',
+        titles: Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
+          return node.textContent || '';
+        })
+      };
+    });
+
+    expect(state.sourceValue).not.toContain('新しい章');
+    expect(state.saved).not.toContain('新しい章');
+    expect(state.sourceValue).toMatch(/^##\s*$/m);
+    expect(state.saved).toMatch(/^##\s*$/m);
+    expect(state.titles).toContain('章タイトル未設定');
+    const sourceMarker = state.sourceValue.lastIndexOf('## ');
+    const expectedTitlePos = sourceMarker >= 0
+      ? sourceMarker + 3
+      : state.sourceValue.lastIndexOf('##') + 2;
+    expect(state.selectionStart).toBe(expectedTitlePos);
+
+    const renamed = await page.evaluate(() => {
+      var editor = document.getElementById('editor');
+      if (!editor) return null;
+      editor.value = editor.value.replace(/##\s*$/m, '## 自分の章');
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+      if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {
+        window.ZenWriterStorage.saveContent(editor.value);
+      }
+      return {
+        saved: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : ''
+      };
+    });
+    await page.waitForTimeout(300);
+    const renamedTitles = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
+        return node.textContent || '';
+      });
+    });
+
+    expect(renamed.saved).toContain('## 自分の章');
+    expect(renamedTitles).toContain('自分の章');
+  });
+
+  test('daily writing: ChapterStore章がある文書では既存章追加経路へ委譲する', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    await setupChapterModeChapters(page, [
+      { title: '既存章', content: '本文', level: 2 }
+    ]);
+    await openSidebarGroup(page, 'sections');
+
+    await page.locator('#sections-add-chapter').click();
+    await page.waitForFunction(() => {
+      var S = window.ZenWriterStorage;
+      var Store = window.ZWChapterStore;
+      if (!S || !Store) return false;
+      var rawId = S.getCurrentDocId && S.getCurrentDocId();
+      var docId = Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+      return (Store.getChaptersForDoc(docId) || []).length >= 2;
+    });
+
+    const chapterNames = await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      var Store = window.ZWChapterStore;
+      var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+      var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+      return (Store.getChaptersForDoc(docId) || []).map(function (chapter) {
+        return chapter.name || chapter.title || '';
+      });
+    });
+
+    expect(chapterNames).toContain('');
+    expect(chapterNames).not.toContain('新しい章');
+
+    const renamedNames = await page.evaluate(() => {
+      var S = window.ZenWriterStorage;
+      var Store = window.ZWChapterStore;
+      var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+      var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+      var chapters = Store && Store.getChaptersForDoc ? (Store.getChaptersForDoc(docId) || []) : [];
+      var target = chapters[chapters.length - 1];
+      if (target && Store && typeof Store.renameChapter === 'function') {
+        Store.renameChapter(target.id, '自分の章');
+        window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
+      }
+      return (Store.getChaptersForDoc(docId) || []).map(function (chapter) {
+        return chapter.name || chapter.title || '';
+      });
+    });
+
+    expect(renamedNames).toContain('自分の章');
   });
 
   test('ツリーノードクリックでエディタがジャンプする', async ({ page }) => {

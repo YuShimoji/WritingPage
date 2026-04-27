@@ -223,7 +223,7 @@
       var effectBreakHint = el('span');
       effectBreakHint.style.fontSize = '0.7rem';
       effectBreakHint.style.opacity = '0.75';
-      effectBreakHint.textContent = 'リッチ編集（WYSIWYG）で Enter 時に、太字等の書式解除や decor 周りの後処理を行います。オフにすると改行挙動が変わります。';
+      effectBreakHint.textContent = 'リッチ編集表示で Enter 時に、太字等の書式解除や decor 周りの後処理を行います。オフにすると改行挙動が変わります。';
       effectBreakTextWrap.appendChild(effectBreakTitle);
       effectBreakTextWrap.appendChild(effectBreakHint);
       effectBreakLabel.appendChild(effectBreakCheck);
@@ -257,7 +257,7 @@
       var newlineDecorHint = el('span');
       newlineDecorHint.style.fontSize = '0.7rem';
       newlineDecorHint.style.opacity = '0.75';
-      newlineDecorHint.textContent = 'リッチ編集（WYSIWYG）専用。Enter 後もカスタム装飾（decor-*）内にカーソルを残します（上の「改行で装飾・効果を切る」がオンのときのみ）。ショートカット: Ctrl+Shift+Alt+D（macOS は ⌘+Shift+Option+D）。';
+      newlineDecorHint.textContent = 'リッチ編集表示専用。Enter 後もカスタム装飾（decor-*）内にカーソルを残します（上の「改行で装飾・効果を切る」がオンのときのみ）。ショートカット: Ctrl+Shift+Alt+D（macOS は ⌘+Shift+Option+D）。';
       newlineDecorTextWrap.appendChild(newlineDecorTitle);
       newlineDecorTextWrap.appendChild(newlineDecorHint);
       newlineDecorLabel.appendChild(newlineDecorCheck);

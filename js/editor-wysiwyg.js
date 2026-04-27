@@ -49,6 +49,16 @@
 
       // カスタム装飾span → [tag]...[/tag] 逆変換ルール
       if (this.turndownService) {
+        this.turndownService.addRule('emptyHeadings', {
+          filter: function (node) {
+            return /^H[1-6]$/.test(node.nodeName || '') && !(node.textContent || '').trim();
+          },
+          replacement: function (_content, node) {
+            var level = parseInt(String(node.nodeName || 'H2').charAt(1), 10);
+            var hashes = new Array((level >= 1 && level <= 6 ? level : 2) + 1).join('#');
+            return '\n\n' + hashes + '\n\n';
+          }
+        });
         this.turndownService.addRule('fontDecorations', {
           filter: function (node) {
             return node.nodeName === 'SPAN' && node.className && /^decor-/.test(node.className);
@@ -2535,7 +2545,7 @@
         } else if (on && dev) {
           this.toggleWysiwygBtn.title = 'Markdown ソース表示に切り替え';
         } else {
-          this.toggleWysiwygBtn.title = 'リッチ編集（WYSIWYG・編集可能）';
+          this.toggleWysiwygBtn.title = 'リッチ編集表示（編集可能）';
         }
       }
       var sidebarBtn = document.getElementById('sidebar-toggle-wysiwyg');

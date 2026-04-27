@@ -353,7 +353,12 @@ class SidebarManager {
             const anchorButton = document.getElementById('sidebar-nav-anchor');
             if (anchorButton && !anchorButton.dataset.boundLeftNav) {
                 anchorButton.dataset.boundLeftNav = '1';
-                anchorButton.addEventListener('click', () => this.returnToLeftNavRoot());
+                anchorButton.setAttribute('aria-disabled', 'true');
+                anchorButton.setAttribute('tabindex', '-1');
+                anchorButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
             }
 
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -772,7 +777,7 @@ class SidebarManager {
 
     _parseMarkdownHeadings(text) {
         const source = String(text || '');
-        const headingPattern = /^(#{1,6})\s+(.+)$/gm;
+        const headingPattern = /^(#{1,6})(?:[ \t]+(.*))?$/gm;
         const headings = [];
         let m;
         while ((m = headingPattern.exec(source)) !== null) {
@@ -952,15 +957,14 @@ class SidebarManager {
         const insideChapter = !!(currentChapter && context.cursor > currentChapter.index && context.cursor < currentChapter.endIndex);
         const level = Math.max(1, Math.min(6, insideChapter ? parsed.sceneLevel : parsed.chapterLevel));
         const marks = '#'.repeat(level);
-        const sectionLabel = insideChapter ? '新しいシーン' : '新しい章';
-        const label = `${marks} ${sectionLabel}`;
+        const label = `${marks} `;
         const start = typeof editor.selectionStart === 'number' ? editor.selectionStart : editor.value.length;
         const needsLeadingBreak = start > 0 && editor.value.charAt(start - 1) !== '\n';
         const insertion = `${needsLeadingBreak ? '\n' : ''}${label}\n\n`;
         const before = editor.value.slice(0, start);
         const after = editor.value.slice(start);
         editor.value = before + insertion + after;
-        const nextCaret = before.length + insertion.length;
+        const nextCaret = before.length + (needsLeadingBreak ? 1 : 0) + marks.length + 1;
         editor.focus();
         editor.selectionStart = nextCaret;
         editor.selectionEnd = nextCaret;
@@ -1022,7 +1026,7 @@ class SidebarManager {
 
         const chapterButtons = storeChapters.map((sc, idx) => {
             const activeClass = idx === activeIdx ? ' is-active' : '';
-            const t = String((sc && (sc.name != null && sc.name !== '' ? sc.name : sc.title)) || '').trim() || '無題';
+            const t = String((sc && (sc.name != null && sc.name !== '' ? sc.name : sc.title)) || '').trim() || '章タイトル未設定';
             return `<button type="button" class="writing-focus-chip${activeClass}" data-wf-store-chapter-index="${idx}">${this._escapeHtml(t)}</button>`;
         }).join('');
 
@@ -1173,7 +1177,7 @@ class SidebarManager {
 
         const chapterButtons = chapters.map((ch, idx) => {
             const activeClass = idx === activeChapterIndex ? ' is-active' : '';
-            return `<button type="button" class="writing-focus-chip${activeClass}" data-wf-chapter-index="${idx}">${this._escapeHtml(ch.title)}</button>`;
+            return `<button type="button" class="writing-focus-chip${activeClass}" data-wf-chapter-index="${idx}">${this._escapeHtml(ch.title || '章タイトル未設定')}</button>`;
         }).join('');
         const scenes = activeChapter.scenes || [];
         const activeSceneIndex = context.activeChapterIndex === activeChapterIndex ? context.activeSceneIndex : -1;
@@ -1181,7 +1185,7 @@ class SidebarManager {
         const hasNextScene = activeSceneIndex >= 0 && activeSceneIndex < scenes.length - 1;
         const sceneButtons = scenes.map((scene, idx) => {
             const activeClass = idx === activeSceneIndex ? ' is-active' : '';
-            return `<button type="button" class="writing-focus-scene${activeClass}" data-wf-jump="${scene.index}"># ${this._escapeHtml(scene.title)}</button>`;
+            return `<button type="button" class="writing-focus-scene${activeClass}" data-wf-jump="${scene.index}"># ${this._escapeHtml(scene.title || 'シーンタイトル未設定')}</button>`;
         }).join('');
 
         nav.innerHTML = `

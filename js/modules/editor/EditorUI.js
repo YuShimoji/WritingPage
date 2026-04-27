@@ -66,8 +66,10 @@
          * Show notification via HUD
          */
         showNotification(manager, message, duration = 2000) {
-            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.showNotification === 'function') {
-                window.ZenWriterHUD.showNotification(message, duration);
+            if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+                window.ZenWriterHUD.show(message, duration);
+            } else if (window.ZenWriterHUD && typeof window.ZenWriterHUD.publish === 'function') {
+                window.ZenWriterHUD.publish(message, duration);
             } else {
                 console.log('ZenWriter Notification:', message);
             }
