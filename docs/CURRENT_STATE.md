@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-27（UI label consistency sweep）
+最終更新: 2026-04-27（frameless window grip narrow fix）
 
 ## Snapshot
 
@@ -8,18 +8,18 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` = `24b422e` を基点に、daily writing narrow fix + writing workflow friction sweep の作業ツリー変更あり |
-| 現在の主軸 | **日常執筆導線の総点検**: Floating memo lab 前の UI 摩擦を narrow fix 済み。追加で Documents と周辺 gadget の action label を整理 |
-| 直近の実装スライス | UI label consistency sweep: `+ 新規` / `保存` / `適用` / `TXTエクスポート` などの曖昧表現を、操作対象つき label へ横展開 |
-| 最新ビルド・検証 | UI label consistency sweep で `lint:js:check` pass、`ui-label-consistency` + `command-palette` + `wiki` + `gadgets` targeted E2E 51 passed、追加 `ui-label-consistency` + `editor-settings` 21 passed。直前の Documents action lanes は targeted E2E 29 passed / 1 skipped |
+| ブランチ | `main` / `origin/main` = `4bbc1b1` を基点に、frameless window grip narrow fix の未 push 変更あり |
+| 現在の主軸 | **日常執筆導線の総点検**: Floating memo lab 前の UI 摩擦を narrow fix 済み。追加で frameless window の通常時移動導線を整理 |
+| 直近の実装スライス | Frameless window grip narrow fix: OS枠なし / top chrome hidden の通常時に、Electron-only 左上 window grip で移動できるようにする |
+| 最新ビルド・検証 | Frameless window grip narrow fix: lint pass、targeted E2E 42 passed、build pass、electron build pass、packaged native drag PASS |
 | 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | label consistency sweep の結果を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / verification log / manual guide / gadget docs / UI surface 台帳へ反映 |
+| 今回の docs sync | frameless window grip narrow fix の方針を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / manual guide / UI surface 台帳へ反映 |
 
 ## Latest Handoff
 
 - Shared focus: session 127〜129 の unified shell foundation、daily writing narrow fix、writing workflow friction sweep を、現行判断の起点にする。
 - Trusted: Story Wiki / Link Graph / Compare の shell token 寄せ、gadget collapse 契約、left nav label/icon/panel/gadget 対応、package safe launcher。
-- Closed: packaged / Electron 上の top chrome hidden seam・drag lane・left nav root→category→root・shell menu wording は closeout PASS。今後は新規 FAIL 報告時のみ該当 surface を narrow fix する。
+- Closed: packaged / Electron 上の top chrome hidden seam・drag lane・left nav root→category→root・shell menu wording は closeout PASS。OS枠なし / top chrome hidden の通常時移動は左上 window grip で補完する。
 - New: Editor surface は「Editor = 唯一の執筆面」「Rich editing = 既定のリッチ編集表示」「Markdown source = 開発者向け escape hatch」「Reader = 編集不可の読者確認 surface」で整理済み。Documents は作成・保存・入出力・管理を分け、`JSON保存` ではなく `JSON書き出し` と呼ぶ。周辺 gadget も `+ Wikiページ`、`+ 構成プリセット`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用` のように対象つき label へ寄せる。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
@@ -47,6 +47,17 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### frameless window grip narrow fix
+
+- `#electron-window-grip` を Electron-only の通常時 window move affordance として追加
+- `npm run lint:js:check` → pass
+- `npx playwright test e2e/ui-mode-consistency.spec.js e2e/accessibility.spec.js --workers=1 --reporter=line` → 42 passed
+- `npm run build` → pass
+- `npm run electron:build` → pass
+- packaged/CDP + native mouse proof → PASS: grip center から frameless window が `(79, 80)` → `(185, 120)` へ移動
+- `git diff --check` → pass
+- 詳細: `docs/verification/2026-04-27/frameless-window-grip-narrow-fix.md`
 
 ### UI label consistency sweep
 

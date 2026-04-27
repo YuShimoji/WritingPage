@@ -10,6 +10,7 @@
 - **Documents action lanes**: `+ 文書` / `+ フォルダ` は作成、`保存` は現在本文保存、`入出力` は TXT / JSON 書き出し・読み込み、`管理` は復元・複数選択に分ける。`JSON保存` という保存ボタンと紛れる表現は使わず `JSON書き出し` と呼ぶ。
 - **UI label consistency sweep**: 同じ surface で操作対象が衝突しうる label は対象または lane を明示する。現行正本は `+ Wikiページ`、`+ 構成プリセット`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用`。局所 dialog 内で対象が明示される `保存` / `削除` は短縮可。
 - **Top chrome 非侵襲化**: `top chrome` は常用ツールバーではなく、`F2` / menu / command palette で明示表示する一時シェル。上端 hover reveal と visible handle は使わない。
+- **Frameless window grip**: OS枠なし / top chrome hidden の通常時移動は Electron-only の左上 window grip に限定する。Editor余白・長押し・sidebar は window drag region にしない。
 - **Package / Electron closeout 完了**: 自動検証と packaged 体感確認を混同しない。2026-04-27 closeout で top chrome seam / drag lane / left nav root→category→root / shell menu wording は PASS。今後は新規 FAIL 報告時のみ narrow fix。
 - **Daily writing workflow before Floating memo**: Floating memo lab の前に、起動→Rich editing 執筆→セクション確認→保存復元→Reader 往復の新規ミニ原稿導線を再現する。2026-04-27 proof の初回 FAIL（public `sections` の「新しい章」追加導線、手動保存 HUD）は narrow fix 済み。続く friction sweep で gadget drag、left nav、低価値 loadout、章作成テンプレート導線も PASS。文字数常時表示は HOLD。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。

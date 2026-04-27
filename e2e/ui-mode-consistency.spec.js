@@ -307,6 +307,83 @@ test.describe('UI Mode Consistency', () => {
     expect(visibleCommands).not.toContain('ui-mode-next');
   });
 
+  test('frameless Electron window grip provides a hidden-chrome drag affordance', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
+    const nonElectronDisplay = await page.evaluate(() => {
+      const grip = document.getElementById('electron-window-grip');
+      return grip ? window.getComputedStyle(grip).display : null;
+    });
+    expect(nonElectronDisplay).toBe('none');
+
+    const gripMetrics = await page.evaluate(() => {
+      document.documentElement.classList.add('is-electron');
+      document.body.classList.add('is-electron');
+      document.body.removeAttribute('data-top-chrome-visible');
+      document.documentElement.removeAttribute('data-reader-overlay-open');
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.hide === 'function') {
+        window.ZenWriterTopChrome.hide();
+      }
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(false);
+      }
+
+      const grip = document.getElementById('electron-window-grip');
+      const editor = document.getElementById('editor');
+      const wysiwyg = document.getElementById('wysiwyg-editor');
+      const sidebar = document.getElementById('sidebar');
+      const button = document.getElementById('toggle-preview');
+      const gripStyle = grip ? window.getComputedStyle(grip) : null;
+      const gripRect = grip ? grip.getBoundingClientRect() : null;
+      const gripX = gripRect ? Math.round(gripRect.left + gripRect.width / 2) : 0;
+      const gripY = gripRect ? Math.round(gripRect.top + gripRect.height / 2) : 0;
+      const gripStack = gripRect
+        ? document.elementsFromPoint(gripX, gripY).slice(0, 3).map((element) => ({
+          id: element.id || '',
+          className: typeof element.className === 'string' ? element.className : '',
+          tagName: element.tagName,
+        }))
+        : [];
+
+      return {
+        exists: !!grip,
+        ariaHidden: grip ? grip.getAttribute('aria-hidden') : null,
+        tabIndex: grip ? grip.tabIndex : null,
+        display: gripStyle ? gripStyle.display : null,
+        pointerEvents: gripStyle ? gripStyle.pointerEvents : null,
+        appRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        width: gripRect ? Math.round(gripRect.width) : 0,
+        height: gripRect ? Math.round(gripRect.height) : 0,
+        left: gripRect ? Math.round(gripRect.left) : null,
+        top: gripRect ? Math.round(gripRect.top) : null,
+        gripStack,
+        bodyAppRegion: window.getComputedStyle(document.body).getPropertyValue('-webkit-app-region').trim(),
+        editorAppRegion: editor ? window.getComputedStyle(editor).getPropertyValue('-webkit-app-region').trim() : null,
+        wysiwygAppRegion: wysiwyg ? window.getComputedStyle(wysiwyg).getPropertyValue('-webkit-app-region').trim() : null,
+        sidebarAppRegion: sidebar ? window.getComputedStyle(sidebar).getPropertyValue('-webkit-app-region').trim() : null,
+        buttonAppRegion: button ? window.getComputedStyle(button).getPropertyValue('-webkit-app-region').trim() : null,
+      };
+    });
+
+    expect(gripMetrics.exists).toBe(true);
+    expect(gripMetrics.ariaHidden).toBe('true');
+    expect(gripMetrics.tabIndex).toBe(-1);
+    expect(gripMetrics.display).not.toBe('none');
+    expect(gripMetrics.pointerEvents).toBe('auto');
+    expect(gripMetrics.appRegion).toBe('drag');
+    expect(gripMetrics.width).toBe(48);
+    expect(gripMetrics.height).toBe(24);
+    expect(gripMetrics.left).toBe(24);
+    expect(gripMetrics.top).toBeGreaterThanOrEqual(6);
+    expect(gripMetrics.gripStack[0]?.id).toBe('electron-window-grip');
+    expect(gripMetrics.bodyAppRegion).toBe('no-drag');
+    expect(gripMetrics.editorAppRegion).toBe('no-drag');
+    expect(gripMetrics.wysiwygAppRegion).toBe('no-drag');
+    expect(gripMetrics.sidebarAppRegion).toBe('no-drag');
+    expect(gripMetrics.buttonAppRegion).toBe('no-drag');
+  });
+
   test('session 121: Electron top chrome owns the top drag lane when revealed', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
@@ -326,11 +403,13 @@ test.describe('UI Mode Consistency', () => {
       const topChrome = document.getElementById('top-chrome');
       const dragRegion = document.querySelector('.top-chrome__drag-region');
       const windowControls = document.querySelector('.top-chrome__window-controls');
+      const grip = document.getElementById('electron-window-grip');
       const main = document.querySelector('.main-content');
       const sidebar = document.getElementById('sidebar');
       const bodyStyle = window.getComputedStyle(document.body);
       const dragStyle = dragRegion ? window.getComputedStyle(dragRegion) : null;
       const controlsStyle = windowControls ? window.getComputedStyle(windowControls) : null;
+      const gripStyle = grip ? window.getComputedStyle(grip) : null;
       const topChromeRect = topChrome ? topChrome.getBoundingClientRect() : null;
       const dragRect = dragRegion ? dragRegion.getBoundingClientRect() : null;
       const titlebarHeight = dragRect ? dragRect.height : 0;
@@ -346,6 +425,9 @@ test.describe('UI Mode Consistency', () => {
         bodyAppRegion: bodyStyle.getPropertyValue('-webkit-app-region').trim(),
         dragAppRegion: dragStyle ? dragStyle.getPropertyValue('-webkit-app-region').trim() : null,
         controlsAppRegion: controlsStyle ? controlsStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        gripAppRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        gripPointerEvents: gripStyle ? gripStyle.pointerEvents : null,
+        gripOpacity: gripStyle ? Number.parseFloat(gripStyle.opacity || '1') : null,
         titlebarHeight,
         topChromeTop: topChromeRect ? topChromeRect.top : null,
         dragTop: dragRect ? dragRect.top : null,
@@ -358,6 +440,9 @@ test.describe('UI Mode Consistency', () => {
     expect(dragMetrics.bodyAppRegion).toBe('no-drag');
     expect(dragMetrics.dragAppRegion).toBe('drag');
     expect(dragMetrics.controlsAppRegion).not.toBe('drag');
+    expect(dragMetrics.gripAppRegion).toBe('no-drag');
+    expect(dragMetrics.gripPointerEvents).toBe('none');
+    expect(dragMetrics.gripOpacity).toBe(0);
     expect(dragMetrics.titlebarHeight).toBeGreaterThan(0);
     expect(Math.abs(dragMetrics.topChromeTop || 0)).toBeLessThanOrEqual(1);
     expect(Math.abs(dragMetrics.dragTop || 0)).toBeLessThanOrEqual(1);
@@ -545,12 +630,12 @@ test.describe('UI Mode Consistency', () => {
       const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
       const header = wrapper ? wrapper.querySelector('.gadget-header') : null;
       const body = wrapper ? wrapper.querySelector('.gadget') : null;
-      const moreBtn = document.querySelector('.documents-more-btn');
+      const menuBtn = document.getElementById('documents-io-menu-btn');
       const tree = document.querySelector('.documents-tree-container');
       const toolbarStyle = toolbar ? window.getComputedStyle(toolbar) : null;
       const dockStyle = dockControls ? window.getComputedStyle(dockControls) : null;
       const headerStyle = header ? window.getComputedStyle(header) : null;
-      const moreRect = moreBtn ? moreBtn.getBoundingClientRect() : null;
+      const menuRect = menuBtn ? menuBtn.getBoundingClientRect() : null;
       const treeStyle = tree ? window.getComputedStyle(tree) : null;
       const contentRect = content ? content.getBoundingClientRect() : null;
 
@@ -568,9 +653,9 @@ test.describe('UI Mode Consistency', () => {
         headerDisplay: headerStyle ? headerStyle.display : null,
         headerExpanded: header ? header.getAttribute('aria-expanded') : null,
         bodyHidden: body ? body.getAttribute('aria-hidden') : null,
-        moreClasses: moreBtn ? moreBtn.className : '',
-        moreWidth: moreRect ? Math.round(moreRect.width) : 0,
-        moreHeight: moreRect ? Math.round(moreRect.height) : 0,
+        menuClasses: menuBtn ? menuBtn.className : '',
+        menuWidth: menuRect ? Math.round(menuRect.width) : 0,
+        menuHeight: menuRect ? Math.round(menuRect.height) : 0,
         treeScrollbarWidth: treeStyle ? treeStyle.scrollbarWidth : null,
       };
     });
@@ -587,9 +672,9 @@ test.describe('UI Mode Consistency', () => {
     expect(metrics.headerDisplay).not.toBe('none');
     expect(metrics.headerExpanded).toBe('true');
     expect(metrics.bodyHidden).toBe('false');
-    expect(metrics.moreClasses).toContain('zw-shell-control');
-    expect(metrics.moreWidth).toBeGreaterThanOrEqual(30);
-    expect(metrics.moreHeight).toBeGreaterThanOrEqual(30);
+    expect(metrics.menuClasses).toContain('zw-shell-control');
+    expect(metrics.menuWidth).toBeGreaterThanOrEqual(30);
+    expect(metrics.menuHeight).toBeGreaterThanOrEqual(30);
     expect(metrics.treeScrollbarWidth === 'thin' || metrics.treeScrollbarWidth === 'auto').toBe(true);
 
     await page.evaluate(() => {

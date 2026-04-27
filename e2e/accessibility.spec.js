@@ -87,6 +87,15 @@ test.describe('Accessibility E2E', () => {
       }
     });
     await page.waitForTimeout(100);
+    await openSidebar(page);
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
+        window.sidebarManager.returnToLeftNavRoot();
+      }
+      document.documentElement.setAttribute('data-edge-hover-left', 'true');
+      document.documentElement.setAttribute('data-edge-hover-left-touched', 'true');
+    });
+    await page.waitForTimeout(150);
 
     // 安定したロケーター: 特定のアコーディオンヘッダーを aria-controls で固定
     const targetId = await page.evaluate(() => {

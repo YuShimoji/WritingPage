@@ -18,6 +18,7 @@
 - 公開 UI は `display mode` を第一級概念にしない。ユーザー向け状態は **top chrome visibility / left nav hierarchy / Reader・Replay surface open state** で表す。
 - `setUIMode('normal'|'focus')` は移行期の内部互換 API としてのみ扱う。新規 UI 仕様・visible command・manual test の起点にしない。
 - top chrome は hidden が既定で、常用ツールバーではなく **F2 / menu / command palette で明示表示する一時シェル**として扱う。fine pointer の上端 hover reveal と常時 visible handle は使わない。hidden 時に常設上部バーや seam を残さず、誤表示時は Escape / 外側操作で即時に閉じる。
+- frameless Electron window の通常移動は Electron-only の小さな左上 window grip に限定する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
 - left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
 - sidebar / gadget / documents の visible UI は unified shell の共通 token（`--shell-space-*`, `--shell-control-*`, `--shell-radius-*`, `--shell-scrollbar-*`, `--shell-field-bg`）を使う。normal unified shell では dock / chrome 系の上段 clutter を常設表示せず、gadget header は collapse affordance、専用 drag handle は並び替え affordance として分離する。`aria-expanded` と gadget body `aria-hidden` は必ず同期する。
 - gadget body は `.gadget` class を保持する。Story Wiki などの gadget 内 render が `root.className` を上書きする場合も `.gadget` を消してはならない。collapsed body は height だけでなく padding / margin / pointer area も残さない。

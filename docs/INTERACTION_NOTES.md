@@ -63,7 +63,7 @@
 - **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
 - **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `トップクロームを表示`, `Reader を開く / 閉じる`, `左ナビのルートへ戻る` を基準にし、`ui-mode-*` と `toggle-fullscreen` は visible list に残さない。
 - **shortcut semantics**: `F2` は top chrome を表示してフォーカスする動作へ再割当て。`toolbar.toggle` も top chrome toggle を第一候補にする。
-- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻し、left-edge hover は root rail の一時 fade-in に限定する。
+- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻しつつ、frameless window の通常移動導線として左上に小さな Electron-only window grip を置く。left-edge hover は root rail の一時 fade-in に限定する。
 
 ---
 
@@ -76,6 +76,7 @@
 | 状態 | 主な用途 | 操作入口 |
 |------|----------|----------|
 | top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を明示表示する | `F2` / Electron menu / command palette |
+| window grip | Electron frameless window の通常時移動。Editor本文やsidebarは drag region にしない | 左上 grip |
 | left nav root | 通常時は完全非表示。left edge hover でカテゴリ一覧と last active cue を一時表示する | 左端 hover |
 | left nav category | active category の label / icon / panel / gadget loadout を表示する | root からカテゴリ選択 |
 | replay surface | **閲覧専用**の読者視点確認。編集面とは同時操作しない | Reader / Replay command |

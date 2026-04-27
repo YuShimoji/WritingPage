@@ -24,6 +24,7 @@ Windows ではこの経路が packaged app の正本起動です。`NODE_OPTIONS
 - [ ] `F2` で top chrome が表示され、drag lane / window controls / shell 操作がまとまって見える
 - [ ] `Escape` または外側操作で top chrome が閉じ、hidden 状態へシームレスに戻る
 - [ ] Electron menu の `シェル` 系項目から top chrome / left nav / Reader surface に到達できる
+- [ ] top chrome hidden の通常執筆状態で、左上 window grip からウィンドウを移動できる
 - [ ] drag lane でウィンドウを移動できる
 - [ ] left nav を root → category → root の順に操作でき、active category の label / icon / panel / gadget loadout が一致する
 - [ ] Reader 右上ボタン群が重ならず操作できる
@@ -138,6 +139,7 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 - [ ] F2 で top chrome が表示され、フォーカスが shell 操作へ移る
 - [ ] Escape / 外側クリックで top chrome が閉じる
 - [ ] hidden 時に上部バー・seam・常設 handle が残らない
+- [ ] hidden 時も左上 window grip が Electron frameless window の移動導線として使える
 
 ### 5.2 left nav
 

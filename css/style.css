@@ -8705,6 +8705,10 @@ html[data-reader-overlay-open='true'] .edge-glow {
   display: none !important;
 }
 
+.electron-window-grip {
+  display: none;
+}
+
 body.is-electron .electron-only {
   display: flex !important;
 }
@@ -8749,6 +8753,45 @@ body.is-electron .sidebar-edge-rail {
   /* packaged app では左端からの再進入がシビアなので、titlebar 下だけ
      少し広めの hit area を確保する。drag strip とは縦に分離されている。 */
   width: 18px;
+}
+
+body.is-electron .electron-window-grip {
+  position: fixed;
+  top: max(8px, calc(env(safe-area-inset-top, 0px) + 6px));
+  left: 24px;
+  z-index: 999;
+  display: block;
+  width: 48px;
+  height: 24px;
+  border-radius: 999px;
+  opacity: 0.28;
+  pointer-events: auto;
+  -webkit-app-region: drag;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+body.is-electron .electron-window-grip::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 28px;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text-color) 34%, transparent);
+  box-shadow: 0 0.25rem 0.65rem rgba(0, 0, 0, 0.12);
+}
+
+body.is-electron .electron-window-grip:hover {
+  opacity: 0.56;
+  transform: translateY(1px);
+}
+
+body.is-electron[data-top-chrome-visible='true'] .electron-window-grip,
+html[data-reader-overlay-open='true'] body.is-electron .electron-window-grip {
+  opacity: 0;
+  pointer-events: none;
+  -webkit-app-region: no-drag;
 }
 
 body.is-electron .sidebar-overlay {

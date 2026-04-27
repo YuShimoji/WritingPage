@@ -16,6 +16,7 @@
 
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
+| window grip | `#electron-window-grip` | Electron frameless window の通常時移動。Editor / sidebar とは hit area を分離 |
 | top chrome | `#top-chrome`, `js/top-chrome-controller.js` | 一時的な shell 操作・window controls・drag lane |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |
 | left nav category | `#sidebar-nav-back`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |
@@ -42,6 +43,7 @@
 
 | 操作 | 正の入口 | 補助入口 |
 |------|----------|----------|
+| window 移動 | 左上 `#electron-window-grip` | top chrome 表示中の drag lane |
 | top chrome 表示 | `F2` | command palette / Electron menu |
 | left nav root へ戻る | `#sidebar-nav-back` | command palette / Electron menu |
 | category 表示 | left edge hover 後の root category button | command palette の gadget jump |
