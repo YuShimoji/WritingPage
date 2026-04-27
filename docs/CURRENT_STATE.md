@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-27（writing status / memo lab / gadget pruning）
+最終更新: 2026-04-27（post-push planning prep）
 
 ## Snapshot
 
@@ -8,12 +8,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` = `2a322e7`。ローカルに writing status / memo lab / gadget pruning / smoke hygiene の未 push 変更あり |
+| ブランチ | `main` / `origin/main` 同期済み。push 後の作業ツリーは clean |
 | 現在の主軸 | **日常執筆導線の総点検**: top chrome hidden 時の文字数・保存状態 visibility、Floating memo lab の隔離 UX、低頻度 gadget の標準露出を整理 |
-| 直近の実装スライス | Frameless window grip narrow fix: OS枠なし / top chrome hidden の通常時に、Electron-only 左上 window grip で移動できるようにする |
-| 最新ビルド・検証 | Frameless window grip narrow fix: lint pass、targeted E2E 42 passed、build pass、electron build pass、packaged native drag PASS |
+| 直近の実装スライス | Writing status / memo lab / gadget pruning: top chrome hidden 時の status chip、Floating memo lab focus/overlap hardening、`GadgetPrefs` hide-by-default |
+| 最新ビルド・検証 | Post-push planning prep: `test:smoke` pass、`lint:js:check` pass、`build` pass、`git diff --check` pass。targeted E2E 65 passed |
 | 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | frameless window grip narrow fix の方針を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / manual guide / UI surface 台帳へ反映 |
+| 今回の docs sync | push 後の同期状態・再開ゲート・次プラン作成前提を `CURRENT_STATE` に反映 |
 
 ## Latest Handoff
 
@@ -48,6 +48,16 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### post-push planning prep
+
+- `git push origin main` → `2a322e7..796b8be main -> main`
+- `git fetch --all --prune` 後、`main` / `origin/main` は同期
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `git diff --check` → pass
+- 次プラン作成の現行入力は `Current Priorities` と `USER_REQUEST_LEDGER` の次スライス候補を優先する
 
 ### writing status / memo lab / gadget pruning
 
