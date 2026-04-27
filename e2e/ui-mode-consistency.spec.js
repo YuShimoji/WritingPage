@@ -101,6 +101,36 @@ test.describe('UI Mode Consistency', () => {
     await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
   });
 
+  test('writing status chip is visible only while shell and reader surfaces are hidden', async ({ page }) => {
+    const chip = page.locator('#writing-status-chip');
+    await expect(chip).toBeVisible();
+
+    await page.keyboard.press('F2');
+    await page.waitForTimeout(120);
+    await expect(page.locator('body')).toHaveAttribute('data-top-chrome-visible', 'true');
+    await expect(chip).toBeHidden();
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(100);
+    await expect(chip).toBeVisible();
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
+    await expect(chip).toBeHidden();
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.exit === 'function') {
+        window.ZWReaderPreview.exit();
+      }
+    });
+    await expect(page.locator('html')).not.toHaveAttribute('data-reader-overlay-open', 'true');
+    await expect(chip).toBeVisible();
+  });
+
   test('Focus mode: editor layout has no main toolbar strip', async ({ page }) => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(200);

@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-27（frameless window grip narrow fix）
+最終更新: 2026-04-27（writing status / memo lab / gadget pruning）
 
 ## Snapshot
 
@@ -8,8 +8,8 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` = `4bbc1b1` を基点に、frameless window grip narrow fix の未 push 変更あり |
-| 現在の主軸 | **日常執筆導線の総点検**: Floating memo lab 前の UI 摩擦を narrow fix 済み。追加で frameless window の通常時移動導線を整理 |
+| ブランチ | `main` / `origin/main` = `2a322e7`。ローカルに writing status / memo lab / gadget pruning / smoke hygiene の未 push 変更あり |
+| 現在の主軸 | **日常執筆導線の総点検**: top chrome hidden 時の文字数・保存状態 visibility、Floating memo lab の隔離 UX、低頻度 gadget の標準露出を整理 |
 | 直近の実装スライス | Frameless window grip narrow fix: OS枠なし / top chrome hidden の通常時に、Electron-only 左上 window grip で移動できるようにする |
 | 最新ビルド・検証 | Frameless window grip narrow fix: lint pass、targeted E2E 42 passed、build pass、electron build pass、packaged native drag PASS |
 | 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
@@ -21,6 +21,7 @@
 - Trusted: Story Wiki / Link Graph / Compare の shell token 寄せ、gadget collapse 契約、left nav label/icon/panel/gadget 対応、package safe launcher。
 - Closed: packaged / Electron 上の top chrome hidden seam・drag lane・left nav root→category→root・shell menu wording は closeout PASS。OS枠なし / top chrome hidden の通常時移動は左上 window grip で補完する。
 - New: Editor surface は「Editor = 唯一の執筆面」「Rich editing = 既定のリッチ編集表示」「Markdown source = 開発者向け escape hatch」「Reader = 編集不可の読者確認 surface」で整理済み。Documents は作成・保存・入出力・管理を分け、`JSON保存` ではなく `JSON書き出し` と呼ぶ。周辺 gadget も `+ Wikiページ`、`+ 構成プリセット`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用` のように対象つき label へ寄せる。
+- New: `#writing-status-chip` は top chrome hidden / Reader 非表示時だけ文字数と `編集中` / `保存済み` を非操作型で表示する。Floating memo lab は開く時に Reader / top chrome を畳み、閉じると編集面へ focus 復帰する。`GadgetPrefs` も `LoadoutManager` と同じ hide-by-default に移した。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -47,6 +48,29 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### writing status / memo lab / gadget pruning
+
+- `#writing-status-chip` を追加。既存 word count 計算と保存イベントを使い、`文字数: N · 編集中/保存済み` を表示
+- top chrome / Reader / Floating memo lab 表示中は writing status chip を隠す
+- Floating memo lab open 時に top chrome を hide、Reader overlay を exit。close 後は editor / Rich editing へ focus 復帰
+- `GadgetPrefs` を built-in loadout の hide-by-default 対象へ追加。登録と custom loadout 経路は維持
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `git diff --check` → pass
+- `npx playwright test e2e/accessibility.spec.js e2e/ui-mode-consistency.spec.js e2e/floating-memo-lab.spec.js e2e/gadgets.spec.js --workers=1 --reporter=line` → 65 passed
+
+### local resume prep / smoke hygiene
+
+- `git fetch --all --prune` → `origin/main` を `2a322e7` へ更新
+- `git pull --ff-only` → `24b422e..2a322e7` を fast-forward
+- `scripts/dev-check.js` の stale `HANDOVER.md` / `main-hub-panel` 前提を現行 `AGENTS.md` / `docs/CURRENT_STATE.md` / floating surfaces へ同期
+- `.github/ISSUE_TEMPLATE/config.yml` の `HANDOVER.md` contact link を `docs/CURRENT_STATE.md` へ更新
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `git diff --check` → pass
+- 事前確認: `npm run build` → pass、`npx playwright test e2e/ui-mode-consistency.spec.js e2e/accessibility.spec.js --workers=1 --reporter=line` → 42 passed
 
 ### frameless window grip narrow fix
 
@@ -148,9 +172,9 @@
 
 | 優先 | テーマ | 内容 | Actor |
 |------|--------|------|-------|
-| A | Floating memo lab | Daily writing / friction sweep は PASS。進める場合も隔離 overlay のまま本流へ接続しない | assistant |
-| B | Writing status visibility decision | top chrome hidden 時に文字数・保存状態を常時見せるかは HOLD。必要なら別スライスで判断する | shared |
-| C | Gadget usefulness pruning | `LoadoutManager` は hide-by-default 済み。`GadgetPrefs` など低価値候補の削除判断は使用実態確認後の別スライス | shared |
+| A | Floating memo lab visual iteration | 開閉・focus 復帰・Reader/top chrome 重なり回避は PASS。以後も隔離 overlay の見え方だけ進める | assistant |
+| B | Gadget delete-candidate audit | `LoadoutManager` / `GadgetPrefs` は hide-by-default 済み。参照ゼロ候補だけ削除判断する | shared |
+| C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 | 新規差分が出たときだけ台帳・手動パックに沿って 1 トピックで扱う | shared |
 | E | Docs hygiene | 正本は `CURRENT_STATE` 起点。古い再開・健康・カウンター文書を復活させない | assistant |
 | Watch | Unified shell narrow fix | packaged closeout は PASS。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |

@@ -17,6 +17,7 @@
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
 | window grip | `#electron-window-grip` | Electron frameless window の通常時移動。Editor / sidebar とは hit area を分離 |
+| writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | top chrome hidden / Reader 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
 | top chrome | `#top-chrome`, `js/top-chrome-controller.js` | 一時的な shell 操作・window controls・drag lane |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |
 | left nav category | `#sidebar-nav-back`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |

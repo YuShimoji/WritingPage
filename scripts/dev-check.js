@@ -332,11 +332,13 @@ async function loadCssWithImports(url) {
       },
     );
 
-    // フローティングパネルの存在検証 (旧個別パネルはMainHubPanelに統合済み)
-    const hasMainHubPanel = /id="main-hub-panel"/i.test(index.body);
-    const okFloatingPanels = hasMainHubPanel;
-    console.log('CHECK floating panels ->', okFloatingPanels ? 'OK' : 'NG', {
-      hasMainHubPanel,
+    // フローティング surface の存在検証
+    const hasSearchFloatingPanel = /id="search-floating-panel"/i.test(index.body);
+    const hasMemoFieldLab = /id="memo-field-lab"/i.test(index.body);
+    const okFloatingPanels = hasSearchFloatingPanel && hasMemoFieldLab;
+    console.log('CHECK floating surfaces ->', okFloatingPanels ? 'OK' : 'NG', {
+      hasSearchFloatingPanel,
+      hasMemoFieldLab,
     });
 
     // タイトル仕様チェック（静的HTMLのベース表記 + app.js の実装確認）
@@ -448,12 +450,23 @@ async function loadCssWithImports(url) {
     );
 
     // プロジェクトルール文書の存在チェック
+    const agentsMdPath = path.join(__dirname, '..', 'AGENTS.md');
     const claudeMdPath = path.join(__dirname, '..', 'CLAUDE.md');
-    const handoverPath = path.join(__dirname, '..', 'HANDOVER.md');
+    const currentStatePath = path.join(
+      __dirname,
+      '..',
+      'docs',
+      'CURRENT_STATE.md',
+    );
+    const okAgentsMd = fs.existsSync(agentsMdPath);
     const okClaudeMd = fs.existsSync(claudeMdPath);
-    const okHandover = fs.existsSync(handoverPath);
+    const okCurrentState = fs.existsSync(currentStatePath);
+    console.log('CHECK AGENTS.md ->', okAgentsMd ? 'OK' : 'NG');
     console.log('CHECK CLAUDE.md ->', okClaudeMd ? 'OK' : 'NG');
-    console.log('CHECK HANDOVER.md ->', okHandover ? 'OK' : 'NG');
+    console.log(
+      'CHECK docs/CURRENT_STATE.md ->',
+      okCurrentState ? 'OK' : 'NG',
+    );
 
     // VERSION と package.json の version 整合チェック（運用ズレの早期検知）
     const versionPath = path.join(__dirname, '..', 'VERSION');
@@ -531,30 +544,30 @@ async function loadCssWithImports(url) {
     const prHasStop = /##\s*中断可能点/.test(prTpl);
     const prHasRefs =
       /##\s*参考リンク/.test(prTpl) &&
-      /CLAUDE\.md/.test(prTpl) &&
-      /HANDOVER\.md/.test(prTpl);
+      /AGENTS\.md/.test(prTpl) &&
+      /docs\/CURRENT_STATE\.md/.test(prTpl);
     const bugHasRefs =
-      /CLAUDE\.md/.test(bugTpl) &&
-      /HANDOVER\.md/.test(bugTpl);
+      /AGENTS\.md/.test(bugTpl) &&
+      /docs\/CURRENT_STATE\.md/.test(bugTpl);
     const featHasRefs =
-      /CLAUDE\.md/.test(featTpl) &&
-      /HANDOVER\.md/.test(featTpl);
-    const cfgHasClaude = /CLAUDE\.md/.test(issueCfg);
-    const cfgHasHandover = /HANDOVER\.md/.test(issueCfg);
+      /AGENTS\.md/.test(featTpl) &&
+      /docs\/CURRENT_STATE\.md/.test(featTpl);
+    const cfgHasAgents = /AGENTS\.md/.test(issueCfg);
+    const cfgHasCurrentState = /docs\/CURRENT_STATE\.md/.test(issueCfg);
     const okTemplates =
       prHasStop &&
       prHasRefs &&
       bugHasRefs &&
       featHasRefs &&
-      cfgHasClaude &&
-      cfgHasHandover;
+      cfgHasAgents &&
+      cfgHasCurrentState;
     console.log('CHECK templates ->', okTemplates ? 'OK' : 'NG', {
       prHasStop,
       prHasRefs,
       bugHasRefs,
       featHasRefs,
-      cfgHasClaude,
-      cfgHasHandover,
+      cfgHasAgents,
+      cfgHasCurrentState,
     });
 
     // 簡易Markdownlint（基本ルール）
@@ -593,8 +606,8 @@ async function loadCssWithImports(url) {
     };
 
     const mdTargets = [
+      path.join(__dirname, '..', 'AGENTS.md'),
       path.join(__dirname, '..', 'CLAUDE.md'),
-      path.join(__dirname, '..', 'HANDOVER.md'),
       path.join(__dirname, '..', 'README.md'),
       path.join(__dirname, '..', 'CONTRIBUTING.md'),
     ];
@@ -634,8 +647,10 @@ async function loadCssWithImports(url) {
         okGadgetsApi &&
         okGadgetsM5 &&
         okGadgetsImpExp &&
+        okFloatingPanels &&
+        okAgentsMd &&
         okClaudeMd &&
-        okHandover &&
+        okCurrentState &&
         okEmbedDemo &&
         okFav &&
         okChildBridge &&

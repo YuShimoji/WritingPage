@@ -103,6 +103,9 @@
 
 <body>
   <div class="electron-window-grip" id="electron-window-grip" aria-hidden="true"></div>
+  <div class="writing-status-chip" id="writing-status-chip" role="status" aria-live="polite" aria-atomic="true">
+    文字数: 0 · 保存済み
+  </div>
   <div class="top-chrome-trigger" id="top-chrome-trigger" aria-hidden="true"></div>
   <button type="button" class="top-chrome-handle" id="top-chrome-handle" aria-label="トップクロームを表示" aria-expanded="false" title="トップクロームを表示">
     <span class="top-chrome-handle__pill" aria-hidden="true"></span>
@@ -597,6 +600,7 @@
   <script defer src="js/zw-developer-mode.js"></script>
   <script defer src="js/editor.js"></script>
   <script defer src="js/editor-wysiwyg.js"></script>
+  <script defer src="js/writing-status-chip.js"></script>
   <script defer src="js/modules/editor/RichTextEnhancedRuntime.js"></script>
   <script defer src="js/split-view.js"></script>
   <script defer src="js/top-chrome-controller.js"></script>

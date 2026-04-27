@@ -215,6 +215,28 @@ test.describe('Accessibility E2E', () => {
     expect(wordCountText.length).toBeGreaterThan(0);
   });
 
+  test('writing status chip exposes live character count and save state', async ({ page }) => {
+    const chip = page.locator('#writing-status-chip');
+    await expect(chip).toHaveAttribute('aria-live', 'polite');
+    await expect(chip).toHaveAttribute('role', 'status');
+    await expect(chip).toBeVisible();
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+        window.ZenWriterEditor.setContent('ステータス確認');
+      }
+      if (window.ZWWritingStatusChip && typeof window.ZWWritingStatusChip.markEditing === 'function') {
+        window.ZWWritingStatusChip.markEditing();
+      }
+    });
+
+    await expect(chip).toContainText('文字数: 7');
+    await expect(chip).toContainText('編集中');
+    await expect(chip).toHaveAttribute('data-save-state', 'editing');
+    await expect(chip).toContainText('保存済み', { timeout: 2000 });
+    await expect(chip).toHaveAttribute('data-save-state', 'saved');
+  });
+
   test('search dialog moves focus to input when opened', async ({ page }) => {
     // 検索フローティングパネルを開く
     await page.evaluate(() => {

@@ -16,7 +16,7 @@
   var LOADOUT_KEY = utils.LOADOUT_KEY;
   var _KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
-  var HIDE_BY_DEFAULT_GADGETS = { LoadoutManager: true };
+  var HIDE_BY_DEFAULT_GADGETS = { LoadoutManager: true, GadgetPrefs: true };
 
   var loadoutState = null;
 

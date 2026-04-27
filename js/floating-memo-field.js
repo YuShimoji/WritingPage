@@ -164,6 +164,7 @@
     this.motionQuery = null;
     this.visualViewport = null;
     this.keyboardInset = 0;
+    this.restoreFocusTarget = null;
     this.tick = this.tick.bind(this);
     this.onVisibilityChange = this.onVisibilityChange.bind(this);
     this.onResize = this.onResize.bind(this);
@@ -560,6 +561,60 @@
     }
     event.preventDefault();
     this.close();
+  };
+
+  FloatingMemoField.prototype.rememberFocusTarget = function () {
+    var active = document.activeElement;
+    if (!active || active === document.body || active === this.overlay || (this.overlay && this.overlay.contains(active))) {
+      this.restoreFocusTarget = null;
+      return;
+    }
+    this.restoreFocusTarget = active;
+  };
+
+  FloatingMemoField.prototype.isVisibleFocusTarget = function (element) {
+    if (!element || !element.focus || !document.contains(element)) return false;
+    try {
+      if (element.closest && element.closest('[hidden], [aria-hidden="true"]')) return false;
+      var style = window.getComputedStyle(element);
+      if (style.display === 'none' || style.visibility === 'hidden') return false;
+      var rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  FloatingMemoField.prototype.focusFallbackSurface = function () {
+    var candidates = [
+      this.restoreFocusTarget,
+      document.getElementById('wysiwyg-editor'),
+      document.getElementById('editor')
+    ];
+    for (var i = 0; i < candidates.length; i++) {
+      var target = candidates[i];
+      if (!this.isVisibleFocusTarget(target)) continue;
+      try {
+        target.focus({ preventScroll: true });
+      } catch (_) {
+        try { target.focus(); } catch (_e) { /* noop */ }
+      }
+      return;
+    }
+  };
+
+  FloatingMemoField.prototype.hideOverlappingSurfaces = function () {
+    try {
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.hide === 'function') {
+        window.ZenWriterTopChrome.hide();
+      }
+    } catch (_) { /* noop */ }
+    try {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' &&
+          window.ZWReaderPreview.isOpen() && typeof window.ZWReaderPreview.exit === 'function') {
+        window.ZWReaderPreview.exit();
+      }
+    } catch (_) { /* noop */ }
   };
 
   FloatingMemoField.prototype.updateSceneMetrics = function () {
@@ -1040,10 +1095,15 @@
 
   FloatingMemoField.prototype.open = function () {
     if (!this.overlay) return;
+    this.rememberFocusTarget();
+    this.hideOverlappingSurfaces();
     this.isOpen = true;
     this.overlay.hidden = false;
     this.overlay.setAttribute('aria-hidden', 'false');
     document.documentElement.setAttribute('data-memo-lab-open', 'true');
+    try {
+      window.dispatchEvent(new CustomEvent('ZWFloatingMemoLabChanged', { detail: { open: true } }));
+    } catch (_) { /* noop */ }
     this.updateSceneMetrics();
     this.updateKeyboardInset();
     this.seedMemoTransforms();
@@ -1063,9 +1123,17 @@
     this.overlay.hidden = true;
     this.overlay.setAttribute('aria-hidden', 'true');
     document.documentElement.removeAttribute('data-memo-lab-open');
+    try {
+      window.dispatchEvent(new CustomEvent('ZWFloatingMemoLabChanged', { detail: { open: false } }));
+    } catch (_) { /* noop */ }
     this.keyboardInset = 0;
     this.releaseForegroundMemos();
     saveBodies(this.memos);
+    var self = this;
+    window.requestAnimationFrame(function () {
+      self.focusFallbackSurface();
+      self.restoreFocusTarget = null;
+    });
   };
 
   FloatingMemoField.prototype.toggle = function () {

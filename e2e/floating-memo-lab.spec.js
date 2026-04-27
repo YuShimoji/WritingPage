@@ -123,6 +123,42 @@ test.describe('floating memo lab', () => {
     await page.waitForTimeout(80);
     await expect(memo).toHaveAttribute('data-paper-flutter', 'false');
   });
+
+  test('closes overlapping shell surfaces and restores editing focus after close', async ({ page }) => {
+    await page.goto('/index.html');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
+        window.ZenWriterEditor.setContent('memo lab focus proof');
+      }
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
+        window.ZenWriterTopChrome.show();
+      }
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
+
+    await page.evaluate(() => {
+      window.ZWFloatingMemoField.open();
+    });
+
+    const overlay = page.locator('#memo-field-lab');
+    await expect(overlay).toBeVisible();
+    await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
+    await expect(page.locator('html')).not.toHaveAttribute('data-reader-overlay-open', 'true');
+    await expect(page.locator('#writing-status-chip')).toBeHidden();
+
+    await page.getByRole('button', { name: '浮遊メモ実験を閉じる' }).click();
+    await expect(overlay).toBeHidden();
+    await expect(page.locator('#writing-status-chip')).toBeVisible();
+    await page.waitForFunction(() => {
+      var active = document.activeElement;
+      return !!active && (active.id === 'wysiwyg-editor' || active.id === 'editor');
+    });
+  });
 });
 
 test.describe('floating memo lab touch interactions', () => {

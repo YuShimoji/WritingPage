@@ -101,7 +101,7 @@ Zen Writer v0.3.32
 | 編集 | `edit` | MarkdownPreview, ChoiceTools, FontDecoration, TextAnimation, Images |
 | テーマ | `theme` | Themes, HeadingStyles, EditorLayout, VisualProfile |
 | 補助 | `assist` | WritingGoal, HUDSettings, Pomodoro, MarkdownReference |
-| 詳細設定 | `advanced` | UISettings, PrintSettings, GadgetPrefs, Keybinds, Help, LoadoutManager（標準 preset からは除外） |
+| 詳細設定 | `advanced` | UISettings, PrintSettings, Keybinds, Help（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
 
 **ガジェット総数：** 28個
 **ロードアウト：** 3プリセット（作家モード/全機能/最小限）+ カスタム

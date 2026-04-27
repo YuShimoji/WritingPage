@@ -252,6 +252,40 @@ test.describe('Gadgets E2E', () => {
       await expect(wrap).toHaveAttribute('data-gadget-collapsed', 'true');
     }
   });
+
+  test('built-in loadouts hide low-frequency admin gadgets by default', async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.removeItem('zenWriter_gadgets:loadouts');
+      } catch (_) {}
+    });
+    await page.goto(pageUrl);
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      return !!(window.ZWGadgets && typeof window.ZWGadgets._ensureLoadouts === 'function');
+    });
+
+    const exposure = await page.evaluate(() => {
+      var data = window.ZWGadgets._ensureLoadouts();
+      var hidden = ['LoadoutManager', 'GadgetPrefs'];
+      var result = {};
+      Object.keys(data.entries || {}).forEach(function (key) {
+        var entry = data.entries[key] || {};
+        var names = [];
+        Object.keys(entry.groups || {}).forEach(function (group) {
+          names = names.concat(entry.groups[group] || []);
+        });
+        result[key] = hidden.filter(function (name) {
+          return names.indexOf(name) >= 0;
+        });
+      });
+      return result;
+    });
+
+    for (const [name, leaked] of Object.entries(exposure)) {
+      expect(leaked, `${name} hidden admin gadgets`).toEqual([]);
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------

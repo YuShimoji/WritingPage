@@ -91,7 +91,7 @@
 | 22 | UISettings | UI Settings | advanced | 表示方式・サイドバー配置・改行時の装飾挙動を調整。 | gadgets-editor-extras.js |
 | 23 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
 | 24 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
-| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。通常導線の有用性は HOLD。 | gadgets-prefs.js |
+| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
 | 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
 | 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
 | 28 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
@@ -110,7 +110,7 @@
 | Gadget | 分類 | 既定表示 | 理由 |
 |--------|------|----------|------|
 | LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
-| GadgetPrefs | keep / HOLD | 維持 | 設定の import/export 用途はあるが、通常導線の有用性は継続観察 |
+| GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
 
 #### Documents action lanes
 

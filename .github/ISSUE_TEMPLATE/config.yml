@@ -3,9 +3,9 @@ contact_links:
   - name: ドキュメント（README）
     url: https://github.com/YuShimoji/WritingPage/blob/main/README.md
     about: まずはこちらをご覧ください
-  - name: CLAUDE.md（プロジェクトルール）
-    url: https://github.com/YuShimoji/WritingPage/blob/main/CLAUDE.md
-    about: プロジェクトルールと開発方針
-  - name: HANDOVER.md（作業申し送り）
-    url: https://github.com/YuShimoji/WritingPage/blob/main/HANDOVER.md
-    about: 作業の区切りと再開手順の要点
+  - name: AGENTS.md（AI adapter）
+    url: https://github.com/YuShimoji/WritingPage/blob/main/AGENTS.md
+    about: AI エージェント向けの入口
+  - name: docs/CURRENT_STATE.md（現在地）
+    url: https://github.com/YuShimoji/WritingPage/blob/main/docs/CURRENT_STATE.md
+    about: 最新の作業状態と再開手順
