@@ -467,6 +467,8 @@
         wrapperEl.setAttribute('data-gadget-collapsed', collapsed ? 'true' : 'false');
         var header = wrapperEl.querySelector('.gadget-header');
         if (header) header.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        var body = wrapperEl.querySelector('.gadget');
+        if (body) body.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
         // max-height アニメーションは CSS で制御 (display 操作不要)
       }
       if (!skipSave) {
@@ -549,12 +551,13 @@
             wrapper.setAttribute('data-gadget-name', entry.name);
             // ドラッグ&ドロップ対応: ガジェットをドラッグ可能にする
             wrapper.setAttribute('draggable', 'true');
-            wrapper.setAttribute('role', 'button');
+            wrapper.setAttribute('role', 'group');
             wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」を移動');
 
             // ガジェットヘッダーを作成
             var header = document.createElement('div');
             header.className = 'gadget-header';
+            var safeBodyId = 'gadget-body-' + group + '-' + String(entry.name || 'gadget').replace(/[^a-z0-9_-]+/gi, '-').toLowerCase();
 
             var titleEl = document.createElement('span');
             titleEl.className = 'gadget-title';
@@ -618,6 +621,7 @@
             // ヘッダーをクリック可能にし、折りたたみイベント追加
             header.setAttribute('role', 'button');
             header.setAttribute('tabindex', '0');
+            header.setAttribute('aria-controls', safeBodyId);
             header.addEventListener('click', function(e) {
               if (e.target.closest('.gadget-detach-btn') || e.target.closest('.gadget-help-btn')) return;
               var collapsed = wrapper.getAttribute('data-gadget-collapsed') === 'true';
@@ -635,6 +639,7 @@
 
             var gadgetEl = document.createElement('div');
             gadgetEl.className = 'gadget';
+            gadgetEl.id = safeBodyId;
 
             try {
               var api = {
@@ -676,12 +681,8 @@
             categoryEl.classList.toggle('accordion-category--single', isSingle);
             if (isSingle) {
               var singleHeader = root.querySelector('.gadget-wrapper .gadget-header');
-              if (singleHeader) singleHeader.style.display = 'none';
+              if (singleHeader) singleHeader.style.removeProperty('display');
               // 単一ガジェットは常に展開 (アコーディオンchevronが代わりに制御)
-              var singleWrapper = root.querySelector('.gadget-wrapper');
-              if (singleWrapper) {
-                self._setGadgetCollapsed(singleWrapper.getAttribute('data-gadget-name'), false, singleWrapper, true);
-              }
             }
           }
 

@@ -10,6 +10,30 @@
 
     const api = window.electronAPI;
 
+    function getTopChromeApi() {
+        return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
+            ? window.ZenWriterTopChrome
+            : null;
+    }
+
+    function showTopChrome() {
+        const topChrome = getTopChromeApi();
+        if (topChrome && typeof topChrome.showAndFocus === 'function') {
+            topChrome.showAndFocus();
+            return true;
+        }
+        return false;
+    }
+
+    function toggleTopChrome() {
+        const topChrome = getTopChromeApi();
+        if (topChrome && typeof topChrome.toggle === 'function') {
+            topChrome.toggle();
+            return true;
+        }
+        return false;
+    }
+
     /* ---------- Menu command routing ---------- */
     api.onMenuCommand((channel, ...args) => {
         switch (channel) {
@@ -47,7 +71,16 @@
                 break;
             }
 
+            case 'menu:return-left-nav-root':
+                if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
+                    window.sidebarManager.returnToLeftNavRoot();
+                }
+                break;
+
             case 'menu:toggle-toolbar': {
+                if (toggleTopChrome()) {
+                    break;
+                }
                 if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
                     window.sidebarManager.toggleToolbar();
                 }
@@ -55,10 +88,14 @@
             }
 
             case 'menu:toggle-focus':
-                // R-8: setUIMode を経由 (SP-081 Phase 3)。session 107: .mode-switch-btn fallback は撤去
-                if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
-                    var current = document.documentElement.getAttribute('data-ui-mode');
-                    window.ZenWriterApp.setUIMode(current === 'focus' ? 'normal' : 'focus');
+                if (!showTopChrome() && window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
+                    window.sidebarManager.toggleToolbar();
+                }
+                break;
+
+            case 'menu:toggle-reader-overlay':
+                if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
+                    window.ZWReaderPreview.toggle();
                 }
                 break;
 
@@ -181,12 +218,10 @@
         }
     }
 
-    /* ---------- Minimal mode (setUIMode 経由に統一: minimal は focus にマッピング) ---------- */
+    /* ---------- Legacy mode menu compatibility ---------- */
     function toggleMinimalMode() {
-        const current = document.documentElement.getAttribute('data-ui-mode');
-        const target = (current === 'focus') ? 'normal' : 'focus';
-        if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
-            window.ZenWriterApp.setUIMode(target);
+        if (!showTopChrome() && window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
+            window.sidebarManager.toggleToolbar();
         }
     }
 

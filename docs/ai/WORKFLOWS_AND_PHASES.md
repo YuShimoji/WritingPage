@@ -1,29 +1,26 @@
 # WORKFLOWS_AND_PHASES.md
-Ruleset-Version: v18
+Ruleset-Version: v19
 Status: canonical
 
 ## Recommended read order on resume / continue / refresh
-1. `docs/ai/CORE_RULESET.md`
-2. `docs/ai/DECISION_GATES.md`
-3. `docs/ai/STATUS_AND_HANDOFF.md`
-4. `docs/ai/WORKFLOWS_AND_PHASES.md`
-5. `docs/INVARIANTS.md`
-6. `docs/USER_REQUEST_LEDGER.md`
-7. `docs/OPERATOR_WORKFLOW.md`
-8. `docs/INTERACTION_NOTES.md`
-9. runtime / context / registry / boundary docs
+1. `docs/CURRENT_STATE.md`
+2. `docs/INVARIANTS.md`
+3. `docs/INTERACTION_NOTES.md`
+4. If choosing work: `docs/USER_REQUEST_LEDGER.md` and `docs/ROADMAP.md`
+5. If changing user-facing features or boundaries: `docs/FEATURE_REGISTRY.md` and the relevant spec
+
+Do not begin restart by reading old handoff, health, or runtime-counter documents. Those files were intentionally removed.
 
 ## Resume / Continue / Refresh
 ### Resume
-Recover project-local canonical context first, then identify the active artifact and bottleneck.
+Recover the current fact base from `CURRENT_STATE` first, then identify the active artifact and bottleneck.
 
 ### Continue
 Do not rely on momentum. Re-check whether the current block still matches the bottleneck, actor, and value path.
 
 ### Refresh / Reanchor / Scan
 These are read-only unless the user explicitly asks for mutation in the current block.
-Do not auto-fill newly initialized project docs and commit them as “refresh work”.
-Initialization may be prepared, but long-lived writes belong to an explicit write block.
+Do not auto-fill project docs and claim progress merely because a template was updated.
 
 ## Task-scout requirements
 A scout pass should include, when relevant:

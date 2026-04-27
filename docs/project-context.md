@@ -2,7 +2,7 @@
 
 ## このファイルの位置づけ
 
-日々の事実関係（セッション・検証コマンド）は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の Snapshot と**ドキュメント地図**を見る。本ファイルは長命メモ・IDEA ラベル・暗黙仕様の補助。数値カウンターは [`runtime-state.md`](runtime-state.md)。
+日々の事実関係（セッション・検証コマンド）は [`docs/CURRENT_STATE.md`](CURRENT_STATE.md) の Snapshot と**ドキュメント地図**を見る。本ファイルは長命メモ・IDEA ラベル・暗黙仕様の補助に限定する。
 
 ---
 
@@ -18,7 +18,7 @@
 
 - session 110: SectionsNavigator の chapterMode virtual 統合は **章 id (`_chapterId`) 基準**。同名章は実見出しとの貪欲マッチ後にのみ virtual を追加する方針を `INVARIANTS` に固定済み。
 - 実用の小説執筆ツール。ポートフォリオではなく実際に使うツール
-- 過去のセッション列挙・メトリクス表は `CURRENT_STATE` / `runtime-state` / [`archive/session-history.md`](archive/session-history.md) を参照
+- 過去のセッション列挙は [`archive/session-history.md`](archive/session-history.md) を履歴参照に限定し、現在判断は `CURRENT_STATE` を見る
 - EPUB: スコープ外 (2026-03-23 除外決定)
 
 ---
@@ -43,7 +43,7 @@
 
 ## DECISION LOG
 
--> `CLAUDE.md` の DECISION LOG を参照
+-> 旧 `CLAUDE.md` の Decision Log は廃止。現在判断に効く決定は `INVARIANTS.md` / `USER_REQUEST_LEDGER.md` / `CURRENT_STATE.md` に分担する。
 
 ---
 

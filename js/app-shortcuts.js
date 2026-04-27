@@ -22,6 +22,41 @@
             sidebarManager
         } = deps;
 
+        function getTopChromeApi() {
+            return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
+                ? window.ZenWriterTopChrome
+                : null;
+        }
+
+        function showTopChrome() {
+            const topChrome = getTopChromeApi();
+            if (topChrome) {
+                topChrome.showAndFocus();
+                return true;
+            }
+            return false;
+        }
+
+        function toggleTopChrome() {
+            const topChrome = getTopChromeApi();
+            if (topChrome && typeof topChrome.toggle === 'function') {
+                topChrome.toggle();
+                return true;
+            }
+            return false;
+        }
+
+        function hideTopChrome() {
+            const topChrome = window.ZenWriterTopChrome;
+            if (topChrome && typeof topChrome.isVisible === 'function' && topChrome.isVisible()) {
+                if (typeof topChrome.hide === 'function') {
+                    topChrome.hide();
+                }
+                return true;
+            }
+            return false;
+        }
+
         // capture: trueで優先的に処理
         document.addEventListener('keydown', (e) => {
             // キーバインドシステムが利用可能な場合はそれを使用
@@ -59,14 +94,9 @@
 
                         case 'toolbar.toggle':
                             if (e.repeat) return;
-                            {
-                                const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                                if (currentMode === 'focus') {
-                                    setUIMode('normal');
-                                    return;
-                                }
+                            if (!toggleTopChrome()) {
+                                toggleToolbar();
                             }
-                            toggleToolbar();
                             break;
 
                         case 'command-palette.toggle':
@@ -92,22 +122,11 @@
                             break;
 
                         case 'ui.mode.cycle':
-                            {
-                                const mode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
-                                const modes = ['normal', 'focus'];
-                                const currentIndex = modes.indexOf(mode);
-                                const nextIndex = (currentIndex + 1) % modes.length;
-                                setUIMode(modes[nextIndex]);
-                            }
+                            showTopChrome();
                             break;
 
                         case 'ui.mode.exit':
-                            {
-                                const currentMode2 = document.documentElement.getAttribute('data-ui-mode');
-                                if (currentMode2 === 'focus') {
-                                    setUIMode('normal');
-                                }
-                            }
+                            hideTopChrome();
                             break;
 
                         case 'editor.save':
@@ -184,14 +203,9 @@
             if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
                 if (e.repeat) return;
                 e.preventDefault();
-
-                const currentMode = document.documentElement.getAttribute('data-ui-mode');
-                if (currentMode === 'focus') {
-                    setUIMode('normal');
-                    return;
+                if (!toggleTopChrome()) {
+                    toggleToolbar();
                 }
-
-                toggleToolbar();
                 return;
             }
 
@@ -256,14 +270,10 @@
                 restoreLastSnapshot();
             }
 
-            // F2: UIモードサイクル切替
+            // F2: トップクローム表示
             if (e.key === 'F2') {
                 e.preventDefault();
-                const currentMode = document.documentElement.getAttribute('data-ui-mode') || 'focus';
-                const modes = ['normal', 'focus'];
-                const currentIndex = modes.indexOf(currentMode);
-                const nextIndex = (currentIndex + 1) % modes.length;
-                setUIMode(modes[nextIndex]);
+                showTopChrome();
                 return;
             }
 
@@ -295,6 +305,11 @@
                     if (typeof window.ZWReaderPreview.exit === 'function') {
                         window.ZWReaderPreview.exit();
                     }
+                    return;
+                }
+
+                if (hideTopChrome()) {
+                    e.preventDefault();
                     return;
                 }
 

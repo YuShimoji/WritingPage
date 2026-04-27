@@ -233,6 +233,7 @@
 
       var newDocBtn = document.createElement('button');
       newDocBtn.type = 'button';
+      newDocBtn.className = 'zw-shell-control zw-shell-control--text';
       newDocBtn.id = 'new-document-btn';
       newDocBtn.textContent = '+ 新規';
       newDocBtn.title = 'ルートに新規ドキュメント作成';
@@ -240,6 +241,7 @@
 
       var saveBtn = document.createElement('button');
       saveBtn.type = 'button';
+      saveBtn.className = 'zw-shell-control zw-shell-control--text';
       saveBtn.textContent = ((window.UILabels && window.UILabels.SAVE) || '保存');
       saveBtn.title = '現在の内容を保存';
       saveBtn.addEventListener('click', function () {
@@ -253,32 +255,32 @@
       // overflow メニュー
       var moreBtn = document.createElement('button');
       moreBtn.type = 'button';
-      moreBtn.className = 'documents-more-btn';
+      moreBtn.className = 'documents-more-btn zw-shell-control zw-shell-control--icon';
       moreBtn.textContent = '\u2026';
+      moreBtn.setAttribute('aria-label', 'ドキュメント操作メニュー');
+      moreBtn.setAttribute('aria-haspopup', 'menu');
+      moreBtn.setAttribute('aria-expanded', 'false');
       moreBtn.title = 'その他の操作';
-      moreBtn.style.marginLeft = 'auto';
 
       var moreMenu = document.createElement('div');
-      moreMenu.className = 'documents-more-menu';
+      moreMenu.className = 'documents-more-menu zw-shell-menu';
+      moreMenu.setAttribute('role', 'menu');
       moreMenu.style.display = 'none';
       moreMenu.style.position = 'absolute';
       moreMenu.style.zIndex = '1001';
-      moreMenu.style.background = 'var(--sidebar-bg, #1e1e1e)';
-      moreMenu.style.border = '1px solid var(--border-color, #444)';
-      moreMenu.style.borderRadius = '0.375rem';
-      moreMenu.style.padding = '0.25rem 0';
-      moreMenu.style.minWidth = '10rem';
-      moreMenu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
 
       function createMenuItem(label, title, handler) {
         var item = document.createElement('button');
         item.type = 'button';
+        item.className = 'zw-shell-menu__item';
+        item.setAttribute('role', 'menuitem');
         item.textContent = label;
         item.title = title;
-        item.style.cssText = 'display:block;width:100%;text-align:left;padding:0.375rem 0.75rem;background:none;border:none;color:inherit;font-size:0.8125rem;cursor:pointer;';
-        item.addEventListener('mouseenter', function () { item.style.background = 'rgba(255,255,255,0.08)'; });
-        item.addEventListener('mouseleave', function () { item.style.background = 'none'; });
-        item.addEventListener('click', function () { moreMenu.style.display = 'none'; handler(); });
+        item.addEventListener('click', function () {
+          moreMenu.style.display = 'none';
+          moreBtn.setAttribute('aria-expanded', 'false');
+          handler();
+        });
         return item;
       }
 
@@ -332,6 +334,7 @@
         e.stopPropagation();
         var isOpen = moreMenu.style.display !== 'none';
         moreMenu.style.display = isOpen ? 'none' : 'block';
+        moreBtn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
         if (!isOpen) {
           var rect = moreBtn.getBoundingClientRect();
           moreMenu.style.top = (rect.bottom + 2) + 'px';
@@ -339,7 +342,10 @@
         }
       });
 
-      document.addEventListener('click', function () { moreMenu.style.display = 'none'; });
+      document.addEventListener('click', function () {
+        moreMenu.style.display = 'none';
+        moreBtn.setAttribute('aria-expanded', 'false');
+      });
 
       // BL-005: 選択モードボタン + 一括削除ボタン
       var selectMode = false;
@@ -363,6 +369,7 @@
 
       var selectModeBtn = document.createElement('button');
       selectModeBtn.type = 'button';
+      selectModeBtn.className = 'zw-shell-control zw-shell-control--text';
       selectModeBtn.textContent = '選択';
       selectModeBtn.title = '複数選択モード';
       selectModeBtn.addEventListener('click', function () {
@@ -377,6 +384,7 @@
 
       var selectAllBtn = document.createElement('button');
       selectAllBtn.type = 'button';
+      selectAllBtn.className = 'zw-shell-control zw-shell-control--text';
       selectAllBtn.textContent = '全選択';
       selectAllBtn.title = '表示中のドキュメントをすべて選択';
       selectAllBtn.style.display = 'none';
@@ -397,10 +405,10 @@
 
       var batchDeleteBtn = document.createElement('button');
       batchDeleteBtn.type = 'button';
+      batchDeleteBtn.className = 'zw-shell-control zw-shell-control--text zw-shell-control--danger';
       batchDeleteBtn.textContent = '一括削除';
       batchDeleteBtn.title = '選択したドキュメントを一括削除';
       batchDeleteBtn.style.display = 'none';
-      batchDeleteBtn.style.color = 'var(--danger-color, #e74c3c)';
       batchDeleteBtn.addEventListener('click', function () {
         var count = selectedIds.size;
         if (count === 0) return;

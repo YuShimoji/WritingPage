@@ -155,11 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // タブ初期化
     initializeSidebarTabs();
 
-    // R-2: 廃止済みモード値の移行（blank/reader -> focus）
+    // R-2: 廃止済み/公開縮退モード値の移行（blank/reader/focus -> normal）
     try {
         const settings = window.ZenWriterStorage.loadSettings();
-        if (settings.ui && (settings.ui.uiMode === 'blank' || settings.ui.uiMode === 'reader')) {
-            settings.ui.uiMode = 'focus';
+        if (settings.ui && (settings.ui.uiMode === 'blank' || settings.ui.uiMode === 'reader' || settings.ui.uiMode === 'focus')) {
+            settings.ui.uiMode = 'normal';
             window.ZenWriterStorage.saveSettings(settings);
         }
     } catch (e) {
@@ -235,9 +235,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /** 旧「ツールバー表示」ショートカット互換: メインハブのクイックツールを開閉 */
     function toggleToolbar() {
-        const currentMode = document.documentElement.getAttribute('data-ui-mode');
-        if (currentMode === 'blank') {
-            setUIMode('normal');
+        const topChrome = window.ZenWriterTopChrome;
+        if (topChrome && typeof topChrome.toggle === 'function') {
+            topChrome.toggle();
             return;
         }
         if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // session 107: _toggleFullscreen は撤去。Electron の F11 / メニューで代替
+    // fullscreen は公開導線から外したため、ここでの直接トグルは維持しない
 
     function activateSidebarGroup(groupId) {
         window.sidebarManager.activateSidebarGroup(groupId);
@@ -373,13 +373,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.dockManager.syncSidebarWidthWithSettings(s);
                 } else if (typeof s.ui.sidebarWidth === 'number') {
                     const isDesktop = window.matchMedia('(min-width: 1025px)').matches;
-                    if (isDesktop) {
-                        const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
+                    const useUnifiedLeftNav = document.documentElement.getAttribute('data-ui-mode') === 'normal';
+                    const w = Math.max(220, Math.min(560, s.ui.sidebarWidth));
+                    document.documentElement.style.setProperty('--sidebar-width', w + 'px');
+                    if (isDesktop && !useUnifiedLeftNav) {
                         sidebar.style.width = w + 'px';
-                        document.documentElement.style.setProperty('--sidebar-width', w + 'px');
                     } else {
                         sidebar.style.removeProperty('width');
-                        document.documentElement.style.removeProperty('--sidebar-width');
+                        if (!isDesktop) {
+                            document.documentElement.style.removeProperty('--sidebar-width');
+                        }
                     }
                 }
                 if (s.ui.tabsPresentation) {
@@ -390,11 +393,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.sidebarManager.applyTabPlacement();
                 }
             }
-            // UIモード適用 — force:true で全コンポーネント状態を確実に初期化（未設定は focus）
+            // UIモード適用 — force:true で全コンポーネント状態を確実に初期化（統合シェル既定は normal）
             if (s && s.ui && s.ui.uiMode) {
                 setUIMode(s.ui.uiMode, false, true);
             } else {
-                setUIMode('focus', false, true);
+                setUIMode('normal', false, true);
             }
             if (window.sidebarManager && typeof window.sidebarManager.applyTabsPresentationUI === 'function') {
                 window.sidebarManager.applyTabsPresentationUI();
@@ -412,11 +415,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const validModes = ['normal', 'focus'];
         const isInitialBoot = !_setUIModeInvokedOnce;
         _setUIModeInvokedOnce = true;
-        // R-2: blank → focus にフォールバック
-        var targetMode = mode === 'blank' ? 'focus' : mode;
-        // Readerモード廃止: 既存値は focus へ正規化
-        if (targetMode === 'reader') targetMode = 'focus';
-        targetMode = validModes.includes(targetMode) ? targetMode : 'focus';
+        // 統合シェルでは旧 mode 値を normal に吸収する
+        var targetMode = mode === 'blank' ? 'normal' : mode;
+        if (targetMode === 'reader') targetMode = 'normal';
+        targetMode = validModes.includes(targetMode) ? targetMode : 'normal';
 
         const currentMode = document.documentElement.getAttribute('data-ui-mode');
         if (!force && currentMode === targetMode) return;
@@ -499,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.dockManager._onUIModeChanged(targetMode);
         }
 
-        // session 108: UI モード変更を全購読者 (view-menu / visual-profile など) に通知
+        // UI モード変更を全購読者 (visual-profile / internal compatibility observers など) に通知
         try {
             window.dispatchEvent(new CustomEvent('ZenWriterUIModeChanged', {
                 detail: { mode: targetMode, source: 'setUIMode' }
@@ -510,89 +512,9 @@ document.addEventListener('DOMContentLoaded', () => {
     window.ZenWriterApp = Object.assign({}, window.ZenWriterApp, {
         setUIMode,
         getUIMode: function () {
-            return document.documentElement.getAttribute('data-ui-mode') || 'focus';
+            return document.documentElement.getAttribute('data-ui-mode') || 'normal';
         }
     });
-
-    // session 107: #view-menu ドロップダウンへ集約。delegated click で既存 API を呼び出す
-    (function initViewMenu() {
-        const menu = document.getElementById('view-menu');
-        if (!menu) return;
-        const summary = menu.querySelector('summary');
-        const panel = menu.querySelector('.view-menu__panel');
-        if (!summary || !panel) return;
-
-        menu.addEventListener('toggle', function () {
-            summary.setAttribute('aria-expanded', menu.open ? 'true' : 'false');
-        });
-
-        panel.addEventListener('click', function (e) {
-            const btn = e.target.closest('[data-view-action]');
-            if (!btn) return;
-            const action = btn.getAttribute('data-view-action');
-            if (action === 'ui-mode-normal') {
-                setUIMode('normal');
-            } else if (action === 'ui-mode-focus') {
-                setUIMode('focus');
-            } else if (action === 'reader-overlay-toggle') {
-                if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
-                    window.ZWReaderPreview.toggle();
-                }
-            } else if (action === 'editor-surface-wysiwyg' || action === 'editor-surface-markdown') {
-                const shim = document.getElementById('toggle-wysiwyg');
-                const wantWysiwyg = action === 'editor-surface-wysiwyg';
-                const isWysiwyg = shim && shim.getAttribute('aria-pressed') === 'true';
-                if (shim && wantWysiwyg !== isWysiwyg) shim.dispatchEvent(new Event('mousedown', { bubbles: true }));
-            } else if (action === 'memo-lab-toggle') {
-                if (window.ZWFloatingMemoField && typeof window.ZWFloatingMemoField.toggle === 'function') {
-                    window.ZWFloatingMemoField.toggle();
-                }
-            } else if (action === 'toggle-fullscreen') {
-                // session 108: DOM Fullscreen API (Electron 上でも動作)。
-                // Electron メニュー「表示 > 全画面表示」 / F11 と併用可能
-                try {
-                    if (!document.fullscreenElement) {
-                        document.documentElement.requestFullscreen().catch(() => {});
-                    } else if (document.exitFullscreen) {
-                        document.exitFullscreen();
-                    }
-                } catch (_) { /* ignore */ }
-            }
-            menu.open = false;
-        });
-
-        // キーボード操作: Escape で閉じて summary に focus 戻す
-        menu.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && menu.open) {
-                menu.open = false;
-                summary.focus();
-                e.stopPropagation();
-            }
-        });
-
-        // 外部クリックで閉じる
-        document.addEventListener('click', function (e) {
-            if (menu.open && !menu.contains(e.target)) menu.open = false;
-        });
-    })();
-
-    // session 107: UI モード変更時に view-menu の表示と aria-checked を同期
-    function _syncViewMenuState(mode) {
-        const menu = document.getElementById('view-menu');
-        if (!menu) return;
-        const current = menu.querySelector('[data-current-mode]');
-        const normalBtn = menu.querySelector('[data-view-action="ui-mode-normal"]');
-        const focusBtn = menu.querySelector('[data-view-action="ui-mode-focus"]');
-        const label = mode === 'normal' ? '通常表示' : 'ミニマル';
-        if (current) current.textContent = label;
-        if (normalBtn) normalBtn.setAttribute('aria-checked', mode === 'normal' ? 'true' : 'false');
-        if (focusBtn) focusBtn.setAttribute('aria-checked', mode === 'focus' ? 'true' : 'false');
-    }
-    window.addEventListener('ZenWriterUIModeChanged', function (e) {
-        if (e.detail && e.detail.mode) _syncViewMenuState(e.detail.mode);
-    });
-    // 初期同期
-    _syncViewMenuState(document.documentElement.getAttribute('data-ui-mode') || 'focus');
 
     // Visual Profile からの UIモード変更を受信 (SP-012)
     window.addEventListener('ZenWriterUIModeChanged', function (e) {
@@ -626,7 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // session 107: #focus-exit-to-normal-btn (Focus 章パネルの「フル」復帰) は撤去。view-menu / F2 / ハブ経由で代替
+        // session 107: #focus-exit-to-normal-btn (Focus 章パネルの「フル」復帰) は撤去。F2 / shell 導線で代替
 
         // Focus以外に切り替えた時にオーバーレイを閉じる
         var observer = new MutationObserver(function (mutations) {

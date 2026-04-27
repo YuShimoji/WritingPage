@@ -4,7 +4,7 @@
 >
 > - SectionsNavigator ガジェット (左サイドツリー): **Editor モード専用**。
 >   Focus モードでは SP-071 の ChapterList が同等の役割を担う。
-> - ~~エディタ下部ナビ: **全モード共通** (Focus / Blank でも利用可能)。~~ **撤去済み (session 38)**。下部ナビ DOM・CSS・JS を完全削除。ナビゲーションはサイドツリーおよび章パネルに集約。
+> - ~~エディタ下部ナビ: **全表示状態共通**。~~ **撤去済み (session 38)**。下部ナビ DOM・CSS・JS を完全削除。ナビゲーションはサイドツリーおよび章パネルに集約。
 > - SectionsNavigator と ChapterList はデータソース (見出し解析結果) を共有する。
 >   Editor で見出しを変更すると、Focus の ChapterList にも反映される。
 
@@ -48,7 +48,7 @@
   - サイドバー最上段に `sections` カテゴリ追加
   - エディタ下部ナビのマウントポイント追加
 - `js/sidebar-manager.js`
-  - アコーディオンカテゴリへ `sections` を追加（最上段/初期展開）
+  - left nav の `sections` category / panel として登録
 - `js/gadgets-*.js`（新規）
   - `SectionsNavigator` ガジェット実装
 - `js/loadouts-presets.js` / `js/gadgets-utils.js`
@@ -210,8 +210,8 @@
 | `js/gadgets-sections-nav.js` | SectionsNavigator ガジェット（見出しツリー + 下部ナビ制御） |
 | `js/gadgets-utils.js` | `sections` グループ定義追加（GADGET_GROUPS先頭） |
 | `js/loadouts-presets.js` | 全3プリセットに `sections: ['SectionsNavigator']` 追加 |
-| `js/sidebar-manager.js` | sections アコーディオンカテゴリ登録 + Writing Focus表示許可 |
-| `index.html` | sections アコーディオン + `#editor-bottom-nav` + script タグ |
+| `js/sidebar-manager.js` | sections category / panel 登録 + left nav 表示許可 |
+| `index.html` | sections category panel + `#editor-bottom-nav` + script タグ |
 | `css/style.css` | `.sections-tree-node`, `.sections-level-badge`, `.editor-bottom-nav` スタイル |
 
 ### 技術的な注意点

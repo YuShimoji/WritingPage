@@ -486,8 +486,11 @@
     container.innerHTML = '';
     var opts = options || {};
 
-    var cw = container.clientWidth || 500;
-    var ch = container.clientHeight || 400;
+    var parentWidth = container.parentElement ? container.parentElement.clientWidth : 0;
+    var measuredWidth = container.clientWidth || parentWidth || 0;
+    var measuredHeight = container.clientHeight || 0;
+    var cw = Math.max(160, measuredWidth || 220);
+    var ch = Math.max(180, measuredHeight || 220);
 
     // 力学レイアウト適用
     applyForceLayout(graphData, cw, ch);
@@ -534,8 +537,9 @@
       nodeEl.setAttribute('data-type', node.type || 'unknown');
       if (node.category) nodeEl.setAttribute('data-category', node.category);
       nodeEl.style.position = 'absolute';
-      nodeEl.style.left = (node.x - 4) + 'px';
-      nodeEl.style.top = (node.y - 4) + 'px';
+      nodeEl.style.left = node.x + 'px';
+      nodeEl.style.top = node.y + 'px';
+      nodeEl.style.transform = 'translate(-50%, -50%)';
       nodeEl.style.background = color;
       nodeEl.style.color = '#fff';
       nodeEl.style.padding = '0.1875rem 0.5rem';
@@ -632,11 +636,11 @@
       toolbar.style.gap = '0.375rem';
       toolbar.style.flexWrap = 'wrap';
 
-      var btnRefresh = el('button', 'small');
+      var btnRefresh = el('button', 'link-graph-action zw-shell-control zw-shell-control--text');
       btnRefresh.textContent = '更新';
-      var btnBacklinks = el('button', 'small');
+      var btnBacklinks = el('button', 'link-graph-action zw-shell-control zw-shell-control--text');
       btnBacklinks.textContent = 'バックリンク表示';
-      var searchInput = el('input');
+      var searchInput = el('input', 'link-graph-search');
       searchInput.type = 'text';
       searchInput.placeholder = 'ターゲットを検索...';
       searchInput.style.flex = '1';

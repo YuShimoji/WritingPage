@@ -217,33 +217,27 @@ test.describe('Command Palette E2E', () => {
     await expect(advancedHeader).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('UIモード: フォーカスへ切替後、パレット閉鎖で執筆面にフォーカスが戻る', async ({ page }) => {
+  test('トップクローム: 表示後はトップクローム内へフォーカスが移る', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await openCommandPalette(page);
-    await page.locator('#command-palette-input').fill('フォーカスモード');
+    await page.locator('#command-palette-input').fill('F2');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(250);
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
-    const onEditSurface = await page.evaluate(() => {
+    await expect(page.locator('body')).toHaveAttribute('data-top-chrome-visible', 'true');
+    const focusedInTopChrome = await page.evaluate(() => {
       var a = document.activeElement;
-      var ed = document.getElementById('editor');
-      var wys = document.getElementById('wysiwyg-editor');
-      if (!a) return false;
-      if (ed && a === ed) return true;
-      if (wys && a === wys) return true;
-      if (ed && ed.contains(a)) return true;
-      if (wys && wys.contains(a)) return true;
-      return false;
+      var chrome = document.getElementById('top-chrome');
+      return !!(a && chrome && chrome.contains(a));
     });
-    expect(onEditSurface).toBe(true);
+    expect(focusedInTopChrome).toBe(true);
   });
 
-  test('再生オーバーレイ: 切替後、フォーカスは編集に戻るボタンへ', async ({ page }) => {
+  test('Reader surface: 切替後、フォーカスは編集に戻るボタンへ', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await openCommandPalette(page);
-    await page.locator('#command-palette-input').fill('再生オーバーレイ');
+    await page.locator('#command-palette-input').fill('Reader');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(400);
     await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');

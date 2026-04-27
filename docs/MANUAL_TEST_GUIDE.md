@@ -2,7 +2,7 @@
 
 Zen Writer の全機能を一通り確認するための手順書。サンプルプロジェクトと組み合わせて使う。
 
-最終更新: 2026-04-22 (session 119 WP-004 parity pack 追記)
+最終更新: 2026-04-27 (統合シェル UI / stale mode 導線の降格)
 
 ## 0. package / Electron 固有の最小確認
 
@@ -20,9 +20,12 @@ Windows ではこの経路が packaged app の正本起動です。`NODE_OPTIONS
 
 この節は Web E2E の代替ではなく、**package でしか確定できない項目だけ**を確認する。
 
-- [ ] `通常表示` で edge rail から sidebar を開けて、閉じた状態では細い残骸が残らない
-- [ ] `通常表示 → ミニマル → 通常表示` 後も sidebar 状態が勝手に reopen しない
-- [ ] drag strip でウィンドウを移動できる
+- [ ] 起動直後、top chrome は hidden で上端バー / seam / visible handle が残らない
+- [ ] `F2` で top chrome が表示され、drag lane / window controls / shell 操作がまとまって見える
+- [ ] `Escape` または外側操作で top chrome が閉じ、hidden 状態へシームレスに戻る
+- [ ] Electron menu の `シェル` 系項目から top chrome / left nav / Reader surface に到達できる
+- [ ] drag lane でウィンドウを移動できる
+- [ ] left nav を root → category → root の順に操作でき、active category の label / icon / panel / gadget loadout が一致する
 - [ ] Reader 右上ボタン群が重ならず操作できる
 - [ ] Sections が空のとき、現在の状態と理由が読める
 - [ ] preview を開いたとき、空なら理由が表示される
@@ -44,14 +47,14 @@ npm run dev
 ブラウザで `http://127.0.0.1:8080` を開く。
 
 初回起動時の期待状態:
-- UI モード: Focus (ミニマル)
-- サイドバー: 閉
+- top chrome: hidden
+- left nav: root または直前状態を復元
 - 編集面: WYSIWYG (リッチ編集)
 
 ## 2. サンプル読み込み
 
-1. サイドバーを開く (Alt+1 または左端ホバー)
-2. 「構造」カテゴリの「...」メニュー > 「JSON読込」
+1. left nav root から「構造」カテゴリを開く
+2. Documents の「...」メニュー > 「JSON読込」
 3. `samples/sample-novel-chapters.zwp.json` を選択
 4. ドキュメント一覧に「月の裏側 - 章管理サンプル」が追加されることを確認
 
@@ -115,7 +118,7 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 
 サンプル「月の裏側」(3 章構成) で確認。
 
-- [ ] Focus モードで左パネルに章リストが表示される
+- [ ] left nav の「セクション」カテゴリで章リストが表示される
 - [ ] 章をクリックして切替できる
 - [ ] 「新しい章」ボタンで章を追加できる
 - [ ] 章名をダブルクリックでリネームできる
@@ -127,36 +130,39 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 - [ ] 再生オーバーレイを開くと全章が連結表示される
 - [ ] 章末に「前へ / 次へ」ナビゲーションが表示される
 
-## 5. UI モード
+## 5. 統合シェル UI
 
-### 5.1 Normal / Focus 切替
+### 5.1 top chrome
 
-- [ ] F2 で Normal <-> Focus が切り替わる
-- [ ] コマンドパレット (Ctrl+P) > 「通常モード」「フォーカスモード」で切替
-- [ ] Normal: サイドバーが表示可能、操作帯が見える
-- [ ] Focus: ミニマル表示、左端ホバーでサイドバー・章パネル
+- [ ] 起動直後は top chrome が hidden で、上端 hover だけでは表示されない
+- [ ] F2 で top chrome が表示され、フォーカスが shell 操作へ移る
+- [ ] Escape / 外側クリックで top chrome が閉じる
+- [ ] hidden 時に上部バー・seam・常設 handle が残らない
 
-### 5.2 サイドバー
+### 5.2 left nav
 
-- [ ] Alt+1 でサイドバー開閉
-- [ ] Focus モードで左端にマウスを寄せるとパネルが表示される
-- [ ] パネルからマウスを離すとフェードアウトする
+- [ ] 常設ミニレールから root を開き、6カテゴリが確認できる
+- [ ] root からカテゴリを選ぶと、active category が左上固定で表示される
+- [ ] 非 active category は fade-out 後に hit-test 対象にならない
+- [ ] category から root に戻れる
+- [ ] `sections` は「セクション」+ `list-tree` + `sections-gadgets-panel` + SectionsNavigator に対応する
+- [ ] `structure` は「構造」+ `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系に対応する
 
 ### 5.3 再生オーバーレイ
 
-- [ ] コマンドパレット > 「再生オーバーレイ」で開く
+- [ ] コマンドパレット > Reader surface の開閉 command で開く
 - [ ] 「編集に戻る」ボタンで閉じる
-- [ ] 閉じた後、元の UI モード (Normal/Focus) が維持される
+- [ ] 閉じた後、top chrome / left nav の状態が不自然に変化しない
 - [ ] 縦書き/横書き切替ボタンが機能する
 
 ## 6. テーマ・見た目
 
-サイドバー > テーマ カテゴリで確認。
+left nav > テーマ カテゴリで確認。
 
 ### 6.1 テーマ切替
 
 - [ ] ライト / ダーク / ナイト / セピア / 高コントラスト / ソラリゼド の 6 テーマ
-- [ ] 切替後にエディタ・サイドバー・ツールバーの色が変わる
+- [ ] 切替後にエディタ・left nav・top chrome の色が変わる
 
 ### 6.2 フォントサイズ
 
@@ -216,7 +222,7 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 
 ## 8. ガジェット確認チェックリスト
 
-サイドバーの各カテゴリを開いて確認。Normal モードで Alt+1 でサイドバーを開く。
+left nav root から各カテゴリを開いて確認。`Normal` / `Focus` の切替確認として扱わず、category ごとの panel / gadget loadout 対応を見る。
 
 ### セクション
 - [ ] SectionsNavigator: 見出しツリーが表示され、クリックでジャンプ
@@ -264,22 +270,22 @@ Ctrl+P で開き、以下のコマンドを実行:
 
 - [ ] 「検索」 > 検索パネルが開く
 - [ ] 「保存」 > 保存実行
-- [ ] 「通常モード」 > Normal に切替
-- [ ] 「フォーカスモード」 > Focus に切替
-- [ ] 「再生オーバーレイ」 > 再生オーバーレイ開閉
+- [ ] 「トップクロームを表示」 > top chrome が表示される
+- [ ] 「左ナビのルートへ戻る」 > category から root に戻る
+- [ ] Reader surface の開閉 command > 再生オーバーレイ開閉
 - [ ] 「フォントサイズ拡大」 > フォントサイズ増
-- [ ] 「補助」 > サイドバーの補助カテゴリを展開
-- [ ] 「詳細設定」 > サイドバーの詳細設定カテゴリを展開
+- [ ] 「補助」 > left nav の補助カテゴリを展開
+- [ ] 「詳細設定」 > left nav の詳細設定カテゴリを展開
 
 ## 10. ロードアウト
 
-サイドバー > 詳細設定 > ロードアウト管理 で確認。
+left nav > 詳細設定 > ロードアウト管理 で確認。
 
 - [ ] 「小説・長編」プリセット: 全ガジェット搭載
 - [ ] 「ミニマル」プリセット: 必要最小限
 - [ ] 「ビジュアルノベル」プリセット: 画像・選択肢あり
 - [ ] 「脚本・シナリオ」プリセット: 脚本向け構成
-- [ ] プリセット切替後、サイドバーのガジェット構成が変わる
+- [ ] プリセット切替後、left nav category のガジェット構成が変わる
 
 ## 11. 未実装機能 (確認不要)
 

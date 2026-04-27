@@ -22,7 +22,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'ツールバー表示/非表示切り替え'
+      description: 'トップクロームを開閉'
     },
     'search.toggle': {
       key: 'f',
@@ -54,7 +54,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'UIモード切替 (通常表示 ↔ ミニマル)'
+      description: 'トップクロームを表示'
     },
     'ui.mode.exit': {
       key: 'Escape',
@@ -62,7 +62,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'ミニマルモードから通常表示に戻る'
+      description: 'トップクロームを閉じる'
     },
     'command-palette.toggle': {
       key: 'p',

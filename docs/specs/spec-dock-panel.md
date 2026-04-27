@@ -24,7 +24,7 @@ SP-070 (モードアーキテクチャ) の **Editor モード** 専用の拡張
 - パネルを上下左右にドッキングできるようにする
 - 複数パネルを同時に表示できるようにする（例: 左にチャプターリスト、右にWiki）
 - パネル配置をユーザー設定として保存する
-- Editor モード専用とし、Focus / Blank では非表示
+- Editor surface 専用とし、minimal display では非表示
 
 ---
 
@@ -140,7 +140,7 @@ SP-070 (モードアーキテクチャ) の **Editor モード** 専用の拡張
 |--------|-------------------|
 | Editor | フル機能。全パネル表示。配置変更可能 |
 | Focus | ドックパネル非表示。左パネルはFocus専用のChapterList |
-| Blank | ドックパネル非表示 |
+| Minimal display | ドックパネル非表示 |
 
 Editor モードからFocusに切り替えた場合:
 
@@ -179,7 +179,7 @@ Editor モードからFocusに切り替えた場合:
 - フローティングパネルの右下リサイズハンドル
 - 左端スナップゾーン（40px閾値）でドック復帰
 - フローティング位置・サイズの永続化
-- Focus/Blank/Readerモードでフローティングも非表示
+- Minimal display / replay overlay でフローティングも非表示
 - 最後のタブをfloat時に左パネル自動非表示
 - API: floatTab / snapToDock / closeFloating / getFloating
 - E2E: 10件
@@ -302,7 +302,7 @@ applyLoadout(name) {
 2. 「保存」で現在のガジェット+ドックレイアウトが名前付きプリセットとして保存される
 3. `dockLayout` がないレガシープリセットはガジェットのみ適用 (後方互換)
 4. プリセット切替時にフローティングパネルの状態は維持される (プリセットに含めない)
-5. Focus/Blank/Reader モードではプリセット切替の効果が Editor 復帰時に反映される
+5. Minimal display / replay overlay ではプリセット切替の効果が Editor 復帰時に反映される
 
 #### 影響範囲
 

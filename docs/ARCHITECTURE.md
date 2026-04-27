@@ -355,12 +355,14 @@ window.ZenWriterTabs = {
 ### UIデザイン指針（Zen Writer x ノートアプリ折衷）
 
 - Zen ライクな「白い紙の前に座る」感覚を維持しつつ、Obsidian/Scrivener 風のサイドバー型情報整理力を取り込む
-- レイアウト基本構造: 左サイドバー + 中央エディタ（主役）。右パネルはガジェット/フローティングで段階的に補完
-- 表示モード:
-  - 通常モード: サイドバー/ヘッダー表示、ノートアプリ的な情報整理ビュー
-  - フォーカスモード: 補助 UI を抑え、本文への集中を高める
-  - ブランクモード: ほぼ本文のみの Zen ライクな状態
-- Visual Profile は「見た目プリセット」、UIモードは「レイアウト構造の切り替え」として分離
+- レイアウト基本構造: 中央エディタを主役にし、操作入口は top chrome / left nav root-category / command palette / Reader surface に分散する
+- 統合シェル状態:
+  - top chrome: hidden が既定の一時シェル。`F2` / menu / command palette で明示表示する
+  - left nav root: 常設ミニレールからカテゴリ一覧と last active cue を表示する
+  - left nav category: active category の panel / icon / gadget loadout を表示する
+  - replay surface: 読者視点確認用の閲覧 surface。UI mode ではない
+- `normal` / `focus` は内部互換 API の値として残すが、新規の情報設計・手動確認・ユーザー向け説明の第一級概念にしない
+- Visual Profile は「見た目プリセット」。統合シェル状態や内部 UI mode と混同しない
 
 ### Region / Panel / Gadget 概念モデル
 
@@ -368,12 +370,12 @@ window.ZenWriterTabs = {
 - **Panel**: ユーザーに見える「枠」。Region にドッキングまたはフローティング
 - **GadgetContainer**: Panel 内に配置、複数の Gadget をまとめる箱
 - **Gadget**: 機能の最小単位。UI ロジックと状態はガジェット内に閉じる
-- 現在の左サイドバーでは:
+- 現在の left nav / category panel では:
   - Region: `#sidebar`
   - Panel: `section.sidebar-group[data-group="<id>"]`
   - GadgetContainer: `div.gadgets-panel[data-gadget-group="<id>"]`
 
 ---
 
-**更新日**: 2026-03-06
-**バージョン**: 0.3.28
+**更新日**: 2026-04-27
+**バージョン**: 0.3.32

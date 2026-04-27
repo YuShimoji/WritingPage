@@ -97,14 +97,11 @@ npx playwright test e2e/sidebar-layout.spec.js
 
 - 手動保存（即時・自動保存に加えて）: `Ctrl + S` / `Cmd + S`（コマンドパレットの「保存」と同じ）
 - インデント: `Tab`
-- フルスクリーン切替: ツールバー右端の ⛶ アイコン
+- top chrome 表示: `F2`
 - フォントサイズ拡大: `Ctrl/Cmd + +` または `Ctrl/Cmd + =`
 - フォントサイズ縮小: `Ctrl/Cmd + -`
 - フォントサイズ初期化: `Ctrl/Cmd + 0`
-- ツールバー表示/非表示: `Alt + W`
-- フォーカスモード切替: `Ctrl/Cmd + Shift + F`
-- ブランクモード切替: `Ctrl/Cmd + Shift + B`
-- モード復帰(→Normal): `Escape`
+- 再生オーバーレイを閉じる: `Escape`
 
 ## データ保存
 
@@ -168,19 +165,19 @@ WritingPage/
 - CSSカスタムプロパティにより配色・タイポグラフィを一元管理
 
 - 詳しくは `docs/ARCHITECTURE.md` を参照してください。
-- 設計の入口は `docs/ARCHITECTURE.md` と `docs/APP_SPECIFICATION.md` を参照してください。
+- 現在地と再開手順は `docs/CURRENT_STATE.md`、設計の入口は `docs/ARCHITECTURE.md` と `docs/APP_SPECIFICATION.md` を参照してください。
 
 ## 開発の進め方
 
 - 選択肢駆動（Choices-Driven Development）で意思決定をドキュメント化し、`docs/ROADMAP.md` にフェーズを反映
 - 機能はガジェット/プラグイン単位で疎結合化し、埋め込みモードとの互換性を常に検証
-- タスクは小さく分割してコミットし、`HANDOVER.md` で中断可能点を共有
+- タスクは小さく分割し、再開に必要な事実は `docs/CURRENT_STATE.md` に同期
 - ブランチ運用は `docs/BRANCHING.md`、埋め込みは `docs/EMBED_SDK.md` を参照
 
 ## 開発プロトコル
 
-- 作業の前提と再開手順: `HANDOVER.md`
-- プロジェクトルール: `CLAUDE.md`
+- 作業の前提と再開手順: `docs/CURRENT_STATE.md`
+- エージェント入口: `AGENTS.md`
 
 ## テスト手順
 
@@ -193,8 +190,8 @@ WritingPage/
 ## 関連ドキュメント
 
 - `docs/CURRENT_STATE.md` - 現在地の正本
-- `HANDOVER.md` - 再開手順
-- `docs/PROJECT_HEALTH.md` - プロジェクト健全性レポート
+- `docs/INVARIANTS.md` - 不変条件・責務境界
+- `docs/INTERACTION_NOTES.md` - UI 状態モデル・手動確認形式
 - `docs/ARCHITECTURE.md`
 - `docs/APP_SPECIFICATION.md`
 - `docs/ROADMAP.md`

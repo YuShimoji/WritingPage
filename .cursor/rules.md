@@ -9,8 +9,8 @@
 
 ## 参照先
 
-- プロジェクトルール: `CLAUDE.md`
-- 作業申し送り: `HANDOVER.md`
+- プロジェクトルール: `AGENTS.md`
+- 現在地・再開手順: `docs/CURRENT_STATE.md`
 - ロードマップ: `docs/ROADMAP.md`
 
 ## 中間報告ルール（長大作業の安定化）

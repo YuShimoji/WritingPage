@@ -1,5 +1,11 @@
 # Interaction Notes
 
+## Session 129: Left Nav 対応確認メモ
+
+- セクション / 構造の中身が入れ替わったように見える場合は、まず `#sidebar-nav-anchor` の label / `data-group` / `data-current-icon` と、active panel (`sections-gadgets-panel` / `structure-gadgets-panel`) を同時に確認する。
+- `sections` の正しい見え方は「セクション」+ `list-tree` + `SectionsNavigator`。`structure` の正しい見え方は「構造」+ `file-text` + Documents / Outline / Tags/SmartFolders / StoryWiki / LinkGraph / SnapshotManager 系。
+- Lucide の `<svg>` 化後に icon だけ stale になると、カテゴリ内容は正しくても「対応づけが壊れた」ように見える。session 129 では anchor icon を差し替え直す実装と E2E で固定済み。
+
 報告UI・手動確認・質問形式に関する project-local メモ。
 
 ## 手動確認の出し方
@@ -13,7 +19,7 @@
 
 - ショートカット操作、キーバインド、コマンドパレット経由など **user が過去に動作確認済みの機能は、新規変更がない限り再確認を依頼しない**。
 - 確認依頼は user 実機でしか見えない UI の視覚的変化・新機能・不具合修正のみに絞る。
-- docs に書く案内は **正確な現物表記** (例: Electron メニューの日本語ラベル「表示(&V) > 全画面表示(&L)」) を優先。推測で英語表記を書かない。
+- docs に書く案内は **正確な現物表記** (例: Electron メニューの日本語ラベル「シェル(&V) > 左ナビ(&S)」) を優先。推測で英語表記を書かない。
 - package/Electron 実機項目は `PASS / FAIL / HOLD` で記録し、`FAIL` は「再現手順 / 実際の結果 / 期待結果 / Webとの差分」を 1 セットで残す。
 
 ## 禁止パターン
@@ -45,26 +51,42 @@
 
 ---
 
+## Session 121: 統合シェル UI（現行正本）
+
+- この節が **現行のユーザー向け UI 正本**。下の `normal` / `focus` 中心の説明は internal compatibility の履歴として残っているが、新規判断はこの節を優先する。
+- 公開 UI 状態は `display mode` ではなく、**top chrome の表示状態 / left nav の階層状態 (`root` / `category`) / Reader・Replay surface の開閉** で表現する。
+- **top chrome**: hidden が通常状態。常用ツールバーではなく、`F2` / Electron menu / command palette から明示表示する一時シェル。執筆中の誤発火を避けるため、fine pointer の上端 hover reveal と visible handle は使わない。hidden 時に上部バーや seam を見せず、誤表示時は `Escape` / 外側操作で即時に閉じる。
+- **left nav**: hover 専用入口ではなく常設ミニレール。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
+- **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents `...`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は single-gadget / slim でも開閉操作として残し、`aria-expanded` / `aria-hidden` を同期する。
+- **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
+- **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
+- **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `トップクロームを表示`, `Reader を開く / 閉じる`, `左ナビのルートへ戻る` を基準にし、`ui-mode-*` と `toggle-fullscreen` は visible list に残さない。
+- **shortcut semantics**: `F2` は top chrome を表示してフォーカスする動作へ再割当て。`toolbar.toggle` も top chrome toggle を第一候補にする。
+- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻し、旧 Normal left-edge hover-open は主導線ではなく互換挙動。
+
+---
+
 ## Zen Writer UI 状態モデル（ユーザー向け・正本）
 
-執筆 UI の混乱（WYSIWYG と読者プレビュー、プレビュー周り）を防ぐため、**独立した 2 軸**で説明する。
+執筆 UI の混乱（WYSIWYG と読者プレビュー、プレビュー周り）を防ぐため、現行の公開 UI は **シェル状態** と **編集面** で説明する。`normal` / `focus` は互換 API の値であり、新規仕様・手動確認・ユーザー向け説明の主語にしない。
 
-### 軸 1: UI モード（アプリ全体）
+### 軸 1: 公開シェル状態
 
-| モード | 日本語 | 主な用途 |
-|--------|--------|----------|
-| `normal` | 通常表示 | **上部の横帯メインツールバーは廃止**。主要操作はサイドバー先頭の操作帯＋メインハブ。サイドバー開閉は左端エッジホバー・`Alt+1`・コマンドパレット・Electron メニュー等（可視 FAB は廃止）。開閉状態は `settings.sidebarOpen` で復元 |
-| `focus` | ミニマル（既定） | 執筆集中。上端ホバー（メインハブ）・左端ホバー（サイドバー／章パネル）・ショートカット等で操作へ到達（左下の常時 FAB によるサイドバー導線は廃止） |
-| `replay-overlay` | 再生オーバーレイ | **閲覧専用**の読者視点確認。`data-reader-overlay-open` で開閉（UI モードとは独立） |
+| 状態 | 主な用途 | 操作入口 |
+|------|----------|----------|
+| top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を明示表示する | `F2` / Electron menu / command palette |
+| left nav root | 常設ミニレール。カテゴリ一覧と last active cue を表示する | 左ナビ |
+| left nav category | active category の label / icon / panel / gadget loadout を表示する | root からカテゴリ選択 |
+| replay surface | **閲覧専用**の読者視点確認。編集面とは同時操作しない | Reader / Replay command |
 
-**既定**: 新規・未設定の `settings.ui.uiMode` は **`focus`（ミニマル）**。`settings.sidebarOpen` の既定は **`false`**（左サイドバーは閉じた状態で起動。機能はサイドバー内に維持され、開けば従来どおり全カテゴリに到達可能）。
+**互換既定**: 新規・未設定の `settings.ui.uiMode` は統合シェルの **`normal`** に正規化する。過去の `focus` / `reader` / `blank` 保存値も `normal` に吸収し、公開 UI では top chrome と left nav hierarchy を状態の起点にする。`settings.sidebarOpen` の既定は **`false`**。
 
 **用語の区別（混同しないこと）**
 
 - **再生オーバーレイ**: アプリ内で原稿を「読者側の見え方」で確認する **一時オーバーレイ**であり、UI モードそのものではない。
-- **スクリーンリーダー**などの支援技術: OS や AT が画面を読み上げる仕組み。**Reader モードとは別物**である。本プロダクトは Reader モードにボイスを乗せる設計にはしておらず、両者を同一視しない。
+- **スクリーンリーダー**などの支援技術: OS や AT が画面を読み上げる仕組み。再生オーバーレイとは別物であり、両者を同一視しない。
 
-切替 API: `ZenWriterApp.setUIMode('normal'|'focus')`（コマンドパレット・モードボタンもこれに集約）。
+内部互換 API: `ZenWriterApp.setUIMode('normal'|'focus')`。visible command は `ui-mode-*` ではなく、top chrome / left nav / Reader surface の操作名に寄せる。
 
 ### 軸 2: 編集面（ミニマル／通常表示 いずれでも同じ）
 
@@ -77,20 +99,20 @@
 
 補足:
 
-- **MD プレビュー**（サイドバー先頭の操作帯／サイドバー内「MD プレビュー」）は、編集画面の横またはパネルに **レンダリング結果を並べて表示**するもの（Reader モードではない）。
+- **MD プレビュー**（shell UI／サイドバー内「MD プレビュー」）は、編集画面の横またはパネルに **レンダリング結果を並べて表示**するもの（再生オーバーレイではない）。
 - **再生オーバーレイ**は `ZWReaderPreview.enter()/exit()/toggle()` で開閉。編集は「編集に戻る」で執筆面へ復帰する。
 
 ### 関係図（概念）
 
-UI モードは **`normal` / `focus` のみ**（`setUIMode`）。**再生オーバーレイ**は別軸（`data-reader-overlay-open`・閲覧専用）。第4の UI モードとしての「Reader」は廃止済み（session 68）。
+内部互換値は **`normal` / `focus` のみ**（`setUIMode`）。**再生オーバーレイ**は別軸（`data-reader-overlay-open`・閲覧専用）。第4の UI モードとしての「Reader」は廃止済み（session 68）。
 
-**user 視点 (session 107)**: 画面全体を変える操作は **サイドバー先頭の「表示」メニュー (`#view-menu`) 1 点に集約** されている。表示レイアウト (通常表示 / ミニマル) + 再生オーバーレイ + 編集面 (リッチ編集 / Markdown、dev-only) を同じドロップダウン内で選択。F2 ショートカットで表示レイアウトのみ循環。撤去済み: `#fullscreen` / 旧「フル/最小」個別ボタン / Focus 章パネルの「フル」復帰ボタン / 最小モード下部の「詳細」「通常表示」。
+**user 視点 (session 121 以降)**: 画面操作は **top chrome / left nav root-category / command palette / Reader surface** で説明する。`F2` は top chrome を表示してフォーカスする。旧 `#view-menu` 集約、F2 の表示レイアウト循環、`通常モード` / `フォーカスモード` command を新規導線として復活させない。
 
 ```mermaid
 flowchart LR
-  subgraph uiMode [UIMode_setUIMode]
-    Normal[fullChrome_normal]
-    Focus[minimal_focus]
+  subgraph shell [公開シェル状態]
+    TopChrome[top chrome]
+    LeftNav[left nav root/category]
   end
   subgraph overlay [ReplayOverlay別軸]
     Replay[再生オーバーレイ]
@@ -99,13 +121,13 @@ flowchart LR
     Md[Markdownソース]
     Wys[リッチ編集WYSIWYG]
   end
-  Normal --> Md
-  Normal --> Wys
-  Focus --> Md
-  Focus --> Wys
+  TopChrome --> Md
+  TopChrome --> Wys
+  LeftNav --> Md
+  LeftNav --> Wys
 ```
 
-`Replay` は `Normal` / `Focus` のどちらでも開ける（入場直前の `data-ui-mode` は維持）。オーバーレイと編集面は同時に操作対象にはならない（閉じてから執筆へ復帰）。
+`Replay` は通常の編集状態から開ける（入場直前の `data-ui-mode` は内部互換値として維持）。オーバーレイと編集面は同時に操作対象にはならない（閉じてから執筆へ復帰）。
 
 ヘルプ・ツールチップ・コマンドパレットの文言は上表に揃える（英語 UI では `Replay overlay` / `Rich edit` / `Markdown preview` など対応語を固定）。
 

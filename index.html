@@ -35,13 +35,13 @@
         var theme = settings && settings.theme ? settings.theme : 'dark';
         document.documentElement.setAttribute('data-theme', theme);
 
-        // UIモード設定（既定: focus。reader/blank は focus へ正規化）
-        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'focus';
-        if (uiMode === 'reader' || uiMode === 'blank') uiMode = 'focus';
+      // UIモード設定（統合シェル既定: normal。reader/blank/focus は normal へ正規化）
+        var uiMode = (settings && settings.ui && settings.ui.uiMode) ? settings.ui.uiMode : 'normal';
+        if (uiMode === 'reader' || uiMode === 'blank' || uiMode === 'focus') uiMode = 'normal';
         document.documentElement.setAttribute('data-ui-mode', uiMode);
       } catch (e) {
         document.documentElement.setAttribute('data-theme', 'dark');
-        document.documentElement.setAttribute('data-ui-mode', 'focus');
+        document.documentElement.setAttribute('data-ui-mode', 'normal');
       }
     })();
   </script>
@@ -102,21 +102,48 @@
 </head>
 
 <body>
-  <div class="electron-drag-strip electron-only" aria-hidden="true">
-    <span class="electron-drag-strip__title">Zen Writer</span>
-  </div>
-  <div class="electron-window-bar electron-only" role="group" aria-label="ウィンドウ操作">
-    <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
-      <i data-lucide="minus" aria-hidden="true"></i>
-    </button>
-    <button type="button" class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
-      <i data-lucide="square" aria-hidden="true"></i>
-    </button>
-    <button type="button" class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
-      <i data-lucide="x" aria-hidden="true"></i>
-    </button>
-  </div>
-  <!-- 操作専用: 画面上には出さず左端ホバー・ショートカット等からのみ到達（互換のため id 維持） -->
+  <div class="top-chrome-trigger" id="top-chrome-trigger" aria-hidden="true"></div>
+  <button type="button" class="top-chrome-handle" id="top-chrome-handle" aria-label="トップクロームを表示" aria-expanded="false" title="トップクロームを表示">
+    <span class="top-chrome-handle__pill" aria-hidden="true"></span>
+  </button>
+  <header class="top-chrome" id="top-chrome" aria-hidden="true">
+    <div class="top-chrome__drag-region electron-only" aria-hidden="true">
+      <span class="top-chrome__app-name">Zen Writer</span>
+    </div>
+    <div class="top-chrome__inner">
+      <div class="top-chrome__actions" role="toolbar" aria-label="トップクローム">
+        <button type="button" class="icon-button iconified" id="top-chrome-command-palette" title="コマンドパレット" aria-label="コマンドパレット">
+          <i data-lucide="command" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-button iconified" id="top-chrome-reader-toggle" title="Reader を開く / 閉じる" aria-label="Reader を開く / 閉じる">
+          <i data-lucide="book-open" aria-hidden="true"></i>
+        </button>
+        <button type="button" id="toggle-preview" class="icon-button iconified" title="Markdown プレビュー" aria-label="Markdown プレビューを開閉" aria-expanded="false" aria-controls="editor-preview">
+          <i data-lucide="layout-template" aria-hidden="true"></i>
+        </button>
+        <button type="button" id="toggle-theme" class="icon-button iconified" title="テーマ" aria-label="テーマを切り替え">
+          <i data-lucide="moon" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-button iconified" id="top-chrome-open-settings" title="設定" aria-label="設定">
+          <i data-lucide="settings-2" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="icon-button iconified" id="top-chrome-open-help" title="ヘルプ" aria-label="ヘルプ">
+          <i data-lucide="circle-help" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="top-chrome__window-controls electron-only" role="group" aria-label="ウィンドウ操作">
+        <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
+          <i data-lucide="minus" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
+          <i data-lucide="square" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
+          <i data-lucide="x" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+  </header>
   <button type="button" id="toggle-sidebar" class="zw-offscreen-sidebar-toggle" tabindex="-1" aria-label="サイドバーを開閉"
     aria-expanded="false" aria-controls="sidebar" title="サイドバー（左端ホバー・Alt+1 等）">
     <span class="zw-offscreen-sidebar-toggle__ph" aria-hidden="true"></span>
@@ -162,53 +189,21 @@
         <label for="goal-deadline" class="sr-only">締切日</label>
         <input type="date" id="goal-deadline" aria-label="締切日" aria-hidden="true"
           style="margin-right: 8px; display: none;" />
-        <div class="toolbar-quick-actions" role="group" aria-label="クイックアクション">
-          <!-- session 107: 画面全体モード切替を #view-menu 1 点に集約。F2 で normal ⇄ focus 循環。 -->
-          <details id="view-menu" class="view-menu">
-            <summary class="view-menu__summary" aria-haspopup="menu" aria-expanded="false" title="表示 (F2)" aria-label="表示メニュー">
-              <i data-lucide="layout" aria-hidden="true"></i>
-              <span class="view-menu__label">表示</span>
-              <span class="view-menu__current" data-current-mode>ミニマル</span>
-              <i class="view-menu__caret" data-lucide="chevron-down" aria-hidden="true"></i>
-            </summary>
-            <div role="menu" class="view-menu__panel">
-              <div role="group" aria-label="表示レイアウト" class="view-menu__group">
-                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-normal" aria-checked="false">通常表示</button>
-                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="ui-mode-focus" aria-checked="true">ミニマル</button>
-              </div>
-              <hr role="separator" class="view-menu__sep">
-              <div class="view-menu__group">
-                <button role="menuitem" type="button" class="view-menu__item" data-view-action="reader-overlay-toggle">再生オーバーレイ</button>
-                <button role="menuitem" type="button" class="view-menu__item" data-view-action="toggle-fullscreen">全画面 (F11)</button>
-              </div>
-              <hr role="separator" class="view-menu__sep" data-dev-only>
-              <div role="group" aria-label="編集面" class="view-menu__group" data-dev-only>
-                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-wysiwyg" aria-checked="true">リッチ編集</button>
-                <button role="menuitemradio" type="button" class="view-menu__item" data-view-action="editor-surface-markdown" aria-checked="false">Markdown ソース</button>
-              </div>
-              <hr role="separator" class="view-menu__sep" data-dev-only>
-              <div role="group" aria-label="実験" class="view-menu__group" data-dev-only>
-                <button role="menuitem" type="button" class="view-menu__item" data-view-action="memo-lab-toggle">浮遊メモ実験</button>
-              </div>
-            </div>
-          </details>
-        </div>
-        <div class="toolbar-actions toolbar-actions--sidebar">
-          <div class="toolbar-group toolbar-group--editor" aria-label="編集">
-            <button type="button" id="toggle-preview" class="icon-button iconified" title="MD プレビュー（編集の横）" aria-label="MD プレビューを切り替え" aria-expanded="false" aria-controls="editor-preview">
-              <i data-lucide="layout-template" aria-hidden="true"></i>
-            </button>
-            <!-- session 107: #toggle-wysiwyg は view-menu に昇格。E2E 互換のため DOM は残し視覚的に隠蔽 (view-menu 経由で click proxy)。 -->
-            <button type="button" id="toggle-wysiwyg" class="icon-button iconified view-menu__compat-shim" title="リッチ編集 (view-menu 経由)" aria-label="リッチ編集トグル (互換シム)" aria-pressed="false" tabindex="-1" aria-hidden="true">
-              <i data-lucide="pen-tool" aria-hidden="true"></i>
-            </button>
-          </div>
-          <div class="toolbar-group toolbar-group--system" aria-label="環境と表示">
-            <button type="button" id="toggle-theme" class="icon-button iconified" title="テーマを切り替え" aria-label="ライト/ダークモードを切り替え">
-              <i data-lucide="moon" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>
+        <button type="button" id="toggle-wysiwyg" class="icon-button iconified view-menu__compat-shim" title="リッチ編集 (互換)" aria-label="リッチ編集へ切り替え (互換)" aria-pressed="false" tabindex="-1" aria-hidden="true">
+          <i data-lucide="pen-tool" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="sidebar-shell-header" id="sidebar-shell-header" aria-hidden="true">
+        <button type="button" class="sidebar-shell-header__back" id="sidebar-nav-back" title="左ナビのルートへ戻る" aria-label="左ナビのルートへ戻る">
+          <i data-lucide="arrow-left" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="sidebar-shell-header__anchor" id="sidebar-nav-anchor" aria-current="page" title="現在のカテゴリ">
+          <i data-lucide="list-tree" aria-hidden="true"></i>
+          <span class="sidebar-shell-header__anchor-text">
+            <span class="sidebar-shell-header__eyebrow">カテゴリ</span>
+            <span id="sidebar-nav-anchor-label">セクション</span>
+          </span>
+        </button>
       </div>
       <div class="sidebar-accordion">
         <!-- sections カテゴリ (SP-052) -->
@@ -603,6 +598,7 @@
   <script defer src="js/editor-wysiwyg.js"></script>
   <script defer src="js/modules/editor/RichTextEnhancedRuntime.js"></script>
   <script defer src="js/split-view.js"></script>
+  <script defer src="js/top-chrome-controller.js"></script>
   <script defer src="js/command-palette.js"></script>
   <script defer src="js/app-editor-bridge.js"></script>
   <script defer src="js/app-shortcuts.js"></script>

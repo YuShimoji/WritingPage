@@ -1,6 +1,6 @@
-// @ts-check
+﻿// @ts-check
 const { test, expect } = require('@playwright/test');
-const { showFullToolbar, setUIMode } = require('./helpers');
+const { showFullToolbar, setUIMode, enableAllGadgets, openSidebarGroup } = require('./helpers');
 
 /** UIモード (Normal/Focus/Blank) の表示整合性テスト */
 test.describe('UI Mode Consistency', () => {
@@ -22,7 +22,7 @@ test.describe('UI Mode Consistency', () => {
     await page.evaluate(() => {
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
     });
-    await page.waitForTimeout(520);
+    await page.waitForTimeout(350);
     await setUIMode(page, 'focus');
     await page.waitForTimeout(350);
     let closed = await page.evaluate(() => {
@@ -55,31 +55,50 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('F2 shortcut exits focus to normal (session 107)', async ({ page }) => {
-    await setUIMode(page, 'focus');
-    await page.waitForTimeout(150);
-    await page.keyboard.press('F2');
-    await page.waitForTimeout(200);
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
-  });
-
-  test('session 108: view-menu の現モード表示は setUIMode で更新される', async ({ page }) => {
-    // 回帰テスト — session 107 で setUIMode が ZenWriterUIModeChanged を発火していなかったため
-    // view-menu summary 内の現モード表示が初期値「ミニマル」のまま固定されていた問題を固定化
-    await setUIMode(page, 'focus');
-    await page.waitForTimeout(150);
-    const initial = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(initial.trim()).toBe('ミニマル');
-
+  test('F2 shortcut reveals top chrome without cycling display modes', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
-    const afterNormal = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(afterNormal.trim()).toBe('通常表示');
+    await page.keyboard.press('F2');
+    await page.waitForTimeout(220);
+    const state = await page.evaluate(() => ({
+      mode: document.documentElement.getAttribute('data-ui-mode'),
+      topChromeVisible: document.body.getAttribute('data-top-chrome-visible')
+    }));
+    expect(state.mode).toBe('normal');
+    expect(state.topChromeVisible).toBe('true');
+  });
 
-    await setUIMode(page, 'focus');
-    await page.waitForTimeout(150);
-    const backToFocus = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(backToFocus.trim()).toBe('ミニマル');
+  test('session 121: top chrome can be shown and dismissed without a persistent top bar', async ({ page }) => {
+    const before = await page.evaluate(() => ({
+      visible: document.body.getAttribute('data-top-chrome-visible'),
+      topChromeTop: document.getElementById('top-chrome')?.getBoundingClientRect().top ?? null,
+      handleDisplay: window.getComputedStyle(document.getElementById('top-chrome-handle')).display
+    }));
+    expect(before.visible).toBeNull();
+    expect(before.topChromeTop === null || before.topChromeTop).toBeLessThan(0);
+    expect(before.handleDisplay).toBe('none');
+
+    await page.mouse.move(400, 1);
+    await page.waitForTimeout(120);
+    await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
+
+    await page.keyboard.press('F2');
+    await page.waitForTimeout(120);
+
+    const afterShow = await page.evaluate(() => ({
+      visible: document.body.getAttribute('data-top-chrome-visible'),
+      topChromeTop: Math.round(document.getElementById('top-chrome')?.getBoundingClientRect().top ?? -999),
+      handleExpanded: document.getElementById('top-chrome-handle')?.getAttribute('aria-expanded'),
+      handleDisplay: window.getComputedStyle(document.getElementById('top-chrome-handle')).display
+    }));
+    expect(afterShow.visible).toBe('true');
+    expect(afterShow.topChromeTop).toBeGreaterThanOrEqual(-16);
+    expect(afterShow.handleExpanded).toBe('true');
+    expect(afterShow.handleDisplay).toBe('none');
+
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(80);
+    await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
   });
 
   test('Focus mode: editor layout has no main toolbar strip', async ({ page }) => {
@@ -272,65 +291,49 @@ test.describe('UI Mode Consistency', () => {
     expect(open).toBe(false);
   });
 
-  test('session 110: view-menu パネルからのモード切替が data-ui-mode と表示ラベルに反映される', async ({ page }) => {
-    // view-menu の click handler 経由で setUIMode が呼ばれ、
-    // data-ui-mode と [data-current-mode] の両方が同期することを検証
-    await setUIMode(page, 'normal');
-    await page.waitForTimeout(150);
-
-    // view-menu を開いてミニマルを click
-    await page.evaluate(() => {
-      var menu = document.getElementById('view-menu');
-      if (menu) menu.open = true;
+  test('session 121: command palette hides mode/fullscreen commands and exposes top chrome entry', async ({ page }) => {
+    const visibleCommands = await page.evaluate(() => {
+      if (!window.commandPalette || typeof window.commandPalette.filterCommands !== 'function') {
+        return [];
+      }
+      window.commandPalette.filterCommands('');
+      return (window.commandPalette.filteredCommands || []).map((cmd) => cmd.id);
     });
-    await page.waitForTimeout(100);
-    await page.click('#view-menu [data-view-action="ui-mode-focus"]');
-    await page.waitForTimeout(300);
 
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'focus');
-    const labelFocus = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(labelFocus.trim()).toBe('ミニマル');
-
-    // view-menu を開いて通常表示を click
-    await page.evaluate(() => {
-      var menu = document.getElementById('view-menu');
-      if (menu) menu.open = true;
-    });
-    await page.waitForTimeout(100);
-    await page.click('#view-menu [data-view-action="ui-mode-normal"]');
-    await page.waitForTimeout(300);
-
-    await expect(page.locator('html')).toHaveAttribute('data-ui-mode', 'normal');
-    const labelNormal = (await page.locator('#view-menu [data-current-mode]').textContent()) || '';
-    expect(labelNormal.trim()).toBe('通常表示');
+    expect(visibleCommands).toContain('show-top-chrome');
+    expect(visibleCommands).not.toContain('toggle-fullscreen');
+    expect(visibleCommands).not.toContain('ui-mode-normal');
+    expect(visibleCommands).not.toContain('ui-mode-focus');
+    expect(visibleCommands).not.toContain('ui-mode-next');
   });
 
-  test('session 118: Electron titlebar lane reserves top chrome and keeps drag ownership on strip root', async ({ page }) => {
+  test('session 121: Electron top chrome owns the top drag lane when revealed', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
 
     const dragCss = await page.evaluate(() => {
       document.documentElement.classList.add('is-electron');
       document.body.classList.add('is-electron');
-
-      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
-        window.sidebarManager.forceSidebarState(true);
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
+        window.ZenWriterTopChrome.show();
       }
+      return true;
+    });
+    expect(dragCss).toBe(true);
+    await page.waitForTimeout(220);
 
-      const viewMenu = document.getElementById('view-menu');
-      if (viewMenu) viewMenu.open = true;
-
-      const strip = document.querySelector('.electron-drag-strip');
-      const title = document.querySelector('.electron-drag-strip__title');
+    const dragMetrics = await page.evaluate(() => {
+      const topChrome = document.getElementById('top-chrome');
+      const dragRegion = document.querySelector('.top-chrome__drag-region');
+      const windowControls = document.querySelector('.top-chrome__window-controls');
       const main = document.querySelector('.main-content');
       const sidebar = document.getElementById('sidebar');
-      const rail = document.getElementById('sidebar-edge-rail');
-      const panel = document.querySelector('.view-menu__panel');
       const bodyStyle = window.getComputedStyle(document.body);
-      const stripStyle = strip ? window.getComputedStyle(strip) : null;
-      const titleStyle = title ? window.getComputedStyle(title) : null;
-      const stripRect = strip ? strip.getBoundingClientRect() : null;
-      const titlebarHeight = stripRect ? stripRect.height : 0;
+      const dragStyle = dragRegion ? window.getComputedStyle(dragRegion) : null;
+      const controlsStyle = windowControls ? window.getComputedStyle(windowControls) : null;
+      const topChromeRect = topChrome ? topChrome.getBoundingClientRect() : null;
+      const dragRect = dragRegion ? dragRegion.getBoundingClientRect() : null;
+      const titlebarHeight = dragRect ? dragRect.height : 0;
       const laneY = Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2)));
       const laneX = Math.round(window.innerWidth / 2);
       const topStack = document.elementsFromPoint(laneX, laneY).slice(0, 3).map((element) => ({
@@ -341,153 +344,504 @@ test.describe('UI Mode Consistency', () => {
 
       return {
         bodyAppRegion: bodyStyle.getPropertyValue('-webkit-app-region').trim(),
-        stripAppRegion: stripStyle ? stripStyle.getPropertyValue('-webkit-app-region').trim() : null,
-        titleAppRegion: titleStyle ? titleStyle.getPropertyValue('-webkit-app-region').trim() : null,
-        titlePointerEvents: titleStyle ? titleStyle.pointerEvents : null,
+        dragAppRegion: dragStyle ? dragStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        controlsAppRegion: controlsStyle ? controlsStyle.getPropertyValue('-webkit-app-region').trim() : null,
         titlebarHeight,
-        stripTop: stripRect ? stripRect.top : null,
+        topChromeTop: topChromeRect ? topChromeRect.top : null,
+        dragTop: dragRect ? dragRect.top : null,
         mainTop: main ? main.getBoundingClientRect().top : null,
         sidebarTop: sidebar ? sidebar.getBoundingClientRect().top : null,
-        railTop: rail ? rail.getBoundingClientRect().top : null,
-        viewMenuPanelTop: panel ? panel.getBoundingClientRect().top : null,
         topStack,
       };
     });
 
-    expect(dragCss.bodyAppRegion).toBe('no-drag');
-    expect(dragCss.stripAppRegion).toBe('drag');
-    expect(dragCss.titleAppRegion).not.toBe('drag');
-    expect(dragCss.titlePointerEvents).toBe('none');
-    expect(dragCss.titlebarHeight).toBeGreaterThan(0);
-    expect(Math.abs(dragCss.stripTop || 0)).toBeLessThanOrEqual(1);
-    expect(dragCss.mainTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
-    expect(dragCss.sidebarTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
-    expect(dragCss.railTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
-    expect(dragCss.viewMenuPanelTop || 0).toBeGreaterThanOrEqual(dragCss.titlebarHeight - 1);
-    expect(dragCss.topStack[0]?.className || '').toContain('electron-drag-strip');
+    expect(dragMetrics.bodyAppRegion).toBe('no-drag');
+    expect(dragMetrics.dragAppRegion).toBe('drag');
+    expect(dragMetrics.controlsAppRegion).not.toBe('drag');
+    expect(dragMetrics.titlebarHeight).toBeGreaterThan(0);
+    expect(Math.abs(dragMetrics.topChromeTop || 0)).toBeLessThanOrEqual(1);
+    expect(Math.abs(dragMetrics.dragTop || 0)).toBeLessThanOrEqual(1);
+    expect(Math.abs(dragMetrics.mainTop || 0)).toBeLessThanOrEqual(1);
+    expect(Math.abs(dragMetrics.sidebarTop || 0)).toBeLessThanOrEqual(1);
+    expect(dragMetrics.topStack[0]?.className || '').toContain('top-chrome');
   });
 
-  test('session 119: packaged window move interruption dismisses hover-opened sidebar', async ({ page }) => {
+  test('session 121: left nav enters category mode and pins the selected category', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
-    const lane = await page.evaluate(() => {
-      document.documentElement.classList.add('is-electron');
-      document.body.classList.add('is-electron');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(false);
+      }
+    });
+    await page.waitForTimeout(200);
+
+    await page.click('.accordion-category[data-category="theme"] .accordion-header');
+    await page.waitForTimeout(150);
+
+    const state = await page.evaluate(() => {
+      const html = document.documentElement;
+      const shellHeader = document.getElementById('sidebar-shell-header');
+      const active = document.querySelector('.accordion-category[data-category="theme"]');
+      const hidden = document.querySelector('.accordion-category[data-category="sections"]');
+      return {
+        navState: html.getAttribute('data-left-nav-state'),
+        active: html.getAttribute('data-left-nav-active'),
+        shellVisible: shellHeader ? shellHeader.getAttribute('aria-hidden') : null,
+        anchorLabel: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
+        activeHeaderDisplay: active ? window.getComputedStyle(active.querySelector('.accordion-header')).display : null,
+        hiddenCategoryAria: hidden ? hidden.getAttribute('aria-hidden') : null,
+        hiddenCategoryPointerEvents: hidden ? window.getComputedStyle(hidden).pointerEvents : null,
+        isOpen: document.getElementById('sidebar')?.classList.contains('open') || false,
+      };
+    });
+
+    expect(state.navState).toBe('category');
+    expect(state.active).toBe('theme');
+    expect(state.shellVisible).toBe('false');
+    expect(state.anchorLabel).toBe('テーマ');
+    expect(state.activeHeaderDisplay).toBe('none');
+    expect(state.hiddenCategoryAria).toBe('true');
+    expect(state.hiddenCategoryPointerEvents).toBe('none');
+    expect(state.isOpen).toBe(true);
+  });
+
+  test('session 121: left nav back returns from category mode to root', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
       if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
-      const strip = document.querySelector('.electron-drag-strip');
-      const rail = document.getElementById('sidebar-edge-rail');
-      const stripRect = strip ? strip.getBoundingClientRect() : null;
-      const rect = rail ? rail.getBoundingClientRect() : null;
-      const titlebarHeight = stripRect ? stripRect.height : 0;
+    });
+    await page.waitForTimeout(150);
+
+    await page.click('.accordion-category[data-category="advanced"] .accordion-header');
+    await page.waitForTimeout(150);
+    await page.click('#sidebar-nav-back');
+    await page.waitForTimeout(150);
+
+    const after = await page.evaluate(() => {
       return {
-        dragLaneY: Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2))),
-        railHoverY: rect
-          ? Math.max(Math.round(rect.top + 24), Math.round(rect.top + Math.min(rect.height - 1, 8)))
-          : 90
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        active: document.documentElement.getAttribute('data-left-nav-active'),
+        shellVisible: document.getElementById('sidebar-shell-header')?.getAttribute('aria-hidden'),
+        themeAria: document.querySelector('.accordion-category[data-category="theme"]')?.getAttribute('aria-hidden'),
+        sidebarOpenClass: document.getElementById('sidebar')?.classList.contains('open') || false,
       };
     });
-    await page.waitForTimeout(400);
 
-    await page.mouse.move(2, lane.dragLaneY);
-    await page.waitForTimeout(120);
-    await page.mouse.move(2, lane.railHoverY);
-    await page.waitForTimeout(120);
+    expect(after.navState).toBe('root');
+    expect(after.active).toBeNull();
+    expect(after.shellVisible).toBe('true');
+    expect(after.themeAria).toBe('false');
+    expect(after.sidebarOpenClass).toBe(false);
+  });
 
-    let before = await page.evaluate(() => {
-      const sidebar = document.getElementById('sidebar');
-      return {
-        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
-        isOpen: !!(sidebar && sidebar.classList.contains('open')),
-      };
-    });
-    expect(before.edgeHoverLeft).toBe('true');
-    expect(before.isOpen).toBe(true);
+  test('session 122: root left nav clears legacy inline sidebar width', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
 
     await page.evaluate(() => {
-      if (window.ZWEdgeHover && typeof window.ZWEdgeHover.notifyWindowMoved === 'function') {
-        window.ZWEdgeHover.notifyWindowMoved();
+      const sidebar = document.getElementById('sidebar');
+      if (!sidebar || !window.sidebarManager) return;
+
+      sidebar.style.width = '320px';
+      window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(250);
+
+    const metrics = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const main = document.querySelector('.main-content');
+      if (!sidebar || !main) return null;
+
+      const sidebarWidth = Math.round(sidebar.getBoundingClientRect().width);
+      const mainMarginLeft = Math.round(parseFloat(window.getComputedStyle(main).marginLeft || '0'));
+
+      return {
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        inlineWidth: sidebar.style.width,
+        sidebarWidth,
+        mainMarginLeft
+      };
+    });
+
+    expect(metrics).not.toBeNull();
+    expect(metrics.navState).toBe('root');
+    expect(metrics.inlineWidth).toBe('');
+    expect(metrics.sidebarWidth).toBeLessThanOrEqual(90);
+    expect(Math.abs(metrics.sidebarWidth - metrics.mainMarginLeft)).toBeLessThanOrEqual(2);
+  });
+
+  test('session 126: left nav category content does not collapse during shell expansion', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    });
+    await page.waitForTimeout(100);
+
+    await page.click('.accordion-category[data-category="advanced"] .accordion-header');
+    await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.style.transition = 'none';
+        sidebar.style.width = '4.75rem';
+      }
+    });
+
+    const metrics = await page.evaluate(() => {
+      const sidebar = document.getElementById('sidebar');
+      const toolbar = document.querySelector('.sidebar-chrome-toolbar');
+      const shellHeader = document.getElementById('sidebar-shell-header');
+      const accordion = document.querySelector('.sidebar-accordion');
+      const activeContent = document.querySelector('.accordion-category[data-category="advanced"] .accordion-content');
+      if (!sidebar || !toolbar || !shellHeader || !accordion || !activeContent) return null;
+
+      return {
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        active: document.documentElement.getAttribute('data-left-nav-active'),
+        sidebarWidth: Math.round(sidebar.getBoundingClientRect().width),
+        toolbarWidth: Math.round(toolbar.getBoundingClientRect().width),
+        shellHeaderWidth: Math.round(shellHeader.getBoundingClientRect().width),
+        accordionWidth: Math.round(accordion.getBoundingClientRect().width),
+        activeContentWidth: Math.round(activeContent.getBoundingClientRect().width),
+      };
+    });
+
+    expect(metrics).not.toBeNull();
+    expect(metrics.navState).toBe('category');
+    expect(metrics.active).toBe('advanced');
+    expect(metrics.sidebarWidth).toBeLessThan(100);
+    expect(metrics.toolbarWidth).toBeGreaterThan(230);
+    expect(metrics.shellHeaderWidth).toBeGreaterThan(230);
+    expect(metrics.accordionWidth).toBeGreaterThan(230);
+    expect(metrics.activeContentWidth).toBeGreaterThan(230);
+  });
+
+  test('session 127: sidebar gadget foundation keeps shell controls stable', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]', { state: 'attached' });
+
+    const metrics = await page.evaluate(() => {
+      const html = document.documentElement;
+      const toolbar = document.querySelector('.sidebar-chrome-toolbar');
+      const dockControls = document.getElementById('sidebar-dock-controls');
+      const content = document.querySelector('.accordion-category[data-category="structure"] .accordion-content');
+      const panel = document.getElementById('structure-gadgets-panel');
+      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
+      const header = wrapper ? wrapper.querySelector('.gadget-header') : null;
+      const body = wrapper ? wrapper.querySelector('.gadget') : null;
+      const moreBtn = document.querySelector('.documents-more-btn');
+      const tree = document.querySelector('.documents-tree-container');
+      const toolbarStyle = toolbar ? window.getComputedStyle(toolbar) : null;
+      const dockStyle = dockControls ? window.getComputedStyle(dockControls) : null;
+      const headerStyle = header ? window.getComputedStyle(header) : null;
+      const moreRect = moreBtn ? moreBtn.getBoundingClientRect() : null;
+      const treeStyle = tree ? window.getComputedStyle(tree) : null;
+      const contentRect = content ? content.getBoundingClientRect() : null;
+
+      return {
+        navState: html.getAttribute('data-left-nav-state'),
+        active: html.getAttribute('data-left-nav-active'),
+        toolbarPointerEvents: toolbarStyle ? toolbarStyle.pointerEvents : null,
+        toolbarOpacity: toolbarStyle ? Number(toolbarStyle.opacity) : null,
+        toolbarMaxHeight: toolbarStyle ? parseFloat(toolbarStyle.maxHeight || '0') : null,
+        dockDisplay: dockStyle ? dockStyle.display : null,
+        contentWidth: contentRect ? Math.round(contentRect.width) : 0,
+        panelClientWidth: panel ? panel.clientWidth : 0,
+        panelScrollWidth: panel ? panel.scrollWidth : 0,
+        wrapperRole: wrapper ? wrapper.getAttribute('role') : null,
+        headerDisplay: headerStyle ? headerStyle.display : null,
+        headerExpanded: header ? header.getAttribute('aria-expanded') : null,
+        bodyHidden: body ? body.getAttribute('aria-hidden') : null,
+        moreClasses: moreBtn ? moreBtn.className : '',
+        moreWidth: moreRect ? Math.round(moreRect.width) : 0,
+        moreHeight: moreRect ? Math.round(moreRect.height) : 0,
+        treeScrollbarWidth: treeStyle ? treeStyle.scrollbarWidth : null,
+      };
+    });
+
+    expect(metrics.navState).toBe('category');
+    expect(metrics.active).toBe('structure');
+    expect(metrics.toolbarPointerEvents).toBe('none');
+    expect(metrics.toolbarOpacity).toBeLessThanOrEqual(0.01);
+    expect(metrics.toolbarMaxHeight).toBeLessThanOrEqual(1);
+    expect(metrics.dockDisplay).toBe('none');
+    expect(metrics.contentWidth).toBeGreaterThan(230);
+    expect(metrics.panelScrollWidth).toBeLessThanOrEqual(metrics.panelClientWidth + 2);
+    expect(metrics.wrapperRole).toBe('group');
+    expect(metrics.headerDisplay).not.toBe('none');
+    expect(metrics.headerExpanded).toBe('true');
+    expect(metrics.bodyHidden).toBe('false');
+    expect(metrics.moreClasses).toContain('zw-shell-control');
+    expect(metrics.moreWidth).toBeGreaterThanOrEqual(30);
+    expect(metrics.moreHeight).toBeGreaterThanOrEqual(30);
+    expect(metrics.treeScrollbarWidth === 'thin' || metrics.treeScrollbarWidth === 'auto').toBe(true);
+
+    await page.evaluate(() => {
+      const header = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"] .gadget-header');
+      if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    await page.waitForTimeout(120);
+
+    const collapsed = await page.evaluate(() => {
+      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
+      const header = wrapper ? wrapper.querySelector('.gadget-header') : null;
+      const body = wrapper ? wrapper.querySelector('.gadget') : null;
+      return {
+        wrapperCollapsed: wrapper ? wrapper.getAttribute('data-gadget-collapsed') : null,
+        headerExpanded: header ? header.getAttribute('aria-expanded') : null,
+        bodyHidden: body ? body.getAttribute('aria-hidden') : null,
+      };
+    });
+
+    expect(collapsed.wrapperCollapsed).toBe('true');
+    expect(collapsed.headerExpanded).toBe('false');
+    expect(collapsed.bodyHidden).toBe('true');
+  });
+
+  test('session 127: legacy wiki sidebar command resolves into edit category', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('wiki');
       }
     });
     await page.waitForTimeout(150);
 
-    const after = await page.evaluate(() => {
-      const sidebar = document.getElementById('sidebar');
-      return {
-        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
-        isOpen: !!(sidebar && sidebar.classList.contains('open')),
-      };
-    });
-    expect(after.edgeHoverLeft).toBeNull();
-    expect(after.isOpen).toBe(false);
+    const state = await page.evaluate(() => ({
+      navState: document.documentElement.getAttribute('data-left-nav-state'),
+      active: document.documentElement.getAttribute('data-left-nav-active'),
+      editExpanded: document.querySelector('.accordion-category[data-category="edit"] .accordion-header')?.getAttribute('aria-expanded') || null,
+    }));
+
+    expect(state.navState).toBe('category');
+    expect(state.active).toBe('edit');
+    expect(state.editExpanded).toBe('true');
   });
 
-  test('session 120: Electron left rail hover opens below the titlebar lane only', async ({ page }) => {
+  test('session 128: Story Wiki and Link Graph fit the shell foundation', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]', { state: 'attached' });
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container', { state: 'attached' });
+
+    const expandedMetrics = await page.evaluate(() => {
+      const storyWrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
+      const newButton = storyWrapper ? storyWrapper.querySelector('.swiki-footer .swiki-btn-new') : null;
+      const newButtonStyle = newButton ? window.getComputedStyle(newButton) : null;
+      const newButtonRect = newButton ? newButton.getBoundingClientRect() : null;
+      const graph = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container');
+      const graphStyle = graph ? window.getComputedStyle(graph) : null;
+      return {
+        buttonWritingMode: newButtonStyle ? newButtonStyle.writingMode : null,
+        buttonWhiteSpace: newButtonStyle ? newButtonStyle.whiteSpace : null,
+        buttonHeight: newButtonRect ? Math.round(newButtonRect.height) : 0,
+        graphClientWidth: graph ? graph.clientWidth : 0,
+        graphScrollWidth: graph ? graph.scrollWidth : 0,
+        graphOverflowX: graphStyle ? graphStyle.overflowX : null,
+        graphScrollbarWidth: graphStyle ? graphStyle.scrollbarWidth : null,
+      };
+    });
+
+    expect(expandedMetrics.buttonWritingMode).toBe('horizontal-tb');
+    expect(expandedMetrics.buttonWhiteSpace).toBe('nowrap');
+    expect(expandedMetrics.buttonHeight).toBeLessThanOrEqual(40);
+    expect(expandedMetrics.graphClientWidth).toBeGreaterThan(120);
+    expect(expandedMetrics.graphScrollWidth).toBeLessThanOrEqual(expandedMetrics.graphClientWidth + 2);
+    expect(expandedMetrics.graphOverflowX).toBe('hidden');
+    expect(expandedMetrics.graphScrollbarWidth === 'thin' || expandedMetrics.graphScrollbarWidth === 'auto').toBe(true);
+
+    await page.evaluate(() => {
+      const header = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"] .gadget-header');
+      if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    await page.waitForTimeout(260);
+
+    const collapsedMetrics = await page.evaluate(() => {
+      const storyWrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
+      const header = storyWrapper ? storyWrapper.querySelector('.gadget-header') : null;
+      const body = storyWrapper ? storyWrapper.querySelector('.gadget') : null;
+      const bodyStyle = body ? window.getComputedStyle(body) : null;
+      const bodyRect = body ? body.getBoundingClientRect() : null;
+      return {
+        wrapperCollapsed: storyWrapper ? storyWrapper.getAttribute('data-gadget-collapsed') : null,
+        headerExpanded: header ? header.getAttribute('aria-expanded') : null,
+        bodyHidden: body ? body.getAttribute('aria-hidden') : null,
+        bodyHeight: bodyRect ? Math.round(bodyRect.height) : 0,
+        bodyPaddingTop: bodyStyle ? parseFloat(bodyStyle.paddingTop || '0') : 0,
+        bodyPaddingBottom: bodyStyle ? parseFloat(bodyStyle.paddingBottom || '0') : 0,
+        bodyPointerEvents: bodyStyle ? bodyStyle.pointerEvents : null,
+        bodyVisibility: bodyStyle ? bodyStyle.visibility : null,
+      };
+    });
+
+    expect(collapsedMetrics.wrapperCollapsed).toBe('true');
+    expect(collapsedMetrics.headerExpanded).toBe('false');
+    expect(collapsedMetrics.bodyHidden).toBe('true');
+    expect(collapsedMetrics.bodyHeight).toBeLessThanOrEqual(2);
+    expect(collapsedMetrics.bodyPaddingTop).toBeLessThanOrEqual(1);
+    expect(collapsedMetrics.bodyPaddingBottom).toBeLessThanOrEqual(1);
+    expect(collapsedMetrics.bodyPointerEvents).toBe('none');
+    expect(collapsedMetrics.bodyVisibility).toBe('hidden');
+  });
+
+  test('session 128: structure compare actions stay compact until invoked', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await openSidebarGroup(page, 'structure');
+
+    const metrics = await page.evaluate(() => {
+      const controls = document.querySelector('.sidebar-compare-controls');
+      const splitView = document.getElementById('split-view-container');
+      const controlsRect = controls ? controls.getBoundingClientRect() : null;
+      return {
+        controlsHeight: controlsRect ? Math.round(controlsRect.height) : 0,
+        controlsDisplay: controls ? window.getComputedStyle(controls).display : null,
+        splitDisplay: splitView ? window.getComputedStyle(splitView).display : null,
+      };
+    });
+
+    expect(metrics.controlsDisplay).toBe('grid');
+    expect(metrics.controlsHeight).toBeLessThanOrEqual(48);
+    expect(metrics.splitDisplay).not.toBe('flex');
+  });
+
+  test('session 129: left nav anchor icon follows the active category', async ({ page }) => {
+    await setUIMode(page, 'normal');
+
+    const activate = async (categoryId) => {
+      await page.evaluate((id) => {
+        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+          window.sidebarManager.activateSidebarGroup(id);
+        }
+      }, categoryId);
+      await page.waitForTimeout(180);
+      return page.evaluate(() => {
+        const anchor = document.getElementById('sidebar-nav-anchor');
+        return {
+          active: document.documentElement.getAttribute('data-left-nav-active'),
+          label: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
+          group: anchor?.dataset.group || '',
+          icon: anchor?.dataset.currentIcon || '',
+        };
+      });
+    };
+
+    const sections = await activate('sections');
+    expect(sections.active).toBe('sections');
+    expect(sections.label).toBe('セクション');
+    expect(sections.group).toBe('sections');
+    expect(sections.icon).toBe('list-tree');
+
+    const structure = await activate('structure');
+    expect(structure.active).toBe('structure');
+    expect(structure.label).toBe('構造');
+    expect(structure.group).toBe('structure');
+    expect(structure.icon).toBe('file-text');
+
+    const sectionsAgain = await activate('sections');
+    expect(sectionsAgain.active).toBe('sections');
+    expect(sectionsAgain.label).toBe('セクション');
+    expect(sectionsAgain.group).toBe('sections');
+    expect(sectionsAgain.icon).toBe('list-tree');
+  });
+
+  test('session 129: sections and structure keep distinct gadget panels', async ({ page }) => {
+    await setUIMode(page, 'normal');
+
+    await openSidebarGroup(page, 'sections');
+    await page.waitForSelector('#sections-gadgets-panel .gadget-wrapper[data-gadget-name="SectionsNavigator"]', { state: 'attached' });
+
+    const sectionsState = await page.evaluate(() => {
+      const collect = (panelId) => [...document.querySelectorAll(`#${panelId} .gadget-wrapper`)]
+        .map((wrapper) => wrapper.getAttribute('data-gadget-name'))
+        .filter(Boolean);
+      const sectionsContent = document.querySelector('.accordion-header[aria-controls="accordion-sections"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
+      const structureContent = document.querySelector('.accordion-header[aria-controls="accordion-structure"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
+      return {
+        active: document.documentElement.getAttribute('data-left-nav-active'),
+        label: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
+        sectionsHidden: sectionsContent ? sectionsContent.hidden || window.getComputedStyle(sectionsContent).display === 'none' : true,
+        structureHidden: structureContent ? structureContent.hidden || window.getComputedStyle(structureContent).display === 'none' : true,
+        sectionsGadgets: collect('sections-gadgets-panel'),
+        structureGadgets: collect('structure-gadgets-panel'),
+      };
+    });
+
+    expect(sectionsState.active).toBe('sections');
+    expect(sectionsState.label).toBe('セクション');
+    expect(sectionsState.sectionsHidden).toBe(false);
+    expect(sectionsState.structureHidden).toBe(true);
+    expect(sectionsState.sectionsGadgets).toContain('SectionsNavigator');
+    expect(sectionsState.sectionsGadgets).not.toContain('Documents');
+
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]', { state: 'attached' });
+
+    const structureState = await page.evaluate(() => {
+      const collect = (panelId) => [...document.querySelectorAll(`#${panelId} .gadget-wrapper`)]
+        .map((wrapper) => wrapper.getAttribute('data-gadget-name'))
+        .filter(Boolean);
+      const sectionsContent = document.querySelector('.accordion-header[aria-controls="accordion-sections"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
+      const structureContent = document.querySelector('.accordion-header[aria-controls="accordion-structure"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
+      return {
+        active: document.documentElement.getAttribute('data-left-nav-active'),
+        label: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
+        sectionsHidden: sectionsContent ? sectionsContent.hidden || window.getComputedStyle(sectionsContent).display === 'none' : true,
+        structureHidden: structureContent ? structureContent.hidden || window.getComputedStyle(structureContent).display === 'none' : true,
+        sectionsGadgets: collect('sections-gadgets-panel'),
+        structureGadgets: collect('structure-gadgets-panel'),
+      };
+    });
+
+    expect(structureState.active).toBe('structure');
+    expect(structureState.label).toBe('構造');
+    expect(structureState.sectionsHidden).toBe(true);
+    expect(structureState.structureHidden).toBe(false);
+    expect(structureState.structureGadgets).toEqual(expect.arrayContaining(['Documents', 'Outline', 'StoryWiki']));
+    expect(structureState.structureGadgets).not.toContain('SectionsNavigator');
+  });
+
+  test('session 123: root left nav keeps a cue for the last active category', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
 
-    const lane = await page.evaluate(() => {
-      document.documentElement.classList.add('is-electron');
-      document.body.classList.add('is-electron');
-      if (window.sidebarManager) window.sidebarManager.forceSidebarState(false);
+    await page.evaluate(() => {
+      const header = document.querySelector('.accordion-category[data-category="advanced"] .accordion-header');
+      if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    });
+    await page.waitForTimeout(150);
+    await page.click('#sidebar-nav-back');
+    await page.waitForTimeout(150);
 
-      const strip = document.querySelector('.electron-drag-strip');
-      const rail = document.getElementById('sidebar-edge-rail');
-      const stripRect = strip ? strip.getBoundingClientRect() : null;
-      const railRect = rail ? rail.getBoundingClientRect() : null;
-      const titlebarHeight = stripRect ? stripRect.height : 0;
-      const dragLaneY = Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2)));
-      const railHoverY = railRect
-        ? Math.max(Math.round(railRect.top + 24), Math.round(railRect.top + Math.min(railRect.height - 1, 8)))
-        : null;
-
+    const cue = await page.evaluate(() => {
+      const html = document.documentElement;
+      const activeSection = document.querySelector('.accordion-category[data-category="advanced"]');
+      const activeHeader = activeSection ? activeSection.querySelector('.accordion-header') : null;
       return {
-        titlebarHeight,
-        railTop: railRect ? railRect.top : null,
-        dragLaneY,
-        railHoverY,
+        navState: html.getAttribute('data-left-nav-state'),
+        lastActive: html.getAttribute('data-left-nav-last-active'),
+        hasCueClass: activeSection ? activeSection.classList.contains('is-last-active-category') : false,
+        borderColor: activeHeader ? window.getComputedStyle(activeHeader).borderTopColor : null,
       };
     });
 
-    await page.waitForTimeout(400);
-
-    expect(lane.titlebarHeight).toBeGreaterThan(0);
-    expect(lane.railTop || 0).toBeGreaterThanOrEqual(lane.titlebarHeight - 1);
-    expect(lane.railHoverY).toBeGreaterThan(lane.dragLaneY);
-
-    await page.mouse.move(2, lane.dragLaneY);
-    await page.waitForTimeout(120);
-
-    let state = await page.evaluate(() => {
-      const sidebar = document.getElementById('sidebar');
-      return {
-        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
-        isOpen: !!(sidebar && sidebar.classList.contains('open')),
-      };
-    });
-    expect(state.edgeHoverLeft).toBeNull();
-    expect(state.isOpen).toBe(false);
-
-    await page.mouse.move(2, lane.railHoverY);
-    await page.waitForTimeout(120);
-
-    state = await page.evaluate(() => {
-      const sidebar = document.getElementById('sidebar');
-      return {
-        edgeHoverLeft: document.documentElement.getAttribute('data-edge-hover-left'),
-        isOpen: !!(sidebar && sidebar.classList.contains('open')),
-      };
-    });
-    expect(state.edgeHoverLeft).toBe('true');
-    expect(state.isOpen).toBe(true);
+    expect(cue.navState).toBe('root');
+    expect(cue.lastActive).toBe('advanced');
+    expect(cue.hasCueClass).toBe(true);
+    expect(cue.borderColor).not.toBe('rgba(0, 0, 0, 0)');
   });
 
-  // 旧 sp081-detailed-audit から移動: Blank モードは Focus にフォールバック
-  test('Blank mode fallback: redirected to Focus', async ({ page }) => {
+  // 旧モード値は統合シェルの normal に吸収する
+  test('Blank mode fallback: redirected to normal', async ({ page }) => {
     await page.evaluate(() => {
       if (window.ZenWriterApp) window.ZenWriterApp.setUIMode('blank');
     });
     await page.waitForTimeout(200);
     const mode = await page.evaluate(() => document.documentElement.getAttribute('data-ui-mode'));
-    expect(mode).toBe('focus');
+    expect(mode).toBe('normal');
   });
 });

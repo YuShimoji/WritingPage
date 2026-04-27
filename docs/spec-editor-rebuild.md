@@ -1,127 +1,14 @@
-# SP-081 エディタ体験再構築
+# Editor Rebuild
 
-> 作成: 2026-03-29
-> 更新: 2026-03-30 (Phase 4 — モード状態管理の構造的修正、全成功条件達成)
-> ステータス: done
+> **Status: superseded / history stub**
 
-## 背景
+SP-081 の旧エディタ再構築メモは、現行の統合シェル UI と chapterMode 一本化へ吸収済み。
 
-Phase 1-2 でレガシー章管理削除 + モード切替安定化を実施したが、実使用で以下の問題が残存:
+現在判断に使う正本:
 
-1. **モード切替の状態破綻**: Focus→Normal 復帰でツールバーが戻らない。高速切替で状態固着
-2. **setUIMode の非公開**: app.js クロージャ内に閉じており、Electron-bridge/テスト/外部モジュールが直接 data-ui-mode を書き換えて状態管理を迂回
-3. **章追加の UI 未反映**: 章追加後にパネルが再描画されない
-4. **レガシーバナー残存**: `_updateLegacyBanner()` が削除済み `migrateToChapterMode` を呼出 → ランタイムエラー
-5. **エッジホバーヒントの視認性**: 2回限定表示 + 左端テキストが極小で気づけない
-6. **フローティングツールバーのボタン過多**: ~40 ボタン、論理的グルーピング不明瞭
-7. **Blank モードの冗長性**: Focus との視覚差が小さく管理コストに見合わない
+- `docs/CURRENT_STATE.md`
+- `docs/INVARIANTS.md`
+- `docs/INTERACTION_NOTES.md`
+- `docs/UI_SURFACE_AND_CONTROLS.md`
 
-## 最終形の定義
-
-### 3モード体制 (Blank 廃止)
-
-| モード | ツールバー | サイドバー | 章パネル | エッジホバー | 用途 |
-|--------|-----------|----------|--------|------------|------|
-| Normal | 常時表示 | 開閉自在 | サイドバー内 | なし | フル機能 |
-| Focus | 非表示 (エッジホバーで復帰) | 非表示 | 左エッジホバーでスライドイン | あり | 集中執筆 |
-| Reader | 出力専用ツールバー | 非表示 | 非表示 | なし | プレビュー |
-
-- Blank は廃止。既存の blank 設定は focus に自動移行
-- Reader はプレビュー専用。エディタ操作なし
-
-### 最小執筆ループ
-
-```
-起動 → Focus モード (デフォルト)
-  → テキスト入力 (WYSIWYG)
-  → テキスト選択 → フローティングツールバーで装飾
-  → 章追加/切替 (左エッジホバー → 章パネル)
-  → 保存 (自動 / Ctrl+S)
-  → モード切替 (Normal/Reader、必要時のみ)
-```
-
-### フローティングツールバー (12-15 ボタン)
-
-| 行 | ボタン | 機能 |
-|----|--------|------|
-| 1 | B / I / U / S | 太字 / 斜体 / 下線 / 打消線 |
-| 2 | ルビ / 傍点 / リンク | 日本語特化装飾 |
-| 3 | 見出し(DD) / リスト(DD) / 引用 | ブロック操作 |
-
-- 装飾 (smallcaps/shadow/glow 等) / アニメーション / テキストボックスは削除 or サイドパネル移動
-- 表示条件: WYSIWYG モード + テキスト選択 + reader 以外
-
-### エッジグロー (テキストヒント廃止)
-
-**原則: 自分が書いた以外の文字は表示しない。** エディタ領域にシステムが挿入するテキスト（ヒント文言、プレースホルダ以外の説明文、自動挿入タイトル等）は排除する。
-
-- Focus モードでエッジ付近にグラデーション（グロー）を常時表示
-- 上部: 画面上端 48px のグラデーション帯。マウスが y=0-120px に近づくと opacity 上昇
-- 左部: 画面左端 32px のグラデーション帯。マウスが x=0-80px に近づくと opacity 上昇
-- エッジホバーが発火するとグローが消えて実 UI (ツールバー/章パネル) に置換
-- テキストメッセージは使わない — 視覚的グラデーションのみで UI の存在を示唆
-
-## 修正一覧
-
-### R-1: setUIMode のグローバル公開
-- `window.ZenWriterApp.setUIMode(mode)` として公開
-- Electron-bridge、テスト、外部モジュールはこの API を経由する
-- 直接の `data-ui-mode` 設定を禁止
-
-### R-2: Blank モード廃止
-- setUIMode の validModes から 'blank' を除去
-- blank → focus にフォールバック
-- CSS の `[data-ui-mode='blank']` セレクタを除去
-- edge-hover.js の blank 分岐を除去
-- UIモードセレクタから blank オプションを削除
-- 保存設定の uiMode が 'blank' → 'focus' に自動移行
-
-### R-3: レガシーバナー削除
-- app-file-manager.js の `_updateLegacyBanner()` メソッド全体を削除
-- 関連 CSS (#legacy-convert-banner) を削除
-- 呼び出し元 (`switchDocument` 内) のコールを削除
-
-### R-4: モード切替の安定化
-- Focus→Normal 復帰時にツールバー表示を確実化
-- data-toolbar-hidden 属性の確定的リセット
-- sidebarManager との状態整合
-
-### R-5: エッジホバーヒント改善
-- 2回限定表示 → Focus モードで常時表示 (dismissible)
-- 表示領域を広げる (上100px, 左60px)
-- テキストサイズを読みやすく (14px, 横書き)
-- opacity グラデーション (マウス距離に応じて変化)
-
-### R-6: フローティングツールバー整理
-- ボタンを 12-15 に削減
-- 装飾/アニメーション/テキストボックスグループの HTML を削除
-- setupDropdowns の対応するハンドラも整理
-
-### R-7: stale E2E テスト修正
-- chapter-store.spec.js: migrateToChapterMode テストを削除
-- chapter-ux-issues.spec.js: cl-migrate-btn / cl-revert-btn テストを削除
-
-### R-8: Electron-bridge 修正
-- `data-ui-mode` 直接設定 → `window.ZenWriterApp.setUIMode()` 経由に変更
-
-## 成功条件
-
-1. Normal / Focus / Reader の 3 モードが安定的に切替可能
-2. Focus→Normal でツールバーが確実に復帰する
-3. 高速モード切替 (N→F→N→F→N) で状態破綻しない
-4. フローティングツールバーが WYSIWYG + テキスト選択時のみ 12-15 ボタンで表示
-5. Focus モードでエッジホバーヒントが読みやすいサイズで常時表示
-6. 章追加後にパネルが即座に更新される
-7. レガシーバナーが存在しない
-8. Blank モードが存在しない
-9. E2E 回帰なし
-
-## 実装順序
-
-1. setUIMode グローバル公開 (R-1)
-2. レガシー根絶 (R-3, R-7)
-3. Blank 廃止 (R-2)
-4. モード切替安定化 (R-4)
-5. Electron-bridge 修正 (R-8)
-6. エッジホバーヒント改善 (R-5)
-7. フローティングツールバー整理 (R-6)
+旧 multi-mode 実装詳細や削除済み UI 導線は再導入しない。

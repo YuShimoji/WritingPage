@@ -6,7 +6,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/APP_SPECIFICATION.md",
-    "summary": "Zen Writer v0.3.29 の全体仕様。機能一覧・データモデル・操作フロー"
+    "summary": "Zen Writer v0.3.32 の全体仕様。統合シェル UI、機能一覧、データモデル、操作フロー"
   },
   {
     "id": "SP-002",
@@ -33,7 +33,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/GADGETS.md",
-    "summary": "ガジェット一覧・API・登録方法 (session 19で33→28に整理)"
+    "summary": "ガジェット一覧・API・登録方法。現行 UI 判断は left nav root/category と category panel / gadget loadout 対応を基準にする"
   },
   {
     "id": "SP-005",
@@ -42,16 +42,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/ROADMAP.md",
-    "summary": "Priority A-E の開発計画。A: SP-081 done追加。B: 全done。C: 全done/除外。D: PDF done, 他除外。E: SP-077+SP-080 done, クラウド同期はtodo(将来)。v0.3.32 / session 36 同期済み"
-  },
-  {
-    "id": "SP-006",
-    "title": "プロジェクト健全性レポート",
-    "status": "removed",
-    "pct": 0,
-    "cat": "core",
-    "file": "docs/PROJECT_HEALTH.md",
-    "summary": "削除済み。スナップショット情報はROADMAP.mdに統合"
+    "summary": "機能ロードマップ。現在地と次スライス選定は CURRENT_STATE.md / USER_REQUEST_LEDGER.md を優先する"
   },
   {
     "id": "SP-010",
@@ -60,7 +51,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/spec-context-toolbar.md",
-    "summary": "Layer 1-4のミニマルUI仕様。ヘッダー/装飾バー/サイドバー/エッジホバー"
+    "summary": "superseded stub。現行の操作入口は top chrome / left nav / command palette / replay surface"
   },
   {
     "id": "SP-011",
@@ -78,7 +69,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/VISUAL_PROFILE.md",
-    "summary": "テーマ/背景/フォント/余白/表示モードの統合プロファイル。Phase A (モデル+適用フロー) + Phase B (ユーザー定義CRUD+localStorage) + UI ガジェット (選択/保存/削除) + uiMode適用(SP-070統合, ZenWriterUIModeChangedイベント経由)。組み込み3種(標準/集中ダーク/ブランクライト)"
+    "summary": "テーマ/背景/フォント/余白の統合プロファイル。公開 UI 状態は統合シェル側で扱い、Visual Profile は本文表示・配色の一括適用を担う"
   },
   {
     "id": "SP-013",
@@ -262,7 +253,7 @@
     "pct": 100,
     "cat": "infra",
     "file": "docs/MANUAL_TEST_GUIDE.md",
-    "summary": "手動テスト観点・推奨運用・Playwright画面証跡の取得手順",
+    "summary": "package / Electron 固有 gate と統合シェル UI の手動確認手順。旧 Normal/Focus 切替 checklist ではない",
     "related": [
       "SP-041",
       "SP-050"
@@ -421,7 +412,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "Normal/Focus/Blankの3モード分離。Phase 1: CSS分離+ショートカット+Blankエッジホバー。Phase 2: ChapterStore統合ガード。Phase 3: Focusパネルリサイズ(pointer events+localStorage保存+ダブルクリック復帰)。Focusオーバーレイ設定は実装済み。残: ホットキーガジェットアクセス(将来)。"
+    "summary": "superseded stub。現行正本は top chrome / left nav / replay surface を基底にした統合シェル UI"
   },
   {
     "id": "SP-071",
@@ -516,12 +507,12 @@
   },
   {
     "id": "SP-078",
-    "title": "読者プレビューモード仕様",
+    "title": "再生オーバーレイ仕様",
     "status": "done",
     "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-reader-preview.md",
-    "summary": "第4のUIモード(data-ui-mode=reader)。Phase 1-4完了。全画面読者レイアウト+visible章結合+目次+ナビ+chapter://変換+装飾パイプライン統合(テキストボックス/テクスチャ/wikilink/傍点/ルビ)+タイポグラフィ+モバイル+reduced-motion+HTML出力(装飾CSS embed)+読書進捗バー+スクロール位置記憶/復元。E2E 10件。",
+    "summary": "superseded stub。読者視点確認は data-reader-overlay-open で開閉する再生オーバーレイとして扱う。",
     "related": [
       "SP-070",
       "SP-071",
@@ -550,7 +541,7 @@
     "title": "エディタ体験再構築",
     "status": "done",
     "completion": 100,
-    "description": "3モード体制(Normal/Focus/Reader) + setUIMode公開(force対応) + レガシー根絶 + モード切替安定化 + サイドバー状態永続化 + エッジグロー + ツールバー整理(40→12) + Reader導線整備 + 縦書き入力 + mode-switch aria-pressed修正 + return-barライフサイクル管理",
+    "description": "superseded stub。chapterMode 一本化、統合シェル UI、再生オーバーレイ、サイドバー状態永続化、縦書き入力、return-bar ライフサイクル管理の履歴ポインタ",
     "file": "docs/spec-editor-rebuild.md",
     "createdAt": "2026-03-29",
     "updatedAt": "2026-03-30"

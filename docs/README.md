@@ -7,14 +7,14 @@ v0.3.32 / 2026-04-06
 | ドキュメント | 内容 |
 |-------------|------|
 | [CURRENT_STATE](CURRENT_STATE.md) | 現在地の正本。Snapshot・**ドキュメント地図**・検証結果・優先課題 |
-| [PROJECT_HEALTH](PROJECT_HEALTH.md) | 健全性サマリ。主要リスクと次の確認ポイント |
 | [APP_SPECIFICATION](APP_SPECIFICATION.md) | アプリ仕様書（機能一覧・技術仕様・制限事項） |
 | [APP_LAUNCH_GUIDE](APP_LAUNCH_GUIDE.md) | 起動手順書（Web/Electron/PWA） |
 
 注記:
 
 - `docs/spec-index.json` は historical entry を含む。missing file があっても直ちに異常ではない
-- **セッション・検証の正本は `CURRENT_STATE.md`**（表形式の地図で次に読むファイルが分かる）。`../HANDOVER.md` は手続き。メトリクス `runtime-state.md`、背景メモ `project-context.md`
+- **セッション・検証・再開手順の正本は `CURRENT_STATE.md`**。旧再開・健康・カウンター文書は削除済み
+- `RECOMMENDED_DEVELOPMENT_PLAN.md` と `VERIFICATION_CHECKLIST.md` は historical stub。現在の作業選定・受け入れ確認には使わない
 
 ## アーキテクチャ・設計
 
@@ -48,8 +48,8 @@ v0.3.32 / 2026-04-06
 | ドキュメント | 内容 |
 |-------------|------|
 | [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-D の開発計画） |
-| [../HANDOVER](../HANDOVER.md) | 再開手順・参照順 |
-| [../CLAUDE](../CLAUDE.md) | AI向け再開コンテキスト |
+| [../AGENTS](../AGENTS.md) | AI adapter・最小 read order |
+| [CURRENT_STATE](CURRENT_STATE.md) | 再開手順・参照順 |
 
 ## インフラ
 

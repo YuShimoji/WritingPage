@@ -44,9 +44,9 @@
 
 ### A-1. モードアーキテクチャ (SP-070) -- done
 
-**現行（session 68 以降）**: UI モードは **`normal` / `focus` の 2 値**。読者視点の確認は UI モードではなく **再生オーバーレイ**（`data-reader-overlay-open` 等）で行う。`Blank` UI モードと Reader UI モードは廃止済み（Blank は session 33 前後、Reader モードは session 68）。
+**現行（session 68 以降）**: UI モードは内部互換の **`normal` / `focus`** に限定。読者視点の確認は UI モードではなく **再生オーバーレイ**（`data-reader-overlay-open` 等）で行う。公開 UI は session 121 以降、top chrome / left nav / replay surface を主語にする。
 
-**歴史（Phase 1〜3 当時）**: Normal / Focus / Blank の 3 モード分離として実装された後、SP-081・session 68 で上記に収斂。
+**歴史（Phase 1〜3 当時）**: 旧 multi-mode 分離として実装された後、SP-081・session 68 で上記に収斂。
 
 - CSS 分離（Focus: ChapterList パネル、エッジホバー復帰は Focus ヘッダー等で継続）
 - ショートカット（Ctrl+Shift+F / B、Esc 復帰）
@@ -93,11 +93,11 @@ chapterMode デフォルト化 + 文字数精度統一 + ロールバック UI +
 
 ### A-5. エディタ体験再構築 (SP-081) -- done
 
-chapterMode一本化 + Blank廃止 + setUIMode全経路統一 + Reader統合。Phase 1-4 全完了 (session 30-34)。
+chapterMode 一本化 + legacy display state 廃止 + setUIMode 全経路統一 + 再生オーバーレイ統合。Phase 1-4 全完了 (session 30-34)。
 
 - Phase 1: レガシー章管理削除 (-254行)、chapterMode一本化
 - Phase 2: メインツールバーの不要ボタン非表示
-- Phase 3: Blank完全除去、エッジグロー、setUIMode全経路統一
+- Phase 3: legacy display state 完全除去、エッジグロー、setUIMode全経路統一
 - Phase 4: setUIMode force パラメータ、サイドバー永続化、Reader aria-pressed修正
 
 ### A-6. UI/UX 磨き上げ (残タスク)

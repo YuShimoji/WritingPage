@@ -15,7 +15,6 @@
   /** 上端エッジ検知ゾーン (px)。画面上端からこの距離内でホバー扱い（ツールバー用、固定）。 */
   var EDGE_ZONE = 24;
   /** Normal モードのサイドバー専用 edge rail 幅。sidebar 本体の幾何から分離する。 */
-  var SIDEBAR_EDGE_RAIL_PX = 14;
   /** 開く側トリガー下限 (px): パネル実幅が極端に狭い場合の保険。 */
   var LEFT_EDGE_OPEN_MIN_PX = 120;
   /** 閉じる側バッファ (px)。パネル右端からこの距離を超えたら閉じる（ヒステリシス）。
@@ -135,6 +134,11 @@
     return html.getAttribute('data-reader-overlay-open') === 'true';
   }
 
+  function isElectronHost() {
+    return !!(window.electronAPI && window.electronAPI.isElectron) ||
+      !!(document.body && document.body.classList.contains('is-electron'));
+  }
+
   function nowMs() {
     if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
       return performance.now();
@@ -148,6 +152,24 @@
 
   function isNormalSidebarRailSuppressed() {
     return !isFocusMode() && nowMs() < normalRailSuppressedUntil;
+  }
+
+  function handleElectronRailHover(e) {
+    if (!isElectronHost() || !isFocusMode() || isReaderOverlayOpen()) return;
+    if (isSidebarNormallyOpen()) return;
+    if (e) {
+      if (typeof e.clientX === 'number') lastPointer.x = e.clientX;
+      if (typeof e.clientY === 'number') lastPointer.y = e.clientY;
+    }
+    if (isNormalSidebarRailSuppressed()) {
+      if (!state.left.active) {
+        clearTimeout(state.left.dwellTimer);
+        state.left.dwellTimer = null;
+      }
+      return;
+    }
+    if (state.left.active) cancelDismiss('left');
+    else startDwell('left');
   }
 
   function getWindowScreenPos() {
@@ -201,34 +223,6 @@
       y <= rect.bottom + pad;
   }
 
-  function getSidebarEdgeRailRect() {
-    var rail = document.getElementById('sidebar-edge-rail');
-    if (rail) {
-      var rect = rail.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) return rect;
-    }
-
-    if (isSidebarDockedRight()) {
-      return {
-        left: window.innerWidth - SIDEBAR_EDGE_RAIL_PX,
-        right: window.innerWidth,
-        top: 0,
-        bottom: window.innerHeight,
-        width: SIDEBAR_EDGE_RAIL_PX,
-        height: window.innerHeight
-      };
-    }
-
-    return {
-      left: 0,
-      right: SIDEBAR_EDGE_RAIL_PX,
-      top: 0,
-      bottom: window.innerHeight,
-      width: SIDEBAR_EDGE_RAIL_PX,
-      height: window.innerHeight
-    };
-  }
-
   function getSidebarResizeHandleRect() {
     var handle = document.getElementById('dock-sidebar-resize-handle');
     if (!handle) return null;
@@ -237,10 +231,6 @@
     var rect = handle.getBoundingClientRect();
     if (!(rect.width > 0 && rect.height > 0)) return null;
     return rect;
-  }
-
-  function isPointInNormalSidebarRail(x, y) {
-    return isPointInsideRect(x, y, getSidebarEdgeRailRect(), 0);
   }
 
   function isNormalSidebarInteractionActiveAt(x, y) {
@@ -335,6 +325,7 @@
 
   function runDwellAction(edge) {
     if (edge === 'top' && shouldSkipTopEdgeDwell()) return;
+    if (edge === 'left' && !isFocusMode()) return;
     if (edge === 'left' && isSidebarNormallyOpen()) return;
 
     showEdge(edge);
@@ -415,7 +406,7 @@
     // 画面高さは全域で発火 (session 91 で y > EDGE_ZONE 除外撤廃)
     var inLeftTriggerZone = isFocusMode()
       ? x <= getLeftEdgeZone()
-      : (!isReaderOverlayOpen() && isPointInNormalSidebarRail(x, y));
+      : false;
     var leftDismissZone = getLeftEdgeDismissZone();
     if (inLeftTriggerZone) {
       handleLeftTriggerZoneHover();
@@ -441,6 +432,7 @@
   function setupUIHoverGuard() {
     var sidebarRail = document.getElementById('sidebar-edge-rail');
     var sidebar = document.getElementById('sidebar');
+    var sidebarRail = document.getElementById('sidebar-edge-rail');
 
     if (sidebarRail) {
       var handleSidebarRailHover = function (e) {
@@ -485,6 +477,24 @@
         markLeftEdgeTouched();
       });
       sidebarHandle.addEventListener('mouseleave', function (e) {
+        if (!state.left.active) return;
+        var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
+        var y = e && typeof e.clientY === 'number' ? e.clientY : lastPointer.y;
+        if (!isLeftInteractionActiveAt(x, y)) startDismiss('left');
+      });
+    }
+
+    if (sidebarRail) {
+      // Packaged Electron では、ウィンドウ外から左端へ入った最初の hover が
+      // document-level mousemove として安定して届かないことがある。
+      // rail 自身の enter/move を補助トリガーにして、edge hover の責務は維持する。
+      sidebarRail.addEventListener('mouseenter', function (e) {
+        handleElectronRailHover(e);
+      });
+      sidebarRail.addEventListener('mousemove', function (e) {
+        handleElectronRailHover(e);
+      });
+      sidebarRail.addEventListener('mouseleave', function (e) {
         if (!state.left.active) return;
         var x = e && typeof e.clientX === 'number' ? e.clientX : lastPointer.x;
         var y = e && typeof e.clientY === 'number' ? e.clientY : lastPointer.y;

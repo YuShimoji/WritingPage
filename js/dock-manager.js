@@ -37,6 +37,10 @@
     return false;
   }
 
+  function shouldUseUnifiedLeftNav() {
+    return document.documentElement.getAttribute('data-ui-mode') === 'normal';
+  }
+
   /**
    * @param {object} sidebarManager - SidebarManager instance
    */
@@ -134,7 +138,7 @@
     var sidebar = document.getElementById('sidebar');
     if (sidebar) {
       var isDesktop = window.matchMedia('(min-width: 1025px)').matches;
-      if (isDesktop) {
+      if (isDesktop && !shouldUseUnifiedLeftNav()) {
         sidebar.style.width = canonicalWidth + 'px';
       } else {
         sidebar.style.removeProperty('width');
@@ -528,8 +532,10 @@
       this._layout.rightPanel.width = w;
       document.documentElement.style.setProperty('--sidebar-width', w + 'px');
       var sidebar = document.getElementById('sidebar');
-      if (sidebar && window.matchMedia('(min-width: 1025px)').matches) {
+      if (sidebar && window.matchMedia('(min-width: 1025px)').matches && !shouldUseUnifiedLeftNav()) {
         sidebar.style.width = w + 'px';
+      } else if (sidebar) {
+        sidebar.style.removeProperty('width');
       }
       var settings = getSettingsSnapshot();
       if (settings && typeof settings === 'object') {
@@ -546,6 +552,10 @@
   DockManager.prototype._onUIModeChanged = function (mode) {
     if (mode === 'normal') {
       this._applyLayout();
+      var sidebar = document.getElementById('sidebar');
+      if (sidebar) {
+        sidebar.style.removeProperty('width');
+      }
     } else {
       document.documentElement.removeAttribute('data-dock-left-open');
     }
@@ -625,7 +635,11 @@
         document.documentElement.style.setProperty('--sidebar-width', newWidth + 'px');
         // app.js が設定復元時にインライン width を設定するため、同時に更新する
         var sb = document.getElementById('sidebar');
-        if (sb) sb.style.width = newWidth + 'px';
+        if (sb && !shouldUseUnifiedLeftNav()) {
+          sb.style.width = newWidth + 'px';
+        } else if (sb) {
+          sb.style.removeProperty('width');
+        }
       }
     }
 

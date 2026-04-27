@@ -28,7 +28,7 @@ const DEFAULT_SETTINGS = {
     // ツールバー（文字数バー含む）の表示状態（初回は非表示）
     toolbarVisible: true,
     // 左サイドバー開閉（初回起動時の発見性を優先して既定は開。true/false で永続化）
-    sidebarOpen: true,
+    sidebarOpen: false,
     // 執筆目標
     goal: {
         target: 0,       // 目標文字数（0 は未設定）
@@ -79,7 +79,8 @@ const DEFAULT_SETTINGS = {
         sidebarWidth: 320,
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
-        uiMode: 'focus', // 'normal' | 'focus'
+        uiMode: 'normal', // 'normal' | 'focus'
+        leftNavCategory: 'sections',
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
         tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },
@@ -935,8 +936,8 @@ function normalizeSettingsShape(raw) {
     merged.preview = { ...defaults.preview, ...(parsed.preview || {}) };
     merged.autoSave = { ...defaults.autoSave, ...(parsed.autoSave || {}) };
     merged.ui = { ...defaults.ui, ...(parsed.ui || {}) };
-    if (merged.ui.uiMode === 'reader' || merged.ui.uiMode === 'blank') {
-        merged.ui.uiMode = 'focus';
+    if (merged.ui.uiMode === 'reader' || merged.ui.uiMode === 'blank' || merged.ui.uiMode === 'focus') {
+        merged.ui.uiMode = 'normal';
     }
     if (!merged.ui.tabPlacement) merged.ui.tabPlacement = defaults.ui.tabPlacement;
     if (!Array.isArray(merged.ui.tabOrder)) merged.ui.tabOrder = [];

@@ -70,7 +70,11 @@ test.describe('Accessibility E2E', () => {
   });
 
   test('Enter/Space keys activate accordion headers', async ({ page }) => {
-    await openSidebar(page);
+    await page.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.forceSidebarState === 'function') {
+        window.sidebarManager.forceSidebarState(false);
+      }
+    });
     await page.waitForTimeout(300);
     await disableWritingFocus(page);
     // writing-focus 再適用を確実に停止 (_isWritingFocusSidebarEffective を無効化)
@@ -101,9 +105,14 @@ test.describe('Accessibility E2E', () => {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
     await expect(header).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
 
+    const backButton = page.locator('#sidebar-nav-back');
+    await backButton.focus();
+    await expect(backButton).toBeFocused();
     await page.keyboard.press('Space');
     await page.waitForTimeout(300);
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'root');
     await expect(header).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -116,6 +125,41 @@ test.describe('Accessibility E2E', () => {
 
     const firstHeader = page.locator('.accordion-header').first();
     await expect(firstHeader).toHaveAttribute('aria-expanded');
+  });
+
+  test('unified shell controls expose concrete labels instead of placeholders', async ({ page }) => {
+    const labels = await page.evaluate(() => {
+      const ids = [
+        'top-chrome-handle',
+        'top-chrome-command-palette',
+        'top-chrome-reader-toggle',
+        'toggle-preview',
+        'toggle-theme',
+        'top-chrome-open-settings',
+        'top-chrome-open-help',
+        'win-minimize',
+        'win-maximize',
+        'win-close',
+        'sidebar-nav-back',
+        'sidebar-nav-anchor',
+      ];
+      return ids.map((id) => {
+        const element = document.getElementById(id);
+        return {
+          id,
+          ariaLabel: element ? element.getAttribute('aria-label') || '' : '',
+          title: element ? element.getAttribute('title') || '' : '',
+        };
+      });
+    });
+
+    for (const item of labels) {
+      expect(item.ariaLabel, `${item.id} aria-label`).toBeTruthy();
+      expect(item.ariaLabel, `${item.id} aria-label`).not.toMatch(/\?{2,}/);
+      if (item.title) {
+        expect(item.title, `${item.id} title`).not.toMatch(/\?{2,}/);
+      }
+    }
   });
 
   test('focus-visible style is applied for keyboard users', async ({ page }) => {
@@ -182,6 +226,12 @@ test.describe('Accessibility E2E', () => {
   test('preview toggle updates aria-expanded and panel collapsed class', async ({ page }) => {
     await openSidebar(page);
     await page.waitForTimeout(150);
+    await page.evaluate(() => {
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
+        window.ZenWriterTopChrome.show();
+      }
+    });
+    await page.waitForTimeout(220);
 
     const previewToggle = page.locator('#toggle-preview');
     const previewPanel = page.locator('#editor-preview');

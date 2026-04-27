@@ -16,6 +16,38 @@
     }
   }
 
+  function getTopChromeApi() {
+    return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
+      ? window.ZenWriterTopChrome
+      : null;
+  }
+
+  function showTopChrome() {
+    const topChrome = getTopChromeApi();
+    if (topChrome && typeof topChrome.showAndFocus === 'function') {
+      topChrome.showAndFocus();
+      return true;
+    }
+    return false;
+  }
+
+  function toggleTopChrome() {
+    const topChrome = getTopChromeApi();
+    if (topChrome && typeof topChrome.toggle === 'function') {
+      topChrome.toggle();
+      return true;
+    }
+    return false;
+  }
+
+  function returnLeftNavRoot() {
+    if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
+      window.sidebarManager.returnToLeftNavRoot();
+      return true;
+    }
+    return false;
+  }
+
   function isCommandPaletteDevMode() {
     return !!(window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.isEnabled === 'function' &&
       window.ZenWriterDeveloperMode.isEnabled());
@@ -66,12 +98,32 @@
     },
     {
       id: 'toggle-toolbar',
-      label: 'クイックツールパネル',
-      description: 'メインハブのクイックツールを開閉（旧: ツールバー表示）',
-      keywords: '上段 バー ハブ',
+      label: 'トップクロームを開閉',
+      description: 'トップクロームの表示を切り替える（旧互換コマンド）',
+      keywords: '上端 バー トップクローム 旧ツールバー',
       shortcut: 'Alt+W',
       category: 'UI操作',
+      hidden: true,
       execute: () => {
+        if (toggleTopChrome()) {
+          return;
+        }
+        if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
+          window.sidebarManager.toggleToolbar();
+        }
+      }
+    },
+    {
+      id: 'show-top-chrome',
+      label: 'トップクロームを表示',
+      description: '上端のトップクロームを表示してフォーカスする',
+      keywords: '上端 トップクローム コマンド 設定 ヘルプ',
+      shortcut: 'F2',
+      category: 'UI操作',
+      execute: () => {
+        if (showTopChrome()) {
+          return;
+        }
         if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
           window.sidebarManager.toggleToolbar();
         }
@@ -84,6 +136,7 @@
       keywords: '全画面 immersive',
       shortcut: 'F11',
       category: 'UI操作',
+      hidden: true,
       execute: () => {
         if (!document.fullscreenElement) {
           document.documentElement.requestFullscreen().catch(err => {
@@ -229,7 +282,7 @@
         }
       }
     },
-    // 表示 (session 107: view-menu と一対一対応)
+    // Internal compatibility: 旧 display-mode commands は visible list から外し、内部互換だけ残す
     {
       id: 'ui-mode-normal',
       label: '通常表示',
@@ -237,6 +290,7 @@
       keywords: '標準 レイアウト normal 通常 表示',
       shortcut: 'F2',
       category: '表示',
+      hidden: true,
       execute: () => {
         setAppUIMode('normal');
       }
@@ -248,6 +302,7 @@
       keywords: '集中 執筆 シンプル focus フォーカス フォーカスモード 表示',
       shortcut: 'F2',
       category: '表示',
+      hidden: true,
       execute: () => {
         setAppUIMode('focus');
       }
@@ -259,6 +314,7 @@
       keywords: 'サイクル 切替 cycle toggle 表示',
       shortcut: 'F2',
       category: '表示',
+      hidden: true,
       execute: () => {
         var cur = document.documentElement.getAttribute('data-ui-mode') || 'focus';
         setAppUIMode(cur === 'focus' ? 'normal' : 'focus');
@@ -266,15 +322,26 @@
     },
     {
       id: 'reader-overlay-toggle',
-      label: '再生オーバーレイ',
-      description: '読者視点の全画面閲覧を開閉',
-      keywords: '読者プレビュー リーダー reader 本番表示 表示',
+      label: 'Reader を開く / 閉じる',
+      description: 'Reader surface を開閉する',
+      keywords: '読者プレビュー リーダー reader surface 閲覧',
       shortcut: 'Alt+Shift+R',
-      category: '表示',
+      category: 'サーフェス',
       execute: () => {
         if (window.ZWReaderPreview && typeof window.ZWReaderPreview.toggle === 'function') {
           window.ZWReaderPreview.toggle();
         }
+      }
+    },
+    {
+      id: 'return-left-nav-root',
+      label: '左ナビのルートへ戻る',
+      description: '左ナビをカテゴリ表示からルート一覧へ戻す',
+      keywords: '左ナビ ルート 戻る 戻す',
+      shortcut: '',
+      category: 'UI操作',
+      execute: () => {
+        returnLeftNavRoot();
       }
     },
     {
@@ -667,6 +734,7 @@
       const lowerQuery = (query || '').toLowerCase().trim();
       this.filteredCommands = COMMANDS.filter(cmd => {
         if (cmd.devOnly && !isCommandPaletteDevMode()) return false;
+        if (cmd.hidden) return false;
         if (!lowerQuery) return true;
         const searchText = `${cmd.label} ${cmd.description} ${cmd.category} ${cmd.shortcut} ${cmd.keywords || ''}`.toLowerCase();
         return searchText.includes(lowerQuery);
@@ -817,8 +885,9 @@
     executeCommand(cmd) {
       try {
         const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
+        const keepFocusOffEditor = deferEditingFocus || cmd.id === 'show-top-chrome';
         cmd.execute();
-        this.hide({ skipEditingSurfaceFocus: deferEditingFocus });
+        this.hide({ skipEditingSurfaceFocus: keepFocusOffEditor });
         if (deferEditingFocus) {
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {

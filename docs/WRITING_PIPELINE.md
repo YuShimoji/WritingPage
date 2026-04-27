@@ -29,7 +29,7 @@
 - IndexedDB + LocalStorageから前回の状態を復元
 - 最後に編集していた文書を自動選択
 - ガジェット配置(loadout)を復元
-- UIモード(Normal/Focus/Reader)を復元（旧 Blank は Focus にフォールバック）
+- 統合シェル状態（top chrome / left nav / 再生オーバーレイ）を復元
 
 ### 手動が必要な操作
 - 新規文書の作成とタイトル設定
@@ -63,7 +63,7 @@
 ### 手動が必要な操作
 - テキスト入力そのもの
 - WYSIWYGとテキストモードの切り替え (Ctrl+Shift+W)
-- UIモードの切り替え (Ctrl+Shift+F: Focus, Ctrl+Shift+B: Blank)
+- top chrome / left nav / 再生オーバーレイの明示操作
 - 手動スナップショット作成 (Ctrl+Shift+Z)
 - スナップショットからの復元
 
@@ -177,7 +177,7 @@ Markdown + DSL テキスト
 - `js/gadgets-editor-extras.js` -- テキストボックスDSL/プリセット/ゲームブック分岐UI
 - `js/story-wiki.js` -- Wikiリンク/バックリンク/AI生成
 - `js/editor-preview.js` -- エディタ側プレビュー (100ms debounce)
-- `js/reader-preview.js` -- Readerモード全画面レンダリング
+- `js/reader-preview.js` -- 再生オーバーレイの読者視点レンダリング
 - `js/modules/editor/TextboxDslParser.js` -- DSL構文解析
 - `js/modules/editor/TextboxEffectRenderer.js` -- エフェクトHTML生成
 - `js/modules/editor/TextExpressionPresetResolver.js` -- プリセット展開
@@ -197,12 +197,12 @@ Markdown + DSL テキスト
 ## Stage 5: プレビュー / 検証
 
 ### ユーザー操作
-- Readerモードに切り替え (Alt+Shift+R またはモードメニュー)
+- 再生オーバーレイを開く
 - プレビューでスクロールしながら最終表示を確認
 - Story Wikiで用語の一貫性を確認
 
 ### 自動処理
-- **Readerモード全体レンダリング**: 全装飾パイプラインを適用した読者向けビューを自動生成
+- **再生オーバーレイ全体レンダリング**: 全装飾パイプラインを適用した読者向けビューを自動生成
 - **目次自動生成**: 可視チャプターから目次を自動作成
 - **章ナビゲーションバー挿入**: 前/目次/次のナビを自動挿入
 - **ドラフト章の自動除外**: visibility=hiddenの章をReader表示から除外
@@ -211,13 +211,13 @@ Markdown + DSL テキスト
 - **Wiki AIパイプライン**: OpenAI APIキー設定時、テンプレートからWikiエントリを自動生成
 
 ### 手動が必要な操作
-- Readerモードへの切り替え操作
+- 再生オーバーレイの開閉操作
 - 表示結果の目視確認 (操作感/タイミング/情報過不足)
 - Wikiエントリの作成/編集 (AI生成結果の承認含む)
 - ジャンルプリセットの切り替え
 
 ### 関連モジュール
-- `js/reader-preview.js` -- Readerモード全体
+- `js/reader-preview.js` -- 再生オーバーレイ全体
 - `js/story-wiki.js` -- Wiki/バックリンク/AI生成
 - `js/app-mode.js` -- モード切替
 
@@ -237,7 +237,7 @@ Markdown + DSL テキスト
 |------|----------|:--------:|:--------:|---------|
 | **プレーンテキスト (.txt)** | サイドバー Documents → TXTボタン | OK | OK | 1クリック |
 | **Markdown (.md)** | サイドバー Documents → MDボタン | OK | OK | 1クリック |
-| **HTML (装飾付き)** | Readerモード → Exportボタン | OK | OK | 1クリック。自己完結HTML (CSS埋め込み、アニメーション含む) |
+| **HTML (装飾付き)** | 再生オーバーレイ → Exportボタン | OK | OK | 1クリック。自己完結HTML (CSS埋め込み、アニメーション含む) |
 | **PDF** | ブラウザ印刷 (Ctrl+P) | OK | OK | 2ステップ (印刷ダイアログ経由) |
 
 ### 自動処理
@@ -438,8 +438,8 @@ Markdown + DSL テキスト
 | 指標 | 現状 | 目標 |
 |------|------|------|
 | 起動→執筆開始までの手順 | 0ステップ (自動復元) | 維持 |
-| 章構造変更→プレビュー反映 | Readerモード切替1回 | リアルタイム反映 (将来) |
-| 装飾適用→プレビュー反映 | Readerモード切替1回 | リアルタイム反映 (将来) |
+| 章構造変更→プレビュー反映 | 再生オーバーレイ更新 | リアルタイム反映 (将来) |
+| 装飾適用→プレビュー反映 | 再生オーバーレイ更新 | リアルタイム反映 (将来) |
 | 出力可能な形式数 | 4 (TXT/MD/HTML/PDF) | 維持 |
 | データ消失リスク | 極低 (IDB+LS+スナップショット) | 維持 |
 | DSL記法なしで使える装飾 | 全DSL型GUI化済み (Q1解決) | 維持 |

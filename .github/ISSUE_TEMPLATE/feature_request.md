@@ -20,5 +20,5 @@ assignees: ''
 
 ## 参考リンク
 
-- CLAUDE.md
-- HANDOVER.md
+- AGENTS.md
+- docs/CURRENT_STATE.md

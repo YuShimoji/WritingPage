@@ -17,12 +17,15 @@ class SidebarManager {
     constructor(elementManager) {
         this.elementManager = elementManager;
         this._initializedAccordionGroups = new Set();
+        this._pendingAccordionGroupInits = new Set();
         this._writingFocusInitialized = false;
         this._writingFocusRenderTimer = null;
         this._writingFocusObserver = null;
         this._writingFocusSettingsOpen = false;
         this._writingFocusAddBusy = false;
         this._toggleAccordionInProgress = false;
+        this.leftNavState = 'root';
+        this.activeCategoryId = 'sections';
         // アコーディオンカテゴリ設定の統一管理
         this.accordionCategories = [
             {
@@ -83,6 +86,163 @@ class SidebarManager {
         return this.bootstrapAccordion();
     }
 
+    _persistLeftNavState() {
+        try {
+            if (!window.ZenWriterStorage ||
+                typeof window.ZenWriterStorage.loadSettings !== 'function' ||
+                typeof window.ZenWriterStorage.saveSettings !== 'function') {
+                return;
+            }
+            const settings = window.ZenWriterStorage.loadSettings() || {};
+            settings.ui = settings.ui || {};
+            settings.ui.leftNavCategory = this.activeCategoryId;
+            settings.sidebarOpen = this.leftNavState === 'category';
+            window.ZenWriterStorage.saveSettings(settings);
+        } catch (_) { }
+    }
+
+    _setShellAnchorIcon(anchor, iconName) {
+        if (!anchor) return;
+        const safeIconName = iconName || 'panel-left';
+        anchor.dataset.currentIcon = safeIconName;
+
+        let icon = anchor.querySelector(':scope > i[data-lucide], :scope > svg');
+        if (!icon) {
+            icon = document.createElement('i');
+            const label = anchor.querySelector('.sidebar-shell-header__anchor-text');
+            if (label) {
+                anchor.insertBefore(icon, label);
+            } else {
+                anchor.insertBefore(icon, anchor.firstChild);
+            }
+        } else if (icon.tagName.toLowerCase() !== 'i') {
+            const nextIcon = document.createElement('i');
+            anchor.replaceChild(nextIcon, icon);
+            icon = nextIcon;
+        }
+
+        icon.setAttribute('data-lucide', safeIconName);
+        icon.setAttribute('aria-hidden', 'true');
+    }
+
+    _applyLeftNavState(options) {
+        const opts = (options && typeof options === 'object') ? options : {};
+        const html = document.documentElement;
+        const sidebar = document.getElementById('sidebar');
+        const shellHeader = document.getElementById('sidebar-shell-header');
+        const backButton = document.getElementById('sidebar-nav-back');
+        const anchor = document.getElementById('sidebar-nav-anchor');
+        const anchorLabel = document.getElementById('sidebar-nav-anchor-label');
+        const overlay = document.getElementById('sidebar-overlay');
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        const isCategory = this.leftNavState === 'category';
+        const activeCategory = this.accordionCategories.find((category) => category.id === this.activeCategoryId) || this.accordionCategories[0];
+
+        if (activeCategory) {
+            this.activeCategoryId = activeCategory.id;
+        }
+
+        html.setAttribute('data-left-nav-state', isCategory ? 'category' : 'root');
+        if (isCategory && activeCategory) {
+            html.setAttribute('data-left-nav-active', activeCategory.id);
+            html.setAttribute('data-sidebar-open', 'true');
+        } else {
+            html.removeAttribute('data-left-nav-active');
+            html.removeAttribute('data-sidebar-open');
+        }
+        if (activeCategory) {
+            html.setAttribute('data-left-nav-last-active', activeCategory.id);
+        } else {
+            html.removeAttribute('data-left-nav-last-active');
+        }
+
+        if (sidebar) {
+            // Unified-shell normal mode owns sidebar width via CSS, so clear any legacy inline width.
+            if (html.getAttribute('data-ui-mode') === 'normal') {
+                sidebar.style.removeProperty('width');
+            }
+            sidebar.classList.toggle('open', isCategory);
+            sidebar.setAttribute('aria-hidden', 'false');
+        }
+        if (overlay) {
+            overlay.setAttribute('aria-hidden', isCategory ? 'false' : 'true');
+        }
+        if (toggleBtn) {
+            toggleBtn.setAttribute('aria-expanded', isCategory ? 'true' : 'false');
+        }
+        if (shellHeader) {
+            shellHeader.setAttribute('aria-hidden', isCategory ? 'false' : 'true');
+        }
+        if (backButton) {
+            backButton.tabIndex = isCategory ? 0 : -1;
+        }
+
+        if (anchor && activeCategory) {
+            anchor.dataset.group = activeCategory.id;
+            anchor.setAttribute('title', activeCategory.label);
+            anchor.setAttribute('aria-label', activeCategory.label + ' カテゴリ');
+            anchor.tabIndex = isCategory ? 0 : -1;
+            if (anchorLabel) {
+                anchorLabel.textContent = activeCategory.label;
+            }
+            this._setShellAnchorIcon(anchor, activeCategory.icon || 'panel-left');
+        }
+
+        this.accordionCategories.forEach((category) => {
+            const section = document.querySelector(`.accordion-category[data-category="${category.id}"]`);
+            if (!section) return;
+            const header = section.querySelector('.accordion-header');
+            const content = section.querySelector('.accordion-content');
+            const isActive = !!activeCategory && category.id === activeCategory.id;
+            const showContent = isCategory && isActive;
+            const isHidden = isCategory && !isActive;
+
+            section.classList.toggle('is-active-category', isActive);
+            section.classList.toggle('is-last-active-category', isActive);
+            section.classList.toggle('is-category-hidden', isHidden);
+            section.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
+
+            if (header) {
+                header.setAttribute('aria-expanded', showContent ? 'true' : 'false');
+                header.setAttribute('aria-current', showContent ? 'page' : 'false');
+                header.tabIndex = isHidden ? -1 : 0;
+            }
+
+            if (content) {
+                content.hidden = !showContent;
+                content.style.display = showContent ? 'block' : 'none';
+                content.style.maxHeight = showContent ? 'none' : '0';
+                content.setAttribute('aria-hidden', showContent ? 'false' : 'true');
+            }
+
+            if (showContent) {
+                this._scheduleAccordionGadgetInitialized(category.id);
+            }
+        });
+
+        if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function' && isCategory && activeCategory) {
+            try {
+                window.ZWGadgets.setActiveGroup(activeCategory.id);
+            } catch (_) { }
+        }
+
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+            try {
+                window.lucide.createIcons();
+            } catch (_) { }
+        }
+
+        if (!opts.skipPersist) {
+            this._persistLeftNavState();
+        }
+    }
+
+    returnToLeftNavRoot(options) {
+        const opts = (options && typeof options === 'object') ? options : {};
+        this.leftNavState = 'root';
+        this._applyLeftNavState({ skipPersist: opts.skipPersist === true });
+    }
+
     _ensureAccordionGadgetInitialized(categoryId) {
         try {
             const category = this.accordionCategories.find(c => c && c.id === categoryId);
@@ -113,102 +273,89 @@ class SidebarManager {
         return false;
     }
 
+    _scheduleAccordionGadgetInitialized(categoryId) {
+        try {
+            if (!categoryId) return false;
+            if (this._initializedAccordionGroups.has(categoryId)) return true;
+            if (this._pendingAccordionGroupInits.has(categoryId)) return true;
+
+            const category = this.accordionCategories.find(c => c && c.id === categoryId);
+            if (!category) return false;
+            const panel = document.getElementById(category.panelId);
+            if (!panel) return false;
+
+            if (!panel.children.length) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'gadget-loading-placeholder';
+                placeholder.setAttribute('aria-hidden', 'true');
+                placeholder.textContent = '読み込み中…';
+                panel.appendChild(placeholder);
+            }
+
+            this._pendingAccordionGroupInits.add(categoryId);
+            const runInit = () => {
+                this._pendingAccordionGroupInits.delete(categoryId);
+                this._ensureAccordionGadgetInitialized(categoryId);
+                if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                    try { window.lucide.createIcons(); } catch (_) { }
+                }
+            };
+            const scheduleIdle = window.requestIdleCallback || ((fn) => window.setTimeout(fn, 0));
+            window.requestAnimationFrame(() => {
+                scheduleIdle(runInit, { timeout: 120 });
+            });
+            return true;
+        } catch (e) {
+            console.error(`ガジェット遅延初期化失敗: ${categoryId}`, e);
+        }
+        return false;
+    }
+
     bootstrapAccordion() {
         try {
-            // Slim sidebar mode: ガジェット chrome を非表示
             document.documentElement.setAttribute('data-sidebar-slim', 'true');
 
-            // localStorageから展開状態を読み込み
-            const savedState = this._loadAccordionState();
+            const settings = this._loadSidebarUISettings() || {};
+            const savedGroup = settings && settings.ui && settings.ui.leftNavCategory;
+            if (savedGroup && this.accordionCategories.some((category) => category.id === savedGroup)) {
+                this.activeCategoryId = savedGroup;
+            }
+            this.leftNavState = settings && settings.sidebarOpen ? 'category' : 'root';
 
-            // 各カテゴリのアコーディオンヘッダーにイベントリスナーを設定
             this.accordionCategories.forEach(category => {
-                const header = document.querySelector(
-                    `.accordion-header[aria-controls="accordion-${category.id}"]`
-                );
+                const header = document.querySelector(`.accordion-header[aria-controls="accordion-${category.id}"]`);
                 const content = document.getElementById(`accordion-${category.id}`);
-
                 if (!header || !content) return;
 
-                // 保存された状態または初期状態を適用
-                const isExpanded = savedState[category.id] !== undefined
-                    ? savedState[category.id]
-                    : category.defaultExpanded;
-
-                this._setAccordionState(category.id, isExpanded);
-
-                // クリックイベント
                 header.addEventListener('click', () => {
-                    const currentState = header.getAttribute('aria-expanded') === 'true';
-                    this._toggleAccordion(category.id, !currentState);
+                    this.activateSidebarGroup(category.id);
                 });
-
-                // キーボードイベント（Enter/Space）
                 header.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        const currentState = header.getAttribute('aria-expanded') === 'true';
-                        this._toggleAccordion(category.id, !currentState);
+                        this.activateSidebarGroup(category.id);
                     }
                 });
 
-                // 一括折りたたみ/展開ボタン
-                const bulkToggleVisible = localStorage.getItem('zenwriter-gadget-bulk-toggle-visible');
-                if (bulkToggleVisible !== 'false') {
-                    const bulkBtn = document.createElement('button');
-                    bulkBtn.className = 'gadget-bulk-toggle-btn';
-                    bulkBtn.title = 'ガジェットを全て展開/折りたたみ';
-                    bulkBtn.setAttribute('aria-label', 'ガジェットを全て展開/折りたたみ');
-                    const bulkIcon = document.createElement('i');
-                    bulkIcon.setAttribute('data-lucide', 'chevrons-down-up');
-                    bulkIcon.setAttribute('aria-hidden', 'true');
-                    bulkBtn.appendChild(bulkIcon);
-
-                    bulkBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        // 現在のカテゴリ内の全ガジェットの状態を確認
-                        const panel = document.getElementById(category.panelId);
-                        if (!panel) return;
-                        const wrappers = panel.querySelectorAll('.gadget-wrapper');
-                        const allCollapsed = Array.from(wrappers).every(w => {
-                            return w.getAttribute('data-gadget-collapsed') === 'true';
-                        });
-                        // 全て折りたたみなら全展開、それ以外なら全折りたたみ
-                        wrappers.forEach(w => {
-                            const name = w.getAttribute('data-gadget-name');
-                            if (name && window.ZWGadgets) {
-                                window.ZWGadgets._setGadgetCollapsed(name, !allCollapsed, w);
-                            }
-                        });
-                    });
-
-                    // chevron-downアイコンの前に挿入
-                    const accordionChevron = header.querySelector('.accordion-icon');
-                    if (accordionChevron && accordionChevron.parentNode === header) {
-                        header.insertBefore(bulkBtn, accordionChevron);
-                    } else {
-                        header.appendChild(bulkBtn);
-                    }
-                }
-
-                // ガジェット初期化
-                const panel = document.getElementById(category.panelId);
-                if (this._isDevMode()) {
-                    console.log(`[Accordion] カテゴリ ${category.id} の初期化:`, {
-                        panelId: category.panelId,
-                        panelFound: !!panel,
-                        ZWGadgetsAvailable: !!(window.ZWGadgets && window.ZWGadgets.init),
-                        isExpanded: isExpanded
-                    });
-                }
-                if (isExpanded) {
-                    this._ensureAccordionGadgetInitialized(category.id);
-                } else if (!panel) {
-                    console.warn(`[Accordion] パネルが見つかりません: ${category.panelId}`);
-                }
+                content.hidden = true;
+                content.style.display = 'none';
+                content.style.maxHeight = '0';
+                content.setAttribute('aria-hidden', 'true');
+                header.setAttribute('aria-expanded', 'false');
             });
 
-            // Lucideアイコンの初期化
+            const backButton = document.getElementById('sidebar-nav-back');
+            if (backButton && !backButton.dataset.boundLeftNav) {
+                backButton.dataset.boundLeftNav = '1';
+                backButton.addEventListener('click', () => this.returnToLeftNavRoot());
+            }
+
+            const anchorButton = document.getElementById('sidebar-nav-anchor');
+            if (anchorButton && !anchorButton.dataset.boundLeftNav) {
+                anchorButton.dataset.boundLeftNav = '1';
+                anchorButton.addEventListener('click', () => this.returnToLeftNavRoot());
+            }
+
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
                 window.lucide.createIcons();
             }
@@ -219,6 +366,7 @@ class SidebarManager {
                 }
             } catch (_) { }
             this._initWritingFocusSidebar();
+            this._applyLeftNavState({ skipPersist: true });
         } catch (e) {
             console.error('アコーディオン初期化エラー:', e);
         }
@@ -1110,106 +1258,35 @@ class SidebarManager {
 
     forceSidebarState(open, callback) {
         const sidebar = this.elementManager.get('sidebar');
-        if (!sidebar) {
-            console.error('サイドバー要素が見つかりません');
-            return;
-        }
+        if (!sidebar) return;
 
-        if (this._isDevMode()) {
-            console.info(`forceSidebarState(${open}) 実行開始`);
-            console.info(`現在の状態: open=${sidebar.classList.contains('open')}, aria-hidden=${sidebar.getAttribute('aria-hidden')}`);
-        }
+        this.leftNavState = open ? 'category' : 'root';
+        this._applyLeftNavState();
 
-        // 閉じる場合、サイドバー内のフォーカスを外部に移動してからaria-hiddenを設定
-        if (!open) {
-            const activeElement = document.activeElement;
-            // サイドバー内にフォーカスがある場合、エディタに移動
-            if (sidebar.contains(activeElement)) {
-                const editor = this.elementManager.get('editor');
-                if (editor) {
-                    // フォーカスを移動
-                    editor.focus();
-                    if (this._isDevMode()) console.info('サイドバー閉鎖のため、フォーカスをエディタに移動');
-                } else {
-                    // エディタがない場合はbodyにフォーカス
-                    document.body.focus();
-                    if (this._isDevMode()) console.info('サイドバー閉鎖のため、フォーカスをbodyに移動');
-                }
-            }
-        }
-
-        // アニメーション完了を待つためのPromise
-        const waitForTransition = () => {
-            return new Promise((resolve) => {
-                const onTransitionEnd = (e) => {
-                    if (e.propertyName === 'left' || e.propertyName === 'right') {
-                        sidebar.removeEventListener('transitionend', onTransitionEnd);
-                        resolve();
-                    }
-                };
-                sidebar.addEventListener('transitionend', onTransitionEnd);
-                // タイムアウトでフォールバック（transitionが発火しない場合）
-                setTimeout(resolve, SidebarManager.TRANSITION_TIMEOUT_MS);
-            });
-        };
-
-        // CSSクラスの更新
-        if (open) {
-            sidebar.classList.add('open');
-            document.documentElement.setAttribute('data-sidebar-open', 'true');
-            if (this._isDevMode()) console.info('サイドバーに .open クラスを追加');
-        } else {
-            sidebar.classList.remove('open');
-            document.documentElement.removeAttribute('data-sidebar-open');
-            if (this._isDevMode()) console.info('サイドバーから .open クラスを削除');
-        }
-
-        // サイドバーオーバーレイの表示制御（モバイル用）
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         if (sidebarOverlay) {
-            if (open) {
-                sidebarOverlay.setAttribute('aria-hidden', 'false');
-            } else {
-                sidebarOverlay.setAttribute('aria-hidden', 'true');
-            }
+            sidebarOverlay.setAttribute('aria-hidden', open ? 'false' : 'true');
         }
 
-        // ハンバーガーメニューボタンのaria-expanded属性を更新
         const toggleBtn = document.getElementById('toggle-sidebar');
         if (toggleBtn) {
             toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         }
 
-        // transition完了を待ってからaria-hiddenを設定
-        waitForTransition().then(() => {
-            sidebar.setAttribute('aria-hidden', open ? 'false' : 'true');
-            if (this._isDevMode()) {
-                console.info(`サイドバー aria-hidden="${open ? 'false' : 'true'}" を設定`);
-                console.info(`最終状態: open=${sidebar.classList.contains('open')}, left=${getComputedStyle(sidebar).left}`);
-            }
-            if (callback) callback();
-        });
+        sidebar.setAttribute('aria-hidden', 'false');
+        if (callback) {
+            requestAnimationFrame(() => callback());
+        }
     }
 
     toggleSidebar() {
-        const sidebar = this.elementManager.get('sidebar');
-        if (!sidebar) return;
-        const willOpen = !sidebar.classList.contains('open');
+        const willOpen = this.leftNavState !== 'category';
         if (this._isDevMode()) {
-            console.info(`サイドバーを${willOpen ? '開く' : '閉じる'}`);
+            console.info(`toggleSidebar -> ${willOpen ? 'category' : 'root'}`);
         }
         this.forceSidebarState(willOpen);
-        // 手動開閉をモード復帰時の復元用に永続化
-        try {
-            if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function') {
-                const s = window.ZenWriterStorage.loadSettings();
-                s.sidebarOpen = willOpen;
-                window.ZenWriterStorage.saveSettings(s);
-            }
-        } catch (_) { }
     }
 
-    /** メイン横帯ツールバー廃止後は互換用のノーアップ（旧設定 toolbarVisible は無視） */
     setToolbarVisibility(_show) {
         try {
             document.documentElement.removeAttribute('data-toolbar-hidden');
@@ -1219,7 +1296,10 @@ class SidebarManager {
 
     /** Alt+W: サイドバートグル（旧メインハブ互換） */
     toggleToolbar() {
-        this.toggleSidebar();
+        if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.toggle === 'function') {
+            window.ZenWriterTopChrome.toggle();
+            return;
+        }
     }
 
     _ensureSidebarPanel(groupId, label, panelId) {
@@ -1407,89 +1487,27 @@ class SidebarManager {
     }
 
     activateSidebarGroup(groupId, options) {
-        if (!groupId || !window.elementManager) {
-            console.warn('activateSidebarGroup: groupId または elementManager が存在しません');
+        if (!groupId) {
             return;
         }
 
         const opts = (options && typeof options === 'object') ? options : {};
-        const skipPresentationUpdate = opts.skipPresentationUpdate === true;
-
-        const tabConfig = this.sidebarTabConfig.find(tab => tab.id === groupId);
-        if (!tabConfig) {
-            const tabEl = document.querySelector(`.sidebar-tab[data-group="${groupId}"]`);
-            const panelEl = document.querySelector(`.sidebar-group[data-group="${groupId}"]`);
-            if (tabEl && panelEl) {
-                this.sidebarTabConfig.push({ id: groupId, label: tabEl.textContent || groupId, description: '', panelId: panelEl.id || `${groupId}-gadgets-panel` });
-            } else {
-                console.warn(`Unknown sidebar group: ${groupId}`);
-                return;
-            }
-        }
-
-        // 現在のactive groupを取得
-        const currentActiveTab = document.querySelector('.sidebar-tab.active');
-        const currentGroupId = currentActiveTab ? currentActiveTab.dataset.group : null;
-        if (currentGroupId === groupId) {
-            // すでにactiveならスキップ（開発環境のみログ出力）
-            if (this._isDevMode()) {
-                console.info(`Tab "${groupId}" is already active`);
-            }
-            if (!skipPresentationUpdate) {
-                this.applyTabsPresentationUI({ skipActivate: true });
-            }
-            this._expandAccordionForSidebarGroup(groupId);
+        const legacyGroupMap = {
+            wiki: 'edit',
+            typography: 'theme',
+            settings: 'advanced'
+        };
+        const normalizedGroupId = legacyGroupMap[groupId] || groupId;
+        const category = this.accordionCategories.find((item) => item.id === normalizedGroupId);
+        if (!category) {
+            console.warn(`Unknown sidebar group: ${groupId}`);
             return;
         }
 
-        if (this._isDevMode()) {
-            console.info(`Switching tab from "${currentGroupId}" to "${groupId}"`);
-        }
-
-        // タブのアクティブ状態を更新
-        const sidebarTabs = document.querySelectorAll('.sidebar-tab');
-        sidebarTabs.forEach(tab => {
-            const isActive = tab.dataset.group === groupId;
-            tab.classList.toggle('active', isActive);
-            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-            if (isActive) {
-                // アクティブなタブにフォーカスを移動（キーボード操作時のみ）
-                const isKeyboardUser = document.body.classList.contains('keyboard-user');
-                if (isKeyboardUser) {
-                    tab.focus();
-                }
-            }
-        });
-
-        // グループパネルの表示状態を更新
-        const sidebarGroups = document.querySelectorAll('.sidebar-group');
-        sidebarGroups.forEach(section => {
-            const isActive = section.dataset.group === groupId;
-            section.classList.toggle('active', isActive);
-            section.setAttribute('aria-hidden', isActive ? 'false' : 'true');
-        });
-
-        // ZWGadgetsに通知（ガジェットの再レンダリングをトリガー）
-        if (window.ZWGadgets && typeof window.ZWGadgets.setActiveGroup === 'function') {
-            try {
-                window.ZWGadgets.setActiveGroup(groupId);
-                // setActiveGroup内でrequestAnimationFrameによる遅延レンダリングが行われるため、
-                // ここでの_renderLast()直接呼び出しは不要（重複を避ける）
-            } catch (e) {
-                console.error('ZWGadgets.setActiveGroup でエラー:', e);
-            }
-        } else {
-            console.warn('ZWGadgets が利用できません');
-        }
-
-        // プレゼンテーション方式に合わせてUI反映
-        if (!skipPresentationUpdate) {
-            this.applyTabsPresentationUI({ skipActivate: true });
-        }
-
-        this._expandAccordionForSidebarGroup(groupId);
+        this.activeCategoryId = category.id;
+        this.leftNavState = 'category';
+        this._applyLeftNavState({ skipPersist: opts.skipPersist === true });
     }
-
 }
 
 SidebarManager.TRANSITION_TIMEOUT_MS = 350; // transition-duration + buffer

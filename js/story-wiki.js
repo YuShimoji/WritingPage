@@ -75,7 +75,7 @@
 
     function renderCompact() {
       root.innerHTML = '';
-      root.className = 'swiki-root swiki-compact';
+      root.className = 'gadget swiki-root swiki-compact';
 
       var searchBar = el('div', { className: 'swiki-search-bar' }, [
         el('input', {
@@ -305,7 +305,7 @@
 
     function renderFull() {
       root.innerHTML = '';
-      root.className = 'swiki-root swiki-full';
+      root.className = 'gadget swiki-root swiki-full';
 
       installEscHandler();
 

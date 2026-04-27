@@ -62,20 +62,20 @@ Zen Writer v0.3.32
 | スナップショット | 手動/自動のバックアップポイント | 実装済み |
 | タイプライターモード | カーソル位置固定スクロール | 実装済み |
 
-### 2. エディタモード（SP-070）
+### 2. 統合シェル UI（SP-070 以降）
 
-4つのUIモードを切り替えて執筆環境をカスタマイズ。
+公開 UI は mode 切替ではなく、統合シェルの状態で説明する。
 
-| モード | 説明 | ショートカット |
-|--------|------|-------------|
-| Normal | 全機能アクセス可能。サイドバー・ツールバー・ガジェットすべて表示 | — |
-| Focus | 執筆集中。左にチャプターリストパネル（章ナビ・リネーム・D&D・コンテキストメニュー）、サイドバー非表示。設定はオーバーレイアクセス | `Ctrl+Shift+F` |
-| Blank | 究極シンプル。エディタのみ表示。上端ホバーでツールバー一時復帰 | `Ctrl+Shift+B` |
-| Reader | 読者プレビュー。全画面読者レイアウト。visible章結合・目次・ナビ・装飾パイプライン統合・読書進捗バー | — |
+| Surface | 説明 | 入口 |
+|--------|------|------|
+| top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を集約 | `F2`、Electron menu、command palette |
+| left nav root | 常設ミニレール。カテゴリ一覧と last active cue を表示 | 左ナビ |
+| left nav category | active category の label / icon / panel / gadget loadout を表示 | root からカテゴリ選択 |
+| 再生オーバーレイ | 読者視点確認。visible 章結合・目次・ナビ・装飾パイプライン統合・読書進捗バー | shell UI / command palette |
 
-- `Esc` でFocus/BlankからNormalに復帰
-- モード状態はLocalStorageに保存・次回起動時に復元
-- 仕様詳細: `docs/specs/spec-mode-architecture.md`、`docs/specs/spec-reader-preview.md`
+- 内部互換 API として `normal` / `focus` は残るが、公開仕様の第一級概念にはしない。
+- 過去の保存値は統合シェルの通常状態へ正規化する。
+- 仕様詳細: `docs/INTERACTION_NOTES.md`、`docs/specs/spec-mode-architecture.md`
 
 ### 3. ドキュメント管理
 
@@ -221,25 +221,23 @@ manifest駆動のローカルプラグイン機能を実装済み。
 |---------|--------|
 | サイドバー制御 | メニューボタン |
 | 情報表示 | 文字数カウント、執筆目標プログレスバー |
-| モード切替 | Normal / Focus / Reader の3ボタン |
-| クイックアクション | 全画面表示 |
+| shell 操作 | top chrome 表示、left nav root 復帰、再生オーバーレイ |
+| クイックアクション | command palette / shell UI に集約 |
 | ウィンドウ操作 | 最小化/最大化/閉じる（Electronフレームレス時のみ） |
 
 ### サイドバー
 
-**構成：** 6カテゴリのアコーディオン（sections / structure / edit / theme / assist / advanced）
+**構成：** left nav root/category 階層 + 6カテゴリ（sections / structure / edit / theme / assist / advanced）
 
 - 各カテゴリは折りたたみ可能
 - ガジェットはカテゴリ内に配置
 - ロードアウト（プリセット）でガジェット構成を切り替え可能
-- Focusモードでは非表示（代わりにChapterListパネルを表示）
+- 公開 UI では left nav 階層を主導線とし、内部 mode による見え方の差分は互換扱い
 
-### エッジホバーUI
+### 一時シェル UI
 
-マウスが画面端に近づくと、隠れたUIを一時的にスライドイン表示。
-
-- 上端: ツールバー復帰（Blankモードで有効）
-- 左端: サイドバー復帰
+- top chrome: 明示操作時だけ表示し、上端 hover reveal は使わない
+- left nav: 常設ミニレールから root/category を切り替える
 
 ---
 
