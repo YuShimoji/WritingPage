@@ -11,7 +11,7 @@
 | ブランチ | `main` / `origin/main` 同期済み。push 後の作業ツリーは clean |
 | 現在の主軸 | **日常執筆導線の総点検**: top chrome hidden 時の文字数・保存状態 visibility、Floating memo lab の隔離 UX、低頻度 gadget の標準露出を整理 |
 | 直近の実装スライス | Writing status / memo lab / gadget pruning: top chrome hidden 時の status chip、Floating memo lab focus/overlap hardening、`GadgetPrefs` hide-by-default |
-| 最新ビルド・検証 | Post-push planning prep: `test:smoke` pass、`lint:js:check` pass、`build` pass、`git diff --check` pass。targeted E2E 65 passed |
+| 最新ビルド・検証 | Post-push planning prep: `test:smoke` pass、`lint:js:check` pass、`build` pass、`test:unit` 11 passed、E2E UI 49 passed、E2E stable 33 passed、targeted E2E 65 passed |
 | 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
 | 今回の docs sync | push 後の同期状態・再開ゲート・次プラン作成前提を `CURRENT_STATE` に反映 |
 
@@ -56,7 +56,11 @@
 - `npm run test:smoke` → pass
 - `npm run lint:js:check` → pass
 - `npm run build` → pass
+- `npm run test:unit` → 11 passed
+- `npm run test:e2e:ui -- --workers=1 --reporter=line` → 49 passed
+- `npm run test:e2e:stable -- --workers=1 --reporter=line` → 33 passed
 - `git diff --check` → pass
+- `npm run test:e2e -- --workers=1 --reporter=line` → 15分 timeout。assertion failure は未取得。総点検時は shard / suite 分割で実行する
 - 次プラン作成の現行入力は `Current Priorities` と `USER_REQUEST_LEDGER` の次スライス候補を優先する
 
 ### writing status / memo lab / gadget pruning
