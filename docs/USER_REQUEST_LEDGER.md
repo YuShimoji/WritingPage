@@ -23,11 +23,11 @@
 
 | 優先 | 候補 | Bottleneck | Actor / Owner |
 |------|------|------------|---------------|
-| A | Floating memo lab visual iteration | 開閉・フォーカス復帰・Reader/top chrome 重なり回避は PASS。以後も本流へ混ぜず実験 UI の見え方だけ進める | assistant / memo overlay |
-| B | Gadget usefulness pruning | `LoadoutManager` / `GadgetPrefs` は hide-by-default 済み。次は参照ゼロ候補だけ delete-candidate 化する | shared / gadget UX |
-| C | Writing status visibility follow-up | `#writing-status-chip` は PASS。常時表示以外の詳細な保存履歴や設定化は別スライスまで増やさない | shared / writing UX |
-| D | WP-004 parity follow-up | preview / replay overlay / Rich editing 差分が新規報告された時だけ扱う | shared / WP004 audit |
-| E | Docs hygiene sweep | 正本汚染・旧語彙・重複導線を見つけたら削除または役割限定化する | assistant / docs |
+| A | `main-hub-panel` dead code cleanup | 総合点検で DOM 実体なし、CSS / UI editor selector に orphan 参照あり。E2E green のため旧前提再混入防止として今すぐ着手可能 | assistant / stale UI |
+| B | Floating memo lab visual iteration | 開閉・フォーカス復帰・Reader/top chrome 重なり回避は PASS。以後も本流へ混ぜず実験 UI の見え方だけ進める | assistant / memo overlay |
+| C | Gadget usefulness pruning | `LoadoutManager` / `GadgetPrefs` は hide-by-default 維持が妥当。即削除候補は未検出のため、次は候補発見 scan に限定 | shared / gadget UX |
+| D | Writing status visibility follow-up | `#writing-status-chip` は PASS。常時表示以外の詳細な保存履歴や設定化は別スライスまで増やさない | shared / writing UX |
+| E | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | packaged closeout は PASS。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
 ## 完了時チェックリスト

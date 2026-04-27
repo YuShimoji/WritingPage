@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-27（post-push planning prep）
+最終更新: 2026-04-28（comprehensive inspection）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` 同期済み。push 後の作業ツリーは clean |
-| 現在の主軸 | **日常執筆導線の総点検**: top chrome hidden 時の文字数・保存状態 visibility、Floating memo lab の隔離 UX、低頻度 gadget の標準露出を整理 |
-| 直近の実装スライス | Writing status / memo lab / gadget pruning: top chrome hidden 時の status chip、Floating memo lab focus/overlap hardening、`GadgetPrefs` hide-by-default |
-| 最新ビルド・検証 | Post-push planning prep: `test:smoke` pass、`lint:js:check` pass、`build` pass、`test:unit` 11 passed、E2E UI 49 passed、E2E stable 33 passed、targeted E2E 65 passed |
+| 現在の主軸 | **総合点検 closeout**: 再開ゲート、stale UI/dead code、日常執筆導線、gadget pruning、Floating memo lab の次スライス判断を固定 |
+| 直近の実装スライス | Comprehensive inspection: 証拠・リスク・優先順位を `docs/verification/2026-04-28/comprehensive-inspection.md` に記録 |
+| 最新ビルド・検証 | Comprehensive inspection: `test:smoke` pass、`lint:js:check` pass、`build` pass、`test:unit` 11 passed、E2E UI 49 passed、E2E stable 33 passed、targeted E2E 65 passed |
 | 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | push 後の同期状態・再開ゲート・次プラン作成前提を `CURRENT_STATE` に反映 |
+| 今回の docs sync | 総合点検結果・次スライス分類を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / verification log へ反映 |
 
 ## Latest Handoff
 
@@ -48,6 +48,21 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### comprehensive inspection
+
+- 詳細: `docs/verification/2026-04-28/comprehensive-inspection.md`
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npm run test:unit` → 11 passed
+- `npm run test:e2e:ui -- --workers=1 --reporter=line` → 49 passed
+- `npm run test:e2e:stable -- --workers=1 --reporter=line` → 33 passed
+- `npx playwright test e2e/accessibility.spec.js e2e/ui-mode-consistency.spec.js e2e/floating-memo-lab.spec.js e2e/gadgets.spec.js --workers=1 --reporter=line` → 65 passed
+- `git diff --check` → pass
+- `#main-hub-panel` / `.main-hub-panel` は DOM 実体なし。CSS と UI editor selector に orphan 参照が残るため、次の高有用度 cleanup 候補
+- `LoadoutManager` / `GadgetPrefs` は削除ではなく hide-by-default 維持が妥当。今回の点検で即削除できる参照ゼロ gadget は見つからない
+- Daily writing flow / Floating memo lab は targeted E2E green。追加修正ではなく次スライス選定へ進める
 
 ### post-push planning prep
 
@@ -186,11 +201,11 @@
 
 | 優先 | テーマ | 内容 | Actor |
 |------|--------|------|-------|
-| A | Floating memo lab visual iteration | 開閉・focus 復帰・Reader/top chrome 重なり回避は PASS。以後も隔離 overlay の見え方だけ進める | assistant |
-| B | Gadget delete-candidate audit | `LoadoutManager` / `GadgetPrefs` は hide-by-default 済み。参照ゼロ候補だけ削除判断する | shared |
-| C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
-| D | WP-004 Phase 3 | 新規差分が出たときだけ台帳・手動パックに沿って 1 トピックで扱う | shared |
-| E | Docs hygiene | 正本は `CURRENT_STATE` 起点。古い再開・健康・カウンター文書を復活させない | assistant |
+| A | `main-hub-panel` dead code cleanup | DOM 実体なし、CSS / UI editor selector に orphan 参照あり。旧前提の再混入防止として今すぐ着手可能 | assistant |
+| B | Floating memo lab visual iteration | 開閉・focus 復帰・Reader/top chrome 重なり回避は PASS。以後も隔離 overlay の見え方だけ進める | assistant |
+| C | Gadget delete-candidate audit | `LoadoutManager` / `GadgetPrefs` は hide-by-default 維持。即削除候補は未検出のため、次は候補発見 scan に限定 | shared |
+| D | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
+| E | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | packaged closeout は PASS。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
 ## Known Notes
