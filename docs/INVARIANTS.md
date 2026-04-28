@@ -8,23 +8,23 @@
 
 ## Session 129: Left Nav Category Mapping
 
-- Left nav の category anchor は、active category の `label` / `icon` / `panelId` / gadget loadout と常に同じ対象を指す。`sections` は `セクション` + `list-tree` + `sections-gadgets-panel` + `SectionsNavigator`、`structure` は `構造` + `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系を持つ。
+- Left nav の category anchor は、active category の `label` / `icon` / `panelId` / gadget loadout と常に同じ対象を指す。`sections` は `セクション` + `list-tree` + `sections-gadgets-panel` + `SectionsNavigator`、`structure` は `構造` + `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph / SnapshotManager 系を持つ。
 - Lucide は初回描画後に `<i data-lucide>` を `<svg>` へ置換するため、category 切替で icon を更新するときは `<i>` だけを探して属性変更しない。既存 `<svg>` を新しい `<i data-lucide>` に差し替え、Lucide 再描画に渡す。
-- `#sidebar-nav-anchor` は `data-group` と `data-current-icon` を active category と同期する表示専用 anchor。root 戻りは `#sidebar-nav-back` のみが担う。E2E は label だけでなく icon と panel/gadget 対応も見る。
+- `#sidebar-nav-anchor` は `data-group` と `data-current-icon` を active category と同期する表示専用 anchor。root 戻りは `#sidebar-nav-back` と category-only の `#sidebar-nav-back-rail` が担う。E2E は label だけでなく icon と panel/gadget 対応も見る。
 
 ## Session 121 Override: Unified Shell UI
 
 - 以下が **現行の UI 不変条件**。下位の `normal` / `focus` 記述は internal compatibility のために残っていても、新規実装と docs 更新ではこの節を優先する。
-- 公開 UI は `display mode` を第一級概念にしない。ユーザー向け状態は **top chrome visibility / left nav hierarchy / Reader・Replay surface open state** で表す。
+- 公開 UI は `display mode` を第一級概念にしない。ユーザー向け状態は **left nav hierarchy / command palette / Reader・Replay surface open state** で表す。
 - `setUIMode('normal'|'focus')` は移行期の内部互換 API としてのみ扱う。新規 UI 仕様・visible command・manual test の起点にしない。
-- top chrome は hidden が既定で、常用ツールバーではなく **F2 / menu / command palette で明示表示する一時シェル**として扱う。fine pointer の上端 hover reveal と常時 visible handle は使わない。hidden 時に常設上部バーや seam を残さず、誤表示時は Escape / 外側操作で即時に閉じる。
-- writing status chip は top chrome hidden / Reader 非表示の通常執筆時だけ出る非操作型 status とする。`pointer-events: none` を維持し、top chrome / Reader / Floating memo lab 表示中は隠す。
-- frameless Electron window の通常移動は Electron-only の小さな左上 window grip に限定する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
-- left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
+- visible top chrome surface は復活させない。`F2` / Electron menu / 旧 toolbar 互換経路は command palette を開き、上端 hover reveal・常時 visible handle・上部 drag lane を作らない。
+- writing status chip は Reader 非表示 / Floating memo lab 非表示の通常執筆時だけ出る非操作型 status とする。`pointer-events: none` を維持し、Reader / Floating memo lab 表示中は隠す。
+- frameless Electron window の通常移動は Electron-only の小さな左上 window grip に限定する。Grip は初期透明で hover 時だけ icon を fade-in させる。最小化・最大化/復元・閉じるは Electron-only の右上 window controls island が担い、右上局所 hover / focus 時だけ fade-in する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
+- left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in し、見た目幅を出たら即 dismiss する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 中のみ左列全体の back rail で root に戻れる。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
 - sidebar / gadget / documents の visible UI は unified shell の共通 token（`--shell-space-*`, `--shell-control-*`, `--shell-radius-*`, `--shell-scrollbar-*`, `--shell-field-bg`）を使う。normal unified shell では dock / chrome 系の上段 clutter を常設表示せず、gadget header は collapse affordance、専用 drag handle は並び替え affordance として分離する。`aria-expanded` と gadget body `aria-hidden` は必ず同期する。
 - gadget body は `.gadget` class を保持する。Story Wiki などの gadget 内 render が `root.className` を上書きする場合も `.gadget` を消してはならない。collapsed body は height だけでなく padding / margin / pointer area も残さない。
 - category activation は shell を先に表示し、重い gadget render は次 frame / idle へ遅延する。表示前に hidden 幅で重い graph/canvas を同期描画しない。
-- command palette と visible UI から `ui-mode-*` / `toggle-fullscreen` を外し、`F2` は top chrome 表示に割り当てる。Electron menu の visible shell wording もこれに揃える。Normal left-edge hover は sidebar を force-open せず、root rail の一時 fade-in のみを行う。
+- command palette と visible UI から `ui-mode-*` / `toggle-fullscreen` / top chrome 表示 command を外し、`F2` は command palette 表示に割り当てる。Electron menu の visible shell wording もこれに揃える。Normal left-edge hover は sidebar を force-open せず、root rail の一時 fade-in のみを行う。
 
 - UI モードは `normal` / `focus` の 2 種。切替の単一入口は `setUIMode`。直接 `setAttribute('data-ui-mode', ...)` は禁止
 - legacy stored UI values and saved `focus` mode指定は、公開 UI 縮退後の統合シェルでは `normal` に吸収する

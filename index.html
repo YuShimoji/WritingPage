@@ -102,52 +102,23 @@
 </head>
 
 <body>
-  <div class="electron-window-grip" id="electron-window-grip" aria-hidden="true"></div>
+  <div class="electron-window-grip" id="electron-window-grip" aria-hidden="true">
+    <i data-lucide="move-diagonal-2" aria-hidden="true"></i>
+  </div>
   <div class="writing-status-chip" id="writing-status-chip" role="status" aria-live="polite" aria-atomic="true">
     文字数: 0 · 保存済み
   </div>
-  <div class="top-chrome-trigger" id="top-chrome-trigger" aria-hidden="true"></div>
-  <button type="button" class="top-chrome-handle" id="top-chrome-handle" aria-label="トップクロームを表示" aria-expanded="false" title="トップクロームを表示">
-    <span class="top-chrome-handle__pill" aria-hidden="true"></span>
-  </button>
-  <header class="top-chrome" id="top-chrome" aria-hidden="true">
-    <div class="top-chrome__drag-region electron-only" aria-hidden="true">
-      <span class="top-chrome__app-name">Zen Writer</span>
-    </div>
-    <div class="top-chrome__inner">
-      <div class="top-chrome__actions" role="toolbar" aria-label="トップクローム">
-        <button type="button" class="icon-button iconified" id="top-chrome-command-palette" title="コマンドパレット" aria-label="コマンドパレット">
-          <i data-lucide="command" aria-hidden="true"></i>
-        </button>
-        <button type="button" class="icon-button iconified" id="top-chrome-reader-toggle" title="Reader を開く / 閉じる" aria-label="Reader を開く / 閉じる">
-          <i data-lucide="book-open" aria-hidden="true"></i>
-        </button>
-        <button type="button" id="toggle-preview" class="icon-button iconified" title="Markdown プレビュー" aria-label="Markdown プレビューを開閉" aria-expanded="false" aria-controls="editor-preview">
-          <i data-lucide="layout-template" aria-hidden="true"></i>
-        </button>
-        <button type="button" id="toggle-theme" class="icon-button iconified" title="テーマ" aria-label="テーマを切り替え">
-          <i data-lucide="moon" aria-hidden="true"></i>
-        </button>
-        <button type="button" class="icon-button iconified" id="top-chrome-open-settings" title="設定" aria-label="設定">
-          <i data-lucide="settings-2" aria-hidden="true"></i>
-        </button>
-        <button type="button" class="icon-button iconified" id="top-chrome-open-help" title="ヘルプ" aria-label="ヘルプ">
-          <i data-lucide="circle-help" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="top-chrome__window-controls electron-only" role="group" aria-label="ウィンドウ操作">
-        <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
-          <i data-lucide="minus" aria-hidden="true"></i>
-        </button>
-        <button type="button" class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
-          <i data-lucide="square" aria-hidden="true"></i>
-        </button>
-        <button type="button" class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
-          <i data-lucide="x" aria-hidden="true"></i>
-        </button>
-      </div>
-    </div>
-  </header>
+  <div class="electron-window-controls-island electron-only" id="electron-window-controls" role="group" aria-label="ウィンドウ操作">
+    <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
+      <i data-lucide="minus" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="window-control-btn" id="win-maximize" title="最大化" aria-label="最大化">
+      <i data-lucide="square" aria-hidden="true"></i>
+    </button>
+    <button type="button" class="window-control-btn window-control-btn--close" id="win-close" title="閉じる" aria-label="閉じる">
+      <i data-lucide="x" aria-hidden="true"></i>
+    </button>
+  </div>
   <button type="button" id="toggle-sidebar" class="zw-offscreen-sidebar-toggle" tabindex="-1" aria-label="サイドバーを開閉"
     aria-expanded="false" aria-controls="sidebar" title="サイドバー（左端ホバー・Alt+1 等）">
     <span class="zw-offscreen-sidebar-toggle__ph" aria-hidden="true"></span>
@@ -313,6 +284,9 @@
         </section>
       </div>
     </aside>
+    <div class="sidebar-nav-back-rail" id="sidebar-nav-back-rail" aria-hidden="true" title="左ナビのルートへ戻る">
+      <i data-lucide="arrow-left" aria-hidden="true"></i>
+    </div>
     <div class="sidebar-edge-rail" id="sidebar-edge-rail" aria-hidden="true"></div>
     <div class="dock-resize-handle dock-resize-handle--sidebar" id="dock-sidebar-resize-handle"></div>
 
@@ -417,8 +391,6 @@
           aria-orientation="vertical" tabindex="0"></div>
         <div id="split-view-right" class="split-view-panel split-view-panel--right"></div>
       </div>
-
-      <!-- split-view-mode-panel は MainHubPanel に統合済み — 2026-03-17 削除 -->
 
       <!-- エディタエリア -->
       <div class="editor-container" role="region" aria-label="エディタ">

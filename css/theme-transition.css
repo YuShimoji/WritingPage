@@ -45,15 +45,6 @@ select {
     transform 0.2s ease-in-out;
 }
 
-/* テーマアイコンの回転アニメーション */
-#toggle-theme svg {
-  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
-
-#toggle-theme:active svg {
-  transform: rotate(180deg);
-}
-
 /* モーダルとパネル */
 .modal-overlay,
 .floating-panel,
@@ -90,7 +81,6 @@ select {
   textarea,
   select,
   .icon-button,
-  #toggle-theme svg,
   .modal-overlay,
   .floating-panel,
   .panel {

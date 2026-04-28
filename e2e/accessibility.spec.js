@@ -139,13 +139,9 @@ test.describe('Accessibility E2E', () => {
   test('unified shell controls expose concrete labels instead of placeholders', async ({ page }) => {
     const labels = await page.evaluate(() => {
       const ids = [
-        'top-chrome-handle',
-        'top-chrome-command-palette',
-        'top-chrome-reader-toggle',
-        'toggle-preview',
-        'toggle-theme',
-        'top-chrome-open-settings',
-        'top-chrome-open-help',
+        'electron-window-controls',
+        'sidebar-toggle-preview',
+        'sidebar-toggle-wysiwyg',
         'win-minimize',
         'win-maximize',
         'win-close',
@@ -174,13 +170,11 @@ test.describe('Accessibility E2E', () => {
   test('focus-visible style is applied for keyboard users', async ({ page }) => {
     await openSidebar(page);
     await page.waitForTimeout(150);
-    // トップバーの可視ボタンでフォーカスリングを確認
-    // session 102: #toggle-settings 撤去 → #toggle-theme で代替 (任意の可視ボタンの代理)
-    const themeBtn = page.locator('#toggle-theme');
-    await themeBtn.focus();
+    const navAnchor = page.locator('#sidebar-nav-anchor');
+    await navAnchor.focus();
     await page.keyboard.press('Tab');
     await page.keyboard.press('Shift+Tab');
-    await themeBtn.focus();
+    await navAnchor.focus();
 
     const hasKeyboardUserClass = await page.evaluate(() => {
       return document.body.classList.contains('keyboard-user');
@@ -258,25 +252,29 @@ test.describe('Accessibility E2E', () => {
     await openSidebar(page);
     await page.waitForTimeout(150);
     await page.evaluate(() => {
-      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
-        window.ZenWriterTopChrome.show();
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('edit');
+      }
+      var details = document.querySelector('.sidebar-editor-view-details');
+      if (details) {
+        details.open = true;
       }
     });
     await page.waitForTimeout(220);
 
-    const previewToggle = page.locator('#toggle-preview');
+    const previewToggle = page.locator('#sidebar-toggle-preview');
     const previewPanel = page.locator('#editor-preview');
     const previewBody = page.locator('#markdown-preview-panel');
 
-    const initialExpanded = await previewToggle.getAttribute('aria-expanded');
+    const initialPressed = await previewToggle.getAttribute('aria-pressed');
     const initialCollapsed = await previewPanel.evaluate((el) => el.classList.contains('editor-preview--collapsed'));
 
     await previewToggle.click();
 
-    const newExpanded = await previewToggle.getAttribute('aria-expanded');
+    const newPressed = await previewToggle.getAttribute('aria-pressed');
     const newCollapsed = await previewPanel.evaluate((el) => el.classList.contains('editor-preview--collapsed'));
 
-    expect(newExpanded).not.toBe(initialExpanded);
+    expect(newPressed).not.toBe(initialPressed);
     expect(newCollapsed).not.toBe(initialCollapsed);
     await expect(previewBody).toContainText('プレビューできる本文がまだありません');
   });

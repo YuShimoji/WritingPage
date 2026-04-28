@@ -6,8 +6,7 @@
       icon: 'layout-template',
       group: 'editor',
       gadgetId: 'editor-layout',
-      // MD プレビューはサイドバー先頭の #toggle-preview（ヘッダ帯外）。動的ヘッダ生成は付けない。
-      domId: 'toggle-preview',
+      domId: 'sidebar-toggle-preview',
       entrypoints: {
         headerIcon: false,
         sidebarGadget: true,

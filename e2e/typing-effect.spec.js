@@ -82,7 +82,7 @@ test.describe('SP-074 Phase 2: Typing Effect', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-typing{speed:"30ms"}\nタイピング演出テスト\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const typingDiv = page.locator('#markdown-preview-panel .zw-typing');
     await expect(typingDiv).toBeVisible({ timeout: 5000 });
@@ -326,7 +326,7 @@ test.describe('SP-074 Phase 4: Scroll trigger', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-scroll{effect:"fade-in"}\nフェードイン要素\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const triggerDiv = page.locator('#markdown-preview-panel .zw-scroll');
     await expect(triggerDiv).toBeAttached({ timeout: 5000 });

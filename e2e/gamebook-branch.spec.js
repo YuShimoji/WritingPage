@@ -9,7 +9,7 @@ test.describe('SP-072 Gamebook Branch UI', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', '## 第1章\n\n「どうする？」\n\n[森に入る](chapter://forest)\n\n[川沿いを進む](chapter://river)');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     // chapter-link が存在する
     const links = page.locator('#markdown-preview-panel .chapter-link');
@@ -91,7 +91,7 @@ test.describe('SP-072 Gamebook Branch UI', () => {
 
     // chapter:// リンクに #style=card フラグメントを含む Markdown
     await page.fill('#editor', '## Chapter 1\n\n[Enter forest](chapter://forest#style=card)\n\n[Go back](chapter://town#style=emphasis)');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     // card スタイルが適用されている
     const cardLink = page.locator('#markdown-preview-panel .chapter-link--card');
@@ -109,7 +109,7 @@ test.describe('SP-072 Gamebook Branch UI', () => {
 
     // 連続する chapter:// リンク
     await page.fill('#editor', '## Adventure\n\nWhat do you do?\n\n[Go left](chapter://left)\n[Go right](chapter://right)\n[Go back](chapter://back)');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
     await page.waitForTimeout(500);
 
     // chapter-link が3つ存在する

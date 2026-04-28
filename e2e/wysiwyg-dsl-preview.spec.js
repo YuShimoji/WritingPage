@@ -128,7 +128,7 @@ test.describe('WYSIWYG DSL ブロック静的プレビュー', () => {
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-toolbar-mode', 'full');
     });
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
     await page.waitForTimeout(500);
 
     const scroll = page.locator('#editor-preview .zw-scroll');

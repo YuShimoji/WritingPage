@@ -48,7 +48,7 @@
   3. **edit**: 画像、選択肢、プレビュー、装飾、アニメーション（Story Wiki は **structure**）
   4. **theme**: 表示調整（テーマ、フォント、VisualProfile、見出しスタイル）
   5. **assist**: 執筆継続の補助（目標、集中、参照、タイマー）
-  6. **advanced**: 詳細設定と運用管理（表示、出力、ショートカット、ロードアウト）
+  6. **advanced**: 詳細設定と運用管理（表示、HUD、出力、ショートカット、ロードアウト）
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
 - active でないカテゴリは shell 側で hit-test 対象外にし、DOM を保持したまま重い gadget render を遅延させる。
 
@@ -57,8 +57,9 @@
 
 #### UI仕様（現行）
 
-- root でカテゴリを選び、category で該当 panel と gadget loadout を表示する。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
-- 各ガジェットセクションの header / chevron は single-gadget / slim でも collapse affordance として残す。`aria-expanded` と body `aria-hidden` を同期する。
+- root でカテゴリを選び、category で該当 panel と gadget loadout を表示する。コマンドパレットからは6カテゴリへ直接ジャンプできる。
+- 各ガジェットセクションの header / chevron は collapse affordance として扱う。`SectionsNavigator` は single item category のため内側ヘッダーを出さず、カテゴリ選択だけで本文を使える状態にする。
+- `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
 #### 登録ガジェット一覧（28個）
@@ -85,12 +86,12 @@
 | 16 | WritingGoal | 執筆目標 | assist | 文字数・期限の目標を設定し進捗を可視化。 | gadgets-goal.js |
 | 17 | Typewriter | Typewriter | assist | カーソル行を画面中央へ寄せて視線移動を低減。 | gadgets-editor-extras.js |
 | 18 | FocusMode | Focus Mode | assist | 編集中の段落以外を減光して集中を維持。 | gadgets-editor-extras.js |
-| 19 | HUDSettings | HUD設定 | assist | HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
+| 19 | HUDSettings | HUD設定 | advanced | HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
 | 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | 作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
 | 21 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
 | 22 | UISettings | UI Settings | advanced | 表示方式・サイドバー配置・改行時の装飾挙動を調整。 | gadgets-editor-extras.js |
 | 23 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
-| 24 | LinkGraph | Link Graph | advanced | Wikiリンクの関係性をグラフで可視化。ページ間のつながりを俯瞰。 | link-graph.js |
+| 24 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
 | 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
 | 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
 | 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
@@ -111,6 +112,14 @@
 |--------|------|----------|------|
 | LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
 | GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
+
+#### Gadget kind taxonomy
+
+| Kind | 用途 | 表示制御 |
+|------|------|----------|
+| `tool` | 執筆中に参照・操作する道具 | collapse と必要最小限の補助操作を表示 |
+| `settings` | 一度設定すれば低頻度の調整パネル | 通常UIで detach を抑制 |
+| `admin` | ガジェット基盤やロードアウト自体の管理 | 標準 preset から除外し、通常UIの補助操作を抑制 |
 
 #### Documents action lanes
 
@@ -136,11 +145,11 @@
 
 | Group | 数 | 主な用途 |
 |-------|----|----------|
-| structure | 5 | 文書構造・ナビゲーション |
-| edit | 5 | 編集・装飾・プレビュー |
+| structure | 6 | 文書構造・ナビゲーション・スナップショット |
+| edit | 5 | 編集・装飾・プレビュー（Images は VN 系 preset で表示） |
 | theme | 4 | テーマ・フォント・視覚設定 |
-| assist | 6 | 執筆支援・タイマー・集中・リファレンス |
-| advanced | 6 | UI設定・グラフ・管理ツール |
+| assist | 5 | 執筆支援・タイマー・集中・リファレンス |
+| advanced | 7 | UI設定・HUD・出力・管理ツール |
 | sections | 1 | セクションナビゲーション (SP-052) |
 
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、left nav の category panel 表示と紐づく。
@@ -190,11 +199,11 @@
       "label": "小説・長編",
       "groups": {
         "sections": ["SectionsNavigator"],
-        "structure": ["Outline", "Documents"],
-        "edit": ["StoryWiki"],
+        "structure": ["Documents", "Outline", "TagsAndSmartFolders", "SnapshotManager", "StoryWiki", "LinkGraph"],
+        "edit": ["MarkdownPreview", "ChoiceTools", "FontDecoration", "TextAnimation"],
         "theme": ["Themes", "Typography"],
-        "assist": ["WritingGoal", "HUDSettings"],
-        "advanced": ["PrintSettings"]
+        "assist": ["Typewriter", "FocusMode", "WritingGoal", "MarkdownReference", "PomodoroTimer"],
+        "advanced": ["EditorLayout", "UISettings", "HUDSettings", "PrintSettings", "Keybinds"]
       }
     }
   }
@@ -218,7 +227,7 @@
 - 複製は「対象を選択→ロードアウト適用→名前を入力→ロードアウト保存」で実現可能（専用ボタンは今後の候補）。
 - UI
   - category panel 内にプリセットドロップダウンを配置し、「ロードアウト保存」「ロードアウト複製」「ロードアウト削除」操作を提供。
-  - プリセット切替後は `ZWGadgets.importPrefs()` に近いフローで order/collapsed/settings を再構成。
+  - プリセット切替後はロードアウト配列順を正として再描画し、開閉状態と個別設定は既存 prefs を維持。
 - **(将来案)** Embed モードではホストから `sdk.setLoadout(name)` を呼び出すことでロードアウトを同期できるよう、Embed SDK v2 でイベント定義を計画しています。
 
 ## 実装概要
@@ -269,8 +278,8 @@ ZWGadgets.register(
 1. ロードアウトへ含める（任意）
 
 ```js
-// 既定プリセットに含めたい場合は DEFAULT_LOADOUTS を編集
-// assist や typography 等の希望グループへガジェット名を追加
+// 既定プリセットに含めたい場合は ZWLoadoutPresets を編集
+// assist や theme 等の希望グループへガジェット名を追加
 ```
 
 1. 設定UIを付ける（任意）
@@ -287,10 +296,11 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 });
 ```
 
-1. 並び順・折りたたみは自動保存
+1. 表示順・折りたたみ
 
-- ヘッダの「↑/↓」「▼/▶」操作は `prefs.order` / `prefs.collapsed` に自動保存されます。
-- ドラッグ＆ドロップは gadget header 内の専用 drag handle からのみ開始します。slider / input / button / gadget body 操作では drag を発火させません。
+- 表示順は active loadout の `groups.<category>` 配列順を正とします。
+- 通常UIでは drag handle を表示しません。slider / input / button / gadget body 操作から drag は発火しません。
+- 開閉状態は `zenwriter-gadget-collapsed` に保存します。
 
 1. テスト
 
@@ -318,9 +328,9 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 
 ```json
 {
-  "order": ["Clock"],
-  "collapsed": {"Clock": false},
-  "settings": {"Clock": {"hour24": true}}
+  "order": [],
+  "collapsed": {},
+  "settings": {"PomodoroTimer": {"workMinutes": 25}}
 }
 ```
 
@@ -332,53 +342,49 @@ ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
 ### 手動手順
 
 1. 「ガジェット設定をエクスポート」を押してJSONを保存
-2. JSON を編集（例: `settings.Clock.hour24` を `false` に変える）
+2. JSON を編集（例: `settings.PomodoroTimer.workMinutes` を変更する）
 3. 「ガジェット設定をインポート」から当該 JSON を指定
-4. Clock の 12/24 表示が反映され、必要に応じて順序/開閉も復元される
+4. 対応 gadget の設定が反映される
 
-## 設定保存/折りたたみ/並び替え（v0.3.13+）
+## 設定保存/折りたたみ/表示順（v0.3.13+）
 
-- ガジェット単体の開閉（見出しの ▼/▶）の永続化は LocalStorage キー **`zenwriter-gadget-collapsed`**（ガジェット名 → 展開なら `true`）を `gadgets-core.js` が参照する。初回訪問でキーが無い場合のデフォルトは **Documents** と **Themes** のみ展開し、それ以外は閉じる。session 82 以降、**assist** 向けガジェットは `ZWGadgets.register(..., { defaultCollapsed: true })` で上記方針を明示（実効は従来と同様）。
+- ガジェット単体の開閉（見出しの chevron）の永続化は LocalStorage キー **`zenwriter-gadget-collapsed`**（ガジェット名 → 展開なら `true`）を `gadgets-core.js` が参照する。初回訪問でキーが無い場合のデフォルトは **Documents** と **Themes** のみ展開し、それ以外は閉じる。`SectionsNavigator` は single item category のため常に展開する。
 - 仕組み
   - LocalStorage キー: `zenWriter_gadgets:prefs`
-  - 構造: `{ order: string[], collapsed: Record<string, boolean>, settings: Record<string, any> }`
+  - 構造: `{ order: string[], collapsed: Record<string, boolean>, settings: Record<string, any> }`（`order` は互換フィールド。通常UIの表示順は loadout 配列順）
 - API
   - `ZWGadgets.getPrefs()` / `ZWGadgets.setPrefs(prefs)`
   - `ZWGadgets.toggle(name)` … ガジェットの開閉トグル
-  - `ZWGadgets.move(name, dir)` … 並び替え（`'up'|'down'`）
 - UI
-  - 各ガジェットのヘッダに 開閉ボタン（▼/▶）と 上下ボタン（↑/↓）を配置
+  - 各ガジェットのヘッダに開閉 chevron を配置
 - 例
 
 ```js
-// Clock を下へ移動
-ZWGadgets.move('Clock', 'down');
-
-// Clock を折りたたむ/展開
-ZWGadgets.toggle('Clock');
+// PomodoroTimer を折りたたむ/展開
+ZWGadgets.toggle('PomodoroTimer');
 
 // 直接プリファレンスを書き換えて再描画
 const prefs = ZWGadgets.getPrefs();
-prefs.order = ['Clock'];
+prefs.settings.PomodoroTimer = { workMinutes: 25 };
 ZWGadgets.setPrefs(prefs);
 ```
 
-## 手動テスト手順（設定保存/折りたたみ/並び替え）
+## 手動テスト手順（設定保存/折りたたみ/表示順）
 
 1. `/` を開く
-2. サイドバー「ガジェット」セクションで、Clock の「▼」をクリックして本文を表示/非表示できること
-3. 「↑」「↓」で順序が変わること（Clock が上下に移動）
-4. ページをリロードし、開閉状態と順序が保持されていること
+2. left nav category を開き、gadget header の chevron で本文を表示/非表示できること
+3. ページをリロードし、開閉状態が保持されていること
+4. 表示順が active loadout の `groups.<category>` 配列順と一致すること
 5. `?embed=1` ではガジェットが表示されないことを確認
 
-## ドラッグ＆ドロップ並び替え（Mission 5 / 現行）
+## ドラッグ＆ドロップ（legacy / 非表示）
 
-- サイドバーの各ガジェットはヘッダ（タイトル行）をドラッグして並び替えが可能です。
-- フォールバックとして従来の「↑/↓」ボタンも維持しています（キーボード操作向け）。
+- 通常UIではカテゴリ内の順序を安定させるため drag handle を表示しません。
+- 内部APIと custom loadout 互換のため、既存の drag/drop handler と `assignGroups` は残します。
 
 ### 備考
 
-- 内部的には `dataTransfer.setData('text/gadget-name', <name>)` を用い、`drop` 時に順序配列（prefs.order）を更新します。
+- cross-group drop は custom loadout の所属変更互換として維持します。同一カテゴリ内の並び替えは行わず、表示順は loadout 配列順です。
 
 ## 設定UIフレームワーク（Mission 5 / 現行）
 
@@ -412,21 +418,21 @@ ZWGadgets.register('Sample', function (el, api) {
   - `prefs()` 現在のプリファレンスオブジェクト取得
   - `refresh()` 明示的な再描画要求
 
-### 例: Clock の 12/24 時間表示
+### 例: PomodoroTimer の音通知
 
 ```js
 // 表示ロジック（抜粋）
-const hour24 = api.get('hour24', true);
+const soundEnabled = api.get('soundEnabled', true);
 ```
 
 設定UI:
 
 ```js
-ZWGadgets.registerSettings('Clock', function (el, ctx) {
+ZWGadgets.registerSettings('PomodoroTimer', function (el, ctx) {
   const cb = document.createElement('input');
   cb.type = 'checkbox';
-  cb.checked = !!ctx.get('hour24', true);
-  cb.addEventListener('change', () => ctx.set('hour24', !!cb.checked));
+  cb.checked = !!ctx.get('soundEnabled', true);
+  cb.addEventListener('change', () => ctx.set('soundEnabled', !!cb.checked));
   el.appendChild(cb);
 });
 ```
@@ -434,7 +440,7 @@ ZWGadgets.registerSettings('Clock', function (el, ctx) {
 ## テスト（追加事項）
 
 - `scripts/dev-check.js` は次を静的に検証します。
-  - DnD: `draggable=true`、`dataTransfer.setData('text/gadget-name', ...)`、`drop` リスナーの存在
+  - Control policy: 通常UIでは drag handle を非表示にし、collapse chevron を維持する CSS/API 契約
   - 設定UI: `registerSettings/getSettings/setSetting` の存在
 
 ## HUDSettings ガジェット

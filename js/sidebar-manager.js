@@ -131,6 +131,7 @@ class SidebarManager {
         const sidebar = document.getElementById('sidebar');
         const shellHeader = document.getElementById('sidebar-shell-header');
         const backButton = document.getElementById('sidebar-nav-back');
+        const backRail = document.getElementById('sidebar-nav-back-rail');
         const anchor = document.getElementById('sidebar-nav-anchor');
         const anchorLabel = document.getElementById('sidebar-nav-anchor-label');
         const overlay = document.getElementById('sidebar-overlay');
@@ -175,6 +176,9 @@ class SidebarManager {
         }
         if (backButton) {
             backButton.tabIndex = isCategory ? 0 : -1;
+        }
+        if (backRail) {
+            backRail.setAttribute('aria-hidden', isCategory ? 'false' : 'true');
         }
 
         if (anchor && activeCategory) {
@@ -348,6 +352,12 @@ class SidebarManager {
             if (backButton && !backButton.dataset.boundLeftNav) {
                 backButton.dataset.boundLeftNav = '1';
                 backButton.addEventListener('click', () => this.returnToLeftNavRoot());
+            }
+
+            const backRail = document.getElementById('sidebar-nav-back-rail');
+            if (backRail && !backRail.dataset.boundLeftNav) {
+                backRail.dataset.boundLeftNav = '1';
+                backRail.addEventListener('click', () => this.returnToLeftNavRoot());
             }
 
             const anchorButton = document.getElementById('sidebar-nav-anchor');
@@ -1298,11 +1308,10 @@ class SidebarManager {
         } catch (_) { }
     }
 
-    /** Alt+W: サイドバートグル（旧メインハブ互換） */
+    /** Alt+W: コマンドパレットへ誘導（旧メインハブ互換） */
     toggleToolbar() {
-        if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.toggle === 'function') {
-            window.ZenWriterTopChrome.toggle();
-            return;
+        if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+            window.commandPalette.show();
         }
     }
 

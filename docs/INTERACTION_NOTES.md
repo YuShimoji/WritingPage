@@ -55,15 +55,15 @@
 ## Session 121: 統合シェル UI（現行正本）
 
 - この節が **現行のユーザー向け UI 正本**。下の `normal` / `focus` 中心の説明は internal compatibility の履歴として残っているが、新規判断はこの節を優先する。
-- 公開 UI 状態は `display mode` ではなく、**top chrome の表示状態 / left nav の階層状態 (`root` / `category`) / Reader・Replay surface の開閉** で表現する。
-- **top chrome**: hidden が通常状態。常用ツールバーではなく、`F2` / Electron menu / command palette から明示表示する一時シェル。執筆中の誤発火を避けるため、fine pointer の上端 hover reveal と visible handle は使わない。hidden 時に上部バーや seam を見せず、誤表示時は `Escape` / 外側操作で即時に閉じる。
-- **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
+- 公開 UI 状態は `display mode` ではなく、**left nav の階層状態 (`root` / `category`) / command palette / Reader・Replay surface の開閉** で表現する。
+- **retired top chrome**: visible surface としては廃止。`F2` / Electron menu / 旧 toolbar 互換経路は command palette を開く。上端 hover reveal、visible handle、上部 drag lane は復活させない。
+- **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in し、見た目幅を出たら即 dismiss する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。category 中のみ左列全体を root 戻り hit target とし、root icon rail 表示中は back rail を出さない。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
 - **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents の `+ 文書` / `+ フォルダ` / `保存` / `入出力` / `管理`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は開閉操作、専用 drag handle は並び替え操作として分離し、`aria-expanded` / `aria-hidden` を同期する。
 - **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
 - **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
-- **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `トップクロームを表示`, `Reader を開く / 閉じる`, `左ナビのルートへ戻る` を基準にし、`ui-mode-*` と `toggle-fullscreen` は visible list に残さない。
-- **shortcut semantics**: `F2` は top chrome を表示してフォーカスする動作へ再割当て。`toolbar.toggle` も top chrome toggle を第一候補にする。
-- packaged/Electron では visible menu も `シェル` ベースで表現し、reveal 中の top chrome に drag lane と window controls を集約する。hidden 時はシームレスに戻しつつ、frameless window の通常移動導線として左上に小さな Electron-only window grip を置く。left-edge hover は root rail の一時 fade-in に限定する。
+- **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `Reader を開く / 閉じる`, `左ナビのルートへ戻る` など実 surface 操作を基準にし、`ui-mode-*` / `toggle-fullscreen` / top chrome 表示 command は visible list に残さない。
+- **shortcut semantics**: `F2` は command palette を表示してフォーカスする。`toolbar.toggle` 互換経路も command palette へ誘導する。
+- packaged/Electron では visible menu も `シェル` ベースで表現し、F2 は command palette に揃える。frameless window の通常移動導線として左上に小さな Electron-only window grip を置き、最小化・最大化/復元・閉じるは右上の Electron-only window controls island で局所 hover / focus 時だけ fade-in する。left-edge hover は root rail の一時 fade-in に限定する。
 
 ---
 
@@ -75,20 +75,21 @@
 
 | 状態 | 主な用途 | 操作入口 |
 |------|----------|----------|
-| top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を明示表示する | `F2` / Electron menu / command palette |
-| window grip | Electron frameless window の通常時移動。Editor本文やsidebarは drag region にしない | 左上 grip |
+| command palette | 横断操作入口。F2 / Electron menu / 旧 toolbar 互換経路から開く | `F2` / Electron menu / command palette shortcut |
+| window controls island | Electron frameless window の最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示 | 右上 hover / focus |
+| window grip | Electron frameless window の通常時移動。Editor本文やsidebarは drag region にしない。初期透明で hover 時だけ icon 表示 | 左上 grip |
 | left nav root | 通常時は完全非表示。left edge hover でカテゴリ一覧と last active cue を一時表示する | 左端 hover |
-| left nav category | active category の label / icon / panel / gadget loadout を表示する | root からカテゴリ選択 |
+| left nav category | active category の label / icon / panel / gadget loadout を表示し、左列 back rail で root へ戻れる | root からカテゴリ選択 |
 | replay surface | **閲覧専用**の読者視点確認。編集面とは同時操作しない | Reader / Replay command |
 
-**互換既定**: 新規・未設定の `settings.ui.uiMode` は統合シェルの **`normal`** に正規化する。過去の `focus` / `reader` / `blank` 保存値も `normal` に吸収し、公開 UI では top chrome と left nav hierarchy を状態の起点にする。`settings.sidebarOpen` の既定は **`false`**。
+**互換既定**: 新規・未設定の `settings.ui.uiMode` は統合シェルの **`normal`** に正規化する。過去の `focus` / `reader` / `blank` 保存値も `normal` に吸収し、公開 UI では left nav hierarchy / command palette / Reader surface を状態の起点にする。`settings.sidebarOpen` の既定は **`false`**。
 
 **用語の区別（混同しないこと）**
 
 - **再生オーバーレイ**: アプリ内で原稿を「読者側の見え方」で確認する **一時オーバーレイ**であり、UI モードそのものではない。
 - **スクリーンリーダー**などの支援技術: OS や AT が画面を読み上げる仕組み。再生オーバーレイとは別物であり、両者を同一視しない。
 
-内部互換 API: `ZenWriterApp.setUIMode('normal'|'focus')`。visible command は `ui-mode-*` ではなく、top chrome / left nav / Reader surface の操作名に寄せる。
+内部互換 API: `ZenWriterApp.setUIMode('normal'|'focus')`。visible command は `ui-mode-*` ではなく、command palette / left nav / Reader surface の操作名に寄せる。
 
 ### 軸 2: Editor surface（ミニマル／通常表示 いずれでも同じ）
 
@@ -110,12 +111,12 @@ Editor は唯一の執筆面。`Rich editing` と `Markdown source` は同じ原
 
 内部互換値は **`normal` / `focus` のみ**（`setUIMode`）。**再生オーバーレイ**は別軸（`data-reader-overlay-open`・閲覧専用）。第4の UI モードとしての「Reader」は廃止済み（session 68）。
 
-**user 視点 (session 121 以降)**: 画面操作は **top chrome / left nav root-category / command palette / Reader surface** で説明する。`F2` は top chrome を表示してフォーカスする。旧 `#view-menu` 集約、F2 の表示レイアウト循環、`通常モード` / `フォーカスモード` command を新規導線として復活させない。
+**user 視点 (session 121 以降、2026-04-28更新)**: 画面操作は **command palette / left nav root-category / Reader surface / Electron window controls island** で説明する。`F2` は command palette を表示してフォーカスする。旧 `#view-menu` 集約、F2 の表示レイアウト循環、`通常モード` / `フォーカスモード` command、visible top chrome surface を新規導線として復活させない。
 
 ```mermaid
 flowchart LR
   subgraph shell [公開シェル状態]
-    TopChrome[top chrome]
+    Palette[command palette]
     LeftNav[left nav root/category]
   end
   subgraph overlay [ReplayOverlay別軸]
@@ -125,8 +126,8 @@ flowchart LR
     Md[Markdown source]
     Wys[Rich editing]
   end
-  TopChrome --> Md
-  TopChrome --> Wys
+  Palette --> Md
+  Palette --> Wys
   LeftNav --> Md
   LeftNav --> Wys
 ```

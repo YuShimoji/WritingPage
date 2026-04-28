@@ -34,7 +34,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', '[wave]波打つテキスト[/wave]');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const texSpan = page.locator('#markdown-preview-panel .tex-wave');
     await expect(texSpan).toBeVisible();
@@ -50,7 +50,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     const lines = textures.map(t => `[${t}]${t}テスト[/${t}]`).join('\n\n');
 
     await page.fill('#editor', lines);
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     for (const t of textures) {
       const span = page.locator(`#markdown-preview-panel .tex-${t}`);
@@ -64,7 +64,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', '[cosmic]宇宙テキスト[/cosmic]');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const texSpan = page.locator('#markdown-preview-panel .tex-cosmic');
     await expect(texSpan).toBeVisible();
@@ -86,7 +86,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     });
 
     await page.fill('#editor', '[fire]炎テキスト[/fire]');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const texSpan = page.locator('#markdown-preview-panel .tex-fire');
     await expect(texSpan).toBeVisible();
@@ -121,7 +121,7 @@ test.describe('SP-074 Phase 1: Texture Overlay', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', '[shake][glitch]グリッチ震え[/glitch][/shake]');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const glitchSpan = page.locator('#markdown-preview-panel .tex-glitch');
     await expect(glitchSpan).toBeVisible();

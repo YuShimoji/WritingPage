@@ -239,20 +239,41 @@ test.describe('Command Palette E2E', () => {
     await expect(advancedHeader).toHaveAttribute('aria-expanded', 'true');
   });
 
-  test('トップクローム: 表示後はトップクローム内へフォーカスが移る', async ({ page }) => {
+  test('コマンドパレットに6カテゴリの直接導線がある', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await openCommandPalette(page);
-    await page.locator('#command-palette-input').fill('F2');
-    await page.keyboard.press('Enter');
+
+    for (const commandId of ['gadget-sections', 'gadget-structure', 'gadget-edit', 'gadget-theme', 'gadget-assist', 'gadget-advanced']) {
+      await expect(page.locator(`.command-palette-item[data-command-id="${commandId}"]`)).toBeVisible();
+    }
+  });
+
+  test('Story Wiki command opens the structure category', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await openCommandPalette(page);
+
+    await page.locator('.command-palette-item[data-command-id="gadget-wiki"]').click();
+    await page.waitForTimeout(300);
+
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
+    await expect(page.locator('.accordion-header[aria-controls="accordion-structure"]')).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('F2: コマンドパレットを開いて入力へフォーカスする', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await page.keyboard.press('F2');
     await page.waitForTimeout(250);
-    await expect(page.locator('body')).toHaveAttribute('data-top-chrome-visible', 'true');
-    const focusedInTopChrome = await page.evaluate(() => {
-      var a = document.activeElement;
-      var chrome = document.getElementById('top-chrome');
-      return !!(a && chrome && chrome.contains(a));
+    await expect(page.locator('#command-palette')).toBeVisible();
+    await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
+    const focusedInPalette = await page.evaluate(() => {
+      var active = document.activeElement;
+      var palette = document.getElementById('command-palette');
+      return !!(active && palette && palette.contains(active));
     });
-    expect(focusedInTopChrome).toBe(true);
+    expect(focusedInPalette).toBe(true);
   });
 
   test('Reader surface: 切替後、フォーカスは編集に戻るボタンへ', async ({ page }) => {

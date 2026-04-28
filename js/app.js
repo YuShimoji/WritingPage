@@ -233,15 +233,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /** 旧「ツールバー表示」ショートカット互換: メインハブのクイックツールを開閉 */
+    /** 旧「ツールバー表示」ショートカット互換: コマンドパレットへ誘導 */
     function toggleToolbar() {
-        const topChrome = window.ZenWriterTopChrome;
-        if (topChrome && typeof topChrome.toggle === 'function') {
-            topChrome.toggle();
-            return;
-        }
-        if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-            window.sidebarManager.toggleToolbar();
+        if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+            window.commandPalette.show();
         }
     }
 

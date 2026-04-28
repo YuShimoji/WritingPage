@@ -55,49 +55,58 @@ test.describe('UI Mode Consistency', () => {
     }
   });
 
-  test('F2 shortcut reveals top chrome without cycling display modes', async ({ page }) => {
+  test('F2 shortcut opens command palette without cycling display modes', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
     await page.keyboard.press('F2');
     await page.waitForTimeout(220);
     const state = await page.evaluate(() => ({
       mode: document.documentElement.getAttribute('data-ui-mode'),
-      topChromeVisible: document.body.getAttribute('data-top-chrome-visible')
+      retiredChromeVisible: document.body.getAttribute('data-top-chrome-visible'),
+      commandPaletteVisible: window.commandPalette ? window.commandPalette.isVisible : false,
+      focusedId: document.activeElement ? document.activeElement.id : ''
     }));
     expect(state.mode).toBe('normal');
-    expect(state.topChromeVisible).toBe('true');
+    expect(state.retiredChromeVisible).toBeNull();
+    expect(state.commandPaletteVisible).toBe(true);
+    expect(state.focusedId).toBe('command-palette-input');
   });
 
-  test('session 121: top chrome can be shown and dismissed without a persistent top bar', async ({ page }) => {
+  test('retired top chrome routes no longer create a visible top surface', async ({ page }) => {
     const before = await page.evaluate(() => ({
       visible: document.body.getAttribute('data-top-chrome-visible'),
-      topChromeTop: document.getElementById('top-chrome')?.getBoundingClientRect().top ?? null,
-      handleDisplay: window.getComputedStyle(document.getElementById('top-chrome-handle')).display
+      trigger: !!document.getElementById('top-chrome-trigger'),
+      handle: !!document.getElementById('top-chrome-handle'),
+      surface: !!document.getElementById('top-chrome')
     }));
     expect(before.visible).toBeNull();
-    expect(before.topChromeTop === null || before.topChromeTop).toBeLessThan(0);
-    expect(before.handleDisplay).toBe('none');
+    expect(before.trigger).toBe(false);
+    expect(before.handle).toBe(false);
+    expect(before.surface).toBe(false);
 
     await page.mouse.move(400, 1);
     await page.waitForTimeout(120);
     await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
 
-    await page.keyboard.press('F2');
+    await page.evaluate(() => {
+      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
+        window.ZenWriterTopChrome.show();
+      }
+    });
     await page.waitForTimeout(120);
 
-    const afterShow = await page.evaluate(() => ({
+    const afterCompatShow = await page.evaluate(() => ({
       visible: document.body.getAttribute('data-top-chrome-visible'),
-      topChromeTop: Math.round(document.getElementById('top-chrome')?.getBoundingClientRect().top ?? -999),
-      handleExpanded: document.getElementById('top-chrome-handle')?.getAttribute('aria-expanded'),
-      handleDisplay: window.getComputedStyle(document.getElementById('top-chrome-handle')).display
+      commandPaletteVisible: window.commandPalette ? window.commandPalette.isVisible : false,
+      focusedId: document.activeElement ? document.activeElement.id : ''
     }));
-    expect(afterShow.visible).toBe('true');
-    expect(afterShow.topChromeTop).toBeGreaterThanOrEqual(-16);
-    expect(afterShow.handleExpanded).toBe('true');
-    expect(afterShow.handleDisplay).toBe('none');
+    expect(afterCompatShow.visible).toBeNull();
+    expect(afterCompatShow.commandPaletteVisible).toBe(true);
+    expect(afterCompatShow.focusedId).toBe('command-palette-input');
 
     await page.keyboard.press('Escape');
     await page.waitForTimeout(80);
+    await expect(page.locator('#command-palette')).toBeHidden();
     await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
   });
 
@@ -107,12 +116,9 @@ test.describe('UI Mode Consistency', () => {
 
     await page.keyboard.press('F2');
     await page.waitForTimeout(120);
-    await expect(page.locator('body')).toHaveAttribute('data-top-chrome-visible', 'true');
-    await expect(chip).toBeHidden();
-
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(100);
+    await expect(page.locator('body')).not.toHaveAttribute('data-top-chrome-visible', 'true');
     await expect(chip).toBeVisible();
+    await page.keyboard.press('Escape');
 
     await page.evaluate(() => {
       if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
@@ -321,7 +327,7 @@ test.describe('UI Mode Consistency', () => {
     expect(open).toBe(false);
   });
 
-  test('session 121: command palette hides mode/fullscreen commands and exposes top chrome entry', async ({ page }) => {
+  test('command palette hides retired mode/fullscreen/top chrome commands', async ({ page }) => {
     const visibleCommands = await page.evaluate(() => {
       if (!window.commandPalette || typeof window.commandPalette.filterCommands !== 'function') {
         return [];
@@ -330,7 +336,8 @@ test.describe('UI Mode Consistency', () => {
       return (window.commandPalette.filteredCommands || []).map((cmd) => cmd.id);
     });
 
-    expect(visibleCommands).toContain('show-top-chrome');
+    expect(visibleCommands).toContain('toggle-sidebar');
+    expect(visibleCommands).not.toContain('show-top-chrome');
     expect(visibleCommands).not.toContain('toggle-fullscreen');
     expect(visibleCommands).not.toContain('ui-mode-normal');
     expect(visibleCommands).not.toContain('ui-mode-focus');
@@ -363,11 +370,12 @@ test.describe('UI Mode Consistency', () => {
       const editor = document.getElementById('editor');
       const wysiwyg = document.getElementById('wysiwyg-editor');
       const sidebar = document.getElementById('sidebar');
-      const button = document.getElementById('toggle-preview');
+      const button = document.getElementById('win-minimize');
       const gripStyle = grip ? window.getComputedStyle(grip) : null;
       const gripRect = grip ? grip.getBoundingClientRect() : null;
       const gripX = gripRect ? Math.round(gripRect.left + gripRect.width / 2) : 0;
       const gripY = gripRect ? Math.round(gripRect.top + gripRect.height / 2) : 0;
+      const gripIcon = grip ? grip.querySelector('svg, [data-lucide]') : null;
       const gripStack = gripRect
         ? document.elementsFromPoint(gripX, gripY).slice(0, 3).map((element) => ({
           id: element.id || '',
@@ -383,10 +391,12 @@ test.describe('UI Mode Consistency', () => {
         display: gripStyle ? gripStyle.display : null,
         pointerEvents: gripStyle ? gripStyle.pointerEvents : null,
         appRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        opacity: gripStyle ? Number.parseFloat(gripStyle.opacity || '1') : null,
         width: gripRect ? Math.round(gripRect.width) : 0,
         height: gripRect ? Math.round(gripRect.height) : 0,
         left: gripRect ? Math.round(gripRect.left) : null,
         top: gripRect ? Math.round(gripRect.top) : null,
+        hasIcon: !!gripIcon,
         gripStack,
         bodyAppRegion: window.getComputedStyle(document.body).getPropertyValue('-webkit-app-region').trim(),
         editorAppRegion: editor ? window.getComputedStyle(editor).getPropertyValue('-webkit-app-region').trim() : null,
@@ -402,83 +412,146 @@ test.describe('UI Mode Consistency', () => {
     expect(gripMetrics.display).not.toBe('none');
     expect(gripMetrics.pointerEvents).toBe('auto');
     expect(gripMetrics.appRegion).toBe('drag');
-    expect(gripMetrics.width).toBe(48);
-    expect(gripMetrics.height).toBe(24);
-    expect(gripMetrics.left).toBe(24);
-    expect(gripMetrics.top).toBeGreaterThanOrEqual(6);
+    expect(gripMetrics.opacity).toBe(0);
+    expect(gripMetrics.width).toBe(44);
+    expect(gripMetrics.height).toBe(44);
+    expect(gripMetrics.left).toBeGreaterThanOrEqual(8);
+    expect(gripMetrics.left).toBeLessThan(16);
+    expect(gripMetrics.top).toBeGreaterThanOrEqual(0);
+    expect(gripMetrics.top).toBeLessThan(8);
+    expect(gripMetrics.hasIcon).toBe(true);
     expect(gripMetrics.gripStack[0]?.id).toBe('electron-window-grip');
     expect(gripMetrics.bodyAppRegion).toBe('no-drag');
     expect(gripMetrics.editorAppRegion).toBe('no-drag');
     expect(gripMetrics.wysiwygAppRegion).toBe('no-drag');
     expect(gripMetrics.sidebarAppRegion).toBe('no-drag');
     expect(gripMetrics.buttonAppRegion).toBe('no-drag');
+
+    await page.locator('#electron-window-grip').hover({ position: { x: 22, y: 22 } });
+    await page.waitForTimeout(220);
+    const hoveredGrip = await page.evaluate(() => {
+      const grip = document.getElementById('electron-window-grip');
+      const style = grip ? window.getComputedStyle(grip) : null;
+      return {
+        opacity: style ? Number.parseFloat(style.opacity || '0') : 0,
+        transform: style ? style.transform : null
+      };
+    });
+    expect(hoveredGrip.opacity).toBeGreaterThan(0.5);
+    expect(hoveredGrip.transform).not.toBe('none');
+
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-reader-overlay-open', 'true');
+    });
+    await page.waitForTimeout(220);
+    const readerDisabledGrip = await page.evaluate(() => {
+      const grip = document.getElementById('electron-window-grip');
+      const style = grip ? window.getComputedStyle(grip) : null;
+      return {
+        pointerEvents: style ? style.pointerEvents : null,
+        appRegion: style ? style.getPropertyValue('-webkit-app-region').trim() : null,
+        opacity: style ? Number.parseFloat(style.opacity || '1') : null
+      };
+    });
+    expect(readerDisabledGrip.pointerEvents).toBe('none');
+    expect(readerDisabledGrip.appRegion).toBe('no-drag');
+    expect(readerDisabledGrip.opacity).toBe(0);
   });
 
-  test('session 121: Electron top chrome owns the top drag lane when revealed', async ({ page }) => {
+  test('Electron right window controls island fades in from the right corner', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
 
-    const dragCss = await page.evaluate(() => {
+    const nonElectronDisplay = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      return island ? window.getComputedStyle(island).display : null;
+    });
+    expect(nonElectronDisplay).toBe('none');
+
+    const initialMetrics = await page.evaluate(() => {
       document.documentElement.classList.add('is-electron');
       document.body.classList.add('is-electron');
-      if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.show === 'function') {
-        window.ZenWriterTopChrome.show();
-      }
-      return true;
-    });
-    expect(dragCss).toBe(true);
-    await page.waitForTimeout(220);
-
-    const dragMetrics = await page.evaluate(() => {
-      const topChrome = document.getElementById('top-chrome');
-      const dragRegion = document.querySelector('.top-chrome__drag-region');
-      const windowControls = document.querySelector('.top-chrome__window-controls');
+      document.body.removeAttribute('data-top-chrome-visible');
+      document.documentElement.removeAttribute('data-reader-overlay-open');
+      const island = document.getElementById('electron-window-controls');
+      const buttons = island ? Array.from(island.querySelectorAll('.window-control-btn')) : [];
       const grip = document.getElementById('electron-window-grip');
-      const main = document.querySelector('.main-content');
-      const sidebar = document.getElementById('sidebar');
-      const bodyStyle = window.getComputedStyle(document.body);
-      const dragStyle = dragRegion ? window.getComputedStyle(dragRegion) : null;
-      const controlsStyle = windowControls ? window.getComputedStyle(windowControls) : null;
+      const islandStyle = island ? window.getComputedStyle(island) : null;
       const gripStyle = grip ? window.getComputedStyle(grip) : null;
-      const topChromeRect = topChrome ? topChrome.getBoundingClientRect() : null;
-      const dragRect = dragRegion ? dragRegion.getBoundingClientRect() : null;
-      const titlebarHeight = dragRect ? dragRect.height : 0;
-      const laneY = Math.max(1, Math.min(window.innerHeight - 1, Math.round(titlebarHeight / 2)));
-      const laneX = Math.round(window.innerWidth / 2);
-      const topStack = document.elementsFromPoint(laneX, laneY).slice(0, 3).map((element) => ({
-        id: element.id || '',
-        className: typeof element.className === 'string' ? element.className : '',
-        tagName: element.tagName,
-      }));
+      const rect = island ? island.getBoundingClientRect() : null;
+      const centerX = rect ? Math.round(rect.left + rect.width / 2) : 0;
+      const centerY = rect ? Math.round(rect.top + rect.height / 2) : 0;
+      const stack = rect
+        ? document.elementsFromPoint(centerX, centerY).slice(0, 4).map((element) => ({
+          id: element.id || '',
+          className: typeof element.className === 'string' ? element.className : '',
+          tagName: element.tagName,
+        }))
+        : [];
 
       return {
-        bodyAppRegion: bodyStyle.getPropertyValue('-webkit-app-region').trim(),
-        dragAppRegion: dragStyle ? dragStyle.getPropertyValue('-webkit-app-region').trim() : null,
-        controlsAppRegion: controlsStyle ? controlsStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        exists: !!island,
+        display: islandStyle ? islandStyle.display : null,
+        opacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '1') : null,
+        pointerEvents: islandStyle ? islandStyle.pointerEvents : null,
+        appRegion: islandStyle ? islandStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        transform: islandStyle ? islandStyle.transform : null,
+        buttonCount: buttons.length,
+        buttonRegions: buttons.map((button) => window.getComputedStyle(button).getPropertyValue('-webkit-app-region').trim()),
+        buttonLabels: buttons.map((button) => button.getAttribute('aria-label')),
+        rightGap: rect ? Math.round(window.innerWidth - rect.right) : null,
+        top: rect ? Math.round(rect.top) : null,
+        stack,
         gripAppRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
         gripPointerEvents: gripStyle ? gripStyle.pointerEvents : null,
         gripOpacity: gripStyle ? Number.parseFloat(gripStyle.opacity || '1') : null,
-        titlebarHeight,
-        topChromeTop: topChromeRect ? topChromeRect.top : null,
-        dragTop: dragRect ? dragRect.top : null,
-        mainTop: main ? main.getBoundingClientRect().top : null,
-        sidebarTop: sidebar ? sidebar.getBoundingClientRect().top : null,
-        topStack,
       };
     });
 
-    expect(dragMetrics.bodyAppRegion).toBe('no-drag');
-    expect(dragMetrics.dragAppRegion).toBe('drag');
-    expect(dragMetrics.controlsAppRegion).not.toBe('drag');
-    expect(dragMetrics.gripAppRegion).toBe('no-drag');
-    expect(dragMetrics.gripPointerEvents).toBe('none');
-    expect(dragMetrics.gripOpacity).toBe(0);
-    expect(dragMetrics.titlebarHeight).toBeGreaterThan(0);
-    expect(Math.abs(dragMetrics.topChromeTop || 0)).toBeLessThanOrEqual(1);
-    expect(Math.abs(dragMetrics.dragTop || 0)).toBeLessThanOrEqual(1);
-    expect(Math.abs(dragMetrics.mainTop || 0)).toBeLessThanOrEqual(1);
-    expect(Math.abs(dragMetrics.sidebarTop || 0)).toBeLessThanOrEqual(1);
-    expect(dragMetrics.topStack[0]?.className || '').toContain('top-chrome');
+    expect(initialMetrics.exists).toBe(true);
+    expect(initialMetrics.display).toBe('flex');
+    expect(initialMetrics.opacity).toBe(0);
+    expect(initialMetrics.pointerEvents).toBe('auto');
+    expect(initialMetrics.appRegion).toBe('no-drag');
+    expect(initialMetrics.buttonCount).toBe(3);
+    expect(initialMetrics.buttonRegions).toEqual(['no-drag', 'no-drag', 'no-drag']);
+    expect(initialMetrics.buttonLabels).toEqual(['最小化', '最大化', '閉じる']);
+    expect(initialMetrics.rightGap).toBeGreaterThanOrEqual(0);
+    expect(initialMetrics.rightGap).toBeLessThanOrEqual(16);
+    expect(initialMetrics.top).toBeGreaterThanOrEqual(0);
+    expect(initialMetrics.top).toBeLessThanOrEqual(12);
+    expect(initialMetrics.stack.some((entry) => entry.id === 'electron-window-controls')).toBe(true);
+    expect(initialMetrics.gripAppRegion).toBe('drag');
+    expect(initialMetrics.gripPointerEvents).toBe('auto');
+    expect(initialMetrics.gripOpacity).toBe(0);
+
+    await page.locator('#electron-window-controls').hover({ position: { x: 12, y: 12 } });
+    await page.waitForTimeout(220);
+    const hoveredMetrics = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      const style = island ? window.getComputedStyle(island) : null;
+      return {
+        opacity: style ? Number.parseFloat(style.opacity || '0') : 0,
+        transform: style ? style.transform : null
+      };
+    });
+    expect(hoveredMetrics.opacity).toBeGreaterThan(0.9);
+    expect(hoveredMetrics.transform).not.toBe('none');
+
+    await page.evaluate(() => {
+      document.documentElement.setAttribute('data-reader-overlay-open', 'true');
+    });
+    await page.waitForTimeout(220);
+    const readerMetrics = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      const style = island ? window.getComputedStyle(island) : null;
+      return {
+        opacity: style ? Number.parseFloat(style.opacity || '1') : null,
+        pointerEvents: style ? style.pointerEvents : null
+      };
+    });
+    expect(readerMetrics.opacity).toBe(0);
+    expect(readerMetrics.pointerEvents).toBe('none');
   });
 
   test('session 121: left nav enters category mode and pins the selected category', async ({ page }) => {
@@ -897,6 +970,73 @@ test.describe('UI Mode Consistency', () => {
     await expect(page.locator('html')).not.toHaveAttribute('data-left-nav-active', 'sections');
   });
 
+  test('left nav category back rail uses the left column without appearing in root icon rail', async ({ page }) => {
+    await setUIMode(page, 'normal');
+    await openSidebarGroup(page, 'sections');
+    await page.waitForTimeout(150);
+
+    const categoryRail = await page.evaluate(() => {
+      var rail = document.getElementById('sidebar-nav-back-rail');
+      var back = document.getElementById('sidebar-nav-back');
+      var style = rail ? window.getComputedStyle(rail) : null;
+      var rect = rail ? rail.getBoundingClientRect() : null;
+      var backRect = back ? back.getBoundingClientRect() : null;
+      var stack = rect
+        ? document.elementsFromPoint(Math.round(rect.left + rect.width / 2), Math.round(rect.top + rect.height / 2)).slice(0, 3).map(function (element) {
+          return { id: element.id || '', tagName: element.tagName };
+        })
+        : [];
+      return {
+        navState: document.documentElement.getAttribute('data-left-nav-state'),
+        visibility: style ? style.visibility : '',
+        pointerEvents: style ? style.pointerEvents : '',
+        width: rect ? Math.round(rect.width) : 0,
+        railTop: rect ? Math.round(rect.top) : 0,
+        backBottom: backRect ? Math.round(backRect.bottom) : 0,
+        stack: stack
+      };
+    });
+    expect(categoryRail.navState).toBe('category');
+    expect(categoryRail.visibility).toBe('visible');
+    expect(categoryRail.pointerEvents).toBe('auto');
+    expect(categoryRail.width).toBeGreaterThan(60);
+    expect(categoryRail.railTop).toBeGreaterThanOrEqual(categoryRail.backBottom);
+    expect(categoryRail.stack[0]?.id).toBe('sidebar-nav-back-rail');
+
+    const railBox = await page.locator('#sidebar-nav-back-rail').boundingBox();
+    expect(railBox).toBeTruthy();
+    await page.mouse.click(Math.round((railBox?.left || 0) + (railBox?.width || 0) / 2), Math.round((railBox?.top || 0) + 180));
+    await page.waitForTimeout(160);
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'root');
+
+    const rootRail = await page.evaluate(() => {
+      var rail = document.getElementById('sidebar-nav-back-rail');
+      var style = rail ? window.getComputedStyle(rail) : null;
+      return {
+        visibility: style ? style.visibility : '',
+        pointerEvents: style ? style.pointerEvents : ''
+      };
+    });
+    expect(rootRail.visibility).toBe('hidden');
+    expect(rootRail.pointerEvents).toBe('none');
+
+    await page.waitForTimeout(650);
+    await page.evaluate(() => {
+      var edge = document.getElementById('sidebar-edge-rail');
+      if (edge) {
+        edge.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, clientX: 1, clientY: 180 }));
+        edge.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
+      }
+      document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
+    });
+    await page.waitForTimeout(220);
+
+    await page.click('.accordion-category[data-category="structure"] .accordion-header');
+    await page.waitForTimeout(160);
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
+  });
+
   test('friction sweep: root left nav is hidden until edge hover fades it in', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.evaluate(() => {
@@ -942,6 +1082,34 @@ test.describe('UI Mode Consistency', () => {
 
     const hovered = await page.evaluate(() => {
       var sidebar = document.getElementById('sidebar');
+      var backRail = document.getElementById('sidebar-nav-back-rail');
+      var sidebarStyle = sidebar ? window.getComputedStyle(sidebar) : null;
+      var backRailStyle = backRail ? window.getComputedStyle(backRail) : null;
+      return {
+        edgeHover: document.documentElement.getAttribute('data-edge-hover-left'),
+        opacity: sidebarStyle ? Number(sidebarStyle.opacity) : -1,
+        visibility: sidebarStyle ? sidebarStyle.visibility : '',
+        pointerEvents: sidebarStyle ? sidebarStyle.pointerEvents : '',
+        rootRight: sidebar ? Math.round(sidebar.getBoundingClientRect().right) : 0,
+        backRailVisibility: backRailStyle ? backRailStyle.visibility : '',
+        backRailPointerEvents: backRailStyle ? backRailStyle.pointerEvents : ''
+      };
+    });
+
+    expect(hovered.edgeHover).toBe('true');
+    expect(hovered.opacity).toBeGreaterThan(0.5);
+    expect(hovered.visibility).toBe('visible');
+    expect(hovered.pointerEvents).toBe('auto');
+    expect(hovered.backRailVisibility).toBe('hidden');
+    expect(hovered.backRailPointerEvents).toBe('none');
+
+    await page.evaluate((x) => {
+      document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: x, clientY: 180 }));
+    }, hovered.rootRight + 8);
+    await page.waitForTimeout(220);
+
+    const dismissed = await page.evaluate(() => {
+      var sidebar = document.getElementById('sidebar');
       var sidebarStyle = sidebar ? window.getComputedStyle(sidebar) : null;
       return {
         edgeHover: document.documentElement.getAttribute('data-edge-hover-left'),
@@ -950,11 +1118,10 @@ test.describe('UI Mode Consistency', () => {
         pointerEvents: sidebarStyle ? sidebarStyle.pointerEvents : ''
       };
     });
-
-    expect(hovered.edgeHover).toBe('true');
-    expect(hovered.opacity).toBeGreaterThan(0.5);
-    expect(hovered.visibility).toBe('visible');
-    expect(hovered.pointerEvents).toBe('auto');
+    expect(dismissed.edgeHover).toBeNull();
+    expect(dismissed.opacity).toBeLessThan(0.1);
+    expect(dismissed.visibility).toBe('hidden');
+    expect(dismissed.pointerEvents).toBe('none');
   });
 
   test('session 129: sections and structure keep distinct gadget panels', async ({ page }) => {

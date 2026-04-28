@@ -2,10 +2,10 @@
  * edge-hover.js — スクリーンエッジホバーUI (SP-081 Phase 3)
  *
  * マウスカーソルが画面端に近づくと、隠れたUIを一時的にスライドイン表示する。
- * - 上端 (Focus のみ): メインハブのクイックツールを表示
+ * - 上端 (Focus のみ): legacy top-edge hover state
  * - 左端: 章パネル (Focus) / サイドバー一時表示 (Normal)
  *
- * 上端ホバーはツールバーのスライドイン表示（Focus のみ）。MainHubPanel は廃止済み。
+ * 上端ホバーは内部互換用の legacy state として残す。
  *
  * 左エッジは y > EDGE_ZONE のみ（左上隅は上端ホバーとトグル競合を避けるため除外）。
  */
@@ -14,13 +14,14 @@
 
   /** 上端エッジ検知ゾーン (px)。画面上端からこの距離内でホバー扱い（ツールバー用、固定）。 */
   var EDGE_ZONE = 24;
-  /** Normal モードのサイドバー専用 edge rail 幅。sidebar 本体の幾何から分離する。 */
-  /** 開く側トリガー下限 (px): パネル実幅が極端に狭い場合の保険。 */
+  /** Focus / category の開く側トリガー下限 (px): パネル実幅が極端に狭い場合の保険。 */
   var LEFT_EDGE_OPEN_MIN_PX = 120;
-  /** 閉じる側バッファ (px)。パネル右端からこの距離を超えたら閉じる（ヒステリシス）。
+  /** Focus / category の閉じる側バッファ (px)。パネル右端からこの距離を超えたら閉じる（ヒステリシス）。
       リサイズハンドル (.dock-resize-handle, width 4px, right -2px) のヒットエリアを
       跨いでも閉じないよう、col-resize カーソル活性化に必要な余裕を十分に確保する。 */
   var LEFT_EDGE_CLOSE_BUFFER_PX = 120;
+  /** Normal/root の icon rail は見えている幅と hit area を同期し、広いバッファを持たせない。 */
+  var LEFT_ROOT_RAIL_CLOSE_BUFFER_PX = 2;
   /** ウィンドウ右端から内側に確保する安全マージン (px)。極小ウィンドウ (DevTools ドック時等)
       でも閉じる操作を可能にするため、openZone/dismissZone はこの範囲内にクランプする。 */
   var WINDOW_RIGHT_SAFE_PX = 16;
@@ -62,6 +63,21 @@
     return getSidebarWidthPx();
   }
 
+  function isNormalRootLeftNav() {
+    return !isFocusMode() && html.getAttribute('data-left-nav-state') !== 'category';
+  }
+
+  function getNormalRootRailWidthPx() {
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar && sidebar.offsetWidth > 0) return sidebar.offsetWidth;
+
+    var rootStyle = getComputedStyle(document.documentElement);
+    var cssWidth = rootStyle.getPropertyValue('--left-nav-root-width');
+    var rootFontPx = parseFloat(rootStyle.fontSize) || 16;
+    var parsed = parseCssLengthToPx(cssWidth, rootFontPx);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 76;
+  }
+
   /** 開く閾値: **アクティブパネル実幅**（Focus=章パネル / Normal=サイドバー）と連動。
       ユーザーの視覚上「サイドバー内ならホバーで開く」と一致させるため、パネル実幅までを
       トリガー範囲とする。パネルが極端に狭い場合は LEFT_EDGE_OPEN_MIN_PX (120px) で下支え。
@@ -77,6 +93,9 @@
       のヒットエリアを跨いでも閉じない。
       極小ウィンドウではウィンドウ右端より内側にクランプ（閉じる手段を残すため）。 */
   function getLeftEdgeDismissZone() {
+    if (isNormalRootLeftNav()) {
+      return getNormalRootRailWidthPx() + LEFT_ROOT_RAIL_CLOSE_BUFFER_PX;
+    }
     var panelWidth = getActivePanelWidthPx();
     var rawDismiss = panelWidth + LEFT_EDGE_CLOSE_BUFFER_PX;
     // ウィンドウ右端 - 8px より内側にクランプ
@@ -112,7 +131,6 @@
 
   var html = document.documentElement;
 
-  /** 上端エッジで MainHub を開いたときだけ true（手動オープンのハブを誤って閉じない） */
   // --- ヘルパー ---
 
   /** Normal では上端ホバーを使わない */
@@ -236,6 +254,10 @@
   function isNormalSidebarInteractionActiveAt(x, y) {
     var sidebarRect = getLeftHoverTargetRect();
     if (!sidebarRect) return false;
+    if (isNormalRootLeftNav()) {
+      if (isPointInNormalSidebarRail(x, y)) return true;
+      return isPointInsideRect(x, y, sidebarRect, LEFT_ROOT_RAIL_CLOSE_BUFFER_PX);
+    }
     if (isPointInsideRect(x, y, sidebarRect, 8)) return true;
     if (isPointInsideRect(x, y, getSidebarResizeHandleRect(), 4)) return true;
     if (isSidebarDockedRight()) {
@@ -407,9 +429,8 @@
     }
 
     // 左端判定:
-    //  - 開く: アクティブパネル実幅 (Focus=章パネル / Normal=サイドバー) 内のホバー
-    //  - 閉じる: パネル右端 + LEFT_EDGE_CLOSE_BUFFER_PX (120px) を超えたら dismiss 開始
-    // パネル幅を変えても、右端からの緩衝距離は一定 (リサイズハンドル col-resize を跨いでも閉じない)。
+    //  - Normal/root: #sidebar-edge-rail で開き、root rail の見た目幅を出たら閉じる
+    //  - Focus/category: パネル幅 + buffer で操作継続を許可
     // 画面高さは全域で発火 (session 91 で y > EDGE_ZONE 除外撤廃)
     var inLeftTriggerZone = isFocusMode()
       ? x <= getLeftEdgeZone()

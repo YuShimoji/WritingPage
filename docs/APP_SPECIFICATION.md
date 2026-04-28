@@ -97,11 +97,11 @@ Zen Writer v0.3.32
 | カテゴリ | ID | 主なガジェット |
 |---------|-----|---------------|
 | セクション | `sections` | SectionsNavigator（見出しツリー、Phase 1+2実装済み） |
-| 構造 | `structure` | Documents, Outline, StoryWiki, Tags/SmartFolders, SnapshotManager |
+| 構造 | `structure` | Documents, Outline, StoryWiki, LinkGraph, Tags/SmartFolders, SnapshotManager |
 | 編集 | `edit` | MarkdownPreview, ChoiceTools, FontDecoration, TextAnimation, Images |
 | テーマ | `theme` | Themes, HeadingStyles, EditorLayout, VisualProfile |
-| 補助 | `assist` | WritingGoal, HUDSettings, Pomodoro, MarkdownReference |
-| 詳細設定 | `advanced` | UISettings, PrintSettings, Keybinds, Help（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
+| 補助 | `assist` | Typewriter, FocusMode, WritingGoal, Pomodoro, MarkdownReference |
+| 詳細設定 | `advanced` | EditorLayout, UISettings, HUDSettings, PrintSettings, Keybinds（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
 
 **ガジェット総数：** 28個
 **ロードアウト：** 3プリセット（作家モード/全機能/最小限）+ カスタム

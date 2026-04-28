@@ -253,11 +253,12 @@
       'novel-standard': {
         label: '小説・長編',
         groups: {
-          structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager'],
-          edit: ['StoryWiki'],
+          sections: ['SectionsNavigator'],
+          structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager', 'StoryWiki', 'LinkGraph'],
+          edit: ['MarkdownPreview', 'ChoiceTools', 'FontDecoration', 'TextAnimation'],
           theme: ['Themes', 'Typography', 'HeadingStyles', 'VisualProfile'],
-          assist: ['Typewriter', 'FocusMode', 'HUDSettings', 'WritingGoal', 'MarkdownReference'],
-          advanced: ['EditorLayout', 'Keybinds']
+          assist: ['Typewriter', 'FocusMode', 'WritingGoal', 'MarkdownReference', 'PomodoroTimer'],
+          advanced: ['EditorLayout', 'UISettings', 'HUDSettings', 'PrintSettings', 'Keybinds']
         }
       }
     }

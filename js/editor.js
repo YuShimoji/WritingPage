@@ -34,7 +34,7 @@ class EditorManager {
         this.previewPanelBody = document.getElementById('editor-preview-body');
         this.markdownPreviewPanel = document.getElementById('markdown-preview-panel');
         this.imagesPreviewPanel = document.getElementById('images-preview-panel');
-        this.previewPanelToggle = document.getElementById('toggle-preview');
+        this.previewPanelToggle = null;
         this._markdownRenderer = null;
         this.editorContainer = document.querySelector('.editor-container');
         this.editorClassicLayer = document.getElementById('editor-classic-layer');

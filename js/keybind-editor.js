@@ -22,7 +22,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'トップクロームを開閉'
+      description: 'コマンドパレットを開く'
     },
     'search.toggle': {
       key: 'f',
@@ -54,7 +54,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'トップクロームを表示'
+      description: 'コマンドパレットを表示'
     },
     'ui.mode.exit': {
       key: 'Escape',
@@ -62,7 +62,7 @@
       ctrlKey: false,
       shiftKey: false,
       metaKey: false,
-      description: 'トップクロームを閉じる'
+      description: 'モーダル / Reader を閉じる'
     },
     'command-palette.toggle': {
       key: 'p',

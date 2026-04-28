@@ -7,7 +7,6 @@
      * キーボードショートカットを初期化
      * @param {Object} deps - 依存オブジェクト
      * @param {Function} deps.toggleSidebar
-     * @param {Function} deps.toggleToolbar
      * @param {Function} deps.setUIMode
      * @param {Function} deps.restoreLastSnapshot
      * @param {Object}   deps.logger
@@ -15,43 +14,31 @@
     function initAppShortcuts(deps) {
         const {
             toggleSidebar,
-            toggleToolbar,
             setUIMode,
             restoreLastSnapshot,
             logger,
             sidebarManager
         } = deps;
 
-        function getTopChromeApi() {
-            return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
-                ? window.ZenWriterTopChrome
-                : null;
-        }
-
-        function showTopChrome() {
-            const topChrome = getTopChromeApi();
-            if (topChrome) {
-                topChrome.showAndFocus();
+        function showCommandPalette() {
+            if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+                window.commandPalette.show();
                 return true;
             }
             return false;
         }
 
-        function toggleTopChrome() {
-            const topChrome = getTopChromeApi();
-            if (topChrome && typeof topChrome.toggle === 'function') {
-                topChrome.toggle();
+        function toggleCommandPalette() {
+            if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+                window.commandPalette.toggle();
                 return true;
             }
             return false;
         }
 
-        function hideTopChrome() {
-            const topChrome = window.ZenWriterTopChrome;
-            if (topChrome && typeof topChrome.isVisible === 'function' && topChrome.isVisible()) {
-                if (typeof topChrome.hide === 'function') {
-                    topChrome.hide();
-                }
+        function clearRetiredShellState() {
+            if (document.body && document.body.hasAttribute('data-top-chrome-visible')) {
+                document.body.removeAttribute('data-top-chrome-visible');
                 return true;
             }
             return false;
@@ -83,27 +70,26 @@
                         return;
                     }
 
-                    e.preventDefault();
-                    e.stopPropagation();
+                    if (keybindId === 'ui.mode.exit' && !clearRetiredShellState()) {
+                        // Escape はモーダル / Reader / Focus 終了の fallback 処理へ流す。
+                    } else {
+                        e.preventDefault();
+                        e.stopPropagation();
 
-                    switch (keybindId) {
-                        case 'sidebar.toggle':
-                            logger.info('キーボードショートカット: サイドバー開閉');
-                            toggleSidebar();
-                            break;
+                        switch (keybindId) {
+                            case 'sidebar.toggle':
+                                logger.info('キーボードショートカット: サイドバー開閉');
+                                toggleSidebar();
+                                break;
 
-                        case 'toolbar.toggle':
-                            if (e.repeat) return;
-                            if (!toggleTopChrome()) {
-                                toggleToolbar();
-                            }
-                            break;
+                            case 'toolbar.toggle':
+                                if (e.repeat) return;
+                                showCommandPalette();
+                                break;
 
-                        case 'command-palette.toggle':
-                            if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
-                                window.commandPalette.toggle();
-                            }
-                            break;
+                            case 'command-palette.toggle':
+                                toggleCommandPalette();
+                                break;
 
                         case 'search.toggle':
                             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.toggleSearchPanel === 'function') {
@@ -122,11 +108,10 @@
                             break;
 
                         case 'ui.mode.cycle':
-                            showTopChrome();
+                            showCommandPalette();
                             break;
 
                         case 'ui.mode.exit':
-                            hideTopChrome();
                             break;
 
                         case 'editor.save':
@@ -183,6 +168,7 @@
                             break;
                     }
                     return;
+                    }
                 }
             }
 
@@ -203,9 +189,7 @@
             if (!inFormControl && e.altKey && (e.key === 'w' || e.key === 'W')) {
                 if (e.repeat) return;
                 e.preventDefault();
-                if (!toggleTopChrome()) {
-                    toggleToolbar();
-                }
+                showCommandPalette();
                 return;
             }
 
@@ -270,10 +254,10 @@
                 restoreLastSnapshot();
             }
 
-            // F2: トップクローム表示
+            // F2: コマンドパレット表示
             if (e.key === 'F2') {
                 e.preventDefault();
-                showTopChrome();
+                showCommandPalette();
                 return;
             }
 
@@ -308,7 +292,7 @@
                     return;
                 }
 
-                if (hideTopChrome()) {
+                if (clearRetiredShellState()) {
                     e.preventDefault();
                     return;
                 }

@@ -27,15 +27,15 @@ async function _openSidebarAndStructurePanel(page) {
   });
 }
 
-async function openSidebarAndAssistPanel(page) {
+async function openSidebarAndAdvancedPanel(page) {
   await enableAllGadgets(page);
-  await openSidebarGroup(page, 'assist');
-  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+  await openSidebarGroup(page, 'advanced');
+  await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   await page.waitForTimeout(300);
 
   // すべてのガジェットを開く
   await page.evaluate(() => {
-    document.querySelectorAll('#assist-gadgets-panel .gadget-header').forEach(function (h) {
+    document.querySelectorAll('#advanced-gadgets-panel .gadget-header').forEach(function (h) {
       if (h.parentElement && !h.parentElement.classList.contains('expanded')) {
         h.click();
       }
@@ -139,7 +139,7 @@ test.describe('Font Decoration System', () => {
 
   test('should render font decorations in preview panel', async ({ page }) => {
     // Open preview panel
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
     await page.waitForTimeout(500);
 
     // Type text with decorations
@@ -194,29 +194,29 @@ test.describe('HUD Settings', () => {
 
     await page.reload();
 
-    // HUDSettings は assist グループのガジェットとして描画される
-    await openSidebarAndAssistPanel(page);
+    // HUDSettings は低頻度 settings として advanced グループに描画される
+    await openSidebarAndAdvancedPanel(page);
   });
 
   test('should display HUD settings gadget', async ({ page }) => {
-    // v0.3.25: HUDSettings gadget is in settings group
+    // v1: HUDSettings gadget is in advanced/settings group
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'assist');
-    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'advanced');
+    await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
-    const hudGadgets = await page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
+    const hudGadgets = await page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
     const count = await hudGadgets.count();
     expect(count).toBeGreaterThan(0);
   });
 
   test('should update HUD width setting', async ({ page }) => {
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'assist');
-    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'advanced');
+    await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
-    // v0.3.25: HUDSettings ガジェットは settings グループに配置
+    // v1: HUDSettings ガジェットは advanced/settings グループに配置
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const widthInput = hudGadget.locator('input[type="number"][min="120"]').first();
@@ -228,11 +228,11 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD font size setting', async ({ page }) => {
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'assist');
-    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'advanced');
+    await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const fsInput = hudGadget.locator('input[type="number"][min="10"]').first();
@@ -244,11 +244,11 @@ test.describe('HUD Settings', () => {
 
   test('should update HUD colors', async ({ page }) => {
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'assist');
-    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+    await openSidebarGroup(page, 'advanced');
+    await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
     const hudGadget = await page
-      .locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
+      .locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
 
     const firstColorInput = hudGadget.locator('input[type="color"]').first();

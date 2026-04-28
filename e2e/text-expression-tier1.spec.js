@@ -9,7 +9,7 @@ test.describe('Text Expression Tier 1', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-textbox{preset:"inner-voice"}\nこれはプレビューです\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox[data-preset="inner-voice"]');
     await expect(box).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('Text Expression Tier 1', () => {
       document.documentElement.setAttribute('data-reduce-motion', 'true');
     });
     await page.fill('#editor', ':::zw-textbox{preset:"typing-sequence"}\nslow\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox--typing-sequence').first();
     await expect(box).toBeVisible();

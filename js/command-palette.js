@@ -16,36 +16,18 @@
     }
   }
 
-  function getTopChromeApi() {
-    return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
-      ? window.ZenWriterTopChrome
-      : null;
-  }
-
-  function showTopChrome() {
-    const topChrome = getTopChromeApi();
-    if (topChrome && typeof topChrome.showAndFocus === 'function') {
-      topChrome.showAndFocus();
-      return true;
-    }
-    return false;
-  }
-
-  function toggleTopChrome() {
-    const topChrome = getTopChromeApi();
-    if (topChrome && typeof topChrome.toggle === 'function') {
-      topChrome.toggle();
-      return true;
-    }
-    return false;
-  }
-
   function returnLeftNavRoot() {
     if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
       window.sidebarManager.returnToLeftNavRoot();
       return true;
     }
     return false;
+  }
+
+  function openLeftNavCategory(group) {
+    if (!window.sidebarManager || typeof window.sidebarManager.activateSidebarGroup !== 'function') return false;
+    window.sidebarManager.activateSidebarGroup(group);
+    return true;
   }
 
   function isCommandPaletteDevMode() {
@@ -98,34 +80,15 @@
     },
     {
       id: 'toggle-toolbar',
-      label: 'トップクロームを開閉',
-      description: 'トップクロームの表示を切り替える（旧互換コマンド）',
-      keywords: '上端 バー トップクローム 旧ツールバー',
+      label: 'コマンドパレットを開く',
+      description: '旧ツールバー互換コマンド。現在はコマンドパレットを開く',
+      keywords: '上端 バー 旧ツールバー コマンド パレット',
       shortcut: 'Alt+W',
       category: 'UI操作',
       hidden: true,
       execute: () => {
-        if (toggleTopChrome()) {
-          return;
-        }
-        if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-          window.sidebarManager.toggleToolbar();
-        }
-      }
-    },
-    {
-      id: 'show-top-chrome',
-      label: 'トップクロームを表示',
-      description: '上端のトップクロームを表示してフォーカスする',
-      keywords: '上端 トップクローム コマンド 設定 ヘルプ',
-      shortcut: 'F2',
-      category: 'UI操作',
-      execute: () => {
-        if (showTopChrome()) {
-          return;
-        }
-        if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-          window.sidebarManager.toggleToolbar();
+        if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+          window.commandPalette.show();
         }
       }
     },
@@ -452,60 +415,69 @@
     },
     // ガジェット操作（動的に追加）
     {
-      id: 'gadget-structure',
-      label: '構造（アウトライン）ガジェット',
-      description: '構造タブを開く（見出し・アウトライン）',
-      keywords: 'ドキュメント構造 セクションナビゲーター outline',
+      id: 'gadget-sections',
+      label: 'セクション',
+      description: 'セクションナビを開く',
+      keywords: 'sections 章 見出し セクションナビゲーター',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('structure');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
+        openLeftNavCategory('sections');
+      }
+    },
+    {
+      id: 'gadget-structure',
+      label: '構造',
+      description: '構造カテゴリを開く（ドキュメント・アウトライン・Wiki）',
+      keywords: 'ドキュメント 構造 アウトライン StoryWiki LinkGraph バックアップ snapshot outline',
+      shortcut: '',
+      category: 'ガジェット',
+      execute: () => {
+        openLeftNavCategory('structure');
+      }
+    },
+    {
+      id: 'gadget-edit',
+      label: '編集',
+      description: '編集カテゴリを開く（MDプレビュー・装飾・選択肢）',
+      keywords: 'edit Markdownプレビュー MD プレビュー 装飾 選択肢 画像 animation',
+      shortcut: '',
+      category: 'ガジェット',
+      execute: () => {
+        openLeftNavCategory('edit');
+      }
+    },
+    {
+      id: 'gadget-theme',
+      label: 'テーマ',
+      description: 'テーマカテゴリを開く（テーマ・フォント・見出しスタイル）',
+      keywords: 'theme テーマ フォント typography 見出し style visual profile',
+      shortcut: '',
+      category: 'ガジェット',
+      execute: () => {
+        openLeftNavCategory('theme');
       }
     },
     {
       id: 'gadget-assist',
       label: '補助',
-      description: '補助。執筆の継続を支える進捗・集中・参照。',
-      keywords: 'アシスト assist タイプライター Typewriter ポモドロ Pomodoro 執筆目標 HUD Markdownリファレンス 集中タイマー',
+      description: '補助カテゴリを開く（進捗・集中・参照）',
+      keywords: 'アシスト assist タイプライター Typewriter ポモドロ Pomodoro 執筆目標 Markdownリファレンス 集中タイマー',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('assist');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
+        openLeftNavCategory('assist');
       }
     },
     {
       id: 'gadget-advanced',
       label: '詳細設定',
-      description: '詳細。環境設定・運用管理・出力を調整。',
-      keywords: 'advanced キー割り当て ショートカット keybind 印刷 ロードアウト Loadout スナップショット UI設定 プリセット',
+      description: '詳細設定カテゴリを開く（UI設定・出力・キー割り当て）',
+      keywords: 'advanced キー割り当て ショートカット keybind 印刷 ロードアウト Loadout HUD UI設定 プリセット',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('advanced');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
+        openLeftNavCategory('advanced');
       }
     },
     {
@@ -542,7 +514,11 @@
       shortcut: '',
       category: '編集',
       execute: () => {
-        const btn = document.getElementById('toggle-preview');
+        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+          window.ZenWriterEditor.togglePreview();
+          return;
+        }
+        const btn = document.getElementById('sidebar-toggle-preview');
         if (btn) btn.click();
       }
     },
@@ -643,15 +619,7 @@
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('wiki');
-          if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
+        openLeftNavCategory('structure');
       }
     }
   ];
@@ -885,7 +853,7 @@
     executeCommand(cmd) {
       try {
         const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
-        const keepFocusOffEditor = deferEditingFocus || cmd.id === 'show-top-chrome';
+        const keepFocusOffEditor = deferEditingFocus;
         cmd.execute();
         this.hide({ skipEditingSurfaceFocus: keepFocusOffEditor });
         if (deferEditingFocus) {

@@ -133,7 +133,7 @@ function buildMenu() {
             label: 'シェル(&V)',
             submenu: [
                 { label: '左ナビ(&S)', accelerator: 'CmdOrCtrl+B', click: () => sendToRenderer('menu:toggle-sidebar') },
-                { label: 'トップクローム(&T)', accelerator: 'F2', click: () => sendToRenderer('menu:toggle-toolbar') },
+                { label: 'コマンドパレット(&P)', accelerator: 'F2', click: () => sendToRenderer('menu:open-command-palette') },
                 { label: '左ナビのルートへ戻る(&R)', click: () => sendToRenderer('menu:return-left-nav-root') },
                 { type: 'separator' },
                 { label: 'Reader を開く / 閉じる(&D)', accelerator: 'Alt+Shift+R', click: () => sendToRenderer('menu:toggle-reader-overlay') },

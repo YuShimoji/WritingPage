@@ -53,8 +53,8 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // ツールバーのボタンをクリックして選択（UIエディタモードではクリックで選択される）
-    // session 102: #toggle-settings 撤去 → #toggle-theme で代替 (任意のトップバーボタンの代理)
-    const toolbarButton = page.locator('#toggle-theme');
+    // session 102: #toggle-settings 撤去 → accordion header で代替 (任意のサイドバー見出しボタンの代理)
+    const toolbarButton = page.locator('.accordion-header').first();
     await toolbarButton.dispatchEvent('click');
 
     // 少し待機してから確認
@@ -73,7 +73,7 @@ test.describe('UI Visual Editor', () => {
     await activateUIEditor(page);
 
     // ツールバーのボタンを選択
-    const toolbarButton = page.locator('#toggle-theme');
+    const toolbarButton = page.locator('.accordion-header').first();
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 
@@ -128,8 +128,8 @@ test.describe('UI Visual Editor', () => {
     // UIエディタを有効化
     await activateUIEditor(page);
 
-    // 要素を選択して色を変更 (session 102: #toggle-theme で代替)
-    const toolbarButton = page.locator('#toggle-theme');
+    // 要素を選択して色を変更 (session 102: accordion header で代替)
+    const toolbarButton = page.locator('.accordion-header').first();
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 
@@ -158,8 +158,8 @@ test.describe('UI Visual Editor', () => {
     // UIエディタを有効化
     await activateUIEditor(page);
 
-    // 要素を選択して色を変更 (session 102: #toggle-theme で代替)
-    const toolbarButton = page.locator('#toggle-theme');
+    // 要素を選択して色を変更 (session 102: accordion header で代替)
+    const toolbarButton = page.locator('.accordion-header').first();
     await toolbarButton.dispatchEvent('click');
     await page.waitForTimeout(100);
 

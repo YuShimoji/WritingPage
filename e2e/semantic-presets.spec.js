@@ -49,7 +49,7 @@ test.describe('SP-060 Semantic Presets', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-textbox{preset:"dialogue"}\n「こんにちは」\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox--dialogue');
     await expect(box).toBeVisible();
@@ -63,7 +63,7 @@ test.describe('SP-060 Semantic Presets', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-textbox{preset:"monologue"}\n心の中で思った\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox--monologue');
     await expect(box).toBeVisible();
@@ -76,7 +76,7 @@ test.describe('SP-060 Semantic Presets', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-textbox{preset:"warning"}\n危険です\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox--warning');
     await expect(box).toBeVisible();
@@ -105,7 +105,7 @@ test.describe('SP-060 Semantic Presets', () => {
     await showFullToolbar(page);
 
     await page.fill('#editor', ':::zw-textbox{preset:"chant"}\n詠唱開始\n:::');
-    await page.click('#toggle-preview');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
     const box = page.locator('#markdown-preview-panel .zw-textbox--chant');
     await expect(box).toBeVisible();

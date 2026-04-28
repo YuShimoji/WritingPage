@@ -30,6 +30,42 @@
   var _LOADOUT_KEY = utils.LOADOUT_KEY;
   var KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
+  var GADGET_KIND_FALLBACKS = {
+    Documents: 'tool',
+    Outline: 'tool',
+    SectionsNavigator: 'tool',
+    StoryWiki: 'tool',
+    TagsAndSmartFolders: 'tool',
+    LinkGraph: 'tool',
+    MarkdownPreview: 'tool',
+    ChoiceTools: 'tool',
+    Images: 'tool',
+    WritingGoal: 'tool',
+    SnapshotManager: 'tool',
+    PomodoroTimer: 'tool',
+    MarkdownReference: 'tool',
+    Typewriter: 'tool',
+    FocusMode: 'tool',
+    Themes: 'settings',
+    Typography: 'settings',
+    HeadingStyles: 'settings',
+    VisualProfile: 'settings',
+    EditorLayout: 'settings',
+    UISettings: 'settings',
+    HUDSettings: 'settings',
+    FontDecoration: 'settings',
+    TextAnimation: 'settings',
+    PrintSettings: 'settings',
+    Keybinds: 'settings',
+    GadgetPrefs: 'admin',
+    LoadoutManager: 'admin'
+  };
+
+  function normalizeGadgetKind(kind, name) {
+    var safeKind = typeof kind === 'string' ? kind.trim().toLowerCase() : '';
+    if (safeKind === 'tool' || safeKind === 'settings' || safeKind === 'admin') return safeKind;
+    return GADGET_KIND_FALLBACKS[name] || 'tool';
+  }
 
   var loadPrefs = loadouts.loadPrefs;
   var savePrefs = loadouts.savePrefs;
@@ -114,6 +150,7 @@
      * @property {string} [className] - Custom CSS class
      * @property {boolean} [floatable] - Whether this gadget can be detached
      * @property {boolean} [defaultCollapsed] - 初回のみ（localStorage に折りたたみ状態が無いとき）。true なら閉じた状態で表示。false なら開いた状態。未指定時は従来どおり Documents / Themes のみ初回展開。
+     * @property {'tool'|'settings'|'admin'} [kind] - Gadget taxonomy for public UI control exposure.
      */
 
     /**
@@ -141,7 +178,8 @@
           title: opts.title || safeName,
           description: opts.description || '',
           factory: factory,
-          groups: normalizeGroupList(opts.groups || ['structure'])
+          groups: normalizeGroupList(opts.groups || ['structure']),
+          kind: normalizeGadgetKind(opts.kind, safeName)
         };
         if (typeof opts.defaultCollapsed === 'boolean') {
           entry.defaultCollapsed = opts.defaultCollapsed;
@@ -449,6 +487,7 @@
     }
 
     _isGadgetCollapsed(name) {
+      if (name === 'SectionsNavigator') return false;
       var state = this._loadGadgetCollapseState();
       if (state[name] !== undefined) return !state[name];
       for (var gi = 0; gi < this._list.length; gi++) {
@@ -549,6 +588,7 @@
             var wrapper = document.createElement('div');
             wrapper.className = 'gadget-wrapper';
             wrapper.setAttribute('data-gadget-name', entry.name);
+            wrapper.setAttribute('data-gadget-kind', entry.kind || 'tool');
             wrapper.setAttribute('role', 'group');
             wrapper.setAttribute('aria-label', 'ガジェット「' + (entry.title || entry.name) + '」');
 

@@ -30,6 +30,7 @@
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
+            'SnapshotManager',
             'StoryWiki',
             'LinkGraph'
           ],
@@ -48,8 +49,6 @@
           assist: [
             'Typewriter',
             'FocusMode',
-            'SnapshotManager',
-            'HUDSettings',
             'WritingGoal',
             'MarkdownReference',
             'PomodoroTimer'
@@ -57,6 +56,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'HUDSettings',
             'PrintSettings',
             'GadgetPrefs',
             'Keybinds'
@@ -78,6 +78,7 @@
           structure: [
             'Documents',
             'Outline',
+            'SnapshotManager',
             'StoryWiki'
           ],
           edit: [],
@@ -88,12 +89,12 @@
             'VisualProfile'
           ],
           assist: [
-            'SnapshotManager',
             'WritingGoal',
             'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
+            'HUDSettings',
             'GadgetPrefs'
           ]
         },
@@ -114,6 +115,7 @@
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
+            'SnapshotManager',
             'StoryWiki',
             'LinkGraph'
           ],
@@ -133,8 +135,6 @@
           assist: [
             'Typewriter',
             'FocusMode',
-            'SnapshotManager',
-            'HUDSettings',
             'WritingGoal',
             'MarkdownReference',
             'PomodoroTimer'
@@ -142,6 +142,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'HUDSettings',
             'GadgetPrefs',
             'Keybinds'
           ]
@@ -162,6 +163,7 @@
           structure: [
             'Documents',
             'Outline',
+            'SnapshotManager',
             'StoryWiki'
           ],
           edit: [
@@ -176,7 +178,6 @@
             'VisualProfile'
           ],
           assist: [
-            'SnapshotManager',
             'WritingGoal',
             'MarkdownReference',
             'PomodoroTimer'
@@ -184,6 +185,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'HUDSettings',
             'GadgetPrefs',
             'Keybinds'
           ]

@@ -6,8 +6,8 @@
 
 | 軸 | 現行の扱い |
 |----|------------|
-| `top chrome` | hidden が既定。`F2` / Electron menu / command palette で明示表示する一時シェル |
-| left nav | 通常時は root rail を完全非表示にし、left edge hover で fade-in する `root/category` 階層。category では active category を左上固定 |
+| command palette | `F2` / Electron menu / shortcut で開く横断操作入口。旧 top chrome 表示導線の受け皿 |
+| left nav | 通常時は root rail を完全非表示にし、left edge hover で fade-in する `root/category` 階層。category では active category を左上固定し、左列 back rail で root へ戻る |
 | 再生オーバーレイ | `data-reader-overlay-open` で開閉する読者視点確認 surface。UI mode ではない |
 | UI mode | 内部互換 API として `normal` / `focus` を保持。公開 UI の第一級概念にしない |
 | 編集面 | Markdown source / rich edit / preview 系の作業面。再生オーバーレイとは同時操作しない |
@@ -16,11 +16,11 @@
 
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
-| window grip | `#electron-window-grip` | Electron frameless window の通常時移動。Editor / sidebar とは hit area を分離 |
-| writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | top chrome hidden / Reader 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
-| top chrome | `#top-chrome`, `js/top-chrome-controller.js` | 一時的な shell 操作・window controls・drag lane |
+| window grip | `#electron-window-grip` | Electron frameless window の通常時移動。初期透明で hover 時だけ icon 表示し、Editor / sidebar とは hit area を分離 |
+| writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | Reader / Floating memo lab 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
+| window controls island | `#electron-window-controls`, `js/electron-bridge.js` | Electron frameless window の最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示 |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |
-| left nav category | `#sidebar-nav-back`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |
+| left nav category | `#sidebar-nav-back`, `#sidebar-nav-back-rail`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon / category-only back rail は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |
 | sidebar gadget body | `.gadget`, `.gadget-body` | shell token・collapse affordance・ARIA 同期を共有 |
 | Documents | `js/gadgets-documents-hierarchy.js` | document tree と `+ 文書` / `+ フォルダ` / `保存` / `入出力` / `管理` controls |
 | Story Wiki | `js/story-wiki.js` | `+ Wikiページ` でページ作成。shell token と gadget collapse 契約に従う |
@@ -44,9 +44,10 @@
 
 | 操作 | 正の入口 | 補助入口 |
 |------|----------|----------|
-| window 移動 | 左上 `#electron-window-grip` | top chrome 表示中の drag lane |
-| top chrome 表示 | `F2` | command palette / Electron menu |
-| left nav root へ戻る | `#sidebar-nav-back` | command palette / Electron menu |
+| window 移動 | 左上 `#electron-window-grip` | OS window controls island は no-drag |
+| window 操作 | 右上 `#electron-window-controls` | Electron menu / OS shell |
+| command palette 表示 | `F2` | `Ctrl+P` / Electron menu |
+| left nav root へ戻る | `#sidebar-nav-back` | category-only `#sidebar-nav-back-rail` / command palette / Electron menu |
 | category 表示 | left edge hover 後の root category button | command palette の gadget jump |
 | 再生オーバーレイ | command palette / shell UI | shortcut / existing replay control |
 | 設定 | command palette `open-settings` / `Ctrl+,` | focus-side settings entry |

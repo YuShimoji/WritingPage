@@ -133,7 +133,7 @@ test.describe('Gadgets E2E', () => {
     expect(updateResult.hasWikiInItem).toBeTruthy();
   });
 
-  test('Gadget wrappers expose dedicated drag handle semantics', async ({ page }) => {
+  test('Gadget wrappers expose taxonomy and hide drag handles in public UI', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
@@ -142,11 +142,19 @@ test.describe('Gadgets E2E', () => {
     await expect(wrapper).not.toHaveAttribute('draggable', 'true');
     await expect(wrapper).toHaveAttribute('role', 'group');
     await expect(wrapper).toHaveAttribute('data-gadget-name');
+    await expect(wrapper).toHaveAttribute('data-gadget-kind', /^(tool|settings|admin)$/);
 
     const handle = wrapper.locator('.gadget-drag-handle');
-    await expect(handle).toBeVisible();
+    await expect(handle).toBeAttached();
+    await expect(handle).not.toBeVisible();
     await expect(handle).toHaveAttribute('draggable', 'true');
     await expect(handle).toHaveAttribute('aria-label', /移動/);
+
+    await openSidebarGroup(page, 'advanced');
+    const settingsWrapper = page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]').first();
+    await expect(settingsWrapper).toHaveAttribute('data-gadget-kind', 'settings');
+    await expect(settingsWrapper.locator('.gadget-detach-btn')).not.toBeVisible();
+    await expect(settingsWrapper.locator('.gadget-help-btn')).not.toBeVisible();
   });
 
   test('Gadget range controls do not start gadget dragging', async ({ page }) => {
@@ -284,6 +292,40 @@ test.describe('Gadgets E2E', () => {
 
     for (const [name, leaked] of Object.entries(exposure)) {
       expect(leaked, `${name} hidden admin gadgets`).toEqual([]);
+    }
+  });
+
+  test('built-in loadouts keep stable gadget placement', async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.removeItem('zenWriter_gadgets:loadouts');
+      } catch (_) {}
+    });
+    await page.goto(pageUrl);
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      return !!(window.ZWGadgets && typeof window.ZWGadgets._ensureLoadouts === 'function');
+    });
+
+    const placement = await page.evaluate(() => {
+      const data = window.ZWGadgets._ensureLoadouts();
+      const result = {};
+      Object.keys(data.entries || {}).forEach((key) => {
+        const entry = data.entries[key] || {};
+        result[key] = {
+          structure: entry.groups?.structure || [],
+          assist: entry.groups?.assist || [],
+          advanced: entry.groups?.advanced || [],
+        };
+      });
+      return result;
+    });
+
+    for (const [name, groups] of Object.entries(placement)) {
+      expect(groups.structure, `${name} structure placement`).toEqual(expect.arrayContaining(['SnapshotManager']));
+      expect(groups.assist, `${name} assist excludes snapshot`).not.toContain('SnapshotManager');
+      expect(groups.assist, `${name} assist excludes HUD`).not.toContain('HUDSettings');
+      expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['HUDSettings']));
     }
   });
 });

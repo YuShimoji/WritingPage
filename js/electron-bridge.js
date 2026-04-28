@@ -10,25 +10,17 @@
 
     const api = window.electronAPI;
 
-    function getTopChromeApi() {
-        return window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.showAndFocus === 'function'
-            ? window.ZenWriterTopChrome
-            : null;
-    }
-
-    function showTopChrome() {
-        const topChrome = getTopChromeApi();
-        if (topChrome && typeof topChrome.showAndFocus === 'function') {
-            topChrome.showAndFocus();
+    function showCommandPalette() {
+        if (window.commandPalette && typeof window.commandPalette.show === 'function') {
+            window.commandPalette.show();
             return true;
         }
         return false;
     }
 
-    function toggleTopChrome() {
-        const topChrome = getTopChromeApi();
-        if (topChrome && typeof topChrome.toggle === 'function') {
-            topChrome.toggle();
+    function toggleCommandPalette() {
+        if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
+            window.commandPalette.toggle();
             return true;
         }
         return false;
@@ -77,20 +69,17 @@
                 }
                 break;
 
+            case 'menu:open-command-palette':
+                showCommandPalette();
+                break;
+
             case 'menu:toggle-toolbar': {
-                if (toggleTopChrome()) {
-                    break;
-                }
-                if (window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-                    window.sidebarManager.toggleToolbar();
-                }
+                toggleCommandPalette();
                 break;
             }
 
             case 'menu:toggle-focus':
-                if (!showTopChrome() && window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-                    window.sidebarManager.toggleToolbar();
-                }
+                showCommandPalette();
                 break;
 
             case 'menu:toggle-reader-overlay':
@@ -220,9 +209,7 @@
 
     /* ---------- Legacy mode menu compatibility ---------- */
     function toggleMinimalMode() {
-        if (!showTopChrome() && window.sidebarManager && typeof window.sidebarManager.toggleToolbar === 'function') {
-            window.sidebarManager.toggleToolbar();
-        }
+        showCommandPalette();
     }
 
     /* ---------- System theme sync ---------- */
@@ -297,10 +284,13 @@
         async function updateMaxIcon() {
             if (!btnMax) return;
             const maximized = await api.isMaximized();
-            const icon = btnMax.querySelector('i');
+            const icon = btnMax.querySelector('[data-lucide], svg');
             if (icon) {
-                icon.setAttribute('data-lucide', maximized ? 'copy' : 'square');
-                if (window.lucide) window.lucide.createIcons({ nodes: [icon] });
+                const nextIcon = document.createElement('i');
+                nextIcon.setAttribute('data-lucide', maximized ? 'copy' : 'square');
+                nextIcon.setAttribute('aria-hidden', 'true');
+                icon.replaceWith(nextIcon);
+                if (window.lucide) window.lucide.createIcons({ nodes: [nextIcon] });
             }
             btnMax.title = maximized ? '元に戻す' : '最大化';
             btnMax.setAttribute('aria-label', maximized ? '元に戻す' : '最大化');
