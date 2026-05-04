@@ -35,10 +35,7 @@
             'LinkGraph'
           ],
           edit: [
-            'MarkdownPreview',
-            'ChoiceTools',
-            'FontDecoration',
-            'TextAnimation'
+            'ChoiceTools'
           ],
           theme: [
             'Themes',
@@ -56,6 +53,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'EditorAdvancedSettings',
             'HUDSettings',
             'PrintSettings',
             'GadgetPrefs',
@@ -122,8 +120,6 @@
           edit: [
             'Images',
             'ChoiceTools',
-            'MarkdownPreview',
-            'FontDecoration',
             'TextAnimation'
           ],
           theme: [
@@ -142,6 +138,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'EditorAdvancedSettings',
             'HUDSettings',
             'GadgetPrefs',
             'Keybinds'
@@ -167,9 +164,7 @@
             'StoryWiki'
           ],
           edit: [
-            'ChoiceTools',
-            'FontDecoration',
-            'TextAnimation'
+            'ChoiceTools'
           ],
           theme: [
             'Themes',
@@ -185,6 +180,7 @@
           advanced: [
             'EditorLayout',
             'UISettings',
+            'EditorAdvancedSettings',
             'HUDSettings',
             'GadgetPrefs',
             'Keybinds'

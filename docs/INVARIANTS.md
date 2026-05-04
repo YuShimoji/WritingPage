@@ -19,10 +19,11 @@
 - `setUIMode('normal'|'focus')` は移行期の内部互換 API としてのみ扱う。新規 UI 仕様・visible command・manual test の起点にしない。
 - visible top chrome surface は復活させない。`F2` / Electron menu / 旧 toolbar 互換経路は command palette を開き、上端 hover reveal・常時 visible handle・上部 drag lane を作らない。
 - writing status chip は Reader 非表示 / Floating memo lab 非表示の通常執筆時だけ出る非操作型 status とする。`pointer-events: none` を維持し、Reader / Floating memo lab 表示中は隠す。
-- frameless Electron window の通常移動は Electron-only の小さな左上 window grip に限定する。Grip は初期透明で hover 時だけ icon を fade-in させる。最小化・最大化/復元・閉じるは Electron-only の右上 window controls island が担い、右上局所 hover / focus 時だけ fade-in する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
-- left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in し、見た目幅を出たら即 dismiss する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 中のみ左列全体の back rail で root に戻れる。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
+- frameless Electron window の通常移動は Electron-only の右上 window controls island 内 drag handle に限定する。左上には window drag region を置かず、island 非表示時の handle は `no-drag`、表示 active / focus 中だけ `drag` とする。最小化・最大化/復元・閉じる button は常に `no-drag` のまま右上局所 hover / focus 時だけ fade-in する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
+- left nav は root/category 階層ナビ。root rail は通常時に完全非表示で、不可視の left edge rail に触れたときだけ fade-in する。root の検知幅は root rail の見た目幅と同期し、見た目幅を出たら即 dismiss する。root では全トップレベルカテゴリを表示し、**直前に開いていたカテゴリには再入の cue を残す**。category では active category を左上固定、非 active category を fade-out 後に hit-test 対象外へ移す。category 中の root 戻りは sidebar 左列の非操作領域クリックだけで発火し、button / input / link / tree item / gadget controls を奪わない。category 展開中は toolbar / header / accordion content を最終 category 幅で保持し、狭幅折り返しによる潰れ・縦長化を出さない。カテゴリ間の直接ジャンプは初期仕様に含めず、一度 root へ戻る。
 - sidebar / gadget / documents の visible UI は unified shell の共通 token（`--shell-space-*`, `--shell-control-*`, `--shell-radius-*`, `--shell-scrollbar-*`, `--shell-field-bg`）を使う。normal unified shell では dock / chrome 系の上段 clutter を常設表示せず、gadget header は collapse affordance、専用 drag handle は並び替え affordance として分離する。`aria-expanded` と gadget body `aria-hidden` は必ず同期する。
 - gadget body は `.gadget` class を保持する。Story Wiki などの gadget 内 render が `root.className` を上書きする場合も `.gadget` を消してはならない。collapsed body は height だけでなく padding / margin / pointer area も残さない。
+- Story Wiki full mode は containing gadget の collapsed / hidden 状態を解除し、full pane を sidebar の clipped category 幅ではなく viewport 幅で表示する。E2E は hidden duplicate ではなく `.swiki-full:visible` 内を scope して見る。
 - category activation は shell を先に表示し、重い gadget render は次 frame / idle へ遅延する。表示前に hidden 幅で重い graph/canvas を同期描画しない。
 - command palette と visible UI から `ui-mode-*` / `toggle-fullscreen` / top chrome 表示 command を外し、`F2` は command palette 表示に割り当てる。Electron menu の visible shell wording もこれに揃える。Normal left-edge hover は sidebar を force-open せず、root rail の一時 fade-in のみを行う。
 
@@ -37,7 +38,7 @@
 - **読者プレビュー／HTML 組み立てなどの「読み取り」経路**では `splitIntoChapters` や `saveDocuments` による章モデルの暗黙更新を行わない（分解・移行は `ensureChapterMode` や明示的な処理に限定。目安は [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md)）
 - `ZWChapterStore.getChaptersForDoc` / `createChapter` / `assembleFullText` には **親ドキュメント ID** を渡す。`getCurrentDocId()` が章レコードを指す可能性があるため、章 UI では正規化ヘルパ（例: `getDocumentIdForChapterOps`）を通す
 - **SectionsNavigator（chapterMode）**: Store の章を virtual heading として足すとき、**タイトルだけの重複判定は禁止**（同名章が欠落する）。エディタ上の実見出しと章リストを **先頭から同タイトルで 1 対 1** で突き合わせ、余った章のみ `_chapterId` 付き virtual を追加する。クリック遷移は `_chapterId` が正本
-- サイドバー開閉は `toggleSidebar()` → `s.sidebarOpen` に永続化。`setUIMode` Normal 復帰時に復元
+- サイドバー開閉は明示操作（`activateSidebarGroup()` / `returnToLeftNavRoot()` / `toggleSidebar()`）でのみ変える。起動時は保存済み `s.sidebarOpen` を復元せず root / 非表示で開始し、`s.ui.leftNavCategory` は last active cue にのみ使う
 - エッジグローは Focus モードのみ
 - 再生オーバーレイ表示中（`data-reader-overlay-open='true'`）はフローティングツールバーを非表示
 - WYSIWYG TB の縦書き/テキストエディタ切替はオーバーフローメニュー `[...]` 経由。直接ボタンは存在しない
@@ -77,6 +78,7 @@
 - `data-sidebar-slim="true"` はアプリ起動時に `bootstrapAccordion()` で常時設定される
 - normal unified shell の slim mode では gadget collapse affordance を消さない。detach / help / bulk toggle は隠してよいが、`gadget-chevron` と `gadget-header` の toggle は visible / clickable を維持する
 - テスト時は必要に応じて `enableAllGadgets` / `disableWritingFocus` で slim を解除するが、session 127 以後は slim 中の collapse affordance も回帰対象にする
+- `UISettings` は日常執筆向けの表示・文字サイズ・placeholder・自動保存だけを担う。リッチ編集改行、Textbox、浮遊パネル、ガジェット表示設定は `EditorAdvancedSettings` に分離し、ガジェットが第二の編集面や Reader 代替 UI にならないようにする
 
 ## E2E Test Invariants
 

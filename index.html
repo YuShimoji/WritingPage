@@ -102,13 +102,13 @@
 </head>
 
 <body>
-  <div class="electron-window-grip" id="electron-window-grip" aria-hidden="true">
-    <i data-lucide="move-diagonal-2" aria-hidden="true"></i>
-  </div>
   <div class="writing-status-chip" id="writing-status-chip" role="status" aria-live="polite" aria-atomic="true">
     文字数: 0 · 保存済み
   </div>
   <div class="electron-window-controls-island electron-only" id="electron-window-controls" role="group" aria-label="ウィンドウ操作">
+    <div class="window-control-drag-handle" id="electron-window-drag-handle" aria-hidden="true" title="ウィンドウを移動">
+      <i data-lucide="grip-horizontal" aria-hidden="true"></i>
+    </div>
     <button type="button" class="window-control-btn" id="win-minimize" title="最小化" aria-label="最小化">
       <i data-lucide="minus" aria-hidden="true"></i>
     </button>

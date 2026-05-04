@@ -29,7 +29,7 @@
 - **エディタ余白・最大幅**
   - EditorLayout ガジェットがエディタの左右余白や最大幅を制御し、設定は `ZenWriterStorage` に保存。
 - **統合シェル状態**
-  - top chrome / left nav / 再生オーバーレイの状態モデル（`docs/INTERACTION_NOTES.md` に概要あり）。
+  - command palette / left nav / 再生オーバーレイ / window controls island の状態モデル（`docs/INTERACTION_NOTES.md` に概要あり）。
   - Visual Profile は主にテーマ・フォント・本文幅を扱い、公開 UI 状態の第一級切替にはしない。
 
 > Phase A では、これら既存機能の**上に薄く乗る概念モデル**として Visual Profile を定義し、

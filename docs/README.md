@@ -14,14 +14,14 @@ v0.3.32 / 2026-04-06
 
 - `docs/spec-index.json` は historical entry を含む。missing file があっても直ちに異常ではない
 - **セッション・検証・再開手順の正本は `CURRENT_STATE.md`**。旧再開・健康・カウンター文書は削除済み
-- `RECOMMENDED_DEVELOPMENT_PLAN.md` と `VERIFICATION_CHECKLIST.md` は historical stub。現在の作業選定・受け入れ確認には使わない
+- 旧 planning / checklist / workflow-profile stub は削除済み。現在の作業選定・受け入れ確認・報告形式は正本 docs だけを見る
 
 ## アーキテクチャ・設計
 
 | ドキュメント | 内容 |
 |-------------|------|
 | [ARCHITECTURE](ARCHITECTURE.md) | 技術アーキテクチャ（ファイル構成・設計原則・概念モデル） |
-| [GADGETS](GADGETS.md) | ガジェットシステム仕様（28個の登録ガジェット一覧） |
+| [GADGETS](GADGETS.md) | ガジェットシステム仕様（29個の登録ガジェット一覧） |
 | [THEMES](THEMES.md) | テーマ仕様（CSS変数・プリセット・UI/Editor配色分離） |
 | [VISUAL_PROFILE](VISUAL_PROFILE.md) | ビジュアルプロファイル仕様（見た目プリセット） |
 | [EDITOR_EXTENSIONS](EDITOR_EXTENSIONS.md) | 装飾/挿入UI・選択ツールチップ仕様 |

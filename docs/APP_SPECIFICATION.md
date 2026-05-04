@@ -68,8 +68,9 @@ Zen Writer v0.3.32
 
 | Surface | 説明 | 入口 |
 |--------|------|------|
-| top chrome | hidden が既定の一時シェル。window controls / drag lane / shell 操作を集約 | `F2`、Electron menu、command palette |
-| left nav root | 常設ミニレール。カテゴリ一覧と last active cue を表示 | 左ナビ |
+| command palette | 横断操作入口。旧 top chrome 互換経路（`F2`、Electron menu、legacy toolbar）もここへ誘導する | `F2`、Electron menu、ショートカット |
+| window controls island | Electron frameless window の移動 drag handle と最小化・最大化/復元・閉じる | 右上 hover / focus |
+| left nav root | 通常時は非表示。左端 hover でカテゴリ一覧と last active cue を一時表示 | 左端 hover |
 | left nav category | active category の label / icon / panel / gadget loadout を表示 | root からカテゴリ選択 |
 | 再生オーバーレイ | 読者視点確認。visible 章結合・目次・ナビ・装飾パイプライン統合・読書進捗バー | shell UI / command palette |
 
@@ -98,13 +99,13 @@ Zen Writer v0.3.32
 |---------|-----|---------------|
 | セクション | `sections` | SectionsNavigator（見出しツリー、Phase 1+2実装済み） |
 | 構造 | `structure` | Documents, Outline, StoryWiki, LinkGraph, Tags/SmartFolders, SnapshotManager |
-| 編集 | `edit` | MarkdownPreview, ChoiceTools, FontDecoration, TextAnimation, Images |
-| テーマ | `theme` | Themes, HeadingStyles, EditorLayout, VisualProfile |
+| 編集 | `edit` | ChoiceTools, Images（MarkdownPreview / FontDecoration / TextAnimation は標準小説 preset から除外。TextAnimation は VN preset で維持） |
+| テーマ | `theme` | Themes, Typography, HeadingStyles, VisualProfile |
 | 補助 | `assist` | Typewriter, FocusMode, WritingGoal, Pomodoro, MarkdownReference |
-| 詳細設定 | `advanced` | EditorLayout, UISettings, HUDSettings, PrintSettings, Keybinds（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
+| 詳細設定 | `advanced` | EditorLayout, UISettings, EditorAdvancedSettings, HUDSettings, PrintSettings, Keybinds（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
 
-**ガジェット総数：** 28個
-**ロードアウト：** 3プリセット（作家モード/全機能/最小限）+ カスタム
+**ガジェット総数：** 29個
+**ロードアウト：** 4プリセット（小説・長編/ミニマル/VN/脚本）+ カスタム
 
 ### 5. 装飾・アニメーション
 
@@ -221,7 +222,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 |---------|--------|
 | サイドバー制御 | メニューボタン |
 | 情報表示 | 文字数カウント、執筆目標プログレスバー |
-| shell 操作 | top chrome 表示、left nav root 復帰、再生オーバーレイ |
+| shell 操作 | command palette、left nav root 復帰、再生オーバーレイ |
 | クイックアクション | command palette / shell UI に集約 |
 | ウィンドウ操作 | 最小化/最大化/閉じる（Electronフレームレス時のみ） |
 
@@ -236,8 +237,9 @@ manifest駆動のローカルプラグイン機能を実装済み。
 
 ### 一時シェル UI
 
-- top chrome: 明示操作時だけ表示し、上端 hover reveal は使わない
-- left nav: 常設ミニレールから root/category を切り替える
+- command palette: `F2` / Electron menu / legacy toolbar 互換経路から開く
+- window controls island: 右上 hover / focus 時だけ表示し、表示 active 中だけ drag handle を有効化する
+- left nav: 通常時は非表示。左端 hover で root を一時表示し、root/category を切り替える
 
 ---
 
@@ -258,11 +260,11 @@ manifest駆動のローカルプラグイン機能を実装済み。
 
 | 項目 | 数値 |
 |------|------|
-| JavaScriptファイル | 108ファイル |
+| JavaScriptファイル | 114ファイル |
 | CSSファイル | 4ファイル（style.css メイン） |
 | E2Eテスト | 62ファイル |
-| ガジェット | 28個 |
-| 仕様書 | spec-index.json に56エントリ |
+| ガジェット | 29個 |
+| 仕様書 | spec-index.json に55エントリ |
 
 ### パフォーマンス
 

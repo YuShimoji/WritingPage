@@ -122,12 +122,15 @@ test.describe('Story Wiki グラフビュー統合', () => {
     await page.waitForTimeout(300);
 
     // Dragon を選択
-    const dragonItem = page.locator('.swiki-tree-item', { hasText: 'Dragon' });
+    const fullPane = page.locator('.swiki-root.swiki-full:visible');
+    await expect(fullPane).toBeVisible();
+
+    const dragonItem = fullPane.locator('.swiki-tree-item', { hasText: 'Dragon' });
     await dragonItem.click();
     await page.waitForTimeout(300);
 
     // バックリンクセクションが表示される
-    const blSection = page.locator('.swiki-detail-backlinks');
+    const blSection = fullPane.locator('.swiki-detail-backlinks');
     await expect(blSection).toBeVisible();
 
     // Knight からのバックリンクが存在

@@ -52,7 +52,7 @@
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
 - active でないカテゴリは shell 側で hit-test 対象外にし、DOM を保持したまま重い gadget render を遅延させる。
 
-> **統合シェル連動**: `normal` / `focus` は内部互換値。ガジェット配置の判断は top chrome / left nav root-category / replay surface を基準にする。
+> **統合シェル連動**: `normal` / `focus` は内部互換値。ガジェット配置の判断は command palette / left nav root-category / replay surface を基準にする。
 > **SP-076 将来変更**: ドックパネル実装時にガジェット配置構造が変わる可能性がある。
 
 #### UI仕様（現行）
@@ -62,9 +62,9 @@
 - `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### 登録ガジェット一覧（28個）
+#### 登録ガジェット一覧（29個）
 
-> Session 19 (2026-03-23) で33→28に整理。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
+> Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離し、現行登録は29個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -89,13 +89,14 @@
 | 19 | HUDSettings | HUD設定 | advanced | HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
 | 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | 作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
 | 21 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
-| 22 | UISettings | UI Settings | advanced | 表示方式・サイドバー配置・改行時の装飾挙動を調整。 | gadgets-editor-extras.js |
-| 23 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
-| 24 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
-| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
-| 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
-| 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
-| 28 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
+| 22 | UISettings | UI Settings | advanced | 日常執筆で使う表示・文字サイズ・自動保存だけを調整。 | gadgets-editor-extras.js |
+| 23 | EditorAdvancedSettings | 高度な編集設定 | advanced | リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整。 | gadgets-editor-extras.js |
+| 24 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
+| 25 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
+| 26 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
+| 27 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
+| 28 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
+| 29 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
 
 | # | Name | 状態 | 理由 |
 |---|------|------|------|
@@ -112,6 +113,9 @@
 |--------|------|----------|------|
 | LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
 | GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
+| MarkdownPreview | developer/audit | 標準 preset から除外 | Reader / Rich editing / Markdown source の三軸整理を優先し、通常執筆では第二プレビューを常設しない |
+| FontDecoration | duplicate | 標準 preset から除外 | 装飾は WYSIWYG toolbar / command palette 側を主導線にし、ガジェット側の重複入口を下げる |
+| TextAnimation | contextual | VN 以外の標準 preset から除外 | 小説・脚本では低頻度。VN loadout では演出ツールとして維持する |
 
 #### Gadget kind taxonomy
 
@@ -149,7 +153,7 @@
 | edit | 5 | 編集・装飾・プレビュー（Images は VN 系 preset で表示） |
 | theme | 4 | テーマ・フォント・視覚設定 |
 | assist | 5 | 執筆支援・タイマー・集中・リファレンス |
-| advanced | 7 | UI設定・HUD・出力・管理ツール |
+| advanced | 8 | UI設定・HUD・出力・管理ツール |
 | sections | 1 | セクションナビゲーション (SP-052) |
 
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、left nav の category panel 表示と紐づく。
@@ -200,10 +204,10 @@
       "groups": {
         "sections": ["SectionsNavigator"],
         "structure": ["Documents", "Outline", "TagsAndSmartFolders", "SnapshotManager", "StoryWiki", "LinkGraph"],
-        "edit": ["MarkdownPreview", "ChoiceTools", "FontDecoration", "TextAnimation"],
+        "edit": ["ChoiceTools"],
         "theme": ["Themes", "Typography"],
         "assist": ["Typewriter", "FocusMode", "WritingGoal", "MarkdownReference", "PomodoroTimer"],
-        "advanced": ["EditorLayout", "UISettings", "HUDSettings", "PrintSettings", "Keybinds"]
+        "advanced": ["EditorLayout", "UISettings", "EditorAdvancedSettings", "HUDSettings", "PrintSettings", "Keybinds"]
       }
     }
   }

@@ -16,7 +16,13 @@
   var LOADOUT_KEY = utils.LOADOUT_KEY;
   var _KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
-  var HIDE_BY_DEFAULT_GADGETS = { LoadoutManager: true, GadgetPrefs: true };
+  var HIDE_BY_DEFAULT_GADGETS = {
+    LoadoutManager: true,
+    GadgetPrefs: true,
+    MarkdownPreview: true,
+    FontDecoration: true,
+    TextAnimation: { exceptLoadouts: { 'vn-layout': true } }
+  };
 
   var loadoutState = null;
 
@@ -24,10 +30,18 @@
     return !!(DEFAULT_LOADOUTS && DEFAULT_LOADOUTS.entries && DEFAULT_LOADOUTS.entries[key]);
   }
 
-  function filterDefaultHiddenGadgets(list) {
+  function isDefaultHiddenGadget(name, loadoutKey) {
+    var rule = HIDE_BY_DEFAULT_GADGETS[name];
+    if (!rule) return false;
+    if (rule === true) return true;
+    if (rule.exceptLoadouts && rule.exceptLoadouts[loadoutKey]) return false;
+    return true;
+  }
+
+  function filterDefaultHiddenGadgets(list, loadoutKey) {
     if (!Array.isArray(list)) return [];
     return list.filter(function (name) {
-      return !HIDE_BY_DEFAULT_GADGETS[name];
+      return !isDefaultHiddenGadget(name, loadoutKey);
     });
   }
 
@@ -47,7 +61,7 @@
       }
       if (isBuiltInLoadout(key)) {
         Object.keys(normalized.groups || {}).forEach(function (group) {
-          normalized.groups[group] = filterDefaultHiddenGadgets(normalized.groups[group]);
+          normalized.groups[group] = filterDefaultHiddenGadgets(normalized.groups[group], key);
         });
       }
       normalizedEntries[key] = normalized;
@@ -60,7 +74,7 @@
         var normalized = normalizedEntries[key];
         if (!defEntry || !normalized || !defEntry.groups) return;
         Object.keys(defEntry.groups || {}).forEach(function (group) {
-          var baseList = filterDefaultHiddenGadgets(defEntry.groups[group] || []);
+          var baseList = filterDefaultHiddenGadgets(defEntry.groups[group] || [], key);
           if (!normalized.groups[group]) normalized.groups[group] = [];
           baseList.forEach(function (name) { uniquePush(normalized.groups[group], name); });
         });

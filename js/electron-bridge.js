@@ -271,6 +271,76 @@
     }
 
     /* ---------- Frameless window controls ---------- */
+    function setupWindowControlsReveal() {
+        const island = document.getElementById('electron-window-controls');
+        if (!island) return;
+
+        const activeAttribute = 'data-window-controls-active';
+        const revealExitBufferPx = 8;
+        let pointerMoveFrame = 0;
+
+        function isReaderOverlayOpen() {
+            return document.documentElement.getAttribute('data-reader-overlay-open') === 'true';
+        }
+
+        function hasIslandFocus() {
+            return island.matches(':focus-within');
+        }
+
+        function setControlsActive(active) {
+            if (active && !isReaderOverlayOpen()) {
+                document.body.setAttribute(activeAttribute, 'true');
+                return;
+            }
+            document.body.removeAttribute(activeAttribute);
+        }
+
+        function pointHitsIsland(x, y) {
+            const rect = island.getBoundingClientRect();
+            return x >= rect.left - revealExitBufferPx
+                && x <= rect.right + revealExitBufferPx
+                && y >= rect.top - revealExitBufferPx
+                && y <= rect.bottom + revealExitBufferPx;
+        }
+
+        function updateFromPointer(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+            if (pointerMoveFrame) window.cancelAnimationFrame(pointerMoveFrame);
+            pointerMoveFrame = window.requestAnimationFrame(() => {
+                pointerMoveFrame = 0;
+                if (isReaderOverlayOpen()) {
+                    setControlsActive(false);
+                    return;
+                }
+                setControlsActive(pointHitsIsland(x, y) || hasIslandFocus());
+            });
+        }
+
+        island.addEventListener('pointerenter', () => setControlsActive(true));
+        island.addEventListener('pointerleave', (event) => {
+            if (!hasIslandFocus() && !pointHitsIsland(event.clientX, event.clientY)) {
+                setControlsActive(false);
+            }
+        });
+        island.addEventListener('focusin', () => setControlsActive(true));
+        island.addEventListener('focusout', () => {
+            window.setTimeout(() => {
+                if (!hasIslandFocus()) setControlsActive(false);
+            }, 0);
+        });
+        document.addEventListener('pointermove', updateFromPointer, { passive: true });
+        document.addEventListener('pointerdown', updateFromPointer, { passive: true });
+
+        const readerOverlayObserver = new MutationObserver(() => {
+            if (isReaderOverlayOpen()) setControlsActive(false);
+        });
+        readerOverlayObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-reader-overlay-open']
+        });
+    }
+
     function setupWindowControls() {
         const btnMin = document.getElementById('win-minimize');
         const btnMax = document.getElementById('win-maximize');
@@ -300,6 +370,7 @@
         api.onMaximizedChanged(() => updateMaxIcon());
     }
 
+    setupWindowControlsReveal();
     setupWindowControls();
 
     /* ---------- Double-click toolbar to maximize/restore ---------- */

@@ -16,9 +16,8 @@
 
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
-| window grip | `#electron-window-grip` | Electron frameless window の通常時移動。初期透明で hover 時だけ icon 表示し、Editor / sidebar とは hit area を分離 |
 | writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | Reader / Floating memo lab 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
-| window controls island | `#electron-window-controls`, `js/electron-bridge.js` | Electron frameless window の最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示 |
+| window controls island | `#electron-window-controls`, `#electron-window-drag-handle`, `js/electron-bridge.js` | Electron frameless window の移動 handle と、最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示し、非表示時 handle は `no-drag` |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |
 | left nav category | `#sidebar-nav-back`, `#sidebar-nav-back-rail`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon / category-only back rail は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |
 | sidebar gadget body | `.gadget`, `.gadget-body` | shell token・collapse affordance・ARIA 同期を共有 |
@@ -44,7 +43,7 @@
 
 | 操作 | 正の入口 | 補助入口 |
 |------|----------|----------|
-| window 移動 | 左上 `#electron-window-grip` | OS window controls island は no-drag |
+| window 移動 | 右上 `#electron-window-controls` 内 `#electron-window-drag-handle` | island 表示 active / focus 中だけ drag。左上・本文・sidebar・非表示 handle・window control buttons は no-drag |
 | window 操作 | 右上 `#electron-window-controls` | Electron menu / OS shell |
 | command palette 表示 | `F2` | `Ctrl+P` / Electron menu |
 | left nav root へ戻る | `#sidebar-nav-back` | category-only `#sidebar-nav-back-rail` / command palette / Electron menu |

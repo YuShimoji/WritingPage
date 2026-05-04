@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-04-28（right window controls / top chrome retirement）
+最終更新: 2026-05-04（Phase 1 Story Wiki / left nav regression fix）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` から作業中。`main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は local 未commit |
-| 現在の主軸 | **Electron window controls closeout**: visible top chrome surface を廃止し、右上 hover island に三要素 window controls を移動 |
-| 直近の実装スライス | Right window controls / top chrome retirement: F2 は command palette、Electron menu も command palette、window controls は右上 island hover reveal |
-| 最新ビルド・検証 | right controls: static active source check pass、targeted E2E 4 passed、`test:smoke` pass、`lint:js:check` pass、`build` pass、`test:unit` 11 passed、E2E UI 49 passed、`electron:build` pass、packaged open pass、`git diff --check` pass |
-| 隔離サイドクエスト | 浮遊メモ実験 v2.1。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | top chrome visible surface 廃止、F2 command palette 化、右上 window controls island を正本へ反映 |
+| 現在の主軸 | **Phase 1 Story Wiki / left nav regression fix complete**: left nav back rail と Story Wiki full backlinks の既知 2 failures を解消 |
+| 直近の実装スライス | `#sidebar-nav-back-rail` は gadget 操作を奪わず、sidebar 左列の非操作領域クリックだけ root 戻りにする。Story Wiki full pane は viewport 幅で開き、full pane 内 backlinks を E2E で見る |
+| 最新ビルド・検証 | Phase 1: `git diff --check` pass、対象 JS `node --check` pass、`lint:js:check` pass、`build` pass、`wiki+wiki-graph+pomodoro` 36 passed、`gadgets+editor-settings+ui-mode` 68 passed |
+| 隔離サイドクエスト | 無重力メモ / Floating memo lab。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
+| 今回の docs sync | Phase 1 の root 戻り hit target 契約、Story Wiki full mode 表示契約、解消済み regression の検証証拠を restart docs に反映 |
 
 ## Latest Handoff
 
@@ -23,7 +23,9 @@
 - New: Editor surface は「Editor = 唯一の執筆面」「Rich editing = 既定のリッチ編集表示」「Markdown source = 開発者向け escape hatch」「Reader = 編集不可の読者確認 surface」で整理済み。Documents は作成・保存・入出力・管理を分け、`JSON保存` ではなく `JSON書き出し` と呼ぶ。周辺 gadget も `+ Wikiページ`、`+ 構成プリセット`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用` のように対象つき label へ寄せる。
 - New: `#writing-status-chip` は Reader / Floating memo lab 非表示時だけ文字数と `編集中` / `保存済み` を非操作型で表示する。`GadgetPrefs` も `LoadoutManager` と同じ hide-by-default に移した。
 - New: `main-hub-panel` の active source refs は削除済み。legacy command compatibility (`toggle-fullscreen` / `ui-mode-*`) は hidden 互換として維持する。
-- New: Electron window grip は初期透明の `move-diagonal-2` icon とし、hover 時だけ斜め上から fade-in する。右上には Electron-only の `#electron-window-controls` を置き、最小化・最大化/復元・閉じるは右上局所 hover / focus 時だけ fade-in する。Left nav category では左列全体の `#sidebar-nav-back-rail` で root に戻れる。Root rail は見た目幅を出たら即 dismiss する。
+- New: Electron window drag はユーザー確認で安定。今後の主軸は 2 レーンに分ける。Lane A は無重力メモ / Floating memo lab の visual iteration と productization gate、Lane B はガジェット再整理の usefulness audit と default loadout cleanup。どちらも現行 Editor / Reader / left nav 契約を壊さず、実装スライスは 1 トピックに限定する。
+- New: Gadget cleanup は削除ではなく標準導線から下げる方針。`UISettings` は日常表示・文字サイズ・placeholder・自動保存だけ、`EditorAdvancedSettings` はリッチ編集改行 / Textbox / 浮遊パネル / gadget 表示を持つ。`MarkdownPreview` / `FontDecoration` は標準 preset から外し、`TextAnimation` は VN preset だけ残す。
+- New: Phase 1 既知 regression は解消済み。left nav category の root 戻りは sidebar 左列の空白クリックだけで発火し、button / input / link / tree item / gadget controls は奪わない。Story Wiki full mode は containing gadget の collapsed/hidden 状態を解除し、full pane を viewport 幅で表示して backlinks detail を見せる。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -50,6 +52,56 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Phase 1 Story Wiki / left nav regression fix
+
+- `.serena/project.yml` は Serena テンプレコメント更新のみの tool noise として HEAD へ戻し、製品差分から外した。
+- left nav category の root 戻りは、visual `#sidebar-nav-back-rail` の pointer capture ではなく sidebar 左列の非操作領域クリックで扱う。button / input / link / tree item / gadget controls は `event.composedPath()` で守る。
+- Story Wiki full mode は `data-swiki-full-open` を設定し、sidebar を viewport 幅へ広げる。full render 時は containing gadget の collapsed / hidden 状態も解除する。
+- `git diff --check` → pass
+- `node --check js/electron-bridge.js js/gadgets-editor-extras.js js/gadgets-loadouts.js js/loadouts-presets.js js/settings-manager.js js/sidebar-manager.js js/story-wiki.js` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npx playwright test e2e/wiki.spec.js --grep "create new wiki entry via dialog" --workers=1 --reporter=line` → pass
+- `npx playwright test e2e/wiki-graph.spec.js --grep "display backlinks in entry detail pane" --workers=1 --reporter=line` → pass
+- `npx playwright test e2e/wiki.spec.js e2e/wiki-graph.spec.js e2e/pomodoro.spec.js --workers=1 --reporter=line` → 36 passed
+- `npx playwright test e2e/gadgets.spec.js e2e/editor-settings.spec.js e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line` → 68 passed
+
+### Phase 0 closeout / docs drift cleanup
+
+- `.serena/project.yml` 差分は製品挙動に無関係な Serena 設定テンプレート更新として revert 済み。
+- `docs/verification/2026-04-29/electron-manual-confirmation-prep.md` は package 手動確認の準備記録として追加。
+- `git diff --check` → pass
+- `node --check js/electron-bridge.js js/gadgets-editor-extras.js js/gadgets-loadouts.js js/loadouts-presets.js js/settings-manager.js js/sidebar-manager.js` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npx playwright test e2e/gadgets.spec.js e2e/editor-settings.spec.js e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line` → 68 passed
+- `npx playwright test e2e/wiki.spec.js e2e/wiki-graph.spec.js e2e/pomodoro.spec.js --workers=1 --reporter=line` → 34 passed / 2 failed
+  - `wiki.spec.js` create dialog: `#sidebar-nav-back-rail` intercepts `.swiki-btn-new` click
+  - `wiki-graph.spec.js` backlinks detail: `.swiki-detail-backlinks` remains hidden
+  - Pomodoro tests passed. The two failures were resolved by Phase 1 above.
+
+### gadget mainstream protection cleanup
+
+- `node --check js/gadgets-editor-extras.js js/gadgets-loadouts.js js/loadouts-presets.js js/gadgets-core.js` → pass
+- loadout normalization smoke → `novel-standard` edit は `ChoiceTools` のみ、`vn-layout` edit は `Images` / `ChoiceTools` / `TextAnimation`
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npx playwright test e2e/gadgets.spec.js e2e/editor-settings.spec.js --workers=1 --reporter=line` → 33 passed
+- `npx playwright test e2e/wiki.spec.js e2e/wiki-graph.spec.js e2e/pomodoro.spec.js --workers=1 --reporter=line` → 34 passed / 2 failed
+  - `wiki.spec.js` create dialog: `#sidebar-nav-back-rail` intercepts `.swiki-btn-new` click
+  - `wiki-graph.spec.js` backlinks detail: `.swiki-detail-backlinks` remains hidden
+  - Pomodoro tests in the suite passed. The two failures were outside the loadout cleanup files and were handled as a separate Phase 1 left-nav / Story Wiki regression slice.
+
+### right window drag handle invisible-drag fix
+
+- `npx playwright test e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line --grep "drag handle|right window controls"` → 2 passed
+- `npx playwright test e2e/ui-mode-consistency.spec.js --workers=1 --reporter=line` → 35 passed
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npm run electron:build` → 既存 `Zen Writer` process を停止して DLL lock を回避 → pass
+- `npm run app:open:package` → pass
 
 ### right window controls / top chrome retirement
 
@@ -232,8 +284,7 @@
 
 ### docs hygiene hardening
 
-- `RECOMMENDED_DEVELOPMENT_PLAN.md` → superseded / historical planning stub。現在の作業選定に使わない
-- `VERIFICATION_CHECKLIST.md` → superseded / historical checklist stub。現在の受け入れ確認に使わない
+- `RECOMMENDED_DEVELOPMENT_PLAN.md` / `VERIFICATION_CHECKLIST.md` / `workflow-profile.md` → 削除済み。旧 planning / checklist / profile が報告形式や次作業選定を固定化する経路を断つ。2026-05-04 再確認で `workflow-profile.md` の現行レーンは SP-061/SP-074/SP-079 の旧進捗だったため復元しない。残す価値のある ContentGuard / VisualProfile / E2E 注意は既存 specs・verification・invariants 側を正とする
 - `MANUAL_TEST_GUIDE.md` / `EDITOR_HELP.md` / `GADGETS.md` / `ARCHITECTURE.md` / `spec-sections-navigation.md` を統合シェル UI 語彙へ同期
 - `git diff --check` → pass（Git が既存 `e2e/ui-mode-consistency.spec.js` の CRLF/LF warning を表示）
 - `docs/spec-index.json` JSON parse → pass
@@ -246,17 +297,22 @@
 | Done | Right window controls / top chrome retirement | visible top chrome surface を廃止し、F2 / Electron menu は command palette へ再割当。最小化・最大化/復元・閉じるは右上 hover island へ移動 | assistant / Electron shell |
 | Done | Left chrome / left nav refinement | Electron grip を初期透明 hover reveal に変更し、category-only back rail と root rail dismiss 同期を追加。packaged build/open まで pass | assistant / affected UI surface |
 | Done | `main-hub-panel` dead code cleanup | DOM 実体なしの CSS / UI editor selector / active source comment を削除済み。旧前提の再混入防止チェックも pass | assistant |
-| B | Floating memo lab visual iteration | 開閉・focus 復帰・Reader/command palette 重なり回避は PASS。以後も隔離 overlay の見え方だけ進める | assistant |
-| C | Gadget delete-candidate audit | `LoadoutManager` / `GadgetPrefs` は hide-by-default 維持。即削除候補は未検出のため、次は候補発見 scan に限定 | shared |
-| D | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
-| E | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
-| Watch | Unified shell narrow fix | packaged closeout は PASS。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
+| Done | Phase 1 Story Wiki / left nav regression fix | back rail の click interception と Story Wiki backlinks hidden を局所修正。`wiki+wiki-graph+pomodoro` は 36 passed | assistant / Story Wiki + left nav |
+| A1 | 無重力メモ visual iteration | dev-only overlay のまま、紙片サイズ・奥行き・blur・投げ戻り・foreground 編集の読みやすさを詰める | assistant / memo overlay |
+| A2 | 無重力メモ daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉の短い手動シナリオで、邪魔にならないことを確認する | shared / writing UX |
+| A3 | 無重力メモ productization gate | 実験継続 / command palette 実験導線維持 / 正式機能化を判断する。正式化なら保存・設定・名称を別スライス化 | shared / product decision |
+| Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
+| Done | Default loadout cleanup | `MarkdownPreview` / `FontDecoration` / 非VN `TextAnimation` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
+| B3 | Gadget merge/delete candidate | audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |
+| C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
+| D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
+| Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
 ## Known Notes
 
 - `docs/spec-index.json` の `status: removed` は、参照先ファイルが存在しないことがある。現行仕様の探索は `done` / `partial` を優先する。
 - `docs/spec-index.json` の `status: done` は「現行判断の入口」と同義ではない。summary の current pointer と各 doc 冒頭の Status を確認する。
-- `RECOMMENDED_DEVELOPMENT_PLAN.md` と `VERIFICATION_CHECKLIST.md` は historical stub。再開・次作業・受け入れ確認の正本に戻さない。
+- 旧 planning / checklist / workflow-profile stub は削除済み。再開・次作業・受け入れ確認の正本として復活させない。復元が必要な場合もファイル単位ではなく、現行の該当 specs / invariants / CURRENT_STATE へ最小事実だけ移す。
 - セッション変更ログや古い検証ログは履歴参照に限る。現在判断へ持ち込まない。
 - 仕様変更・方向転換・暗黙決定は、同一ブロックで役割に合う正本文書へ同期する。
 - 2026-04-27 friction sweep では通常 `npm run electron:build` が既存 `build/win-unpacked/resources/app.asar` の Windows 側 file lock で失敗したため、同じソースを `build-friction/win-unpacked/` へ packaged 出力して実機確認した。次回通常 build が必要なら stale packaged process / lock を先に解放する。

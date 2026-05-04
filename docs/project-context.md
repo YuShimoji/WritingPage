@@ -25,7 +25,7 @@
 
 ## 開発軸・次スライス（概要）
 
-- **主軸**: SP-081 は完了。現在は WP-001（UI 磨き上げ）と WP-004（Reader-First WYSIWYG）が並走しやすい構造。詳細は `CURRENT_STATE` の Snapshot と優先課題表
+- **主軸**: SP-081 は完了。現在は **無重力メモ / Floating memo lab** と **ガジェット再整理** を 2 レーンで並走する。詳細は `CURRENT_STATE` の Snapshot、`ROADMAP` の現行ロードマップ、`USER_REQUEST_LEDGER` の次スライス表を見る。
 - **次スライス**: [`docs/ROADMAP.md`](ROADMAP.md) の「次スライス候補」と [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) で選ぶ
 - **今ここで避けるべき脱線**: 新規大型機能、コンテンツ生成系機能、OAuth/Electron配布
 
@@ -55,9 +55,11 @@
 | ---- | -------- | ---- | -------- | ------------ |
 | WP-001 | 執筆ワークフロー統合仕様 → **UI磨き上げ・摩擦軽減** | **着手中** | Experience Slice | ユーザー要望・`CURRENT_STATE` の WP-001 行 |
 | WP-002 | ガジェット整理 (33→27完了、追加統合は今後検討) | **done** | UI | session 19で6ガジェット削除/無効化 |
+| WP-002B | ガジェット再整理 audit | **planned** | UI | usefulness audit で `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
 | WP-004 | Reader-First WYSIWYG (書く画面=読む画面) | **着手中** | Architecture | Phase 1–3 進捗は `CURRENT_STATE`・`INTERACTION_NOTES.md` |
 | WP-005 | プレビュー・比較ツール再設計 (edit-preview 廃止→リッチプレビュー化→比較ツール隔離) | **方針確定** | Architecture | session 94 で 3 スライス計画合意。`USER_REQUEST_LEDGER` の WP-005 行 |
+| WP-006 | 無重力メモ / Floating memo lab | **experimental** | Experience Slice | dev-only overlay の visual iteration と productization gate。editor / chapter / autosave 本流には未接続 |
 
 ---
 
@@ -69,7 +71,7 @@
 - 章追加は Store.createChapter() 経路のみ。エディタ直接テキスト挿入は禁止
 - setUIMode が全モード切替の単一入口。直接 setAttribute は禁止
 - hidden ui-mode-select は完全削除済み。コマンドパレットは mode-switch-btn.click() 経由
-- サイドバー開閉は toggleSidebar() → s.sidebarOpen に永続化。setUIMode Normal復帰時に復元
+- サイドバー開閉は明示操作のみ。起動時は保存済み s.sidebarOpen を復元せず root / 非表示で開始し、s.ui.leftNavCategory は last active cue にのみ使う
 - エッジグローはFocusモードのみ。CSS クラス方式: --near (近接 0.5) / --flash (フラッシュ 0.4)。JS は style.opacity を直接操作しない
 - swiki-open-entry イベントは entryId と title の両方を受付 (title→entryId 自動変換)
 - 再生オーバーレイ表示中の wikilink クリックはポップオーバー表示 (サイドバーは開かない)

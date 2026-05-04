@@ -141,8 +141,10 @@
       root.appendChild(row); root.appendChild(btnToggle);
     }, { title: 'Markdownプレビュー', groups: ['edit'], description: '編集画面の横に Markdown を並列表示し、本文とスクロール同期します。' });
 
-    // UI Settings Gadget
-    window.ZWGadgets.register('UISettings', function (root) {
+    function renderUISettings(root, options) {
+      var opts = options && typeof options === 'object' ? options : {};
+      var advancedOnly = !!opts.advancedOnly;
+      var includeAdvanced = !!opts.includeAdvanced;
       var s = window.ZenWriterStorage.loadSettings();
       var ui = (s && s.ui) || {};
       var fs = (s && s.fontSizes) || {};
@@ -869,8 +871,32 @@
       gadgetUXRow.appendChild(helpIconRow);
       gadgetUXRow.appendChild(bulkToggleRow);
 
-      root.appendChild(presRow); root.appendChild(placementRow); root.appendChild(styleRow); root.appendChild(widthRow); root.appendChild(autoSaveRow); root.appendChild(fontRow); root.appendChild(placeholderRow); root.appendChild(effectBreakRow); root.appendChild(newlineDecorRow); root.appendChild(textboxRow); root.appendChild(floatRow); root.appendChild(gadgetUXRow);
-    }, { title: 'UI設定', groups: ['advanced'], description: '表示方式・サイドバー配置・文字サイズ・改行時の装飾挙動を調整。' });
+      if (!advancedOnly) {
+        root.appendChild(styleRow);
+        root.appendChild(widthRow);
+        root.appendChild(fontRow);
+        root.appendChild(placeholderRow);
+        root.appendChild(autoSaveRow);
+      }
+      if (includeAdvanced) {
+        root.appendChild(presRow);
+        root.appendChild(placementRow);
+        root.appendChild(effectBreakRow);
+        root.appendChild(newlineDecorRow);
+        root.appendChild(textboxRow);
+        root.appendChild(floatRow);
+        root.appendChild(gadgetUXRow);
+      }
+    }
+
+    // UI Settings Gadget
+    window.ZWGadgets.register('UISettings', function (root) {
+      renderUISettings(root, { advancedOnly: false, includeAdvanced: false });
+    }, { title: 'UI設定', groups: ['advanced'], description: '日常執筆で使う表示・文字サイズ・自動保存だけを調整します。', kind: 'settings' });
+
+    window.ZWGadgets.register('EditorAdvancedSettings', function (root) {
+      renderUISettings(root, { advancedOnly: true, includeAdvanced: true });
+    }, { title: '高度な編集設定', groups: ['advanced'], description: 'リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整します。', defaultCollapsed: true, kind: 'settings' });
 
     // Font Decoration Gadget (パネルのミラー)
     window.ZWGadgets.register('FontDecoration', function (root) {

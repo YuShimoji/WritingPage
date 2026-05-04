@@ -38,13 +38,8 @@ class SettingsManager {
             lineHeightInput.value = settings.lineHeight;
             if (lineHeightValue) lineHeightValue.textContent = settings.lineHeight;
         }
-        // サイドバー表示状態 (書き込みキーは sidebarOpen だが旧キー sidebarVisible も互換で受ける)
-        const savedSidebarState = (typeof settings.sidebarOpen !== 'undefined')
-            ? settings.sidebarOpen
-            : settings.sidebarVisible;
-        if (typeof savedSidebarState !== 'undefined') {
-            window.sidebarManager.forceSidebarState(!!savedSidebarState);
-        }
+        // left nav の開閉は SidebarManager の明示操作だけで扱う。
+        // 起動時・設定反映時に保存済み sidebarOpen/sidebarVisible を復元しない。
 
         // 執筆目標の初期反映
         const goal = settings.goal || {};

@@ -52,6 +52,7 @@
     VisualProfile: 'settings',
     EditorLayout: 'settings',
     UISettings: 'settings',
+    EditorAdvancedSettings: 'settings',
     HUDSettings: 'settings',
     FontDecoration: 'settings',
     TextAnimation: 'settings',

@@ -13,7 +13,7 @@
 | UI モード | `data-ui-mode` = `normal` \| `focus` | 通常表示とミニマル執筆の切替。`setUIMode` が唯一の集約入口（コマンドパレット等もここ経由が望ましい）。 |
 | 執筆サイドバー「詳細」 | `settings.ui.sidebarSettingsOpen` + `data-writing-settings-open` | Focus かつ本体 `#sidebar` を開いたとき、構造ガジェット等を出すか。永続。 |
 | 左端レール | `data-edge-hover-left` + `#focus-chapter-panel` の CSS | 左端ホバーで章一覧パネルを出す。`ZWEdgeHover.dismissAll()` で毎回クリアされる。 |
-| サイドバー開閉 | `settings.sidebarOpen` + `SidebarManager.forceSidebarState()` | UI モード切替では勝手に開閉せず、起動時復元とユーザーの明示操作を正本とする。 |
+| サイドバー開閉 | `settings.sidebarOpen` + `SidebarManager.forceSidebarState()` | UI モード切替では勝手に開閉せず、起動時は root / 非表示で開始する。開くのはユーザーの明示操作だけを正本とする。 |
 
 「最小」ボタンは **Normal→Focus** なので、上表のうち **UI モード** と **詳細の畳み**（後述）が同時に動く。
 
@@ -41,10 +41,10 @@
 
 ### 3.1 ストレージと設定の二重系
 
-- **`sidebarOpen`（ルート）** と **`settings.sidebarVisible`（`settings-manager.js`）**  
-  片方だけが更新される経路が残ると、再起動後の初期開閉が期待とずれる可能性がある。現状は `toggleSidebar` が `sidebarOpen` を書く一方、`applySettingsToUI` は `sidebarVisible` のみ参照。
+- **`sidebarOpen`（ルート）** と **`settings.sidebarVisible`（legacy）**
+  起動時にどちらかを復元すると、前回開いた `structure` などが初期表示される。現行は起動時復元を行わず、`sidebarOpen` は必要に応じて `false` へ正規化する。
 - **UI モード切替**  
-  `setUIMode` はサイドバーの開閉状態を勝手に反転しない。再発時は `sidebarOpen` 永続化と `forceSidebarState()` 呼び出し経路の双方を点検する。
+  `setUIMode` はサイドバーの開閉状態を勝手に反転しない。再発時は起動時の `forceSidebarState()` 呼び出し経路と `applySettingsToUI()` の復元処理混入を点検する。
 
 ### 3.2 ドック・レイアウト
 

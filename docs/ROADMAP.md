@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-04-15 / v0.3.32（session 94: E2E 整理 + 手動テスト環境 + **WP-005** プレビュー・比較ツール再設計を起票）
+> 最終更新: 2026-04-30 / v0.3.32（right window drag handle closeout 後。無重力メモとガジェット再整理を並列ロードマップ化）
 
 ## ステータス語彙
 
@@ -16,19 +16,47 @@
 
 ## 現在の状態
 
-- E2E: `npx playwright test --list` で確認（session 88 時点: **585 テスト / 69 ファイル**。全件実行の最新スナップは `CURRENT_STATE`「検証結果」を正とする）
+- E2E: 全件数は `npx playwright test --list` で確認。最新スナップは `CURRENT_STATE`「検証結果」を正とする
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 28個登録
-- 仕様書: spec-index.json に 56 エントリ (done 44, removed 11, superseded 1)
+- ガジェット: 29個登録（`UISettings` を日常設定へ縮小し、`EditorAdvancedSettings` を高度設定として分離）
+- 仕様書: spec-index.json に 55 エントリ (done 44, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
-- 直近 done: SP-081(エディタ体験再構築, session 33), SP-080(JSONプロジェクト保存, session 27)
+- 直近 done: right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
-- session 45: Focus ツールバー/グロー安定化、`e2e/toolbar-editor-geometry.spec.js`、canonical テンプレ（`FEATURE_REGISTRY` / `AUTOMATION_BOUNDARY`）
+
+### 2026-04-30 現行ロードマップ（並列 2 レーン）
+
+詳細な次スライス表は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) を正とする。レーンは並列で管理するが、実装 PR / 作業単位は **必ず 1 トピック** に絞る。
+
+| レーン | 状態 | 次の到達点 | 非対象 |
+|--------|------|------------|--------|
+| **Lane A: 無重力メモ / Floating memo lab** | dev-only / experimental overlay として安定。開閉・focus 復帰・Reader / command palette 重なり回避は E2E green | visual iteration → 日常執筆導線で邪魔にならない手触りの確定 → production 昇格判断 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化 |
+| **Lane B: ガジェット再整理** | 標準 preset cleanup 着手済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` / `FontDecoration` は hide-by-default、`TextAnimation` は VN 以外で非表示 | usefulness audit → default loadout cleanup → 必要な merge / delete candidate を 1件ずつ narrow fix | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
+| **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
+
+#### Lane A: 無重力メモ / Floating memo lab
+
+1. **A1 visual iteration**: 紙片サイズ、奥行き、blur、投げ戻り、foreground の編集読みやすさを調整する。既存 `e2e/floating-memo-lab.spec.js` の隔離・focus・touch 契約は維持。
+2. **A2 daily writing proof**: 起動→Rich editing 執筆→セクション確認→Reader 往復→memo lab 開閉の短い手動シナリオを作る。memo lab 中は status chip 非表示、閉じたら editor focus 復帰。
+3. **A3 productization gate**: dev-only のまま続けるか、command palette 上の実験導線を維持するか、正式機能に昇格するかを判断する。昇格時だけ保存モデル・設定・名称を別スライスで起票。
+
+#### Lane B: ガジェット再整理
+
+1. **B1 usefulness audit**: 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に再分類する。まず docs と static refs の監査に限定し、コード削除はしない。
+2. **B2 default loadout cleanup**: daily writing に不要な gadget を標準 preset から外す。custom loadout からの明示利用は壊さない。
+3. **B3 merge / delete candidates**: 重複 UI・低価値 gadget が見つかった場合だけ、1 gadget ずつ E2E 付きで削除または統合する。`LoadoutManager` / `GadgetPrefs` は現時点では削除候補ではなく hide-by-default 維持。
+
+#### レーン間の依存・ゲート
+
+- 無重力メモは **隔離 overlay** のまま進めるため、ガジェット再整理の loadout / sidebar 契約には接続しない。
+- ガジェット再整理は daily writing surface の摩擦低減を優先し、memo lab の見た目実験をブロックしない。
+- どちらのレーンも Reader / command palette / left nav root-category の現行状態モデルを壊さない。
+- 実装完了ごとに `CURRENT_STATE`、仕様や不変条件が変わる場合は `INVARIANTS` / `INTERACTION_NOTES` / `GADGETS` を同期する。
 
 ### 次スライス候補 (WP-004 / WP-001)
 
-詳細は `[docs/USER_REQUEST_LEDGER.md](USER_REQUEST_LEDGER.md)` の表を正とする。実装時は **1 トピック** に絞る。
+詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
 
 - **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（session 46 前後）。~~Phase 3 本線（ジャンルプリセット・シナリオ5 の style 1 項目）~~（session 76: `reader-genre-preset` に computed style 1 件）。typography 等の残差・手動パックは [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従う（読者確認は **再生オーバーレイ** 経路）
@@ -44,7 +72,7 @@
 
 ### A-1. モードアーキテクチャ (SP-070) -- done
 
-**現行（session 68 以降）**: UI モードは内部互換の **`normal` / `focus`** に限定。読者視点の確認は UI モードではなく **再生オーバーレイ**（`data-reader-overlay-open` 等）で行う。公開 UI は session 121 以降、top chrome / left nav / replay surface を主語にする。
+**現行（session 68 以降）**: UI モードは内部互換の **`normal` / `focus`** に限定。読者視点の確認は UI モードではなく **再生オーバーレイ**（`data-reader-overlay-open` 等）で行う。公開 UI は session 121 以降、command palette / left nav / replay surface / window controls island を主語にする。
 
 **歴史（Phase 1〜3 当時）**: 旧 multi-mode 分離として実装された後、SP-081・session 68 で上記に収斂。
 

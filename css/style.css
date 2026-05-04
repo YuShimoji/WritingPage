@@ -2546,6 +2546,14 @@ html[data-ui-mode='normal']:not([data-sidebar-open='true']):not([data-reader-ove
   pointer-events: auto;
 }
 
+html[data-ui-mode='normal'][data-left-nav-state='root'] .sidebar-edge-rail {
+  width: var(--left-nav-root-width, 4.75rem);
+}
+
+html[data-ui-mode='normal'][data-left-nav-state='root'][data-edge-hover-left='true'] .sidebar-edge-rail {
+  pointer-events: none;
+}
+
 html[data-dock-sidebar='right'] .sidebar-edge-rail {
   left: auto;
   right: 0;
@@ -8115,6 +8123,13 @@ html[data-reader-overlay-open='true'] .edge-glow {
   flex-direction: column;
 }
 
+html[data-swiki-full-open='true'] .sidebar {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  overflow: visible;
+  transform: translateX(0) !important;
+}
+
 .swiki-full-header {
   display: flex;
   gap: 0.5rem;
@@ -8638,10 +8653,6 @@ html[data-reader-overlay-open='true'] .edge-glow {
   display: none !important;
 }
 
-.electron-window-grip {
-  display: none;
-}
-
 body.is-electron .electron-only {
   display: flex !important;
 }
@@ -8686,44 +8697,6 @@ body.is-electron .sidebar-edge-rail {
   /* packaged app では左端からの再進入がシビアなので、titlebar 下だけ
      少し広めの hit area を確保する。drag strip とは縦に分離されている。 */
   width: 18px;
-}
-
-body.is-electron .electron-window-grip {
-  position: fixed;
-  top: max(8px, calc(env(safe-area-inset-top, 0px) + 6px));
-  left: 16px;
-  z-index: 999;
-  display: flex;
-  width: 44px;
-  height: 44px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  opacity: 0;
-  color: color-mix(in srgb, var(--text-color) 48%, transparent);
-  pointer-events: auto;
-  transform: translate(-0.35rem, -0.35rem);
-  -webkit-app-region: drag;
-  transition: opacity 160ms ease, transform 180ms ease, color 160ms ease;
-}
-
-body.is-electron .electron-window-grip svg {
-  width: 1.05rem;
-  height: 1.05rem;
-  pointer-events: none;
-  filter: drop-shadow(0 0.3rem 0.6rem rgba(0, 0, 0, 0.12));
-}
-
-body.is-electron .electron-window-grip:hover {
-  opacity: 0.62;
-  color: color-mix(in srgb, var(--text-color) 72%, transparent);
-  transform: translate(0, 0);
-}
-
-html[data-reader-overlay-open='true'] body.is-electron .electron-window-grip {
-  opacity: 0;
-  pointer-events: none;
-  -webkit-app-region: no-drag;
 }
 
 body.is-electron .sidebar-overlay {
@@ -8776,7 +8749,7 @@ body.is-electron .electron-window-controls-island {
   -webkit-app-region: no-drag;
 }
 
-body.is-electron .electron-window-controls-island:hover,
+body.is-electron[data-window-controls-active='true'] .electron-window-controls-island,
 body.is-electron .electron-window-controls-island:focus-within {
   opacity: 1;
   transform: translate(0, 0);
@@ -8787,6 +8760,40 @@ body.is-electron .electron-window-controls-island:focus-within {
 html[data-reader-overlay-open='true'] body.is-electron .electron-window-controls-island {
   opacity: 0;
   pointer-events: none;
+}
+
+.window-control-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--toolbar-text, var(--text-color)) 58%, transparent);
+  cursor: grab;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+.window-control-drag-handle:active {
+  cursor: grabbing;
+}
+
+.window-control-drag-handle svg {
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+}
+
+body.is-electron[data-window-controls-active='true'] .window-control-drag-handle,
+body.is-electron .electron-window-controls-island:focus-within .window-control-drag-handle {
+  color: color-mix(in srgb, var(--toolbar-text, var(--text-color)) 76%, transparent);
+  background: color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 54%, transparent);
+  -webkit-app-region: drag;
+}
+
+html[data-reader-overlay-open='true'] body.is-electron .window-control-drag-handle {
+  -webkit-app-region: no-drag;
 }
 
 .window-control-btn {
@@ -9420,6 +9427,11 @@ body.is-electron .focus-overlay-backdrop {
   height: 100vh;
 }
 
+body.is-electron .sidebar-edge-rail {
+  top: var(--electron-titlebar-height) !important;
+  height: calc(100vh - var(--electron-titlebar-height));
+}
+
 .show-toolbar-fab,
 html[data-ui-mode='normal'] .writing-focus-rail,
 html[data-ui-mode='normal'] .writing-focus-footer {
@@ -9498,7 +9510,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar {
 
 html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-nav-back-rail {
   visibility: visible;
-  pointer-events: auto;
+  pointer-events: none;
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-nav-back-rail:hover,

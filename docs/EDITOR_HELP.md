@@ -13,7 +13,7 @@ Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォン
 
 - **通常モード**: サイドバーとヘッダーを表示した標準レイアウト
 - **フォーカスモード**: サイドバーを非表示にして執筆に集中
-- **ミニマル表示**: 執筆面を優先し、操作は left nav / top chrome / command palette から呼び出す画面
+- **ミニマル表示**: 執筆面を優先し、操作は left nav / command palette / Reader surface から呼び出す画面
 
 ヘッダー右上のドロップダウンまたはショートカットで切り替えられます。
 
@@ -34,7 +34,7 @@ Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォン
 | **リッチ編集表示** | 装飾を視覚的に編集できる執筆面。既定の執筆面として起動 | 可 |
 | **再生オーバーレイ** | 読者視点で原稿の最終的な見え方を確認するための一時オーバーレイ | 不可（「編集に戻る」で執筆面へ復帰） |
 
-**主な切替導線**: left nav、top chrome、command palette（`Ctrl+K` 等）から到達可能です。
+**主な切替導線**: left nav、command palette（`Ctrl+P` / `F2` 等）、Reader surface から到達可能です。
 
 **誤解を避けるポイント**:
 
@@ -186,15 +186,15 @@ Zen Writer のエディタおよび補助機能（HUD、画像挿入、フォン
 | ショートカット | 機能 |
 |----------------|------|
 | Alt+1 | left nav / sidebar shell の開閉（互換ショートカット） |
-| Alt+W | top chrome 表示/非表示切り替え |
+| Alt+W | command palette 表示（legacy toolbar 互換） |
 | Ctrl+P (Cmd+P) | コマンドパレット |
 | Ctrl+, (Cmd+,) | 設定モーダルを開く |
 | F1 | ヘルプモーダルを開く |
 | Ctrl+F | 検索パネル開閉 |
 | Ctrl+Shift+F | 全文検索パネル開閉 |
 | Ctrl+Shift+Z | 最後のスナップショットから復元 |
-| F2 | top chrome を表示してフォーカス |
-| Esc | top chrome / モーダル・再生オーバーレイを閉じる |
+| F2 | command palette を表示してフォーカス |
+| Esc | command palette / モーダル・再生オーバーレイを閉じる |
 | Ctrl+S | 保存 |
 | Ctrl+B | 太字 |
 | Ctrl+I | 斜体 |

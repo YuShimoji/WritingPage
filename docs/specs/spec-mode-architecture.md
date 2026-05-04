@@ -6,7 +6,8 @@
 
 公開 UI は `display mode` を第一級概念にせず、次の surface で説明する。
 
-- `top chrome`: hidden が既定の一時シェル
+- `command palette`: `F2` / Electron menu / legacy toolbar 互換経路から開く横断操作入口
+- `window controls island`: Electron frameless window の移動 drag handle と window controls
 - `left nav`: root/category 階層
 - `replay surface`: 読者視点確認の一時 surface
 - `normal` / `focus`: 内部互換 API としてのみ扱う

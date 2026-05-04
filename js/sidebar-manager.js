@@ -247,6 +247,67 @@ class SidebarManager {
         this._applyLeftNavState({ skipPersist: opts.skipPersist === true });
     }
 
+    _isActionableSidebarTarget(target, event) {
+        const actionableSelector = [
+            'button:not([disabled])',
+            'a[href]',
+            'input:not([disabled])',
+            'textarea:not([disabled])',
+            'select:not([disabled])',
+            '[role="button"]:not([aria-disabled="true"])',
+            '[tabindex]:not([tabindex="-1"])',
+            '[contenteditable="true"]',
+            '.accordion-header',
+            '.swiki-tree-item',
+            '.swiki-entry-item'
+        ].join(', ');
+
+        const path = event && typeof event.composedPath === 'function'
+            ? event.composedPath()
+            : [target];
+        for (const pathNode of path) {
+            let node = pathNode;
+            while (node && node !== document && node !== window) {
+                if (typeof node.matches === 'function' && node.matches(actionableSelector)) {
+                    return true;
+                }
+                node = node.parentElement;
+            }
+        }
+        return false;
+    }
+
+    _isLeftColumnBackClick(event) {
+        if (!event || this.leftNavState !== 'category') return false;
+        if (this._isActionableSidebarTarget(event.target, event)) return false;
+
+        const sidebar = document.getElementById('sidebar');
+        const backRail = document.getElementById('sidebar-nav-back-rail');
+        if (!sidebar || !backRail) return false;
+
+        const sidebarRect = sidebar.getBoundingClientRect();
+        const railRect = backRail.getBoundingClientRect();
+        const x = event.clientX;
+        const y = event.clientY;
+
+        return x >= sidebarRect.left
+            && x <= Math.min(sidebarRect.right, sidebarRect.left + railRect.width)
+            && y >= railRect.top
+            && y <= railRect.bottom;
+    }
+
+    _handleLeftColumnBackClick(event) {
+        if (this._isLeftColumnBackClick(event)) {
+            event.preventDefault();
+            this.returnToLeftNavRoot();
+        }
+    }
+
+    _handleLeftNavBackRailClick(event) {
+        if (event) event.preventDefault();
+        this.returnToLeftNavRoot();
+    }
+
     _ensureAccordionGadgetInitialized(categoryId) {
         try {
             const category = this.accordionCategories.find(c => c && c.id === categoryId);
@@ -324,7 +385,13 @@ class SidebarManager {
             if (savedGroup && this.accordionCategories.some((category) => category.id === savedGroup)) {
                 this.activeCategoryId = savedGroup;
             }
-            this.leftNavState = settings && settings.sidebarOpen ? 'category' : 'root';
+            this.leftNavState = 'root';
+            if (settings && settings.sidebarOpen) {
+                settings.sidebarOpen = false;
+                if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveSettings === 'function') {
+                    try { window.ZenWriterStorage.saveSettings(settings); } catch (_) { }
+                }
+            }
 
             this.accordionCategories.forEach(category => {
                 const header = document.querySelector(`.accordion-header[aria-controls="accordion-${category.id}"]`);
@@ -357,7 +424,13 @@ class SidebarManager {
             const backRail = document.getElementById('sidebar-nav-back-rail');
             if (backRail && !backRail.dataset.boundLeftNav) {
                 backRail.dataset.boundLeftNav = '1';
-                backRail.addEventListener('click', () => this.returnToLeftNavRoot());
+                backRail.addEventListener('click', (event) => this._handleLeftNavBackRailClick(event));
+            }
+
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && !sidebar.dataset.boundLeftColumnBack) {
+                sidebar.dataset.boundLeftColumnBack = '1';
+                sidebar.addEventListener('click', (event) => this._handleLeftColumnBackClick(event));
             }
 
             const anchorButton = document.getElementById('sidebar-nav-anchor');

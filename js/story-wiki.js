@@ -74,6 +74,7 @@
     // ── コンパクト表示 (サイドバー) ─────
 
     function renderCompact() {
+      document.documentElement.removeAttribute('data-swiki-full-open');
       root.innerHTML = '';
       root.className = 'gadget swiki-root swiki-compact';
 
@@ -305,9 +306,21 @@
       }
     }
 
+    function ensureFullModeVisible() {
+      var wrapper = root.closest('.gadget-wrapper');
+      if (!wrapper) return;
+
+      wrapper.setAttribute('data-gadget-collapsed', 'false');
+      var header = wrapper.querySelector('.gadget-header');
+      if (header) header.setAttribute('aria-expanded', 'true');
+      root.setAttribute('aria-hidden', 'false');
+    }
+
     function renderFull() {
+      document.documentElement.setAttribute('data-swiki-full-open', 'true');
       root.innerHTML = '';
       root.className = 'gadget swiki-root swiki-full';
+      ensureFullModeVisible();
 
       installEscHandler();
 

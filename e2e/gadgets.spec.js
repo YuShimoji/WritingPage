@@ -275,7 +275,8 @@ test.describe('Gadgets E2E', () => {
 
     const exposure = await page.evaluate(() => {
       var data = window.ZWGadgets._ensureLoadouts();
-      var hidden = ['LoadoutManager', 'GadgetPrefs'];
+      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview', 'FontDecoration'];
+      var standardHidden = ['TextAnimation'];
       var result = {};
       Object.keys(data.entries || {}).forEach(function (key) {
         var entry = data.entries[key] || {};
@@ -283,6 +284,7 @@ test.describe('Gadgets E2E', () => {
         Object.keys(entry.groups || {}).forEach(function (group) {
           names = names.concat(entry.groups[group] || []);
         });
+        var hidden = globallyHidden.concat(key === 'vn-layout' ? [] : standardHidden);
         result[key] = hidden.filter(function (name) {
           return names.indexOf(name) >= 0;
         });
@@ -291,8 +293,9 @@ test.describe('Gadgets E2E', () => {
     });
 
     for (const [name, leaked] of Object.entries(exposure)) {
-      expect(leaked, `${name} hidden admin gadgets`).toEqual([]);
+      expect(leaked, `${name} hidden default gadgets`).toEqual([]);
     }
+
   });
 
   test('built-in loadouts keep stable gadget placement', async ({ page }) => {
@@ -314,6 +317,7 @@ test.describe('Gadgets E2E', () => {
         const entry = data.entries[key] || {};
         result[key] = {
           structure: entry.groups?.structure || [],
+          edit: entry.groups?.edit || [],
           assist: entry.groups?.assist || [],
           advanced: entry.groups?.advanced || [],
         };
@@ -326,6 +330,18 @@ test.describe('Gadgets E2E', () => {
       expect(groups.assist, `${name} assist excludes snapshot`).not.toContain('SnapshotManager');
       expect(groups.assist, `${name} assist excludes HUD`).not.toContain('HUDSettings');
       expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['HUDSettings']));
+      if (name !== 'novel-minimal') {
+        expect(groups.advanced, `${name} splits daily and advanced UI settings`).toEqual(
+          expect.arrayContaining(['UISettings', 'EditorAdvancedSettings']),
+        );
+      }
+      expect(groups.edit, `${name} edit excludes MarkdownPreview`).not.toContain('MarkdownPreview');
+      expect(groups.edit, `${name} edit excludes FontDecoration`).not.toContain('FontDecoration');
+      if (name === 'vn-layout') {
+        expect(groups.edit, `${name} keeps TextAnimation for VN workflow`).toContain('TextAnimation');
+      } else {
+        expect(groups.edit, `${name} edit excludes TextAnimation by default`).not.toContain('TextAnimation');
+      }
     }
   });
 });

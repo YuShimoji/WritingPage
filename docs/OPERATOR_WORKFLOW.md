@@ -12,6 +12,12 @@
 6. 出力: JSON プロジェクト保存 (.zwp.json)
 7. 保存: IndexedDB + localStorage フォールバック
 
+## Macro Workflow Lens
+
+Assistant の報告・提案は、局所差分をこの全体フローへ接続する。たとえば gadget cleanup は「執筆中の視界を軽くする」、Reader / Replay 修正は「プレビュー判断を安全にする」、docs hygiene は「次スライス選定の誤誘導を減らす」のように、どの制作段階の摩擦が減るかを明示する。
+
+次の一手が開いている場合は、単一の安全案だけに圧縮せず、実装前進・監査・削除・探索・検証のように意味が違う入口を提示する。人間の創造判断が必要な箇所では、assistant は比較材料・プロトタイプ・狭い検証を用意し、判断そのものを奪わない。
+
 ## E2E テスト実行手順
 
 - `npx playwright test --reporter=line` で全件回帰確認

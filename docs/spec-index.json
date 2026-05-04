@@ -51,7 +51,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/spec-context-toolbar.md",
-    "summary": "superseded stub。現行の操作入口は top chrome / left nav / command palette / replay surface"
+    "summary": "superseded stub。現行の操作入口は command palette / left nav / replay surface / window controls island"
   },
   {
     "id": "SP-011",
@@ -412,7 +412,7 @@
     "pct": 100,
     "cat": "core",
     "file": "docs/specs/spec-mode-architecture.md",
-    "summary": "superseded stub。現行正本は top chrome / left nav / replay surface を基底にした統合シェル UI"
+    "summary": "superseded stub。現行正本は command palette / left nav / replay surface / window controls island を基底にした統合シェル UI"
   },
   {
     "id": "SP-071",

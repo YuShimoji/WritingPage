@@ -2,6 +2,39 @@
 const { test, expect } = require('@playwright/test');
 const { showFullToolbar, setUIMode, enableAllGadgets, openSidebarGroup } = require('./helpers');
 
+async function reloadWithMockElectronBridge(page) {
+  await page.addInitScript(() => {
+    const noop = () => {};
+    window.electronAPI = {
+      isElectron: true,
+      platform: 'test',
+      onMenuCommand: noop,
+      onFileOpened: noop,
+      onRequestContentForSave: noop,
+      sendSaveContent: noop,
+      onFileSaved: noop,
+      exportFile: async () => ({ canceled: true }),
+      getSystemTheme: async () => 'light',
+      onThemeChanged: noop,
+      onMoved: noop,
+      onUpdateAvailable: noop,
+      onUpdateDownloaded: noop,
+      installUpdate: noop,
+      onUpdaterError: noop,
+      minimize: noop,
+      maximize: noop,
+      close: noop,
+      setTitle: noop,
+      isMaximized: async () => false,
+      onMaximizedChanged: noop,
+      toggleFrameless: noop,
+      onFramelessChanged: noop
+    };
+  });
+  await page.reload();
+  await page.waitForLoadState('networkidle');
+}
+
 /** UIモード (Normal/Focus/Blank) の表示整合性テスト */
 test.describe('UI Mode Consistency', () => {
   test.beforeEach(async ({ page }) => {
@@ -344,19 +377,27 @@ test.describe('UI Mode Consistency', () => {
     expect(visibleCommands).not.toContain('ui-mode-next');
   });
 
-  test('frameless Electron window grip provides a hidden-chrome drag affordance', async ({ page }) => {
+  test('frameless Electron window drag handle stays inside right controls island', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.waitForTimeout(150);
 
-    const nonElectronDisplay = await page.evaluate(() => {
-      const grip = document.getElementById('electron-window-grip');
-      return grip ? window.getComputedStyle(grip).display : null;
+    const nonElectronMetrics = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      return {
+        islandDisplay: island ? window.getComputedStyle(island).display : null,
+        handleExists: !!document.getElementById('electron-window-drag-handle'),
+        oldGripExists: !!document.getElementById('electron-window-grip')
+      };
     });
-    expect(nonElectronDisplay).toBe('none');
+    expect(nonElectronMetrics.islandDisplay).toBe('none');
+    expect(nonElectronMetrics.handleExists).toBe(true);
+    expect(nonElectronMetrics.oldGripExists).toBe(false);
 
-    const gripMetrics = await page.evaluate(() => {
-      document.documentElement.classList.add('is-electron');
-      document.body.classList.add('is-electron');
+    await reloadWithMockElectronBridge(page);
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
+    const atRestMetrics = await page.evaluate(() => {
       document.body.removeAttribute('data-top-chrome-visible');
       document.documentElement.removeAttribute('data-reader-overlay-open');
       if (window.ZenWriterTopChrome && typeof window.ZenWriterTopChrome.hide === 'function') {
@@ -366,96 +407,141 @@ test.describe('UI Mode Consistency', () => {
         window.sidebarManager.forceSidebarState(false);
       }
 
-      const grip = document.getElementById('electron-window-grip');
       const editor = document.getElementById('editor');
       const wysiwyg = document.getElementById('wysiwyg-editor');
       const sidebar = document.getElementById('sidebar');
-      const button = document.getElementById('win-minimize');
-      const gripStyle = grip ? window.getComputedStyle(grip) : null;
-      const gripRect = grip ? grip.getBoundingClientRect() : null;
-      const gripX = gripRect ? Math.round(gripRect.left + gripRect.width / 2) : 0;
-      const gripY = gripRect ? Math.round(gripRect.top + gripRect.height / 2) : 0;
-      const gripIcon = grip ? grip.querySelector('svg, [data-lucide]') : null;
-      const gripStack = gripRect
-        ? document.elementsFromPoint(gripX, gripY).slice(0, 3).map((element) => ({
-          id: element.id || '',
-          className: typeof element.className === 'string' ? element.className : '',
-          tagName: element.tagName,
-        }))
-        : [];
+      const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
+      const buttons = island ? Array.from(island.querySelectorAll('.window-control-btn')) : [];
+      const oldGrip = document.getElementById('electron-window-grip');
+      const islandStyle = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
+      const handleRect = handle ? handle.getBoundingClientRect() : null;
+      const handleX = handleRect ? Math.round(handleRect.left + handleRect.width / 2) : 0;
+      const handleY = handleRect ? Math.round(handleRect.top + handleRect.height / 2) : 0;
+      const handleIcon = handle ? handle.querySelector('svg, [data-lucide]') : null;
+      const dragRegionAtHandle = handleRect
+        ? document.elementsFromPoint(handleX, handleY).find((element) => (
+          window.getComputedStyle(element).getPropertyValue('-webkit-app-region').trim() === 'drag'
+        ))
+        : null;
+      const topLeftDragRegion = document.elementsFromPoint(16, 16).find((element) => (
+        window.getComputedStyle(element).getPropertyValue('-webkit-app-region').trim() === 'drag'
+      ));
 
       return {
-        exists: !!grip,
-        ariaHidden: grip ? grip.getAttribute('aria-hidden') : null,
-        tabIndex: grip ? grip.tabIndex : null,
-        display: gripStyle ? gripStyle.display : null,
-        pointerEvents: gripStyle ? gripStyle.pointerEvents : null,
-        appRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
-        opacity: gripStyle ? Number.parseFloat(gripStyle.opacity || '1') : null,
-        width: gripRect ? Math.round(gripRect.width) : 0,
-        height: gripRect ? Math.round(gripRect.height) : 0,
-        left: gripRect ? Math.round(gripRect.left) : null,
-        top: gripRect ? Math.round(gripRect.top) : null,
-        hasIcon: !!gripIcon,
-        gripStack,
+        bodyIsElectron: document.body.classList.contains('is-electron'),
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
+        islandExists: !!island,
+        islandOpacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '1') : null,
+        islandPointerEvents: islandStyle ? islandStyle.pointerEvents : null,
+        islandAppRegion: islandStyle ? islandStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        oldGripExists: !!oldGrip,
+        handleExists: !!handle,
+        handleParentId: handle && handle.parentElement ? handle.parentElement.id : null,
+        handleAriaHidden: handle ? handle.getAttribute('aria-hidden') : null,
+        handleTitle: handle ? handle.getAttribute('title') : null,
+        handleDisplay: handleStyle ? handleStyle.display : null,
+        handlePointerEvents: handleStyle ? handleStyle.pointerEvents : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        handleWidth: handleRect ? Math.round(handleRect.width) : 0,
+        handleHeight: handleRect ? Math.round(handleRect.height) : 0,
+        handleX,
+        handleY,
+        hasHandleIcon: !!handleIcon,
+        dragRegionAtHandleId: dragRegionAtHandle ? dragRegionAtHandle.id || null : null,
+        topLeftDragRegionId: topLeftDragRegion ? topLeftDragRegion.id || null : null,
         bodyAppRegion: window.getComputedStyle(document.body).getPropertyValue('-webkit-app-region').trim(),
         editorAppRegion: editor ? window.getComputedStyle(editor).getPropertyValue('-webkit-app-region').trim() : null,
         wysiwygAppRegion: wysiwyg ? window.getComputedStyle(wysiwyg).getPropertyValue('-webkit-app-region').trim() : null,
         sidebarAppRegion: sidebar ? window.getComputedStyle(sidebar).getPropertyValue('-webkit-app-region').trim() : null,
-        buttonAppRegion: button ? window.getComputedStyle(button).getPropertyValue('-webkit-app-region').trim() : null,
+        buttonRegions: buttons.map((button) => window.getComputedStyle(button).getPropertyValue('-webkit-app-region').trim())
       };
     });
 
-    expect(gripMetrics.exists).toBe(true);
-    expect(gripMetrics.ariaHidden).toBe('true');
-    expect(gripMetrics.tabIndex).toBe(-1);
-    expect(gripMetrics.display).not.toBe('none');
-    expect(gripMetrics.pointerEvents).toBe('auto');
-    expect(gripMetrics.appRegion).toBe('drag');
-    expect(gripMetrics.opacity).toBe(0);
-    expect(gripMetrics.width).toBe(44);
-    expect(gripMetrics.height).toBe(44);
-    expect(gripMetrics.left).toBeGreaterThanOrEqual(8);
-    expect(gripMetrics.left).toBeLessThan(16);
-    expect(gripMetrics.top).toBeGreaterThanOrEqual(0);
-    expect(gripMetrics.top).toBeLessThan(8);
-    expect(gripMetrics.hasIcon).toBe(true);
-    expect(gripMetrics.gripStack[0]?.id).toBe('electron-window-grip');
-    expect(gripMetrics.bodyAppRegion).toBe('no-drag');
-    expect(gripMetrics.editorAppRegion).toBe('no-drag');
-    expect(gripMetrics.wysiwygAppRegion).toBe('no-drag');
-    expect(gripMetrics.sidebarAppRegion).toBe('no-drag');
-    expect(gripMetrics.buttonAppRegion).toBe('no-drag');
+    expect(atRestMetrics.bodyIsElectron).toBe(true);
+    expect(atRestMetrics.activeAttr).toBeNull();
+    expect(atRestMetrics.islandExists).toBe(true);
+    expect(atRestMetrics.islandOpacity).toBe(0);
+    expect(atRestMetrics.islandPointerEvents).toBe('auto');
+    expect(atRestMetrics.islandAppRegion).toBe('no-drag');
+    expect(atRestMetrics.oldGripExists).toBe(false);
+    expect(atRestMetrics.handleExists).toBe(true);
+    expect(atRestMetrics.handleParentId).toBe('electron-window-controls');
+    expect(atRestMetrics.handleAriaHidden).toBe('true');
+    expect(atRestMetrics.handleTitle).toBe('ウィンドウを移動');
+    expect(atRestMetrics.handleDisplay).toBe('flex');
+    expect(atRestMetrics.handlePointerEvents).toBe('auto');
+    expect(atRestMetrics.handleAppRegion).toBe('no-drag');
+    expect(atRestMetrics.handleWidth).toBeGreaterThanOrEqual(30);
+    expect(atRestMetrics.handleHeight).toBeGreaterThanOrEqual(34);
+    expect(atRestMetrics.hasHandleIcon).toBe(true);
+    expect(atRestMetrics.dragRegionAtHandleId).toBeNull();
+    expect(atRestMetrics.topLeftDragRegionId).toBeNull();
+    expect(atRestMetrics.bodyAppRegion).toBe('no-drag');
+    expect(atRestMetrics.editorAppRegion).toBe('no-drag');
+    expect(atRestMetrics.wysiwygAppRegion).toBe('no-drag');
+    expect(atRestMetrics.sidebarAppRegion).toBe('no-drag');
+    expect(atRestMetrics.buttonRegions).toEqual(['no-drag', 'no-drag', 'no-drag']);
 
-    await page.locator('#electron-window-grip').hover({ position: { x: 22, y: 22 } });
+    await page.mouse.move(atRestMetrics.handleX, atRestMetrics.handleY);
     await page.waitForTimeout(220);
-    const hoveredGrip = await page.evaluate(() => {
-      const grip = document.getElementById('electron-window-grip');
-      const style = grip ? window.getComputedStyle(grip) : null;
+    const activeMetrics = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
+      const islandStyle = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
       return {
-        opacity: style ? Number.parseFloat(style.opacity || '0') : 0,
-        transform: style ? style.transform : null
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
+        islandOpacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '0') : 0,
+        islandTransform: islandStyle ? islandStyle.transform : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null
       };
     });
-    expect(hoveredGrip.opacity).toBeGreaterThan(0.5);
-    expect(hoveredGrip.transform).not.toBe('none');
+    expect(activeMetrics.activeAttr).toBe('true');
+    expect(activeMetrics.islandOpacity).toBeGreaterThan(0.9);
+    expect(activeMetrics.islandTransform).not.toBe('none');
+    expect(activeMetrics.handleAppRegion).toBe('drag');
 
+    await page.mouse.move(12, 720);
+    await page.waitForTimeout(220);
+    const dismissedMetrics = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
+      const islandStyle = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
+      return {
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
+        islandOpacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '1') : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null
+      };
+    });
+    expect(dismissedMetrics.activeAttr).toBeNull();
+    expect(dismissedMetrics.islandOpacity).toBe(0);
+    expect(dismissedMetrics.handleAppRegion).toBe('no-drag');
+
+    await page.mouse.move(atRestMetrics.handleX, atRestMetrics.handleY);
+    await page.waitForTimeout(120);
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-reader-overlay-open', 'true');
     });
     await page.waitForTimeout(220);
-    const readerDisabledGrip = await page.evaluate(() => {
-      const grip = document.getElementById('electron-window-grip');
-      const style = grip ? window.getComputedStyle(grip) : null;
+    const readerDisabledDragHandle = await page.evaluate(() => {
+      const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
+      const islandStyle = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
       return {
-        pointerEvents: style ? style.pointerEvents : null,
-        appRegion: style ? style.getPropertyValue('-webkit-app-region').trim() : null,
-        opacity: style ? Number.parseFloat(style.opacity || '1') : null
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
+        islandPointerEvents: islandStyle ? islandStyle.pointerEvents : null,
+        islandOpacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '1') : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null
       };
     });
-    expect(readerDisabledGrip.pointerEvents).toBe('none');
-    expect(readerDisabledGrip.appRegion).toBe('no-drag');
-    expect(readerDisabledGrip.opacity).toBe(0);
+    expect(readerDisabledDragHandle.activeAttr).toBeNull();
+    expect(readerDisabledDragHandle.islandPointerEvents).toBe('none');
+    expect(readerDisabledDragHandle.islandOpacity).toBe(0);
+    expect(readerDisabledDragHandle.handleAppRegion).toBe('no-drag');
   });
 
   test('Electron right window controls island fades in from the right corner', async ({ page }) => {
@@ -468,16 +554,18 @@ test.describe('UI Mode Consistency', () => {
     });
     expect(nonElectronDisplay).toBe('none');
 
+    await reloadWithMockElectronBridge(page);
+    await setUIMode(page, 'normal');
+    await page.waitForTimeout(150);
+
     const initialMetrics = await page.evaluate(() => {
-      document.documentElement.classList.add('is-electron');
-      document.body.classList.add('is-electron');
       document.body.removeAttribute('data-top-chrome-visible');
       document.documentElement.removeAttribute('data-reader-overlay-open');
       const island = document.getElementById('electron-window-controls');
       const buttons = island ? Array.from(island.querySelectorAll('.window-control-btn')) : [];
-      const grip = document.getElementById('electron-window-grip');
+      const handle = document.getElementById('electron-window-drag-handle');
       const islandStyle = island ? window.getComputedStyle(island) : null;
-      const gripStyle = grip ? window.getComputedStyle(grip) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
       const rect = island ? island.getBoundingClientRect() : null;
       const centerX = rect ? Math.round(rect.left + rect.width / 2) : 0;
       const centerY = rect ? Math.round(rect.top + rect.height / 2) : 0;
@@ -494,17 +582,20 @@ test.describe('UI Mode Consistency', () => {
         display: islandStyle ? islandStyle.display : null,
         opacity: islandStyle ? Number.parseFloat(islandStyle.opacity || '1') : null,
         pointerEvents: islandStyle ? islandStyle.pointerEvents : null,
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
         appRegion: islandStyle ? islandStyle.getPropertyValue('-webkit-app-region').trim() : null,
         transform: islandStyle ? islandStyle.transform : null,
         buttonCount: buttons.length,
         buttonRegions: buttons.map((button) => window.getComputedStyle(button).getPropertyValue('-webkit-app-region').trim()),
         buttonLabels: buttons.map((button) => button.getAttribute('aria-label')),
+        handleExists: !!handle,
+        handleParentId: handle && handle.parentElement ? handle.parentElement.id : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null,
+        handleX: rect ? Math.round(rect.left + 14) : 0,
+        handleY: rect ? Math.round(rect.top + rect.height / 2) : 0,
         rightGap: rect ? Math.round(window.innerWidth - rect.right) : null,
         top: rect ? Math.round(rect.top) : null,
         stack,
-        gripAppRegion: gripStyle ? gripStyle.getPropertyValue('-webkit-app-region').trim() : null,
-        gripPointerEvents: gripStyle ? gripStyle.pointerEvents : null,
-        gripOpacity: gripStyle ? Number.parseFloat(gripStyle.opacity || '1') : null,
       };
     });
 
@@ -512,31 +603,38 @@ test.describe('UI Mode Consistency', () => {
     expect(initialMetrics.display).toBe('flex');
     expect(initialMetrics.opacity).toBe(0);
     expect(initialMetrics.pointerEvents).toBe('auto');
+    expect(initialMetrics.activeAttr).toBeNull();
     expect(initialMetrics.appRegion).toBe('no-drag');
     expect(initialMetrics.buttonCount).toBe(3);
     expect(initialMetrics.buttonRegions).toEqual(['no-drag', 'no-drag', 'no-drag']);
     expect(initialMetrics.buttonLabels).toEqual(['最小化', '最大化', '閉じる']);
+    expect(initialMetrics.handleExists).toBe(true);
+    expect(initialMetrics.handleParentId).toBe('electron-window-controls');
+    expect(initialMetrics.handleAppRegion).toBe('no-drag');
     expect(initialMetrics.rightGap).toBeGreaterThanOrEqual(0);
     expect(initialMetrics.rightGap).toBeLessThanOrEqual(16);
     expect(initialMetrics.top).toBeGreaterThanOrEqual(0);
     expect(initialMetrics.top).toBeLessThanOrEqual(12);
     expect(initialMetrics.stack.some((entry) => entry.id === 'electron-window-controls')).toBe(true);
-    expect(initialMetrics.gripAppRegion).toBe('drag');
-    expect(initialMetrics.gripPointerEvents).toBe('auto');
-    expect(initialMetrics.gripOpacity).toBe(0);
 
-    await page.locator('#electron-window-controls').hover({ position: { x: 12, y: 12 } });
+    await page.mouse.move(initialMetrics.handleX, initialMetrics.handleY);
     await page.waitForTimeout(220);
     const hoveredMetrics = await page.evaluate(() => {
       const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
       const style = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
       return {
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
         opacity: style ? Number.parseFloat(style.opacity || '0') : 0,
-        transform: style ? style.transform : null
+        transform: style ? style.transform : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null
       };
     });
+    expect(hoveredMetrics.activeAttr).toBe('true');
     expect(hoveredMetrics.opacity).toBeGreaterThan(0.9);
     expect(hoveredMetrics.transform).not.toBe('none');
+    expect(hoveredMetrics.handleAppRegion).toBe('drag');
 
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-reader-overlay-open', 'true');
@@ -544,14 +642,20 @@ test.describe('UI Mode Consistency', () => {
     await page.waitForTimeout(220);
     const readerMetrics = await page.evaluate(() => {
       const island = document.getElementById('electron-window-controls');
+      const handle = document.getElementById('electron-window-drag-handle');
       const style = island ? window.getComputedStyle(island) : null;
+      const handleStyle = handle ? window.getComputedStyle(handle) : null;
       return {
+        activeAttr: document.body.getAttribute('data-window-controls-active'),
         opacity: style ? Number.parseFloat(style.opacity || '1') : null,
-        pointerEvents: style ? style.pointerEvents : null
+        pointerEvents: style ? style.pointerEvents : null,
+        handleAppRegion: handleStyle ? handleStyle.getPropertyValue('-webkit-app-region').trim() : null
       };
     });
+    expect(readerMetrics.activeAttr).toBeNull();
     expect(readerMetrics.opacity).toBe(0);
     expect(readerMetrics.pointerEvents).toBe('none');
+    expect(readerMetrics.handleAppRegion).toBe('no-drag');
   });
 
   test('session 121: left nav enters category mode and pins the selected category', async ({ page }) => {
@@ -998,10 +1102,10 @@ test.describe('UI Mode Consistency', () => {
     });
     expect(categoryRail.navState).toBe('category');
     expect(categoryRail.visibility).toBe('visible');
-    expect(categoryRail.pointerEvents).toBe('auto');
+    expect(categoryRail.pointerEvents).toBe('none');
     expect(categoryRail.width).toBeGreaterThan(60);
     expect(categoryRail.railTop).toBeGreaterThanOrEqual(categoryRail.backBottom);
-    expect(categoryRail.stack[0]?.id).toBe('sidebar-nav-back-rail');
+    expect(categoryRail.stack.every((entry) => entry.id !== 'sidebar-nav-back-rail')).toBe(true);
 
     const railBox = await page.locator('#sidebar-nav-back-rail').boundingBox();
     expect(railBox).toBeTruthy();
@@ -1031,10 +1135,51 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(220);
 
-    await page.click('.accordion-category[data-category="structure"] .accordion-header');
+    await page.click('.accordion-category[data-category="structure"] .accordion-header:visible');
     await page.waitForTimeout(160);
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
+  });
+
+  test('startup keeps left nav root even when stored structure category was open', async ({ page }) => {
+    await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      settings.sidebarOpen = true;
+      settings.sidebarVisible = true;
+      settings.ui = settings.ui || {};
+      settings.ui.uiMode = 'normal';
+      settings.ui.leftNavCategory = 'structure';
+      window.ZenWriterStorage.saveSettings(settings);
+    });
+
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(350);
+
+    const state = await page.evaluate(() => {
+      const settings = window.ZenWriterStorage.loadSettings();
+      const html = document.documentElement;
+      const sidebar = document.getElementById('sidebar');
+      const structureHeader = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
+      const structureContent = document.getElementById('accordion-structure');
+      return {
+        navState: html.getAttribute('data-left-nav-state'),
+        active: html.getAttribute('data-left-nav-active'),
+        lastActive: html.getAttribute('data-left-nav-last-active'),
+        sidebarOpenClass: sidebar ? sidebar.classList.contains('open') : false,
+        sidebarOpenSetting: settings.sidebarOpen,
+        structureExpanded: structureHeader ? structureHeader.getAttribute('aria-expanded') : null,
+        structureHidden: structureContent ? structureContent.hidden || window.getComputedStyle(structureContent).display === 'none' : true
+      };
+    });
+
+    expect(state.navState).toBe('root');
+    expect(state.active).toBeNull();
+    expect(state.lastActive).toBe('structure');
+    expect(state.sidebarOpenClass).toBe(false);
+    expect(state.sidebarOpenSetting).toBe(false);
+    expect(state.structureExpanded).toBe('false');
+    expect(state.structureHidden).toBe(true);
   });
 
   test('friction sweep: root left nav is hidden until edge hover fades it in', async ({ page }) => {
@@ -1055,9 +1200,11 @@ test.describe('UI Mode Consistency', () => {
       var railStyle = rail ? window.getComputedStyle(rail) : null;
       return {
         navState: document.documentElement.getAttribute('data-left-nav-state'),
+        sidebarWidth: sidebar ? Math.round(sidebar.getBoundingClientRect().width) : 0,
         sidebarOpacity: sidebarStyle ? Number(sidebarStyle.opacity) : -1,
         sidebarVisibility: sidebarStyle ? sidebarStyle.visibility : '',
         sidebarPointerEvents: sidebarStyle ? sidebarStyle.pointerEvents : '',
+        railWidth: rail ? Math.round(rail.getBoundingClientRect().width) : 0,
         railVisibility: railStyle ? railStyle.visibility : '',
         railPointerEvents: railStyle ? railStyle.pointerEvents : ''
       };
@@ -1067,17 +1214,18 @@ test.describe('UI Mode Consistency', () => {
     expect(atRest.sidebarOpacity).toBeLessThan(0.1);
     expect(atRest.sidebarVisibility).toBe('hidden');
     expect(atRest.sidebarPointerEvents).toBe('none');
+    expect(atRest.railWidth).toBeGreaterThanOrEqual(atRest.sidebarWidth - 2);
     expect(atRest.railVisibility).toBe('visible');
     expect(atRest.railPointerEvents).toBe('auto');
 
-    await page.evaluate(() => {
+    await page.evaluate((triggerX) => {
       var rail = document.getElementById('sidebar-edge-rail');
       if (rail) {
-        rail.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, clientX: 1, clientY: 180 }));
-        rail.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
+        rail.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true, clientX: triggerX, clientY: 180 }));
+        rail.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: triggerX, clientY: 180 }));
       }
-      document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 1, clientY: 180 }));
-    });
+      document.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: triggerX, clientY: 180 }));
+    }, Math.max(1, atRest.railWidth - 4));
     await page.waitForTimeout(220);
 
     const hovered = await page.evaluate(() => {

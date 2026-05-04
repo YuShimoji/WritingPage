@@ -29,7 +29,7 @@
 - IndexedDB + LocalStorageから前回の状態を復元
 - 最後に編集していた文書を自動選択
 - ガジェット配置(loadout)を復元
-- 統合シェル状態（top chrome / left nav / 再生オーバーレイ）を復元
+- 統合シェル状態（command palette / left nav / 再生オーバーレイ）を復元
 
 ### 手動が必要な操作
 - 新規文書の作成とタイトル設定
@@ -63,7 +63,7 @@
 ### 手動が必要な操作
 - テキスト入力そのもの
 - WYSIWYGとテキストモードの切り替え (Ctrl+Shift+W)
-- top chrome / left nav / 再生オーバーレイの明示操作
+- command palette / left nav / 再生オーバーレイの明示操作
 - 手動スナップショット作成 (Ctrl+Shift+Z)
 - スナップショットからの復元
 

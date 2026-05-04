@@ -355,10 +355,11 @@ window.ZenWriterTabs = {
 ### UIデザイン指針（Zen Writer x ノートアプリ折衷）
 
 - Zen ライクな「白い紙の前に座る」感覚を維持しつつ、Obsidian/Scrivener 風のサイドバー型情報整理力を取り込む
-- レイアウト基本構造: 中央エディタを主役にし、操作入口は top chrome / left nav root-category / command palette / Reader surface に分散する
+- レイアウト基本構造: 中央エディタを主役にし、操作入口は command palette / left nav root-category / Reader surface / 右上 window controls island に分散する
 - 統合シェル状態:
-  - top chrome: hidden が既定の一時シェル。`F2` / menu / command palette で明示表示する
-  - left nav root: 常設ミニレールからカテゴリ一覧と last active cue を表示する
+  - command palette: `F2` / Electron menu / legacy toolbar 互換経路から開く横断操作入口
+  - window controls island: Electron frameless window の移動 drag handle と window controls を右上局所 hover / focus で表示する
+  - left nav root: 通常時は非表示。左端 hover でカテゴリ一覧と last active cue を一時表示する
   - left nav category: active category の panel / icon / gadget loadout を表示する
   - replay surface: 読者視点確認用の閲覧 surface。UI mode ではない
 - `normal` / `focus` は内部互換 API の値として残すが、新規の情報設計・手動確認・ユーザー向け説明の第一級概念にしない

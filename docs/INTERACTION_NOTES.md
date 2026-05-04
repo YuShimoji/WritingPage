@@ -11,7 +11,7 @@
 ## 手動確認の出し方
 
 - 手動確認項目は本文で提示する
-- AskUserQuestion では `OK / NG番号` だけを聞く
+- 機械的な確認だけなら `OK / NG番号` の短い返答で足りるようにする
 - 手動確認依頼と次アクション選択を同じ質問に混ぜない
 - 手動確認では具体的な UI チェックポイントを指定する (「UI を確認してください」は不可)
 
@@ -31,13 +31,19 @@
 
 ## ユーザーが好む形式
 
-- 作業結果と今後のプランを表形式で分かりやすく提示
+- 作業結果と今後のプランを、必要なら表も使って分かりやすく提示する。ただし表は補助であり、報告本文そのものを置き換えない
 - 意思決定・手動確認地点を目安にプランを区切る
 - 訂正は全体に適用する (部分修正の繰り返し禁止)
+- 完了報告を検証ログだけに圧縮しない。変更理由・何が楽になるか・残った判断・次に進める作業を自然文でつなぐ
+- 創造性が必要な UX / 執筆体験 / 表現機能では、最低 1 つは「安全な次手」だけでなく「広がりのある案」も添える
 
 ## 報告メモ
 
 - BLOCK SUMMARY では先に原因分析を示す
+- BLOCK SUMMARY は `変更 / 検証 / Known / 次` の箇条書きだけで終えない。必要に応じて「なぜこの順で進めたか」「次の摩擦がどこで減るか」を 2〜4 文で補う
+- 最低情報量は落とさない。少なくとも「触った範囲」「確認した証拠」「残ったリスク」「ユーザーが次に選べる取っ掛かり」を含める
+- 次の取っ掛かりは 1 本に絞りすぎない。`Advance`（進める）、`Audit`（見る）、`Excise`（削る）、`Explore`（広げる）、`Verify`（確かめる）など、違う意味を持つ入口を 2〜4 個提示する
+- 各取っ掛かりは「どのワークフロー段階に効くか」と「それを選ぶと次に何が可能になるか」を短く添える
 - 見栄えのためにラベルを書き換えない (「手動」→「自動」のような実態と異なる書き換え禁止)
 - **UI action label consistency**: 同じ surface に `保存` / `書き出し` / `読み込み` / `管理` / `適用` が並ぶ場合は、対象または役割をラベルに含める。例: `+ 文書` / `+ フォルダ`、`TXT書き出し`、`プロファイル保存`、`ロードアウト適用`。ダイアログ内など対象が明示される局所操作だけ `保存` / `削除` の短縮を許容する。
 
@@ -57,13 +63,14 @@
 - この節が **現行のユーザー向け UI 正本**。下の `normal` / `focus` 中心の説明は internal compatibility の履歴として残っているが、新規判断はこの節を優先する。
 - 公開 UI 状態は `display mode` ではなく、**left nav の階層状態 (`root` / `category`) / command palette / Reader・Replay surface の開閉** で表現する。
 - **retired top chrome**: visible surface としては廃止。`F2` / Electron menu / 旧 toolbar 互換経路は command palette を開く。上端 hover reveal、visible handle、上部 drag lane は復活させない。
-- **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in し、見た目幅を出たら即 dismiss する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。category 中のみ左列全体を root 戻り hit target とし、root icon rail 表示中は back rail を出さない。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
+- **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in し、見た目幅を出たら即 dismiss する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。category 中の root 戻りは sidebar 左列の非操作領域クリックだけで発火し、button / input / link / tree item / gadget controls を奪わない。root icon rail 表示中は back rail を出さない。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
 - **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents の `+ 文書` / `+ フォルダ` / `保存` / `入出力` / `管理`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は開閉操作、専用 drag handle は並び替え操作として分離し、`aria-expanded` / `aria-hidden` を同期する。
-- **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
+- **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。full mode では containing gadget の collapsed / hidden 状態を解除し、sidebar の clipped category 幅ではなく viewport 幅で detail / backlinks を表示する。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
+- **Default loadout cleanup**: 通常執筆の標準 preset では `MarkdownPreview` / `FontDecoration` / 非VN `TextAnimation` を出さない。プレビュー確認は Reader / Markdown source の既存 surface、装飾は WYSIWYG toolbar / command palette を主導線にする。
 - **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
 - **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `Reader を開く / 閉じる`, `左ナビのルートへ戻る` など実 surface 操作を基準にし、`ui-mode-*` / `toggle-fullscreen` / top chrome 表示 command は visible list に残さない。
 - **shortcut semantics**: `F2` は command palette を表示してフォーカスする。`toolbar.toggle` 互換経路も command palette へ誘導する。
-- packaged/Electron では visible menu も `シェル` ベースで表現し、F2 は command palette に揃える。frameless window の通常移動導線として左上に小さな Electron-only window grip を置き、最小化・最大化/復元・閉じるは右上の Electron-only window controls island で局所 hover / focus 時だけ fade-in する。left-edge hover は root rail の一時 fade-in に限定する。
+- packaged/Electron では visible menu も `シェル` ベースで表現し、F2 は command palette に揃える。frameless window の通常移動導線は右上の Electron-only window controls island 内の drag handle に統合する。左上には drag region を置かず、island 非表示時の handle は `no-drag`、表示 active / focus 中だけ `drag` にする。最小化・最大化/復元・閉じる button は常に `no-drag` のまま局所 hover / focus 時だけ fade-in する。left-edge hover は root rail の一時 fade-in に限定する。
 
 ---
 
@@ -76,13 +83,13 @@
 | 状態 | 主な用途 | 操作入口 |
 |------|----------|----------|
 | command palette | 横断操作入口。F2 / Electron menu / 旧 toolbar 互換経路から開く | `F2` / Electron menu / command palette shortcut |
-| window controls island | Electron frameless window の最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示 | 右上 hover / focus |
-| window grip | Electron frameless window の通常時移動。Editor本文やsidebarは drag region にしない。初期透明で hover 時だけ icon 表示 | 左上 grip |
+| window controls island | Electron frameless window の移動 drag handle と、最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示 | 右上 hover / focus |
+| window drag handle | 右上 island 内の window 移動専用 affordance。非表示時は `no-drag`、表示 active / focus 中だけ `drag`。Editor本文・sidebar・左上テキストは drag region にしない | 右上 island 内 handle |
 | left nav root | 通常時は完全非表示。left edge hover でカテゴリ一覧と last active cue を一時表示する | 左端 hover |
-| left nav category | active category の label / icon / panel / gadget loadout を表示し、左列 back rail で root へ戻れる | root からカテゴリ選択 |
+| left nav category | active category の label / icon / panel / gadget loadout を表示し、左列の非操作領域クリックで root へ戻れる | root からカテゴリ選択 |
 | replay surface | **閲覧専用**の読者視点確認。編集面とは同時操作しない | Reader / Replay command |
 
-**互換既定**: 新規・未設定の `settings.ui.uiMode` は統合シェルの **`normal`** に正規化する。過去の `focus` / `reader` / `blank` 保存値も `normal` に吸収し、公開 UI では left nav hierarchy / command palette / Reader surface を状態の起点にする。`settings.sidebarOpen` の既定は **`false`**。
+**互換既定**: 新規・未設定の `settings.ui.uiMode` は統合シェルの **`normal`** に正規化する。過去の `focus` / `reader` / `blank` 保存値も `normal` に吸収し、公開 UI では left nav hierarchy / command palette / Reader surface を状態の起点にする。`settings.sidebarOpen` の既定は **`false`**。起動時は保存済みの `settings.sidebarOpen` を復元せず、left nav は常に root / 非表示で開始する。`settings.ui.leftNavCategory` は最後に使ったカテゴリの cue としてだけ保持し、自動では開かない。
 
 **用語の区別（混同しないこと）**
 

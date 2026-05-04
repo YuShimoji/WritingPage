@@ -134,7 +134,7 @@ PWAは通常HTTPSが必要ですが、localhostは例外です。本番環境で
 - [ ] エディタにテキストを入力できる
 - [ ] 文字数カウントが表示される
 - [ ] サイドバーを開閉できる
-- [ ] top chrome を `F2` で表示できる
+- [ ] `F2` で command palette を表示できる
 - [ ] left nav を root → category → root の順に操作できる
 - [ ] 再生オーバーレイを開閉できる
 
