@@ -65,5 +65,7 @@ nul
 
 # Tool-specific / AI generated
 .claude/
+.codex/
+.cursor/
 .serena/
 test-artifacts/

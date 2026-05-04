@@ -23,7 +23,7 @@ These are read-only unless the user explicitly asks for mutation in the current 
 Do not auto-fill project docs and claim progress merely because a template was updated.
 
 ## Task-scout requirements
-A scout pass should include, when relevant:
+A scout pass should inspect, when relevant:
 - active artifact and bottleneck
 - stale evidence / visual evidence freshness
 - user-carried constraints
@@ -32,21 +32,27 @@ A scout pass should include, when relevant:
 - value path risk
 - bottleneck substitution risk
 - actor risk
+These are not mandatory report headings.
 
 ## Manual verification pattern
 - Put verification items in normal text, not inside the ask field.
-- Ask only for `OK / NG` or a short result code.
+- Use `OK / NG` or a short result code only when the user is doing a narrow mechanical confirmation.
 - Ask for next direction separately.
 
 ## Option generation
-Each major option should show:
-- lane (`Advance`, `Audit`, `Excise`, `Unlock` or another justified lane)
-- actor
-- owner artifact
-- bottleneck addressed
-- what becomes possible if done
+Options are response hooks, not a ritual table. Offer 2-4 meaningfully different hooks when the next move is open:
+- `Advance`: continue the product path
+- `Audit`: inspect a risk or inconsistency
+- `Excise`: remove stale code/docs/surfaces
+- `Explore`: widen a UX or creative direction with prototypes
+- `Verify`: close a narrow evidence gap
+
+Each hook should make clear which workflow stage it touches and what becomes possible if chosen. Mention actor / owner only when it changes the decision.
 
 Avoid options whose main meaning is merely commit / not commit / cleanup only / end.
+
+## Macro workflow connection
+When reporting or proposing next work, connect local changes to the broader authoring flow: launch → write → structure → decorate → preview → output → save. If the work is infrastructure or cleanup, say which part of that flow becomes less noisy, safer, or more open to creative iteration.
 
 ## Workflow-proof examples
 Good workflow-proof tasks:

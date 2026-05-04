@@ -13,8 +13,6 @@ Claude Code 用の薄い adapter。運用ルールや再開判断の正本をこ
 
 ## Adapter Rules
 
-- 返信は日本語。
-- 絵文字は使わない。
 - セッション番号・直近スライス・検証結果・再開手順は `docs/CURRENT_STATE.md` を正とする。
 - 旧再開・健康・カウンター文書は削除済み。再作成せず、`docs/CURRENT_STATE.md` に集約する。
 - Decision Log をこのファイルへ戻さない。長命の決定は `docs/INVARIANTS.md`、要求・backlog は `docs/USER_REQUEST_LEDGER.md`、現在地は `docs/CURRENT_STATE.md` に分担する。

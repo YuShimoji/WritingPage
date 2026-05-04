@@ -37,13 +37,15 @@ For each feature candidate, keep at least:
 
 If an unauthorized item appears in a proposal batch, quarantine the whole batch by default until individually re-reviewed.
 
-## Canonical context fields to surface in reports
-Use these report fields whenever relevant:
-- Non-Negotiables
-- Reused Canonical Context
-- New Fossils
-- Backlog Delta
-- Current Trust Assessment
+## Report assembly guidance
+Canonical fields are an internal checklist, not a fixed final-answer template. Surface only the fields that reduce ambiguity for the current block.
+
+A useful report should connect:
+- what changed / did not change
+- why that move mattered for the active artifact
+- what evidence was checked
+- what risk or judgment remains
+- what different next moves are now available
 
 ## Current Trust Assessment
 When a thread has become noisy or risky, classify changes into:
@@ -53,7 +55,7 @@ When a thread has become noisy or risky, classify changes into:
 State why.
 
 ## Handoff minimum
-A robust handoff should preserve:
+A robust handoff should preserve the facts below, but it should not force every normal completion report into this shape:
 - shared focus
 - non-negotiables
 - current trust assessment

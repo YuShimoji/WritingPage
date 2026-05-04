@@ -37,10 +37,11 @@ A proposed next task must state the current bottleneck it resolves.
 If the reason is only “we have done too much of X lately”, reject the proposal.
 
 ## Actor / Owner Gate
-Every next-step option and every PLAN MODE entry must state:
+Every major action should have an internal actor / owner check:
 - actor: `user`, `assistant`, `tool`, `shared`
 - owner artifact: what artifact this actor actually owns
 If the task is a human-owned creative/manual step, the assistant may support or scaffold it, but must not silently become the actor.
+Report actor / owner explicitly when it prevents responsibility confusion; do not turn it into a mandatory table column for every next-step option.
 
 ## Workflow-Proof Gate
 If the project depends on a human-authored production workflow, do not jump to quantity expansion (content writing, asset proliferation, mass production) before the workflow has been proven once end-to-end.
