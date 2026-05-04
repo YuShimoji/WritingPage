@@ -275,8 +275,8 @@ test.describe('Gadgets E2E', () => {
 
     const exposure = await page.evaluate(() => {
       var data = window.ZWGadgets._ensureLoadouts();
-      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview', 'FontDecoration'];
-      var standardHidden = ['TextAnimation'];
+      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview'];
+      var standardHidden = ['TextEffects'];
       var result = {};
       Object.keys(data.entries || {}).forEach(function (key) {
         var entry = data.entries[key] || {};
@@ -296,6 +296,40 @@ test.describe('Gadgets E2E', () => {
       expect(leaked, `${name} hidden default gadgets`).toEqual([]);
     }
 
+  });
+
+  test('loadout normalization migrates legacy text effect gadgets', async ({ page }) => {
+    await page.addInitScript(() => {
+      try {
+        localStorage.setItem('zenWriter_gadgets:loadouts', JSON.stringify({
+          active: 'custom-effects',
+          entries: {
+            'custom-effects': {
+              label: 'Custom effects',
+              groups: {
+                edit: ['FontDecoration', 'TextAnimation', 'ChoiceTools']
+              }
+            }
+          }
+        }));
+      } catch (_) {}
+    });
+    await page.goto(pageUrl);
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await page.waitForFunction(() => {
+      return !!(window.ZWGadgets && typeof window.ZWGadgets._ensureLoadouts === 'function');
+    });
+
+    const edit = await page.evaluate(() => {
+      const data = window.ZWGadgets._ensureLoadouts();
+      return data.entries['custom-effects'].groups.edit;
+    });
+
+    expect(edit).toContain('TextEffects');
+    expect(edit).toContain('ChoiceTools');
+    expect(edit).not.toContain('FontDecoration');
+    expect(edit).not.toContain('TextAnimation');
+    expect(edit.filter((name) => name === 'TextEffects')).toHaveLength(1);
   });
 
   test('built-in loadouts keep stable gadget placement', async ({ page }) => {
@@ -337,10 +371,11 @@ test.describe('Gadgets E2E', () => {
       }
       expect(groups.edit, `${name} edit excludes MarkdownPreview`).not.toContain('MarkdownPreview');
       expect(groups.edit, `${name} edit excludes FontDecoration`).not.toContain('FontDecoration');
+      expect(groups.edit, `${name} edit excludes TextAnimation`).not.toContain('TextAnimation');
       if (name === 'vn-layout') {
-        expect(groups.edit, `${name} keeps TextAnimation for VN workflow`).toContain('TextAnimation');
+        expect(groups.edit, `${name} keeps TextEffects for VN workflow`).toContain('TextEffects');
       } else {
-        expect(groups.edit, `${name} edit excludes TextAnimation by default`).not.toContain('TextAnimation');
+        expect(groups.edit, `${name} edit excludes TextEffects by default`).not.toContain('TextEffects');
       }
     }
   });

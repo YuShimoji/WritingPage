@@ -898,33 +898,60 @@
       renderUISettings(root, { advancedOnly: true, includeAdvanced: true });
     }, { title: '高度な編集設定', groups: ['advanced'], description: 'リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整します。', defaultCollapsed: true, kind: 'settings' });
 
-    // Font Decoration Gadget (パネルのミラー)
-    window.ZWGadgets.register('FontDecoration', function (root) {
-      root.innerHTML = '';
-      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '0.125rem'; return b; };
-      var row1 = el('div'); row1.appendChild(mkBtn('bold', 'B')); row1.appendChild(mkBtn('italic', 'I')); row1.appendChild(mkBtn('underline', 'U')); row1.appendChild(mkBtn('strike', 'S')); row1.appendChild(mkBtn('black', '極'));
-      var row2 = el('div'); row2.appendChild(mkBtn('light', '細')); row2.appendChild(mkBtn('smallcaps', 'SC')); row2.appendChild(mkBtn('shadow', '影')); row2.appendChild(mkBtn('outline', '輪')); row2.appendChild(mkBtn('glow', '光'));
-      var row3 = el('div'); row3.appendChild(mkBtn('uppercase', '大')); row3.appendChild(mkBtn('lowercase', '小')); row3.appendChild(mkBtn('capitalize', '頭')); row3.appendChild(mkBtn('wide', '広')); row3.appendChild(mkBtn('narrow', '狭'));
-      var row4 = el('div'); row4.appendChild(mkBtn('kenten', '傍点'));
-      function bind(container) {
-        var btns = container.querySelectorAll('.decor-btn');
-        btns.forEach(function (btn) { btn.addEventListener('click', function () { try { var tag = btn.dataset.tag; if (tag === 'kenten') { var rich = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor; if (rich && rich.isWysiwygMode && typeof rich.wrapSelectionWithSpan === 'function') { rich.wrapSelectionWithSpan('kenten'); } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') { window.ZenWriterEditor.insertTextAtCursor('{kenten|', { suffix: '}' }); } } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(tag); } } catch (_) { } }); });
-      }
-      root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); bind(root);
-    }, { title: 'フォント装飾', groups: ['edit'], description: '太字・斜体・傍点・影などを選択範囲に適用します（ツールバー装飾と同系）。' });
+    function appendEffectButtons(root, kind, buttons) {
+      var row = el('div');
+      buttons.forEach(function (item) {
+        var btn = el('button', kind === 'animation' ? 'decor-btn anim-btn' : 'decor-btn');
+        btn.dataset.tag = item[0];
+        btn.dataset.effectKind = kind;
+        btn.textContent = item[1];
+        btn.style.margin = '0.125rem';
+        row.appendChild(btn);
+      });
+      root.appendChild(row);
+    }
 
-    // Text Animation Gadget (パネルのミラー)
-    window.ZWGadgets.register('TextAnimation', function (root) {
+    function bindTextEffectButtons(root) {
+      var btns = root.querySelectorAll('.decor-btn');
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          try {
+            var tag = btn.dataset.tag;
+            if (!tag) return;
+            if (tag === 'kenten') {
+              var rich = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+              if (rich && rich.isWysiwygMode && typeof rich.wrapSelectionWithSpan === 'function') {
+                rich.wrapSelectionWithSpan('kenten');
+              } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.insertTextAtCursor === 'function') {
+                window.ZenWriterEditor.insertTextAtCursor('{kenten|', { suffix: '}' });
+              }
+              return;
+            }
+            if (btn.dataset.effectKind === 'animation') {
+              if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyTextAnimation === 'function') {
+                window.ZenWriterEditor.applyTextAnimation(tag);
+              }
+              return;
+            }
+            if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') {
+              window.ZenWriterEditor.applyFontDecoration(tag);
+            }
+          } catch (_) { }
+        });
+      });
+    }
+
+    // Text Effects Gadget (font decoration + animation panel mirror)
+    window.ZWGadgets.register('TextEffects', function (root) {
       root.innerHTML = '';
-      var mkBtn = function (id, label) { var b = el('button', 'decor-btn'); b.dataset.tag = id; b.textContent = label; b.style.margin = '0.125rem'; return b; };
-      var row1 = el('div'); row1.appendChild(mkBtn('fade', 'フェード')); row1.appendChild(mkBtn('slide', 'スライド')); row1.appendChild(mkBtn('type', 'タイプ')); row1.appendChild(mkBtn('pulse', 'パルス'));
-      var row2 = el('div'); row2.appendChild(mkBtn('shake', 'シェイク')); row2.appendChild(mkBtn('bounce', 'バウンス')); row2.appendChild(mkBtn('fadein', '遅フェード'));
-      function bind(container) {
-        var btns = container.querySelectorAll('.decor-btn');
-        btns.forEach(function (btn) { btn.addEventListener('click', function () { try { if (window.ZenWriterEditor && typeof window.ZenWriterEditor.applyFontDecoration === 'function') { window.ZenWriterEditor.applyFontDecoration(btn.dataset.tag); } } catch (_) { } }); });
-      }
-      root.appendChild(row1); root.appendChild(row2); bind(root);
-    }, { title: 'テキストアニメーション', groups: ['edit'], description: 'フェード・タイプライター・バウンスなどを選択範囲に適用します。' });
+      appendEffectButtons(root, 'decoration', [['bold', 'B'], ['italic', 'I'], ['underline', 'U'], ['strike', 'S'], ['black', '極']]);
+      appendEffectButtons(root, 'decoration', [['light', '細'], ['smallcaps', 'SC'], ['shadow', '影'], ['outline', '輪'], ['glow', '光']]);
+      appendEffectButtons(root, 'decoration', [['uppercase', '大'], ['lowercase', '小'], ['capitalize', '頭'], ['wide', '広'], ['narrow', '狭']]);
+      appendEffectButtons(root, 'decoration', [['kenten', '傍点']]);
+      appendEffectButtons(root, 'animation', [['fade', 'フェード'], ['slide', 'スライド'], ['type', 'タイプ'], ['pulse', 'パルス']]);
+      appendEffectButtons(root, 'animation', [['shake', 'シェイク'], ['bounce', 'バウンス'], ['fadein', '遅フェード']]);
+      bindTextEffectButtons(root);
+    }, { title: 'テキスト効果', groups: ['edit'], description: '装飾とアニメーションを選択範囲に適用します。', defaultCollapsed: true, kind: 'settings' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {

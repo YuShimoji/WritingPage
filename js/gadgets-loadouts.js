@@ -16,12 +16,15 @@
   var LOADOUT_KEY = utils.LOADOUT_KEY;
   var _KNOWN_GROUPS = utils.KNOWN_GROUPS;
   var DEFAULT_LOADOUTS = utils.DEFAULT_LOADOUTS;
+  var GADGET_ALIASES = {
+    FontDecoration: 'TextEffects',
+    TextAnimation: 'TextEffects'
+  };
   var HIDE_BY_DEFAULT_GADGETS = {
     LoadoutManager: true,
     GadgetPrefs: true,
     MarkdownPreview: true,
-    FontDecoration: true,
-    TextAnimation: { exceptLoadouts: { 'vn-layout': true } }
+    TextEffects: { exceptLoadouts: { 'vn-layout': true } }
   };
 
   var loadoutState = null;
@@ -45,6 +48,16 @@
     });
   }
 
+  function normalizeGadgetAliases(list) {
+    var out = [];
+    if (!Array.isArray(list)) return out;
+    list.forEach(function (name) {
+      var mapped = GADGET_ALIASES[name] || name;
+      if (mapped && out.indexOf(mapped) < 0) out.push(mapped);
+    });
+    return out;
+  }
+
   function normalizeLoadouts(raw) {
     var data = raw && typeof raw === 'object' ? clone(raw) : clone(DEFAULT_LOADOUTS);
     var entries = data.entries && typeof data.entries === 'object' ? data.entries : {};
@@ -59,6 +72,9 @@
       if (entry.dockLayout && typeof entry.dockLayout === 'object') {
         normalized.dockLayout = entry.dockLayout;
       }
+      Object.keys(normalized.groups || {}).forEach(function (group) {
+        normalized.groups[group] = normalizeGadgetAliases(normalized.groups[group]);
+      });
       if (isBuiltInLoadout(key)) {
         Object.keys(normalized.groups || {}).forEach(function (group) {
           normalized.groups[group] = filterDefaultHiddenGadgets(normalized.groups[group], key);

@@ -99,12 +99,12 @@ Zen Writer v0.3.32
 |---------|-----|---------------|
 | セクション | `sections` | SectionsNavigator（見出しツリー、Phase 1+2実装済み） |
 | 構造 | `structure` | Documents, Outline, StoryWiki, LinkGraph, Tags/SmartFolders, SnapshotManager |
-| 編集 | `edit` | ChoiceTools, Images（MarkdownPreview / FontDecoration / TextAnimation は標準小説 preset から除外。TextAnimation は VN preset で維持） |
+| 編集 | `edit` | ChoiceTools, Images（MarkdownPreview / TextEffects は標準小説 preset から除外。TextEffects は VN preset で維持） |
 | テーマ | `theme` | Themes, Typography, HeadingStyles, VisualProfile |
 | 補助 | `assist` | Typewriter, FocusMode, WritingGoal, Pomodoro, MarkdownReference |
 | 詳細設定 | `advanced` | EditorLayout, UISettings, EditorAdvancedSettings, HUDSettings, PrintSettings, Keybinds（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
 
-**ガジェット総数：** 29個
+**ガジェット総数：** 28個
 **ロードアウト：** 4プリセット（小説・長編/ミニマル/VN/脚本）+ カスタム
 
 ### 5. 装飾・アニメーション
@@ -263,7 +263,7 @@ manifest駆動のローカルプラグイン機能を実装済み。
 | JavaScriptファイル | 114ファイル |
 | CSSファイル | 4ファイル（style.css メイン） |
 | E2Eテスト | 62ファイル |
-| ガジェット | 29個 |
+| ガジェット | 28個 |
 | 仕様書 | spec-index.json に55エントリ |
 
 ### パフォーマンス

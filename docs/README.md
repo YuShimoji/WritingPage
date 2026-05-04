@@ -21,7 +21,7 @@ v0.3.32 / 2026-04-06
 | ドキュメント | 内容 |
 |-------------|------|
 | [ARCHITECTURE](ARCHITECTURE.md) | 技術アーキテクチャ（ファイル構成・設計原則・概念モデル） |
-| [GADGETS](GADGETS.md) | ガジェットシステム仕様（29個の登録ガジェット一覧） |
+| [GADGETS](GADGETS.md) | ガジェットシステム仕様（28個の登録ガジェット一覧） |
 | [THEMES](THEMES.md) | テーマ仕様（CSS変数・プリセット・UI/Editor配色分離） |
 | [VISUAL_PROFILE](VISUAL_PROFILE.md) | ビジュアルプロファイル仕様（見た目プリセット） |
 | [EDITOR_EXTENSIONS](EDITOR_EXTENSIONS.md) | 装飾/挿入UI・選択ツールチップ仕様 |

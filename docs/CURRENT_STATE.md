@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-04（Phase 1 Story Wiki / left nav regression fix）
+最終更新: 2026-05-04（B3 TextEffects merge）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` から作業中。`main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は local 未commit |
-| 現在の主軸 | **Phase 1 Story Wiki / left nav regression fix complete**: left nav back rail と Story Wiki full backlinks の既知 2 failures を解消 |
-| 直近の実装スライス | `#sidebar-nav-back-rail` は gadget 操作を奪わず、sidebar 左列の非操作領域クリックだけ root 戻りにする。Story Wiki full pane は viewport 幅で開き、full pane 内 backlinks を E2E で見る |
-| 最新ビルド・検証 | Phase 1: `git diff --check` pass、対象 JS `node --check` pass、`lint:js:check` pass、`build` pass、`wiki+wiki-graph+pomodoro` 36 passed、`gadgets+editor-settings+ui-mode` 68 passed |
+| 現在の主軸 | **B3 first merge candidate complete**: `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名を migration で維持 |
+| 直近の実装スライス | 選択範囲へのフォント装飾とテキストアニメーションを 1 gadget に統合。VN loadout では `TextEffects` を維持し、通常 preset では引き続き非表示 |
+| 最新ビルド・検証 | B3: `git diff --check` pass、対象 JS `node --check` pass、`gadgets.spec.js` 15 passed、`lint:js:check` pass、`build` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | Phase 1 の root 戻り hit target 契約、Story Wiki full mode 表示契約、解消済み regression の検証証拠を restart docs に反映 |
+| 今回の docs sync | B3 TextEffects 統合、登録 gadget 数 28、旧 `FontDecoration` / `TextAnimation` loadout migration を restart / roadmap / gadget docs に反映 |
 
 ## Latest Handoff
 
@@ -24,8 +24,9 @@
 - New: `#writing-status-chip` は Reader / Floating memo lab 非表示時だけ文字数と `編集中` / `保存済み` を非操作型で表示する。`GadgetPrefs` も `LoadoutManager` と同じ hide-by-default に移した。
 - New: `main-hub-panel` の active source refs は削除済み。legacy command compatibility (`toggle-fullscreen` / `ui-mode-*`) は hidden 互換として維持する。
 - New: Electron window drag はユーザー確認で安定。今後の主軸は 2 レーンに分ける。Lane A は無重力メモ / Floating memo lab の visual iteration と productization gate、Lane B はガジェット再整理の usefulness audit と default loadout cleanup。どちらも現行 Editor / Reader / left nav 契約を壊さず、実装スライスは 1 トピックに限定する。
-- New: Gadget cleanup は削除ではなく標準導線から下げる方針。`UISettings` は日常表示・文字サイズ・placeholder・自動保存だけ、`EditorAdvancedSettings` はリッチ編集改行 / Textbox / 浮遊パネル / gadget 表示を持つ。`MarkdownPreview` / `FontDecoration` は標準 preset から外し、`TextAnimation` は VN preset だけ残す。
+- New: Gadget cleanup は削除ではなく標準導線から下げる方針。`UISettings` は日常表示・文字サイズ・placeholder・自動保存だけ、`EditorAdvancedSettings` はリッチ編集改行 / Textbox / 浮遊パネル / gadget 表示を持つ。`MarkdownPreview` は標準 preset から外し、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN preset だけ残す。
 - New: Phase 1 既知 regression は解消済み。left nav category の root 戻りは sidebar 左列の空白クリックだけで発火し、button / input / link / tree item / gadget controls は奪わない。Story Wiki full mode は containing gadget の collapsed/hidden 状態を解除し、full pane を viewport 幅で表示して backlinks detail を見せる。
+- New: B3 初回候補として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。旧 loadout 名は normalization で `TextEffects` へ移行し、custom loadout の明示利用は保つ。テキストアニメーション gadget 経路は `applyTextAnimation` を呼ぶ。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -52,6 +53,18 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### B3 TextEffects merge
+
+- `FontDecoration` / `TextAnimation` は `TextEffects` へ統合。登録 gadget は 29 → 28。
+- 旧 loadout の `FontDecoration` / `TextAnimation` は `TextEffects` へ migration し、重複は 1 件へ畳む。
+- VN loadout では `TextEffects` を維持し、通常 preset では `MarkdownPreview` と同じく標準導線から下げる。
+- `git diff --check` → pass
+- `node --check js/gadgets-editor-extras.js js/gadgets-loadouts.js js/gadgets-utils.js js/loadouts-presets.js js/gadgets-core.js` → pass
+- `npx playwright test e2e/gadgets.spec.js --grep "loadout normalization migrates legacy text effect gadgets|built-in loadouts keep stable gadget placement|built-in loadouts hide low-frequency admin gadgets by default" --workers=1 --reporter=line` → 3 passed
+- `npx playwright test e2e/gadgets.spec.js --workers=1 --reporter=line` → 15 passed
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
 
 ### Phase 1 Story Wiki / left nav regression fix
 
@@ -84,7 +97,7 @@
 ### gadget mainstream protection cleanup
 
 - `node --check js/gadgets-editor-extras.js js/gadgets-loadouts.js js/loadouts-presets.js js/gadgets-core.js` → pass
-- loadout normalization smoke → `novel-standard` edit は `ChoiceTools` のみ、`vn-layout` edit は `Images` / `ChoiceTools` / `TextAnimation`
+- loadout normalization smoke → `novel-standard` edit は `ChoiceTools` のみ、`vn-layout` edit は `Images` / `ChoiceTools` / `TextAnimation`（B3 後は `TextEffects` へ移行）
 - `npm run lint:js:check` → pass
 - `npm run build` → pass
 - `npx playwright test e2e/gadgets.spec.js e2e/editor-settings.spec.js --workers=1 --reporter=line` → 33 passed
@@ -298,11 +311,12 @@
 | Done | Left chrome / left nav refinement | Electron grip を初期透明 hover reveal に変更し、category-only back rail と root rail dismiss 同期を追加。packaged build/open まで pass | assistant / affected UI surface |
 | Done | `main-hub-panel` dead code cleanup | DOM 実体なしの CSS / UI editor selector / active source comment を削除済み。旧前提の再混入防止チェックも pass | assistant |
 | Done | Phase 1 Story Wiki / left nav regression fix | back rail の click interception と Story Wiki backlinks hidden を局所修正。`wiki+wiki-graph+pomodoro` は 36 passed | assistant / Story Wiki + left nav |
+| Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。旧 loadout 名は migration で維持 | assistant / gadget UX |
 | A1 | 無重力メモ visual iteration | dev-only overlay のまま、紙片サイズ・奥行き・blur・投げ戻り・foreground 編集の読みやすさを詰める | assistant / memo overlay |
 | A2 | 無重力メモ daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉の短い手動シナリオで、邪魔にならないことを確認する | shared / writing UX |
 | A3 | 無重力メモ productization gate | 実験継続 / command palette 実験導線維持 / 正式機能化を判断する。正式化なら保存・設定・名称を別スライス化 | shared / product decision |
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
-| Done | Default loadout cleanup | `MarkdownPreview` / `FontDecoration` / 非VN `TextAnimation` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
+| Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | B3 | Gadget merge/delete candidate | audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |

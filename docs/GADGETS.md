@@ -62,9 +62,9 @@
 - `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### 登録ガジェット一覧（29個）
+#### 登録ガジェット一覧（28個）
 
-> Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離し、現行登録は29個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
+> Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離。2026-05-04 に `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、現行登録は28個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -77,26 +77,25 @@
 | 7 | Images | 画像 | edit | 挿入・管理と、コラージュ用レイアウト設定。 | gadgets-images.js |
 | 8 | ChoiceTools | 選択肢 | edit | インタラクティブ小説向けの選択肢・ジャンプ記法を本文に挿入します。 | gadgets-choice.js |
 | 9 | MarkdownPreview | Markdownプレビュー | edit | 編集画面の横に Markdown を並列表示し、本文とスクロール同期します。 | gadgets-editor-extras.js |
-| 10 | FontDecoration | フォント装飾 | edit | 太字・斜体・傍点・影などを選択範囲に適用（ツールバー装飾と同系）。 | gadgets-editor-extras.js |
-| 11 | TextAnimation | テキストアニメーション | edit | フェード・タイプライター・バウンスなどを選択範囲に適用します。 | gadgets-editor-extras.js |
-| 12 | Typography | フォント | theme | フォント・文字サイズ・行間を調整。 | gadgets-typography.js |
-| 13 | Themes | テーマ | theme | テーマプリセットと背景・文字色を調整。 | gadgets-themes.js |
-| 14 | VisualProfile | Visual Profile | theme | テーマ・フォント・レイアウトをまとめたプロファイルを管理・適用。 | gadgets-visual-profile.js |
-| 15 | HeadingStyles | 見出しスタイル | theme | 見出しプリセット選択と H1-H6 の個別調整。 | gadgets-heading.js |
-| 16 | WritingGoal | 執筆目標 | assist | 文字数・期限の目標を設定し進捗を可視化。 | gadgets-goal.js |
-| 17 | Typewriter | Typewriter | assist | カーソル行を画面中央へ寄せて視線移動を低減。 | gadgets-editor-extras.js |
-| 18 | FocusMode | Focus Mode | assist | 編集中の段落以外を減光して集中を維持。 | gadgets-editor-extras.js |
-| 19 | HUDSettings | HUD設定 | advanced | HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
-| 20 | PomodoroTimer | Pomodoro/集中タイマー | assist | 作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
-| 21 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
-| 22 | UISettings | UI Settings | advanced | 日常執筆で使う表示・文字サイズ・自動保存だけを調整。 | gadgets-editor-extras.js |
-| 23 | EditorAdvancedSettings | 高度な編集設定 | advanced | リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整。 | gadgets-editor-extras.js |
-| 24 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
-| 25 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
-| 26 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
-| 27 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
-| 28 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
-| 29 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
+| 10 | TextEffects | テキスト効果 | edit | フォント装飾とテキストアニメーションを選択範囲に適用します。旧 `FontDecoration` / `TextAnimation` loadout はここへ移行。 | gadgets-editor-extras.js |
+| 11 | Typography | フォント | theme | フォント・文字サイズ・行間を調整。 | gadgets-typography.js |
+| 12 | Themes | テーマ | theme | テーマプリセットと背景・文字色を調整。 | gadgets-themes.js |
+| 13 | VisualProfile | Visual Profile | theme | テーマ・フォント・レイアウトをまとめたプロファイルを管理・適用。 | gadgets-visual-profile.js |
+| 14 | HeadingStyles | 見出しスタイル | theme | 見出しプリセット選択と H1-H6 の個別調整。 | gadgets-heading.js |
+| 15 | WritingGoal | 執筆目標 | assist | 文字数・期限の目標を設定し進捗を可視化。 | gadgets-goal.js |
+| 16 | Typewriter | Typewriter | assist | カーソル行を画面中央へ寄せて視線移動を低減。 | gadgets-editor-extras.js |
+| 17 | FocusMode | Focus Mode | assist | 編集中の段落以外を減光して集中を維持。 | gadgets-editor-extras.js |
+| 18 | HUDSettings | HUD設定 | advanced | HUDの位置・表示時間・見た目を調整。 | gadgets-hud.js |
+| 19 | PomodoroTimer | Pomodoro/集中タイマー | assist | 作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
+| 20 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
+| 21 | UISettings | UI Settings | advanced | 日常執筆で使う表示・文字サイズ・自動保存だけを調整。 | gadgets-editor-extras.js |
+| 22 | EditorAdvancedSettings | 高度な編集設定 | advanced | リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整。 | gadgets-editor-extras.js |
+| 23 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
+| 24 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
+| 25 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
+| 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
+| 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
+| 28 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
 
 | # | Name | 状態 | 理由 |
 |---|------|------|------|
@@ -114,8 +113,7 @@
 | LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
 | GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
 | MarkdownPreview | developer/audit | 標準 preset から除外 | Reader / Rich editing / Markdown source の三軸整理を優先し、通常執筆では第二プレビューを常設しない |
-| FontDecoration | duplicate | 標準 preset から除外 | 装飾は WYSIWYG toolbar / command palette 側を主導線にし、ガジェット側の重複入口を下げる |
-| TextAnimation | contextual | VN 以外の標準 preset から除外 | 小説・脚本では低頻度。VN loadout では演出ツールとして維持する |
+| TextEffects | merged/contextual | VN 以外の標準 preset から除外 | `FontDecoration` / `TextAnimation` を統合。装飾は WYSIWYG toolbar / command palette を主導線にし、VN loadout では演出ツールとして維持する |
 
 #### Gadget kind taxonomy
 
@@ -150,7 +148,7 @@
 | Group | 数 | 主な用途 |
 |-------|----|----------|
 | structure | 6 | 文書構造・ナビゲーション・スナップショット |
-| edit | 5 | 編集・装飾・プレビュー（Images は VN 系 preset で表示） |
+| edit | 4 | 編集・装飾・プレビュー（Images は VN 系 preset で表示） |
 | theme | 4 | テーマ・フォント・視覚設定 |
 | assist | 5 | 執筆支援・タイマー・集中・リファレンス |
 | advanced | 8 | UI設定・HUD・出力・管理ツール |

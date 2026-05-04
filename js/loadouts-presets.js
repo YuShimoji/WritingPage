@@ -120,7 +120,7 @@
           edit: [
             'Images',
             'ChoiceTools',
-            'TextAnimation'
+            'TextEffects'
           ],
           theme: [
             'Themes',

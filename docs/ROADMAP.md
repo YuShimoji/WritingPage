@@ -19,7 +19,7 @@
 - E2E: 全件数は `npx playwright test --list` で確認。最新スナップは `CURRENT_STATE`「検証結果」を正とする
 - CI: GitHub Actions green
 - コア機能: 95% 成熟
-- ガジェット: 29個登録（`UISettings` を日常設定へ縮小し、`EditorAdvancedSettings` を高度設定として分離）
+- ガジェット: 28個登録（`UISettings` を日常設定へ縮小し、`EditorAdvancedSettings` を高度設定として分離。`FontDecoration` / `TextAnimation` は `TextEffects` へ統合）
 - 仕様書: spec-index.json に 55 エントリ (done 44, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
 - 直近 done: right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
@@ -32,7 +32,7 @@
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
 | **Lane A: 無重力メモ / Floating memo lab** | dev-only / experimental overlay として安定。開閉・focus 復帰・Reader / command palette 重なり回避は E2E green | visual iteration → 日常執筆導線で邪魔にならない手触りの確定 → production 昇格判断 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化 |
-| **Lane B: ガジェット再整理** | 標準 preset cleanup 着手済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` / `FontDecoration` は hide-by-default、`TextAnimation` は VN 以外で非表示 | usefulness audit → default loadout cleanup → 必要な merge / delete candidate を 1件ずつ narrow fix | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
+| **Lane B: ガジェット再整理** | 標準 preset cleanup と B3 の初回統合済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` は hide-by-default、`TextEffects` は VN 以外で非表示 | 残る候補が見つかった場合だけ 1件ずつ merge / delete narrow fix | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
 | **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
 
 #### Lane A: 無重力メモ / Floating memo lab
@@ -45,7 +45,7 @@
 
 1. **B1 usefulness audit**: 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に再分類する。まず docs と static refs の監査に限定し、コード削除はしない。
 2. **B2 default loadout cleanup**: daily writing に不要な gadget を標準 preset から外す。custom loadout からの明示利用は壊さない。
-3. **B3 merge / delete candidates**: 重複 UI・低価値 gadget が見つかった場合だけ、1 gadget ずつ E2E 付きで削除または統合する。`LoadoutManager` / `GadgetPrefs` は現時点では削除候補ではなく hide-by-default 維持。
+3. **B3 merge / delete candidates**: 初回として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名は migration で維持。以後も重複 UI・低価値 gadget が見つかった場合だけ、1 gadget ずつ E2E 付きで削除または統合する。`LoadoutManager` / `GadgetPrefs` は現時点では削除候補ではなく hide-by-default 維持。
 
 #### レーン間の依存・ゲート
 
