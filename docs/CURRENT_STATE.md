@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-04（B3 TextEffects merge）
+最終更新: 2026-05-06（A2 closeout / A3 entry prep）
 
 ## Snapshot
 
@@ -8,12 +8,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` から作業中。`main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は local 未commit |
-| 現在の主軸 | **B3 first merge candidate complete**: `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名を migration で維持 |
-| 直近の実装スライス | 選択範囲へのフォント装飾とテキストアニメーションを 1 gadget に統合。VN loadout では `TextEffects` を維持し、通常 preset では引き続き非表示 |
-| 最新ビルド・検証 | B3: `git diff --check` pass、対象 JS `node --check` pass、`gadgets.spec.js` 15 passed、`lint:js:check` pass、`build` pass |
+| ブランチ | `main` / `origin/main` 同期済みの状態から作業中。旧 `main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は remote 反映済み |
+| 現在の主軸 | **A2 complete**: 保存安心感 / daily writing proof で、Editor 本筋と Floating memo lab の隔離を自動証拠化 |
+| 直近の実装スライス | 起動→Rich editing→Sections→writing status→Reader→Floating memo lab→editor focus 復帰の E2E を追加。Floating memo は dev-only / experimental のまま |
+| 最新ビルド・検証 | A2 closeout: `node --check` pass、`git diff --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | B3 TextEffects 統合、登録 gadget 数 28、旧 `FontDecoration` / `TextAnimation` loadout migration を restart / roadmap / gadget docs に反映 |
+| 今回の docs sync | A2 proof の結果と A3 productization gate 直前の判断導線を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に反映。Build output hygiene と A1 reframe の docs は維持 |
 
 ## Latest Handoff
 
@@ -27,6 +27,12 @@
 - New: Gadget cleanup は削除ではなく標準導線から下げる方針。`UISettings` は日常表示・文字サイズ・placeholder・自動保存だけ、`EditorAdvancedSettings` はリッチ編集改行 / Textbox / 浮遊パネル / gadget 表示を持つ。`MarkdownPreview` は標準 preset から外し、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN preset だけ残す。
 - New: Phase 1 既知 regression は解消済み。left nav category の root 戻りは sidebar 左列の空白クリックだけで発火し、button / input / link / tree item / gadget controls は奪わない。Story Wiki full mode は containing gadget の collapsed/hidden 状態を解除し、full pane を viewport 幅で表示して backlinks detail を見せる。
 - New: B3 初回候補として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。旧 loadout 名は normalization で `TextEffects` へ移行し、custom loadout の明示利用は保つ。テキストアニメーション gadget 経路は `applyTextAnimation` を呼ぶ。
+- New: Writing UX map の優先順位は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存・正式 Gadget・loadout へ接続せず、執筆面の外縁に出る experimental fragment として扱う。次の設計候補は「保存安心感」または「Gadget 情報設計」だが、実装は別スライスに分ける。
+- New: A1 Floating memo reframe は完了。背景 memo は visible title / state / `DRAG` / textarea 枠を持たず、短い read-only fragment として漂う。foreground だけ borderless textarea を表示し、既定サンプルで明示 scrollbar を出さない。既存の memo identity / despawn-respawn / touch slop / focus restore / reduced-motion 契約は維持する。
+- New: Build output の正本は `dist/`（`npm run build` / `app:open:dist`）と `build/`（Electron builder / `build/win-unpacked/Zen Writer.exe`）だけ。旧 `build-new/` / `build-session*/` / `build-friction/` はロック回避の一時退避物で、`npm run clean:builds` で削除する。
+- New: A2 daily writing proof は E2E 化済み。Rich editing で短い原稿を入れ、Sections 表示、`#writing-status-chip` の `編集中`→`保存済み`、Reader 往復、Floating memo lab 開閉後の editor focus 復帰を 1 本の flow で確認する。保存モデルや正式 Gadget 化は A3 まで保留。
+- New: Closeout 整理では `.serena/project.yml` のテンプレ差分を tool noise として HEAD へ戻し、`.playwright-mcp/` と root の確認用 PNG を ignore。`scripts/clean-build-outputs.js` は `package.json` から参照される正式差分として残す。
+- Next: A3 productization gate は実装ではなく判断から始める。入口は 1) dev-only 実験のまま継続、2) command palette の限定実験導線として維持、3) 正式機能化の 3択。3 を選ぶ場合だけ保存モデル・設定・名称・正式導線を別スライスで起票する。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -53,6 +59,40 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### A2 保存安心感 / daily writing proof
+
+- `e2e/daily-writing-proof.spec.js` を追加。起動→Rich editing→Sections→writing status→Reader→Floating memo lab→editor focus 復帰を 1 flow で確認する。
+- status chip は通常執筆中に visible、入力後 `編集中`、idle 後 `保存済み`。Reader / Floating memo lab 表示中は hidden。
+- Reader 終了後と Floating memo lab 終了後は `#wysiwyg-editor` または `#editor` へ focus 復帰する。
+- Floating memo lab は引き続き dev-only / experimental overlay。editor / chapter / autosave 本流、正式 Gadget、loadout には接続しない。
+- `node --check js/floating-memo-field.js` / `node --check scripts/clean-build-outputs.js` → pass
+- `git diff --check` → pass（`.gitignore` LF/CRLF warning のみ）
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npx playwright test e2e/daily-writing-proof.spec.js e2e/floating-memo-lab.spec.js --workers=1 --reporter=line` → 9 passed
+- Closeout: `.serena/project.yml` は HEAD へ復帰。`.playwright-mcp/` と root の visual review PNG は `.gitignore` で除外。`scripts/clean-build-outputs.js` は正式追加対象として維持。
+
+### Build output hygiene
+
+- `dist/` は `npm run build` の Web / HTML 直接起動用出力、`build/` は Electron builder の正規出力として整理。
+- 旧 lock workaround の `build-new/` / `build-session103`〜`build-session109` を削除。`build-friction/` は現在存在しないが、一時退避物として `npm run clean:builds` の対象にした。
+- `scripts/clean-build-outputs.js` を追加し、`npm run clean:builds` は legacy workaround output だけ、`npm run clean:builds:all` は `dist/` / `build/` も含む生成物を削除する。
+
+### A1 Writing UX map + Floating memo reframe
+
+- Floating memo lab は dev-only / experimental overlay のまま維持。保存モデル、正式機能化、gadget registration、loadout、command palette 導線は未変更。
+- Writing UX 階層は Editor canvas を最上位に置き、保存/文字数 status、Documents/Sections、on-demand Gadgets、experimental memo の順で主従を整理した。
+- 背景 memo は z に応じて `--memo-visual-scale` / `--memo-depth-blur` / `--memo-shell-shadow` を更新しつつ、visible title / state / `DRAG` / textarea 枠を持たない read-only fragment として表示する。
+- foreground / dragging memo は scale 1.08 / 1.10、blur なし、強め shadow。foreground だけ borderless textarea を表示し、既定サンプルでは明示 scrollbar を出さない。
+- returning は吸着を少し強め、z 方向の戻りを滑らかにした。flutter 最大振幅は抑え、`prefers-reduced-motion` では flutter と blur を無効のまま維持。
+- `node --check js/floating-memo-field.js` → pass
+- `npx playwright test e2e/floating-memo-lab.spec.js --workers=1 --reporter=line` → 8 passed
+- Visual check: desktop / mobile `/index.html?memoLab=1` で memo のカード型 chrome が消え、通常 `/index.html` の Editor canvas は現行の静かな初期表示を維持
+- `git diff --check` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
 
 ### B3 TextEffects merge
 
@@ -312,9 +352,9 @@
 | Done | `main-hub-panel` dead code cleanup | DOM 実体なしの CSS / UI editor selector / active source comment を削除済み。旧前提の再混入防止チェックも pass | assistant |
 | Done | Phase 1 Story Wiki / left nav regression fix | back rail の click interception と Story Wiki backlinks hidden を局所修正。`wiki+wiki-graph+pomodoro` は 36 passed | assistant / Story Wiki + left nav |
 | Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。旧 loadout 名は migration で維持 | assistant / gadget UX |
-| A1 | 無重力メモ visual iteration | dev-only overlay のまま、紙片サイズ・奥行き・blur・投げ戻り・foreground 編集の読みやすさを詰める | assistant / memo overlay |
-| A2 | 無重力メモ daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉の短い手動シナリオで、邪魔にならないことを確認する | shared / writing UX |
-| A3 | 無重力メモ productization gate | 実験継続 / command palette 実験導線維持 / 正式機能化を判断する。正式化なら保存・設定・名称を別スライス化 | shared / product decision |
+| Done | 無重力メモ visual iteration | dev-only overlay のまま、状態別 scale / depth blur / shadow、foreground 本文可読性、returning の柔らかい戻りを調整済み | assistant / memo overlay |
+| Done | 無重力メモ daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉の短い自動シナリオで、status chip と editor focus 復帰を確認済み | assistant / writing UX |
+| A3 | 無重力メモ productization gate | 1) dev-only 実験継続、2) command palette 限定の実験導線維持、3) 正式機能化のどれに置くか判断する。正式化なら保存・設定・名称・導線を別スライス化 | shared / product decision |
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | B3 | Gadget merge/delete candidate | audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |

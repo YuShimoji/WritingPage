@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-04-30 / v0.3.32（right window drag handle closeout 後。無重力メモとガジェット再整理を並列ロードマップ化）
+> 最終更新: 2026-05-06 / v0.3.32（A2 closeout 後。次は productization gate または Gadget 情報設計の判断）
 
 ## ステータス語彙
 
@@ -22,7 +22,7 @@
 - ガジェット: 28個登録（`UISettings` を日常設定へ縮小し、`EditorAdvancedSettings` を高度設定として分離。`FontDecoration` / `TextAnimation` は `TextEffects` へ統合）
 - 仕様書: spec-index.json に 55 エントリ (done 44, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
-- 直近 done: right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- 直近 done: A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -31,15 +31,15 @@
 
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
-| **Lane A: 無重力メモ / Floating memo lab** | dev-only / experimental overlay として安定。開閉・focus 復帰・Reader / command palette 重なり回避は E2E green | visual iteration → 日常執筆導線で邪魔にならない手触りの確定 → production 昇格判断 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化 |
+| **Lane A: 無重力メモ / Floating memo lab** | dev-only / experimental overlay として安定。A1 reframe と A2 daily writing proof で、本筋執筆 flow から隔離したまま邪魔にならないことを自動確認済み | productization gate で実験継続 / 実験導線維持 / 正式化を判断 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化 |
 | **Lane B: ガジェット再整理** | 標準 preset cleanup と B3 の初回統合済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` は hide-by-default、`TextEffects` は VN 以外で非表示 | 残る候補が見つかった場合だけ 1件ずつ merge / delete narrow fix | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
 | **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
 
 #### Lane A: 無重力メモ / Floating memo lab
 
-1. **A1 visual iteration**: 紙片サイズ、奥行き、blur、投げ戻り、foreground の編集読みやすさを調整する。既存 `e2e/floating-memo-lab.spec.js` の隔離・focus・touch 契約は維持。
-2. **A2 daily writing proof**: 起動→Rich editing 執筆→セクション確認→Reader 往復→memo lab 開閉の短い手動シナリオを作る。memo lab 中は status chip 非表示、閉じたら editor focus 復帰。
-3. **A3 productization gate**: dev-only のまま続けるか、command palette 上の実験導線を維持するか、正式機能に昇格するかを判断する。昇格時だけ保存モデル・設定・名称を別スライスで起票。
+1. **A1 reframe — done**: Writing UX map を **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo** で固定し、memo は title / state / `DRAG` / textarea 枠を見せない read-only fragment + foreground borderless editor へ修正。既存 `e2e/floating-memo-lab.spec.js` の隔離・focus・touch 契約は維持。
+2. **A2 保存安心感 / daily writing proof — done**: 起動→Rich editing 執筆→セクション確認→Reader 往復→memo lab 開閉の短いシナリオを `e2e/daily-writing-proof.spec.js` で固定。memo lab 中は status chip 非表示、閉じたら editor focus 復帰。保存/文字数 status は本筋の安心感として機能する。
+3. **A3 productization gate**: まず 1) dev-only 実験継続、2) command palette 限定の実験導線維持、3) 正式機能化のどれに置くか判断する。正式化時だけ保存モデル・設定・名称・正式導線を別スライスで起票。
 
 #### Lane B: ガジェット再整理
 

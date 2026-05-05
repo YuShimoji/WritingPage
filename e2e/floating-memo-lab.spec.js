@@ -54,12 +54,47 @@ test.describe('floating memo lab', () => {
     await firstText.fill(noteText);
     await expect(firstText).toHaveValue(noteText);
 
+    const visualPriority = await page.evaluate(() => {
+      const foreground = document.querySelector('[data-memo-id="memo-01-1"]');
+      const floating = document.querySelector('[data-memo-id="memo-04-4"]');
+      const foregroundText = foreground.querySelector('.memo-field-lab__memo-text');
+      const floatingText = floating.querySelector('.memo-field-lab__memo-text');
+      const floatingSnippet = floating.querySelector('.memo-field-lab__memo-snippet');
+      return {
+        foregroundScale: parseFloat(foreground.style.getPropertyValue('--memo-visual-scale')),
+        floatingScale: parseFloat(floating.style.getPropertyValue('--memo-visual-scale')),
+        foregroundBlur: parseFloat(foreground.style.getPropertyValue('--memo-depth-blur')),
+        floatingBlur: parseFloat(floating.style.getPropertyValue('--memo-depth-blur')),
+        foregroundOpacity: parseFloat(foreground.style.opacity),
+        floatingOpacity: parseFloat(floating.style.opacity),
+        floatingHasTitle: !!floating.querySelector('.memo-field-lab__memo-title'),
+        floatingHasState: !!floating.querySelector('.memo-field-lab__memo-state'),
+        floatingHasDragButton: !!floating.querySelector('[data-memo-drag-handle]'),
+        floatingSnippetDisplay: window.getComputedStyle(floatingSnippet).display,
+        floatingTextDisplay: window.getComputedStyle(floatingText).display,
+        foregroundTextOverflowY: window.getComputedStyle(foregroundText).overflowY,
+        foregroundTextClientHeight: foregroundText.clientHeight,
+        foregroundTextScrollHeight: foregroundText.scrollHeight,
+      };
+    });
+    expect(visualPriority.foregroundScale).toBeGreaterThan(visualPriority.floatingScale);
+    expect(visualPriority.foregroundBlur).toBe(0);
+    expect(visualPriority.floatingBlur).toBeGreaterThan(0);
+    expect(visualPriority.foregroundOpacity).toBeGreaterThan(visualPriority.floatingOpacity);
+    expect(visualPriority.floatingHasTitle).toBe(false);
+    expect(visualPriority.floatingHasState).toBe(false);
+    expect(visualPriority.floatingHasDragButton).toBe(false);
+    expect(visualPriority.floatingSnippetDisplay).not.toBe('none');
+    expect(visualPriority.floatingTextDisplay).toBe('none');
+    expect(visualPriority.foregroundTextOverflowY).toBe('hidden');
+    expect(visualPriority.foregroundTextScrollHeight).toBeLessThanOrEqual(visualPriority.foregroundTextClientHeight + 1);
+
     const secondMemo = page.locator('[data-memo-id="memo-02-2"]');
-    const secondTextAreaBox = await secondMemo.locator('.memo-field-lab__memo-text').boundingBox();
-    expect(secondTextAreaBox).toBeTruthy();
-    await page.mouse.move(secondTextAreaBox.x + secondTextAreaBox.width / 2, secondTextAreaBox.y + secondTextAreaBox.height / 2);
+    const secondHitBox = await secondMemo.locator('.memo-field-lab__memo-hit').boundingBox();
+    expect(secondHitBox).toBeTruthy();
+    await page.mouse.move(secondHitBox.x + secondHitBox.width / 2, secondHitBox.y + secondHitBox.height / 2);
     await page.mouse.down();
-    await page.mouse.move(secondTextAreaBox.x + secondTextAreaBox.width / 2 + 28, secondTextAreaBox.y + secondTextAreaBox.height / 2 - 24, { steps: 6 });
+    await page.mouse.move(secondHitBox.x + secondHitBox.width / 2 + 28, secondHitBox.y + secondHitBox.height / 2 - 24, { steps: 6 });
     await expect(secondMemo).toHaveAttribute('data-memo-state', 'dragging');
     await page.mouse.up();
     await page.waitForTimeout(80);
@@ -81,17 +116,17 @@ test.describe('floating memo lab', () => {
 
     const memo = page.locator('[data-memo-id="memo-01-1"]');
     const textarea = memo.locator('.memo-field-lab__memo-text');
-    const header = memo.locator('.memo-field-lab__memo-header');
+    const dragRegion = memo.locator('.memo-field-lab__memo-grip');
 
     await expect(memo).toHaveAttribute('data-memo-state', 'foreground');
     await textarea.fill('respawn keeps this text');
     await expect(textarea).toHaveValue('respawn keeps this text');
 
     const startGeneration = await memo.getAttribute('data-spawn-generation');
-    const headerBox = await header.boundingBox();
-    expect(headerBox).toBeTruthy();
+    const dragRegionBox = await dragRegion.boundingBox();
+    expect(dragRegionBox).toBeTruthy();
 
-    await dragFromBox(page, headerBox, 560, -180, { steps: 3 });
+    await dragFromBox(page, dragRegionBox, 560, -180, { steps: 3 });
 
     await expect(memo).toHaveAttribute('data-paper-flutter', 'true');
     await expect(memo).toHaveAttribute('data-memo-state', /returning|respawning/);
@@ -116,7 +151,7 @@ test.describe('floating memo lab', () => {
     await expect(overlay).toBeVisible();
     await expect(memo).toBeVisible();
 
-    const box = await memo.locator('.memo-field-lab__memo-header').boundingBox();
+    const box = await memo.locator('.memo-field-lab__memo-hit').boundingBox();
     expect(box).toBeTruthy();
     await dragFromBox(page, box, 320, -120, { steps: 3 });
 
@@ -313,7 +348,6 @@ test.describe('floating memo lab touch interactions', () => {
 
     const memo = page.locator('[data-memo-id="memo-01-1"]');
     const textarea = memo.locator('.memo-field-lab__memo-text');
-    const viewport = page.locator('#memo-field-lab-viewport');
 
     await page.waitForTimeout(300);
     await textarea.tap();
@@ -339,7 +373,6 @@ test.describe('floating memo lab touch interactions', () => {
     const liftedY = await getMemoTranslateY(memo);
     expect(liftedY).toBeLessThan(initialY - 40);
 
-    await viewport.tap({ position: { x: 24, y: 24 } });
     await page.evaluate(() => {
       window.visualViewport.__set({
         height: window.innerHeight,

@@ -5,14 +5,14 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Build outputs (not used now but reserved)
+# Canonical generated outputs
+# dist/ is produced by `npm run build` and can be opened with `npm run app:open:dist`.
 dist/
+# build/ is produced by `npm run electron:build`; build/win-unpacked is the packaged app root.
 build/
-# 退避用出力ディレクトリ (session 98-99: build/ ロック時の workaround)
+# Legacy workaround outputs. These are disposable; use `npm run clean:builds`.
 build-new/
-# セッション別退避用 (session 103: build/ + build-new/ 同時ロック時の追加 workaround)
 build-session*/
-# Packaged verification workaround output (when build/ is locked)
 build-friction/
 
 # Node
@@ -38,12 +38,19 @@ _site/
 # Playwright outputs
 test-results/
 playwright-report/
+.playwright-mcp/
 .tmp-playwright-libs/
 debug-screenshot-*.png
 debug-*.md
 debug-*.html
 temp-*.html
 quick-fix*
+
+# Local visual review scratch captures
+/*-direction-review.png
+/*-reframe-*.png
+/main-writing-direction-review*.png
+/writing-ux-map-*.png
 
 # Temporary test output files
 *-out.txt

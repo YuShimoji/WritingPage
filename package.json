@@ -10,6 +10,8 @@
     "dev": "node scripts/dev-server.js",
     "dev:two": "node scripts/run-two-servers.js",
     "build": "node scripts/build-dist.js",
+    "clean:builds": "node scripts/clean-build-outputs.js",
+    "clean:builds:all": "node scripts/clean-build-outputs.js --all",
     "app:open": "node scripts/open-built-app.js",
     "app:open:dist": "node scripts/open-built-app.js --dist-html",
     "app:open:package": "node scripts/open-built-app.js --packaged",

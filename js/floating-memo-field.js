@@ -98,6 +98,40 @@
     return min + random() * (max - min);
   }
 
+  function getMemoVisualPresentation(memo, reduceMotion) {
+    var zRatio = clamp((memo.z - 24) / 112, 0, 1);
+    var presentation = {
+      scale: reduceMotion ? 0.96 : lerp(0.88, 0.98, zRatio),
+      opacity: clamp(0.56 + zRatio * 0.3, 0.54, 0.88),
+      blurPx: reduceMotion ? 0 : lerp(0.62, 0.14, zRatio),
+      shadow: '0 ' + Math.round(12 + zRatio * 12) + 'px ' + Math.round(22 + zRatio * 18) + 'px rgba(0, 0, 0, ' + (0.12 + zRatio * 0.08).toFixed(3) + ')'
+    };
+
+    if (memo.state === 'foreground') {
+      presentation.scale = 1.08;
+      presentation.opacity = 1;
+      presentation.blurPx = 0;
+      presentation.shadow = '0 30px 72px rgba(0, 0, 0, 0.34)';
+    } else if (memo.state === 'dragging') {
+      presentation.scale = 1.1;
+      presentation.opacity = 1;
+      presentation.blurPx = 0;
+      presentation.shadow = '0 34px 80px rgba(0, 0, 0, 0.38)';
+    } else if (memo.state === 'returning') {
+      presentation.scale = reduceMotion ? 0.99 : 0.98 + clamp(memo.z / FOREGROUND_Z, 0, 1) * 0.04;
+      presentation.opacity = 0.92;
+      presentation.blurPx = reduceMotion ? 0 : 0.08;
+      presentation.shadow = '0 24px 50px rgba(0, 0, 0, 0.26)';
+    } else if (memo.state === 'respawning') {
+      presentation.scale = reduceMotion ? 0.96 : 0.9;
+      presentation.opacity = 0;
+      presentation.blurPx = reduceMotion ? 0 : 0.4;
+      presentation.shadow = '0 10px 20px rgba(0, 0, 0, 0.1)';
+    }
+
+    return presentation;
+  }
+
   function matchesAutoOpenQuery() {
     return AUTO_OPEN_QUERY.test(location.search || '');
   }
@@ -313,6 +347,7 @@
       strips: [],
       dragHeader: null,
       dragHandle: null,
+      snippet: null,
       textarea: null,
       _moveHandler: null,
       _upHandler: null,
@@ -322,8 +357,10 @@
     memo.element = document.createElement('article');
     memo.element.className = 'memo-field-lab__memo';
     memo.element.setAttribute('data-memo-id', memo.id);
+    memo.element.setAttribute('data-memo-title', memo.title);
     memo.element.setAttribute('data-memo-state', memo.state);
     memo.element.setAttribute('data-paper-flutter', 'false');
+    memo.element.setAttribute('aria-label', memo.title + 'の浮遊メモ');
     memo.element.style.marginLeft = (-memo.width / 2) + 'px';
     memo.element.style.marginTop = (-memo.height / 2) + 'px';
 
@@ -336,14 +373,9 @@
       '<div class="memo-field-lab__memo-shell">',
       '  <div class="memo-field-lab__memo-strips" aria-hidden="true">' + stripsMarkup.join('') + '</div>',
       '  <div class="memo-field-lab__memo-content">',
-      '    <header class="memo-field-lab__memo-header" data-memo-drag-region="true">',
-      '      <div class="memo-field-lab__memo-meta">',
-      '        <span class="memo-field-lab__memo-title"></span>',
-      '        <span class="memo-field-lab__memo-state"></span>',
-      '      </div>',
-      '      <button type="button" class="memo-field-lab__memo-grab" data-memo-drag-handle aria-label="メモをドラッグして前面に出す">drag</button>',
-      '    </header>',
+      '    <div class="memo-field-lab__memo-grip" data-memo-drag-region="true" aria-hidden="true"></div>',
       '    <div class="memo-field-lab__memo-body">',
+      '      <p class="memo-field-lab__memo-snippet" aria-hidden="true"></p>',
       '      <textarea class="memo-field-lab__memo-text" spellcheck="false"></textarea>',
       '    </div>',
       '  </div>',
@@ -356,10 +388,12 @@
     memo.hitLayer = memo.element.querySelector('[data-memo-hit-layer]');
     memo.dragHeader = memo.element.querySelector('[data-memo-drag-region]');
     memo.dragHandle = memo.element.querySelector('[data-memo-drag-handle]');
+    memo.snippet = memo.element.querySelector('.memo-field-lab__memo-snippet');
     memo.textarea = memo.element.querySelector('.memo-field-lab__memo-text');
     memo.strips = Array.prototype.slice.call(memo.element.querySelectorAll('.memo-field-lab__memo-strip'));
 
-    memo.element.querySelector('.memo-field-lab__memo-title').textContent = memo.title;
+    if (memo.snippet) memo.snippet.textContent = memo.body;
+    memo.textarea.setAttribute('aria-label', memo.title + 'の本文');
     memo.textarea.value = memo.body;
 
     this.bindMemoEvents(memo);
@@ -449,7 +483,7 @@
       if (event.pointerType === 'mouse' && event.button !== 0) return;
 
       var isTextareaTarget = event.target === memo.textarea || !!event.target.closest('.memo-field-lab__memo-text');
-      var canDragForeground = !!(event.target.closest('[data-memo-drag-region]') ||
+      var canDragForeground = !isTextareaTarget && !!(event.target.closest('[data-memo-drag-region]') ||
         event.target.closest('[data-memo-drag-handle]') ||
         (!isTextareaTarget && !event.target.closest('.memo-field-lab__memo-body')));
 
@@ -506,8 +540,24 @@
 
     memo.textarea.addEventListener('input', function () {
       memo.body = memo.textarea.value;
+      self.syncMemoTextSurface(memo);
       self.queuePersist();
     });
+  };
+
+  FloatingMemoField.prototype.syncMemoTextSurface = function (memo) {
+    if (!memo) return;
+    if (memo.snippet) {
+      memo.snippet.textContent = memo.body;
+    }
+    if (!memo.textarea) return;
+
+    if (memo.state === 'foreground' || memo.state === 'dragging') {
+      memo.textarea.style.height = 'auto';
+      memo.textarea.style.height = Math.max(memo.textarea.scrollHeight, memo.height - 48) + 'px';
+    } else {
+      memo.textarea.style.height = '';
+    }
   };
 
   FloatingMemoField.prototype.queuePersist = function () {
@@ -1000,7 +1050,7 @@
     }
 
     memo.state = 'returning';
-    memo.vz = this.reduceMotion ? -0.08 : -0.16;
+    memo.vz = this.reduceMotion ? -0.06 : -0.11;
     memo.stackOrder = ++this.topStack;
     this.syncMemoInteractivity();
     this.ensureLoop();
@@ -1076,20 +1126,15 @@
       var editable = memo.state === 'foreground';
       memo.textarea.readOnly = !editable;
       memo.textarea.tabIndex = editable ? 0 : -1;
+      memo.textarea.setAttribute('aria-hidden', editable ? 'false' : 'true');
       memo.element.style.pointerEvents = memo.state === 'respawning' ? 'none' : 'auto';
       memo.element.setAttribute('data-memo-editable', editable ? 'true' : 'false');
       memo.element.setAttribute('data-memo-state', memo.state);
       memo.element.setAttribute('data-entry-edge', memo.flow ? memo.flow.entryEdge : 'none');
       memo.element.setAttribute('data-spawn-generation', String(memo.spawnGeneration));
       memo.element.setAttribute('data-paper-flutter', memo.paperMotion.flutterAmp > 0.12 ? 'true' : 'false');
-      var stateLabel = memo.element.querySelector('.memo-field-lab__memo-state');
-      if (stateLabel) {
-        if (memo.state === 'foreground') stateLabel.textContent = 'active';
-        else if (memo.state === 'dragging') stateLabel.textContent = 'dragging';
-        else if (memo.state === 'returning') stateLabel.textContent = 'returning';
-        else if (memo.state === 'respawning') stateLabel.textContent = 'respawn';
-        else stateLabel.textContent = 'floating';
-      }
+      memo.element.setAttribute('aria-label', memo.title + 'の浮遊メモ');
+      this.syncMemoTextSurface(memo);
     }
   };
 
@@ -1235,14 +1280,14 @@
       memo.y += memo.vy * dtMs;
       memo.z += memo.vz * dtMs;
 
-      var damping = Math.pow(this.reduceMotion ? 0.78 : 0.88, dtMs / 16);
+      var damping = Math.pow(this.reduceMotion ? 0.78 : 0.84, dtMs / 16);
       memo.vx *= damping;
       memo.vy *= damping;
       memo.vz *= damping;
 
-      memo.x = lerp(memo.x, floatingTarget.x, frameEase(this.reduceMotion ? 0.05 : 0.035, dtMs));
-      memo.y = lerp(memo.y, floatingTarget.y, frameEase(this.reduceMotion ? 0.05 : 0.035, dtMs));
-      memo.z = lerp(memo.z, floatingTarget.z, frameEase(this.reduceMotion ? 0.06 : 0.04, dtMs));
+      memo.x = lerp(memo.x, floatingTarget.x, frameEase(this.reduceMotion ? 0.05 : 0.052, dtMs));
+      memo.y = lerp(memo.y, floatingTarget.y, frameEase(this.reduceMotion ? 0.05 : 0.052, dtMs));
+      memo.z = lerp(memo.z, floatingTarget.z, frameEase(this.reduceMotion ? 0.06 : 0.058, dtMs));
       memo.rotX = lerp(memo.rotX, floatingTarget.rotX, frameEase(0.1, dtMs));
       memo.rotY = lerp(memo.rotY, floatingTarget.rotY, frameEase(0.1, dtMs));
       memo.rotZ = lerp(memo.rotZ, floatingTarget.rotZ, frameEase(0.08, dtMs));
@@ -1333,13 +1378,13 @@
       return;
     }
 
-    motion.flutterAmp = clamp((releaseSpeed - 1.2) * 7.6, 1, 6.4);
-    motion.flutterFreq = clamp(0.02 + releaseSpeed * 0.008, 0.022, 0.036);
+    motion.flutterAmp = clamp((releaseSpeed - 1.2) * 6.2, 0.8, 5.2);
+    motion.flutterFreq = clamp(0.018 + releaseSpeed * 0.007, 0.02, 0.032);
     motion.flutterPhase = 0;
-    motion.flutterDamping = clamp(700 - releaseSpeed * 150, 350, 700);
+    motion.flutterDamping = clamp(720 - releaseSpeed * 140, 380, 720);
     motion.flutterValue = motion.flutterAmp;
-    motion.bendX = clamp(-vy * 7.6, -4.6, 4.6);
-    motion.bendY = clamp(vx * 9.4, -6.2, 6.2);
+    motion.bendX = clamp(-vy * 6.8, -4, 4);
+    motion.bendY = clamp(vx * 8.4, -5.4, 5.4);
   };
 
   FloatingMemoField.prototype.updatePaperMotion = function (memo, dtMs) {
@@ -1348,13 +1393,13 @@
     var targetBendY = 0;
 
     if (memo.state === 'dragging') {
-      targetBendX = clamp(-memo.vy * 8.5, -5.2, 5.2);
-      targetBendY = clamp(memo.vx * 11.5, -7.4, 7.4);
+      targetBendX = clamp(-memo.vy * 7.2, -4.6, 4.6);
+      targetBendY = clamp(memo.vx * 9.8, -6.2, 6.2);
       motion.axisX = clamp(Math.abs(memo.vy) * 1.4, 0, 1);
       motion.axisY = clamp(Math.abs(memo.vx) * 1.4, 0, 1);
     } else if (memo.state === 'returning') {
-      targetBendX = clamp(-memo.vy * 6.4, -3.8, 3.8);
-      targetBendY = clamp(memo.vx * 8.4, -4.8, 4.8);
+      targetBendX = clamp(-memo.vy * 5.6, -3.2, 3.2);
+      targetBendY = clamp(memo.vx * 7.2, -4.1, 4.1);
     } else if (memo.state === 'foreground') {
       targetBendX = motion.bendX * 0.28;
       targetBendY = motion.bendY * 0.28;
@@ -1413,13 +1458,7 @@
   FloatingMemoField.prototype.renderMemo = function (memo) {
     if (!memo.element) return;
 
-    var opacity = memo.state === 'respawning'
-      ? 0
-      : clamp(0.52 + memo.z / 360, 0.48, 1);
-
-    if (memo.state === 'foreground' || memo.state === 'dragging') {
-      opacity = 1;
-    }
+    var presentation = getMemoVisualPresentation(memo, this.reduceMotion);
 
     var interactionBoost = 0;
     if (memo.state === 'dragging') interactionBoost = 920;
@@ -1432,9 +1471,13 @@
       'translate3d(' + memo.x.toFixed(2) + 'px, ' + memo.y.toFixed(2) + 'px, ' + memo.z.toFixed(2) + 'px) ' +
       'rotateX(' + memo.rotX.toFixed(2) + 'deg) ' +
       'rotateY(' + memo.rotY.toFixed(2) + 'deg) ' +
-      'rotateZ(' + memo.rotZ.toFixed(2) + 'deg)';
-    memo.element.style.opacity = opacity.toFixed(3);
+      'rotateZ(' + memo.rotZ.toFixed(2) + 'deg) ' +
+      'scale(' + presentation.scale.toFixed(3) + ')';
+    memo.element.style.opacity = presentation.opacity.toFixed(3);
     memo.element.style.zIndex = String(Math.round(2400 + memo.projectedDepth * 10));
+    memo.element.style.setProperty('--memo-visual-scale', presentation.scale.toFixed(3));
+    memo.element.style.setProperty('--memo-depth-blur', presentation.blurPx.toFixed(2) + 'px');
+    memo.element.style.setProperty('--memo-shell-shadow', presentation.shadow);
 
     this.renderPaperMotion(memo);
   };

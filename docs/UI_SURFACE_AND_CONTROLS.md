@@ -12,11 +12,16 @@
 | UI mode | 内部互換 API として `normal` / `focus` を保持。公開 UI の第一級概念にしない |
 | 編集面 | Markdown source / rich edit / preview 系の作業面。再生オーバーレイとは同時操作しない |
 
+## Writing UX 階層
+
+本筋の執筆体験では、常に **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo** の順で主従を判断する。Floating memo lab は dev-only の実験 surface であり、保存安心感・文書管理・Gadget 情報設計より上位に置かない。
+
 ## Surface 台帳
 
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
 | writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | Reader / Floating memo lab 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
+| Floating memo lab | `#memo-field-lab`, `js/floating-memo-field.js` | dev-only experimental surface。背景 memo は title / state / drag label / textarea 枠を見せない read-only fragment、foreground だけ borderless editor として扱う |
 | window controls island | `#electron-window-controls`, `#electron-window-drag-handle`, `js/electron-bridge.js` | Electron frameless window の移動 handle と、最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示し、非表示時 handle は `no-drag` |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |
 | left nav category | `#sidebar-nav-back`, `#sidebar-nav-back-rail`, `#sidebar-nav-anchor`, `#sidebar-accordion` | back icon / category-only back rail は root 復帰、anchor icon/label は active category の表示専用、panel / gadget loadout を表示 |

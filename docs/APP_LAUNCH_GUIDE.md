@@ -83,6 +83,31 @@ dist の `index.html` を直接開きたいときだけ、次を使います。
 npm run app:open:dist
 ```
 
+#### ビルド出力の正本
+
+正規の生成先は 2 つだけです。
+
+| フォルダ | 役割 | 作り直し |
+|----------|------|----------|
+| `dist/` | `npm run build` が作る Web / HTML 直接起動用の出力 | `npm run build` で毎回作り直し |
+| `build/` | `npm run electron:build` / `npm run electron:dist` が作る Electron packaged app 出力。`build/win-unpacked/Zen Writer.exe` が packaged app の起動対象 | Electron build で上書き |
+
+過去の `build-new/`、`build-session*/`、`build-friction/` は、Windows の packaged
+app ロック回避で作った一時退避先です。正本ではありません。残っている場合は次で削除します。
+
+```bash
+npm run clean:builds
+```
+
+`dist/` と `build/` も含めて生成物を全部消したいときだけ、次を使います。
+
+```bash
+npm run clean:builds:all
+```
+
+`build/` がロックされた場合は、セッション別フォルダを増やす前に、起動中の
+packaged app を閉じてから `npm run electron:build` を再実行してください。
+
 ### 方法3：インストーラー作成
 
 Windows用の配布可能なアプリを作成します。
@@ -236,6 +261,8 @@ http://localhost:8080?reset=1
 |-----------|------|
 | `npm run dev` | 開発サーバー起動（ポート8080） |
 | `npm run dev:two` | 2サーバー起動（8080、8081） |
+| `npm run clean:builds` | 旧 `build-*` 退避出力だけを削除 |
+| `npm run clean:builds:all` | `dist/` / `build/` を含む生成出力を削除 |
 | `npm run electron:dev` | Electronアプリ起動（開発モード） |
 | `npm run electron:build` | Electronアプリビルド（dir出力） |
 | `npm run electron:dist` | Electronアプリビルド（配布版） |
