@@ -556,8 +556,8 @@
     {
       id: 'toggle-floating-memo-lab',
       label: '浮遊メモ実験',
-      description: 'DOM + CSS 3D の浮遊メモ実験を開閉',
-      keywords: 'memo メモ 実験 3D floating drift',
+      description: '保存されない隔離実験 overlay を開閉',
+      keywords: 'memo メモ 実験 3D floating drift 隔離 保存されない',
       shortcut: '',
       category: '実験的機能',
       devOnly: true,

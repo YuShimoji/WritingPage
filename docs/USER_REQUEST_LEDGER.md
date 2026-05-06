@@ -16,8 +16,8 @@
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
-- **Floating memo lab**: dev-only / experimental overlay として隔離する。editor / chapter / autosave 本流へ接続しない。
-- **無重力メモ / Floating memo roadmap**: A1 reframe は完了。背景 memo は title / state / `DRAG` / textarea 枠を見せない「余白の断片」、foreground だけ borderless 編集面。正式機能化・保存モデル・設定化は productization gate まで起票しない。
+- **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
+- **無重力メモ / Floating memo roadmap**: A1 reframe と A2 daily proof は完了。A3 判断は「command palette 限定実験導線」で確定。正式機能化・保存モデル・設定化は今回しない。
 - **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は標準から外し、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
@@ -32,7 +32,7 @@
 | Done | `main-hub-panel` dead code cleanup | DOM 実体なしの CSS / UI editor selector / active source comment を削除済み。再混入防止の source refs check と E2E UI は green | assistant / stale UI |
 | Done | Writing UX map + 無重力メモ reframe | Editor canvas を最上位に置く設計階層を記録し、memo はカード型フォームから余白 fragment へ修正済み。保存モデルや正式機能化は未変更 | assistant / writing UX + memo overlay |
 | Done | 保存安心感 / daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉に加え、保存/文字数 status と editor focus 復帰を `daily-writing-proof.spec.js` で確認済み | assistant / writing UX |
-| A3 | 無重力メモ productization gate | 実装前に 1) dev-only 実験継続、2) command palette 限定の実験導線維持、3) 正式機能化を選ぶ。正式化なら保存・設定・名称・導線を別スライス化 | shared / product decision |
+| Done | 無重力メモ A3 command palette限定実験 | `浮遊メモ実験` は command palette からだけ開ける保存されない隔離実験 overlay として固定。`?memoLab=1` は E2E / developer hook。正式化・保存・設定・Gadget・loadout 接続はしない | assistant / memo overlay |
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名は migration で維持。`LoadoutManager` / `GadgetPrefs` は hide-by-default 維持 | assistant / gadget UX |

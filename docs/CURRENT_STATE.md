@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-06（A2 closeout / A3 entry prep）
+最終更新: 2026-05-06（A3 command palette 限定実験）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` 同期済みの状態から作業中。旧 `main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は remote 反映済み |
-| 現在の主軸 | **A2 complete**: 保存安心感 / daily writing proof で、Editor 本筋と Floating memo lab の隔離を自動証拠化 |
-| 直近の実装スライス | 起動→Rich editing→Sections→writing status→Reader→Floating memo lab→editor focus 復帰の E2E を追加。Floating memo は dev-only / experimental のまま |
-| 最新ビルド・検証 | A2 closeout: `node --check` pass、`git diff --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed |
-| 隔離サイドクエスト | 無重力メモ / Floating memo lab。dev-only / experimental overlay。既存 editor data model / autosave 契約には接続しない |
-| 今回の docs sync | A2 proof の結果と A3 productization gate 直前の判断導線を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に反映。Build output hygiene と A1 reframe の docs は維持 |
+| 現在の主軸 | **A3 complete**: Floating memo は正式機能化せず、command palette からだけ開ける隔離実験 overlay として固定 |
+| 直近の実装スライス | `浮遊メモ実験` command の説明を「保存されない隔離実験 overlay」へ寄せ、command palette E2E で正規入口を確認 |
+| 最新ビルド・検証 | A3 validation: `node --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed、`command-palette` 17 passed |
+| 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
+| 今回の docs sync | A3 判断結果として「command palette 限定実験導線」を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` に反映。`?memoLab=1` は E2E / developer hook のまま |
 
 ## Latest Handoff
 
@@ -32,7 +32,7 @@
 - New: Build output の正本は `dist/`（`npm run build` / `app:open:dist`）と `build/`（Electron builder / `build/win-unpacked/Zen Writer.exe`）だけ。旧 `build-new/` / `build-session*/` / `build-friction/` はロック回避の一時退避物で、`npm run clean:builds` で削除する。
 - New: A2 daily writing proof は E2E 化済み。Rich editing で短い原稿を入れ、Sections 表示、`#writing-status-chip` の `編集中`→`保存済み`、Reader 往復、Floating memo lab 開閉後の editor focus 復帰を 1 本の flow で確認する。保存モデルや正式 Gadget 化は A3 まで保留。
 - New: Closeout 整理では `.serena/project.yml` のテンプレ差分を tool noise として HEAD へ戻し、`.playwright-mcp/` と root の確認用 PNG を ignore。`scripts/clean-build-outputs.js` は `package.json` から参照される正式差分として残す。
-- Next: A3 productization gate は実装ではなく判断から始める。入口は 1) dev-only 実験のまま継続、2) command palette の限定実験導線として維持、3) 正式機能化の 3択。3 を選ぶ場合だけ保存モデル・設定・名称・正式導線を別スライスで起票する。
+- New: A3 productization gate は **command palette 限定の実験導線** で確定。`浮遊メモ実験` は保存されない隔離実験 overlay を開閉する正規入口で、`?memoLab=1` は E2E / developer 用の直接起動 hook としてのみ残す。保存モデル、設定、正式 Gadget 化、loadout preset、Documents / Sections / autosave 接続は追加しない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -59,6 +59,18 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### A3 Floating memo command palette限定実験
+
+- `浮遊メモ実験` command は command palette からだけ開ける A3 正規入口。説明は「保存されない隔離実験 overlay を開閉」に固定。
+- `?memoLab=1` は E2E / developer 用の直接起動 hook として維持し、ユーザー向け導線とは扱わない。
+- 保存モデル、設定、正式 Gadget 化、loadout preset、Documents / Sections / autosave 接続は追加しない。
+- `node --check js/floating-memo-field.js` / `node --check js/command-palette.js` → pass
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `npx playwright test e2e/daily-writing-proof.spec.js e2e/floating-memo-lab.spec.js --workers=1 --reporter=line` → 9 passed
+- `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line` → 17 passed
 
 ### A2 保存安心感 / daily writing proof
 
@@ -354,7 +366,7 @@
 | Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。旧 loadout 名は migration で維持 | assistant / gadget UX |
 | Done | 無重力メモ visual iteration | dev-only overlay のまま、状態別 scale / depth blur / shadow、foreground 本文可読性、returning の柔らかい戻りを調整済み | assistant / memo overlay |
 | Done | 無重力メモ daily writing proof | 起動→Rich editing→セクション→Reader→memo lab 開閉の短い自動シナリオで、status chip と editor focus 復帰を確認済み | assistant / writing UX |
-| A3 | 無重力メモ productization gate | 1) dev-only 実験継続、2) command palette 限定の実験導線維持、3) 正式機能化のどれに置くか判断する。正式化なら保存・設定・名称・導線を別スライス化 | shared / product decision |
+| Done | 無重力メモ A3 command palette限定実験 | `浮遊メモ実験` は command palette からだけ開ける保存されない隔離実験 overlay として固定。正式化・保存・設定・Gadget・loadout 接続は未実施 | assistant / memo overlay |
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | B3 | Gadget merge/delete candidate | audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |

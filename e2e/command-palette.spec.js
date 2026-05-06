@@ -261,6 +261,18 @@ test.describe('Command Palette E2E', () => {
     await expect(page.locator('.accordion-header[aria-controls="accordion-structure"]')).toHaveAttribute('aria-expanded', 'true');
   });
 
+  test('Floating memo remains an isolated command palette experiment', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await openCommandPalette(page);
+
+    await page.locator('#command-palette-input').fill('浮遊メモ');
+    const command = page.locator('.command-palette-item[data-command-id="toggle-floating-memo-lab"]');
+    await expect(command).toBeVisible();
+    await expect(command.locator('.command-palette-item-label')).toHaveText('浮遊メモ実験');
+    await expect(command.locator('.command-palette-item-description')).toContainText('保存されない隔離実験 overlay');
+  });
+
   test('F2: コマンドパレットを開いて入力へフォーカスする', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
