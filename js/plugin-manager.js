@@ -72,6 +72,9 @@
             list.push({
                 id: id,
                 src: src,
+                name: String(p.name || p.title || id).trim(),
+                type: String(p.type || 'plugin').trim(),
+                description: String(p.description || '').trim(),
                 enabled: p.enabled !== false
             });
         }
@@ -84,6 +87,22 @@
             return !!map[plugin.id];
         }
         return !!plugin.enabled;
+    }
+
+    function getPluginList() {
+        var manifest = _manifest || { plugins: [] };
+        return (manifest.plugins || []).map(function (plugin) {
+            return {
+                id: plugin.id,
+                src: plugin.src,
+                name: plugin.name || plugin.id,
+                type: plugin.type || 'plugin',
+                description: plugin.description || '',
+                manifestEnabled: !!plugin.enabled,
+                enabled: isPluginEnabled(plugin),
+                loaded: !!_loaded[plugin.src]
+            };
+        });
     }
 
     async function loadManifest(manifestPath) {
@@ -128,6 +147,7 @@
         loadPluginScript: loadPluginScript,
         bootstrap: bootstrap,
         getManifest: function () { return _manifest; },
+        getPluginList: getPluginList,
         getEnabledMap: getEnabledMap,
         setEnabled: function (pluginId, enabled) {
             var id = String(pluginId || '').trim();
@@ -135,6 +155,19 @@
             var map = getEnabledMap();
             map[id] = !!enabled;
             setEnabledMap(map);
+            try {
+                window.dispatchEvent(new CustomEvent('ZWPluginManagerSettingsChanged', {
+                    detail: { id: id, enabled: !!enabled }
+                }));
+            } catch (_) { }
+        },
+        isEnabled: function (pluginId) {
+            var id = String(pluginId || '').trim();
+            var manifest = _manifest || { plugins: [] };
+            for (var i = 0; i < manifest.plugins.length; i++) {
+                if (manifest.plugins[i].id === id) return isPluginEnabled(manifest.plugins[i]);
+            }
+            return false;
         },
         isLoaded: function (src) {
             return !!_loaded[src];

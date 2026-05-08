@@ -179,7 +179,9 @@
           description: opts.description || '',
           factory: factory,
           groups: normalizeGroupList(opts.groups || ['structure']),
-          kind: normalizeGadgetKind(opts.kind, safeName)
+          kind: normalizeGadgetKind(opts.kind, safeName),
+          source: opts.source || '',
+          pluginId: opts.pluginId || ''
         };
         if (typeof opts.defaultCollapsed === 'boolean') {
           entry.defaultCollapsed = opts.defaultCollapsed;
@@ -187,6 +189,8 @@
         if (!entry.groups.length) entry.groups = ['structure'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
+        try { emit('ZWGadgetRegistered', { name: safeName, source: entry.source, pluginId: entry.pluginId }); } catch (_) { }
+        try { this._renderLast && this._renderLast(); } catch (_) { }
       } catch (e) {
         console.error('[ZWGadgets] Registration failed for "' + name + '":', e);
       }
@@ -560,6 +564,11 @@
               .filter(function (entry) { return entry && entry.groups && entry.groups.indexOf(group) !== -1; })
               .map(function (entry) { return entry.name; });
           }
+          self._list.forEach(function (entry) {
+            if (!entry || entry.source !== 'plugin') return;
+            if (!entry.groups || entry.groups.indexOf(group) === -1) return;
+            uniquePush(allowedNames, entry.name);
+          });
 
           var listByName = {};
           self._list.forEach(function (entry) {

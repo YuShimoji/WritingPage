@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-08（post-A3 closeout 統合）
+最終更新: 2026-05-08（Local Gadget Mod MVP）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は A3 closeout commit `db3b3df` で同期済み。`236b59c` は 1 つ前の A2 proof commit |
-| 現在の主軸 | **post-A3 complete**: Floating memo は command palette 限定の隔離実験 overlay として固定済み。次の本線は C2 Gadget information design の read-only audit |
-| 直近の実装スライス | `浮遊メモ実験` command の説明を「保存されない隔離実験 overlay」へ寄せ、command palette E2E で正規入口を確認し、`db3b3df` として push 済み |
-| 最新ビルド・検証 | 2026-05-08 restart consolidation: `git fetch --prune origin`、`HEAD...origin/main` = `0 0`、`npm run test:smoke` pass。A3 validation: `node --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed、`command-palette` 17 passed |
+| 現在の主軸 | **C2 Gadget information design**: gadget を固定ラックではなく、Local Gadget Mod として後から着脱できる境界へ戻す |
+| 直近の実装スライス | `js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` + 設定モーダル `ローカルMod` で、manifest 登録された local gadget Mod を有効化できる MVP を追加 |
+| 最新ビルド・検証 | Local Gadget Mod MVP: `node --check` pass、manifest/spec JSON parse pass、`npm run test:smoke` pass、`npx playwright test e2e/plugin-manager.spec.js --workers=1 --reporter=line` 3 passed、`npm run lint:js:check` pass、`npm run build` pass、`git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | A3 closeout 済みの状態に一本化。`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` は「A3 は完了、Serena template churn は tool noise、次は C2 read-only audit」で揃える。`?memoLab=1` は E2E / developer hook のまま |
+| 今回の docs sync | `spec-local-gadget-mods.md` を追加し、`INVARIANTS` / `GADGETS` / `PLUGIN_GUIDE` / `FEATURE_REGISTRY` / `USER_REQUEST_LEDGER` / `ROADMAP` を「gadget は built-in 固定ラックではなく Local Mod 境界を持つ」で同期 |
 
 ## Latest Handoff
 
@@ -34,6 +34,7 @@
 - New: Closeout 整理では `.serena/project.yml` のテンプレ差分を tool noise として HEAD へ戻し、`.playwright-mcp/` と root の確認用 PNG を ignore。`scripts/clean-build-outputs.js` は `package.json` から参照される正式差分として残す。
 - New: A3 productization gate は **command palette 限定の実験導線** で確定。`浮遊メモ実験` は保存されない隔離実験 overlay を開閉する正規入口で、`?memoLab=1` は E2E / developer 用の直接起動 hook としてのみ残す。保存モデル、設定、正式 Gadget 化、loadout preset、Documents / Sections / autosave 接続は追加しない。
 - New: 2026-05-08 restart consolidation で、A3 closeout は未コミット差分ではなく `db3b3df` として remote 反映済みであることを確認。`.serena/project.yml` の Serena template churn は tool noise として HEAD へ戻し、次スライスは C2 Gadget information design の read-only audit から 1 トピックに絞る。B3 merge / delete は audit で候補が出るまで始めない。
+- New: Local Gadget Mod MVP を追加。`PluginManager` は設定モーダル内の `ローカルMod` として manifest 上の Mod を表示し、enable/disable を `zw_plugin_manager_enabled` に保存する。`api.gadgets.register()` 経由の gadget は `source: 'plugin'` と `pluginId` を持ち、enabled Mod は loadout に明示列挙されていなくても指定 group へ表示される。反映は reload 後でよい。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -60,6 +61,21 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Local Gadget Mod MVP
+
+- `js/plugins/manifest.json` は `choice` と disabled sample `sample-word-count-gadget` を持つ。
+- `PluginManager` gadget は settings modal の `ローカルMod` で manifest plugin を一覧し、`ZWPluginManager.setEnabled(id, bool)` で enable map を保存する。
+- `api.gadgets.register()` で登録された Mod gadget は `source: 'plugin'` / `pluginId` を付与される。
+- enabled Mod gadget は current built-in loadout に列挙されていなくても、指定 group の候補として表示される。
+- 正本仕様: `docs/specs/spec-local-gadget-mods.md`
+- `node --check`（`js/plugin-manager.js` / `js/plugin-api.js` / `js/gadgets-core.js` / `js/gadgets-plugin-manager.js` / `js/plugins/sample-word-count-gadget/index.js`）→ pass
+- `js/plugins/manifest.json` / `docs/spec-index.json` JSON parse → pass
+- `npm run test:smoke` → pass
+- `npx playwright test e2e/plugin-manager.spec.js --workers=1 --reporter=line` → 3 passed
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `git diff --check` → pass
 
 ### post-A3 restart consolidation
 

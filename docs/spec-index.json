@@ -545,5 +545,14 @@
     "file": "docs/spec-editor-rebuild.md",
     "createdAt": "2026-03-29",
     "updatedAt": "2026-03-30"
+  },
+  {
+    "id": "SP-082",
+    "title": "Local Gadget Mod 仕様",
+    "status": "done",
+    "pct": 100,
+    "cat": "system",
+    "file": "docs/specs/spec-local-gadget-mods.md",
+    "summary": "ガジェットを固定ラックではなく Trusted local Mod として着脱可能にする境界。manifest folder entry、設定モーダルのローカルMod enable、plugin-sourced gadget 登録、loadout との責務分離を定義。"
   }
 ]

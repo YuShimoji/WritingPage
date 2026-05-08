@@ -2,8 +2,18 @@
   "plugins": [
     {
       "id": "choice",
+      "name": "選択肢",
+      "type": "command",
       "src": "js/plugins/choice.js",
       "enabled": true
+    },
+    {
+      "id": "sample-word-count-gadget",
+      "name": "文字数Modサンプル",
+      "type": "gadget",
+      "description": "ローカルMod形式のサンプルガジェット。",
+      "src": "js/plugins/sample-word-count-gadget/index.js",
+      "enabled": false
     }
   ]
 }

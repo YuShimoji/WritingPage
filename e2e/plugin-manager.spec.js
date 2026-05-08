@@ -25,4 +25,63 @@ test.describe('Plugin Manager', () => {
 
     expect(hasChoice).toBe(true);
   });
+
+  test('settings can enable a local gadget mod for next reload', async ({ page }) => {
+    await page.goto('/');
+
+    await page.waitForFunction(() => {
+      return !!(
+        window.ZWPluginManager &&
+        typeof window.ZWPluginManager.getPluginList === 'function' &&
+        window.ZWPluginManager.getPluginList().some((p) => p && p.id === 'sample-word-count-gadget')
+      );
+    }, { timeout: 15000 });
+
+    await page.evaluate(() => {
+      const modal = document.getElementById('settings-modal');
+      if (modal) modal.style.display = 'flex';
+      if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+        window.ZWGadgets.init('#settings-gadgets-panel', { group: 'settings' });
+      }
+    });
+
+    const toggle = page.locator('[data-plugin-toggle="sample-word-count-gadget"]');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).not.toBeChecked();
+    await toggle.check();
+
+    await expect(page.locator('[data-plugin-status="sample-word-count-gadget"]')).toContainText('再読み込み');
+    const enabledMap = await page.evaluate(() => JSON.parse(localStorage.getItem('zw_plugin_manager_enabled') || '{}'));
+    expect(enabledMap['sample-word-count-gadget']).toBe(true);
+  });
+
+  test('enabled local gadget mods register as plugin-sourced gadgets', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'sample-word-count-gadget': true }));
+    });
+    await page.goto('/');
+
+    await page.waitForFunction(() => {
+      try {
+        return !!(
+          window.ZWGadgets &&
+          Array.isArray(window.ZWGadgets._list) &&
+          window.ZWGadgets._list.some((g) => g && g.name === 'SampleWordCountMod' && g.source === 'plugin')
+        );
+      } catch (_) {
+        return false;
+      }
+    }, { timeout: 15000 });
+
+    const registered = await page.evaluate(() => {
+      const item = window.ZWGadgets._list.find((g) => g && g.name === 'SampleWordCountMod');
+      return item ? { name: item.name, source: item.source, pluginId: item.pluginId, groups: item.groups } : null;
+    });
+    expect(registered).toEqual({
+      name: 'SampleWordCountMod',
+      source: 'plugin',
+      pluginId: 'sample-word-count-gadget',
+      groups: ['assist'],
+    });
+  });
 });

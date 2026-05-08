@@ -1,6 +1,6 @@
 # Plugin System Design — Zen Writer
 
-**Status**: Draft  
+**Status**: Local Gadget Mod MVP implemented / remote sandbox deferred
 **Created**: 2026-03-02  
 **Owner**: Worker  
 
@@ -8,7 +8,7 @@
 
 ## 1. Overview
 
-Zen Writer のプラグインシステムは、コアコードを変更せずにカスタムガジェット・機能を追加できる仕組みです。
+Zen Writer のプラグインシステムは、コアコードを変更せずにカスタムガジェット・機能を追加できる仕組みです。現行の正本仕様は `docs/specs/spec-local-gadget-mods.md` です。
 
 ### Goals
 
@@ -149,10 +149,10 @@ interface ZWPluginAPI {
 - [x] `ZWPlugin.storage` → `localStorage` ラッパー（`zw_plugin_<id>_` プレフィックス）
 - [x] ドキュメント: `docs/PLUGIN_GUIDE.md`
 
-### Phase 2 (v2) — 将来
+### Phase 2 (v2) — Local Gadget Mod MVP / remote sandbox deferred
 
 - [x] マニフェスト駆動のローカルプラグインローダー（`js/plugin-manager.js` + `js/plugins/manifest.json`）
-- [ ] プラグインマネージャーUI
+- [x] 設定モーダルの `ローカルMod` UI（有効/無効は reload 後に反映）
 - [ ] リモートプラグインのsandbox対応
 - [ ] 公式プラグインリポジトリ
 

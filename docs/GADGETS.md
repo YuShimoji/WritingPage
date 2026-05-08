@@ -34,6 +34,7 @@
 ### 基本方針
 
 - ガジェットは小さな自己完結UI。タイマー/進捗/ショートカット等を想定。
+- ガジェットは固定ラックではなく、後から着脱できる Local Gadget Mod として拡張できる。低頻度・実験的・個人用途の gadget は built-in 化より `js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` を優先する。
 - 初期ロード負荷を抑えるため、`?embed=1` では読み込まない（親サイトに埋め込み時は最小UIを維持）。
 - セキュリティ: DOM操作とストレージ範囲は最小限。postMessage等の外部通信は現時点では行わない。
 - ガジェットは left nav の category panel に属する。公開 UI はアコーディオン開閉ではなく、root/category 階層と active category の loadout 対応で説明する。
@@ -62,9 +63,10 @@
 - `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### 登録ガジェット一覧（28個）
+#### 登録ガジェット一覧（28個 + 設定内 Local Mod manager）
 
 > Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離。2026-05-04 に `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、現行登録は28個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
+> 2026-05-08 に `PluginManager` を設定モーダル内の管理 gadget として追加。これは通常 left nav rack を増やすものではなく、Local Gadget Mod の有効状態を管理するための入口。
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -96,6 +98,7 @@
 | 26 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
 | 27 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
 | 28 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
+| settings | PluginManager | ローカルMod | settings modal | manifest に登録されたローカルModの有効状態を管理。 | gadgets-plugin-manager.js |
 
 | # | Name | 状態 | 理由 |
 |---|------|------|------|
@@ -122,6 +125,16 @@
 | `tool` | 執筆中に参照・操作する道具 | collapse と必要最小限の補助操作を表示 |
 | `settings` | 一度設定すれば低頻度の調整パネル | 通常UIで detach を抑制 |
 | `admin` | ガジェット基盤やロードアウト自体の管理 | 標準 preset から除外し、通常UIの補助操作を抑制 |
+
+#### Local Gadget Mod boundary
+
+| 項目 | 正本 |
+|------|------|
+| 配置 | `js/plugins/<mod-id>/index.js` を推奨。manifest には `src` として登録する |
+| 有効状態 | `ZWPluginManager` / `zw_plugin_manager_enabled` が正本。loadout では扱わない |
+| 表示位置 | Mod 側の `api.gadgets.register(..., { groups: [...] })` が指定する |
+| 反映 | enable / disable は reload 後に反映。読み込み済み JS の完全 unload は現行対象外 |
+| 仕様 | `docs/specs/spec-local-gadget-mods.md` |
 
 #### Documents action lanes
 

@@ -63,12 +63,15 @@
     /**
      * Gadgets API
      */
-    function createGadgetsAPI() {
+    function createGadgetsAPI(pluginId) {
         return {
             register: function (name, factory, options) {
                 try {
                     if (window.ZWGadgets && typeof window.ZWGadgets.register === 'function') {
-                        window.ZWGadgets.register(name, factory, options || {});
+                        var opts = options && typeof options === 'object' ? options : {};
+                        opts.source = 'plugin';
+                        opts.pluginId = pluginId;
+                        window.ZWGadgets.register(name, factory, opts);
                     } else {
                         console.warn('[ZWPlugin] ZWGadgets not ready when registering:', name);
                     }
@@ -118,7 +121,7 @@
      */
     function createPluginAPI(pluginId) {
         return {
-            gadgets: createGadgetsAPI(),
+            gadgets: createGadgetsAPI(pluginId),
             themes: createThemesAPI(),
             storage: createStorageAPI(pluginId),
             events: createEventsAPI(pluginId)
