@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-06（A3 command palette 限定実験）
+最終更新: 2026-05-08（post-A3 closeout 統合）
 
 ## Snapshot
 
@@ -8,12 +8,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` 同期済みの状態から作業中。旧 `main-hub-panel` cleanup、left chrome / left nav refinement、right window controls / top chrome retirement 差分は remote 反映済み |
-| 現在の主軸 | **A3 complete**: Floating memo は正式機能化せず、command palette からだけ開ける隔離実験 overlay として固定 |
-| 直近の実装スライス | `浮遊メモ実験` command の説明を「保存されない隔離実験 overlay」へ寄せ、command palette E2E で正規入口を確認 |
-| 最新ビルド・検証 | A3 validation: `node --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed、`command-palette` 17 passed |
+| ブランチ | `main` / `origin/main` は A3 closeout commit `db3b3df` で同期済み。`236b59c` は 1 つ前の A2 proof commit |
+| 現在の主軸 | **post-A3 complete**: Floating memo は command palette 限定の隔離実験 overlay として固定済み。次の本線は C2 Gadget information design の read-only audit |
+| 直近の実装スライス | `浮遊メモ実験` command の説明を「保存されない隔離実験 overlay」へ寄せ、command palette E2E で正規入口を確認し、`db3b3df` として push 済み |
+| 最新ビルド・検証 | 2026-05-08 restart consolidation: `git fetch --prune origin`、`HEAD...origin/main` = `0 0`、`npm run test:smoke` pass。A3 validation: `node --check` pass、`test:smoke` pass、`lint:js:check` pass、`build` pass、`daily-writing-proof + floating-memo-lab` 9 passed、`command-palette` 17 passed |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | A3 判断結果として「command palette 限定実験導線」を `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` に反映。`?memoLab=1` は E2E / developer hook のまま |
+| 今回の docs sync | A3 closeout 済みの状態に一本化。`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` は「A3 は完了、Serena template churn は tool noise、次は C2 read-only audit」で揃える。`?memoLab=1` は E2E / developer hook のまま |
 
 ## Latest Handoff
 
@@ -33,6 +33,7 @@
 - New: A2 daily writing proof は E2E 化済み。Rich editing で短い原稿を入れ、Sections 表示、`#writing-status-chip` の `編集中`→`保存済み`、Reader 往復、Floating memo lab 開閉後の editor focus 復帰を 1 本の flow で確認する。保存モデルや正式 Gadget 化は A3 まで保留。
 - New: Closeout 整理では `.serena/project.yml` のテンプレ差分を tool noise として HEAD へ戻し、`.playwright-mcp/` と root の確認用 PNG を ignore。`scripts/clean-build-outputs.js` は `package.json` から参照される正式差分として残す。
 - New: A3 productization gate は **command palette 限定の実験導線** で確定。`浮遊メモ実験` は保存されない隔離実験 overlay を開閉する正規入口で、`?memoLab=1` は E2E / developer 用の直接起動 hook としてのみ残す。保存モデル、設定、正式 Gadget 化、loadout preset、Documents / Sections / autosave 接続は追加しない。
+- New: 2026-05-08 restart consolidation で、A3 closeout は未コミット差分ではなく `db3b3df` として remote 反映済みであることを確認。`.serena/project.yml` の Serena template churn は tool noise として HEAD へ戻し、次スライスは C2 Gadget information design の read-only audit から 1 トピックに絞る。B3 merge / delete は audit で候補が出るまで始めない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -59,6 +60,15 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### post-A3 restart consolidation
+
+- `git fetch --prune origin` → pass
+- `git rev-list --left-right --count HEAD...origin/main` → `0 0`
+- `git log -1 --oneline --decorate` → `db3b3df (HEAD -> main, origin/main, origin/HEAD) feat: fix floating memo as palette experiment`
+- 旧 start report の `236b59c feat: prove floating memo daily flow` は A2 proof commit であり、A3 closeout 前の状態。
+- `git diff --name-status` は `.serena/project.yml` のみ。差分は Serena 設定テンプレコメント更新で製品挙動に無関係なため HEAD へ復帰。
+- `npm run test:smoke` → pass
 
 ### A3 Floating memo command palette限定実験
 
@@ -369,7 +379,8 @@
 | Done | 無重力メモ A3 command palette限定実験 | `浮遊メモ実験` は command palette からだけ開ける保存されない隔離実験 overlay として固定。正式化・保存・設定・Gadget・loadout 接続は未実施 | assistant / memo overlay |
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
-| B3 | Gadget merge/delete candidate | audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |
+| C2 | Gadget information design audit | 標準 preset cleanup 後に残った表示密度・配置・導線の摩擦を read-only で 1 件に絞る。ここではコード削除や loadout 変更を始めない | assistant / gadget UX |
+| B3 follow-up | Gadget merge/delete candidate | C2 audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |

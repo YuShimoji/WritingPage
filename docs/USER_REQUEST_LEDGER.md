@@ -22,6 +22,7 @@
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
+- **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
 
 ## 次スライス候補
 
@@ -37,7 +38,7 @@
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名は migration で維持。`LoadoutManager` / `GadgetPrefs` は hide-by-default 維持 | assistant / gadget UX |
 | C | Writing status visibility follow-up | `#writing-status-chip` は PASS。常時表示以外の詳細な保存履歴や設定化は別スライスまで増やさない | shared / writing UX |
-| C2 | Gadget information design | Gadget は on-demand で必要時に出る道具として整理し、標準 preset cleanup で残った表示密度や配置の摩擦だけを 1 トピックずつ扱う | shared / gadget UX |
+| C2 | Gadget information design audit | Gadget は on-demand で必要時に出る道具として整理し、標準 preset cleanup で残った表示密度や配置の摩擦を read-only で 1 トピックに絞る。B3 merge / delete は候補特定後に別スライスで扱う | assistant / gadget UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 

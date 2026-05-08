@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-05-06 / v0.3.32（A3 command palette 限定実験後。次は Gadget 情報設計または新規 FAIL の局所修正）
+> 最終更新: 2026-05-08 / v0.3.32（post-A3 closeout 統合。次は C2 Gadget 情報設計 audit または新規 FAIL の局所修正）
 
 ## ステータス語彙
 
@@ -22,7 +22,7 @@
 - ガジェット: 28個登録（`UISettings` を日常設定へ縮小し、`EditorAdvancedSettings` を高度設定として分離。`FontDecoration` / `TextAnimation` は `TextEffects` へ統合）
 - 仕様書: spec-index.json に 55 エントリ (done 44, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
-- 直近 done: A3 Floating memo command palette限定実験、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- 直近 done: A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -32,7 +32,7 @@
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
 | **Lane A: 無重力メモ / Floating memo lab** | A3 で command palette 限定の dev-only / experimental overlay として固定。A1 reframe と A2 daily writing proof で、本筋執筆 flow から隔離したまま邪魔にならないことを自動確認済み | 次に触る場合は正式化ではなく、実験としての有用性 review か新規 FAIL の局所修正 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化、loadout preset 接続 |
-| **Lane B: ガジェット再整理** | 標準 preset cleanup と B3 の初回統合済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` は hide-by-default、`TextEffects` は VN 以外で非表示 | 残る候補が見つかった場合だけ 1件ずつ merge / delete narrow fix | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
+| **Lane B: ガジェット再整理** | 標準 preset cleanup と B3 の初回統合済み。`LoadoutManager` / `GadgetPrefs` / `MarkdownPreview` は hide-by-default、`TextEffects` は VN 以外で非表示 | まず C2 Gadget information design audit で表示密度・配置・導線の摩擦を 1 件に絞る。merge / delete は候補が見つかった場合だけ別スライスで扱う | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活 |
 | **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
 
 #### Lane A: 無重力メモ / Floating memo lab
@@ -45,7 +45,7 @@
 
 1. **B1 usefulness audit**: 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に再分類する。まず docs と static refs の監査に限定し、コード削除はしない。
 2. **B2 default loadout cleanup**: daily writing に不要な gadget を標準 preset から外す。custom loadout からの明示利用は壊さない。
-3. **B3 merge / delete candidates**: 初回として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名は migration で維持。以後も重複 UI・低価値 gadget が見つかった場合だけ、1 gadget ずつ E2E 付きで削除または統合する。`LoadoutManager` / `GadgetPrefs` は現時点では削除候補ではなく hide-by-default 維持。
+3. **C2 information design audit / B3 follow-up**: 初回 B3 として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合済み。次は read-only の C2 audit で表示密度・配置・導線の摩擦を 1 件に絞り、候補が見つかった場合だけ B3 follow-up として 1 gadget ずつ E2E 付きで削除または統合する。`LoadoutManager` / `GadgetPrefs` は現時点では削除候補ではなく hide-by-default 維持。
 
 #### レーン間の依存・ゲート
 
