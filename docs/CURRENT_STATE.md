@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-08（Local Gadget Mod workflow 整理）
+最終更新: 2026-05-09（C2 Gadget Mod boundary audit）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **C2 Gadget information design**: gadget を固定ラックではなく、Local Gadget Mod として後から着脱できる境界へ戻す |
-| 直近の実装スライス | Local Gadget Mod 開発導線を `docs/PLUGIN_GUIDE.md` に一本化。runtime API や既存 28 gadget の配置は未変更 |
-| 最新ビルド・検証 | Local Gadget Mod workflow 整理: `git diff --check` pass、`docs/spec-index.json` JSON parse pass。runtime API / manifest / sample Mod は未変更 |
+| 現在の主軸 | **B3 follow-up candidate**: C2 audit で `MarkdownPreview` を最初の Local Gadget Mod migration 候補に固定。実装は次スライス |
+| 直近の実装スライス | C2 Gadget Mod boundary audit。既存 28 gadget を built-in retain / mod candidate / preserve / admin hide に分類し、runtime API・manifest・loadout・gadget 配置は未変更 |
+| 最新ビルド・検証 | C2 Gadget Mod boundary audit: docs-only。`git diff --check` と `docs/spec-index.json` JSON parse を実行対象とする |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `PLUGIN_GUIDE` を Local Gadget Mod 開発ワークフローの正本にし、`GADGETS` / `spec-local-gadget-mods` / `PLUGIN_SYSTEM` の役割を分離。次は built-in / Mod 境界 audit |
+| 今回の docs sync | `docs/verification/2026-05-09/gadget-mod-boundary-audit.md` を追加。`CURRENT_STATE` / `USER_REQUEST_LEDGER` を C2 audit 完了・次候補 `MarkdownPreview` へ同期 |
 
 ## Latest Handoff
 
@@ -36,6 +36,7 @@
 - New: 2026-05-08 restart consolidation で、A3 closeout は未コミット差分ではなく `db3b3df` として remote 反映済みであることを確認。`.serena/project.yml` の Serena template churn は tool noise として HEAD へ戻し、次スライスは C2 Gadget information design の read-only audit から 1 トピックに絞る。B3 merge / delete は audit で候補が出るまで始めない。
 - New: Local Gadget Mod MVP を追加。`PluginManager` は設定モーダル内の `ローカルMod` として manifest 上の Mod を表示し、enable/disable を `zw_plugin_manager_enabled` に保存する。`api.gadgets.register()` 経由の gadget は `source: 'plugin'` と `pluginId` を持ち、enabled Mod は loadout に明示列挙されていなくても指定 group へ表示される。反映は reload 後でよい。
 - New: Local Gadget Mod 開発ワークフローを整理。`docs/PLUGIN_GUIDE.md` は候補判定→folder entry→manifest→`window.ZWPlugin.register()`→`ローカルMod` enable→reload→検証の正本、`docs/specs/spec-local-gadget-mods.md` は判断ゲート、`docs/GADGETS.md` は built-in 例外ルート、`docs/design/PLUGIN_SYSTEM.md` は背景設計 / deferred を担当する。
+- New: C2 Gadget Mod boundary audit を実施。`MarkdownPreview` は標準 preset から除外済みで developer/audit 用入口に近いため、最初の Local Gadget Mod migration 候補に固定。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -62,6 +63,15 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### C2 Gadget Mod boundary audit
+
+- `docs/verification/2026-05-09/gadget-mod-boundary-audit.md` を追加。
+- 28 gadget を `built-in retain` / `mod candidate` / `preserve / quarantine` / `admin hide` で分類。
+- 次実装候補は `MarkdownPreview` の Local Gadget Mod migration に固定。
+- runtime API、`js/plugins/manifest.json`、sample Mod、loadout、既存 gadget registration は未変更。
+- `git diff --check` → pass
+- `docs/spec-index.json` JSON parse → pass
 
 ### Local Gadget Mod workflow 整理
 
@@ -407,8 +417,8 @@
 | Done | Gadget usefulness audit | 登録 gadget を `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類し、削除ではなく標準導線から下げる方針を採用 | assistant / gadget UX |
 | Done | Default loadout cleanup | `MarkdownPreview` / 非VN `TextEffects` を標準 preset から外し、custom loadout の明示利用は維持 | assistant / loadout UX |
 | Done | Local Gadget Mod workflow整理 | `PLUGIN_GUIDE` を開発導線の正本にし、`GADGETS` / `spec-local-gadget-mods` / `PLUGIN_SYSTEM` の役割を分離。runtime API と既存 gadget 配置は未変更 | assistant / gadget docs |
-| C2 | Gadget information design audit | 標準 preset cleanup 後に残った表示密度・配置・導線の摩擦を read-only で 1 件に絞る。ここではコード削除や loadout 変更を始めない | assistant / gadget UX |
-| B3 follow-up | Gadget merge/delete candidate | C2 audit で候補化した gadget だけ 1 件ずつ統合・削除する。`LoadoutManager` / `GadgetPrefs` は現時点では hide-by-default 維持 | shared / gadget UX |
+| Done | C2 Gadget Mod boundary audit | 28 gadget を read-only で分類し、最初の実装候補を `MarkdownPreview` に固定。コード削除・manifest・loadout 変更は未実施 | assistant / gadget UX |
+| B3 follow-up | `MarkdownPreview` Local Mod migration | preview engine は残し、gadget wrapper だけを Local Gadget Mod へ移す候補。`LoadoutManager` / `GadgetPrefs` は admin hide 維持 | assistant / gadget UX |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
