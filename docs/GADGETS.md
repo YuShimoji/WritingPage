@@ -273,12 +273,30 @@ ZWGadgets.register('Sample', function (el) {
 // DOM Ready 時に自動で ZWGadgets.init() が走る
 ```
 
-## ガジェット追加手順（最短）
+## ガジェット追加手順（Mod-first）
 
-1. `js/gadgets-*.js`（例: `js/gadgets-builtin.js` または新規 `js/gadgets-<name>.js`）にガジェットを登録
+新しい gadget は、まず `docs/PLUGIN_GUIDE.md` の Local Gadget Mod 開発ワークフローで追加します。
+
+1. 候補判定: 低頻度・実験的・個人用途・標準 loadout に入れる根拠が弱いものは Mod-first。
+2. フォルダ作成: `js/plugins/<mod-id>/index.js` に置く。
+3. manifest 登録: `js/plugins/manifest.json` に `id` / `name` / `type` / `description` / `src` / `enabled` を追加する。
+4. 登録 API: `window.ZWPlugin.register()` と `api.gadgets.register()` を使う。
+5. 有効化: 設定モーダル `ローカルMod` で enable し、reload 後に確認する。
+
+最小例は `js/plugins/sample-word-count-gadget/index.js` を参照してください。新しいテンプレートコードはこのファイルに増やしません。
+
+### Built-in 例外ルート
+
+直接 `ZWGadgets.register()` する built-in gadget は例外です。次のいずれかを満たす場合だけ使います。
+
+- 日常執筆の基盤として常に存在する必要がある。
+- 既定 loadout に含める必要がある。
+- Documents / Sections / Reader / editor core など既存中核機能との結合が強い。
+
+Built-in 化する場合は、Local Mod ではなく built-in が必要な理由を `docs/USER_REQUEST_LEDGER.md` または関連 spec に残します。
 
 ```js
-// 例: WritingGoal と同等の最小構成
+// built-in 例外ルートの最小形
 ZWGadgets.register(
   'MyGadget',
   function (el, api) {
@@ -290,37 +308,7 @@ ZWGadgets.register(
 );
 ```
 
-1. ロードアウトへ含める（任意）
-
-```js
-// 既定プリセットに含めたい場合は ZWLoadoutPresets を編集
-// assist や theme 等の希望グループへガジェット名を追加
-```
-
-1. 設定UIを付ける（任意）
-
-```js
-ZWGadgets.registerSettings('MyGadget', function (panel, ctx) {
-  var cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.checked = !!ctx.get('enabled', true);
-  cb.addEventListener('change', function () {
-    ctx.set('enabled', !!cb.checked);
-  });
-  panel.appendChild(cb);
-});
-```
-
-1. 表示順・折りたたみ
-
-- 表示順は active loadout の `groups.<category>` 配列順を正とします。
-- 通常UIでは drag handle を表示しません。slider / input / button / gadget body 操作から drag は発火しません。
-- 開閉状態は `zenwriter-gadget-collapsed` に保存します。
-
-1. テスト
-
-- 画面で追加ガジェットが表示されること。
-- 必要なら `ZWGadgets.assignGroups('MyGadget', ['assist'])` で所属を動的変更。
+表示順は active loadout の `groups.<category>` 配列順を正とします。Mod enable 状態は `PluginManager`、配置は loadout / `groups`、内部設定は `ZWGadgets` prefs が担当します。
 
 ## テスト
 

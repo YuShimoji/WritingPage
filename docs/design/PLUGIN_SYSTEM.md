@@ -1,57 +1,61 @@
 # Plugin System Design — Zen Writer
 
-**Status**: Local Gadget Mod MVP implemented / remote sandbox deferred
+**Status**: Background design / Local Gadget Mod MVP implemented / remote sandbox deferred
 **Created**: 2026-03-02  
 **Owner**: Worker  
 
 ---
 
-## 1. Overview
+## 1. Position
 
-Zen Writer のプラグインシステムは、コアコードを変更せずにカスタムガジェット・機能を追加できる仕組みです。現行の正本仕様は `docs/specs/spec-local-gadget-mods.md` です。
+Zen Writer のプラグインシステムは、コアコードを変更せずにカスタム機能を追加するための背景設計です。現行の開発手順と仕様正本は、このファイルではなく次を参照します。
 
-### Goals
+- 開発ワークフロー: `docs/PLUGIN_GUIDE.md`
+- Local Gadget Mod 仕様: `docs/specs/spec-local-gadget-mods.md`
+- built-in gadget 一覧と loadout 境界: `docs/GADGETS.md`
 
-- ユーザーがサードパーティのガジェットをロードできる
-- コアAPIへの安全なアクセス（サンドボックス）
-- 最小限のインターフェースで最大の拡張性
-- 後方互換性の維持
+このファイルは API の方向性、信頼モデル、将来 deferred 項目を保持します。旧手順や将来構想は、現行ワークフローを上書きしません。
 
----
+## 2. Current Model
 
-## 2. Plugin Types
+現行は **Trusted local plugins only** です。
 
-| タイプ | 説明 | 例 |
-|--------|------|-----|
-| **Gadget Plugin** | カスタムガジェット追加 | ポモドーロタイマー、カスタムカウンター |
-| **Theme Plugin** | テーマ色パレット追加 | 独自カラースキーム |
-| **Command Plugin** | コマンドパレットにコマンド追加 | カスタム変換処理 |
-| **Export Plugin** | エクスポート形式追加 | LaTeX 変換 |
+- `js/plugins/manifest.json` からローカル JS を読み込む。
+- `js/plugins/<mod-id>/index.js` 形式の folder entry を推奨する。
+- 設定モーダルの `ローカルMod` で enable / disable を保存する。
+- enable / disable の反映は reload 後でよい。
+- リモート URL、iframe sandbox、権限 UI、公式 plugin repository は deferred。
 
----
+旧「index.html の末尾へ手動 `<script>` 追加」は historical pattern です。現行の Local Gadget Mod 開発では manifest 登録を使います。
 
-## 3. API Surface
+## 3. Plugin Types
 
-### 3.1 Plugin Registration
+| Type | Current status | Notes |
+|------|----------------|-------|
+| `gadget` | supported | `api.gadgets.register()` で category group に表示する。Local Gadget Mod の主対象 |
+| `command` | compatibility | `choice.js` のような既存 `window.ZenWriterPlugins` 互換を維持 |
+| `theme` | API background | `api.themes.register()` の背景設計はあるが、今回の Mod 開発導線の主対象ではない |
+| `export` | deferred | 現フェーズの対象外 |
+
+## 4. API Surface
+
+Local Gadget Mod は `window.ZWPlugin.register()` を通じて登録します。
 
 ```js
-// プラグインは window.ZWPlugin を通じて登録
 window.ZWPlugin.register({
   id: 'my-plugin',
   name: 'My Plugin',
   version: '1.0.0',
-  author: 'Author Name',
-  type: 'gadget',    // gadget | theme | command | export
+  type: 'gadget',
   init(api) {
-    // プラグイン初期化
-    api.gadgets.register('MyGadget', (container, gadgetApi) => {
+    api.gadgets.register('MyGadget', function (container, gadgetApi) {
       container.textContent = 'Hello from plugin!';
-    }, { title: 'My Gadget', groups: ['assist'] });
+    }, { title: 'My Gadget', groups: ['assist'], kind: 'tool' });
   }
 });
 ```
 
-### 3.2 Plugin API (api object)
+主な API:
 
 ```ts
 interface ZWPluginAPI {
@@ -63,163 +67,47 @@ interface ZWPluginAPI {
   themes: {
     register(themeId: string, palette: ThemePalette): void;
   };
-  commands: {
-    register(command: CommandDef): void;
-  };
   storage: {
     get(key: string): any;
     set(key: string, value: any): void;
+    remove(key: string): void;
   };
   events: {
     on(eventName: string, handler: Function): void;
     off(eventName: string, handler: Function): void;
     emit(eventName: string, detail?: any): void;
+    onZW(eventName: string, handler: Function): void;
   };
 }
 ```
 
-### 3.3 What Plugins CANNOT Do
+## 5. Security Model
 
-- DOMを直接操作（コアUIコンポーネント）— ただしガジェットの`container`内は自由
-- localStorage内の `zw_*` 以外のキーへの書き込み
-- `window.ZWGadgets._list` などプライベートプロパティへの直接アクセス
-- ネットワークリクエスト（将来的にCSPで制限）
+| Level | Status | Constraints |
+|-------|--------|-------------|
+| Trusted local | current | ユーザーがローカル配置した JS。`js/plugins/*.js` / `js/plugins/<mod-id>/*.js` のみ |
+| Sandboxed remote | deferred | iframe sandbox / postMessage / limited API が必要 |
+| Verified repository | deferred | 公式 repo / review / distribution policy が必要 |
 
----
+現行制約:
 
-## 4. Security Model
+- `..` を含む plugin path や外部 URL は拒否する。
+- plugin storage は plugin ID prefix 付き localStorage を使う。
+- Gadget Mod は渡された container 内を主な描画領域とする。
+- `window.ZWGadgets._list` など private state への直接依存は避ける。
 
-### 4.1 Trust Levels
+## 6. Implementation Status
 
-| レベル | 説明 | 制約 |
-|--------|------|------|
-| **Trusted** | ローカルで手動インストール | 制約なし（ユーザー責任） |
-| **Sandboxed** | リモートURLからロード | iframe sandbox, LIMITED API |
-| **Verified** | 公式プラグインリポジトリ | コードレビュー済み |
+- [x] `js/plugin-api.js`: `window.ZWPlugin` 公開、gadget / theme / storage / events API。
+- [x] `js/plugin-manager.js`: manifest-driven local loader。
+- [x] `js/plugins/manifest.json`: `choice` と sample gadget Mod を登録。
+- [x] `js/gadgets-plugin-manager.js`: 設定モーダル内 `ローカルMod` UI。
+- [x] `api.gadgets.register()` 経由の gadget に `source: 'plugin'` / `pluginId` を付与。
+- [ ] Remote sandbox。
+- [ ] Verified plugin repository。
 
-### 4.2 現フェーズ（v1）
+## 7. Deferred Questions
 
-- **Trusted Only**: localのJSファイルを手動で`<script>`タグに追加
-- Content Security Policy でのリモートスクリプト制限は将来的に検討
-- プラグインIDの重複チェック（上書き防止）
-
-### 4.3 将来フェーズ（v2）
-
-- iframe sandboxによるリモートプラグイン対応
-- `postMessage` ベースの通信
-- 権限システム（manifestで権限宣言）
-
----
-
-## 5. Loading Mechanism
-
-### 5.1 v1: 手動ロード
-
-```html
-<!-- index.html の末尾にユーザーが追加 -->
-<script src="plugins/my-plugin.js"></script>
-```
-
-- `window.ZWPlugin.register()` がDOMReady後に実行
-- 遅延登録に対応（`ZWPluginsReady` イベントを待つ）
-
-### 5.2 v2: プラグインマニフェスト
-
-```json
-// plugins/manifest.json
-{
-  "plugins": [
-    { "id": "my-plugin", "src": "plugins/my-plugin.js", "enabled": true }
-  ]
-}
-```
-
-- UI設定画面からプラグイン有効/無効を切り替え
-- `ZWPluginManager.loadManifest()` が起動時に実行
-
----
-
-## 6. Implementation Plan
-
-### Phase 1 (v1) — 現実装可能
-
-- [x] `js/plugin-api.js` 作成（`window.ZWPlugin` 公開）
-- [x] `ZWPlugin.register()` → `window.ZWGadgets.register()` へのブリッジ
-- [x] `ZWPlugin.events` → `CustomEvent` ラッパー
-- [x] `ZWPlugin.storage` → `localStorage` ラッパー（`zw_plugin_<id>_` プレフィックス）
-- [x] ドキュメント: `docs/PLUGIN_GUIDE.md`
-
-### Phase 2 (v2) — Local Gadget Mod MVP / remote sandbox deferred
-
-- [x] マニフェスト駆動のローカルプラグインローダー（`js/plugin-manager.js` + `js/plugins/manifest.json`）
-- [x] 設定モーダルの `ローカルMod` UI（有効/無効は reload 後に反映）
-- [ ] リモートプラグインのsandbox対応
-- [ ] 公式プラグインリポジトリ
-
----
-
-## 7. Example Plugin
-
-```js
-// plugins/word-frequency.js
-(function() {
-  'use strict';
-
-  function init() {
-    if (!window.ZWPlugin) {
-      console.warn('[word-frequency] ZWPlugin API not available');
-      return;
-    }
-
-    window.ZWPlugin.register({
-      id: 'word-frequency',
-      name: 'Word Frequency Counter',
-      version: '1.0.0',
-      type: 'gadget',
-      init(api) {
-        api.gadgets.register('WordFrequency', (container, gadgetApi) => {
-          const btn = document.createElement('button');
-          btn.textContent = '頻度分析';
-          btn.addEventListener('click', () => {
-            const editor = document.getElementById('editor');
-            if (!editor) return;
-            const text = editor.value || editor.textContent || '';
-            const words = text.match(/\S+/g) || [];
-            const freq = {};
-            words.forEach(w => { freq[w] = (freq[w] || 0) + 1; });
-            const top = Object.entries(freq)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 5)
-              .map(([w, n]) => `${w}: ${n}`)
-              .join(', ');
-            container.querySelector('.result').textContent = top || '（テキストなし）';
-          });
-          const result = document.createElement('div');
-          result.className = 'result';
-          result.style.cssText = 'margin-top:6px;font-size:12px;word-break:break-all;';
-          container.appendChild(btn);
-          container.appendChild(result);
-        }, { title: '単語頻度', groups: ['assist'] });
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-})();
-```
-
----
-
-## 8. Open Questions
-
-1. プラグインIDの名前空間は `org.domain.plugin-name` 形式にするか？
-2. ガジェット以外のプラグインタイプの優先度は？
-3. エラーハンドリング: プラグイン初期化失敗時にアプリをクラッシュさせないか（現在は try/catch で保護）
-
----
-
-*このドキュメントはドラフトです。実装フェーズに合わせて更新してください。*
+- plugin ID を `org.domain.plugin-name` 形式へ寄せるか。
+- gadget 以外の plugin type をいつ product surface に出すか。
+- remote sandbox 時の permission model と配布責任をどう分けるか。

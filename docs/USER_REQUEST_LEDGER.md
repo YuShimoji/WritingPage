@@ -19,7 +19,7 @@
 - **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
 - **無重力メモ / Floating memo roadmap**: A1 reframe と A2 daily proof は完了。A3 判断は「command palette 限定実験導線」で確定。正式機能化・保存モデル・設定化は今回しない。
 - **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は標準から外し、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
-- **Local Gadget Mod boundary**: ガジェットは固定ラックではなく、後から着脱できる Mod 境界を持つ。低頻度・実験的・個人用途の gadget は built-in へ直接足さず、まず `js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` + 設定モーダル `ローカルMod` の enable で扱う。enable 状態は plugin manager、配置は loadout、内部設定は `ZWGadgets` prefs が正本。
+- **Local Gadget Mod boundary**: ガジェットは固定ラックではなく、後から着脱できる Mod 境界を持つ。低頻度・実験的・個人用途の gadget は built-in へ直接足さず、まず `docs/PLUGIN_GUIDE.md` の開発ワークフローに従い、`js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` + 設定モーダル `ローカルMod` の enable で扱う。enable 状態は plugin manager、配置は loadout、内部設定は `ZWGadgets` prefs が正本。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
@@ -40,6 +40,7 @@
 | Done | B3 first merge candidate | `FontDecoration` / `TextAnimation` を `TextEffects` へ統合し、旧 loadout 名は migration で維持。`LoadoutManager` / `GadgetPrefs` は hide-by-default 維持 | assistant / gadget UX |
 | C | Writing status visibility follow-up | `#writing-status-chip` は PASS。常時表示以外の詳細な保存履歴や設定化は別スライスまで増やさない | shared / writing UX |
 | Done | Local Gadget Mod MVP | `ローカルMod` 設定 UI、manifest folder entry、plugin-sourced gadget 登録を追加。ガジェットが固定ラックへ戻らない境界を仕様化 | assistant / gadget UX |
+| Done | Local Gadget Mod workflow整理 | `PLUGIN_GUIDE` を Mod 開発導線の正本にし、`GADGETS` / `spec-local-gadget-mods` / `PLUGIN_SYSTEM` の役割を分離。runtime API と既存 28 gadget 配置は未変更 | assistant / gadget docs |
 | C2 follow-up | Gadget information design audit | Built-in に残すべき gadget と Local Mod に逃がすべき gadget の境界を 1 トピックずつ監査する。B3 merge / delete は候補特定後に別スライスで扱う | assistant / gadget UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
