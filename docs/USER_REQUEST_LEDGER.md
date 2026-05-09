@@ -23,6 +23,7 @@
 - **C2 Gadget Mod boundary audit**: 既存 28 gadget の read-only 監査で、最初の実装候補を `MarkdownPreview` の Local Gadget Mod migration に固定し、後続スライスで実装済み。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。次の実装時も 1 gadget だけ扱う。
 - **MarkdownPreview Local Mod migration**: `MarkdownPreview` は built-in wrapper ではなく `markdown-preview-gadget` として manifest に登録する。preview pipeline / `ZenWriterEditor.togglePreview()` / command palette / Reader / Markdown source は built-in のまま維持し、Mod は開閉ボタンと `preview.syncScroll` 設定だけを持つ。
 - **HUDSettings Local Mod migration**: `HUDSettings` は built-in wrapper ではなく `hud-settings-gadget` として manifest に登録する。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は built-in のまま維持し、Mod は位置・表示時間・見た目設定 UI だけを持つ。
+- **PomodoroTimer Mod feasibility audit**: `PomodoroTimer` は次点候補だが即移行しない。wrapper は `js/gadgets-pomodoro.js`、engine / storage / HUD notification は `js/pomodoro-timer.js` にあり、標準 assist preset と `e2e/pomodoro.spec.js` は built-in visible 前提。settings UI が `ZWGadgets.registerSettings()` を使うため、現行 Plugin API の `api.gadgets.register()` だけでは完全移行できない。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
@@ -47,7 +48,7 @@
 | Done | C2 Gadget Mod boundary audit | Built-in に残すべき gadget と Local Mod に逃がすべき gadget を read-only で分類し、最初の候補を `MarkdownPreview` に固定 | assistant / gadget UX |
 | Done | `MarkdownPreview` Local Mod migration | preview pipeline は残し、built-in gadget wrapper だけを `markdown-preview-gadget` Local Mod へ移動。`choice` / StoryWiki / LinkGraph / Images / LoadoutManager / GadgetPrefs は未変更 | assistant / gadget UX |
 | Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。`ZenWriterHUD` / autosave HUD / command palette HUD 表示は未変更 | assistant / gadget UX |
-| Next | Gadget Mod migration candidate selection | 次の移行候補は未選定。C2 audit から選ぶ場合も 1 gadget だけを別スライスで扱う。候補化するなら `PomodoroTimer` が次点だが、専用 E2E / HUD integration の影響を先に見る | assistant / gadget UX |
+| Next | PomodoroTimer migration decision | `api.gadgets.registerSettings(name, renderSettings)` を Plugin API に追加して完全 Mod 化するか、標準 assist / HUD integration / 専用 E2E を理由に built-in retain とするかを決める。settings UI なしの partial migration はしない | assistant / gadget UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
