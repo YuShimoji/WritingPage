@@ -95,7 +95,7 @@
 
 ### アシスト系ガジェットの初回折りたたみ（session 82）
 
-`ZWGadgets.register(..., { defaultCollapsed: true })` で、初回（`localStorage` の `zenwriter-gadget-collapsed` に当該ガジェット名が無いとき）の折りたたみを宣言する。**assist** カテゴリ（タイプライター・フォーカス・HUD・執筆目標・Pomodoro・Markdown リファレンス等）に付与し、初回の情報密度を抑える意図をコード上で明示する。実効挙動は従来（Documents / Themes 以外は初回閉）と整合。ユーザーがヘッダで開閉したあとは従来どおり `zenwriter-gadget-collapsed` に永続化される。
+`ZWGadgets.register(..., { defaultCollapsed: true })` で、初回（`localStorage` の `zenwriter-gadget-collapsed` に当該ガジェット名が無いとき）の折りたたみを宣言する。**assist** カテゴリ（タイプライター・フォーカス・HUD・執筆目標・Markdown リファレンス等）に付与し、初回の情報密度を抑える意図をコード上で明示する。Pomodoro は Local Mod 有効時だけ assist に追加される。実効挙動は従来（Documents / Themes 以外は初回閉）と整合。ユーザーがヘッダで開閉したあとは従来どおり `zenwriter-gadget-collapsed` に永続化される。
 
 ### 採用理由（session 71）
 - `focus` 標準運用で執筆導線の認知負荷を増やさないため。

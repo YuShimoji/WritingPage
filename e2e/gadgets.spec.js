@@ -275,7 +275,7 @@ test.describe('Gadgets E2E', () => {
 
     const exposure = await page.evaluate(() => {
       var data = window.ZWGadgets._ensureLoadouts();
-      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview', 'HUDSettings'];
+      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview', 'HUDSettings', 'PomodoroTimer'];
       var standardHidden = ['TextEffects'];
       var result = {};
       Object.keys(data.entries || {}).forEach(function (key) {
@@ -363,6 +363,7 @@ test.describe('Gadgets E2E', () => {
       expect(groups.structure, `${name} structure placement`).toEqual(expect.arrayContaining(['SnapshotManager']));
       expect(groups.assist, `${name} assist excludes snapshot`).not.toContain('SnapshotManager');
       expect(groups.assist, `${name} assist excludes HUD`).not.toContain('HUDSettings');
+      expect(groups.assist, `${name} assist excludes PomodoroTimer by default`).not.toContain('PomodoroTimer');
       expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['EditorLayout']));
       expect(groups.advanced, `${name} advanced excludes HUD by default`).not.toContain('HUDSettings');
       if (name !== 'novel-minimal') {

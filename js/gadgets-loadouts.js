@@ -25,6 +25,7 @@
     GadgetPrefs: true,
     MarkdownPreview: true,
     HUDSettings: true,
+    PomodoroTimer: true,
     TextEffects: { exceptLoadouts: { 'vn-layout': true } }
   };
 

@@ -101,7 +101,7 @@ Zen Writer v0.3.32
 | 構造 | `structure` | Documents, Outline, StoryWiki, LinkGraph, Tags/SmartFolders, SnapshotManager |
 | 編集 | `edit` | ChoiceTools, Images（MarkdownPreview / TextEffects は標準小説 preset から除外。TextEffects は VN preset で維持） |
 | テーマ | `theme` | Themes, Typography, HeadingStyles, VisualProfile |
-| 補助 | `assist` | Typewriter, FocusMode, WritingGoal, Pomodoro, MarkdownReference |
+| 補助 | `assist` | Typewriter, FocusMode, WritingGoal, MarkdownReference（PomodoroTimer は Local Mod 有効時のみ） |
 | 詳細設定 | `advanced` | EditorLayout, UISettings, EditorAdvancedSettings, HUDSettings, PrintSettings, Keybinds（GadgetPrefs / LoadoutManager は登録維持・標準 preset から除外） |
 
 **ガジェット総数：** 28個

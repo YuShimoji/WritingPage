@@ -30,6 +30,14 @@
       "description": "HUD設定を Local Gadget Mod として有効化します。",
       "src": "js/plugins/hud-settings-gadget/index.js",
       "enabled": false
+    },
+    {
+      "id": "pomodoro-timer-gadget",
+      "name": "Pomodoro/集中タイマー",
+      "type": "gadget",
+      "description": "Pomodoro/集中タイマーを Local Gadget Mod として有効化します。",
+      "src": "js/plugins/pomodoro-timer-gadget/index.js",
+      "enabled": false
     }
   ]
 }

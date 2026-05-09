@@ -45,4 +45,4 @@ Unchanged:
 
 ## Next
 
-次の Mod 化候補は未選定。候補化するなら `PomodoroTimer` が次点だが、専用 E2E と HUD integration の影響を確認してから 1 gadget の別スライスで扱う。
+当時の次点候補は `PomodoroTimer`。後続スライスで feasibility audit を経て Local Gadget Mod へ外部化済み。

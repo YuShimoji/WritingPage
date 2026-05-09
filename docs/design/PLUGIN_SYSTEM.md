@@ -61,6 +61,7 @@ window.ZWPlugin.register({
 interface ZWPluginAPI {
   gadgets: {
     register(name: string, factory: GadgetFactory, options?: GadgetOptions): void;
+    registerSettings(name: string, factory: GadgetSettingsFactory): void;
     getSetting(name: string, key: string, def?: any): any;
     setSetting(name: string, key: string, val: any): void;
   };
@@ -103,6 +104,7 @@ interface ZWPluginAPI {
 - [x] `js/plugins/manifest.json`: `choice` と sample gadget Mod を登録。
 - [x] `js/gadgets-plugin-manager.js`: 設定モーダル内 `ローカルMod` UI。
 - [x] `api.gadgets.register()` 経由の gadget に `source: 'plugin'` / `pluginId` を付与。
+- [x] `api.gadgets.registerSettings()` で Local Gadget Mod の settings UI 登録を許可。
 - [ ] Remote sandbox。
 - [ ] Verified plugin repository。
 

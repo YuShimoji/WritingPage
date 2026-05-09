@@ -1,7 +1,7 @@
 # PomodoroTimer Mod Feasibility Audit
 
 Date: 2026-05-10
-Status: docs-only audit / no runtime changes
+Status: superseded by `pomodoro-timer-local-gadget-mod-migration.md`
 
 ## Purpose
 
@@ -24,9 +24,9 @@ Status: docs-only audit / no runtime changes
 
 ## Decision
 
-`PomodoroTimer` は現時点では **移行実装しない**。
+`PomodoroTimer` はこの監査後、ユーザー判断により Local Gadget Mod へ外部化した。
 
-main gadget だけを Local Mod へ移し settings UI を built-in に残す partial migration は採用しない。移行するなら、`api.gadgets.registerSettings(name, renderSettings)` を Plugin API に追加し、main gadget と settings UI を同じ Mod 境界へ移す。
+main gadget だけを Local Mod へ移し settings UI を built-in に残す partial migration は採用しない。実装では `api.gadgets.registerSettings(name, renderSettings)` を Plugin API に追加し、main gadget と settings UI を同じ Mod 境界へ移した。
 
 ## Next Implementation Options
 

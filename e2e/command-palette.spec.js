@@ -207,7 +207,7 @@ test.describe('Command Palette E2E', () => {
     await expect(page.locator('#command-palette')).toBeVisible();
 
     const input = page.locator('#command-palette-input');
-    await input.fill('ポモドロ');
+    await input.fill('執筆目標');
 
     await page.keyboard.press('Enter');
 

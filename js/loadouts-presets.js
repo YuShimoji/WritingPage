@@ -47,8 +47,7 @@
             'Typewriter',
             'FocusMode',
             'WritingGoal',
-            'MarkdownReference',
-            'PomodoroTimer'
+            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
@@ -130,8 +129,7 @@
             'Typewriter',
             'FocusMode',
             'WritingGoal',
-            'MarkdownReference',
-            'PomodoroTimer'
+            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
@@ -171,8 +169,7 @@
           ],
           assist: [
             'WritingGoal',
-            'MarkdownReference',
-            'PomodoroTimer'
+            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',

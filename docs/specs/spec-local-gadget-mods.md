@@ -1,7 +1,7 @@
 # Local Gadget Mods
 
 Status: done / MVP
-Last updated: 2026-05-08
+Last updated: 2026-05-10
 
 ## Purpose
 
@@ -60,7 +60,7 @@ Last updated: 2026-05-08
 
 ## Gadget Registration Contract
 
-Local Gadget Mod は `window.ZWPlugin.register()` を使い、`api.gadgets.register()` で gadget を登録する。
+Local Gadget Mod は `window.ZWPlugin.register()` を使い、`api.gadgets.register()` で gadget を登録する。gadget 専用 settings UI が必要な場合は `api.gadgets.registerSettings()` で同じ Mod 境界へ登録する。
 
 ```js
 window.ZWPlugin.register({
@@ -84,6 +84,7 @@ window.ZWPlugin.register({
 - manifest: `id`, `name`, `type`, `description`, `src`, `enabled`
 - plugin registration: `window.ZWPlugin.register({ id, name, type, init(api) { ... } })`
 - gadget registration: `api.gadgets.register(name, render, { title, groups, kind, defaultCollapsed })`
+- gadget settings registration: `api.gadgets.registerSettings(name, renderSettings)`
 - enable storage: `zw_plugin_manager_enabled`
 
 ## Settings Contract

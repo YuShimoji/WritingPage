@@ -462,7 +462,7 @@
       id: 'gadget-assist',
       label: '補助',
       description: '補助カテゴリを開く（進捗・集中・参照）',
-      keywords: 'アシスト assist タイプライター Typewriter ポモドロ Pomodoro 執筆目標 Markdownリファレンス 集中タイマー',
+      keywords: 'アシスト assist タイプライター Typewriter 執筆目標 Markdownリファレンス',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {

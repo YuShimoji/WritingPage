@@ -29,7 +29,7 @@
 - [実装概要 / 使い方 / テスト](#実装概要)
 - [設定インポート/エクスポート](#設定インポートエクスポート現行)
 - [設定保存やドラッグ操作](#設定保存折りたたみ並び替えv0313)
-- [個別ガジェット（HUDSettings Local Mod / Story Wiki）](#hudsettings-local-mod)
+- [個別ガジェット（Local Mod / Story Wiki）](#hudsettings-local-mod)
 
 ### 基本方針
 
@@ -48,7 +48,7 @@
   2. **structure**: 構成管理（ドキュメント、アウトライン、スナップショット、タグ）
   3. **edit**: 画像、選択肢、装飾、アニメーション。`MarkdownPreview` は Local Mod 有効時だけここに追加される（Story Wiki は **structure**）
   4. **theme**: 表示調整（テーマ、フォント、VisualProfile、見出しスタイル）
-  5. **assist**: 執筆継続の補助（目標、集中、参照、タイマー）
+  5. **assist**: 執筆継続の補助（目標、集中、参照）。`PomodoroTimer` は Local Mod 有効時だけここに追加される。
   6. **advanced**: 詳細設定と運用管理（表示、出力、ショートカット、ロードアウト）。`HUDSettings` は Local Mod 有効時だけここに追加される。
 - 各カテゴリは `data-gadget-group` 属性で識別し、`ZWGadgets.init(panel, { group })` でレンダリング。
 - active でないカテゴリは shell 側で hit-test 対象外にし、DOM を保持したまま重い gadget render を遅延させる。
@@ -63,12 +63,13 @@
 - `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
 
-#### Built-in 登録ガジェット一覧（26個 + Local Mod 2個 + 設定内 Local Mod manager）
+#### Built-in 登録ガジェット一覧（25個 + Local Mod 3個 + 設定内 Local Mod manager）
 
-> Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離。2026-05-04 に `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。2026-05-10 の `MarkdownPreview` / `HUDSettings` Local Mod 化後、現行 built-in 登録は26個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
+> Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離。2026-05-04 に `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。2026-05-10 の `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` Local Mod 化後、現行 built-in 登録は25個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
 > 2026-05-08 に `PluginManager` を設定モーダル内の管理 gadget として追加。これは通常 left nav rack を増やすものではなく、Local Gadget Mod の有効状態を管理するための入口。
 > 2026-05-10 に `MarkdownPreview` の built-in wrapper を `markdown-preview-gadget` Local Mod へ移動。preview engine / command palette / Reader / Markdown source は変更しない。
 > 2026-05-10 に `HUDSettings` の built-in wrapper を `hud-settings-gadget` Local Mod へ移動。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は変更しない。
+> 2026-05-10 に `PomodoroTimer` の built-in wrapper / settings UI を `pomodoro-timer-gadget` Local Mod へ移動。timer engine / storage / HUD notification は変更しない。
 
 | # | Name | Title | Group | Description | File |
 |---|------|-------|-------|-------------|------|
@@ -88,18 +89,18 @@
 | 14 | WritingGoal | 執筆目標 | assist | 文字数・期限の目標を設定し進捗を可視化。 | gadgets-goal.js |
 | 15 | Typewriter | Typewriter | assist | カーソル行を画面中央へ寄せて視線移動を低減。 | gadgets-editor-extras.js |
 | 16 | FocusMode | Focus Mode | assist | 編集中の段落以外を減光して集中を維持。 | gadgets-editor-extras.js |
-| 17 | PomodoroTimer | Pomodoro/集中タイマー | assist | 作業と休憩のタイマーを切り替えて集中を維持。 | gadgets-pomodoro.js |
-| 18 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
-| 19 | UISettings | UI Settings | advanced | 日常執筆で使う表示・文字サイズ・自動保存だけを調整。 | gadgets-editor-extras.js |
-| 20 | EditorAdvancedSettings | 高度な編集設定 | advanced | リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整。 | gadgets-editor-extras.js |
-| 21 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
-| 22 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
-| 23 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
-| 24 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
-| 25 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
-| 26 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
+| 17 | MarkdownReference | Markdownリファレンス | assist | Markdown記法・ショートカット・拡張記法を参照。 | gadgets-markdown-ref.js |
+| 18 | UISettings | UI Settings | advanced | 日常執筆で使う表示・文字サイズ・自動保存だけを調整。 | gadgets-editor-extras.js |
+| 19 | EditorAdvancedSettings | 高度な編集設定 | advanced | リッチ編集改行、テキストボックス、浮遊パネル、ガジェット表示を調整。 | gadgets-editor-extras.js |
+| 20 | EditorLayout | Editor Layout | advanced | 本文の最大幅・内余白・余白背景色を調整。 | gadgets-editor-extras.js |
+| 21 | LinkGraph | Link Graph | structure | Wikiリンクの関係性をグラフで可視化。Story Wiki と同じ structure 内で扱う。 | link-graph.js |
+| 22 | GadgetPrefs | ガジェット設定 | advanced | ガジェット表示状態と設定JSONの入出力を管理。登録は維持するが標準 preset からは外す。 | gadgets-prefs.js |
+| 23 | LoadoutManager | ロードアウト管理 | advanced | 用途別ロードアウトの保存・複製・適用を管理。登録は維持するが標準 preset からは外す。 | gadgets-loadout.js |
+| 24 | Keybinds | キーボードショートカット | advanced | ショートカットの確認・変更・競合解決を管理。 | gadgets-keybinds.js |
+| 25 | PrintSettings | エクスポート | advanced | 印刷プレビューとTXT出力を実行。 | gadgets-print.js |
 | mod | MarkdownPreview | Markdownプレビュー | edit | Local Mod `markdown-preview-gadget` を有効化した時だけ、編集画面横の Markdown preview 開閉とスクロール同期設定を表示。 | js/plugins/markdown-preview-gadget/index.js |
 | mod | HUDSettings | HUD設定 | advanced | Local Mod `hud-settings-gadget` を有効化した時だけ、HUDの位置・表示時間・見た目設定を表示。 | js/plugins/hud-settings-gadget/index.js |
+| mod | PomodoroTimer | Pomodoro/集中タイマー | assist | Local Mod `pomodoro-timer-gadget` を有効化した時だけ、作業/休憩タイマー UI と Pomodoro settings UI を表示。timer engine / HUD通知は built-in のまま維持。 | js/plugins/pomodoro-timer-gadget/index.js |
 | settings | PluginManager | ローカルMod | settings modal | manifest に登録されたローカルModの有効状態を管理。 | gadgets-plugin-manager.js |
 
 | # | Name | 状態 | 理由 |
@@ -119,6 +120,7 @@
 | GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
 | MarkdownPreview | Local Mod | manifest 既定 disabled | Reader / Rich editing / Markdown source の三軸整理を優先し、通常執筆では第二プレビューを常設しない。必要時だけ `markdown-preview-gadget` を有効化する |
 | HUDSettings | Local Mod | manifest 既定 disabled | HUD は本体機能として維持しつつ、位置・色・サイズ調整 UI は低頻度設定として `hud-settings-gadget` 有効時だけ表示する |
+| PomodoroTimer | Local Mod | manifest 既定 disabled | 小説執筆そのものの基盤ではない個人用途タイマー。必要時だけ `pomodoro-timer-gadget` を有効化する |
 | TextEffects | merged/contextual | VN 以外の標準 preset から除外 | `FontDecoration` / `TextAnimation` を統合。装飾は WYSIWYG toolbar / command palette を主導線にし、VN loadout では演出ツールとして維持する |
 
 #### Gadget kind taxonomy
@@ -136,6 +138,7 @@
 | 配置 | `js/plugins/<mod-id>/index.js` を推奨。manifest には `src` として登録する |
 | 有効状態 | `ZWPluginManager` / `zw_plugin_manager_enabled` が正本。loadout では扱わない |
 | 表示位置 | Mod 側の `api.gadgets.register(..., { groups: [...] })` が指定する |
+| 設定UI | Mod 側の `api.gadgets.registerSettings(...)` で同じ Mod 境界に登録する |
 | 反映 | enable / disable は reload 後に反映。読み込み済み JS の完全 unload は現行対象外 |
 | 仕様 | `docs/specs/spec-local-gadget-mods.md` |
 
@@ -220,7 +223,7 @@
         "structure": ["Documents", "Outline", "TagsAndSmartFolders", "SnapshotManager", "StoryWiki", "LinkGraph"],
         "edit": ["ChoiceTools"],
         "theme": ["Themes", "Typography"],
-        "assist": ["Typewriter", "FocusMode", "WritingGoal", "MarkdownReference", "PomodoroTimer"],
+        "assist": ["Typewriter", "FocusMode", "WritingGoal", "MarkdownReference"],
         "advanced": ["EditorLayout", "UISettings", "EditorAdvancedSettings", "PrintSettings", "Keybinds"]
       }
     }
@@ -336,7 +339,7 @@ ZWGadgets.register(
 {
   "order": [],
   "collapsed": {},
-  "settings": {"PomodoroTimer": {"workMinutes": 25}}
+  "settings": {"Sample": {"enabled": true}}
 }
 ```
 
@@ -348,7 +351,7 @@ ZWGadgets.register(
 ### 手動手順
 
 1. 「ガジェット設定をエクスポート」を押してJSONを保存
-2. JSON を編集（例: `settings.PomodoroTimer.workMinutes` を変更する）
+2. JSON を編集（例: `settings.Sample.enabled` を変更する）
 3. 「ガジェット設定をインポート」から当該 JSON を指定
 4. 対応 gadget の設定が反映される
 
@@ -366,12 +369,12 @@ ZWGadgets.register(
 - 例
 
 ```js
-// PomodoroTimer を折りたたむ/展開
-ZWGadgets.toggle('PomodoroTimer');
+// Sample を折りたたむ/展開
+ZWGadgets.toggle('Sample');
 
 // 直接プリファレンスを書き換えて再描画
 const prefs = ZWGadgets.getPrefs();
-prefs.settings.PomodoroTimer = { workMinutes: 25 };
+prefs.settings.Sample = { enabled: true };
 ZWGadgets.setPrefs(prefs);
 ```
 
@@ -424,7 +427,7 @@ ZWGadgets.register('Sample', function (el, api) {
   - `prefs()` 現在のプリファレンスオブジェクト取得
   - `refresh()` 明示的な再描画要求
 
-### 例: PomodoroTimer の音通知
+### 例: Local Mod の設定UI
 
 ```js
 // 表示ロジック（抜粋）
@@ -434,7 +437,7 @@ const soundEnabled = api.get('soundEnabled', true);
 設定UI:
 
 ```js
-ZWGadgets.registerSettings('PomodoroTimer', function (el, ctx) {
+ZWGadgets.registerSettings('Sample', function (el, ctx) {
   const cb = document.createElement('input');
   cb.type = 'checkbox';
   cb.checked = !!ctx.get('soundEnabled', true);
@@ -519,6 +522,12 @@ const settings = window.ZenWriterStorage.loadSettings();
 settings.hud = hudConfig;
 window.ZenWriterStorage.saveSettings(settings);
 ```
+
+## PomodoroTimer Local Mod
+
+Pomodoro/集中タイマーは、小説執筆そのものの基盤ではない個人用途の補助として Local Gadget Mod に外部化します。
+
+`PomodoroTimer` は built-in wrapper ではなく、`pomodoro-timer-gadget` を設定モーダル `ローカルMod` で有効化し reload した時だけ assist category に表示されます。`window.ZenWriterPomodoro`、Pomodoro storage、HUD notification は built-in のまま維持し、Mod は timer UI と settings UI だけを持ちます。
 
 ## Story Wiki ガジェット
 

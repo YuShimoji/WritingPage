@@ -1,6 +1,6 @@
 # PLUGIN_GUIDE — Local Gadget Mod 開発ワークフロー
 
-最終更新: 2026-05-08
+最終更新: 2026-05-10
 
 ## 位置付け
 
@@ -22,6 +22,7 @@
    - 初期状態は試験中なら `enabled: false` を推奨する。
 4. **ZWPlugin API 登録**
    - `window.ZWPlugin.register()` で Mod を登録し、gadget は `api.gadgets.register()` で追加する。
+   - gadget 専用の設定 UI が必要な場合は `api.gadgets.registerSettings()` で同じ Mod 境界に登録する。
    - `api.gadgets.register()` 経由の gadget は `source: 'plugin'` / `pluginId` を持つ。
 5. **ローカルMod有効化**
    - 設定モーダルの `ローカルMod` で有効化する。
@@ -77,7 +78,15 @@ window.ZWPlugin.register({
 });
 ```
 
-`groups` は `sections` / `structure` / `edit` / `theme` / `assist` / `advanced` のいずれかを使います。Mod の enable 状態は plugin manager、表示位置は gadget registration の `groups` と loadout、内部設定は `ZWGadgets` prefs が担当します。
+`groups` は `sections` / `structure` / `edit` / `theme` / `assist` / `advanced` のいずれかを使います。Mod の enable 状態は plugin manager、表示位置は gadget registration の `groups` と loadout、内部設定は `ZWGadgets` prefs または Mod が接続する既存 storage が担当します。
+
+設定 UI が必要な Mod は、main gadget と同じ `init(api)` 内で登録します。
+
+```javascript
+api.gadgets.registerSettings('MyPluginGadget', function (root, ctx) {
+  root.textContent = 'Settings for My Plugin';
+});
+```
 
 ## 有効/無効の優先順位
 
@@ -118,7 +127,7 @@ node -e "JSON.parse(require('fs').readFileSync('docs/spec-index.json','utf8'))"
 manifest / sample / plugin API に触れた場合:
 
 ```powershell
-node --check js/plugin-manager.js js/plugin-api.js js/gadgets-plugin-manager.js js/plugins/sample-word-count-gadget/index.js
+node --check js/plugin-manager.js js/plugin-api.js js/gadgets-plugin-manager.js js/plugins/sample-word-count-gadget/index.js js/plugins/pomodoro-timer-gadget/index.js
 node -e "JSON.parse(require('fs').readFileSync('js/plugins/manifest.json','utf8'))"
 npx playwright test e2e/plugin-manager.spec.js --workers=1 --reporter=line
 npm run test:smoke

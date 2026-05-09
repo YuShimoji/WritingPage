@@ -257,7 +257,7 @@
           structure: ['Documents', 'Outline', 'TagsAndSmartFolders', 'SnapshotManager', 'StoryWiki', 'LinkGraph'],
           edit: ['MarkdownPreview', 'ChoiceTools', 'TextEffects'],
           theme: ['Themes', 'Typography', 'HeadingStyles', 'VisualProfile'],
-          assist: ['Typewriter', 'FocusMode', 'WritingGoal', 'MarkdownReference', 'PomodoroTimer'],
+          assist: ['Typewriter', 'FocusMode', 'WritingGoal', 'MarkdownReference'],
           advanced: ['EditorLayout', 'UISettings', 'PrintSettings', 'Keybinds']
         }
       }

@@ -79,6 +79,17 @@
                     console.error('[ZWPlugin] gadgets.register failed:', name, e);
                 }
             },
+            registerSettings: function (name, factory) {
+                try {
+                    if (window.ZWGadgets && typeof window.ZWGadgets.registerSettings === 'function') {
+                        window.ZWGadgets.registerSettings(name, factory);
+                    } else {
+                        console.warn('[ZWPlugin] ZWGadgets not ready when registering settings:', name);
+                    }
+                } catch (e) {
+                    console.error('[ZWPlugin] gadgets.registerSettings failed:', name, e);
+                }
+            },
             getSetting: function (name, key, def) {
                 try {
                     return window.ZWGadgets && typeof window.ZWGadgets.getSetting === 'function'

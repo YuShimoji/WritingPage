@@ -10,6 +10,15 @@ async function waitGadgetsReady(page) {
       return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
     } catch (_) { return false; }
   });
+  await page.waitForFunction(() => {
+    try {
+      return !!(
+        window.ZWGadgets &&
+        Array.isArray(window.ZWGadgets._list) &&
+        window.ZWGadgets._list.some((g) => g && g.name === 'PomodoroTimer' && g.source === 'plugin')
+      );
+    } catch (_) { return false; }
+  }, { timeout: 15000 });
   // 全ガジェットを有効化（ロードアウトのフィルタリングを無効化）
   await enableAllGadgets(page);
   await showFullToolbar(page);
@@ -22,6 +31,12 @@ async function waitGadgetsReady(page) {
 
 // Pomodoro Timer機能テスト（TASK_027実装済み）
 test.describe('Pomodoro Timer E2E', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'pomodoro-timer-gadget': true }));
+    });
+  });
+
   test('PomodoroTimer gadget renders and displays initial state', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
