@@ -18,9 +18,10 @@
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
 - **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
 - **無重力メモ / Floating memo roadmap**: A1 reframe と A2 daily proof は完了。A3 判断は「command palette 限定実験導線」で確定。正式機能化・保存モデル・設定化は今回しない。
-- **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は標準から外し、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
+- **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は `markdown-preview-gadget` Local Mod へ移動済み、`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
 - **Local Gadget Mod boundary**: ガジェットは固定ラックではなく、後から着脱できる Mod 境界を持つ。低頻度・実験的・個人用途の gadget は built-in へ直接足さず、まず `docs/PLUGIN_GUIDE.md` の開発ワークフローに従い、`js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` + 設定モーダル `ローカルMod` の enable で扱う。enable 状態は plugin manager、配置は loadout、内部設定は `ZWGadgets` prefs が正本。
-- **C2 Gadget Mod boundary audit**: 既存 28 gadget の read-only 監査で、最初の実装候補は `MarkdownPreview` の Local Gadget Mod migration とする。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。実装時も 1 gadget だけ扱う。
+- **C2 Gadget Mod boundary audit**: 既存 28 gadget の read-only 監査で、最初の実装候補を `MarkdownPreview` の Local Gadget Mod migration に固定し、後続スライスで実装済み。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。次の実装時も 1 gadget だけ扱う。
+- **MarkdownPreview Local Mod migration**: `MarkdownPreview` は built-in wrapper ではなく `markdown-preview-gadget` として manifest に登録する。preview pipeline / `ZenWriterEditor.togglePreview()` / command palette / Reader / Markdown source は built-in のまま維持し、Mod は開閉ボタンと `preview.syncScroll` 設定だけを持つ。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
@@ -42,8 +43,9 @@
 | C | Writing status visibility follow-up | `#writing-status-chip` は PASS。常時表示以外の詳細な保存履歴や設定化は別スライスまで増やさない | shared / writing UX |
 | Done | Local Gadget Mod MVP | `ローカルMod` 設定 UI、manifest folder entry、plugin-sourced gadget 登録を追加。ガジェットが固定ラックへ戻らない境界を仕様化 | assistant / gadget UX |
 | Done | Local Gadget Mod workflow整理 | `PLUGIN_GUIDE` を Mod 開発導線の正本にし、`GADGETS` / `spec-local-gadget-mods` / `PLUGIN_SYSTEM` の役割を分離。runtime API と既存 28 gadget 配置は未変更 | assistant / gadget docs |
-| Done | C2 Gadget Mod boundary audit | Built-in に残すべき gadget と Local Mod に逃がすべき gadget を read-only で分類し、最初の候補を `MarkdownPreview` に固定。実装移動は未実施 | assistant / gadget UX |
-| B3 follow-up | `MarkdownPreview` Local Mod migration | preview pipeline は残し、built-in gadget wrapper だけを Local Mod へ移す。`choice` / StoryWiki / LinkGraph / Images / LoadoutManager / GadgetPrefs は触らない | assistant / gadget UX |
+| Done | C2 Gadget Mod boundary audit | Built-in に残すべき gadget と Local Mod に逃がすべき gadget を read-only で分類し、最初の候補を `MarkdownPreview` に固定 | assistant / gadget UX |
+| Done | `MarkdownPreview` Local Mod migration | preview pipeline は残し、built-in gadget wrapper だけを `markdown-preview-gadget` Local Mod へ移動。`choice` / StoryWiki / LinkGraph / Images / LoadoutManager / GadgetPrefs は未変更 | assistant / gadget UX |
+| Next | Gadget Mod migration candidate selection | 次の移行候補は未選定。C2 audit から選ぶ場合も 1 gadget だけを別スライスで扱う | assistant / gadget UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 

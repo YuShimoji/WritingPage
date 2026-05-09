@@ -119,27 +119,7 @@
     }, { title: 'フォーカスモード', groups: ['assist'], description: '編集中の段落以外を減光して集中を維持します。', defaultCollapsed: true });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
-
-    // Markdown Preview Gadget
-    window.ZWGadgets.register('MarkdownPreview', function (root) {
-      var s = window.ZenWriterStorage.loadSettings();
-      var prev = (s && s.preview) || {};
-      root.innerHTML = ''; root.style.display = 'grid'; root.style.gap = '0.375rem';
-
-      var row = el('div');
-      var sync = el('input'); sync.type = 'checkbox'; sync.checked = !!prev.syncScroll; var lbl = el('label'); lbl.textContent = 'スクロール同期'; lbl.style.marginLeft = '0.375rem'; row.appendChild(sync); row.appendChild(lbl);
-
-      var btnToggle = el('button', 'small'); btnToggle.textContent = 'プレビュー開閉';
-      btnToggle.type = 'button';
-      btnToggle.addEventListener('click', function () {
-        if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
-          window.ZenWriterEditor.togglePreview();
-        }
-      });
-      sync.addEventListener('change', function () { withStorage(function (cfg) { cfg.preview = cfg.preview || {}; cfg.preview.syncScroll = !!sync.checked; }); });
-
-      root.appendChild(row); root.appendChild(btnToggle);
-    }, { title: 'Markdownプレビュー', groups: ['edit'], description: '編集画面の横に Markdown を並列表示し、本文とスクロール同期します。' });
+    // MarkdownPreview は Local Gadget Mod (`markdown-preview-gadget`) へ移動済み
 
     function renderUISettings(root, options) {
       var opts = options && typeof options === 'object' ? options : {};

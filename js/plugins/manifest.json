@@ -14,6 +14,14 @@
       "description": "ローカルMod形式のサンプルガジェット。",
       "src": "js/plugins/sample-word-count-gadget/index.js",
       "enabled": false
+    },
+    {
+      "id": "markdown-preview-gadget",
+      "name": "Markdownプレビュー",
+      "type": "gadget",
+      "description": "Markdownプレビューを Local Gadget Mod として有効化します。",
+      "src": "js/plugins/markdown-preview-gadget/index.js",
+      "enabled": false
     }
   ]
 }
