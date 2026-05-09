@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-10（MarkdownPreview Local Gadget Mod migration）
+最終更新: 2026-05-10（HUDSettings Local Gadget Mod migration）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **B3 follow-up complete**: `MarkdownPreview` の built-in wrapper を Local Gadget Mod へ移動済み。次の gadget migration 候補は未選定 |
-| 直近の実装スライス | `MarkdownPreview` Local Gadget Mod migration。preview engine / `ZenWriterEditor.togglePreview()` / command palette / Reader / Markdown source / loadout schema は未変更 |
-| 最新ビルド・検証 | `node --check` / manifest JSON parse / `docs/spec-index.json` JSON parse / `plugin-manager+gadgets` E2E 20 passed / `test:smoke` / `lint:js:check` / `build` / `git diff --check` pass |
+| 現在の主軸 | **B3 follow-up complete**: `MarkdownPreview` と `HUDSettings` の built-in wrappers を Local Gadget Mod へ移動済み。次の gadget migration 候補は未選定 |
+| 直近の実装スライス | `HUDSettings` Local Gadget Mod migration。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示 / loadout schema は未変更 |
+| 最新ビルド・検証 | `node --check` / manifest JSON parse / `docs/spec-index.json` JSON parse / `plugin-manager+gadgets+decorations` E2E 35 passed / `test:smoke` / `lint:js:check` / `build` / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `docs/verification/2026-05-10/markdown-preview-local-gadget-mod-migration.md` を追加。`GADGETS` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を B3 follow-up 完了へ同期 |
+| 今回の docs sync | `docs/verification/2026-05-10/hud-settings-local-gadget-mod-migration.md` を追加。`GADGETS` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を HUDSettings migration 完了へ同期 |
 
 ## Latest Handoff
 
@@ -38,6 +38,7 @@
 - New: Local Gadget Mod 開発ワークフローを整理。`docs/PLUGIN_GUIDE.md` は候補判定→folder entry→manifest→`window.ZWPlugin.register()`→`ローカルMod` enable→reload→検証の正本、`docs/specs/spec-local-gadget-mods.md` は判断ゲート、`docs/GADGETS.md` は built-in 例外ルート、`docs/design/PLUGIN_SYSTEM.md` は背景設計 / deferred を担当する。
 - New: C2 Gadget Mod boundary audit を実施。`MarkdownPreview` は標準 preset から除外済みで developer/audit 用入口に近いため、最初の Local Gadget Mod migration 候補に固定。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。
 - New: B3 follow-up として `MarkdownPreview` の built-in gadget wrapper を `markdown-preview-gadget` Local Mod へ移動。manifest 既定は disabled、設定モーダル `ローカルMod` で enable し reload 後に edit group へ出る。preview pipeline 本体と既存 preview 導線は変更しない。
+- New: 次の高優先候補として `HUDSettings` の built-in gadget wrapper を `hud-settings-gadget` Local Mod へ移動。manifest 既定は disabled、設定モーダル `ローカルMod` で enable し reload 後に advanced group へ出る。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は変更しない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -64,6 +65,22 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### HUDSettings Local Gadget Mod migration
+
+- `.serena/project.yml` の Serena template churn は tool noise として HEAD へ復帰。
+- `HUDSettings` の built-in wrapper を `js/gadgets-hud.js` から外し、`js/plugins/hud-settings-gadget/index.js` へ移動。
+- `js/plugins/manifest.json` に disabled `hud-settings-gadget` entry を追加。
+- built-in loadout presets と legacy normalization から `HUDSettings` を hide-by-default / default 除外へ更新。
+- HUD 本体、`ZenWriterHUD`、autosave HUD、command palette HUD 表示、Local Mod runtime API、loadout schema は未変更。
+- `docs/GADGETS.md` の built-in 一覧を 26 件へ更新し、`HUDSettings` を Local Gadget Mod migration 済みとして別記。
+- `node --check js/gadgets-hud.js js/gadgets-loadouts.js js/gadgets-utils.js js/loadouts-presets.js js/plugin-manager.js js/plugin-api.js js/gadgets-plugin-manager.js js/plugins/sample-word-count-gadget/index.js js/plugins/markdown-preview-gadget/index.js js/plugins/hud-settings-gadget/index.js` → pass
+- `js/plugins/manifest.json` / `docs/spec-index.json` JSON parse → pass
+- `npx playwright test e2e/plugin-manager.spec.js e2e/gadgets.spec.js e2e/decorations.spec.js --workers=1 --reporter=line` → 35 passed
+- `npm run test:smoke` → pass
+- `npm run lint:js:check` → pass
+- `npm run build` → pass
+- `git diff --check` → pass
 
 ### MarkdownPreview Local Gadget Mod migration
 
@@ -435,6 +452,7 @@
 | Done | Local Gadget Mod workflow整理 | `PLUGIN_GUIDE` を開発導線の正本にし、`GADGETS` / `spec-local-gadget-mods` / `PLUGIN_SYSTEM` の役割を分離。runtime API と既存 gadget 配置は未変更 | assistant / gadget docs |
 | Done | C2 Gadget Mod boundary audit | 28 gadget を read-only で分類し、最初の実装候補を `MarkdownPreview` に固定。コード削除・manifest・loadout 変更は未実施 | assistant / gadget UX |
 | Done | `MarkdownPreview` Local Mod migration | preview engine は残し、built-in gadget wrapper だけを `markdown-preview-gadget` Local Mod へ移動。manifest 既定は disabled | assistant / gadget UX |
+| Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。manifest 既定は disabled | assistant / gadget UX |
 | Next | Gadget Mod migration candidate selection | 次の built-in / Mod 境界候補は未選定。C2 audit を見直しても、実装は 1 gadget ずつ別スライス | assistant / gadget UX |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |

@@ -87,6 +87,37 @@ test.describe('Plugin Manager', () => {
     await expect(page.locator('[data-plugin-status="markdown-preview-gadget"]')).toContainText('停止中');
   });
 
+  test('hud settings gadget mod is listed disabled by default', async ({ page }) => {
+    await page.goto('/');
+
+    await page.waitForFunction(() => {
+      return !!(
+        window.ZWPluginManager &&
+        typeof window.ZWPluginManager.getPluginList === 'function' &&
+        window.ZWPluginManager.getPluginList().some((p) => p && p.id === 'hud-settings-gadget')
+      );
+    }, { timeout: 15000 });
+
+    const plugin = await page.evaluate(() => {
+      return window.ZWPluginManager.getPluginList().find((p) => p && p.id === 'hud-settings-gadget');
+    });
+    expect(plugin.enabled).toBe(false);
+    expect(plugin.loaded).toBe(false);
+
+    await page.evaluate(() => {
+      const modal = document.getElementById('settings-modal');
+      if (modal) modal.style.display = 'flex';
+      if (window.ZWGadgets && typeof window.ZWGadgets.init === 'function') {
+        window.ZWGadgets.init('#settings-gadgets-panel', { group: 'settings' });
+      }
+    });
+
+    const toggle = page.locator('[data-plugin-toggle="hud-settings-gadget"]');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).not.toBeChecked();
+    await expect(page.locator('[data-plugin-status="hud-settings-gadget"]')).toContainText('停止中');
+  });
+
   test('enabled local gadget mods register as plugin-sourced gadgets', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'sample-word-count-gadget': true }));
@@ -156,5 +187,43 @@ test.describe('Plugin Manager', () => {
     await wrapper.getByRole('button', { name: 'プレビュー開閉' }).click();
     const newCollapsed = await previewPanel.evaluate((el) => el.classList.contains('editor-preview--collapsed'));
     expect(newCollapsed).not.toBe(initialCollapsed);
+  });
+
+  test('enabled hud settings mod renders in advanced panel', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'hud-settings-gadget': true }));
+      localStorage.setItem('zenwriter-gadget-collapsed', JSON.stringify({ HUDSettings: true }));
+    });
+    await page.goto('/');
+
+    await page.waitForFunction(() => {
+      try {
+        return !!(
+          window.ZWGadgets &&
+          Array.isArray(window.ZWGadgets._list) &&
+          window.ZWGadgets._list.some((g) => g && g.name === 'HUDSettings' && g.source === 'plugin')
+        );
+      } catch (_) {
+        return false;
+      }
+    }, { timeout: 15000 });
+
+    const registered = await page.evaluate(() => {
+      const item = window.ZWGadgets._list.find((g) => g && g.name === 'HUDSettings');
+      return item ? { name: item.name, source: item.source, pluginId: item.pluginId, groups: item.groups, kind: item.kind } : null;
+    });
+    expect(registered).toEqual({
+      name: 'HUDSettings',
+      source: 'plugin',
+      pluginId: 'hud-settings-gadget',
+      groups: ['advanced'],
+      kind: 'settings',
+    });
+
+    await openSidebarGroup(page, 'advanced');
+    const wrapper = page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]');
+    await expect(wrapper).toBeVisible();
+    await expect(wrapper).toHaveAttribute('data-gadget-kind', 'settings');
+    await expect(wrapper.locator('#hud-width')).toHaveAttribute('min', '120');
   });
 });

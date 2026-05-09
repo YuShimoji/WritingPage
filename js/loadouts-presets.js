@@ -54,7 +54,6 @@
             'EditorLayout',
             'UISettings',
             'EditorAdvancedSettings',
-            'HUDSettings',
             'PrintSettings',
             'GadgetPrefs',
             'Keybinds'
@@ -92,7 +91,6 @@
           ],
           advanced: [
             'EditorLayout',
-            'HUDSettings',
             'GadgetPrefs'
           ]
         },
@@ -139,7 +137,6 @@
             'EditorLayout',
             'UISettings',
             'EditorAdvancedSettings',
-            'HUDSettings',
             'GadgetPrefs',
             'Keybinds'
           ]
@@ -181,7 +178,6 @@
             'EditorLayout',
             'UISettings',
             'EditorAdvancedSettings',
-            'HUDSettings',
             'GadgetPrefs',
             'Keybinds'
           ]

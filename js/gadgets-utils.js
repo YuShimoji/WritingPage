@@ -258,7 +258,7 @@
           edit: ['MarkdownPreview', 'ChoiceTools', 'TextEffects'],
           theme: ['Themes', 'Typography', 'HeadingStyles', 'VisualProfile'],
           assist: ['Typewriter', 'FocusMode', 'WritingGoal', 'MarkdownReference', 'PomodoroTimer'],
-          advanced: ['EditorLayout', 'UISettings', 'HUDSettings', 'PrintSettings', 'Keybinds']
+          advanced: ['EditorLayout', 'UISettings', 'PrintSettings', 'Keybinds']
         }
       }
     }

@@ -151,7 +151,7 @@ test.describe('Gadgets E2E', () => {
     await expect(handle).toHaveAttribute('aria-label', /移動/);
 
     await openSidebarGroup(page, 'advanced');
-    const settingsWrapper = page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]').first();
+    const settingsWrapper = page.locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="EditorAdvancedSettings"]').first();
     await expect(settingsWrapper).toHaveAttribute('data-gadget-kind', 'settings');
     await expect(settingsWrapper.locator('.gadget-detach-btn')).not.toBeVisible();
     await expect(settingsWrapper.locator('.gadget-help-btn')).not.toBeVisible();
@@ -275,7 +275,7 @@ test.describe('Gadgets E2E', () => {
 
     const exposure = await page.evaluate(() => {
       var data = window.ZWGadgets._ensureLoadouts();
-      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview'];
+      var globallyHidden = ['LoadoutManager', 'GadgetPrefs', 'MarkdownPreview', 'HUDSettings'];
       var standardHidden = ['TextEffects'];
       var result = {};
       Object.keys(data.entries || {}).forEach(function (key) {
@@ -363,7 +363,8 @@ test.describe('Gadgets E2E', () => {
       expect(groups.structure, `${name} structure placement`).toEqual(expect.arrayContaining(['SnapshotManager']));
       expect(groups.assist, `${name} assist excludes snapshot`).not.toContain('SnapshotManager');
       expect(groups.assist, `${name} assist excludes HUD`).not.toContain('HUDSettings');
-      expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['HUDSettings']));
+      expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['EditorLayout']));
+      expect(groups.advanced, `${name} advanced excludes HUD by default`).not.toContain('HUDSettings');
       if (name !== 'novel-minimal') {
         expect(groups.advanced, `${name} splits daily and advanced UI settings`).toEqual(
           expect.arrayContaining(['UISettings', 'EditorAdvancedSettings']),

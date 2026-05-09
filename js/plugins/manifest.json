@@ -22,6 +22,14 @@
       "description": "Markdownプレビューを Local Gadget Mod として有効化します。",
       "src": "js/plugins/markdown-preview-gadget/index.js",
       "enabled": false
+    },
+    {
+      "id": "hud-settings-gadget",
+      "name": "HUD設定",
+      "type": "gadget",
+      "description": "HUD設定を Local Gadget Mod として有効化します。",
+      "src": "js/plugins/hud-settings-gadget/index.js",
+      "enabled": false
     }
   ]
 }

@@ -24,6 +24,7 @@
     LoadoutManager: true,
     GadgetPrefs: true,
     MarkdownPreview: true,
+    HUDSettings: true,
     TextEffects: { exceptLoadouts: { 'vn-layout': true } }
   };
 

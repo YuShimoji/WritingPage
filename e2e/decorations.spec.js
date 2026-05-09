@@ -183,23 +183,27 @@ test.describe('Font Decoration System', () => {
 test.describe('HUD Settings', () => {
   test.setTimeout(60000);
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'hud-settings-gadget': true }));
+    });
     await page.goto('/');
-    // HUD 関連ロードアウトを初期化してデフォルト構成（HUDSettings を含む）に戻す
+    // HUD 関連ロードアウトを初期化し、HUDSettings Local Mod を有効化した状態に戻す
     await page.evaluate(() => {
       try {
         localStorage.removeItem('zenWriter_gadgets:loadouts');
         localStorage.removeItem('zenWriter_gadgets:prefs');
+        localStorage.setItem('zw_plugin_manager_enabled', JSON.stringify({ 'hud-settings-gadget': true }));
       } catch (_) { /* noop */ }
     });
 
     await page.reload();
 
-    // HUDSettings は低頻度 settings として advanced グループに描画される
+    // HUDSettings は Local Mod 有効時だけ advanced グループに描画される
     await openSidebarAndAdvancedPanel(page);
   });
 
   test('should display HUD settings gadget', async ({ page }) => {
-    // v1: HUDSettings gadget is in advanced/settings group
+    // HUDSettings gadget is a Local Mod in advanced group
     await enableAllGadgets(page);
     await openSidebarGroup(page, 'advanced');
     await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
@@ -214,7 +218,7 @@ test.describe('HUD Settings', () => {
     await openSidebarGroup(page, 'advanced');
     await page.waitForSelector('#advanced-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
 
-    // v1: HUDSettings ガジェットは advanced/settings グループに配置
+    // HUDSettings ガジェットは Local Mod 有効時に advanced グループに配置
     const hudGadget = await page
       .locator('#advanced-gadgets-panel .gadget-wrapper[data-gadget-name="HUDSettings"]')
       .first();
