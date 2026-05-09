@@ -18,13 +18,14 @@
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
 - **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
 - **無重力メモ / Floating memo roadmap**: A1 reframe と A2 daily proof は完了。A3 判断は「command palette 限定実験導線」で確定。正式機能化・保存モデル・設定化は今回しない。
-- **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は `markdown-preview-gadget`、`HUDSettings` は `hud-settings-gadget` Local Mod へ移動済み。`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
+- **ガジェット再整理 roadmap**: 標準 preset cleanup は着手済み。`UISettings` は日常設定へ縮小し、`EditorAdvancedSettings` へ高度設定を分離。`MarkdownPreview` は `markdown-preview-gadget`、`HUDSettings` は `hud-settings-gadget`、`PomodoroTimer` は `pomodoro-timer-gadget` Local Mod へ移動済み。`FontDecoration` / `TextAnimation` は `TextEffects` へ統合して VN 以外から外す。標準 preset から外すこととコード削除を混同しない。
 - **Local Gadget Mod boundary**: ガジェットは固定ラックではなく、後から着脱できる Mod 境界を持つ。低頻度・実験的・個人用途の gadget は built-in へ直接足さず、まず `docs/PLUGIN_GUIDE.md` の開発ワークフローに従い、`js/plugins/<mod-id>/index.js` + `js/plugins/manifest.json` + 設定モーダル `ローカルMod` の enable で扱う。enable 状態は plugin manager、配置は loadout、内部設定は `ZWGadgets` prefs が正本。
 - **C2 Gadget Mod boundary audit**: 既存 28 gadget の read-only 監査で、最初の実装候補を `MarkdownPreview` の Local Gadget Mod migration に固定し、後続スライスで実装済み。StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。次の実装時も 1 gadget だけ扱う。
 - **MarkdownPreview Local Mod migration**: `MarkdownPreview` は built-in wrapper ではなく `markdown-preview-gadget` として manifest に登録する。preview pipeline / `ZenWriterEditor.togglePreview()` / command palette / Reader / Markdown source は built-in のまま維持し、Mod は開閉ボタンと `preview.syncScroll` 設定だけを持つ。
 - **HUDSettings Local Mod migration**: `HUDSettings` は built-in wrapper ではなく `hud-settings-gadget` として manifest に登録する。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は built-in のまま維持し、Mod は位置・表示時間・見た目設定 UI だけを持つ。
 - **PomodoroTimer Mod feasibility audit**: `PomodoroTimer` は次点候補として監査済み。settings UI が `ZWGadgets.registerSettings()` を使うため、完全移行には `api.gadgets.registerSettings()` が必要と確認し、後続の Local Mod migration で対応済み。
 - **PomodoroTimer Local Mod migration**: `PomodoroTimer` は小説執筆自体には不要な個人用途補助と判断し、built-in wrapper / settings UI ではなく `pomodoro-timer-gadget` として manifest に登録する。timer engine / storage / HUD notification は built-in のまま維持し、Mod は timer UI と settings UI だけを持つ。
+- **Local Gadget Mod migration closeout**: 現時点の externalized set は `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件で閉じる。`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide、TextEffects は contextual merged gadget。追加 migration は常時探索せず、体感摩擦・静的監査・Mod-first gate のいずれかで 1 候補に絞れた時だけ別スライスで扱う。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
@@ -50,7 +51,8 @@
 | Done | `MarkdownPreview` Local Mod migration | preview pipeline は残し、built-in gadget wrapper だけを `markdown-preview-gadget` Local Mod へ移動。`choice` / StoryWiki / LinkGraph / Images / LoadoutManager / GadgetPrefs は未変更 | assistant / gadget UX |
 | Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。`ZenWriterHUD` / autosave HUD / command palette HUD 表示は未変更 | assistant / gadget UX |
 | Done | `PomodoroTimer` Local Mod migration | `api.gadgets.registerSettings()` を追加し、timer UI / settings UI を `pomodoro-timer-gadget` Local Mod へ移動。engine / storage / HUD notification は未変更 | assistant / gadget UX |
-| Next | Gadget Mod migration lane closeout | 次候補を無理に探さず、Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を closeout するか、別の非 Mod 1 トピックへ移る | assistant / gadget UX |
+| Done | Gadget Mod migration lane closeout | Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を固定。追加 migration は常時探索せず、明確な 1 候補が出た時だけ別スライスで扱う | assistant / gadget UX |
+| Next | 非 Mod 残作業の 1 トピック選定 | 推奨順は dead-code / stale-resource audit、docs authority hygiene、writing status visibility follow-up。WP-004 / WP-001 は新規 FAIL 報告時だけ扱う | assistant / selected surface |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 

@@ -142,6 +142,20 @@
 | 反映 | enable / disable は reload 後に反映。読み込み済み JS の完全 unload は現行対象外 |
 | 仕様 | `docs/specs/spec-local-gadget-mods.md` |
 
+#### Local Gadget Mod migration closeout（2026-05-10）
+
+現時点の externalized set は `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件で閉じる。追加 migration は standing next action にせず、体感摩擦・静的監査・Mod-first gate で 1 候補に絞れた時だけ別スライスにする。
+
+| 対象 | 判定 | 境界 |
+|------|------|------|
+| `MarkdownPreview` | Local Mod | UI wrapper だけ外部化。preview engine / Reader / Markdown source は built-in 維持 |
+| `HUDSettings` | Local Mod | HUD 設定 UI だけ外部化。`ZenWriterHUD` / autosave HUD / command palette HUD は built-in 維持 |
+| `PomodoroTimer` | Local Mod | timer UI / settings UI だけ外部化。engine / storage / HUD notification は built-in 維持 |
+| `choice` | command plugin 維持 | 既存互換の command plugin。gadget migration target ではない |
+| `StoryWiki` / `LinkGraph` / `Images` | preserve / contextual | 小説構成・視覚文脈の資産。削除や Mod 化を default next にしない |
+| `LoadoutManager` / `GadgetPrefs` | admin hide | 低頻度管理 UI。削除ではなく hide-by-default |
+| `TextEffects` | contextual | 装飾・アニメーション統合先。VN preset では有用 |
+
 #### Documents action lanes
 
 | Control | 役割 | 含める操作 |
@@ -173,6 +187,7 @@
 | advanced | 8 | UI設定・HUD・出力・管理ツール |
 | sections | 1 | セクションナビゲーション (SP-052) |
 
+- 上記は Local Mod 有効時に表示される最大構成を含む。標準状態では `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` は manifest disabled のため表示されない。
 - ロードアウト切替時には `ZWGadgets` が各ガジェットの所属カテゴリを再割り当てし、left nav の category panel 表示と紐づく。
 
 ### Sidebar と ZWGadgets の責務（現行）

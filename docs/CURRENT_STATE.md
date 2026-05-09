@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-10（PomodoroTimer Local Gadget Mod migration）
+最終更新: 2026-05-10（Local Gadget Mod boundary closeout）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **B3 follow-up complete**: `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の built-in wrappers を Local Gadget Mod へ移動済み。Pomodoro は小説執筆基盤ではないため標準 assist から外部化 |
-| 直近の実装スライス | `PomodoroTimer` Local Gadget Mod migration。timer engine / storage / HUD notification は built-in 維持、timer UI と settings UI だけを Local Mod へ移動 |
-| 最新ビルド・検証 | `node --check` / manifest JSON parse / `docs/spec-index.json` JSON parse / `plugin-manager+gadgets+pomodoro+command-palette` E2E / `test:smoke` / `lint:js:check` / `build` / `git diff --check` pass |
+| 現在の主軸 | **Local Gadget Mod migration lane closed**: `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件は Local Gadget Mod として外部化済み。追加候補探索は standing next action にしない |
+| 直近の実装スライス | Local Gadget Mod boundary closeout。runtime API / manifest schema / loadout schema / gadget wrappers は変更せず、3 件の境界と次手を docs に固定 |
+| 最新ビルド・検証 | docs-only: `docs/spec-index.json` JSON parse / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `docs/verification/2026-05-10/pomodoro-timer-local-gadget-mod-migration.md` を追加。`GADGETS` / `PLUGIN_GUIDE` / `spec-local-gadget-mods` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` を PomodoroTimer 外部化へ同期 |
+| 今回の docs sync | `docs/verification/2026-05-10/local-gadget-mod-boundary-closeout.md` を追加。`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `GADGETS` を 3 件の migration closeout と残作業候補へ同期 |
 
 ## Latest Handoff
 
@@ -41,6 +41,7 @@
 - New: 次の高優先候補として `HUDSettings` の built-in gadget wrapper を `hud-settings-gadget` Local Mod へ移動。manifest 既定は disabled、設定モーダル `ローカルMod` で enable し reload 後に advanced group へ出る。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は変更しない。
 - New: `PomodoroTimer` Mod feasibility audit を実施。wrapper は `js/gadgets-pomodoro.js`、engine は `js/pomodoro-timer.js`、標準 assist preset と `e2e/pomodoro.spec.js` は built-in visible 前提。さらに settings UI が `ZWGadgets.registerSettings('PomodoroTimer', ...)` を使う一方、現行 Plugin API は `api.gadgets.registerSettings()` を公開していないため、次判断は API 追加込みの完全 Mod 化か built-in retain の 2 択に絞る。
 - New: ユーザー判断により `PomodoroTimer` は小説執筆自体には不要な補助と確定。`api.gadgets.registerSettings()` を追加し、timer UI と settings UI を `pomodoro-timer-gadget` Local Mod へ移動。manifest 既定は disabled、enable + reload 後だけ assist group に表示される。`window.ZenWriterPomodoro`、Pomodoro storage、HUD notification は built-in のまま維持する。
+- New: Local Gadget Mod migration lane を closeout。`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件は externalized set として固定し、`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。追加 migration は standing next action にしない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -67,6 +68,17 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Local Gadget Mod boundary closeout
+
+- `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件を Local Gadget Mod migration 済み set として固定。
+- `choice` は command plugin のまま維持し、gadget migration target ではない。
+- StoryWiki / LinkGraph / Images は preserve / contextual。LoadoutManager / GadgetPrefs は admin hide。TextEffects は contextual merged gadget。
+- 追加 migration は standing next action にしない。新規候補は体感摩擦、静的監査で見つかった単一候補、または Mod-first gate を満たす明確な理由がある時だけ別スライスで扱う。
+- Runtime API / manifest schema / loadout schema / gadget wrappers は未変更。
+- `docs/verification/2026-05-10/local-gadget-mod-boundary-closeout.md` を追加。
+- `docs/spec-index.json` JSON parse → pass
+- `git diff --check` → pass
 
 ### PomodoroTimer Local Gadget Mod migration
 
@@ -484,7 +496,8 @@
 | Done | `MarkdownPreview` Local Mod migration | preview engine は残し、built-in gadget wrapper だけを `markdown-preview-gadget` Local Mod へ移動。manifest 既定は disabled | assistant / gadget UX |
 | Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。manifest 既定は disabled | assistant / gadget UX |
 | Done | `PomodoroTimer` Local Mod migration | 小説執筆の基盤ではないため標準 assist から外し、timer UI / settings UI だけを `pomodoro-timer-gadget` Local Mod へ移動。engine / storage / HUD notification は維持 | assistant / gadget UX |
-| Next | Gadget Mod migration lane closeout | 追加候補を無理に探さず、Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を 1 スライスで closeout するか、別の非 Mod 1 トピックへ移る | assistant / gadget UX |
+| Done | Gadget Mod migration lane closeout | Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を固定。追加候補探索は standing next action にしない | assistant / gadget UX |
+| Next | Residual non-Mod slice selection | 推奨順は dead-code / stale-resource audit、docs authority hygiene、writing status visibility follow-up。いずれも 1 トピックに絞って扱う | assistant / selected surface |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |

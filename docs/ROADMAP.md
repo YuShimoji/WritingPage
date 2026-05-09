@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-05-10 / v0.3.32（MarkdownPreview / HUDSettings / PomodoroTimer Local Mod 化後の Roadmap 同期）
+> 最終更新: 2026-05-10 / v0.3.32（Local Gadget Mod migration lane closeout）
 
 ## ステータス語彙
 
@@ -22,7 +22,7 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
-- 直近 done: `PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- 直近 done: Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -32,7 +32,7 @@
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
 | **Lane A: 無重力メモ / Floating memo lab** | A3 で command palette 限定の dev-only / experimental overlay として固定。A1 reframe と A2 daily writing proof で、本筋執筆 flow から隔離したまま邪魔にならないことを自動確認済み | 次に触る場合は正式化ではなく、実験としての有用性 review か新規 FAIL の局所修正 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化、loadout preset 接続 |
-| **Lane B: ガジェット再整理 / Local Mod** | 標準 preset cleanup、B3 初回統合、Local Gadget Mod MVP、`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` migration 済み | 次は追加候補を無理に探さず、Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を closeout するか、別の非 Mod 1 トピックへ移る | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活、Mod enable 状態を loadout に混ぜること |
+| **Lane B: ガジェット再整理 / Local Mod** | 標準 preset cleanup、B3 初回統合、Local Gadget Mod MVP、`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` migration、migration lane closeout 済み | active migration queue は空。次は別の非 Mod 1 トピックへ移るか、新規体感摩擦・静的監査・Mod-first gate で 1 候補に絞れた時だけ再開する | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活、Mod enable 状態を loadout に混ぜること、追加候補探索の常時タスク化 |
 | **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
 
 #### Lane A: 無重力メモ / Floating memo lab
@@ -49,6 +49,7 @@
 4. **C2 information design audit / B3 follow-up — done**: 初回 B3 として `FontDecoration` / `TextAnimation` を `TextEffects` へ統合済み。`MarkdownPreview` と `HUDSettings` は built-in wrapper だけ Local Gadget Mod へ移動済み。`LoadoutManager` / `GadgetPrefs` は削除候補ではなく hide-by-default 維持。
 5. **PomodoroTimer feasibility audit — done**: `PomodoroTimer` は個人用途寄りだが、標準 assist preset、専用 `e2e/pomodoro.spec.js`、HUD integration、`ZWGadgets.registerSettings()` を持つ。現行 Plugin API は `api.gadgets.registerSettings()` を公開していなかったため、次判断を API 追加込みの完全 Mod 化か built-in retain に絞った。
 6. **PomodoroTimer Local Mod migration — done**: 小説執筆自体には不要な補助として標準 assist から外し、`api.gadgets.registerSettings()` を追加したうえで timer UI / settings UI を `pomodoro-timer-gadget` へ移動。engine / storage / HUD notification は built-in のまま維持。
+7. **Local Gadget Mod migration lane closeout — done**: externalized set は `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件で固定。`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide、TextEffects は contextual merged gadget。追加 migration は常時探索しない。
 
 #### レーン間の依存・ゲート
 
