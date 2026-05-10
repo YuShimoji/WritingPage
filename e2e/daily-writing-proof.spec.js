@@ -51,8 +51,9 @@ test.describe('A2 daily writing proof', () => {
     await expect(chip).toBeVisible();
     await expect(chip).toContainText('編集中');
     await expect(chip).toHaveAttribute('data-save-state', 'editing');
-    await expect(chip).toContainText('保存済み', { timeout: 2500 });
+    await expect(chip).toContainText(/保存済み \d{2}:\d{2}/, { timeout: 2500 });
     await expect(chip).toHaveAttribute('data-save-state', 'saved');
+    await expect(chip).toHaveAttribute('data-last-saved-at', /\d{4}-\d{2}-\d{2}T/);
     await expect(chip).toContainText('文字数:');
 
     await openSidebarGroup(page, 'sections');

@@ -18,7 +18,7 @@
 - 公開 UI は `display mode` を第一級概念にしない。ユーザー向け状態は **left nav hierarchy / command palette / Reader・Replay surface open state** で表す。
 - `setUIMode('normal'|'focus')` は移行期の内部互換 API としてのみ扱う。新規 UI 仕様・visible command・manual test の起点にしない。
 - visible top chrome surface は復活させない。`F2` / Electron menu / 旧 toolbar 互換経路は command palette を開き、上端 hover reveal・常時 visible handle・上部 drag lane を作らない。
-- writing status chip は Reader 非表示 / Floating memo lab 非表示の通常執筆時だけ出る非操作型 status とする。`pointer-events: none` を維持し、Reader / Floating memo lab 表示中は隠す。
+- writing status chip は Reader 非表示 / Floating memo lab 非表示の通常執筆時だけ出る非操作型 status とする。文字数、編集中/保存済み、最後に保存済みへ遷移した時刻だけを表示し、`pointer-events: none` を維持する。Reader / Floating memo lab 表示中は隠す。
 - Writing UX の主従は Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo。Floating memo lab を保存・文書管理・Gadget 情報設計より上位の本流 surface として扱わない。
 - Floating memo lab の背景 memo は visible title / state label / drag label / textarea 枠を持たない read-only fragment とする。foreground だけ borderless textarea を表示し、実験 overlay のまま editor / chapter / autosave 本流へ接続しない。
 - frameless Electron window の通常移動は Electron-only の右上 window controls island 内 drag handle に限定する。左上には window drag region を置かず、island 非表示時の handle は `no-drag`、表示 active / focus 中だけ `drag` とする。最小化・最大化/復元・閉じる button は常に `no-drag` のまま右上局所 hover / focus 時だけ fade-in する。Editor本文、リッチ編集面、sidebar、left-edge rail、buttons、inputs、contenteditable を window drag region にしない。
