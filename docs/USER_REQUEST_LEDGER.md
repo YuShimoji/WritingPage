@@ -30,6 +30,7 @@
 - **Active help stale wording cleanup**: active help / shortcut resources の旧 `Normal / Focus / 表示モード切替` 語彙は current shell 判断を歪めるため削除する。`F2` は command palette 表示、公開 UI は command palette / left nav / Reader surface / Local Gadget で説明する。
 - **Docs authority hygiene after active help cleanup**: active help cleanup 後の `ROADMAP` と `FEATURE_REGISTRY` FR-009 は現行説明へ同期済み。次の候補選定では旧 Focus panel 由来の設定導線、旧ガジェット件数表記、古い help authority 日付を正本として扱わない。
 - **Writing status saved-time visibility**: `#writing-status-chip` は文字数と編集中/保存済みに加え、保存済み時の最終保存時刻を表示する。chip は引き続き非操作型で、Reader / Floating memo lab 表示中は隠す。設定化は UI / storage 変更が広がるため別スライス扱い。
+- **EDITOR_HELP stale settings route cleanup**: active help SSOT の設定導線は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリに統一済み。旧 Focus panel 由来の設定導線と旧 three-route framing は戻さない。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
 - **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
@@ -57,7 +58,8 @@
 | Done | Active help mode wording cleanup | `EDITOR_HELP` / in-app help / MarkdownReference shortcut の旧 `Normal / Focus / 表示モード切替` 語彙を現行シェル語彙へ同期 | assistant / active help |
 | Done | Docs authority hygiene after active help cleanup | `ROADMAP` と `FEATURE_REGISTRY` FR-009 を active help cleanup 後の現行 authority へ同期。runtime は未変更 | assistant / docs authority |
 | Done | Writing status saved-time visibility | `#writing-status-chip` に `保存済み HH:mm` と `data-last-saved-at` を追加。非操作型・Reader/Floating memo lab 非表示契約は維持 | assistant / writing UX |
-| Next | Dead-code / stale-resource audit | docs authority hygiene 後も残る stale docs / orphan resources を、1 トピックに絞って監査する | assistant / selected surface |
+| Done | EDITOR_HELP stale settings route cleanup | active help SSOT の旧 Focus panel 由来設定導線を削除し、`Ctrl+,` / command palette / left nav 詳細設定カテゴリへ同期 | assistant / docs authority |
+| Next | VisualProfile docs wording audit | `docs/VISUAL_PROFILE.md` に残る古い UI mode 設計コメントを、別スライスで現行 internal compatibility wording へ寄せるか判断する | assistant / selected docs |
 | C | Writing status settings exposure | chip の表示有無や詳細度を設定化する案。UI / storage / tests が広がるため、体感要求が出た時だけ別スライスで扱う | shared / writing UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
