@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-11（EDITOR_HELP stale settings route cleanup）
+最終更新: 2026-05-11（VisualProfile stale UI-state wording cleanup）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **EDITOR_HELP stale settings route cleanup complete**: active help の SSOT から旧 Focus panel 由来の設定導線を削除し、`Ctrl+,` / command palette / left nav 詳細設定カテゴリへ統一 |
-| 直近の実装スライス | Active Help SSOT stale settings route cleanup。docs-only で `EDITOR_HELP` と状態 docs を同期し、runtime / help modal / Visual Profile は未変更 |
-| 最新ビルド・検証 | docs-only: `docs/spec-index.json` JSON parse / `EDITOR_HELP` stale route guard / `npm run test:smoke` / `git diff --check` pass |
+| 現在の主軸 | **VisualProfile stale UI-state wording cleanup complete**: `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ再同期 |
+| 直近の実装スライス | VisualProfile docs/comment-only cleanup。runtime API / profile schema / UI / storage / built-in profiles は未変更 |
+| 最新ビルド・検証 | docs/comment-only: `node --check js/visual-profile.js` / `docs/spec-index.json` JSON parse / VisualProfile stale wording guard / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `EDITOR_HELP` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を active help SSOT stale settings route cleanup へ同期し、`docs/verification/2026-05-10/editor-help-stale-settings-route-cleanup.md` を追加 |
+| 今回の docs sync | `VISUAL_PROFILE` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を VisualProfile stale UI-state wording cleanup へ同期し、`docs/verification/2026-05-11/visual-profile-ui-mode-wording-cleanup.md` を追加 |
 
 ## Latest Handoff
 
@@ -45,7 +45,8 @@
 - New: active help / shortcut resources に残っていた旧 `Normal / Focus / 表示モード切替` 語彙を cleanup。`docs/EDITOR_HELP.md`、in-app help、MarkdownReference shortcuts は `F2 = command palette` と command palette / left nav / Reader surface モデルへ同期済み。
 - New: Docs authority hygiene after active help cleanup を実施。`ROADMAP` の直近 done と `FEATURE_REGISTRY` FR-009 を現行ヘルプ / shortcut / Local Mod 境界へ同期し、旧 Focus panel 由来の設定導線、旧ガジェット件数表記、古い help authority 日付を現行正本から外した。
 - New: Writing status visibility follow-up として `#writing-status-chip` に最終保存時刻を追加。保存済み時は `文字数: N · 保存済み HH:mm` を表示し、`data-last-saved-at` / `ZWWritingStatusChip.getState().lastSavedAt` で保存時刻を確認できる。非操作型・Reader / Floating memo lab 非表示契約は維持する。
-- New: `docs/EDITOR_HELP.md` の stale settings route cleanup を実施。設定入口は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリとして説明し、旧 Focus panel 由来の設定導線と旧 three-route framing を削除した。`docs/VISUAL_PROFILE.md` の古い UI mode 設計コメントは別候補として残す。
+- New: `docs/EDITOR_HELP.md` の stale settings route cleanup を実施。設定入口は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリとして説明し、旧 Focus panel 由来の設定導線と旧 three-route framing を削除した。
+- New: `docs/VISUAL_PROFILE.md` の stale UI-state wording cleanup を実施。Visual Profile は公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用として再同期。`profile.uiMode` は legacy/internal compatibility field として残し、runtime API / profile schema / UI / storage は未変更。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -72,6 +73,18 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### VisualProfile stale UI-state wording cleanup
+
+- `.serena/project.yml` の Serena template churn は tool noise として HEAD へ復帰。
+- `docs/VISUAL_PROFILE.md` から公開概念としての旧 UI-state wording を削除し、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ同期。
+- `profile.uiMode` は legacy/internal compatibility field として文書上だけ再位置づけ。runtime API、profile schema、built-in profile、ユーザー保存導線、storage は未変更。
+- `js/visual-profile.js` は comment / JSDoc のみ同期。
+- `docs/verification/2026-05-11/visual-profile-ui-mode-wording-cleanup.md` を追加。
+- `node --check js/visual-profile.js` → pass
+- `docs/spec-index.json` JSON parse → pass
+- VisualProfile stale wording guard → no matches
+- `git diff --check` → pass
 
 ### EDITOR_HELP stale settings route cleanup
 
@@ -558,8 +571,8 @@
 | Done | Docs authority hygiene after active help cleanup | `ROADMAP` と `FEATURE_REGISTRY` FR-009 を active help cleanup 後の現行 authority へ同期。runtime は未変更 | assistant / docs authority |
 | Done | Writing status saved-time visibility | `#writing-status-chip` に `保存済み HH:mm` と `data-last-saved-at` を追加。非操作型・Reader/Floating memo lab 非表示契約は維持 | assistant / writing UX |
 | Done | EDITOR_HELP stale settings route cleanup | active help SSOT の旧 Focus panel 由来設定導線を削除し、`Ctrl+,` / command palette / left nav 詳細設定カテゴリへ同期 | assistant / docs authority |
-| Next | VisualProfile docs wording audit | `docs/VISUAL_PROFILE.md` に残る古い UI mode 設計コメントを、別スライスで現行 internal compatibility wording へ寄せるか判断する | assistant / selected docs |
-| C | Writing status settings exposure | chip の表示有無や詳細度を設定化する案。UI / storage / tests が広がるため、体感要求が出た時だけ別スライスで扱う | shared / writing UX |
+| Done | VisualProfile stale UI-state wording cleanup | `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ同期。runtime は未変更 | assistant / selected docs |
+| Next | Writing status settings exposure or next stale-resource target | chip の表示有無・詳細度設定化は UI / storage / tests が広がるため体感要求が出た時だけ扱う。stale-resource は新規 1 ターゲットが見つかった時だけ別スライス化 | shared / selected docs |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 

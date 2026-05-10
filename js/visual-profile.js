@@ -1,5 +1,5 @@
 // Visual Profile 管理 — Phase A 実装 + SP-061 Typography Pack
-// テーマ/背景/フォント/余白/表示モードの設定群を「Visual Profile」としてまとめて扱う
+// テーマ/背景/フォント/余白/本文表示の設定群を「Visual Profile」としてまとめて扱う
 
 /**
  * Visual Profile の概念モデル定義
@@ -15,7 +15,7 @@
  * @property {number} editorFontSize - エディタフォントサイズ
  * @property {number} lineHeight - 行間
  * @property {string} editorWidthMode - エディタ幅モード ('narrow' | 'medium' | 'wide')
- * @property {string} uiMode - 表示モード ('normal' | 'focus')
+ * @property {string} uiMode - legacy/internal compatibility UI state ('normal' | 'focus')
  * @property {string} [typographyPack] - SP-061 タイポグラフィパックID
  */
 
@@ -167,7 +167,7 @@ function applyVisualProfile(profile) {
       window.ZenWriterEditor.applyWidthMode(profile.editorWidthMode);
     }
 
-    // 4) 表示モード（UIモード）を適用 — setUIMode 経由で副作用を統一
+    // 4) legacy/internal compatibility UI state — setUIMode 経由で副作用を統一
     if (profile.uiMode) {
       var uiMode = profile.uiMode === 'reader' ? 'focus' : profile.uiMode;
       if (window.ZenWriterApp && typeof window.ZenWriterApp.setUIMode === 'function') {
