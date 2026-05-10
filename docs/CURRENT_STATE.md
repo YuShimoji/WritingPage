@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-11（VisualProfile stale UI-state wording cleanup）
+最終更新: 2026-05-11（remote sync handoff）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **VisualProfile stale UI-state wording cleanup complete**: `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ再同期 |
-| 直近の実装スライス | VisualProfile docs/comment-only cleanup。runtime API / profile schema / UI / storage / built-in profiles は未変更 |
-| 最新ビルド・検証 | docs/comment-only: `node --check js/visual-profile.js` / `docs/spec-index.json` JSON parse / VisualProfile stale wording guard / `git diff --check` pass |
+| 現在の主軸 | **remote sync handoff complete**: 直近 product slice は VisualProfile stale UI-state wording cleanup。再開時はこの Snapshot と Current Priorities から始める |
+| 直近の実装スライス | VisualProfile docs/comment-only cleanup。runtime API / profile schema / UI / storage / built-in profiles は未変更。handoff では状態固定のみ |
+| 最新ビルド・検証 | remote sync handoff: `git status --short --branch` clean / `git rev-list --left-right --count HEAD...origin/main` = `0 0`。直近 product slice は `node --check js/visual-profile.js` / `docs/spec-index.json` JSON parse / VisualProfile stale wording guard / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `VISUAL_PROFILE` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を VisualProfile stale UI-state wording cleanup へ同期し、`docs/verification/2026-05-11/visual-profile-ui-mode-wording-cleanup.md` を追加 |
+| 今回の docs sync | `CURRENT_STATE` に別端末再開用の remote-sync handoff を固定し、`docs/verification/2026-05-11/remote-sync-handoff.md` を追加 |
 
 ## Latest Handoff
 
@@ -47,6 +47,7 @@
 - New: Writing status visibility follow-up として `#writing-status-chip` に最終保存時刻を追加。保存済み時は `文字数: N · 保存済み HH:mm` を表示し、`data-last-saved-at` / `ZWWritingStatusChip.getState().lastSavedAt` で保存時刻を確認できる。非操作型・Reader / Floating memo lab 非表示契約は維持する。
 - New: `docs/EDITOR_HELP.md` の stale settings route cleanup を実施。設定入口は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリとして説明し、旧 Focus panel 由来の設定導線と旧 three-route framing を削除した。
 - New: `docs/VISUAL_PROFILE.md` の stale UI-state wording cleanup を実施。Visual Profile は公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用として再同期。`profile.uiMode` は legacy/internal compatibility field として残し、runtime API / profile schema / UI / storage は未変更。
+- New: Remote sync handoff を実施。`main` / `origin/main` は同期済み、ローカル作業ツリーは clean。別端末では `git pull --ff-only origin main` 後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -73,6 +74,15 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Remote sync handoff
+
+- 直近 product slice: `55cd355 docs: clean visual profile ui mode wording`
+- Handoff docs: `docs/CURRENT_STATE.md` と `docs/verification/2026-05-11/remote-sync-handoff.md`
+- 再開手順: `git pull --ff-only origin main` → `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`。次スライス選定時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`。
+- 次候補: `Writing status settings exposure` は体感要求が出た時だけ。stale-resource cleanup は新規 1 ターゲットが見つかった時だけ。
+- `git status --short --branch` → clean
+- `git rev-list --left-right --count HEAD...origin/main` → `0 0`
 
 ### VisualProfile stale UI-state wording cleanup
 
