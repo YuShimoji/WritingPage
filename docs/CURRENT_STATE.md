@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-10（Local Gadget Mod boundary closeout）
+最終更新: 2026-05-10（Active help mode wording cleanup）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **Local Gadget Mod migration lane closed**: `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件は Local Gadget Mod として外部化済み。追加候補探索は standing next action にしない |
-| 直近の実装スライス | Local Gadget Mod boundary closeout。runtime API / manifest schema / loadout schema / gadget wrappers は変更せず、3 件の境界と次手を docs に固定 |
-| 最新ビルド・検証 | docs-only: `docs/spec-index.json` JSON parse / `git diff --check` pass |
+| 現在の主軸 | **Active help stale wording cleanup complete**: active help / shortcut resources から旧 `Normal / Focus / 表示モード切替` 誘導を外し、command palette / left nav / Reader surface 語彙へ同期 |
+| 直近の実装スライス | Active help UI mode stale wording cleanup。UI 挙動・keybinding・runtime は変更せず、ユーザー向け help と shortcut description だけを現行シェル語彙へ更新 |
+| 最新ビルド・検証 | `node --check` / `docs/spec-index.json` JSON parse / stale wording guard / targeted `F2` command palette E2E / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `docs/verification/2026-05-10/local-gadget-mod-boundary-closeout.md` を追加。`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `GADGETS` を 3 件の migration closeout と残作業候補へ同期 |
+| 今回の docs sync | `docs/verification/2026-05-10/active-help-mode-wording-cleanup.md` を追加。`EDITOR_HELP` / in-app help / MarkdownReference shortcuts / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を active help wording cleanup へ同期 |
 
 ## Latest Handoff
 
@@ -42,6 +42,7 @@
 - New: `PomodoroTimer` Mod feasibility audit を実施。wrapper は `js/gadgets-pomodoro.js`、engine は `js/pomodoro-timer.js`、標準 assist preset と `e2e/pomodoro.spec.js` は built-in visible 前提。さらに settings UI が `ZWGadgets.registerSettings('PomodoroTimer', ...)` を使う一方、現行 Plugin API は `api.gadgets.registerSettings()` を公開していないため、次判断は API 追加込みの完全 Mod 化か built-in retain の 2 択に絞る。
 - New: ユーザー判断により `PomodoroTimer` は小説執筆自体には不要な補助と確定。`api.gadgets.registerSettings()` を追加し、timer UI と settings UI を `pomodoro-timer-gadget` Local Mod へ移動。manifest 既定は disabled、enable + reload 後だけ assist group に表示される。`window.ZenWriterPomodoro`、Pomodoro storage、HUD notification は built-in のまま維持する。
 - New: Local Gadget Mod migration lane を closeout。`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件は externalized set として固定し、`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。追加 migration は standing next action にしない。
+- New: active help / shortcut resources に残っていた旧 `Normal / Focus / 表示モード切替` 語彙を cleanup。`docs/EDITOR_HELP.md`、in-app help、MarkdownReference shortcuts は `F2 = command palette` と command palette / left nav / Reader surface モデルへ同期済み。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -68,6 +69,20 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Active help mode wording cleanup
+
+- `.serena/project.yml` の Serena template churn は tool noise として HEAD へ復帰。
+- `docs/EDITOR_HELP.md` の `表示モード（UIモード）` / `Normal/Focus` 誘導を、command palette / left nav / Reader surface / Local Gadget の説明へ置換。
+- `js/gadgets-help.js` の in-app help は `F2 = command palette` と画面導線 section へ同期。
+- `js/gadgets-markdown-ref.js` の shortcut description から `UIモード切替` / `通常モードに戻る` を削除。
+- UI 挙動、keybindings、Local Mod、loadout、runtime API は未変更。
+- `docs/verification/2026-05-10/active-help-mode-wording-cleanup.md` を追加。
+- `node --check js/gadgets-help.js js/gadgets-markdown-ref.js` → pass
+- `docs/spec-index.json` JSON parse → pass
+- active help stale wording guard → no matches
+- `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line --grep "F2"` → pass
+- `git diff --check` → pass
 
 ### Local Gadget Mod boundary closeout
 
@@ -497,7 +512,8 @@
 | Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。manifest 既定は disabled | assistant / gadget UX |
 | Done | `PomodoroTimer` Local Mod migration | 小説執筆の基盤ではないため標準 assist から外し、timer UI / settings UI だけを `pomodoro-timer-gadget` Local Mod へ移動。engine / storage / HUD notification は維持 | assistant / gadget UX |
 | Done | Gadget Mod migration lane closeout | Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を固定。追加候補探索は standing next action にしない | assistant / gadget UX |
-| Next | Residual non-Mod slice selection | 推奨順は dead-code / stale-resource audit、docs authority hygiene、writing status visibility follow-up。いずれも 1 トピックに絞って扱う | assistant / selected surface |
+| Done | Active help mode wording cleanup | active help / shortcut resources の旧 `Normal / Focus / 表示モード切替` 誘導を、command palette / left nav / Reader surface 語彙へ同期 | assistant / active help |
+| Next | Residual non-Mod slice selection | 推奨順は docs authority hygiene、writing status visibility follow-up、dead-code / stale-resource audit の次候補探索。いずれも 1 トピックに絞って扱う | assistant / selected surface |
 | C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |

@@ -23,15 +23,15 @@
           <h4>基本操作</h4>
           <ul>
             <li><strong>執筆</strong>: 中央のエディタに直接入力。原稿は<strong>自動保存</strong>が主。必要なときだけ <kbd>Ctrl/Cmd + S</kbd> やコマンドパレットの「保存」で<strong>手動の即時保存</strong>。</li>
-            <li><strong>サイドバー</strong>: 左上のメニューボタンで開閉。</li>
+            <li><strong>left nav</strong>: 左端からカテゴリを開き、セクション・構造・編集・テーマ・補助・詳細設定へ移動。</li>
             <li><strong>テーマ</strong>: サイドバーのテーマカテゴリから選択。</li>
           </ul>
           <h4>主要ショートカット</h4>
           <ul>
             <li><kbd>Ctrl/Cmd + S</kbd> — 手動保存（即時・自動保存に加えて実行）</li>
             <li><kbd>Ctrl/Cmd + F</kbd> — 検索</li>
-            <li><kbd>Alt + W</kbd> — ツールバー表示切替</li>
-            <li><kbd>F2</kbd> — 表示モード切替</li>
+            <li><kbd>Alt + W</kbd> — command palette 表示（legacy toolbar 互換）</li>
+            <li><kbd>F2</kbd> — command palette を表示してフォーカス</li>
           </ul>
         `;
       }
@@ -119,20 +119,20 @@
       }
     },
     {
-      id: 'modes',
-      title: '表示モード',
+      id: 'shell',
+      title: '画面導線',
       content: function () {
         return `
-          <h3>表示モード</h3>
-          <p><kbd>F2</kbd> またはツールバーから切り替えられます。</p>
-          <h4>通常モード (Normal)</h4>
-          <p>サイドバー/ツールバーを含む標準レイアウト。</p>
-          <h4>フォーカスモード (Focus)</h4>
-          <p>サイドバーを非表示にし、章リストのみ表示。執筆に集中。</p>
-          <h4>ブランクモード (Blank)</h4>
-          <p>本文のみのミニマル画面。画面端にマウスを移動で復帰メニュー。</p>
-          <h4>リーダーモード (Reader)</h4>
-          <p>装飾・演出を含む読者向けプレビュー。</p>
+          <h3>画面導線</h3>
+          <p>Zen Writer の公開 UI は、command palette / left nav / Reader surface を必要に応じて開閉します。</p>
+          <h4>command palette</h4>
+          <p><kbd>F2</kbd> または <kbd>Ctrl/Cmd + P</kbd> で表示し、保存・検索・設定・Reader などの横断操作を呼び出します。</p>
+          <h4>left nav</h4>
+          <p>左端からカテゴリを開き、セクション・構造・編集・テーマ・補助・詳細設定へ移動します。</p>
+          <h4>Reader surface</h4>
+          <p>読者視点で原稿を確認する編集不可の surface です。「編集に戻る」で執筆面へ復帰します。</p>
+          <h4>Local Gadget</h4>
+          <p>低頻度・個人用途の補助機能は設定の「ローカルMod」で有効化し、reload 後に対象カテゴリへ表示されます。</p>
         `;
       }
     },
@@ -149,10 +149,10 @@
             <tr><td><kbd>Ctrl/Cmd + Y</kbd></td><td>やり直し</td></tr>
             <tr><td><kbd>Ctrl/Cmd + B</kbd></td><td>太字</td></tr>
             <tr><td><kbd>Ctrl/Cmd + I</kbd></td><td>斜体</td></tr>
-            <tr><td><kbd>F2</kbd></td><td>表示モード切替</td></tr>
-            <tr><td><kbd>Alt + W</kbd></td><td>ツールバー表示切替</td></tr>
+            <tr><td><kbd>F2</kbd></td><td>command palette を表示してフォーカス</td></tr>
+            <tr><td><kbd>Alt + W</kbd></td><td>command palette 表示（legacy toolbar 互換）</td></tr>
             <tr><td><kbd>Alt + 1</kbd></td><td>サイドバー開閉</td></tr>
-            <tr><td><kbd>Esc</kbd></td><td>モーダルを閉じる / 通常モードに戻る</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>command palette / モーダル・Reader surface を閉じる</td></tr>
             <tr><td><kbd>Ctrl/Cmd + +/-/0</kbd></td><td>フォントサイズ 拡大/縮小/初期化</td></tr>
           </table>
         `;

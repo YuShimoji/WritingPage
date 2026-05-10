@@ -87,10 +87,10 @@
         { syntax: null, shortcut: 'Ctrl+F', desc: '検索パネルを開く' },
         { syntax: null, shortcut: 'Ctrl+P', desc: 'コマンドパレットを開く' },
         { syntax: null, shortcut: 'Ctrl++/-/0', desc: 'フォントサイズ拡大/縮小/リセット' },
-        { syntax: null, shortcut: 'F2', desc: 'UIモード切替（通常表示 ↔ ミニマル）' },
+        { syntax: null, shortcut: 'F2', desc: 'command palette を表示' },
         { syntax: null, shortcut: 'Alt+1', desc: 'サイドバー開閉' },
-        { syntax: null, shortcut: 'Alt+W', desc: 'ツールバー表示切替' },
-        { syntax: null, shortcut: 'Esc', desc: 'モーダルを閉じる / 通常モードに戻る' }
+        { syntax: null, shortcut: 'Alt+W', desc: 'command palette 表示（legacy toolbar 互換）' },
+        { syntax: null, shortcut: 'Esc', desc: 'command palette / モーダル・Reader surface を閉じる' }
       ]
     },
     {

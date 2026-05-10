@@ -27,6 +27,7 @@
 - **PomodoroTimer Local Mod migration**: `PomodoroTimer` は小説執筆自体には不要な個人用途補助と判断し、built-in wrapper / settings UI ではなく `pomodoro-timer-gadget` として manifest に登録する。timer engine / storage / HUD notification は built-in のまま維持し、Mod は timer UI と settings UI だけを持つ。
 - **Local Gadget Mod migration closeout**: 現時点の externalized set は `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件で閉じる。`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide、TextEffects は contextual merged gadget。追加 migration は常時探索せず、体感摩擦・静的監査・Mod-first gate のいずれかで 1 候補に絞れた時だけ別スライスで扱う。
 - **デッドコード寄りの資源削除**: stale docs、旧 UI 導線、使われない再開テンプレートは積極的に削除する。
+- **Active help stale wording cleanup**: active help / shortcut resources の旧 `Normal / Focus / 表示モード切替` 語彙は current shell 判断を歪めるため削除する。`F2` は command palette 表示、公開 UI は command palette / left nav / Reader surface / Local Gadget で説明する。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
 - **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
 - **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
@@ -52,7 +53,8 @@
 | Done | `HUDSettings` Local Mod migration | HUD 本体は残し、built-in gadget wrapper だけを `hud-settings-gadget` Local Mod へ移動。`ZenWriterHUD` / autosave HUD / command palette HUD 表示は未変更 | assistant / gadget UX |
 | Done | `PomodoroTimer` Local Mod migration | `api.gadgets.registerSettings()` を追加し、timer UI / settings UI を `pomodoro-timer-gadget` Local Mod へ移動。engine / storage / HUD notification は未変更 | assistant / gadget UX |
 | Done | Gadget Mod migration lane closeout | Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を固定。追加 migration は常時探索せず、明確な 1 候補が出た時だけ別スライスで扱う | assistant / gadget UX |
-| Next | 非 Mod 残作業の 1 トピック選定 | 推奨順は dead-code / stale-resource audit、docs authority hygiene、writing status visibility follow-up。WP-004 / WP-001 は新規 FAIL 報告時だけ扱う | assistant / selected surface |
+| Done | Active help mode wording cleanup | `EDITOR_HELP` / in-app help / MarkdownReference shortcut の旧 `Normal / Focus / 表示モード切替` 語彙を現行シェル語彙へ同期 | assistant / active help |
+| Next | 非 Mod 残作業の 1 トピック選定 | 推奨順は docs authority hygiene、writing status visibility follow-up、dead-code / stale-resource audit の次候補探索。WP-004 / WP-001 は新規 FAIL 報告時だけ扱う | assistant / selected surface |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
