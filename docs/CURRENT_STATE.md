@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-10（Active help mode wording cleanup）
+最終更新: 2026-05-10（Docs authority hygiene after active help cleanup）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **Active help stale wording cleanup complete**: active help / shortcut resources から旧 `Normal / Focus / 表示モード切替` 誘導を外し、command palette / left nav / Reader surface 語彙へ同期 |
-| 直近の実装スライス | Active help UI mode stale wording cleanup。UI 挙動・keybinding・runtime は変更せず、ユーザー向け help と shortcut description だけを現行シェル語彙へ更新 |
-| 最新ビルド・検証 | `node --check` / `docs/spec-index.json` JSON parse / stale wording guard / targeted `F2` command palette E2E / `git diff --check` pass |
+| 現在の主軸 | **Docs authority hygiene complete**: active help cleanup 後に残った `ROADMAP` と `FEATURE_REGISTRY` FR-009 の古い説明を、command palette / left nav / Reader surface / Local Mod モデルへ同期 |
+| 直近の実装スライス | Docs authority hygiene after active help cleanup。runtime は変更せず、現行の restart / roadmap / feature registry authority だけを更新 |
+| 最新ビルド・検証 | docs-only: `docs/spec-index.json` JSON parse / active authority stale wording guard / `git diff --check` pass |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `docs/verification/2026-05-10/active-help-mode-wording-cleanup.md` を追加。`EDITOR_HELP` / in-app help / MarkdownReference shortcuts / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を active help wording cleanup へ同期 |
+| 今回の docs sync | `ROADMAP` / `FEATURE_REGISTRY` / `CURRENT_STATE` / `USER_REQUEST_LEDGER` を active help cleanup 後の現行 authority へ同期し、`docs/verification/2026-05-10/docs-authority-hygiene-after-active-help-cleanup.md` を追加 |
 
 ## Latest Handoff
 
@@ -43,6 +43,7 @@
 - New: ユーザー判断により `PomodoroTimer` は小説執筆自体には不要な補助と確定。`api.gadgets.registerSettings()` を追加し、timer UI と settings UI を `pomodoro-timer-gadget` Local Mod へ移動。manifest 既定は disabled、enable + reload 後だけ assist group に表示される。`window.ZenWriterPomodoro`、Pomodoro storage、HUD notification は built-in のまま維持する。
 - New: Local Gadget Mod migration lane を closeout。`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` の 3 件は externalized set として固定し、`choice` は command plugin 維持、StoryWiki / LinkGraph / Images は preserve / contextual、LoadoutManager / GadgetPrefs は admin hide 維持。追加 migration は standing next action にしない。
 - New: active help / shortcut resources に残っていた旧 `Normal / Focus / 表示モード切替` 語彙を cleanup。`docs/EDITOR_HELP.md`、in-app help、MarkdownReference shortcuts は `F2 = command palette` と command palette / left nav / Reader surface モデルへ同期済み。
+- New: Docs authority hygiene after active help cleanup を実施。`ROADMAP` の直近 done と `FEATURE_REGISTRY` FR-009 を現行ヘルプ / shortcut / Local Mod 境界へ同期し、旧 Focus panel 由来の設定導線、旧ガジェット件数表記、古い help authority 日付を現行正本から外した。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -69,6 +70,18 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Docs authority hygiene after active help cleanup
+
+- `.serena/project.yml` の Serena template churn は tool noise として HEAD へ復帰済み。
+- `docs/ROADMAP.md` の header / 直近 done / docs authority note を active help cleanup 後の状態へ同期。
+- `docs/FEATURE_REGISTRY.md` FR-009 を `F1 = help`、`F2 = command palette`、command palette / left nav / Reader surface / Local Gadget 語彙へ同期。
+- 旧 Focus panel 由来の設定入口、旧 `docs/GADGETS.md` 件数表記、古い help authority 日付は現行 FR-009 から除外。
+- Runtime、keybinding、Local Mod、loadout、manifest schema は未変更。
+- `docs/verification/2026-05-10/docs-authority-hygiene-after-active-help-cleanup.md` を追加。
+- `docs/spec-index.json` JSON parse → pass
+- active authority stale wording guard → no matches
+- `git diff --check` → pass
 
 ### Active help mode wording cleanup
 
@@ -513,8 +526,9 @@
 | Done | `PomodoroTimer` Local Mod migration | 小説執筆の基盤ではないため標準 assist から外し、timer UI / settings UI だけを `pomodoro-timer-gadget` Local Mod へ移動。engine / storage / HUD notification は維持 | assistant / gadget UX |
 | Done | Gadget Mod migration lane closeout | Local Mod 化済み 3 件と built-in retain / preserve / admin hide 境界を固定。追加候補探索は standing next action にしない | assistant / gadget UX |
 | Done | Active help mode wording cleanup | active help / shortcut resources の旧 `Normal / Focus / 表示モード切替` 誘導を、command palette / left nav / Reader surface 語彙へ同期 | assistant / active help |
-| Next | Residual non-Mod slice selection | 推奨順は docs authority hygiene、writing status visibility follow-up、dead-code / stale-resource audit の次候補探索。いずれも 1 トピックに絞って扱う | assistant / selected surface |
-| C | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared |
+| Done | Docs authority hygiene after active help cleanup | `ROADMAP` と `FEATURE_REGISTRY` FR-009 を active help cleanup 後の現行 authority へ同期。runtime は未変更 | assistant / docs authority |
+| Next | Writing status visibility follow-up | status chip は PASS。保存履歴・設定化などの拡張は別スライスまで増やさない | shared / writing UX |
+| C | Dead-code / stale-resource audit | docs authority hygiene 後も残る stale docs / orphan resources を、1 トピックに絞って監査する | assistant / selected surface |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
