@@ -1,5 +1,5 @@
 # STATUS_AND_HANDOFF.md
-Ruleset-Version: v18
+Ruleset-Version: v20
 Status: canonical
 
 ## Feature status semantics
@@ -66,51 +66,30 @@ A robust handoff should preserve the facts below, but it should not force every 
 - what not to do next
 - new fossils created in the current thread
 
+## Closeout chain minimum
+Final responses should not merely summarize activity; they should make the next move executable.
+Do not force fixed section names or emit internal labels. Preserve the logical chain in normal language: what is complete, what was deliberately not changed, what changed for the workflow or decision space, what evidence supports it, what uncertainty remains, who moves next, and what happens after any return from the user.
+
+File paths, line numbers, commits, and test names are evidence, not explanation. Put the user-readable meaning first, then cite files as support. Do not wait for the user to ask for "details" or "steps" before explaining what the change means and what happens next.
+
+If the next blocker depends on operator input, explain why work is waiting or what can still run in parallel. A response that ends with only "please check" or "continue from here" is incomplete unless the exact required input and follow-up work are already clear.
+
 ## No progress laundering
 Do not claim progress merely because:
 - a doc was created during refresh
 - a framework-compliant report was produced
+- a list of changed files was shown
 - a low-friction helper feature was specified
 Report what became easier, safer, or more real for the actual artifact path.
 
-## Forward-looking report contract (workspace-wide, set 2026-05-11)
+## Drift self-check (silent unless something fires)
+At slice boundaries and handoffs, self-diagnose against these patterns; surface only the ones that fire, with the next-step implication, not as a passive footnote:
 
-Substantive work reports (commits, push events, hotfix delivery, slice progress, feature additions) must do more than log activity. Include:
+- aesthetic tuning that fits one episode/script/asset but does not generalize
+- polishing within-stage artifacts while drifting from the final shipped form
+- contracts/specs/READMEs accumulating without returning to implementation, GUI ingest, or actual readback
+- treating a one-off HTML / PNG / JSON / fixture as "done" without next-stage integration or proof path
+- requiring the user to detect every direction shift before progress can resume
+- next-stage artifact, its consumer, or blocked reasons not explicit
 
-- **Diff focus**: what was touched and deliberately left untouched.
-- **Position vs final form / North Star**: where this delta lands relative to the project's end state, derived backwards from the goal — not chronological "after step N".
-- **Evidence**: readback, tests, smoke runs, push/sync state.
-- **Residual risk and unsettled judgement**: stale evidence, deferred decisions, areas needing user confirmation.
-- **Recommended next hook**: the most natural assistant-owned next move.
-- **Branching options**: 2–3 meaningfully different next directions, not a single linear next-step.
-- **Next owner**: assistant / user / both.
-
-At slice boundaries, handoffs, or explicit closeouts, also include a **feature status table** — implemented / in-progress / unimplemented / parked — scoped to the current slice or relevant feature-registry section. Keep the table tight (slice scope, not the whole registry).
-
-This is the expected default for substantive reports across the workspace, not a mechanical template. Short Q&A, lookups, and exploratory direction questions remain terse. The goal is to give enough forward-looking context that the next move is obvious without re-prompting. A fixed audit form remains an anti-pattern; the minimum reporting contract is the floor — this contract raises the default density when the work is non-trivial.
-
-### Drift / overfitting self-check
-
-At slice boundaries, handoffs, and closeouts, self-diagnose against these failure modes and surface any that fire — with the next-step implication, not as a passive aside:
-
-- **case overfitting**: aesthetic tuning that fits one episode/script/asset but does not generalize.
-- **local optimization**: polishing within-stage artifacts while drifting from the North Star.
-- **docs-only loop**: contracts/specs/READMEs accumulating without returning to implementation smoke, GUI ingest, or YMM4 readback.
-- **standalone artifact completion**: treating a one-off HTML / PNG / JSON / fixture as "done" without next-stage integration or proof path.
-- **user-as-governor dependency**: requiring the user to detect every direction shift before progress can resume.
-- **next-artifact continuity**: whether the next-stage artifact, its consumer, and any blocked reasons are explicit.
-
-If none fire, say so briefly. Silent self-checks do not count.
-
-### Recommended default path
-
-When listing 2–3 branching options, mark one as the assistant's **recommended default** and state why in one line (typically: shortest path to North Star, smallest blast radius, unblocks the most downstream work, or matches a standing user preference). Split the next moves into:
-
-- **assistant-owned**: what the assistant can advance without further user input under standing approvals.
-- **user-owned**: what requires user judgement, creative authorship, or external action (GUI / YMM4 / external tool).
-
-Do not present options as an undifferentiated menu that punts the choice back to the user.
-
-### Cross-project scope declaration
-
-For cross-project work, declare scope in one line at the top of the report, e.g. `Scope: NLMYTGen / WritingPage / ClipPipeGen`. Keep it minimal — just enough to satisfy the guardrails cross-project pattern. Do not re-justify the cross-project context every report once it is established.
+If none fire, say so briefly in passing. Silent self-checks do not count, but emitting the list as fixed headings is also wrong.
