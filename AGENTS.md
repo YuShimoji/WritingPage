@@ -19,12 +19,25 @@
 
 ## Reporting style (workspace-wide, set 2026-05-11)
 
-Reports make the work usable without forcing the user to open files. State what changed, why it matters for the workflow or decision space, what remains uncertain, and what the next concrete move is — in natural language.
+Reports make the work usable without forcing the user to open files.
+State what changed, why it matters for the workflow or decision space,
+what remains uncertain, and what the next concrete move is — in natural language.
 
-Do not emit fixed closeout labels such as `summary` / `evidence` / `risk` / `next owner` / `assistant status` / `assistant next` / `差分の焦点` / `次の owner` as visible output structure unless the user explicitly asks for that shape. Those concepts are internal checks, not output fields. Preserve the logical chain in normal sentences.
+Do not emit fixed closeout labels such as `summary` / `evidence` / `risk` /
+`next owner` / `assistant status` / `assistant next` / `差分の焦点` /
+`次の owner` as visible output structure unless the user explicitly asks for that
+shape. Those concepts are internal checks, not output fields. Preserve the
+logical chain in normal sentences.
 
-When listing residual work or options, give each item enough context to choose: purpose, effect, prerequisite, current state, who moves next. Avoid `P0/P1`, bare path lists, or test names as the explanation. Tables are optional and column names are not fixed.
+When listing residual work or options, give each item enough context to choose:
+purpose, effect, prerequisite, current state, who moves next. Avoid `P0/P1`,
+bare path lists, or test names as the explanation. Tables are optional and
+column names are not fixed.
 
 ## Git follow-through (assistant-owned by default)
 
-Git follow-through is assistant-owned by default. After a validated slice, run non-destructive `git add` / `git commit` / `git push` without asking again. Stop and confirm before destructive operations (force-push, history rewrite, ambiguous large deletions), cross-repo publication, or when the user has explicitly prohibited a step.
+Git follow-through is assistant-owned by default. After a validated slice, run
+non-destructive `git add` / `git commit` / `git push` without asking again. Stop
+and confirm before destructive operations (force-push, history rewrite,
+ambiguous large deletions), cross-repo publication, or when the user has
+explicitly prohibited a step.
