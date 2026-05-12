@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-11（remote sync handoff）
+最終更新: 2026-05-13（Save / Resume Trust Audit）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **remote sync handoff complete**: 直近 product slice は VisualProfile stale UI-state wording cleanup。再開時はこの Snapshot と Current Priorities から始める |
-| 直近の実装スライス | VisualProfile docs/comment-only cleanup。runtime API / profile schema / UI / storage / built-in profiles は未変更。handoff では状態固定のみ |
-| 最新ビルド・検証 | remote sync handoff: `git status --short --branch` clean / `git rev-list --left-right --count HEAD...origin/main` = `0 0`。直近 product slice は `node --check js/visual-profile.js` / `docs/spec-index.json` JSON parse / VisualProfile stale wording guard / `git diff --check` pass |
+| 現在の主軸 | **Save / Resume Trust Audit complete**: 作家の日常導線で「書く→保存済みを見る→文書を見つける→閉じて戻る→TXT/JSONへ出す→Readerから戻る」を確認済み。次はこの結果から摩擦を 1 トピックだけ選ぶ |
+| 直近の実装スライス | Rich editing で `# 見出し` を章として誤案内しないよう Sections 空状態を修正し、Documents の入出力 / 管理メニューが category 往復で重複しないよう一意化 |
+| 最新ビルド・検証 | Save / Resume Trust Audit: `node --check js/gadgets-sections-nav.js`, `node --check js/gadgets-documents-hierarchy.js`, targeted Playwright 3 tests, `npm run test:smoke`, browser audit flow PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` に別端末再開用の remote-sync handoff を固定し、`docs/verification/2026-05-11/remote-sync-handoff.md` を追加 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` に Save / Resume Trust Audit の観測結果と次判断を同期 |
 
 ## Latest Handoff
 
@@ -48,6 +48,7 @@
 - New: `docs/EDITOR_HELP.md` の stale settings route cleanup を実施。設定入口は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリとして説明し、旧 Focus panel 由来の設定導線と旧 three-route framing を削除した。
 - New: `docs/VISUAL_PROFILE.md` の stale UI-state wording cleanup を実施。Visual Profile は公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用として再同期。`profile.uiMode` は legacy/internal compatibility field として残し、runtime API / profile schema / UI / storage は未変更。
 - New: Remote sync handoff を実施。`main` / `origin/main` は同期済み、ローカル作業ツリーは clean。別端末では `git pull --ff-only origin main` 後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
+- New: Save / Resume Trust Audit を実施。起動、新規文書、Rich editing 入力、`#writing-status-chip` の `編集中`→`保存済み HH:mm`、Documents での現在文書発見、TXT / JSON 書き出し、閉じて再起動後の同一文書・本文復帰、Reader 往復後の本文と editor focus 復帰を確認。修正は Sections 空状態の実導線案内と Documents menu 一意化に限定し、Floating memo 保存モデル化、top chrome / toolbar 復活、Cloud sync、EPUB / DOCX、Gadget 追加には進んでいない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -74,6 +75,13 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Save / Resume Trust Audit
+
+- Remote prep: `git fetch --prune origin`, `git pull --ff-only origin main`, `git rev-list --left-right --count HEAD...origin/main` = `0 0` から開始。
+- Observed flow: 起動 → `+ 文書` → Rich editing 入力 → `文字数: 146 · 編集中` → `文字数: 146 · 保存済み 05:09` → Documents で文書発見 → TXT / JSON 書き出し → page close/reopen → same `docId` / `Save Resume Audit 2026-05-13` / 本文復帰 → Reader 往復後 `#wysiwyg-editor` focus 復帰。
+- Fixed: Sections 空状態は、Rich editing では `+ 新しい章`、Markdown ソース / 読み込み原稿では `# 見出し` が表示対象になることを明示。Documents の `入出力` / `管理` menu は category 往復後も 1 セットだけ残る。
+- Validation: `node --check js/gadgets-sections-nav.js`, `node --check js/gadgets-documents-hierarchy.js`, `npx playwright test e2e/sections-nav.spec.js -g "見出しがない" --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`, `npm run test:smoke`, `git diff --check`。
 
 ### Remote sync handoff
 

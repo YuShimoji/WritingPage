@@ -109,6 +109,8 @@ test.describe('SP-052 Sections Navigator', () => {
     expect(emptyState.title).toContain('表示できるセクションがまだありません');
     expect(emptyState.meta).toContain('現在:');
     expect(emptyState.hint).toContain('見出し');
+    expect(emptyState.hint).toContain('+ 新しい章');
+    expect(emptyState.hint).toContain('Markdown ソース');
   });
 
   test('daily writing: セクションから新しい章をリッチ編集表示へ追加できる', async ({ page }) => {

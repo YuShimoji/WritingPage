@@ -349,6 +349,36 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
     await expect(page.locator('#documents-manage-menu')).not.toContainText('JSON書き出し');
   });
 
+  test('Documents menus stay unique after category round trip', async ({ page }) => {
+    await setupDocsAndOpenGadget(page, 2);
+    await expandDocumentsGadget(page);
+
+    await page.evaluate(() => {
+      var sections = document.querySelector('.accordion-header[aria-controls="accordion-sections"]');
+      var structure = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
+      if (sections) sections.click();
+      if (structure) structure.click();
+    });
+    await page.waitForTimeout(500);
+    await expandDocumentsGadget(page);
+
+    const counts = await page.evaluate(() => {
+      return {
+        ioMenus: document.querySelectorAll('#documents-io-menu').length,
+        manageMenus: document.querySelectorAll('#documents-manage-menu').length,
+        restoreItems: document.querySelectorAll('#restore-from-snapshot').length,
+        ioItems: Array.from(document.querySelectorAll('#documents-io-menu button')).map(function (btn) {
+          return (btn.textContent || '').trim();
+        })
+      };
+    });
+
+    expect(counts.ioMenus).toBe(1);
+    expect(counts.manageMenus).toBe(1);
+    expect(counts.restoreItems).toBe(1);
+    expect(counts.ioItems).toEqual(['TXT書き出し', 'JSON書き出し', 'JSON読み込み']);
+  });
+
   async function getMultiSelectState(page) {
     return page.evaluate(() => {
       var cbs = document.querySelectorAll('.tree-select-cb');

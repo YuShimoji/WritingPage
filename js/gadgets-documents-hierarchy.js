@@ -267,6 +267,9 @@
       var openMenus = [];
 
       function createMenu(id, label) {
+        document.querySelectorAll('#' + id).forEach(function (existing) {
+          if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+        });
         var menu = document.createElement('div');
         menu.id = id;
         menu.className = 'documents-action-menu documents-more-menu zw-shell-menu';
