@@ -61,9 +61,11 @@
 
 ### 2026-05-13 writing trust lane
 
+Chapter Creation Daily Flow is now done. The writing trust lane has proof for `+ 新しい章` from Rich editing, Store-backed chapter creation, isolated chapter bodies, save/reload resume, Reader round trip, TXT/JSON export, and JSON import roundtrip. The next work should not reopen chapter creation itself unless a new failure appears; choose from First-use Save Help, Import Roundtrip Hardening, Rich Editing Heading Shortcut Decision, or stale spec reconciliation.
+
 Save / Resume Trust Audit と Export Trust Proof により、作家が日常的に使う「書く→保存確認→Documents で見つける→閉じて戻る→TXT / JSON で外に出す」は最小信頼を得た。TXT / JSON は download event ではなく実ファイル内容まで検査済みで、JSON は `document.id/name/content/pages` と読み込み roundtrip の最小範囲を固定している。
 
-次は新機能追加ではなく、章を使う日常運用を `Chapter Creation Daily Flow` として 1 スライスで検証するのが最短。初回説明を軽くしたい場合は `First-use Save Help`、外部退避から戻す耐久性を厚くしたい場合は `Import Roundtrip Hardening`、Rich editing の `# 見出し` 体験を変える場合は `Rich Editing Heading Shortcut Decision` として分ける。
+次は、章作成そのものではなく周辺の摩擦を別スライスで選ぶ。初回説明を軽くしたい場合は `First-use Save Help`、外部退避から戻す耐久性を厚くしたい場合は `Import Roundtrip Hardening`、Rich editing の `# 見出し` 体験を変える場合は `Rich Editing Heading Shortcut Decision`、古い仕様表を正本へ寄せる場合は stale spec reconciliation として分ける。
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 

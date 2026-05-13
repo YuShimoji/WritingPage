@@ -42,6 +42,10 @@
     return document.documentElement.getAttribute(CHAPTER_SYNC_ATTR) === 'assembled';
   }
 
+  function isChapterSliceEditingActive() {
+    return document.documentElement.getAttribute(CHAPTER_SYNC_ATTR) === 'slice';
+  }
+
   /** 新規章の見出しレベル: 直前章に合わせる。直前が不正なときは既存章の最頻出（1–6、既定 2） */
   function dominantChapterLevelForNew() {
     var defaultLv = 2;
@@ -166,7 +170,7 @@
 
     // エディタ入力時にリフレッシュ / 自動保存
     var editorInputHandler = function () {
-      if (document.documentElement.getAttribute('data-ui-mode') !== 'focus') return;
+      if (document.documentElement.getAttribute('data-ui-mode') !== 'focus' && !isChapterSliceEditingActive()) return;
       scheduleSaveActiveChapter();
       updateEmptyChapterHint();
     };
@@ -391,7 +395,7 @@
   function flushActiveChapter() {
     if (!inChapterMode()) return;
     if (isChapterEditorAssembled()) return;
-    if ((document.documentElement.getAttribute('data-ui-mode') || 'normal') !== 'focus') return;
+    if ((document.documentElement.getAttribute('data-ui-mode') || 'normal') !== 'focus' && !isChapterSliceEditingActive()) return;
     if (activeChapterIdx < 0 || activeChapterIdx >= chapters.length) return;
 
     var ch = chapters[activeChapterIdx];
@@ -688,6 +692,15 @@
 
     var docId = getDocumentIdForChapterOps();
     if (!docId) return;
+
+    if (chapters.length === 0 && Store && typeof Store.splitIntoChapters === 'function') {
+      var currentText = getEditorText();
+      if (currentText && currentText.trim()) {
+        Store.splitIntoChapters(docId, currentText);
+        refreshChapterMode();
+      }
+    }
+
     var lastChapter = chapters.length > 0 ? chapters[chapters.length - 1] : null;
     var afterId = lastChapter ? lastChapter.id : null;
     var level = dominantChapterLevelForNew();

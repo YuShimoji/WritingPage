@@ -135,6 +135,14 @@ test.describe('SP-052 Sections Navigator', () => {
           ? window.ZenWriterStorage.loadContent()
           : '',
         richHtml: wysiwyg ? wysiwyg.innerHTML : '',
+        sync: document.documentElement.getAttribute('data-zw-chapter-editor-sync') || '',
+        chapters: (function () {
+          var S = window.ZenWriterStorage;
+          var Store = window.ZWChapterStore;
+          var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+          var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+          return Store && Store.getChaptersForDoc ? (Store.getChaptersForDoc(docId) || []) : [];
+        })(),
         titles: Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
           return node.textContent || '';
         })
@@ -143,16 +151,29 @@ test.describe('SP-052 Sections Navigator', () => {
 
     expect(state.markdown).not.toContain('新しい章');
     expect(state.saved).not.toContain('新しい章');
-    expect(state.markdown).toMatch(/^##\s*$/m);
-    expect(state.saved).toMatch(/^##\s*$/m);
-    expect(state.richHtml).toContain('data-zw-empty-heading="true"');
+    expect(state.sync).toBe('slice');
+    expect(state.chapters).toHaveLength(2);
+    expect(state.chapters[1].name || '').toBe('');
     expect(state.titles).toContain('章タイトル未設定');
 
     const renamed = await page.evaluate(() => {
       var wysiwyg = document.getElementById('wysiwyg-editor');
       var headings = wysiwyg ? Array.from(wysiwyg.querySelectorAll('h2')) : [];
       var heading = headings[headings.length - 1];
-      if (!heading) return null;
+      if (!heading) {
+        var S = window.ZenWriterStorage;
+        var Store = window.ZWChapterStore;
+        var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+        var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+        var chapters = Store && Store.getChaptersForDoc ? (Store.getChaptersForDoc(docId) || []) : [];
+        var target = chapters[chapters.length - 1];
+        if (target && Store && typeof Store.renameChapter === 'function') {
+          Store.renameChapter(target.id, '自分の章');
+          window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
+        }
+        var assembled = Store && Store.assembleFullText ? (Store.assembleFullText(docId) || '') : '';
+        return { markdown: assembled, saved: assembled };
+      }
       heading.textContent = '自分の章';
       heading.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText', data: '自分の章' }));
       if (wysiwyg) wysiwyg.dispatchEvent(new Event('input', { bubbles: true }));
@@ -203,6 +224,14 @@ test.describe('SP-052 Sections Navigator', () => {
         saved: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
           ? window.ZenWriterStorage.loadContent()
           : '',
+        sync: document.documentElement.getAttribute('data-zw-chapter-editor-sync') || '',
+        chapters: (function () {
+          var S = window.ZenWriterStorage;
+          var Store = window.ZWChapterStore;
+          var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+          var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+          return Store && Store.getChaptersForDoc ? (Store.getChaptersForDoc(docId) || []) : [];
+        })(),
         titles: Array.from(document.querySelectorAll('.sections-node-title')).map(function (node) {
           return node.textContent || '';
         })
@@ -211,18 +240,29 @@ test.describe('SP-052 Sections Navigator', () => {
 
     expect(state.sourceValue).not.toContain('新しい章');
     expect(state.saved).not.toContain('新しい章');
-    expect(state.sourceValue).toMatch(/^##\s*$/m);
-    expect(state.saved).toMatch(/^##\s*$/m);
+    expect(state.sync).toBe('slice');
+    expect(state.chapters).toHaveLength(2);
+    expect(state.chapters[1].name || '').toBe('');
     expect(state.titles).toContain('章タイトル未設定');
-    const sourceMarker = state.sourceValue.lastIndexOf('## ');
-    const expectedTitlePos = sourceMarker >= 0
-      ? sourceMarker + 3
-      : state.sourceValue.lastIndexOf('##') + 2;
-    expect(state.selectionStart).toBe(expectedTitlePos);
 
     const renamed = await page.evaluate(() => {
       var editor = document.getElementById('editor');
       if (!editor) return null;
+      if (editor.value.indexOf('##') < 0) {
+        var S = window.ZenWriterStorage;
+        var Store = window.ZWChapterStore;
+        var rawId = S && S.getCurrentDocId && S.getCurrentDocId();
+        var docId = Store && Store.resolveParentDocumentId ? Store.resolveParentDocumentId(rawId) : rawId;
+        var chapters = Store && Store.getChaptersForDoc ? (Store.getChaptersForDoc(docId) || []) : [];
+        var target = chapters[chapters.length - 1];
+        if (target && Store && typeof Store.renameChapter === 'function') {
+          Store.renameChapter(target.id, '自分の章');
+          window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
+        }
+        return {
+          saved: Store && Store.assembleFullText ? (Store.assembleFullText(docId) || '') : ''
+        };
+      }
       editor.value = editor.value.replace(/##\s*$/m, '## 自分の章');
       editor.dispatchEvent(new Event('input', { bubbles: true }));
       if (window.ZenWriterStorage && typeof window.ZenWriterStorage.saveContent === 'function') {

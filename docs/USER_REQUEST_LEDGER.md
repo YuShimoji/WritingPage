@@ -66,7 +66,7 @@
 | Done | VisualProfile stale UI-state wording cleanup | `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ同期。runtime は未変更 | assistant / selected docs |
 | Done | Save / Resume Trust Audit | 書く→保存済み確認→Documents 発見→再起動復帰→download event→Reader 往復を PASS。修正は Sections 空状態案内と Documents menu 一意化のみ | assistant / writing trust |
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を検査。TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip、Reader 往復後の再書き出しまで PASS | assistant / export trust |
-| Next | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定する。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出しまで、章構造が日常利用で壊れないことを証明する | assistant / writing trust |
+| Done | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定済み。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで、章構造が日常利用で壊れないことを証明した | assistant / writing trust |
 | Option | First-use Save Help | 初回空状態や Documents 補助文で、保存・再開・書き出しのモデルを短時間で理解できるようにする。小さな文言・help 補強に限定する | assistant / first-use UX |
 | Option | Import Roundtrip Hardening | JSON 読み込みの復元性を、複数章・重複名・既存文書衝突などへ広げる。Export proof から import proof へ信頼を厚くする | assistant / import trust |
 | Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
@@ -86,3 +86,11 @@
 - 会話で一度出た要求のうち、次回以降も効くものをここへ残す。
 - 単なる感想ではなく、仕様・設計・backlog に効くものを優先する。
 - 過去の完了セッション詳細は現在判断に混ぜない。
+
+# 2026-05-13 Chapter Creation Daily Flow
+
+- Status: done. This slice fixed and proved the everyday chapter route: Rich editing -> `+ 新しい章` -> chapter body isolation -> save/reload -> Reader -> TXT/JSON export -> JSON import roundtrip.
+- Current judgment: chapter creation is no longer treated as a docs-only or UI-presence item. The trust proof is that adding chapters does not lose body text, mix chapter bodies, lose chapter structure, or export only the active chapter slice.
+- Implementation anchor: `js/gadgets-sections-nav.js`, `js/chapter-list.js`, `js/content-guard.js`, `js/gadgets-documents-hierarchy.js`, and `js/modules/editor/EditorCore.js` keep chapterMode creation/saving/export on the ChapterStore route.
+- Test anchor: `e2e/chapter-creation-daily-flow.spec.js` is the restart proof. `e2e/sections-nav.spec.js` daily-writing expectations now assert the Store-backed route.
+- Next candidates stay separate: `First-use Save Help`, `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.

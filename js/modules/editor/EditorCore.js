@@ -192,8 +192,39 @@
             }
         },
 
+        getCurrentExportText(manager) {
+            let text = manager.getEditorValue();
+            try {
+                const guard = window.ZWContentGuard;
+                if (guard && typeof guard.flushChapterIfNeeded === 'function') {
+                    guard.flushChapterIfNeeded();
+                }
+                const storage = window.ZenWriterStorage;
+                const chapterStore = window.ZWChapterStore;
+                const rawId = storage && typeof storage.getCurrentDocId === 'function'
+                    ? storage.getCurrentDocId()
+                    : null;
+                const docId = rawId && chapterStore && typeof chapterStore.resolveParentDocumentId === 'function'
+                    ? chapterStore.resolveParentDocumentId(rawId)
+                    : rawId;
+                if (docId && chapterStore &&
+                    typeof chapterStore.isChapterMode === 'function' &&
+                    typeof chapterStore.getChaptersForDoc === 'function' &&
+                    typeof chapterStore.assembleFullText === 'function' &&
+                    chapterStore.isChapterMode(docId)) {
+                    const chapters = chapterStore.getChaptersForDoc(docId) || [];
+                    if (chapters.length > 0) {
+                        text = chapterStore.assembleFullText(docId) || text;
+                    }
+                }
+            } catch (e) {
+                void e;
+            }
+            return text;
+        },
+
         exportAsText(manager) {
-            const text = manager.getEditorValue();
+            const text = this.getCurrentExportText(manager);
             const blob = new Blob([text], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -204,7 +235,7 @@
         },
 
         exportAsMarkdown(manager) {
-            const text = manager.getEditorValue();
+            const text = this.getCurrentExportText(manager);
             const blob = new Blob([text], { type: 'text/markdown' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');

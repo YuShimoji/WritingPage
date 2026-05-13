@@ -4,6 +4,14 @@
 
 ## Snapshot
 
+### 2026-05-13 Chapter Creation Daily Flow restart anchor
+
+- Chapter Creation Daily Flow is now the latest writing-trust proof. The verified user path is: new document -> Rich editing -> `+ 新しい章` -> two chapter titles/bodies -> chapter switching -> save/reload resume -> Reader round trip -> TXT/JSON export -> JSON import roundtrip.
+- Product fix: chapterMode `+ 新しい章` now stays on the `ZWChapterStore.createChapter()` route even when the document has zero existing chapter records. Existing editor text is split into the first chapter before appending a new chapter, so adding a chapter no longer risks turning the current body into an unstructured heading insert.
+- Product fix: chapter slice editing in the normal Rich editing surface now flushes to the chapter store, and TXT/Markdown export uses `ZWChapterStore.assembleFullText()` when chapter pages exist. This keeps TXT export from accidentally exporting only the active chapter slice.
+- E2E anchor: `e2e/chapter-creation-daily-flow.spec.js` covers chapter creation, body isolation, save/reload, Reader, TXT/JSON export, and JSON import roundtrip. `e2e/sections-nav.spec.js` daily writing expectations were updated to match the chapterMode Store route.
+- Not included: Cloud sync, EPUB/DOCX, floating memo persistence, top chrome/toolbar revival, chapter templates, outline editor, drag/drop chapter reorder, and broad stale-doc cleanup.
+
 | 項目 | 状態 |
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
@@ -77,6 +85,15 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Chapter Creation Daily Flow
+
+- Scope: prove the everyday long-form route, not just the presence of a chapter button. The covered path is `+ 新しい章` from Rich editing, chapter title/body separation, chapter switching, save/reload resume, Reader round trip, TXT/JSON export, and JSON import roundtrip.
+- Chapter proof: `+ 新しい章` creates ChapterStore records from the public Sections route. Two chapters keep isolated bodies with Japanese text, symbols, blank lines, and unique tokens; switching through Sections restores the correct body and focus.
+- Persistence proof: after explicit save and page reload, the same document name, two chapter records, chapter order, titles, and canonical Rich editing bodies are restored.
+- Reader/export proof: Reader shows both chapter titles/bodies in order and returns focus to the editor. TXT export contains both chapter titles/bodies in order. JSON export parses as `zenwriter-v1`, keeps `document.name/content`, and has two `pages` entries with title/content/order/level/visibility. UI JSON import restores the two-chapter structure.
+- Validation: `node --check js/chapter-list.js`, `node --check js/gadgets-sections-nav.js`, `node --check js/content-guard.js`, `node --check js/gadgets-documents-hierarchy.js`, `node --check js/modules/editor/EditorCore.js`, `node --check e2e/chapter-creation-daily-flow.spec.js`, `node --check e2e/sections-nav.spec.js`, `npx playwright test e2e/chapter-creation-daily-flow.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/sections-nav.spec.js -g "daily writing" --workers=1 --reporter=line`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`.
+- Full E2E note: monolithic full E2E remains avoided because of known timeout history; use focused specs or shard/suite runs for total inspection.
 
 ### Export Trust Proof
 

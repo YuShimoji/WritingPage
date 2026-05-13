@@ -409,7 +409,10 @@
   function handleAddChapterFromSections() {
     var storeChapters = getChapterStoreChapters();
     var chapterList = window.ZWChapterList;
-    if (storeChapters.length > 0 && chapterList && typeof chapterList.addChapter === 'function') {
+    var Store = window.ZWChapterStore;
+    var docId = getCurrentChapterDocId();
+    var chapterMode = !!(Store && docId && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId));
+    if ((chapterMode || storeChapters.length > 0) && chapterList && typeof chapterList.addChapter === 'function') {
       chapterList.addChapter();
       notifySectionAction('新しい章を追加しました');
       return;

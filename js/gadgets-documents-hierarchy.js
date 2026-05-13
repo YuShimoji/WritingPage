@@ -72,6 +72,11 @@
 
       function saveCurrentContent() {
         try {
+          var G = window.ZWContentGuard;
+          if (G && typeof G.ensureSaved === 'function') {
+            G.ensureSaved({ snapshot: false });
+            return;
+          }
           if (editorManager && typeof storage.saveContent === 'function') {
             // リッチ編集表示対応: getEditorValue() で正しい Markdown を取得
             var content = '';

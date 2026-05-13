@@ -34,15 +34,22 @@
     return (S && typeof S.getCurrentDocId === 'function') ? (S.getCurrentDocId() || null) : null;
   }
 
-  function _isChapterMode() {
+  function _getCurrentChapterStoreDocId() {
     var rawId = _getCurrentDocId();
     var Store = _getChapterStore();
-    if (!rawId || !Store) return false;
-    var docId =
-      typeof Store.resolveParentDocumentId === 'function'
-        ? Store.resolveParentDocumentId(rawId)
-        : rawId;
+    return rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+      ? Store.resolveParentDocumentId(rawId)
+      : rawId;
+  }
+
+  function _isChapterMode() {
+    var docId = _getCurrentChapterStoreDocId();
+    var Store = _getChapterStore();
     return !!(docId && Store.isChapterMode(docId));
+  }
+
+  function _isChapterSliceEditingActive() {
+    return document.documentElement.getAttribute('data-zw-chapter-editor-sync') === 'slice';
   }
 
   // ---- Public API ----
@@ -89,7 +96,7 @@
     // 結合本文をエディタに表示している間は、1章分としてフラッシュしない（データ破損防止）
     if (root.getAttribute('data-zw-chapter-editor-sync') === 'assembled') return false;
     // 章スライス編集はフォーカスモードのみ。通常モードの結合本文を章レコードへ書かない。
-    if ((root.getAttribute('data-ui-mode') || 'normal') !== 'focus') return false;
+    if ((root.getAttribute('data-ui-mode') || 'normal') !== 'focus' && !_isChapterSliceEditingActive()) return false;
 
     var CL = _getChapterList();
     if (!CL) return false;
@@ -138,6 +145,15 @@
     // メイン内容を取得・保存
     var content = getEditorContent();
     var S = _getStorage();
+    var Store = _getChapterStore();
+    var docId = _getCurrentChapterStoreDocId();
+
+    if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId) &&
+        typeof Store.getChaptersForDoc === 'function' && typeof Store.assembleFullText === 'function') {
+      var chapters = Store.getChaptersForDoc(docId) || [];
+      var assembled = chapters.length > 0 ? (Store.assembleFullText(docId) || '') : '';
+      if (assembled) content = assembled;
+    }
 
     if (S && content) {
       // ドキュメントの content フィールドを更新
