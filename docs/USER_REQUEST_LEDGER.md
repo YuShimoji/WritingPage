@@ -15,6 +15,7 @@
 - **Daily writing workflow before Floating memo**: 起動→Rich editing 執筆→セクション確認→保存状態→Reader 往復→Floating memo lab 開閉のミニ原稿導線は A2 で E2E 化済み。2026-04-27 proof の初回 FAIL（public `sections` の「新しい章」追加導線、手動保存 HUD）は narrow fix 済み。続く friction sweep で gadget drag、left nav、低価値 loadout、章作成テンプレート導線も PASS。文字数・保存状態は `#writing-status-chip` で Reader / Floating memo lab 非表示時に非操作型表示する。
 - **Save / Resume Trust Audit**: 新機能追加より先に、作家が毎日使う「書く→保存済み確認→Documents で見つける→閉じて戻る→TXT / JSON 書き出し→Reader から戻る」導線を安心できる状態へ固定する。2026-05-13 audit では本文保存・再開・書き出し・Reader focus は PASS。修正は Sections 空状態の Rich editing / Markdown ソース案内と Documents menu 一意化に限定済み。Floating memo 保存モデル化、Cloud sync、EPUB / DOCX、Gadget 追加、top chrome / 常設 toolbar 復活へは進まない。
 - **Export Trust Proof**: Save / Resume Trust Audit の次段として、TXT / JSON は download event ではなく実ファイル内容で信頼を証明する。2026-05-13 proof では TXT が current editor value と一致し、JSON は `document.id` / `document.name` / `document.content` / `pages` を構造 assert し、daily JSON 読み込み UI roundtrip、explicit chapter `pages` roundtrip、Reader 往復後の再書き出しまで PASS。Cloud sync、EPUB / DOCX、Floating memo 保存、Gadget 追加、Export UI 大規模再設計へは進まない。
+- **Remote sync / cross-terminal handoff**: Export Trust Proof 後の再開 anchor は `372be1b test: prove export file contents`。別端末は `git pull --ff-only origin main` の後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。引き継ぎでは chat 履歴ではなく project docs を正本にする。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
@@ -63,7 +64,12 @@
 | Done | Writing status saved-time visibility | `#writing-status-chip` に `保存済み HH:mm` と `data-last-saved-at` を追加。非操作型・Reader/Floating memo lab 非表示契約は維持 | assistant / writing UX |
 | Done | EDITOR_HELP stale settings route cleanup | active help SSOT の旧 Focus panel 由来設定導線を削除し、`Ctrl+,` / command palette / left nav 詳細設定カテゴリへ同期 | assistant / docs authority |
 | Done | VisualProfile stale UI-state wording cleanup | `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ同期。runtime は未変更 | assistant / selected docs |
-| Next | Writing status settings exposure or next stale-resource target | chip の表示有無・詳細度設定化は UI / storage / tests が広がるため体感要求が出た時だけ扱う。stale-resource は新規 1 ターゲットが見つかった時だけ別スライス化 | shared / selected docs |
+| Done | Save / Resume Trust Audit | 書く→保存済み確認→Documents 発見→再起動復帰→download event→Reader 往復を PASS。修正は Sections 空状態案内と Documents menu 一意化のみ | assistant / writing trust |
+| Done | Export Trust Proof | TXT / JSON download の実ファイル内容を検査。TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip、Reader 往復後の再書き出しまで PASS | assistant / export trust |
+| Next | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定する。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出しまで、章構造が日常利用で壊れないことを証明する | assistant / writing trust |
+| Option | First-use Save Help | 初回空状態や Documents 補助文で、保存・再開・書き出しのモデルを短時間で理解できるようにする。小さな文言・help 補強に限定する | assistant / first-use UX |
+| Option | Import Roundtrip Hardening | JSON 読み込みの復元性を、複数章・重複名・既存文書衝突などへ広げる。Export proof から import proof へ信頼を厚くする | assistant / import trust |
+| Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
