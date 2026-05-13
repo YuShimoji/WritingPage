@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-13（Remote sync handoff after Export Trust Proof）
+最終更新: 2026-05-13（Remote sync handoff after Chapter Creation Daily Flow）
 
 ## Snapshot
 
@@ -16,12 +16,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `372be1b test: prove export file contents` として push 済み |
-| 現在の主軸 | **Remote sync handoff after Export Trust Proof**: Save / Resume Trust Audit と Export Trust Proof は PASS。別端末はこの文書から保存・再開・書き出し信頼の現在地と次候補を復元できる |
-| 直近の実装スライス | JSON export に `document.id` / `document.content` を含め、章あり文書は `ZWChapterStore.assembleFullText()` と `pages` を保持。JSON import は content fallback と pages roundtrip を復帰できる |
-| 最新ビルド・検証 | Export Trust Proof: `node --check js/storage.js`, `node --check e2e/export-trust.spec.js`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, Documents targeted tests, `daily-writing-proof`, `npm run test:smoke`, `git diff --check`, in-app browser launch PASS |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a024340 test: prove chapter creation daily flow` として push 済み |
+| 現在の主軸 | **Remote sync handoff after Chapter Creation Daily Flow**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow は PASS。別端末はこの文書から保存・再開・書き出し・章運用信頼の現在地と次候補を復元できる |
+| 直近の実装スライス | chapterMode の `+ 新しい章` を Store 経路へ固定し、通常 Rich editing の章 slice 編集を chapter store へ flush。章あり TXT/Markdown export は `ZWChapterStore.assembleFullText()` を使い、JSON import roundtrip も章構造を復帰する |
+| 最新ビルド・検証 | Chapter Creation Daily Flow: `node --check` 対象コード/spec、`npx playwright test e2e/chapter-creation-daily-flow.spec.js --workers=1 --reporter=line`, focused `sections-nav` / `export-trust` / `content-guard` PASS。post-pull local check: `npm run test:smoke`, `git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `docs/verification/2026-05-13/remote-sync-export-trust-handoff.md` に、Export Trust Proof 後の再開順・同期証跡・次スライス候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に、Chapter Creation Daily Flow 後の再開順・同期証跡・次スライス候補を同期 |
 
 ## Latest Handoff
 
@@ -58,7 +58,7 @@
 - New: Remote sync handoff を実施。`main` / `origin/main` は同期済み、ローカル作業ツリーは clean。別端末では `git pull --ff-only origin main` 後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - New: Save / Resume Trust Audit を実施。起動、新規文書、Rich editing 入力、`#writing-status-chip` の `編集中`→`保存済み HH:mm`、Documents での現在文書発見、TXT / JSON 書き出し、閉じて再起動後の同一文書・本文復帰、Reader 往復後の本文と editor focus 復帰を確認。修正は Sections 空状態の実導線案内と Documents menu 一意化に限定し、Floating memo 保存モデル化、top chrome / toolbar 復活、Cloud sync、EPUB / DOCX、Gadget 追加には進んでいない。
 - New: Export Trust Proof を実施。TXT download は `ZenWriterEditor.getEditorValue()` の canonical な現在文書状態と一致することを実ファイル読取で確認。JSON download は `zenwriter-v1`、`document.id`、`document.name`、`document.content`、`pages` を JSON.parse で確認し、JSON 読み込み UI roundtrip と explicit chapter `pages` roundtrip も確認。Reader 往復後の TXT / JSON 再書き出しも同内容を保持する。
-- New: Remote sync handoff after Export Trust Proof を実施。`372be1b` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次の最短候補は `Chapter Creation Daily Flow`、補助候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`。
+- New: Remote sync handoff after Chapter Creation Daily Flow を実施。`a024340` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -110,14 +110,25 @@
 - Fixed: Sections 空状態は、Rich editing では `+ 新しい章`、Markdown ソース / 読み込み原稿では `# 見出し` が表示対象になることを明示。Documents の `入出力` / `管理` menu は category 往復後も 1 セットだけ残る。
 - Validation: `node --check js/gadgets-sections-nav.js`, `node --check js/gadgets-documents-hierarchy.js`, `npx playwright test e2e/sections-nav.spec.js -g "見出しがない" --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`, `npm run test:smoke`, `git diff --check`。
 
-### Remote sync handoff after Export Trust Proof
+### Historical remote sync handoff after Export Trust Proof
 
-- 直近 product proof: `372be1b test: prove export file contents`
+- Historical product proof: `372be1b test: prove export file contents`。現在の最新 product proof は `a024340 test: prove chapter creation daily flow`。
 - Handoff docs: `docs/CURRENT_STATE.md`、`docs/USER_REQUEST_LEDGER.md`、`docs/ROADMAP.md`、`docs/verification/2026-05-13/remote-sync-export-trust-handoff.md`
 - 再開手順: `git pull --ff-only origin main` → `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`。次スライス選定時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`。
-- 次候補: 第一候補は `Chapter Creation Daily Flow`。章を使う毎日導線を、作成→本文入力→保存→再開→Reader→書き出しまで 1 本で固定する。`First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision` は別スライス候補として保持する。
+- 当時の次候補だった `Chapter Creation Daily Flow` は `a024340` で完了済み。現在の次候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - `git status --short --branch` → `## main...origin/main`
 - `git rev-list --left-right --count HEAD...origin/main` → `0 0`
+
+### Remote sync handoff after Chapter Creation Daily Flow
+
+- 直近 product proof: `a024340 test: prove chapter creation daily flow`
+- Local sync: `git fetch --prune origin` で `f1bdc8f..a024340` を取得し、`git pull --ff-only origin main` で fast-forward。
+- 再開手順: `git pull --ff-only origin main` → `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`。次スライス選定時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`。
+- 次候補: `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。章作成そのものは新規 FAIL がない限り reopen しない。
+- `git status --short --branch` → `## main...origin/main`
+- `git rev-list --left-right --count HEAD...origin/main` → `0 0`
+- `npm run test:smoke` → pass
+- `git diff --check` → pass
 
 ### VisualProfile stale UI-state wording cleanup
 
@@ -619,7 +630,7 @@
 | Done | VisualProfile stale UI-state wording cleanup | `docs/VISUAL_PROFILE.md` を公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用へ同期。runtime は未変更 | assistant / selected docs |
 | Done | Save / Resume Trust Audit | 起動→新規文書→Rich editing 入力→保存済み chip→Documents 発見→再起動復帰→TXT / JSON download event→Reader 往復を PASS。修正は Sections 空状態案内と Documents menu 一意化に限定 | assistant / writing trust |
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を読み取り、TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip を確認。Reader 往復後の再書き出しも PASS | assistant / export trust |
-| Next | Chapter Creation Daily Flow | 章作成を含む毎日導線を、`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出しまで固定する。Export Trust Proof の次に writer workflow を最も直接軽くする | assistant / writing trust |
+| Done | Chapter Creation Daily Flow | 章作成を含む毎日導線を、`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで固定済み。新規 FAIL がない限り章作成そのものは reopen しない | assistant / writing trust |
 | Option | First-use Save Help | 初回空状態や Documents 補助文で、保存・再開・書き出しのモデルを短時間で理解できるようにする。機能追加ではなく迷いの削減が主眼 | assistant / first-use UX |
 | Option | Import Roundtrip Hardening | Export proof で通した JSON 読み込みを、既存文書との衝突・複数章・重複名などへ広げる。外部退避から戻す信頼を厚くする | assistant / import trust |
 | Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を自動変換するかを仕様判断する。実装に進む前に Markdown source / Rich editing の境界を崩さない条件を決める | shared / editor UX |

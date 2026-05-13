@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-05-13 / v0.3.32（Export Trust Proof / remote sync handoff）
+> 最終更新: 2026-05-13 / v0.3.32（Chapter Creation Daily Flow / remote sync handoff）
 
 ## ステータス語彙
 
@@ -22,8 +22,8 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: SP-005(本ドキュメント)
-- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。Export Trust Proof 後の再開情報は `CURRENT_STATE` と `USER_REQUEST_LEDGER` を正とする
-- 直近 done: Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。Chapter Creation Daily Flow 後の再開情報は `CURRENT_STATE` と `USER_REQUEST_LEDGER` を正とする
+- 直近 done: Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
