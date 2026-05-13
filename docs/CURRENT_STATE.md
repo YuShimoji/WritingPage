@@ -1,6 +1,6 @@
 # Current State
 
-最終更新: 2026-05-13（Save / Resume Trust Audit）
+最終更新: 2026-05-13（Export Trust Proof）
 
 ## Snapshot
 
@@ -9,11 +9,11 @@
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
 | ブランチ | `main` / `origin/main` は同期運用。A3 closeout は `db3b3df`、Local Gadget Mod MVP は `86cc07d` として push 済み |
-| 現在の主軸 | **Save / Resume Trust Audit complete**: 作家の日常導線で「書く→保存済みを見る→文書を見つける→閉じて戻る→TXT/JSONへ出す→Readerから戻る」を確認済み。次はこの結果から摩擦を 1 トピックだけ選ぶ |
-| 直近の実装スライス | Rich editing で `# 見出し` を章として誤案内しないよう Sections 空状態を修正し、Documents の入出力 / 管理メニューが category 往復で重複しないよう一意化 |
-| 最新ビルド・検証 | Save / Resume Trust Audit: `node --check js/gadgets-sections-nav.js`, `node --check js/gadgets-documents-hierarchy.js`, targeted Playwright 3 tests, `npm run test:smoke`, browser audit flow PASS |
+| 現在の主軸 | **Export Trust Proof complete**: Save / Resume Trust Audit の次段として、TXT / JSON 書き出しの download event だけでなく、実ファイル内容が現在文書状態・文書名・章構造と一致することを確認済み |
+| 直近の実装スライス | JSON export に `document.id` / `document.content` を含め、章あり文書は `ZWChapterStore.assembleFullText()` と `pages` を保持。JSON import は content fallback と pages roundtrip を復帰できる |
+| 最新ビルド・検証 | Export Trust Proof: `node --check js/storage.js`, `node --check e2e/export-trust.spec.js`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, Documents targeted tests, `daily-writing-proof`, `npm run test:smoke`, `git diff --check`, in-app browser launch PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` に Save / Resume Trust Audit の観測結果と次判断を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` に Export Trust Proof の出力内容検証と次判断を同期 |
 
 ## Latest Handoff
 
@@ -49,6 +49,7 @@
 - New: `docs/VISUAL_PROFILE.md` の stale UI-state wording cleanup を実施。Visual Profile は公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用として再同期。`profile.uiMode` は legacy/internal compatibility field として残し、runtime API / profile schema / UI / storage は未変更。
 - New: Remote sync handoff を実施。`main` / `origin/main` は同期済み、ローカル作業ツリーは clean。別端末では `git pull --ff-only origin main` 後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - New: Save / Resume Trust Audit を実施。起動、新規文書、Rich editing 入力、`#writing-status-chip` の `編集中`→`保存済み HH:mm`、Documents での現在文書発見、TXT / JSON 書き出し、閉じて再起動後の同一文書・本文復帰、Reader 往復後の本文と editor focus 復帰を確認。修正は Sections 空状態の実導線案内と Documents menu 一意化に限定し、Floating memo 保存モデル化、top chrome / toolbar 復活、Cloud sync、EPUB / DOCX、Gadget 追加には進んでいない。
+- New: Export Trust Proof を実施。TXT download は `ZenWriterEditor.getEditorValue()` の canonical な現在文書状態と一致することを実ファイル読取で確認。JSON download は `zenwriter-v1`、`document.id`、`document.name`、`document.content`、`pages` を JSON.parse で確認し、JSON 読み込み UI roundtrip と explicit chapter `pages` roundtrip も確認。Reader 往復後の TXT / JSON 再書き出しも同内容を保持する。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -75,6 +76,14 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Export Trust Proof
+
+- Scope: Save / Resume Trust Audit の延長として、TXT / JSON download event だけでなく、実ファイル内容を読み取って現在文書状態との一致を確認。
+- TXT proof: daily Rich editing 原稿の download file を `fs.readFile` し、`ZenWriterEditor.getEditorValue()` の canonical 値と一致すること、日本語・記号・改行を含む一意文字列が欠落しないことを確認。
+- JSON proof: `.zwp.json` を `JSON.parse` し、`format: zenwriter-v1`、`document.id`、`document.name`、`document.content`、`pages` を確認。章あり文書では `pages[0..]` の title / content / order / level / visibility と、assembled `document.content` を確認。
+- Import / Reader proof: JSON 読み込み UI で daily 原稿が復帰。explicit chapter JSON は `importProjectJSON` で 2 章が復元。Reader 往復後の TXT / JSON 再書き出しも current editor value と一致。
+- Validation: `node --check js/storage.js`, `node --check e2e/export-trust.spec.js`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`, `npx playwright test e2e/daily-writing-proof.spec.js --workers=1 --reporter=line`, `npm run test:smoke`, `git diff --check`, in-app browser launch at `http://127.0.0.1:18080/index.html`。
 
 ### Save / Resume Trust Audit
 

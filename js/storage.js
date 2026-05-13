@@ -1131,12 +1131,18 @@ function exportProjectJSON(docId) {
             visibility: ch.visibility || 'visible',
             metadata: ch.metadata || {}
         }));
+        let documentContent = String(doc.content || '');
+        if (chapters.length > 0 && window.ZWChapterStore && typeof window.ZWChapterStore.assembleFullText === 'function') {
+            documentContent = window.ZWChapterStore.assembleFullText(docId) || documentContent;
+        }
 
         const project = {
             format: 'zenwriter-v1',
             version: (window.ZEN_WRITER_VERSION || '0.3.32'),
             document: {
+                id: doc.id,
                 name: doc.name || '',
+                content: documentContent,
                 chapterMode: doc.chapterMode !== false,
                 createdAt: doc.createdAt || null,
                 updatedAt: doc.updatedAt || null
@@ -1186,6 +1192,9 @@ function importProjectJSON(jsonString) {
         const docRecord = docs.find(d => d.id === doc.id);
         if (docRecord) {
             docRecord.chapterMode = project.document ? project.document.chapterMode !== false : true;
+            docRecord.content = project.document && typeof project.document.content === 'string'
+                ? project.document.content
+                : '';
             if (project.document && project.document.createdAt) {
                 docRecord.createdAt = project.document.createdAt;
             }
@@ -1216,6 +1225,14 @@ function importProjectJSON(jsonString) {
                 createdAt: now,
                 updatedAt: now
             });
+        }
+        if (docRecord && !docRecord.content && pages.length > 0) {
+            docRecord.content = pages.map(p => {
+                const level = Math.max(1, Math.min(6, Number(p.level || 2)));
+                const title = p.title || '';
+                const body = p.content || '';
+                return '#'.repeat(level) + ' ' + title + '\n\n' + body;
+            }).join('\n\n');
         }
 
         saveDocuments(docs);
