@@ -16,7 +16,7 @@
 - **Save / Resume Trust Audit**: 新機能追加より先に、作家が毎日使う「書く→保存済み確認→Documents で見つける→閉じて戻る→TXT / JSON 書き出し→Reader から戻る」導線を安心できる状態へ固定する。2026-05-13 audit では本文保存・再開・書き出し・Reader focus は PASS。修正は Sections 空状態の Rich editing / Markdown ソース案内と Documents menu 一意化に限定済み。Floating memo 保存モデル化、Cloud sync、EPUB / DOCX、Gadget 追加、top chrome / 常設 toolbar 復活へは進まない。
 - **Export Trust Proof**: Save / Resume Trust Audit の次段として、TXT / JSON は download event ではなく実ファイル内容で信頼を証明する。2026-05-13 proof では TXT が current editor value と一致し、JSON は `document.id` / `document.name` / `document.content` / `pages` を構造 assert し、daily JSON 読み込み UI roundtrip、explicit chapter `pages` roundtrip、Reader 往復後の再書き出しまで PASS。Cloud sync、EPUB / DOCX、Floating memo 保存、Gadget 追加、Export UI 大規模再設計へは進まない。
 - **First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow の信頼を前提に、初回または久しぶりのユーザーが保存モデルを短時間で理解できるようにする。2026-05-14 slice では status chip aria/title、Documents 補助文、空状態文言、入出力 menu hint/title を追加し、本文と章構造のこの端末への自動保存、画面下の保存状態、外部退避としての TXT/JSON 書き出し、戻す導線としての JSON 読み込みを短く示した。`JSON保存` 表現、Cloud sync、EPUB/DOCX、top chrome、export UI redesign は追加しない。
-- **Remote sync / cross-terminal handoff**: Chapter Creation Daily Flow 後の再開 anchor は `a024340 test: prove chapter creation daily flow`。別端末は `git pull --ff-only origin main` の後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。引き継ぎでは chat 履歴ではなく project docs を正本にする。
+- **Remote sync / cross-terminal handoff**: First-use Save Help 後の product proof anchor は `8770edd feat: clarify first-use save help`。別端末は `git pull --ff-only origin main` の後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。引き継ぎでは chat 履歴ではなく project docs を正本にする。詳細 handoff は `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md`。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
@@ -102,4 +102,12 @@
 - Current judgment: 初回ユーザーに必要なのは保存方式の再設計ではなく、「この端末に自動保存」「保存状態は画面下」「Documents で文書を見つける」「TXT/JSON は外部退避」「JSON 読み込みは戻す導線」という短い確認で足りる。
 - Implementation anchor: `js/writing-status-chip.js` adds aria/title help to the non-interactive status chip; `js/gadgets-documents-hierarchy.js` adds the Documents helper and import/export menu hint/title wording; `js/gadgets-documents-tree.js` adds the first-use empty-state hint.
 - Test anchor: `e2e/first-use-save-help.spec.js` proves first-use empty state, new document discovery, saved status aria, import/export wording, no `JSON保存`, and chapter-mode continuity.
+- Next candidates stay separate: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.
+
+# 2026-05-14 Remote sync handoff after First-use Save Help
+
+- Status: done. Local `main` was confirmed up to date with `origin/main` before writing the handoff note.
+- Product proof anchor: `8770edd feat: clarify first-use save help`.
+- Project context anchor: `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md` records the restart route, trusted writing path, non-reopen areas, next candidates, and validation already attached to the product proof.
+- Current restart order: `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 - Next candidates stay separate: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.

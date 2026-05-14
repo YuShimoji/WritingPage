@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-05-14（First-use Save Help）
+最終更新: 2026-05-14（Remote sync handoff after First-use Save Help）
 
 ## Snapshot
+
+### 2026-05-14 Remote sync handoff after First-use Save Help
+
+- Remote handoff after First-use Save Help is recorded in `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md`.
+- Product proof before handoff: `8770edd feat: clarify first-use save help`.
+- Local `main` was pulled with `git pull --ff-only origin main`; it was already up to date with `origin/main`.
+- Pre-handoff sync check: `git status --short --branch` showed `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`. Use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-05-14 First-use Save Help restart anchor
 
@@ -23,12 +31,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は First-use Save Help スライス |
-| 現在の主軸 | **First-use Save Help after writing trust proofs**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow は PASS。次は既存保存モデルを初回ユーザーへ短く伝える補助文として固定済み |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `8770edd feat: clarify first-use save help` |
+| 現在の主軸 | **Remote sync handoff after First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow、First-use Save Help は PASS。別端末は project docs から保存・再開・書き出し・章運用・初回保存理解の現在地を復元できる |
 | 直近の実装スライス | status chip / Documents / 入出力 menu に、ローカル自動保存、保存状態、外部退避としての TXT/JSON 書き出し、JSON 読み込み、章構造の扱いを短文で補助 |
 | 最新ビルド・検証 | First-use Save Help: `node --check` 対象コード/spec、first-use / export-trust / daily-writing-proof / chapter-creation / Documents menu targeted Playwright、`npm run test:smoke`、`npm run lint:js:check`、`npm run build`、`npm run test:unit`、`git diff --check`、`git diff --cached --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に、First-use Save Help の結果と次候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md` に、First-use Save Help 後の remote sync handoff を同期 |
 
 ## Latest Handoff
 
@@ -67,6 +75,7 @@
 - New: Export Trust Proof を実施。TXT download は `ZenWriterEditor.getEditorValue()` の canonical な現在文書状態と一致することを実ファイル読取で確認。JSON download は `zenwriter-v1`、`document.id`、`document.name`、`document.content`、`pages` を JSON.parse で確認し、JSON 読み込み UI roundtrip と explicit chapter `pages` roundtrip も確認。Reader 往復後の TXT / JSON 再書き出しも同内容を保持する。
 - New: Remote sync handoff after Chapter Creation Daily Flow を実施。`a024340` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - New: First-use Save Help を実施。初回空状態 / Documents / writing status chip / 入出力 menu の短い補助だけで、本文と章構造はこの端末に自動保存され、保存状態は画面下、TXT/JSON 書き出しは外部退避、JSON 読み込みは戻す導線と読めるようにした。`JSON保存` は復活させず、Cloud sync / EPUB / DOCX / top chrome / export UI redesign へは進んでいない。
+- New: Remote sync handoff after First-use Save Help を実施。`8770edd` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -102,6 +111,14 @@
 - E2E proof: `e2e/first-use-save-help.spec.js` で first-use empty state、document creation、Rich editing body、saved chip aria、Documents discovery、import/export wording、chapter-mode 2 章保持を確認。
 - Validation: `node --check js/writing-status-chip.js`, `node --check js/gadgets-documents-hierarchy.js`, `node --check js/gadgets-documents-tree.js`, `node --check e2e/first-use-save-help.spec.js`, `npx playwright test e2e/first-use-save-help.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/daily-writing-proof.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/chapter-creation-daily-flow.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`, `npm run test:smoke`, `npm run lint:js:check`, `npm run build`, `npm run test:unit`, `git diff --check`, `git diff --cached --check`。
 - Full E2E note: monolithic full E2E remains avoided because of known timeout history; use focused specs or shard/suite runs for total inspection.
+
+### Remote sync handoff after First-use Save Help
+
+- Product proof: `8770edd feat: clarify first-use save help`.
+- Handoff docs: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md`.
+- Pre-handoff sync: `git pull --ff-only origin main` -> already up to date; `git status --short --branch` -> `## main...origin/main`; `git rev-list --left-right --count HEAD...origin/main` -> `0 0`.
+- Restart route: `git pull --ff-only origin main` -> `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`. Use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only for next-slice selection.
+- Next candidates: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, stale spec reconciliation. First-use Save Help itself should not reopen unless a new failure appears.
 
 ### Chapter Creation Daily Flow
 
