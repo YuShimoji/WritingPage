@@ -7513,10 +7513,38 @@ details[open] summary {
   background: var(--sidebar-bg);
 }
 
+.documents-save-help {
+  margin: 0 0 0.5rem;
+  color: color-mix(in srgb, var(--ui-text) 70%, transparent);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 .documents-tree-container {
   flex: 1;
   overflow-y: auto;
   padding: 0.25rem;
+}
+
+.documents-empty-state {
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+.documents-empty-title,
+.documents-empty-hint {
+  margin: 0;
+}
+
+.documents-empty-title {
+  color: color-mix(in srgb, var(--ui-text) 72%, transparent);
+}
+
+.documents-empty-hint {
+  margin-top: 0.35rem;
+  color: color-mix(in srgb, var(--ui-text) 62%, transparent);
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 /* ツリーアイテム */
@@ -9931,6 +9959,14 @@ html[data-ui-mode='normal'] .context-menu {
 
 html[data-ui-mode='normal'] .documents-action-menu {
   min-width: 12rem;
+}
+
+html[data-ui-mode='normal'] .zw-shell-menu__hint {
+  margin: 0;
+  padding: var(--shell-space-2) var(--shell-space-3);
+  color: color-mix(in srgb, var(--sidebar-text, var(--text-color)) 68%, transparent);
+  font-size: var(--shell-font-size-sm);
+  line-height: 1.35;
 }
 
 html[data-ui-mode='normal'] .zw-shell-menu__item,

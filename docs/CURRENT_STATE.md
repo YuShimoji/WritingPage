@@ -1,8 +1,15 @@
 # Current State
 
-最終更新: 2026-05-13（Remote sync handoff after Chapter Creation Daily Flow）
+最終更新: 2026-05-14（First-use Save Help）
 
 ## Snapshot
+
+### 2026-05-14 First-use Save Help restart anchor
+
+- First-use Save Help is now the latest writing-trust slice. It does not add a new save model; it makes the existing local autosave / Documents / TXT/JSON takeout model readable to first-time or returning users.
+- Product help: `#writing-status-chip` now exposes an aria/title explanation that body text is auto-saved on this device and the chip shows save state. Documents shows a short helper line for local autosave, status location, TXT/JSON external takeout, JSON import, and chapter structure. The empty Documents state points `+ 文書` users toward local autosave. The `入出力` menu adds a short external-takeout hint and clearer item titles for TXT export, JSON export, and JSON import.
+- E2E anchor: `e2e/first-use-save-help.spec.js` covers first-use empty Documents, document creation, Rich editing body entry, saved status chip, Documents discovery, import/export wording, no `JSON保存` regression, and a chapter-mode document retaining two chapter records while the same help remains visible.
+- Not included: Cloud sync, EPUB/DOCX, floating memo persistence, top chrome/toolbar revival, export UI redesign, chapter template/outline features, or broad stale-doc cleanup.
 
 ### 2026-05-13 Chapter Creation Daily Flow restart anchor
 
@@ -16,12 +23,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a024340 test: prove chapter creation daily flow` として push 済み |
-| 現在の主軸 | **Remote sync handoff after Chapter Creation Daily Flow**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow は PASS。別端末はこの文書から保存・再開・書き出し・章運用信頼の現在地と次候補を復元できる |
-| 直近の実装スライス | chapterMode の `+ 新しい章` を Store 経路へ固定し、通常 Rich editing の章 slice 編集を chapter store へ flush。章あり TXT/Markdown export は `ZWChapterStore.assembleFullText()` を使い、JSON import roundtrip も章構造を復帰する |
-| 最新ビルド・検証 | Chapter Creation Daily Flow: `node --check` 対象コード/spec、`npx playwright test e2e/chapter-creation-daily-flow.spec.js --workers=1 --reporter=line`, focused `sections-nav` / `export-trust` / `content-guard` PASS。post-pull local check: `npm run test:smoke`, `git diff --check` PASS |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は First-use Save Help スライス |
+| 現在の主軸 | **First-use Save Help after writing trust proofs**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow は PASS。次は既存保存モデルを初回ユーザーへ短く伝える補助文として固定済み |
+| 直近の実装スライス | status chip / Documents / 入出力 menu に、ローカル自動保存、保存状態、外部退避としての TXT/JSON 書き出し、JSON 読み込み、章構造の扱いを短文で補助 |
+| 最新ビルド・検証 | First-use Save Help: `node --check` 対象コード/spec、first-use / export-trust / daily-writing-proof / chapter-creation / Documents menu targeted Playwright、`npm run test:smoke`、`npm run lint:js:check`、`npm run build`、`npm run test:unit`、`git diff --check`、`git diff --cached --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に、Chapter Creation Daily Flow 後の再開順・同期証跡・次スライス候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` に、First-use Save Help の結果と次候補を同期 |
 
 ## Latest Handoff
 
@@ -59,6 +66,7 @@
 - New: Save / Resume Trust Audit を実施。起動、新規文書、Rich editing 入力、`#writing-status-chip` の `編集中`→`保存済み HH:mm`、Documents での現在文書発見、TXT / JSON 書き出し、閉じて再起動後の同一文書・本文復帰、Reader 往復後の本文と editor focus 復帰を確認。修正は Sections 空状態の実導線案内と Documents menu 一意化に限定し、Floating memo 保存モデル化、top chrome / toolbar 復活、Cloud sync、EPUB / DOCX、Gadget 追加には進んでいない。
 - New: Export Trust Proof を実施。TXT download は `ZenWriterEditor.getEditorValue()` の canonical な現在文書状態と一致することを実ファイル読取で確認。JSON download は `zenwriter-v1`、`document.id`、`document.name`、`document.content`、`pages` を JSON.parse で確認し、JSON 読み込み UI roundtrip と explicit chapter `pages` roundtrip も確認。Reader 往復後の TXT / JSON 再書き出しも同内容を保持する。
 - New: Remote sync handoff after Chapter Creation Daily Flow を実施。`a024340` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
+- New: First-use Save Help を実施。初回空状態 / Documents / writing status chip / 入出力 menu の短い補助だけで、本文と章構造はこの端末に自動保存され、保存状態は画面下、TXT/JSON 書き出しは外部退避、JSON 読み込みは戻す導線と読めるようにした。`JSON保存` は復活させず、Cloud sync / EPUB / DOCX / top chrome / export UI redesign へは進んでいない。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
 ## Restart Route
@@ -85,6 +93,15 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### First-use Save Help
+
+- Scope: 機能追加ではなく、初回または久しぶりのユーザーが保存モデルを短時間で理解できる補助文・aria・title を追加。
+- Product help: status chip は `文字数: N · 編集中/保存済み` を保ちつつ aria/title で「本文はこの端末に自動保存」「保存状態はこの表示で確認」を補助。Documents は「本文と章構造はこの端末に自動保存」「保存状態は画面下」「TXT/JSON書き出しは外部退避」「JSON読み込みで戻せる」を 1 つの短文に集約。空状態は `+ 文書` から始めると自動保存されることを示す。
+- Import/export wording: `入出力` menu は「書き出しは外部退避。JSON読み込みで戻せます。」を表示し、TXT / JSON export の title も外部退避として明記。`JSON保存` は使わない。
+- E2E proof: `e2e/first-use-save-help.spec.js` で first-use empty state、document creation、Rich editing body、saved chip aria、Documents discovery、import/export wording、chapter-mode 2 章保持を確認。
+- Validation: `node --check js/writing-status-chip.js`, `node --check js/gadgets-documents-hierarchy.js`, `node --check js/gadgets-documents-tree.js`, `node --check e2e/first-use-save-help.spec.js`, `npx playwright test e2e/first-use-save-help.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/export-trust.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/daily-writing-proof.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/chapter-creation-daily-flow.spec.js --workers=1 --reporter=line`, `npx playwright test e2e/content-guard.spec.js -g "Documents toolbar separates|Documents menus stay unique" --workers=1 --reporter=line`, `npm run test:smoke`, `npm run lint:js:check`, `npm run build`, `npm run test:unit`, `git diff --check`, `git diff --cached --check`。
+- Full E2E note: monolithic full E2E remains avoided because of known timeout history; use focused specs or shard/suite runs for total inspection.
 
 ### Chapter Creation Daily Flow
 
@@ -115,7 +132,7 @@
 - Historical product proof: `372be1b test: prove export file contents`。現在の最新 product proof は `a024340 test: prove chapter creation daily flow`。
 - Handoff docs: `docs/CURRENT_STATE.md`、`docs/USER_REQUEST_LEDGER.md`、`docs/ROADMAP.md`、`docs/verification/2026-05-13/remote-sync-export-trust-handoff.md`
 - 再開手順: `git pull --ff-only origin main` → `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`。次スライス選定時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`。
-- 当時の次候補だった `Chapter Creation Daily Flow` は `a024340` で完了済み。現在の次候補は `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
+- 当時の次候補だった `Chapter Creation Daily Flow` は `a024340` で完了済み。`First-use Save Help` も 2026-05-14 に完了済み。現在の次候補は `Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - `git status --short --branch` → `## main...origin/main`
 - `git rev-list --left-right --count HEAD...origin/main` → `0 0`
 
@@ -124,7 +141,7 @@
 - 直近 product proof: `a024340 test: prove chapter creation daily flow`
 - Local sync: `git fetch --prune origin` で `f1bdc8f..a024340` を取得し、`git pull --ff-only origin main` で fast-forward。
 - 再開手順: `git pull --ff-only origin main` → `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`。次スライス選定時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`。
-- 次候補: `First-use Save Help`、`Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。章作成そのものは新規 FAIL がない限り reopen しない。
+- 当時の次候補だった `First-use Save Help` は 2026-05-14 に完了済み。現在の次候補は `Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。章作成そのものは新規 FAIL がない限り reopen しない。
 - `git status --short --branch` → `## main...origin/main`
 - `git rev-list --left-right --count HEAD...origin/main` → `0 0`
 - `npm run test:smoke` → pass
@@ -631,7 +648,7 @@
 | Done | Save / Resume Trust Audit | 起動→新規文書→Rich editing 入力→保存済み chip→Documents 発見→再起動復帰→TXT / JSON download event→Reader 往復を PASS。修正は Sections 空状態案内と Documents menu 一意化に限定 | assistant / writing trust |
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を読み取り、TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip を確認。Reader 往復後の再書き出しも PASS | assistant / export trust |
 | Done | Chapter Creation Daily Flow | 章作成を含む毎日導線を、`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで固定済み。新規 FAIL がない限り章作成そのものは reopen しない | assistant / writing trust |
-| Option | First-use Save Help | 初回空状態や Documents 補助文で、保存・再開・書き出しのモデルを短時間で理解できるようにする。機能追加ではなく迷いの削減が主眼 | assistant / first-use UX |
+| Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
 | Option | Import Roundtrip Hardening | Export proof で通した JSON 読み込みを、既存文書との衝突・複数章・重複名などへ広げる。外部退避から戻す信頼を厚くする | assistant / import trust |
 | Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を自動変換するかを仕様判断する。実装に進む前に Markdown source / Rich editing の境界を崩さない条件を決める | shared / editor UX |
 | D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |

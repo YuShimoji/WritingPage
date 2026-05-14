@@ -3,6 +3,7 @@
 
   var SAVE_IDLE_DELAY_MS = 900;
   var MANUAL_SAVE_DELAY_MS = 120;
+  var SAVE_HELP_TEXT = '本文はこの端末に自動保存されます。保存状態はこの表示で確認できます。';
 
   function onReady(callback) {
     if (document.readyState === 'loading') {
@@ -66,11 +67,13 @@
 
     function render() {
       var count = countChars(getEditorText());
-      chip.textContent = '文字数: ' + count + ' · ' + getSaveLabel();
+      var label = '文字数: ' + count + ' · ' + getSaveLabel();
+      chip.textContent = label;
       chip.setAttribute('data-save-state', state);
       chip.setAttribute('data-char-count', String(count));
       chip.setAttribute('data-last-saved-at', lastSavedAt ? lastSavedAt.toISOString() : '');
-      chip.setAttribute('title', lastSavedAt ? '最終保存: ' + formatSavedTime(lastSavedAt) : '保存状態');
+      chip.setAttribute('aria-label', label + '。' + SAVE_HELP_TEXT);
+      chip.setAttribute('title', lastSavedAt ? '最終保存: ' + formatSavedTime(lastSavedAt) + '。' + SAVE_HELP_TEXT : SAVE_HELP_TEXT);
     }
 
     function setState(next, options) {

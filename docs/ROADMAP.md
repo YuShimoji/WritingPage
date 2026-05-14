@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-05-13 / v0.3.32（Chapter Creation Daily Flow / remote sync handoff）
+> 最終更新: 2026-05-14 / v0.3.32（First-use Save Help）
 
 ## ステータス語彙
 
@@ -22,8 +22,8 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: spec-index 上の `partial` は 0。現行 roadmap 上の残論点は WP-004 Phase 3 と WP-001 中長期枠を別スライスで扱う
-- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。Chapter Creation Daily Flow 後の再開情報は `CURRENT_STATE` と `USER_REQUEST_LEDGER` を正とする
-- 直近 done: Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。First-use Save Help 後の再開情報は `CURRENT_STATE` と `USER_REQUEST_LEDGER` を正とする
+- 直近 done: First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -59,13 +59,15 @@
 - どちらのレーンも Reader / command palette / left nav root-category の現行状態モデルを壊さない。
 - 実装完了ごとに `CURRENT_STATE`、仕様や不変条件が変わる場合は `INVARIANTS` / `INTERACTION_NOTES` / `GADGETS` を同期する。
 
-### 2026-05-13 writing trust lane
+### 2026-05-14 writing trust lane
 
-Chapter Creation Daily Flow is now done. The writing trust lane has proof for `+ 新しい章` from Rich editing, Store-backed chapter creation, isolated chapter bodies, save/reload resume, Reader round trip, TXT/JSON export, and JSON import roundtrip. The next work should not reopen chapter creation itself unless a new failure appears; choose from First-use Save Help, Import Roundtrip Hardening, Rich Editing Heading Shortcut Decision, or stale spec reconciliation.
+First-use Save Help is now done. The writing trust lane has proof for local autosave/resume, TXT/JSON export contents, chapter creation daily flow, and first-use comprehension of the save/takeout model. The next work should not reopen chapter creation or the first-use help unless a new failure appears; choose from Import Roundtrip Hardening, Rich Editing Heading Shortcut Decision, or stale spec reconciliation.
 
 Save / Resume Trust Audit と Export Trust Proof により、作家が日常的に使う「書く→保存確認→Documents で見つける→閉じて戻る→TXT / JSON で外に出す」は最小信頼を得た。TXT / JSON は download event ではなく実ファイル内容まで検査済みで、JSON は `document.id/name/content/pages` と読み込み roundtrip の最小範囲を固定している。
 
-次は、章作成そのものではなく周辺の摩擦を別スライスで選ぶ。初回説明を軽くしたい場合は `First-use Save Help`、外部退避から戻す耐久性を厚くしたい場合は `Import Roundtrip Hardening`、Rich editing の `# 見出し` 体験を変える場合は `Rich Editing Heading Shortcut Decision`、古い仕様表を正本へ寄せる場合は stale spec reconciliation として分ける。
+First-use Save Help では、初回空状態、Documents、writing status chip、入出力 menu に短い補助だけを追加し、本文と章構造はこの端末に自動保存され、保存状態は画面下、TXT/JSON 書き出しは外部退避、JSON 読み込みは戻す導線と読めるようにした。
+
+次は、初回説明や章作成そのものではなく周辺の摩擦を別スライスで選ぶ。外部退避から戻す耐久性を厚くしたい場合は `Import Roundtrip Hardening`、Rich editing の `# 見出し` 体験を変える場合は `Rich Editing Heading Shortcut Decision`、古い仕様表を正本へ寄せる場合は stale spec reconciliation として分ける。
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 

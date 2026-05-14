@@ -333,7 +333,7 @@
         'documents-io-menu-btn',
         '入出力',
         'ドキュメントの読み込み・書き出し',
-        '読み込み・書き出し'
+        'TXT/JSON書き出しとJSON読み込み'
       );
       var ioMenu = createMenu('documents-io-menu', 'ドキュメントの読み込み・書き出し');
 
@@ -360,7 +360,15 @@
         return item;
       }
 
-      ioMenu.appendChild(createMenuItem('TXT書き出し', '現在の内容をテキストで書き出し', function () {
+      function createMenuHint(text) {
+        var hint = document.createElement('p');
+        hint.className = 'zw-shell-menu__hint';
+        hint.textContent = text;
+        return hint;
+      }
+
+      ioMenu.appendChild(createMenuHint('書き出しは外部退避。JSON読み込みで戻せます。'));
+      ioMenu.appendChild(createMenuItem('TXT書き出し', '外部退避用に現在の本文をテキストで書き出し', function () {
         saveCurrentContent();
         if (editorManager && typeof editorManager.exportAsText === 'function') {
           editorManager.exportAsText();
@@ -374,7 +382,7 @@
           storage.exportText(text || '', 'document.txt', 'text/plain');
         }
       }));
-      ioMenu.appendChild(createMenuItem('JSON書き出し', '現在のドキュメントを構造保持JSONで書き出し', function () {
+      ioMenu.appendChild(createMenuItem('JSON書き出し', '外部退避用に本文と章構造をJSONで書き出し', function () {
         saveCurrentContent();
         var docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
         if (!docId) { notify('ドキュメントが選択されていません'); return; }
@@ -383,7 +391,7 @@
           if (ok) notify('JSONプロジェクトを書き出しました');
         }
       }));
-      ioMenu.appendChild(createMenuItem('JSON読み込み', 'JSONプロジェクトファイルを読み込み', function () {
+      ioMenu.appendChild(createMenuItem('JSON読み込み', '書き出したJSONプロジェクトを戻す', function () {
         if (storage.importProjectJSONFromFile) {
           storage.importProjectJSONFromFile().then(function (docId) {
             if (docId) {
@@ -517,8 +525,16 @@
       treeContainer.className = 'documents-tree-container';
       treeContainer.style.flex = '1';
       treeContainer.style.overflow = 'auto';
+      treeContainer.setAttribute('aria-describedby', 'documents-save-help');
+
+      var saveHelp = document.createElement('p');
+      saveHelp.className = 'documents-save-help';
+      saveHelp.id = 'documents-save-help';
+      saveHelp.textContent = '本文と章構造はこの端末に自動保存。保存状態は画面下で確認できます。TXT/JSON書き出しは外部退避、JSON読み込みで戻せます。';
+      ioBtn.setAttribute('aria-describedby', saveHelp.id);
 
       container.appendChild(toolbar);
+      container.appendChild(saveHelp);
       container.appendChild(treeContainer);
       el.appendChild(container);
 

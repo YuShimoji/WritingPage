@@ -15,6 +15,7 @@
 - **Daily writing workflow before Floating memo**: 起動→Rich editing 執筆→セクション確認→保存状態→Reader 往復→Floating memo lab 開閉のミニ原稿導線は A2 で E2E 化済み。2026-04-27 proof の初回 FAIL（public `sections` の「新しい章」追加導線、手動保存 HUD）は narrow fix 済み。続く friction sweep で gadget drag、left nav、低価値 loadout、章作成テンプレート導線も PASS。文字数・保存状態は `#writing-status-chip` で Reader / Floating memo lab 非表示時に非操作型表示する。
 - **Save / Resume Trust Audit**: 新機能追加より先に、作家が毎日使う「書く→保存済み確認→Documents で見つける→閉じて戻る→TXT / JSON 書き出し→Reader から戻る」導線を安心できる状態へ固定する。2026-05-13 audit では本文保存・再開・書き出し・Reader focus は PASS。修正は Sections 空状態の Rich editing / Markdown ソース案内と Documents menu 一意化に限定済み。Floating memo 保存モデル化、Cloud sync、EPUB / DOCX、Gadget 追加、top chrome / 常設 toolbar 復活へは進まない。
 - **Export Trust Proof**: Save / Resume Trust Audit の次段として、TXT / JSON は download event ではなく実ファイル内容で信頼を証明する。2026-05-13 proof では TXT が current editor value と一致し、JSON は `document.id` / `document.name` / `document.content` / `pages` を構造 assert し、daily JSON 読み込み UI roundtrip、explicit chapter `pages` roundtrip、Reader 往復後の再書き出しまで PASS。Cloud sync、EPUB / DOCX、Floating memo 保存、Gadget 追加、Export UI 大規模再設計へは進まない。
+- **First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow の信頼を前提に、初回または久しぶりのユーザーが保存モデルを短時間で理解できるようにする。2026-05-14 slice では status chip aria/title、Documents 補助文、空状態文言、入出力 menu hint/title を追加し、本文と章構造のこの端末への自動保存、画面下の保存状態、外部退避としての TXT/JSON 書き出し、戻す導線としての JSON 読み込みを短く示した。`JSON保存` 表現、Cloud sync、EPUB/DOCX、top chrome、export UI redesign は追加しない。
 - **Remote sync / cross-terminal handoff**: Chapter Creation Daily Flow 後の再開 anchor は `a024340 test: prove chapter creation daily flow`。別端末は `git pull --ff-only origin main` の後、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。引き継ぎでは chat 履歴ではなく project docs を正本にする。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
@@ -67,7 +68,7 @@
 | Done | Save / Resume Trust Audit | 書く→保存済み確認→Documents 発見→再起動復帰→download event→Reader 往復を PASS。修正は Sections 空状態案内と Documents menu 一意化のみ | assistant / writing trust |
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を検査。TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip、Reader 往復後の再書き出しまで PASS | assistant / export trust |
 | Done | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定済み。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで、章構造が日常利用で壊れないことを証明した | assistant / writing trust |
-| Option | First-use Save Help | 初回空状態や Documents 補助文で、保存・再開・書き出しのモデルを短時間で理解できるようにする。小さな文言・help 補強に限定する | assistant / first-use UX |
+| Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
 | Option | Import Roundtrip Hardening | JSON 読み込みの復元性を、複数章・重複名・既存文書衝突などへ広げる。Export proof から import proof へ信頼を厚くする | assistant / import trust |
 | Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
 | D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
@@ -93,4 +94,12 @@
 - Current judgment: chapter creation is no longer treated as a docs-only or UI-presence item. The trust proof is that adding chapters does not lose body text, mix chapter bodies, lose chapter structure, or export only the active chapter slice.
 - Implementation anchor: `js/gadgets-sections-nav.js`, `js/chapter-list.js`, `js/content-guard.js`, `js/gadgets-documents-hierarchy.js`, and `js/modules/editor/EditorCore.js` keep chapterMode creation/saving/export on the ChapterStore route.
 - Test anchor: `e2e/chapter-creation-daily-flow.spec.js` is the restart proof. `e2e/sections-nav.spec.js` daily-writing expectations now assert the Store-backed route.
-- Next candidates stay separate: `First-use Save Help`, `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.
+- Next candidates stay separate: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.
+
+# 2026-05-14 First-use Save Help
+
+- Status: done. This slice made the existing local-save model legible without adding a new save mechanism.
+- Current judgment: 初回ユーザーに必要なのは保存方式の再設計ではなく、「この端末に自動保存」「保存状態は画面下」「Documents で文書を見つける」「TXT/JSON は外部退避」「JSON 読み込みは戻す導線」という短い確認で足りる。
+- Implementation anchor: `js/writing-status-chip.js` adds aria/title help to the non-interactive status chip; `js/gadgets-documents-hierarchy.js` adds the Documents helper and import/export menu hint/title wording; `js/gadgets-documents-tree.js` adds the first-use empty-state hint.
+- Test anchor: `e2e/first-use-save-help.spec.js` proves first-use empty state, new document discovery, saved status aria, import/export wording, no `JSON保存`, and chapter-mode continuity.
+- Next candidates stay separate: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.

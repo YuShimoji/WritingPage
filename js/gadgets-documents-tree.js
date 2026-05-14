@@ -182,11 +182,19 @@
     container.innerHTML = '';
 
     if (!tree || tree.length === 0) {
-      const empty = document.createElement('p');
-      empty.textContent = 'ドキュメントがありません';
-      empty.style.opacity = '0.6';
-      empty.style.padding = '1rem 0.5rem';
-      empty.style.textAlign = 'center';
+      const empty = document.createElement('div');
+      empty.className = 'documents-empty-state';
+
+      const title = document.createElement('p');
+      title.className = 'documents-empty-title';
+      title.textContent = 'ドキュメントがありません';
+
+      const hint = document.createElement('p');
+      hint.className = 'documents-empty-hint';
+      hint.textContent = '+ 文書で始めると、この端末へ自動保存されます。';
+
+      empty.appendChild(title);
+      empty.appendChild(hint);
       container.appendChild(empty);
       return;
     }
