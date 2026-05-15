@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-05-14（Remote sync handoff after First-use Save Help）
+最終更新: 2026-05-15（Remote sync and restart roadmap handoff）
 
 ## Snapshot
+
+### 2026-05-15 Remote sync and restart roadmap handoff
+
+- Current docs handoff is recorded in `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md`.
+- Before this docs update, local `main` was clean and synchronized with `origin/main`: `git status --short --branch` showed `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Product proof remains `8770edd feat: clarify first-use save help`; this handoff preserves restart context and roadmap analysis only.
+- Local readiness checked in this block: `npm run test:smoke`, `npm run lint:js:check`, `npm run test:unit`, `npm run build`, and `git diff --check` passed. `npx playwright test --list` reported 66 spec files and 588 tests.
+- Not run in this block: full monolithic E2E and Electron package build. Continue to prefer focused Playwright specs / shards or targeted Electron checks when a slice touches those surfaces.
+- Next-slice priority remains: `Import Roundtrip Hardening` first, `Rich Editing Heading Shortcut Decision` second, stale spec reconciliation third. WP-004 parity pack remains a user-actor release gate unless a new preview / Reader difference appears.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-05-14 Remote sync handoff after First-use Save Help
 
@@ -31,12 +41,12 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `8770edd feat: clarify first-use save help` |
-| 現在の主軸 | **Remote sync handoff after First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow、First-use Save Help は PASS。別端末は project docs から保存・再開・書き出し・章運用・初回保存理解の現在地を復元できる |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `8770edd feat: clarify first-use save help`。最新 context handoff は `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md` |
+| 現在の主軸 | **Remote sync and restart roadmap handoff**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow、First-use Save Help は PASS。次は初回説明や章作成ではなく、Import Roundtrip Hardening / Rich Editing Heading Shortcut Decision / stale spec reconciliation から 1 トピックで選ぶ |
 | 直近の実装スライス | status chip / Documents / 入出力 menu に、ローカル自動保存、保存状態、外部退避としての TXT/JSON 書き出し、JSON 読み込み、章構造の扱いを短文で補助 |
-| 最新ビルド・検証 | First-use Save Help: `node --check` 対象コード/spec、first-use / export-trust / daily-writing-proof / chapter-creation / Documents menu targeted Playwright、`npm run test:smoke`、`npm run lint:js:check`、`npm run build`、`npm run test:unit`、`git diff --check`、`git diff --cached --check` PASS |
+| 最新ビルド・検証 | 2026-05-15 restart readiness: `npm run test:smoke`、`npm run lint:js:check`、`npm run test:unit`、`npm run build`、`git diff --check` PASS。`npx playwright test --list` は 66 spec / 588 tests |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md` に、First-use Save Help 後の remote sync handoff を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md` に、2026-05-15 の clean sync・検証・次候補優先度を同期 |
 
 ## Latest Handoff
 

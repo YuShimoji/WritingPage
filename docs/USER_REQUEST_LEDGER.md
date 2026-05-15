@@ -111,3 +111,11 @@
 - Project context anchor: `docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff.md` records the restart route, trusted writing path, non-reopen areas, next candidates, and validation already attached to the product proof.
 - Current restart order: `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 - Next candidates stay separate: `Import Roundtrip Hardening`, `Rich Editing Heading Shortcut Decision`, and `Docs Hygiene: stale spec reconciliation`.
+
+# 2026-05-15 Remote sync and restart roadmap handoff
+
+- Status: done. Local `main` was clean and synchronized with `origin/main` before this docs handoff; `git rev-list --left-right --count HEAD...origin/main` was `0 0`.
+- Project context anchor: `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md` records the clean-state check, local readiness verification, restart route, and current roadmap priority.
+- Local readiness checked: `npm run test:smoke`, `npm run lint:js:check`, `npm run test:unit`, `npm run build`, and `git diff --check` passed. `npx playwright test --list` reported 66 spec files and 588 tests.
+- Current judgment: First-use Save Help and Chapter Creation Daily Flow remain closed unless a new failure appears. The next work should choose one bottleneck: `Import Roundtrip Hardening` first, `Rich Editing Heading Shortcut Decision` second, or `Docs Hygiene: stale spec reconciliation` third.
+- Full monolithic E2E and Electron package build were not run in this block; use focused specs, shards, or targeted package checks when the selected slice touches those surfaces.
