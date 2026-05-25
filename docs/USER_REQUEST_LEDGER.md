@@ -69,9 +69,9 @@
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を検査。TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip、Reader 往復後の再書き出しまで PASS | assistant / export trust |
 | Done | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定済み。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで、章構造が日常利用で壊れないことを証明した | assistant / writing trust |
 | Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
-| Option | Import Roundtrip Hardening | JSON 読み込みの復元性を、複数章・重複名・既存文書衝突などへ広げる。Export proof から import proof へ信頼を厚くする | assistant / import trust |
-| Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
-| D | WP-004 parity / Docs hygiene follow-up | preview / replay overlay / Rich editing 差分、または正本汚染が新規報告された時だけ扱う | shared |
+| Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定した | assistant / import trust |
+| Decision | Rich Editing Heading Shortcut Decision | 次の第一候補。Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
+| D | Docs hygiene / WP-004 parity follow-up | stale spec reconciliation は第二候補。WP-004 parity は preview / Reader 差分が新規報告された時だけ user-actor gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
 ## 完了時チェックリスト
@@ -119,3 +119,11 @@
 - Local readiness checked: `npm run test:smoke`, `npm run lint:js:check`, `npm run test:unit`, `npm run build`, and `git diff --check` passed. `npx playwright test --list` reported 66 spec files and 588 tests.
 - Current judgment: First-use Save Help and Chapter Creation Daily Flow remain closed unless a new failure appears. The next work should choose one bottleneck: `Import Roundtrip Hardening` first, `Rich Editing Heading Shortcut Decision` second, or `Docs Hygiene: stale spec reconciliation` third.
 - Full monolithic E2E and Electron package build were not run in this block; use focused specs, shards, or targeted package checks when the selected slice touches those surfaces.
+
+# 2026-05-25 Import Roundtrip Hardening
+
+- Status: done. JSON 読み込みは外部退避から安全に戻す導線として、保存前正規化・失敗時不変・既存文書衝突回避を持つようになった。
+- Current judgment: Export Trust Proof と Chapter Creation Daily Flow の後続として、JSON を書き出せるだけでなく、同名 document や荒れた pages 配列を含む JSON でも既存作業を壊さず戻せるところまで import trust を厚くした。
+- Implementation anchor: `js/storage.js` の `ZenWriterStorage.importProjectJSON(jsonString)`。公開シグネチャ、export schema、Documents UI 文言、Electron menu 経路は未変更。
+- Test anchor: `e2e/import-roundtrip-hardening.spec.js`。同名 document suffix、重複章タイトル保持、order / level / visibility 正規化、legacy pages-only、invalid import の docs 不変を直接確認する。
+- Next candidates now shift to `Rich Editing Heading Shortcut Decision` first, `Docs Hygiene: stale spec reconciliation` second. WP-004 parity pack remains a user-actor release gate unless a new preview / Reader difference appears.

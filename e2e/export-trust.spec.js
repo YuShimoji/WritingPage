@@ -136,6 +136,7 @@ test.describe('Export Trust Proof', () => {
   test('TXT and JSON downloads preserve daily rich editing content and import roundtrip', async ({ page }, testInfo) => {
     const unique = 'export-trust-daily-2026-05-13-7f4b2c';
     const title = 'Export Trust Daily 2026-05-13';
+    const importedTitle = title + ' (読み込み 2)';
     const body = [
       'Export Trust Proof document',
       '通常本文: daily export proof line.',
@@ -177,7 +178,7 @@ test.describe('Export Trust Proof', () => {
         window.ZenWriterEditor.getEditorValue().indexOf(needle) >= 0;
     }, unique);
     const imported = await getCurrentDocState(page);
-    expect(imported.name).toBe(title);
+    expect(imported.name).toBe(importedTitle);
     expect(normalizeNewlines(imported.editorValue)).toContain(unique);
     expect(normalizeNewlines(imported.content)).toContain('空行後の本文');
     const canonicalAfterImport = await getCanonicalEditorValue(page);
@@ -197,7 +198,7 @@ test.describe('Export Trust Proof', () => {
 
     const jsonAfterReader = await downloadFromDocumentsIo(page, 'JSON書き出し', testInfo, 'daily-after-reader.zwp.json');
     const projectAfterReader = JSON.parse(jsonAfterReader.text);
-    expect(projectAfterReader.document.name).toBe(title);
+    expect(projectAfterReader.document.name).toBe(importedTitle);
     expect(normalizeNewlines(projectAfterReader.document.content)).toBe(canonicalAfterImport);
     expect(normalizeNewlines(projectAfterReader.document.content)).toContain(unique);
 
@@ -213,6 +214,7 @@ test.describe('Export Trust Proof', () => {
 
   test('JSON download preserves explicit chapter structure', async ({ page }, testInfo) => {
     const title = 'Export Trust Structured 2026-05-13';
+    const importedTitle = title + ' (読み込み 2)';
     const chapterA = '構造章A';
     const chapterB = '構造章B';
     const bodyA = '章A本文: JSON pages に残る。token=chapter-a-8d1';
@@ -277,7 +279,7 @@ test.describe('Export Trust Proof', () => {
       };
     }, json.text);
 
-    expect(roundTrip.importedName).toBe(title);
+    expect(roundTrip.importedName).toBe(importedTitle);
     expect(roundTrip.chapters).toHaveLength(2);
     expect(roundTrip.chapters[0]).toMatchObject({ name: chapterA, content: bodyA, level: 2 });
     expect(roundTrip.chapters[1]).toMatchObject({ name: chapterB, content: bodyB, level: 3 });

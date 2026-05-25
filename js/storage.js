@@ -1174,71 +1174,183 @@ function exportProjectJSON(docId) {
  * @param {string} jsonString - JSON 文字列
  * @returns {string|null} 作成されたドキュメントID、失敗時 null
  */
-function importProjectJSON(jsonString) {
-    try {
-        const project = JSON.parse(jsonString);
+function _isImportRecord(value) {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+}
 
-        if (!project.format || !project.format.startsWith('zenwriter-')) {
-            console.error('未対応のフォーマット:', project.format);
+function _hasImportField(value, key) {
+    return Object.prototype.hasOwnProperty.call(value, key);
+}
+
+function _normalizeImportTitle(value, fallback) {
+    const title = typeof value === 'string' ? value.trim() : '';
+    return title || fallback;
+}
+
+function _normalizeImportLevel(value) {
+    const level = Number(value);
+    if (!Number.isFinite(level)) return 2;
+    return Math.max(1, Math.min(6, Math.floor(level)));
+}
+
+function _normalizeImportVisibility(value) {
+    return value === 'visible' || value === 'draft' || value === 'hidden'
+        ? value
+        : 'visible';
+}
+
+function _normalizeImportTimestamp(value, fallback) {
+    const timestamp = Number(value);
+    return Number.isFinite(timestamp) && timestamp > 0 ? timestamp : fallback;
+}
+
+function _resolveImportedDocumentName(baseName, docs) {
+    const usedNames = new Set((docs || [])
+        .filter(d => d && d.type === 'document')
+        .map(d => String(d.name || '')));
+
+    if (!usedNames.has(baseName)) return baseName;
+
+    for (let i = 2; i < 10000; i++) {
+        const candidate = baseName + ' (読み込み ' + i + ')';
+        if (!usedNames.has(candidate)) return candidate;
+    }
+
+    return baseName + ' (読み込み)';
+}
+
+function _makeImportId(prefix, docs, now, index) {
+    let id = '';
+    do {
+        id = prefix + '_' + now + '_' + index + '_' + Math.random().toString(36).slice(2, 8);
+    } while ((docs || []).some(d => d && d.id === id));
+    return id;
+}
+
+function _pageImportSortOrder(page, sourceIndex) {
+    const order = Number(page && page.order);
+    return Number.isFinite(order) ? order : sourceIndex;
+}
+
+function _normalizeImportPages(project) {
+    const pages = Array.isArray(project && project.pages) ? project.pages : [];
+
+    return pages
+        .map((page, sourceIndex) => ({ page, sourceIndex }))
+        .filter(ref => _isImportRecord(ref.page) && (
+            typeof ref.page.title === 'string' ||
+            typeof ref.page.content === 'string'
+        ))
+        .sort((a, b) => {
+            const aOrder = _pageImportSortOrder(a.page, a.sourceIndex);
+            const bOrder = _pageImportSortOrder(b.page, b.sourceIndex);
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            return a.sourceIndex - b.sourceIndex;
+        })
+        .map((ref, index) => {
+            const page = ref.page;
+            return {
+                title: _normalizeImportTitle(page.title, 'ページ ' + (index + 1)),
+                content: typeof page.content === 'string' ? page.content : '',
+                order: index,
+                level: _normalizeImportLevel(page.level),
+                visibility: _normalizeImportVisibility(page.visibility),
+                metadata: _isImportRecord(page.metadata) ? page.metadata : {}
+            };
+        });
+}
+
+function _assembleImportedPagesContent(pages) {
+    return (pages || []).map(page => {
+        return '#'.repeat(page.level) + ' ' + page.title + '\n\n' + page.content;
+    }).join('\n\n');
+}
+
+function _normalizeImportedProject(jsonString) {
+    let project = null;
+    try {
+        project = JSON.parse(jsonString);
+    } catch (e) {
+        console.error('Project JSON parse failed:', e);
+        return null;
+    }
+
+    if (!_isImportRecord(project)) return null;
+
+    const hasFormat = _hasImportField(project, 'format');
+    if (hasFormat) {
+        const format = typeof project.format === 'string' ? project.format : '';
+        if (!format.startsWith('zenwriter-')) {
+            console.error('Unsupported project format:', project.format);
             return null;
         }
+    }
 
-        const docName = (project.document && project.document.name) || '読み込みドキュメント';
-        const doc = createDocument(docName);
-        if (!doc) return null;
+    const documentRecord = _isImportRecord(project.document) ? project.document : null;
+    const pages = _normalizeImportPages(project);
 
-        // chapterMode を設定
-        const docs = loadDocuments();
-        const docRecord = docs.find(d => d.id === doc.id);
-        if (docRecord) {
-            docRecord.chapterMode = project.document ? project.document.chapterMode !== false : true;
-            docRecord.content = project.document && typeof project.document.content === 'string'
-                ? project.document.content
-                : '';
-            if (project.document && project.document.createdAt) {
-                docRecord.createdAt = project.document.createdAt;
-            }
-        }
+    if (!hasFormat && pages.length === 0) return null;
+    if (hasFormat && !documentRecord && pages.length === 0) return null;
 
-        // createDocument が作った空の初期章を削除
-        const emptyChapters = docs.filter(d => d.type === 'chapter' && d.parentId === doc.id);
-        for (const ch of emptyChapters) {
-            const idx = docs.indexOf(ch);
-            if (idx >= 0) docs.splice(idx, 1);
-        }
+    let content = documentRecord && typeof documentRecord.content === 'string'
+        ? documentRecord.content
+        : '';
+    if (!content && pages.length > 0) {
+        content = _assembleImportedPagesContent(pages);
+    }
 
-        // ページ(章)を復元
-        const pages = project.pages || [];
+    return {
+        name: _normalizeImportTitle(documentRecord && documentRecord.name, '読み込みドキュメント'),
+        content,
+        chapterMode: documentRecord ? documentRecord.chapterMode !== false : true,
+        createdAt: documentRecord ? documentRecord.createdAt : null,
+        pages
+    };
+}
+
+function importProjectJSON(jsonString) {
+    const normalized = _normalizeImportedProject(jsonString);
+    if (!normalized) return null;
+
+    try {
+        const existingDocs = loadDocuments();
+        const docs = existingDocs.slice();
         const now = Date.now();
-        for (let i = 0; i < pages.length; i++) {
-            const p = pages[i];
+        const docId = _makeImportId('doc', docs, now, 0);
+        const docRecord = {
+            id: docId,
+            type: 'document',
+            name: _resolveImportedDocumentName(normalized.name, docs),
+            content: normalized.content,
+            chapterMode: normalized.chapterMode,
+            parentId: null,
+            createdAt: _normalizeImportTimestamp(normalized.createdAt, now),
+            updatedAt: now
+        };
+
+        docs.push(docRecord);
+
+        for (let i = 0; i < normalized.pages.length; i++) {
+            const page = normalized.pages[i];
             docs.push({
-                id: 'ch_' + now + '_' + Math.random().toString(36).slice(2, 8),
+                id: _makeImportId('ch', docs, now, i),
                 type: 'chapter',
-                parentId: doc.id,
-                name: p.title || ('ページ ' + (i + 1)),
-                content: p.content || '',
-                order: typeof p.order === 'number' ? p.order : i,
-                level: p.level || 2,
-                visibility: p.visibility || 'visible',
-                metadata: p.metadata || {},
+                parentId: docId,
+                name: page.title,
+                content: page.content,
+                order: page.order,
+                level: page.level,
+                visibility: page.visibility,
+                metadata: page.metadata,
                 createdAt: now,
                 updatedAt: now
             });
         }
-        if (docRecord && !docRecord.content && pages.length > 0) {
-            docRecord.content = pages.map(p => {
-                const level = Math.max(1, Math.min(6, Number(p.level || 2)));
-                const title = p.title || '';
-                const body = p.content || '';
-                return '#'.repeat(level) + ' ' + title + '\n\n' + body;
-            }).join('\n\n');
-        }
 
-        saveDocuments(docs);
-        return doc.id;
+        if (!saveDocuments(docs)) return null;
+        return docId;
     } catch (e) {
-        console.error('プロジェクト JSON インポート中にエラー:', e);
+        console.error('Project JSON import failed:', e);
         return null;
     }
 }

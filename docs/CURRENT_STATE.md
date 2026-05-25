@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-05-15（Remote sync and restart roadmap handoff）
+最終更新: 2026-05-25（Import Roundtrip Hardening）
 
 ## Snapshot
+
+### 2026-05-25 Import Roundtrip Hardening
+
+- JSON 読み込みは `ZenWriterStorage.importProjectJSON(jsonString)` の公開形を変えず、保存前に parse / format / pages 正規化を済ませる。失敗時は既存 docs を変更せず `null` を返す。
+- 明示 `format` は従来どおり `zenwriter-` 系だけ許可。`format` なし legacy pages-only JSON は、有効な page がある時だけ `読み込みドキュメント` として戻せる。
+- import は常に新規 document / chapter ID を作る。同名 document は `元タイトル (読み込み 2)` から決定的に suffix を付け、章タイトルの重複は創作上の意図として保持する。
+- pages は `order` 昇順、同値は元配列順で並べ、保存時 order を `0..n-1` に正規化。level / visibility / blank title / non-string content を安全側へ丸め、document.content が空なら pages から Markdown 本文を再構成する。
+- Verification anchor: `docs/verification/2026-05-25/import-roundtrip-hardening.md`。新規 E2E は `e2e/import-roundtrip-hardening.spec.js`。
+- 次候補は `Rich Editing Heading Shortcut Decision` を第一候補、stale spec reconciliation を第二候補に移す。WP-004 parity pack は新しい preview / Reader 差分が出た時の user-actor release gate のまま。
 
 ### 2026-05-15 Remote sync and restart roadmap handoff
 
@@ -41,14 +50,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `8770edd feat: clarify first-use save help`。最新 context handoff は `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md` |
-| 現在の主軸 | **Remote sync and restart roadmap handoff**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow、First-use Save Help は PASS。次は初回説明や章作成ではなく、Import Roundtrip Hardening / Rich Editing Heading Shortcut Decision / stale spec reconciliation から 1 トピックで選ぶ |
-| 直近の実装スライス | status chip / Documents / 入出力 menu に、ローカル自動保存、保存状態、外部退避としての TXT/JSON 書き出し、JSON 読み込み、章構造の扱いを短文で補助 |
-| 最新ビルド・検証 | 2026-05-15 restart readiness: `npm run test:smoke`、`npm run lint:js:check`、`npm run test:unit`、`npm run build`、`git diff --check` PASS。`npx playwright test --list` は 66 spec / 588 tests |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は Import Roundtrip Hardening。検証記録は `docs/verification/2026-05-25/import-roundtrip-hardening.md` |
+| 現在の主軸 | **Import Roundtrip Hardening**: Export proof 後の戻し導線を補強し、JSON 読み込みの失敗時安全性、既存文書衝突、legacy pages-only、章順序・level・visibility 正規化を PASS |
+| 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
+| 最新ビルド・検証 | 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff.md` に、2026-05-15 の clean sync・検証・次候補優先度を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-05-25/import-roundtrip-hardening.md` に、Import Roundtrip Hardening の完了範囲と次候補優先度を同期 |
 
 ## Latest Handoff
+
+- New: Import Roundtrip Hardening を実施。`importProjectJSON` は保存前正規化に移し、不正 JSON / unsupported format / empty JSON / invalid legacy pages-only は docs を変更せず `null`。format-less pages-only は有効 page がある時だけ受け入れ、同名 document は `読み込み N` suffix、新規章 ID、正規化 order / level / visibility / blank title / content fallback で復元する。Export schema、Documents UI 文言、Electron menu、Cloud sync / EPUB / DOCX / Rich editing shortcut / Floating memo 保存モデルは未変更。
 
 - Shared focus: session 127〜129 の unified shell foundation、daily writing narrow fix、writing workflow friction sweep を、現行判断の起点にする。
 - Trusted: Story Wiki / Link Graph / Compare の shell token 寄せ、gadget collapse 契約、left nav label/icon/panel/gadget 対応、package safe launcher。
@@ -676,9 +687,9 @@
 | Done | Export Trust Proof | TXT / JSON download の実ファイル内容を読み取り、TXT は current editor value、JSON は `document.id/name/content/pages` と chapter pages roundtrip を確認。Reader 往復後の再書き出しも PASS | assistant / export trust |
 | Done | Chapter Creation Daily Flow | 章作成を含む毎日導線を、`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで固定済み。新規 FAIL がない限り章作成そのものは reopen しない | assistant / writing trust |
 | Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
-| Option | Import Roundtrip Hardening | Export proof で通した JSON 読み込みを、既存文書との衝突・複数章・重複名などへ広げる。外部退避から戻す信頼を厚くする | assistant / import trust |
-| Decision | Rich Editing Heading Shortcut Decision | Rich editing で `# 見出し` を自動変換するかを仕様判断する。実装に進む前に Markdown source / Rich editing の境界を崩さない条件を決める | shared / editor UX |
-| D | WP-004 Phase 3 / Docs hygiene | 新規差分・正本汚染が出たときだけ 1 トピックで扱う | shared |
+| Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定 | assistant / import trust |
+| Decision | Rich Editing Heading Shortcut Decision | 次の第一候補。Rich editing で `# 見出し` を自動変換するかを仕様判断する。Markdown source / Rich editing 境界を決めてから実装へ進む | shared / editor UX |
+| D | Docs hygiene / WP-004 parity | stale spec reconciliation は第二候補。WP-004 parity pack は preview / Reader 差分が新規に出た時の user-actor release gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
 ## Known Notes

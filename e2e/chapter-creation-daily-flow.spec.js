@@ -208,6 +208,7 @@ test.describe('Chapter Creation Daily Flow', () => {
 
   test('creates chapters, resumes them, reads them, exports them, and imports them back', async ({ page }, testInfo) => {
     const title = 'Chapter Daily Flow 2026-05-13';
+    const importedTitle = title + ' (読み込み 2)';
     const chapterA = '第1章 保存される朝';
     const chapterB = '第2章 書き出される夜';
     const tokenA = 'chapter-daily-a-7f31';
@@ -360,12 +361,12 @@ test.describe('Chapter Creation Daily Flow', () => {
         chapters[1].name === b.title &&
         String(chapters[1].content || '').indexOf(b.token) >= 0;
     }, {
-      title,
+      title: importedTitle,
       a: { title: chapterA, token: tokenA },
       b: { title: chapterB, token: tokenB }
     });
     const imported = await getCurrentDocState(page);
-    expect(imported.docName).toBe(title);
+    expect(imported.docName).toBe(importedTitle);
     expect(imported.chapters[0]).toMatchObject({ name: chapterA, content: storedBodyA });
     expect(imported.chapters[1]).toMatchObject({ name: chapterB, content: storedBodyB });
   });
