@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-05-25（Remote sync after Import Roundtrip Hardening）
+最終更新: 2026-06-03（Remote sync and current-context handoff）
 
 ## Snapshot
+
+### 2026-06-03 Remote sync and current-context handoff
+
+- Product proof anchor は引き続き `a56671b test: harden import roundtrip`。今回の handoff は product code / UI 契約 / storage 契約 / dependency / DB / auth / API behavior を変えず、再開文脈を project docs に固定する docs-only slice。
+- Pre-handoff context anchor: `b9948fb docs: hand off import roundtrip sync`。`git fetch --prune origin` 後、docs 編集前の `git rev-list --left-right --count HEAD...origin/main` は `0 0`、`git status --short --branch` は clean `## main...origin/main`。docs validation は `git diff --cached --check` と `npm run test:smoke` が PASS。
+- Remote handoff anchor: `docs/verification/2026-06-03/remote-sync-current-context-handoff.md`。
+- 別端末では `git pull --ff-only origin main` 後、clean `main...origin/main` と `HEAD...origin/main = 0 0` を確認し、`docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読む。次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
+- 次候補は変えない。`Rich Editing Heading Shortcut Decision` が第一候補、`Docs Hygiene: stale spec reconciliation` が第二候補。WP-004 parity pack は新しい preview / Reader 差分が出た時の user-actor release gate として残す。
 
 ### 2026-05-25 Remote sync handoff after Import Roundtrip Hardening
 
@@ -58,15 +66,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-05-25/remote-sync-import-roundtrip-handoff.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-03/remote-sync-current-context-handoff.md` |
 | 現在の主軸 | **Import Roundtrip Hardening**: Export proof 後の戻し導線を補強し、JSON 読み込みの失敗時安全性、既存文書衝突、legacy pages-only、章順序・level・visibility 正規化を PASS |
 | 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
-| 最新ビルド・検証 | 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
+| 最新ビルド・検証 | 2026-06-03 context handoff: docs 編集前に `HEAD...origin/main = 0 0` と clean worktree を確認し、`git diff --cached --check` と `npm run test:smoke` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-05-25/remote-sync-import-roundtrip-handoff.md` に、remote 同期済み anchor と次候補優先度を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-03/remote-sync-current-context-handoff.md` に、remote 同期済み anchor と別端末 restart route を同期 |
 
 ## Latest Handoff
 
+- New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync handoff after Import Roundtrip Hardening を追加。`a56671b test: harden import roundtrip` を product proof anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - New: Import Roundtrip Hardening を実施。`importProjectJSON` は保存前正規化に移し、不正 JSON / unsupported format / empty JSON / invalid legacy pages-only は docs を変更せず `null`。format-less pages-only は有効 page がある時だけ受け入れ、同名 document は `読み込み N` suffix、新規章 ID、正規化 order / level / visibility / blank title / content fallback で復元する。Export schema、Documents UI 文言、Electron menu、Cloud sync / EPUB / DOCX / Rich editing shortcut / Floating memo 保存モデルは未変更。
 
