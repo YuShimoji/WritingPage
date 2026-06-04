@@ -1,8 +1,28 @@
 # Current State
 
-最終更新: 2026-06-03（Remote sync and current-context handoff）
+最終更新: 2026-06-05（Issue #118 / PR #119 meta-review gate）
 
 ## Snapshot
+
+### 2026-06-05 Issue #118 / PR #119 meta-review gate
+
+- Gate result: `request authority`. Do not implement Issue #118 from PR #119, and do not merge / rebase / cherry-pick PR #119. The next move is a human backlog / GitHub-artifact decision, not an implementation slice.
+- Active artifact remains the current `main` writing-trust state. Product proof anchor remains `a56671b test: harden import roundtrip`; next product candidates remain `Rich Editing Heading Shortcut Decision` first and stale spec reconciliation second.
+- Git readback after `git fetch --prune origin`: local `HEAD` and `origin/main` are synchronized (`HEAD...origin/main = 0 0`), and `HEAD` is contained by `main` / `origin/main`. The working tree already had staged docs-only cross-terminal handoff changes from 2026-06-04.
+- Issue #118 is still open and describes postMessage security / child-bridge strict parent+origin checks / cross-origin demos / docs / dev-check. `docs/EMBED_TESTING.md` referenced by the issue does not exist in current `main`; treat that path as stale and use `docs/EMBED_SDK.md` plus source readback instead.
+- PR #119 is open from `feature/ISSUE-118-postmessage-security` to `main`, but its changed files are SP-073 PathText freehand drawing files, not embed/security files. Its head commit `4f620e9` has the same tree as current-main ancestor `49c3c2f feat: SP-073 Phase 4 フリーハンド描画...`, so that payload is already present on `main` under the correct PathText commit.
+- The PR branch is stale and dangerous as a merge source: `origin/main..origin/feature/ISSUE-118-postmessage-security` shows a broad reverse diff that would delete current authority docs, modern E2E, Local Gadget Mod work, writing-trust proofs, and other current surfaces.
+- Current `main` already contains strict `child-bridge.js` parent-source/origin checks, `allowedOrigin` target sends, SDK targetOrigin handling, cross-origin demo, and `scripts/dev-check.js` security pattern checks. Treat Issue #118 as a close / audit candidate, not as approval to start a new branch automatically.
+- Verification anchor: `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md`.
+
+### 2026-06-04 Remote sync and cross-terminal handoff
+
+- Local `main` was fast-forwarded from `4aa2f62 docs: record restart roadmap handoff` to `d007bf0 docs: hand off current sync context` after `git fetch origin` showed new remote work. The pulled remote work includes Import Roundtrip Hardening and the 2026-06-03 current-context handoff.
+- Product proof anchor remains `a56671b test: harden import roundtrip`; this 2026-06-04 handoff changes only project docs so another terminal can restart without chat history.
+- Before this docs update, `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Current handoff anchor: `docs/verification/2026-06-04/remote-sync-cross-terminal-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Next candidates remain unchanged after the pull: `Rich Editing Heading Shortcut Decision` first, `Docs Hygiene: stale spec reconciliation` second. WP-004 parity pack remains a user-actor release gate only when a fresh preview / Reader difference appears.
 
 ### 2026-06-03 Remote sync and current-context handoff
 
@@ -66,15 +86,17 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-03/remote-sync-current-context-handoff.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` |
 | 現在の主軸 | **Import Roundtrip Hardening**: Export proof 後の戻し導線を補強し、JSON 読み込みの失敗時安全性、既存文書衝突、legacy pages-only、章順序・level・visibility 正規化を PASS |
 | 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
-| 最新ビルド・検証 | 2026-06-03 context handoff: docs 編集前に `HEAD...origin/main = 0 0` と clean worktree を確認し、`git diff --cached --check` と `npm run test:smoke` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
+| 最新ビルド・検証 | 2026-06-05 meta-review: `git fetch --prune origin`、`git status --short --branch`、`git rev-list --left-right --count HEAD...origin/main`、`git branch --all --contains HEAD`、Issue #118 / PR #119 / PR diff / branch diff readback、`node --check js/embed/child-bridge.js`、`node scripts/dev-check.js`、`git diff --check` と `git diff --cached --check` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-03/remote-sync-current-context-handoff.md` に、remote 同期済み anchor と別端末 restart route を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` に、Issue #118 / PR #119 の authority mismatch、PR #119 の reference-only / close-candidate 判定、次に必要な human authority decision を同期 |
 
 ## Latest Handoff
 
+- New: Issue #118 / PR #119 meta-review gate を追加。判定は `request authority`。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only / close candidate に下げる。Issue #118 は current `main` の embed security readback では既に主要 DoD パターンが見えるため、新規実装 branch は切らず、GitHub 上で close / audit / reopen の明示判断を待つ。
+- New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync handoff after Import Roundtrip Hardening を追加。`a56671b test: harden import roundtrip` を product proof anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - New: Import Roundtrip Hardening を実施。`importProjectJSON` は保存前正規化に移し、不正 JSON / unsupported format / empty JSON / invalid legacy pages-only は docs を変更せず `null`。format-less pages-only は有効 page がある時だけ受け入れ、同名 document は `読み込み N` suffix、新規章 ID、正規化 order / level / visibility / blank title / content fallback で復元する。Export schema、Documents UI 文言、Electron menu、Cloud sync / EPUB / DOCX / Rich editing shortcut / Floating memo 保存モデルは未変更。
