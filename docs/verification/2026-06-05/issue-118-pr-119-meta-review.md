@@ -4,9 +4,9 @@ Date: 2026-06-05
 
 ## Decision
 
-Category: `request authority`.
+Category after correction: non-blocking stale/reference context; continue from current-main priorities unless embed security is explicitly selected.
 
-Do not proceed from PR #119 as an implementation artifact. PR #119 is a reference-only / close candidate, and Issue #118 should not start a new branch until a human confirms whether the already-present embed security work on current `main` is enough to close the issue or whether a new narrow audit issue is needed.
+Do not proceed from PR #119 as an implementation artifact. PR #119 is reference-only, and Issue #118 should not start a new branch from the old PR branch. However, PR #119 / Issue #118 close state is bookkeeping, not a product-work blocker in this repo. If cleanup can be done safely by an agent, it may be done; if not, this note is enough to demote the stale artifacts and return to current-main work.
 
 ## Authority docs read
 
@@ -39,44 +39,37 @@ Do not proceed from PR #119 as an implementation artifact. PR #119 is a referenc
 
 ## Handling of old artifacts
 
-PR #119 should be treated as reference-only / close candidate. Its branch name, title/body, and `Closes #118` claim point to embed security, but the tree payload is PathText Phase 4 and the same payload is already on `main` as `49c3c2f`.
+PR #119 should be treated as reference-only. Its branch name, title/body, and `Closes #118` claim point to embed security, but the tree payload is PathText Phase 4 and the same payload is already on `main` as `49c3c2f`.
 
-Issue #118 should be treated as an audit / close decision, not as implementation approval. If current `main` satisfies the intended postMessage security DoD, close it with a note that the implemented source is already on `main`; if more work is needed, open a new narrow issue from current `main` with only the missing embed-security deltas.
+Issue #118 should be treated as stale bookkeeping or, only when selected, a current-main missing-DoD audit. Open state alone is not implementation approval and does not block `Rich Editing Heading Shortcut Decision`, stale spec reconciliation, or other current-main work.
 
-## Human authority decision needed
+## Non-blocking GitHub cleanup and product priority
 
-Target artifact: GitHub PR #119.
+GitHub cleanup:
 
-Human decision: whether to close PR #119 as reference-only because it does not implement Issue #118 and its payload is already present on `main`.
+- PR #119 may be closed/commented as reference-only if the agent can safely do it.
+- Issue #118 may be closed if the current-main evidence is sufficient and the agent can safely do it.
+- If cleanup is not safe or not worth the slice, leave GitHub as-is; this repo does not treat open PR / Issue state as active artifact authority.
 
-Operation: comment on PR #119 that the branch title/body claim Issue #118, but the diff is SP-073 PathText freehand drawing already present on `main` as `49c3c2f`; then close the PR without merge.
+Human input, if needed, should be product priority only:
 
-OK condition: PR #119 is closed, and future work does not use `feature/ISSUE-118-postmessage-security` as an implementation branch.
+- Whether embed security should become the next selected product slice.
+- Or whether to continue the current mainline candidates: `Rich Editing Heading Shortcut Decision` or stale spec reconciliation.
 
-NG return information: GitHub permission error, unexpected required review policy, or any new comment proving PR #119 intentionally carries a different active artifact.
-
-Target artifact: GitHub Issue #118.
-
-Human decision: whether to close Issue #118 as satisfied by current `main`, or request a new narrow audit issue that only checks missing embed-security acceptance criteria.
-
-Operation: if satisfied, close Issue #118 with references to current `main` source readback (`js/embed/child-bridge.js`, `js/embed/zen-writer-embed.js`, `scripts/dev-check.js`, `embed-xorigin-demo.html`, `docs/EMBED_SDK.md`). If not satisfied, create a new issue that states only the missing acceptance checks from current `main`.
-
-OK condition: Issue #118 is either closed with a current-main rationale or replaced by a narrow current-main audit issue.
-
-NG return information: which exact DoD item is still missing from current `main`, and the file / command evidence.
+If embed security is selected, start from current `main` and audit only missing DoD. Do not reuse `feature/ISSUE-118-postmessage-security`.
 
 ## What can proceed next
 
-- Close or comment on PR #119 after human approval.
-- Decide Issue #118 closure versus a new current-main audit issue.
-- If a new audit issue is requested, run a narrow embed-security verification slice from current `main`; do not reuse PR #119.
+- Current-main product work: `Rich Editing Heading Shortcut Decision` first, stale spec reconciliation second.
+- Optional safe GitHub cleanup, if it is cheap and agent-side.
+- A narrow embed-security missing-DoD audit only if the user selects embed security as current priority.
 
 ## What must not proceed
 
 - Do not merge, rebase, force-push, or cherry-pick PR #119.
 - Do not start Issue #118 implementation from `feature/ISSUE-118-postmessage-security`.
 - Do not revive `docs/EMBED_TESTING.md` just because the old issue body names it; if embed test docs are needed, decide the current doc owner first.
-- Do not treat docs/readback growth as product progress. The active product path remains current-main writing trust unless a real embed-security gap is selected.
+- Do not treat GitHub close/comment bookkeeping or docs/readback growth as product progress. The active product path remains current-main writing trust unless a real embed-security gap is selected.
 
 ## Validation
 

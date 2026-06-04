@@ -1,12 +1,20 @@
 # Current State
 
-最終更新: 2026-06-05（Issue #118 / PR #119 meta-review gate）
+最終更新: 2026-06-05（GitHub artifact authority correction）
 
 ## Snapshot
 
+### 2026-06-05 GitHub artifact authority correction
+
+- Correction to the Issue #118 / PR #119 meta-review: GitHub Issue / PR cleanup is not a human-side blocker and must not block current-main product work in this repo.
+- Authority order: current `main`, `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/INVARIANTS.md`, implementation diffs, verification results, and explicit user-selected work outrank open GitHub Issues / PRs. Open Issue / open PR state alone is weak management information, not an active artifact.
+- Keep the previous evidence: PR #119 is stale / reference-only, must not be merged / rebased / cherry-picked, and `feature/ISSUE-118-postmessage-security` must not be reused as an implementation branch. Issue #118, if revisited, is a current-main missing-DoD narrow audit only.
+- Withdraw the previous blocker framing: PR #119 close / Issue #118 close is bookkeeping, not product progress and not a prerequisite for resuming current-main development. If an agent can safely do cleanup, it may; otherwise record stale / reference-only status in docs and return to the mainline.
+- Human input should be requested only for product priority: whether embed security should become the next selected product slice, or whether to continue with `Rich Editing Heading Shortcut Decision` / stale spec reconciliation.
+
 ### 2026-06-05 Issue #118 / PR #119 meta-review gate
 
-- Gate result: `request authority`. Do not implement Issue #118 from PR #119, and do not merge / rebase / cherry-pick PR #119. The next move is a human backlog / GitHub-artifact decision, not an implementation slice.
+- Corrected gate result: GitHub artifacts are non-blocking stale/reference context. Do not implement Issue #118 from PR #119, and do not merge / rebase / cherry-pick PR #119. The next product move should return to current-main priorities unless the user explicitly selects embed security.
 - Active artifact remains the current `main` writing-trust state. Product proof anchor remains `a56671b test: harden import roundtrip`; next product candidates remain `Rich Editing Heading Shortcut Decision` first and stale spec reconciliation second.
 - Git readback after `git fetch --prune origin`: local `HEAD` and `origin/main` are synchronized (`HEAD...origin/main = 0 0`), and `HEAD` is contained by `main` / `origin/main`. The working tree already had staged docs-only cross-terminal handoff changes from 2026-06-04.
 - Issue #118 is still open and describes postMessage security / child-bridge strict parent+origin checks / cross-origin demos / docs / dev-check. `docs/EMBED_TESTING.md` referenced by the issue does not exist in current `main`; treat that path as stale and use `docs/EMBED_SDK.md` plus source readback instead.
@@ -91,11 +99,11 @@
 | 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
 | 最新ビルド・検証 | 2026-06-05 meta-review: `git fetch --prune origin`、`git status --short --branch`、`git rev-list --left-right --count HEAD...origin/main`、`git branch --all --contains HEAD`、Issue #118 / PR #119 / PR diff / branch diff readback、`node --check js/embed/child-bridge.js`、`node scripts/dev-check.js`、`git diff --check` と `git diff --cached --check` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` に、Issue #118 / PR #119 の authority mismatch、PR #119 の reference-only / close-candidate 判定、次に必要な human authority decision を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` に、Issue #118 / PR #119 の authority mismatch、PR #119 の reference-only 判定、GitHub cleanup は非 blocker という補正を同期 |
 
 ## Latest Handoff
 
-- New: Issue #118 / PR #119 meta-review gate を追加。判定は `request authority`。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only / close candidate に下げる。Issue #118 は current `main` の embed security readback では既に主要 DoD パターンが見えるため、新規実装 branch は切らず、GitHub 上で close / audit / reopen の明示判断を待つ。
+- New: GitHub artifact authority correction を追加。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only に下げる判断は維持する。一方で、PR #119 / Issue #118 の GitHub close は人間側 blocker ではなく帳簿整理に降格する。Issue #118 を扱う必要が出た場合だけ current `main` から missing DoD の narrow audit とし、通常の次候補は `Rich Editing Heading Shortcut Decision` / stale spec reconciliation へ戻す。
 - New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync handoff after Import Roundtrip Hardening を追加。`a56671b test: harden import roundtrip` を product proof anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
