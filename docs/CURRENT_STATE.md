@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-05（GitHub artifact authority correction）
+最終更新: 2026-06-05（Remote sync after GitHub artifact authority correction）
 
 ## Snapshot
+
+### 2026-06-05 Remote sync after GitHub artifact authority correction
+
+- Local `main` was checked after `git fetch --prune origin` and `git pull --ff-only origin main`; remote was already up to date at `c272503 docs: downgrade stale github artifacts`.
+- Product proof anchor remains `a56671b test: harden import roundtrip`. This handoff changes only project docs so another terminal can resume from current `main` without chat history.
+- Pre-handoff sync checks: `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Current handoff anchor: `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Next candidates remain current-main product work: `Rich Editing Heading Shortcut Decision` first, stale spec reconciliation second. GitHub Issue / PR cleanup remains non-blocking bookkeeping and is not product progress.
 
 ### 2026-06-05 GitHub artifact authority correction
 
@@ -94,15 +103,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md` |
 | 現在の主軸 | **Import Roundtrip Hardening**: Export proof 後の戻し導線を補強し、JSON 読み込みの失敗時安全性、既存文書衝突、legacy pages-only、章順序・level・visibility 正規化を PASS |
 | 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
-| 最新ビルド・検証 | 2026-06-05 meta-review: `git fetch --prune origin`、`git status --short --branch`、`git rev-list --left-right --count HEAD...origin/main`、`git branch --all --contains HEAD`、Issue #118 / PR #119 / PR diff / branch diff readback、`node --check js/embed/child-bridge.js`、`node scripts/dev-check.js`、`git diff --check` と `git diff --cached --check` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
+| 最新ビルド・検証 | 2026-06-05 remote-sync handoff: `git fetch --prune origin`、`git pull --ff-only origin main`、`git status --short --branch`、`git rev-list --left-right --count HEAD...origin/main`、`git diff --check` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-05/issue-118-pr-119-meta-review.md` に、Issue #118 / PR #119 の authority mismatch、PR #119 の reference-only 判定、GitHub cleanup は非 blocker という補正を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md` に、`c272503` までの remote 同期、GitHub artifact authority 補正後の restart route、次候補を同期 |
 
 ## Latest Handoff
 
+- New: Remote sync after GitHub artifact authority correction を追加。`main` / `origin/main` は `c272503 docs: downgrade stale github artifacts` で同期済み。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: GitHub artifact authority correction を追加。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only に下げる判断は維持する。一方で、PR #119 / Issue #118 の GitHub close は人間側 blocker ではなく帳簿整理に降格する。Issue #118 を扱う必要が出た場合だけ current `main` から missing DoD の narrow audit とし、通常の次候補は `Rich Editing Heading Shortcut Decision` / stale spec reconciliation へ戻す。
 - New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
