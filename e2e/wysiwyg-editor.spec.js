@@ -46,6 +46,31 @@ test.describe('WYSIWYG Editor', () => {
     await switchToTextareaMode(page);
   }
 
+  async function resetWysiwygEditor(page, html = '<p><br></p>') {
+    await page.waitForFunction(() => !!(window.richTextEditor && typeof window.richTextEditor.resetUndoStack === 'function'));
+    await page.evaluate((initialHtml) => {
+      const re = window.richTextEditor;
+      const editor = re.wysiwygEditor;
+      editor.innerHTML = initialHtml;
+      re.resetUndoStack();
+      editor.focus();
+      const target = editor.querySelector('p, div, h1, h2, h3') || editor;
+      const range = document.createRange();
+      range.selectNodeContents(target);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }, html);
+  }
+
+  async function normalizedEditorText(editor) {
+    return editor.evaluate((el) => (el.innerText || el.textContent || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim());
+  }
+
   test('FR-007: Space 境界のあと 1 回の Undo で直後の入力だけ巻き戻る', async ({ page }) => {
     const editor = page.locator('#wysiwyg-editor');
     await editor.click();
@@ -590,6 +615,123 @@ test.describe('WYSIWYG Editor', () => {
     // H2要素が存在することを確認
     const h2Element = wysiwygEditor.locator('h2');
     await expect(h2Element).toBeAttached();
+  });
+
+  [
+    { marker: '#', tag: 'h1', title: 'Heading One' },
+    { marker: '##', tag: 'h2', title: 'Heading Two' },
+    { marker: '###', tag: 'h3', title: 'Heading Three' },
+  ].forEach(({ marker, tag, title }) => {
+    test(`heading shortcut converts ${marker} at line start to ${tag.toUpperCase()}`, async ({ page }) => {
+      const wysiwygEditor = page.locator('#wysiwyg-editor');
+      await resetWysiwygEditor(page);
+
+      await page.keyboard.type(`${marker} ${title}`);
+
+      await expect(wysiwygEditor.locator(tag)).toHaveText(title);
+      await switchToTextarea(page);
+      const textareaContent = await page.locator('#editor').inputValue();
+      expect(textareaContent).toContain(`${marker} ${title}`);
+    });
+  });
+
+  test('heading shortcut does not convert hashtag text', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.keyboard.type('#hashtag');
+
+    await expect(wysiwygEditor.locator('h1, h2, h3')).toHaveCount(0);
+    await expect(wysiwygEditor).toContainText('#hashtag');
+  });
+
+  test('heading shortcut only converts at the start of a block', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.keyboard.type('Intro # Heading');
+
+    await expect(wysiwygEditor.locator('h1, h2, h3')).toHaveCount(0);
+    await expect(wysiwygEditor).toContainText('Intro # Heading');
+  });
+
+  test('heading shortcut ignores unsupported deep heading markers', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.keyboard.type('#### Heading Four');
+
+    await expect(wysiwygEditor.locator('h1, h2, h3, h4')).toHaveCount(0);
+    await expect(wysiwygEditor).toContainText('#### Heading Four');
+  });
+
+  test('heading shortcut does not run for pasted markdown-looking text', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const dt = new DataTransfer();
+      dt.setData('text/plain', '# Pasted Heading');
+      const evt = new ClipboardEvent('paste', { clipboardData: dt, bubbles: true, cancelable: true });
+      editor.dispatchEvent(evt);
+    });
+
+    await expect(wysiwygEditor.locator('h1, h2, h3')).toHaveCount(0);
+    await expect(wysiwygEditor).toContainText('# Pasted Heading');
+  });
+
+  test('heading shortcut does not run during IME composition', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.evaluate(() => {
+      document.getElementById('wysiwyg-editor').dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }));
+    });
+    await page.keyboard.type('# Composing Heading');
+    await page.evaluate(() => {
+      document.getElementById('wysiwyg-editor').dispatchEvent(new CompositionEvent('compositionend', { bubbles: true }));
+    });
+
+    await expect(wysiwygEditor.locator('h1, h2, h3')).toHaveCount(0);
+    await expect(wysiwygEditor).toContainText('# Composing Heading');
+  });
+
+  test('heading shortcut undo restores the typed marker with one undo', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.keyboard.type('# ');
+    await expect(wysiwygEditor.locator('h1')).toBeAttached();
+
+    await pressWysiwygUndo(page);
+
+    await expect(wysiwygEditor.locator('h1, h2, h3')).toHaveCount(0);
+    expect(await normalizedEditorText(wysiwygEditor)).toBe('#');
+  });
+
+  test('heading shortcut leaves Markdown source round-trip on the existing renderer', async ({ page }) => {
+    const textarea = page.locator('#editor');
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    const toggleBtn = page.locator('#toggle-wysiwyg');
+
+    await switchToTextarea(page);
+    await textarea.fill(`# Source Heading
+
+## Source Scene
+
+### Source Detail`);
+
+    await toggleBtn.dispatchEvent('mousedown');
+    await expect(wysiwygEditor.locator('h1')).toHaveText('Source Heading');
+    await expect(wysiwygEditor.locator('h2')).toHaveText('Source Scene');
+    await expect(wysiwygEditor.locator('h3')).toHaveText('Source Detail');
+
+    await switchToTextarea(page);
+    const textareaContent = await textarea.inputValue();
+    expect(textareaContent).toContain('# Source Heading');
+    expect(textareaContent).toContain('## Source Scene');
+    expect(textareaContent).toContain('### Source Detail');
   });
 
   test('should apply unordered list UL block formatting in WYSIWYG mode', async ({ page }) => {

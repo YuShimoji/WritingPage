@@ -26,6 +26,8 @@
       this._undoLastSnapshot = '';
       this._lastCursorOffset = 0;
       this._undoBatchTimeout = 500; // ms — テキスト入力のバッチング間隔
+      this._isComposing = false;
+      this._pendingTypedHeadingShortcut = false;
 
       // Turndownインスタンス（HTML → Markdown変換）
       this.turndownService = null;
@@ -1976,6 +1978,7 @@
 
       // 入力時の自動保存とプレビュー更新
       this.wysiwygEditor.addEventListener('input', () => {
+        if (this._consumeTypedHeadingShortcut()) return;
         this._scheduleUndoSnapshot();
         this.syncToMarkdown();
         this._syncFormatState();
@@ -1993,8 +1996,14 @@
         if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
       });
 
+      this.wysiwygEditor.addEventListener('compositionstart', () => {
+        this._isComposing = true;
+        this._pendingTypedHeadingShortcut = false;
+      });
+
       /** IME 確定直後も 1 単位として区切る（連続デバウンスと分離） */
       this.wysiwygEditor.addEventListener('compositionend', () => {
+        this._isComposing = false;
         if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
       });
 
@@ -2015,6 +2024,7 @@
           this._dismissWikiComplete();
           return;
         }
+        this._pendingTypedHeadingShortcut = this._shouldQueueTypedHeadingShortcut(e);
         // P1（session 62）: Space / Enter 直前にデバウンス中のスナップショットを確定（単語・行境界での Undo 粒度）
         if (!e.isComposing && !(e.ctrlKey || e.metaKey || e.altKey)) {
           if (e.key === ' ' || e.key === 'Enter') {
@@ -2132,6 +2142,95 @@
           this.insertLink();
         }
       });
+    }
+
+    _shouldQueueTypedHeadingShortcut(e) {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return false;
+      if (!e || e.key !== ' ' || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return false;
+      if (e.isComposing || this._isComposing) return false;
+
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return false;
+      var range = sel.getRangeAt(0);
+      if (!range.collapsed || !this.wysiwygEditor.contains(range.commonAncestorContainer)) return false;
+
+      var candidate = this._getTypedHeadingShortcutCandidate(false);
+      return !!candidate;
+    }
+
+    _consumeTypedHeadingShortcut() {
+      if (!this._pendingTypedHeadingShortcut) return false;
+      this._pendingTypedHeadingShortcut = false;
+      if (this._isComposing) return false;
+
+      var candidate = this._getTypedHeadingShortcutCandidate(true);
+      if (!candidate) return false;
+      this._applyTypedHeadingShortcut(candidate);
+      return true;
+    }
+
+    _getTypedHeadingShortcutCandidate(afterSpace) {
+      var sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return null;
+      var range = sel.getRangeAt(0);
+      if (!range.collapsed || !this.wysiwygEditor || !this.wysiwygEditor.contains(range.commonAncestorContainer)) {
+        return null;
+      }
+
+      var block = this._getShortcutBlock(range.startContainer);
+      if (!block) return null;
+
+      var text = (block.textContent || '').replace(/\u00a0/g, ' ');
+      var match = afterSpace ? text.match(/^(#{1,3}) $/) : text.match(/^(#{1,3})$/);
+      if (!match) return null;
+
+      var afterRange = document.createRange();
+      try {
+        afterRange.selectNodeContents(block);
+        afterRange.setStart(range.startContainer, range.startOffset);
+      } catch (_) {
+        return null;
+      }
+      if ((afterRange.toString() || '').replace(/\u00a0/g, ' ') !== '') return null;
+
+      return {
+        block: block,
+        level: match[1].length
+      };
+    }
+
+    _getShortcutBlock(node) {
+      var el = node && node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
+      while (el && el !== this.wysiwygEditor) {
+        if (el.nodeType === Node.ELEMENT_NODE && /^(P|DIV)$/.test(el.tagName || '')) {
+          return el;
+        }
+        el = el.parentElement;
+      }
+      return null;
+    }
+
+    _applyTypedHeadingShortcut(candidate) {
+      if (!candidate || !candidate.block || !candidate.block.parentNode) return;
+
+      this._captureUndoSnapshot();
+
+      var heading = document.createElement('h' + candidate.level);
+      heading.appendChild(document.createElement('br'));
+      candidate.block.parentNode.replaceChild(heading, candidate.block);
+
+      var sel = window.getSelection();
+      if (sel) {
+        var range = document.createRange();
+        range.setStart(heading, 0);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+
+      this.syncToMarkdown();
+      this._syncFormatState();
+      this._notifyChange();
     }
 
     /**
