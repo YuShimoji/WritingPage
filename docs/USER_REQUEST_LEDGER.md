@@ -16,9 +16,10 @@
 - **Save / Resume Trust Audit**: 新機能追加より先に、作家が毎日使う「書く→保存済み確認→Documents で見つける→閉じて戻る→TXT / JSON 書き出し→Reader から戻る」導線を安心できる状態へ固定する。2026-05-13 audit では本文保存・再開・書き出し・Reader focus は PASS。修正は Sections 空状態の Rich editing / Markdown ソース案内と Documents menu 一意化に限定済み。Floating memo 保存モデル化、Cloud sync、EPUB / DOCX、Gadget 追加、top chrome / 常設 toolbar 復活へは進まない。
 - **Export Trust Proof**: Save / Resume Trust Audit の次段として、TXT / JSON は download event ではなく実ファイル内容で信頼を証明する。2026-05-13 proof では TXT が current editor value と一致し、JSON は `document.id` / `document.name` / `document.content` / `pages` を構造 assert し、daily JSON 読み込み UI roundtrip、explicit chapter `pages` roundtrip、Reader 往復後の再書き出しまで PASS。Cloud sync、EPUB / DOCX、Floating memo 保存、Gadget 追加、Export UI 大規模再設計へは進まない。
 - **First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow の信頼を前提に、初回または久しぶりのユーザーが保存モデルを短時間で理解できるようにする。2026-05-14 slice では status chip aria/title、Documents 補助文、空状態文言、入出力 menu hint/title を追加し、本文と章構造のこの端末への自動保存、画面下の保存状態、外部退避としての TXT/JSON 書き出し、戻す導線としての JSON 読み込みを短く示した。`JSON保存` 表現、Cloud sync、EPUB/DOCX、top chrome、export UI redesign は追加しない。
-- **Remote sync / cross-terminal handoff**: product proof anchor は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md`。別端末は `git pull --ff-only origin main` の後、clean `main...origin/main` と `HEAD...origin/main = 0 0` を確認し、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読む。次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読み、引き継ぎでは chat 履歴ではなく project docs を正本にする。
+- **Remote sync / cross-terminal handoff**: 最新 editor product proof anchor は `1e33e38 feat: add rich editing heading shortcut`。Import baseline は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`。別端末は `git pull --ff-only origin main` の後、clean `main...origin/main` と `HEAD...origin/main = 0 0` を確認し、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読む。次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読み、引き継ぎでは chat 履歴ではなく project docs を正本にする。
 - **GitHub Issue / PR authority downgrade**: この repo では open Issue / open PR は、それだけでは active artifact ではない。current `main`、`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `INVARIANTS`、実装差分、検証結果、ユーザーが明示した作業対象を優先する。stale GitHub Issue / PR close は帳簿整理であり、product work の blocker や progress として扱わない。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
+- **Rich editing typed heading shortcut**: Rich editing の通常入力では、行頭 `# ` / `## ` / `### ` の Space 確定だけを H1/H2/H3 へ限定変換する。IME composition 中、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、汎用 Markdown shortcut は対象外。Undo は変換直後 1 回で typed marker へ戻れることを守る。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
 - **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
@@ -71,8 +72,8 @@
 | Done | Chapter Creation Daily Flow | 章運用を毎日の執筆導線へ固定済み。`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで、章構造が日常利用で壊れないことを証明した | assistant / writing trust |
 | Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
 | Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定した | assistant / import trust |
-| Decision | Rich Editing Heading Shortcut Decision | 次の第一候補。Rich editing で `# 見出し` を Markdown shortcut として自動変換するか判断する。境界が決まるまで大きな editor 変換実装へ進まない | shared / editor UX |
-| D | Docs hygiene / WP-004 parity follow-up | stale spec reconciliation は第二候補。WP-004 parity は preview / Reader 差分が新規報告された時だけ user-actor gate として扱う | shared |
+| Done | Rich Editing Heading Shortcut Decision | 限定 trigger として採用済み。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、paste / import / Markdown source round-trip / 汎用 shortcut は対象外 | assistant / editor UX |
+| D | Docs hygiene / stale spec reconciliation | 次候補。WP-004 parity は preview / Reader 差分が新規報告された時だけ user-actor gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
 ## 完了時チェックリスト
@@ -168,3 +169,14 @@
 - Project context anchor: `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md` records the sync check, restart route, non-reopen areas, and next entry points.
 - Current restart order: `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 - Next candidates stay separate: `Rich Editing Heading Shortcut Decision` first, stale spec reconciliation second, and WP-004 parity only when a fresh preview / Reader difference appears. GitHub cleanup remains optional bookkeeping, not product progress.
+
+# 2026-06-08 Rich editing typed heading shortcut
+
+- Status: done. The decision slice adopted the shortcut only as a narrow typed trigger, then implemented and validated it.
+- Current judgment: Rich editing is a visual editing surface, so a familiar line-start heading shortcut is acceptable only where the user has typed a marker and confirmed it with Space. It must not turn Rich editing into a general Markdown shortcut parser.
+- Implementation anchor: `js/editor-wysiwyg.js` tracks Space-triggered candidates, gates IME composition, converts only paragraph/div blocks whose text is exactly `# ` / `## ` / `### `, captures Undo before replacing the block, then syncs the existing Markdown value.
+- Test anchor: `e2e/wysiwyg-editor.spec.js` covers H1/H2/H3 conversion, `#hashtag`, inline `# `, `#### `, paste, composition, immediate Undo, and Markdown source round-trip.
+- Product proof anchor: `1e33e38 feat: add rich editing heading shortcut`.
+- Project context anchor: `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`.
+- Current restart order: `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Next candidates shift to stale spec reconciliation first. Optional manual Japanese IME spot-check can be done before a release cut, but it is not a separate product lane.

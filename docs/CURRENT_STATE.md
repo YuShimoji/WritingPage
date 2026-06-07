@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-06-05（Remote sync after GitHub artifact authority correction）
+最終更新: 2026-06-08（Rich editing typed heading shortcut）
 
 ## Snapshot
+
+### 2026-06-08 Rich editing typed heading shortcut
+
+- Product proof anchor for the current editor slice is `1e33e38 feat: add rich editing heading shortcut`. The previous import-trust proof `a56671b test: harden import roundtrip` remains the baseline for JSON import behavior, not the current editor shortcut proof.
+- Rich editing now adopts the heading shortcut as a **limited typed trigger**: in the normal contenteditable surface, line-start `# ` / `## ` / `### ` confirmed by Space converts the current paragraph/div to H1/H2/H3. It does not add a general Markdown shortcut engine.
+- Boundaries preserved: `#hashtag`, inline `# `, and `#### ` stay literal; paste, import, Markdown source round-trip, `markdownToHtml`, and `htmlToMarkdown` stay on the existing conversion paths; IME composition is gated; Undo immediately after conversion restores the typed marker.
+- Sections / chapterMode boundary is unchanged. The shortcut only creates real heading blocks in the editor surface and does not replace `+ 新しい章`, ChapterStore creation, or the Markdown source escape hatch.
+- Validation for the product slice: `node --check js/editor-wysiwyg.js`, `npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"` (10 passed), `npm run test:smoke`, `npm run lint:js:check`, and `git diff --check` all passed before the product commit.
+- Current handoff anchor: `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Next candidates shift to stale spec reconciliation first. Optional follow-up before a release cut: manual Japanese IME spot-check for the typed shortcut. GitHub Issue / PR cleanup remains non-blocking bookkeeping and is not product progress.
 
 ### 2026-06-05 Remote sync after GitHub artifact authority correction
 
@@ -103,15 +114,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md` |
-| 現在の主軸 | **Import Roundtrip Hardening**: Export proof 後の戻し導線を補強し、JSON 読み込みの失敗時安全性、既存文書衝突、legacy pages-only、章順序・level・visibility 正規化を PASS |
-| 直近の実装スライス | `ZenWriterStorage.importProjectJSON(jsonString)` は保存前に parse / format 判定 / pages 正規化を完了し、import 成功時だけ新規 document / chapter を保存する |
-| 最新ビルド・検証 | 2026-06-05 remote-sync handoff: `git fetch --prune origin`、`git pull --ff-only origin main`、`git status --short --branch`、`git rev-list --left-right --count HEAD...origin/main`、`git diff --check` PASS。product proof の検証は 2026-05-25 import lane: `node --check js/storage.js`、指定 Playwright 3 spec、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS |
+| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md` |
+| 現在の主軸 | **Rich editing typed heading shortcut**: Rich editing 通常入力で行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 に限定変換し、Markdown source / paste / import / round-trip とは分離 |
+| 直近の実装スライス | `js/editor-wysiwyg.js` は Space 後の input だけで typed heading shortcut を消費し、IME composition gate と Undo snapshot を持つ。`e2e/wysiwyg-editor.spec.js` は positive / negative / paste / IME / Undo / round-trip を focused に固定 |
+| 最新ビルド・検証 | 2026-06-08 typed heading slice: `node --check js/editor-wysiwyg.js`、`npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"`、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS。Import baseline は `a56671b test: harden import roundtrip` の検証を維持 |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md` に、`c272503` までの remote 同期、GitHub artifact authority 補正後の restart route、次候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md` に、`1e33e38` の product proof、typed shortcut 境界、検証、restart route、次候補を同期 |
 
 ## Latest Handoff
 
+- New: Rich editing typed heading shortcut を限定採用として実装。`1e33e38 feat: add rich editing heading shortcut` が product proof。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、`markdownToHtml` / `htmlToMarkdown` は既存挙動に残す。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は stale spec reconciliation first、任意の手動 IME spot-check は release 前確認として扱う。
 - New: Remote sync after GitHub artifact authority correction を追加。`main` / `origin/main` は `c272503 docs: downgrade stale github artifacts` で同期済み。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
 - New: GitHub artifact authority correction を追加。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only に下げる判断は維持する。一方で、PR #119 / Issue #118 の GitHub close は人間側 blocker ではなく帳簿整理に降格する。Issue #118 を扱う必要が出た場合だけ current `main` から missing DoD の narrow audit とし、通常の次候補は `Rich Editing Heading Shortcut Decision` / stale spec reconciliation へ戻す。
 - New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
