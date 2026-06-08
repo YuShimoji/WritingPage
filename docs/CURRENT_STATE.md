@@ -4,6 +4,16 @@
 
 ## Snapshot
 
+### 2026-06-08 Remote sync context handoff after ledger anchor
+
+- Docs-only handoff for cross-terminal restart. Before editing docs, `git fetch --prune origin` completed, `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Current editor product proof remains `1e33e38 feat: add rich editing heading shortcut`. Latest docs reconciliation proof before this handoff is `4cb49ee docs: reconcile ledger handoff anchor`.
+- This pass preserves context in project files only: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, and `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md`.
+- Current handoff anchor: `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md`.
+- No product code, E2E, storage/import/export behavior, Electron/package behavior, dependencies, DB/auth/API behavior, GitHub Issue / PR cleanup, embed security audit, or AGENTS.md changes.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Next recommended entry point: a real screen/feel verification such as the Japanese IME spot-check for the Rich editing typed heading shortcut. Avoid another docs-only/readback pass unless the user explicitly asks for one.
+
 ### 2026-06-08 Ledger handoff anchor reconciliation
 
 - Docs-only follow-through for stale spec reconciliation. Product proof remains `1e33e38 feat: add rich editing heading shortcut`; docs reconciliation proof before this pass is `a7b90e6 docs: reconcile heading shortcut stale specs`.
@@ -132,15 +142,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 docs reconciliation proof は `4cb49ee docs: reconcile ledger handoff anchor`。最新 context handoff は `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md` |
 | 現在の主軸 | **Rich editing typed heading shortcut**: Rich editing 通常入力で行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 に限定変換し、Markdown source / paste / import / round-trip とは分離 |
 | 直近の実装スライス | `js/editor-wysiwyg.js` は Space 後の input だけで typed heading shortcut を消費し、IME composition gate と Undo snapshot を持つ。`e2e/wysiwyg-editor.spec.js` は positive / negative / paste / IME / Undo / round-trip を focused に固定 |
 | 最新ビルド・検証 | 2026-06-08 typed heading slice: `node --check js/editor-wysiwyg.js`、`npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"`、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS。Import baseline は `a56671b test: harden import roundtrip` の検証を維持 |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation.md` に、current ledger handoff anchor と dated history の読み分けを同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md` に、remote sync 済みの再開文脈と次の入口を固定 |
 
 ## Latest Handoff
 
+- New: Remote sync context handoff を docs-only で追加。`git fetch --prune origin` 後の `main...origin/main` は clean、`HEAD...origin/main = 0 0`。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`、最新 docs reconciliation proof は `4cb49ee docs: reconcile ledger handoff anchor`。次端末は `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。次は docs-only 連続ではなく、Rich editing typed heading shortcut の日本語 IME spot-check など実画面確認を優先候補に戻す。
 - New: `USER_REQUEST_LEDGER` の current handoff anchor を docs reconciliation proof まで進め、dated history が current next-candidate order と誤読されないように境界文を追加した。Rich Editing Heading Shortcut Decision は引き続き Done、stale spec reconciliation follow-through が第一候補。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。
 - New: stale spec reconciliation after heading shortcut を docs-only で実施。Rich Editing Heading Shortcut Decision は完了済みとして `Current Priorities` を更新し、typed heading shortcut を `FEATURE_REGISTRY` に登録した。`ROADMAP` の authority 説明も `FEATURE_REGISTRY` を含む形へ寄せた。Product proof は `1e33e38 feat: add rich editing heading shortcut` のまま。次候補は stale spec reconciliation follow-through first、任意の日本語 IME spot-check は release 前確認、GitHub Issue / PR cleanup は non-blocking bookkeeping。
 - New: Rich editing typed heading shortcut を限定採用として実装。`1e33e38 feat: add rich editing heading shortcut` が product proof。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、`markdownToHtml` / `htmlToMarkdown` は既存挙動に残す。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は stale spec reconciliation first、任意の手動 IME spot-check は release 前確認として扱う。
