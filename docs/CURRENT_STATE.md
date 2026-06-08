@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-08（Rich editing typed heading shortcut）
+最終更新: 2026-06-08（stale spec reconciliation after heading shortcut）
 
 ## Snapshot
+
+### 2026-06-08 Stale spec reconciliation after heading shortcut
+
+- Docs-only reconciliation after `1982228 docs: hand off rich editing heading shortcut`. Product proof remains `1e33e38 feat: add rich editing heading shortcut`; no runtime code, UI contract, storage behavior, dependency, DB/auth/API, or Electron/package behavior changed.
+- Current authority now treats Rich Editing Heading Shortcut Decision as done everywhere it is used for active slice selection. `Current Priorities` no longer lists it as the next decision, and stale spec reconciliation is the active next candidate.
+- `docs/FEATURE_REGISTRY.md` now includes the typed heading shortcut as a user-facing Rich editing feature, pointing to the current handoff, implementation file, and focused E2E coverage.
+- `docs/ROADMAP.md` now names `FEATURE_REGISTRY` alongside `CURRENT_STATE` / `USER_REQUEST_LEDGER` for the shortcut authority. Historical verification notes that describe older next-candidate order remain historical references, not active restart instructions.
+- Current handoff anchor: `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md`.
+- Validation for this docs-only slice: `git diff --check` and `git diff --cached --check` passed.
+- Next candidates remain stale spec reconciliation follow-through first, optional Japanese IME spot-check before release, and GitHub cleanup only as non-blocking bookkeeping.
 
 ### 2026-06-08 Rich editing typed heading shortcut
 
@@ -114,20 +124,21 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md` |
 | 現在の主軸 | **Rich editing typed heading shortcut**: Rich editing 通常入力で行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 に限定変換し、Markdown source / paste / import / round-trip とは分離 |
 | 直近の実装スライス | `js/editor-wysiwyg.js` は Space 後の input だけで typed heading shortcut を消費し、IME composition gate と Undo snapshot を持つ。`e2e/wysiwyg-editor.spec.js` は positive / negative / paste / IME / Undo / round-trip を focused に固定 |
 | 最新ビルド・検証 | 2026-06-08 typed heading slice: `node --check js/editor-wysiwyg.js`、`npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"`、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS。Import baseline は `a56671b test: harden import roundtrip` の検証を維持 |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` と `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md` に、`1e33e38` の product proof、typed shortcut 境界、検証、restart route、次候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `FEATURE_REGISTRY` / `ROADMAP` と `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md` に、Rich shortcut 完了扱い、user-facing feature 台帳、restart route、次候補を同期 |
 
 ## Latest Handoff
 
+- New: stale spec reconciliation after heading shortcut を docs-only で実施。Rich Editing Heading Shortcut Decision は完了済みとして `Current Priorities` を更新し、typed heading shortcut を `FEATURE_REGISTRY` に登録した。`ROADMAP` の authority 説明も `FEATURE_REGISTRY` を含む形へ寄せた。Product proof は `1e33e38 feat: add rich editing heading shortcut` のまま。次候補は stale spec reconciliation follow-through first、任意の日本語 IME spot-check は release 前確認、GitHub Issue / PR cleanup は non-blocking bookkeeping。
 - New: Rich editing typed heading shortcut を限定採用として実装。`1e33e38 feat: add rich editing heading shortcut` が product proof。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、`markdownToHtml` / `htmlToMarkdown` は既存挙動に残す。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は stale spec reconciliation first、任意の手動 IME spot-check は release 前確認として扱う。
-- New: Remote sync after GitHub artifact authority correction を追加。`main` / `origin/main` は `c272503 docs: downgrade stale github artifacts` で同期済み。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
-- New: GitHub artifact authority correction を追加。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only に下げる判断は維持する。一方で、PR #119 / Issue #118 の GitHub close は人間側 blocker ではなく帳簿整理に降格する。Issue #118 を扱う必要が出た場合だけ current `main` から missing DoD の narrow audit とし、通常の次候補は `Rich Editing Heading Shortcut Decision` / stale spec reconciliation へ戻す。
-- New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
-- New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second のまま。
+- New: Remote sync after GitHub artifact authority correction を追加。`main` / `origin/main` は `c272503 docs: downgrade stale github artifacts` で同期済み。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。その時点の次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second。
+- New: GitHub artifact authority correction を追加。PR #119 は Issue #118 の実装 PR として信用せず、SP-073 PathText freehand drawing の重複 artifact / stale branch として reference-only に下げる判断は維持する。一方で、PR #119 / Issue #118 の GitHub close は人間側 blocker ではなく帳簿整理に降格する。Issue #118 を扱う必要が出た場合だけ current `main` から missing DoD の narrow audit とし、その時点の通常候補は `Rich Editing Heading Shortcut Decision` / stale spec reconciliation だった。
+- New: 2026-06-04 Remote sync and cross-terminal handoff を追加。local `main` は `d007bf0 docs: hand off current sync context` まで fast-forward 済みで、product proof は `a56671b test: harden import roundtrip` のまま。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。その時点の次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second。
+- New: Remote sync and current-context handoff を追加。product proof は `a56671b test: harden import roundtrip` のまま、pre-handoff context は `b9948fb docs: hand off import roundtrip sync`。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。その時点の次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second。
 - New: Remote sync handoff after Import Roundtrip Hardening を追加。`a56671b test: harden import roundtrip` を product proof anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
 - New: Import Roundtrip Hardening を実施。`importProjectJSON` は保存前正規化に移し、不正 JSON / unsupported format / empty JSON / invalid legacy pages-only は docs を変更せず `null`。format-less pages-only は有効 page がある時だけ受け入れ、同名 document は `読み込み N` suffix、新規章 ID、正規化 order / level / visibility / blank title / content fallback で復元する。Export schema、Documents UI 文言、Electron menu、Cloud sync / EPUB / DOCX / Rich editing shortcut / Floating memo 保存モデルは未変更。
 
@@ -758,8 +769,8 @@
 | Done | Chapter Creation Daily Flow | 章作成を含む毎日導線を、`+ 新しい章`→本文入力→保存→再開→Reader→TXT/JSON 書き出し→JSON import roundtrip まで固定済み。新規 FAIL がない限り章作成そのものは reopen しない | assistant / writing trust |
 | Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
 | Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定 | assistant / import trust |
-| Decision | Rich Editing Heading Shortcut Decision | 次の第一候補。Rich editing で `# 見出し` を自動変換するかを仕様判断する。Markdown source / Rich editing 境界を決めてから実装へ進む | shared / editor UX |
-| D | Docs hygiene / WP-004 parity | stale spec reconciliation は第二候補。WP-004 parity pack は preview / Reader 差分が新規に出た時の user-actor release gate として扱う | shared |
+| Done | Rich Editing Heading Shortcut Decision | 限定 typed trigger として採用・実装済み。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、paste / import / Markdown source round-trip / 汎用 shortcut は対象外 | assistant / editor UX |
+| D | Docs hygiene / stale spec reconciliation | 現在の第一候補。current authority を歪める古い仕様表・古い UI 語彙・古い再開誘導だけを owner docs に最小反映する。WP-004 parity pack は preview / Reader 差分が新規に出た時だけ user-actor release gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
 ## Known Notes
