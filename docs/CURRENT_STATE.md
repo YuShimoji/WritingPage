@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-08（stale spec reconciliation after heading shortcut）
+最終更新: 2026-06-08（ledger handoff anchor reconciliation）
 
 ## Snapshot
+
+### 2026-06-08 Ledger handoff anchor reconciliation
+
+- Docs-only follow-through for stale spec reconciliation. Product proof remains `1e33e38 feat: add rich editing heading shortcut`; docs reconciliation proof before this pass is `a7b90e6 docs: reconcile heading shortcut stale specs`.
+- Reconciled one active owner-doc cluster: `docs/USER_REQUEST_LEDGER.md` still pointed the current cross-terminal handoff at the Rich editing shortcut handoff instead of the latest docs reconciliation handoff. It now names `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md` and records `a7b90e6` as the docs reconciliation proof.
+- Added a boundary note before dated ledger history so older next-candidate lines that mention Rich Editing Heading Shortcut Decision are read as historical references. The active next-slice table remains the current authority.
+- Current handoff anchor: `docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation.md`.
+- No implementation code, E2E, storage, Electron, GitHub Issue / PR cleanup, embed security audit, or AGENTS.md changes.
 
 ### 2026-06-08 Stale spec reconciliation after heading shortcut
 
@@ -124,15 +132,16 @@
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
 | バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md` |
+| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 context handoff は `docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation.md` |
 | 現在の主軸 | **Rich editing typed heading shortcut**: Rich editing 通常入力で行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 に限定変換し、Markdown source / paste / import / round-trip とは分離 |
 | 直近の実装スライス | `js/editor-wysiwyg.js` は Space 後の input だけで typed heading shortcut を消費し、IME composition gate と Undo snapshot を持つ。`e2e/wysiwyg-editor.spec.js` は positive / negative / paste / IME / Undo / round-trip を focused に固定 |
 | 最新ビルド・検証 | 2026-06-08 typed heading slice: `node --check js/editor-wysiwyg.js`、`npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"`、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS。Import baseline は `a56671b test: harden import roundtrip` の検証を維持 |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `FEATURE_REGISTRY` / `ROADMAP` と `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md` に、Rich shortcut 完了扱い、user-facing feature 台帳、restart route、次候補を同期 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation.md` に、current ledger handoff anchor と dated history の読み分けを同期 |
 
 ## Latest Handoff
 
+- New: `USER_REQUEST_LEDGER` の current handoff anchor を docs reconciliation proof まで進め、dated history が current next-candidate order と誤読されないように境界文を追加した。Rich Editing Heading Shortcut Decision は引き続き Done、stale spec reconciliation follow-through が第一候補。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。
 - New: stale spec reconciliation after heading shortcut を docs-only で実施。Rich Editing Heading Shortcut Decision は完了済みとして `Current Priorities` を更新し、typed heading shortcut を `FEATURE_REGISTRY` に登録した。`ROADMAP` の authority 説明も `FEATURE_REGISTRY` を含む形へ寄せた。Product proof は `1e33e38 feat: add rich editing heading shortcut` のまま。次候補は stale spec reconciliation follow-through first、任意の日本語 IME spot-check は release 前確認、GitHub Issue / PR cleanup は non-blocking bookkeeping。
 - New: Rich editing typed heading shortcut を限定採用として実装。`1e33e38 feat: add rich editing heading shortcut` が product proof。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、`markdownToHtml` / `htmlToMarkdown` は既存挙動に残す。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は stale spec reconciliation first、任意の手動 IME spot-check は release 前確認として扱う。
 - New: Remote sync after GitHub artifact authority correction を追加。`main` / `origin/main` は `c272503 docs: downgrade stale github artifacts` で同期済み。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。その時点の次候補は `Rich Editing Heading Shortcut Decision` first、stale spec reconciliation second。

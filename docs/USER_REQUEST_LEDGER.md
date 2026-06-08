@@ -16,7 +16,7 @@
 - **Save / Resume Trust Audit**: 新機能追加より先に、作家が毎日使う「書く→保存済み確認→Documents で見つける→閉じて戻る→TXT / JSON 書き出し→Reader から戻る」導線を安心できる状態へ固定する。2026-05-13 audit では本文保存・再開・書き出し・Reader focus は PASS。修正は Sections 空状態の Rich editing / Markdown ソース案内と Documents menu 一意化に限定済み。Floating memo 保存モデル化、Cloud sync、EPUB / DOCX、Gadget 追加、top chrome / 常設 toolbar 復活へは進まない。
 - **Export Trust Proof**: Save / Resume Trust Audit の次段として、TXT / JSON は download event ではなく実ファイル内容で信頼を証明する。2026-05-13 proof では TXT が current editor value と一致し、JSON は `document.id` / `document.name` / `document.content` / `pages` を構造 assert し、daily JSON 読み込み UI roundtrip、explicit chapter `pages` roundtrip、Reader 往復後の再書き出しまで PASS。Cloud sync、EPUB / DOCX、Floating memo 保存、Gadget 追加、Export UI 大規模再設計へは進まない。
 - **First-use Save Help**: Save / Resume Trust Audit、Export Trust Proof、Chapter Creation Daily Flow の信頼を前提に、初回または久しぶりのユーザーが保存モデルを短時間で理解できるようにする。2026-05-14 slice では status chip aria/title、Documents 補助文、空状態文言、入出力 menu hint/title を追加し、本文と章構造のこの端末への自動保存、画面下の保存状態、外部退避としての TXT/JSON 書き出し、戻す導線としての JSON 読み込みを短く示した。`JSON保存` 表現、Cloud sync、EPUB/DOCX、top chrome、export UI redesign は追加しない。
-- **Remote sync / cross-terminal handoff**: 最新 editor product proof anchor は `1e33e38 feat: add rich editing heading shortcut`。Import baseline は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`。別端末は `git pull --ff-only origin main` の後、clean `main...origin/main` と `HEAD...origin/main = 0 0` を確認し、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読む。次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読み、引き継ぎでは chat 履歴ではなく project docs を正本にする。
+- **Remote sync / cross-terminal handoff**: 最新 editor product proof anchor は `1e33e38 feat: add rich editing heading shortcut`。Docs reconciliation proof は `a7b90e6 docs: reconcile heading shortcut stale specs`。Import baseline は `a56671b test: harden import roundtrip`。最新 context handoff は `docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md`。別端末は `git pull --ff-only origin main` の後、clean `main...origin/main` と `HEAD...origin/main = 0 0` を確認し、`docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md` を読む。次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読み、引き継ぎでは chat 履歴ではなく project docs を正本にする。
 - **GitHub Issue / PR authority downgrade**: この repo では open Issue / open PR は、それだけでは active artifact ではない。current `main`、`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `INVARIANTS`、実装差分、検証結果、ユーザーが明示した作業対象を優先する。stale GitHub Issue / PR close は帳簿整理であり、product work の blocker や progress として扱わない。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Rich editing typed heading shortcut**: Rich editing の通常入力では、行頭 `# ` / `## ` / `### ` の Space 確定だけを H1/H2/H3 へ限定変換する。IME composition 中、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、汎用 Markdown shortcut は対象外。Undo は変換直後 1 回で typed marker へ戻れることを守る。
@@ -89,6 +89,8 @@
 - 会話で一度出た要求のうち、次回以降も効くものをここへ残す。
 - 単なる感想ではなく、仕様・設計・backlog に効くものを優先する。
 - 過去の完了セッション詳細は現在判断に混ぜない。
+
+以下の dated blocks は履歴参照。現在の次候補は上の「次スライス候補」表を正とし、Rich Editing Heading Shortcut Decision は Done として扱う。
 
 # 2026-05-13 Chapter Creation Daily Flow
 
