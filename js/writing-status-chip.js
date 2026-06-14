@@ -56,6 +56,7 @@
     }
 
     function getSaveLabel() {
+      if (state === 'failed') return '保存失敗';
       if (state === 'editing') return '編集中';
       var savedTime = formatSavedTime(lastSavedAt);
       return savedTime ? '保存済み ' + savedTime : '保存済み';
@@ -77,7 +78,7 @@
     }
 
     function setState(next, options) {
-      state = next === 'editing' ? 'editing' : 'saved';
+      state = next === 'editing' || next === 'failed' ? next : 'saved';
       if (state === 'saved' && options && options.updateSavedAt) markSavedAt(options.date);
       render();
     }
@@ -92,13 +93,20 @@
 
     document.addEventListener('input', function (event) {
       if (!isEditorInput(event.target)) return;
+      if (saveTimer) window.clearTimeout(saveTimer);
+      saveTimer = 0;
       setState('editing');
-      scheduleSaved(SAVE_IDLE_DELAY_MS);
     }, true);
 
     document.addEventListener('zen-content-saved', function () {
       scheduleSaved(state === 'editing' ? SAVE_IDLE_DELAY_MS : MANUAL_SAVE_DELAY_MS, { updateSavedAt: true });
       render();
+    });
+
+    document.addEventListener('zen-content-save-failed', function () {
+      if (saveTimer) window.clearTimeout(saveTimer);
+      saveTimer = 0;
+      setState('failed');
     });
 
     window.addEventListener('ZWChapterStoreChanged', render);
@@ -117,6 +125,11 @@
         if (saveTimer) window.clearTimeout(saveTimer);
         saveTimer = 0;
         setState('saved', { updateSavedAt: true });
+      },
+      markFailed: function () {
+        if (saveTimer) window.clearTimeout(saveTimer);
+        saveTimer = 0;
+        setState('failed');
       },
       getState: function () {
         return {

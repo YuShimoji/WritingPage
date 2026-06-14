@@ -57,7 +57,12 @@
                     var _S2 = window.ZenWriterStorage;
                     var _dId = getCurrentChapterStoreDocId();
                     if (_dId && _Store2 && _Store2.isChapterMode(_dId)) {
-                        _S2.saveContent(_Store2.assembleFullText(_dId));
+                        var _chapters2 = typeof _Store2.getChaptersForDoc === 'function'
+                            ? (_Store2.getChaptersForDoc(_dId) || [])
+                            : [];
+                        if (_chapters2.length > 0) {
+                            _S2.saveContent(_Store2.assembleFullText(_dId));
+                        }
                     }
                 } else {
                     // フォールバック: ContentGuard 未ロード時

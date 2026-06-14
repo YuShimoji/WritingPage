@@ -52,6 +52,28 @@
     return document.documentElement.getAttribute('data-zw-chapter-editor-sync') === 'slice';
   }
 
+  var lastSaveResult = { ok: true, content: '', at: 0 };
+
+  function reportSaveResult(ok, content) {
+    lastSaveResult = {
+      ok: ok !== false,
+      content: String(content || ''),
+      at: Date.now()
+    };
+    try {
+      document.dispatchEvent(new CustomEvent(lastSaveResult.ok ? 'zen-content-saved' : 'zen-content-save-failed', {
+        detail: { content: lastSaveResult.content }
+      }));
+    } catch (_) { }
+    if (!lastSaveResult.ok) {
+      try {
+        var E = _getEditor();
+        if (E && typeof E.showNotification === 'function') E.showNotification('保存失敗');
+      } catch (_) { }
+    }
+    return lastSaveResult.ok;
+  }
+
   // ---- Public API ----
 
   /**
@@ -158,7 +180,7 @@
     if (S && content) {
       // ドキュメントの content フィールドを更新
       if (typeof S.saveContent === 'function') {
-        S.saveContent(content);
+        reportSaveResult(S.saveContent(content), content);
       }
 
       // スナップショット退避
@@ -241,7 +263,7 @@
       if (autoSaveEnabled) {
         // 自動保存: 即座に保存
         if (S && typeof S.saveContent === 'function') {
-          S.saveContent(content);
+          reportSaveResult(S.saveContent(content), content);
         }
       } else if (confirmIfDirty) {
         // 手動保存: 確認ダイアログ
@@ -259,7 +281,7 @@
     } else {
       // dirty でなくても WYSIWYG 同期ずれ対策として必ず保存
       if (S && typeof S.saveContent === 'function' && content) {
-        S.saveContent(content);
+        reportSaveResult(S.saveContent(content), content);
       }
     }
 
@@ -292,7 +314,7 @@
     } else {
       // dirty でなくても保存 (WYSIWYG 同期ずれ対策)
       if (S && typeof S.saveContent === 'function' && content) {
-        S.saveContent(content);
+        reportSaveResult(S.saveContent(content), content);
       }
     }
 
@@ -307,6 +329,13 @@
     ensureSaved: ensureSaved,
     safeSetContent: safeSetContent,
     prepareDocumentSwitch: prepareDocumentSwitch,
-    prepareNewDocument: prepareNewDocument
+    prepareNewDocument: prepareNewDocument,
+    getLastSaveResult: function () {
+      return {
+        ok: lastSaveResult.ok,
+        content: lastSaveResult.content,
+        at: lastSaveResult.at
+      };
+    }
   };
 })();

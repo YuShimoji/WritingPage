@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-06-08（ledger handoff anchor reconciliation）
+最終更新: 2026-06-15（WP-SAVELOAD-001 Editor Trust Vertical Slice）
 
 ## Snapshot
+
+### 2026-06-15 WP-SAVELOAD-001 Editor Trust Vertical Slice
+
+- Active Artifact `writing-trust-workflow-001`。Zen Writer を「原稿を預けられる Editor」として再評価し、新規文書作成、Rich editing 本文入力、Documents 明示保存、自動保存後 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON import 非破壊失敗、保存失敗表示を 1 本の workflow として確認した。
+- Product fixes: `beforeunload` が chapterMode 章 0 件 document を空 assembled text で上書きしないよう修正。非同期 IDB 初期化が runtime docs cache を古い IDB docs で上書きしないよう修正。raw current id が章 ID の場合も保存・書き出し対象を親 document へ正規化。
+- Save-state visibility: `#writing-status-chip` は `編集中` / `保存済み` に加え、保存失敗時に `data-save-state="failed"` と `保存失敗` を表示。Documents 明示保存も失敗時に `保存失敗` を通知する。
+- Import/export proof: 新規 `e2e/editor-trust-workflow.spec.js` は TXT / Markdown / JSON の実 download file を読み取り、JSON import roundtrip と破損 JSON import の非破壊失敗を確認。既存 `export-trust` / `import-roundtrip-hardening` / `chapter-creation-daily-flow` も再実行して green。
+- Unit proof: 新規 `test/storage-roundtrip.test.js` は `ZenWriterStorage.importProjectJSON()` の duplicate suffix、新規 ID、invalid JSON 非破壊、保存失敗時 import 非破壊を確認。
+- Manual screen proof: Browser で `http://127.0.0.1:8080/index.html` を開き、status chip の `編集中` -> `保存済み HH:mm`、Documents help の「この端末に自動保存」「外部退避」、`入出力` menu の TXT / JSON / JSON読み込みを確認。
+- Verification anchor: `docs/verification/2026-06-15/editor-trust-vertical-slice.md`。保存モデルの短い入口は `docs/EDITOR_TRUST_WORKFLOW.md`。
+- Non-targets preserved: Rich Editing 新機能、Reader 表現拡張、ガジェット追加、テーマ刷新、Electron package 配布整備、Cloud sync、外部 DB / auth / API、Google Drive / Keep 連携、大規模リファクタ、GitHub Issue / PR cleanup、AGENTS.md 肥大化は未実施。
 
 ### 2026-06-08 Remote sync context handoff after ledger anchor
 
@@ -790,6 +801,7 @@
 | Done | First-use Save Help | 初回空状態、Documents、status chip、入出力 menu に短い補助を追加し、保存モデルと外部退避導線を初見でも読めるようにした。操作面や保存方式は増やしていない | assistant / first-use UX |
 | Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定 | assistant / import trust |
 | Done | Rich Editing Heading Shortcut Decision | 限定 typed trigger として採用・実装済み。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、paste / import / Markdown source round-trip / 汎用 shortcut は対象外 | assistant / editor UX |
+| Done | WP-SAVELOAD-001 Editor Trust Vertical Slice | 新規文書、Rich editing 入力、明示保存、自動保存 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON 非破壊失敗、保存失敗表示を 1 本で確認 | assistant / writing trust |
 | D | Docs hygiene / stale spec reconciliation | 現在の第一候補。current authority を歪める古い仕様表・古い UI 語彙・古い再開誘導だけを owner docs に最小反映する。WP-004 parity pack は preview / Reader 差分が新規に出た時だけ user-actor release gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 

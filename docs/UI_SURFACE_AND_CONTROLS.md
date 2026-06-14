@@ -20,7 +20,7 @@
 
 | Surface | 主な DOM / controller | 役割 |
 |---------|----------------------|------|
-| writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | Reader / Floating memo lab 非表示時の非操作型 status。文字数と `編集中` / `保存済み` を表示 |
+| writing status chip | `#writing-status-chip`, `js/writing-status-chip.js` | Reader / Floating memo lab 非表示時の非操作型 status。文字数と `編集中` / `保存済み` / `保存失敗` を表示 |
 | Floating memo lab | `#memo-field-lab`, `js/floating-memo-field.js` | dev-only experimental surface。背景 memo は title / state / drag label / textarea 枠を見せない read-only fragment、foreground だけ borderless editor として扱う |
 | window controls island | `#electron-window-controls`, `#electron-window-drag-handle`, `js/electron-bridge.js` | Electron frameless window の移動 handle と、最小化・最大化/復元・閉じる。右上局所 hover / focus 時だけ表示し、非表示時 handle は `no-drag` |
 | left nav root | `#sidebar-left-nav`, `#sidebar-edge-rail` | edge hover 時のみ category 一覧と last active cue を表示 |

@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-06-08 / v0.3.32（Rich editing typed heading shortcut）
+> 最終更新: 2026-06-15 / v0.3.32（WP-SAVELOAD-001 Editor Trust Vertical Slice）
 
 ## ステータス語彙
 
@@ -22,8 +22,8 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: spec-index 上の `partial` は 0。現行 roadmap 上の残論点は WP-004 Phase 3 と WP-001 中長期枠を別スライスで扱う
-- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。2026-06-08 の Rich editing typed heading shortcut は `CURRENT_STATE`、`USER_REQUEST_LEDGER`、`FEATURE_REGISTRY` FR-014、詳細 handoff は `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md` を正とする。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。Import Roundtrip Hardening の baseline proof は `a56671b test: harden import roundtrip`
-- 直近 done: Rich editing typed heading shortcut、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。2026-06-15 の WP-SAVELOAD-001 Editor Trust Vertical Slice は `CURRENT_STATE`、`USER_REQUEST_LEDGER`、`docs/EDITOR_TRUST_WORKFLOW.md`、詳細 verification `docs/verification/2026-06-15/editor-trust-vertical-slice.md` を入口とする。Rich editing typed heading shortcut の proof は `1e33e38 feat: add rich editing heading shortcut`。Import Roundtrip Hardening の baseline proof は `a56671b test: harden import roundtrip`
+- 直近 done: WP-SAVELOAD-001 Editor Trust Vertical Slice、Rich editing typed heading shortcut、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -59,9 +59,11 @@
 - どちらのレーンも Reader / command palette / left nav root-category の現行状態モデルを壊さない。
 - 実装完了ごとに `CURRENT_STATE`、仕様や不変条件が変わる場合は `INVARIANTS` / `INTERACTION_NOTES` / `GADGETS` を同期する。
 
-### 2026-05-14 writing trust lane
+### 2026-06-15 writing trust lane
 
-Rich editing typed heading shortcut is now done as a limited trigger. The writing trust lane has proof for local autosave/resume, TXT/JSON export contents, chapter creation daily flow, first-use comprehension of the save/takeout model, safe JSON return from external takeout, and now line-start `# ` / `## ` / `### ` heading conversion in Rich editing. The next work should not reopen chapter creation, first-use help, export trust, import trust, or typed heading shortcut unless a new failure appears; choose stale spec reconciliation next, or WP-004 only when a fresh preview / Reader difference appears.
+WP-SAVELOAD-001 Editor Trust Vertical Slice is now the latest writing trust proof. The lane has a single workflow for local explicit save, autosave reload, chapterMode parent-document targeting, TXT / Markdown / JSON export contents, JSON import roundtrip, invalid JSON non-destructive failure, and save-failure visibility. Rich editing typed heading shortcut remains done as a separate limited trigger. The next work should not reopen chapter creation, first-use help, export trust, import trust, typed heading shortcut, or editor trust unless a new failure appears; choose stale spec reconciliation next, or WP-004 only when a fresh preview / Reader difference appears.
+
+WP-SAVELOAD-001 corrected two trust issues that directly affected reload confidence: close / reload no longer overwrites a chapterMode document with no chapters using empty assembled text, and non-blocking IDB initialization no longer overwrites an already loaded runtime docs cache with stale IDB records. It also makes save failure visible through `#writing-status-chip[data-save-state="failed"]` and a `保存失敗` notification.
 
 Save / Resume Trust Audit と Export Trust Proof により、作家が日常的に使う「書く→保存確認→Documents で見つける→閉じて戻る→TXT / JSON で外に出す」は最小信頼を得た。TXT / JSON は download event ではなく実ファイル内容まで検査済みで、JSON は `document.id/name/content/pages` と読み込み roundtrip の最小範囲を固定している。
 

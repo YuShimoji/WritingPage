@@ -75,7 +75,10 @@
           var G = window.ZWContentGuard;
           if (G && typeof G.ensureSaved === 'function') {
             G.ensureSaved({ snapshot: false });
-            return;
+            if (typeof G.getLastSaveResult === 'function') {
+              return G.getLastSaveResult().ok !== false;
+            }
+            return true;
           }
           if (editorManager && typeof storage.saveContent === 'function') {
             // リッチ編集表示対応: getEditorValue() で正しい Markdown を取得
@@ -85,9 +88,10 @@
             } else if (editorManager.editor) {
               content = editorManager.editor.value || '';
             }
-            storage.saveContent(content);
+            return storage.saveContent(content) !== false;
           }
         } catch (_) { }
+        return false;
       }
 
       // ========== ドキュメント操作 ==========
@@ -253,11 +257,11 @@
       saveBtn.setAttribute('aria-label', '現在の本文を保存');
       saveBtn.title = '現在の内容を保存';
       saveBtn.addEventListener('click', function () {
-        saveCurrentContent();
+        var ok = saveCurrentContent();
         if (editorManager && typeof editorManager.refreshDirtyBaseline === 'function') {
           editorManager.refreshDirtyBaseline();
         }
-        notify((window.UILabels && window.UILabels.SAVED) || '保存しました');
+        notify(ok ? ((window.UILabels && window.UILabels.SAVED) || '保存しました') : '保存失敗');
       });
 
       var newFolderBtn = document.createElement('button');
@@ -385,6 +389,12 @@
       ioMenu.appendChild(createMenuItem('JSON書き出し', '外部退避用に本文と章構造をJSONで書き出し', function () {
         saveCurrentContent();
         var docId = storage.getCurrentDocId ? storage.getCurrentDocId() : null;
+        try {
+          var Store = window.ZWChapterStore;
+          if (docId && Store && typeof Store.resolveParentDocumentId === 'function') {
+            docId = Store.resolveParentDocumentId(docId, storage.loadDocuments ? (storage.loadDocuments() || []) : null);
+          }
+        } catch (_) { }
         if (!docId) { notify('ドキュメントが選択されていません'); return; }
         if (storage.exportProjectJSON) {
           var ok = storage.exportProjectJSON(docId);
@@ -399,6 +409,8 @@
               refreshUI();
               notify('プロジェクトを読み込みました');
               dispatchChanged();
+            } else {
+              notify('JSON読み込みに失敗しました');
             }
           });
         }

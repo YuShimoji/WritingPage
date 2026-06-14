@@ -79,12 +79,23 @@
                 if (manager.richTextEditor && manager.richTextEditor.isWysiwygMode) {
                     content = manager.richTextEditor.getContent();
                 }
-                window.ZenWriterStorage.saveContent(content);
-                // Story Wiki 自動検出フック
+                const ok = window.ZenWriterStorage.saveContent(content);
                 try {
-                    document.dispatchEvent(new CustomEvent('zen-content-saved', { detail: { content: content } }));
+                    document.dispatchEvent(new CustomEvent(ok ? 'zen-content-saved' : 'zen-content-save-failed', { detail: { content: content } }));
                 } catch (_e) { /* イベント発火失敗は無視 */ }
-            } catch (_) { }
+                if (!ok && typeof manager.showNotification === 'function') {
+                    manager.showNotification('保存失敗');
+                }
+                return !!ok;
+            } catch (_) {
+                try {
+                    document.dispatchEvent(new CustomEvent('zen-content-save-failed', { detail: { content: '' } }));
+                } catch (_e) { /* イベント発火失敗は無視 */ }
+                if (typeof manager.showNotification === 'function') {
+                    manager.showNotification('保存失敗');
+                }
+                return false;
+            }
         },
 
         _computeContentHash(text) {

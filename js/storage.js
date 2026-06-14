@@ -219,6 +219,18 @@ function deleteSnapshot(id) {
     return true;
 }
 
+function resolveParentDocumentIdForStorage(rawId, docs) {
+    try {
+        if (!rawId) return rawId;
+        if (typeof window !== 'undefined' &&
+            window.ZWChapterStore &&
+            typeof window.ZWChapterStore.resolveParentDocumentId === 'function') {
+            return window.ZWChapterStore.resolveParentDocumentId(rawId, docs);
+        }
+    } catch (_) { }
+    return rawId;
+}
+
 
 /**
  * コンテンツをローカルストレージに保存
@@ -237,7 +249,8 @@ function saveContent(content) {
                     const raw = localStorage.getItem(STORAGE_KEYS.DOCS);
                     return raw ? JSON.parse(raw) : [];
                 })();
-                const idx = docs.findIndex(d => d && d.id === curId);
+                const targetId = resolveParentDocumentIdForStorage(curId, docs);
+                const idx = docs.findIndex(d => d && d.id === targetId);
                 if (idx >= 0) {
                     const nextContent = content || '';
                     const prevContent = String(docs[idx].content || '');
@@ -522,7 +535,9 @@ function _initIDB() {
                 })
                 .then(function (results) {
                     var docs = results[0], assets = results[1], snaps = results[2], wiki = results[3];
-                    if (docs && docs.length > 0) _docsCache = docs;
+                    if (docs && docs.length > 0 && (!_docsCache || _docsCache.length === 0) && !_docsCacheDirty) {
+                        _docsCache = docs;
+                    }
                     if (assets && assets.length > 0) {
                         _assetsCache = {};
                         for (var i = 0; i < assets.length; i++) {
@@ -555,19 +570,20 @@ function loadDocuments() {
 }
 
 function saveDocuments(list) {
-    _docsCache = list || [];
-    _docsCacheDirty = true;
+    const nextDocs = list || [];
     try {
-        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(_docsCache));
+        localStorage.setItem(STORAGE_KEYS.DOCS, JSON.stringify(nextDocs));
     } catch (e) {
         // localStorage 容量超過 — IDB があれば IDB のみに保存
-        if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
+        if (typeof window !== 'undefined' && window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
             console.warn('[Storage] localStorage quota exceeded, using IDB only');
         } else {
             console.error('ドキュメント保存エラー:', e);
             return false;
         }
     }
+    _docsCache = nextDocs;
+    _docsCacheDirty = true;
     _scheduleIDBFlush();
     return true;
 }
@@ -780,7 +796,9 @@ function updateDocumentContent(id, content) {
     docs[idx].updatedAt = Date.now();
     saveDocuments(docs);
     // 現在ドキュメントなら CONTENT も同期
-    if (getCurrentDocId() === id) {
+    const rawCurrentId = getCurrentDocId();
+    const currentDocId = resolveParentDocumentIdForStorage(rawCurrentId, docs);
+    if (rawCurrentId === id || currentDocId === id) {
         try { localStorage.setItem(STORAGE_KEYS.CONTENT, docs[idx].content); } catch (e) { void e; }
     }
     return true;
