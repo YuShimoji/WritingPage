@@ -263,6 +263,7 @@ nav:
       - 'docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff': verification/2026-06-08/rich-editing-heading-shortcut-handoff.md
       - 'docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut': verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md
       - 'docs/verification/2026-06-15/editor-trust-vertical-slice': verification/2026-06-15/editor-trust-vertical-slice.md
+      - 'docs/verification/2026-06-15/local-docs-overview-remote-handoff': verification/2026-06-15/local-docs-overview-remote-handoff.md
       - 'docs/verification/session22-investigation': verification/session22-investigation.md
       - 'docs/verification/session25-status-matrix': verification/session25-status-matrix.md
       - 'docs/verification/session28-bug-patterns': verification/session28-bug-patterns.md

@@ -4,6 +4,16 @@
 
 ## Snapshot
 
+### 2026-06-15 Local docs overview and remote handoff
+
+- Local documentation browser context is now preserved in project files. The latest docs-view proof before this handoff is `6add8c4 docs: add project overview map`, building on `5b60db7 docs: add local mkdocs browser view`.
+- Added overview entry points: `docs/PROJECT_OVERVIEW.md`, `docs/VISUAL_EVIDENCE_INDEX.md`, and `docs/TURN_PLAN.md`. These pages point reviewers to the existing source documents; they do not replace, translate, or summarize specifications as a new authority.
+- MkDocs Material remains the local-only browser view. `docs/index.md`, `mkdocs.yml`, and `tools/generate-doc-nav.ps1` include the overview pages under the Overview tree.
+- Verification before the handoff: `python -m mkdocs build --clean` succeeded; the remaining warnings are existing links from source docs to excluded code/E2E/generated paths or wrapper-relative targets. The local server at `http://127.0.0.1:8005/` returned HTTP 200 for `/PROJECT_OVERVIEW/`, `/VISUAL_EVIDENCE_INDEX/`, and `/TURN_PLAN/`.
+- Current handoff anchor: `docs/verification/2026-06-15/local-docs-overview-remote-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`. For this docs-browser context, then read `docs/PROJECT_OVERVIEW.md`, `docs/VISUAL_EVIDENCE_INDEX.md`, `docs/TURN_PLAN.md`, and `docs/index.md`.
+- Next practical entry points: generate/curate a small visual evidence set, audit `FEATURE_REGISTRY` coverage gaps, separate stale references from active next-slice instructions, or return to product work selected from `docs/ROADMAP.md` / `docs/USER_REQUEST_LEDGER.md`.
+
 ### 2026-06-15 WP-SAVELOAD-001 Editor Trust Vertical Slice
 
 - Active Artifact `writing-trust-workflow-001`。Zen Writer を「原稿を預けられる Editor」として再評価し、新規文書作成、Rich editing 本文入力、Documents 明示保存、自動保存後 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON import 非破壊失敗、保存失敗表示を 1 本の workflow として確認した。
