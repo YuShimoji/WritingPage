@@ -21,6 +21,14 @@ http://127.0.0.1:8000/
 
 The left navigation pane groups the existing Markdown files by practical review purpose: overview documents, specifications, runtime state, development notes, artifacts, and miscellaneous or low-confidence items.
 
+## Project Overview
+
+Start here when you want to understand whether the Markdown set gives a usable project overview:
+
+- [Project Overview Map](PROJECT_OVERVIEW.md): where to read implementation history, current progress, future work, and gaps.
+- [Visual Evidence Index](VISUAL_EVIDENCE_INDEX.md): screenshot evidence status, generated capture locations, and a future committed layout.
+- [Turn-Based Development Plan](TURN_PLAN.md): a turn-count reading layer over the existing roadmap and ledger.
+
 ## Translation Check
 
 1. Start the MkDocs local server.

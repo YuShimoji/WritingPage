@@ -129,7 +129,7 @@ function Get-Category {
         '^(README|CHANGELOG|CONTRIBUTING|DEVELOPMENT|SECURITY|CODE_OF_CONDUCT|AGENTS|CLAUDE)\.md$' {
             return 'Overview'
         }
-        '^docs/(README|APP_LAUNCH_GUIDE|EDITOR_HELP)\.md$' {
+        '^docs/(README|APP_LAUNCH_GUIDE|EDITOR_HELP|PROJECT_OVERVIEW|VISUAL_EVIDENCE_INDEX|TURN_PLAN)\.md$' {
             return 'Overview'
         }
         '^docs/specs/' {

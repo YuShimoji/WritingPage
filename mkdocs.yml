@@ -121,9 +121,12 @@ nav:
       - 'DEVELOPMENT': local-view/root/DEVELOPMENT.md
       - 'docs/APP_LAUNCH_GUIDE': APP_LAUNCH_GUIDE.md
       - 'docs/EDITOR_HELP': EDITOR_HELP.md
+      - 'docs/PROJECT_OVERVIEW': PROJECT_OVERVIEW.md
       - 'docs/README': local-view/docs/README.md
       - 'README': local-view/root/README.md
       - 'SECURITY': local-view/root/SECURITY.md
+      - 'docs/TURN_PLAN': TURN_PLAN.md
+      - 'docs/VISUAL_EVIDENCE_INDEX': VISUAL_EVIDENCE_INDEX.md
   - Specs:
       - 'docs/APP_SPECIFICATION': APP_SPECIFICATION.md
       - 'docs/ARCHITECTURE': ARCHITECTURE.md
