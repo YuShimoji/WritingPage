@@ -1,0 +1,1 @@
+--8<-- "samples/heading-typography-novel.md"

@@ -1,0 +1,273 @@
+﻿site_name: WritingPage Local Docs View
+site_description: Local-only Markdown review and browser translation surface for WritingPage.
+site_url: http://127.0.0.1:8000/
+docs_dir: docs
+site_dir: ../WritingPage-mkdocs-site
+strict: false
+use_directory_urls: true
+
+theme:
+  name: material
+  language: ja
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - toc.follow
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+
+plugins:
+  - search:
+      lang:
+        - ja
+        - en
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.snippets:
+      base_path:
+        - .
+      check_paths: true
+  - pymdownx.superfences
+
+exclude_docs: |
+  .agents/**
+  .claude/**
+  .codex/**
+  .cursor/**
+  .git/**
+  .github/**
+  .serena/**
+  .shared-workflows/**
+  __pycache__/**
+  .cache/**
+  .tmp/**
+  .tmp-playwright-libs/**
+  .venv/**
+  build/**
+  build-*/**
+  build-session*/**
+  css/**
+  dist/**
+  e2e/**
+  electron/**
+  js/**
+  node_modules/**
+  playwright-report/**
+  scripts/**
+  shared-workflows/**
+  test/**
+  test-artifacts/**
+  test-results/**
+  tmp/**
+  tools/**
+  vendor/**
+  venv/**
+  debug-*.html
+  debug-*.md
+  debug-*.png
+  embed-demo.html
+  embed-xorigin-demo.html
+  favicon.svg
+  index.html
+  LICENSE
+  manifest.webmanifest
+  mkdocs.yml
+  nul
+  package-lock.json
+  package.json
+  playwright.config.js
+  /README.md
+  start-server.bat
+  sw.js
+  VERSION
+  *.bat
+  *.css
+  *.html
+  *.js
+  *.json
+  *.lock
+  *.png
+  *.svg
+  *.txt
+  .editorconfig
+  .eslintignore
+  .eslintrc.js
+  .eslintrc.json
+  .gitattributes
+  .gitignore
+  .markdownlint.json
+  .markdownlintignore
+  .prettierignore
+  .prettierrc
+
+nav:
+  - Home: index.md
+  - Overview:
+      - 'AGENTS': local-view/root/AGENTS.md
+      - 'CHANGELOG': local-view/root/CHANGELOG.md
+      - 'CLAUDE': local-view/root/CLAUDE.md
+      - 'CODE_OF_CONDUCT': local-view/root/CODE_OF_CONDUCT.md
+      - 'CONTRIBUTING': local-view/root/CONTRIBUTING.md
+      - 'DEVELOPMENT': local-view/root/DEVELOPMENT.md
+      - 'docs/APP_LAUNCH_GUIDE': APP_LAUNCH_GUIDE.md
+      - 'docs/EDITOR_HELP': EDITOR_HELP.md
+      - 'docs/README': local-view/docs/README.md
+      - 'README': local-view/root/README.md
+      - 'SECURITY': local-view/root/SECURITY.md
+  - Specs:
+      - 'docs/APP_SPECIFICATION': APP_SPECIFICATION.md
+      - 'docs/ARCHITECTURE': ARCHITECTURE.md
+      - 'docs/EDITOR_EXTENSIONS': EDITOR_EXTENSIONS.md
+      - 'docs/EMBED_SDK': EMBED_SDK.md
+      - 'docs/GADGETS': GADGETS.md
+      - 'docs/REFACTORING_SAFETY_CHAPTER_STORAGE': REFACTORING_SAFETY_CHAPTER_STORAGE.md
+      - 'docs/spec-context-toolbar': spec-context-toolbar.md
+      - 'docs/spec-editor-rebuild': spec-editor-rebuild.md
+      - 'docs/specs/sp-074-phase-plan': specs/sp-074-phase-plan.md
+      - 'docs/specs/spec-chapter-management': specs/spec-chapter-management.md
+      - 'docs/specs/spec-decoration-semantic-presets': specs/spec-decoration-semantic-presets.md
+      - 'docs/specs/spec-dock-panel': specs/spec-dock-panel.md
+      - 'docs/specs/spec-extended-textbox': specs/spec-extended-textbox.md
+      - 'docs/specs/spec-font-switching': specs/spec-font-switching.md
+      - 'docs/specs/spec-font-switching-impact-map': specs/spec-font-switching-impact-map.md
+      - 'docs/specs/spec-gadget-ux': specs/spec-gadget-ux.md
+      - 'docs/specs/spec-google-keep-integration': specs/spec-google-keep-integration.md
+      - 'docs/specs/spec-heading-typography': specs/spec-heading-typography.md
+      - 'docs/specs/spec-indexeddb-migration': specs/spec-indexeddb-migration.md
+      - 'docs/specs/spec-japanese-typesetting-ruby': specs/spec-japanese-typesetting-ruby.md
+      - 'docs/specs/spec-local-gadget-mods': specs/spec-local-gadget-mods.md
+      - 'docs/specs/spec-markdown-reference': specs/spec-markdown-reference.md
+      - 'docs/specs/spec-micro-typography': specs/spec-micro-typography.md
+      - 'docs/specs/spec-mode-architecture': specs/spec-mode-architecture.md
+      - 'docs/specs/spec-path-text': specs/spec-path-text.md
+      - 'docs/specs/spec-reader-preview': specs/spec-reader-preview.md
+      - 'docs/specs/spec-richtext-enhancement': specs/spec-richtext-enhancement.md
+      - 'docs/specs/spec-rich-text-newline-effect': specs/spec-rich-text-newline-effect.md
+      - 'docs/specs/spec-rich-text-paragraph-alignment': specs/spec-rich-text-paragraph-alignment.md
+      - 'docs/specs/spec-section-links': specs/spec-section-links.md
+      - 'docs/specs/spec-sections-navigation': specs/spec-sections-navigation.md
+      - 'docs/specs/spec-story-wiki': specs/spec-story-wiki.md
+      - 'docs/specs/spec-textbox-render-targets': specs/spec-textbox-render-targets.md
+      - 'docs/specs/spec-text-expression-architecture': specs/spec-text-expression-architecture.md
+      - 'docs/specs/spec-ui-mode-sidebar-residuals': specs/spec-ui-mode-sidebar-residuals.md
+      - 'docs/specs/spec-visual-profile-typography-pack': specs/spec-visual-profile-typography-pack.md
+      - 'docs/specs/spec-web-novel-effects': specs/spec-web-novel-effects.md
+      - 'docs/specs/spec-writing-focus-sidebar': specs/spec-writing-focus-sidebar.md
+      - 'docs/specs/spec-writing-mode-unification-prep': specs/spec-writing-mode-unification-prep.md
+      - 'docs/THEMES': THEMES.md
+      - 'docs/UI_SURFACE_AND_CONTROLS': UI_SURFACE_AND_CONTROLS.md
+      - 'docs/VISUAL_PROFILE': VISUAL_PROFILE.md
+      - 'docs/WP004_PHASE3_PARITY_AUDIT': WP004_PHASE3_PARITY_AUDIT.md
+      - 'docs/WRITING_PIPELINE': WRITING_PIPELINE.md
+  - Runtime State:
+      - 'docs/ai/CODEX_OPERATIONS': ai/CODEX_OPERATIONS.md
+      - 'docs/ai/CORE_RULESET': ai/CORE_RULESET.md
+      - 'docs/ai/DECISION_GATES': ai/DECISION_GATES.md
+      - 'docs/ai/prompts/commit_only': ai/prompts/commit_only.md
+      - 'docs/ai/prompts/incident_triage': ai/prompts/incident_triage.md
+      - 'docs/ai/prompts/maintenance_identity_remediation': ai/prompts/maintenance_identity_remediation.md
+      - 'docs/ai/prompts/product_work_with_uncommitted_diff': ai/prompts/product_work_with_uncommitted_diff.md
+      - 'docs/ai/prompts/push_only': ai/prompts/push_only.md
+      - 'docs/ai/STATUS_AND_HANDOFF': ai/STATUS_AND_HANDOFF.md
+      - 'docs/ai/WORKFLOWS_AND_PHASES': ai/WORKFLOWS_AND_PHASES.md
+      - 'docs/AUTOMATION_BOUNDARY': AUTOMATION_BOUNDARY.md
+      - 'docs/CURRENT_STATE': CURRENT_STATE.md
+      - 'docs/EDITOR_TRUST_WORKFLOW': EDITOR_TRUST_WORKFLOW.md
+      - 'docs/FEATURE_REGISTRY': FEATURE_REGISTRY.md
+      - 'docs/INTERACTION_NOTES': INTERACTION_NOTES.md
+      - 'docs/INVARIANTS': INVARIANTS.md
+      - 'docs/OPERATOR_WORKFLOW': OPERATOR_WORKFLOW.md
+      - 'docs/ROADMAP': ROADMAP.md
+      - 'docs/USER_REQUEST_LEDGER': USER_REQUEST_LEDGER.md
+  - Development Notes:
+      - 'docs/BRANCHING': BRANCHING.md
+      - 'docs/CODING_STANDARDS': CODING_STANDARDS.md
+      - 'docs/DEPLOY': DEPLOY.md
+      - 'docs/design/EXTENDED_TEXTBOX_ENGINE': design/EXTENDED_TEXTBOX_ENGINE.md
+      - 'docs/design/PLUGIN_SYSTEM': design/PLUGIN_SYSTEM.md
+      - 'docs/design/RICHTEXT_ENHANCEMENT': design/RICHTEXT_ENHANCEMENT.md
+      - 'docs/design/TEXT_EXPRESSION_TIER1': design/TEXT_EXPRESSION_TIER1.md
+      - 'docs/LABELS': LABELS.md
+      - 'docs/MANUAL_TEST_GUIDE': MANUAL_TEST_GUIDE.md
+      - 'docs/PLUGIN_GUIDE': PLUGIN_GUIDE.md
+      - 'docs/project-context': project-context.md
+      - 'docs/RELEASE': RELEASE.md
+      - 'docs/TESTING': TESTING.md
+      - 'docs/TROUBLESHOOTING': TROUBLESHOOTING.md
+  - Artifacts:
+      - 'docs/archive/2026-03-14_spec-implementation-audit_issues': archive/2026-03-14_spec-implementation-audit_issues.md
+      - 'docs/archive/2026-03-19_chapter-ux-issues': archive/2026-03-19_chapter-ux-issues.md
+      - 'docs/archive/BACKLOG': archive/BACKLOG.md
+      - 'docs/archive/choices-driven-development': archive/choices-driven-development.md
+      - 'docs/archive/current-state-verification-sessions-44-62': archive/current-state-verification-sessions-44-62.md
+      - 'docs/archive/current-state-verification-sessions-63-65': archive/current-state-verification-sessions-63-65.md
+      - 'docs/archive/decision-log-archive': archive/decision-log-archive.md
+      - 'docs/archive/EXTENDED_SCROLL_CANVAS': archive/EXTENDED_SCROLL_CANVAS.md
+      - 'docs/archive/ISSUES': archive/ISSUES.md
+      - 'docs/archive/ISSUES-resolved': archive/ISSUES-resolved.md
+      - 'docs/archive/LIVE_PREVIEW_DIFF_DESIGN': archive/LIVE_PREVIEW_DIFF_DESIGN.md
+      - 'docs/archive/MILESTONE_2025-01-04': archive/MILESTONE_2025-01-04.md
+      - 'docs/archive/MISSION12_GADGETS': archive/MISSION12_GADGETS.md
+      - 'docs/archive/PALETTE_DESIGN': archive/PALETTE_DESIGN.md
+      - 'docs/archive/prompt-resume-session13-2026-03-19': archive/prompt-resume-session13-2026-03-19.md
+      - 'docs/archive/session-history': archive/session-history.md
+      - 'docs/archive/spec-extended-scroll-canvas': archive/spec-extended-scroll-canvas.md
+      - 'docs/verification/2026-03-30/reader-sidebar-stabilization': verification/2026-03-30/reader-sidebar-stabilization.md
+      - 'docs/verification/2026-03-30/ui-mode-select-removal': verification/2026-03-30/ui-mode-select-removal.md
+      - 'docs/verification/2026-03-31/focus-reader-visual-audit-hardening': verification/2026-03-31/focus-reader-visual-audit-hardening.md
+      - 'docs/verification/2026-04-27/daily-writing-workflow-proof': verification/2026-04-27/daily-writing-workflow-proof.md
+      - 'docs/verification/2026-04-27/frameless-window-grip-narrow-fix': verification/2026-04-27/frameless-window-grip-narrow-fix.md
+      - 'docs/verification/2026-04-27/ui-label-consistency-sweep': verification/2026-04-27/ui-label-consistency-sweep.md
+      - 'docs/verification/2026-04-27/writing-workflow-friction-sweep': verification/2026-04-27/writing-workflow-friction-sweep.md
+      - 'docs/verification/2026-04-28/comprehensive-inspection': verification/2026-04-28/comprehensive-inspection.md
+      - 'docs/verification/2026-04-28/left-chrome-left-nav-refinement': verification/2026-04-28/left-chrome-left-nav-refinement.md
+      - 'docs/verification/2026-04-28/main-hub-panel-dead-code-cleanup': verification/2026-04-28/main-hub-panel-dead-code-cleanup.md
+      - 'docs/verification/2026-04-28/right-window-controls-top-chrome-retirement': verification/2026-04-28/right-window-controls-top-chrome-retirement.md
+      - 'docs/verification/2026-04-29/electron-manual-confirmation-prep': verification/2026-04-29/electron-manual-confirmation-prep.md
+      - 'docs/verification/2026-05-09/gadget-mod-boundary-audit': verification/2026-05-09/gadget-mod-boundary-audit.md
+      - 'docs/verification/2026-05-10/active-help-mode-wording-cleanup': verification/2026-05-10/active-help-mode-wording-cleanup.md
+      - 'docs/verification/2026-05-10/docs-authority-hygiene-after-active-help-cleanup': verification/2026-05-10/docs-authority-hygiene-after-active-help-cleanup.md
+      - 'docs/verification/2026-05-10/editor-help-stale-settings-route-cleanup': verification/2026-05-10/editor-help-stale-settings-route-cleanup.md
+      - 'docs/verification/2026-05-10/hud-settings-local-gadget-mod-migration': verification/2026-05-10/hud-settings-local-gadget-mod-migration.md
+      - 'docs/verification/2026-05-10/local-gadget-mod-boundary-closeout': verification/2026-05-10/local-gadget-mod-boundary-closeout.md
+      - 'docs/verification/2026-05-10/markdown-preview-local-gadget-mod-migration': verification/2026-05-10/markdown-preview-local-gadget-mod-migration.md
+      - 'docs/verification/2026-05-10/pomodoro-timer-local-gadget-mod-migration': verification/2026-05-10/pomodoro-timer-local-gadget-mod-migration.md
+      - 'docs/verification/2026-05-10/pomodoro-timer-mod-feasibility-audit': verification/2026-05-10/pomodoro-timer-mod-feasibility-audit.md
+      - 'docs/verification/2026-05-10/writing-status-saved-time-visibility': verification/2026-05-10/writing-status-saved-time-visibility.md
+      - 'docs/verification/2026-05-11/remote-sync-handoff': verification/2026-05-11/remote-sync-handoff.md
+      - 'docs/verification/2026-05-11/visual-profile-ui-mode-wording-cleanup': verification/2026-05-11/visual-profile-ui-mode-wording-cleanup.md
+      - 'docs/verification/2026-05-13/remote-sync-export-trust-handoff': verification/2026-05-13/remote-sync-export-trust-handoff.md
+      - 'docs/verification/2026-05-14/remote-sync-first-use-save-help-handoff': verification/2026-05-14/remote-sync-first-use-save-help-handoff.md
+      - 'docs/verification/2026-05-15/remote-sync-restart-roadmap-handoff': verification/2026-05-15/remote-sync-restart-roadmap-handoff.md
+      - 'docs/verification/2026-05-25/import-roundtrip-hardening': verification/2026-05-25/import-roundtrip-hardening.md
+      - 'docs/verification/2026-05-25/remote-sync-import-roundtrip-handoff': verification/2026-05-25/remote-sync-import-roundtrip-handoff.md
+      - 'docs/verification/2026-06-03/remote-sync-current-context-handoff': verification/2026-06-03/remote-sync-current-context-handoff.md
+      - 'docs/verification/2026-06-04/remote-sync-cross-terminal-handoff': verification/2026-06-04/remote-sync-cross-terminal-handoff.md
+      - 'docs/verification/2026-06-05/issue-118-pr-119-meta-review': verification/2026-06-05/issue-118-pr-119-meta-review.md
+      - 'docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction': verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md
+      - 'docs/verification/2026-06-08/ledger-handoff-anchor-reconciliation': verification/2026-06-08/ledger-handoff-anchor-reconciliation.md
+      - 'docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor': verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md
+      - 'docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff': verification/2026-06-08/rich-editing-heading-shortcut-handoff.md
+      - 'docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut': verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md
+      - 'docs/verification/2026-06-15/editor-trust-vertical-slice': verification/2026-06-15/editor-trust-vertical-slice.md
+      - 'docs/verification/session22-investigation': verification/session22-investigation.md
+      - 'docs/verification/session25-status-matrix': verification/session25-status-matrix.md
+      - 'docs/verification/session28-bug-patterns': verification/session28-bug-patterns.md
+      - 'samples/full-feature-showcase': local-view/samples/full-feature-showcase.md
+      - 'samples/gamebook-branch-demo': local-view/samples/gamebook-branch-demo.md
+      - 'samples/gamebook-styled-demo': local-view/samples/gamebook-styled-demo.md
+      - 'samples/heading-typography-novel': local-view/samples/heading-typography-novel.md
+      - 'samples/heading-typography-scenario': local-view/samples/heading-typography-scenario.md
+      - 'samples/README': local-view/samples/README.md
+      - 'samples/web-novel-effects-demo': local-view/samples/web-novel-effects-demo.md
+      - 'samples/wiki-and-chapters-demo': local-view/samples/wiki-and-chapters-demo.md

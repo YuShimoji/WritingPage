@@ -1,0 +1,1 @@
+--8<-- "samples/gamebook-styled-demo.md"

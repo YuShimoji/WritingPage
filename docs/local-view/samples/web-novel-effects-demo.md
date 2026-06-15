@@ -1,0 +1,1 @@
+--8<-- "samples/web-novel-effects-demo.md"

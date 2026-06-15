@@ -1,0 +1,1 @@
+--8<-- "samples/full-feature-showcase.md"
