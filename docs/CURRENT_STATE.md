@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-15（WP-SAVELOAD-001 Editor Trust Vertical Slice）
+最終更新: 2026-06-17（v1.8 Freeform Review / Long-Run Autonomy remote handoff）
 
 ## Snapshot
+
+### 2026-06-17 Remote sync handoff after v1.8 review/autonomy docs
+
+- Local `main` was checked clean against `origin/main` after `d4de62d docs: add freeform review autonomy guidance`; `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count 'HEAD...@{u}'` returned `0 0`.
+- This pass preserves the restart context in project files only: `docs/CURRENT_STATE.md` and `docs/verification/2026-06-17/freeform-review-autonomy-remote-handoff.md`.
+- Current handoff anchor: `docs/verification/2026-06-17/freeform-review-autonomy-remote-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; for review/autonomy context also read `docs/OPERATOR_REVIEW_UX.md`, `docs/ai/STATUS_AND_HANDOFF.md`, `docs/ai/WORKFLOWS_AND_PHASES.md`, and `docs/OPERATOR_WORKFLOW.md`.
+- Next practical entry points: use Review Card / Freeform Review Intake in the next reviewable artifact, audit remaining MkDocs warning noise, or return to product work selected from `docs/ROADMAP.md` / `docs/USER_REQUEST_LEDGER.md`.
 
 ### 2026-06-17 v1.8 Freeform Review / Long-Run Autonomy docs
 

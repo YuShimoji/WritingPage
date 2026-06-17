@@ -122,7 +122,9 @@ nav:
       - 'docs/APP_LAUNCH_GUIDE': APP_LAUNCH_GUIDE.md
       - 'docs/EDITOR_HELP': EDITOR_HELP.md
       - 'docs/PROJECT_OVERVIEW': PROJECT_OVERVIEW.md
+      - 'docs/OPERATOR_REVIEW_UX': OPERATOR_REVIEW_UX.md
       - 'docs/README': local-view/docs/README.md
+      - 'docs/local-view/docs/OPERATOR_REVIEW_UX': local-view/docs/OPERATOR_REVIEW_UX.md
       - 'README': local-view/root/README.md
       - 'SECURITY': local-view/root/SECURITY.md
       - 'docs/TURN_PLAN': TURN_PLAN.md
@@ -265,6 +267,7 @@ nav:
       - 'docs/verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut': verification/2026-06-08/stale-spec-reconciliation-after-heading-shortcut.md
       - 'docs/verification/2026-06-15/editor-trust-vertical-slice': verification/2026-06-15/editor-trust-vertical-slice.md
       - 'docs/verification/2026-06-15/local-docs-overview-remote-handoff': verification/2026-06-15/local-docs-overview-remote-handoff.md
+      - 'docs/verification/2026-06-17/freeform-review-autonomy-remote-handoff': verification/2026-06-17/freeform-review-autonomy-remote-handoff.md
       - 'docs/verification/session22-investigation': verification/session22-investigation.md
       - 'docs/verification/session25-status-matrix': verification/session25-status-matrix.md
       - 'docs/verification/session28-bug-patterns': verification/session28-bug-patterns.md
