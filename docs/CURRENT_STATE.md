@@ -4,6 +4,14 @@
 
 ## Snapshot
 
+### 2026-06-17 v1.8 Freeform Review / Long-Run Autonomy docs
+
+- Maintenance slice for agent reporting and review UX. Added `docs/OPERATOR_REVIEW_UX.md` as the review/autonomy entry point and connected it from `AGENTS.md`, `docs/ai/STATUS_AND_HANDOFF.md`, `docs/ai/WORKFLOWS_AND_PHASES.md`, `docs/INTERACTION_NOTES.md`, `docs/OPERATOR_WORKFLOW.md`, README surfaces, `docs/PROJECT_OVERVIEW.md`, `docs/index.md`, and `mkdocs.yml`.
+- Review guidance now forbids fixed review phrases for user-facing artifact judgment, requires a Review Card when user review is actually needed, and treats freeform review as valid input parsed internally into target / intent / constraints / confidence.
+- Operation Cockpit checkpoint reports now include Review Card / Review Debt, optional Freeform Review Intake Result, explicit User-Side Work, and Handoff Gate result. A next-agent prompt is not emitted unless the handoff gate is actually satisfied.
+- Long-run autonomy is now explicit: when the next 1-3 actions are clear, reversible, and scoped, the assistant should execute them before reporting rather than merely listing them.
+- `docs/RUNTIME_STATE.md` was not recreated. Current restart/runtime facts remain anchored in `docs/CURRENT_STATE.md`; Operation Cockpit is a report shape, not a persistent runtime-state file.
+
 ### 2026-06-15 Local docs overview and remote handoff
 
 - Local documentation browser context is now preserved in project files. The latest docs-view proof before this handoff is `6add8c4 docs: add project overview map`, building on `5b60db7 docs: add local mkdocs browser view`.

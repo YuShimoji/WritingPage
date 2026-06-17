@@ -19,6 +19,7 @@ Use it when you want to answer quickly:
 | Broad app capability map | [App Specification](APP_SPECIFICATION.md) | [Architecture](ARCHITECTURE.md), [Gadgets](GADGETS.md), [UI Surface and Controls](UI_SURFACE_AND_CONTROLS.md) | The larger product surface and major responsibility boundaries |
 | Future work and progress lanes | [Roadmap](ROADMAP.md) | [User Request Ledger](USER_REQUEST_LEDGER.md), [Turn-Based Development Plan](TURN_PLAN.md) | Candidate work, current lanes, and a turn-count reading layer |
 | Save/load/import/export trust work | [Editor Trust Workflow](EDITOR_TRUST_WORKFLOW.md) | [Current State](CURRENT_STATE.md), relevant verification notes | The current writing trust vertical slice and its validation anchors |
+| Agent reports and review flow | [Operator Review UX](OPERATOR_REVIEW_UX.md) | [Status and Handoff](ai/STATUS_AND_HANDOFF.md), [Interaction Notes](INTERACTION_NOTES.md), [Operator Workflow](OPERATOR_WORKFLOW.md) | How Review Cards, freeform review intake, Review Debt, and long-run checkpoints should work |
 | Screenshot and visual proof status | [Visual Evidence Index](VISUAL_EVIDENCE_INDEX.md) | [Testing](TESTING.md), historical verification notes | Whether there is a current committed screenshot set and where generated captures are written |
 | Local browser reading and translation checks | [Local Docs View Home](index.md) | `mkdocs.yml` navigation | How to open the local tree view and use browser page translation as a temporary aid |
 

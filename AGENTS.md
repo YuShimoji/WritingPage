@@ -10,6 +10,7 @@
 
 ## Adapter rules
 - Do not restate the whole ruleset here. Reporting style and closeout chain live in `docs/ai/STATUS_AND_HANDOFF.md` and `docs/INTERACTION_NOTES.md`.
+- Review Card / freeform review intake / long-run autonomy rules live in `docs/OPERATOR_REVIEW_UX.md`.
 - Agent-wide behavior rules live in `docs/ai/*.md`; read them when the task touches agent workflow, decision gates, handoff, or option generation.
 - Project facts, session state, and restart direction are anchored in `docs/CURRENT_STATE.md`.
 - Removed stale restart magnets must not be recreated; use `docs/CURRENT_STATE.md` instead.

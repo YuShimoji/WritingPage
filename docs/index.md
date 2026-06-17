@@ -28,6 +28,7 @@ Start here when you want to understand whether the Markdown set gives a usable p
 - [Project Overview Map](PROJECT_OVERVIEW.md): where to read implementation history, current progress, future work, and gaps.
 - [Visual Evidence Index](VISUAL_EVIDENCE_INDEX.md): screenshot evidence status, generated capture locations, and a future committed layout.
 - [Turn-Based Development Plan](TURN_PLAN.md): a turn-count reading layer over the existing roadmap and ledger.
+- [Operator Review UX](OPERATOR_REVIEW_UX.md): Review Card, freeform review intake, Review Debt, and long-run autonomy rules.
 
 ## Translation Check
 

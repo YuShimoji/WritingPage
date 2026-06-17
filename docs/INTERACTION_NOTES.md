@@ -22,6 +22,14 @@
 - docs に書く案内は **正確な現物表記** (例: Electron メニューの日本語ラベル「シェル(&V) > 左ナビ(&S)」) を優先。推測で英語表記を書かない。
 - package/Electron 実機項目は `PASS / FAIL / HOLD` で記録し、`FAIL` は「再現手順 / 実際の結果 / 期待結果 / Webとの差分」を 1 セットで残す。
 
+### Freeform Review の出し方 (v1.8)
+
+- artifact / UI / docs 導線の判断が必要なときは、固定文ではなく Review Card を出す。場所は報告上部、または Artifacts / Review Access の直後に置く。
+- Review Card には target、見るポイント 3 個以内、自由文で返してよいこと、自由文例、assistant が target / intent / constraints / confidence に整理して続行することを含める。
+- user の返答が自然文でも有効な review input として扱う。confidence が high / medium なら、再入力を求めず可逆で狭い作業へ戻る。
+- confidence が low で、誤読すると artifact 方向が大きく変わる場合だけ Review Clarification Card を 1 回だけ出す。
+- 機械的確認の `OK / NG` は狭いチェック専用。レビュー判断、方向修正、好み、違和感の伝達には要求しない。
+
 ## 禁止パターン
 
 - AskUserQuestion の `question` に Markdown テーブルを入れる

@@ -178,6 +178,7 @@ WritingPage/
 
 - 作業の前提と再開手順: `docs/CURRENT_STATE.md`
 - エージェント入口: `AGENTS.md`
+- Review Card / 自由文レビュー / long-run autonomy: `docs/OPERATOR_REVIEW_UX.md`
 
 ## テスト手順
 
@@ -192,6 +193,7 @@ WritingPage/
 - `docs/CURRENT_STATE.md` - 現在地の正本
 - `docs/INVARIANTS.md` - 不変条件・責務境界
 - `docs/INTERACTION_NOTES.md` - UI 状態モデル・手動確認形式
+- `docs/OPERATOR_REVIEW_UX.md` - Review Card・自由文レビュー・long-run autonomy
 - `docs/ARCHITECTURE.md`
 - `docs/APP_SPECIFICATION.md`
 - `docs/ROADMAP.md`

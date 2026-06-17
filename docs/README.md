@@ -33,6 +33,7 @@ v0.3.32 / 2026-04-06
 | ドキュメント | 内容 |
 |-------------|------|
 | [USER_REQUEST_LEDGER](USER_REQUEST_LEDGER.md) | 次スライス候補・deferred・**スライス完了時チェックリスト** |
+| [OPERATOR_REVIEW_UX](OPERATOR_REVIEW_UX.md) | Review Card・自由文レビュー intake・long-run autonomy |
 | [WP004_PHASE3_PARITY_AUDIT](WP004_PHASE3_PARITY_AUDIT.md) | WP-004: MD プレビューと Reader の整合監査 |
 | [CODING_STANDARDS](CODING_STANDARDS.md) | コーディング規約 |
 | [TESTING](TESTING.md) | テスト方針・E2Eテストガイド |
@@ -50,6 +51,7 @@ v0.3.32 / 2026-04-06
 | [ROADMAP](ROADMAP.md) | ロードマップ（Priority A-D の開発計画） |
 | [../AGENTS](../AGENTS.md) | AI adapter・最小 read order |
 | [CURRENT_STATE](CURRENT_STATE.md) | 再開手順・参照順 |
+| [OPERATOR_REVIEW_UX](OPERATOR_REVIEW_UX.md) | review / autonomy 運用 |
 
 ## インフラ
 

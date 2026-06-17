@@ -1,5 +1,5 @@
 # STATUS_AND_HANDOFF.md
-Ruleset-Version: v20
+Ruleset-Version: v21
 Status: canonical
 
 ## Feature status semantics
@@ -46,6 +46,43 @@ A useful report should connect:
 - what evidence was checked
 - what risk or judgment remains
 - what different next moves are now available
+
+## Operation Cockpit checkpoint reports
+Use Operation Cockpit when the user asks for it, when a long-running autonomous
+block reaches a real checkpoint, or when artifact review needs a structured
+surface. Do not force it onto short Q&A or tiny lookups.
+
+When Operation Cockpit is used, keep the report user-readable and include these
+parts in this order:
+
+1. Current State
+2. Work Performed vs Expected
+3. Changed Files
+4. Artifacts / Review Access
+5. Review Card / Review Debt
+6. Freeform Review Intake Result, if user review was consumed
+7. Command / Action Ledger
+8. User-Side Work
+9. Agent-Side Next Actions
+10. Goal Stack Contribution
+11. Decision Packet, if needed
+12. Continuation State
+13. Handoff Gate result
+
+The Review Card / Review Debt part must explicitly say whether a Review Card is
+present and whether review debt is none, pending, deferred, or resolved. The
+Freeform Review Intake Result part appears only after user review has been
+consumed, and should summarize target, intent, constraints, confidence, and the
+action taken. The User-Side Work part must say `none` or `required`.
+
+Do not require fixed review phrases from the user. When user review is needed,
+follow `docs/OPERATOR_REVIEW_UX.md`: place a Review Card near the top or
+immediately after Artifacts / Review Access, accept freeform feedback, parse it
+internally, and return to scoped work when confidence is medium or high.
+
+Do not include a next-agent prompt unless the Handoff Gate is satisfied. A
+normal checkpoint, a clean commit, or an open next action is not by itself a
+handoff gate.
 
 ## Current Trust Assessment
 When a thread has become noisy or risky, classify changes into:

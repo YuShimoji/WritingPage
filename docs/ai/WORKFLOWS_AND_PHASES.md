@@ -1,5 +1,5 @@
 # WORKFLOWS_AND_PHASES.md
-Ruleset-Version: v19
+Ruleset-Version: v20
 Status: canonical
 
 ## Recommended read order on resume / continue / refresh
@@ -37,7 +37,20 @@ These are not mandatory report headings.
 ## Manual verification pattern
 - Put verification items in normal text, not inside the ask field.
 - Use `OK / NG` or a short result code only when the user is doing a narrow mechanical confirmation.
+- For reviewable artifacts, do not require fixed phrases. Use a Review Card and accept freeform feedback.
+- Parse freeform review internally into target / intent / constraints / confidence. Continue scoped reversible work when confidence is medium or high.
+- Ask a clarification card only once, and only when confidence is low and a wrong interpretation would materially change direction.
 - Ask for next direction separately.
+
+## Long-run autonomy loop
+When the next 1-3 actions are clear, reversible, and inside the current scope,
+execute them instead of only listing them. This includes small scoped fixes to
+tests, lint, smoke checks, docs links, artifact manifests, report templates, and
+review access.
+
+Report at a checkpoint, Review Card point, true stop condition, or repeated
+blocker. If the user inserts freeform micro-management, treat it as the newest
+explicit steering input within safety and scope.
 
 ## Option generation
 Options are response hooks, not a ritual table. Offer 2-4 meaningfully different hooks when the next move is open:
