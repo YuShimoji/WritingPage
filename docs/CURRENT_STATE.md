@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-17（v1.8 Freeform Review / Long-Run Autonomy remote handoff）
+最終更新: 2026-06-18（remote sync / cross-terminal context handoff）
 
 ## Snapshot
+
+### 2026-06-18 Remote sync / cross-terminal context handoff
+
+- Local `main` was first fast-forwarded from `89548fd` to `5bd3f71` with `git pull --ff-only origin main`; the post-pull upstream comparison returned `0 0` for `git rev-list --left-right --count "HEAD...origin/main"` before this docs handoff was written.
+- The only pre-existing local worktree change was the thin `AGENTS.md` footer `## Imported Claude Cowork project instructions`; it was preserved with the current remote `AGENTS.md` review/autonomy pointer and included in this handoff rather than discarded.
+- This pass preserves restart context in project files only: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `AGENTS.md`, and `docs/verification/2026-06-18/remote-sync-context-handoff.md`.
+- Current handoff anchor: `docs/verification/2026-06-18/remote-sync-context-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; when the work touches review/autonomy or handoff behavior, also read `docs/OPERATOR_REVIEW_UX.md`, `docs/ai/STATUS_AND_HANDOFF.md`, `docs/ai/WORKFLOWS_AND_PHASES.md`, and `docs/OPERATOR_WORKFLOW.md`.
+- Product/runtime state is unchanged by this handoff. The latest editor product proof remains WP-SAVELOAD-001 / `writing-trust-workflow-001`; the active next product entry remains stale spec reconciliation unless the user selects a different one-topic slice.
 
 ### 2026-06-17 Remote sync handoff after v1.8 review/autonomy docs
 

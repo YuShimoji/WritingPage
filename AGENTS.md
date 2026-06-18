@@ -55,3 +55,5 @@ non-destructive `git add` / `git commit` / `git push` without asking again. Stop
 and confirm before destructive operations (force-push, history rewrite,
 ambiguous large deletions), cross-repo publication, or when the user has
 explicitly prohibited a step.
+
+## Imported Claude Cowork project instructions
