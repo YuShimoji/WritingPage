@@ -6,7 +6,7 @@
 
 ### 2026-06-18 Rich heading IME spot-check
 
-- Local `main` was fast-forwarded to `origin/main` after `git fetch --prune origin` showed one remote commit ahead. Post-pull checks returned clean `## main...origin/main` and `HEAD...origin/main = 0 0`; current `HEAD` is `977e7a5 docs: hand off current sync context`.
+- Local `main` was fast-forwarded to `origin/main` after `git fetch --prune origin` showed one remote commit ahead. Post-pull checks returned clean `## main...origin/main` and `HEAD...origin/main = 0 0`; current `HEAD` after the IME spot-check handoff is `b56e925 docs: record rich heading ime spotcheck`.
 - Added verification anchor: `docs/verification/2026-06-18/rich-heading-ime-spotcheck.md`. This is a docs/verification-only slice; product code, E2E bodies, storage/import/export behavior, Electron/package behavior, dependencies, DB/auth/API contracts, GitHub cleanup, and AGENTS rules were not changed.
 - Local app launch succeeded at `http://127.0.0.1:8080/index.html` with HTTP 200. Agent-side browser verification passed for line-start `#` / `##` / `###` + Space conversion to H1/H2/H3, one-step Undo back to the typed marker, and synthetic `compositionstart` / `compositionend` suppression. Focused E2E also passed: `npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"` -> 10 passed.
 - Native Japanese IME operation remains `USER_RUN_REQUIRED`: Windows Japanese language/culture is present, but the available automation path cannot honestly operate the Microsoft IME candidate window. The Review Card in the verification note asks the user to check IME composition misfire, intended shortcut conversion, and immediate Undo on the local Rich editing screen.

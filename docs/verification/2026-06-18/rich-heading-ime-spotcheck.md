@@ -17,7 +17,10 @@ native Japanese IME check. This is a verification/docs slice only.
   `## main...origin/main`.
 - Post-pull comparison: `git rev-list --left-right --count HEAD...origin/main`
   returned `0 0`.
-- Current `HEAD`: `977e7a5 docs: hand off current sync context`.
+- Pre-note `HEAD` before this verification handoff was written:
+  `977e7a5 docs: hand off current sync context`.
+- Final spot-check handoff commit after the note was pushed:
+  `b56e925 docs: record rich heading ime spotcheck`.
 
 ## Authority Documents Inspected
 
