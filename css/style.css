@@ -1930,12 +1930,28 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   letter-spacing: var(--heading-h4-letter-spacing);
 }
 
+#wysiwyg-editor [data-zw-empty-heading='true'] {
+  position: relative;
+}
+
 #wysiwyg-editor [data-zw-empty-heading='true']::before {
   content: attr(data-placeholder);
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  max-inline-size: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--text-muted, #888);
   font-style: italic;
   opacity: 0.78;
   pointer-events: none;
+}
+
+#wysiwyg-editor:focus [data-zw-empty-heading='true']::before,
+#wysiwyg-editor:focus-within [data-zw-empty-heading='true']::before {
+  content: none;
 }
 
 .wysiwyg-toolbar {

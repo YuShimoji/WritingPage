@@ -710,6 +710,52 @@ test.describe('WYSIWYG Editor', () => {
     expect(await normalizedEditorText(wysiwygEditor)).toBe('#');
   });
 
+  test('heading shortcut keeps empty heading placeholder out of the active caret flow', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page);
+
+    await page.keyboard.type('# ');
+    const heading = wysiwygEditor.locator('h1');
+    await expect(heading).toBeAttached();
+
+    await page.evaluate(() => {
+      const h1 = document.querySelector('#wysiwyg-editor h1');
+      h1.setAttribute('data-zw-empty-heading', 'true');
+      h1.setAttribute('data-placeholder', '章タイトルを入力');
+    });
+
+    const focusedState = await heading.evaluate((el) => {
+      const style = window.getComputedStyle(el, '::before');
+      return {
+        activeId: document.activeElement && document.activeElement.id,
+        content: style.content,
+        position: style.position,
+        pointerEvents: style.pointerEvents
+      };
+    });
+
+    expect(focusedState.activeId).toBe('wysiwyg-editor');
+    expect(focusedState.content).toBe('none');
+    expect(focusedState.position).toBe('absolute');
+    expect(focusedState.pointerEvents).toBe('none');
+
+    await page.locator('#toggle-wysiwyg').focus();
+    const blurredState = await heading.evaluate((el) => {
+      const style = window.getComputedStyle(el, '::before');
+      return {
+        activeId: document.activeElement && document.activeElement.id,
+        content: style.content,
+        position: style.position,
+        pointerEvents: style.pointerEvents
+      };
+    });
+
+    expect(blurredState.activeId).toBe('toggle-wysiwyg');
+    expect(blurredState.content).toContain('章タイトルを入力');
+    expect(blurredState.position).toBe('absolute');
+    expect(blurredState.pointerEvents).toBe('none');
+  });
+
   test('heading shortcut leaves Markdown source round-trip on the existing renderer', async ({ page }) => {
     const textarea = page.locator('#editor');
     const wysiwygEditor = page.locator('#wysiwyg-editor');

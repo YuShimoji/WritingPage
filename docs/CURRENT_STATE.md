@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-22（remote sync / cross-terminal context handoff）
+最終更新: 2026-06-22（rich heading placeholder polish）
 
 ## Snapshot
+
+### 2026-06-22 Rich heading placeholder polish
+
+- Local `main` was first updated from `origin/main`: `git fetch --prune origin` showed `origin/main` ahead, `git pull --ff-only origin main` fast-forwarded from `b56e925` to `05c3379`, and post-pull checks returned clean `## main...origin/main` plus `HEAD...origin/main = 0 0`.
+- Consumed the attached review intake for the Rich editing typed heading shortcut. The user-side Microsoft IME / direct `#` / `##` / `###` + Space behavior was treated as functionally OK; the remaining issue was a narrow UX debt where the empty heading placeholder `章タイトルを入力` could visually compete with the caret immediately after conversion.
+- Implemented a CSS-first polish: empty heading placeholders are now absolutely positioned out of text flow, and the pseudo-element is not generated while `#wysiwyg-editor` has focus. The hint remains available when the empty heading is not actively being edited.
+- Added focused E2E coverage in `e2e/wysiwyg-editor.spec.js` for the active empty heading placeholder state. Existing heading shortcut behavior, Undo, negative cases, paste handling, Markdown source round-trip, and synthetic IME guard remain covered by the same focused grep.
+- Verification anchor: `docs/verification/2026-06-22/rich-heading-placeholder-polish.md`. Validation for this slice: `node --check e2e/wysiwyg-editor.spec.js`, `git diff --check`, `npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"` -> 11 passed, and `npm run lint:js:check`.
+- Non-targets preserved: `js/editor-wysiwyg.js`, shortcut semantics, IME composition gate, storage/import/export, Electron/package behavior, dependencies, DB/auth/API contracts, GitHub cleanup, embed security, and AGENTS rules were not changed.
+- Review state: required user-side work is none. A later human visual feel check is optional before release, but the submitted review debt is resolved for this slice.
 
 ### 2026-06-22 Remote sync / cross-terminal context handoff
 
