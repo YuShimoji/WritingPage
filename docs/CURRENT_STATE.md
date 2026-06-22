@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-18（rich heading IME spot-check / user run required）
+最終更新: 2026-06-22（remote sync / cross-terminal context handoff）
 
 ## Snapshot
+
+### 2026-06-22 Remote sync / cross-terminal context handoff
+
+- Local `main` was checked against `origin/main` after `git fetch --prune origin`; there were no new remote commits to pull, `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count "HEAD...origin/main"` returned `0 0`.
+- Pre-handoff baseline commit before this docs-only note was `d9198b5 docs: align ime spotcheck handoff head`. This handoff records the current restart context without changing product/runtime behavior.
+- This pass preserves restart context in project files only: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, and `docs/verification/2026-06-22/remote-sync-context-handoff.md`.
+- Current handoff anchor: `docs/verification/2026-06-22/remote-sync-context-handoff.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Active residue is unchanged: the Rich heading shortcut is implemented and agent-verified, but native Japanese IME candidate-window behavior remains `USER_RUN_REQUIRED` via `docs/verification/2026-06-18/rich-heading-ime-spotcheck.md`. If that comes back OK, the shortcut can be treated as screen-checked; if NG, keep the next slice narrow around `js/editor-wysiwyg.js` composition gating and typed heading shortcut handling.
+- Product/runtime state is unchanged by this handoff. Latest editor product proof remains WP-SAVELOAD-001 / `writing-trust-workflow-001`; the next product entry remains stale spec reconciliation unless the user selects a different one-topic slice or returns an IME NG report.
 
 ### 2026-06-18 Rich heading IME spot-check
 
