@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-22（rich heading closure checklist）
+最終更新: 2026-06-22（remote sync after rich heading closure）
 
 ## Snapshot
+
+### 2026-06-22 Remote sync after Rich heading closure
+
+- Local `main` was checked against `origin/main` after `git fetch --prune origin`; there were no new remote commits to pull, `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Pre-handoff baseline commit before this docs-only note was `24ca99e docs: add rich heading closure checklist`. This handoff records the current restart context without changing product/runtime behavior.
+- This pass preserves restart context in project files only: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, and `docs/verification/2026-06-22/remote-sync-after-rich-heading-closure.md`.
+- Current handoff anchor: `docs/verification/2026-06-22/remote-sync-after-rich-heading-closure.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
+- Rich heading context is closed enough to avoid repeat review: use `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md` before asking about IME / direct shortcut / placeholder again. Current classification remains functionality accepted, placeholder UX debt resolved, optional release visual check not blocking.
+- Product/runtime state is unchanged by this handoff. Latest editor product proof remains WP-SAVELOAD-001 / `writing-trust-workflow-001`; the next practical entry is stale spec reconciliation or another explicitly selected one-topic slice.
 
 ### 2026-06-22 Rich heading closure checklist
 
