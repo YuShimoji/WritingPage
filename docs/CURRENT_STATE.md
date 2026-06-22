@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-22（rich heading placeholder polish）
+最終更新: 2026-06-22（rich heading closure checklist）
 
 ## Snapshot
+
+### 2026-06-22 Rich heading closure checklist
+
+- Added a docs-only closure checklist for the Rich editing typed heading shortcut: `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`.
+- Purpose: prevent repeat review loops around the same IME / direct shortcut / placeholder axis after `75726f9 fix: polish empty rich heading placeholder`.
+- Current classification is now explicit: functionality accepted, placeholder UX debt resolved, optional release visual check not blocking.
+- Review memory in the checklist records `prior_review_count=1`, `accepted_scope=IME_and_shortcut_functional_path`, `resolved_scope=placeholder_caret_visual_debt_by_css_first_fix`, `not_accepted_scope=release_wide_visual_acceptance`, and `repeated_general_review=false`.
+- This slice changed documentation only. No implementation, E2E body, AGENTS, GitHub cleanup, storage/import/export, Electron/package, dependency, DB/auth/API, or embed security behavior changed.
+- Future Review Card rule: do not ask the user to re-review the same IME / shortcut / placeholder basics unless a new target, new evidence, changed axis, suspected regression, or user-requested recheck appears.
 
 ### 2026-06-22 Rich heading placeholder polish
 
