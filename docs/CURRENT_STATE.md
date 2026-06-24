@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-24（project import safe failure signal）
+最終更新: 2026-06-24（remote sync after project import safe failure）
 
 ## Snapshot
+
+### 2026-06-24 Remote sync after project import safe failure
+
+- Local `main` was checked against `origin/main` after `git fetch --prune origin`; `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0`.
+- Current product proof before this docs-only handoff is `0c21466 feat: clarify failed project import recovery`.
+- Supervisor review accepted `project-import-safe-failure-signal`: failed JSON project import now tells the writer that the current document is retained, while the focused E2E still proves invalid import does not mutate current doc id / raw id / docs snapshot.
+- This handoff preserves restart context in project files only: `docs/CURRENT_STATE.md`, `docs/USER_REQUEST_LEDGER.md`, `docs/ROADMAP.md`, and `docs/verification/2026-06-24/remote-sync-after-project-import-safe-failure.md`.
+- Next bounded product entry: `project-import-recovery-continuation-proof` — after invalid JSON import failure, prove the current editor remains usable, a continuation text can be written, and reload/resume preserves that continuation.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-24 Project import safe failure signal
 
