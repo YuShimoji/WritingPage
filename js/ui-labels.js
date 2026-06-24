@@ -219,6 +219,7 @@ window.UILabels = {
     EDITOR_NEW_DOC_CONFIRM: '現在の内容を破棄して新規ドキュメントを作成しますか？',
     FILE_IMPORTED_MSG: 'ファイルを読み込みました',
     FILE_IMPORT_ERROR: 'ファイル読み込みエラー',
+    PROJECT_IMPORT_SAFE_FAILURE: 'JSON読み込みに失敗しました。現在の文書は保持されています。',
     DOC_LIST_LABEL: 'ドキュメント',
     RENAME: '改名',
     IMPORT_FILE: '読み込み',

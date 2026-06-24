@@ -410,7 +410,7 @@
               notify('プロジェクトを読み込みました');
               dispatchChanged();
             } else {
-              notify('JSON読み込みに失敗しました');
+              notify((window.UILabels && window.UILabels.PROJECT_IMPORT_SAFE_FAILURE) || 'JSON読み込みに失敗しました。現在の文書は保持されています。');
             }
           });
         }

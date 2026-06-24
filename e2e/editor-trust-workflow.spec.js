@@ -274,7 +274,7 @@ test.describe('Editor Trust Vertical Slice', () => {
     const invalidPath = path.join(testInfo.outputDir, 'broken-editor-trust.zwp.json');
     await fs.writeFile(invalidPath, '{ broken json', 'utf8');
     await importProjectJsonFromUi(page, invalidPath);
-    await expect(page.locator('.mini-hud')).toContainText('JSON読み込みに失敗しました', { timeout: 3000 });
+    await expect(page.locator('.mini-hud')).toContainText('現在の文書は保持されています', { timeout: 3000 });
     const afterBadImport = await getCurrentDocState(page);
     expect(afterBadImport.docId).toBe(beforeBadImport.docId);
     expect(afterBadImport.rawId).toBe(beforeBadImport.rawId);

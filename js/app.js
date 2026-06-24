@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     var editor = window.ZenWriterEditor;
                     if (editor && editor.showNotification) {
-                        editor.showNotification('プロジェクトファイルの読み込みに失敗しました', 3000);
+                        editor.showNotification((window.UILabels && window.UILabels.PROJECT_IMPORT_SAFE_FAILURE) || 'JSON読み込みに失敗しました。現在の文書は保持されています。', 3000);
                     }
                 }
             };

@@ -16,6 +16,7 @@ Zen Writer の保存信頼性を説明する短い入口。実装上の不変条
 - TXT は現在本文の外部退避、JSON は本文と章構造の外部退避。
 - Markdown export は editor export API / legacy Documents 経路に残る現行対応範囲として検証する。現行 Documents hierarchy の `入出力` menu には Markdown 項目を追加しない。
 - JSON import は既存文書を上書きせず、新規 document として復元する。不正 JSON は既存 document を変更せず失敗する。
+- JSON import が失敗したときは、通知で現在の文書が保持されたことまで伝える。
 
 ## 同期しないこと
 

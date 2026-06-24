@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-24（rich heading active docs reconciliation）
+最終更新: 2026-06-24（project import safe failure signal）
 
 ## Snapshot
+
+### 2026-06-24 Project import safe failure signal
+
+- Returned to an Editor Trust product slice after Rich heading closure. Selected axis: Project Recovery / failed JSON import recovery signal.
+- Product-visible change: failed JSON project imports now notify `JSON読み込みに失敗しました。現在の文書は保持されています。` through the Documents import path, drag/drop JSON import path, and Electron menu import path.
+- Existing storage behavior is unchanged: invalid JSON import still returns `null` without mutating the current document set. The focused E2E now checks the retained-document message and continues to assert current doc id / raw id / docs snapshot invariance.
+- Verification anchor: `docs/verification/2026-06-24/project-import-safe-failure-signal.md`.
+- Non-targets preserved: Rich heading, import/export schema, cloud sync, external DB/auth/API, Electron packaging behavior, broad docs cleanup, GitHub cleanup, and AGENTS rules.
 
 ### 2026-06-24 Rich heading active docs reconciliation
 
