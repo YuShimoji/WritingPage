@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-22（remote sync after rich heading closure）
+最終更新: 2026-06-24（rich heading active docs reconciliation）
 
 ## Snapshot
+
+### 2026-06-24 Rich heading active docs reconciliation
+
+- Local `main` was checked against `origin/main`; `git status --short --branch` showed clean `## main...origin/main`, and `git rev-list --left-right --count HEAD...origin/main` returned `0 0` before this docs-only reconciliation.
+- Verification anchor: `docs/verification/2026-06-24/rich-heading-active-docs-reconciliation.md`.
+- `docs/ROADMAP.md` now points to the Rich heading closure checklist and placeholder/caret polish proof in its active header / writing trust lane, so the next agent should not return to the older IME / direct shortcut / placeholder review loop.
+- Product/runtime state is unchanged. No implementation, E2E, dependencies, storage/import/export, Electron/package, GitHub cleanup, DB/auth/API, or AGENTS behavior changed.
+- Next practical entry: choose one current product slice from `docs/USER_REQUEST_LEDGER.md`, audit active-doc drift only where it can mislead the next owner, or run an optional release-wide visual check as confidence work rather than a blocker for Rich heading.
 
 ### 2026-06-22 Remote sync after Rich heading closure
 

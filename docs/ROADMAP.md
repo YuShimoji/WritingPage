@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-06-15 / v0.3.32（WP-SAVELOAD-001 Editor Trust Vertical Slice）
+> 最終更新: 2026-06-24 / v0.3.32（Rich heading closure context）
 
 ## ステータス語彙
 
@@ -22,8 +22,8 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: spec-index 上の `partial` は 0。現行 roadmap 上の残論点は WP-004 Phase 3 と WP-001 中長期枠を別スライスで扱う
-- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。2026-06-15 の WP-SAVELOAD-001 Editor Trust Vertical Slice は `CURRENT_STATE`、`USER_REQUEST_LEDGER`、`docs/EDITOR_TRUST_WORKFLOW.md`、詳細 verification `docs/verification/2026-06-15/editor-trust-vertical-slice.md` を入口とする。Rich editing typed heading shortcut の proof は `1e33e38 feat: add rich editing heading shortcut`。Import Roundtrip Hardening の baseline proof は `a56671b test: harden import roundtrip`
-- 直近 done: WP-SAVELOAD-001 Editor Trust Vertical Slice、Rich editing typed heading shortcut、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
+- ドキュメント権限: `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` は active help cleanup 後の現行説明へ同期済み。2026-06-15 の WP-SAVELOAD-001 Editor Trust Vertical Slice は `CURRENT_STATE`、`USER_REQUEST_LEDGER`、`docs/EDITOR_TRUST_WORKFLOW.md`、詳細 verification `docs/verification/2026-06-15/editor-trust-vertical-slice.md` を入口とする。Rich editing typed heading shortcut の product proof は `1e33e38 feat: add rich editing heading shortcut`、closure / review-dedup anchor は `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`、placeholder/caret polish proof は `75726f9 fix: polish empty rich heading placeholder`。Import Roundtrip Hardening の baseline proof は `a56671b test: harden import roundtrip`
+- 直近 done: Rich heading closure checklist、Rich heading placeholder/caret polish、WP-SAVELOAD-001 Editor Trust Vertical Slice、Rich editing typed heading shortcut、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Docs authority hygiene after active help cleanup、Active help mode wording cleanup、Local Gadget Mod migration lane closeout、`PomodoroTimer` Local Mod migration、PomodoroTimer Mod feasibility audit、`HUDSettings` Local Mod migration、`MarkdownPreview` Local Mod migration、Local Gadget Mod MVP、A3 Floating memo command palette限定実験（`db3b3df` として push 済み）、A2 daily writing proof、Writing UX map + A1 Floating memo reframe、right window drag handle invisible-drag fix、left nav / unified shell narrow fixes、SP-081(エディタ体験再構築), SP-080(JSONプロジェクト保存)
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -75,7 +75,7 @@ Issue #118 / PR #119 meta-review is recorded in `docs/verification/2026-06-05/is
 
 Remote sync after GitHub artifact authority correction is recorded in `docs/verification/2026-06-05/remote-sync-after-github-artifact-authority-correction.md`. Current `main` / `origin/main` are synchronized at `c272503`, and GitHub cleanup remains non-blocking bookkeeping rather than product progress.
 
-Rich editing typed heading shortcut handoff is recorded in `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`. Current behavior is intentionally narrow: typed line-start `# ` / `## ` / `### ` only, no paste/import/source/round-trip shortcut expansion, no generic Markdown shortcut engine.
+Rich editing typed heading shortcut implementation handoff is recorded in `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`, and the current closure / review-dedup anchor is `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`. Current behavior is intentionally narrow: typed line-start `#`, `##`, or `###` followed by Space only, no paste/import/source/round-trip shortcut expansion, no generic Markdown shortcut engine. Do not reopen IME / direct shortcut / empty heading placeholder review unless there is new evidence, a changed target axis, a suspected regression, or an explicit user-requested recheck.
 
 次は、初回説明・章作成・JSON 書き出し・JSON 読み込み・typed heading shortcut そのものではなく周辺の摩擦を別スライスで選ぶ。古い仕様表を正本へ寄せる場合は stale spec reconciliation として分ける。WP-004 parity pack は新しい preview / Reader 差分が出た時の user-actor release gate として扱う。
 
