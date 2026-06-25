@@ -165,6 +165,7 @@ test.describe('Editor Trust Vertical Slice', () => {
     const autoToken = 'editor-trust-auto-8c41';
     const chapterAToken = 'editor-trust-chapter-a-30ab';
     const chapterBToken = 'editor-trust-chapter-b-77df';
+    const recoveryContinuationToken = 'editor-trust-recovery-continue-4b91';
     const explicitBody = [
       'Editor Trust explicit save body.',
       '日本語本文: 明示保存後の復帰確認。',
@@ -201,6 +202,39 @@ test.describe('Editor Trust Vertical Slice', () => {
     let current = await getCurrentDocState(page);
     expect(current.name).toBe(title);
     expect(normalizeNewlines(current.editorValue)).toContain(explicitToken);
+
+    const beforeRecoveryImport = await getCurrentDocState(page);
+    const recoveryInvalidPath = path.join(testInfo.outputDir, 'broken-editor-trust-continuation.zwp.json');
+    await fs.mkdir(testInfo.outputDir, { recursive: true });
+    await fs.writeFile(recoveryInvalidPath, '{ broken json', 'utf8');
+    await importProjectJsonFromUi(page, recoveryInvalidPath);
+    await expect(page.locator('.mini-hud')).toContainText('現在の文書は保持されています', { timeout: 3000 });
+    const afterRecoveryImport = await getCurrentDocState(page);
+    expect(afterRecoveryImport.docId).toBe(beforeRecoveryImport.docId);
+    expect(afterRecoveryImport.rawId).toBe(beforeRecoveryImport.rawId);
+    expect(JSON.stringify(afterRecoveryImport.docs)).toBe(JSON.stringify(beforeRecoveryImport.docs));
+
+    const recoveryContinuationBody = [
+      explicitBody,
+      '',
+      'Project recovery continuation after failed JSON import.',
+      '日本語本文: 読み込み失敗後もこのまま追記できる。',
+      'token=' + recoveryContinuationToken
+    ].join('\n');
+    await setRichEditingContent(page, recoveryContinuationBody);
+    await waitUntilSaved(page);
+    await page.reload({ waitUntil: 'networkidle' });
+    await ensureNormalMode(page);
+    await page.waitForFunction((needle) => {
+      return window.ZenWriterEditor &&
+        typeof window.ZenWriterEditor.getEditorValue === 'function' &&
+        window.ZenWriterEditor.getEditorValue().indexOf(needle) >= 0;
+    }, recoveryContinuationToken);
+    const afterRecoveryResume = await getCurrentDocState(page);
+    expect(afterRecoveryResume.docId).toBe(beforeRecoveryImport.docId);
+    expect(afterRecoveryResume.rawId).toBe(beforeRecoveryImport.rawId);
+    expect(normalizeNewlines(afterRecoveryResume.editorValue)).toContain(explicitToken);
+    expect(normalizeNewlines(afterRecoveryResume.editorValue)).toContain(recoveryContinuationToken);
 
     await page.evaluate(() => {
       window.__editorTrustOriginalSaveContent = window.ZenWriterStorage.saveContent;

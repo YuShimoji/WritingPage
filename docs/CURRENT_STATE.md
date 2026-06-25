@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-24（remote sync after project import safe failure）
+最終更新: 2026-06-25（project import recovery continuation proof）
 
 ## Snapshot
+
+### 2026-06-25 Project import recovery continuation proof
+
+- Returned to the Editor Trust / Project Recovery follow-up requested after `0c21466 feat: clarify failed project import recovery`.
+- Product implementation did not need a fix. The focused proof in `e2e/editor-trust-workflow.spec.js` now covers invalid JSON import on the normal document path, safe-failure notification, unchanged current doc id / raw id / docs snapshot, continuation writing, saved state, reload, and restored continuation text.
+- The chapter-mode part of the same E2E still keeps invalid import scoped to non-mutation of chapter parent/raw id/docs before the JSON import roundtrip proof. This avoids treating assembled chapter display as a single freeform save surface.
+- Verification anchor: `docs/verification/2026-06-25/project-import-recovery-continuation-proof.md`.
+- Current next work is no longer `project-import-recovery-continuation-proof`; choose a fresh one-topic bottleneck from the ledger/roadmap instead of reopening Project import recovery or Rich heading without new evidence.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-24 Remote sync after project import safe failure
 
