@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-25（Rich text block align persistence）
+最終更新: 2026-06-25（Command palette Markdown source dev gate）
 
 ## Snapshot
+
+### 2026-06-25 Command palette Markdown source dev gate
+
+- After Rich text block align persistence, selected a fresh one-topic product slice from editor surface / command palette clarity rather than reopening WP-005, Project import recovery, Rich heading, or paragraph alignment.
+- Product-facing change: `editor-surface-markdown` is now a developer-mode command. Normal command palette search no longer offers a Markdown source switch that the app then refuses; developer mode still exposes the escape hatch with wording that names the developer-mode boundary.
+- Focused proof in `e2e/command-palette.spec.js` stubs the developer-mode check false, searches `Markdown ソース`, verifies the command is absent, then stubs developer mode true and verifies the command returns with the developer-mode description.
+- Verification anchor: `docs/verification/2026-06-25/command-palette-markdown-source-dev-gate.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 Rich text block align persistence
 
@@ -306,16 +314,17 @@
 | 項目 | 状態 |
 |------|------|
 | プロジェクト | Zen Writer (WritingPage) |
-| バージョン | v0.3.32 |
-| ブランチ | `main` / `origin/main` は同期運用。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`。最新 docs reconciliation proof は `4cb49ee docs: reconcile ledger handoff anchor`。最新 context handoff は `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md` |
-| 現在の主軸 | **Rich editing typed heading shortcut**: Rich editing 通常入力で行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 に限定変換し、Markdown source / paste / import / round-trip とは分離 |
-| 直近の実装スライス | `js/editor-wysiwyg.js` は Space 後の input だけで typed heading shortcut を消費し、IME composition gate と Undo snapshot を持つ。`e2e/wysiwyg-editor.spec.js` は positive / negative / paste / IME / Undo / round-trip を focused に固定 |
-| 最新ビルド・検証 | 2026-06-08 typed heading slice: `node --check js/editor-wysiwyg.js`、`npx playwright test e2e/wysiwyg-editor.spec.js --workers=1 --reporter=line --grep "heading shortcut"`、`npm run test:smoke`、`npm run lint:js:check`、`git diff --check` PASS。Import baseline は `a56671b test: harden import roundtrip` の検証を維持 |
+| バージョン | v0.3.38 |
+| ブランチ | `main` / `origin/main` は同期運用。最新 product proof は `command-palette-markdown-source-dev-gate`、直前の rich editing trust proof は `rich-text-block-align-persistence`。最新 preview/comparison proof は WP-005 Slice C `wp005-comparison-isolation-slice-c` |
+| 現在の主軸 | **Editor surface / command palette clarity**: `Editor` は唯一の執筆面、`Rich editing` は通常の編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface |
+| 直近の実装スライス | `js/command-palette.js` の `editor-surface-markdown` を `devOnly` にし、通常ユーザーの command palette から Markdown source 切替を隠す。開発者モードでは同じ command が残り、説明文が開発者モード境界を明示する |
+| 最新ビルド・検証 | 2026-06-25 command palette slice: `node --check js/command-palette.js`、`node --check e2e/command-palette.spec.js`、`npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line --grep "Markdown source command"` PASS。追加の lint / diff checks は本スライスの final validation を正とする |
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
-| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` と `docs/verification/2026-06-08/remote-sync-context-handoff-after-ledger-anchor.md` に、remote sync 済みの再開文脈と次の入口を固定 |
+| 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` と `docs/verification/2026-06-25/command-palette-markdown-source-dev-gate.md` に、command palette の Markdown source dev gate と再開文脈を固定 |
 
 ## Latest Handoff
 
+- New: Command palette Markdown source dev gate を実施。`editor-surface-markdown` は開発者モード限定の command になり、通常配布相当の command palette では `Markdown ソース` 検索に出ない。開発者モードでは escape hatch として残り、説明文も開発者モード境界を明示する。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。WP-005、Project import recovery、Rich heading、Rich text block align は新規 failure なしに reopen しない。
 - New: Remote sync context handoff を docs-only で追加。`git fetch --prune origin` 後の `main...origin/main` は clean、`HEAD...origin/main = 0 0`。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`、最新 docs reconciliation proof は `4cb49ee docs: reconcile ledger handoff anchor`。次端末は `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。次は docs-only 連続ではなく、Rich editing typed heading shortcut の日本語 IME spot-check など実画面確認を優先候補に戻す。
 - New: `USER_REQUEST_LEDGER` の current handoff anchor を docs reconciliation proof まで進め、dated history が current next-candidate order と誤読されないように境界文を追加した。Rich Editing Heading Shortcut Decision は引き続き Done、stale spec reconciliation follow-through が第一候補。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。
 - New: stale spec reconciliation after heading shortcut を docs-only で実施。Rich Editing Heading Shortcut Decision は完了済みとして `Current Priorities` を更新し、typed heading shortcut を `FEATURE_REGISTRY` に登録した。`ROADMAP` の authority 説明も `FEATURE_REGISTRY` を含む形へ寄せた。Product proof は `1e33e38 feat: add rich editing heading shortcut` のまま。次候補は stale spec reconciliation follow-through first、任意の日本語 IME spot-check は release 前確認、GitHub Issue / PR cleanup は non-blocking bookkeeping。
@@ -389,6 +398,13 @@
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
 ## Verification Results
+
+### Command palette Markdown source dev gate
+
+- Scope: Editor surface / command palette clarity. Markdown source remains an escape hatch for developer mode, but no longer appears as a normal command palette result for writers who cannot use it.
+- Product behavior: `editor-surface-markdown` now uses the existing `devOnly` command gate and describes itself as a developer-mode source switch. `editor-surface-wysiwyg` remains the public Rich editing surface command.
+- E2E proof: `e2e/command-palette.spec.js` verifies `Markdown ソース` search yields no Markdown source command when the developer-mode check is false, then verifies the command appears again when developer mode is true.
+- Validation: `node --check js/command-palette.js`, `node --check e2e/command-palette.spec.js`, `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line --grep "Markdown source command"`.
 
 ### First-use Save Help
 
@@ -956,6 +972,9 @@
 | Done | Import Roundtrip Hardening | JSON 読み込みを保存前正規化へ移し、失敗時不変、既存文書衝突 suffix、legacy pages-only、章順序・level・visibility 正規化を E2E で固定 | assistant / import trust |
 | Done | Rich Editing Heading Shortcut Decision | 限定 typed trigger として採用・実装済み。Rich editing 通常入力の行頭 `# ` / `## ` / `### ` だけを H1/H2/H3 へ変換し、paste / import / Markdown source round-trip / 汎用 shortcut は対象外 | assistant / editor UX |
 | Done | WP-SAVELOAD-001 Editor Trust Vertical Slice | 新規文書、Rich editing 入力、明示保存、自動保存 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON 非破壊失敗、保存失敗表示を 1 本で確認 | assistant / writing trust |
+| Done | WP-005 Preview / Comparison cleanup | Slice A/B/C で比較入口を MD preview / Reader / command palette / sidebar から隔離し、MD preview は editor-adjacent rich-preview surface として固定済み | assistant / preview-comparison |
+| Done | Rich text block align persistence | Rich editing の段落揃えを Markdown 正本・保存・MD preview・Reader・reload 復帰へ接続し、`data-zw-align` の保存信頼を固定済み | assistant / rich editing trust |
+| Done | Command palette Markdown source dev gate | 通常 command palette から `Markdown ソース` 切替を隠し、開発者モードだけで escape hatch として出す。Writer-facing command list の実行不能導線を減らした | assistant / command palette clarity |
 | D | Docs hygiene / stale spec reconciliation | 現在の第一候補。current authority を歪める古い仕様表・古い UI 語彙・古い再開誘導だけを owner docs に最小反映する。WP-004 parity pack は preview / Reader 差分が新規に出た時だけ user-actor release gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 

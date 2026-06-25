@@ -261,6 +261,40 @@ test.describe('Command Palette E2E', () => {
     await expect(page.locator('.accordion-header[aria-controls="accordion-structure"]')).toHaveAttribute('aria-expanded', 'true');
   });
 
+  test('Markdown source command is developer-mode gated', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+
+    await page.evaluate(() => {
+      if (window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.isEnabled === 'function') {
+        window.ZenWriterDeveloperMode.isEnabled = () => false;
+        document.documentElement.removeAttribute('data-developer-mode');
+      }
+    });
+
+    await openCommandPalette(page);
+    await page.locator('#command-palette-input').fill('Markdown ソース');
+    await expect(page.locator('.command-palette-item[data-command-id="editor-surface-markdown"]')).toHaveCount(0);
+    await expect(page.locator('.command-palette-empty')).toContainText('コマンドが見つかりません');
+
+    await page.evaluate(() => {
+      if (window.commandPalette && typeof window.commandPalette.hide === 'function') {
+        window.commandPalette.hide();
+      }
+      if (window.ZenWriterDeveloperMode && typeof window.ZenWriterDeveloperMode.isEnabled === 'function') {
+        window.ZenWriterDeveloperMode.isEnabled = () => true;
+        document.documentElement.setAttribute('data-developer-mode', 'true');
+      }
+    });
+
+    await openCommandPalette(page);
+    await page.locator('#command-palette-input').fill('Markdown ソース');
+
+    const markdownCommand = page.locator('.command-palette-item[data-command-id="editor-surface-markdown"]');
+    await expect(markdownCommand).toBeVisible();
+    await expect(markdownCommand.locator('.command-palette-item-description')).toContainText('開発者モード');
+  });
+
   test('Floating memo remains an isolated command palette experiment', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);

@@ -323,9 +323,10 @@
     {
       id: 'editor-surface-markdown',
       label: 'Markdown ソース',
-      description: 'エディタを Markdown ソース面に切替',
-      keywords: 'Markdown ソース 編集面 surface',
+      description: '開発者モードで Markdown ソース面に切替',
+      keywords: 'Markdown ソース 編集面 surface developer',
       category: '表示',
+      devOnly: true,
       execute: () => {
         var shim = document.getElementById('toggle-wysiwyg');
         if (shim && shim.getAttribute('aria-pressed') === 'true') {
