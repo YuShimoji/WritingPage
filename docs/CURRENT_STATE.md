@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-25（WP-005 preview entry Slice A）
+最終更新: 2026-06-25（WP-005 MD preview rich-preview activation）
 
 ## Snapshot
+
+### 2026-06-25 WP-005 MD preview rich-preview activation
+
+- Continued WP-005 after Slice A without reopening Project import recovery or Rich heading. Scope stayed on Slice B: MD preview visibility / rich-preview activation proof, not comparison redesign.
+- Product-visible change: `#editor-preview` is no longer caught by the generic offscreen `[aria-live]` CSS rule. The panel had been opening and rendering, but could be positioned as an accessibility-only live region instead of a visible editor-adjacent preview.
+- Existing preview controller path in `js/editor-preview.js` remains the runtime authority: opening/rendering MD preview calls `TypingEffectController.activate()` and `ScrollTriggerController.activate()` for `#markdown-preview-panel`.
+- Added focused proof in `e2e/wp005-md-preview-rich-preview.spec.js`: command palette opens MD preview, rich Markdown/DSL output renders, content updates refresh the preview while open, typing/scroll controllers activate, Reader overlay stays closed, and SplitView stays hidden.
+- Verification anchor: `docs/verification/2026-06-25/wp005-md-preview-rich-preview-activation.md`.
+- Next WP-005 candidate: Slice C, comparison isolation / future file-comparison direction. Do not fold chapter compare or snapshot diff back into the MD preview surface.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 WP-005 preview entry Slice A
 
@@ -10,7 +20,7 @@
 - Product-visible change: stale public split-view comparison entry points were removed from the structure sidebar and Electron menu, while command palette comparison commands were hidden. `js/split-view.js` remains available as future comparison implementation material, not a current public writing workflow entry.
 - Current entry model: MD preview is still the editor-adjacent rendering panel, Reader is still the read-only review overlay, and comparison is deferred to a future WP-005 Slice C instead of sharing public preview entry space.
 - Verification anchor: `docs/verification/2026-06-25/wp005-preview-entry-slice-a.md`.
-- Next WP-005 candidate: Slice B, MD preview rich-preview activation / typing-scroll controller work. Slice C remains comparison isolation and should not be folded into Slice B.
+- At the time, the next WP-005 candidate was Slice B. Slice B is now closed by the current snapshot above; Slice C remains comparison isolation and should not be folded into MD preview work.
 - Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 Project import recovery continuation proof
