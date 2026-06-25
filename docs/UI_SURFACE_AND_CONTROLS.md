@@ -10,7 +10,7 @@
 | left nav | 通常時は root rail を完全非表示にし、left edge hover で fade-in する `root/category` 階層。category では active category を左上固定し、左列 back rail で root へ戻る |
 | 再生オーバーレイ | `data-reader-overlay-open` で開閉する読者視点確認 surface。UI mode ではない |
 | UI mode | 内部互換 API として `normal` / `focus` を保持。公開 UI の第一級概念にしない |
-| 編集面 | Markdown source / rich edit / preview 系の作業面。再生オーバーレイとは同時操作しない |
+| 編集面 | Rich editing / MD preview / developer-mode Markdown source などの作業面。再生オーバーレイとは同時操作しない |
 
 ## Writing UX 階層
 

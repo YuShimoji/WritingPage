@@ -31,6 +31,26 @@ that a writer cannot actually use.
 - `node --check e2e/command-palette.spec.js`
 - `npx playwright test e2e/command-palette.spec.js --workers=1 --reporter=line --grep "Markdown source command"`
 
+## Active Authority Reconciliation
+
+Follow-up audit target: active docs that could mislead the next owner after the
+developer-mode gate. Runtime behavior stayed unchanged.
+
+- `docs/INTERACTION_NOTES.md`: normal preview confirmation now points to Reader
+  / MD preview, and Markdown source is called out as the developer-mode escape
+  hatch. The concept diagram uses a `dev only` path for Markdown source.
+- `docs/UI_SURFACE_AND_CONTROLS.md`: the editing-surface row now names
+  developer-mode Markdown source instead of implying a normal surface.
+- `docs/GADGETS.md`: the MarkdownPreview / TextEffects rows now use normal
+  writing routes for Reader / Rich editing / MD preview and keep Markdown source
+  separated as a developer-mode escape hatch.
+- `docs/USER_REQUEST_LEDGER.md`: the MarkdownPreview migration boundary now
+  names developer-mode Markdown source when describing built-in surfaces.
+- `docs/ROADMAP.md`: the Local Mod lane boundary now treats Markdown source as
+  developer-mode when warning against duplicated surfaces.
+- Historical dated logs, superseded specs, and implementation-only uses of
+  WYSIWYG / `data-ui-mode` were inspected but not rewritten.
+
 ## Trust Effect
 
 The command palette is less likely to advertise an unusable editing surface to

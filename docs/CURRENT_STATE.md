@@ -1,8 +1,16 @@
 # Current State
 
-最終更新: 2026-06-25（Command palette Markdown source dev gate）
+最終更新: 2026-06-25（Active authority Markdown source dev gate reconciliation）
 
 ## Snapshot
+
+### 2026-06-25 Active authority Markdown source dev gate reconciliation
+
+- Followed the `210246c fix: gate markdown source command` product proof with a bounded active-authority residue audit. No runtime behavior changed.
+- Reconciled current UI authority wording so normal writing routes point to Rich editing / MD preview / Reader, while Markdown source is named as a developer-mode escape hatch.
+- Updated the active UI model / surface docs only: `docs/INTERACTION_NOTES.md`, `docs/UI_SURFACE_AND_CONTROLS.md`, `docs/GADGETS.md`, `docs/USER_REQUEST_LEDGER.md`, and `docs/ROADMAP.md`. Historical dated logs and superseded specs were left intact.
+- Verification anchor remains `docs/verification/2026-06-25/command-palette-markdown-source-dev-gate.md`, now including the authority reconciliation notes.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 Command palette Markdown source dev gate
 
@@ -324,6 +332,7 @@
 
 ## Latest Handoff
 
+- New: Active authority Markdown source dev gate reconciliation を docs-only で実施。通常導線は Rich editing / MD プレビュー / Reader として読み、Markdown source は開発者モードの escape hatch としてだけ扱うよう `INTERACTION_NOTES`、`UI_SURFACE_AND_CONTROLS`、`GADGETS`、`USER_REQUEST_LEDGER`、`ROADMAP` を最小更新した。Runtime / E2E body / command palette implementation / storage / Electron / AGENTS は未変更。歴史ログと superseded specs は active authority ではないため書き換えていない。
 - New: Command palette Markdown source dev gate を実施。`editor-surface-markdown` は開発者モード限定の command になり、通常配布相当の command palette では `Markdown ソース` 検索に出ない。開発者モードでは escape hatch として残り、説明文も開発者モード境界を明示する。別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。WP-005、Project import recovery、Rich heading、Rich text block align は新規 failure なしに reopen しない。
 - New: Remote sync context handoff を docs-only で追加。`git fetch --prune origin` 後の `main...origin/main` は clean、`HEAD...origin/main = 0 0`。最新 editor product proof は `1e33e38 feat: add rich editing heading shortcut`、最新 docs reconciliation proof は `4cb49ee docs: reconcile ledger handoff anchor`。次端末は `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` を読み、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。次は docs-only 連続ではなく、Rich editing typed heading shortcut の日本語 IME spot-check など実画面確認を優先候補に戻す。
 - New: `USER_REQUEST_LEDGER` の current handoff anchor を docs reconciliation proof まで進め、dated history が current next-candidate order と誤読されないように境界文を追加した。Rich Editing Heading Shortcut Decision は引き続き Done、stale spec reconciliation follow-through が第一候補。Product code / E2E / storage / Electron / GitHub cleanup / embed security / AGENTS.md は未変更。

@@ -67,7 +67,7 @@
 
 > Session 19 (2026-03-23) で33→28に整理。2026-05-02 に `UISettings` から `EditorAdvancedSettings` を分離。2026-05-04 に `FontDecoration` / `TextAnimation` を `TextEffects` へ統合。2026-05-10 の `MarkdownPreview` / `HUDSettings` / `PomodoroTimer` Local Mod 化後、現行 built-in 登録は25個。削除: Clock/Samples/NodeGraph/GraphicNovel/UIDesign/SceneGradient。
 > 2026-05-08 に `PluginManager` を設定モーダル内の管理 gadget として追加。これは通常 left nav rack を増やすものではなく、Local Gadget Mod の有効状態を管理するための入口。
-> 2026-05-10 に `MarkdownPreview` の built-in wrapper を `markdown-preview-gadget` Local Mod へ移動。preview engine / command palette / Reader / Markdown source は変更しない。
+> 2026-05-10 に `MarkdownPreview` の built-in wrapper を `markdown-preview-gadget` Local Mod へ移動。preview engine / command palette / Reader / developer-mode Markdown source は built-in のまま維持する。
 > 2026-05-10 に `HUDSettings` の built-in wrapper を `hud-settings-gadget` Local Mod へ移動。HUD 本体 / `ZenWriterHUD` / autosave HUD / command palette HUD 表示は変更しない。
 > 2026-05-10 に `PomodoroTimer` の built-in wrapper / settings UI を `pomodoro-timer-gadget` Local Mod へ移動。timer engine / storage / HUD notification は変更しない。
 
@@ -118,10 +118,10 @@
 |--------|------|----------|------|
 | LoadoutManager | hide-by-default | 標準 preset から除外 | 通常執筆導線では低頻度。コード削除せず、明示的な custom loadout では利用可能にする |
 | GadgetPrefs | hide-by-default | 標準 preset から除外 | import/export 用途は残すが、通常執筆導線では低頻度。custom loadout では利用可能にする |
-| MarkdownPreview | Local Mod | manifest 既定 disabled | Reader / Rich editing / Markdown source の三軸整理を優先し、通常執筆では第二プレビューを常設しない。必要時だけ `markdown-preview-gadget` を有効化する |
+| MarkdownPreview | Local Mod | manifest 既定 disabled | Reader / Rich editing / MD プレビューを通常導線にし、Markdown source は開発者モードの escape hatch として分ける。通常執筆では第二プレビューを常設せず、必要時だけ `markdown-preview-gadget` を有効化する |
 | HUDSettings | Local Mod | manifest 既定 disabled | HUD は本体機能として維持しつつ、位置・色・サイズ調整 UI は低頻度設定として `hud-settings-gadget` 有効時だけ表示する |
 | PomodoroTimer | Local Mod | manifest 既定 disabled | 小説執筆そのものの基盤ではない個人用途タイマー。必要時だけ `pomodoro-timer-gadget` を有効化する |
-| TextEffects | merged/contextual | VN 以外の標準 preset から除外 | `FontDecoration` / `TextAnimation` を統合。装飾は WYSIWYG toolbar / command palette を主導線にし、VN loadout では演出ツールとして維持する |
+| TextEffects | merged/contextual | VN 以外の標準 preset から除外 | `FontDecoration` / `TextAnimation` を統合。装飾は Rich editing toolbar / command palette を主導線にし、VN loadout では演出ツールとして維持する |
 
 #### Gadget kind taxonomy
 
@@ -148,7 +148,7 @@
 
 | 対象 | 判定 | 境界 |
 |------|------|------|
-| `MarkdownPreview` | Local Mod | UI wrapper だけ外部化。preview engine / Reader / Markdown source は built-in 維持 |
+| `MarkdownPreview` | Local Mod | UI wrapper だけ外部化。preview engine / Reader / developer-mode Markdown source は built-in 維持 |
 | `HUDSettings` | Local Mod | HUD 設定 UI だけ外部化。`ZenWriterHUD` / autosave HUD / command palette HUD は built-in 維持 |
 | `PomodoroTimer` | Local Mod | timer UI / settings UI だけ外部化。engine / storage / HUD notification は built-in 維持 |
 | `choice` | command plugin 維持 | 既存互換の command plugin。gadget migration target ではない |

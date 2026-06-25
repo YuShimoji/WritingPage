@@ -78,7 +78,7 @@
 - **left nav**: root は通常時に完全非表示。不可視の left edge rail に触れたときだけ root rail を fade-in し、見た目幅を出たら即 dismiss する。root では全カテゴリを見せ、直前に開いていたカテゴリには **last active cue** を残す。category では active category を左上固定し、他カテゴリは fade-out 後に `pointer-events: none` / inert 扱いにする。category 中の root 戻りは sidebar 左列の非操作領域クリックだけで発火し、button / input / link / tree item / gadget controls を奪わない。root icon rail 表示中は back rail を出さない。展開中は内部 toolbar/header/accordion content を最終 category 幅で保持し、外枠だけを clipped reveal する。カテゴリ切替は一度 root に戻ってから選び直す。
 - **sidebar / gadget foundation**: left nav 上段は静かな shell とし、dock / chrome 系の移動・常設操作は clutter として見せない。Documents の `+ 文書` / `+ フォルダ` / `保存` / `入出力` / `管理`、gadget controls、sidebar fields、menus、scrollbars は共通 shell token に従う。gadget header は開閉操作、専用 drag handle は並び替え操作として分離し、`aria-expanded` / `aria-hidden` を同期する。
 - **Story Wiki / Link Graph**: Story Wiki は通常 gadget と同じ collapse 契約に従い、閉じた時に body の余白や hit area を残さない。full mode では containing gadget の collapsed / hidden 状態を解除し、sidebar の clipped category 幅ではなく viewport 幅で detail / backlinks を表示する。Link Graph は sidebar 内で横スクロール前提にせず、graph node と scrollbar を shell の小型カード内に収める。
-- **Default loadout cleanup**: 通常執筆の標準 preset では `MarkdownPreview` / 非VN `TextEffects` を出さない。プレビュー確認は Reader / Markdown source の既存 surface、装飾は WYSIWYG toolbar / command palette を主導線にする。旧 `FontDecoration` / `TextAnimation` loadout は `TextEffects` へ移行する。
+- **Default loadout cleanup**: 通常執筆の標準 preset では `MarkdownPreview` / 非VN `TextEffects` を出さない。プレビュー確認は Reader / MD プレビューの既存 surface、装飾は Rich editing toolbar / command palette を主導線にする。Markdown source は開発者モードの escape hatch としてだけ扱う。旧 `FontDecoration` / `TextAnimation` loadout は `TextEffects` へ移行する。
 - **first-open feel**: category 選択時は left nav shell を先に安定表示し、重い gadget render は遅延初期化する。初回展開中に graph / Wiki / documents が狭幅で同期描画されて潰れる状態を避ける。
 - **surface wording**: Reader / Replay は「モード切替」ではなく shell 内 surface。command palette の visible command は `Reader を開く / 閉じる`, `左ナビのルートへ戻る` など実 surface 操作を基準にし、`ui-mode-*` / `toggle-fullscreen` / top chrome 表示 command は visible list に残さない。
 - **shortcut semantics**: `F2` は command palette を表示してフォーカスする。`toolbar.toggle` 互換経路も command palette へ誘導する。
@@ -145,10 +145,12 @@ flowchart LR
     Md[Markdown source]
     Wys[Rich editing]
   end
-  Palette --> Md
   Palette --> Wys
-  LeftNav --> Md
   LeftNav --> Wys
+  DevGate[developer-mode escape hatch]
+  Palette -. dev only .-> DevGate
+  LeftNav -. dev only .-> DevGate
+  DevGate --> Md
 ```
 
 `Replay` は通常の編集状態から開ける（入場直前の `data-ui-mode` は内部互換値として維持）。オーバーレイと編集面は同時に操作対象にはならない（閉じてから執筆へ復帰）。

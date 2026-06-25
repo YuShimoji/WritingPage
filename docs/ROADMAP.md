@@ -33,7 +33,7 @@
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
 | **Lane A: 無重力メモ / Floating memo lab** | A3 で command palette 限定の dev-only / experimental overlay として固定。A1 reframe と A2 daily writing proof で、本筋執筆 flow から隔離したまま邪魔にならないことを自動確認済み | 次に触る場合は正式化ではなく、実験としての有用性 review か新規 FAIL の局所修正 | editor / chapter / autosave 本流への接続、恒久保存、正式ガジェット化、loadout preset 接続 |
-| **Lane B: ガジェット再整理 / Local Mod** | 標準 preset cleanup、B3 初回統合、Local Gadget Mod MVP、`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` migration、migration lane closeout 済み | active migration queue は空。次は別の非 Mod 1 トピックへ移るか、新規体感摩擦・静的監査・Mod-first gate で 1 候補に絞れた時だけ再開する | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / Markdown source の二重化復活、Mod enable 状態を loadout に混ぜること、追加候補探索の常時タスク化 |
+| **Lane B: ガジェット再整理 / Local Mod** | 標準 preset cleanup、B3 初回統合、Local Gadget Mod MVP、`MarkdownPreview` / `HUDSettings` / `PomodoroTimer` migration、migration lane closeout 済み | active migration queue は空。次は別の非 Mod 1 トピックへ移るか、新規体感摩擦・静的監査・Mod-first gate で 1 候補に絞れた時だけ再開する | 一括削除、未検証の custom loadout 破壊、Reader / Rich editing / developer-mode Markdown source の二重化復活、Mod enable 状態を loadout に混ぜること、追加候補探索の常時タスク化 |
 | **Watch: unified shell narrow fixes** | window drag / left nav / startup structure は closeout 済み | 新規 FAIL 報告時のみ局所修正 | 旧 top chrome / mode button / 上端 hover reveal の復活 |
 
 #### Lane A: 無重力メモ / Floating memo lab
