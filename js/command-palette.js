@@ -568,52 +568,6 @@
       }
     },
     {
-      id: 'compare-chapter',
-      label: '比較ツール: 章比較',
-      description: '2つの章を横並びで比較する',
-      keywords: '比較 差分 章 split compare structure',
-      shortcut: '',
-      category: '比較ツール',
-      hidden: true,
-      execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('structure');
-          if (typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
-        if (window.ZenWriterSplitView && typeof window.ZenWriterSplitView.open === 'function') {
-          window.ZenWriterSplitView.open('chapter-compare');
-        }
-      }
-    },
-    {
-      id: 'compare-snapshot',
-      label: '比較ツール: スナップショット差分',
-      description: '2つのスナップショット差分を比較する',
-      keywords: '比較 差分 スナップショット snapshot compare structure',
-      shortcut: '',
-      category: '比較ツール',
-      hidden: true,
-      execute: () => {
-        if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-          window.sidebarManager.activateSidebarGroup('structure');
-          if (typeof window.sidebarManager.toggleSidebar === 'function') {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar && !sidebar.classList.contains('open')) {
-              window.sidebarManager.toggleSidebar();
-            }
-          }
-        }
-        if (window.ZenWriterSplitView && typeof window.ZenWriterSplitView.open === 'function') {
-          window.ZenWriterSplitView.open('snapshot-diff');
-        }
-      }
-    },
-    {
       id: 'gadget-wiki',
       label: '物語Wikiガジェット',
       description: 'Wikiタブを開く（用語・リンク管理）',

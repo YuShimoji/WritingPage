@@ -3,8 +3,8 @@
   'use strict';
 
   /**
-   * SplitViewManager - 比較ビュー機能を管理
-   * 章間比較とスナップショット差分の2モードをサポート
+   * SplitViewManager - future comparison surface material.
+   * WP-005 Slice C keeps this out of public MD preview / Reader / command flows.
    */
   class SplitViewManager {
     constructor() {

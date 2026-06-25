@@ -40,7 +40,7 @@ class SidebarManager {
                 id: 'structure',
                 label: '構造',
                 icon: 'file-text',
-                description: '構成管理（ドキュメント・アウトライン・比較）',
+                description: '構成管理（ドキュメント・アウトライン・物語Wiki）',
                 panelId: 'structure-gadgets-panel',
                 defaultExpanded: false
             },

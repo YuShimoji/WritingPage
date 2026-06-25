@@ -993,7 +993,7 @@ test.describe('UI Mode Consistency', () => {
     expect(collapsedMetrics.bodyVisibility).toBe('hidden');
   });
 
-  test('WP-005 Slice A: public compare entries are retired from structure and command palette', async ({ page }) => {
+  test('WP-005 Slice C: public compare entries stay isolated from structure, command palette, preview, and Reader', async ({ page }) => {
     await setUIMode(page, 'normal');
     await openSidebarGroup(page, 'structure');
 
@@ -1026,6 +1026,54 @@ test.describe('UI Mode Consistency', () => {
 
     expect(visibleCompareCommands).not.toContain('compare-chapter');
     expect(visibleCompareCommands).not.toContain('compare-snapshot');
+
+    const compareSearchText = await page.evaluate(() => {
+      const queries = ['compare', '比較', '差分'];
+      const result = {};
+      queries.forEach((query) => {
+        window.commandPalette.filterCommands(query);
+        result[query] = {
+          ids: Array.from(document.querySelectorAll('.command-palette-item'))
+            .map((item) => item.getAttribute('data-command-id'))
+            .filter(Boolean),
+          text: document.getElementById('command-palette-list')?.textContent || '',
+        };
+      });
+      return result;
+    });
+
+    for (const audit of Object.values(compareSearchText)) {
+      expect(audit.ids).not.toContain('compare-chapter');
+      expect(audit.ids).not.toContain('compare-snapshot');
+      expect(audit.text).not.toContain('比較ツール');
+      expect(audit.text).not.toContain('章比較');
+      expect(audit.text).not.toContain('スナップショット差分');
+    }
+
+    const previewAndReaderIsolation = await page.evaluate(() => {
+      const displayOfSplitView = () => {
+        const split = document.getElementById('split-view-container');
+        return split ? window.getComputedStyle(split).display : null;
+      };
+      if (window.commandPalette && typeof window.commandPalette.hide === 'function') {
+        window.commandPalette.hide({ skipEditingSurfaceFocus: true });
+      }
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+        window.ZenWriterEditor.togglePreview();
+      }
+      const afterPreview = displayOfSplitView();
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+      const afterReader = displayOfSplitView();
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.exit === 'function') {
+        window.ZWReaderPreview.exit();
+      }
+      return { afterPreview, afterReader };
+    });
+
+    expect(previewAndReaderIsolation.afterPreview).not.toBe('flex');
+    expect(previewAndReaderIsolation.afterReader).not.toBe('flex');
   });
 
   test('session 129: left nav anchor icon follows the active category', async ({ page }) => {
