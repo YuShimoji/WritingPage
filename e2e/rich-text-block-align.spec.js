@@ -73,6 +73,105 @@ test.describe('Rich text block align (P2)', () => {
     expect(ok).toBe(true);
   });
 
+  test('段落揃えが保存・再開後も MD プレビューと Reader に残る', async ({ page }) => {
+    const token = 'AlignPersistProbe-20260625';
+
+    const applied = await page.evaluate((probe) => {
+      var editor = window.ZenWriterEditor;
+      var rte = editor && editor.richTextEditor;
+      var wys = document.getElementById('wysiwyg-editor');
+      if (!editor || !rte || !wys) return null;
+      if (!rte.isWysiwygMode && typeof rte.switchToWysiwyg === 'function') {
+        rte.switchToWysiwyg();
+      }
+      if (typeof editor.setContent === 'function') {
+        editor.setContent(probe);
+      } else {
+        wys.innerHTML = '<p>' + probe + '</p>';
+      }
+      wys.focus();
+      var p = Array.from(wys.querySelectorAll('p')).find(function (node) {
+        return (node.textContent || '').indexOf(probe) >= 0;
+      });
+      if (!p || !p.firstChild) return null;
+      var range = document.createRange();
+      range.setStart(p.firstChild, Math.min(2, p.firstChild.length));
+      range.collapse(true);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      var alignBtn = document.querySelector('[data-overflow="align-end"]');
+      if (!alignBtn) return null;
+      alignBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+      return {
+        wysiwygAlign: p.getAttribute('data-zw-align'),
+        markdown: document.getElementById('editor')?.value || '',
+        stored: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : ''
+      };
+    }, token);
+
+    expect(applied).toBeTruthy();
+    expect(applied.wysiwygAlign).toBe('end');
+
+    await page.waitForFunction((probe) => {
+      var stored = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+        ? window.ZenWriterStorage.loadContent()
+        : '';
+      return stored.indexOf(probe) >= 0 && stored.indexOf('data-zw-align="end"') >= 0;
+    }, token);
+
+    await page.evaluate(() => {
+      if (window.ZenWriterEditor && typeof window.ZenWriterEditor.togglePreview === 'function') {
+        window.ZenWriterEditor.togglePreview();
+      }
+    });
+    await page.waitForSelector('#markdown-preview-panel [data-zw-align="end"]', { state: 'attached', timeout: 10000 });
+    const mdAlign = await page.evaluate(() => {
+      var el = document.querySelector('#markdown-preview-panel [data-zw-align="end"]');
+      return el ? window.getComputedStyle(el).textAlign : null;
+    });
+    expect(mdAlign).toBe('right');
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await page.waitForSelector('#reader-preview-inner .reader-preview__content [data-zw-align="end"]', { state: 'attached', timeout: 10000 });
+    const readerAlign = await page.evaluate(() => {
+      var el = document.querySelector('#reader-preview-inner .reader-preview__content [data-zw-align="end"]');
+      return el ? window.getComputedStyle(el).textAlign : null;
+    });
+    expect(readerAlign).toBe('right');
+
+    await page.reload({ waitUntil: 'networkidle' });
+    await ensureNormalMode(page);
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+    await page.waitForFunction((probe) => {
+      return window.ZenWriterEditor &&
+        typeof window.ZenWriterEditor.getEditorValue === 'function' &&
+        window.ZenWriterEditor.getEditorValue().indexOf(probe) >= 0;
+    }, token);
+
+    const resumed = await page.evaluate((probe) => {
+      var wys = document.getElementById('wysiwyg-editor');
+      var p = wys && Array.from(wys.querySelectorAll('p')).find(function (node) {
+        return (node.textContent || '').indexOf(probe) >= 0;
+      });
+      return {
+        stored: window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function'
+          ? window.ZenWriterStorage.loadContent()
+          : '',
+        wysiwygAlign: p ? p.getAttribute('data-zw-align') : null
+      };
+    }, token);
+    expect(resumed.stored).toContain('data-zw-align="end"');
+    expect(resumed.stored).toContain(token);
+    expect(resumed.wysiwygAlign).toBe('end');
+  });
+
   test('Turndown が data-zw-align 付きブロックを HTML 断片として保持する', async ({ page }) => {
     const md = await page.evaluate(() => {
       var rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;

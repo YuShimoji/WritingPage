@@ -23,6 +23,7 @@
 - **GitHub Issue / PR authority downgrade**: この repo では open Issue / open PR は、それだけでは active artifact ではない。current `main`、`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `INVARIANTS`、実装差分、検証結果、ユーザーが明示した作業対象を優先する。stale GitHub Issue / PR close は帳簿整理であり、product work の blocker や progress として扱わない。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Rich editing typed heading shortcut**: Rich editing の通常入力では、行頭 `# ` / `## ` / `### ` の Space 確定だけを H1/H2/H3 へ限定変換する。IME composition 中、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、汎用 Markdown shortcut は対象外。Undo は変換直後 1 回で typed marker へ戻れることを守る。
+- **Rich text block align persistence**: WP-005 後の fresh one-topic slice として完了。Rich editing の段落揃えは見た目 DOM だけでなく Markdown 正本へ同期し、保存・MD preview・Reader・reload 復帰まで `data-zw-align` を保持する。検証 anchor は `docs/verification/2026-06-25/rich-text-block-align-persistence.md`。
 - **Writing UX map**: 本筋の主従は **Editor canvas > 保存/文字数 status > Documents/Sections > on-demand Gadgets > experimental memo**。Floating memo は本流保存や正式 Gadget より下位の実験 surface として扱い、保存安心感や Gadget 情報設計は別スライスで扱う。
 - **Writing workflow friction sweep 完了**: gadget 移動は専用 drag handle 限定。left nav root は通常完全非表示で左端 hover fade-in、title anchor は表示専用、root 戻りは back icon と category-only left-column back rail が担う。root icon rail 表示中は back rail を出さず、見た目幅を出たら即 dismiss する。`LoadoutManager` / `GadgetPrefs` は標準 preset から外す。`+ 新しい章` は保存値に `新しい章` を入れず、空タイトル + placeholder から開始する。
 - **Floating memo lab**: command palette の `浮遊メモ実験` からだけ開ける dev-only / experimental overlay として隔離する。`?memoLab=1` は E2E / developer 用 hook。editor / chapter / autosave 本流、正式 Gadget、loadout preset へ接続しない。
@@ -81,6 +82,7 @@
 | Done | WP-005 Slice A preview entry cleanup | 分割ビュー比較の公開入口を structure sidebar / Electron menu から外し、command palette 比較コマンドを隠した。MD preview / Reader / comparison の入口混線を減らした | assistant / preview-comparison |
 | Done | WP-005 Slice B MD preview rich-preview activation | MD preview を offscreen live region ではなく実表示の rich-preview surface として戻し、content update / typing controller / scroll controller / Reader・SplitView 非介入を E2E で固定した | assistant / preview-comparison |
 | Done | WP-005 Slice C comparison isolation | hidden command route を削除し、構造カテゴリから比較文言を外し、SplitView を future/internal material として明示。MD preview / Reader / command palette / sidebar から比較が開かないことを E2E で固定した | assistant / preview-comparison |
+| Done | Rich text block align persistence | Rich editing の段落揃えを保存・再開信頼へ接続。CommandAdapter 操作後に Markdown 同期・保存・MD preview 更新を行い、`data-zw-align` が MD preview / Reader / reload 後の Rich editing に残ることを E2E で固定した | assistant / rich editing trust |
 | D | Docs hygiene / stale spec reconciliation | 次候補。WP-004 parity は preview / Reader 差分が新規報告された時だけ user-actor gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 

@@ -38,6 +38,16 @@
     }
   }
 
+  function commitRichTextChange(instance) {
+    if (!instance) return;
+    if (typeof instance.syncToMarkdown === 'function') instance.syncToMarkdown();
+    if (typeof instance._notifyChange === 'function') {
+      instance._notifyChange();
+    } else if (instance.editorManager && typeof instance.editorManager.saveContent === 'function') {
+      instance.editorManager.saveContent();
+    }
+  }
+
   function installAdapter(instance) {
     if (!instance || instance.__richTextEnhancedInstalled) return;
     if (typeof window.RichTextCommandAdapter !== 'function') return;
@@ -65,8 +75,10 @@
     instance.executeCommand = function (command, value) {
       if (getFlagValue() && this.isWysiwygMode && this.commandAdapter && typeof this.commandAdapter.execute === 'function') {
         const ok = this.commandAdapter.execute(command, value);
-        if (ok && typeof this.syncToMarkdown === 'function') this.syncToMarkdown();
-        if (ok) return;
+        if (ok) {
+          commitRichTextChange(this);
+          return;
+        }
       }
       if (legacyExecute) legacyExecute(command, value);
     };
@@ -74,8 +86,10 @@
     instance.wrapSelectionWithSpan = function (className) {
       if (getFlagValue() && this.isWysiwygMode && this.commandAdapter && typeof this.commandAdapter.wrapWithClass === 'function') {
         const ok = this.commandAdapter.wrapWithClass(className);
-        if (ok && typeof this.syncToMarkdown === 'function') this.syncToMarkdown();
-        if (ok) return;
+        if (ok) {
+          commitRichTextChange(this);
+          return;
+        }
       }
       if (legacyWrap) legacyWrap(className);
     };
@@ -94,8 +108,10 @@
         const url = prompt('リンクURLを入力してください:', selectedText ? 'https://' : '');
         if (!url) return;
         const ok = this.commandAdapter.insertLink(url, selectedText || url);
-        if (ok && typeof this.syncToMarkdown === 'function') this.syncToMarkdown();
-        if (ok) return;
+        if (ok) {
+          commitRichTextChange(this);
+          return;
+        }
       }
       if (legacyInsertLink) legacyInsertLink();
     };
@@ -121,7 +137,7 @@
         } else {
           instance.commandAdapter.insertText(text);
         }
-        if (typeof instance.syncToMarkdown === 'function') instance.syncToMarkdown();
+        commitRichTextChange(instance);
       }, true);
 
       instance.wysiwygEditor.addEventListener('keydown', function (e) {
@@ -132,7 +148,7 @@
             navigator.clipboard.readText().then(function (text) {
               if (text && instance.commandAdapter) {
                 instance.commandAdapter.insertText(text);
-                if (typeof instance.syncToMarkdown === 'function') instance.syncToMarkdown();
+                commitRichTextChange(instance);
               }
             }).catch(function () { /* clipboard permission denied */ });
           }

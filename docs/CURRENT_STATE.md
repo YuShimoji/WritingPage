@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-25（WP-005 comparison isolation Slice C）
+最終更新: 2026-06-25（Rich text block align persistence）
 
 ## Snapshot
+
+### 2026-06-25 Rich text block align persistence
+
+- After WP-005 A/B/C closed, selected a fresh one-topic product slice from the rich editing / save-resume trust lane rather than reopening preview/comparison, Project import recovery, or Rich heading.
+- Product-facing change: Rich editing CommandAdapter edits now commit through the editor change path after successful commands, so paragraph alignment syncs to Markdown, saves, updates word count, and refreshes MD preview instead of remaining a visual-only DOM edit.
+- `ZWMdItBody` now preserves the narrow `data-zw-align="start|center|end"` block fragments used by P2 paragraph alignment without enabling arbitrary raw HTML. The aligned block body is rendered through the existing inline Markdown renderer before restoration.
+- Focused proof in `e2e/rich-text-block-align.spec.js` now aligns a paragraph, verifies saved Markdown content, checks MD preview and Reader `text-align`, reloads, and confirms the aligned paragraph returns in Rich editing.
+- Verification anchor: `docs/verification/2026-06-25/rich-text-block-align-persistence.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 WP-005 comparison isolation Slice C
 

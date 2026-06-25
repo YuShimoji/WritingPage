@@ -6,6 +6,7 @@
   'use strict';
 
   var DSL_BLOCK_RE = /:::zw-(?:textbox|typing|dialog|scroll|pathtext)(?:\{[^}]*\})?\n[\s\S]*?\n:::/gi;
+  var ALIGN_BLOCK_RE = /<(p|h1|h2|h3|blockquote|li)\s+data-zw-align="(start|center|end)">([\s\S]*?)<\/\1>/gi;
 
   var sharedFallbackRenderer = null;
 
@@ -21,11 +22,59 @@
     return { markdown: processed, placeholders: placeholders };
   }
 
+  function extractAlignedBlocks(markdown) {
+    var placeholders = [];
+    var counter = 0;
+    var processed = (markdown || '').replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
+      var token = 'ZWALIGNBLOCK' + counter;
+      placeholders.push({
+        token: token,
+        tag: String(tag || 'p').toLowerCase(),
+        align: String(align || 'start').toLowerCase(),
+        content: content || ''
+      });
+      counter++;
+      return '\n\n' + token + '\n\n';
+    });
+    return { markdown: processed, placeholders: placeholders };
+  }
+
   function restoreDslBlocks(html, placeholders) {
     for (var i = 0; i < placeholders.length; i++) {
       var p = placeholders[i];
       html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), p.dsl);
       html = html.replace(new RegExp(p.token, 'g'), p.dsl);
+    }
+    return html;
+  }
+
+  function escapeHtml(text) {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderInlineMarkdown(md, source) {
+    if (md && typeof md.renderInline === 'function') {
+      try {
+        return md.renderInline(source || '');
+      } catch (_) {
+        return escapeHtml(source || '');
+      }
+    }
+    return escapeHtml(source || '');
+  }
+
+  function restoreAlignedBlocks(html, placeholders, md) {
+    for (var i = 0; i < placeholders.length; i++) {
+      var p = placeholders[i];
+      var body = renderInlineMarkdown(md, p.content);
+      var block = '<' + p.tag + ' data-zw-align="' + p.align + '">' + body + '</' + p.tag + '>';
+      html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), block);
+      html = html.replace(new RegExp(p.token, 'g'), block);
     }
     return html;
   }
@@ -73,12 +122,14 @@
    */
   function renderToHtmlBeforePipeline(markdown, opts) {
     opts = opts || {};
-    var extracted = extractDslBlocks(markdown);
+    var aligned = extractAlignedBlocks(markdown);
+    var extracted = extractDslBlocks(aligned.markdown);
     var mdSrc = extracted.markdown;
     var html = '';
+    var md = null;
 
     try {
-      var md = resolveMarkdownRenderer(opts.editorManager);
+      md = resolveMarkdownRenderer(opts.editorManager);
       if (md) {
         html = md.render(mdSrc);
       } else {
@@ -92,7 +143,8 @@
       html = '';
     }
 
-    return restoreDslBlocks(html, extracted.placeholders);
+    html = restoreDslBlocks(html, extracted.placeholders);
+    return restoreAlignedBlocks(html, aligned.placeholders, md);
   }
 
   window.ZWMdItBody = {
