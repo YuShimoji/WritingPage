@@ -993,24 +993,39 @@ test.describe('UI Mode Consistency', () => {
     expect(collapsedMetrics.bodyVisibility).toBe('hidden');
   });
 
-  test('session 128: structure compare actions stay compact until invoked', async ({ page }) => {
+  test('WP-005 Slice A: public compare entries are retired from structure and command palette', async ({ page }) => {
     await setUIMode(page, 'normal');
     await openSidebarGroup(page, 'structure');
 
     const metrics = await page.evaluate(() => {
       const controls = document.querySelector('.sidebar-compare-controls');
+      const chapterButton = document.getElementById('open-compare-chapter');
+      const snapshotButton = document.getElementById('open-compare-snapshot');
       const splitView = document.getElementById('split-view-container');
-      const controlsRect = controls ? controls.getBoundingClientRect() : null;
       return {
-        controlsHeight: controlsRect ? Math.round(controlsRect.height) : 0,
-        controlsDisplay: controls ? window.getComputedStyle(controls).display : null,
+        controlsPresent: !!controls,
+        chapterButtonPresent: !!chapterButton,
+        snapshotButtonPresent: !!snapshotButton,
         splitDisplay: splitView ? window.getComputedStyle(splitView).display : null,
       };
     });
 
-    expect(metrics.controlsDisplay).toBe('grid');
-    expect(metrics.controlsHeight).toBeLessThanOrEqual(48);
+    expect(metrics.controlsPresent).toBe(false);
+    expect(metrics.chapterButtonPresent).toBe(false);
+    expect(metrics.snapshotButtonPresent).toBe(false);
     expect(metrics.splitDisplay).not.toBe('flex');
+
+    const visibleCompareCommands = await page.evaluate(() => {
+      if (!window.commandPalette || typeof window.commandPalette.show !== 'function') return [];
+      window.commandPalette.show();
+      window.commandPalette.filterCommands('compare');
+      return Array.from(document.querySelectorAll('.command-palette-item'))
+        .map((item) => item.getAttribute('data-command-id'))
+        .filter(Boolean);
+    });
+
+    expect(visibleCompareCommands).not.toContain('compare-chapter');
+    expect(visibleCompareCommands).not.toContain('compare-snapshot');
   });
 
   test('session 129: left nav anchor icon follows the active category', async ({ page }) => {

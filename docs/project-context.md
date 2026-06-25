@@ -58,7 +58,7 @@
 | WP-002B | ガジェット再整理 audit | **planned** | UI | usefulness audit で `core / useful-default / advanced-hide / duplicate / delete-candidate` に分類 |
 | WP-003 | デザイナーパイプライン仕様策定 | **done** | Authoring | WRITING_PIPELINE.md 完成。Q1-Q4 全解決 (2026-03-23) |
 | WP-004 | Reader-First WYSIWYG (書く画面=読む画面) | **着手中** | Architecture | Phase 1–3 進捗は `CURRENT_STATE`・`INTERACTION_NOTES.md` |
-| WP-005 | プレビュー・比較ツール再設計 (edit-preview 廃止→リッチプレビュー化→比較ツール隔離) | **方針確定** | Architecture | session 94 で 3 スライス計画合意。`USER_REQUEST_LEDGER` の WP-005 行 |
+| WP-005 | プレビュー・比較ツール再設計 (Slice A entry cleanup done→リッチプレビュー化→比較ツール隔離) | **Slice A done** | Architecture | `docs/verification/2026-06-25/wp005-preview-entry-slice-a.md`。次は `USER_REQUEST_LEDGER` の WP-005 Slice B |
 | WP-006 | 無重力メモ / Floating memo lab | **experimental** | Experience Slice | dev-only overlay の visual iteration と productization gate。editor / chapter / autosave 本流には未接続 |
 
 ---

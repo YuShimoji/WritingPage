@@ -574,6 +574,7 @@
       keywords: '比較 差分 章 split compare structure',
       shortcut: '',
       category: '比較ツール',
+      hidden: true,
       execute: () => {
         if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
           window.sidebarManager.activateSidebarGroup('structure');
@@ -596,6 +597,7 @@
       keywords: '比較 差分 スナップショット snapshot compare structure',
       shortcut: '',
       category: '比較ツール',
+      hidden: true,
       execute: () => {
         if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
           window.sidebarManager.activateSidebarGroup('structure');

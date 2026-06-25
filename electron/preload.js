@@ -17,7 +17,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         const channels = [
             'menu:new-document', 'menu:find', 'menu:find-replace', 'menu:print',
             'menu:toggle-sidebar', 'menu:open-command-palette', 'menu:toggle-toolbar', 'menu:toggle-focus',
-            'menu:toggle-typewriter', 'menu:toggle-minimal', 'menu:toggle-split-view',
+            'menu:toggle-typewriter', 'menu:toggle-minimal',
             'menu:zoom-in', 'menu:zoom-out', 'menu:zoom-reset', 'menu:export',
         ];
         channels.forEach(ch => {

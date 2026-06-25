@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-25（project import recovery continuation proof）
+最終更新: 2026-06-25（WP-005 preview entry Slice A）
 
 ## Snapshot
+
+### 2026-06-25 WP-005 preview entry Slice A
+
+- Started WP-005 after closing Project import recovery continuation. Scope stayed on Slice A only: preview/comparison entry cleanup, not full preview redesign.
+- Product-visible change: stale public split-view comparison entry points were removed from the structure sidebar and Electron menu, while command palette comparison commands were hidden. `js/split-view.js` remains available as future comparison implementation material, not a current public writing workflow entry.
+- Current entry model: MD preview is still the editor-adjacent rendering panel, Reader is still the read-only review overlay, and comparison is deferred to a future WP-005 Slice C instead of sharing public preview entry space.
+- Verification anchor: `docs/verification/2026-06-25/wp005-preview-entry-slice-a.md`.
+- Next WP-005 candidate: Slice B, MD preview rich-preview activation / typing-scroll controller work. Slice C remains comparison isolation and should not be folded into Slice B.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 Project import recovery continuation proof
 

@@ -10113,14 +10113,6 @@ html[data-ui-mode='normal'] .documents-toolbar button {
   text-overflow: ellipsis;
 }
 
-html[data-ui-mode='normal'] .sidebar-compare-controls {
-  margin-bottom: var(--shell-space-3);
-  padding: var(--shell-space-2);
-  border: 1px solid color-mix(in srgb, var(--border-color) 42%, transparent);
-  border-radius: var(--shell-radius-lg);
-  background: color-mix(in srgb, var(--sidebar-bg) 70%, transparent);
-}
-
 html[data-ui-mode='normal'] .documents-tree-container,
 html[data-ui-mode='normal'] .gadgets-panel,
 html[data-ui-mode='normal'] .accordion-content {
@@ -10310,21 +10302,4 @@ html[data-ui-mode='normal'] .gadget .link-graph-node {
   overflow: hidden;
   text-overflow: ellipsis;
   box-sizing: border-box;
-}
-
-html[data-ui-mode='normal'] .sidebar-compare-controls {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--shell-space-2);
-  margin-bottom: var(--shell-space-3);
-  padding: 0;
-  border: 0;
-  background: transparent;
-}
-
-html[data-ui-mode='normal'] .sidebar-compare-controls .sidebar-control-btn {
-  min-width: 0;
-  min-height: var(--shell-control-height);
-  justify-content: center;
-  padding: 0 var(--shell-space-2);
 }

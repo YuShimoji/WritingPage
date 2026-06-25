@@ -139,8 +139,6 @@ function buildMenu() {
                 { label: 'Reader を開く / 閉じる(&D)', accelerator: 'Alt+Shift+R', click: () => sendToRenderer('menu:toggle-reader-overlay') },
                 { label: 'タイプライターモード(&Y)', click: () => sendToRenderer('menu:toggle-typewriter') },
                 { type: 'separator' },
-                { label: '比較ビュー（章比較）(&P)', click: () => sendToRenderer('menu:toggle-split-view') },
-                { type: 'separator' },
                 { label: '拡大', accelerator: 'CmdOrCtrl+Plus', click: () => sendToRenderer('menu:zoom-in') },
                 { label: '縮小', accelerator: 'CmdOrCtrl+-', click: () => sendToRenderer('menu:zoom-out') },
                 { label: 'リセット', accelerator: 'CmdOrCtrl+0', click: () => sendToRenderer('menu:zoom-reset') },

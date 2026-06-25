@@ -190,8 +190,6 @@
         const toggleSidebarBtn = elementManager.get('toggleSidebarBtn');
         const showToolbarBtn = elementManager.get('showToolbarBtn');
         // session 107: fullscreenBtn 撤去
-        const compareChapterBtn = document.getElementById('open-compare-chapter');
-        const compareSnapshotBtn = document.getElementById('open-compare-snapshot');
         const toggleUIEditorBtn = document.getElementById('toggle-ui-editor');
         const toggleSpellCheckBtn = document.getElementById('toggle-spell-check');
 
@@ -285,18 +283,6 @@
             if (window.ZenWriterEditor.spellChecker.enabled) {
                 toggleSpellCheckBtn.classList.add('active');
             }
-        }
-
-        // 比較ツール（構造カテゴリ）— 直接 SplitView をオープン
-        if (compareChapterBtn && window.ZenWriterSplitView) {
-            compareChapterBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.open('chapter-compare');
-            });
-        }
-        if (compareSnapshotBtn && window.ZenWriterSplitView) {
-            compareSnapshotBtn.addEventListener('click', () => {
-                window.ZenWriterSplitView.open('snapshot-diff');
-            });
         }
 
         // UIエディタのイベントハンドラ
