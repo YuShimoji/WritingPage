@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-26（Effect settings writer-facing wording audit）
+最終更新: 2026-06-26（One-click update launcher）
 
 ## Snapshot
+
+### 2026-06-26 One-click update launcher
+
+- Added a Windows-friendly normal confirmation route after the effect settings wording slice: `ZenWriter-UpdateAndLaunch.cmd` and `npm run app:update:open` update the current branch with fast-forward only, rebuild `dist/`, and open `dist/index.html` through the existing dist launcher.
+- Added `npm run app:install:update`, which creates a Start Menu shortcut named `Zen Writer Update and Launch` without replacing the existing `Zen Writer.url` quick-open shortcut.
+- Safety boundary: the update path checks for a clean worktree before pulling, uses `git pull --ff-only`, stops on local changes / detached HEAD / non-fast-forward update, and does not discard work.
+- Launch boundary: normal confirmation remains `dist/` / default app open, dev server stays explicit development/localhost, and Electron packaged verification remains separate.
+- Verification anchor: `docs/verification/2026-06-26/one-click-update-launcher.md`.
+- Closed lanes remain closed unless new evidence appears: WP-005, Project import recovery, Rich heading, Rich text block align, Markdown source dev gate, and effect settings wording.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-26 Effect settings writer-facing wording audit
 

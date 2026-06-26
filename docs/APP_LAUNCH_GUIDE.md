@@ -44,6 +44,22 @@ npm run dev:two
 
 ## Electronアプリとして起動
 
+### 通常確認：更新してから起動
+
+日常の確認で、最新の `main` を取り込んでから `dist/index.html` を作り直し、そのまま開きたいときの導線です。
+
+```bash
+npm run app:update:open
+```
+
+Windows では repo 直下の `ZenWriter-UpdateAndLaunch.cmd` をダブルクリックしても同じ処理を実行できます。Start Menu に登録する場合は次を使います。
+
+```bash
+npm run app:install:update
+```
+
+`app:update:open` は `git pull --ff-only` だけを使います。ローカル変更がある場合、merge が必要な場合、または pull に失敗した場合は停止し、作業内容を破棄しません。この導線は通常確認用の `dist/` 起動であり、localhost の開発サーバーや Electron packaged app 確認とは分けて扱います。
+
 ### 方法1：開発モードで即座に起動
 
 ```bash
@@ -270,7 +286,11 @@ http://localhost:8080?reset=1
 | `npm run app:open` | packaged app を安全に起動 |
 | `npm run app:open:package` | packaged app を明示起動 |
 | `npm run app:open:dist` | dist/index.html を直接開く |
+| `npm run app:update:open` | fast-forward 更新、dist build、起動 |
+| `npm run app:update:open:package` | fast-forward 更新、dist build、packaged app 起動 |
+| `npm run app:update:dry-run` | 更新起動の実行予定を確認 |
 | `npm run app:install` | インストール＋ショートカット作成 |
+| `npm run app:install:update` | Start Menu に更新起動ショートカットを作成 |
 | `npm run app:install:open` | インストール＋起動 |
 
 ---

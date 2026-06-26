@@ -220,6 +220,27 @@ WritingPage/
 `npm run build` で `dist/` を生成できます。
 生成後は `dist/index.html` をブラウザで直接開いて、サーバーなしで動作確認できます。
 
+## One-Click Update and Launch (Windows)
+
+通常確認で「最新版を取り込む → `dist/` を作る → アプリを開く」まで進めたいときは、次のどちらかを使います。
+
+- `ZenWriter-UpdateAndLaunch.cmd` をダブルクリック
+- `npm run app:update:open`
+
+この導線は `git pull --ff-only` だけを使います。ローカル変更がある場合、merge が必要な場合、または更新に失敗した場合は停止し、作業内容を破棄しません。`dist/index.html` を開く通常確認が目的で、localhost の開発者モード挙動を既定にしません。
+
+Start Menu に更新起動用ショートカットを作る場合は次を実行します。
+
+```bash
+npm run app:install:update
+```
+
+作成先:
+
+- `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Zen Writer Update and Launch.lnk`
+
+通常の quick open だけなら下の `Zen Writer.url` を使い、更新も含めたい時だけ `Zen Writer Update and Launch` を使います。
+
 ## Start Menu Registration (Windows)
 
 `npm run app:install` を実行すると、`dist/` を生成した上で、
