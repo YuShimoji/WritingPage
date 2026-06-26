@@ -295,6 +295,30 @@ test.describe('Command Palette E2E', () => {
     await expect(markdownCommand.locator('.command-palette-item-description')).toContainText('開発者モード');
   });
 
+  test('Effect settings commands use writer-facing wording', async ({ page }) => {
+    await page.goto(pageUrl);
+    await ensureNormalMode(page);
+    await openCommandPalette(page);
+
+    await page.locator('#command-palette-input').fill('改行後');
+
+    const breakCommand = page.locator('.command-palette-item[data-command-id="toggle-effect-break-at-newline"]');
+    await expect(breakCommand).toBeVisible();
+    await expect(breakCommand.locator('.command-palette-item-label')).toHaveText('リッチ編集: 改行後の装飾を切る');
+    await expect(breakCommand.locator('.command-palette-item-description')).toContainText('太字などの装飾を次の行に引き継がない');
+
+    const persistCommand = page.locator('.command-palette-item[data-command-id="toggle-effect-persist-decor"]');
+    await expect(persistCommand).toBeVisible();
+    await expect(persistCommand.locator('.command-palette-item-label')).toHaveText('リッチ編集: 改行後も装飾を続ける');
+    await expect(persistCommand.locator('.command-palette-item-description')).toContainText('現在の文字装飾を続けて入力');
+
+    const visibleText = await page.locator('#command-palette-list').innerText();
+    expect(visibleText).not.toContain('decor');
+    expect(visibleText).not.toContain('BL-002');
+    expect(visibleText).not.toContain('effectBreakAtNewline');
+    expect(visibleText).not.toContain('effectPersistDecorAcrossNewline');
+  });
+
   test('Floating memo remains an isolated command palette experiment', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);

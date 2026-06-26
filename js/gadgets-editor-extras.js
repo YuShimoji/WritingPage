@@ -201,11 +201,11 @@
       effectBreakTextWrap.style.display = 'grid';
       effectBreakTextWrap.style.gap = '0.125rem';
       var effectBreakTitle = el('span');
-      effectBreakTitle.textContent = '改行で装飾・効果を切る（既定オン・BL-002）';
+      effectBreakTitle.textContent = '改行後の装飾を切る';
       var effectBreakHint = el('span');
       effectBreakHint.style.fontSize = '0.7rem';
       effectBreakHint.style.opacity = '0.75';
-      effectBreakHint.textContent = 'リッチ編集表示で Enter 時に、太字等の書式解除や decor 周りの後処理を行います。オフにすると改行挙動が変わります。';
+      effectBreakHint.textContent = 'Enter で次の行へ進むとき、太字などの装飾を次の行に引き継がないようにします。';
       effectBreakTextWrap.appendChild(effectBreakTitle);
       effectBreakTextWrap.appendChild(effectBreakHint);
       effectBreakLabel.appendChild(effectBreakCheck);
@@ -235,11 +235,11 @@
       newlineDecorTextWrap.style.display = 'grid';
       newlineDecorTextWrap.style.gap = '0.125rem';
       var newlineDecorTitle = el('span');
-      newlineDecorTitle.textContent = '改行後も装飾スパン内にカーソルを残す';
+      newlineDecorTitle.textContent = '改行後も装飾を続ける';
       var newlineDecorHint = el('span');
       newlineDecorHint.style.fontSize = '0.7rem';
       newlineDecorHint.style.opacity = '0.75';
-      newlineDecorHint.textContent = 'リッチ編集表示専用。Enter 後もカスタム装飾（decor-*）内にカーソルを残します（上の「改行で装飾・効果を切る」がオンのときのみ）。ショートカット: Ctrl+Shift+Alt+D（macOS は ⌘+Shift+Option+D）。';
+      newlineDecorHint.textContent = 'Enter で次の行へ進んだあとも、現在の文字装飾を続けて入力できるようにします（上の「改行後の装飾を切る」がオンのときのみ）。ショートカット: Ctrl+Shift+Alt+D（macOS は ⌘+Shift+Option+D）。';
       newlineDecorTextWrap.appendChild(newlineDecorTitle);
       newlineDecorTextWrap.appendChild(newlineDecorHint);
       newlineDecorLabel.appendChild(newlineDecorCheck);

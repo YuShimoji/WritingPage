@@ -378,8 +378,8 @@
     // リッチ編集の改行挙動の切替 — サイドバー設定に埋もれている機能を発見性の高いコマンドパレットへ昇格
     {
       id: 'toggle-effect-break-at-newline',
-      label: 'リッチ編集: 改行で装飾を切る (ON/OFF)',
-      description: 'リッチ編集で Enter 時に書式解除・decor 後処理を行うかを切替 (BL-002)',
+      label: 'リッチ編集: 改行後の装飾を切る',
+      description: 'Enter で次の行へ進むとき、太字などの装飾を次の行に引き継がないようにする',
       keywords: 'リッチ 装飾 改行 Enter BL-002 effectBreakAtNewline',
       shortcut: '',
       category: 'リッチ編集',
@@ -397,8 +397,8 @@
     },
     {
       id: 'toggle-effect-persist-decor',
-      label: 'リッチ編集: 改行後も decor を継続 (ON/OFF)',
-      description: 'リッチ編集で Enter 後もカーソルを decor-* 要素内に残すかを切替',
+      label: 'リッチ編集: 改行後も装飾を続ける',
+      description: 'Enter で次の行へ進んだあとも、現在の文字装飾を続けて入力できるようにする',
       keywords: 'リッチ 装飾 改行 Enter decor effectPersistDecorAcrossNewline',
       shortcut: '',
       category: 'リッチ編集',

@@ -17,7 +17,7 @@
 | **設定キー** | `effectBreakAtNewline`（`settings.editor` 配下。永続化は `js/storage.js` の既定とユーザー設定のマージ結果） |
 | **既定** | `true` — 改行で効果を切断する（BL-002） |
 | **ショートカット** | **未割当**（持続モードや「1 行だけ効果継続」等を実装するスライスで、`INTERACTION_NOTES.md` のキーボード一覧に追加する） |
-| **設定 UI** | サイドバー **詳細設定（advanced）** の **UI Settings** ガジェット内チェック「改行で装飾・効果を切る（既定オン・BL-002）」（要素 id: `effect-break-at-newline`）。実装: [`js/gadgets-editor-extras.js`](../../js/gadgets-editor-extras.js)（session 61） |
+| **設定 UI** | サイドバー **詳細設定（advanced）** の **UI Settings** ガジェット内チェック「改行後の装飾を切る」（要素 id: `effect-break-at-newline`）。実装: [`js/gadgets-editor-extras.js`](../../js/gadgets-editor-extras.js)（session 61） |
 
 ### 持続モード用の追加キー（session 55 確定・session 56 で Enter 接続）
 
@@ -30,7 +30,7 @@
 | **`true` の意味（将来）** | Enter 後も **カスタム装飾スパン（decor-*）** を継続（ネイティブ bold 等との組み合わせは実装スライスでテストで固定） |
 | **既存キーとの関係** | `effectBreakAtNewline !== false` のときのみ BL-002 の Enter 後処理が走る。持続を **`effectBreakAtNewline: false` だけで代替しない**（意味が紛らわしいため、decor 持続は本キーで明示する） |
 | **ショートカット** | **Ctrl+Shift+Alt+D**（macOS は **⌘+Shift+Option+D**）— WYSIWYG フォーカス時に `effectPersistDecorAcrossNewline` をトグルし `ZenWriterStorage.saveSettings` で永続化（session 57） |
-| **設定 UI** | サイドバー **詳細設定（advanced）** の **UI Settings** ガジェット内チェック「改行後も装飾スパン内にカーソルを残す」（要素 id: `effect-persist-decor-across-newline`）。実装: [`js/gadgets-editor-extras.js`](../../js/gadgets-editor-extras.js)（session 60） |
+| **設定 UI** | サイドバー **詳細設定（advanced）** の **UI Settings** ガジェット内チェック「改行後も装飾を続ける」（要素 id: `effect-persist-decor-across-newline`）。実装: [`js/gadgets-editor-extras.js`](../../js/gadgets-editor-extras.js)（session 60） |
 
 ## 将来の拡張（未実装）
 

@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-25（Remote sync after Markdown source authority reconciliation）
+最終更新: 2026-06-26（Effect settings writer-facing wording audit）
 
 ## Snapshot
+
+### 2026-06-26 Effect settings writer-facing wording audit
+
+- Returned to the command palette / settings clarity lane after the dead-entry sweep produced no code changes. Scope stayed only on `effectBreakAtNewline` / `effectPersistDecorAcrossNewline` visible wording.
+- Product-facing change: command palette and UI Settings now describe the two newline effect toggles as writer actions: `改行後の装飾を切る` and `改行後も装飾を続ける`. Visible descriptions explain whether Enter carries current decoration into the next line instead of exposing `decor`, `BL-002`, or storage key names.
+- Storage keys, command ids, defaults, settings persistence, and rich editing Enter behavior are unchanged.
+- Focused proof in `e2e/command-palette.spec.js` and `e2e/editor-settings.spec.js` asserts the writer-facing labels and verifies the visible text no longer includes the internal implementation terms.
+- Verification anchor: `docs/verification/2026-06-26/effect-settings-writer-facing-wording-audit.md`.
+- Closed lanes remain closed unless new evidence appears: command palette dead-entry sweep, Markdown source dev gate, WP-005 preview/comparison, Project import recovery, Rich heading, and Rich text block align persistence.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-25 Remote sync after Markdown source authority reconciliation
 

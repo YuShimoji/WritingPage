@@ -107,6 +107,24 @@ test.describe('Editor Settings', () => {
     expect(on).toBe(true);
   });
 
+  test('UI Settings: effect toggles use writer-facing wording', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await openSidebarPanel(page, 'advanced', { expandGadgets: true });
+
+    const advancedPanel = page.locator('#advanced-gadgets-panel');
+    const visibleText = await advancedPanel.innerText();
+
+    expect(visibleText).toContain('改行後の装飾を切る');
+    expect(visibleText).toContain('太字などの装飾を次の行に引き継がない');
+    expect(visibleText).toContain('改行後も装飾を続ける');
+    expect(visibleText).toContain('現在の文字装飾を続けて入力');
+    expect(visibleText).not.toContain('decor');
+    expect(visibleText).not.toContain('BL-002');
+    expect(visibleText).not.toContain('effectBreakAtNewline');
+    expect(visibleText).not.toContain('effectPersistDecorAcrossNewline');
+  });
+
   test('should work with typewriter mode simultaneously', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
