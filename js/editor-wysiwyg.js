@@ -28,6 +28,7 @@
       this._undoBatchTimeout = 500; // ms — テキスト入力のバッチング間隔
       this._isComposing = false;
       this._pendingTypedHeadingShortcut = false;
+      this._imeRepaintFrame = null;
 
       // Turndownインスタンス（HTML → Markdown変換）
       this.turndownService = null;
@@ -2005,6 +2006,7 @@
       this.wysiwygEditor.addEventListener('compositionend', () => {
         this._isComposing = false;
         if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
+        this._scheduleImeCompositionRepaint();
       });
 
       // ペースト時の処理（プレーンテキスト化を防ぐ）
@@ -2231,6 +2233,23 @@
       this.syncToMarkdown();
       this._syncFormatState();
       this._notifyChange();
+    }
+
+    _scheduleImeCompositionRepaint() {
+      if (!this.wysiwygEditor || !this.isWysiwygMode) return;
+      var editor = this.wysiwygEditor;
+      if (this._imeRepaintFrame) {
+        cancelAnimationFrame(this._imeRepaintFrame);
+        this._imeRepaintFrame = null;
+      }
+      editor.setAttribute('data-ime-repaint', 'pending');
+      this._imeRepaintFrame = requestAnimationFrame(() => {
+        editor.setAttribute('data-ime-repaint', 'settle');
+        this._imeRepaintFrame = requestAnimationFrame(() => {
+          editor.removeAttribute('data-ime-repaint');
+          this._imeRepaintFrame = null;
+        });
+      });
     }
 
     /**

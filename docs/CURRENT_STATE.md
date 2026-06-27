@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-26（One-click update launcher）
+最終更新: 2026-06-28（IME underline repaint fix）
 
 ## Snapshot
+
+### 2026-06-28 IME underline repaint fix
+
+- Returned to Rich editing input UX after a user-observed Japanese IME visual artifact: after IME confirmation, a thin composition underline could remain until another app repaint such as click/sidebar refresh.
+- Product-facing change: `compositionend` now schedules a paint-only repaint tick on `#wysiwyg-editor` through a temporary `data-ime-repaint` attribute. This is intentionally non-data: it does not rewrite editor HTML, Markdown, selection, storage, Undo state, typed heading shortcut behavior, or rich text decoration persistence.
+- Focused proof in `e2e/wysiwyg-editor.spec.js` covers synthetic IME composition end, verifies the repaint hook runs, and asserts content/selection/composition state remain intact. Native OS IME painting remains a manual visual remainder if final confirmation is needed.
+- Verification anchor: `docs/verification/2026-06-28/ime-underline-repaint-fix.md`.
+- Closed lanes remain closed unless new evidence appears: launcher, effect settings wording, Markdown source dev gate, WP-005, Project import recovery, Rich heading, and Rich text block align persistence.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-26 One-click update launcher
 

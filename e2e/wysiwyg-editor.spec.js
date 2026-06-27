@@ -697,6 +697,47 @@ test.describe('WYSIWYG Editor', () => {
     await expect(wysiwygEditor).toContainText('# Composing Heading');
   });
 
+  test('IME compositionend schedules a paint-only repaint without changing content', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await resetWysiwygEditor(page, '<p>日本語入力</p>');
+
+    const state = await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      const re = window.richTextEditor;
+      const beforeHtml = editor.innerHTML;
+      editor.focus();
+      const textNode = editor.querySelector('p').firstChild;
+      const range = document.createRange();
+      range.setStart(textNode, textNode.length);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      editor.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: 'にほんご' }));
+      editor.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, data: '日本語' }));
+      return {
+        beforeHtml,
+        afterHtml: editor.innerHTML,
+        repaintState: editor.getAttribute('data-ime-repaint'),
+        isComposing: re._isComposing,
+        activeId: document.activeElement && document.activeElement.id,
+        selectionInside: !!(sel.rangeCount && editor.contains(sel.getRangeAt(0).commonAncestorContainer))
+      };
+    });
+
+    expect(state.afterHtml).toBe(state.beforeHtml);
+    expect(state.repaintState).toBe('pending');
+    expect(state.isComposing).toBe(false);
+    expect(state.activeId).toBe('wysiwyg-editor');
+    expect(state.selectionInside).toBe(true);
+
+    await page.waitForFunction(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      return editor && !editor.hasAttribute('data-ime-repaint');
+    });
+    await expect(wysiwygEditor).toContainText('日本語入力');
+  });
+
   test('heading shortcut undo restores the typed marker with one undo', async ({ page }) => {
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     await resetWysiwygEditor(page);

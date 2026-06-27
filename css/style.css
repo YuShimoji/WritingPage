@@ -1841,6 +1841,10 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   text-indent: var(--paragraph-indent, 1em);
 }
 
+#wysiwyg-editor[data-ime-repaint='pending'] {
+  transform: translateZ(0);
+}
+
 /* P2 段落揃え: WYSIWYG + MD プレビュー + 読者本文（値は start/center/end。パイプラインは属性を落とさない想定） */
 #wysiwyg-editor [data-zw-align='start'] {
   text-align: left;
