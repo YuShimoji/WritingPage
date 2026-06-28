@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-28（IME underline repaint fix）
+最終更新: 2026-06-28（Electron IME underline persistence fix）
 
 ## Snapshot
+
+### 2026-06-28 Electron IME underline persistence fix
+
+- Followed up the Rich editing IME repaint slice after the browser path was covered but Electron could still leave a thin native underline after Japanese IME confirmation.
+- Product-facing change: `#wysiwyg-editor` now has native spellcheck disabled at the HTML surface and in `RichTextEditor.init()`, and `compositionend` re-applies that guard before the existing paint-only repaint tick. This targets the Electron contenteditable native decoration cache without rewriting editor HTML, Markdown, selection, storage, Undo state, typed heading shortcut behavior, or rich text decoration persistence.
+- Focused proof in `e2e/wysiwyg-editor.spec.js` keeps the prior synthetic IME repaint test and adds a Rich editing native spellcheck-off assertion for the contenteditable surface.
+- Verification anchor: `docs/verification/2026-06-28/electron-ime-underline-persistence-fix.md`.
+- Native OS IME painting remains a manual Electron visual remainder if final packaged confirmation is needed; BrowserWindow/package settings and the textarea spell checker were not changed.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-28 IME underline repaint fix
 

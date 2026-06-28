@@ -738,6 +738,17 @@ test.describe('WYSIWYG Editor', () => {
     await expect(wysiwygEditor).toContainText('日本語入力');
   });
 
+  test('Rich editing keeps native spellcheck off on the contenteditable surface', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    const state = await wysiwygEditor.evaluate((editor) => ({
+      spellcheckAttribute: editor.getAttribute('spellcheck'),
+      spellcheckProperty: editor.spellcheck
+    }));
+
+    expect(state.spellcheckAttribute).toBe('false');
+    expect(state.spellcheckProperty).toBe(false);
+  });
+
   test('heading shortcut undo restores the typed marker with one undo', async ({ page }) => {
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     await resetWysiwygEditor(page);

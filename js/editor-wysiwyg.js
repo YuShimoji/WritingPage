@@ -172,6 +172,8 @@
     init() {
       if (!this.wysiwygEditor || !this.textareaEditor) return;
 
+      this._disableNativeWysiwygSpellcheck();
+
       // エディタ切り替えボタン: 双方向トグル（Markdown ソースへは開発者モード時のみ）
       if (this.toggleWysiwygBtn) {
         this.toggleWysiwygBtn.addEventListener('mousedown', (e) => {
@@ -227,6 +229,12 @@
 
       // localStorageからWYSIWYGモード設定を読み込み (デフォルト: true)
       this.autoEnableWysiwyg();
+    }
+
+    _disableNativeWysiwygSpellcheck() {
+      if (!this.wysiwygEditor) return;
+      this.wysiwygEditor.setAttribute('spellcheck', 'false');
+      this.wysiwygEditor.spellcheck = false;
     }
 
     /**
@@ -2006,6 +2014,7 @@
       this.wysiwygEditor.addEventListener('compositionend', () => {
         this._isComposing = false;
         if (this.isWysiwygMode) this._flushPendingUndoSnapshot();
+        this._disableNativeWysiwygSpellcheck();
         this._scheduleImeCompositionRepaint();
       });
 
