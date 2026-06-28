@@ -635,6 +635,19 @@ test.describe('WYSIWYG Editor', () => {
     });
   });
 
+  test('heading shortcut converts # on the initial empty first line to H1', async ({ page }) => {
+    const wysiwygEditor = page.locator('#wysiwyg-editor');
+    await expect(wysiwygEditor).toBeVisible();
+    expect(await wysiwygEditor.evaluate((editor) => editor.innerHTML)).toBe('');
+
+    await wysiwygEditor.click();
+    await page.keyboard.type('# ');
+
+    await expect(wysiwygEditor.locator('h1')).toBeAttached();
+    await expect(wysiwygEditor.locator('h1')).toBeEmpty();
+    await expect(wysiwygEditor).not.toContainText('#');
+  });
+
   test('heading shortcut does not convert hashtag text', async ({ page }) => {
     const wysiwygEditor = page.locator('#wysiwyg-editor');
     await resetWysiwygEditor(page);

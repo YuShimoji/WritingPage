@@ -2218,6 +2218,12 @@
         }
         el = el.parentElement;
       }
+      if (this.wysiwygEditor && node) {
+        var parent = node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+        if (parent === this.wysiwygEditor || node === this.wysiwygEditor) {
+          return this.wysiwygEditor;
+        }
+      }
       return null;
     }
 
@@ -2228,7 +2234,11 @@
 
       var heading = document.createElement('h' + candidate.level);
       heading.appendChild(document.createElement('br'));
-      candidate.block.parentNode.replaceChild(heading, candidate.block);
+      if (candidate.block === this.wysiwygEditor) {
+        this.wysiwygEditor.replaceChildren(heading);
+      } else {
+        candidate.block.parentNode.replaceChild(heading, candidate.block);
+      }
 
       var sel = window.getSelection();
       if (sel) {

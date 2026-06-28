@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-06-28（Electron IME underline persistence fix）
+最終更新: 2026-06-28（Heading shortcut first-line boundary fix）
 
 ## Snapshot
+
+### 2026-06-28 Heading shortcut first-line boundary fix
+
+- Followed up the Rich editing typed heading shortcut after user observation separated the now-fixed Electron IME underline residual from a first-line `#` + Space shortcut gap.
+- Product-facing change: typed heading shortcut detection now accepts a direct root text node in the freshly opened empty Rich editing surface, so first-line `#` + Space converts to an empty H1 just like the paragraph/div-backed later-line path. Existing `P` / `DIV` block handling remains unchanged.
+- Visual classification: the black horizontal line after successful `#` + Space conversion is app-owned H1 CSS (`#wysiwyg-editor h1` border-bottom via `--heading-h1-border-bottom`), not native IME or spellcheck underline.
+- Focused proof in `e2e/wysiwyg-editor.spec.js` adds the initial empty first-line scenario while preserving existing heading shortcut positive/negative, IME composition guard, native spellcheck-off, and Undo coverage.
+- Verification anchor: `docs/verification/2026-06-28/heading-shortcut-first-line-boundary.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-28 Electron IME underline persistence fix
 
