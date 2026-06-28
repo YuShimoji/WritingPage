@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-28（Heading shortcut first-line boundary fix）
+最終更新: 2026-06-28（Runtime freshness and heading shortcut repro）
 
 ## Snapshot
+
+### 2026-06-28 Runtime freshness and heading shortcut repro
+
+- Reopened the heading shortcut first-line report after user observation said Web and Electron still reproduced the issue after `42299f9`. The prior source fix was not treated as accepted during this pass.
+- Finding: source `js/editor-wysiwyg.js` was current, but `dist/js/editor-wysiwyg.js` was stale relative to `42299f9`; it contained the spellcheck fix but not the root `replaceChildren` first-line shortcut path. `build/win-unpacked` was also refreshed in this pass.
+- Action: rebuilt `dist/` with `npm run build` and refreshed the Electron dir package with `npm run electron:build`. Extracted package asar content now contains the first-line shortcut fix and spellcheck guard.
+- Real-path readback: direct `dist/index.html` startup began with an empty Rich editing root; typing `#` + Space produced `<h1><br></h1>`, one H1, `spellcheck="false"`, and the expected H1 `1px solid rgb(0, 0, 0)` border. The horizontal line is therefore app-owned H1 styling, not a failed conversion or native IME/spellcheck residual.
+- Focused WYSIWYG shortcut/spellcheck Playwright coverage was rerun after the artifact refresh: 7 tests passed.
+- Verification anchor: `docs/verification/2026-06-28/runtime-freshness-and-heading-shortcut-repro.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice.
 
 ### 2026-06-28 Heading shortcut first-line boundary fix
 
