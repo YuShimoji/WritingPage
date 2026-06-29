@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-28（Runtime freshness and heading shortcut repro）
+最終更新: 2026-06-29（Cross-terminal handoff and remote parity）
 
 ## Snapshot
+
+### 2026-06-29 Cross-terminal handoff and remote parity
+
+- User requested that all current context be kept in the project and the local state be reflected to remote so another terminal can resume immediately.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI copy, tests, launcher behavior, package config, or roadmap status was changed in this pass.
+- Sync state before this handoff entry: `git fetch --prune origin` and `git pull --ff-only origin main` reported `Already up to date`; `HEAD...origin/main = 0 0`; latest project context was `2e68c0e docs: record heading shortcut runtime freshness`.
+- Active trust state: the latest product slice remains the 2026-06-28 runtime freshness / first-line heading shortcut repro. Source already contained the fix, stale `dist/` and `build/win-unpacked` were refreshed locally in that pass, and the direct `dist/index.html` readback produced one H1 with `spellcheck="false"`. Do not treat the black H1 border as a native underline regression without new evidence.
+- Remote handoff artifact: `docs/verification/2026-06-29/cross-terminal-handoff-remote-parity.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`. Use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing a next product slice.
+- If the next terminal needs to run the app instead of only inspect docs, use `npm run app:update:open` for the normal clean-worktree update/build/open route. Generated `dist/` and `build/win-unpacked` remain local ignored artifacts, so remote parity is source/docs parity, not transfer of ignored build output.
 
 ### 2026-06-28 Runtime freshness and heading shortcut repro
 
