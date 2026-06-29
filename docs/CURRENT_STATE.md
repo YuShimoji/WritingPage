@@ -1,8 +1,18 @@
 # Current State
 
-最終更新: 2026-06-29（Cross-terminal handoff and remote parity）
+最終更新: 2026-06-29（Fresh launch observation gate）
 
 ## Snapshot
+
+### 2026-06-29 Fresh launch observation gate
+
+- Synced `main` from `origin/main`; `git fetch --prune origin` and `git pull --ff-only origin main` reported `Already up to date`, and `HEAD...origin/main = 0 0` before this docs update.
+- Supervisor review for `runtime-freshness-and-heading-shortcut-repro` accepted the stale artifact diagnosis. The implementation does not need additional source changes: `42299f9` remains the product fix anchor, while `dee4221` was only the later cross-terminal handoff commit.
+- Agent-side freshness was rechecked in this terminal: `npm run app:update:dry-run` passed as a no-mutation route check, `npm run build` refreshed `dist/`, and `npm run electron:build` refreshed `build/win-unpacked`. Fresh `dist/js/editor-wysiwyg.js` contains both the spellcheck guard and root `replaceChildren` first-line shortcut path.
+- Automated proof still passes: focused WYSIWYG shortcut/spellcheck Playwright coverage is 7 passed, and direct `dist/index.html` readback for first-line `#` + Space produced `<h1><br></h1>`, one H1, `spellcheck="false"`, and H1 border `1px solid rgb(0, 0, 0)`.
+- Completion state: agent implementation / artifact freshness is acceptable. The remaining gate is only user-side fresh launch visual observation: close stale Zen Writer browser/Electron windows, use `Zen Writer Update and Launch` for Web confirmation, and use refreshed `build\win-unpacked\Zen Writer.exe` only if Electron packaged confirmation is needed.
+- Verification anchor: `docs/verification/2026-06-29/fresh-launch-observation-gate.md`.
+- Do not reopen IME underline, heading shortcut, launcher, effect settings, Markdown source gate, WP-005, Project import recovery, or rich text block alignment unless the fresh-launch observation reports new evidence.
 
 ### 2026-06-29 Cross-terminal handoff and remote parity
 
