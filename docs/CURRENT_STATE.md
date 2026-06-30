@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-06-29（Fresh launch observation gate）
+最終更新: 2026-06-30（Cross-terminal handoff after fresh launch gate）
 
 ## Snapshot
+
+### 2026-06-30 Cross-terminal handoff after fresh launch gate
+
+- User requested that all current context be kept in the project, local state be reflected to remote, and another terminal be able to resume immediately.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI copy, launcher script, package config, roadmap status, or fresh-launch observation result changed in this pass.
+- Sync state at start: clean `main`, `git fetch --prune origin`, `git pull --ff-only origin main` -> `Already up to date`, and `HEAD...origin/main = 0 0`. Latest incoming context was `2284944 docs: record fresh launch observation gate`.
+- Restartability check: `npm run test:smoke` passed with `ALL TESTS PASSED`.
+- Active slice remains `fresh-launch-observation-gate`: agent implementation and artifact freshness were accepted; the only remaining gate is user-side fresh launch visual observation. No user observation result has been recorded in this handoff pass.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`. Use `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when selecting a new product slice.
+- If the next terminal needs to inspect the current UI rather than only resume docs, use `npm run app:update:open` for Web confirmation. Electron packaged confirmation remains separate: run `npm run electron:build` if needed, then open `build\win-unpacked\Zen Writer.exe`.
+- Verification anchor: `docs/verification/2026-06-30/cross-terminal-handoff-after-fresh-launch-gate.md`.
 
 ### 2026-06-29 Fresh launch observation gate
 
