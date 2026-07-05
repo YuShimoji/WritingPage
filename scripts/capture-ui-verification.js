@@ -270,8 +270,157 @@ async function stabilizeUiForCapture(page) {
   });
 }
 
+async function readAppLaunchState(page) {
+  return page.evaluate(() => {
+    const isVisible = (el) => {
+      if (!el) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    };
+    return {
+      kind: 'app_launch',
+      uiMode: document.documentElement.getAttribute('data-ui-mode') || '',
+      leftNavState: document.documentElement.getAttribute('data-left-nav-state') || '',
+      editorVisible: isVisible(document.getElementById('editor')),
+      wysiwygVisible: isVisible(document.getElementById('wysiwyg-editor')),
+      writingStatusChipPresent: !!document.getElementById('writing-status-chip'),
+    };
+  });
+}
+
+async function openAdvancedSettingsSidebar(page) {
+  await page.evaluate(() => {
+    if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
+      window.ZenWriterApp.openSettingsModal();
+      return;
+    }
+    if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+      window.sidebarManager.activateSidebarGroup('advanced');
+    }
+  });
+
+  await page.waitForFunction(() => {
+    const root = document.documentElement;
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('accordion-advanced');
+    const panel = document.getElementById('advanced-gadgets-panel');
+    if (!sidebar || !content || !panel) return false;
+    const panelStyle = window.getComputedStyle(panel);
+    return root.getAttribute('data-left-nav-state') === 'category' &&
+      root.getAttribute('data-left-nav-active') === 'advanced' &&
+      sidebar.classList.contains('open') &&
+      content.getAttribute('aria-hidden') === 'false' &&
+      content.hidden === false &&
+      panelStyle.display !== 'none' &&
+      panelStyle.visibility !== 'hidden';
+  }, { timeout: 10_000 });
+
+  await page.waitForFunction(() => {
+    const panel = document.getElementById('advanced-gadgets-panel');
+    return !!(panel && panel.querySelector('.gadget-wrapper, .gadget-loading-placeholder'));
+  }, { timeout: 20_000 });
+}
+
+async function readAdvancedSettingsState(page) {
+  return page.evaluate(() => {
+    const panel = document.getElementById('advanced-gadgets-panel');
+    const content = document.getElementById('accordion-advanced');
+    const wrappers = panel
+      ? Array.from(panel.querySelectorAll('.gadget-wrapper[data-gadget-name]')).map((el) => el.getAttribute('data-gadget-name'))
+      : [];
+    return {
+      kind: 'advanced_settings_sidebar',
+      leftNavState: document.documentElement.getAttribute('data-left-nav-state') || '',
+      leftNavActive: document.documentElement.getAttribute('data-left-nav-active') || '',
+      advancedContentOpen: !!(content && content.getAttribute('aria-hidden') === 'false' && content.hidden === false),
+      advancedPanelAttached: !!panel,
+      gadgetNames: wrappers.slice(0, 12),
+      legacySettingsModalVisible: (() => {
+        const modal = document.getElementById('settings-modal');
+        if (!modal) return false;
+        const style = window.getComputedStyle(modal);
+        return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+      })(),
+    };
+  });
+}
+
+async function returnLeftNavRoot(page) {
+  await page.evaluate(() => {
+    if (window.sidebarManager && typeof window.sidebarManager.returnToLeftNavRoot === 'function') {
+      window.sidebarManager.returnToLeftNavRoot();
+      return;
+    }
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.remove('open');
+    document.documentElement.setAttribute('data-left-nav-state', 'root');
+    document.documentElement.removeAttribute('data-left-nav-active');
+  });
+  await page.waitForTimeout(150);
+}
+
+async function openDesignCockpit(page) {
+  await page.waitForFunction(() => {
+    return !!(window.ZWDesignCockpit && typeof window.ZWDesignCockpit.open === 'function');
+  }, { timeout: 10_000 });
+  await page.evaluate(() => {
+    window.ZWDesignCockpit.open();
+  });
+  await page.waitForFunction(() => {
+    const panel = document.getElementById('design-cockpit');
+    if (!panel) return false;
+    const style = window.getComputedStyle(panel);
+    return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+  }, { timeout: 10_000 });
+}
+
+async function readDesignCockpitState(page) {
+  return page.evaluate(() => {
+    const panel = document.getElementById('design-cockpit');
+    const summary = document.getElementById('design-cockpit-summary');
+    const panelText = panel ? panel.textContent || '' : '';
+    const summaryText = summary ? summary.textContent || '' : '';
+    const fixtureLeakPattern = /夜明け前のメモ|雨の匂い|主人公は机に向かい/;
+    return {
+      kind: 'design_cockpit',
+      visible: !!panel && window.getComputedStyle(panel).display !== 'none',
+      saveState: (document.getElementById('design-cockpit-save-state') || {}).textContent || '',
+      countText: (document.getElementById('design-cockpit-count') || {}).textContent || '',
+      summaryIncludesPrivacyMarker: summaryText.includes('manuscript_content=copied_never'),
+      panelContainsFixtureManuscriptText: fixtureLeakPattern.test(panelText),
+      summaryContainsFixtureManuscriptText: fixtureLeakPattern.test(summaryText),
+    };
+  });
+}
+
+function assertReadback(readback) {
+  if (!readback || typeof readback !== 'object') {
+    throw new Error('Missing UI capture readback');
+  }
+  if (readback.kind === 'app_launch' && !readback.editorVisible && !readback.wysiwygVisible) {
+    throw new Error('UI capture launch did not expose an editable surface');
+  }
+  if (readback.kind === 'advanced_settings_sidebar') {
+    if (readback.leftNavActive !== 'advanced' || !readback.advancedContentOpen || !readback.advancedPanelAttached) {
+      throw new Error(`Advanced settings sidebar did not open correctly: ${JSON.stringify(readback)}`);
+    }
+    if (readback.legacySettingsModalVisible) {
+      throw new Error('Legacy settings modal became visible; capture should follow current advanced sidebar path');
+    }
+  }
+  if (readback.kind === 'design_cockpit') {
+    if (!readback.visible || !readback.summaryIncludesPrivacyMarker) {
+      throw new Error(`Design Cockpit readback failed: ${JSON.stringify(readback)}`);
+    }
+    if (readback.panelContainsFixtureManuscriptText || readback.summaryContainsFixtureManuscriptText) {
+      throw new Error('Design Cockpit exposed fixture manuscript text in dashboard/readback');
+    }
+  }
+}
+
 async function captureDesktop(baseUrl, outDir) {
   const browser = await chromium.launch({ headless: true });
+  const readbacks = [];
   try {
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
@@ -280,26 +429,39 @@ async function captureDesktop(baseUrl, outDir) {
     await stabilizeUiForCapture(page);
     await seedEditorContent(page);
     await page.waitForTimeout(400);
+    const launchReadback = await readAppLaunchState(page);
+    assertReadback(launchReadback);
+    readbacks.push(launchReadback);
 
     await page.screenshot({
       path: path.join(outDir, '01-main-desktop.png'),
       fullPage: true,
     });
 
-    await page.evaluate(() => {
-      if (window.ZenWriterApp && typeof window.ZenWriterApp.openSettingsModal === 'function') {
-        window.ZenWriterApp.openSettingsModal();
-      }
-    });
-    await page.waitForSelector('#settings-modal', { state: 'visible' });
+    await openAdvancedSettingsSidebar(page);
     await page.waitForTimeout(200);
+    const advancedReadback = await readAdvancedSettingsState(page);
+    assertReadback(advancedReadback);
+    readbacks.push(advancedReadback);
     await page.screenshot({
-      path: path.join(outDir, '02-settings-modal.png'),
+      path: path.join(outDir, '02-advanced-settings-sidebar.png'),
+      fullPage: true,
+    });
+    await returnLeftNavRoot(page);
+
+    await openDesignCockpit(page);
+    await page.waitForTimeout(200);
+    const cockpitReadback = await readDesignCockpitState(page);
+    assertReadback(cockpitReadback);
+    readbacks.push(cockpitReadback);
+    await page.screenshot({
+      path: path.join(outDir, '03-design-cockpit.png'),
       fullPage: true,
     });
     await page.evaluate(() => {
-      const btn = document.getElementById('close-settings-modal');
-      if (btn) btn.click();
+      if (window.ZWDesignCockpit && typeof window.ZWDesignCockpit.close === 'function') {
+        window.ZWDesignCockpit.close();
+      }
     });
     await page.waitForTimeout(150);
 
@@ -311,7 +473,7 @@ async function captureDesktop(baseUrl, outDir) {
     await page.waitForSelector('#help-modal', { state: 'visible' });
     await page.waitForTimeout(300);
     await page.screenshot({
-      path: path.join(outDir, '03-help-modal.png'),
+      path: path.join(outDir, '04-help-modal.png'),
       fullPage: true,
     });
     await page.evaluate(() => {
@@ -321,20 +483,24 @@ async function captureDesktop(baseUrl, outDir) {
     await page.waitForTimeout(150);
 
     await page.evaluate(() => {
-      const sidebarToggle = document.getElementById('toggle-sidebar');
-      if (sidebarToggle) sidebarToggle.click();
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('edit');
+      } else {
+        const sidebarToggle = document.getElementById('toggle-sidebar');
+        if (sidebarToggle) sidebarToggle.click();
+      }
     });
     await page.waitForTimeout(250);
-
-    await page.evaluate(() => {
-      const btn = document.querySelector('.accordion-category[data-category="edit"] .accordion-header');
-      if (btn) btn.click();
-    });
+    await page.waitForFunction(() => {
+      return document.documentElement.getAttribute('data-left-nav-active') === 'edit' &&
+        document.documentElement.getAttribute('data-left-nav-state') === 'category';
+    }, { timeout: 10_000 });
     await page.waitForTimeout(350);
     await page.screenshot({
-      path: path.join(outDir, '04-sidebar-desktop-open.png'),
+      path: path.join(outDir, '05-sidebar-desktop-edit.png'),
       fullPage: true,
     });
+    await returnLeftNavRoot(page);
 
     await page.evaluate(() => {
       if (window.commandPalette && typeof window.commandPalette.toggle === 'function') {
@@ -344,7 +510,7 @@ async function captureDesktop(baseUrl, outDir) {
     await page.waitForSelector('#command-palette', { state: 'visible' });
     await page.waitForTimeout(100);
     await page.screenshot({
-      path: path.join(outDir, '05-command-palette.png'),
+      path: path.join(outDir, '06-command-palette.png'),
       fullPage: true,
     });
 
@@ -362,13 +528,29 @@ async function captureDesktop(baseUrl, outDir) {
     await stabilizeUiForCapture(mobilePage);
     await seedEditorContent(mobilePage);
     await mobilePage.waitForTimeout(300);
-    await mobilePage.click('#toggle-sidebar');
+    await mobilePage.evaluate(() => {
+      if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
+        window.sidebarManager.activateSidebarGroup('structure');
+      } else if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
+        window.sidebarManager.toggleSidebar();
+      } else {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.add('open');
+        document.documentElement.setAttribute('data-left-nav-state', 'category');
+        document.documentElement.setAttribute('data-left-nav-active', 'structure');
+      }
+    });
+    await mobilePage.waitForFunction(() => {
+      return document.documentElement.getAttribute('data-left-nav-state') === 'category' &&
+        !!document.documentElement.getAttribute('data-left-nav-active');
+    }, { timeout: 10_000 });
     await mobilePage.waitForTimeout(250);
     await mobilePage.screenshot({
-      path: path.join(outDir, '06-mobile-sidebar-open.png'),
+      path: path.join(outDir, '07-mobile-sidebar-open.png'),
       fullPage: true,
     });
     await mobile.close();
+    return readbacks;
   } finally {
     await browser.close();
   }
@@ -400,18 +582,24 @@ async function main() {
   try {
     const baseUrl = `http://127.0.0.1:${port}`;
     await waitForReady(`${baseUrl}/index.html`);
-    await captureDesktop(baseUrl, outDir);
+    const readbacks = await captureDesktop(baseUrl, outDir);
 
     const manifest = {
       createdAt: new Date().toISOString(),
       baseUrl,
       mode,
       rootDir,
+      readbacks,
       screenshots: fs
         .readdirSync(outDir)
         .filter((name) => name.endsWith('.png'))
         .sort(),
     };
+    fs.writeFileSync(
+      path.join(outDir, 'readback.json'),
+      JSON.stringify(readbacks, null, 2),
+      'utf8',
+    );
     fs.writeFileSync(
       path.join(outDir, 'manifest.json'),
       JSON.stringify(manifest, null, 2),

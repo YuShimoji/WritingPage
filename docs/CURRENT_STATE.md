@@ -4,6 +4,15 @@
 
 ## Snapshot
 
+### 2026-07-06 UI capture verification recovery
+
+- Active slice: recovered `npm run test:ui:capture` so it follows the current left nav / advanced settings / Design Cockpit surfaces instead of waiting for obsolete `#settings-modal` visibility.
+- Product behavior boundary: no visual redesign, storage schema change, autosave change, Design Cockpit behavior change, or Electron packaging change.
+- Capture route now verifies launch/readback state, current advanced settings sidebar (`leftNavActive=advanced`, `legacySettingsModalVisible=false`), Design Cockpit privacy marker/readback, help modal, edit sidebar, command palette, and mobile sidebar via current APIs.
+- Latest local capture artifact: `output/playwright/manual-verification-2026-07-05T18-07-23-020Z` with `manifest.json`, `readback.json`, and seven PNG screenshots. These generated artifacts remain local verification output and are not committed.
+- Verification anchor: `docs/verification/2026-07-06/capture-verification-recovery.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
+
 ### 2026-07-06 Design Cockpit writing trust dashboard
 
 - Active slice: app-local / non-public Design Cockpit dashboard plus a minimal writing UX trust checkpoint.
