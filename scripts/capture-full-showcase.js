@@ -12,6 +12,40 @@ const http = require('http');
 
 const projectRoot = path.join(__dirname, '..');
 
+const SHOWCASE_MARKDOWN = [
+  '# 全機能ショーケース',
+  '',
+  '## 基本テキスト',
+  '',
+  '普通の段落テキストです。**太字**と*斜体*、~~Markdown取り消し線~~と[strike]装飾取り消し線[/strike]を含みます。',
+  '',
+  '> 引用ブロックのテスト。',
+  '',
+  '### リスト',
+  '',
+  '- 項目A',
+  '- 項目B',
+  '  - ネスト項目',
+  '',
+  '## 日本語組版',
+  '',
+  '{漢字|かんじ}のルビ表示テスト。{kenten|傍点}の表示テスト。',
+  '',
+  '## テキストボックス preset 比較',
+  '',
+  ':::zw-textbox{preset:"dialogue"}',
+  '「テキストボックス preset: 直立した会話枠。左線と余白で本文から分ける。」',
+  ':::',
+  '',
+  ':::zw-textbox{preset:"monologue"}',
+  '内面描写 preset: 斜体、淡い枠、わずかな傾きで心の声として読む。',
+  ':::',
+  '',
+  '## 長文テスト',
+  '',
+  '彼女は窓辺に立ち、雨の降りしきる街を見下ろしていた。灰色の空から落ちてくる雨粒は、アスファルトに小さな波紋を作っては消えていく。',
+].join('\n');
+
 let chromium;
 try {
   ({ chromium } = require('@playwright/test'));
@@ -114,41 +148,7 @@ async function stabilize(page) {
 }
 
 async function seedContent(page) {
-  await page.evaluate(() => {
-    const content = [
-      '# 全機能ショーケース',
-      '',
-      '## 基本テキスト',
-      '',
-      '普通の段落テキストです。**太字**と*斜体*と~~取り消し線~~を含みます。',
-      '',
-      '> 引用ブロックのテスト。',
-      '',
-      '### リスト',
-      '',
-      '- 項目A',
-      '- 項目B',
-      '  - ネスト項目',
-      '',
-      '## 日本語組版',
-      '',
-      '{漢字|かんじ}のルビ表示テスト。{kenten|傍点}の表示テスト。',
-      '',
-      '## テキストボックス',
-      '',
-      ':::zw-textbox{preset:"dialogue"}',
-      '「テキストボックスのプリセット確認」',
-      ':::',
-      '',
-      ':::zw-textbox{preset:"monologue"}',
-      'これは内面描写のプリセットです。',
-      ':::',
-      '',
-      '## 長文テスト',
-      '',
-      '彼女は窓辺に立ち、雨の降りしきる街を見下ろしていた。灰色の空から落ちてくる雨粒は、アスファルトに小さな波紋を作っては消えていく。',
-    ].join('\n');
-
+  await page.evaluate((content) => {
     const textarea = document.querySelector('#editor');
     const wysiwyg = document.querySelector('#wysiwyg-editor');
     const isVisible = (el) => {
@@ -156,30 +156,38 @@ async function seedContent(page) {
       const s = window.getComputedStyle(el);
       return s.display !== 'none' && s.visibility !== 'hidden' && s.opacity !== '0';
     };
-    if (isVisible(textarea)) {
+    if (textarea) {
       textarea.value = content;
+    }
+    if (isVisible(textarea)) {
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
       textarea.dispatchEvent(new Event('change', { bubbles: true }));
       textarea.scrollTop = 0;
     } else if (isVisible(wysiwyg)) {
-      wysiwyg.innerHTML = `
-        <h1>全機能ショーケース</h1>
-        <h2>基本テキスト</h2>
-        <p>普通の段落テキストです。<strong>太字</strong>と<em>斜体</em>と<s>取り消し線</s>を含みます。</p>
-        <blockquote><p>引用ブロックのテスト。</p></blockquote>
-        <h3>リスト</h3>
-        <ul><li>項目A</li><li>項目B<ul><li>ネスト項目</li></ul></li></ul>
-        <h2>日本語組版</h2>
-        <p>ルビ表示テスト。傍点の表示テスト。</p>
-        <h2>テキストボックス</h2>
-        <div class="zw-textbox" data-preset="dialogue"><p>「テキストボックスのプリセット確認」</p></div>
-        <div class="zw-textbox" data-preset="monologue"><p>これは内面描写のプリセットです。</p></div>
-        <h2>長文テスト</h2>
-        <p>彼女は窓辺に立ち、雨の降りしきる街を見下ろしていた。灰色の空から落ちてくる雨粒は、アスファルトに小さな波紋を作っては消えていく。</p>
-      `;
+      const settings = window.ZenWriterStorage && typeof window.ZenWriterStorage.loadSettings === 'function'
+        ? window.ZenWriterStorage.loadSettings()
+        : {};
+      const rte = window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor;
+      let html = '';
+      if (rte && typeof rte.markdownToHtml === 'function') {
+        html = rte.markdownToHtml(content);
+      }
+      if (!html && window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
+        html = window.ZWMdItBody.renderToHtmlBeforePipeline(content);
+        if (window.ZWPostMarkdownHtmlPipeline && typeof window.ZWPostMarkdownHtmlPipeline.apply === 'function') {
+          html = window.ZWPostMarkdownHtmlPipeline.apply(html, {
+            settings,
+            surface: 'preview'
+          });
+        }
+      }
+      wysiwyg.innerHTML = html || content;
       wysiwyg.dispatchEvent(new Event('input', { bubbles: true }));
+      if (rte && typeof rte.syncToMarkdown === 'function') {
+        rte.syncToMarkdown();
+      }
     }
-  });
+  }, SHOWCASE_MARKDOWN);
 }
 
 async function _safeClick(page, selector, timeout = 3000) {
@@ -299,6 +307,127 @@ async function readShowcaseState(page, kind) {
   }, kind);
 }
 
+async function setCaptureStateLabel(page, title, detail, kind) {
+  await page.evaluate((payload) => {
+    let style = document.getElementById('codex-showcase-state-label-style');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'codex-showcase-state-label-style';
+      style.textContent = `
+        .codex-showcase-state-label {
+          position: fixed;
+          top: 14px;
+          right: 16px;
+          z-index: 2147483000;
+          max-width: 360px;
+          padding: 10px 12px;
+          border: 1px solid rgba(80, 90, 105, 0.32);
+          border-radius: 8px;
+          background: rgba(250, 252, 255, 0.94);
+          color: #17202a;
+          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+          font: 600 12px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          pointer-events: none;
+          letter-spacing: 0;
+        }
+        .codex-showcase-state-label strong {
+          display: block;
+          margin-bottom: 3px;
+          font-size: 13px;
+        }
+        .codex-showcase-state-label span {
+          display: block;
+          font-weight: 500;
+          color: #425466;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    let label = document.getElementById('codex-showcase-state-label');
+    if (!label) {
+      label = document.createElement('div');
+      label.id = 'codex-showcase-state-label';
+      label.className = 'codex-showcase-state-label';
+      document.body.appendChild(label);
+    }
+    label.setAttribute('data-capture-kind', payload.kind || '');
+    label.innerHTML = '<strong></strong><span></span>';
+    label.querySelector('strong').textContent = payload.title || '';
+    label.querySelector('span').textContent = payload.detail || '';
+  }, { title, detail, kind });
+}
+
+async function clearCaptureStateLabel(page) {
+  await page.evaluate(() => {
+    const label = document.getElementById('codex-showcase-state-label');
+    if (label) label.remove();
+  });
+}
+
+async function readPresetParityState(page, kind) {
+  return page.evaluate((readKind) => {
+    const visible = (el) => {
+      if (!el) return false;
+      const style = window.getComputedStyle(el);
+      return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
+    };
+    const root = readKind === 'reader_parity'
+      ? document.querySelector('#reader-preview .reader-preview__content')
+      : document.getElementById('wysiwyg-editor');
+    const sidebar = document.getElementById('sidebar');
+    const label = document.getElementById('codex-showcase-state-label');
+    const summarizeBox = (box) => {
+      if (!box) {
+        return {
+          present: false,
+          className: '',
+          dataPreset: '',
+          dataRole: '',
+          dataAnim: '',
+          styleAttr: '',
+          computedTransform: '',
+          computedFontStyle: '',
+          hasContentWrapper: false,
+        };
+      }
+      const style = window.getComputedStyle(box);
+      return {
+        present: true,
+        className: box.className || '',
+        dataPreset: box.getAttribute('data-preset') || '',
+        dataRole: box.getAttribute('data-role') || '',
+        dataAnim: box.getAttribute('data-anim') || '',
+        styleAttr: box.getAttribute('style') || '',
+        computedTransform: style.transform || '',
+        computedFontStyle: style.fontStyle || '',
+        hasContentWrapper: !!box.querySelector('.zw-textbox__content'),
+      };
+    };
+    const nativeStrikeNodes = root ? Array.from(root.querySelectorAll('s, del, strike')) : [];
+    const decorStrikeNodes = root ? Array.from(root.querySelectorAll('.decor-strikethrough')) : [];
+    const allStrikeNodes = nativeStrikeNodes.concat(decorStrikeNodes);
+    return {
+      kind: readKind,
+      uiMode: document.documentElement.getAttribute('data-ui-mode') || '',
+      readerOpen: document.documentElement.getAttribute('data-reader-overlay-open') === 'true',
+      leftNavState: document.documentElement.getAttribute('data-left-nav-state') || '',
+      leftNavActive: document.documentElement.getAttribute('data-left-nav-active') || '',
+      sidebarOpen: !!(sidebar && sidebar.classList.contains('open')),
+      captureLabelKind: label ? (label.getAttribute('data-capture-kind') || '') : '',
+      rootExists: !!root,
+      rootVisible: visible(root),
+      nativeStrikeCount: nativeStrikeNodes.length,
+      decorStrikeCount: decorStrikeNodes.length,
+      strikeComputedLineThrough: allStrikeNodes.some((node) => {
+        const style = window.getComputedStyle(node);
+        return /line-through/i.test(style.textDecorationLine || style.textDecoration || '');
+      }),
+      dialogue: summarizeBox(root ? root.querySelector('.zw-textbox[data-preset="dialogue"], .zw-textbox--dialogue') : null),
+      monologue: summarizeBox(root ? root.querySelector('.zw-textbox[data-preset="monologue"], .zw-textbox--monologue') : null),
+    };
+  }, kind);
+}
+
 function assertShowcaseReadback(readback) {
   if (!readback || typeof readback !== 'object') {
     throw new Error('Missing showcase readback');
@@ -317,6 +446,31 @@ function assertShowcaseReadback(readback) {
   }
   if (readback.kind === 'mobile_sidebar' && readback.leftNavState !== 'category') {
     throw new Error(`Mobile sidebar did not open through current route: ${JSON.stringify(readback)}`);
+  }
+  if (readback.kind === 'focus_compat' &&
+      (readback.uiMode !== 'focus' || readback.readerOpen || readback.captureLabelKind !== 'focus_compat')) {
+    throw new Error(`Focus showcase state is not readable: ${JSON.stringify(readback)}`);
+  }
+  if (readback.kind === 'normal_shell' &&
+      (readback.uiMode !== 'normal' || readback.leftNavState !== 'category' || readback.captureLabelKind !== 'normal_shell')) {
+    throw new Error(`Normal shell showcase state is not readable: ${JSON.stringify(readback)}`);
+  }
+  if (readback.kind === 'editor_parity' || readback.kind === 'reader_parity') {
+    const target = readback.kind === 'reader_parity' ? 'Reader' : 'Editor';
+    if (!readback.rootExists || (readback.nativeStrikeCount + readback.decorStrikeCount) < 2 || !readback.strikeComputedLineThrough) {
+      throw new Error(`${target} strike parity readback failed: ${JSON.stringify(readback)}`);
+    }
+    if (!readback.dialogue.present || !readback.monologue.present) {
+      throw new Error(`${target} textbox preset readback missing boxes: ${JSON.stringify(readback)}`);
+    }
+    if (!/zw-textbox--dialogue/.test(readback.dialogue.className) ||
+        !/zw-textbox--monologue/.test(readback.monologue.className)) {
+      throw new Error(`${target} textbox preset classes are not projected: ${JSON.stringify(readback)}`);
+    }
+    if (!/rotate\(-2deg\)/.test(readback.monologue.styleAttr) ||
+        !/rotate\(0deg\)/.test(readback.dialogue.styleAttr)) {
+      throw new Error(`${target} textbox preset tilt semantics are not readable: ${JSON.stringify(readback)}`);
+    }
   }
 }
 
@@ -473,6 +627,15 @@ async function captureAll(baseUrl, outDir) {
       }
     });
     await page.waitForTimeout(500);
+    await setCaptureStateLabel(
+      page,
+      '14 Focus compatibility',
+      'data-ui-mode=focus / reader overlay closed / writing canvas only',
+      'focus_compat'
+    );
+    const focusReadback = await readPresetParityState(page, 'focus_compat');
+    assertShowcaseReadback(focusReadback);
+    readbacks.push(focusReadback);
     await shot(page, '14-focus-compat.png');
 
     // 15: Normal shell に戻す
@@ -481,11 +644,33 @@ async function captureAll(baseUrl, outDir) {
         window.ZenWriterApp.setUIMode('normal');
       }
     });
-    await page.waitForTimeout(500);
+    await openSidebarCategory(page, 'structure');
+    await setCaptureStateLabel(
+      page,
+      '15 Normal shell',
+      'data-ui-mode=normal / structure sidebar category open',
+      'normal_shell'
+    );
+    await page.waitForTimeout(300);
+    const normalShellReadback = await readPresetParityState(page, 'normal_shell');
+    assertShowcaseReadback(normalShellReadback);
+    readbacks.push(normalShellReadback);
     await shot(page, '15-normal-shell.png');
 
     // 16: エディタ Normal
+    await returnLeftNavRoot(page);
+    await setCaptureStateLabel(
+      page,
+      '16 Editor normal parity',
+      'clean editor canvas / strike + dialogue vs monologue fixture visible',
+      'editor_parity'
+    );
+    await page.waitForTimeout(300);
+    const editorParityReadback = await readPresetParityState(page, 'editor_parity');
+    assertShowcaseReadback(editorParityReadback);
+    readbacks.push(editorParityReadback);
     await shot(page, '16-editor-normal.png');
+    await clearCaptureStateLabel(page);
 
     await ctx.close();
 
@@ -532,9 +717,19 @@ async function captureAll(baseUrl, outDir) {
       }
     });
     await rp.waitForTimeout(1000);
+    await setCaptureStateLabel(
+      rp,
+      '19 Reader parity',
+      'Reader overlay / strike + dialogue vs monologue fixture projected',
+      'reader_parity'
+    );
+    const readerParityReadback = await readPresetParityState(rp, 'reader_parity');
+    assertShowcaseReadback(readerParityReadback);
+    readbacks.push(readerParityReadback);
 
     // 19: Reader Preview
     await shot(rp, '19-reader-preview.png');
+    await clearCaptureStateLabel(rp);
 
     await rCtx.close();
 

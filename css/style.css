@@ -5252,7 +5252,16 @@ html[data-embed='true'] #editor {
   text-decoration: underline;
 }
 
-.decor-strikethrough {
+.decor-strikethrough,
+#wysiwyg-editor s,
+#wysiwyg-editor del,
+#wysiwyg-editor strike,
+#markdown-preview-panel s,
+#markdown-preview-panel del,
+#markdown-preview-panel strike,
+.reader-preview__content s,
+.reader-preview__content del,
+.reader-preview__content strike {
   text-decoration: line-through;
 }
 

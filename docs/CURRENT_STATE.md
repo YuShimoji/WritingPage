@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-06（Full showcase capture route alignment）
+最終更新: 2026-07-06（Reader preview preset parity audit）
 
 ## Snapshot
+
+### 2026-07-06 Reader preview preset parity audit
+
+- Active slice: audited and tightened Reader preview vs Editor rendering parity for strikethrough and `dialogue` / `monologue` textbox presets, while improving full-showcase evidence for `14` / `15` / `16` / `19`.
+- Product-facing fix: WYSIWYG serialization now preserves native `<s>` / `<del>` / `<strike>` as Markdown strike and maps `.decor-strikethrough` back to `[strike]`, so Reader preview no longer loses strike semantics after opening from WYSIWYG.
+- Intentional-difference classification: `monologue` / inner-description tilt is current preset semantics (`rotate(-2deg)`, italic, fade-in, soft ornament), not a Reader-only bug. Editor and Reader are now verified to show the same meaning.
+- Full showcase route now seeds one Markdown fixture through the product renderer, records strike/preset readbacks without manuscript body text, labels `14` focus compatibility, shows `15` normal shell with structure sidebar open, and uses `16` / `19` as Editor/Reader parity evidence.
+- Latest local showcase artifact: `output/showcase/full-2026-07-05T18-56-08` with `manifest.json`, `readback.json`, and 19 PNG screenshots. These generated artifacts remain local verification output and are not committed.
+- Verification anchor: `docs/verification/2026-07-06/reader-preview-preset-parity-audit.md`.
+- Product behavior boundary: no storage schema, autosave semantics, cloud/account/public sharing, Design Cockpit behavior, or broad UI redesign changed.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-06 Full showcase capture route alignment
 

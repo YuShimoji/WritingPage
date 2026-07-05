@@ -62,13 +62,51 @@
             return '\n\n' + hashes + '\n\n';
           }
         });
+        var decorClassToTag = {
+          'decor-bold': 'bold',
+          'decor-italic': 'italic',
+          'decor-underline': 'underline',
+          'decor-strikethrough': 'strike',
+          'decor-smallcaps': 'smallcaps',
+          'decor-light': 'light',
+          'decor-shadow': 'shadow',
+          'decor-black': 'black',
+          'decor-uppercase': 'uppercase',
+          'decor-lowercase': 'lowercase',
+          'decor-capitalize': 'capitalize',
+          'decor-outline': 'outline',
+          'decor-glow': 'glow',
+          'decor-wide': 'wide',
+          'decor-narrow': 'narrow'
+        };
+        var getDecorTag = function (node) {
+          if (!node || !node.classList) return '';
+          for (var i = 0; i < node.classList.length; i++) {
+            var cls = node.classList.item(i);
+            if (decorClassToTag[cls]) return decorClassToTag[cls];
+          }
+          return '';
+        };
         this.turndownService.addRule('fontDecorations', {
           filter: function (node) {
-            return node.nodeName === 'SPAN' && node.className && /^decor-/.test(node.className);
+            return node.nodeName === 'SPAN' && !!getDecorTag(node);
           },
           replacement: function (content, node) {
-            var tag = node.className.replace('decor-', '');
+            var tag = getDecorTag(node);
             return '[' + tag + ']' + content + '[/' + tag + ']';
+          }
+        });
+        this.turndownService.addRule('nativeStrikethrough', {
+          filter: function (node) {
+            if (!node || !node.nodeName) return false;
+            if (node.nodeName === 'S' || node.nodeName === 'STRIKE' || node.nodeName === 'DEL') return true;
+            if (node.nodeName !== 'SPAN' || !node.style) return false;
+            var line = node.style.textDecorationLine || '';
+            var deco = node.style.textDecoration || '';
+            return /line-through/i.test(line) || /line-through/i.test(deco);
+          },
+          replacement: function (content) {
+            return '~~' + content + '~~';
           }
         });
         var animClassToTag = {

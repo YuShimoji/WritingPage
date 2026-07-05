@@ -16,6 +16,12 @@
       .replace(/>/g, '&gt;');
   }
 
+  function normalizeSegmentContent(value) {
+    return String(value || '')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .trim();
+  }
+
   function wrapWithSpan(html, className) {
     if (!className) return html;
     return '<span class="' + escapeAttr(className) + '">' + html + '</span>';
@@ -61,7 +67,7 @@
 
     if (resolved.reducedMotion) classNames.push('zw-textbox--motion-reduced');
 
-    var contentHtml = escapeHtmlText(segment.content || '');
+    var contentHtml = escapeHtmlText(normalizeSegmentContent(segment.content));
     (resolved.layers.textEffects || []).forEach(function (tag) {
       var def = effectDict && typeof effectDict.get === 'function' ? effectDict.get(tag) : null;
       if (def && def.className) contentHtml = wrapWithSpan(contentHtml, def.className);
@@ -104,7 +110,7 @@
     var validModes = ['auto', 'click', 'scroll'];
     if (validModes.indexOf(mode) === -1) mode = 'auto';
     var sfx = attrs.sfx || '';
-    var content = escapeHtmlText(segment.content || '');
+    var content = escapeHtmlText(normalizeSegmentContent(segment.content));
     var sfxAttr = sfx ? ' data-sfx="' + escapeAttr(sfx) + '"' : '';
     return '<div class="zw-typing" data-speed="' + escapeAttr(speed) + '" data-mode="' + escapeAttr(mode) + '"' + sfxAttr + ' aria-live="polite">'
       + '<span class="zw-typing__text">' + content + '</span>'
@@ -126,7 +132,7 @@
     var classAttr = 'zw-dialog zw-dialog--' + position + ' zw-dialog--' + dialogStyle;
     var iconHtml = icon ? '<div class="zw-dialog__icon"><img src="' + escapeAttr(icon) + '" alt="' + escapeAttr(speaker) + '"></div>' : '';
     var speakerHtml = speaker ? '<div class="zw-dialog__speaker">' + escapeHtmlText(speaker) + '</div>' : '';
-    var content = escapeHtmlText(segment.content || '');
+    var content = escapeHtmlText(normalizeSegmentContent(segment.content));
     var dataAttrs = ' data-dialog-speaker="' + escapeAttr(speaker) + '"'
       + ' data-dialog-position="' + escapeAttr(position) + '"'
       + ' data-dialog-style="' + escapeAttr(dialogStyle) + '"';
@@ -148,7 +154,7 @@
     var delay = attrs.delay || '0ms';
     var threshold = typeof attrs.threshold !== 'undefined' ? attrs.threshold : 0.2;
     var sfx = attrs.sfx || '';
-    var content = escapeHtmlText(segment.content || '');
+    var content = escapeHtmlText(normalizeSegmentContent(segment.content));
     var sfxAttr = sfx ? ' data-sfx="' + escapeAttr(sfx) + '"' : '';
     return '<div class="zw-scroll zw-scroll--' + escapeAttr(effect) + '"'
       + ' data-effect="' + escapeAttr(effect) + '"'
@@ -177,7 +183,7 @@
   function renderPathtext(segment) {
     pathtextIdCounter += 1;
     var attrs = segment.attrs || {};
-    var content = segment.content || '';
+    var content = normalizeSegmentContent(segment.content);
     var pathId = 'zw-pathtext-r-' + pathtextIdCounter;
     var pathD = attrs.path || 'M 10 80 Q 95 10 180 80';
     var fontSize = attrs['font-size'] || '1rem';

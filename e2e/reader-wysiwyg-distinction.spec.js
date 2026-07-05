@@ -166,6 +166,117 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(r.identical).toBe(true);
   });
 
+  test('WYSIWYG から Reader へ native/decor 取り消し線と textbox preset 意味が保持される', async ({ page }) => {
+    const md = [
+      '# ReaderParityProbe',
+      '',
+      '本文に~~MarkdownStrike~~と[strike]DecorStrike[/strike]を含める。',
+      '',
+      ':::zw-textbox{preset:"dialogue"}',
+      'DialogueBoxProbe',
+      ':::',
+      '',
+      ':::zw-textbox{preset:"monologue"}',
+      'MonologueBoxProbe',
+      ':::',
+    ].join('\n');
+
+    await page.evaluate((content) => {
+      if (window.ZWContentGuard && typeof window.ZWContentGuard.safeSetContent === 'function') {
+        window.ZWContentGuard.safeSetContent(content, { backup: false });
+      } else {
+        var ed = document.getElementById('editor');
+        if (ed) {
+          ed.value = content;
+          ed.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      }
+    }, md);
+
+    await page.evaluate(() => {
+      var rte = window.richTextEditor || (window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor);
+      if (rte && !rte.isWysiwygMode) {
+        var btn = document.getElementById('toggle-wysiwyg');
+        if (btn) btn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));
+      }
+    });
+    await page.waitForSelector('#wysiwyg-editor', { state: 'visible', timeout: 10000 });
+
+    const editorState = await page.evaluate(() => {
+      var rte = window.richTextEditor || (window.ZenWriterEditor && window.ZenWriterEditor.richTextEditor);
+      var root = document.getElementById('wysiwyg-editor');
+      var markdown = window.ZWContentGuard && typeof window.ZWContentGuard.getEditorContent === 'function'
+        ? window.ZWContentGuard.getEditorContent()
+        : (rte && typeof rte.getContent === 'function' ? rte.getContent() : '');
+      var dialogue = root && root.querySelector('.zw-textbox[data-preset="dialogue"]');
+      var monologue = root && root.querySelector('.zw-textbox[data-preset="monologue"]');
+      return {
+        markdown: markdown,
+        nativeStrikeCount: root ? root.querySelectorAll('s, del, strike').length : 0,
+        decorStrikeCount: root ? root.querySelectorAll('.decor-strikethrough').length : 0,
+        dialogueText: dialogue ? dialogue.textContent || '' : '',
+        dialogueClass: dialogue ? dialogue.className : '',
+        dialogueStyle: dialogue ? dialogue.getAttribute('style') || '' : '',
+        monologueText: monologue ? monologue.textContent || '' : '',
+        monologueClass: monologue ? monologue.className : '',
+        monologueStyle: monologue ? monologue.getAttribute('style') || '' : '',
+        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic'))
+      };
+    });
+
+    expect(editorState.markdown).toMatch(/~~\s*MarkdownStrike\s*~~/);
+    expect(editorState.markdown).toContain('[strike]DecorStrike[/strike]');
+    expect(editorState.nativeStrikeCount).toBeGreaterThanOrEqual(1);
+    expect(editorState.decorStrikeCount).toBeGreaterThanOrEqual(1);
+    expect(editorState.dialogueText).not.toContain('<br>');
+    expect(editorState.monologueText).not.toContain('<br>');
+    expect(editorState.dialogueClass).toContain('zw-textbox--dialogue');
+    expect(editorState.dialogueStyle).toContain('rotate(0deg)');
+    expect(editorState.monologueClass).toContain('zw-textbox--monologue');
+    expect(editorState.monologueStyle).toContain('rotate(-2deg)');
+    expect(editorState.monologueHasItalic).toBe(true);
+
+    await page.evaluate(() => {
+      if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
+        window.ZWReaderPreview.enter();
+      }
+    });
+    await expect(page.locator('html')).toHaveAttribute('data-reader-overlay-open', 'true');
+
+    const readerState = await page.evaluate(() => {
+      var root = document.querySelector('#reader-preview .reader-preview__content');
+      var dialogue = root && root.querySelector('.zw-textbox[data-preset="dialogue"]');
+      var monologue = root && root.querySelector('.zw-textbox[data-preset="monologue"]');
+      var strikeNodes = root ? Array.from(root.querySelectorAll('s, del, strike, .decor-strikethrough')) : [];
+      return {
+        nativeStrikeCount: root ? root.querySelectorAll('s, del, strike').length : 0,
+        decorStrikeCount: root ? root.querySelectorAll('.decor-strikethrough').length : 0,
+        anyLineThrough: strikeNodes.some(function (node) {
+          var style = window.getComputedStyle(node);
+          return /line-through/i.test(style.textDecorationLine || style.textDecoration || '');
+        }),
+        dialogueText: dialogue ? dialogue.textContent || '' : '',
+        dialogueClass: dialogue ? dialogue.className : '',
+        dialogueStyle: dialogue ? dialogue.getAttribute('style') || '' : '',
+        monologueText: monologue ? monologue.textContent || '' : '',
+        monologueClass: monologue ? monologue.className : '',
+        monologueStyle: monologue ? monologue.getAttribute('style') || '' : '',
+        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic'))
+      };
+    });
+
+    expect(readerState.nativeStrikeCount).toBeGreaterThanOrEqual(1);
+    expect(readerState.decorStrikeCount).toBeGreaterThanOrEqual(1);
+    expect(readerState.anyLineThrough).toBe(true);
+    expect(readerState.dialogueText).not.toContain('<br>');
+    expect(readerState.monologueText).not.toContain('<br>');
+    expect(readerState.dialogueClass).toContain('zw-textbox--dialogue');
+    expect(readerState.dialogueStyle).toContain('rotate(0deg)');
+    expect(readerState.monologueClass).toContain('zw-textbox--monologue');
+    expect(readerState.monologueStyle).toContain('rotate(-2deg)');
+    expect(readerState.monologueHasItalic).toBe(true);
+  });
+
   test('ZWMdItBody + パイプライン: 複数見出し + chapter:// 相互リンクが preview / reader で意図どおり（監査シナリオ1・パイプライン層）', async ({ page }) => {
     const r = await page.evaluate(() => {
       if (!window.ZWMdItBody || !window.ZWPostMarkdownHtmlPipeline) return null;
