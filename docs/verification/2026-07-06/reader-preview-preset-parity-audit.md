@@ -4,6 +4,8 @@
 
 Human review of `output/showcase/full-2026-07-05T18-27-48` found that full showcase `14` to `16` did not clearly show state differences, the Editor-side `dialogue` / `monologue` textbox presets were too hard to distinguish, and Reader preview looked less stable than Editor for inner-description tilt and strikethrough.
 
+Follow-up note: `docs/verification/2026-07-06/text-expression-preset-governance.md` keeps the Reader/Editor parity finding but supersedes the default tilt classification. Current `monologue` is upright; explicit tilt lives in `tilted-monologue`.
+
 ## Findings
 
 - `monologue` / inner-description tilt is intentional current preset semantics, not a Reader-only rendering accident. `TextboxPresetRegistry` defines `monologue` as `tilt:-2`, `scale:0.98`, italic, fade-in, and soft ornament. Reader and Editor should therefore both show a slight tilt.

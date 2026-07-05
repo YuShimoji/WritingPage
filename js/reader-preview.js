@@ -622,7 +622,7 @@
       + '  blockquote { border-left: 3px solid #ccc; margin: 1em 0; padding: 0.5em 1em; color: #666; }\n'
       + '  .zw-textbox { display: block; margin: 1em 0; padding: 0.8em 1em; border-left: 3px solid #ccc; }\n'
       + '  .zw-textbox--dialogue { border-left-color: #4a90e2; }\n'
-      + '  .zw-textbox--monologue { opacity: 0.9; font-style: italic; }\n'
+      + '  .zw-textbox--monologue, .zw-textbox--tilted-monologue { opacity: 0.9; font-style: italic; }\n'
       + '  .zw-textbox--narration { font-size: 0.95em; line-height: 2; }\n'
       + '  .zw-textbox--chant { letter-spacing: 0.05em; text-align: center; }\n'
       + '  .zw-textbox--warning { border-left-color: #e53935; }\n'

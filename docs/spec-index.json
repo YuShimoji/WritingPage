@@ -364,7 +364,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-decoration-semantic-presets.md",
-    "summary": "Phase 1-3完了。semantic preset 5種(dialogue/monologue/narration/chant/warning)+legacy 3種。TBドロップダウンUI統合。CSS+round-trip+UI E2E 11件。"
+    "summary": "Phase 1-3完了。semantic preset 5種(dialogue/monologue/narration/chant/warning)+explicit tilt preset 1種+legacy 3種。TBドロップダウンUI統合。CSS+round-trip+UI E2E。"
   },
   {
     "id": "SP-061",

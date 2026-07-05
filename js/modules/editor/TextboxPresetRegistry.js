@@ -64,9 +64,21 @@
       label: '独白',
       role: 'monologue',
       anim: 'fadein',
-      tilt: -2,
+      tilt: 0,
       scale: 0.98,
       className: 'zw-textbox--monologue',
+      textEffects: ['italic'],
+      animations: ['fadein'],
+      ornaments: ['soft']
+    },
+    {
+      id: 'tilted-monologue',
+      label: 'Tilted monologue',
+      role: 'monologue',
+      anim: 'fadein',
+      tilt: -2,
+      scale: 0.98,
+      className: 'zw-textbox--tilted-monologue',
       textEffects: ['italic'],
       animations: ['fadein'],
       ornaments: ['soft']

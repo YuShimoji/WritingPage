@@ -1,11 +1,25 @@
 # Current State
 
-最終更新: 2026-07-06（Reader preview preset parity audit）
+最終更新: 2026-07-06（Text expression preset governance）
 
 ## Snapshot
 
+### 2026-07-06 Text expression preset governance
+
+- Active slice: created a review-facing catalog for special text displays and reclassified default inner-description tilt semantics.
+- Product-facing change: built-in `monologue` is now the upright standard inner-description preset (`rotate(0deg)`, italic, fade-in, soft ornament, `scale(0.98)`); the slanted version is explicit opt-in `tilted-monologue` (`rotate(-2deg)`).
+- Legacy boundary: `inner-voice` remains valid legacy/strong inner voice behavior (`rotate(-4deg)`), but it is not the canonical current monologue sample.
+- Reader / Editor parity classification: no Reader-only rendering fork was added. Editor, Markdown preview, and Reader still share the same textbox DSL projection path; the remaining issue was preset governance and review evidence, not a Reader-only bug.
+- Review catalog: `docs/TEXT_EXPRESSION_PRESETS.md` now lists textbox presets, inline effects, animations, ornaments, status, transform defaults, and review notes.
+- Latest local showcase artifact: `output/showcase/full-2026-07-05T20-43-23` with `manifest.json`, `readback.json`, and 19 PNG screenshots. `16-editor-normal.png` and `19-reader-preview.png` show `dialogue`, `monologue`, and `tilted-monologue` in-frame; readback reports `dialogue=rotate(0deg)`, `monologue=rotate(0deg)`, and `tiltedMonologue=rotate(-2deg)` on both surfaces.
+- 14 / 15 / 16 evidence quality: `14-focus-compat.png` remains focus compatibility with a state label, `15-normal-shell.png` exposes normal shell + structure sidebar open, and `16-editor-normal.png` centers the preset/strike fixture rather than another near-identical clean canvas.
+- Verification anchor: `docs/verification/2026-07-06/text-expression-preset-governance.md`.
+- Product behavior boundary: no storage schema, autosave semantics, cloud/account/public sharing, Design Cockpit behavior, document model, or Reader-only renderer fork changed.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
+
 ### 2026-07-06 Reader preview preset parity audit
 
+- Superseded classification: the parity finding remains valid, but the later Text expression preset governance slice moved default `monologue` tilt into explicit `tilted-monologue`.
 - Active slice: audited and tightened Reader preview vs Editor rendering parity for strikethrough and `dialogue` / `monologue` textbox presets, while improving full-showcase evidence for `14` / `15` / `16` / `19`.
 - Product-facing fix: WYSIWYG serialization now preserves native `<s>` / `<del>` / `<strike>` as Markdown strike and maps `.decor-strikethrough` back to `[strike]`, so Reader preview no longer loses strike semantics after opening from WYSIWYG.
 - Intentional-difference classification: `monologue` / inner-description tilt is current preset semantics (`rotate(-2deg)`, italic, fade-in, soft ornament), not a Reader-only bug. Editor and Reader are now verified to show the same meaning.

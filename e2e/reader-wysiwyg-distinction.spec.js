@@ -179,6 +179,10 @@ test.describe('Reader vs WYSIWYG distinction', () => {
       ':::zw-textbox{preset:"monologue"}',
       'MonologueBoxProbe',
       ':::',
+      '',
+      ':::zw-textbox{preset:"tilted-monologue"}',
+      'TiltedMonologueBoxProbe',
+      ':::',
     ].join('\n');
 
     await page.evaluate((content) => {
@@ -210,6 +214,7 @@ test.describe('Reader vs WYSIWYG distinction', () => {
         : (rte && typeof rte.getContent === 'function' ? rte.getContent() : '');
       var dialogue = root && root.querySelector('.zw-textbox[data-preset="dialogue"]');
       var monologue = root && root.querySelector('.zw-textbox[data-preset="monologue"]');
+      var tiltedMonologue = root && root.querySelector('.zw-textbox[data-preset="tilted-monologue"]');
       return {
         markdown: markdown,
         nativeStrikeCount: root ? root.querySelectorAll('s, del, strike').length : 0,
@@ -220,7 +225,11 @@ test.describe('Reader vs WYSIWYG distinction', () => {
         monologueText: monologue ? monologue.textContent || '' : '',
         monologueClass: monologue ? monologue.className : '',
         monologueStyle: monologue ? monologue.getAttribute('style') || '' : '',
-        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic'))
+        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic')),
+        tiltedMonologueText: tiltedMonologue ? tiltedMonologue.textContent || '' : '',
+        tiltedMonologueClass: tiltedMonologue ? tiltedMonologue.className : '',
+        tiltedMonologueStyle: tiltedMonologue ? tiltedMonologue.getAttribute('style') || '' : '',
+        tiltedMonologueHasItalic: !!(tiltedMonologue && tiltedMonologue.querySelector('.decor-italic'))
       };
     });
 
@@ -233,8 +242,12 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(editorState.dialogueClass).toContain('zw-textbox--dialogue');
     expect(editorState.dialogueStyle).toContain('rotate(0deg)');
     expect(editorState.monologueClass).toContain('zw-textbox--monologue');
-    expect(editorState.monologueStyle).toContain('rotate(-2deg)');
+    expect(editorState.monologueStyle).toContain('rotate(0deg)');
     expect(editorState.monologueHasItalic).toBe(true);
+    expect(editorState.tiltedMonologueText).not.toContain('<br>');
+    expect(editorState.tiltedMonologueClass).toContain('zw-textbox--tilted-monologue');
+    expect(editorState.tiltedMonologueStyle).toContain('rotate(-2deg)');
+    expect(editorState.tiltedMonologueHasItalic).toBe(true);
 
     await page.evaluate(() => {
       if (window.ZWReaderPreview && typeof window.ZWReaderPreview.enter === 'function') {
@@ -247,6 +260,7 @@ test.describe('Reader vs WYSIWYG distinction', () => {
       var root = document.querySelector('#reader-preview .reader-preview__content');
       var dialogue = root && root.querySelector('.zw-textbox[data-preset="dialogue"]');
       var monologue = root && root.querySelector('.zw-textbox[data-preset="monologue"]');
+      var tiltedMonologue = root && root.querySelector('.zw-textbox[data-preset="tilted-monologue"]');
       var strikeNodes = root ? Array.from(root.querySelectorAll('s, del, strike, .decor-strikethrough')) : [];
       return {
         nativeStrikeCount: root ? root.querySelectorAll('s, del, strike').length : 0,
@@ -261,7 +275,11 @@ test.describe('Reader vs WYSIWYG distinction', () => {
         monologueText: monologue ? monologue.textContent || '' : '',
         monologueClass: monologue ? monologue.className : '',
         monologueStyle: monologue ? monologue.getAttribute('style') || '' : '',
-        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic'))
+        monologueHasItalic: !!(monologue && monologue.querySelector('.decor-italic')),
+        tiltedMonologueText: tiltedMonologue ? tiltedMonologue.textContent || '' : '',
+        tiltedMonologueClass: tiltedMonologue ? tiltedMonologue.className : '',
+        tiltedMonologueStyle: tiltedMonologue ? tiltedMonologue.getAttribute('style') || '' : '',
+        tiltedMonologueHasItalic: !!(tiltedMonologue && tiltedMonologue.querySelector('.decor-italic'))
       };
     });
 
@@ -273,8 +291,12 @@ test.describe('Reader vs WYSIWYG distinction', () => {
     expect(readerState.dialogueClass).toContain('zw-textbox--dialogue');
     expect(readerState.dialogueStyle).toContain('rotate(0deg)');
     expect(readerState.monologueClass).toContain('zw-textbox--monologue');
-    expect(readerState.monologueStyle).toContain('rotate(-2deg)');
+    expect(readerState.monologueStyle).toContain('rotate(0deg)');
     expect(readerState.monologueHasItalic).toBe(true);
+    expect(readerState.tiltedMonologueText).not.toContain('<br>');
+    expect(readerState.tiltedMonologueClass).toContain('zw-textbox--tilted-monologue');
+    expect(readerState.tiltedMonologueStyle).toContain('rotate(-2deg)');
+    expect(readerState.tiltedMonologueHasItalic).toBe(true);
   });
 
   test('ZWMdItBody + パイプライン: 複数見出し + chapter:// 相互リンクが preview / reader で意図どおり（監査シナリオ1・パイプライン層）', async ({ page }) => {

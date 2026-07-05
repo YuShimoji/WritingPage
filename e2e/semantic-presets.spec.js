@@ -3,7 +3,7 @@ const { test, expect } = require('@playwright/test');
 const { showFullToolbar, switchToTextareaMode } = require('./helpers');
 
 test.describe('SP-060 Semantic Presets', () => {
-  test('TextboxPresetRegistry lists all 8 presets (3 legacy + 5 semantic)', async ({ page }) => {
+  test('TextboxPresetRegistry lists all 9 presets (3 legacy + 5 semantic + 1 explicit tilt)', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
@@ -11,11 +11,12 @@ test.describe('SP-060 Semantic Presets', () => {
       return window.TextboxPresetRegistry.list({});
     });
 
-    expect(presets.length).toBe(8);
+    expect(presets.length).toBe(9);
     const ids = presets.map(p => p.id);
     expect(ids).toContain('inner-voice');
     expect(ids).toContain('dialogue');
     expect(ids).toContain('monologue');
+    expect(ids).toContain('tilted-monologue');
     expect(ids).toContain('narration');
     expect(ids).toContain('chant');
     expect(ids).toContain('warning');
@@ -30,6 +31,7 @@ test.describe('SP-060 Semantic Presets', () => {
       return {
         dialogue: reg.resolve('dialogue', {}).role,
         monologue: reg.resolve('monologue', {}).role,
+        tiltedMonologue: reg.resolve('tilted-monologue', {}).role,
         narration: reg.resolve('narration', {}).role,
         chant: reg.resolve('chant', {}).role,
         warning: reg.resolve('warning', {}).role
@@ -38,6 +40,7 @@ test.describe('SP-060 Semantic Presets', () => {
 
     expect(result.dialogue).toBe('dialogue');
     expect(result.monologue).toBe('monologue');
+    expect(result.tiltedMonologue).toBe('monologue');
     expect(result.narration).toBe('narration');
     expect(result.chant).toBe('custom');
     expect(result.warning).toBe('system');
@@ -68,6 +71,21 @@ test.describe('SP-060 Semantic Presets', () => {
     const box = page.locator('#markdown-preview-panel .zw-textbox--monologue');
     await expect(box).toBeVisible();
     await expect(box.locator('.decor-italic')).toContainText('心の中で思った');
+    await expect(box).toHaveAttribute('style', /rotate\(0deg\)/);
+  });
+
+  test('tilted-monologue preset is the explicit tilt variant', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('#editor', { timeout: 10000 });
+    await showFullToolbar(page);
+
+    await page.fill('#editor', ':::zw-textbox{preset:"tilted-monologue"}\nTilted probe\n:::');
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
+
+    const box = page.locator('#markdown-preview-panel .zw-textbox--tilted-monologue');
+    await expect(box).toBeVisible();
+    await expect(box.locator('.decor-italic')).toContainText('Tilted probe');
+    await expect(box).toHaveAttribute('style', /rotate\(-2deg\)/);
   });
 
   test('warning preset renders with danger styling in preview', async ({ page }) => {

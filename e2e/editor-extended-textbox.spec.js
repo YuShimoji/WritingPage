@@ -71,7 +71,7 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
     await expect(page.locator('#selection-tooltip .tb-dropdown-wrapper')).toBeHidden();
   });
 
-  test('TB dropdown lists all 8 presets', async ({ page }) => {
+  test('TB dropdown lists all 9 presets', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
     await page.waitForSelector('#selection-tooltip', { state: 'attached', timeout: 10000 });
@@ -89,7 +89,7 @@ test.describe('Extended Textbox (SP-016 Phase 1)', () => {
     await tbToggle.click();
 
     const items = page.locator('#selection-tooltip .tb-dropdown-item');
-    await expect(items).toHaveCount(8);
+    await expect(items).toHaveCount(9);
   });
 });
 
@@ -193,7 +193,7 @@ test.describe('Extended Textbox (SP-016 Phase 3: Preset Management)', () => {
       return window.TextboxPresetRegistry.list(s).map(p => p.id);
     });
     expect(presets).toContain('my-custom');
-    expect(presets.length).toBe(9); // 8 builtin + 1 user
+    expect(presets.length).toBe(10); // 9 builtin + 1 user
   });
 
   test('user preset appears in textarea TB dropdown', async ({ page }) => {
@@ -222,7 +222,7 @@ test.describe('Extended Textbox (SP-016 Phase 3: Preset Management)', () => {
     await tbToggle.click();
 
     const items = page.locator('#selection-tooltip .tb-dropdown-item');
-    await expect(items).toHaveCount(9); // 8 builtin + 1 user
+    await expect(items).toHaveCount(10); // 9 builtin + 1 user
 
     const userItem = page.locator('#selection-tooltip .tb-dropdown-item[data-preset-id="test-preset"]');
     await expect(userItem).toBeVisible();
@@ -392,7 +392,7 @@ test.describe('Extended Textbox (SP-016 Phase 3: Preset Management)', () => {
       window.ZenWriterStorage.saveSettings(s);
       return window.TextboxPresetRegistry.list(s).length;
     });
-    // 8 builtin + 100 user max = 108
-    expect(count).toBe(108);
+    // 9 builtin + 100 user max = 109
+    expect(count).toBe(109);
   });
 });

@@ -38,7 +38,11 @@ const SHOWCASE_MARKDOWN = [
   ':::',
   '',
   ':::zw-textbox{preset:"monologue"}',
-  '内面描写 preset: 斜体、淡い枠、わずかな傾きで心の声として読む。',
+  '内面描写 preset: 斜体、淡い枠、直立した本文リズムで心の声として読む。',
+  ':::',
+  '',
+  ':::zw-textbox{preset:"tilted-monologue"}',
+  'Experimental tilted-monologue preset: explicit opt-in tilt for intentionally unstable inner voice evidence.',
   ':::',
   '',
   '## 長文テスト',
@@ -424,8 +428,24 @@ async function readPresetParityState(page, kind) {
       }),
       dialogue: summarizeBox(root ? root.querySelector('.zw-textbox[data-preset="dialogue"], .zw-textbox--dialogue') : null),
       monologue: summarizeBox(root ? root.querySelector('.zw-textbox[data-preset="monologue"], .zw-textbox--monologue') : null),
+      tiltedMonologue: summarizeBox(root ? root.querySelector('.zw-textbox[data-preset="tilted-monologue"], .zw-textbox--tilted-monologue') : null),
     };
   }, kind);
+}
+
+async function scrollPresetFixtureIntoView(page, kind) {
+  await page.evaluate((readKind) => {
+    const root = readKind === 'reader_parity'
+      ? document.querySelector('#reader-preview .reader-preview__content')
+      : document.getElementById('wysiwyg-editor');
+    const firstPreset = root
+      ? root.querySelector('.zw-textbox[data-preset="dialogue"], .zw-textbox--dialogue')
+      : null;
+    if (firstPreset && typeof firstPreset.scrollIntoView === 'function') {
+      firstPreset.scrollIntoView({ block: 'center', inline: 'nearest' });
+    }
+  }, kind);
+  await page.waitForTimeout(250);
 }
 
 function assertShowcaseReadback(readback) {
@@ -460,14 +480,16 @@ function assertShowcaseReadback(readback) {
     if (!readback.rootExists || (readback.nativeStrikeCount + readback.decorStrikeCount) < 2 || !readback.strikeComputedLineThrough) {
       throw new Error(`${target} strike parity readback failed: ${JSON.stringify(readback)}`);
     }
-    if (!readback.dialogue.present || !readback.monologue.present) {
+    if (!readback.dialogue.present || !readback.monologue.present || !readback.tiltedMonologue.present) {
       throw new Error(`${target} textbox preset readback missing boxes: ${JSON.stringify(readback)}`);
     }
     if (!/zw-textbox--dialogue/.test(readback.dialogue.className) ||
-        !/zw-textbox--monologue/.test(readback.monologue.className)) {
+        !/zw-textbox--monologue/.test(readback.monologue.className) ||
+        !/zw-textbox--tilted-monologue/.test(readback.tiltedMonologue.className)) {
       throw new Error(`${target} textbox preset classes are not projected: ${JSON.stringify(readback)}`);
     }
-    if (!/rotate\(-2deg\)/.test(readback.monologue.styleAttr) ||
+    if (!/rotate\(0deg\)/.test(readback.monologue.styleAttr) ||
+        !/rotate\(-2deg\)/.test(readback.tiltedMonologue.styleAttr) ||
         !/rotate\(0deg\)/.test(readback.dialogue.styleAttr)) {
       throw new Error(`${target} textbox preset tilt semantics are not readable: ${JSON.stringify(readback)}`);
     }
@@ -662,10 +684,11 @@ async function captureAll(baseUrl, outDir) {
     await setCaptureStateLabel(
       page,
       '16 Editor normal parity',
-      'clean editor canvas / strike + dialogue vs monologue fixture visible',
+      'clean editor canvas / strike + dialogue vs monologue vs explicit tilt fixture',
       'editor_parity'
     );
     await page.waitForTimeout(300);
+    await scrollPresetFixtureIntoView(page, 'editor_parity');
     const editorParityReadback = await readPresetParityState(page, 'editor_parity');
     assertShowcaseReadback(editorParityReadback);
     readbacks.push(editorParityReadback);
@@ -717,10 +740,11 @@ async function captureAll(baseUrl, outDir) {
       }
     });
     await rp.waitForTimeout(1000);
+    await scrollPresetFixtureIntoView(rp, 'reader_parity');
     await setCaptureStateLabel(
       rp,
       '19 Reader parity',
-      'Reader overlay / strike + dialogue vs monologue fixture projected',
+      'Reader overlay / strike + dialogue vs monologue vs explicit tilt fixture',
       'reader_parity'
     );
     const readerParityReadback = await readPresetParityState(rp, 'reader_parity');
