@@ -1,8 +1,17 @@
 # Current State
 
-最終更新: 2026-07-06（Design Cockpit writing trust dashboard）
+最終更新: 2026-07-06（Full showcase capture route alignment）
 
 ## Snapshot
+
+### 2026-07-06 Full showcase capture route alignment
+
+- Active slice: aligned `scripts/capture-full-showcase.js` with the current left nav / advanced settings / Design Cockpit architecture.
+- Product behavior boundary: no visual redesign, storage schema change, autosave change, Design Cockpit behavior change, or Electron packaging change.
+- Full showcase route now uses `sidebarManager.activateSidebarGroup(...)` instead of brittle sidebar clicks, captures current settings entry as advanced sidebar (`legacySettingsModalVisible=false`), includes Design Cockpit with privacy-marker readback, removes the obsolete blank-mode capture, and opens mobile sidebar through the current left-nav category route.
+- Latest local showcase artifact: `output/showcase/full-2026-07-05T18-27-48` with `manifest.json`, `readback.json`, and 19 PNG screenshots. These generated artifacts remain local verification output and are not committed.
+- Verification anchor: `docs/verification/2026-07-06/full-showcase-capture-alignment.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-06 UI capture verification recovery
 

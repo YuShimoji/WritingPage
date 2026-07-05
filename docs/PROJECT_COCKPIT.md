@@ -6,6 +6,7 @@ Zen Writer の現行レビュー入口を、実装・検証・手動判断が混
 
 | 面 | 目的 | 現在の状態 | 次に見ること |
 | --- | --- | --- | --- |
+| Full showcase capture | 広い GUI 状態を一括で review する | `node scripts/capture-full-showcase.js` が sidebar categories / current settings route / Design Cockpit / themes / focus compat / mobile / Reader を生成する | `output/showcase/full-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | UI capture verification | 現行 UI の evidence を screenshot と readback で残す | `npm run test:ui:capture` が main / advanced settings sidebar / Design Cockpit / help / edit sidebar / command palette / mobile sidebar を生成する | `output/playwright/manual-verification-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | Design Cockpit | 執筆前に保存状態、文字数、文書 identity、編集面、UI shell、レビュー用要約を同時に読む | `Design Cockpit` command または `?designCockpit=1` で開く app-local dashboard | 実使用サイズで「保存状態が見つけやすいか」「書き始める導線が邪魔をしないか」を見る |
 | Writing status chip | 通常執筆中の保存/文字数 status | 非操作型 status のまま維持。Reader / memo lab 中は隠れる | 新しい保存失敗 evidence が出た時だけ扱う |
@@ -20,6 +21,8 @@ Zen Writer の現行レビュー入口を、実装・検証・手動判断が混
 
 ## 最新の検証入口
 
+- Full showcase route: `node scripts/capture-full-showcase.js`
+- Latest full showcase note: `docs/verification/2026-07-06/full-showcase-capture-alignment.md`
 - Capture route: `npm run test:ui:capture`
 - Latest capture recovery note: `docs/verification/2026-07-06/capture-verification-recovery.md`
 - Verification note: `docs/verification/2026-07-06/design-cockpit-writing-trust.md`
