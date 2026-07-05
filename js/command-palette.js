@@ -297,6 +297,19 @@
       }
     },
     {
+      id: 'design-cockpit',
+      label: 'Design Cockpit',
+      description: '保存状態、執筆準備、レビュー状態を確認するローカル dashboard',
+      keywords: 'design cockpit dashboard review trust save readiness デザイン コックピット 保存 執筆 準備',
+      shortcut: '',
+      category: 'UI操作',
+      execute: () => {
+        if (window.ZWDesignCockpit && typeof window.ZWDesignCockpit.open === 'function') {
+          window.ZWDesignCockpit.open();
+        }
+      }
+    },
+    {
       id: 'return-left-nav-root',
       label: '左ナビのルートへ戻る',
       description: '左ナビをカテゴリ表示からルート一覧へ戻す',

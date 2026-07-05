@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-06-30（Cross-terminal handoff after fresh launch gate）
+最終更新: 2026-07-06（Design Cockpit writing trust dashboard）
 
 ## Snapshot
+
+### 2026-07-06 Design Cockpit writing trust dashboard
+
+- Active slice: app-local / non-public Design Cockpit dashboard plus a minimal writing UX trust checkpoint.
+- Product-facing change: `Design Cockpit` is reachable from command palette and from `?designCockpit=1`, showing save state, character count, document identity, editor surface, autosave/manual-save routes, theme, shell state, typography density, sidebar state, and a copyable review summary.
+- Save trust boundary: dashboard `保存` calls existing `ZenWriterEditor.saveContent()` only. Autosave, writing status chip semantics, storage schema, Documents, import/export, cloud/account/public sharing, and Electron packaging were not changed.
+- Manuscript privacy boundary: the dashboard and copied summary do not include editor body text; the summary records `manuscript_content=copied_never`.
+- Review path: use `F2` -> `Design Cockpit`, or open `http://127.0.0.1:9080/index.html?designCockpit=1` during local Web review. `書き始める` closes the dashboard and returns focus to the active editor surface.
+- Project cockpit anchor: `docs/PROJECT_COCKPIT.md`.
+- Verification anchor: `docs/verification/2026-07-06/design-cockpit-writing-trust.md`.
+- Closed lanes remain closed unless new evidence appears: fresh-launch observation remains a user-side visual gate; do not reopen IME underline, heading shortcut, launcher, effect settings, Markdown source gate, WP-005, Project import recovery, or rich text block alignment from this dashboard work alone.
 
 ### 2026-06-30 Cross-terminal handoff after fresh launch gate
 
