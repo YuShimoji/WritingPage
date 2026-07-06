@@ -4,6 +4,16 @@
 
 ## Snapshot
 
+### 2026-07-06 Text expression preset catalog field completion
+
+- Followed up the accepted Text expression preset governance slice after the next-worker prompt was replayed in a fresh terminal.
+- Product/runtime behavior remains unchanged: built-in `monologue` stays upright, `tilted-monologue` remains the opt-in slanted preset, and Reader / Editor parity still uses the shared textbox DSL projection path.
+- Docs-facing change: `docs/TEXT_EXPRESSION_PRESETS.md` now records surface, status, and risk-note fields for textbox presets, inline decorations, animations, ornaments, and the exceptional `zw-typing` / `zw-dialog` / `zw-scroll` / `zw-pathtext` / ruby / kenten displays.
+- Project cockpit now names that catalog as the review surface for default tilt, animation, and exceptional display classification before new preset work.
+- Follow-up verification replay passed the focused Reader/WYSIWYG parity E2E, full showcase capture, UI capture, Design Cockpit E2E, smoke, JS lint, build, and `git diff --check`.
+- Latest local evidence from this follow-up is `output/showcase/full-2026-07-06T02-30-01` and `output/playwright/manual-verification-2026-07-06T02-30-21-860Z`.
+- Verification anchor remains `docs/verification/2026-07-06/text-expression-preset-governance.md`, now with the catalog field-completion note and replayed evidence paths.
+
 ### 2026-07-06 Cross-terminal handoff after text expression preset governance
 
 - User request: keep the current project context in repo-local docs, reflect local tracked state to remote, and leave the project restartable from another terminal.

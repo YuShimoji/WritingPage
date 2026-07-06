@@ -11,7 +11,7 @@ Zen Writer の現行レビュー入口を、実装・検証・手動判断が混
 | Design Cockpit | 執筆前に保存状態、文字数、文書 identity、編集面、UI shell、レビュー用要約を同時に読む | `Design Cockpit` command または `?designCockpit=1` で開く app-local dashboard | 実使用サイズで「保存状態が見つけやすいか」「書き始める導線が邪魔をしないか」を見る |
 | Writing status chip | 通常執筆中の保存/文字数 status | 非操作型 status のまま維持。Reader / memo lab 中は隠れる | 新しい保存失敗 evidence が出た時だけ扱う |
 | Reader / replay surface | 読者視点の一時確認 | 編集面とは別 surface として維持。`dialogue` / upright `monologue` / explicit `tilted-monologue` と取り消し線は Editor parity readback と並べて確認する | 新しい表示差分が出た時だけ扱う |
-| Text expression preset catalog | 特殊テキスト表示のID・意味・標準/legacy/experimental分類を確認する | `docs/TEXT_EXPRESSION_PRESETS.md` が review-facing catalog。runtime authority は `TextboxPresetRegistry` / `TextEffectDictionary` / `TextAnimationDictionary` / `TextOrnamentDictionary` | 新しいpresetを足す時、default tilt/animationの意味をここで先に分類する |
+| Text expression preset catalog | 特殊テキスト表示のID・意味・surface・status・risk noteを確認する | `docs/TEXT_EXPRESSION_PRESETS.md` が review-facing catalog。runtime authority は `TextboxPresetRegistry` / `TextEffectDictionary` / `TextAnimationDictionary` / `TextOrnamentDictionary` | 新しいpreset / ruby / kenten / typing / dialog / scroll / pathtextを足す時、default tilt/animationの意味をここで先に分類する |
 
 ## Design Cockpit の境界
 

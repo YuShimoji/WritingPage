@@ -13,6 +13,7 @@ The previous Reader preview parity slice proved that Editor and Reader used the 
 ## Changes
 
 - Added `docs/TEXT_EXPRESSION_PRESETS.md` as the review-facing special-display catalog for textbox presets, inline effects, animations, and ornaments.
+- Follow-up catalog pass filled the Prompt-required review fields: surface, status, and risk notes for textbox presets, inline effects, animations, ornaments, and the exceptional `zw-typing` / `zw-dialog` / `zw-scroll` / `zw-pathtext` / ruby / kenten displays.
 - Changed built-in `monologue` to `tilt:0` while keeping italic, fade-in, soft ornament, and `scale:0.98`.
 - Added explicit `tilted-monologue` with `tilt:-2` for opt-in unstable inner voice evidence.
 - Updated `.zw-textbox--monologue` styling so the default inner-description preset is still visually distinct from `dialogue` without relying on tilt.
@@ -30,7 +31,7 @@ The previous Reader preview parity slice proved that Editor and Reader used the 
 
 ## Latest Artifact
 
-- `output/showcase/full-2026-07-05T20-43-23`
+- `output/showcase/full-2026-07-06T02-30-01`
 - `16-editor-normal.png` and `19-reader-preview.png` now show all three preset rows in-frame.
 - `readback.json` reports `dialogue` as `rotate(0deg)`, `monologue` as `rotate(0deg)` / italic, and `tiltedMonologue` as `rotate(-2deg)` on both Editor and Reader.
 - `14-focus-compat.png` and `15-normal-shell.png` retain state labels, making the focus compatibility vs normal shell/sidebar state difference visible.
@@ -44,13 +45,14 @@ The previous Reader preview parity slice proved that Editor and Reader used the 
 - `node --check e2e\semantic-presets.spec.js`: pass
 - `node --check e2e\editor-extended-textbox.spec.js`: pass
 - `npx playwright test e2e\reader-wysiwyg-distinction.spec.js e2e\semantic-presets.spec.js e2e\editor-extended-textbox.spec.js --workers=1`: 40 passed
-- `node scripts\capture-full-showcase.js`: pass, 19 screenshots at `output/showcase/full-2026-07-05T20-43-23`
+- `node scripts\capture-full-showcase.js`: pass, 19 screenshots at `output/showcase/full-2026-07-06T02-30-01`
 - `npx playwright test e2e\reader-wysiwyg-distinction.spec.js --workers=1`: 16 passed
-- `npm run test:ui:capture`: pass, output at `output/playwright/manual-verification-2026-07-05T20-46-28-951Z`
+- `npm run test:ui:capture`: pass, output at `output/playwright/manual-verification-2026-07-06T02-30-21-860Z`
 - `npx playwright test e2e\design-cockpit.spec.js --workers=1`: 2 passed
 - `npm run test:smoke`: pass
 - `npm run lint:js:check`: pass
 - `npm run build`: pass
+- `git diff --check`: pass
 
 ## Boundary
 
