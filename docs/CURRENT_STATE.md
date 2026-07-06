@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-06（Text expression preset governance）
+最終更新: 2026-07-06（Cross-terminal handoff after text expression preset governance）
 
 ## Snapshot
+
+### 2026-07-06 Cross-terminal handoff after text expression preset governance
+
+- User request: keep the current project context in repo-local docs, reflect local tracked state to remote, and leave the project restartable from another terminal.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI behavior, storage schema, autosave semantics, cloud/account/public sharing, document model, Design Cockpit behavior, package config, or generated showcase artifacts changed in this pass.
+- Sync state before this handoff docs update: `git status --short --branch` reported `main...origin/main` with only `.serena/project.yml` dirty; `git fetch --prune origin` completed; `HEAD...origin/main = 0 0`; latest accepted commit was `ad04ee9 fix: govern text expression presets`.
+- Active accepted slice remains `Text expression preset governance`: built-in `monologue` is the upright standard inner-description preset, explicit `tilted-monologue` carries the opt-in slanted behavior, and Reader / Editor parity still uses the shared textbox DSL projection path.
+- Durable anchors for the next terminal: `docs/TEXT_EXPRESSION_PRESETS.md`, `docs/verification/2026-07-06/text-expression-preset-governance.md`, and this handoff note. Local ignored visual evidence from the accepted slice is `output/showcase/full-2026-07-05T20-43-23` and `output/playwright/manual-verification-2026-07-05T20-46-28-951Z`; rerun captures if those ignored artifacts are unavailable on the other machine/session.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm tracked parity with `git rev-list --left-right --count "HEAD...origin/main" = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` -> `docs/PROJECT_COCKPIT.md`.
+- Verification anchor: `docs/verification/2026-07-06/cross-terminal-handoff-after-text-expression-preset-governance.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this handoff.
 
 ### 2026-07-06 Text expression preset governance
 
