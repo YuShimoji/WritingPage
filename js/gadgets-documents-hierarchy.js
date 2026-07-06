@@ -70,6 +70,29 @@
         } catch (_) { }
       }
 
+      function focusWritingSurfaceAfterSwitch() {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            try {
+              var wysiwyg = document.getElementById('wysiwyg-editor');
+              var editor = document.getElementById('editor');
+              var target = null;
+              if (wysiwyg && typeof wysiwyg.focus === 'function' && wysiwyg.offsetParent !== null) {
+                target = wysiwyg;
+              } else if (editor && typeof editor.focus === 'function' && editor.offsetParent !== null) {
+                target = editor;
+              }
+              if (!target) return;
+              try {
+                target.focus({ preventScroll: true });
+              } catch (_) {
+                target.focus();
+              }
+            } catch (_) { }
+          });
+        });
+      }
+
       function saveCurrentContent() {
         try {
           var G = window.ZWContentGuard;
@@ -95,7 +118,7 @@
       }
 
       // ========== ドキュメント操作 ==========
-      function switchDocument(id) {
+      function switchDocument(id, options) {
         if (!id) return;
         var docs = storage.loadDocuments() || [];
         var doc = docs.find(function (d) { return d && d.id === id && d.type === 'document'; });
@@ -125,6 +148,9 @@
         updateDocumentTitle();
         notify('「' + (doc.name || '無題') + '」を開きました');
         dispatchChanged();
+        if (options && options.focusEditorAfterSelect) {
+          focusWritingSurfaceAfterSwitch();
+        }
       }
 
       function createDocument(parentId) {
@@ -597,7 +623,7 @@
           refreshUI();
         },
         onSelectDocument: function (id) {
-          switchDocument(id);
+          switchDocument(id, { focusEditorAfterSelect: true });
         },
         onToggleFolder: function (id) {
           storage.toggleFolderCollapsed(id);

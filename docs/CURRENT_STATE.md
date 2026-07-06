@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-07（Daily Document Lifecycle Comfort checkpoint）
+最終更新: 2026-07-07（Documents selection focus return checkpoint）
 
 ## Snapshot
+
+### 2026-07-07 Documents selection focus return checkpoint
+
+- Active slice: Documents Selection-to-Writing Focus Return + Marker Width Evidence from the attached next-worker prompt.
+- Product-facing change: ordinary Documents tree document selection now returns focus to the visible editor surface on the next frame, so the daily path becomes select manuscript shelf item -> resume writing without an extra editor click.
+- Scope boundary: the focus return is only wired through `onSelectDocument` ordinary document row selection. JSON import, create document, multi-select Ctrl/Shift selection, context menu, storage schema, autosave semantics, document model, import/export format, cloud/account/public sharing, Electron packaging, First Writing Comfort hint, Design Cockpit behavior, text expression preset semantics, and Reader rendering are unchanged.
+- Focused proof: `e2e/daily-document-lifecycle.spec.js` now also asserts `#wysiwyg-editor` focus after switching back through the Documents tree and verifies the `現在` marker at normal width and a 240px constrained sidebar readback without marker/label overlap or row overflow.
+- Verification replay passed node syntax checks for the edited JS/test files, the focused daily document lifecycle E2E, First Writing Comfort E2E, UI capture, full showcase capture, Design Cockpit E2E, smoke, JS lint, and build. `reader-wysiwyg-distinction` was not rerun because the editor rendering path did not change.
+- Latest local ignored evidence from this slice is `output/playwright/manual-verification-2026-07-06T17-22-39-216Z` and `output/showcase/full-2026-07-06T17-22-52`.
+- Verification anchor: `docs/verification/2026-07-07/documents-selection-focus-return.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-07 Daily Document Lifecycle Comfort checkpoint
 

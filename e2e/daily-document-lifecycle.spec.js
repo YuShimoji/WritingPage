@@ -59,6 +59,44 @@ async function expectCurrentDocumentVisible(page, title) {
   await expect(row.locator('.tree-current-marker')).toHaveText('現在');
 }
 
+async function constrainSidebarWidth(page, widthPx) {
+  await page.evaluate((width) => {
+    var sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.style.width = width + 'px';
+    document.documentElement.style.setProperty('--sidebar-width', width + 'px');
+  }, widthPx);
+}
+
+async function getCurrentMarkerMetrics(page, title) {
+  const row = activeDocumentRow(page, title);
+  await expect(row).toBeVisible();
+  return row.evaluate((el) => {
+    var label = el.querySelector('.tree-label');
+    var marker = el.querySelector('.tree-current-marker');
+    var rowRect = el.getBoundingClientRect();
+    var labelRect = label ? label.getBoundingClientRect() : { width: 0, right: 0 };
+    var markerRect = marker ? marker.getBoundingClientRect() : { width: 0, left: 0 };
+    return {
+      rowWidth: Math.round(rowRect.width),
+      rowClientWidth: el.clientWidth,
+      rowScrollWidth: el.scrollWidth,
+      labelWidth: Math.round(labelRect.width),
+      markerWidth: Math.round(markerRect.width),
+      labelBeforeMarker: !!(label && marker && labelRect.right <= markerRect.left + 1),
+      markerText: marker ? (marker.textContent || '').trim() : ''
+    };
+  });
+}
+
+function expectReadableMarkerMetrics(metrics) {
+  expect(metrics.markerText).toBe('現在');
+  expect(metrics.markerWidth).toBeGreaterThan(20);
+  expect(metrics.markerWidth).toBeLessThanOrEqual(48);
+  expect(metrics.labelWidth).toBeGreaterThanOrEqual(56);
+  expect(metrics.labelBeforeMarker).toBe(true);
+  expect(metrics.rowScrollWidth).toBeLessThanOrEqual(metrics.rowClientWidth + 2);
+}
+
 async function waitUntilSaved(page) {
   const chip = page.locator('#writing-status-chip');
   await expect(chip).toBeVisible();
@@ -122,7 +160,7 @@ test.describe('Daily document lifecycle comfort', () => {
 
   test('keeps daily document identity, switching, resume, and export retreat route visible', async ({ page }) => {
     const firstSentence = '朝の文書に一文を残す。';
-    const secondTitle = 'Daily Lifecycle 2 2026-07-07';
+    const secondTitle = 'Daily Lifecycle Focus Return 2026-07-07 長い文書名';
     const secondSentence = '夜の文書には別の一文を書く。';
 
     await page.goto('/index.html?reset=1');
@@ -145,9 +183,14 @@ test.describe('Daily document lifecycle comfort', () => {
     await createDocumentFromUi(page, secondTitle);
     await writeInEditor(page, secondSentence);
     await saveFromDocumentsPanel(page);
+    expectReadableMarkerMetrics(await getCurrentMarkerMetrics(page, secondTitle));
+    await constrainSidebarWidth(page, 240);
+    await expectCurrentDocumentVisible(page, secondTitle);
+    expectReadableMarkerMetrics(await getCurrentMarkerMetrics(page, secondTitle));
 
     await documentRow(page, firstDoc.name).click();
     await expectCurrentDocumentVisible(page, firstDoc.name);
+    await expect(page.locator('#wysiwyg-editor')).toBeFocused();
     await waitForEditorText(page, firstSentence);
     let state = await getCurrentDocumentState(page);
     expect(state.name).toBe(firstDoc.name);
