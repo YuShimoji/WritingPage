@@ -1710,6 +1710,23 @@
       });
     }
 
+    _isWysiwygContentEmpty() {
+      if (!this.wysiwygEditor) return true;
+      var text = (this.wysiwygEditor.textContent || '')
+        .replace(/\u200B/g, '')
+        .replace(/\u00a0/g, ' ')
+        .trim();
+      if (text) return false;
+      return !this.wysiwygEditor.querySelector(
+        'img, video, audio, iframe, svg, .zw-textbox, .zw-typing, .zw-dialog, .zw-scroll, .zw-pathtext'
+      );
+    }
+
+    _syncEmptyWritingHint() {
+      if (!this.wysiwygEditor) return;
+      this.wysiwygEditor.setAttribute('data-empty', this._isWysiwygContentEmpty() ? 'true' : 'false');
+    }
+
     // ─── BL-003: 書式状態インジケータ ──────────────────────
     /**
      * @private ツールバーボタンの aria-pressed と書式インジケータを同期
@@ -2025,9 +2042,13 @@
 
       // 入力時の自動保存とプレビュー更新
       this.wysiwygEditor.addEventListener('input', () => {
-        if (this._consumeTypedHeadingShortcut()) return;
+        if (this._consumeTypedHeadingShortcut()) {
+          this._syncEmptyWritingHint();
+          return;
+        }
         this._scheduleUndoSnapshot();
         this.syncToMarkdown();
+        this._syncEmptyWritingHint();
         this._syncFormatState();
         this._checkWikiLinkTrigger();
         if (this.editorManager) {
@@ -2062,6 +2083,7 @@
         this._captureUndoSnapshot(); // ペースト前にスナップショット
         const text = (e.clipboardData || window.clipboardData).getData('text/plain');
         document.execCommand('insertText', false, text);
+        this._syncEmptyWritingHint();
         this._captureUndoSnapshot(); // ペースト後もキャプチャ
       });
 
@@ -2745,6 +2767,7 @@
 
       // WYSIWYGエディタに設定
       this.wysiwygEditor.innerHTML = html;
+      this._syncEmptyWritingHint();
 
       // 表示を切り替え
       this.textareaEditor.style.display = 'none';
@@ -3102,6 +3125,7 @@
       this._lastCursorOffset = prevCursor;
       this._restoreCursorOffset(prevCursor);
       this.syncToMarkdown();
+      this._syncEmptyWritingHint();
       this._notifyChange();
     }
 
@@ -3126,6 +3150,7 @@
       this._lastCursorOffset = nextCursor;
       this._restoreCursorOffset(nextCursor);
       this.syncToMarkdown();
+      this._syncEmptyWritingHint();
       this._notifyChange();
     }
 
@@ -3223,6 +3248,7 @@
         const html = this.markdownToHtml(content);
         this.wysiwygEditor.innerHTML = html;
         this.syncToMarkdown();
+        this._syncEmptyWritingHint();
       } else {
         this.textareaEditor.value = content || '';
       }

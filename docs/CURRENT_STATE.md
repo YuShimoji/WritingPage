@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-06（Cross-terminal handoff after text expression preset governance）
+最終更新: 2026-07-06（First Writing Comfort checkpoint）
 
 ## Snapshot
+
+### 2026-07-06 First Writing Comfort checkpoint
+
+- Active slice: First Writing Comfort / Launch-to-Writing UX checkpoint from the attached next-worker prompt.
+- Product-facing change: empty Rich editing now shows a short non-persistent hint, `ここから書き始められます。本文はこの端末に自動保存されます。`, so a fresh or reset launch makes the writing surface and local autosave premise visible before source/docs inspection.
+- Implementation boundary: the hint is driven by `#wysiwyg-editor[data-empty]` and CSS pseudo-content. It is not manuscript content and does not change storage schema, autosave semantics, document model, import/export behavior, cloud/account/public sharing, Electron packaging, Design Cockpit behavior, textbox preset semantics, or Reader rendering.
+- Focused proof: `e2e/first-writing-comfort.spec.js` covers fresh/reset launch, empty Rich editing hint, Japanese typing, writing status chip transition, command-palette manual save, reload/resume, Design Cockpit privacy summary, and `書き始める` focus return.
+- Verification replay passed the focused first-writing E2E, UI capture, full showcase capture, Design Cockpit E2E, Reader/WYSIWYG distinction E2E, smoke, JS lint, build, and `git diff --check`.
+- Latest local ignored evidence from this slice is `output/playwright/manual-verification-2026-07-06T13-25-36-581Z` and `output/showcase/full-2026-07-06T13-25-52`.
+- Verification anchor: `docs/verification/2026-07-06/first-writing-comfort-checkpoint.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-06 Cross-terminal handoff after catalog field completion
 
