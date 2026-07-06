@@ -214,6 +214,10 @@
     // すべてのアクティブクラスを削除
     container.querySelectorAll('.tree-item-row.active').forEach(el => {
       el.classList.remove('active');
+      el.removeAttribute('aria-current');
+      el.removeAttribute('aria-label');
+      const marker = el.querySelector('.tree-current-marker');
+      if (marker) marker.remove();
     });
 
     // 新しいアクティブアイテムにクラスを追加
@@ -221,6 +225,16 @@
       const active = container.querySelector(`.tree-item[data-id="${CSS.escape(activeId)}"] .tree-item-row`);
       if (active) {
         active.classList.add('active');
+        active.setAttribute('aria-current', 'page');
+        const label = active.querySelector('.tree-label');
+        const currentName = label ? (label.textContent || '').trim() : '';
+        active.setAttribute('aria-label', currentName ? '現在の文書: ' + currentName : '現在の文書');
+        if (!active.querySelector('.tree-current-marker')) {
+          const marker = document.createElement('span');
+          marker.className = 'tree-current-marker';
+          marker.textContent = '現在';
+          active.appendChild(marker);
+        }
       }
     }
   }

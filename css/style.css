@@ -7802,6 +7802,19 @@ details[open] summary {
   color: var(--success-fg, #ffffff);
 }
 
+.tree-current-marker {
+  flex: 0 0 auto;
+  margin-left: 0.5rem;
+  padding: 0.08rem 0.35rem;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 999px;
+  color: inherit;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
 /* BL-005: 選択モードボタン */
 button[aria-pressed="true"] + .documents-more-btn,
 .documents-toolbar button[aria-pressed="true"] {

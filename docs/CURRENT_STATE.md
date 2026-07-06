@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-06（First Writing Comfort checkpoint）
+最終更新: 2026-07-07（Daily Document Lifecycle Comfort checkpoint）
 
 ## Snapshot
+
+### 2026-07-07 Daily Document Lifecycle Comfort checkpoint
+
+- Active slice: Daily Document Lifecycle Comfort / Documents Save-Export Path from the attached next-worker prompt.
+- Product-facing change: Documents tree の current document row now carries `aria-current="page"` and a short `現在` marker, so the active manuscript shelf item is readable as the current document rather than only inferred from background color.
+- Focused proof: `e2e/daily-document-lifecycle.spec.js` covers fresh/reset launch, opening Documents through the current structure sidebar route, current document identity, Japanese writing in document 1, creating document 2 from `+ 文書`, writing different Japanese text in document 2, switching back to document 1, reload recovery, and locating `TXT書き出し` / `JSON書き出し` / `JSON読み込み` as the external retreat route.
+- Implementation boundary: no storage schema, autosave semantics, document model, import/export format, cloud/account/public sharing, Electron packaging, First Writing Comfort hint, Design Cockpit behavior, text expression preset semantics, or Reader rendering changed.
+- Verification replay passed node syntax checks for the edited JS/test files, the focused daily document lifecycle E2E, First Writing Comfort E2E, UI capture, full showcase capture, Design Cockpit E2E, smoke, JS lint, and build. `reader-wysiwyg-distinction` was not rerun because the editor rendering path did not change.
+- Latest local ignored evidence from this slice is `output/playwright/manual-verification-2026-07-06T16-12-19-646Z` and `output/showcase/full-2026-07-06T16-12-38`.
+- Verification anchor: `docs/verification/2026-07-07/daily-document-lifecycle-comfort.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-06 First Writing Comfort checkpoint
 
