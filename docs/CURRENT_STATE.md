@@ -4,6 +4,19 @@
 
 ## Snapshot
 
+### 2026-07-06 Cross-terminal handoff after catalog field completion
+
+- User request: keep all current context in project-local docs, reflect local tracked state to remote, and leave the project restartable from another terminal.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI behavior, storage schema, autosave semantics, cloud/account/public sharing, document model, Design Cockpit behavior, package config, or generated showcase artifacts changed in this pass.
+- Sync state before this handoff docs update: `git status --short --branch` reported clean `main...origin/main`; `git rev-list --left-right --count HEAD...origin/main` reported `0 0`; `git fetch --prune origin` completed; `git pull --ff-only origin main` reported `Already up to date`.
+- Latest accepted tracked context before this handoff docs update was `fbc1949 docs: complete text expression preset catalog fields`.
+- Active accepted slice remains `Text expression preset governance`: built-in `monologue` is the upright standard inner-description preset, explicit `tilted-monologue` carries the opt-in slanted behavior, and Reader / Editor parity still uses the shared textbox DSL projection path.
+- Durable anchors for the next terminal: `docs/TEXT_EXPRESSION_PRESETS.md`, `docs/PROJECT_COCKPIT.md`, `docs/verification/2026-07-06/text-expression-preset-governance.md`, and this handoff note.
+- Latest local ignored evidence from the accepted slice remains `output/showcase/full-2026-07-06T02-30-01` and `output/playwright/manual-verification-2026-07-06T02-30-21-860Z`; rerun captures if those artifacts are unavailable in another session.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm tracked parity with `git rev-list --left-right --count HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` -> `docs/PROJECT_COCKPIT.md`.
+- Restartability check for this handoff: `npm run test:smoke` passed with `ALL TESTS PASSED`.
+- Verification anchor: `docs/verification/2026-07-06/cross-terminal-handoff-after-catalog-field-completion.md`.
+
 ### 2026-07-06 Text expression preset catalog field completion
 
 - Followed up the accepted Text expression preset governance slice after the next-worker prompt was replayed in a fresh terminal.
