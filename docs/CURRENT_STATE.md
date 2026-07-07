@@ -1,8 +1,23 @@
 # Current State
 
-最終更新: 2026-07-07（Cross-terminal handoff after Documents focus return）
+Latest handoff: 2026-07-07 - cross-terminal handoff after dev-ready sync
+
+最終更新: 2026-07-07（Cross-terminal handoff after dev-ready sync）
 
 ## Snapshot
+
+### 2026-07-07 Cross-terminal handoff after dev-ready sync
+
+- User request: preserve the full working context in project-local docs, reflect local tracked state to the remote, and leave the project immediately restartable from another terminal.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI behavior, storage schema, autosave semantics, document model, import/export format, cloud/account/public sharing, Electron packaging, First Writing Comfort hint, Design Cockpit behavior, text expression preset semantics, or Reader rendering changed in this pass.
+- Sync state before this handoff docs update: `git status --short --branch` reported clean `main...origin/main`; `git fetch --prune origin` and `git pull --ff-only origin main` had just reported `Already up to date`; `git rev-list --left-right --count HEAD...origin/main` reported `0 0`.
+- Latest accepted tracked context before this handoff docs update was `4af6c94 docs: hand off documents focus context`.
+- Development readiness checked in this terminal: `package-lock.json` and `node_modules` were present; `node --version` was `v22.19.0`; `npm --version` was `10.9.3`; `npm ls --depth=0`, `npm run test:smoke`, `npm run test:unit`, `npm run lint:js:check`, and `npm run build` all exited 0. Unit-test stderr included intentional invalid-JSON / forced-storage-failure logs from negative-path tests, while the TAP result was `14 passed`.
+- Handoff-doc verification after this docs update: `git diff --check` exited 0 and `npm run test:smoke` passed with `ALL TESTS PASSED`.
+- Active accepted slice remains Documents Selection-to-Writing Focus Return + Marker Width Evidence. Durable anchors are `docs/verification/2026-07-07/documents-selection-focus-return.md`, `e2e/daily-document-lifecycle.spec.js`, and `docs/PROJECT_COCKPIT.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm tracked parity with `git rev-list --left-right --count "HEAD...origin/main" = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` -> `docs/PROJECT_COCKPIT.md`.
+- Verification anchor: `docs/verification/2026-07-07/cross-terminal-handoff-after-dev-ready-sync.md`.
+- Expected next move after restart: choose a new implementation or audit slice from `docs/PROJECT_COCKPIT.md`; no assistant-owned product change is open from this maintenance pass.
 
 ### 2026-07-07 Cross-terminal handoff after Documents focus return
 
