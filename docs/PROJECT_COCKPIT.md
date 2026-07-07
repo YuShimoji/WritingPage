@@ -25,7 +25,7 @@ Zen Writer の現行レビュー入口を、実装・検証・手動判断が混
 ## 最新の検証入口
 
 - Full showcase parity route: `node scripts/capture-full-showcase.js`
-- Latest cross-terminal handoff note: `docs/verification/2026-07-06/cross-terminal-handoff-after-text-expression-preset-governance.md`
+- Latest cross-terminal handoff note: `docs/verification/2026-07-07/cross-terminal-handoff-after-documents-focus-return.md`
 - Latest full showcase / preset governance note: `docs/verification/2026-07-06/text-expression-preset-governance.md`
 - Previous reader parity note: `docs/verification/2026-07-06/reader-preview-preset-parity-audit.md`
 - Previous route-alignment note: `docs/verification/2026-07-06/full-showcase-capture-alignment.md`

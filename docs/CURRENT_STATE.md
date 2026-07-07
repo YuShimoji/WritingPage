@@ -1,8 +1,19 @@
 # Current State
 
-最終更新: 2026-07-07（Documents selection focus return checkpoint）
+最終更新: 2026-07-07（Cross-terminal handoff after Documents focus return）
 
 ## Snapshot
+
+### 2026-07-07 Cross-terminal handoff after Documents focus return
+
+- User request: keep all current context in project-local docs, reflect local tracked state to remote, and leave the project restartable from another terminal.
+- Scope: maintenance / handoff only. No product source, runtime behavior, UI behavior, storage schema, autosave semantics, document model, import/export format, cloud/account/public sharing, Electron packaging, First Writing Comfort hint, Design Cockpit behavior, text expression preset semantics, or Reader rendering changed in this pass.
+- Sync state before this handoff docs update: `git status --short --branch` reported `main...origin/main` with only `.serena/project.yml` dirty; `git fetch --prune origin` completed; `git pull --ff-only origin main` reported `Already up to date`; `HEAD...origin/main = 0 0`.
+- Latest accepted tracked context before this handoff docs update was `944cf59 feat: return focus after document selection`.
+- Active accepted slice remains Documents Selection-to-Writing Focus Return + Marker Width Evidence. Durable anchors are `docs/verification/2026-07-07/documents-selection-focus-return.md`, `e2e/daily-document-lifecycle.spec.js`, and `docs/PROJECT_COCKPIT.md`.
+- Restart from another terminal: run `git pull --ff-only origin main`, confirm tracked parity with `git rev-list --left-right --count "HEAD...origin/main" = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md` -> `docs/PROJECT_COCKPIT.md`.
+- Verification anchor: `docs/verification/2026-07-07/cross-terminal-handoff-after-documents-focus-return.md`.
+- `.serena/project.yml` remains pre-existing local dirt and is not part of this handoff.
 
 ### 2026-07-07 Documents selection focus return checkpoint
 
