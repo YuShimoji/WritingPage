@@ -1,10 +1,21 @@
 # Current State
 
-Latest handoff: 2026-07-07 - cross-terminal handoff after dev-ready sync
+Latest handoff: 2026-07-08 - operator tactile review launch prep
 
 最終更新: 2026-07-07（Cross-terminal handoff after dev-ready sync）
 
 ## Snapshot
+
+### 2026-07-08 Operator tactile review launch prep
+
+- User request: pull the latest remote state into this terminal, prepare the workspace for development, continue from the attached supervisor prompt, and explain the user-side review. The prompt's old host path was translated to this terminal as `C:\Users\PLANNER007\WritingPage`.
+- Supervisor prompt classification: `pass / OPERATOR_FIRST`. The accepted implementation remains Documents Selection-to-Writing Focus Return + Marker Width Evidence; the next gate is human tactile review in a real app window, not another autonomous polish slice.
+- Sync state: `git fetch --prune origin` completed; `git pull --ff-only origin main` reported `Already up to date`; `git rev-list --left-right --count HEAD...origin/main` reported `0 0`; latest accepted commit before this local launcher-prep fix was `54bf4f4 docs: hand off dev-ready sync`.
+- Development readiness in this terminal: `package-lock.json` and `node_modules` were present; `node --version` was `v22.19.0`; `npm --version` was `10.9.3`; `npm ls --depth=0`, `npm run test:smoke`, `npm run test:unit`, `npm run lint:js:check`, and `npm run build` exited 0. Unit-test stderr included intentional invalid-JSON / forced-storage-failure logs from negative-path tests while the TAP result was `14 passed`.
+- Launcher fix: `npm run app:update:open` initially stopped with `spawnSync npm ENOENT` while `scripts/update-build-open.js` used `spawnSync('npm', ..., shell: false)` on Windows. The script now uses `shell: true` only for Windows `npm` subprocesses so the prompt launcher can run on this host.
+- Launcher-prep verification before commit: `node --check scripts/update-build-open.js`, `npm run app:update:dry-run`, `npm run lint:js:check`, `git diff --check`, and `npm run test:smoke` exited 0.
+- User-side gate remains open: launch the app with `npm run app:update:open` and review three tactile points: empty Rich editing hint, Documents `現在` marker density, and whether Documents tree selection returning focus to the editor feels natural or too forceful.
+- Verification anchor: `docs/verification/2026-07-08/operator-tactile-review-launch-prep.md`.
 
 ### 2026-07-07 Cross-terminal handoff after dev-ready sync
 

@@ -4,6 +4,10 @@ const path = require('path');
 
 const projectRoot = path.resolve(__dirname, '..');
 
+function shouldUseShell(command) {
+  return process.platform === 'win32' && command === 'npm';
+}
+
 function parseArgs() {
   const args = new Set(process.argv.slice(2));
   return {
@@ -24,7 +28,7 @@ function run(command, args, options = {}) {
   const result = spawnSync(command, args || [], {
     cwd: projectRoot,
     stdio: 'inherit',
-    shell: false,
+    shell: shouldUseShell(command),
     windowsHide: true,
   });
 
@@ -40,7 +44,7 @@ function capture(command, args) {
   const result = spawnSync(command, args || [], {
     cwd: projectRoot,
     encoding: 'utf8',
-    shell: false,
+    shell: shouldUseShell(command),
     windowsHide: true,
   });
   if (result.error) throw result.error;
