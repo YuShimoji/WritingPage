@@ -16,16 +16,6 @@
 
 ## 現在の状態
 
-### 2026-07-10 Re-kickstart BUILD 候補
-
-`CODEX_REKICKSTART_KIT=2026-07-09.v1` の Project Capsule は、既存の WritingPage authority docs を置き換えずに追加済み。BUILD は docs 配置だけでは完了扱いにしない。次に選ぶ作業は、作者の launch → write → structure → preview → output → save のどの摩擦を減らすかと、どの material evidence を残すかを先に決める。
-
-| 候補 | 効く段階 | Impact | Effort | Risk | Evidence |
-|---|---|---:|---:|---:|---|
-| Fresh UI evidence pack | review / preview | high | low | low | `npm run test:ui:capture` または `node scripts/capture-full-showcase.js` の `output/` artifact と `ARTIFACT_INDEX` 追記 |
-| One narrow tactile-review polish | launch / write / structure | high | medium | medium | user feedback で一点を選び、focused E2E または screenshot/readback で確認 |
-| Stale owner-doc audit | planning / restart | medium | low | low | current shell / writing-trust facts に合わない owner docs だけを直し、`git diff --check` で確認 |
-
 - E2E: 全件数は `npx playwright test --list` で確認。最新スナップは `CURRENT_STATE`「検証結果」を正とする
 - CI: GitHub Actions green
 - コア機能: 95% 成熟

@@ -1,22 +1,10 @@
 # Current State
 
-Latest handoff: 2026-07-10 - re-kickstart BUILD capsule and validation
+Latest handoff: 2026-07-08 - operator tactile review launch prep
 
-最終更新: 2026-07-10（Re-kickstart BUILD capsule and validation）
+最終更新: 2026-07-07（Cross-terminal handoff after dev-ready sync）
 
 ## Snapshot
-
-### 2026-07-10 Re-kickstart BUILD capsule and validation
-
-- User request: install the `CODEX_REKICKSTART_KIT=2026-07-09.v1` `PROJECT_REPO_TEMPLATE/` contents into this repo root without overwriting existing files, fill the kit placeholders from repo reality, leave material evidence, then follow the kit's BUILD brief.
-- Template source note: the extracted kit did not contain a physical `PROJECT_REPO_TEMPLATE/` directory, so the project template was read from `ALL_FILES_INLINE.md`.
-- Integration boundary: existing docs were not deleted. `AGENTS.md` was not overwritten because the current repo-local adapter explicitly stays thin and keeps restart authority in `docs/CURRENT_STATE.md`, `docs/INVARIANTS.md`, and `docs/INTERACTION_NOTES.md`. The generic roadmap template was merged into the existing `docs/ROADMAP.md` rather than replacing it.
-- Added Project Capsule docs: `docs/PROJECT_BRIEF.md`, `docs/RUNTIME_STATE.md`, `docs/VALIDATION.md`, `docs/DECISION_LOG.md`, `docs/ARTIFACT_INDEX.md`, `docs/UI_RUBRIC.md`, `docs/RESEARCH_NOTES.md`, and `docs/RESEARCH_TODO.md`. Reserved artifact folders: `artifacts/review/.gitkeep` and `screenshots/.gitkeep`.
-- Material evidence in this pass: `npm run test:smoke` passed with `ALL TESTS PASSED`; `npm run build` passed and rebuilt `dist/`.
-- Verification anchor: `docs/verification/2026-07-10/re-kickstart-build.md`.
-- Product behavior boundary: no product source, runtime behavior, UI behavior, storage schema, import/export format, cloud/account/public sharing, Electron packaging policy, or Reader rendering changed in this pass.
-- Current next gate remains the human tactile review from 2026-07-08 unless the user selects a different BUILD candidate: empty Rich editing hint, Documents `現在` marker density, and Documents tree selection focus return.
-- `.serena/project.yml` remains pre-existing local dirt and is not part of this slice.
 
 ### 2026-07-08 Operator tactile review launch prep
 
