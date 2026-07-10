@@ -8,7 +8,7 @@
 
 | 観点 | 現在地 |
 |---|---|
-| Git | `532d451 chore: streamline supervisor-to-codex workflow` を `origin/main` へ push 済み。handoff 時点で `HEAD...origin/main = 0 0` / clean |
+| Git | 最新HEADは `f25ba0f docs: record handoff validation caveats`。workflow本体は `532d451 chore: streamline supervisor-to-codex workflow`。いずれも `origin/main` へ push 済みで、handoff 時点は `HEAD...origin/main = 0 0` / clean |
 | 開発環境 | Node `v22.19.0` / npm `10.9.3`。依存解決、smoke、unit 14件、JS lint、build、MkDocs build は green。MkDocsには除外済みコード参照を中心とする既存 link warning 58件が残る |
 | workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、JS lint、追加・更新した運用面の targeted Markdown lint、MkDocs build、`git diff --check` は green |
 | 現在の outcome | workflow recovery は完了。次の product outcome は未選定で、tactile review・CI failure audit・外部status公開は独立した候補 |
