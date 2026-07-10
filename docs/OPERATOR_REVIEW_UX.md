@@ -1,7 +1,7 @@
 # Operator Review UX
 
 Status: canonical
-Version: v1.8 Freeform Review / Long-Run Autonomy
+Version: v1.9 Outcome Package / Creative Direction Gate
 
 This document defines how an assistant asks for human review, consumes freeform
 feedback, and returns to autonomous work in this repository. It complements
@@ -76,8 +76,8 @@ Use these meanings:
   work can continue
 - `resolved`: freeform review was consumed and the assistant already acted on it
 
-Review Debt must not be used to stop the autonomy loop when the next 1-3 actions
-are clear, reversible, and inside the current scope.
+Review Debt must not be used to stop the autonomy loop while the route to the
+accepted outcome checkpoint is clear, reversible, and inside the current scope.
 
 ## Long-Run Autonomy
 
@@ -85,7 +85,7 @@ Use long-run autonomy for implementation, docs hygiene, verification, and other
 assistant-owned repo work.
 
 - Do not stop after a single self-review when the next safe action is obvious.
-- Execute the next 1-3 reversible, scoped actions instead of merely listing them.
+- Execute the reversible, scoped route to the accepted outcome checkpoint instead of stopping at an arbitrary action count.
 - If tests, lint, smoke checks, links, docs indexes, artifact manifests, or
   templates need small scoped fixes, perform those fixes before reporting.
 - Report at a real checkpoint, a Review Card point, a true stop condition, or a

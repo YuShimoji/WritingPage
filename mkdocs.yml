@@ -113,6 +113,8 @@ exclude_docs: |
 nav:
   - Home: index.md
   - Overview:
+      - 'Start here / Current State': CURRENT_STATE.md
+      - 'Project Cockpit': PROJECT_COCKPIT.md
       - 'AGENTS': local-view/root/AGENTS.md
       - 'CHANGELOG': local-view/root/CHANGELOG.md
       - 'CLAUDE': local-view/root/CLAUDE.md
@@ -170,6 +172,7 @@ nav:
       - 'docs/specs/spec-writing-focus-sidebar': specs/spec-writing-focus-sidebar.md
       - 'docs/specs/spec-writing-mode-unification-prep': specs/spec-writing-mode-unification-prep.md
       - 'docs/THEMES': THEMES.md
+      - 'docs/TEXT_EXPRESSION_PRESETS': TEXT_EXPRESSION_PRESETS.md
       - 'docs/UI_SURFACE_AND_CONTROLS': UI_SURFACE_AND_CONTROLS.md
       - 'docs/VISUAL_PROFILE': VISUAL_PROFILE.md
       - 'docs/WP004_PHASE3_PARITY_AUDIT': WP004_PHASE3_PARITY_AUDIT.md
@@ -183,10 +186,10 @@ nav:
       - 'docs/ai/prompts/maintenance_identity_remediation': ai/prompts/maintenance_identity_remediation.md
       - 'docs/ai/prompts/product_work_with_uncommitted_diff': ai/prompts/product_work_with_uncommitted_diff.md
       - 'docs/ai/prompts/push_only': ai/prompts/push_only.md
+      - 'docs/ai/prompts/supervisor_to_codex': ai/prompts/supervisor_to_codex.md
       - 'docs/ai/STATUS_AND_HANDOFF': ai/STATUS_AND_HANDOFF.md
       - 'docs/ai/WORKFLOWS_AND_PHASES': ai/WORKFLOWS_AND_PHASES.md
       - 'docs/AUTOMATION_BOUNDARY': AUTOMATION_BOUNDARY.md
-      - 'docs/CURRENT_STATE': CURRENT_STATE.md
       - 'docs/EDITOR_TRUST_WORKFLOW': EDITOR_TRUST_WORKFLOW.md
       - 'docs/FEATURE_REGISTRY': FEATURE_REGISTRY.md
       - 'docs/INTERACTION_NOTES': INTERACTION_NOTES.md

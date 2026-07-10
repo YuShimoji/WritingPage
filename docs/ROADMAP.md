@@ -28,7 +28,7 @@
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
 
-詳細な次スライス表は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) を正とする。レーンは並列で管理するが、実装 PR / 作業単位は **必ず 1 トピック** に絞る。
+詳細な次スライス表は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) を正とする。レーンは並列で管理するが、実装 PR / 作業単位は **1 user outcome** に絞る。完了に不可欠な最大3件の密結合した変更は同じ package に含めてよい。
 
 | レーン | 状態 | 次の到達点 | 非対象 |
 |--------|------|------------|--------|
@@ -83,11 +83,11 @@ Rich editing typed heading shortcut implementation handoff is recorded in `docs/
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 
-詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 トピック** に絞る。
+詳細は [`docs/USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の表を正とする。実装時は **1 user outcome** に絞り、別の意思決定軸を混ぜない。
 
 - **進め方（推奨）**: 台帳の「開発スライスの進め方（推奨）」に従い、スライス完了ごとに `CURRENT_STATE` を更新する
 - **WP-004**: ~~パイプライン差分の E2E 固定~~（session 46 済）。~~Reader 導線の文言・`aria-*` 統一~~（session 46 前後）。~~Phase 3 本線（ジャンルプリセット・シナリオ5 の style 1 項目）~~（session 76: `reader-genre-preset` に computed style 1 件）。typography 等の残差・手動パックは [`WP004_PHASE3_PARITY_AUDIT.md`](WP004_PHASE3_PARITY_AUDIT.md) に従う（読者確認は **再生オーバーレイ** 経路）
-- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73: カテゴリ見出し）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。~~編集カテゴリの個別ガジェット説明（B1）~~（session 84 実施）。~~他カテゴリ（assist / advanced）のガジェット説明整理~~（session 86 実施）。~~assist/advanced のコマンドパレット導線（`gadget-assist` / `gadget-advanced` + E2E）~~（session 88 実施）。~~Focus パネル UI 摩擦 6 件（エッジホバー即応化 + overlay 化 + セクション折りたたみ廃止 + 見出しメッセージ撤去 + 下部 UI 撤去 + 「新しい章」ボタン配置）~~（session 91 実施、Electron 再ビルド完了）。**ステータス（session 91）**: 監視モードで 1 件復帰消化後、再び監視モードへ。**ユーザーが体感で新規の摩擦を特定した時のみ** 1 トピックに昇格してスライス化する
+- **WP-001**: ~~コマンドパレットのモード切替後フォーカス~~（session 46 済）。~~狭幅ツールバー折り返し・余白~~（session 48: CSS + geometry E2E 強化）。~~アシスト／メタ系ガジェットの発見性~~（session 72 実施）。~~サイドバー「編集」カテゴリの情報密度~~（session 73: カテゴリ見出し）。~~ロードアウトプリセットとガジェット既定の整合~~（session 75 実施）。~~編集カテゴリの個別ガジェット説明（B1）~~（session 84 実施）。~~他カテゴリ（assist / advanced）のガジェット説明整理~~（session 86 実施）。~~assist/advanced のコマンドパレット導線（`gadget-assist` / `gadget-advanced` + E2E）~~（session 88 実施）。~~Focus パネル UI 摩擦 6 件（エッジホバー即応化 + overlay 化 + セクション折りたたみ廃止 + 見出しメッセージ撤去 + 下部 UI 撤去 + 「新しい章」ボタン配置）~~（session 91 実施、Electron 再ビルド完了）。**ステータス（session 91）**: 監視モードで 1 件復帰消化後、再び監視モードへ。**ユーザーが体感で新規の摩擦を特定した時のみ** 1 outcome に昇格してスライス化する
 - **WP-005（session 94 起票）**: プレビュー・比較ツール再設計。スライスA/B/C は done: 分割ビュー比較の公開入口を退避し、MD プレビューを実表示の rich-preview surface として戻し、比較 route を command palette / sidebar / MD preview / Reader から隔離した。将来比較を扱う場合は専用比較 surface または別ファイル比較として新規に選定する。詳細は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の WP-005 行
 - **中期（別起票）**: ブロック段落の左・中・右揃え — P2 save/resume proof は `rich-text-block-align-persistence` で完了。以後は新しい整列バグや縦書き / RTL など別軸の明示要求が出た時だけ新規スライス化する
 

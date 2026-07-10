@@ -47,7 +47,7 @@
 - **EDITOR_HELP stale settings route cleanup**: active help SSOT の設定導線は `Ctrl+,` と command palette `open-settings`、操作場所は left nav の「詳細設定」カテゴリに統一済み。旧 Focus panel 由来の設定導線と旧 three-route framing は戻さない。
 - **VisualProfile stale UI-state wording cleanup**: Visual Profile は公開 UI 状態切替ではなく、テーマ・背景・フォント・余白・本文表示・作業シーンの一括適用として説明する。`profile.uiMode` は legacy/internal compatibility field として残すが、新規 built-in / user-saved profile の主機能に戻さない。
 - **報告・次手の摩擦削減**: 完了報告は検証ログだけに圧縮しない。変更理由、何が楽になるか、残った判断、次の取っ掛かりをつなぎ、旧 planning / checklist / workflow-profile のような出力固定化 docs は削除寄りに扱う。
-- **作業粒度**: 次スライスは常に 1 トピック。WP-001 / WP-004 / package gate / docs hygiene を混ぜない。
+- **作業粒度**: 次スライスは常に 1 user outcome。完了に不可欠な実装・関連修正・検証は最大3件まで同じ package に含め、WP-001 / WP-004 / package gate / docs hygiene のように別の意思決定軸は混ぜない。
 - **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
 
 ## 次スライス候補

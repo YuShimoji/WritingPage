@@ -25,10 +25,15 @@ The left navigation pane groups the existing Markdown files by practical review 
 
 Start here when you want to understand whether the Markdown set gives a usable project overview:
 
+- [Current State](CURRENT_STATE.md): read only the live block first for current outcome, readiness, open gate, and restart route.
+- [Project Cockpit](PROJECT_COCKPIT.md): stable routes to UI review and evidence surfaces; it does not duplicate current status.
 - [Project Overview Map](PROJECT_OVERVIEW.md): where to read implementation history, current progress, future work, and gaps.
 - [Visual Evidence Index](VISUAL_EVIDENCE_INDEX.md): screenshot evidence status, generated capture locations, and a future committed layout.
-- [Turn-Based Development Plan](TURN_PLAN.md): a turn-count reading layer over the existing roadmap and ledger.
+- [Turn-Based Development Plan](TURN_PLAN.md): legacy 2026-06-15 turn-count experiment; not current planning authority.
 - [Operator Review UX](OPERATOR_REVIEW_UX.md): Review Card, freeform review intake, Review Debt, and long-run autonomy rules.
+
+This site is currently local-only. A public project-status view does not exist
+until a Pages deployment is explicitly configured.
 
 ## Translation Check
 

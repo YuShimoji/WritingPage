@@ -1,8 +1,13 @@
 # Turn-Based Development Plan
 
+Status: legacy reading layer (2026-06-15). Not current planning authority. Use
+`CURRENT_STATE.md` live block, `ROADMAP.md`, and `USER_REQUEST_LEDGER.md`.
+
 The current source plan is not primarily turn-count based. [Roadmap](ROADMAP.md) tracks lanes and status, while [User Request Ledger](USER_REQUEST_LEDGER.md) records current requests and next-slice context.
 
-This page adds a turn-count reading layer so the next few moves can be inspected without converting the roadmap into a date-based schedule or changing the source status model.
+This page preserves the earlier turn-count experiment for reference. Current
+workflow uses an outcome package and does not stop after an arbitrary action or
+turn count.
 
 ## Turn Unit
 

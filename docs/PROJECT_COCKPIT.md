@@ -1,6 +1,13 @@
 # Project Cockpit
 
-Zen Writer の現行レビュー入口を、実装・検証・手動判断が混ざらない形でまとめるローカル cockpit。
+Zen Writer の安定したレビュー入口。**現在地そのものは
+[`CURRENT_STATE.md`](CURRENT_STATE.md) の live block が正本**で、このページには
+レビュー面と再現経路だけを置く。日付・active slice・次作業をここへ重複転記しない。
+
+現状、この cockpit は repository 内と local MkDocs からだけ読める。GitHub Wiki は
+未初期化、GitHub Pages は未構成であるため、外部の常設 dashboard はまだ存在しない。
+外部化する場合は、このページを手で複製するのではなく repo docs を MkDocs / Pages
+へ自動投影する。
 
 ## 現在の確認面
 
@@ -22,7 +29,7 @@ Zen Writer の現行レビュー入口を、実装・検証・手動判断が混
 - `保存` は既存 `ZenWriterEditor.saveContent()` を呼ぶ dashboard-scoped 導線で、writing status chip の意味を変えない。
 - `書き始める` は dashboard を閉じて editor focus へ戻すだけで、Reader / left nav / mode model を増やさない。
 
-## 最新の検証入口
+## 検証入口
 
 - Full showcase parity route: `node scripts/capture-full-showcase.js`
 - Latest operator tactile review prep note: `docs/verification/2026-07-08/operator-tactile-review-launch-prep.md`

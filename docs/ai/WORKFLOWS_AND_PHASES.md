@@ -1,5 +1,5 @@
 # WORKFLOWS_AND_PHASES.md
-Ruleset-Version: v20
+Ruleset-Version: v21
 Status: canonical
 
 ## Recommended read order on resume / continue / refresh
@@ -13,7 +13,9 @@ Do not begin restart by reading old handoff, health, or runtime-counter document
 
 ## Resume / Continue / Refresh
 ### Resume
-Recover the current fact base from `CURRENT_STATE` first, then identify the active artifact and bottleneck.
+Recover the current fact base from the `CURRENT_STATE` live block first, then
+identify the active outcome and bottleneck. Read historical blocks only when the
+current outcome needs that evidence.
 
 ### Continue
 Do not rely on momentum. Re-check whether the current block still matches the bottleneck, actor, and value path.
@@ -40,17 +42,55 @@ These are not mandatory report headings.
 - For reviewable artifacts, do not require fixed phrases. Use a Review Card and accept freeform feedback.
 - Parse freeform review internally into target / intent / constraints / confidence. Continue scoped reversible work when confidence is medium or high.
 - Ask a clarification card only once, and only when confidence is low and a wrong interpretation would materially change direction.
-- Ask for next direction separately.
+- Keep next-direction choice separate from the verification question; it may be a different section in the same checkpoint report.
 
 ## Long-run autonomy loop
-When the next 1-3 actions are clear, reversible, and inside the current scope,
-execute them instead of only listing them. This includes small scoped fixes to
-tests, lint, smoke checks, docs links, artifact manifests, report templates, and
-review access.
+When the route to the accepted outcome checkpoint is clear, reversible, and
+inside the current scope, execute it instead of stopping after an arbitrary
+number of actions. This includes directly related fixes to tests, lint, smoke
+checks, docs links, artifact manifests, report templates, and review access.
 
 Report at a checkpoint, Review Card point, true stop condition, or repeated
 blocker. If the user inserts freeform micro-management, treat it as the newest
 explicit steering input within safety and scope.
+
+## Supervisor to executor package
+
+The supervisor produces one outcome package, not a chain of command-sized
+prompts. Use `docs/ai/prompts/supervisor_to_codex.md`. A usable package states:
+
+- the user/workflow outcome and why it matters now
+- current evidence and the active bottleneck
+- one outcome slice containing up to three tightly coupled changes
+- the autonomy envelope and red-band hard stops
+- any single implementation decision gate
+- acceptance evidence and the canonical status surface to update
+
+The executor owns route discovery, implementation, related fixes, verification,
+current-state sync, and normal Git follow-through inside that envelope.
+
+## Outcome slice, not micro-topic
+
+"One topic" means one coherent outcome and decision axis. It does not mean one
+file, one CSS tweak, one test, or one assistant action. Up to three coupled
+changes may travel together when separating them would create extra prompts or
+leave the user outcome incomplete. Unrelated product decisions remain separate.
+
+## Creative direction loop
+
+For layout, language, content adjacency, color, type, motion, or other
+preference-heavy work, use `Explore -> Choose -> Build -> Review`:
+
+1. Generate 2-4 meaningfully different low-cost routes and recommend one.
+2. Let the user choose at one labeled implementation decision gate.
+3. Treat that choice as approval for the bounded route and build to the stated
+   acceptance condition.
+4. Collect review feedback into one revision batch. After two non-converging
+   preference rounds, return to route comparison instead of serial micro-fixes.
+
+Each outcome checkpoint also performs a small exploration pulse. Surface at
+most two adjacent creative opportunities, each with benefit, cost, and why the
+timing matters; do not turn them into automatic scope.
 
 ## Option generation
 Options are response hooks, not a ritual table. Offer 2-4 meaningfully different hooks when the next move is open:
@@ -81,3 +121,7 @@ Do not present broad re-explanation prompts when canonical context already exist
 ## Commit and push hygiene
 Commit/push are not primary next-direction choices.
 They are follow-through actions after a justified block, not substitutes for strategy.
+
+Prefer one cohesive outcome commit (or a small intentional series) containing
+implementation, directly related tests, and live-state sync. Avoid a recurring
+product-commit -> docs-handoff-commit pair when no real handoff occurred.

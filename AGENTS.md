@@ -3,7 +3,7 @@
 # Canonical source of truth lives in `docs/CURRENT_STATE.md`, `docs/ai/*.md`, and role-limited project docs.
 
 ## Read order on restart
-1. `docs/CURRENT_STATE.md`（Snapshot・最新 handoff・ドキュメント地図・検証結果）
+1. `docs/CURRENT_STATE.md` の live block（履歴は必要な証拠を探す時だけ読む）
 2. `docs/INVARIANTS.md`（破ってはいけない条件・責務境界・テスト作法）
 3. `docs/INTERACTION_NOTES.md`（UI 状態モデル・手動確認・報告形式）
 4. 必要時のみ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md`

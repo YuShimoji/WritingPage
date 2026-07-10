@@ -468,6 +468,62 @@ async function loadCssWithImports(url) {
       okCurrentState ? 'OK' : 'NG',
     );
 
+    // 監修→開発 contract と live state の配線チェック
+    const supervisorPromptPath = path.join(
+      __dirname,
+      '..',
+      'docs',
+      'ai',
+      'prompts',
+      'supervisor_to_codex.md',
+    );
+    const mkdocsPath = path.join(__dirname, '..', 'mkdocs.yml');
+    let currentStateSrc = '';
+    let claudeMdSrc = '';
+    let supervisorPromptSrc = '';
+    let mkdocsSrc = '';
+    try {
+      currentStateSrc = fs.readFileSync(currentStatePath, 'utf-8');
+    } catch (_) { /* handled by okCurrentState */ }
+    try {
+      claudeMdSrc = fs.readFileSync(claudeMdPath, 'utf-8');
+    } catch (_) { /* handled by okClaudeMd */ }
+    try {
+      supervisorPromptSrc = fs.readFileSync(supervisorPromptPath, 'utf-8');
+    } catch (_) { /* handled below */ }
+    try {
+      mkdocsSrc = fs.readFileSync(mkdocsPath, 'utf-8');
+    } catch (_) { /* handled below */ }
+
+    const liveStartCount = (
+      currentStateSrc.match(/<!-- CURRENT_STATE_LIVE_START -->/g) || []
+    ).length;
+    const liveEndCount = (
+      currentStateSrc.match(/<!-- CURRENT_STATE_LIVE_END -->/g) || []
+    ).length;
+    const okWorkflowContract =
+      liveStartCount === 1 &&
+      liveEndCount === 1 &&
+      currentStateSrc.indexOf('CURRENT_STATE_LIVE_START') <
+        currentStateSrc.indexOf('CURRENT_STATE_LIVE_END') &&
+      /supervisor_to_codex\.md/.test(claudeMdSrc) &&
+      /# Outcome/.test(supervisorPromptSrc) &&
+      /# Autonomy envelope/.test(supervisorPromptSrc) &&
+      /CURRENT_STATE\.md/.test(mkdocsSrc) &&
+      /PROJECT_COCKPIT\.md/.test(mkdocsSrc);
+    console.log(
+      'CHECK supervisor/executor workflow contract ->',
+      okWorkflowContract ? 'OK' : 'NG',
+      {
+        liveStartCount,
+        liveEndCount,
+        promptPresent: !!supervisorPromptSrc,
+        docsNavPresent:
+          /CURRENT_STATE\.md/.test(mkdocsSrc) &&
+          /PROJECT_COCKPIT\.md/.test(mkdocsSrc),
+      },
+    );
+
     // VERSION と package.json の version 整合チェック（運用ズレの早期検知）
     const versionPath = path.join(__dirname, '..', 'VERSION');
     const packageJsonPath = path.join(__dirname, '..', 'package.json');
@@ -651,6 +707,7 @@ async function loadCssWithImports(url) {
         okAgentsMd &&
         okClaudeMd &&
         okCurrentState &&
+        okWorkflowContract &&
         okEmbedDemo &&
         okFav &&
         okChildBridge &&

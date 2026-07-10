@@ -1,10 +1,43 @@
 # Current State
 
-Latest handoff: 2026-07-08 - operator tactile review launch prep
+<!-- CURRENT_STATE_LIVE_START -->
 
-最終更新: 2026-07-07（Cross-terminal handoff after dev-ready sync）
+更新: 2026-07-10 / workflow recovery and development readiness
 
-## Snapshot
+## 今いる場所
+
+| 観点 | 現在地 |
+|---|---|
+| Git | `main` は `origin/main` の `4aa0ded` まで fast-forward 済み。同期直後は `0 0` / clean |
+| 開発環境 | Node `v22.19.0` / npm `10.9.3`。依存解決、smoke、unit 14件、JS lint、build、MkDocs build は green |
+| workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、JS lint、追加・更新した運用面の targeted Markdown lint、MkDocs build、`git diff --check` は green |
+| 現在の outcome | 監修 AI → Codex の反復を outcome package 化し、二重承認・micro Prompt・手動 handoff 連鎖を減らす workflow recovery |
+| product baseline | Documents selection-to-writing focus return と marker width evidence が最新 accepted slice。product runtime は今回変更しない |
+| user review | empty Rich editing hint / Documents `現在` marker / selection focus return の tactile review は未実施だが、workflow recovery の blocker ではない |
+| 外部の現在地 | repository は public。GitHub Wiki は enabled だが未初期化、Pages は未構成、MkDocs は local-only。自動公開先はまだ接続されていない |
+
+## 今回変えた開発契約
+
+- 作業単位を 1 micro-topic から 1 user outcome へ変更し、最大 3 件の密結合した実装・関連修正・検証を 1 package で完了できるようにした。
+- green / yellow / red の risk band を導入し、可逆な通常作業は checkpoint まで続行、主観的な方向だけ 1 回の implementation decision gate、破壊的・契約変更・不可逆公開だけ停止とした。
+- creative work は `Explore -> Choose -> Build -> Review` とし、assistant が比較案・推奨・低コスト prototype を所有する。方向選択後の preference 修正は batch 化し、2 回収束しなければ micro-fix を止めて比較へ戻る。
+- 監修側の copy-ready Prompt は `docs/ai/prompts/supervisor_to_codex.md`。開発側は package 内の route discovery、実装、関連修正、検証、live state、通常の commit/push を所有する。
+- CURRENT_STATE はこの live block を置換更新する。以下の dated sections は履歴参照であり、現在判断のために通読しない。
+
+## 外部可視化の次の判断
+
+推奨は GitHub Wiki を第二正本にせず、既存 MkDocs を GitHub Pages へ自動投影すること。これなら main 更新時に同じ repo docs から再生成され、監修・開発双方に別の Wiki 手更新を課さない。Pages workflow の追加と公開開始は外部 publication なので、今回の repo-local recovery には含めない。
+
+## 再開経路
+
+1. この live block を読む。
+2. `docs/INVARIANTS.md` と `docs/INTERACTION_NOTES.md` を読む。
+3. workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を読む。
+4. 次 product slice を選ぶ時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
+
+<!-- CURRENT_STATE_LIVE_END -->
+
+## Historical Snapshot Log (reference only)
 
 ### 2026-07-08 Operator tactile review launch prep
 
@@ -584,7 +617,7 @@ Latest handoff: 2026-07-08 - operator tactile review launch prep
 | 隔離サイドクエスト | 無重力メモ / Floating memo lab。command palette 限定の dev-only / experimental overlay。既存 editor data model / autosave 契約、正式 Gadget、loadout には接続しない |
 | 今回の docs sync | `CURRENT_STATE` / `USER_REQUEST_LEDGER` / `ROADMAP` / `FEATURE_REGISTRY` と `docs/verification/2026-06-25/command-palette-markdown-source-dev-gate.md` に、command palette の Markdown source dev gate と再開文脈を固定 |
 
-## Latest Handoff
+## Historical Handoff Digest (reference only)
 
 - New: Remote sync after Markdown source authority reconciliation を docs-only で追加。`git fetch origin` 後の `main...origin/main` は clean、`HEAD...origin/main = 0 0`、最新反映済み文脈は `8db12aa docs: reconcile markdown source authority`。別端末では `git pull --ff-only origin main` 後に `CURRENT_STATE` -> `INVARIANTS` -> `INTERACTION_NOTES` を読み、次スライス選定時だけ `USER_REQUEST_LEDGER` / `ROADMAP` を読む。Runtime / E2E body / storage / Electron / AGENTS は未変更。
 - New: Active authority Markdown source dev gate reconciliation を docs-only で実施。通常導線は Rich editing / MD プレビュー / Reader として読み、Markdown source は開発者モードの escape hatch としてだけ扱うよう `INTERACTION_NOTES`、`UI_SURFACE_AND_CONTROLS`、`GADGETS`、`USER_REQUEST_LEDGER`、`ROADMAP` を最小更新した。Runtime / E2E body / command palette implementation / storage / Electron / AGENTS は未変更。歴史ログと superseded specs は active authority ではないため書き換えていない。
@@ -638,13 +671,13 @@ Latest handoff: 2026-07-08 - operator tactile review launch prep
 - New: Remote sync handoff after First-use Save Help を実施。`8770edd` 時点の product proof を restart anchor とし、別端末では `git pull --ff-only origin main` 後に `docs/CURRENT_STATE.md` → `docs/INVARIANTS.md` → `docs/INTERACTION_NOTES.md`、次スライス選定時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。次候補は `Import Roundtrip Hardening`、`Rich Editing Heading Shortcut Decision`、stale spec reconciliation。
 - Do not reopen: 旧 mode button 群、常用 top toolbar、上端 hover reveal、legacy handoff/runtime/health 文書。
 
-## Restart Route
+## Historical Restart Route (superseded by the live block)
 
 1. このファイルの **Snapshot**、**Latest Handoff**、**Document Map** を読む。
 2. 挙動の境界は `docs/INVARIANTS.md`、UI 用語と手動確認形式は `docs/INTERACTION_NOTES.md` を読む。
 3. 次スライスを選ぶときだけ `docs/USER_REQUEST_LEDGER.md` と `docs/ROADMAP.md` を読む。
 
-## Document Map
+## Historical Document Map
 
 | 読みたいもの | ファイル |
 |-------------|----------|
@@ -661,7 +694,7 @@ Latest handoff: 2026-07-08 - operator tactile review launch prep
 
 削除済みの旧再開・健康・カウンター文書は再開判断に使わない。
 
-## Verification Results
+## Historical Verification Digest
 
 ### Command palette Markdown source dev gate
 
@@ -1204,7 +1237,7 @@ Latest handoff: 2026-07-08 - operator tactile review launch prep
 - `docs/spec-index.json` JSON parse → pass
 - active docs の blocking stale UI wording scan → none（superseded stub / history / explicit “復活させない” 文脈は除外）
 
-## Current Priorities
+## Historical Priorities Snapshot (reference only)
 
 | 優先 | テーマ | 内容 | Actor |
 |------|--------|------|-------|
@@ -1242,7 +1275,7 @@ Latest handoff: 2026-07-08 - operator tactile review launch prep
 | D | Docs hygiene / stale spec reconciliation | 現在の第一候補。current authority を歪める古い仕様表・古い UI 語彙・古い再開誘導だけを owner docs に最小反映する。WP-004 parity pack は preview / Reader 差分が新規に出た時だけ user-actor release gate として扱う | shared |
 | Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL 報告時だけ該当 surface を局所修正する | assistant / affected UI surface |
 
-## Known Notes
+## Historical Notes
 
 - `docs/spec-index.json` の `status: removed` は、参照先ファイルが存在しないことがある。現行仕様の探索は `done` / `partial` を優先する。
 - `docs/spec-index.json` の `status: done` は「現行判断の入口」と同義ではない。summary の current pointer と各 doc 冒頭の Status を確認する。

@@ -1,5 +1,5 @@
 # STATUS_AND_HANDOFF.md
-Ruleset-Version: v21
+Ruleset-Version: v22
 Status: canonical
 
 ## Feature status semantics
@@ -18,7 +18,10 @@ Use these meanings strictly:
 - `rejected`: should not be pursued within the current product/workflow scope
 - `quarantined`: potentially contaminated or unauthorized batch-derived item; do not treat as a normal candidate until re-reviewed
 
-Selection of a `proposed` item for deeper review does **not** upgrade it to `approved`.
+Selection of a `proposed` item for deeper review does **not** upgrade it to
+`approved`. Selection at a clearly labeled implementation decision gate does
+upgrade that bounded route when the gate already states scope, acceptance,
+autonomy, and hard stops; do not add a duplicate approval round.
 
 ## FEATURE_REGISTRY discipline
 For each feature candidate, keep at least:
@@ -118,6 +121,15 @@ Do not claim progress merely because:
 - a list of changed files was shown
 - a low-friction helper feature was specified
 Report what became easier, safer, or more real for the actual artifact path.
+
+## Live-state hygiene
+
+`docs/CURRENT_STATE.md` is a live control surface, not an append-only session
+transcript. Update its live block by replacement at an outcome checkpoint.
+Dated proof belongs in the existing verification/archive paths or Git history.
+Do not create a separate docs-only handoff commit after every product commit;
+include the current-state update in the outcome delivery unless the user's task
+is specifically a cross-terminal handoff.
 
 ## Drift self-check (silent unless something fires)
 At slice boundaries and handoffs, self-diagnose against these patterns; surface only the ones that fire, with the next-step implication, not as a passive footnote:

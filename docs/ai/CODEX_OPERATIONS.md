@@ -1,5 +1,5 @@
 # CODEX_OPERATIONS.md
-Ruleset-Version: v1
+Ruleset-Version: v2
 Status: canonical
 
 Codex and similar agents use this file for repository operations that are not
@@ -17,30 +17,37 @@ Classify the current block before editing:
 
 | Work type | Scope | Must not mix with |
 |---|---|---|
-| product work | user-facing behavior, UI, tests, runtime code | identity remediation, incident claims, commit-only/push-only logistics |
-| maintenance | docs, tooling, cleanup, handoff, repo hygiene | product feature expansion |
+| product work | user-facing behavior, UI, runtime code, and the directly related tests/docs/tooling needed to deliver it | identity remediation, incident claims, unrelated cleanup |
+| maintenance | docs, tooling, cleanup, handoff, repo hygiene | unrelated product feature expansion |
 | incident triage | evidence gathering for suspected credential/account/config problems | product changes or history rewrites |
 | commit-only | create a local commit from already validated changes | push, new feature work, unrelated cleanup |
 | push-only | publish already reviewed local commits | new edits, rebases, identity changes |
 
-If a prompt is a maintenance or incident block, do not enter product code unless
-the prompt explicitly changes the work type and gives a new approval boundary.
+Work type prevents unrelated scope expansion; it does not split one outcome into
+separate prompts. Product work includes its related verification and canonical
+doc sync. Maintenance may change maintenance tooling when that is the requested
+outcome. Incident triage remains read-only unless the prompt explicitly changes
+the boundary.
 
-## Permission Flags
+## Permission Overrides
 
-Use explicit flags when a block has publication, sync, or mutation risk:
+Explicit flags may be used by machine-generated operational prompts, but they
+are overrides, not mandatory magic words. Natural-language user authorization
+and project-local defaults remain valid. In this repository, validated Git
+follow-through is assistant-owned by default unless the current request forbids
+it.
 
 | Flag | Meaning |
 |---|---|
-| `DOCS_CHANGE_OK=YES` | Long-lived docs may be edited within the stated scope. |
-| `CODE_CHANGE_OK=YES` | Product/runtime/test code may be edited within the stated scope. |
-| `SYNC_OK=YES` | Fetch/pull/sync work is allowed for this block. |
-| `COMMIT_OK=YES` | A local commit may be created after validation. |
-| `PUSH_OK=YES` | Approved local commits may be pushed. |
+| `DOCS_CHANGE_OK=NO` | Do not edit long-lived docs in this block. |
+| `CODE_CHANGE_OK=NO` | Do not edit product/runtime/test code in this block. |
+| `SYNC_OK=NO` | Do not fetch or pull in this block. |
+| `COMMIT_OK=NO` | Do not create a local commit in this block. |
+| `PUSH_OK=NO` | Do not publish commits in this block. |
 
-`COMMIT_OK` and `PUSH_OK` are separate. A local commit does not imply permission
-to publish it. A user-requested sync is allowed for that sync block, but future
-blocks should not infer `SYNC_OK=YES` unless the current prompt says so.
+Do not infer `NO` from a missing flag. Destructive history edits, force-push,
+cross-repository publication, and the red-band changes in `DECISION_GATES.md`
+still require explicit approval.
 
 ## Sync and Dirty Worktree Rules
 
@@ -62,7 +69,8 @@ Do not discard changes with `git reset --hard`, `git restore`, `git checkout --
 allows that exact operation.
 
 When `SYNC_OK=NO`, do not fetch or pull. Report the current upstream distance
-from local readback only.
+from local readback only. Otherwise, an explicit request to update from remote
+authorizes a normal fetch and fast-forward-only pull.
 
 ## Upstream Distance Semantics
 
@@ -77,7 +85,9 @@ Read `git rev-list --left-right --count "HEAD...@{u}"` by state:
 | both sides moved | `n m` | stop; do not hide divergence with reset/rebase |
 
 Do not use `0 0` as the completion condition for commit-only work. In a
-commit-only block, `1 0` is usually the expected final state.
+commit-only block, `1 0` is usually the expected final state. In ordinary
+validated product or maintenance work, follow the repository's default
+commit/push policy rather than creating a separate handoff block.
 
 ## Git Identity Check
 
