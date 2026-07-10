@@ -2,18 +2,19 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-10 / workflow recovery and development readiness
+更新: 2026-07-10 / cross-terminal handoff after workflow recovery
 
 ## 今いる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | `main` は `origin/main` の `4aa0ded` まで fast-forward 済み。同期直後は `0 0` / clean |
+| Git | `532d451 chore: streamline supervisor-to-codex workflow` を `origin/main` へ push 済み。handoff 時点で `HEAD...origin/main = 0 0` / clean |
 | 開発環境 | Node `v22.19.0` / npm `10.9.3`。依存解決、smoke、unit 14件、JS lint、build、MkDocs build は green |
 | workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、JS lint、追加・更新した運用面の targeted Markdown lint、MkDocs build、`git diff --check` は green |
-| 現在の outcome | 監修 AI → Codex の反復を outcome package 化し、二重承認・micro Prompt・手動 handoff 連鎖を減らす workflow recovery |
+| 現在の outcome | workflow recovery は完了。次の product outcome は未選定で、tactile review・CI failure audit・外部status公開は独立した候補 |
 | product baseline | Documents selection-to-writing focus return と marker width evidence が最新 accepted slice。product runtime は今回変更しない |
 | user review | empty Rich editing hint / Documents `現在` marker / selection focus return の tactile review は未実施だが、workflow recovery の blocker ではない |
+| remote CI | `532d451` の全E2Eは **589 passed / 7 failed / 2 skipped / 19 did not run**。今回の変更は runtime を触らないため、failure は別 audit として扱う。失敗は chapter-mode sync 1件、sidebar accordion legacy suite 4件、toolbar icon 1件、visual-audit screenshot 1件 |
 | 外部の現在地 | repository は public。GitHub Wiki は enabled だが未初期化、Pages は未構成、MkDocs は local-only。自動公開先はまだ接続されていない |
 
 ## 今回変えた開発契約
@@ -28,12 +29,12 @@
 
 推奨は GitHub Wiki を第二正本にせず、既存 MkDocs を GitHub Pages へ自動投影すること。これなら main 更新時に同じ repo docs から再生成され、監修・開発双方に別の Wiki 手更新を課さない。Pages workflow の追加と公開開始は外部 publication なので、今回の repo-local recovery には含めない。
 
-## 再開経路
+## 別端末への handoff
 
-1. この live block を読む。
-2. `docs/INVARIANTS.md` と `docs/INTERACTION_NOTES.md` を読む。
-3. workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を読む。
-4. 次 product slice を選ぶ時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0`、`git status --short --branch` が clean であることを確認する。
+2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
+3. 監修 Prompt を作る時は `docs/ai/prompts/supervisor_to_codex.md` を使う。次 product slice を選ぶ時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
+4. CI failure は `gh run view 29081096380 --log-failed` を起点に、まず失敗が current main で再現するかを audit する。failure を理由に workflow recovery を巻き戻さない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
