@@ -140,10 +140,18 @@ The prompt pasted for the current block is the current execution target. Only th
 final `Next Prompt` emitted at the end of a report is a future handoff artifact.
 Do not confuse the two.
 
-When asked to output a next prompt, make it a complete single code block. It
-should include purpose, assumptions, permissions, prohibitions, first commands,
-steps, validation, stop conditions, deliverables, completion conditions, and the
-expected output shape.
+When asked for a normal supervisor-to-executor prompt, use
+`docs/ai/prompts/supervisor_to_codex.md` and emit one complete code block. State
+the outcome, current evidence, bounded outcome slice, autonomy envelope, hard
+stops, acceptance evidence, and closeout. Leave route discovery, first commands,
+and implementation steps to the executor unless they are themselves a verified
+constraint.
+
+Exact first commands, permissions, prohibitions, and output shape belong in a
+special operational prompt only when the task is commit-only, push-only,
+incident triage, identity remediation, or another operation whose safe boundary
+depends on those details. Do not turn a normal product outcome into a chain of
+command-sized prompts.
 
 Do not add role-assignment text such as "you are ..." to Codex prompts.
 

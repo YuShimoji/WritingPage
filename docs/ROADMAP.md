@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-07-06 / v0.3.39（Design Cockpit writing trust dashboard）
+> 最終更新: 2026-07-11 / v0.3.32（remote sync and current-main audit）
 
 ## ステータス語彙
 
@@ -17,7 +17,7 @@
 ## 現在の状態
 
 - E2E: 全件数は `npx playwright test --list` で確認。最新スナップは `CURRENT_STATE`「検証結果」を正とする
-- CI: GitHub Actions green
+- CI: latest completed baseline `9f1bfb3` / run `29088999623` は **589 passed / 7 failed / 2 skipped / 19 did not run**。ローカルで同じ7件を再現し、chapter-mode sync 1件は無名章の実データ保持リスク、残る6件は現行 UI / capture 契約に追従しない legacy test と切り分け済み
 - コア機能: 95% 成熟
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
@@ -79,7 +79,7 @@ Remote sync after GitHub artifact authority correction is recorded in `docs/veri
 
 Rich editing typed heading shortcut implementation handoff is recorded in `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`, and the current closure / review-dedup anchor is `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`. Current behavior is intentionally narrow: typed line-start `#`, `##`, or `###` followed by Space only, no paste/import/source/round-trip shortcut expansion, no generic Markdown shortcut engine. Do not reopen IME / direct shortcut / empty heading placeholder review unless there is new evidence, a changed target axis, a suspected regression, or an explicit user-requested recheck.
 
-次は、初回説明・章作成・JSON 書き出し・JSON 読み込み・typed heading shortcut そのものではなく周辺の摩擦を別スライスで選ぶ。古い仕様表を正本へ寄せる場合は stale spec reconciliation として分ける。WP-004 parity pack は新しい preview / Reader 差分が出た時の user-actor release gate として扱う。
+次の最優先提案は current-main CI の信頼回復。無名新規章のデータ保持を回復し、現行 unified shell / capture 契約に対して古い6件の test を修正または quarantine し、targeted -> full E2E -> remote readback を一つの outcome package で閉じる。Documents tactile review は user-owned の deferred review debt として並行可能。WP-004 parity pack は新しい preview / Reader 差分が出た時だけ起動する。
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 

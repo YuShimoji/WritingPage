@@ -19,7 +19,7 @@
 - **WP-SAVELOAD-001 Editor Trust Vertical Slice**: 2026-06-15 に `writing-trust-workflow-001` として、新規文書、Rich editing 入力、明示保存、自動保存 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON import 非破壊失敗、保存失敗表示を 1 本で確認した。保存信頼性の本流を戻すための slice であり、Rich Editing 新機能、Reader 表現拡張、Cloud sync、外部 DB / auth / API、GitHub cleanup、AGENTS.md 肥大化へは進まない。
 - **Project import safe failure signal / continuation proof**: `0c21466 feat: clarify failed project import recovery` returned to the Editor Trust lane after Rich heading closure. Failed JSON project imports now notify `JSON読み込みに失敗しました。現在の文書は保持されています。` across Documents import, JSON drag/drop import, and Electron menu import. The focused Editor Trust E2E now also proves the continuation path: after invalid JSON import failure, the current document can receive new text, save, reload, and restore both the original explicit-save body and the continuation token. Verification anchor: `docs/verification/2026-06-25/project-import-recovery-continuation-proof.md`.
 - **WP-005 Preview / Comparison entry cleanup**: Slices A/B/C are done. Public split-view comparison entry points were removed from the structure sidebar and Electron menu, MD preview is proven as a visible editor-adjacent rich-preview surface, and comparison routing is now isolated from command palette, sidebar wording, MD preview, and Reader. `js/split-view.js` remains future/internal comparison-surface material only; future comparison should start from a dedicated comparison surface or file-comparison brief. Verification anchors: `docs/verification/2026-06-25/wp005-preview-entry-slice-a.md`, `docs/verification/2026-06-25/wp005-md-preview-rich-preview-activation.md`, and `docs/verification/2026-06-25/wp005-comparison-isolation-slice-c.md`.
-- **Remote sync / cross-terminal handoff**: Latest handoff anchor is `docs/verification/2026-06-25/remote-sync-after-markdown-source-authority.md`. Latest product proof is `command-palette-markdown-source-dev-gate`, with verification anchor `docs/verification/2026-06-25/command-palette-markdown-source-dev-gate.md`; latest docs authority proof is `8db12aa docs: reconcile markdown source authority`. Latest rich editing trust proof is `rich-text-block-align-persistence`; latest Editor Trust proof remains `project-import-recovery-continuation-proof`; latest preview/comparison proof remains WP-005 Slice C `wp005-comparison-isolation-slice-c`. The Rich heading review-dedup closure checklist remains `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`; Rich heading functionality is accepted, placeholder/caret debt is resolved, and release-wide visual acceptance remains optional/non-blocking. On another terminal, run `git pull --ff-only origin main`, confirm clean `main...origin/main` and `HEAD...origin/main = 0 0`, then read `docs/CURRENT_STATE.md` -> `docs/INVARIANTS.md` -> `docs/INTERACTION_NOTES.md`; read `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` only when choosing the next slice, and treat project docs rather than chat history as the handoff authority.
+- **Remote sync / cross-terminal handoff**: 現在地と再開手順の正本は `docs/CURRENT_STATE.md` の live block。workflow baseline は `532d451 chore: streamline supervisor-to-codex workflow`、latest accepted product baseline は Documents selection-to-writing focus return + marker width evidence。2026-07-11 の同期監査は `9f1bfb3` までの `HEAD...origin/main = 0 0` を確認し、latest completed CI run `29088999623` の7 failure をローカル再現・分類済み。別端末では pull / parity 確認後に `CURRENT_STATE` -> `INVARIANTS` -> `INTERACTION_NOTES` を読み、次 product slice を選ぶ時だけ本台帳と `ROADMAP` を読む。
 - **GitHub Issue / PR authority downgrade**: この repo では open Issue / open PR は、それだけでは active artifact ではない。current `main`、`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `INVARIANTS`、実装差分、検証結果、ユーザーが明示した作業対象を優先する。stale GitHub Issue / PR close は帳簿整理であり、product work の blocker や progress として扱わない。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。通常 command palette から `Markdown ソース` 切替は出さず、開発者モードだけで escape hatch として出す。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Rich editing typed heading shortcut**: Rich editing の通常入力では、行頭 `# ` / `## ` / `### ` の Space 確定だけを H1/H2/H3 へ限定変換する。IME composition 中、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、汎用 Markdown shortcut は対象外。Undo は変換直後 1 回で typed marker へ戻れることを守る。
@@ -51,6 +51,18 @@
 - **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
 
 ## 次スライス候補
+
+現在の選定表は次の5件。下の Done 表は完了済み参照であり、次作業の queue ではない。
+
+| 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
+|---|---|---|---|---|---|
+| proposed | high | Current-main CI trust recovery | 無名新規章のデータ保持リスクと、現行 UI に合わない6件の test が同じ red CI に混在し、新規差分の品質を判定できない | assistant / chapter storage + CI contract | 無名章保持、legacy suite / capture 整理、runtime version 契約を 1 outcome package にし、targeted -> full E2E -> remote readback へ進む |
+| hold | medium | Documents tactile review | empty Rich editing hint、`現在` marker、selection focus return の体感受入が自動証拠だけでは閉じない | user / product feel | `npm run app:update:open` で3点を自由文 review。CI audit を止めない deferred review debt |
+| hold | medium | Release-readiness checkpoint | full E2E、UI capture、Electron 実機、runtime version が一つの受入面に繋がっていない | shared / release evidence | CI trust recovery 後に smoke / unit / lint / build / E2E / capture / Electron の責務境界を固定する |
+| hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
+| hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
+
+### 完了済み参照
 
 | 優先 | 候補 | Bottleneck | Actor / Owner |
 |------|------|------------|---------------|
@@ -88,12 +100,10 @@
 | Done | WP-005 Slice C comparison isolation | hidden command route を削除し、構造カテゴリから比較文言を外し、SplitView を future/internal material として明示。MD preview / Reader / command palette / sidebar から比較が開かないことを E2E で固定した | assistant / preview-comparison |
 | Done | Rich text block align persistence | Rich editing の段落揃えを保存・再開信頼へ接続。CommandAdapter 操作後に Markdown 同期・保存・MD preview 更新を行い、`data-zw-align` が MD preview / Reader / reload 後の Rich editing に残ることを E2E で固定した | assistant / rich editing trust |
 | Done | Command palette Markdown source dev gate | 通常 command palette から `Markdown ソース` 切替を隠し、開発者モードだけで escape hatch として表示。検索しても実行できない編集面コマンドを writer-facing list から外した | assistant / command palette clarity |
-| D | Docs hygiene / stale spec reconciliation | 次候補。WP-004 parity は preview / Reader 差分が新規報告された時だけ user-actor gate として扱う | shared |
-| Watch | Unified shell narrow fix | window drag / startup structure / left nav は closeout 済み。新規 FAIL が出た surface だけ局所修正する | assistant / affected UI surface |
 
 ## 完了時チェックリスト
 
-- `docs/CURRENT_STATE.md` の Snapshot・Latest Handoff・検証結果を必要最小限で同期する。
+- `docs/CURRENT_STATE.md` の live block を履歴追記ではなく置換更新し、現在地・最新証拠・再開導線を必要最小限で同期する。
 - 不変条件が増えたら `docs/INVARIANTS.md`、UI 用語・手動確認形式が変わったら `docs/INTERACTION_NOTES.md` を更新する。
 - ユーザー向け機能の仕様・入口・テスト所在が変わったら `docs/FEATURE_REGISTRY.md` と関連 spec を同期する。
 - E2E / manual gate の責務境界が変わったら `docs/AUTOMATION_BOUNDARY.md` を同期する。

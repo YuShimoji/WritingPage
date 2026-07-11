@@ -1,6 +1,6 @@
 # Zen Writer — ミニマル&スタイリッシュな物語スタジオ
 
-Zen Writer は、ミニマルな操作体験とスタイリッシュなレイアウトで小説・ビジュアルノベル執筆を支援する Web アプリケーションです。サーバー不要・オフライン対応を維持しつつ、ドラッグ&ドロップ画像やフローティング装飾ツールバーなど視覚的な編集体験を段階的に拡張していきます。
+Zen Writer は、ミニマルな操作体験で小説・ビジュアルノベル執筆を支援するローカル中心の Web / Electron アプリケーションです。サーバー不要・オフライン対応を維持しながら、Rich editing、章構造、保存・再開、Reader / Replay 確認を一つの執筆導線に繋ぎます。
 
 ## ビジョン
 
@@ -32,7 +32,7 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 ### ガジェットシステム
 
-- ガジェットパネル（時計、目標設定、Pomodoroタイマーなど）の並び替え・折りたたみ・設定保存
+- built-in gadget と Local Gadget Mod（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）の並び替え・折りたたみ・設定保存
 - モジュラー設計による拡張可能なアーキテクチャ
 - ベータ版 Embed SDK（`docs/EMBED_SDK.md`）による `iframe` 埋め込みサポート
 
@@ -40,9 +40,9 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 詳細は `docs/ROADMAP.md` を参照。現在の優先順位:
 
-1. **執筆体験の基盤** (Priority A): モードアーキテクチャ (done)、チャプター管理再設計 (done)、セクションリンク (done)
-2. **表現力拡張** (Priority B): Web小説演出、パステキスト、テキスト表現アーキテクチャ
-3. **エコシステム** (Priority C): ドックパネル、Google Keep連携、プラグイン拡張
+1. **執筆体験の基盤**: 章管理、保存・再開、入出力、Rich editing、Reader / Replay の主要導線は実装・focused proof 済み
+2. **現在の品質目標**: current-main CI の信頼回復と、Documents selection-to-writing の tactile review 閉鎖
+3. **条件付き次段**: release-readiness checkpoint、明示承認後の MkDocs -> GitHub Pages 自動投影、別起票の cloud continuity 検討
 
 ## Setup & Run (開発・動作確認手順)
 
@@ -50,10 +50,10 @@ Zen Writer は、ミニマルな操作体験とスタイリッシュなレイア
 
 ### 1. 依存関係のインストール
 
-プロジェクトを初めて利用する場合や、パッケージが更新された場合に実行してください。
+プロジェクトを初めて利用する場合や、パッケージが更新された場合に実行してください。lockfile の再現には Node 22.12 以上を使い、通常は `npm ci` を推奨します。
 
 ```bash
-npm install
+npm ci
 ```
 
 ### 2. 開発サーバーの起動
@@ -97,7 +97,7 @@ npx playwright test e2e/sidebar-layout.spec.js
 
 - 手動保存（即時・自動保存に加えて）: `Ctrl + S` / `Cmd + S`（コマンドパレットの「保存」と同じ）
 - インデント: `Tab`
-- top chrome 表示: `F2`
+- command palette 表示: `F2`
 - フォントサイズ拡大: `Ctrl/Cmd + +` または `Ctrl/Cmd + =`
 - フォントサイズ縮小: `Ctrl/Cmd + -`
 - フォントサイズ初期化: `Ctrl/Cmd + 0`

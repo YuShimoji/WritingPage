@@ -2,22 +2,22 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-10 / cross-terminal handoff after workflow recovery
+更新: 2026-07-11 / remote sync and current-main audit
 
 ## 今いる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | workflow本体は `532d451 chore: streamline supervisor-to-codex workflow`。この live handoff を含む全commitは `origin/main` へ push 済みで、handoff 時点は `HEAD...origin/main = 0 0` / clean |
-| 開発環境 | Node `v22.19.0` / npm `10.9.3`。依存解決、smoke、unit 14件、JS lint、build、MkDocs build は green。MkDocsには除外済みコード参照を中心とする既存 link warning 58件が残る |
-| workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、JS lint、追加・更新した運用面の targeted Markdown lint、MkDocs build、`git diff --check` は green |
-| 現在の outcome | workflow recovery は完了。次の product outcome は未選定で、tactile review・CI failure audit・外部status公開は独立した候補 |
+| Git | `9f1bfb3 docs: stabilize handoff metadata` まで fast-forward し、同期監査時点は `HEAD...origin/main = 0 0`。この端末には同期前から `.serena/project.yml` の tool template churn があり、今回の配送対象から除外して保全する |
+| 開発環境 | この端末は Node `v24.13.0` / npm `11.6.2`。`npm ls --depth=0`、smoke、unit 14件、JS lint、Playwright 617 tests / 72 files の discovery は green。Electron / Playwright browser も解決済み。MkDocs / Python は PATH 上になく、docs-site build はこの端末では未再検証 |
+| workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、unit、JS lint、build、更新文書の targeted Markdown lint、`git diff --check` は green。監修 Prompt の outcome-package 契約と operational prompt 要件の意味的矛盾は今回の maintenance slice で解消済み |
+| 現在の outcome | remote sync・開発再開監査・監修用正本の再同期は完了。次の product outcome は未承認で、最優先提案は current-main CI の信頼回復 |
 | product baseline | Documents selection-to-writing focus return と marker width evidence が最新 accepted slice。product runtime は今回変更しない |
 | user review | empty Rich editing hint / Documents `現在` marker / selection focus return の tactile review は未実施だが、workflow recovery の blocker ではない |
-| remote CI | `532d451` の全E2Eは **589 passed / 7 failed / 2 skipped / 19 did not run**。今回の変更は runtime を触らないため、failure は別 audit として扱う。失敗は chapter-mode sync 1件、sidebar accordion legacy suite 4件、toolbar icon 1件、visual-audit screenshot 1件 |
+| remote CI | latest completed baseline は `9f1bfb3` / run `29088999623`で **589 passed / 7 failed / 2 skipped / 19 did not run**。ローカル直列再生で同じ7件を再現。chapter-mode sync 1件は無名新規章が通常表示往復で消える実データ保持リスク、sidebar accordion 4件・toolbar selector 1件・visual-audit 1件は現行 unified shell / capture 契約に追従しない legacy test |
 | 外部の現在地 | repository は public。GitHub Wiki は enabled だが未初期化、Pages は未構成、MkDocs は local-only。自動公開先はまだ接続されていない |
 
-## 今回変えた開発契約
+## 現行の開発契約
 
 - 作業単位を 1 micro-topic から 1 user outcome へ変更し、最大 3 件の密結合した実装・関連修正・検証を 1 package で完了できるようにした。
 - green / yellow / red の risk band を導入し、可逆な通常作業は checkpoint まで続行、主観的な方向だけ 1 回の implementation decision gate、破壊的・契約変更・不可逆公開だけ停止とした。
@@ -34,7 +34,7 @@
 1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0`、`git status --short --branch` が clean であることを確認する。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
 3. 監修 Prompt を作る時は `docs/ai/prompts/supervisor_to_codex.md` を使う。次 product slice を選ぶ時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
-4. CI failure は `gh run view 29081096380 --log-failed` を起点に、まず失敗が current main で再現するかを audit する。failure を理由に workflow recovery を巻き戻さない。
+4. CI は `gh run view 29088999623 --log-failed` と今回のローカル切り分けを起点にする。まず無名章のデータ保持を回復し、残る legacy suite / capture を現行契約へ更新してから full E2E と remote readback へ進む。failure を理由に workflow recovery を巻き戻さない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

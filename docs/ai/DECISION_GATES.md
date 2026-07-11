@@ -95,5 +95,6 @@ If any of the following occurs in the current block, stop before commit/push/han
 Before asking:
 - verify whether the answer already exists in canonical docs or recent verified context
 - keep one intent per ask
-- do not mix manual verification with next-direction choice
+- do not mix manual verification with next-direction choice in the same ask;
+  they may appear in separate sections of one report
 - do not use procedural yes/no traps as the main options
