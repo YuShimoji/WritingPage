@@ -421,7 +421,7 @@
     "pct": 100,
     "cat": "ui",
     "file": "docs/specs/spec-chapter-management.md",
-    "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",
+    "summary": "Novlr式2ペイン章管理。Phase 1: 見出し自動検出・クリックナビ・リネーム・右クリックメニュー・D&D。Phase 2: 章独立保存・chapterMode・Focus章編集・Normal↔Focus同期・無名章(title === '')の保持。Phase 3: 目次自動生成(プレビュー内ToC注入+チャプターリスト合計文字数+目次コピー)。",
     "related": [
       "SP-070",
       "SP-052",

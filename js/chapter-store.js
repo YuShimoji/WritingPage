@@ -270,6 +270,7 @@
     if (!ensureStorage()) return false;
     var docs = STORAGE.loadDocuments();
     var now = Date.now();
+
     for (var i = 0; i < orderedIds.length; i++) {
       for (var j = 0; j < docs.length; j++) {
         if (docs[j] && docs[j].id === orderedIds[i] && docs[j].type === 'chapter') {
@@ -329,6 +330,11 @@
     var docs = STORAGE.loadDocuments();
     var now = Date.now();
 
+    function isPreservableUnnamedEmptyChapter(chapter) {
+      return !!(chapter && chapter.type === 'chapter' && chapter.parentId === docId &&
+        String(chapter.name || '') === '' && String(chapter.content || '').trim() === '');
+    }
+
     if (parsed.length === 0) {
       // 見出しなし: 全文を1章として扱う
       if (existing.length === 0) {
@@ -364,25 +370,36 @@
 
     // 見出しベースの分解: parsed と existing をマッチング
     // 簡易方式: order 順に対応付け。数が異なる場合は作成/削除
+    var touchedChapterIds = {};
+    var existingCursor = 0;
     for (var i = 0; i < parsed.length; i++) {
       var p = parsed[i];
       var body = trimChapterSliceBody(Model.getChapterBody(fullText, p));
 
-      if (i < existing.length) {
+      while (existingCursor < existing.length &&
+          p.title !== '' &&
+          isPreservableUnnamedEmptyChapter(existing[existingCursor])) {
+        existingCursor++;
+      }
+
+      if (existingCursor < existing.length) {
+        var targetExisting = existing[existingCursor];
         // 既存章を更新
         for (var j = 0; j < docs.length; j++) {
-          if (docs[j] && docs[j].id === existing[i].id) {
+          if (docs[j] && docs[j].id === targetExisting.id) {
             docs[j].name = p.title;
             docs[j].content = body;
             docs[j].level = p.level;
             docs[j].order = i;
             docs[j].updatedAt = now;
+            touchedChapterIds[docs[j].id] = true;
             break;
           }
         }
+        existingCursor++;
       } else {
         // 新規章
-        docs.push({
+        var newChapter = {
           id: uid(),
           type: 'chapter',
           parentId: docId,
@@ -393,13 +410,24 @@
           visibility: 'visible',
           createdAt: now,
           updatedAt: now
-        });
+        };
+        docs.push(newChapter);
+        touchedChapterIds[newChapter.id] = true;
       }
     }
 
     // parsed より既存章が多い場合、余分を削除
-    for (var k = parsed.length; k < existing.length; k++) {
+    for (var k = 0; k < existing.length; k++) {
+      if (touchedChapterIds[existing[k].id]) continue;
+      if (isPreservableUnnamedEmptyChapter(existing[k])) continue;
       removeDocById(docs, existing[k].id);
+    }
+
+    var order = 0;
+    for (var m = 0; m < docs.length; m++) {
+      if (docs[m] && docs[m].type === 'chapter' && docs[m].parentId === docId) {
+        docs[m].order = order++;
+      }
     }
 
     STORAGE.saveDocuments(docs);

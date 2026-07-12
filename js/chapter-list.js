@@ -267,7 +267,12 @@
     if (!docIdForSplit || chapsBeforeNav.length === 0) return;
 
     var G = window.ZWContentGuard;
-    var fromEditor = G ? String(G.getEditorContent() || '') : getEditorText();
+    var directEditorEl = document.getElementById('editor');
+    var directEditorText = directEditorEl ? String(directEditorEl.value || '') : '';
+    var fromEditor = G ? String(G.getEditorContent() || '') : directEditorText;
+    if (directEditorText.indexOf('#') >= 0) {
+      fromEditor = directEditorText;
+    }
     var fromStore = '';
     try {
       if (window.ZenWriterStorage && typeof window.ZenWriterStorage.loadContent === 'function') {

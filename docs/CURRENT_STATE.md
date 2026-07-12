@@ -2,39 +2,41 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-11 / remote sync and current-main audit
+更新: 2026-07-12 / current-main CI trust recovery
 
-## 今いる場所
+## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | `9f1bfb3 docs: stabilize handoff metadata` まで fast-forward し、同期監査時点は `HEAD...origin/main = 0 0`。この端末には同期前から `.serena/project.yml` の tool template churn があり、今回の配送対象から除外して保全する |
-| 開発環境 | この端末は Node `v24.13.0` / npm `11.6.2`。`npm ls --depth=0`、smoke、unit 14件、JS lint、Playwright 617 tests / 72 files の discovery は green。Electron / Playwright browser も解決済み。MkDocs / Python は PATH 上になく、docs-site build はこの端末では未再検証 |
-| workflow 検証 | `node --check scripts/dev-check.js`、workflow contract を含む smoke、unit、JS lint、build、更新文書の targeted Markdown lint、`git diff --check` は green。監修 Prompt の outcome-package 契約と operational prompt 要件の意味的矛盾は今回の maintenance slice で解消済み |
-| 現在の outcome | remote sync・開発再開監査・監修用正本の再同期は完了。次の product outcome は未承認で、最優先提案は current-main CI の信頼回復 |
-| product baseline | Documents selection-to-writing focus return と marker width evidence が最新 accepted slice。product runtime は今回変更しない |
-| user review | empty Rich editing hint / Documents `現在` marker / selection focus return の tactile review は未実施だが、workflow recovery の blocker ではない |
-| remote CI | latest completed baseline は `9f1bfb3` / run `29088999623`で **589 passed / 7 failed / 2 skipped / 19 did not run**。ローカル直列再生で同じ7件を再現。chapter-mode sync 1件は無名新規章が通常表示往復で消える実データ保持リスク、sidebar accordion 4件・toolbar selector 1件・visual-audit 1件は現行 unified shell / capture 契約に追従しない legacy test |
-| 外部の現在地 | repository は public。GitHub Wiki は enabled だが未初期化、Pages は未構成、MkDocs は local-only。自動公開先はまだ接続されていない |
+| Git | `main` は remote から fast-forward 済み。作業開始時の `HEAD...origin/main` は `0 0`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持。 |
+| 開発環境 | `.nvmrc` は Node `24.13.0`。`package.json` engines は Node `>=22.12.0 <25` / npm `>=11 <12`、packageManager は `npm@11.6.2`。CI とローカルの受け入れ入口は `npm run test:ci:acceptance`。 |
+| 実装 outcome | current-main CI trust recovery を実施。SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないように parser / store / chapter-list sync を修正。 |
+| テスト outcome | legacy/current-shell mismatch をテスト側で現行契約へ更新。sidebar root/category shell は category header D&D を未実装として明示 skip、visual audit は通常実行で tracked baseline PNG を書かず、manual capture は `scripts/capture-full-showcase.js` 所有に戻した。 |
+| CI contract | `.github/workflows/ci-e2e.yml` は `.nvmrc` を使い、Node/npm version を出力し、smoke → unit → JS lint → build → full Playwright を acceptance gate として実行する。 |
+| product boundary | 章データ保持とテスト/CI契約の回復のみ。UI redesign、storage schema migration、autosave semantics、Reader/export format、Electron packaging、外部公開設定は変更していない。 |
 
 ## 現行の開発契約
 
-- 作業単位を 1 micro-topic から 1 user outcome へ変更し、最大 3 件の密結合した実装・関連修正・検証を 1 package で完了できるようにした。
-- green / yellow / red の risk band を導入し、可逆な通常作業は checkpoint まで続行、主観的な方向だけ 1 回の implementation decision gate、破壊的・契約変更・不可逆公開だけ停止とした。
-- creative work は `Explore -> Choose -> Build -> Review` とし、assistant が比較案・推奨・低コスト prototype を所有する。方向選択後の preference 修正は batch 化し、2 回収束しなければ micro-fix を止めて比較へ戻る。
-- 監修側の copy-ready Prompt は `docs/ai/prompts/supervisor_to_codex.md`。開発側は package 内の route discovery、実装、関連修正、検証、live state、通常の commit/push を所有する。
-- CURRENT_STATE はこの live block を置換更新する。以下の dated sections は履歴参照であり、現在判断のために通読しない。
+- chapterMode の無名章は実データであり、UIプレースホルダーとは分離する。`title === ''` は保存・分解・組み立ての境界として保持する。
+- 章 parser は `#` だけの行を heading と扱わず、`## ` / `##\t` のように marker 後に空白がある空タイトル heading を有効な章境界として扱う。
+- Visual audit の通常E2Eは tracked baseline を更新しない。baseline refresh / showcase capture は明示的な capture script のみが所有する。
+- Full E2E の失敗が beforeEach/browser context timeout のような起動資源系に見える場合も、対象spec単独再実行で事実確認してからCI信頼性を判断する。
 
-## 外部可視化の次の判断
+## 次に推奨する作業
 
-推奨は GitHub Wiki を第二正本にせず、既存 MkDocs を GitHub Pages へ自動投影すること。これなら main 更新時に同じ repo docs から再生成され、監修・開発双方に別の Wiki 手更新を課さない。Pages workflow の追加と公開開始は外部 publication なので、今回の repo-local recovery には含めない。
+| 方向 | 目的 | 効果 | 次の動き |
+|---|---|---|---|
+| Verify | push後のremote CI readbackを完了する | current-mainが本当にCI greenかを外部状態で確定する | pushed commit の GitHub Actions run を `gh run watch` / `gh run view` で確認する |
+| Audit | chapterModeの無名章以外の境界を点検する | duplicate title / whitespace heading / empty body のデータ保持リスクを早めに潰せる | SP-071 周辺に property-like unit tests を追加するか判断する |
+| Advance | 次のproduct sliceを選ぶ | CI信頼回復後にユーザー価値へ戻せる | `docs/PROJECT_COCKPIT.md` / `docs/ROADMAP.md` から1 micro-topicを選び、UI/保存/Readerのどれを前進させるか決める |
+| Excise | legacy test contractの残骸を減らす | 今後のCI failureが実装問題かテスト契約問題か判別しやすくなる | stale selector / old shell wording を持つspecを小分けに棚卸しする |
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0`、`git status --short --branch` が clean であることを確認する。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0`、`git status --short --branch` が tracked clean であることを確認する。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
-3. 監修 Prompt を作る時は `docs/ai/prompts/supervisor_to_codex.md` を使う。次 product slice を選ぶ時だけ `docs/USER_REQUEST_LEDGER.md` / `docs/ROADMAP.md` を読む。
-4. CI は `gh run view 29088999623 --log-failed` と今回のローカル切り分けを起点にする。まず無名章のデータ保持を回復し、残る legacy suite / capture を現行契約へ更新してから full E2E と remote readback へ進む。failure を理由に workflow recovery を巻き戻さない。
+3. 直近の検証証跡は `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`。remote CI は push 後の run URL を最終報告で確認する。
+4. `.serena/project.yml` は端末ローカル設定差分として扱い、今回のcommit対象に含めない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

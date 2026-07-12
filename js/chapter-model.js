@@ -39,7 +39,7 @@
 
     for (var i = 0; i < lines.length; i++) {
       var line = lines[i];
-      var m = line.match(/^(#{1,6})\s+(.+)$/);
+      var m = line.match(/^(#{1,6})[ \t]+(.*)$/);
       if (m) {
         var headingEnd = offset + line.length + 1; // +1 for \n
         chapters.push({

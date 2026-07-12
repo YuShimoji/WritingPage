@@ -232,7 +232,7 @@ test.describe('PathText Handle Overlay', () => {
   });
 
   test('selecting a preset changes data-path', async ({ page }) => {
-    const pathtext = page.locator('.zw-pathtext');
+    const pathtext = page.locator('#wysiwyg-editor .zw-pathtext');
     const originalPath = await pathtext.getAttribute('data-path');
 
     await pathtext.click({ button: 'right' });

@@ -12,6 +12,16 @@ npm run test:e2e
 - 失敗時は `test-results/` にスクリーンショットとトレースが保存される
 - CI: `.github/workflows/ci-e2e.yml` で push/PR 時に自動実行
 
+### CI acceptance gate
+
+```bash
+npm run test:ci:acceptance
+```
+
+- Node は `.nvmrc` の `24.13.0` を基準にする。`package.json` の engines は Node `>=22.12.0 <25` / npm `>=11 <12`。
+- CI acceptance は `test:smoke` → `test:unit` → `lint:js:check` → `build` → `test:e2e` の順に実行する。
+- Visual audit の通常テストは Playwright の `test-results/` / outputPath にだけ一時スクリーンショットを書く。tracked baseline refresh は manual-only で、`scripts/capture-full-showcase.js` を使う。
+
 ### スモークテスト
 
 ```bash

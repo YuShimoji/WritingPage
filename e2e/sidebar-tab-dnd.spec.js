@@ -1,131 +1,99 @@
-/**
- * E2E: アコーディオン ドラッグ&ドロップ順序入替 (TASK_045)
- * アコーディオンヘッダーをD&Dで順序入替え、localStorageに永続化されることをテスト
- * 注意: アコーディオンシステムでの順序入替え機能実装待機中
- */
+// @ts-check
 const { test, expect } = require('@playwright/test');
-const { disableWritingFocus, ensureNormalMode, openSidebar } = require('./helpers');
+const { ensureNormalMode, openSidebarGroup } = require('./helpers');
 
 const pageUrl = '/index.html';
 
-test.describe('Sidebar Accordion Drag & Drop (TASK_045)', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForLoadState('networkidle');
-        await ensureNormalMode(page);
-    });
+async function readLeftNavState(page) {
+  return page.evaluate(() => {
+    const html = document.documentElement;
+    const readCategory = (id) => {
+      const section = document.querySelector(`.accordion-category[data-category="${id}"]`);
+      const header = section ? section.querySelector('.accordion-header') : null;
+      const content = section ? section.querySelector('.accordion-content') : null;
+      return {
+        exists: !!section,
+        ariaHidden: section ? section.getAttribute('aria-hidden') : null,
+        expanded: header ? header.getAttribute('aria-expanded') : null,
+        contentHidden: content ? content.hidden || window.getComputedStyle(content).display === 'none' : null,
+        activeClass: section ? section.classList.contains('is-active-category') : false,
+        lastActiveClass: section ? section.classList.contains('is-last-active-category') : false
+      };
+    };
+    return {
+      navState: html.getAttribute('data-left-nav-state'),
+      active: html.getAttribute('data-left-nav-active'),
+      lastActive: html.getAttribute('data-left-nav-last-active'),
+      anchorLabel: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
+      sections: readCategory('sections'),
+      structure: readCategory('structure'),
+      advanced: readCategory('advanced')
+    };
+  });
+}
 
-    test('accordion headers are rendered', async ({ page }) => {
-        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
+test.describe('Sidebar root/category shell contract', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto(pageUrl);
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
+  });
 
-        const headers = page.locator('.accordion-header');
-        const count = await headers.count();
-        expect(count).toBeGreaterThan(0);
-    });
+  test('launch starts at the left-nav root with category buttons available', async ({ page }) => {
+    const state = await readLeftNavState(page);
 
-    test('accordion panels are togglable', async ({ page }) => {
-        await page.goto(pageUrl);
-        await openSidebar(page);
-        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
+    expect(state.navState).toBe('root');
+    expect(state.active).toBeNull();
+    expect(state.sections.exists).toBe(true);
+    expect(state.structure.exists).toBe(true);
+    expect(state.advanced.exists).toBe(true);
+  });
 
-        const headers = page.locator('.accordion-header');
-        const firstHeader = headers.first();
+  test('activating a category shows only that category content', async ({ page }) => {
+    await openSidebarGroup(page, 'structure');
+    await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
 
-        // 初期状態が展開済みの場合は一度折り畳む
-        const initialState = await firstHeader.getAttribute('aria-expanded');
-        if (initialState === 'true') {
-            await firstHeader.click();
-            await page.waitForTimeout(300);
-        }
+    const state = await readLeftNavState(page);
 
-        // クリックで展開されることを確認
-        await firstHeader.click();
-        await page.waitForTimeout(300);
+    expect(state.navState).toBe('category');
+    expect(state.active).toBe('structure');
+    expect(state.anchorLabel).toBe('構造');
+    expect(state.structure.expanded).toBe('true');
+    expect(state.structure.contentHidden).toBe(false);
+    expect(state.structure.activeClass).toBe(true);
+    expect(state.sections.ariaHidden).toBe('true');
+    expect(state.sections.contentHidden).toBe(true);
+  });
 
-        const isExpanded = await firstHeader.getAttribute('aria-expanded');
-        expect(isExpanded).toBe('true');
-    });
+  test('returning to root preserves the last-active cue but does not reopen content', async ({ page }) => {
+    await openSidebarGroup(page, 'advanced');
+    await page.evaluate(() => window.sidebarManager.returnToLeftNavRoot());
+    await page.waitForTimeout(150);
 
-    test('sidebarManager exists and has accordion configuration', async ({ page }) => {
-        await page.goto(pageUrl);
-        await page.waitForFunction(() => {
-            return typeof window.sidebarManager !== 'undefined';
-        }, { timeout: 10000 });
+    const state = await readLeftNavState(page);
 
-        const hasManager = await page.evaluate(() => {
-            return typeof window.sidebarManager === 'object';
-        });
-        expect(hasManager).toBeTruthy();
-    });
+    expect(state.navState).toBe('root');
+    expect(state.active).toBeNull();
+    expect(state.lastActive).toBe('advanced');
+    expect(state.advanced.lastActiveClass).toBe(true);
+    expect(state.advanced.expanded).toBe('false');
+    expect(state.advanced.contentHidden).toBe(true);
+  });
 
-    test('accordion header state persists in localStorage', async ({ page }) => {
-        await page.goto(pageUrl);
-        await openSidebar(page);
-        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
+  test('reload starts at root while keeping the last-active category cue', async ({ page }) => {
+    await openSidebarGroup(page, 'structure');
+    await page.reload();
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
 
-        // アコーディオンを展開
-        const firstHeader = page.locator('.accordion-header').first();
-        const ariaControls = await firstHeader.getAttribute('aria-controls');
-        const categoryId = ariaControls ? ariaControls.replace('accordion-', '') : null;
+    const state = await readLeftNavState(page);
 
-        await firstHeader.click();
-        await page.waitForTimeout(300);
+    expect(state.navState).toBe('root');
+    expect(state.active).toBeNull();
+    expect(state.lastActive).toBe('structure');
+    expect(state.structure.lastActiveClass).toBe(true);
+    expect(state.structure.expanded).toBe('false');
+  });
 
-        // localStorage確認
-        await page.evaluate((categoryId) => {
-            try {
-                const settings = window.ZenWriterStorage?.loadSettings() || {};
-                return settings.ui?.expandedAccordions?.[categoryId];
-            } catch (_) {
-                return null;
-            }
-        }, categoryId);
-
-        // アコーディオンの状態が何らかの形で保存されていることを確認
-        await page.reload();
-        await openSidebar(page);
-        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
-
-        const loaded = await page.evaluate((categoryId) => {
-            try {
-                const header = document.querySelector(`.accordion-header[aria-controls="accordion-${categoryId}"]`);
-                return header ? header.getAttribute('aria-expanded') === 'true' : false;
-            } catch (_) {
-                return false;
-            }
-        }, categoryId);
-
-        // 状態が何らかの形で反映されていることを確認
-        expect(typeof loaded).toBe('boolean');
-    });
-
-    test('multiple accordions can be expanded independently', async ({ page }) => {
-        await page.goto(pageUrl);
-        await openSidebar(page);
-        await page.waitForSelector('.accordion-header', { state: 'visible', timeout: 10000 });
-        await disableWritingFocus(page);
-        await page.waitForTimeout(100);
-
-        const headers = page.locator('.accordion-header');
-        const count = await headers.count();
-
-        if (count < 2) {
-            test.skip();
-            return;
-        }
-
-        const firstHeader = headers.first();
-        const secondHeader = headers.nth(1);
-
-        await firstHeader.click();
-        await page.waitForTimeout(300);
-        await secondHeader.click();
-        await page.waitForTimeout(300);
-
-        const firstExpanded = await firstHeader.getAttribute('aria-expanded');
-        const secondExpanded = await secondHeader.getAttribute('aria-expanded');
-
-        expect(typeof firstExpanded).toBe('string');
-        expect(typeof secondExpanded).toBe('string');
-    });
+  test.skip('category-header drag and drop is not implemented in the current root/category shell', async () => {});
 });

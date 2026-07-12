@@ -36,6 +36,7 @@
 - hidden `ui-mode-select` は HTML から削除済み。コマンドパレットのモード切替は `ZenWriterApp.setUIMode()` と可視の mode-switch ボタン経由に統一する
 - chapterMode は全ドキュメントで自動適用 (`ensureChapterMode`)。章追加は `Store.createChapter()` 経路のみ
 - **chapterMode の章内容保存は常時実行 (必須)**。`settings.autoSave.enabled` はあくまで「自動保存 **通知 HUD** の表示有無」のみを制御する。保存そのものを止める設定ではない (session 109 で SSOT 化)
+- **chapterMode の無名章はデータとして保持する**。`title === ''` の章は UI 表示でだけプレースホルダーを使い、`assembleFullText()` / `splitIntoChapters()` / Normal↔Focus 往復で見出し境界・空タイトル・空本文を消したり、前後の章本文へ混入させたりしない。
 - **`ZenWriterUIModeChanged` イベントは `setUIMode` から必ず発火する**。view-menu / visual-profile 等の全購読者の同期はこのイベント 1 本に寄せる。DOM attribute の直接設定や独自経路で UI を更新してはならない (session 108-109 契約化)
 - **UI 文言「通常表示」が正本**。docs / 実装 / コメント / テストではこの表記に統一する
 - **読者プレビュー／HTML 組み立てなどの「読み取り」経路**では `splitIntoChapters` や `saveDocuments` による章モデルの暗黙更新を行わない（分解・移行は `ensureChapterMode` や明示的な処理に限定。目安は [`REFACTORING_SAFETY_CHAPTER_STORAGE.md`](REFACTORING_SAFETY_CHAPTER_STORAGE.md)）

@@ -5,6 +5,11 @@
   "author": "YuShimoji",
   "private": true,
   "main": "electron/main.js",
+  "engines": {
+    "node": ">=22.12.0 <25",
+    "npm": ">=11 <12"
+  },
+  "packageManager": "npm@11.6.2",
   "scripts": {
     "postinstall": "node scripts/copy-vendor.js",
     "dev": "node scripts/dev-server.js",
@@ -33,6 +38,7 @@
     "test:e2e:stable": "playwright test e2e/collage.spec.js e2e/editor-settings.spec.js e2e/tags-smart-folders.spec.js --workers=1",
     "test:unit": "node --test test/*.test.js",
     "test:e2e": "playwright test",
+    "test:ci:acceptance": "npm run test:smoke && npm run test:unit && npm run lint:js:check && npm run build && npm run test:e2e",
     "lint:js:check": "eslint .",
     "lint:js:fix": "eslint . --fix",
     "format": "prettier --write .",

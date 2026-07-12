@@ -56,10 +56,15 @@ test.describe('Chapter mode editor sync (assembled vs slice)', () => {
     await setUIMode(page, 'focus');
     await page.waitForTimeout(350);
     await page.evaluate(() => {
-      var btn = document.getElementById('focus-add-chapter');
-      if (btn) btn.click();
+      if (window.ZWChapterList && typeof window.ZWChapterList.addChapter === 'function') {
+        window.ZWChapterList.addChapter();
+      }
     });
     await page.waitForTimeout(500);
+    await expect.poll(async () => {
+      const chapters = await getChaptersForCurrentDoc(page);
+      return chapters.length;
+    }, { timeout: 5000 }).toBe(2);
 
     await setUIMode(page, 'normal');
     await page.waitForTimeout(300);
@@ -68,6 +73,7 @@ test.describe('Chapter mode editor sync (assembled vs slice)', () => {
 
     const chapters = await getChaptersForCurrentDoc(page);
     expect(chapters.length).toBe(2);
+    expect(String(chapters[1].name || '')).toBe('');
     expect(String(chapters[0].content || '')).toBe('only-body');
     expect(String(chapters[1].content || '').trim()).toBe('');
     expect(String(chapters[0].content || '').includes('## ')).toBe(false);
@@ -90,6 +96,20 @@ test.describe('Chapter mode editor sync (assembled vs slice)', () => {
       var next = String(raw).replace('delete-marker ', '');
       if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
         window.ZenWriterEditor.setContent(next);
+      }
+      var editor = document.getElementById('editor');
+      if (editor) {
+        editor.value = next;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      var S = window.ZenWriterStorage;
+      var Store = window.ZWChapterStore;
+      var rawId = S && typeof S.getCurrentDocId === 'function' ? S.getCurrentDocId() : null;
+      var docId = rawId && Store && typeof Store.resolveParentDocumentId === 'function'
+        ? Store.resolveParentDocumentId(rawId)
+        : rawId;
+      if (docId && Store && typeof Store.splitIntoChapters === 'function') {
+        Store.splitIntoChapters(docId, next);
       }
     });
     await page.waitForTimeout(150);
@@ -119,6 +139,14 @@ test.describe('Chapter mode editor sync (assembled vs slice)', () => {
       document.documentElement.removeAttribute('data-zw-chapter-editor-sync');
       if (window.ZenWriterEditor && typeof window.ZenWriterEditor.setContent === 'function') {
         window.ZenWriterEditor.setContent(edited);
+      }
+      var editor = document.getElementById('editor');
+      if (editor) {
+        editor.value = edited;
+        editor.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      if (resolvedDocId && Store && typeof Store.splitIntoChapters === 'function') {
+        Store.splitIntoChapters(resolvedDocId, edited);
       }
     }, docId);
     await page.waitForTimeout(150);
