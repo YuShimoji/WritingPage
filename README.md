@@ -41,8 +41,9 @@ Zen Writer は、ミニマルな操作体験で小説・ビジュアルノベル
 詳細は `docs/ROADMAP.md` を参照。現在の優先順位:
 
 1. **執筆体験の基盤**: 章管理、保存・再開、入出力、Rich editing、Reader / Replay の主要導線は実装・focused proof 済み
-2. **現在の品質目標**: current-main CI の信頼回復と、Documents selection-to-writing の tactile review 閉鎖
-3. **条件付き次段**: release-readiness checkpoint、明示承認後の MkDocs -> GitHub Pages 自動投影、別起票の cloud continuity 検討
+2. **現在の品質目標**: release-readiness checkpoint で automated Web gates、UI capture evidence、Electron/package-only human gate の責務境界を一つの受入面にまとめる
+3. **並行する deferred review**: Documents の empty Rich editing hint、`現在` marker、selection-to-writing focus return は user-owned tactile review として独立して確認する
+4. **条件付き次段**: 明示承認後の MkDocs -> GitHub Pages 自動投影、別起票の cloud continuity 検討
 
 ## Setup & Run (開発・動作確認手順)
 

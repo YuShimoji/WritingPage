@@ -19,7 +19,7 @@
 - **WP-SAVELOAD-001 Editor Trust Vertical Slice**: 2026-06-15 に `writing-trust-workflow-001` として、新規文書、Rich editing 入力、明示保存、自動保存 reload、chapterMode 親 document 対象、TXT / Markdown / JSON export、JSON import roundtrip、不正 JSON import 非破壊失敗、保存失敗表示を 1 本で確認した。保存信頼性の本流を戻すための slice であり、Rich Editing 新機能、Reader 表現拡張、Cloud sync、外部 DB / auth / API、GitHub cleanup、AGENTS.md 肥大化へは進まない。
 - **Project import safe failure signal / continuation proof**: `0c21466 feat: clarify failed project import recovery` returned to the Editor Trust lane after Rich heading closure. Failed JSON project imports now notify `JSON読み込みに失敗しました。現在の文書は保持されています。` across Documents import, JSON drag/drop import, and Electron menu import. The focused Editor Trust E2E now also proves the continuation path: after invalid JSON import failure, the current document can receive new text, save, reload, and restore both the original explicit-save body and the continuation token. Verification anchor: `docs/verification/2026-06-25/project-import-recovery-continuation-proof.md`.
 - **WP-005 Preview / Comparison entry cleanup**: Slices A/B/C are done. Public split-view comparison entry points were removed from the structure sidebar and Electron menu, MD preview is proven as a visible editor-adjacent rich-preview surface, and comparison routing is now isolated from command palette, sidebar wording, MD preview, and Reader. `js/split-view.js` remains future/internal comparison-surface material only; future comparison should start from a dedicated comparison surface or file-comparison brief. Verification anchors: `docs/verification/2026-06-25/wp005-preview-entry-slice-a.md`, `docs/verification/2026-06-25/wp005-md-preview-rich-preview-activation.md`, and `docs/verification/2026-06-25/wp005-comparison-isolation-slice-c.md`.
-- **Remote sync / cross-terminal handoff**: 現在地と再開手順の正本は `docs/CURRENT_STATE.md` の live block。workflow baseline は `532d451 chore: streamline supervisor-to-codex workflow`、latest accepted product baseline は Documents selection-to-writing focus return + marker width evidence。2026-07-11 の同期監査は `9f1bfb3` までの `HEAD...origin/main = 0 0` を確認し、latest completed CI run `29088999623` の7 failure をローカル再現・分類済み。別端末では pull / parity 確認後に `CURRENT_STATE` -> `INVARIANTS` -> `INTERACTION_NOTES` を読み、次 product slice を選ぶ時だけ本台帳と `ROADMAP` を読む。
+- **Remote sync / cross-terminal handoff**: 現在地と再開手順の正本は `docs/CURRENT_STATE.md` の live block。G1 implementation baseline は `cf4b432 fix: recover current-main CI trust`、latest implementation run `29198025986` は `completed / success` で、remote acceptance は smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped。証拠は `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`。別端末では pull / parity 確認後に `CURRENT_STATE` -> `INVARIANTS` -> `INTERACTION_NOTES` を読み、G1 remote readback を繰り返さず release-readiness checkpoint から再開する。
 - **GitHub Issue / PR authority downgrade**: この repo では open Issue / open PR は、それだけでは active artifact ではない。current `main`、`CURRENT_STATE` / `USER_REQUEST_LEDGER` / `INVARIANTS`、実装差分、検証結果、ユーザーが明示した作業対象を優先する。stale GitHub Issue / PR close は帳簿整理であり、product work の blocker や progress として扱わない。
 - **Editor surface 整理**: `Editor` は唯一の執筆面。`Rich editing` は既定のリッチ編集表示、`Markdown source` は開発者向け escape hatch、`Reader` は編集不可の読者確認 surface として扱う。通常 command palette から `Markdown ソース` 切替は出さず、開発者モードだけで escape hatch として出す。`WYSIWYG mode` や Reader 代替 UI を増やさない。
 - **Rich editing typed heading shortcut**: Rich editing の通常入力では、行頭 `# ` / `## ` / `### ` の Space 確定だけを H1/H2/H3 へ限定変換する。IME composition 中、`#hashtag`、行中 `# `、`#### `、paste、import、Markdown source round-trip、汎用 Markdown shortcut は対象外。Undo は変換直後 1 回で typed marker へ戻れることを守る。
@@ -52,13 +52,12 @@
 
 ## 次スライス候補
 
-現在の選定表は次の5件。下の Done 表は完了済み参照であり、次作業の queue ではない。
+現在の選定表は次の4件。下の Done 表は完了済み参照であり、次作業の queue ではない。
 
 | 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
 |---|---|---|---|---|---|
-| proposed | high | Current-main CI trust recovery | 無名新規章のデータ保持リスクと、現行 UI に合わない6件の test が同じ red CI に混在し、新規差分の品質を判定できない | assistant / chapter storage + CI contract | 無名章保持、legacy suite / capture 整理、runtime version 契約を 1 outcome package にし、targeted -> full E2E -> remote readback へ進む |
 | hold | medium | Documents tactile review | empty Rich editing hint、`現在` marker、selection focus return の体感受入が自動証拠だけでは閉じない | user / product feel | `npm run app:update:open` で3点を自由文 review。CI audit を止めない deferred review debt |
-| hold | medium | Release-readiness checkpoint | full E2E、UI capture、Electron 実機、runtime version が一つの受入面に繋がっていない | shared / release evidence | CI trust recovery 後に smoke / unit / lint / build / E2E / capture / Electron の責務境界を固定する |
+| proposed | high | Release-readiness checkpoint | automated Web gates、UI capture evidence の所有と鮮度、Electron/package-only human responsibilities が一つの受入面に繋がっていない | assistant / acceptance-surface integration。package/Electron の tactile judgment は user-owned | smoke / unit / lint / build / full E2E の remote evidence、capture ownership、manual-only gate を bounded decision surface に統合し、未確認の Electron を自動証拠で完了扱いにしない |
 | hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
 | hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
 
@@ -66,6 +65,7 @@
 
 | 優先 | 候補 | Bottleneck | Actor / Owner |
 |------|------|------------|---------------|
+| Done | Current-main CI trust recovery | 無名章のデータ保持と current-shell / capture test contract を回復し、Node runtime と acceptance gate を固定。`cf4b432` の `CI E2E` run `29198025986` は remote で success | assistant / chapter storage + CI contract |
 | Done | Right window controls / top chrome retirement | アプリを閉じる手段不足を解消。右上 hover island に三要素 window controls を移し、F2 / Electron menu は command palette に再割当済み | assistant / Electron shell |
 | Done | Left chrome / left nav interaction refinement | 初期 window grip の視覚ノイズ、category 戻り hit area の遠さ、root rail の広すぎる残留範囲を解消済み。window drag は右上 island 内 handle へ統合済み。E2E UI / packaged build green | assistant / affected UI surface |
 | Done | `main-hub-panel` dead code cleanup | DOM 実体なしの CSS / UI editor selector / active source comment を削除済み。再混入防止の source refs check と E2E UI は green | assistant / stale UI |

@@ -43,4 +43,12 @@ Observed and classified:
 
 ## Remote validation
 
-Pending until the commit is pushed and the GitHub Actions run for that pushed HEAD is watched to completion.
+Verified implementation evidence:
+
+- Commit: `cf4b43274600ea21d6b1e6b024b39d9e0f25eed7` (`fix: recover current-main CI trust`).
+- GitHub Actions: [`CI E2E` run `29198025986`](https://github.com/YuShimoji/WritingPage/actions/runs/29198025986), triggered from `main` at the implementation commit above.
+- Run / job result: run `completed / success`; job `e2e` `completed / success`.
+- Acceptance step: `Run acceptance gates` completed with `success`.
+- Remote log evidence: smoke reported `ALL TESTS PASSED`; unit reported 16 tests / 16 passed / 0 failed / 0 skipped; full Playwright reported 598 tests with 594 passed / 4 skipped in 10.2m. The build completed at the expected `dist` path; lint and the other commands in the acceptance step returned successfully.
+
+The counts in this section are remote-run evidence and are separate from the local counts above. The later GitHub Actions run for the documentation-only closeout HEAD is reported in the final `AGENT_REPORT` instead of creating a recursive documentation commit that records its own validation run.

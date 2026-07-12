@@ -31,6 +31,7 @@ Zen Writer の安定したレビュー入口。**現在地そのものは
 
 ## 検証入口
 
+- Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`
 - Latest operator tactile review prep note: `docs/verification/2026-07-08/operator-tactile-review-launch-prep.md`
 - Latest cross-terminal handoff note: `docs/verification/2026-07-07/cross-terminal-handoff-after-dev-ready-sync.md`

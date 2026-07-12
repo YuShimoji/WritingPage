@@ -2,17 +2,17 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-12 / current-main CI trust recovery
+更新: 2026-07-13 / G1 current-main CI trust recovery closed
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | `main` は remote から fast-forward 済み。作業開始時の `HEAD...origin/main` は `0 0`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持。 |
+| Git | G1 implementation baseline は `cf4b432 fix: recover current-main CI trust`。GitHub Actions `29198025986` は `main` の同 commit で `completed / success`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持する。 |
 | 開発環境 | `.nvmrc` は Node `24.13.0`。`package.json` engines は Node `>=22.12.0 <25` / npm `>=11 <12`、packageManager は `npm@11.6.2`。CI とローカルの受け入れ入口は `npm run test:ci:acceptance`。 |
-| 実装 outcome | current-main CI trust recovery を実施。SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないように parser / store / chapter-list sync を修正。 |
-| テスト outcome | legacy/current-shell mismatch をテスト側で現行契約へ更新。sidebar root/category shell は category header D&D を未実装として明示 skip、visual audit は通常実行で tracked baseline PNG を書かず、manual capture は `scripts/capture-full-showcase.js` 所有に戻した。 |
-| CI contract | `.github/workflows/ci-e2e.yml` は `.nvmrc` を使い、Node/npm version を出力し、smoke → unit → JS lint → build → full Playwright を acceptance gate として実行する。 |
+| 実装 outcome | SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないよう parser / store / chapter-list sync を修正。legacy/current-shell mismatch は現行 root/category shell と capture ownership の契約へ更新済み。 |
+| Remote acceptance | Run `29198025986` の job `e2e` と step `Run acceptance gates` は成功。remote log は smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped を直接記録している。 |
+| 現在の outcome | G1 current-main CI trust recovery は実装・remote acceptance・repo authority reconciliation まで閉鎖。次の assistant-owned outcome は G3 release-readiness checkpoint。 |
 | product boundary | 章データ保持とテスト/CI契約の回復のみ。UI redesign、storage schema migration、autosave semantics、Reader/export format、Electron packaging、外部公開設定は変更していない。 |
 
 ## 現行の開発契約
@@ -20,23 +20,25 @@
 - chapterMode の無名章は実データであり、UIプレースホルダーとは分離する。`title === ''` は保存・分解・組み立ての境界として保持する。
 - 章 parser は `#` だけの行を heading と扱わず、`## ` / `##\t` のように marker 後に空白がある空タイトル heading を有効な章境界として扱う。
 - Visual audit の通常E2Eは tracked baseline を更新しない。baseline refresh / showcase capture は明示的な capture script のみが所有する。
-- Full E2E の失敗が beforeEach/browser context timeout のような起動資源系に見える場合も、対象spec単独再実行で事実確認してからCI信頼性を判断する。
+- CI acceptance は smoke → unit → JS lint → build → full Playwright の順で扱い、Web 自動証拠と package/Electron の人手判断を同一の完了主張にしない。
+- G1 の実装証拠は `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`。同じ remote readback を次 Worker が繰り返さない。
 
 ## 次に推奨する作業
 
 | 方向 | 目的 | 効果 | 次の動き |
 |---|---|---|---|
-| Verify | push後のremote CI readbackを完了する | current-mainが本当にCI greenかを外部状態で確定する | pushed commit の GitHub Actions run を `gh run watch` / `gh run view` で確認する |
-| Audit | chapterModeの無名章以外の境界を点検する | duplicate title / whitespace heading / empty body のデータ保持リスクを早めに潰せる | SP-071 周辺に property-like unit tests を追加するか判断する |
-| Advance | 次のproduct sliceを選ぶ | CI信頼回復後にユーザー価値へ戻せる | `docs/PROJECT_COCKPIT.md` / `docs/ROADMAP.md` から1 micro-topicを選び、UI/保存/Readerのどれを前進させるか決める |
-| Excise | legacy test contractの残骸を減らす | 今後のCI failureが実装問題かテスト契約問題か判別しやすくなる | stale selector / old shell wording を持つspecを小分けに棚卸しする |
+| Advance | G3 release-readiness checkpoint を一つの受入面にする | automated Web gates、UI capture evidence、Electron/package-only human gate の境界が同時に読め、release判断の取りこぼしを減らせる | assistant が acceptance surface の現物と責務境界を監査し、必要な最小 integration を 1 outcome package で実装する |
+| Verify | UI capture evidence の所有者と鮮度を G3 内で固定する | screenshot の存在と release evidence を混同せず、更新すべき capture だけを判断できる | `PROJECT_COCKPIT` の capture routes と CI artifacts を readback し、automated / manual の境界を decision surface に接続する |
+| Review | Documents の tactile debt を独立して確認する | empty Rich editing hint、`現在` marker、selection focus return の体感を自動テストとは別に閉じられる | user が実使用サイズで自由文 review する。G3 の開始・完了はこの review を待たない |
+| Audit | GitHub Actions Node-runtime annotation を切り分ける | green acceptance と action runtime debt を混同せず、将来の runner移行リスクを限定できる | G3 後または新しい warning evidence が出た時に action major 対応の要否だけを調べる |
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0`、`git status --short --branch` が tracked clean であることを確認する。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。この端末では `.serena/project.yml` だけが既知のローカル差分。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
-3. 直近の検証証跡は `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`。remote CI は push 後の run URL を最終報告で確認する。
-4. `.serena/project.yml` は端末ローカル設定差分として扱い、今回のcommit対象に含めない。
+3. G1 は `cf4b432` / run `29198025986` と `docs/verification/2026-07-12/current-main-ci-trust-recovery.md` で閉鎖済み。remote readback や SP-071 追加テストを再開せず、次は G3 release-readiness checkpoint から始める。
+4. Documents tactile review は user-owned の deferred debt。G3 を止めず、package/Electron の未確認を Web 自動証拠で完了扱いにしない。
+5. `.serena/project.yml` は端末ローカル設定差分として扱い、commit対象に含めない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
