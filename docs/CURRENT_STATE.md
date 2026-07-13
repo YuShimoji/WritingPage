@@ -2,16 +2,17 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-13 / G1 current-main CI trust recovery closed
+更新: 2026-07-13 / cross-terminal handoff after G1 closure
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | G1 implementation baseline は `cf4b432 fix: recover current-main CI trust`。GitHub Actions `29198025986` は `main` の同 commit で `completed / success`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持する。 |
+| Git | handoff 開始時の tracked HEAD は `0d4bc6d docs: close CI trust recovery`。`git pull --ff-only origin main` は `Already up to date`、更新前の `HEAD...origin/main` は `0 0`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持する。 |
 | 開発環境 | `.nvmrc` は Node `24.13.0`。`package.json` engines は Node `>=22.12.0 <25` / npm `>=11 <12`、packageManager は `npm@11.6.2`。CI とローカルの受け入れ入口は `npm run test:ci:acceptance`。 |
 | 実装 outcome | SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないよう parser / store / chapter-list sync を修正。legacy/current-shell mismatch は現行 root/category shell と capture ownership の契約へ更新済み。 |
 | Remote acceptance | Run `29198025986` の job `e2e` と step `Run acceptance gates` は成功。remote log は smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped を直接記録している。 |
+| Local restart check | Node `v24.13.0` / npm `11.6.2` で `npm ls --depth=0`、smoke、unit 16/16、JS lint、build が成功。full Playwright は既存 remote acceptance を正本として再実行していない。 |
 | 現在の outcome | G1 current-main CI trust recovery は実装・remote acceptance・repo authority reconciliation まで閉鎖。次の assistant-owned outcome は G3 release-readiness checkpoint。 |
 | product boundary | 章データ保持とテスト/CI契約の回復のみ。UI redesign、storage schema migration、autosave semantics、Reader/export format、Electron packaging、外部公開設定は変更していない。 |
 
@@ -34,11 +35,12 @@
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。この端末では `.serena/project.yml` だけが既知のローカル差分。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。この handoff commit の親は `0d4bc6d`。この端末では `.serena/project.yml` だけが既知のローカル差分。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
 3. G1 は `cf4b432` / run `29198025986` と `docs/verification/2026-07-12/current-main-ci-trust-recovery.md` で閉鎖済み。remote readback や SP-071 追加テストを再開せず、次は G3 release-readiness checkpoint から始める。
 4. Documents tactile review は user-owned の deferred debt。G3 を止めず、package/Electron の未確認を Web 自動証拠で完了扱いにしない。
 5. `.serena/project.yml` は端末ローカル設定差分として扱い、commit対象に含めない。
+6. 今回の sync / local restart check の証拠は `docs/verification/2026-07-13/cross-terminal-handoff-after-g1-closure.md`。次端末は同じ検証を反復せず、環境差または新しい変更がある時だけ必要範囲を再実行する。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
