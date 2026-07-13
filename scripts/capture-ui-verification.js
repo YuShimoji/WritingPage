@@ -30,6 +30,20 @@ if (process.platform === 'linux') {
 
 const { chromium } = require('@playwright/test');
 
+function readSourceProvenance() {
+  const { execFileSync } = require('child_process');
+  const git = (...args) => execFileSync('git', args, {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  }).trim();
+  return {
+    branch: git('branch', '--show-current'),
+    commit: git('rev-parse', 'HEAD'),
+    dirty: git('status', '--porcelain').length > 0,
+  };
+}
+
 function parseArgs() {
   const args = process.argv.slice(2);
   const out = {};
@@ -583,17 +597,29 @@ async function main() {
     const baseUrl = `http://127.0.0.1:${port}`;
     await waitForReady(`${baseUrl}/index.html`);
     const readbacks = await captureDesktop(baseUrl, outDir);
+    const source = readSourceProvenance();
 
     const manifest = {
+      schemaVersion: '2.0.0',
       createdAt: new Date().toISOString(),
+      owner: 'scripts/capture-ui-verification.js',
+      generator: `node scripts/capture-ui-verification.js --${mode} --out ${path.relative(projectRoot, outDir).replace(/\\/g, '/')}`,
+      sourceCommit: source.commit,
+      sourceDirty: source.dirty,
+      sourceBranch: source.branch,
       baseUrl,
       mode,
+      root: path.relative(projectRoot, rootDir).replace(/\\/g, '/') || '.',
       rootDir,
       readbacks,
       screenshots: fs
         .readdirSync(outDir)
         .filter((name) => name.endsWith('.png'))
         .sort(),
+      artifacts: {
+        screenshots: fs.readdirSync(outDir).filter((name) => name.endsWith('.png')).sort(),
+        readback: 'readback.json',
+      },
     };
     fs.writeFileSync(
       path.join(outDir, 'readback.json'),

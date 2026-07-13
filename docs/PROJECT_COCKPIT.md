@@ -13,6 +13,7 @@ Zen Writer の安定したレビュー入口。**現在地そのものは
 
 | 面 | 目的 | 現在の状態 | 次に見ること |
 | --- | --- | --- | --- |
+| Release readiness checkpoint | Web、capture、package、人手gateを一つのlinear decision spineで読む | `npm run release:checkpoint` がignored outputへmachine JSON、日本語Markdown、Electron operator sheetを生成する | overallがHOLDなら、同じSHA-256のpackageを人間が観察する。exe/capture存在だけでgateをpassにしない |
 | Full showcase capture | 広い GUI 状態を一括で review する | `node scripts/capture-full-showcase.js` が sidebar categories / current settings route / Design Cockpit / themes / focus compat / normal shell / Editor parity / mobile / Reader parity を生成する | `output/showcase/full-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | UI capture verification | 現行 UI の evidence を screenshot と readback で残す | `npm run test:ui:capture` が main / advanced settings sidebar / Design Cockpit / help / edit sidebar / command palette / mobile sidebar を生成する | `output/playwright/manual-verification-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | First Writing Comfort | fresh/reset launch から書き始め、保存、reload 復帰までを読む | 空の Rich editing は本文に入らない短い自動保存 hint を表示し、`e2e/first-writing-comfort.spec.js` が launch-to-writing path を確認する | ヒントが邪魔にならず、入力後に消え、保存状態と Design Cockpit が本文漏れなく読めるかを見る |
@@ -29,8 +30,30 @@ Zen Writer の安定したレビュー入口。**現在地そのものは
 - `保存` は既存 `ZenWriterEditor.saveContent()` を呼ぶ dashboard-scoped 導線で、writing status chip の意味を変えない。
 - `書き始める` は dashboard を閉じて editor focus へ戻すだけで、Reader / left nav / mode model を増やさない。
 
+## Release readiness の再現経路
+
+Node 24.x と npm 11.6.2 の経路で次を実行する。
+
+```powershell
+npm run release:checkpoint
+```
+
+出力は `output/release-readiness/checkpoint-*` に生成され、Git管理しない。主要ファイルは
+`checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md` で、同じfolder内の
+`captures/ui-dist` がcommit紐付きcaptureを保持する。commandはsmoke、unit、JS lint、dist build、
+dist capture、Electron directory buildを実行し、`build/win-unpacked/Zen Writer.exe` のSHA-256を
+記録する。full Playwrightはrun `29198025986` のrepository evidenceを参照し、このcommandでは
+再実行しない。
+
+overallが `HOLD_FOR_ELECTRON_OBSERVATION` の場合、機械gateは成立しているがElectron実機観察は
+未完了である。operatorは生成されたsheetのexact package identityを使い
+`npm run app:open:package` で起動し、観察結果を記録する。これはDocuments tactile reviewとは
+別のuser-owned gateである。
+
 ## 検証入口
 
+- G3 release readiness: `npm run release:checkpoint`
+- G3 verification note: `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`
 - Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`
 - Latest operator tactile review prep note: `docs/verification/2026-07-08/operator-tactile-review-launch-prep.md`

@@ -34,6 +34,7 @@
     "test:smoke": "node scripts/dev-check.js",
     "test:ui:capture": "node scripts/capture-ui-verification.js",
     "test:ui:capture:build": "node scripts/capture-ui-verification.js --build --dist",
+    "release:checkpoint": "node scripts/release-readiness-checkpoint.js",
     "test:e2e:ui": "playwright test e2e/sidebar-layout.spec.js e2e/command-palette.spec.js e2e/gadgets.spec.js e2e/accessibility.spec.js",
     "test:e2e:stable": "playwright test e2e/collage.spec.js e2e/editor-settings.spec.js e2e/tags-smart-folders.spec.js --workers=1",
     "test:unit": "node --test test/*.test.js",

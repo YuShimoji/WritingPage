@@ -2,60 +2,45 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-13 / latest-main development-ready sync for supervisor review
+更新: 2026-07-13 / G3 release-readiness checkpoint H0
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | `9f1bfb3` から `b74ff6b docs: hand off G1 closure across terminals` までを `git pull --ff-only origin main` で fast-forward 取得した。取得直後の `HEAD...origin/main` は `0 0`、作業ツリーは clean。今回の報告更新以外にローカル差分はない。 |
-| 開発環境 | `.nvmrc` は Node `24.13.0`、package contract は Node `>=22.12.0 <25` / npm `>=11 <12`。この端末では Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` を使って `npm ci` し、lockfile を変えず依存を再構築した。通常の受入入口は `npm run test:ci:acceptance`。 |
-| 実装 outcome | SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないよう parser / store / chapter-list sync を修正。legacy/current-shell mismatch は現行 root/category shell と capture ownership の契約へ更新済み。 |
-| Remote acceptance | Run `29198025986` の job `e2e` と step `Run acceptance gates` は成功。remote log は smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped を直接記録している。 |
-| Local restart check | Node `v24.14.0` / npm `11.6.2` で `npm ls --depth=0`、smoke、unit 16/16、JS lint、build が成功。full Playwright は current pulled commit の既存 remote acceptance を正本として再実行していない。 |
-| 現在の outcome | G1 current-main CI trust recovery は実装・remote acceptance・repo authority reconciliation まで閉鎖。次の assistant-owned outcome は G3 release-readiness checkpoint。 |
-| product boundary | 章データ保持とテスト/CI契約の回復のみ。UI redesign、storage schema migration、autosave semantics、Reader/export format、Electron packaging、外部公開設定は変更していない。 |
-
-## 監修AIへの現状報告
-
-最新 `main` の取得とローカル開発準備は完了している。G1 の chapterMode
-無名章保持と current-shell / capture ownership 修正は remote acceptance まで閉じており、
-この端末でも依存解決、smoke、unit、lint、build を再確認した。したがって次の監修判断は
-G1 の再監査ではなく、automated Web gates、UI capture evidence、
-Electron/package-only human gate を一つの判断面へ束ねる G3 release-readiness checkpoint
-を outcome package として切ることにある。
-
-現時点の未確定事項は product failure ではない。Documents の tactile review は
-user-owned deferred debt、full Playwright のローカル再実行は remote acceptance と重複するため
-未実施、Electron/package 実機確認は Web 自動検証で代替していない。また、この端末の通常
-`node` / `npm` は `v22.19.0` / `10.9.3` のため、project contract に揃える実行では
-Node 24 系と Corepack npm 11.6.2 を明示的に使う。
+| Git | G3開始HEADは `6677b5f docs: report latest-main development readiness`、開始時 `HEAD...origin/main = 0 0` / clean。G1は閉鎖済みで再監査していない。 |
+| 開発環境 | Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` を使用。project contract は Node `>=22.12.0 <25` / npm `>=11 <12`。 |
+| G3 command | `npm run release:checkpoint` が ignored の `output/release-readiness/checkpoint-*` に `checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md`、commit紐付きUI captureを生成し、Electron directory packageをbuild/hashする。 |
+| Web evidence | local bounded replayは smoke、unit 21件、JS lint、dist build。full Playwrightは再実行せず、run `29198025986` / commit `cf4b432` の 594 passed / 4 skipped を observed remote evidence として分離記録する。 |
+| Capture / package | capture manifestは owner、generator、source commit、dirty、mode/root、createdAt、artifact inventoryを持つ。package evidenceは `build/win-unpacked/Zen Writer.exe` のpath、size、mtime、SHA-256、source identityを持つが、behavior observedとは扱わない。 |
+| 現在の判断 | clean HEADで Web / capture / package がpassしても、Electron人手観察は `pending` のため `HOLD_FOR_ELECTRON_OBSERVATION`。H0はcheckpoint生成まで、H1はuser-owned package観察。 |
+| product boundary | release evidence orchestrationだけを変更。UI、storage/autosave/document model、Reader/export、package内容、依存、signing/publicationは変更していない。 |
 
 ## 現行の開発契約
 
-- chapterMode の無名章は実データであり、UIプレースホルダーとは分離する。`title === ''` は保存・分解・組み立ての境界として保持する。
-- 章 parser は `#` だけの行を heading と扱わず、`## ` / `##\t` のように marker 後に空白がある空タイトル heading を有効な章境界として扱う。
-- Visual audit の通常E2Eは tracked baseline を更新しない。baseline refresh / showcase capture は明示的な capture script のみが所有する。
-- CI acceptance は smoke → unit → JS lint → build → full Playwright の順で扱い、Web 自動証拠と package/Electron の人手判断を同一の完了主張にしない。
-- G1 の実装証拠は `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`。同じ remote readback を次 Worker が繰り返さない。
+- `checkpoint.json` のstable statusは `pass / fail / pending / stale / blocked / not_run`、overallは `HOLD_FOR_ELECTRON_OBSERVATION / READY_FOR_INTERNAL_RELEASE_REVIEW / BLOCKED`。
+- dirty sourceは、他の機械gateがpassでも `BLOCKED`。final evidenceはclean committed HEADから生成する。
+- captureとpackageはsource commit / dirty stateへ結び付ける。exe存在、build成功、screenshot存在をElectron観察の代用にしない。
+- 日本語Markdownはoperator判断面、JSONはstable English schema。いずれにも原稿本文を入れない。
+- G1 remote acceptanceはrepository verification anchorをobserved evidenceとして再利用し、今回実行したローカル検証と混ぜない。
 
 ## 次に推奨する作業
 
 | 方向 | 目的 | 効果 | 次の動き |
 |---|---|---|---|
-| Advance | G3 release-readiness checkpoint を一つの受入面にする | automated Web gates、UI capture evidence、Electron/package-only human gate の境界が同時に読め、release判断の取りこぼしを減らせる | assistant が acceptance surface の現物と責務境界を監査し、必要な最小 integration を 1 outcome package で実装する |
-| Verify | UI capture evidence の所有者と鮮度を G3 内で固定する | screenshot の存在と release evidence を混同せず、更新すべき capture だけを判断できる | `PROJECT_COCKPIT` の capture routes と CI artifacts を readback し、automated / manual の境界を decision surface に接続する |
-| Review | Documents の tactile debt を独立して確認する | empty Rich editing hint、`現在` marker、selection focus return の体感を自動テストとは別に閉じられる | user が実使用サイズで自由文 review する。G3 の開始・完了はこの review を待たない |
-| Audit | GitHub Actions Node-runtime annotation を切り分ける | green acceptance と action runtime debt を混同せず、将来の runner移行リスクを限定できる | G3 後または新しい warning evidence が出た時に action major 対応の要否だけを調べる |
+| Verify | H1 Electron package観察を行う | Web自動化では見えない起動・保存・再起動復帰をexact hashのpackageで閉じられる | userが `ELECTRON_OPERATOR_REVIEW.md` に observer/time/result/findingsを記録し、次のassistantがgateへ取り込む |
+| Advance | internal release reviewへ進む | 全必須gateが揃った後、検索せずgo/hold判断できる | Electron gateがpassになった時だけ `READY_FOR_INTERNAL_RELEASE_REVIEW` を再生成する |
+| Review | Documents tactile debtを独立確認する | release evidenceと好みの評価を混同せず、日常執筆の違和感を閉じられる | userが実使用サイズでempty hint、`現在` marker、focus returnを自由文reviewする |
+| Audit | 新しいCI warningが出た時だけruntime annotationを調べる | green acceptanceを過去warningで曖昧にしない | warning evidenceが再出現した時点でaction major対応の要否を切り分ける |
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。今回取り込んだ handoff の基点は `b74ff6b`。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
-3. G1 は `cf4b432` / run `29198025986` と `docs/verification/2026-07-12/current-main-ci-trust-recovery.md` で閉鎖済み。remote readback や SP-071 追加テストを再開せず、次は G3 release-readiness checkpoint から始める。
-4. Documents tactile review は user-owned の deferred debt。G3 を止めず、package/Electron の未確認を Web 自動証拠で完了扱いにしない。
+3. G1 は `cf4b432` / run `29198025986` で閉鎖済み。G3を再生成する時は Node 24.x / npm 11.6.2 routeで `npm run release:checkpoint` を使う。
+4. H1は生成された `ELECTRON_OPERATOR_REVIEW.md` と同じSHA-256のpackageを人間が観察する。未観察をWeb証拠で完了扱いにしない。
 5. `.serena/project.yml` に端末ローカル設定差分が現れた場合は、product / handoff commit に含めない。
-6. 今回の最新化、依存再構築、監修AI向け readback は `docs/verification/2026-07-13/latest-main-dev-ready-supervisor-report.md`。次端末は同じ検証を反復せず、環境差または新しい変更がある時だけ必要範囲を再実行する。
+6. G3の実装・境界・検証は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`。timestamped outputはignored local evidenceで、docsへ複製しない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

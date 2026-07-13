@@ -12,6 +12,20 @@ const http = require('http');
 
 const projectRoot = path.join(__dirname, '..');
 
+function readSourceProvenance() {
+  const { execFileSync } = require('child_process');
+  const git = (...args) => execFileSync('git', args, {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  }).trim();
+  return {
+    branch: git('branch', '--show-current'),
+    commit: git('rev-parse', 'HEAD'),
+    dirty: git('status', '--porcelain').length > 0,
+  };
+}
+
 const SHOWCASE_MARKDOWN = [
   '# 全機能ショーケース',
   '',
@@ -778,14 +792,26 @@ async function main() {
     console.log(`Server ready at ${baseUrl}`);
 
     const { shots: screenshots, readbacks } = await captureAll(baseUrl, outDir);
+    const source = readSourceProvenance();
 
     const manifest = {
+      schemaVersion: '2.0.0',
       createdAt: new Date().toISOString(),
+      owner: 'scripts/capture-full-showcase.js',
+      generator: `node scripts/capture-full-showcase.js --out ${path.relative(projectRoot, outDir).replace(/\\/g, '/')}`,
+      sourceCommit: source.commit,
+      sourceDirty: source.dirty,
+      sourceBranch: source.branch,
       baseUrl,
       mode: 'project',
+      root: '.',
       screenshots,
       readbacks,
       description: 'Full feature showcase capture',
+      artifacts: {
+        screenshots,
+        readback: 'readback.json',
+      },
     };
     fs.writeFileSync(path.join(outDir, 'readback.json'), JSON.stringify(readbacks, null, 2), 'utf8');
     fs.writeFileSync(path.join(outDir, 'manifest.json'), JSON.stringify(manifest, null, 2), 'utf8');
