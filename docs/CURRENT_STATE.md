@@ -8,11 +8,11 @@
 
 | 観点 | 現在地 |
 |---|---|
-| Git | G3開始HEADは `6677b5f docs: report latest-main development readiness`、開始時 `HEAD...origin/main = 0 0` / clean。G1は閉鎖済みで再監査していない。 |
+| Git | G3実装は `10b4b0a feat: add release readiness checkpoint`。`origin/main` へpush済みで、handoff開始時は `HEAD...origin/main = 0 0` / clean。G1は閉鎖済みで再監査していない。 |
 | 開発環境 | Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` を使用。project contract は Node `>=22.12.0 <25` / npm `>=11 <12`。 |
 | G3 command | `npm run release:checkpoint` が ignored の `output/release-readiness/checkpoint-*` に `checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md`、commit紐付きUI captureを生成し、Electron directory packageをbuild/hashする。 |
 | Web evidence | local bounded replayは smoke、unit 21件、JS lint、dist build。full Playwrightは再実行せず、run `29198025986` / commit `cf4b432` の 594 passed / 4 skipped を observed remote evidence として分離記録する。 |
-| Capture / package | capture manifestは owner、generator、source commit、dirty、mode/root、createdAt、artifact inventoryを持つ。package evidenceは `build/win-unpacked/Zen Writer.exe` のpath、size、mtime、SHA-256、source identityを持つが、behavior observedとは扱わない。 |
+| Capture / package | clean `10b4b0a` からfinal commandを実行。capture 7枚＋readbackは `sourceDirty=false`、packageは `201233408` bytes / SHA-256 `6253997b504407f4148f7396812409a628381664027c52d9c04796204b494779`。これはこの端末のignored evidenceで、Electron behavior observedとは扱わない。 |
 | 現在の判断 | clean HEADで Web / capture / package がpassしても、Electron人手観察は `pending` のため `HOLD_FOR_ELECTRON_OBSERVATION`。H0はcheckpoint生成まで、H1はuser-owned package観察。 |
 | product boundary | release evidence orchestrationだけを変更。UI、storage/autosave/document model、Reader/export、package内容、依存、signing/publicationは変更していない。 |
 
@@ -35,12 +35,13 @@
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
+1. `git pull --ff-only origin main` の後、G3実装 `10b4b0a` 以降を取得し、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
-3. G1 は `cf4b432` / run `29198025986` で閉鎖済み。G3を再生成する時は Node 24.x / npm 11.6.2 routeで `npm run release:checkpoint` を使う。
-4. H1は生成された `ELECTRON_OPERATOR_REVIEW.md` と同じSHA-256のpackageを人間が観察する。未観察をWeb証拠で完了扱いにしない。
-5. `.serena/project.yml` に端末ローカル設定差分が現れた場合は、product / handoff commit に含めない。
-6. G3の実装・境界・検証は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`。timestamped outputはignored local evidenceで、docsへ複製しない。
+3. G1 は `cf4b432` / run `29198025986` で閉鎖済み。full PlaywrightやSP-071を新しいfailureなしで再実行しない。
+4. この端末の `output/` / `build/` はignoredで別端末へ移らない。Node 24.x / npm 11.6.2 routeで `npm ci`（依存がなければ）→ clean HEADで `npm run release:checkpoint` を実行し、その端末用のpackageとoperator sheetを再生成する。
+5. H1は再生成された `ELECTRON_OPERATOR_REVIEW.md` と同じSHA-256のpackageを `npm run app:open:package` で人間が観察する。未観察をWeb証拠で完了扱いにしない。
+6. `.serena/project.yml` に端末ローカル設定差分が現れた場合は、product / handoff commit に含めない。
+7. G3の実装・境界・検証は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`、端末引継ぎは `docs/verification/2026-07-13/cross-terminal-handoff-after-g3-h0.md`。timestamped outputはignored local evidenceで、docsへ複製しない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

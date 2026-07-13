@@ -56,10 +56,18 @@ build, JSON parse/readback, generated Markdown inspection, and `git diff
 rerun because current remote evidence is already accepted and product runtime
 did not change.
 
-The final clean-HEAD command is run after the implementation commit so the
-generated source identity can be truthful. Its timestamped local path, package
-hash, final decision, push result, and parity belong in the AGENT_REPORT rather
-than a recursive docs commit.
+The final clean-HEAD command ran against implementation commit `10b4b0a`. The
+parsed result recorded `source.dirty=false`, local bounded checks pass, seven
+capture screenshots plus readback pass, package pass, Electron observation
+pending, and overall `HOLD_FOR_ELECTRON_OBSERVATION`. The package executable
+was `201233408` bytes and its independently matched SHA-256 was
+`6253997b504407f4148f7396812409a628381664027c52d9c04796204b494779`.
+No manuscript fixture text appeared in the generated JSON or operator-facing
+Markdown.
+
+The timestamped output and package remain ignored terminal-local evidence.
+Another terminal recreates them from its own clean commit with the canonical
+command instead of treating this hash as a transferable binary artifact.
 
 ## Boundary and next gate
 
