@@ -2,19 +2,34 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-13 / cross-terminal handoff after G1 closure
+更新: 2026-07-13 / latest-main development-ready sync for supervisor review
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | handoff 開始時の tracked HEAD は `0d4bc6d docs: close CI trust recovery`。`git pull --ff-only origin main` は `Already up to date`、更新前の `HEAD...origin/main` は `0 0`。この端末の `.serena/project.yml` は既存ローカル設定 churn として未ステージ維持する。 |
-| 開発環境 | `.nvmrc` は Node `24.13.0`。`package.json` engines は Node `>=22.12.0 <25` / npm `>=11 <12`、packageManager は `npm@11.6.2`。CI とローカルの受け入れ入口は `npm run test:ci:acceptance`。 |
+| Git | `9f1bfb3` から `b74ff6b docs: hand off G1 closure across terminals` までを `git pull --ff-only origin main` で fast-forward 取得した。取得直後の `HEAD...origin/main` は `0 0`、作業ツリーは clean。今回の報告更新以外にローカル差分はない。 |
+| 開発環境 | `.nvmrc` は Node `24.13.0`、package contract は Node `>=22.12.0 <25` / npm `>=11 <12`。この端末では Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` を使って `npm ci` し、lockfile を変えず依存を再構築した。通常の受入入口は `npm run test:ci:acceptance`。 |
 | 実装 outcome | SP-071 chapterMode の無名章 (`title === ''`) が Normal↔Focus / assemble↔split 往復で消えず、本文混入もしないよう parser / store / chapter-list sync を修正。legacy/current-shell mismatch は現行 root/category shell と capture ownership の契約へ更新済み。 |
 | Remote acceptance | Run `29198025986` の job `e2e` と step `Run acceptance gates` は成功。remote log は smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped を直接記録している。 |
-| Local restart check | Node `v24.13.0` / npm `11.6.2` で `npm ls --depth=0`、smoke、unit 16/16、JS lint、build が成功。full Playwright は既存 remote acceptance を正本として再実行していない。 |
+| Local restart check | Node `v24.14.0` / npm `11.6.2` で `npm ls --depth=0`、smoke、unit 16/16、JS lint、build が成功。full Playwright は current pulled commit の既存 remote acceptance を正本として再実行していない。 |
 | 現在の outcome | G1 current-main CI trust recovery は実装・remote acceptance・repo authority reconciliation まで閉鎖。次の assistant-owned outcome は G3 release-readiness checkpoint。 |
 | product boundary | 章データ保持とテスト/CI契約の回復のみ。UI redesign、storage schema migration、autosave semantics、Reader/export format、Electron packaging、外部公開設定は変更していない。 |
+
+## 監修AIへの現状報告
+
+最新 `main` の取得とローカル開発準備は完了している。G1 の chapterMode
+無名章保持と current-shell / capture ownership 修正は remote acceptance まで閉じており、
+この端末でも依存解決、smoke、unit、lint、build を再確認した。したがって次の監修判断は
+G1 の再監査ではなく、automated Web gates、UI capture evidence、
+Electron/package-only human gate を一つの判断面へ束ねる G3 release-readiness checkpoint
+を outcome package として切ることにある。
+
+現時点の未確定事項は product failure ではない。Documents の tactile review は
+user-owned deferred debt、full Playwright のローカル再実行は remote acceptance と重複するため
+未実施、Electron/package 実機確認は Web 自動検証で代替していない。また、この端末の通常
+`node` / `npm` は `v22.19.0` / `10.9.3` のため、project contract に揃える実行では
+Node 24 系と Corepack npm 11.6.2 を明示的に使う。
 
 ## 現行の開発契約
 
@@ -35,12 +50,12 @@
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。この handoff commit の親は `0d4bc6d`。この端末では `.serena/project.yml` だけが既知のローカル差分。
+1. `git pull --ff-only origin main` の後、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。今回取り込んだ handoff の基点は `b74ff6b`。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
 3. G1 は `cf4b432` / run `29198025986` と `docs/verification/2026-07-12/current-main-ci-trust-recovery.md` で閉鎖済み。remote readback や SP-071 追加テストを再開せず、次は G3 release-readiness checkpoint から始める。
 4. Documents tactile review は user-owned の deferred debt。G3 を止めず、package/Electron の未確認を Web 自動証拠で完了扱いにしない。
-5. `.serena/project.yml` は端末ローカル設定差分として扱い、commit対象に含めない。
-6. 今回の sync / local restart check の証拠は `docs/verification/2026-07-13/cross-terminal-handoff-after-g1-closure.md`。次端末は同じ検証を反復せず、環境差または新しい変更がある時だけ必要範囲を再実行する。
+5. `.serena/project.yml` に端末ローカル設定差分が現れた場合は、product / handoff commit に含めない。
+6. 今回の最新化、依存再構築、監修AI向け readback は `docs/verification/2026-07-13/latest-main-dev-ready-supervisor-report.md`。次端末は同じ検証を反復せず、環境差または新しい変更がある時だけ必要範囲を再実行する。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
