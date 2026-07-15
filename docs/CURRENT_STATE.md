@@ -2,19 +2,19 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-13 / G3 release-readiness checkpoint H0
+更新: 2026-07-15 / latest-main development-ready supervisor report
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git | G3実装は `10b4b0a feat: add release readiness checkpoint`。`origin/main` へpush済みで、handoff開始時は `HEAD...origin/main = 0 0` / clean。G1は閉鎖済みで再監査していない。 |
-| 開発環境 | Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` を使用。project contract は Node `>=22.12.0 <25` / npm `>=11 <12`。 |
+| Git | 2026-07-15 に `git fetch --prune origin` と `git pull --ff-only origin main` を実行し、latest authority `a939577 docs: hand off G3 release checkpoint` を取得済み。pull は `Already up to date`、報告作成前は `HEAD...origin/main = 0 0` / clean。G1は閉鎖済みで再監査していない。 |
+| 開発環境 | Codex bundled Node `v24.14.0` と Corepack npm `11.6.2` で `npm ci` を再現し、`npm ls --depth=0` がpass。project contract は Node `>=22.12.0 <25` / npm `>=11 <12`。system default の Node `v22.19.0` / npm `10.9.3` はproject commandに使わない。 |
 | G3 command | `npm run release:checkpoint` が ignored の `output/release-readiness/checkpoint-*` に `checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md`、commit紐付きUI captureを生成し、Electron directory packageをbuild/hashする。 |
-| Web evidence | local bounded replayは smoke、unit 21件、JS lint、dist build。full Playwrightは再実行せず、run `29198025986` / commit `cf4b432` の 594 passed / 4 skipped を observed remote evidence として分離記録する。 |
-| Capture / package | clean `10b4b0a` からfinal commandを実行。capture 7枚＋readbackは `sourceDirty=false`、packageは `201233408` bytes / SHA-256 `6253997b504407f4148f7396812409a628381664027c52d9c04796204b494779`。これはこの端末のignored evidenceで、Electron behavior observedとは扱わない。 |
+| Web evidence | clean `a939577` でfresh checkpointを実行。smoke、unit 21/21、JS lint、dist build、capture 7枚＋readback、Electron directory buildがpass。full Playwrightは再実行せず、run `29198025986` / commit `cf4b432` の 594 passed / 4 skipped を observed remote evidence として分離記録する。 |
+| Capture / package | checkpoint `checkpoint-2026-07-15T04-55-55-427Z` は `sourceDirty=false`。packageは `201233408` bytes / SHA-256 `6253997b504407f4148f7396812409a628381664027c52d9c04796204b494779` で、独立hash readbackも一致。これはこの端末のignored evidenceで、Electron behavior observedとは扱わない。 |
 | 現在の判断 | clean HEADで Web / capture / package がpassしても、Electron人手観察は `pending` のため `HOLD_FOR_ELECTRON_OBSERVATION`。H0はcheckpoint生成まで、H1はuser-owned package観察。 |
-| product boundary | release evidence orchestrationだけを変更。UI、storage/autosave/document model、Reader/export、package内容、依存、signing/publicationは変更していない。 |
+| 今回の変更境界 | maintenance / handoffのみ。remote sync、依存再現、既存G3 commandによるlocal evidence生成、canonical report更新を行い、UI、runtime、storage/autosave/document model、Reader/export、package内容、依存契約、signing/publicationは変更していない。 |
 
 ## 現行の開発契約
 
@@ -31,17 +31,17 @@
 | Verify | H1 Electron package観察を行う | Web自動化では見えない起動・保存・再起動復帰をexact hashのpackageで閉じられる | userが `ELECTRON_OPERATOR_REVIEW.md` に observer/time/result/findingsを記録し、次のassistantがgateへ取り込む |
 | Advance | internal release reviewへ進む | 全必須gateが揃った後、検索せずgo/hold判断できる | Electron gateがpassになった時だけ `READY_FOR_INTERNAL_RELEASE_REVIEW` を再生成する |
 | Review | Documents tactile debtを独立確認する | release evidenceと好みの評価を混同せず、日常執筆の違和感を閉じられる | userが実使用サイズでempty hint、`現在` marker、focus returnを自由文reviewする |
-| Audit | 新しいCI warningが出た時だけruntime annotationを調べる | green acceptanceを過去warningで曖昧にしない | warning evidenceが再出現した時点でaction major対応の要否を切り分ける |
+| Audit | `npm ci` のdeprecated dependency warningを別スライスで棚卸しする | 現在のdev-ready判定を依存更新判断と混ぜず、更新範囲と回帰コストを先に見積もれる | H1を妨げないread-only auditから始め、依存変更が必要ならred-band gateで別途決める |
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、G3実装 `10b4b0a` 以降を取得し、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
+1. `git pull --ff-only origin main` の後、2026-07-15 supervisor reportを含むlatest mainを取得し、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
 2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
 3. G1 は `cf4b432` / run `29198025986` で閉鎖済み。full PlaywrightやSP-071を新しいfailureなしで再実行しない。
-4. この端末の `output/` / `build/` はignoredで別端末へ移らない。Node 24.x / npm 11.6.2 routeで `npm ci`（依存がなければ）→ clean HEADで `npm run release:checkpoint` を実行し、その端末用のpackageとoperator sheetを再生成する。
-5. H1は再生成された `ELECTRON_OPERATOR_REVIEW.md` と同じSHA-256のpackageを `npm run app:open:package` で人間が観察する。未観察をWeb証拠で完了扱いにしない。
+4. この端末では Node 24.14.0 / npm 11.6.2で `npm ci`、`npm ls --depth=0`、fresh `npm run release:checkpoint` が完了。`output/` / `build/` はignoredで別端末へ移らないため、別端末では同じruntime routeからclean HEADで再生成する。
+5. この端末でH1を行う場合は `checkpoint-2026-07-15T04-55-55-427Z/ELECTRON_OPERATOR_REVIEW.md` とSHA-256 `6253997b504407f4148f7396812409a628381664027c52d9c04796204b494779` のpackageを `npm run app:open:package` で人間が観察する。未観察をWeb証拠で完了扱いにしない。
 6. `.serena/project.yml` に端末ローカル設定差分が現れた場合は、product / handoff commit に含めない。
-7. G3の実装・境界・検証は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`、端末引継ぎは `docs/verification/2026-07-13/cross-terminal-handoff-after-g3-h0.md`。timestamped outputはignored local evidenceで、docsへ複製しない。
+7. 今回のsync・環境再現・fresh evidence・監修判断は `docs/verification/2026-07-15/latest-main-dev-ready-supervisor-report.md`。G3実装の正本は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md` で、timestamped outputはignored local evidenceのままdocsへ複製しない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
