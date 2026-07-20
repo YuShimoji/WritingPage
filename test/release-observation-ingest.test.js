@@ -111,6 +111,8 @@ test('exact-hash compact PASS with approved inherited persistence becomes READY'
   assert.equal(result.internalReview.derivativeDecision.overall, READY);
   assert.equal(result.internalReview.derivativeHumanGate.status, 'pass');
   assert.equal(result.electronObservation.behaviorObserved, true);
+  assert.equal(result.electronObservation.evidenceGrade, 'observed_user_reported');
+  assert.equal(result.internalReview.derivativeHumanGate.evidenceGrade, 'mixed_observed_and_inherited');
   assert.deepEqual(fs.readdirSync(scenario.outDir).sort(), [
     'INTERNAL_RELEASE_REVIEW.md',
     'electron-observation.json',

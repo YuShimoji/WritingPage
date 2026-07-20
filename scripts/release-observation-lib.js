@@ -395,7 +395,7 @@ function ingestObservation(options) {
     ingestedAt,
     originalUserStatement: observation.summaryJa,
     observerIdentity: observation.observerIdentity,
-    evidenceGrade: evaluation.evidenceGrade,
+    evidenceGrade: 'observed_user_reported',
     result: observation.result,
     reportedAt: observation.reportedAt ?? null,
     observedAt: observation.observedAt ?? null,
@@ -473,6 +473,7 @@ function ingestObservation(options) {
     observationProvenance: {
       observerIdentity: observation.observerIdentity,
       evidenceGrade: evaluation.evidenceGrade,
+      currentObservationEvidenceGrade: 'observed_user_reported',
       currentLaunchAndMajorOperations: 'observed_user_reported',
       saveAndRestartPersistence:
         evaluation.normalized.saveObservation?.basis === INHERITED_PERSISTENCE_BASIS
