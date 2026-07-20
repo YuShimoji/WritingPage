@@ -208,7 +208,7 @@
     "pct": 100,
     "cat": "infra",
     "file": "docs/RELEASE.md",
-    "summary": "バージョニング・リリースフロー・判定基準"
+    "summary": "バージョニング・リリースフロー・判定基準。immutable checkpointへcompact Electron observationをidentity-bound derivativeとして取り込む手順を含む"
   },
   {
     "id": "SP-044",

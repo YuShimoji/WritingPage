@@ -2,46 +2,43 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-17 / latest-main dev-ready supervisor goal proposal
+更新: 2026-07-21 / G3 H2 compact Electron observation ingestion
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git / remote | 2026-07-17の同期開始HEAD `d910f9c` から `git fetch --prune origin` / `git pull --ff-only origin main` で `1a1fb01 docs: hand off dev-ready context` へfast-forwardし、同期直後の `HEAD...origin/main = 0 0` を確認。`origin` は `https://github.com/YuShimoji/WritingPage.git`。既存の `.serena/project.yml` template churn だけをuser/tool-owned local差分として保持し、product / handoff commitには含めない。 |
-| 開発環境 | Codex bundled Node `v24.14.0` / Corepack npm `11.6.2` を使用。`node_modules` は存在し、`npm ls --depth=0` と `npm run test:smoke` がpass。project contract は Node `>=22.12.0 <25` / npm `>=11 <12`。 |
-| G3 command | `npm run release:checkpoint` が ignored の `output/release-readiness/checkpoint-*` に `checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md`、commit紐付きUI captureを生成し、Electron directory packageをbuild/hashする。 |
-| Web evidence | accepted remote evidenceは run `29198025986` / commit `cf4b432` の smoke pass、unit 16/16、full Playwright 594 passed / 4 skipped。2026-07-15には別のclean terminalで bounded Web checks、unit 21/21、lint、dist build、capture 7枚、Electron directory buildがpass。今回product code変更はなく、full Playwright / SP-071 / checkpoint全体は再実行しない。 |
-| Capture / package | このcheckoutには `output/release-readiness` が存在しない。残る `build/win-unpacked/Zen Writer.exe` は2026-06-29生成・SHA-256 `314648b41c75833fe3629a0db18642087c20e6c0d08f90a83882f1a4c6d84706` で、7月15日checkpointのhash `6253997b...` と一致せずH1に再利用不可。ignored evidenceが端末間転送されない境界を実証している。 |
-| 現在の判断 | 開発入口はready。release判断はElectron人手観察が `pending` のため `HOLD_FOR_ELECTRON_OBSERVATION`。H0の実装と過去clean実行証拠は維持するが、この端末でH1へ進む時はclean latest HEADからcheckpoint/package/operator sheetを再生成する。 |
-| 今回の変更境界 | maintenance / sync / supervisor handoff / goal proposalのみ。UI、runtime code、storage/autosave/document model、Reader/export、依存契約、signing/publicationは変更しない。提案した長期目標は承認済みbacklogへ昇格させない。 |
+| Git / remote | base product/mainは `889a6427f3c9ec39b7e39d90e956ff528ec7f75e`。H2実装は隔離branch `feat/g3-h2-compact-observation-ingestion`、実装proofは `3926f945beff421b99f5e57c28c12239337d2726`。primary checkoutの `.serena/project.yml` はuser/tool-owned local差分として保持し、stage・stash・restoreしていない。 |
+| Immutable H0 evidence | `WritingPage-g3-checkpoint-889a642` のoriginal checkpointは SHA-256 `7b06d1d5ad2e146d218fca08cb0dc72e60285f3b91cfae2b7b389dccc5824f77`、packageは `Zen Writer.exe` / 201233408 bytes / SHA-256 `063a785693a5dc781459176f9a1a2cf01bb1483b34a464039e5febbad06d93c6`。derivative生成前後で両hashが一致し、base folderは変更していない。 |
+| H1 observation | latest user statementは「packageは起動でき、主要操作に重大な問題はありません。保存・再起動復帰はPASSとして継承します。」。package起動とaggregate-only主要操作は今回報告、保存・再起動復帰はsupervisorが再利用を明示承認した過去反復確認。current exact-package persistence replayは今回未実施、`observedAt=null` / `not_supplied`、Web比較は `not_compared`。 |
+| H2 derivative | clean committed tool HEADから `npm run release:observe` を実行し、ignored sibling folder `output/release-readiness/review-thank-889a642-20260721T024221JST` に `electron-observation.json`、`internal-release-review.json`、`INTERNAL_RELEASE_REVIEW.md` を生成。identity match、`electronObservation=pass`、`behaviorObserved=true`、derivative overallは `READY_FOR_INTERNAL_RELEASE_REVIEW`。 |
+| Evidence boundary | verifiedはGit/hash/parsed artifact、observedは今回の起動・主要操作報告、inherited_observedは保存・再起動復帰、unverifiedは個別control詳細・正確な観察日時・fresh persistence replay・Web差分。READYはinternal review入口だけで、signing/tagging/publication/distributionはlocked。 |
+| Validation | observation focused 12/12、Node unit 33/33、smoke、JS lint、syntax、`git diff --check` がpass。product/runtime変更も新failure evidenceもないため、full Playwright、SP-071、package rebuild、checkpoint regenerationは実施していない。 |
+| 今回の変更境界 | release-evidence orchestration、focused Node tests、authority docsのみ。UI/CSS/HTML、storage/autosave/document model、Reader/export、Electron runtime、dependency contract、base operator sheet、external releaseは変更していない。 |
 
 ## 現行の開発契約
 
-- `checkpoint.json` のstable statusは `pass / fail / pending / stale / blocked / not_run`、overallは `HOLD_FOR_ELECTRON_OBSERVATION / READY_FOR_INTERNAL_RELEASE_REVIEW / BLOCKED`。
-- dirty sourceは、他の機械gateがpassでも `BLOCKED`。final evidenceはclean committed HEADから生成する。
-- captureとpackageはsource commit / dirty stateへ結び付ける。exe存在、build成功、screenshot存在をElectron観察の代用にしない。
-- 日本語Markdownはoperator判断面、JSONはstable English schema。いずれにも原稿本文を入れない。
-- G1 remote acceptanceはrepository verification anchorをobserved evidenceとして再利用し、今回実行したローカル検証と混ぜない。
+- original `checkpoint.json` / release report / operator sheet / executableはimmutable baseとして扱い、観察結果は必ずsibling derivativeへ出す。
+- `npm run release:observe -- --checkpoint <checkpoint.json> --package <Zen Writer.exe> --observation <observation.json> --out <new-folder>` はcheckpoint/package/reported SHA、source commit/dirty、requiredIdentity、original decisionを照合する。
+- PASSでREADYにできるのは、今回報告のpackage launchとaggregate-only主要操作、passの保存・再起動復帰、継承basis、supervisorの明示承認が全て揃う場合だけ。FAILはBLOCKED、HOLD/不足/無承認継承はREADYにしない。
+- ordinary repeated PASSの既定報告は `PASS。package起動・主要操作に重大問題なし。保存復帰は既存確認を継承。` でよい。継承はfresh replayに見せかけず、FAIL/HOLDやstorage/autosave/document model/Electron lifecycle変更時は詳細確認へ戻す。
+- 日本語Markdownは判断面、stable English-key JSONは機械readback。いずれも原稿本文、未確認のper-control detail、推測timestampを取り込まない。
 
 ## 次に推奨する作業
 
-| 方向 | 目的 | 効果 | 次の動き |
+| 方向 | 解消する摩擦 | 現在状態 / 必要条件 | 次の動き |
 |---|---|---|---|
-| Verify | clean evidence生成とH1 Electron package観察を行う | `.serena` local差分を失わず、Web自動化では見えない起動・保存・再起動復帰をexact hashのpackageで閉じられる | assistantがclean secondary worktreeまたはowner解決後のclean checkoutでcheckpointを再生成し、userが同梱sheetへ observer/time/result/findingsを記録する |
-| Advance | internal release reviewへ進む | 全必須gateが揃った後、検索せずgo/hold判断できる | Electron gateがpassになった時だけ `READY_FOR_INTERNAL_RELEASE_REVIEW` を再生成する |
-| Review | Documents tactile debtを独立確認する | release evidenceと好みの評価を混同せず、日常執筆の違和感を閉じられる | userが実使用サイズでempty hint、`現在` marker、focus returnを自由文reviewする |
-| Audit | `npm ci` のdeprecated dependency warningを別スライスで棚卸しする | 現在のdev-ready判定を依存更新判断と混ぜず、更新範囲と回帰コストを先に見積もれる | H1を妨げないread-only auditから始め、依存変更が必要ならred-band gateで別途決める |
+| Advance — bounded internal release review | machine evidenceとmixed-provenance human evidenceを再収集せず、内部go/hold判断へ進める | H2 derivativeはREADY。external release authorityは未付与 | supervisor/ownerが3 derivative artifactを読み、internal reviewの範囲だけを判定する |
+| Review — Documents tactile debt | release identityと日常執筆の好みを混ぜず、empty hint・`現在` marker・focus returnの違和感を閉じる | nonblocking / user-owned。通常利用サイズの自由文review待ち | reviewが来た時だけ1 batchのnarrow product sliceへ変換する |
+| Audit — dependency warning | install時の既知warningをrelease evidenceから切り離し、更新コストを先に把握する | H2を妨げないread-only maintenance候補。依存変更は未承認 | 別スライスで`npm audit`等を読み、更新を伴う場合だけ変更gateを作る |
 
 ## 別端末への handoff
 
-1. `git pull --ff-only origin main` の後、2026-07-17 supervisor goal proposalを含むlatest mainを取得し、`git rev-list --left-right --count "HEAD...origin/main"` が `0 0` であることを確認する。
-2. この live block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md` を読む。workflow / decision / handoff を扱う時だけ `docs/ai/*.md` と `docs/OPERATOR_WORKFLOW.md` を追加する。
-3. G1 は `cf4b432` / run `29198025986` で閉鎖済み。full PlaywrightやSP-071を新しいfailureなしで再実行しない。
-4. Node 24.x / npm 11.6.2 routeを使う。`node_modules` がなければ `npm ci`、続けて `npm ls --depth=0` と `npm run test:smoke` で開発入口を確認する。
-5. `.serena/project.yml` の端末ローカルtemplate churnはproduct / handoff commitに含めない。H1用checkpointを生成する時は、その差分を隠してcleanと誤認させず、clean secondary worktreeを使うかownerを明示して解消する。
-6. ignoredの `output/` / `build/` は移らない。clean latest HEADから `npm run release:checkpoint` を再生成し、その端末の `ELECTRON_OPERATOR_REVIEW.md` と同じSHA-256のpackageを `npm run app:open:package` で人間が観察する。未観察をWeb証拠で完了扱いにしない。
-7. 今回の監修報告とgoal proposalは `docs/verification/2026-07-17/latest-main-dev-ready-supervisor-goal-proposal.md`。remote handoff履歴は `docs/verification/2026-07-17/cross-terminal-handoff-after-dev-ready-supervisor-report.md`、7月15日のclean checkpoint詳細は `docs/verification/2026-07-15/latest-main-dev-ready-supervisor-report.md`、G3実装の正本は `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`。
+1. `feat/g3-h2-compact-observation-ingestion` をfetchし、upstream parityとCIを確認する。primary `.serena/project.yml` は触らない。
+2. このlive block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md`、`docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md` を読む。
+3. ignored derivativeはGitでは移らない。実体へアクセスできる端末では `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T024221JST` を読む。別端末ではtracked verification noteとexact hashesをauthorityにし、artifactが必要な時だけ同じimmutable base/inputから再生成する。
+4. next gateはbounded internal release review。product fix、rebuild、relaunch、tag/sign/publish/distributeへ自動で進まない。
+5. G1 remote acceptanceは `cf4b432` / run `29198025986` の594 passed / 4 skipped。新failureなしにfull PlaywrightやSP-071を再実行しない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

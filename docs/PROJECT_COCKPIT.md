@@ -13,7 +13,7 @@ Zen Writer の安定したレビュー入口。**現在地そのものは
 
 | 面 | 目的 | 現在の状態 | 次に見ること |
 | --- | --- | --- | --- |
-| Release readiness checkpoint | Web、capture、package、人手gateを一つのlinear decision spineで読む | `npm run release:checkpoint` がignored outputへmachine JSON、日本語Markdown、Electron operator sheetを生成する | overallがHOLDなら、同じSHA-256のpackageを人間が観察する。exe/capture存在だけでgateをpassにしない |
+| Release readiness checkpoint / observation derivative | Web、capture、package、人手gateを一つのlinear decision spineで読む | `release:checkpoint` がimmutable baseを作り、`release:observe` がcompact observationをexact identityへ結び付けたsibling derivativeを作る | derivative READYはinternal review入口だけ。current reportと継承persistenceを混同せず、external releaseへ進めない |
 | Full showcase capture | 広い GUI 状態を一括で review する | `node scripts/capture-full-showcase.js` が sidebar categories / current settings route / Design Cockpit / themes / focus compat / normal shell / Editor parity / mobile / Reader parity を生成する | `output/showcase/full-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | UI capture verification | 現行 UI の evidence を screenshot と readback で残す | `npm run test:ui:capture` が main / advanced settings sidebar / Design Cockpit / help / edit sidebar / command palette / mobile sidebar を生成する | `output/playwright/manual-verification-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | First Writing Comfort | fresh/reset launch から書き始め、保存、reload 復帰までを読む | 空の Rich editing は本文に入らない短い自動保存 hint を表示し、`e2e/first-writing-comfort.spec.js` が launch-to-writing path を確認する | ヒントが邪魔にならず、入力後に消え、保存状態と Design Cockpit が本文漏れなく読めるかを見る |
@@ -50,9 +50,30 @@ overallが `HOLD_FOR_ELECTRON_OBSERVATION` の場合、機械gateは成立して
 `npm run app:open:package` で起動し、観察結果を記録する。これはDocuments tactile reviewとは
 別のuser-owned gateである。
 
+accepted observationをoriginal checkpoint/packageへ取り込む時は、base folderを変更せず次の
+canonical routeを使う。
+
+```powershell
+npm run release:observe -- --checkpoint "<checkpoint.json>" --package "<Zen Writer.exe>" --observation "<observation.json>" --out "<new sibling review folder>"
+```
+
+出力は `electron-observation.json`、`internal-release-review.json`、
+`INTERNAL_RELEASE_REVIEW.md`。commandはcheckpoint/package/reported SHAとrequiredIdentityを照合し、
+original checkpointの生成前後hashを確認する。matching PASSだけが
+`READY_FOR_INTERNAL_RELEASE_REVIEW` になり、FAILはBLOCKED、HOLD/不足/無承認の証拠継承は
+READYにならない。
+
+ordinary repeated PASSの既定報告は
+`PASS。package起動・主要操作に重大問題なし。保存復帰は既存確認を継承。` でよい。
+詳細checklistは任意のdiagnostic pathとして残し、FAIL/HOLD、新しいpersistence問題、
+storage/autosave/document model/Electron lifecycle変更後、または明示された最終配布候補では
+詳細な再現・fresh replayを必須にする。継承証拠はfresh replayとして記録しない。
+
 ## 検証入口
 
 - G3 release readiness: `npm run release:checkpoint`
+- G3 observation ingestion: `npm run release:observe -- --checkpoint <path> --package <path> --observation <path> --out <path>`
+- G3 H2 verification note: `docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md`
 - G3 verification note: `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`
 - Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`

@@ -2,7 +2,7 @@
 
 Zen Writer の全機能を一通り確認するための手順書。サンプルプロジェクトと組み合わせて使う。
 
-最終更新: 2026-04-29 (右上 window drag handle 統合)
+最終更新: 2026-07-21 (compact Electron observation reporting)
 
 ## 0. package / Electron 固有の最小確認
 
@@ -19,6 +19,17 @@ Windows ではこの経路が packaged app の正本起動です。`NODE_OPTIONS
 `Start-Process` で起動します。
 
 この節は Web E2E の代替ではなく、**package でしか確定できない項目だけ**を確認する。
+
+ordinary repeated PASSでは、詳細checklistを毎回転記せず次の1文を既定報告にできる。
+
+`PASS。package起動・主要操作に重大問題なし。保存復帰は既存確認を継承。`
+
+この短縮形の「主要操作」はaggregate-onlyで、全controlの個別確認を意味しない。「保存復帰は
+既存確認を継承」はfresh replayではなく、過去の反復user verificationを再利用した証拠として
+明示する。FAIL/HOLD、新しいpersistence問題、storage/autosave/document model/Electron lifecycle
+変更後、または明示された最終配布候補では短縮せず、以下の詳細項目と再現情報を使う。
+
+以下のchecklistはordinary repeated PASSでは任意のdiagnostic pathであり、上記条件では必須となる。
 
 - [ ] 起動直後、visible top chrome / 上端バー / seam / visible handle が残らない
 - [ ] `F2` で command palette が表示され、旧 top chrome / drag lane は出ない
