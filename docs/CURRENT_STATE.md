@@ -8,12 +8,12 @@
 
 | 観点 | 現在地 |
 |---|---|
-| Git / remote | base product/mainは `889a6427f3c9ec39b7e39d90e956ff528ec7f75e`。H2実装は隔離branch `feat/g3-h2-compact-observation-ingestion`、実装proofは `3926f945beff421b99f5e57c28c12239337d2726`、final provenance fidelity repairは `083ba87affc7eaf7e2fd01941120707c1c80b8c6`。primary checkoutの `.serena/project.yml` はuser/tool-owned local差分として保持し、stage・stash・restoreしていない。 |
+| Git / remote | base product/mainは `889a6427f3c9ec39b7e39d90e956ff528ec7f75e`。H2実装と全contextはremote branch `feat/g3-h2-compact-observation-ingestion` にあり、validated implementation anchorは `67893393e82ad3e7393efe28213c4fdd7c5d73ea`、そのGitHub Actions run `29766390691` はsuccess。internal review未実施のためmainへは統合していない。primary checkoutの `.serena/project.yml` はuser/tool-owned local差分として保持し、stage・stash・restoreしていない。 |
 | Immutable H0 evidence | `WritingPage-g3-checkpoint-889a642` のoriginal checkpointは SHA-256 `7b06d1d5ad2e146d218fca08cb0dc72e60285f3b91cfae2b7b389dccc5824f77`、packageは `Zen Writer.exe` / 201233408 bytes / SHA-256 `063a785693a5dc781459176f9a1a2cf01bb1483b34a464039e5febbad06d93c6`。derivative生成前後で両hashが一致し、base folderは変更していない。 |
 | H1 observation | latest user statementは「packageは起動でき、主要操作に重大な問題はありません。保存・再起動復帰はPASSとして継承します。」。package起動とaggregate-only主要操作は今回報告、保存・再起動復帰はsupervisorが再利用を明示承認した過去反復確認。current exact-package persistence replayは今回未実施、`observedAt=null` / `not_supplied`、Web比較は `not_compared`。 |
 | H2 derivative | clean committed tool HEADから `npm run release:observe` を実行し、ignored sibling folder `output/release-readiness/review-thank-889a642-20260721T030510JST` に `electron-observation.json`、`internal-release-review.json`、`INTERNAL_RELEASE_REVIEW.md` を生成。current observation gradeは `observed_user_reported`、mixed-provenance human gateは `pass`、`behaviorObserved=true`、derivative overallは `READY_FOR_INTERNAL_RELEASE_REVIEW`。 |
 | Evidence boundary | verifiedはGit/hash/parsed artifact、observedは今回の起動・主要操作報告、inherited_observedは保存・再起動復帰、unverifiedは個別control詳細・正確な観察日時・fresh persistence replay・Web差分。READYはinternal review入口だけで、signing/tagging/publication/distributionはlocked。 |
-| Validation | observation focused 12/12、Node unit 33/33、smoke、JS lint、syntax、`git diff --check` がpass。product/runtime変更も新failure evidenceもないため、full Playwright、SP-071、package rebuild、checkpoint regenerationは実施していない。 |
+| Validation | observation focused 12/12、Node unit 33/33、smoke、JS lint、syntax、`git diff --check` がpass。implementation anchor `6789339` のGitHub Actions run `29766390691` もcompleted/success。product/runtime変更も新failure evidenceもないため、full Playwright、SP-071、package rebuild、checkpoint regenerationは実施していない。 |
 | 今回の変更境界 | release-evidence orchestration、focused Node tests、authority docsのみ。UI/CSS/HTML、storage/autosave/document model、Reader/export、Electron runtime、dependency contract、base operator sheet、external releaseは変更していない。 |
 
 ## 現行の開発契約
@@ -34,9 +34,9 @@
 
 ## 別端末への handoff
 
-1. `feat/g3-h2-compact-observation-ingestion` をfetchし、upstream parityとCIを確認する。primary `.serena/project.yml` は触らない。
+1. `git fetch --prune origin` 後、既存local branchがあれば `git switch feat/g3-h2-compact-observation-ingestion`、なければ `git switch --track origin/feat/g3-h2-compact-observation-ingestion`。続けて `git pull --ff-only origin feat/g3-h2-compact-observation-ingestion` と `git rev-list --left-right --count HEAD...origin/feat/g3-h2-compact-observation-ingestion` を実行し、`0 0` を確認する。`git merge-base --is-ancestor 67893393e82ad3e7393efe28213c4fdd7c5d73ea HEAD` もexit 0であることを確認する。primary `.serena/project.yml` は触らない。
 2. このlive block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md`、`docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md` を読む。
-3. ignored derivativeはGitでは移らない。実体へアクセスできる端末では `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T030510JST` を読む。別端末ではtracked verification noteとexact hashesをauthorityにし、artifactが必要な時だけ同じimmutable base/inputから再生成する。
+3. ignored derivativeとpackage/buildはGitでは移らない。実体へアクセスできる端末では `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T030510JST` を読む。別端末ではtracked verification noteとexact hashesをauthorityにし、artifactが必要な時だけ同じimmutable base/inputから再生成または別経路で安全に転送する。Git pushだけでbinary evidenceまで同期されたとは扱わない。
 4. next gateはbounded internal release review。product fix、rebuild、relaunch、tag/sign/publish/distributeへ自動で進まない。
 5. G1 remote acceptanceは `cf4b432` / run `29198025986` の594 passed / 4 skipped。新failureなしにfull PlaywrightやSP-071を再実行しない。
 

@@ -78,6 +78,49 @@ package rebuild, package launch, and checkpoint regeneration were intentionally
 not performed because this slice changed evidence orchestration only and had no
 new product-failure evidence.
 
+## Cross-terminal restart packet
+
+The complete tracked implementation and decision context are on remote branch
+`feat/g3-h2-compact-observation-ingestion`. The validated implementation anchor is
+`67893393e82ad3e7393efe28213c4fdd7c5d73ea`; GitHub Actions run
+`29766390691` completed successfully for that exact SHA. `main` remains at
+`889a6427f3c9ec39b7e39d90e956ff528ec7f75e` because bounded internal release
+review has not yet approved integration.
+
+The branch history through that anchor is:
+
+1. `3926f945beff421b99f5e57c28c12239337d2726` — compact observation ingestion
+2. `f14205f1af285c7d5a4f28bb514d5f295a499393` — readiness authority update
+3. `083ba87affc7eaf7e2fd01941120707c1c80b8c6` — observation-grade fidelity repair
+4. `67893393e82ad3e7393efe28213c4fdd7c5d73ea` — final derivative authority pointer
+
+On another terminal, resume with:
+
+```powershell
+git fetch --prune origin
+git switch --track origin/feat/g3-h2-compact-observation-ingestion
+git pull --ff-only origin feat/g3-h2-compact-observation-ingestion
+git rev-list --left-right --count HEAD...origin/feat/g3-h2-compact-observation-ingestion
+```
+
+If the local branch already exists, use
+`git switch feat/g3-h2-compact-observation-ingestion` instead of the tracked
+branch creation command. The final parity readback must be `0 0`. Then read
+`docs/CURRENT_STATE.md`, `docs/INVARIANTS.md`, `docs/INTERACTION_NOTES.md`, and
+this note in that order.
+
+The ignored derivative, observation input, checkpoint folder, packaged EXE,
+and primary-checkout `.serena/project.yml` are deliberately not transported by
+Git. Their exact identities and provenance are recorded above. If the immutable
+checkpoint, package, and observation input are available on the new terminal,
+the derivative may be regenerated with the canonical `npm run release:observe`
+command into a new sibling folder; otherwise the tracked record is the handoff
+authority and no local artifact possession should be implied.
+
+The next gate is bounded internal release review of the three derivative
+artifacts. This handoff does not authorize a product fix, rebuild, relaunch,
+merge to `main`, tag, signing, publication, upload, or distribution.
+
 ## Compact reporting policy
 
 The default repeated success report may be:
