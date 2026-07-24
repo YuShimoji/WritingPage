@@ -74,6 +74,7 @@ storage/autosave/document model/Electron lifecycle変更後、または明示さ
 - G3 release readiness: `npm run release:checkpoint`
 - G3 observation ingestion: `npm run release:observe -- --checkpoint <path> --package <path> --observation <path> --out <path>`
 - G3 H2 verification note: `docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md`
+- Latest remote/dev-ready supervisor goal proposal: `docs/verification/2026-07-25/latest-remote-dev-ready-supervisor-goal-proposal.md`
 - G3 verification note: `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`
 - Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`

@@ -57,7 +57,7 @@
 | 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
 |---|---|---|---|---|---|
 | hold | medium | Documents tactile review | empty Rich editing hint、`現在` marker、selection focus return の体感受入が自動証拠だけでは閉じない | user / product feel | `npm run app:update:open` で3点を自由文 review。CI audit を止めない deferred review debt |
-| proposed | high | Release-readiness checkpoint | automated Web gates、UI capture evidence の所有と鮮度、Electron/package-only human responsibilities が一つの受入面に繋がっていない | assistant / acceptance-surface integration。package/Electron の tactile judgment は user-owned | smoke / unit / lint / build / full E2E の remote evidence、capture ownership、manual-only gate を bounded decision surface に統合し、未確認の Electron を自動証拠で完了扱いにしない |
+| hold | high | G3 H2 bounded internal release review | checkpoint、exact package、compact observation derivativeは接続済みだが、H2 branchをmainへ統合する内部判断が未実施 | supervisor/owner / internal decision。approve後のmerge・CI・authority syncはassistant-owned | branch `67b951b` / CI `29771311517` / derivative 3 artifactを読み、`approve integration / hold with finding / reject` を判定する。tag/sign/publish/distributeは別gate |
 | hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
 | hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
 

@@ -2,19 +2,21 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-21 / G3 H2 compact Electron observation ingestion
+更新: 2026-07-25 / latest-remote dev-ready supervisor goal proposal
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
-| Git / remote | base product/mainは `889a6427f3c9ec39b7e39d90e956ff528ec7f75e`。H2実装と全contextはremote branch `feat/g3-h2-compact-observation-ingestion` にあり、validated implementation anchorは `67893393e82ad3e7393efe28213c4fdd7c5d73ea`、そのGitHub Actions run `29766390691` はsuccess。internal review未実施のためmainへは統合していない。primary checkoutの `.serena/project.yml` はuser/tool-owned local差分として保持し、stage・stash・restoreしていない。 |
+| Git / remote | `git fetch --prune origin` 後、primary `main` は `889a6427f3c9ec39b7e39d90e956ff528ec7f75e` で `origin/main` と `0 0`。同期・検証開始時のH2 worktree / remote branch `feat/g3-h2-compact-observation-ingestion` は `67b951b65d93cd75f54edbbd434b014e92236f38` で `0 0`。このSHAをvalidated implementation anchorとし、CI E2E run `29771311517` はcompleted/success。2026-07-25の後続差分はauthority docsとsupervisor reportだけ。internal review未実施のためH2はmainへ統合していない。 |
+| Local ownership | primary checkoutの `.serena/project.yml` template churnだけをuser/tool-owned差分として保持し、stage・stash・restoreしていない。H2 worktreeはtracked clean。ignoredのcheckpoint/package/review derivativeはGit転送対象外で、product/handoff commitへ含めない。 |
+| 開発環境 | Node `v24.13.0` / npm `11.6.2`。project contract `>=22.12.0 <25` / npm `>=11 <12` を満たす。primary mainとH2 worktreeの両方で`node_modules`が存在し、`npm ls --depth=0` と `npm run test:smoke` がpass。H2 focused observation testsも12/12 pass。 |
 | Immutable H0 evidence | `WritingPage-g3-checkpoint-889a642` のoriginal checkpointは SHA-256 `7b06d1d5ad2e146d218fca08cb0dc72e60285f3b91cfae2b7b389dccc5824f77`、packageは `Zen Writer.exe` / 201233408 bytes / SHA-256 `063a785693a5dc781459176f9a1a2cf01bb1483b34a464039e5febbad06d93c6`。derivative生成前後で両hashが一致し、base folderは変更していない。 |
 | H1 observation | latest user statementは「packageは起動でき、主要操作に重大な問題はありません。保存・再起動復帰はPASSとして継承します。」。package起動とaggregate-only主要操作は今回報告、保存・再起動復帰はsupervisorが再利用を明示承認した過去反復確認。current exact-package persistence replayは今回未実施、`observedAt=null` / `not_supplied`、Web比較は `not_compared`。 |
-| H2 derivative | clean committed tool HEADから `npm run release:observe` を実行し、ignored sibling folder `output/release-readiness/review-thank-889a642-20260721T030510JST` に `electron-observation.json`、`internal-release-review.json`、`INTERNAL_RELEASE_REVIEW.md` を生成。current observation gradeは `observed_user_reported`、mixed-provenance human gateは `pass`、`behaviorObserved=true`、derivative overallは `READY_FOR_INTERNAL_RELEASE_REVIEW`。 |
+| H2 derivative | ignored sibling folder `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T030510JST` の3 artifactがこの端末に存在する。checkpoint/package SHAを独立再計算し、`INTERNAL_RELEASE_REVIEW.md` とJSON readbackを再確認。current observation gradeは `observed_user_reported`、mixed-provenance human gateは `pass`、`behaviorObserved=true`、derivative overallは `READY_FOR_INTERNAL_RELEASE_REVIEW`。 |
 | Evidence boundary | verifiedはGit/hash/parsed artifact、observedは今回の起動・主要操作報告、inherited_observedは保存・再起動復帰、unverifiedは個別control詳細・正確な観察日時・fresh persistence replay・Web差分。READYはinternal review入口だけで、signing/tagging/publication/distributionはlocked。 |
-| Validation | observation focused 12/12、Node unit 33/33、smoke、JS lint、syntax、`git diff --check` がpass。implementation anchor `6789339` のGitHub Actions run `29766390691` もcompleted/success。product/runtime変更も新failure evidenceもないため、full Playwright、SP-071、package rebuild、checkpoint regenerationは実施していない。 |
-| 今回の変更境界 | release-evidence orchestration、focused Node tests、authority docsのみ。UI/CSS/HTML、storage/autosave/document model、Reader/export、Electron runtime、dependency contract、base operator sheet、external releaseは変更していない。 |
+| 現在のbottleneck | H2実装・exact evidence・再開環境は揃った。次に不足しているのはsupervisor/ownerによるbounded internal reviewと、H2をmainへ統合するかの判断。再build、再観察、full Playwright、product polishを先行してもこの判断摩擦は減らない。 |
+| 今回の変更境界 | remote sync、dev-ready再検証、authority docsとsupervisor goal proposalのみ。UI/CSS/HTML、storage/autosave/document model、Reader/export、Electron runtime、dependency contract、base operator sheet、package、external releaseは変更しない。先の目標は条件付きproposalであり、approved backlogへ自動昇格させない。 |
 
 ## 現行の開発契約
 
@@ -23,22 +25,25 @@
 - PASSでREADYにできるのは、今回報告のpackage launchとaggregate-only主要操作、passの保存・再起動復帰、継承basis、supervisorの明示承認が全て揃う場合だけ。FAILはBLOCKED、HOLD/不足/無承認継承はREADYにしない。
 - ordinary repeated PASSの既定報告は `PASS。package起動・主要操作に重大問題なし。保存復帰は既存確認を継承。` でよい。継承はfresh replayに見せかけず、FAIL/HOLDやstorage/autosave/document model/Electron lifecycle変更時は詳細確認へ戻す。
 - 日本語Markdownは判断面、stable English-key JSONは機械readback。いずれも原稿本文、未確認のper-control detail、推測timestampを取り込まない。
+- H2 mergeはinternal reviewの判断後にだけ行う。merge、release candidate identity、tag/sign/publish/distributeを一つの承認に束ねない。
+- 2026-07-25 goal stackは監修用proposal。選択や参照だけでは実装承認にならず、各horizonの起動条件を満たした時に1 user outcomeずつ扱う。
 
 ## 次に推奨する作業
 
 | 方向 | 解消する摩擦 | 現在状態 / 必要条件 | 次の動き |
 |---|---|---|---|
-| Advance — bounded internal release review | machine evidenceとmixed-provenance human evidenceを再収集せず、内部go/hold判断へ進める | H2 derivativeはREADY。external release authorityは未付与 | supervisor/ownerが3 derivative artifactを読み、internal reviewの範囲だけを判定する |
+| Advance — bounded internal release review | machine evidenceとmixed-provenance human evidenceを再収集せず、内部go/hold判断へ進める | H2 derivativeはREADY、branch CIもgreen。external release authorityは未付与 | supervisor/ownerが3 derivative artifactを読み、`approve integration / hold with finding / reject` のいずれかをH2範囲だけで判定する |
+| Audit — H2 integration and authority drift | validated branchをmainへ戻す前に、base product identityとevidence toolingの責務を混ぜず、古い「checkpoint未実装」記述を残さない | branchはmainより5 commits先。今回roadmap/ledgerの入口を現状へ同期する | internal reviewがapproveならassistantがmerge route、CI、CURRENT_STATEを1 outcomeで閉じる |
 | Review — Documents tactile debt | release identityと日常執筆の好みを混ぜず、empty hint・`現在` marker・focus returnの違和感を閉じる | nonblocking / user-owned。通常利用サイズの自由文review待ち | reviewが来た時だけ1 batchのnarrow product sliceへ変換する |
-| Audit — dependency warning | install時の既知warningをrelease evidenceから切り離し、更新コストを先に把握する | H2を妨げないread-only maintenance候補。依存変更は未承認 | 別スライスで`npm audit`等を読み、更新を伴う場合だけ変更gateを作る |
+| Explore — post-review product frontier | release手順だけを磨き続けず、最終成果物の「起動→執筆→構造化→装飾→preview→出力→保存」へ戻る | WP-004 Phase 3とWP-001はfresh差分/体感摩擦が起動条件。大規模新機能は未承認 | H2 closure後、fresh evidenceがある1 user outcomeだけを比較し、実装前decision gateへ出す |
 
 ## 別端末への handoff
 
-1. `git fetch --prune origin` 後、既存local branchがあれば `git switch feat/g3-h2-compact-observation-ingestion`、なければ `git switch --track origin/feat/g3-h2-compact-observation-ingestion`。続けて `git pull --ff-only origin feat/g3-h2-compact-observation-ingestion` と `git rev-list --left-right --count HEAD...origin/feat/g3-h2-compact-observation-ingestion` を実行し、`0 0` を確認する。`git merge-base --is-ancestor 67893393e82ad3e7393efe28213c4fdd7c5d73ea HEAD` もexit 0であることを確認する。primary `.serena/project.yml` は触らない。
+1. このmachineではprimary `WritingPage` がmain、`WritingPage-g3-h2-observation` がH2 branchを所有する。`git worktree list`でownerを確認し、同じbranchをprimaryへ無理にswitchしない。別端末では `git fetch --prune origin` 後、H2 branchをswitch/trackしてpullし、`HEAD...origin/feat/g3-h2-compact-observation-ingestion = 0 0` を確認する。
 2. このlive block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md`、`docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md` を読む。
-3. ignored derivativeとpackage/buildはGitでは移らない。実体へアクセスできる端末では `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T030510JST` を読む。別端末ではtracked verification noteとexact hashesをauthorityにし、artifactが必要な時だけ同じimmutable base/inputから再生成または別経路で安全に転送する。Git pushだけでbinary evidenceまで同期されたとは扱わない。
-4. next gateはbounded internal release review。product fix、rebuild、relaunch、tag/sign/publish/distributeへ自動で進まない。
-5. G1 remote acceptanceは `cf4b432` / run `29198025986` の594 passed / 4 skipped。新failureなしにfull PlaywrightやSP-071を再実行しない。
+3. 2026-07-25の詳細な監修報告・goal stackは `docs/verification/2026-07-25/latest-remote-dev-ready-supervisor-goal-proposal.md`。ignored derivativeとpackage/buildはGitでは移らない。実体へアクセスできる端末では `WritingPage-g3-checkpoint-889a642/output/release-readiness/review-thank-889a642-20260721T030510JST` を読む。
+4. mainとH2の`npm ls --depth=0` / smoke、H2 focused 12/12はこの端末で再実行済み。G1 remote acceptanceは `cf4b432` / run `29198025986` の594 passed / 4 skipped。新failureなしにfull Playwright、SP-071、package rebuild、checkpoint regenerationを繰り返さない。
+5. next gateはbounded internal release review。approveされた場合だけH2 integrationを別のbounded outcomeとして行う。product fix、rebuild、relaunch、release identity変更、tag/sign/publish/distributeへ自動で進まない。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
