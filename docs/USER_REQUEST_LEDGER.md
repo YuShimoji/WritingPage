@@ -57,7 +57,7 @@
 | 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
 |---|---|---|---|---|---|
 | hold | medium | Documents tactile review | empty Rich editing hint、`現在` marker、selection focus return の体感受入が自動証拠だけでは閉じない | user / product feel | `npm run app:update:open` で3点を自由文 review。CI audit を止めない deferred review debt |
-| hold | high | G3 H2 bounded internal release review | checkpoint、exact package、compact observation derivativeは接続済みだが、H2 branchをmainへ統合する内部判断が未実施 | supervisor/owner / internal decision。approve後のmerge・CI・authority syncはassistant-owned | branch `67b951b` / CI `29771311517` / derivative 3 artifactを読み、`approve integration / hold with finding / reject` を判定する。tag/sign/publish/distributeは別gate |
+| proposed | critical | Release-candidate identity on integrated main | observed packageはbase `889a642`に固定され、post-integration mainのcommit/checkpoint/package identityがまだ存在しない | assistant / candidate evidence generation。package体感判断はuser-owned | 別Missionでclean integrated mainからcheckpoint/package/operator sheetを生成し、過去観察をfresh replayとして継承しない |
 | hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
 | hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
 
@@ -65,6 +65,7 @@
 
 | 優先 | 候補 | Bottleneck | Actor / Owner |
 |------|------|------------|---------------|
+| Done | G3 H2 observation ingestion / main integration | exact package observationをimmutable derivativeへ取り込み、accepted head `c37c8ae` の履歴をrewriteなしでmainへff-only統合。READYはinternal review入口だけで、旧packageとintegrated main candidateは分離 | assistant / release evidence integration |
 | Done | Current-main CI trust recovery | 無名章のデータ保持と current-shell / capture test contract を回復し、Node runtime と acceptance gate を固定。`cf4b432` の `CI E2E` run `29198025986` は remote で success | assistant / chapter storage + CI contract |
 | Done | Right window controls / top chrome retirement | アプリを閉じる手段不足を解消。右上 hover island に三要素 window controls を移し、F2 / Electron menu は command palette に再割当済み | assistant / Electron shell |
 | Done | Left chrome / left nav interaction refinement | 初期 window grip の視覚ノイズ、category 戻り hit area の遠さ、root rail の広すぎる残留範囲を解消済み。window drag は右上 island 内 handle へ統合済み。E2E UI / packaged build green | assistant / affected UI surface |
