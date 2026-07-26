@@ -129,6 +129,24 @@ Editor は唯一の執筆面。`Rich editing` と `Markdown source` は同じ原
 - **MD プレビュー**（shell UI／サイドバー内「MD プレビュー」）は、編集画面の横またはパネルに **レンダリング結果を並べて表示**するもの（再生オーバーレイではない）。
 - **再生オーバーレイ / Reader surface**は `ZWReaderPreview.enter()/exit()/toggle()` で開閉する編集不可の読者確認面。中央揃え・左寄せなど Editor の表示調整とは別に、出力パイプライン・演出・縦書き・export 前の見え方確認を担う。編集は「編集に戻る」で執筆面へ復帰する。
 
+### Rich editing selection toolbar / URL・email surface contract（2026-07-27）
+
+Rich editing の floating toolbar は、非 collapsed selection が `#wysiwyg-editor` 内にある時だけ候補になる。mouse / touch の pointer selection 中は表示せず、keyboard の Shift+Arrow を含む selection geometry が最後に変化してから 140ms settle した時点で配置する。editor の可視矩形内で、選択 rect と直前・直後の可視 1 行を protected band とし、上に収まる時は上、上が不足する時は下へ置く。どちらにも安全に収まらない場合は toolbar を隠す。collapsed selection、通常の caret navigation、editor/control surface 外への blur、Escape、Reader 表示では隠す。toolbar へ keyboard focus を移した場合は selection を保持し、toolbar 上の Escape は editor へ continuation focus を戻す。書式 command の意味と保存経路はこの配置契約では変更しない。
+
+URL / email は surface ごとに次の契約を持つ。Rich editing の直接入力へ live Markdown reparsing を追加せず、caret rewrite や MutationObserver 型 auto-link は別の product-direction gate とする。
+
+| Surface / 操作 | 生成 DOM と見え方 | click / navigation | 変換時点 | 判断 |
+|---|---|---|---|---|
+| Rich editing へ直接入力 | text node。通常本文と同じ見え方 | 非 click | 入力中は変換しない | intentional。執筆中の caret と IME を優先 |
+| Rich editing へ plain-text paste | text node。通常本文と同じ見え方 | 非 click | paste 中は変換しない | intentional。既存の plain-text paste 契約を維持 |
+| reload / Rich↔Markdown conversion 後の Rich editing | markdown-it `linkify:true` が URL を `<a href="https://…">`、email を `<a href="mailto:…">` にする。本文可読色 + 下線 | click 可。auto-link は `target` 未指定の browser-native navigation | Markdown→HTML render 時 | intentional。2026-07-27 に Rich 内の識別 affordance を明示 |
+| MD プレビュー | `ZWMdItBody` の markdown-it `linkify:true` により `<a>` | click 可。`target` 未指定 | preview render 時 | intentional |
+| Reader / replay | `ZWMdItBody` の markdown-it `linkify:true` により `<a>` | click 可。`target` 未指定。`#` anchor だけ Reader 内 handler が担当 | Reader entry / render 時 | intentional |
+| Story Wiki detail / preview | Story Wiki renderer の markdown-it `linkify:true` により `<a>`、`.wiki-preview a` の下線 | click 可。`target` 未指定 | Wiki detail / preview render 時 | intentional |
+| Rich toolbar で明示挿入した external link | `<a class="external-link" target="_blank" rel="noopener noreferrer">` | 新規 browsing context | user が link command を確定した時 | 既存の explicit-link policy |
+
+`target` 未指定の auto-link を Electron 外部 browser へ一律転送する契約は、この確認では追加・推定しない。navigation policy の変更が必要になった場合は、browser / Electron / `mailto:` を分けた専用 slice で決める。
+
 ### 関係図（概念）
 
 内部互換値は **`normal` / `focus` のみ**（`setUIMode`）。**再生オーバーレイ**は別軸（`data-reader-overlay-open`・閲覧専用）。第4の UI モードとしての「Reader」は廃止済み（session 68）。

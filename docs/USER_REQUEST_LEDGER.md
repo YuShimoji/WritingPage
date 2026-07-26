@@ -50,6 +50,18 @@
 - **作業粒度**: 次スライスは常に 1 user outcome。完了に不可欠な実装・関連修正・検証は最大3件まで同じ package に含め、WP-001 / WP-004 / package gate / docs hygiene のように別の意思決定軸は混ぜない。
 - **post-A3 start report 統合**: A3 closeout は `db3b3df` として `main` / `origin/main` に反映済み。`236b59c` は A2 proof commit であり、A3 差分が未コミットという報告は stale と扱う。`.serena/project.yml` の template churn は tool noise として戻すか除外してから次スライスへ進む。
 
+## Rich Editing control-friction backlog（2026-07-27）
+
+この 5 件は daily authoring comfort のうち今回観測された範囲だけを保持する。full settings redesign や generic UI polish queue へ広げない。
+
+| 状態 / 項目 | user-facing impact / affected surface | design direction | acceptance signal | owner / next lane | revisit trigger | normal authoring blocker |
+|---|---|---|---|---|---|---|
+| done — floating Rich toolbar occlusion | Rich editing で選択中の行や前後行が controls に隠れ、読みながら選択を伸ばせなかった | pointer / keyboard selection の変化中は隠し、settle 後に editor viewport 内の protected band 外へ collision-aware placement。安全な位置がなければ隠す | top / middle / bottom / Shift+Arrow settle / collapsed / blur / Escape / toolbar action / wide + narrow viewport で、選択と前後 1 行が非 overlap、selection が維持される | assistant / Rich editor interaction lane | 新しい occlusion、touch regression、vertical writing 固有 FAIL | before は friction、2026-07-27 slice 後は blocker ではない |
+| verified + bounded repair — URL / email affordance and conversion contract | Rich editing の URL / email が入力直後は本文と同じに見え、どの surface で link になるか不明だった | live reparse は行わない。direct type / paste は text、reload または Rich↔Markdown conversion 後は `<a>`。変換済み Rich anchor は本文可読色 + 下線。Preview / Reader / Story Wiki は既存 `linkify:true` を維持 | URL / email の DOM、style、target、変換時点を各 surface で E2E readback。Rich の direct input は text、rendered surfaces は `<a>` | assistant / Rich editor + rendering contract lane。live auto-link は別 product-direction lane | direct-entry 即時 clickability が必要という明示判断、または auto-link navigation の実機 FAIL | blocker ではない。見分け方と変換時点は明文化済み |
+| proposed — native number-input spinner/theme normalization | dark UI の number input だけ native increment/decrement chrome が白く残り、setting row の一体感と可読性を崩す | 個別 setting ではなく shared form-control layer で `color-scheme` / appearance / keyboard-step / focus-visible を揃える | dark / night / high-contrast と light 系で spinner が field と調和し、ArrowUp/Down・直接入力・disabled・focus ring が維持される | assistant / shared form-control design lane | 次に number setting surface を変更する時、または高コントラスト実機で白 chrome が再確認された時 | blocker ではない |
+| proposed — button hierarchy and control-density reduction | 同じ強さの buttons が横一列に並ぶ surface で、主操作を探す時間と誤操作余地が増える | surface ごとに primary 1 件、secondary、低頻度 overflow を定義し、label / icon / destructive separation を揃える。全 toolbar 一括再設計はしない | 代表 surface で最頻操作が opening なしに識別でき、同 weight の連続 button 数が bounded、keyboard order と accessible name が役割順に一致する | product design + assistant / one-surface hierarchy slice | daily workflow の具体的 surface で「どれを押すか迷う」観測が再現した時 | blocker ではない |
+| proposed — accordion / pulldown disclosure overload | primary information まで閉じた accordion / pulldown 内にあり、探索 click をしないと存在と状態が分からない | primary controls / current state は surface 上に常時 visible、advanced / infrequent controls だけ progressive disclosure。全 settings system は一括変更しない | 選んだ 1 surface の daily task を exploratory opening なしで開始でき、advanced content は keyboard / ARIA state を保って開閉できる | product design + assistant / one-surface information-architecture slice | user が具体的 task と hidden control を特定した時、または click-path audit で primary action が disclosure 内と判明した時 | blocker ではない |
+
 ## 次スライス候補
 
 現在の選定表は次の4件。下の Done 表は完了済み参照であり、次作業の queue ではない。
