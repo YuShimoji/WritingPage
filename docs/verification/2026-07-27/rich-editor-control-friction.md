@@ -84,3 +84,29 @@ All seven images were visually inspected. The four selection images keep the sel
 - No security remediation, dependency, vendor bundle, storage/autosave/document model, chapter, Reader layout/navigation, Electron lifecycle, release tooling, package version, or workflow file changed.
 - No main integration and no external release approval.
 - Screenshots remain ignored and are not staged.
+
+## 2026-07-28 closeout readback
+
+The implementation commit remains
+`19ea9774d45cf969855f2dd93684bd25a613a654`. GitHub Actions CI E2E run
+`30213655549` completed successfully for that exact SHA. The branch was also
+reconstructed in a separate clean worktree from `origin/main` after the
+Markdown linkification remediation, using Node `v22.19.0` and the repository
+contract npm `11.6.2`.
+
+| Readback | Result | What it closes |
+|---|---|---|
+| Changed JavaScript syntax | pass | runtime and focused spec parse in the restart environment |
+| Markdown linkification security test | 3/3 pass | the remediation base still resolves `markdown-it 14.3.0` / `linkify-it 5.0.2`, preserves Node/vendor parity, and bounds both pathological inputs |
+| Rich control-friction focused Playwright | 3/3 pass | placement, keyboard continuation, narrow viewport, and URL/email surface behavior reproduce outside the implementation session |
+| Node unit suite | 36/36 pass | storage, release-evidence, text-expression, and security unit coverage remain green |
+| Smoke / JS lint / dist build | pass | repository contract, static runtime checks, lint, and distributable web assets remain valid |
+| Exact implementation remote CI | success | full branch acceptance is not inferred from focused local tests alone |
+
+The closeout replaces the stale `docs/CURRENT_STATE.md` live block and updates
+the current roadmap authority. It does not alter the accepted runtime
+implementation, regenerate screenshots, build or launch an Electron package,
+or add an external navigation policy. The remaining supervisor decision is
+therefore narrow: approve main integration for `19ea977`, hold with a concrete
+finding against this contract, or reject the slice. Candidate generation and
+external release remain separate gates.
