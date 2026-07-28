@@ -79,7 +79,7 @@ Remote sync after GitHub artifact authority correction is recorded in `docs/veri
 
 Rich editing typed heading shortcut implementation handoff is recorded in `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`, and the current closure / review-dedup anchor is `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`. Current behavior is intentionally narrow: typed line-start `#`, `##`, or `###` followed by Space only, no paste/import/source/round-trip shortcut expansion, no generic Markdown shortcut engine. Do not reopen IME / direct shortcut / empty heading placeholder review unless there is new evidence, a changed target axis, a suspected regression, or an explicit user-requested recheck.
 
-G3 H2 observation ingestionとmain integrationはaccepted head `c37c8ae` を保持したff-only historyとdocumentation-only closeoutで閉鎖。次のcritical quality milestoneはclean integrated main上のrelease-candidate identityであり、旧`889a642` packageを新main packageとみなさない。Documents tactile reviewはuser-ownedのnonblocking debt。WP-004 parity packは新しいpreview / Reader差分が出た時だけ起動し、cloud/public docs/product polishはfresh evidenceなしに昇格させない。
+G3 H2 observation ingestionとmain integrationはaccepted head `c37c8ae` を保持したff-only historyとdocumentation-only closeoutで閉鎖。exact main `b02ceb1` のrelease-candidate checkpoint/package/operator sheetは2026-07-28に生成済みで、machine gateはpass、decisionは`HOLD_FOR_ELECTRON_OBSERVATION`。次のcritical gateはSHA-256 `3a877a0f…bece8` のexact packageに対するuser-owned Electron観察であり、旧`889a642` packageの観察をfresh replayとして扱わない。Documents tactile reviewは別のnonblocking debt。WP-004 parity packは新しいpreview / Reader差分が出た時だけ起動し、cloud/public docs/product polishはfresh evidenceなしに昇格させない。
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 

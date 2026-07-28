@@ -13,7 +13,7 @@ Zen Writer の安定したレビュー入口。**現在地そのものは
 
 | 面 | 目的 | 現在の状態 | 次に見ること |
 | --- | --- | --- | --- |
-| Release readiness checkpoint / observation derivative | Web、capture、package、人手gateを一つのlinear decision spineで読む | `release:checkpoint` / `release:observe` はmainへ統合済み。既存derivativeはbase product `889a642`とexact packageへ固定 | derivative READYはinternal review入口だけ。次candidateはclean integrated mainから別identityで作り、current reportと継承persistenceを混同しない |
+| Release readiness checkpoint / observation derivative | Web、capture、package、人手gateを一つのlinear decision spineで読む | exact main `b02ceb1` からnew checkpoint/package/operator sheetを生成済み。machine decisionは`HOLD_FOR_ELECTRON_OBSERVATION`、package SHA-256は`3a877a0f…bece8` | exact packageをoperator sheetに沿って観察し、結果はoriginalを変更せずsibling derivativeへ取り込む。旧`889a642`観察をfresh replayとして自動継承しない |
 | Full showcase capture | 広い GUI 状態を一括で review する | `node scripts/capture-full-showcase.js` が sidebar categories / current settings route / Design Cockpit / themes / focus compat / normal shell / Editor parity / mobile / Reader parity を生成する | `output/showcase/full-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | UI capture verification | 現行 UI の evidence を screenshot と readback で残す | `npm run test:ui:capture` が main / advanced settings sidebar / Design Cockpit / help / edit sidebar / command palette / mobile sidebar を生成する | `output/playwright/manual-verification-*` の `manifest.json` / `readback.json` / PNG を確認する |
 | First Writing Comfort | fresh/reset launch から書き始め、保存、reload 復帰までを読む | 空の Rich editing は本文に入らない短い自動保存 hint を表示し、`e2e/first-writing-comfort.spec.js` が launch-to-writing path を確認する | ヒントが邪魔にならず、入力後に消え、保存状態と Design Cockpit が本文漏れなく読めるかを見る |
@@ -76,6 +76,7 @@ storage/autosave/document model/Electron lifecycle変更後、または明示さ
 - G3 H2 verification note: `docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md`
 - Latest remote/dev-ready supervisor goal proposal: `docs/verification/2026-07-25/latest-remote-dev-ready-supervisor-goal-proposal.md`
 - G3 H2 main integration: `docs/verification/2026-07-25/g3-h2-main-integration.md`
+- Current release-candidate identity: `docs/verification/2026-07-28/release-candidate-identity-b02ceb1.md`
 - G3 verification note: `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`
 - Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`
