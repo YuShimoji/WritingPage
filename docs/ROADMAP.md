@@ -1,6 +1,6 @@
 # ROADMAP — Zen Writer 機能強化ロードマップ
 
-> 最終更新: 2026-07-25 / v0.3.32（G3 H2 main integration closed）
+> 最終更新: 2026-07-29 / v0.3.32（release checkpoint exact-CI binding）
 
 ## ステータス語彙
 
@@ -17,13 +17,13 @@
 ## 現在の状態
 
 - E2E: 全件数は `npx playwright test --list` で確認。最新スナップは `CURRENT_STATE`「検証結果」を正とする
-- CI: accepted H2 head `c37c8ae` のbranch CI run `30115646286` はsuccess。main integrationのdocumentation-only closeout commitもexact final HEADの通常remote acceptanceがsuccessしてからcompleteとする。過去のcurrent-main baseline `cf4b432` / run `29198025986` もsuccess
+- CI: exact current-main `b02ceb1` のrun `30200150522`、accepted H2 head `c37c8ae` のrun `30115646286`、過去baseline `cf4b432` のrun `29198025986` はsuccess。release checkpointはrun ID指定時にGitHub readbackとsource SHA一致を検証し、指定なしbaselineと`exact_source`を区別する
 - コア機能: 95% 成熟
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: spec-index 上の `partial` は 0。現行 roadmap 上の残論点は WP-004 Phase 3 と WP-001 中長期枠を別スライスで扱う
 - ドキュメント権限: mainはaccepted H2 head `c37c8ae` と直後のdocumentation-only integration closeoutを含む。integration proofは `docs/verification/2026-07-25/g3-h2-main-integration.md`、H2 evidence/provenanceは `docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md`、現行入口は `CURRENT_STATE`。observed packageのbase productは引き続き`889a642`で、post-integration main candidateとは別identity
-- 直近 done: G3 H2 compact observation ingestion / main integration、Current-main CI trust recovery、Design Cockpit writing trust dashboard、One-click update launcher、Effect settings writer-facing wording、Command palette Markdown source dev gate、Rich text block align persistence、WP-005 Slice C comparison isolation、Project import recovery continuation proof、WP-SAVELOAD-001 Editor Trust Vertical Slice、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Local Gadget Mod migration lane closeout、A3 Floating memo command palette限定実験、SP-081、SP-080
+- 直近 done: Release checkpoint exact-CI binding、exact-main release-candidate identity、G3 H2 compact observation ingestion / main integration、Current-main CI trust recovery、Design Cockpit writing trust dashboard、One-click update launcher、Effect settings writer-facing wording、Command palette Markdown source dev gate、Rich text block align persistence、WP-005 Slice C comparison isolation、Project import recovery continuation proof、WP-SAVELOAD-001 Editor Trust Vertical Slice、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Local Gadget Mod migration lane closeout、A3 Floating memo command palette限定実験、SP-081、SP-080
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
 ### 2026-04-30 現行ロードマップ（並列 2 レーン）
@@ -79,7 +79,7 @@ Remote sync after GitHub artifact authority correction is recorded in `docs/veri
 
 Rich editing typed heading shortcut implementation handoff is recorded in `docs/verification/2026-06-08/rich-editing-heading-shortcut-handoff.md`, and the current closure / review-dedup anchor is `docs/verification/2026-06-22/rich-heading-feature-closure-checklist.md`. Current behavior is intentionally narrow: typed line-start `#`, `##`, or `###` followed by Space only, no paste/import/source/round-trip shortcut expansion, no generic Markdown shortcut engine. Do not reopen IME / direct shortcut / empty heading placeholder review unless there is new evidence, a changed target axis, a suspected regression, or an explicit user-requested recheck.
 
-G3 H2 observation ingestionとmain integrationはaccepted head `c37c8ae` を保持したff-only historyとdocumentation-only closeoutで閉鎖。exact main `b02ceb1` のrelease-candidate checkpoint/package/operator sheetは2026-07-28に生成済みで、machine gateはpass、decisionは`HOLD_FOR_ELECTRON_OBSERVATION`。次のcritical gateはSHA-256 `3a877a0f…bece8` のexact packageに対するuser-owned Electron観察であり、旧`889a642` packageの観察をfresh replayとして扱わない。Documents tactile reviewは別のnonblocking debt。WP-004 parity packは新しいpreview / Reader差分が出た時だけ起動し、cloud/public docs/product polishはfresh evidenceなしに昇格させない。
+G3 H2 observation ingestionとmain integrationはaccepted head `c37c8ae` を保持したff-only historyとdocumentation-only closeoutで閉鎖。exact main `b02ceb1` のrelease-candidate checkpoint/package/operator sheetは2026-07-28に生成済みで、machine gateはpass、decisionは`HOLD_FOR_ELECTRON_OBSERVATION`。checkpoint generatorは2026-07-29にexact CI run readback + source SHA bindingを追加し、historic repository baselineとの混同を解消した。次のcritical gateはSHA-256 `3a877a0f…bece8` のexact packageに対するuser-owned Electron観察であり、旧`889a642` packageの観察をfresh replayとして扱わない。Documents tactile reviewは別のnonblocking debt。WP-004 parity packは新しいpreview / Reader差分が出た時だけ起動し、cloud/public docs/product polishはfresh evidenceなしに昇格させない。
 
 ### 次スライス候補 (WP-004 / WP-001 / writing trust)
 

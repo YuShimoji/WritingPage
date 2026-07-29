@@ -36,14 +36,18 @@ Node 24.x と npm 11.6.2 の経路で次を実行する。
 
 ```powershell
 npm run release:checkpoint
+npm run release:checkpoint -- --remote-full-run-id <exact-source-success-run-id>
 ```
 
 出力は `output/release-readiness/checkpoint-*` に生成され、Git管理しない。主要ファイルは
 `checkpoint.json`、`RELEASE_READINESS.md`、`ELECTRON_OPERATOR_REVIEW.md` で、同じfolder内の
 `captures/ui-dist` がcommit紐付きcaptureを保持する。commandはsmoke、unit、JS lint、dist build、
 dist capture、Electron directory buildを実行し、`build/win-unpacked/Zen Writer.exe` のSHA-256を
-記録する。full Playwrightはrun `29198025986` のrepository evidenceを参照し、このcommandでは
-再実行しない。
+記録する。run IDを渡した場合は`gh run view`で`completed/success`とcheckpoint source SHA一致を
+事前検証し、`exact_source` evidenceとして記録する。不一致は重いmachine gateの前に停止する。
+このexact binding経路はGitHub CLI `gh`で対象repositoryのrunをreadbackできる環境を必要とする。
+run IDを省略した場合、run `29198025986` は`repository_baseline`としてだけ記録し、current sourceの
+remote acceptanceとは扱わない。このcommand自体はfull Playwrightを再実行しない。
 
 overallが `HOLD_FOR_ELECTRON_OBSERVATION` の場合、機械gateは成立しているがElectron実機観察は
 未完了である。operatorは生成されたsheetのexact package identityを使い
@@ -77,6 +81,7 @@ storage/autosave/document model/Electron lifecycle変更後、または明示さ
 - Latest remote/dev-ready supervisor goal proposal: `docs/verification/2026-07-25/latest-remote-dev-ready-supervisor-goal-proposal.md`
 - G3 H2 main integration: `docs/verification/2026-07-25/g3-h2-main-integration.md`
 - Current release-candidate identity: `docs/verification/2026-07-28/release-candidate-identity-b02ceb1.md`
+- Release checkpoint exact-CI binding: `docs/verification/2026-07-29/release-checkpoint-exact-ci-binding.md`
 - G3 verification note: `docs/verification/2026-07-13/g3-release-readiness-checkpoint.md`
 - Latest current-main CI trust evidence: `docs/verification/2026-07-12/current-main-ci-trust-recovery.md`
 - Full showcase parity route: `node scripts/capture-full-showcase.js`

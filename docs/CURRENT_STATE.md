@@ -2,29 +2,30 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-28 / exact-main release-candidate identity
+更新: 2026-07-29 / release checkpoint exact-CI binding
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 |---|---|
 | Git / source authority | `origin/main` は `b02ceb1c42fcbad38fa1e5acb40efe7cd3831ef8` (`fix: remediate markdown linkification DoS`)。exact-main CI run `30200150522` / job `89788577424` は同SHAでsuccess。candidate sourceはこのcommitに固定し、`source.dirty=false`。 |
-| Candidate branch / worktree | `codex/release-candidate-identity-b02ceb1` / `C:\Users\thank\Storage\Media Contents Projects\WritingPage-release-candidate-b02ceb1`。candidate evidence生成後のtracked writesはauthority docsと2026-07-28 verification noteだけ。branchのexact closeout SHAはremote current valueで読む。 |
+| Candidate / tooling branch | candidate authority `codex/release-candidate-identity-b02ceb1` はremote parity済み。後続tooling sliceは同じclean worktreeを再利用した `codex/release-ci-evidence-binding`。candidate checkpoint/packageを再生成・変更せず、generator、focused tests、authority docsだけを変更した。tooling branchのexact closeout SHAはremote current valueで読む。 |
 | Local ownership | primary checkoutは`main == origin/main == b02ceb1`へff-only同期済み。`.serena/project.yml`はuser/tool-owned差分として保持し、SHA-256 `2d5a5c4c592efb60dfc2e5319a1ab1f7b87ae24c862f7c6dbcf9a2226653d00d`。restore、stash、stage、commit、hide、overwriteを行っていない。 |
 | 開発環境 / install | dedicated clean worktreeでNode `v24.13.0` / npm `11.6.2`、独立`npm ci --no-audit --no-fund`（504 packages）と`npm ls --depth=0`がpass。known deprecation warningはdependency更新の承認ではない。 |
 | Machine gates | `release:checkpoint`がsmoke、Node unit 36/36、full JS lint、dist build、7 PNG capture + manifest/readback、Electron directory buildを完了。checkpoint、capture、packageはいずれもexact source `b02ceb1` / dirty falseへ結合。 |
 | Candidate identity | outputは`output/release-readiness/checkpoint-b02ceb1-2026-07-28`。checkpoint SHA-256 `24f69ed13de23322784e84e1ecf67fe76714fd8fabf54545054c8c635c174891`。packageは`build/win-unpacked/Zen Writer.exe` / 201233408 bytes / SHA-256 `3a877a0f912dac6c17352e68d78e53a8eb9c3a59626ad5d3a12e44f1a75bece8`。 |
 | Current decision | `HOLD_FOR_ELECTRON_OBSERVATION`。Web/local gates、capture、package identityはverified。exact packageのlaunch/input/save/exit/restart/recoveryは未観察で、operator sheetのrequired identityはpackage SHAと一致。 |
 | Evidence boundary | verifiedはGit/CI/hash/parsed checkpoint/capture manifest/package identity、observedは生成されたmain/Design Cockpit captureの視覚確認、unverifiedはexact Electron package behavior、unknownは将来のPASS/FAIL/HOLD findings。build成功をElectron観察済みとは扱わない。 |
-| Tool debt | generated checkpoint内の`webAcceptance.remoteFull`は旧repository baseline run `29198025986` / `cf4b432`を保持する。exact-current CI `30200150522` / `b02ceb1`は独立readbackでverified。static metadata更新はnonblockingな別tooling sliceであり、現在のpackage identityを偽って補正しない。 |
+| CI evidence binding | `release:checkpoint` は `--remote-full-run-id <id>` を受け取り、`gh run view` のrun ID、`completed/success`、head SHAとcheckpoint source SHAの完全一致をmachine gate実行前に検証する。不一致・未完了・失敗runはfail-closed。引数省略時の旧run `29198025986` は `repository_baseline` と明示し、current source一致を偽らない。 |
 | 現在のbottleneck | package observerがSHA-256 `3a877a0f…bece8`のexact packageをoperator sheetに沿って観察すること。旧`889a642` packageの報告や継承persistenceをfresh replayとして自動流用しない。 |
-| 今回の変更境界 | ignored checkpoint/capture/package生成とauthority docsの同期だけ。product/runtime/storage/chapter/Reader/Electron lifecycle実装、dependency、package version、workflow、tag/sign/publish/upload/distribute、PR、main integrationは変更・実行していない。 |
+| 今回の変更境界 | release checkpointのremote CI evidence入力・検証・表示、focused Node tests、authority docsだけ。ignored candidate checkpoint/capture/package、product/runtime/storage/chapter/Reader/Electron lifecycle、dependency、package version、workflow、tag/sign/publish/upload/distribute、PR、main integrationは変更・実行していない。 |
 
 ## 現行の開発契約
 
 - original `checkpoint.json` / release report / operator sheet / executableはimmutable baseとして扱い、観察結果は必ずsibling derivativeへ出す。
 - `npm run release:observe -- --checkpoint <checkpoint.json> --package <Zen Writer.exe> --observation <observation.json> --out <new-folder>` はcheckpoint/package/reported SHA、source commit/dirty、requiredIdentity、original decisionを照合する。
 - current candidateは明示された新package identityなので、launch/input/save/exit/restart/recoveryをexact packageで観察する。旧packageのordinary repeated PASSや保存復帰継承だけでREADYへ進めない。
+- exact-current remote acceptanceをcheckpointへ結ぶ時は `npm run release:checkpoint -- --remote-full-run-id <run-id>` を使う。runはGitHub CLI readbackでsuccessかつsource SHA一致が必須。引数なしのrepository baselineはcurrent-source acceptanceとみなさない。
 - exact observationがPASSかつidentity一致ならsibling derivativeでinternal review判断へ進める。FAILはBLOCKED、HOLD/不足/hash不一致はREADYにしない。
 - 日本語Markdownは判断面、stable English-key JSONは機械readback。いずれも原稿本文、未確認のper-control detail、推測timestampを取り込まない。
 - accepted H2 head `c37c8ae` のmain integrationと、current `b02ceb1` candidate生成は完了。candidate観察、derivative ingest、internal review、tag/sign/publish/distributeを一つの承認に束ねない。
@@ -36,12 +37,12 @@
 |---|---|---|---|
 | Verify — exact Electron observation | machine-green candidateを実際のpackage behaviorへ接続する | user-owned。SHA `3a877a0f…bece8`のexeとgenerated operator sheetが必要 | test-only textでlaunch/input/save/exit/restart/recoveryを観察し、PASS/FAIL/HOLDとfindingsを返す |
 | Advance — immutable observation derivative | exact observationをcheckpoint/package identityへ安全に結ぶ | observer resultとpackage SHAが揃った後にassistantが実行 | originalを変更せず`release:observe`でsibling derivativeを生成し、internal review判断をreadbackする |
-| Audit — checkpoint CI metadata | generator内のremote baseline参照とexact-current CIを混同しない | nonblocking。current candidateは別readbackでexact CI確認済み | observation gateを止めず、別tooling sliceでCI identity入力/検証方法を決める |
+| Maintain — checkpoint CI binding | generator内のremote baseline参照とexact-current CIを混同しない | Done。run IDのGitHub readbackとexact source照合をfocused test + live runで検証済み | 次回candidate生成ではexact run IDを渡し、checkpoint JSON/Markdownの`exact_source`をreadbackする |
 | Review — Documents tactile debt | release identityと日常執筆の好みを混ぜず、empty hint・`現在` marker・focus returnの違和感を閉じる | nonblocking / user-owned。通常利用サイズの自由文review待ち | reviewが来た時だけ1 batchのnarrow product sliceへ変換する |
 
 ## 別端末への handoff
 
-1. candidate authorityはbranch `codex/release-candidate-identity-b02ceb1` と `docs/verification/2026-07-28/release-candidate-identity-b02ceb1.md`。再開時はremote parityを確認し、このlive block、`INVARIANTS`、`INTERACTION_NOTES`、verification noteを読む。
+1. candidate authorityはbranch `codex/release-candidate-identity-b02ceb1`、tooling authorityはbranch `codex/release-ci-evidence-binding`。再開時はremote parityを確認し、このlive block、`INVARIANTS`、`INTERACTION_NOTES`、2026-07-28 candidate note、2026-07-29 CI binding noteを読む。
 2. ignored checkpoint/packageはGitで移らない。candidate worktreeを削除せず、checkpoint SHA `24f69e…4891` とpackage SHA `3a877a0f…bece8`を照合してから観察する。
 3. primary `WritingPage` の `.serena/project.yml`はuser/tool-owned local差分。candidate worktreeへコピーせず、stage/stash/restoreしない。
 4. exact package observationが返るまで`release:observe`、internal review approval、tag/sign/publish/upload/distributeへ進まない。Web/capture/package buildをElectron behaviorの代用にしない。

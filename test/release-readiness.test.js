@@ -76,6 +76,9 @@ test('Japanese checkpoint keeps package evidence separate from Electron observat
   input.decision = synthesizeDecision(input);
   const markdown = renderCheckpointMarkdown(input);
   assert.match(markdown, /HOLD_FOR_ELECTRON_OBSERVATION/);
+  assert.match(markdown, /evidence scopeは `repository_baseline`/);
+  assert.match(markdown, /current sourceとの一致は `false`/);
+  assert.doesNotMatch(markdown, /undefined/);
   assert.match(markdown, /package buildの成功は、Electron上の挙動を人間が観察した証拠ではありません/);
   assert.doesNotMatch(markdown, /夜明け前のメモ|雨の匂い|主人公は机に向かい/);
 });

@@ -12,6 +12,16 @@ const {
 
 const projectRoot = path.join(__dirname, '..');
 const npmExecPath = process.env.npm_execpath;
+const REPOSITORY_BASELINE_REMOTE_FULL = Object.freeze({
+  status: 'pass',
+  evidenceGrade: 'observed',
+  evidenceScope: 'repository_baseline',
+  runId: '29198025986',
+  commit: 'cf4b43274600ea21d6b1e6b024b39d9e0f25eed7',
+  result: '594 passed / 4 skipped',
+  anchor: 'docs/verification/2026-07-12/current-main-ci-trust-recovery.md',
+  executedInThisRun: false,
+});
 
 function parseArgs(argv) {
   const options = {};
@@ -22,6 +32,16 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg.startsWith('--out=')) {
       options.outDir = arg.slice('--out='.length);
+    } else if (arg === '--remote-full-run-id' && argv[index + 1]) {
+      options.remoteFullRunId = argv[index + 1];
+      index += 1;
+    } else if (arg.startsWith('--remote-full-run-id=')) {
+      options.remoteFullRunId = arg.slice('--remote-full-run-id='.length);
+    } else if (arg === '--remote-full-repo' && argv[index + 1]) {
+      options.remoteFullRepo = argv[index + 1];
+      index += 1;
+    } else if (arg.startsWith('--remote-full-repo=')) {
+      options.remoteFullRepo = arg.slice('--remote-full-repo='.length);
     }
   }
   return options;
@@ -44,6 +64,91 @@ function readSource() {
     branch: git('branch', '--show-current'),
     commit: git('rev-parse', 'HEAD'),
     dirty: git('status', '--porcelain').length > 0,
+  };
+}
+
+function normalizeGitHubRepository(remoteUrl) {
+  const normalized = String(remoteUrl || '').trim().replace(/\.git$/i, '');
+  const match = normalized.match(/github\.com(?::|\/)([^/]+)\/([^/]+)$/i);
+  if (!match) {
+    throw new Error(`origin remote is not a supported GitHub URL: ${remoteUrl}`);
+  }
+  return `${match[1]}/${match[2]}`;
+}
+
+function readGitHubRepository() {
+  return normalizeGitHubRepository(git('remote', 'get-url', 'origin'));
+}
+
+function readGitHubRun(runId, repository) {
+  const output = execFileSync('gh', [
+    'run',
+    'view',
+    String(runId),
+    '--repo',
+    repository,
+    '--json',
+    'databaseId,headSha,status,conclusion,event,name,url,createdAt,updatedAt',
+  ], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    windowsHide: true,
+  });
+  return JSON.parse(output);
+}
+
+function resolveRemoteFullEvidence(options, sourceCommit, dependencies = {}) {
+  const runId = options.remoteFullRunId;
+  if (!runId) {
+    return {
+      ...REPOSITORY_BASELINE_REMOTE_FULL,
+      sourceMatched: REPOSITORY_BASELINE_REMOTE_FULL.commit === sourceCommit,
+    };
+  }
+  if (!/^\d+$/.test(String(runId))) {
+    throw new Error(`--remote-full-run-id must be numeric: ${runId}`);
+  }
+
+  const repository = options.remoteFullRepo
+    || dependencies.repository
+    || readGitHubRepository();
+  const readRun = dependencies.readRun || readGitHubRun;
+  const run = readRun(runId, repository);
+  const identityProblems = [];
+  if (String(run.databaseId) !== String(runId)) {
+    identityProblems.push(`databaseId=${run.databaseId}`);
+  }
+  if (run.headSha !== sourceCommit) {
+    identityProblems.push(`headSha=${run.headSha}`);
+  }
+  if (run.status !== 'completed') {
+    identityProblems.push(`status=${run.status}`);
+  }
+  if (run.conclusion !== 'success') {
+    identityProblems.push(`conclusion=${run.conclusion}`);
+  }
+  if (identityProblems.length > 0) {
+    throw new Error(
+      `remote full run ${runId} is not successful exact-source evidence for ${sourceCommit}: `
+      + identityProblems.join(', '),
+    );
+  }
+
+  return {
+    status: 'pass',
+    evidenceGrade: 'verified',
+    evidenceScope: 'exact_source',
+    repository,
+    runId: String(run.databaseId),
+    commit: run.headSha,
+    result: `${run.name}: ${run.status}/${run.conclusion}`,
+    anchor: run.url,
+    event: run.event,
+    createdAt: run.createdAt,
+    updatedAt: run.updatedAt,
+    sourceMatched: true,
+    readbackTool: 'gh run view',
+    executedInThisRun: false,
   };
 }
 
@@ -99,9 +204,9 @@ function main() {
     `checkpoint-${timestampSlug()}`,
   ));
   const captureDir = path.join(outDir, 'captures', 'ui-dist');
-  fs.mkdirSync(captureDir, { recursive: true });
-
   const sourceAtStart = readSource();
+  const remoteFull = resolveRemoteFullEvidence(options, sourceAtStart.commit);
+  fs.mkdirSync(captureDir, { recursive: true });
   const environment = {
     node: process.version,
     npm: readNpmVersion(),
@@ -158,15 +263,7 @@ function main() {
     source: sourceAtStart,
     environment,
     webAcceptance: {
-      remoteFull: {
-        status: 'pass',
-        evidenceGrade: 'observed',
-        runId: '29198025986',
-        commit: 'cf4b43274600ea21d6b1e6b024b39d9e0f25eed7',
-        result: '594 passed / 4 skipped',
-        anchor: 'docs/verification/2026-07-12/current-main-ci-trust-recovery.md',
-        executedInThisRun: false,
-      },
+      remoteFull,
       localBoundedReplay: {
         status: localStatus,
         evidenceGrade: 'verified',
@@ -225,4 +322,12 @@ function main() {
   if (checkpoint.decision.overall === 'BLOCKED') process.exitCode = 1;
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  normalizeGitHubRepository,
+  parseArgs,
+  resolveRemoteFullEvidence,
+};

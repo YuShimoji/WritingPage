@@ -79,6 +79,11 @@ function listFilesRecursive(rootDir) {
 }
 
 function renderCheckpointMarkdown(checkpoint) {
+  const remoteFull = checkpoint.webAcceptance.remoteFull;
+  const remoteFullScope = remoteFull.evidenceScope || 'repository_baseline';
+  const remoteFullSourceMatched = typeof remoteFull.sourceMatched === 'boolean'
+    ? remoteFull.sourceMatched
+    : remoteFull.commit === checkpoint.source.commit;
   const commandRows = checkpoint.webAcceptance.localBoundedReplay.commands
     .map((item) => `| \`${item.command}\` | ${item.status} | ${item.durationMs} ms |`)
     .join('\n');
@@ -88,6 +93,9 @@ function renderCheckpointMarkdown(checkpoint) {
   const debts = checkpoint.debts
     .map((debt) => `- ${debt.nameJa}: ${debt.impactJa}（担当: ${debt.owner}、再確認: ${debt.revisitTriggerJa}）`)
     .join('\n');
+  const remoteFullSummary = remoteFullScope === 'exact_source'
+    ? `run \`${remoteFull.runId}\` は \`gh run view\` でsuccessとsource commit一致をreadback済みです。`
+    : `run \`${remoteFull.runId}\` はrepository baselineです。current sourceとの一致は \`${remoteFullSourceMatched}\` で、exact-current acceptanceの代用にはしません。`;
 
   return `# リリース準備チェックポイント
 
@@ -113,8 +121,8 @@ function renderCheckpointMarkdown(checkpoint) {
 
 ## Web受入
 
-既存remote full acceptanceは、run \`${checkpoint.webAcceptance.remoteFull.runId}\` / commit
-\`${checkpoint.webAcceptance.remoteFull.commit}\` のrepository記録を参照した evidence です。
+${remoteFullSummary}
+参照commitは \`${remoteFull.commit}\`、evidence scopeは \`${remoteFullScope}\` です。
 今回のローカルfull Playwright実行ではありません。
 
 | ローカルbounded replay | 状態 | 所要時間 |
