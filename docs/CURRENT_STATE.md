@@ -2,51 +2,48 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-07-25 / G3 H2 main integration closeout
+更新: 2026-09-28 / 再開時の現状と実装差分を再照合
 
 ## いまいる場所
 
 | 観点 | 現在地 |
-|---|---|
-| Git / main authority | `origin/main` の開始点 `889a6427f3c9ec39b7e39d90e956ff528ec7f75e` から、supervisorが承認したexact H2 head `c37c8aecb6b2ef3d8ce0470f36b403ab3c6b6457` へclean integration worktreeでff-only。事前左右差は `0 6`、ancestry exit 0。H2 historyの後に、このlive blockを含むdocumentation-only closeout commitを1件置き、そのcommitをfinal main authorityとする。exact final SHAは`origin/main`のcurrent valueで読む。 |
-| H2 integration | `c37c8ae` までの6 commitsをsquash/cherry-pick/rebase/merge commitなしで保持。accepted H2 code、focused tests、release-observation implementationはintegration後に変更していない。remote feature branchと既存H2 worktreeは削除せず残す。 |
-| Local ownership | primary checkoutの `.serena/project.yml`はuser/tool-owned差分として保持。preflight SHA-256は `2d5a5c4c592efb60dfc2e5319a1ab1f7b87ae24c862f7c6dbcf9a2226653d00d`。restore、stash、stage、commit、hide、overwriteを行わず、main統合にはunique clean sibling worktreeを使用した。 |
-| 開発環境 / local validation | Node `v24.13.0` / npm `11.6.2`。clean worktreeでsingle `npm ci` 後、syntax 3件、`npm ls --depth=0`、observation focused 12/12、Node unit 33/33、smoke、JS lintがpass。full Playwright、SP-071、package/checkpoint build、package launch、observation ingestionはlocal再実行していない。 |
-| Final remote CI | final closeout commitを含むexact main HEADに通常のremote CI acceptanceを要求し、success後にだけH2 main integration completeとする。exact final SHAとCI run ID/resultはこのOutcomeのAGENT_REPORTで固定する。 |
-| Immutable H0 evidence | `WritingPage-g3-checkpoint-889a642` のoriginal checkpointは SHA-256 `7b06d1d5ad2e146d218fca08cb0dc72e60285f3b91cfae2b7b389dccc5824f77`、packageは `Zen Writer.exe` / 201233408 bytes / SHA-256 `063a785693a5dc781459176f9a1a2cf01bb1483b34a464039e5febbad06d93c6`。derivative生成前後で両hashが一致し、base folderは変更していない。 |
-| H1 observation | latest user statementは「packageは起動でき、主要操作に重大な問題はありません。保存・再起動復帰はPASSとして継承します。」。package起動とaggregate-only主要操作は今回報告、保存・再起動復帰はsupervisorが再利用を明示承認した過去反復確認。current exact-package persistence replayは今回未実施、`observedAt=null` / `not_supplied`、Web比較は `not_compared`。 |
-| H2 derivative | existing derivative overallは `READY_FOR_INTERNAL_RELEASE_REVIEW`。current observation gradeは `observed_user_reported`、save/restartは `inherited_prior_repeated_user_verification`、current exact-package persistence replayはfalse。今回derivative、checkpoint、packageを再生成・起動・変更していない。 |
-| Evidence boundary | verifiedはGit/hash/parsed artifact、observedは今回の起動・主要操作報告、inherited_observedは保存・再起動復帰、unverifiedは個別control詳細・正確な観察日時・fresh persistence replay・Web差分。READYはinternal review入口だけで、signing/tagging/publication/distributionはlocked。 |
-| 現在のbottleneck | H2のbranch隔離は解消した。次のcritical Outcomeは、clean integrated mainから新しいrelease-candidate commit/checkpoint/package identityを1対1で作ること。これは別Missionであり、今回のobserved packageをpost-integration main packageと扱わない。 |
-| 今回の変更境界 | accepted H2 historyのff-only統合とactive authority closeoutのみ。H2受理後のproduct/runtime/test implementation、依存契約、package version、package contents、workflow、release artifact、external release操作は変更していない。 |
+| --- | --- |
+| Git / main authority | 調査開始時 `main == origin/main == b02ceb1c42fcbad38fa1e5acb40efe7cd3831ef8`、clean、左右差 `0 0`。この資料を含む docs-only commit 後の exact main HEAD は remote で読む。最後の product/runtime commit は `b02ceb1`（Markdown linkification DoS 対応）、accepted H2 head `c37c8ae` は祖先。 |
+| Web / Node 証拠 | product baseline `b02ceb1` の exact CI run `30200150522` は 2026-07-26 に success。2026-09-28 のこの端末では smoke、Node unit 36/36、JS lint、dist build、執筆開始・Documents・Editor Trust の focused E2E 3/3 が pass。今回の docs-only HEAD の CI、full Playwright と Electron package 実機は別確認。 |
+| 再現環境 | Node `v22.19.0` は指定範囲内。npm `10.9.3` は `package.json` の `>=11 <12` / `npm@11.6.2` と不一致。新 candidate 生成前に契約へ揃える。 |
+| Candidate branch | `codex/release-candidate-identity-b02ceb1` head `ef8cfffa` の記録は、source `b02ceb1` の checkpoint SHA `24f69ed1...4891` と package SHA `3a877a0f...bece8`、判定 `HOLD_FOR_ELECTRON_OBSERVATION` を示す。ignored checkpoint / exe はこの checkout で未発見。branch 文書を現物確認や package 観察に代えない。 |
+| 後続 tooling | `codex/release-ci-evidence-binding` head `0ac3c0db` は exact-current CI run の指定・SHA 照合を実装したが main 未統合。main の checkpoint generator は旧 run `29198025986` を静的参照する。既存 candidate checkpoint は変更しない。 |
+| 後続 product | `codex/rich-editor-control-friction` head `e2c72d4d` は選択 toolbar / link 表示改善を持つ。実装 `19ea977` の remote CI は success。main 未統合で、既存 `b02ceb1` package にも含まれない。 |
+| 人の受入 | exact package の起動・入力・保存・終了・再起動・復帰は現候補で未記録。Documents の empty hint、`現在` marker、selection-to-focus も通常サイズの体感 review 待ち。WP-004 parity manual pack は別の確認境界。 |
+| 現在の bottleneck | 次の source SHA を決め、candidate 現物を hash で照合すること。その後に exact package 観察、immutable derivative、内部 review へ進む。branch 統合、candidate 生成、tag/sign/publish/distribute は別判断。 |
+
+詳細な差分、ブランチ表、検証結果、再開順は
+[`verification/2026-09-28/project-restart-gap-assessment.md`](verification/2026-09-28/project-restart-gap-assessment.md)
+を参照する。
 
 ## 現行の開発契約
 
-- original `checkpoint.json` / release report / operator sheet / executableはimmutable baseとして扱い、観察結果は必ずsibling derivativeへ出す。
-- `npm run release:observe -- --checkpoint <checkpoint.json> --package <Zen Writer.exe> --observation <observation.json> --out <new-folder>` はcheckpoint/package/reported SHA、source commit/dirty、requiredIdentity、original decisionを照合する。
-- PASSでREADYにできるのは、今回報告のpackage launchとaggregate-only主要操作、passの保存・再起動復帰、継承basis、supervisorの明示承認が全て揃う場合だけ。FAILはBLOCKED、HOLD/不足/無承認継承はREADYにしない。
-- ordinary repeated PASSの既定報告は `PASS。package起動・主要操作に重大問題なし。保存復帰は既存確認を継承。` でよい。継承はfresh replayに見せかけず、FAIL/HOLDやstorage/autosave/document model/Electron lifecycle変更時は詳細確認へ戻す。
-- 日本語Markdownは判断面、stable English-key JSONは機械readback。いずれも原稿本文、未確認のper-control detail、推測timestampを取り込まない。
-- accepted H2 head `c37c8ae` のmain integrationはauthority `AUTH-WP-H2-MAIN-INTEGRATE-20260725` で完了。integrationとrelease-candidate生成、tag/sign/publish/distributeを一つの承認に束ねない。
-- observed packageはbase product `889a642`に固定され、post-integration main HEADを表さない。新candidateはclean integrated mainから別identityとして生成する。
-- 2026-07-25 goal stackは条件付きproposal。次のrelease-candidate identityも、このcloseoutだけでは実行承認にならない。
+- 執筆本筋は Editor → 保存状態 / 文字数 → Documents / Sections → on-demand Gadgets。公開 UI は command palette / left nav / 再生オーバーレイで説明し、`normal` / `focus` は内部互換値とする。
+- original checkpoint、operator sheet、package は immutable。exact source、CI、checkpoint、capture、package SHA と人の観察を混同しない。観察結果は `release:observe` で sibling derivative へ記録する。
+- `889a642` の旧 package 観察は `b02ceb1` 候補や今後の branch 統合後 package の fresh 観察ではない。候補実行ファイルの SHA を確認するまで Electron PASS としない。
+- `proposed` 候補の調査選択は実装承認ではない。Rich toolbar の main 統合判断、CI binding tooling、候補生成、外部 release を一つの承認に束ねない。
+- WP-004 Phase 3 / WP-001 中長期枠は条件付き残差。cloud sync、EPUB / DOCX、Floating memo 正式保存などを再開時の暗黙要件として追加しない。
 
 ## 次に推奨する作業
 
-| 方向 | 解消する摩擦 | 現在状態 / 必要条件 | 次の動き |
-|---|---|---|---|
-| Advance — release-candidate identity | integrated mainのcommit、checkpoint、package、operator sheetを新しい1対1 identityへ結ぶ | H2 integrationはDone。新candidate生成は別Mission / authority待ち | clean integrated mainをsourceにcheckpoint/packageを生成し、過去package observationを自動継承しない |
-| Audit — dependency / CI maintenance | known npm deprecation/audit warningとGitHub Actions runtime annotationをproduct release判断から分離する | nonblocking。依存・workflow変更は今回未承認 | read-only inventoryを別sliceにし、更新が必要な時だけ範囲と回帰コストを決める |
-| Review — Documents tactile debt | release identityと日常執筆の好みを混ぜず、empty hint・`現在` marker・focus returnの違和感を閉じる | nonblocking / user-owned。通常利用サイズの自由文review待ち | reviewが来た時だけ1 batchのnarrow product sliceへ変換する |
-| Explore — post-candidate product frontier | release手順だけを磨き続けず、最終成果物の「起動→執筆→構造化→装飾→preview→出力→保存」へ戻る | WP-004 Phase 3とWP-001はfresh差分/体感摩擦が起動条件。大規模新機能は未承認 | candidate identity closure後、fresh evidenceがある1 user outcomeだけを比較する |
+| 方向 | 解消する摩擦 | 次の動き |
+| --- | --- | --- |
+| Audit — source 選定 | 次の package に Rich toolbar 改善を含めるか曖昧 | `19ea977` の scope/evidence を review し、受理するなら main 統合を別 slice で扱う |
+| Verify — candidate 現物 | 7 月の候補記録をこの端末の実行ファイルと誤認しやすい | `b02ceb1` checkpoint / exe の所在と SHA を確認し、なければ選んだ clean source から新 identity を作る |
+| Advance — exact CI binding | main の generator が旧 CI run を current と見せうる | `0ac3c0db` を review し、必要な tooling slice として取り込む。既存 checkpoint は上書きしない |
+| Review — 人の受入 | Web / build 証拠から Electron と操作感が閉じない | exact package の launch/input/save/exit/restart/recovery と Documents 3 点をそれぞれ観察し、結果を別々に記録する |
 
 ## 別端末への handoff
 
-1. mainのcurrent authorityは、accepted H2 `c37c8ae` とその直後のdocumentation-only closeout commitを含む`origin/main`。再開時はremote mainとのparityを確認し、このlive block、`docs/INVARIANTS.md`、`docs/INTERACTION_NOTES.md`、`docs/verification/2026-07-25/g3-h2-main-integration.md`を読む。
-2. primary `WritingPage` の `.serena/project.yml`はuser/tool-owned local差分。integrationに使ったclean sibling worktreeと混同せず、stage/stash/restoreしてmainへ合わせない。
-3. `feat/g3-h2-compact-observation-ingestion` と既存H2 worktreeは履歴参照のため残す。active development authorityはmainへ戻り、H2 branchから追加product workを開始しない。
-4. ignored derivative/checkpoint/packageはGitでは移らない。既存packageはbase `889a642`の証拠であり、integrated mainのcandidateではない。
-5. next critical gateはrelease-candidate identity。tag/sign/publish/distribute、cloud/public docs、product polishへ自動で進まない。
+1. `main` の remote parity と clean 状態を確認し、この live block → `INVARIANTS` → `INTERACTION_NOTES` → 上記詳細資料の順に読む。
+2. 三つの remote branch は main の成果として合算しない。source、candidate、tooling、product 改善を commit と hash で分ける。
+3. この checkout に 2026-07-28 の ignored checkpoint / package はない。branch に記録された path は他端末由来であり、現物の hash readback が先。
+4. 新しい変更は一つの user outcome に絞り、受入済み実装、Web 自動検証、Electron 実機、user の操作感、release publication を別状態で報告する。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
