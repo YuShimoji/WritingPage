@@ -133,8 +133,9 @@
         alert((window.UILabels && window.UILabels.LOADOUT_SELECT_TO_DUPLICATE) || '複製するロードアウトを選択してください');
         return;
       }
-      var loadouts = window.ZWGadgets.listLoadouts ? window.ZWGadgets.listLoadouts() : [];
-      var entry = loadouts.find(function (l) { return l.name === selected; });
+      // listLoadouts() contains display metadata only; copy the selected saved entry.
+      var data = window.ZWGadgets._loadouts;
+      var entry = data && data.entries && data.entries[selected];
       if (!entry) return;
       
       var newName = 'loadout_' + Date.now().toString(36);
@@ -143,9 +144,8 @@
       if (window.ZWGadgets.defineLoadout) {
         var dupConfig = { label: newLabel, groups: entry.groups || {} };
         // SP-076 Phase 4: carry over dockLayout when duplicating
-        var srcEntry = window.ZWGadgets._loadouts && window.ZWGadgets._loadouts.entries[selected];
-        if (srcEntry && srcEntry.dockLayout) {
-          dupConfig.dockLayout = srcEntry.dockLayout;
+        if (entry.dockLayout) {
+          dupConfig.dockLayout = entry.dockLayout;
         }
         window.ZWGadgets.defineLoadout(newName, dupConfig);
       }
@@ -167,9 +167,7 @@
       var selected = select.value;
       if (!selected) return;
       if (!confirm((window.UILabels && window.UILabels.LOADOUT_DELETE_CONFIRM) || 'このロードアウトを削除しますか？')) return;
-      if (window.ZWGadgets.removeLoadout) {
-        window.ZWGadgets.removeLoadout(selected);
-      }
+      if (!window.ZWGadgets.deleteLoadout || !window.ZWGadgets.deleteLoadout(selected)) return;
       alert((window.UILabels && window.UILabels.LOADOUT_DELETED) || 'ロードアウトを削除しました');
       refreshList();
     });

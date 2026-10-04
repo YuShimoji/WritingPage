@@ -667,9 +667,12 @@
       autoSaveCheck.id = 'auto-save-enabled';
       autoSaveCheck.checked = !!autoSaveCfg.enabled;
       var autoSaveLabelText = el('span');
-      autoSaveLabelText.textContent = '自動保存';
+      autoSaveLabelText.textContent = '自動保存の通知';
       autoSaveLabel.appendChild(autoSaveCheck);
       autoSaveLabel.appendChild(autoSaveLabelText);
+
+      var autoSaveHelp = el('small');
+      autoSaveHelp.textContent = '通知をOFFにしても、本文はこの端末に自動保存されます。';
 
       var autoSaveDelayRow = el('div');
       autoSaveDelayRow.style.display = 'flex';
@@ -711,6 +714,7 @@
       });
 
       autoSaveRow.appendChild(autoSaveLabel);
+      autoSaveRow.appendChild(autoSaveHelp);
       autoSaveRow.appendChild(autoSaveDelayRow);
 
       // フローティングパネル設定

@@ -86,7 +86,7 @@ test.describe('Import Roundtrip Hardening', () => {
         expect(result.doc.name).toBe('Collision Story (読み込み 3)');
         expect(result.doc.id).not.toBe('doc_original');
         expect(normalizeNewlines(result.doc.content)).toContain('# 重複章\n\nfirst body');
-        expect(normalizeNewlines(result.doc.content)).toContain('### ページ 2\n\nblank title body');
+        expect(normalizeNewlines(result.doc.content)).toContain('### \n\nblank title body');
         expect(normalizeNewlines(result.doc.content)).toContain('###### 遅い章\n\nlate body');
 
         const existing = result.docs.filter(d => d && d.type === 'document' && d.id.indexOf('doc_existing_') === 0);
@@ -94,7 +94,7 @@ test.describe('Import Roundtrip Hardening', () => {
         expect(existing.map(d => d.content).sort()).toEqual(['existing base body', 'existing suffix body']);
 
         expect(result.chapters).toHaveLength(4);
-        expect(result.chapters.map(ch => ch.name)).toEqual(['重複章', 'ページ 2', '遅い章', '重複章']);
+        expect(result.chapters.map(ch => ch.name)).toEqual(['重複章', '', '遅い章', '重複章']);
         expect(result.chapters.map(ch => ch.order)).toEqual([0, 1, 2, 3]);
         expect(result.chapters[0]).toMatchObject({ content: 'first body', level: 1, visibility: 'visible' });
         expect(result.chapters[1]).toMatchObject({ content: 'blank title body', level: 3, visibility: 'hidden' });

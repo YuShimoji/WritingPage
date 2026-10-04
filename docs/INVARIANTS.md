@@ -52,6 +52,13 @@
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
 - リッチ編集表示（`editor-wysiwyg.js`）でアニメーション/テクスチャエフェクトは即時適用する（WP-004 Phase 1）
 
+## Wiki保存の所有境界
+
+- このsessionで明示変更したWiki cacheは、flush済みでも遅いIDB初期化結果で置換しない。空Wikiも有効状態。
+- Wiki削除は明示IDだけを保留し、reload/書込み失敗を跨いで1 transactionのupsertと削除へ反映する。未読IDB記事を一括clearしない。
+- 保存中の次の変更は直列で追従する。新しい変更を古いcommit完了でacknowledgeしない。明示復元したIDの削除保留は取消す。
+- WikiEntry schema/DB versionは不変。別window/cloudの新競合policyはこの修正へ混ぜない。
+
 ## Wiki と Reader プレビュー（コンテンツ経路）
 
 - editor-preview からの wikilink クリック → Wiki ガジェット表示が動作する

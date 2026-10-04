@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
     ASSETS: 'zenWriter_assets',
     WIKI_PAGES: 'zenWriter_wiki_pages',
     STORY_WIKI: 'zenWriter_story_wiki',
+    STORY_WIKI_DELETED_IDS: 'zenWriter_story_wiki_deleted_ids',
     STORY_WIKI_CATEGORIES: 'zenWriter_story_wiki_categories',
     STORY_WIKI_SETTINGS: 'zenWriter_story_wiki_settings'
 };
@@ -545,7 +546,17 @@ function _initIDB() {
                         }
                     }
                     if (snaps && snaps.length > 0) _snapsCache = snaps;
-                    if (wiki && wiki.length > 0) _wikiCache = wiki;
+                    // Once this session has edited Wiki data, its cache owns the state,
+                    // even if that edit has already finished flushing to IDB.
+                    if (Array.isArray(wiki) && _wikiCacheRevision === 0 && !_wikiCacheDirty && !_wikiFlushPromise) {
+                        var deletedIds = _getWikiDeletedIds();
+                        _wikiCache = wiki.filter(function (entry) { return !deletedIds.has(entry.id); });
+                    }
+                    // A reload before the delayed flush must still finish explicit deletions.
+                    if (_getWikiDeletedIds().size > 0 && _wikiCache !== null) {
+                        _wikiCacheDirty = true;
+                        _flushWikiToIDB();
+                    }
                     return true;
                 });
         })
@@ -1268,7 +1279,7 @@ function _normalizeImportPages(project) {
         .map((ref, index) => {
             const page = ref.page;
             return {
-                title: _normalizeImportTitle(page.title, 'ページ ' + (index + 1)),
+                title: typeof page.title === 'string' ? page.title : 'ページ ' + (index + 1),
                 content: typeof page.content === 'string' ? page.content : '',
                 order: index,
                 level: _normalizeImportLevel(page.level),
@@ -1539,21 +1550,56 @@ const STORY_WIKI_PRESET_CATEGORIES = [
 // SP-077: Story Wiki メモリキャッシュ
 var _wikiCache = null;
 var _wikiCacheDirty = false;
+var _wikiCacheRevision = 0;
+var _wikiFlushPromise = null;
+var _wikiDeletedIds = null;
+
+function _getWikiDeletedIds() {
+    if (_wikiDeletedIds !== null) return _wikiDeletedIds;
+    _wikiDeletedIds = new Set();
+    try {
+        var ids = JSON.parse(localStorage.getItem(STORAGE_KEYS.STORY_WIKI_DELETED_IDS) || '[]');
+        if (Array.isArray(ids)) ids.forEach(function (id) {
+            if (typeof id === 'string' && id) _wikiDeletedIds.add(id);
+        });
+    } catch (_) { /* Keep the existing local fallback available. */ }
+    return _wikiDeletedIds;
+}
+
+function _persistWikiDeletedIds() {
+    try {
+        var ids = Array.from(_getWikiDeletedIds());
+        if (ids.length) localStorage.setItem(STORAGE_KEYS.STORY_WIKI_DELETED_IDS, JSON.stringify(ids));
+        else localStorage.removeItem(STORAGE_KEYS.STORY_WIKI_DELETED_IDS);
+    } catch (error) {
+        console.warn('[Storage] Wiki deletion persistence error:', error);
+    }
+}
 
 function _flushWikiToIDB() {
-    if (!_wikiCacheDirty || !_wikiCache) return;
-    if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
-        _wikiCacheDirty = false;
-        var entries = _wikiCache.slice();
-        var tx = Promise.resolve();
-        for (var i = 0; i < entries.length; i++) {
-            (function (e) { tx = tx.then(function () { return window.ZenWriterIDB.putWikiPage(e); }); })(entries[i]);
-        }
-        tx.catch(function (e) {
+    if (_wikiFlushPromise) return _wikiFlushPromise;
+    if (!_wikiCacheDirty || _wikiCache === null) return Promise.resolve(true);
+    if (!window.ZenWriterIDB || !window.ZenWriterIDB.isAvailable()) return Promise.resolve(false);
+    var revision = _wikiCacheRevision;
+    var entries = JSON.parse(JSON.stringify(_wikiCache));
+    var deletedIds = Array.from(_getWikiDeletedIds());
+    _wikiCacheDirty = false;
+    _wikiFlushPromise = window.ZenWriterIDB.applyWikiChanges(entries, deletedIds)
+        .then(function () {
+            // Do not acknowledge a deletion changed again while this write was in flight.
+            if (revision === _wikiCacheRevision) {
+                deletedIds.forEach(function (id) { _getWikiDeletedIds().delete(id); });
+                _persistWikiDeletedIds();
+            }
+            _wikiFlushPromise = null;
+            return _wikiCacheDirty ? _flushWikiToIDB() : true;
+        }, function (e) {
             console.warn('[IDB] Wiki flush error:', e);
             _wikiCacheDirty = true;
+            _wikiFlushPromise = null;
+            return false;
         });
-    }
+    return _wikiFlushPromise;
 }
 
 function loadStoryWiki() {
@@ -1561,6 +1607,8 @@ function loadStoryWiki() {
     try {
         const raw = localStorage.getItem(STORAGE_KEYS.STORY_WIKI);
         _wikiCache = raw ? JSON.parse(raw) : [];
+        var deletedIds = _getWikiDeletedIds();
+        _wikiCache = _wikiCache.filter(function (entry) { return !deletedIds.has(entry.id); });
         return _wikiCache;
     } catch (e) {
         console.error('StoryWiki読込エラー:', e);
@@ -1570,8 +1618,16 @@ function loadStoryWiki() {
 }
 
 function saveStoryWiki(entries) {
+    var previous = loadStoryWiki();
+    var next = entries || [];
+    var nextIds = new Set(next.map(function (entry) { return entry.id; }));
+    var deletedIds = _getWikiDeletedIds();
+    previous.forEach(function (entry) { if (!nextIds.has(entry.id)) deletedIds.add(entry.id); });
+    next.forEach(function (entry) { deletedIds.delete(entry.id); });
     _wikiCache = entries || [];
+    _wikiCacheRevision++;
     _wikiCacheDirty = true;
+    _persistWikiDeletedIds();
     try {
         localStorage.setItem(STORAGE_KEYS.STORY_WIKI, JSON.stringify(_wikiCache));
     } catch (e) {

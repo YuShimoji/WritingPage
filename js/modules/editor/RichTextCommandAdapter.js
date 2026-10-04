@@ -163,6 +163,23 @@
       var node = target.range.commonAncestorContainer;
       if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
       var block = this._findBlockRoot(node);
+      if (!block && typeof this.doc.execCommand === 'function') {
+        // A range spanning existing blocks is not direct-root typing. Keep its
+        // original heading/list/paragraph structure and the previous no-op boundary.
+        var inlineTags = { SPAN: 1, STRONG: 1, B: 1, EM: 1, I: 1, U: 1, S: 1, STRIKE: 1, A: 1, BR: 1 };
+        var elements = this.editor.querySelectorAll('*');
+        for (var i = 0; i < elements.length; i++) {
+          if (!inlineTags[elements[i].tagName] && target.range.intersectsNode(elements[i])) return false;
+        }
+        // Direct typing into an empty surface has no paragraph. Normalize only
+        // at the explicit alignment command, keeping native caret/selection handling.
+        try { this.doc.execCommand('formatBlock', false, '<p>'); } catch (_) { return false; }
+        target = this._getCaretOrSelectionRange();
+        if (!target) return false;
+        node = target.range.startContainer;
+        if (node.nodeType === Node.TEXT_NODE) node = node.parentElement;
+        block = this._findBlockRoot(node);
+      }
       if (!block || !this.editor.contains(block)) return false;
       if (a === 'start') {
         block.removeAttribute('data-zw-align');

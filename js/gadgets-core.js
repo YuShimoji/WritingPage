@@ -835,6 +835,12 @@
       if (existingPanel) {
         existingPanel.style.display = '';
         window.ZenWriterPanels.showPanel(panelId);
+        // Restored panels remain in the DOM; re-detaching must persist their state again.
+        var existingPrefs = this.getPrefs();
+        existingPrefs.detached = existingPrefs.detached || {};
+        existingPrefs.detached[name] = { group: group, floating: true };
+        this.setPrefs(existingPrefs);
+        try { emit('ZWGadgetDetached', { name: name, group: group, panelId: panelId }); } catch (_) { }
         return;
       }
 

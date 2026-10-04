@@ -1979,8 +1979,18 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   content: none;
 }
 
+/* Markdown conversion/reload で生成済みのリンクは、本文と判別できる affordance を持つ。 */
+#wysiwyg-editor a[href]:not(.chapter-link) {
+  color: var(--link-color, var(--editor-text, var(--text-color, #4a90d9)));
+  text-decoration: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.14em;
+  cursor: pointer;
+}
+
 .wysiwyg-toolbar {
   position: absolute;
+  box-sizing: border-box;
   top: 0.625rem;
   left: 50%;
   transform: translateX(-50%);
@@ -2003,6 +2013,8 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   position: fixed;
   top: auto;
   left: auto;
+  width: max-content;
+  min-width: 0;
   transform: none;
   max-width: calc(100vw - 1.5rem);
   transition: opacity 0.12s;
@@ -6611,7 +6623,6 @@ input[type="checkbox"] {
 }
 
 /* === Slim sidebar mode === */
-html[data-sidebar-slim="true"] .gadget-detach-btn,
 html[data-sidebar-slim="true"] .gadget-help-btn,
 html[data-sidebar-slim="true"] .gadget-bulk-toggle-btn,
 html[data-sidebar-slim="true"] .gadget-drag-handle { display: none !important; }

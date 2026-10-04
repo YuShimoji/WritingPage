@@ -131,8 +131,7 @@
       layout: settings.editorLayout && (settings.editorLayout.maxWidth || settings.editorLayout.padding)
         ? 'custom'
         : 'default',
-      autosave: !settings.autoSave || settings.autoSave.enabled !== false,
-      autosaveDelay: settings.autoSave && settings.autoSave.delayMs ? settings.autoSave.delayMs : 2000
+      autosaveNotification: !settings.autoSave || settings.autoSave.enabled !== false
     };
   }
 
@@ -144,7 +143,7 @@
   function makeSummary(chip, doc, review) {
     return [
       'Design Cockpit / Writing UX checkpoint',
-      'save_state=' + chip.saveState + ' count=' + chip.charCount + ' autosave=' + (review.autosave ? 'on' : 'off'),
+      'save_state=' + chip.saveState + ' count=' + chip.charCount + ' autosave=on autosave_notification=' + (review.autosaveNotification ? 'on' : 'off'),
       'manual_save=dashboard_button command_palette_save',
       'editor=' + getEditorMode() + ' shell=' + review.uiMode + ' theme=' + review.theme,
       'document_id=' + shortId(doc.id) + ' selected_type=' + doc.type,
@@ -173,7 +172,8 @@
     setText('design-cockpit-count', chip.charCount + ' 文字');
     setText('design-cockpit-doc', doc.name + selected + ' (' + shortId(doc.id) + ')');
     setText('design-cockpit-editor-mode', getEditorMode());
-    setText('design-cockpit-autosave', review.autosave ? 'ON / 約 ' + review.autosaveDelay + 'ms' : 'OFF');
+    setText('design-cockpit-autosave', 'ON / 本文はこの端末に自動保存されます');
+    setText('design-cockpit-autosave-notification', review.autosaveNotification ? 'ON' : 'OFF');
     setText('design-cockpit-manual-save', 'このパネルの保存ボタン / command palette save');
     setText('design-cockpit-save-warning', saveWarning);
     setText('design-cockpit-reload', 'reload は現在ドキュメントを復帰、外部退避は Documents の TXT / JSON export');
@@ -286,7 +286,8 @@
       '  <section class="design-cockpit__section" aria-label="Save trust">',
       '    <h3>保存の信頼</h3>',
       '    <dl class="design-cockpit__stack">',
-      '      <div><dt>自動保存</dt><dd id="design-cockpit-autosave">unknown</dd></div>',
+      '      <div><dt>ローカル自動保存</dt><dd id="design-cockpit-autosave">unknown</dd></div>',
+      '      <div><dt>自動保存の通知</dt><dd id="design-cockpit-autosave-notification">unknown</dd></div>',
       '      <div><dt>手動保存</dt><dd id="design-cockpit-manual-save">unknown</dd></div>',
       '      <div><dt>警告</dt><dd id="design-cockpit-save-warning">unknown</dd></div>',
       '      <div><dt>復帰 / 退避</dt><dd id="design-cockpit-reload">unknown</dd></div>',

@@ -74,8 +74,13 @@
 
     instance.executeCommand = function (command, value) {
       if (getFlagValue() && this.isWysiwygMode && this.commandAdapter && typeof this.commandAdapter.execute === 'function') {
+        // Separate pending typing, the command, and subsequent typing into Undo steps.
+        if (typeof this._captureUndoSnapshot === 'function') this._captureUndoSnapshot();
+        // A caret move does not change HTML, but Undo must return to this command's position.
+        if (typeof this._getCursorOffset === 'function') this._lastCursorOffset = this._getCursorOffset();
         const ok = this.commandAdapter.execute(command, value);
         if (ok) {
+          if (typeof this._captureUndoSnapshot === 'function') this._captureUndoSnapshot();
           commitRichTextChange(this);
           return;
         }

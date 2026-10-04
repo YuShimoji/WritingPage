@@ -22,11 +22,21 @@
     return { markdown: processed, placeholders: placeholders };
   }
 
-  function extractAlignedBlocks(markdown) {
+  function extractAlignedBlocks(markdown, md) {
     var placeholders = [];
     var counter = 0;
-    var processed = (markdown || '').replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
-      var token = 'ZWALIGNBLOCK' + counter;
+    var source = markdown || '';
+    var reserved = source;
+    if (md && md.utils && typeof md.utils.unescapeAll === 'function') {
+      reserved += md.utils.unescapeAll(source);
+    }
+    // Reserve namespaces in one scan, including text produced by entity decoding.
+    var namespaces = new Set(reserved.match(/ZWALIGNBLOCK\d+X/g) || []);
+    var namespace = 0;
+    while (namespaces.has('ZWALIGNBLOCK' + namespace + 'X')) namespace++;
+    var prefix = 'ZWALIGNBLOCK' + namespace + 'X';
+    var processed = source.replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
+      var token = prefix + counter + 'END';
       placeholders.push({
         token: token,
         tag: String(tag || 'p').toLowerCase(),
@@ -73,10 +83,53 @@
       var p = placeholders[i];
       var body = renderInlineMarkdown(md, p.content);
       var block = '<' + p.tag + ' data-zw-align="' + p.align + '">' + body + '</' + p.tag + '>';
-      html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), block);
-      html = html.replace(new RegExp(p.token, 'g'), block);
+      html = html.replace(new RegExp('<p>' + p.token + '</p>|' + p.token, 'g'), function () { return block; });
     }
     return html;
+  }
+
+  // Rich editing renders raw HTML first, so literal aligned markup inside code stays escaped.
+  function renderAlignedHtml(html, md) {
+    // This is already HTML; Markdown placeholder separators would become manuscript LF.
+    return String(html || '').replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
+      return '<' + tag.toLowerCase() + ' data-zw-align="' + align.toLowerCase() + '">'
+        + renderInlineMarkdown(md, content) + '</' + tag.toLowerCase() + '>';
+    });
+  }
+
+  function installRichAlignedBlockRule(md) {
+    if (!md || !md.block || !md.block.ruler || md.__zwAlignedBlockInstalled) return;
+    md.block.ruler.before('html_block', 'zw_aligned_block', function (state, startLine, endLine, silent) {
+      if (!state.md.options.html || state.sCount[startLine] - state.blkIndent >= 4) return false;
+      var start = state.bMarks[startLine] + state.tShift[startLine];
+      var opening = /^<(p|h1|h2|h3|blockquote|li)\s+data-zw-align="(start|center|end)">/i;
+      if (!opening.test(state.src.slice(start, state.eMarks[startLine]))) return false;
+      var match = state.src.slice(start).match(/^<(p|h1|h2|h3|blockquote|li)\s+data-zw-align="(start|center|end)">[\s\S]*?<\/\1>/i);
+      if (!match) return false;
+      var matchedEnd = start + match[0].length;
+      // Turndown can serialize adjacent aligned paragraphs without a separator.
+      // Keep any aligned block starting on the same closing line intact as well.
+      var adjacent = state.src.slice(matchedEnd).match(/^[ \t]*<(p|h1|h2|h3|blockquote|li)\s+data-zw-align="(start|center|end)">[\s\S]*?<\/\1>/i);
+      while (adjacent) {
+        matchedEnd += adjacent[0].length;
+        adjacent = state.src.slice(matchedEnd).match(/^[ \t]*<(p|h1|h2|h3|blockquote|li)\s+data-zw-align="(start|center|end)">[\s\S]*?<\/\1>/i);
+      }
+      var nextLine = startLine + 1;
+      while (nextLine < endLine && state.eMarks[nextLine - 1] < matchedEnd) {
+        if (!state.isEmpty(nextLine) && state.sCount[nextLine] < state.blkIndent) return false;
+        nextLine++;
+      }
+      if (state.eMarks[nextLine - 1] < matchedEnd) return false;
+      if (silent) return true;
+      // HTML blocks normally end at a blank line. A serialized aligned body
+      // owns its explicit blank lines until its closing tag instead.
+      var token = state.push('html_block', '', 0);
+      token.map = [startLine, nextLine];
+      token.content = state.getLines(startLine, nextLine, state.blkIndent, true);
+      state.line = nextLine;
+      return true;
+    }, { alt: ['paragraph', 'reference', 'blockquote'] });
+    md.__zwAlignedBlockInstalled = true;
   }
 
   /**
@@ -122,14 +175,16 @@
    */
   function renderToHtmlBeforePipeline(markdown, opts) {
     opts = opts || {};
-    var aligned = extractAlignedBlocks(markdown);
-    var extracted = extractDslBlocks(aligned.markdown);
-    var mdSrc = extracted.markdown;
+    var aligned;
+    var extracted;
     var html = '';
     var md = null;
 
     try {
       md = resolveMarkdownRenderer(opts.editorManager);
+      aligned = extractAlignedBlocks(markdown, md);
+      extracted = extractDslBlocks(aligned.markdown);
+      var mdSrc = extracted.markdown;
       if (md) {
         html = md.render(mdSrc);
       } else {
@@ -140,7 +195,7 @@
           .replace(/\n/g, '<br>');
       }
     } catch (_) {
-      html = '';
+      return '';
     }
 
     html = restoreDslBlocks(html, extracted.placeholders);
@@ -148,6 +203,8 @@
   }
 
   window.ZWMdItBody = {
+    installRichAlignedBlockRule: installRichAlignedBlockRule,
+    renderAlignedHtml: renderAlignedHtml,
     renderToHtmlBeforePipeline: renderToHtmlBeforePipeline,
   };
 })();

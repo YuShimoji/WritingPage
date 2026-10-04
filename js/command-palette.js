@@ -822,6 +822,12 @@
 
     executeCommand(cmd) {
       try {
+        // Cockpit owns its initial focus; finish palette focus restoration first.
+        if (cmd.id === 'design-cockpit') {
+          this.hide();
+          cmd.execute();
+          return;
+        }
         const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
         const keepFocusOffEditor = deferEditingFocus;
         cmd.execute();

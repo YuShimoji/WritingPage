@@ -2,7 +2,15 @@ const fs = require('fs');
 const path = require('path');
 
 const projectRoot = process.cwd();
-const outDir = path.join(projectRoot, 'dist');
+const outputArg = process.argv.indexOf('--out-dir');
+if (outputArg >= 0 && (!process.argv[outputArg + 1] || process.argv[outputArg + 1].startsWith('--'))) {
+  throw new Error('--out-dir requires an explicit output directory');
+}
+const requestedOutput = outputArg >= 0 ? process.argv[outputArg + 1] : process.env.WRITINGPAGE_DIST_DIR;
+const outDir = path.resolve(requestedOutput || path.join(projectRoot, 'dist'));
+if (outDir === projectRoot || outDir === path.parse(outDir).root || projectRoot.startsWith(outDir + path.sep)) {
+  throw new Error('Build output must not contain the source repository or be a drive root');
+}
 
 const filesToCopy = [
   'index.html',
@@ -16,7 +24,9 @@ const filesToCopy = [
 const dirsToCopy = ['css', 'js', 'vendor'];
 
 function ensureCleanDir(dir) {
-  fs.rmSync(dir, { recursive: true, force: true });
+  // Explicit external outputs are fresh-only: preserve every existing deliverable.
+  if (requestedOutput && fs.existsSync(dir)) throw new Error('Explicit build output already exists: ' + dir);
+  if (!requestedOutput) fs.rmSync(dir, { recursive: true, force: true });
   fs.mkdirSync(dir, { recursive: true });
 }
 

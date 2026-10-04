@@ -176,6 +176,26 @@
   function putWikiPage(page) { return put('wiki', page); }
   function deleteWikiPage(id) { return deleteById('wiki', id); }
 
+  // Commit only explicitly removed IDs and the current cache snapshot atomically.
+  // Unseen rows are retained; this is not a whole-store replacement or a merge policy.
+  function applyWikiChanges(entries, deletedIds) {
+    return new Promise(function (resolve, reject) {
+      if (!db) { reject(new Error('DB not open')); return; }
+      var tx = db.transaction('wiki', 'readwrite');
+      var store = tx.objectStore('wiki');
+      var writeError = null;
+      tx.oncomplete = function () { resolve(); };
+      tx.onabort = function () { reject(writeError || tx.error || new Error('Wiki transaction aborted')); };
+      try {
+        (deletedIds || []).forEach(function (id) { store.delete(id); });
+        (entries || []).forEach(function (entry) { store.put(entry); });
+      } catch (error) {
+        writeError = error;
+        tx.abort();
+      }
+    });
+  }
+
   // ---- Migration from localStorage ----
 
   function migrateFromLocalStorage() {
@@ -299,6 +319,7 @@
     getWikiPages: getWikiPages,
     putWikiPage: putWikiPage,
     deleteWikiPage: deleteWikiPage,
+    applyWikiChanges: applyWikiChanges,
 
     // Migration
     migrateFromLocalStorage: migrateFromLocalStorage
