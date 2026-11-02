@@ -238,17 +238,23 @@ function readAppAsarEvidence(asarPath) {
       return { path: relativePath, sourceSha256, packedSha256, matches: sourceSha256 === packedSha256 };
     });
     const markdownIt = JSON.parse(extractFile(asarPath, 'node_modules/markdown-it/package.json').toString('utf8'));
-    const expectedMarkdownIt = JSON.parse(
+    const installedMarkdownIt = JSON.parse(
       fs.readFileSync(path.join(projectRoot, 'node_modules', 'markdown-it', 'package.json'), 'utf8'),
     ).version;
+    const lockedMarkdownIt = JSON.parse(
+      fs.readFileSync(path.join(projectRoot, 'package-lock.json'), 'utf8'),
+    ).packages?.['node_modules/markdown-it']?.version;
     return {
       exists: true,
       sha256: sha256File(asarPath),
       sourceFiles,
       sourceFilesMatch: sourceFiles.every((item) => item.matches),
       markdownItVersion: markdownIt.version,
-      expectedMarkdownItVersion: expectedMarkdownIt,
-      markdownItVersionMatches: markdownIt.version === expectedMarkdownIt,
+      installedMarkdownItVersion: installedMarkdownIt,
+      expectedMarkdownItVersion: lockedMarkdownIt,
+      markdownItVersionMatches: Boolean(lockedMarkdownIt)
+        && markdownIt.version === lockedMarkdownIt
+        && installedMarkdownIt === lockedMarkdownIt,
     };
   } catch (error) {
     return {
