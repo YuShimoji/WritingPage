@@ -8,7 +8,7 @@
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main | Wiki作業開始HEAD `0d80b82649aa4ae882b200811b13655f45e3cdc2`。本変更はcommit/push前。CI担当source `33dd238a...` のCI/Electron evidenceはWiki変更前の状態を示す。 |
+| Git / main | 完了source / commit `93da8f9d931b2a2cc79f8ef5a7518b81bb5924da` をpush済み。`main` と `origin/main` は一致しclean。 |
 | 今回の製品変更 | Story Wikiの新規作成・改名時の完全一致タイトル競合を拒否し、編集フォームからカスタムカテゴリを追加して記事へ割り当て可能にした。390px幅で判明したpaneとフォームの縮小もWiki専用CSSで修正した。 |
 | Web / Node 証拠 | `e2e/wiki.spec.js` 全25件pass。対象2件を含む。smoke、対象JS syntax/lint、`git diff --check` pass。390×844 viewport readbackで横scrollなし、編集フォーム幅331px。 |
 | package / native | Wiki変更を含むCI / package / Electron native検証は未実施。CI担当候補 `33dd238a...` のtechnical PASSをWiki変更へ流用しない。 |
