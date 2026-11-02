@@ -2,7 +2,7 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-02 / 10月候補から保存・変換の4件を main へ統合
+更新: 2026-11-02 / 4件統合後の残タスクを独立チャット3件へ割当
 
 ## いまいる場所
 
@@ -16,7 +16,7 @@
 | 他の未統合 branch | `codex/release-ci-evidence-binding` / `0ac3c0db` と `codex/rich-editor-control-friction` / `e2c72d4d` は未統合。main checkpoint generator は旧 CI run `29198025986` を固定参照する。toolbar は10月候補とコードが重なるため、二重に取り込まないよう比較する。 |
 | 既存 package | この checkout の `build/win-unpacked/Zen Writer.exe` は SHA256 `6253997b...b494779`、内蔵 markdown-it 14.1.0で現行 main の14.3.0と不一致。7月28日候補記録の exe SHA `3a877a0f...bece8` とも異なる。今回の修正済み package として扱わない。 |
 | 人の受入と残件 | 新しい exact package の実機受入、Documents の empty hint / 現在 marker / selection focus の操作感、WP-004 manual parity は未実施。Wiki の title 一意・カテゴリ追加 UI も今回未解消。 |
-| 次の製品判断 | 保存・変換の4件は Web 検証済み。次候補へ含める追加修正の範囲を決め、exact CI binding と新 package identity を整える。今回の修正を公開・配布や native 合格へ昇格させない。 |
+| 次の製品判断 | 保存・変換の4件は Web 検証済み。CI binding と新 package identity の整備を先行担当へ割当済み。Wiki追加はその候補固定後に実装し、Richは比較のみ。公開・配布や native 合格は未確定。 |
 
 今回の採用範囲・修正前後の再現・検証と残件は
 [`verification/2026-11-02/october-four-fixes-main-integration.md`](verification/2026-11-02/october-four-fixes-main-integration.md)。
@@ -27,10 +27,29 @@
 - 執筆本筋は Editor → 保存状態 / 文字数 → Documents / Sections → on-demand Gadgets。公開 UI は command palette / left nav / 再生オーバーレイで説明し、`normal` / `focus` は内部互換値とする。
 - original checkpoint、operator sheet、package は immutable。exact source、CI、checkpoint、capture、package SHA と人の観察を混同しない。観察結果は `release:observe` で sibling derivative へ記録する。
 - 旧 package の観察は今後の統合後 package の fresh 観察ではない。候補実行ファイルの SHA を確認するまで Electron PASS としない。
-- 今回の明示承認は再現した4件と関連する検証・現状資料・commit・push。残りの Rich 改善、CI binding、候補生成、外部 release は別の範囲。
+- 直前の製品修正は再現した4件と関連する検証・現状資料・commit・pushまで。今回の新規チャット分担依頼ではCI bindingと候補生成・技術確認、後続Wikiの2要件、Richの読み取り比較を各担当へ渡した。Rich統合・外部release・人の受入は含めない。
 - WP-004 Phase 3 / WP-001 中長期枠は条件付き残差。cloud sync、EPUB / DOCX、Floating memo 正式保存などを再開時の暗黙要件として追加しない。
 
-## 次に推奨する作業
+## 今回の分担と順序
+
+本人の新規チャット作成依頼に基づき、残タスクを3つの独立チャットへ割り当てた。
+開始時の実際のHEADは `99c62699`（origin/mainと一致、clean）。上表の `43432f75...` は4件修正の着手時であり現在HEADではない。
+元分析チャットの最後の再設計に合わせ、まず4件修正済みmainのCI結合と新Electron候補を確認し、Wiki追加をその候補へ混ぜない。
+
+| 担当 | チャットID | 編集の順序と成果 |
+| --- | --- | --- |
+| CI結合・新Electron候補 | `01a19aaa-d36d-7621-acd9-8f9448315c53` | 親の割当記録commit後に開始。release tooling、関連test、隔離profile起動、exact source/CI/app.asar照合と保存・再起動・復帰。CURRENT_STATEを先に所有 |
+| Wikiタイトル一意性・カテゴリ追加 | `01a19aaa-f29b-7170-bb4f-cd7915ed2ab8` | 読取調査を先行し、CI担当の候補固定・Git/GUI占有終了後にWikiコード・仕様・対象E2Eを編集。CURRENT_STATEを引き継ぐ |
+| 未統合Rich改善の比較 | `01a19aab-0ca5-77e0-9384-b71771a04ee4` | 読み取り専用で並行。2966f3c/e2c72d4dの重複と日常執筆への影響を比較。候補の統合はしない |
+
+全担当は作成時に本人指定の `gpt-6-luna` / `low` を設定。実行設定値の独立取得は未確認。
+3件とも起動を確認済み。Richは静的比較を返却し、CIとWikiは親の競合訂正を受けて開始順序を確認した。作成・起動は製品修正や実機合格を意味しない。
+所有範囲・開始Prompt・依存・時間見込み・別端末用Promptは
+[`verification/2026-11-02/task-allocation.md`](verification/2026-11-02/task-allocation.md)を参照。
+親は割当記録の保存まで、以後の製品成果・検証・現状更新・通常commit/pushは各担当が返す。
+本人の操作感受入や外部公開は別に保持する。
+
+## 担当へ渡した残作業
 
 | 作業 | 解消する不足 | 次に可能になること |
 | --- | --- | --- |
