@@ -8,26 +8,28 @@
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main | 着手時 `main == origin/main == 43432f75b8da546e3387d4593af0124db5a0d243`、clean。本人依頼で `2966f3c` の4件に関係する変更を選択して main へ反映。commit 後の exact HEAD と remote parity は Git で読む。通常の commit / push までが今回の範囲。 |
+| Git / main | 4件修正の候補作成・検証toolingを含む `33dd238a321fa0c8cc06c4aca6ab085629e380f6` までcommit/push済み。live block更新前の状態はclean、mainとorigin/mainは一致。最終doc更新後に再確認する。 |
 | 今回の製品修正 | Wiki の削除復活、遅延 IDB read による編集巻き戻り、Rich の空見出し消失、11個目の揃え付き段落の本文置換を修正。JSON import の明示空章名保持を含む。製品変更は storage / storage-idb / editor-wysiwyg / zw-markdown-it-body の4ファイル。 |
-| Web / Node 証拠 | 修正前の Wiki ブラウザ2件が fail、追加 unit 9件中7件が fail。修正後は全 unit 46/46、focused E2E 19/19 + 21/21、JS lint、dist build、smoke が pass。local full Playwright と新 package の Electron 実機は未実施。push 後の exact HEAD remote CI は今回のローカル証拠と別に読む。 |
-| 再現環境 | Node `v22.19.0` は指定範囲内。npm `10.9.3` は `>=11 <12` / `npm@11.6.2` と不一致。今回の Web 修正検証は既存環境で通過。新 package 生成前の環境整備は残る。 |
+| Web / Node 証拠 | CI `41395033055` は `YuShimoji/WritingPage` / `CI E2E` / exact source `33dd238a321fa0c8cc06c4aca6ab085629e380f6` でsuccess。local checkpointでsmoke、unit 56/56、JS lint、dist buildと4件focused E2Eがpass。local full PlaywrightとSP-071 focused replayは未実施。 |
+| 再現環境 | Node `v22.19.0`。必要なnpm `11.6.2` は `npm exec --yes --package=npm@11.6.2 -- npm ...` から利用。package候補はこの環境で生成・検査済み。 |
 | 10月候補の扱い | `codex/writingpage-public-export-20261004` / `2966f3c` を部分採用。toolbar、Widget/loadout、Undo/Redo、Enter の太字解除、Rich 揃え描画拡張、HTML export、build 出力先変更は未統合。候補全体を受入済みとはしない。 |
 | 他の未統合 branch | `codex/release-ci-evidence-binding` / `0ac3c0db` と `codex/rich-editor-control-friction` / `e2c72d4d` は未統合。main checkpoint generator は旧 CI run `29198025986` を固定参照する。toolbar は10月候補とコードが重なるため、二重に取り込まないよう比較する。 |
-| 既存 package | この checkout の `build/win-unpacked/Zen Writer.exe` は SHA256 `6253997b...b494779`、内蔵 markdown-it 14.1.0で現行 main の14.3.0と不一致。7月28日候補記録の exe SHA `3a877a0f...bece8` とも異なる。今回の修正済み package として扱わない。 |
-| 人の受入と残件 | 新しい exact package の実機受入、Documents の empty hint / 現在 marker / selection focus の操作感、WP-004 manual parity は未実施。Wiki の title 一意・カテゴリ追加 UI も今回未解消。 |
-| 次の製品判断 | 保存・変換の4件は Web 検証済み。CI binding と新 package identity の整備を先行担当へ割当済み。Wiki追加はその候補固定後に実装し、Richは比較のみ。公開・配布や native 合格は未確定。 |
+| Electron候補 | `output/electron-candidates/33dd238a321fa0c8cc06c4aca6ab085629e380f6/build/win-unpacked/Zen Writer.exe` SHA256 `732d9704f32b2b301bdb85fbc13815900d30c5226195a5bdb1a6d14f1988e64b`。app.asar SHA256 `fb82280fe6a48bd9752b15db9f98de0cf916a7c44b7718a09bc4aa5b77f872e3`。5つの対象source hashがpackedと一致し、markdown-itはlock/installed/packageとも14.3.0。 |
+| 人の受入と残件 | 指定SHAの候補をisolated profileで起動・入力・保存・終了・再起動・復帰までtechnical PASS。本人の独立受入と公開判断は未実施。Documentsの操作感、WP-004 manual parity、Wiki title一意・カテゴリ追加UIも残る。 |
+| 次の製品判断 | CI binding、新package identity、隔離profileのsave/restart technical checkを完了。Wiki追加担当は候補の固定とCI担当のGit/GUI占有終了後に実装開始できる。Richは比較のみ。公開・配布は未承認。 |
 
 今回の採用範囲・修正前後の再現・検証と残件は
 [`verification/2026-11-02/october-four-fixes-main-integration.md`](verification/2026-11-02/october-four-fixes-main-integration.md)。
+CI結合・Electron候補identity・隔離profileでの保存復帰は
+[`verification/2026-11-02/ci-package-verification.md`](verification/2026-11-02/ci-package-verification.md)。
 9月の[差分分析](verification/2026-09-28/project-restart-gap-assessment.md)は当時の観測として残す。
 
 ## 現行の開発契約
 
 - 執筆本筋は Editor → 保存状態 / 文字数 → Documents / Sections → on-demand Gadgets。公開 UI は command palette / left nav / 再生オーバーレイで説明し、`normal` / `focus` は内部互換値とする。
-- original checkpoint、operator sheet、package は immutable。exact source、CI、checkpoint、capture、package SHA と人の観察を混同しない。観察結果は `release:observe` で sibling derivative へ記録する。
+- original checkpoint、operator sheet、package は immutable。exact source、CI、checkpoint、capture、package SHA と技術観察・本人の受入を混同しない。`33dd238` の隔離profile観察は技術検証として verification記録に保存し、独立した人の受入はpendingのまま。
 - 旧 package の観察は今後の統合後 package の fresh 観察ではない。候補実行ファイルの SHA を確認するまで Electron PASS としない。
-- 直前の製品修正は再現した4件と関連する検証・現状資料・commit・pushまで。今回の新規チャット分担依頼ではCI bindingと候補生成・技術確認、後続Wikiの2要件、Richの読み取り比較を各担当へ渡した。Rich統合・外部release・人の受入は含めない。
+- 直前の製品修正は再現した4件と関連する検証・現状資料・commit・pushまで。今回の新規チャット分担依頼ではCI binding・候補生成・隔離profile技術確認が完了し、Wikiの2要件とRich読み取り比較は別担当の範囲。Rich統合・外部release・本人の受入は含めない。
 - WP-004 Phase 3 / WP-001 中長期枠は条件付き残差。cloud sync、EPUB / DOCX、Floating memo 正式保存などを再開時の暗黙要件として追加しない。
 
 ## 今回の分担と順序
@@ -53,8 +55,7 @@
 
 | 作業 | 解消する不足 | 次に可能になること |
 | --- | --- | --- |
-| CI binding の評価・統合 | main generator の旧 CI 固定参照 | 選んだ候補ソースと exact CI を一致させる |
-| 新候補の準備と実機確認 | 既存 exe が現行ソースと異なる | 環境を揃えて新 identity を作り、起動・入力・保存・終了・再起動・復帰を確認する |
+| CI binding とElectron候補の確認 | main generator の旧 CI 固定参照とWindows app.asar path readback | exact source CI、packed source / markdown-itの一致、およびisolated profileの保存復帰を記録済み |
 | 残りの Rich 改善を比較 | 7月 toolbar branch と10月候補が重複し、今回未採用の修正がある | 必要な操作改善を重複なく次の候補へ選べる |
 | Wiki の仕様未充足を限定修正 | title 一意・カテゴリ追加 UI が未解消 | 同名記事の扱いを定め、利用者がカテゴリを追加できる状態へ進める |
 
