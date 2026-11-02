@@ -8,7 +8,7 @@
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main | 4件修正の候補作成・検証toolingを含む `33dd238a321fa0c8cc06c4aca6ab085629e380f6` までcommit/push済み。live block更新前の状態はclean、mainとorigin/mainは一致。最終doc更新後に再確認する。 |
+| Git / main | closeout記録commit `172410d92e3b1f9e088034b2265b06b73589e992` までcommit/push済み。候補sourceは `33dd238a321fa0c8cc06c4aca6ab085629e380f6`。記録前の作業treeはcleanで、mainとorigin/mainが一致。 |
 | 今回の製品修正 | Wiki の削除復活、遅延 IDB read による編集巻き戻り、Rich の空見出し消失、11個目の揃え付き段落の本文置換を修正。JSON import の明示空章名保持を含む。製品変更は storage / storage-idb / editor-wysiwyg / zw-markdown-it-body の4ファイル。 |
 | Web / Node 証拠 | CI `41395033055` は `YuShimoji/WritingPage` / `CI E2E` / exact source `33dd238a321fa0c8cc06c4aca6ab085629e380f6` でsuccess。local checkpointでsmoke、unit 56/56、JS lint、dist buildと4件focused E2Eがpass。local full PlaywrightとSP-071 focused replayは未実施。 |
 | 再現環境 | Node `v22.19.0`。必要なnpm `11.6.2` は `npm exec --yes --package=npm@11.6.2 -- npm ...` から利用。package候補はこの環境で生成・検査済み。 |
