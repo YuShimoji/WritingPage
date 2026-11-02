@@ -2,24 +2,33 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-02 / Undo/Redoの2件を修正し、Wikiを含む新候補の検証へ
+更新: 2026-11-02 / Undo/Redo修正とWikiを含む新候補の技術確認を完了
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main | 着手時 `main == origin/main == 8cebb339a626b6a55a02603330d5a5c338b8865a`、clean。今回のcommit後のexact SHAとremote parityはGitで読む。 |
+| Git / main | 修正source `c61d9c0d46c25b074bab963305f085bd5e837174` をmainへcommit/push済み。候補もこのclean sourceから生成。後続の技術結果追記はdocs-onlyで、最終HEADとremote parityはGitで読む。 |
 | 今回の製品修正 | 初回入力が履歴に確定する前のUndo不発と、Undo後の新規入力を古いRedo分岐が上書きする問題をブラウザで再現。`js/editor-wysiwyg.js` の履歴確定順序だけを修正。 |
-| Web / Node | 修正前の2件は画面上でfail。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。今回の修正sourceのremote full CIはpush後に確認する。 |
-| Wiki | title一意・カスタムカテゴリ追加・390px幅の修正は統合済み。今回の75件にWiki 25件を含む。前のmain `8cebb33` のCIも603 passed / 4 skippedでsuccess（run `41399524574`）。 |
-| 候補 / native | 新候補は今回の履歴修正とWiki変更を含むclean sourceから作成予定。前候補 `33dd238` のexe/app.asarは保持し、そのnative結果を新候補へ流用しない。 |
-| 現在の残工程 | 修正sourceをcommit/push → 同一SHAのCI → 別出力のcheckpoint/packageとWikiを含む梱包照合 → 隔離profileで保存・終了・再起動・復帰 → 結果資料のcommit/pushまで続行する。 |
+| Web / Node | 修正前2件を画面で再現。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。source一致のCI run `41406872761` は606 passed / 4 skippedでsuccess。既定500msの追加ブラウザ確認でも2件の改善を確認。 |
+| Wiki | title一意・カスタムカテゴリ追加・390px幅の修正は統合済み。今回の75件にWiki 25件を含み、新app.asar内のWiki JS/CSSもsourceとhash一致。 |
+| 候補 | `output/electron-candidates/c61d9c0d46c25b074bab963305f085bd5e837174/build/win-unpacked/Zen Writer.exe`。exe SHA `207c30bc...be4cbbe` / app.asar SHA `bb4587f5...9a9fb43`。7 source照合とmarkdown-it 14.3.0のlock/installed/packed一致を確認。前候補 `33dd238` は保持。 |
+| Native | `output/verification-profiles/c61d9c0-undo-wiki-native` で40文字の保存済みを確認。Alt+F4で終了しprocess 0件 → 同じexe/profileで再起動し同じ本文・40文字・保存済みへ復帰 → 再終了してprocess 0件。exe/asar/checkpointのSHAは観察前後で不変。 |
+| 今回の到達点 | 履歴2件の修正と回帰、Wikiを含む候補の生成・技術確認まで完了。original checkpointとoperator sheetはimmutable / pendingを維持し、technical観察は別JSONへ記録。 |
 | 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
 
-今回の再現・修正・証跡と残工程は
+今回の再現・修正・候補identity・native観察・未確認範囲は
 [`verification/2026-11-02/undo-redo-wiki-candidate.md`](verification/2026-11-02/undo-redo-wiki-candidate.md)。
 前候補の[技術確認](verification/2026-11-02/ci-package-verification.md)と、
 [Wikiの仕様・画面確認](verification/2026-11-02/wiki-requirements-verification.md)は各sourceの記録として保持する。
+
+## 次に推奨する作業
+
+| 作業 | 目的と次に可能になること |
+| --- | --- |
+| 新候補の本人操作感レビュー | 保存・復帰の技術確認済み候補で、WikiやDocumentsの使い心地を判断する。起動は検証資料の隔離profile指定経路を使い、旧固定build先と混同しない |
+| 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
+| 通常利用への切替判断 | 候補source・profile・既存原稿の扱いを確認して、通常起動先を変えるか判断する。今回の技術合格だけで切替・公開・配布を実行しない |
 
 <!-- CURRENT_STATE_LIVE_END -->
 

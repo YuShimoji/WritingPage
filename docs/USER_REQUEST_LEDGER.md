@@ -60,7 +60,7 @@
 | 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
 |---|---|---|---|---|---|
 | hold | medium | Documents tactile review | empty Rich editing hint、`現在` marker、selection focus return の体感受入が自動証拠だけでは閉じない | user / product feel | `npm run app:update:open` で3点を自由文 review。CI audit を止めない deferred review debt |
-| approved | high | Undo/Redo修正とWikiを含む新候補 | `33dd238` 候補の技術確認は完了したが、後続Wikiと今回の履歴修正を含まない | assistant / implementation + candidate technical verification。本人の操作感は別 | 履歴2件の画面再現・最小修正・回帰後、同じsourceのCIと新候補を照合し、隔離profileで保存・終了・再起動・復帰を確認する |
+| hold | medium | 修正済み新候補の本人受入 | 履歴修正とWikiを含む `c61d9c0` 候補は技術確認済み。本人の操作感・通常利用への採否は未確認 | user / product feel。技術記録はassistant | 新候補の隔離起動経路は `undo-redo-wiki-candidate.md`。通常起動先切替・公開配布と分けて本人が確認する |
 | hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
 | hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
 
