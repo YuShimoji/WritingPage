@@ -31,6 +31,9 @@ function synthesizeDecision(checkpoint) {
     ['captures', captures.status],
     ['package', packageEvidence.status],
   ];
+  if (checkpoint.regressions) {
+    machineGates.push(['regressions', checkpoint.regressions.status]);
+  }
   machineGates.forEach(([label, status]) => assertEvidenceState(status, label));
   assertEvidenceState(humanGates.electronObservation.status, 'humanGates.electronObservation');
 
@@ -79,6 +82,12 @@ function listFilesRecursive(rootDir) {
 }
 
 function renderCheckpointMarkdown(checkpoint) {
+  const remoteFull = checkpoint.webAcceptance.remoteFull;
+  const appAsar = checkpoint.package.appAsar || {};
+  const remoteFullScope = remoteFull.evidenceScope || 'repository_baseline';
+  const remoteFullSourceMatched = typeof remoteFull.sourceMatched === 'boolean'
+    ? remoteFull.sourceMatched
+    : remoteFull.commit === checkpoint.source.commit;
   const commandRows = checkpoint.webAcceptance.localBoundedReplay.commands
     .map((item) => `| \`${item.command}\` | ${item.status} | ${item.durationMs} ms |`)
     .join('\n');
@@ -87,6 +96,15 @@ function renderCheckpointMarkdown(checkpoint) {
     .join('\n');
   const debts = checkpoint.debts
     .map((debt) => `- ${debt.nameJa}: ${debt.impactJa}（担当: ${debt.owner}、再確認: ${debt.revisitTriggerJa}）`)
+    .join('\n');
+  const remoteFullSummary = remoteFullScope === 'exact_source'
+    ? `run \`${remoteFull.runId}\` は \`${remoteFull.repository}\` の \`${remoteFull.workflowName}\` workflowでsuccess、source commit一致をreadback済みです。`
+    : `run \`${remoteFull.runId}\` はrepository baselineです。current sourceとの一致は \`${remoteFullSourceMatched}\` で、exact-current acceptanceの代用にはしません。`;
+  const packedSourceRows = (appAsar.sourceFiles || [])
+    .map((item) => `| \`${item.path}\` | \`${item.sourceSha256}\` | \`${item.packedSha256}\` | ${item.matches ? '一致' : '不一致'} |`)
+    .join('\n');
+  const regressionRows = (checkpoint.regressions?.cases || [])
+    .map((item) => `| ${item.labelJa} | ${item.commandResult.status} | ${item.commandResult.command} |`)
     .join('\n');
 
   return `# リリース準備チェックポイント
@@ -113,8 +131,8 @@ function renderCheckpointMarkdown(checkpoint) {
 
 ## Web受入
 
-既存remote full acceptanceは、run \`${checkpoint.webAcceptance.remoteFull.runId}\` / commit
-\`${checkpoint.webAcceptance.remoteFull.commit}\` のrepository記録を参照した evidence です。
+${remoteFullSummary}
+参照commitは \`${remoteFull.commit}\`、evidence scopeは \`${remoteFullScope}\` です。
 今回のローカルfull Playwright実行ではありません。
 
 | ローカルbounded replay | 状態 | 所要時間 |
@@ -122,6 +140,14 @@ function renderCheckpointMarkdown(checkpoint) {
 ${commandRows}
 
 未再実行: ${checkpoint.webAcceptance.notRerun.map((item) => `\`${item}\``).join(', ')}
+
+## 4件の回帰確認（Web E2E）
+
+状態: **${checkpoint.regressions?.status || '未確認'}**
+
+| 回帰 | 結果 | 実行コマンド |
+|---|---|---|
+${regressionRows}
 
 ## Capture evidence
 
@@ -141,11 +167,19 @@ ${captureInventory}
 | 項目 | 値 |
 | --- | --- |
 | 状態 | ${checkpoint.package.status} |
-| Path | \`${checkpoint.package.path}\` |
+| Path | \`${checkpoint.package.absolutePath || checkpoint.package.path}\` |
 | Size | ${checkpoint.package.sizeBytes} bytes |
 | Modified | ${checkpoint.package.modifiedAt} |
 | SHA-256 | \`${checkpoint.package.sha256}\` |
 | Source commit / dirty | \`${checkpoint.package.sourceCommit}\` / \`${checkpoint.package.sourceDirty}\` |
+| app.asar | \`${appAsar.absolutePath || appAsar.path || '未確認'}\` |
+| app.asar SHA-256 | \`${appAsar.sha256 || '未確認'}\` |
+| Packed source match | ${appAsar.sourceFilesMatch ?? '未確認'} |
+| markdown-it | \`${appAsar.markdownItVersion || '未確認'}\` (expected \`${appAsar.expectedMarkdownItVersion || '未確認'}\`) |
+
+| app.asar path | Source SHA-256 | Packed SHA-256 | Match |
+|---|---|---|---|
+${packedSourceRows}
 
 package buildの成功は、Electron上の挙動を人間が観察した証拠ではありません。
 

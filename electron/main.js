@@ -2,6 +2,15 @@ const { app, BrowserWindow, Menu, dialog, ipcMain, shell, nativeTheme } = requir
 const path = require('path');
 const fs = require('fs');
 
+const verificationUserDataArg = process.argv.find((arg) => arg.startsWith('--verification-user-data-dir='));
+if (verificationUserDataArg) {
+    const verificationUserDataPath = verificationUserDataArg.slice('--verification-user-data-dir='.length);
+    if (!path.isAbsolute(verificationUserDataPath)) {
+        throw new Error('--verification-user-data-dir must be an absolute path.');
+    }
+    app.setPath('userData', verificationUserDataPath);
+}
+
 /* ---------- Auto-updater (graceful fallback if not installed) ---------- */
 let autoUpdater = null;
 try {
