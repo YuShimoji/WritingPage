@@ -2,10 +2,12 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const {
+  archiveRelativePath,
   normalizeGitHubRepository,
   parseArgs,
   resolveRemoteFullEvidence,
 } = require('../scripts/release-readiness-checkpoint');
+const path = require('node:path');
 
 const SOURCE_COMMIT = 'b02ceb1c42fcbad38fa1e5acb40efe7cd3831ef8';
 const REPOSITORY = 'YuShimoji/WritingPage';
@@ -58,6 +60,12 @@ test('checkpoint arguments accept a dedicated package output directory', () => {
     parseArgs(['--package-out=output/candidate/build']),
     { packageOutDir: 'output/candidate/build' },
   );
+});
+
+test('app.asar paths are normalized for the current platform', () => {
+  assert.equal(archiveRelativePath('node_modules/markdown-it/package.json'),
+    path.join('node_modules', 'markdown-it', 'package.json'));
+  assert.equal(archiveRelativePath('js/storage.js'), path.join('js', 'storage.js'));
 });
 
 test('GitHub repository is derived from HTTPS and SSH origin URLs', () => {

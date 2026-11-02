@@ -220,6 +220,10 @@ function sha256Buffer(buffer) {
   return require('node:crypto').createHash('sha256').update(buffer).digest('hex');
 }
 
+function archiveRelativePath(...segments) {
+  return path.join(...segments.flatMap((segment) => String(segment).split('/')));
+}
+
 function readAppAsarEvidence(asarPath) {
   if (!fs.existsSync(asarPath)) {
     return { exists: false, sha256: null, sourceFiles: [], sourceFilesMatch: false, markdownItVersion: null };
@@ -234,10 +238,12 @@ function readAppAsarEvidence(asarPath) {
     ];
     const sourceFiles = sourcePaths.map((relativePath) => {
       const sourceSha256 = sha256File(path.join(projectRoot, relativePath));
-      const packedSha256 = sha256Buffer(extractFile(asarPath, relativePath));
+      const archivePath = archiveRelativePath(relativePath);
+      const packedSha256 = sha256Buffer(extractFile(asarPath, archivePath));
       return { path: relativePath, sourceSha256, packedSha256, matches: sourceSha256 === packedSha256 };
     });
-    const markdownIt = JSON.parse(extractFile(asarPath, 'node_modules/markdown-it/package.json').toString('utf8'));
+    const markdownItPath = archiveRelativePath('node_modules/markdown-it/package.json');
+    const markdownIt = JSON.parse(extractFile(asarPath, markdownItPath).toString('utf8'));
     const installedMarkdownIt = JSON.parse(
       fs.readFileSync(path.join(projectRoot, 'node_modules', 'markdown-it', 'package.json'), 'utf8'),
     ).version;
@@ -463,6 +469,7 @@ if (require.main === module) {
 
 module.exports = {
   normalizeGitHubRepository,
+  archiveRelativePath,
   parseArgs,
   resolveRemoteFullEvidence,
 };
