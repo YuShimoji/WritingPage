@@ -52,6 +52,10 @@
 - `ZWChapterNav.convertForExport` は `class` に修飾子（例: `chapter-link--broken`）が付いても章リンクを `#` アンカーへ変換する
 - リッチ編集表示（`editor-wysiwyg.js`）でアニメーション/テクスチャエフェクトは即時適用する（WP-004 Phase 1）
 
+## リッチ編集の履歴
+
+- Undo は履歴が空かを調べる前に未確定入力を記録する。Redo も未確定入力を先に記録し、Undo 後の新しい入力を古い Redo 分岐で上書きしない。Space / Enter / blur / compositionend の既存バッチ境界と、本文・保存・プレビューへの同期は維持する。
+
 ## Wiki と Reader プレビュー（コンテンツ経路）
 
 - Story Wiki の明示削除は IDB 保存前の reload や保存失敗でも削除 ID を保持し、次の成功時に反映する。削除と現在 cache の upsert は同じ transaction で commit し、未読の IDB 記事を一括削除しない。保存中の次の編集は直列に反映し、遅れて届いた初期読込みで当該 session の Wiki 編集を上書きしない。

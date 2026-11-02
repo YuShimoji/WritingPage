@@ -3123,9 +3123,9 @@
      * Undo実行
      */
     _undoAction() {
-      if (!this.wysiwygEditor || this._undoStack.length === 0) return;
+      if (!this.wysiwygEditor) return;
 
-      // 現在の状態を保存してから一つ前の操作に戻す
+      // 最初の入力がデバウンス中でも、履歴の有無を調べる前に確定する。
       this._captureUndoSnapshot();
 
       // スタック先頭は「現状態の直前スナップショット」1 件のみ（二重 pop すると履歴が浅いときに 2 段ぶん戻って空になる）
@@ -3157,7 +3157,11 @@
      * Redo実行
      */
     _redoAction() {
-      if (!this.wysiwygEditor || this._redoStack.length === 0) return;
+      if (!this.wysiwygEditor) return;
+
+      // Undo 後の未確定入力を先に記録し、古い Redo 分岐で上書きしない。
+      this._captureUndoSnapshot();
+      if (this._redoStack.length === 0) return;
 
       this._undoStack.push({
         html: this._undoLastSnapshot,

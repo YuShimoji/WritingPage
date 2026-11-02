@@ -2,19 +2,24 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-02 / Story Wiki タイトル一意性・カスタムカテゴリ追加を検証
+更新: 2026-11-02 / Undo/Redoの2件を修正し、Wikiを含む新候補の検証へ
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main | 完了source / commit `93da8f9d931b2a2cc79f8ef5a7518b81bb5924da` をpush済み。`main` と `origin/main` は一致しclean。 |
-| 今回の製品変更 | Story Wikiの新規作成・改名時の完全一致タイトル競合を拒否し、編集フォームからカスタムカテゴリを追加して記事へ割り当て可能にした。390px幅で判明したpaneとフォームの縮小もWiki専用CSSで修正した。 |
-| Web / Node 証拠 | `e2e/wiki.spec.js` 全25件pass。対象2件を含む。smoke、対象JS syntax/lint、`git diff --check` pass。390×844 viewport readbackで横scrollなし、編集フォーム幅331px。 |
-| package / native | Wiki変更を含むCI / package / Electron native検証は未実施。CI担当候補 `33dd238a...` のtechnical PASSをWiki変更へ流用しない。 |
-| 人の受入 / release | Wiki UIの独立した本人受入と公開判断は未実施。公開・配布は未承認。 |
+| Git / main | 着手時 `main == origin/main == 8cebb339a626b6a55a02603330d5a5c338b8865a`、clean。今回のcommit後のexact SHAとremote parityはGitで読む。 |
+| 今回の製品修正 | 初回入力が履歴に確定する前のUndo不発と、Undo後の新規入力を古いRedo分岐が上書きする問題をブラウザで再現。`js/editor-wysiwyg.js` の履歴確定順序だけを修正。 |
+| Web / Node | 修正前の2件は画面上でfail。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。今回の修正sourceのremote full CIはpush後に確認する。 |
+| Wiki | title一意・カスタムカテゴリ追加・390px幅の修正は統合済み。今回の75件にWiki 25件を含む。前のmain `8cebb33` のCIも603 passed / 4 skippedでsuccess（run `41399524574`）。 |
+| 候補 / native | 新候補は今回の履歴修正とWiki変更を含むclean sourceから作成予定。前候補 `33dd238` のexe/app.asarは保持し、そのnative結果を新候補へ流用しない。 |
+| 現在の残工程 | 修正sourceをcommit/push → 同一SHAのCI → 別出力のcheckpoint/packageとWikiを含む梱包照合 → 隔離profileで保存・終了・再起動・復帰 → 結果資料のcommit/pushまで続行する。 |
+| 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
 
-今回の仕様・検証と画像/geometry evidenceは [`verification/2026-11-02/wiki-requirements-verification.md`](verification/2026-11-02/wiki-requirements-verification.md)。
+今回の再現・修正・証跡と残工程は
+[`verification/2026-11-02/undo-redo-wiki-candidate.md`](verification/2026-11-02/undo-redo-wiki-candidate.md)。
+前候補の[技術確認](verification/2026-11-02/ci-package-verification.md)と、
+[Wikiの仕様・画面確認](verification/2026-11-02/wiki-requirements-verification.md)は各sourceの記録として保持する。
 
 <!-- CURRENT_STATE_LIVE_END -->
 
