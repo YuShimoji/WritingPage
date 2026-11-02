@@ -115,6 +115,26 @@ test('importProjectJSON rejects invalid JSON without mutating documents', () => 
   assert.equal(JSON.stringify(storage.loadDocuments()), before);
 });
 
+test('project pages preserve explicit empty and whitespace titles while missing titles use fallback', () => {
+  const storage = freshStorage();
+  const importedId = storage.importProjectJSON(JSON.stringify({
+    format: 'zenwriter-v1',
+    document: { name: '', content: '', chapterMode: true },
+    pages: [
+      { title: '', content: 'anonymous body' },
+      { title: '  ', content: 'exact title bytes' },
+      { content: 'missing title' },
+      { title: 5, content: 'nonstring title' }
+    ]
+  }));
+  const docs = storage.loadDocuments();
+  const doc = docs.find(d => d.id === importedId);
+  const chapters = docs.filter(d => d.parentId === importedId);
+  assert.equal(doc.name, '読み込みドキュメント');
+  assert.deepEqual(chapters.map(c => c.name), ['', '  ', 'ページ 3', 'ページ 4']);
+  assert.deepEqual(chapters.map(c => c.content), ['anonymous body', 'exact title bytes', 'missing title', 'nonstring title']);
+});
+
 test('importProjectJSON leaves current documents untouched when document persistence fails', () => {
   const storage = freshStorage();
   storage.saveDocuments([

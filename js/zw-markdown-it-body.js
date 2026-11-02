@@ -22,11 +22,21 @@
     return { markdown: processed, placeholders: placeholders };
   }
 
-  function extractAlignedBlocks(markdown) {
+  function extractAlignedBlocks(markdown, md) {
     var placeholders = [];
     var counter = 0;
-    var processed = (markdown || '').replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
-      var token = 'ZWALIGNBLOCK' + counter;
+    var source = markdown || '';
+    var reserved = source;
+    if (md && md.utils && typeof md.utils.unescapeAll === 'function') {
+      reserved += md.utils.unescapeAll(source);
+    }
+    // Reserve namespaces in one scan, including text produced by entity decoding.
+    var namespaces = new Set(reserved.match(/ZWALIGNBLOCK\d+X/g) || []);
+    var namespace = 0;
+    while (namespaces.has('ZWALIGNBLOCK' + namespace + 'X')) namespace++;
+    var prefix = 'ZWALIGNBLOCK' + namespace + 'X';
+    var processed = source.replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
+      var token = prefix + counter + 'END';
       placeholders.push({
         token: token,
         tag: String(tag || 'p').toLowerCase(),
@@ -73,8 +83,7 @@
       var p = placeholders[i];
       var body = renderInlineMarkdown(md, p.content);
       var block = '<' + p.tag + ' data-zw-align="' + p.align + '">' + body + '</' + p.tag + '>';
-      html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), block);
-      html = html.replace(new RegExp(p.token, 'g'), block);
+      html = html.replace(new RegExp('<p>' + p.token + '</p>|' + p.token, 'g'), function () { return block; });
     }
     return html;
   }
@@ -122,14 +131,16 @@
    */
   function renderToHtmlBeforePipeline(markdown, opts) {
     opts = opts || {};
-    var aligned = extractAlignedBlocks(markdown);
-    var extracted = extractDslBlocks(aligned.markdown);
-    var mdSrc = extracted.markdown;
+    var aligned;
+    var extracted;
     var html = '';
     var md = null;
 
     try {
       md = resolveMarkdownRenderer(opts.editorManager);
+      aligned = extractAlignedBlocks(markdown, md);
+      extracted = extractDslBlocks(aligned.markdown);
+      var mdSrc = extracted.markdown;
       if (md) {
         html = md.render(mdSrc);
       } else {
@@ -140,7 +151,7 @@
           .replace(/\n/g, '<br>');
       }
     } catch (_) {
-      html = '';
+      return '';
     }
 
     html = restoreDslBlocks(html, extracted.placeholders);

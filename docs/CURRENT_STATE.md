@@ -2,48 +2,49 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-09-28 / 再開時の現状と実装差分を再照合
+更新: 2026-11-02 / 10月候補から保存・変換の4件を main へ統合
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
-| Git / main authority | 調査開始時 `main == origin/main == b02ceb1c42fcbad38fa1e5acb40efe7cd3831ef8`、clean、左右差 `0 0`。この資料を含む docs-only commit 後の exact main HEAD は remote で読む。最後の product/runtime commit は `b02ceb1`（Markdown linkification DoS 対応）、accepted H2 head `c37c8ae` は祖先。 |
-| Web / Node 証拠 | product baseline `b02ceb1` の exact CI run `30200150522` は 2026-07-26 に success。2026-09-28 のこの端末では smoke、Node unit 36/36、JS lint、dist build、執筆開始・Documents・Editor Trust の focused E2E 3/3 が pass。今回の docs-only HEAD の CI、full Playwright と Electron package 実機は別確認。 |
-| 再現環境 | Node `v22.19.0` は指定範囲内。npm `10.9.3` は `package.json` の `>=11 <12` / `npm@11.6.2` と不一致。新 candidate 生成前に契約へ揃える。 |
-| Candidate branch | `codex/release-candidate-identity-b02ceb1` head `ef8cfffa` の記録は、source `b02ceb1` の checkpoint SHA `24f69ed1...4891` と package SHA `3a877a0f...bece8`、判定 `HOLD_FOR_ELECTRON_OBSERVATION` を示す。ignored checkpoint / exe はこの checkout で未発見。branch 文書を現物確認や package 観察に代えない。 |
-| 後続 tooling | `codex/release-ci-evidence-binding` head `0ac3c0db` は exact-current CI run の指定・SHA 照合を実装したが main 未統合。main の checkpoint generator は旧 run `29198025986` を静的参照する。既存 candidate checkpoint は変更しない。 |
-| 後続 product | `codex/rich-editor-control-friction` head `e2c72d4d` は選択 toolbar / link 表示改善を持つ。実装 `19ea977` の remote CI は success。main 未統合で、既存 `b02ceb1` package にも含まれない。 |
-| 人の受入 | exact package の起動・入力・保存・終了・再起動・復帰は現候補で未記録。Documents の empty hint、`現在` marker、selection-to-focus も通常サイズの体感 review 待ち。WP-004 parity manual pack は別の確認境界。 |
-| 現在の bottleneck | 次の source SHA を決め、candidate 現物を hash で照合すること。その後に exact package 観察、immutable derivative、内部 review へ進む。branch 統合、candidate 生成、tag/sign/publish/distribute は別判断。 |
+| Git / main | 着手時 `main == origin/main == 43432f75b8da546e3387d4593af0124db5a0d243`、clean。本人依頼で `2966f3c` の4件に関係する変更を選択して main へ反映。commit 後の exact HEAD と remote parity は Git で読む。通常の commit / push までが今回の範囲。 |
+| 今回の製品修正 | Wiki の削除復活、遅延 IDB read による編集巻き戻り、Rich の空見出し消失、11個目の揃え付き段落の本文置換を修正。JSON import の明示空章名保持を含む。製品変更は storage / storage-idb / editor-wysiwyg / zw-markdown-it-body の4ファイル。 |
+| Web / Node 証拠 | 修正前の Wiki ブラウザ2件が fail、追加 unit 9件中7件が fail。修正後は全 unit 46/46、focused E2E 19/19 + 21/21、JS lint、dist build、smoke が pass。local full Playwright と新 package の Electron 実機は未実施。push 後の exact HEAD remote CI は今回のローカル証拠と別に読む。 |
+| 再現環境 | Node `v22.19.0` は指定範囲内。npm `10.9.3` は `>=11 <12` / `npm@11.6.2` と不一致。今回の Web 修正検証は既存環境で通過。新 package 生成前の環境整備は残る。 |
+| 10月候補の扱い | `codex/writingpage-public-export-20261004` / `2966f3c` を部分採用。toolbar、Widget/loadout、Undo/Redo、Enter の太字解除、Rich 揃え描画拡張、HTML export、build 出力先変更は未統合。候補全体を受入済みとはしない。 |
+| 他の未統合 branch | `codex/release-ci-evidence-binding` / `0ac3c0db` と `codex/rich-editor-control-friction` / `e2c72d4d` は未統合。main checkpoint generator は旧 CI run `29198025986` を固定参照する。toolbar は10月候補とコードが重なるため、二重に取り込まないよう比較する。 |
+| 既存 package | この checkout の `build/win-unpacked/Zen Writer.exe` は SHA256 `6253997b...b494779`、内蔵 markdown-it 14.1.0で現行 main の14.3.0と不一致。7月28日候補記録の exe SHA `3a877a0f...bece8` とも異なる。今回の修正済み package として扱わない。 |
+| 人の受入と残件 | 新しい exact package の実機受入、Documents の empty hint / 現在 marker / selection focus の操作感、WP-004 manual parity は未実施。Wiki の title 一意・カテゴリ追加 UI も今回未解消。 |
+| 次の製品判断 | 保存・変換の4件は Web 検証済み。次候補へ含める追加修正の範囲を決め、exact CI binding と新 package identity を整える。今回の修正を公開・配布や native 合格へ昇格させない。 |
 
-詳細な差分、ブランチ表、検証結果、再開順は
-[`verification/2026-09-28/project-restart-gap-assessment.md`](verification/2026-09-28/project-restart-gap-assessment.md)
-を参照する。
+今回の採用範囲・修正前後の再現・検証と残件は
+[`verification/2026-11-02/october-four-fixes-main-integration.md`](verification/2026-11-02/october-four-fixes-main-integration.md)。
+9月の[差分分析](verification/2026-09-28/project-restart-gap-assessment.md)は当時の観測として残す。
 
 ## 現行の開発契約
 
 - 執筆本筋は Editor → 保存状態 / 文字数 → Documents / Sections → on-demand Gadgets。公開 UI は command palette / left nav / 再生オーバーレイで説明し、`normal` / `focus` は内部互換値とする。
 - original checkpoint、operator sheet、package は immutable。exact source、CI、checkpoint、capture、package SHA と人の観察を混同しない。観察結果は `release:observe` で sibling derivative へ記録する。
-- `889a642` の旧 package 観察は `b02ceb1` 候補や今後の branch 統合後 package の fresh 観察ではない。候補実行ファイルの SHA を確認するまで Electron PASS としない。
-- `proposed` 候補の調査選択は実装承認ではない。Rich toolbar の main 統合判断、CI binding tooling、候補生成、外部 release を一つの承認に束ねない。
+- 旧 package の観察は今後の統合後 package の fresh 観察ではない。候補実行ファイルの SHA を確認するまで Electron PASS としない。
+- 今回の明示承認は再現した4件と関連する検証・現状資料・commit・push。残りの Rich 改善、CI binding、候補生成、外部 release は別の範囲。
 - WP-004 Phase 3 / WP-001 中長期枠は条件付き残差。cloud sync、EPUB / DOCX、Floating memo 正式保存などを再開時の暗黙要件として追加しない。
 
 ## 次に推奨する作業
 
-| 方向 | 解消する摩擦 | 次の動き |
+| 作業 | 解消する不足 | 次に可能になること |
 | --- | --- | --- |
-| Audit — source 選定 | 次の package に Rich toolbar 改善を含めるか曖昧 | `19ea977` の scope/evidence を review し、受理するなら main 統合を別 slice で扱う |
-| Verify — candidate 現物 | 7 月の候補記録をこの端末の実行ファイルと誤認しやすい | `b02ceb1` checkpoint / exe の所在と SHA を確認し、なければ選んだ clean source から新 identity を作る |
-| Advance — exact CI binding | main の generator が旧 CI run を current と見せうる | `0ac3c0db` を review し、必要な tooling slice として取り込む。既存 checkpoint は上書きしない |
-| Review — 人の受入 | Web / build 証拠から Electron と操作感が閉じない | exact package の launch/input/save/exit/restart/recovery と Documents 3 点をそれぞれ観察し、結果を別々に記録する |
+| CI binding の評価・統合 | main generator の旧 CI 固定参照 | 選んだ候補ソースと exact CI を一致させる |
+| 新候補の準備と実機確認 | 既存 exe が現行ソースと異なる | 環境を揃えて新 identity を作り、起動・入力・保存・終了・再起動・復帰を確認する |
+| 残りの Rich 改善を比較 | 7月 toolbar branch と10月候補が重複し、今回未採用の修正がある | 必要な操作改善を重複なく次の候補へ選べる |
+| Wiki の仕様未充足を限定修正 | title 一意・カテゴリ追加 UI が未解消 | 同名記事の扱いを定め、利用者がカテゴリを追加できる状態へ進める |
 
-## 別端末への handoff
+## 別端末での再開
 
-1. `main` の remote parity と clean 状態を確認し、この live block → `INVARIANTS` → `INTERACTION_NOTES` → 上記詳細資料の順に読む。
-2. 三つの remote branch は main の成果として合算しない。source、candidate、tooling、product 改善を commit と hash で分ける。
-3. この checkout に 2026-07-28 の ignored checkpoint / package はない。branch に記録された path は他端末由来であり、現物の hash readback が先。
-4. 新しい変更は一つの user outcome に絞り、受入済み実装、Web 自動検証、Electron 実機、user の操作感、release publication を別状態で報告する。
+1. `main` の remote parity と clean 状態を確認し、この live block → `INVARIANTS` → `INTERACTION_NOTES` → 今回の検証資料を読む。
+2. 4件の部分採用を、10月候補全体や他の branch の統合と混同しない。過去の観察は対象 source / package を確認して再利用する。
+3. 既存 exe は今回の修正を含まない。新しい package の必要性と候補 source を先に決める。
+4. 次の変更は本人が選んだ範囲で進め、Web 検証、Electron 実機、人の操作感、release publication を分けて報告する。
 
 <!-- CURRENT_STATE_LIVE_END -->
 

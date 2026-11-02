@@ -4,6 +4,7 @@
 
 ## 現在有効な要求
 
+- **2026-11-02 October candidate scoped integration**: 本人依頼「10月の修正候補をレビューして、再現した4件の不具合修正をmainへ統合してください。検証と現状資料の更新、commit・pushまで進めてください。」により、`2966f3c` から Wiki 削除復活、遅延 IDB 読込みによる編集巻き戻り、空見出し消失、11個目の揃え付き段落の本文置換を修正。関連する JSON import の空章名保持を含む。回帰が既存 CI では検出されなかったため、Wiki IDB 6件・保存/Reader 2件の E2E と変換/LocalStorage unit 9件、import unit 1件を追加。toolbar、Widget、Undo/Redo、Rich 揃え描画拡張、CI binding、package 生成は今回未採用。検証と残件は `docs/verification/2026-11-02/october-four-fixes-main-integration.md`。
 - **統合シェル UI 再設計**: 公開 UI は `display mode` ではなく、command palette、left nav の `root/category` 階層、再生オーバーレイの開閉で扱う。
 - **Left nav category/icon mapping**: `sections` は「セクション」+ `list-tree` + `sections-gadgets-panel` + SectionsNavigator、`structure` は「構造」+ `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系に固定する。
 - **Sidebar / Gadget UI foundation**: Documents の作成 / 保存 / 入出力 / 管理 controls、gadget controls、fields、menus、scrollbars、collapse affordance は unified shell token と ARIA 契約へ寄せる。

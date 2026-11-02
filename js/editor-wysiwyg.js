@@ -35,6 +35,7 @@
       if (typeof TurndownService !== 'undefined') {
         this.turndownService = new TurndownService({
           headingStyle: 'atx',
+          blankReplacement: (_content, node) => this._replaceBlankNode(node),
           codeBlockStyle: 'fenced',
           bulletListMarker: '-',
           emDelimiter: '*',
@@ -43,6 +44,7 @@
       } else if (typeof window.TurndownService !== 'undefined') {
         this.turndownService = new window.TurndownService({
           headingStyle: 'atx',
+          blankReplacement: (_content, node) => this._replaceBlankNode(node),
           codeBlockStyle: 'fenced',
           bulletListMarker: '-',
           emDelimiter: '*',
@@ -52,16 +54,6 @@
 
       // カスタム装飾span → [tag]...[/tag] 逆変換ルール
       if (this.turndownService) {
-        this.turndownService.addRule('emptyHeadings', {
-          filter: function (node) {
-            return /^H[1-6]$/.test(node.nodeName || '') && !(node.textContent || '').trim();
-          },
-          replacement: function (_content, node) {
-            var level = parseInt(String(node.nodeName || 'H2').charAt(1), 10);
-            var hashes = new Array((level >= 1 && level <= 6 ? level : 2) + 1).join('#');
-            return '\n\n' + hashes + '\n\n';
-          }
-        });
         var decorClassToTag = {
           'decor-bold': 'bold',
           'decor-italic': 'italic',
@@ -201,6 +193,38 @@
       this.init();
       if (this.editorManager) {
         this.editorManager.richTextEditor = this;
+      }
+    }
+
+    _replaceBlankNode(node) {
+      const state = this._emptyHeadingSerialization;
+      if (state && /^H[1-6]$/.test(node.nodeName || '')) {
+        if (!state.initialized) {
+          const text = node.ownerDocument.documentElement.textContent || '';
+          const parsedHtml = node.ownerDocument.documentElement.outerHTML || '';
+          while (state.html.includes(state.prefix) || text.includes(state.prefix) || parsedHtml.includes(state.prefix)) state.prefix += 'X';
+          state.initialized = true;
+        }
+        const index = state.levels.push(Number(node.nodeName.slice(1))) - 1;
+        return '\n\n' + state.prefix + index + 'END\n\n';
+      }
+      return node.isBlock ? '\n\n' : '';
+    }
+
+    _turndownKeepingEmptyHeadings(html) {
+      // Turndown handles blank nodes before custom rules and trims trailing spaces.
+      // Protect only actual empty heading nodes, then restore the chapter separator.
+      const previous = this._emptyHeadingSerialization;
+      const state = { html, prefix: 'ZWEMPTYHEADING', levels: [], initialized: false };
+      this._emptyHeadingSerialization = state;
+      try {
+        const markdown = this.turndownService.turndown(html);
+        if (state.levels.length === 0) return markdown;
+        return markdown.replace(new RegExp(state.prefix + '(\\d+)END', 'g'), (_token, index) => {
+          return '#'.repeat(state.levels[Number(index)]) + ' ';
+        });
+      } finally {
+        this._emptyHeadingSerialization = previous;
       }
     }
 
@@ -2976,7 +3000,7 @@
 
       if (this.turndownService) {
         try {
-          const markdown = this.turndownService.turndown(serializedHtml);
+          const markdown = this._turndownKeepingEmptyHeadings(serializedHtml);
           const restored = window.TextboxRichTextBridge && typeof window.TextboxRichTextBridge.restoreSerializedBlocks === 'function'
             ? window.TextboxRichTextBridge.restoreSerializedBlocks(markdown, textboxPlaceholders)
             : markdown;
@@ -3021,7 +3045,7 @@
       if (!html) return '';
       if (this.turndownService) {
         try {
-          return this.normalizeCustomTagEscapes(this.turndownService.turndown(html));
+          return this.normalizeCustomTagEscapes(this._turndownKeepingEmptyHeadings(html));
         } catch (e) { console.warn('HTML to Markdown conversion failed:', e); }
       }
       return String(html)
