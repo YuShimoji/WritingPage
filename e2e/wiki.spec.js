@@ -74,6 +74,80 @@ test.describe('Story Wiki', () => {
     expect(entry.category).toBe('character');
   });
 
+  test('prevents duplicate titles on create and rename while allowing unchanged title', async ({ page }) => {
+    await page.evaluate(() => {
+      const s = window.ZenWriterStorage;
+      s.createStoryWikiEntry({ title: '一意性の確認', category: 'term' });
+      s.createStoryWikiEntry({ title: '別の記事', category: 'term' });
+    });
+
+    await page.locator('#structure-gadgets-panel .swiki-btn-expand').click();
+    const full = page.locator('.swiki-full:visible');
+    await full.locator('.swiki-btn-new').click();
+    const dialog = page.locator('.swiki-overlay:visible .swiki-dialog');
+    await dialog.locator('input[placeholder="用語名"]').fill('一意性の確認');
+    await dialog.getByRole('button', { name: '作成' }).click();
+    await expect(dialog.getByRole('alert')).toContainText('既にあります');
+    await expect(page.locator('.swiki-overlay:visible')).toBeVisible();
+    await page.locator('.swiki-overlay:visible').getByRole('button', { name: 'キャンセル' }).click();
+
+    await page.reload();
+    await page.waitForFunction(() => !!window.ZWGadgets);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'structure');
+    await page.locator('#structure-gadgets-panel .swiki-btn-expand').click();
+    const wiki = page.locator('.swiki-full:visible');
+    const secondArticle = wiki.locator('.swiki-tree-item').filter({ hasText: '別の記事' }).first();
+    await expect(secondArticle).toBeVisible();
+    await secondArticle.click();
+    await wiki.getByRole('button', { name: '編集' }).click();
+    const form = wiki.locator('.swiki-edit-form');
+    await expect(form).toBeVisible();
+    await form.locator('input.swiki-input').first().fill('一意性の確認');
+    await form.getByRole('button', { name: '保存' }).click();
+    await expect(form.locator('.swiki-title-status')).toContainText('既にあります');
+
+    await form.locator('input.swiki-input').first().fill('別の記事');
+    await form.getByRole('button', { name: '保存' }).click();
+    await expect(wiki.locator('.swiki-detail-title')).toContainText('別の記事');
+    const remaining = await page.evaluate(() =>
+      window.ZenWriterStorage.loadStoryWiki().filter(entry => entry.title === '一意性の確認').length
+    );
+    expect(remaining).toBe(1);
+  });
+
+  test('adds a custom category and keeps its assignment after reload', async ({ page }) => {
+    const entryId = await page.evaluate(() =>
+      window.ZenWriterStorage.createStoryWikiEntry({ title: 'カテゴリ保持の確認', category: 'term' }).id
+    );
+    await page.locator('#structure-gadgets-panel .swiki-btn-expand').click();
+    const wiki = page.locator('.swiki-full:visible');
+    await wiki.locator('.swiki-tree-item').filter({ hasText: 'カテゴリ保持の確認' }).click();
+    await wiki.getByRole('button', { name: '編集' }).click();
+    const form = wiki.locator('.swiki-edit-form');
+    await form.getByRole('button', { name: 'カテゴリを追加' }).click();
+    await form.locator('input[placeholder="カテゴリ名"]').fill('独自の分類');
+    await form.locator('button.swiki-category-save').click();
+    await expect(form.locator('select.swiki-select')).toHaveValue(/^custom_/);
+    await form.getByRole('button', { name: '保存' }).click();
+
+    await page.reload();
+    await page.waitForFunction(() => !!window.ZWGadgets);
+    await enableAllGadgets(page);
+    await openSidebarGroup(page, 'structure');
+    await page.locator('#structure-gadgets-panel .swiki-btn-expand').click();
+    const reloadedWiki = page.locator('.swiki-full:visible');
+    const persisted = await page.evaluate(id => {
+      const s = window.ZenWriterStorage;
+      const entry = s.getStoryWikiEntry(id);
+      return { category: entry.category, categories: s.loadStoryWikiCategories().map(item => item.label) };
+    }, entryId);
+    expect(persisted.categories).toContain('独自の分類');
+    expect(persisted.category).toMatch(/^custom_/);
+    await reloadedWiki.locator('.swiki-tree-item').filter({ hasText: 'カテゴリ保持の確認' }).click();
+    await expect(reloadedWiki.locator('.swiki-detail-cat-badge')).toHaveText('独自の分類');
+  });
+
   test('should search entries', async ({ page }) => {
     // 事前にエントリを作成
     await page.evaluate(() => {

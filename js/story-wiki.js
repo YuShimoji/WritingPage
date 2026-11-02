@@ -57,6 +57,26 @@
     return found ? found.label : catId;
   }
 
+  // Title uniqueness follows the stored visible title exactly. Whitespace at
+  // either edge is removed by the forms before comparison; case and Unicode
+  // normalization are intentionally left unchanged.
+  function findTitleConflict(title, excludeId) {
+    var entries = S.loadStoryWiki ? S.loadStoryWiki() : [];
+    return entries.find(function (entry) {
+      return entry.id !== excludeId && String(entry.title || '') === title;
+    }) || null;
+  }
+
+  function showTitleConflict(container, title, conflict) {
+    var existing = container.querySelector('.swiki-title-conflict');
+    if (!existing) {
+      existing = el('div', { className: 'swiki-title-conflict', role: 'alert' });
+      container.appendChild(existing);
+    }
+    existing.textContent = '「' + title + '」は既にあります。既存の記事「' + conflict.title + '」を開いてください。';
+    return existing;
+  }
+
   // ── メインガジェット ──────────────────
 
   ZWGadgets.register('StoryWiki', function (root) {
@@ -571,6 +591,8 @@
       form.appendChild(el('label', { textContent: 'タイトル' }));
       var titleInput = el('input', { type: 'text', className: 'swiki-input', value: entry.title });
       form.appendChild(titleInput);
+      var titleStatus = el('div', { className: 'swiki-title-status', role: 'alert' });
+      form.appendChild(titleStatus);
 
       // カテゴリ
       form.appendChild(el('label', { textContent: 'カテゴリ' }));
@@ -581,6 +603,70 @@
         catSelect.appendChild(opt);
       });
       form.appendChild(catSelect);
+
+      var categoryStatus = el('div', { className: 'swiki-category-status', role: 'status' });
+      var addCategoryButton = el('button', {
+        type: 'button',
+        className: 'swiki-btn swiki-btn-sm swiki-category-add-toggle',
+        textContent: '＋ カテゴリを追加',
+        onClick: function () {
+          var categoryInput = form.querySelector('.swiki-category-new-input');
+          if (!categoryInput) {
+            categoryInput = el('input', {
+              type: 'text',
+              className: 'swiki-input swiki-category-new-input',
+              placeholder: 'カテゴリ名',
+              'aria-label': '新しいカテゴリ名'
+            });
+            var saveCategoryButton = el('button', {
+              type: 'button',
+              className: 'swiki-btn swiki-btn-sm swiki-category-save',
+              textContent: '追加',
+              onClick: function () {
+                var label = categoryInput.value.trim();
+                categoryStatus.textContent = '';
+                if (!label) {
+                  categoryStatus.textContent = 'カテゴリ名を入力してください。';
+                  categoryInput.focus();
+                  return;
+                }
+                var current = S.loadStoryWikiCategories ? S.loadStoryWikiCategories() : [];
+                var labelExists = current.some(function (cat) { return cat.label === label; });
+                if (labelExists) {
+                  categoryStatus.textContent = '同じ名前のカテゴリがあります。';
+                  categoryInput.focus();
+                  return;
+                }
+                var id = 'custom_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+                var idExists = current.some(function (cat) { return cat.id === id; });
+                while (idExists) {
+                  id = 'custom_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+                  idExists = current.some(function (cat) { return cat.id === id; });
+                }
+                var custom = current.filter(function (cat) { return !cat.isPreset; });
+                custom.push({ id: id, label: label, icon: 'folder', isPreset: false });
+                if (!S.saveStoryWikiCustomCategories || !S.saveStoryWikiCustomCategories(custom)) {
+                  categoryStatus.textContent = 'カテゴリを保存できませんでした。もう一度お試しください。';
+                  return;
+                }
+                var option = el('option', { value: id, textContent: label });
+                catSelect.appendChild(option);
+                catSelect.value = id;
+                categoryStatus.textContent = 'カテゴリ「' + label + '」を追加し、この記事に選択しました。記事の保存で確定します。';
+                categoryInput.remove();
+                saveCategoryButton.remove();
+              }
+            });
+            addCategoryButton.insertAdjacentElement('afterend', categoryInput);
+            categoryInput.insertAdjacentElement('afterend', saveCategoryButton);
+            categoryInput.focus();
+          } else {
+            categoryInput.focus();
+          }
+        }
+      });
+      form.appendChild(addCategoryButton);
+      form.appendChild(categoryStatus);
 
       // 別名
       form.appendChild(el('label', { textContent: '別名 (カンマ区切り)' }));
@@ -658,11 +744,19 @@
           className: 'swiki-btn swiki-btn-primary',
           textContent: '保存',
           onClick: function () {
+            var title = titleInput.value.trim() || '無題';
+            var conflict = findTitleConflict(title, entry.id);
+            if (conflict) {
+              titleStatus.textContent = '「' + title + '」は既にあります。既存の記事「' + conflict.title + '」を開いてください。';
+              titleInput.focus();
+              return;
+            }
+            titleStatus.textContent = '';
             var aliases = aliasInput.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
             var tags = tagInput.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
             if (S.updateStoryWikiEntry) {
               S.updateStoryWikiEntry(entry.id, {
-                title: titleInput.value || '無題',
+                title: title,
                 category: catSelect.value,
                 aliases: aliases,
                 tags: tags,
@@ -720,6 +814,12 @@
           onClick: function () {
             var title = titleInput.value.trim();
             if (!title) { titleInput.focus(); return; }
+            var conflict = findTitleConflict(title, null);
+            if (conflict) {
+              showTitleConflict(dialog, title, conflict);
+              titleInput.focus();
+              return;
+            }
             var aliases = aliasInput.value.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
             var newEntry = S.createStoryWikiEntry ? S.createStoryWikiEntry({
               title: title,
