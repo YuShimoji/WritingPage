@@ -101,6 +101,20 @@
             return '~~' + content + '~~';
           }
         });
+        // 下線 <u> → [underline]...[/underline]。Turndown 既定では <u> が落ち、保存・プレビューで下線が消える
+        this.turndownService.addRule('nativeUnderline', {
+          filter: function (node) {
+            if (!node || !node.nodeName) return false;
+            if (node.nodeName === 'U') return true;
+            if (node.nodeName !== 'SPAN' || !node.style) return false;
+            var line = node.style.textDecorationLine || '';
+            var deco = node.style.textDecoration || '';
+            return /underline/i.test(line) || /underline/i.test(deco);
+          },
+          replacement: function (content) {
+            return '[underline]' + content + '[/underline]';
+          }
+        });
         var animClassToTag = {
           'anim-fade': 'fade', 'anim-slide': 'slide', 'anim-typewriter': 'type',
           'anim-pulse': 'pulse', 'anim-shake': 'shake', 'anim-bounce': 'bounce', 'anim-fade-in': 'fadein'

@@ -1673,10 +1673,8 @@ html[data-sidebar-open='true'] .main-content {
     width: 100%;
   }
 
-  /* モバイルではプレビューパネルを非表示化（画面領域を執筆に集中） */
-  .editor-preview {
-    display: none !important;
-  }
+  /* プレビューパネルは狭幅でも開閉ボタンの状態どおりに表示する（900px 以下の縦積み規則に従う）。
+     以前は常時非表示で、開いても効果を確認できなかった */
 
   /* 分割ビュー時もプレビュー側を非表示 */
   .split-view-preview {
@@ -5295,7 +5293,7 @@ html[data-embed='true'] #editor {
 }
 
 .decor-shadow {
-  text-shadow: 1px 1px 0.125rem rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 3px var(--decor-shadow-color, rgba(0, 0, 0, 0.4));
 }
 
 /* ===== フォント装飾UI ===== */
@@ -5347,7 +5345,7 @@ html[data-embed='true'] #editor {
 }
 
 .decor-glow {
-  text-shadow: 0 0 0.625rem var(--editor-text, var(--text-color));
+  text-shadow: 0 0 6px var(--decor-glow-color, #3b82d6), 0 0 12px var(--decor-glow-color, #3b82d6);
 }
 
 .decor-wide {

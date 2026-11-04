@@ -4,6 +4,7 @@
 
 ## 現在有効な要求
 
+- **MD preview effect visibility (2026-11-04)**: 本人指摘「開いた状態のプレビューだと、リッチテキスト適用しても効果が出ているかわからない」。再現した原因3点（下線が Markdown に落ちる／dark で光彩・影が背景に埋もれる／768px 以下でプレビュー常時非表示）だけを修正し、`e2e/preview-effect-visibility.spec.js` 3件を追加（実機指摘で既存 E2E が検出できなかったため）。プレビューの配置（編集面の下に開く）は未変更で、判断が要る別件。証跡は `docs/verification/2026-11-04/preview-effect-visibility.md`。
 - **Undo/Redo pending-input fixes and Wiki-inclusive candidate (2026-11-02)**: 本人依頼「Undo/Redoの2件を画面上で再現し、必要な最小修正と回帰検証を進めてください。その後、Wiki変更も含めた新しいElectron候補を作り、隔離プロファイルで保存・終了・再起動・復帰まで確認し、現状資料の更新、commit・pushまで進めてください。」。入力直後の Undo と Undo 後の新規入力直後の Redo をブラウザで再現し、履歴確定順序だけを修正。既存検証の待機では隠れる未確定入力の境界を守るため `e2e/undo-pending-input.spec.js` の2件を追加。新候補は Wiki の title/category 修正を含む source から別出力・別profileで検証する。本人受入・通常起動先切替・公開配布は技術確認と分ける。証跡は `docs/verification/2026-11-02/undo-redo-wiki-candidate.md`。
 - **Story Wiki title / custom category requirements (2026-11-02)**: 仕様上の `title` 一意性を通常の新規作成・改名UIで守り、既存カテゴリ保存APIから追加したカテゴリを記事へ割り当てて再読込後も保つ。既存データ形式を変えず、過去の重複エントリを自動削除・統合しない。
 - **2026-11-02 October candidate scoped integration**: 本人依頼「10月の修正候補をレビューして、再現した4件の不具合修正をmainへ統合してください。検証と現状資料の更新、commit・pushまで進めてください。」により、`2966f3c` から Wiki 削除復活、遅延 IDB 読込みによる編集巻き戻り、空見出し消失、11個目の揃え付き段落の本文置換を修正。関連する JSON import の空章名保持を含む。回帰が既存 CI では検出されなかったため、Wiki IDB 6件・保存/Reader 2件の E2E と変換/LocalStorage unit 9件、import unit 1件を追加。toolbar、Widget、Undo/Redo、Rich 揃え描画拡張、CI binding、package 生成は今回未採用。検証と残件は `docs/verification/2026-11-02/october-four-fixes-main-integration.md`。

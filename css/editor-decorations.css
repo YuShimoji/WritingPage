@@ -6,6 +6,16 @@
 :root {
     --anim-duration-factor: 1.5;
     --anim-speed-factor: 1;
+    /* 光彩・影はテーマ背景に埋もれないよう、背景の明暗ごとに色を持つ */
+    --decor-glow-color: #3b82d6;
+    --decor-shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme='dark'],
+[data-theme='night'],
+[data-theme='high-contrast'] {
+    --decor-glow-color: #8ec5ff;
+    --decor-shadow-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Base Styles */
@@ -191,7 +201,7 @@
 }
 
 .decor-shadow {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+    text-shadow: 2px 2px 3px var(--decor-shadow-color);
 }
 
 .decor-black {
@@ -216,7 +226,7 @@
 }
 
 .decor-glow {
-    text-shadow: 0 0 8px var(--focus-color, #4a90e2);
+    text-shadow: 0 0 6px var(--decor-glow-color), 0 0 12px var(--decor-glow-color);
 }
 
 .decor-wide {

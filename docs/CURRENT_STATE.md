@@ -2,12 +2,13 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-02 / Undo/Redo修正とWikiを含む新候補の技術確認を完了
+更新: 2026-11-04 / MDプレビューで書式の効果が見えない3点を修正（候補 `c61d9c0` の source には未反映）
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
+| MDプレビューの視認性 | 下線がMarkdownに保存されない問題（Turndownに `<u>` ルール追加）、ダークテーマで光彩・影が背景に埋もれる問題（テーマ別の色変数）、幅768px以下でプレビューが常時非表示の問題を修正。E2E 97件 pass。1280px幅での配置（編集面の下に開く）は未変更。記録は [`verification/2026-11-04/preview-effect-visibility.md`](verification/2026-11-04/preview-effect-visibility.md)。 |
 | Git / main | 修正source `c61d9c0d46c25b074bab963305f085bd5e837174` をmainへcommit/push済み。候補もこのclean sourceから生成。後続の技術結果追記はdocs-onlyで、最終HEADとremote parityはGitで読む。 |
 | 今回の製品修正 | 初回入力が履歴に確定する前のUndo不発と、Undo後の新規入力を古いRedo分岐が上書きする問題をブラウザで再現。`js/editor-wysiwyg.js` の履歴確定順序だけを修正。 |
 | Web / Node | 修正前2件を画面で再現。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。source一致のCI run `41406872761` は606 passed / 4 skippedでsuccess。既定500msの追加ブラウザ確認でも2件の改善を確認。 |

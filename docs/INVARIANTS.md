@@ -61,6 +61,7 @@
 - Story Wiki の明示削除は IDB 保存前の reload や保存失敗でも削除 ID を保持し、次の成功時に反映する。削除と現在 cache の upsert は同じ transaction で commit し、未読の IDB 記事を一括削除しない。保存中の次の編集は直列に反映し、遅れて届いた初期読込みで当該 session の Wiki 編集を上書きしない。
 - 空見出しは Rich → Markdown の本文・fragment 変換でも保持する。JSON import は明示された空の章名を保持し、title が欠落／非文字列のときだけ補完する。
 - 揃え付き段落の一時 token は原稿中の literal／entity と衝突させず、段落数が二桁以上でも各本文を保持する。置換文字列に含まれる `$&` 等を本文以外へ展開しない。
+- MD プレビューは開閉状態どおりに表示する。幅 768px 以下でも `display:none !important` で隠さない。下線（`<u>`）は `[underline]…[/underline]` として Markdown へ往復させ、`decor-glow` / `decor-shadow` の色は `--decor-glow-color` / `--decor-shadow-color`（テーマ別）で背景に埋もれさせない
 - editor-preview からの wikilink クリック → Wiki ガジェット表示が動作する
 - Reader での wikilink クリック → ポップオーバー（タイトル + 本文抜粋）を表示する
 - `[[` 入力時の Wiki エントリ補完は Normal モードのみ。Focus では非表示にする
