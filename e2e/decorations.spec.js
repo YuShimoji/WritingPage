@@ -138,21 +138,20 @@ test.describe('Font Decoration System', () => {
   });
 
   test('should render font decorations in preview panel', async ({ page }) => {
-    // Open preview panel
-    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
-    await page.waitForTimeout(500);
-
-    // Type text with decorations
+    // Type text with decorations（プレビューは執筆面と入れ替わる方式なので、書いてから開く）
     await page.fill('#editor', '[bold]太字テキスト[/bold]\n[italic]斜体テキスト[/italic]\n[underline]下線テキスト[/underline]');
 
-    // Wait for preview to update
-    await page.waitForTimeout(500);
+    // Open preview panel
+    await page.evaluate(() => window.ZenWriterEditor && window.ZenWriterEditor.togglePreview());
 
-    // Check that decorations are applied in editor mirror (not preview panel)
+    // Check that decorations are applied in editor mirror and in the opened preview
     const mirror = await page.locator('#editor-mirror');
     await expect(mirror.locator('.decor-bold')).toContainText('太字テキスト');
     await expect(mirror.locator('.decor-italic')).toContainText('斜体テキスト');
     await expect(mirror.locator('.decor-underline')).toContainText('下線テキスト');
+    const preview = page.locator('#markdown-preview-panel');
+    await expect(preview.locator('.decor-bold')).toContainText('太字テキスト');
+    await expect(preview.locator('.decor-underline')).toContainText('下線テキスト');
   });
 
   test('should render text animations in preview panel', async ({ page }) => {

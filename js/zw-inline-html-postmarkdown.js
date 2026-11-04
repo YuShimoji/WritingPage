@@ -9,10 +9,10 @@
    * @param {string} html
    * @returns {string}
    */
-  function applyWikilinksKentenRuby(html) {
+  function applyWikilinks(html) {
     if (!html) return html;
 
-    html = html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
+    return html.replace(/\[\[([^\]]+)\]\]/g, function (_match, content) {
       var parts = content.split('|');
       var link = parts[0].trim();
       var display = parts.length > 1 ? parts[1].trim() : link;
@@ -31,6 +31,17 @@
       var brokenClass = exists ? '' : ' is-broken';
       return '<a href="#" class="wikilink' + brokenClass + '" data-wikilink="' + encodeURIComponent(link) + '">' + display + '</a>';
     });
+  }
+
+  /**
+   * 傍点 {kenten|..} とルビ {漢字|かな} / |漢字《かな》 を HTML 化する。
+   * プレビュー・Reader だけでなく、リッチ編集の Markdown→HTML（editor-wysiwyg.js）も同じ規則を使う。
+   * Wiki リンクは含まない（編集面では [[...]] を文字のまま編集するため）。
+   * @param {string} html
+   * @returns {string}
+   */
+  function applyKentenRuby(html) {
+    if (!html) return html;
 
     html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_match, text) {
       return '<span class="kenten">' + text.trim() + '</span>';
@@ -45,7 +56,13 @@
     return html;
   }
 
+  function applyWikilinksKentenRuby(html) {
+    return applyKentenRuby(applyWikilinks(html));
+  }
+
   window.ZWInlineHtmlPostMarkdown = {
+    applyWikilinks: applyWikilinks,
+    applyKentenRuby: applyKentenRuby,
     applyWikilinksKentenRuby: applyWikilinksKentenRuby
   };
 })();

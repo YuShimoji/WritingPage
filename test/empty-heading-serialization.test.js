@@ -12,7 +12,9 @@ function richEditor() {
     document: { readyState: 'loading', getElementById: () => null, addEventListener: () => {} }
   };
   vm.createContext(context);
-  vm.runInContext(fs.readFileSync(path.join(__dirname, '../js/editor-wysiwyg.js'), 'utf8'), context);
+  for (const file of ['../js/modules/editor/RichTextTurndownRules.js', '../js/editor-wysiwyg.js']) {
+    vm.runInContext(fs.readFileSync(path.join(__dirname, file), 'utf8'), context);
+  }
   return new context.window.RichTextEditor(null);
 }
 

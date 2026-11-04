@@ -399,6 +399,8 @@
         <div id="editor-mirror" class="editor-mirror" aria-hidden="true"></div>
         <div id="editor-preview" class="editor-preview editor-preview--collapsed" aria-live="polite"
           aria-label="プレビューパネル" role="region">
+          <button id="editor-preview-back" class="editor-preview__back" type="button"
+            title="執筆面に戻る" aria-label="プレビューを閉じて執筆面に戻る">編集に戻る</button>
           <div id="editor-preview-body" class="editor-preview__body">
             <div id="markdown-preview-panel" class="markdown-preview-panel" role="article" aria-label="Markdownプレビュー">
             </div>
@@ -559,6 +561,7 @@
   <script defer src="js/modules/editor/EditorUI.js"></script>
   <script defer src="js/modules/editor/EditorSearch.js"></script>
   <script defer src="js/modules/editor/RichTextCommandAdapter.js"></script>
+  <script defer src="js/modules/editor/RichTextTurndownRules.js"></script>
   <script defer src="js/zw-developer-mode.js"></script>
   <script defer src="js/editor.js"></script>
   <script defer src="js/editor-wysiwyg.js"></script>

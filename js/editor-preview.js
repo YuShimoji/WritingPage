@@ -36,6 +36,37 @@
     if (sidebarBtn) {
       sidebarBtn.setAttribute('aria-pressed', isOpen ? 'true' : 'false');
     }
+    // 開いている間は執筆面と入れ替える（並べない）。CSS が .editor-classic-layer--previewing で執筆面を不可視にする
+    var layer = document.getElementById('editor-classic-layer');
+    if (layer) {
+      layer.classList.toggle('editor-classic-layer--previewing', !!isOpen);
+    }
+  }
+
+  /** 入れ替え対象の執筆面（リッチ編集中は #wysiwyg-editor、それ以外は #editor）。 */
+  function getWritingSurface(editorManager) {
+    var rte = editorManager && editorManager.richTextEditor;
+    if (rte && rte.isWysiwygMode && rte.wysiwygEditor) return rte.wysiwygEditor;
+    return editorManager && editorManager.editor ? editorManager.editor : null;
+  }
+
+  function getScrollRatio(el) {
+    if (!el) return 0;
+    var max = el.scrollHeight - el.clientHeight;
+    return max > 0 ? el.scrollTop / max : 0;
+  }
+
+  function applyScrollRatio(el, ratio) {
+    if (!el) return;
+    var max = el.scrollHeight - el.clientHeight;
+    if (max > 0) el.scrollTop = ratio * max;
+  }
+
+  function restoreWritingFocus(editorManager, previewRatio) {
+    var surface = getWritingSurface(editorManager);
+    if (!surface) return;
+    applyScrollRatio(surface, previewRatio);
+    try { surface.focus({ preventScroll: true }); } catch (_) { /* noop */ }
   }
 
   function setupPreviewPanel(editorManager) {
@@ -66,7 +97,28 @@
       toggle.__zwPreviewBound = true;
     }
 
+    var back = document.getElementById('editor-preview-back');
+    if (back && !back.__zwPreviewBound) {
+      back.addEventListener('click', function () {
+        if (!panel.classList.contains('editor-preview--collapsed')) {
+          togglePreview(editorManager);
+        }
+      });
+      back.__zwPreviewBound = true;
+    }
+
     syncPreviewAria();
+  }
+
+  function cancelScheduledRender(editorManager) {
+    if (editorManager._markdownPreviewDebounceTimer) {
+      clearTimeout(editorManager._markdownPreviewDebounceTimer);
+      editorManager._markdownPreviewDebounceTimer = null;
+    }
+    if (editorManager._markdownPreviewFrame) {
+      cancelAnimationFrame(editorManager._markdownPreviewFrame);
+      editorManager._markdownPreviewFrame = null;
+    }
   }
 
   function togglePreview(editorManager) {
@@ -76,14 +128,26 @@
 
     var panel = editorManager.previewPanel;
     var willOpen = panel.classList.contains('editor-preview--collapsed');
+    var ratio = 0;
+
+    if (willOpen) {
+      // 同じ位置から読み始める（Markdown 正本は入力・コマンド・Undo のたびに同期済み）
+      ratio = getScrollRatio(getWritingSurface(editorManager));
+    } else {
+      ratio = getScrollRatio(panel);
+    }
 
     panel.classList.toggle('editor-preview--collapsed', !willOpen);
     syncPreviewToggleChrome(editorManager, willOpen);
 
     if (willOpen) {
-      renderMarkdownPreview(editorManager);
+      // 切り替えた瞬間に古い内容や空表示を見せない: debounce せず同期描画する
+      cancelScheduledRender(editorManager);
+      renderMarkdownPreviewImmediate(editorManager);
+      applyScrollRatio(panel, ratio);
     } else {
       cleanupPreviewControllers(editorManager);
+      restoreWritingFocus(editorManager, ratio);
     }
 
     return willOpen;
@@ -91,10 +155,19 @@
 
   function renderMarkdownPreview(editorManager) {
     if (!editorManager) return;
-    if (editorManager._markdownPreviewDebounceTimer) {
-      clearTimeout(editorManager._markdownPreviewDebounceTimer);
+    cancelScheduledRender(editorManager);
+    var panel = editorManager.previewPanel;
+    var isOpen = !!panel && !panel.classList.contains('editor-preview--collapsed');
+    if (isOpen) {
+      // 開いている間は次フレームで反映（実時間）。閉じている間は従来どおり debounce
+      editorManager._markdownPreviewFrame = requestAnimationFrame(function () {
+        editorManager._markdownPreviewFrame = null;
+        renderMarkdownPreviewImmediate(editorManager);
+      });
+      return;
     }
     editorManager._markdownPreviewDebounceTimer = setTimeout(function () {
+      editorManager._markdownPreviewDebounceTimer = null;
       renderMarkdownPreviewImmediate(editorManager);
     }, editorManager._MARKDOWN_PREVIEW_DEBOUNCE_DELAY || 100);
   }

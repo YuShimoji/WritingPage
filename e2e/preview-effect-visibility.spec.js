@@ -30,8 +30,9 @@ test.describe('MD preview effect visibility', () => {
       const sel = window.getSelection();
       sel.removeAllRanges();
       sel.addRange(range);
-      window.ZenWriterEditor.togglePreview();
       rte.executeCommand('underline');
+      // 書式を適用してから開く（開いている間、執筆面は入れ替わっていて操作できない）
+      window.ZenWriterEditor.togglePreview();
     });
 
     await expect(page.locator('#markdown-preview-panel .decor-underline')).toHaveText('下線を引く');
@@ -55,6 +56,44 @@ test.describe('MD preview effect visibility', () => {
     expect(styles.glow).toContain('rgb(142, 197, 255)');
     expect(styles.shadow).toContain('rgba(255, 255, 255, 0.5)');
     await expect(shadow).toBeVisible();
+  });
+
+  test('open preview replaces the writing surface in place and returns to it', async ({ page }) => {
+    await page.evaluate(() => {
+      const rte = window.richTextEditor;
+      if (!rte.isWysiwygMode) rte.switchToWysiwyg();
+      rte.wysiwygEditor.innerHTML = '<p>入れ替え確認</p>';
+      rte.syncToMarkdown();
+    });
+    const surface = page.locator('#wysiwyg-editor');
+    const before = await surface.boundingBox();
+
+    await page.evaluate(() => window.ZenWriterEditor.togglePreview());
+    const preview = page.locator('#editor-preview');
+    await expect(preview).toBeVisible();
+    await expect(surface).toBeHidden();
+    await expect(page.locator('#markdown-preview-panel p')).toHaveText('入れ替え確認');
+
+    // 並べず、執筆面と同じ位置・幅で入れ替わる
+    const box = await preview.boundingBox();
+    expect(Math.abs(box.x - before.x)).toBeLessThan(1.5);
+    expect(Math.abs(box.width - before.width)).toBeLessThan(1.5);
+
+    await page.locator('#editor-preview-back').click();
+    await expect(preview).toHaveClass(/editor-preview--collapsed/);
+    await expect(surface).toBeVisible();
+    await expect(surface).toBeFocused();
+  });
+
+  test('open preview follows content changes within a frame', async ({ page }) => {
+    await page.evaluate(() => window.ZenWriterEditor.togglePreview());
+    const text = await page.evaluate(async () => {
+      document.getElementById('editor').value = '実時間反映';
+      window.ZenWriterEditor.renderMarkdownPreview();
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return document.getElementById('markdown-preview-panel').textContent;
+    });
+    expect(text).toContain('実時間反映');
   });
 
   test('narrow viewport still shows the preview once it is opened', async ({ page }) => {

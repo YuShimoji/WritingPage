@@ -30,10 +30,11 @@
       this._pendingTypedHeadingShortcut = false;
       this._imeRepaintFrame = null;
 
-      // Turndownインスタンス（HTML → Markdown変換）
+      // Turndownインスタンス（HTML → Markdown変換）。カスタムルールは RichTextTurndownRules が担当
       this.turndownService = null;
-      if (typeof TurndownService !== 'undefined') {
-        this.turndownService = new TurndownService({
+      const TurndownCtor = typeof TurndownService !== 'undefined' ? TurndownService : window.TurndownService;
+      if (typeof TurndownCtor === 'function') {
+        this.turndownService = new TurndownCtor({
           headingStyle: 'atx',
           blankReplacement: (_content, node) => this._replaceBlankNode(node),
           codeBlockStyle: 'fenced',
@@ -41,157 +42,11 @@
           emDelimiter: '*',
           strongDelimiter: '**'
         });
-      } else if (typeof window.TurndownService !== 'undefined') {
-        this.turndownService = new window.TurndownService({
-          headingStyle: 'atx',
-          blankReplacement: (_content, node) => this._replaceBlankNode(node),
-          codeBlockStyle: 'fenced',
-          bulletListMarker: '-',
-          emDelimiter: '*',
-          strongDelimiter: '**'
-        });
-      }
-
-      // カスタム装飾span → [tag]...[/tag] 逆変換ルール
-      if (this.turndownService) {
-        var decorClassToTag = {
-          'decor-bold': 'bold',
-          'decor-italic': 'italic',
-          'decor-underline': 'underline',
-          'decor-strikethrough': 'strike',
-          'decor-smallcaps': 'smallcaps',
-          'decor-light': 'light',
-          'decor-shadow': 'shadow',
-          'decor-black': 'black',
-          'decor-uppercase': 'uppercase',
-          'decor-lowercase': 'lowercase',
-          'decor-capitalize': 'capitalize',
-          'decor-outline': 'outline',
-          'decor-glow': 'glow',
-          'decor-wide': 'wide',
-          'decor-narrow': 'narrow'
-        };
-        var getDecorTag = function (node) {
-          if (!node || !node.classList) return '';
-          for (var i = 0; i < node.classList.length; i++) {
-            var cls = node.classList.item(i);
-            if (decorClassToTag[cls]) return decorClassToTag[cls];
-          }
-          return '';
-        };
-        this.turndownService.addRule('fontDecorations', {
-          filter: function (node) {
-            return node.nodeName === 'SPAN' && !!getDecorTag(node);
-          },
-          replacement: function (content, node) {
-            var tag = getDecorTag(node);
-            return '[' + tag + ']' + content + '[/' + tag + ']';
-          }
-        });
-        this.turndownService.addRule('nativeStrikethrough', {
-          filter: function (node) {
-            if (!node || !node.nodeName) return false;
-            if (node.nodeName === 'S' || node.nodeName === 'STRIKE' || node.nodeName === 'DEL') return true;
-            if (node.nodeName !== 'SPAN' || !node.style) return false;
-            var line = node.style.textDecorationLine || '';
-            var deco = node.style.textDecoration || '';
-            return /line-through/i.test(line) || /line-through/i.test(deco);
-          },
-          replacement: function (content) {
-            return '~~' + content + '~~';
-          }
-        });
-        // 下線 <u> → [underline]...[/underline]。Turndown 既定では <u> が落ち、保存・プレビューで下線が消える
-        this.turndownService.addRule('nativeUnderline', {
-          filter: function (node) {
-            if (!node || !node.nodeName) return false;
-            if (node.nodeName === 'U') return true;
-            if (node.nodeName !== 'SPAN' || !node.style) return false;
-            var line = node.style.textDecorationLine || '';
-            var deco = node.style.textDecoration || '';
-            return /underline/i.test(line) || /underline/i.test(deco);
-          },
-          replacement: function (content) {
-            return '[underline]' + content + '[/underline]';
-          }
-        });
-        var animClassToTag = {
-          'anim-fade': 'fade', 'anim-slide': 'slide', 'anim-typewriter': 'type',
-          'anim-pulse': 'pulse', 'anim-shake': 'shake', 'anim-bounce': 'bounce', 'anim-fade-in': 'fadein'
-        };
-        // 傍点 span.kenten → {kenten|...} 逆変換
-        this.turndownService.addRule('kenten', {
-          filter: function (node) {
-            return node.nodeName === 'SPAN' && node.className === 'kenten';
-          },
-          replacement: function (content) {
-            return '{kenten|' + content + '}';
-          }
-        });
-        // ルビ <ruby> → {漢字|かな} 逆変換
-        this.turndownService.addRule('ruby', {
-          filter: 'ruby',
-          replacement: function (_content, node) {
-            var base = '';
-            var rt = '';
-            for (var i = 0; i < node.childNodes.length; i++) {
-              var child = node.childNodes[i];
-              if (child.nodeName === 'RT') {
-                rt = child.textContent || '';
-              } else if (child.nodeName !== 'RP') {
-                base += child.textContent || '';
-              }
-            }
-            return '{' + base.trim() + '|' + rt.trim() + '}';
-          }
-        });
-        // SP-072: chapter-link → [text](chapter://target) 逆変換
-        // data-style がある場合は chapter://target#style=card 形式で保持
-        this.turndownService.addRule('chapterLink', {
-          filter: function (node) {
-            return node.nodeName === 'A' && node.classList.contains('chapter-link');
-          },
-          replacement: function (content, node) {
-            var target = node.dataset.chapterTarget || '';
-            var decoded = decodeURIComponent(target);
-            var style = node.dataset.style || '';
-            var suffix = style ? '#style=' + style : '';
-            return '[' + content + '](chapter://' + decoded + suffix + ')';
-          }
-        });
-        this.turndownService.addRule('textAnimations', {
-          filter: function (node) {
-            return node.nodeName === 'SPAN' && node.className && /^anim-/.test(node.className);
-          },
-          replacement: function (content, node) {
-            var tag = animClassToTag[node.className] || node.className.replace('anim-', '');
-            return '[' + tag + ']' + content + '[/' + tag + ']';
-          }
-        });
-        this.turndownService.addRule('textureOverlay', {
-          filter: function (node) {
-            return node.nodeName === 'SPAN' && node.className && /^tex-/.test(node.className);
-          },
-          replacement: function (content, node) {
-            var texName = node.className.replace('tex-', '');
-            return '[' + texName + ']' + content + '[/' + texName + ']';
-          }
-        });
-        // P2: data-zw-align 付きブロックは HTML 断片として保持（段落揃えの往復）
-        var zwAlignTags = { P: 'p', H1: 'h1', H2: 'h2', H3: 'h3', BLOCKQUOTE: 'blockquote', LI: 'li' };
-        this.turndownService.addRule('zwBlockAlign', {
-          filter: function (node) {
-            var tag = node.nodeName;
-            if (!zwAlignTags[tag]) return false;
-            var v = node.getAttribute && node.getAttribute('data-zw-align');
-            return v === 'start' || v === 'center' || v === 'end';
-          },
-          replacement: function (content, node) {
-            var t = zwAlignTags[node.nodeName];
-            var v = node.getAttribute('data-zw-align') || 'start';
-            return '<' + t + ' data-zw-align="' + v + '">' + content + '</' + t + '>';
-          }
-        });
+        if (window.RichTextTurndownRules && typeof window.RichTextTurndownRules.install === 'function') {
+          window.RichTextTurndownRules.install(this.turndownService);
+        } else {
+          console.warn('RichTextTurndownRules is not loaded; Markdown round-trip rules for decorations are disabled.');
+        }
       }
 
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
@@ -2977,15 +2832,10 @@
         html = this.editorManager.processTextAnimations(html);
       }
 
-      // SP-059 Phase 3: {kenten|text} → <span class="kenten">text</span>
-      html = html.replace(/\{kenten\|([^{}|]+)\}/g, function (_m, text) {
-        return '<span class="kenten">' + text.trim() + '</span>';
-      });
-
-      // ルビ: {漢字|かな} → <ruby>漢字<rt>かな</rt></ruby>
-      html = html.replace(/\{([^{}|]+)\|([^{}|]+)\}/g, function (_m, kanji, kana) {
-        return '<ruby>' + kanji.trim() + '<rt>' + kana.trim() + '</rt></ruby>';
-      });
+      // SP-059 Phase 3: 傍点 {kenten|text} とルビ {漢字|かな} は、プレビュー・Reader と同じ規則で HTML 化する
+      if (window.ZWInlineHtmlPostMarkdown && typeof window.ZWInlineHtmlPostMarkdown.applyKentenRuby === 'function') {
+        html = window.ZWInlineHtmlPostMarkdown.applyKentenRuby(html);
+      }
 
       // SP-072: chapter:// リンク変換
       if (window.ZWChapterNav && typeof window.ZWChapterNav.convertChapterLinks === 'function') {
