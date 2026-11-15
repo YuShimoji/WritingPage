@@ -12,6 +12,9 @@
 | Git / main | 修正source `c61d9c0d46c25b074bab963305f085bd5e837174` をmainへcommit/push済み。候補もこのclean sourceから生成。後続の技術結果追記はdocs-onlyで、最終HEADとremote parityはGitで読む。 |
 | ブランチ統一 (2026-11-15) | main = origin/main。docs スリム化 `52bfb8e` と参照切れ修正を ff 統合。旧 cascade / feature 系25本・`.windsurf` worktree 15本・stash 3件・リモート slim ブランチは、全 ref の bundle と未コミット差分・stash patch を `D:\AI-Runs\WritingPageemoved61115\`（`all-refs.bundle` + `refs.txt`）へ退避してから削除。残りは `codex/*`（ローカル2本・リモート4本。10月候補で一部のみ採用）と、その worktree `D:\AI-Runs\WritingPage\worktree-2966f3-20261005`。 |
 | リファクタ (2026-11-15) | `editor-wysiwyg.js` のパステキスト操作 約280行を `js/modules/editor/RichTextPathTextActions.js` へ移動（メソッド名・挙動は不変、プロトタイプへ差し込み）。lint・unit 56・関連E2E 74件 pass。 |
+| 別端末での再開 | `git fetch && git switch main && git pull --ff-only` で `git rev-list --left-right --count origin/main...main` が `0 0` を確認 → `npm ci` → `npm run lint:js:check` / `npm run test:unit`（56件）/ `npx playwright test e2e/dsl-insertion-gui.spec.js e2e/wysiwyg-editor.spec.js e2e/pathtext-handles.spec.js`（74件）。実行コードを変えたら `npm run build`（OPERATOR_WORKFLOW）。読み順は本ファイル → INVARIANTS → INTERACTION_NOTES。 |
+| この端末だけにあるもの | 退避物 `D:\AI-Runs\WritingPageemoved61115\`（旧ブランチ25本の bundle・未コミット差分・stash patch）と `output/electron-candidates/c61d9c0.../`（候補exe）は git に無く、他端末からは見えない。旧ブランチの内容が要るときはこの端末で `git fetch <bundle> <ref>`。 |
+| 今回見送った範囲 | ①`codex/*` の未採用差分は丸ごと merge しない（toolbar=`codex/rich-editor-control-friction`、CI binding=`codex/release-ci-evidence-binding`、release identity=`codex/release-candidate-identity-b02ceb1`）。②追加の大規模分割（下表）は未着手。③本ファイル自体が 1283行/176KB で上限（100行・24KB）超過。Historical 節の大量削除は要承認のため未実施。④リファクタの Electron 実機確認と E2E 全件は未実行（CI 側で確認）。 |
 | 今回の製品修正 | 初回入力が履歴に確定する前のUndo不発と、Undo後の新規入力を古いRedo分岐が上書きする問題をブラウザで再現。`js/editor-wysiwyg.js` の履歴確定順序だけを修正。 |
 | Web / Node | 修正前2件を画面で再現。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。source一致のCI run `41406872761` は606 passed / 4 skippedでsuccess。既定500msの追加ブラウザ確認でも2件の改善を確認。 |
 | Wiki | title一意・カスタムカテゴリ追加・390px幅の修正は統合済み。今回の75件にWiki 25件を含み、新app.asar内のWiki JS/CSSもsourceとhash一致。 |
@@ -30,7 +33,8 @@
 | 作業 | 目的と次に可能になること |
 | --- | --- |
 | 新候補の本人操作感レビュー | 保存・復帰の技術確認済み候補で、WikiやDocumentsの使い心地を判断する。起動は検証資料の隔離profile指定経路を使い、旧固定build先と混同しない |
-| 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
+| 次の切り出し（1回1クラスタ） | 同じ `install(proto)` 方式で `editor-wysiwyg.js`（2895行）から、ルビ/傍点の popup 群（`_showRubyInsertPopup` 〜 `_showKentenRemovePopup`）、DSL モーダルとブロック挿入（`_showDslModal` 〜 `_insertScrollBlock`）、リンク挿入モーダル（`insertLink` 〜 `_closeLinkInsertModal`）の順で候補。他の大物は `storage.js` 1928 / `story-wiki.js` 1655 / `sidebar-manager.js` 1602 / `floating-memo-field.js` 1513 行。範囲を決めるのは本人。 |
+| 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用（差分は上記 `codex/*` に残る）。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
 | 通常利用への切替判断 | 候補source・profile・既存原稿の扱いを確認して、通常起動先を変えるか判断する。今回の技術合格だけで切替・公開・配布を実行しない |
 
 <!-- CURRENT_STATE_LIVE_END -->
