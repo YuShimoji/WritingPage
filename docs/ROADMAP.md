@@ -22,7 +22,7 @@
 - ガジェット: built-in 25個 + Local Gadget Mod 3個（`MarkdownPreview` / `HUDSettings` / `PomodoroTimer`）。`UISettings` は日常設定、`EditorAdvancedSettings` は高度設定、`TextEffects` は統合済み
 - 仕様書: spec-index.json に 56 エントリ (done 45, removed 10, superseded 1)
 - 残 partial: spec-index 上の `partial` は 0。現行 roadmap 上の残論点は WP-004 Phase 3 と WP-001 中長期枠を別スライスで扱う
-- ドキュメント権限: mainはaccepted H2 head `c37c8ae` と直後のdocumentation-only integration closeoutを含む。integration proofは `docs/verification/2026-07-25/g3-h2-main-integration.md`、H2 evidence/provenanceは `docs/verification/2026-07-21/g3-h2-compact-observation-ingestion.md`、現行入口は `CURRENT_STATE`。observed packageのbase productは引き続き`889a642`で、post-integration main candidateとは別identity
+- ドキュメント権限: mainはaccepted H2 head `c37c8ae` と直後のdocumentation-only integration closeoutを含む。integration proofとH2 evidence/provenanceは削除済み（`git show 69f087e:docs/verification/2026-07-25/g3-h2-main-integration.md` / `…/2026-07-21/g3-h2-compact-observation-ingestion.md`）、現行入口は `CURRENT_STATE`。observed packageのbase productは引き続き`889a642`で、post-integration main candidateとは別identity
 - 直近 done: G3 H2 compact observation ingestion / main integration、Current-main CI trust recovery、Design Cockpit writing trust dashboard、One-click update launcher、Effect settings writer-facing wording、Command palette Markdown source dev gate、Rich text block align persistence、WP-005 Slice C comparison isolation、Project import recovery continuation proof、WP-SAVELOAD-001 Editor Trust Vertical Slice、First-use Save Help、Chapter Creation Daily Flow、Export Trust Proof、Save / Resume Trust Audit、Local Gadget Mod migration lane closeout、A3 Floating memo command palette限定実験、SP-081、SP-080
 - スコープ整理 (2026-03-23): EPUB/DOCX/画像管理/Canvas/Google Keep/プラグイン正式化/サイドバーP2-3/長期ビジョン7件を除外
 
