@@ -62,7 +62,7 @@
 | 状態 | 優先度 | 候補 | 解消する bottleneck | Actor / owner | 起動条件・次の動き |
 |---|---|---|---|---|---|
 | hold | medium | Documents の操作感 | 空原稿の案内・「現在」表示・文書選択後の書き始め | 本人 | [候補の起動先](CURRENT_STATE.md#次に推奨する作業) で自由文レビュー。 |
-| hold | medium | Windows 候補の本人受入 | `57830d3` は書式・保存復帰を実機確認済み | 本人 | 同じ候補で Wiki 往復を確認し、使用感を判断。通常起動先の切替は別判断。 |
+| hold | medium | Windows 候補の本人受入 | `0517439` で原稿一覧・選択復帰を実機確認済み | 本人 | Wiki 往復と書き続けやすさを判断。通常起動先の切替は別判断。 |
 | hold | low | MkDocs -> GitHub Pages projection | 監修者が repo-local docs を直接開く摩擦が残る | shared / external review access | link warning 分類後、不可逆な外部 publication として明示承認を得る。Wiki は第二正本にしない |
 | hold | conditional | WP-004 / WP-001 narrow fix | preview / Reader parity または unified shell の体感摩擦 | user + assistant / affected surface | 新しい差分証拠または実機 FAIL が出た時だけ起動する |
 
