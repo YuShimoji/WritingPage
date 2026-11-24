@@ -230,9 +230,20 @@ function readAppAsarEvidence(asarPath) {
   }
   try {
     const sourcePaths = [
+      'index.html',
+      'css/style.css',
+      'css/editor-decorations.css',
       'js/storage.js',
       'js/storage-idb.js',
       'js/editor-wysiwyg.js',
+      'js/editor-preview.js',
+      'js/zw-inline-html-postmarkdown.js',
+      'js/modules/editor/RichTextTurndownRules.js',
+      'js/modules/editor/RichTextPathTextActions.js',
+      'js/modules/editor/RichTextRubyKentenActions.js',
+      'js/modules/editor/RichTextDslActions.js',
+      'js/modules/editor/RichTextLinkActions.js',
+      'js/modules/editor/RichTextFloatingToolbarActions.js',
       'js/zw-markdown-it-body.js',
       'electron/main.js',
     ];
