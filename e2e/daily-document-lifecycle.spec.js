@@ -158,6 +158,34 @@ test.describe('Daily document lifecycle comfort', () => {
     }
   });
 
+  test('opens a saved manuscript from the document tree after the document list migrated to IndexedDB', async ({ page, context }) => {
+    await page.goto('/index.html');
+    await openStructurePanel(page);
+    const first = await getCurrentDocumentState(page);
+    const title = '確認用原稿';
+    const body = '本文の続きをここに書けます。';
+    await page.evaluate(async ({ title, body }) => {
+      const storage = window.ZenWriterStorage;
+      await storage.initIDB();
+      storage.createDocument(title, body);
+      await window.ZenWriterIDB.migrateFromLocalStorage();
+    }, { title, body });
+    expect(await page.evaluate(() => localStorage.getItem('zenWriter_docs'))).toBeNull();
+
+    const reopened = await context.newPage();
+    await reopened.goto('/index.html');
+    await openStructurePanel(reopened);
+    await expectCurrentDocumentVisible(reopened, first.name);
+    expect((await getCurrentDocumentState(reopened)).docId).toBe(first.docId);
+    const sample = documentRow(reopened, title);
+    await expect(sample).toBeVisible();
+    expect((await getCurrentDocumentState(reopened)).docs).toHaveLength(2);
+    await sample.click();
+    await expectCurrentDocumentVisible(reopened, title);
+    await expect(reopened.locator('#wysiwyg-editor')).toBeFocused();
+    await expect(reopened.locator('#wysiwyg-editor')).toHaveText(body);
+  });
+
   test('keeps daily document identity, switching, resume, and export retreat route visible', async ({ page }) => {
     const firstSentence = '朝の文書に一文を残す。';
     const secondTitle = 'Daily Lifecycle Focus Return 2026-07-07 長い文書名';

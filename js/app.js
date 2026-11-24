@@ -1,5 +1,5 @@
 // アプリケーションの初期化
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // デバッグモード（開発環境でのみ有効）
     const DEBUG = !!(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
     const logger = {
@@ -10,19 +10,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     logger.info('アプリケーション初期化開始');
 
-    // SP-077: IndexedDB 初期化 (非ブロッキング)
+    // 移行後は文書一覧が IndexedDB だけに残る。空の一覧で初期原稿やガジェットを作らない。
     if (window.ZenWriterStorage && typeof window.ZenWriterStorage.initIDB === 'function') {
-        window.ZenWriterStorage.initIDB().then(function (ok) {
+        const hasLocalDocuments = window.ZenWriterStorage.loadDocuments().length > 0;
+        const storageReady = window.ZenWriterStorage.initIDB().then(function (ok) {
             if (ok) logger.info('IndexedDB 初期化完了');
         });
+        if (!hasLocalDocuments) await storageReady;
     }
-
-    // 階層ドキュメントへのデータ移行
     try {
-        if (window.ZenWriterStorage && typeof window.ZenWriterStorage.migrateDocumentsToHierarchy === 'function') {
-            window.ZenWriterStorage.migrateDocumentsToHierarchy();
-            logger.info('ドキュメントデータの階層化移行完了');
-        }
+        window.ZenWriterStorage?.migrateDocumentsToHierarchy?.();
     } catch (e) {
         logger.error('ドキュメントデータ移行エラー:', e);
     }
@@ -173,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let cur = window.ZenWriterStorage.getCurrentDocId();
         if (!docs || docs.length === 0) {
             // 既存の単一CONTENTを初回ドキュメントとして取り込む
-            const initial = window.ZenWriterStorage.loadContent() || '';
+            const initial = window.ZenWriterEditor.getEditorValue() || window.ZenWriterStorage.loadContent() || '';
             const created = window.ZenWriterStorage.createDocument('ドキュメント1', initial);
             window.ZenWriterStorage.setCurrentDocId(created.id);
             // エディタへ同期
@@ -355,6 +352,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期: ドキュメント管理セットアップ
     ensureInitialDocument();
     updateDocumentTitle();
+    window.dispatchEvent(new CustomEvent('ZWDocumentsChanged', {
+        detail: { docs: window.ZenWriterStorage.loadDocuments() }
+    }));
 
     // サイドバー初期表示は設定しない（E2Eはボタンで開閉する前提）
 

@@ -233,6 +233,7 @@ function readAppAsarEvidence(asarPath) {
       'index.html',
       'css/style.css',
       'css/editor-decorations.css',
+      'js/app.js',
       'js/storage.js',
       'js/storage-idb.js',
       'js/editor-wysiwyg.js',
