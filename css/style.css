@@ -3797,6 +3797,7 @@ body.dragging-floating-panel {
   font-size: 0.875rem;
   font-weight: 600;
   background: var(--ui-bg);
+  color: var(--ui-text);
   border: 0;
 }
 
@@ -3805,6 +3806,7 @@ body.dragging-floating-panel {
   font: inherit;
   font-size: 0.8rem;
   border-radius: var(--shell-radius-sm);
+  box-shadow: none;
 }
 
 .command-palette .panel-close:hover,
@@ -7561,7 +7563,7 @@ body.ui-editor-preview {
 }
 
 /* アクセシビリティ: aria-liveリージョンのスタイル */
-[aria-live]:not(#editor-preview) {
+[aria-live]:not(#editor-preview):not(#writing-status-chip) {
   position: absolute;
   left: -625rem;
   width: 1px;
@@ -7569,7 +7571,7 @@ body.ui-editor-preview {
   overflow: hidden;
 }
 
-[aria-live="polite"]:not(.word-count):not(#editor-preview) {
+[aria-live="polite"]:not(.word-count):not(#editor-preview):not(#writing-status-chip) {
   position: absolute;
   left: -625rem;
   width: 1px;

@@ -36,7 +36,7 @@ test.describe('First writing comfort', () => {
     await expect(editor).toHaveAttribute('data-empty', 'false');
 
     const chip = page.locator('#writing-status-chip');
-    await expect(chip).toBeVisible();
+    await expect(chip).toBeInViewport({ ratio: 1 });
     await expect(chip).toHaveAttribute('data-save-state', 'editing');
     await expect(chip).toContainText('文字数:');
     await expect(chip).toHaveAttribute('aria-label', /本文はこの端末に自動保存されます/);
