@@ -7798,6 +7798,7 @@ details[open] summary {
 #documents-name-dialog {
   width: min(21rem, calc(100vw - 2rem));
   box-sizing: border-box;
+  margin: auto;
   padding: 1.25rem;
   color: var(--ui-text);
   background: var(--ui-bg);
@@ -7828,6 +7829,11 @@ details[open] summary {
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+.documents-name-actions button[value='accept'] {
+  font-weight: 600;
+  background: color-mix(in srgb, var(--ui-text) 13%, var(--ui-bg));
 }
 
 .documents-toolbar button {
