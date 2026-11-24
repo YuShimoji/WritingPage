@@ -522,9 +522,9 @@
     },
     {
       id: 'toggle-markdown-preview',
-      label: 'MD プレビュー（横並び）',
-      description: '編集画面の横に Markdown 表示を開閉。全画面閲覧ではなく並べて表示。サイドバー「Markdownプレビュー」ガジェットのスクロール同期はそちらで設定',
-      keywords: 'マークダウン 並列 プレビュー 横並び Markdownプレビュー ガジェット',
+      label: 'MD プレビュー',
+      description: '執筆面を読み取り専用のプレビューに切り替えます。「編集に戻る」で続きを書けます。',
+      keywords: 'マークダウン プレビュー Markdownプレビュー 書式 確認',
       shortcut: '',
       category: '編集',
       execute: () => {

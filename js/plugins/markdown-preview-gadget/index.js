@@ -62,7 +62,7 @@
       }, {
         title: 'Markdownプレビュー',
         groups: ['edit'],
-        description: '編集画面の横に Markdown を並列表示し、本文とスクロール同期します。',
+        description: '執筆面を読み取り専用の Markdown プレビューに切り替えます。',
         kind: 'tool'
       });
     }
