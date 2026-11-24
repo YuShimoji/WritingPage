@@ -6,25 +6,17 @@
   /**
    * ツリーアイテムをレンダリング（再帰的）
    * @param {Object} item - ツリーアイテム
-   * @param {number} depth - 現在の深さ
    * @param {Object} handlers - イベントハンドラ
    * @returns {HTMLElement} ツリーアイテムの要素
    */
-  function renderTreeItem(item, depth, handlers) {
+  function renderTreeItem(item, handlers) {
     const container = document.createElement('div');
     container.className = 'tree-item';
     container.dataset.id = item.id;
     container.dataset.type = item.type;
-    container.style.paddingLeft = (depth * 16) + 'px';
 
     const row = document.createElement('div');
     row.className = 'tree-item-row';
-    row.style.display = 'flex';
-    row.style.alignItems = 'center';
-    row.style.padding = '0.25rem 0.5rem';
-    row.style.borderRadius = '0.25rem';
-    row.style.cursor = 'pointer';
-    row.style.userSelect = 'none';
 
     // BL-005: 複数選択チェックボックス
     if (handlers.multiSelect) {
@@ -56,37 +48,33 @@
     if (item.type === 'folder') {
       const toggle = document.createElement('span');
       toggle.className = 'tree-toggle';
-      toggle.textContent = item.collapsed ? '▶' : '▼';
-      toggle.style.marginRight = '0.25rem';
-      toggle.style.fontSize = '0.8em';
-      toggle.style.cursor = 'pointer';
+      const chevron = document.createElement('i');
+      chevron.dataset.lucide = item.collapsed ? 'chevron-right' : 'chevron-down';
+      toggle.appendChild(chevron);
+      toggle.setAttribute('aria-hidden', 'true');
       toggle.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (handlers.onToggleFolder) {
-          handlers.onToggleFolder(item.id);
-        }
+        if (handlers.onToggleFolder) handlers.onToggleFolder(item.id);
       });
       row.appendChild(toggle);
     } else {
       // ドキュメントの場合: インデント用スペース
       const spacer = document.createElement('span');
-      spacer.style.width = '0.75rem';
-      spacer.style.display = 'inline-block';
+      spacer.className = 'tree-spacer';
       row.appendChild(spacer);
     }
 
     // アイコン
     const icon = document.createElement('span');
     icon.className = 'tree-icon';
-    icon.textContent = item.type === 'folder' ? '📁' : '📄';
-    icon.style.marginRight = '0.375rem';
+    icon.dataset.lucide = item.type === 'folder' ? 'folder' : 'file-text';
+    icon.setAttribute('aria-hidden', 'true');
     row.appendChild(icon);
 
     // ラベル
     const label = document.createElement('span');
     label.className = 'tree-label';
     label.textContent = item.name || '無題';
-    label.style.flex = '1';
     row.appendChild(label);
 
     // クリックイベント (BL-005: Ctrl/Shift 複数選択対応)
@@ -162,7 +150,7 @@
       childrenContainer.className = 'tree-children';
 
       item.children.forEach(child => {
-        const childEl = renderTreeItem(child, depth + 1, handlers);
+        const childEl = renderTreeItem(child, handlers);
         childrenContainer.appendChild(childEl);
       });
 
@@ -200,9 +188,10 @@
     }
 
     tree.forEach(item => {
-      const el = renderTreeItem(item, 0, handlers);
+      const el = renderTreeItem(item, handlers);
       container.appendChild(el);
     });
+    if (window.lucide) window.lucide.createIcons({ root: container });
   }
 
   /**

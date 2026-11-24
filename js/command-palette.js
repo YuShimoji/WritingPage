@@ -619,13 +619,17 @@
             <button class="panel-close" id="close-command-palette" data-i18n="CLOSE">閉じる</button>
           </div>
           <div class="panel-body">
-            <input type="text" id="command-palette-input" class="command-palette-input" 
-                   data-i18n-placeholder="COMMAND_PALETTE_PLACEHOLDER" 
-                   placeholder="コマンドを検索..." 
-                   autocomplete="off" />
+            <label class="command-palette-search">
+              <i data-lucide="search" aria-hidden="true"></i>
+              <input type="text" id="command-palette-input" class="command-palette-input"
+                     role="combobox" aria-label="コマンドを検索" aria-autocomplete="list"
+                     aria-controls="command-palette-list" aria-expanded="false"
+                     data-i18n-placeholder="COMMAND_PALETTE_PLACEHOLDER"
+                     placeholder="コマンドを検索…" autocomplete="off" />
+            </label>
             <div id="command-palette-list" class="command-palette-list" role="listbox" aria-label="コマンド一覧"></div>
             <div class="panel-hint">
-              <small data-i18n="HINT_COMMAND_PALETTE">↑↓ で選択、Enter で実行、Esc で閉じる</small>
+              <span data-i18n="HINT_COMMAND_PALETTE">↑↓ で選択、Enter で実行、Esc で閉じる</span>
             </div>
           </div>
         `;
@@ -662,7 +666,7 @@
 
       // Escapeキーで閉じる
       document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.isVisible) {
+        if (e.key === 'Escape' && this.isVisible && !e.isComposing && e.keyCode !== 229) {
           this.hide();
         }
       });
@@ -690,6 +694,7 @@
       this.renderCommands(grouped);
       this.selectedIndex = 0;
       this.updateSelection();
+      this.list.scrollTop = 0;
     }
 
     renderCommands(grouped) {
@@ -708,17 +713,16 @@
 
         const commandsDiv = document.createElement('div');
         commandsDiv.className = 'command-palette-commands';
-        grouped[category].forEach((cmd, _index) => {
+        grouped[category].forEach(cmd => {
           const item = document.createElement('div');
           item.className = 'command-palette-item';
+          item.id = 'command-option-' + cmd.id;
           item.setAttribute('role', 'option');
           item.setAttribute('data-command-id', cmd.id);
           item.innerHTML = `
             <div class="command-palette-item-label">${this.escapeHtml(cmd.label)}</div>
-            <div class="command-palette-item-meta">
-              <span class="command-palette-item-description">${this.escapeHtml(cmd.description)}</span>
-              ${cmd.shortcut ? `<span class="command-palette-item-shortcut">${this.escapeHtml(cmd.shortcut)}</span>` : ''}
-            </div>
+            <span class="command-palette-item-description">${this.escapeHtml(cmd.description)}</span>
+            ${cmd.shortcut ? `<kbd class="command-palette-item-shortcut">${this.escapeHtml(this.displayShortcut(cmd.shortcut))}</kbd>` : ''}
           `;
           item.addEventListener('click', () => this.executeCommand(cmd));
           commandsDiv.appendChild(item);
@@ -737,6 +741,11 @@
       }
     }
 
+    displayShortcut(shortcut) {
+      const [primary, mac] = shortcut.split(' / ');
+      return mac && /Mac|iPhone|iPad/.test(navigator.platform) ? mac : primary;
+    }
+
     escapeHtml(text) {
       const div = document.createElement('div');
       div.textContent = text;
@@ -744,6 +753,7 @@
     }
 
     handleKeyDown(e) {
+      if (e.isComposing || e.keyCode === 229) return;
       const items = this.list.querySelectorAll('.command-palette-item');
       const maxIndex = items.length - 1;
 
@@ -779,6 +789,9 @@
 
     updateSelection() {
       const items = this.list.querySelectorAll('.command-palette-item');
+      const selected = items[this.selectedIndex];
+      if (selected) this.input.setAttribute('aria-activedescendant', selected.id);
+      else this.input.removeAttribute('aria-activedescendant');
       items.forEach((item, index) => {
         if (index === this.selectedIndex) {
           item.classList.add('selected');
@@ -845,11 +858,10 @@
       if (!this.panel || !this.input || !this.list) {
         this.init();
       }
-      this.panel.style.display = 'block';
+      this.panel.style.display = 'flex';
+      this.input.setAttribute('aria-expanded', 'true');
       this.isVisible = true;
       this.filterCommands('');
-      this.selectedIndex = 0;
-      this.updateSelection();
       
       // フォーカスを入力フィールドに
       setTimeout(() => {
@@ -872,6 +884,8 @@
       this.isVisible = false;
       if (this.input) {
         this.input.value = '';
+        this.input.setAttribute('aria-expanded', 'false');
+        this.input.removeAttribute('aria-activedescendant');
       }
       if (window.ZWReaderPreview && typeof window.ZWReaderPreview.isOpen === 'function' && window.ZWReaderPreview.isOpen()) {
         this._focusReaderReturnControl();

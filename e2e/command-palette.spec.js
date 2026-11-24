@@ -139,6 +139,28 @@ test.describe('Command Palette E2E', () => {
     await expect(page.locator('#command-palette')).not.toBeVisible();
   });
 
+  test('狭い画面で候補だけがスクロールし、絞り込み後は内容の高さに戻る', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 540 });
+    await page.goto(pageUrl);
+    await openCommandPalette(page);
+    const input = page.getByRole('combobox', { name: 'コマンドを検索' });
+    const palette = page.locator('#command-palette');
+    const list = page.locator('#command-palette-list');
+    await expect(input).toBeFocused();
+    await expect(palette.locator('.panel-hint')).toBeInViewport();
+    const initial = await palette.boundingBox();
+    expect(initial.width).toBeLessThan(390);
+    expect(await list.evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+
+    await input.fill('検索');
+    await input.press('ArrowDown');
+    await expect(input).toHaveAttribute('aria-activedescendant', 'command-option-replace');
+    await input.fill('該当なしxyz');
+    await expect(palette.locator('.command-palette-empty')).toBeVisible();
+    await expect(input).not.toHaveAttribute('aria-activedescendant', /./);
+    expect((await palette.boundingBox()).height).toBeLessThan(initial.height);
+  });
+
   test('コマンドパレットでカテゴリが表示される', async ({ page }) => {
     await page.goto(pageUrl);
     
