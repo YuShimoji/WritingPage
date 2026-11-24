@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebarGroup, setupChapterModeChapters } = require('./helpers');
+const { ensureNormalMode, openSidebarGroup, setupChapterModeChapters, enterDocumentName } = require('./helpers');
 
 async function resetDocumentsForFirstUse(page) {
   await page.evaluate(() => {
@@ -14,16 +14,13 @@ async function resetDocumentsForFirstUse(page) {
 async function openStructurePanel(page) {
   await ensureNormalMode(page);
   await openSidebarGroup(page, 'structure');
-  await page.waitForSelector('#documents-save-help', { state: 'visible', timeout: 10000 });
+  await expect(page.locator('#new-document-btn')).toBeVisible();
 }
 
 async function createDocumentFromUi(page, title) {
   await openStructurePanel(page);
-  page.once('dialog', async (dialog) => {
-    expect(dialog.type()).toBe('prompt');
-    await dialog.accept(title);
-  });
   await page.locator('#new-document-btn').click();
+  await enterDocumentName(page, title);
   await expect(page.locator('.documents-tree-container')).toContainText(title);
 }
 
@@ -85,10 +82,7 @@ test.describe('First-use Save Help', () => {
 
     await openStructurePanel(page);
     const help = page.locator('#documents-save-help');
-    await expect(help).toContainText('本文と章構造はこの端末に自動保存');
-    await expect(help).toContainText('保存状態は画面下で確認できます');
-    await expect(help).toContainText('TXT/JSON書き出しは外部退避');
-    await expect(help).toContainText('JSON読み込みで戻せます');
+    await expect(help).toBeHidden();
     await expect(page.locator('.documents-empty-state')).toContainText('ドキュメントがありません');
     await expect(page.locator('.documents-empty-state')).toContainText('+ 文書で始めると、この端末へ自動保存されます。');
 
@@ -107,7 +101,9 @@ test.describe('First-use Save Help', () => {
 
     await openDocumentsIoMenu(page);
     const menu = page.locator('#documents-io-menu');
-    await expect(menu.locator('.zw-shell-menu__hint')).toContainText('書き出しは外部退避。JSON読み込みで戻せます。');
+    await expect(help).toBeVisible();
+    await expect(help).toContainText('本文と章構造はこの端末に自動保存。保存状態は画面下で確認できます。');
+    await expect(help).toContainText('TXT/JSON書き出しは外部退避。JSON読み込みで戻せます。');
     await expect(page.getByRole('menuitem', { name: 'TXT書き出し' })).toHaveAttribute('title', /外部退避用に現在の本文/);
     await expect(page.getByRole('menuitem', { name: 'JSON書き出し' })).toHaveAttribute('title', /本文と章構造をJSONで書き出し/);
     await expect(page.getByRole('menuitem', { name: 'JSON読み込み' })).toHaveAttribute('title', /書き出したJSONプロジェクトを戻す/);
@@ -118,8 +114,8 @@ test.describe('First-use Save Help', () => {
       { title: '第2章 書き出しヘルプの夜', content: '章本文B first-use-chapter-b' }
     ]);
     await openStructurePanel(page);
-    await expect(help).toContainText('本文と章構造はこの端末に自動保存');
     await openDocumentsIoMenu(page);
+    await expect(help).toBeVisible();
     await expect(page.getByRole('menuitem', { name: 'JSON書き出し' })).toHaveAttribute('title', /章構造/);
 
     const chapterCount = await page.evaluate(() => {

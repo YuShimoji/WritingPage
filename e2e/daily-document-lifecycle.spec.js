@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require('@playwright/test');
-const { ensureNormalMode, openSidebarGroup } = require('./helpers');
+const { ensureNormalMode, openSidebarGroup, enterDocumentName } = require('./helpers');
 
 function normalizeNewlines(text) {
   return String(text || '').replace(/\r\n/g, '\n');
@@ -9,7 +9,6 @@ function normalizeNewlines(text) {
 async function openStructurePanel(page) {
   await ensureNormalMode(page);
   await openSidebarGroup(page, 'structure');
-  await page.waitForSelector('#documents-save-help', { state: 'visible', timeout: 10000 });
   await page.waitForSelector('.documents-tree-container', { state: 'visible', timeout: 10000 });
 }
 
@@ -121,20 +120,12 @@ async function saveFromDocumentsPanel(page) {
 
 async function createDocumentFromUi(page, title) {
   await openStructurePanel(page);
-  var acceptedPrompt = false;
-  const handler = async (dialog) => {
-    if (dialog.type() === 'prompt') {
-      acceptedPrompt = true;
-      await dialog.accept(title);
-      return;
-    }
-    await dialog.accept();
-  };
-  page.on('dialog', handler);
+  const acceptSaveConfirmation = dialog => dialog.accept();
+  page.on('dialog', acceptSaveConfirmation);
   await page.locator('#new-document-btn').click();
+  await enterDocumentName(page, title);
   await expect(page.locator('.documents-tree-container')).toContainText(title);
-  page.off('dialog', handler);
-  expect(acceptedPrompt).toBe(true);
+  page.off('dialog', acceptSaveConfirmation);
   await expectCurrentDocumentVisible(page, title);
 }
 
@@ -197,8 +188,7 @@ test.describe('Daily document lifecycle comfort', () => {
     await expect(page.locator('#wysiwyg-editor')).toBeVisible({ timeout: 10000 });
 
     await openStructurePanel(page);
-    await expect(page.locator('#documents-save-help')).toContainText('本文と章構造はこの端末に自動保存');
-    await expect(page.locator('#documents-save-help')).toContainText('TXT/JSON書き出しは外部退避');
+    await expect(page.locator('#documents-io-menu-btn')).toBeVisible();
 
     const firstDoc = await getCurrentDocumentState(page);
     expect(firstDoc.docId).toBeTruthy();
@@ -209,6 +199,8 @@ test.describe('Daily document lifecycle comfort', () => {
     await saveFromDocumentsPanel(page);
 
     await createDocumentFromUi(page, secondTitle);
+    await expect(page.locator('#wysiwyg-editor')).toBeFocused();
+    expect((await getCurrentDocumentState(page)).editorValue).toBe('');
     await writeInEditor(page, secondSentence);
     await saveFromDocumentsPanel(page);
     expectReadableMarkerMetrics(await getCurrentMarkerMetrics(page, secondTitle));

@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { test, expect } = require('@playwright/test');
-const { setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDialogs } = require('./helpers');
+const { setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDialogs, enterDocumentName } = require('./helpers');
 
 test.describe('Editor Settings', () => {
   test.setTimeout(60000);
@@ -331,16 +331,16 @@ test.describe('Editor Settings', () => {
     await openSidebarPanel(page, 'structure');
     await page.waitForSelector('#new-document-btn', { state: 'attached', timeout: 10000 });
 
-    await mockDialogs(page, { confirmReturn: true, promptReturn: 'e2e-doc-2' });
+    await mockDialogs(page, { confirmReturn: true });
 
     await page.evaluate(() => {
       const btn = document.getElementById('new-document-btn');
       if (btn) btn.click();
     });
 
+    await enterDocumentName(page, 'e2e-doc-2');
     const dialogLog = await restoreDialogs(page);
     expect(dialogLog.some((e) => e.type === 'confirm')).toBeTruthy();
-    expect(dialogLog.some((e) => e.type === 'prompt')).toBeTruthy();
 
     const newDocId = await page.evaluate(() => {
       try {

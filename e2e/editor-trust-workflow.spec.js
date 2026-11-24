@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs/promises');
 const path = require('path');
-const { ensureNormalMode } = require('./helpers');
+const { ensureNormalMode, enterDocumentName } = require('./helpers');
 
 function normalizeNewlines(text) {
   return String(text || '').replace(/\r\n/g, '\n');
@@ -27,11 +27,8 @@ async function openStructurePanel(page) {
 
 async function createDocumentFromUi(page, title) {
   await openStructurePanel(page);
-  page.once('dialog', async (dialog) => {
-    expect(dialog.type()).toBe('prompt');
-    await dialog.accept(title);
-  });
   await page.locator('#new-document-btn').click();
+  await enterDocumentName(page, title);
   await expect(page.locator('.documents-tree-container')).toContainText(title);
 }
 
@@ -178,9 +175,9 @@ test.describe('Editor Trust Vertical Slice', () => {
     ].join('\n');
 
     await openStructurePanel(page);
-    await expect(page.locator('#documents-save-help')).toContainText('この端末に自動保存');
-    await expect(page.locator('#documents-save-help')).toContainText('外部退避');
     await page.locator('#documents-io-menu-btn').click();
+    await expect(page.locator('#documents-save-help')).toBeVisible();
+    await expect(page.locator('#documents-save-help')).toContainText('この端末に自動保存');
     await expect(page.locator('#documents-io-menu')).toContainText('書き出しは外部退避');
     await page.keyboard.press('Escape');
 

@@ -153,7 +153,23 @@
         }
       }
 
-      function createDocument(parentId) {
+      function requestName(label, initialValue, action) {
+        var dialog = document.getElementById('documents-name-dialog');
+        var input = dialog.querySelector('input');
+        dialog.querySelector('label').textContent = label;
+        dialog.querySelector('[value="accept"]').textContent = action;
+        input.value = initialValue;
+        dialog.returnValue = '';
+        return new Promise(function (resolve) {
+          dialog.addEventListener('close', function () {
+            resolve(dialog.returnValue === 'accept' ? input.value : null);
+          }, { once: true });
+          dialog.showModal();
+          input.select();
+        });
+      }
+
+      async function createDocument(parentId) {
         // ContentGuard 経由: dirty チェック + スナップショット退避
         var G = window.ZWContentGuard;
         if (G) {
@@ -177,7 +193,7 @@
           } catch (_) { }
         }
 
-        var name = prompt('新しいドキュメント名を入力', '無題');
+        var name = await requestName('新しい文書の名前', '無題', '作成');
         if (name === null) return;
 
         var doc = storage.createDocument(name || '無題', '', parentId);
@@ -193,10 +209,11 @@
         updateDocumentTitle();
         notify('ドキュメントを作成しました');
         dispatchChanged();
+        focusWritingSurfaceAfterSwitch();
       }
 
-      function createFolder(parentId) {
-        var name = prompt('新しいフォルダ名を入力', '新規フォルダ');
+      async function createFolder(parentId) {
+        var name = await requestName('新しいフォルダの名前', '新規フォルダ', '作成');
         if (name === null) return;
 
         storage.createFolder(name || '新規フォルダ', parentId);
@@ -205,14 +222,14 @@
         dispatchChanged();
       }
 
-      function renameItem(id) {
+      async function renameItem(id) {
         var docs = storage.loadDocuments() || [];
         var item = docs.find(function (d) { return d && d.id === id; });
         if (!item) return;
 
-        var newName = prompt(
+        var newName = await requestName(
           (item.type === 'folder' ? 'フォルダ' : 'ドキュメント') + '名を変更',
-          item.name || '無題'
+          item.name || '無題', '変更'
         );
         if (newName === null) return;
 
@@ -254,17 +271,12 @@
       // ========== UI構築 ==========
       var container = document.createElement('div');
       container.className = 'documents-hierarchy';
-      container.style.display = 'flex';
-      container.style.flexDirection = 'column';
-      container.style.gap = '0.5rem';
 
       // ツールバー
       var toolbar = document.createElement('div');
       toolbar.className = 'documents-toolbar';
-      toolbar.style.display = 'flex';
-      toolbar.style.gap = '0.25rem';
-      toolbar.style.marginBottom = '0.5rem';
-      toolbar.style.alignItems = 'center';
+      var actions = document.createElement('div');
+      actions.className = 'documents-toolbar documents-toolbar--actions';
 
       var newDocBtn = document.createElement('button');
       newDocBtn.type = 'button';
@@ -311,7 +323,7 @@
         menu.setAttribute('role', 'menu');
         menu.setAttribute('aria-label', label);
         menu.style.display = 'none';
-        menu.style.position = 'absolute';
+        menu.style.position = 'fixed';
         menu.style.zIndex = '1001';
         openMenus.push(menu);
         return menu;
@@ -342,9 +354,10 @@
 
       function positionMenu(menu, button) {
         var rect = button.getBoundingClientRect();
-        var menuWidth = Math.max(192, menu.offsetWidth || 192);
-        menu.style.top = (rect.bottom + 2) + 'px';
-        menu.style.left = Math.max(8, Math.min(window.innerWidth - menuWidth - 8, rect.right - menuWidth)) + 'px';
+        var below = rect.bottom + 2;
+        var top = below + menu.offsetHeight <= window.innerHeight - 8 ? below : rect.top - menu.offsetHeight - 2;
+        menu.style.top = Math.max(8, top) + 'px';
+        menu.style.left = Math.max(8, Math.min(window.innerWidth - menu.offsetWidth - 8, rect.right - menu.offsetWidth)) + 'px';
       }
 
       function bindMenuButton(button, menu) {
@@ -397,7 +410,10 @@
         return hint;
       }
 
-      ioMenu.appendChild(createMenuHint('書き出しは外部退避。JSON読み込みで戻せます。'));
+      var saveHelp = createMenuHint('本文と章構造はこの端末に自動保存。保存状態は画面下で確認できます。TXT/JSON書き出しは外部退避。JSON読み込みで戻せます。');
+      saveHelp.id = 'documents-save-help';
+      ioMenu.appendChild(saveHelp);
+      ioBtn.setAttribute('aria-describedby', saveHelp.id);
       ioMenu.appendChild(createMenuItem('TXT書き出し', '外部退避用に現在の本文をテキストで書き出し', function () {
         saveCurrentContent();
         if (editorManager && typeof editorManager.exportAsText === 'function') {
@@ -550,30 +566,19 @@
 
       toolbar.appendChild(newDocBtn);
       toolbar.appendChild(newFolderBtn);
-      toolbar.appendChild(saveBtn);
       toolbar.appendChild(selectAllBtn);
       toolbar.appendChild(batchDeleteBtn);
-      toolbar.appendChild(ioBtn);
-      toolbar.appendChild(manageBtn);
+      actions.append(saveBtn, ioBtn, manageBtn);
       document.body.appendChild(ioMenu);
       document.body.appendChild(manageMenu);
 
       // ツリーコンテナ
       var treeContainer = document.createElement('div');
       treeContainer.className = 'documents-tree-container';
-      treeContainer.style.flex = '1';
-      treeContainer.style.overflow = 'auto';
-      treeContainer.setAttribute('aria-describedby', 'documents-save-help');
-
-      var saveHelp = document.createElement('p');
-      saveHelp.className = 'documents-save-help';
-      saveHelp.id = 'documents-save-help';
-      saveHelp.textContent = '本文と章構造はこの端末に自動保存。保存状態は画面下で確認できます。TXT/JSON書き出しは外部退避、JSON読み込みで戻せます。';
-      ioBtn.setAttribute('aria-describedby', saveHelp.id);
 
       container.appendChild(toolbar);
-      container.appendChild(saveHelp);
       container.appendChild(treeContainer);
+      container.appendChild(actions);
       el.appendChild(container);
 
       function syncSelectionToolbar() {

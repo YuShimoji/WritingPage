@@ -548,7 +548,15 @@ async function switchToTextareaMode(page) {
   await page.locator('#editor').waitFor({ state: 'visible', timeout: 5000 });
 }
 
+async function enterDocumentName(page, name) {
+  const dialog = page.getByRole('dialog', { name: '新しい文書の名前' });
+  await dialog.getByRole('textbox').fill(name);
+  await dialog.getByRole('button', { name: '作成' }).click();
+  await dialog.waitFor({ state: 'hidden' });
+}
+
 module.exports = {
+  enterDocumentName,
   setUIMode,
   ensureNormalMode,
   openCommandPalette,

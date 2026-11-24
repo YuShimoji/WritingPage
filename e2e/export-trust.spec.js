@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const fs = require('fs/promises');
 const path = require('path');
-const { ensureNormalMode } = require('./helpers');
+const { ensureNormalMode, enterDocumentName } = require('./helpers');
 
 function normalizeNewlines(text) {
   return String(text || '').replace(/\r\n/g, '\n');
@@ -27,11 +27,8 @@ async function openStructurePanel(page) {
 
 async function createDocumentFromUi(page, title) {
   await openStructurePanel(page);
-  page.once('dialog', async (dialog) => {
-    expect(dialog.type()).toBe('prompt');
-    await dialog.accept(title);
-  });
   await page.locator('#new-document-btn').click();
+  await enterDocumentName(page, title);
   await expect(page.locator('.documents-tree-container')).toContainText(title);
 }
 
