@@ -391,6 +391,18 @@
     target.appendChild(contentDiv);
 
     // 目次とナビバーを注入
+    if (!contentDiv.querySelector('.play-diary-entry') && contentDiv.querySelector('.play-diary-scene')) {
+      // Markdown manuscripts can have episode headings before chapter records exist.
+      const headings = contentDiv.querySelectorAll(':scope > h2');
+      if (headings.length > 1) headings.forEach((heading, index) => {
+        const entry = document.createElement('section');
+        entry.className = 'play-diary-entry';
+        entry.id = 'diary-entry-' + (index + 1);
+        heading.before(entry);
+        entry.append(heading);
+        while (entry.nextSibling && entry.nextSibling !== headings[index + 1]) entry.append(entry.nextSibling);
+      });
+    }
     if (contentDiv.querySelector('.play-diary-entry')) {
       addDiaryNavigation(contentDiv);
       if (target === innerEl) bindReaderLinks(contentDiv);
@@ -509,6 +521,9 @@
         var visible = chapters.filter(ch => !ch.visibility || ch.visibility === 'visible');
         if (!visible.length) return '';
         if (chapters.some(ch => containsDiary(ch.content))) {
+          if (chapters.length === 1 && chapters[0].name === '本文') {
+            return window.ZWMdItBody.renderToHtmlBeforePipeline(chapters[0].content || '');
+          }
           return visible.map((ch, index) => {
             const body = window.ZWMdItBody.renderToHtmlBeforePipeline(ch.content || '');
             return '<section class="play-diary-entry" id="diary-entry-' + (index + 1) + '"><h2>' +

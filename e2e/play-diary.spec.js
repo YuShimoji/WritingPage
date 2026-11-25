@@ -115,6 +115,7 @@ test('each visible episode has a working contents, previous and next link in the
 });
 
 test('large screenshots travel once in JSON and restore in an empty browser', async ({ page, browser }, testInfo) => {
+  test.slow(); // Two fresh contexts transfer and decode a full-resolution image.
   await page.goto('/index.html');
   await expect(page.locator('#wysiwyg-editor')).toBeVisible();
   const png = await page.evaluate(() => {
@@ -152,7 +153,9 @@ test('large screenshots travel once in JSON and restore in an empty browser', as
   const file = testInfo.outputPath('diary.zwp.json');
   await (await downloading).saveAs(file);
   const backup = JSON.parse(await require('node:fs/promises').readFile(file, 'utf8'));
-  expect(Object.values(backup.assets).map(a => a.dataUrl)).toEqual(['data:image/png;base64,' + png]);
+  const assets = Object.values(backup.assets);
+  expect(assets).toHaveLength(1);
+  expect(assets[0].dataUrl === 'data:image/png;base64,' + png).toBe(true);
   expect(backup.document.content).not.toContain('data:image');
   const fresh = await browser.newContext();
   try {
@@ -168,4 +171,45 @@ test('large screenshots travel once in JSON and restore in an empty browser', as
     await restored.reload();
     await expect(image).toHaveJSProperty('naturalWidth', 1600);
   } finally { await fresh.close(); }
+});
+
+test('a scene written in the assembled manuscript stays in its episode after reopening', async ({ page }) => {
+  await page.goto('/index.html');
+  await setupChapterModeChapters(page, [
+    { title: '渡し場', content: '### 道標\n\n地図を開く。' },
+    { title: '渡し場', content: '対岸に着いた。' }
+  ]);
+  await page.reload();
+  const rich = page.locator('#wysiwyg-editor');
+  await rich.getByText('地図を開く。', { exact: true }).click();
+  await command(page, 'プレイ日記の場面を挿入');
+  const dialog = page.locator('#play-diary-dialog');
+  await dialog.getByLabel('日記本文').fill('風がやんだ。');
+  await dialog.getByRole('button', { name: '場面を挿入', exact: true }).click();
+  await page.keyboard.insertText('次の船を待つ。');
+  await page.keyboard.press('Alt+Shift+r');
+  const entries = page.locator('#reader-preview .play-diary-entry');
+  await expect(entries).toHaveCount(2);
+  await expect(entries.first()).toContainText('風がやんだ。');
+  await expect(entries.first()).toContainText('次の船を待つ。');
+  await expect(entries.last()).toContainText('対岸に着いた。');
+  await page.reload();
+  await expect(rich.locator('h2')).toHaveCount(2);
+  await expect(rich.locator('h3')).toHaveText('道標');
+  await expect(rich.locator('.play-diary-scene')).toContainText('風がやんだ。');
+  await rich.locator('h2').last().click();
+  await page.keyboard.press('End');
+  await page.keyboard.insertText('の対岸');
+  await page.reload();
+  await expect(rich.locator('h2').last()).toHaveText('渡し場の対岸');
+});
+
+test('Markdown episode headings become standalone links without chapter records', async ({ page }) => {
+  await page.goto('/index.html');
+  await command(page, 'Markdown ソース');
+  await page.locator('#editor').fill('## 出港\n\n> [!PLAY-DIARY]\n>\n> 船を待つ。\n\n### 風向き\n\n西風。\n\n## 入港\n\n桟橋へ。');
+  await page.keyboard.press('Alt+Shift+r');
+  const reader = page.locator('#reader-preview');
+  await expect(reader.locator('#diary-contents a')).toHaveText(['出港', '入港']);
+  await expect(reader.locator('#diary-entry-1 h3')).toHaveText('風向き');
 });

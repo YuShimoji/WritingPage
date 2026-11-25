@@ -51,6 +51,52 @@
     resolveImages(document.getElementById('markdown-preview-panel'), false);
   });
 
+  // In the normal editor all episodes can be edited on one page. The Reader,
+  // JSON backup and reopening use the individual chapter records.
+  function syncChapterBodies(text) {
+    const root = document.documentElement;
+    if (root.dataset.uiMode === 'focus' || root.dataset.zwChapterEditorSync === 'slice') return;
+    const store = window.ZWChapterStore;
+    const id = window.ZenWriterStorage.getCurrentDocId();
+    if (!id || !store?.isChapterMode(id)) return;
+    const chapters = store.getChaptersForDoc(id);
+    if (!chapters.length || (!text.includes(marker) && !chapters.some(ch => ch.content?.includes(marker)))) return;
+    if (chapters.length === 1 && chapters[0].name === '本文') {
+      if (chapters[0].content !== text) store.updateChapterContent(chapters[0].id, text);
+      return;
+    }
+    // Match the existing chapter boundaries, including repeated episode titles.
+    // Subheadings in an episode stay in its body and visibility stays on its ID.
+    const key = (level, title) => '#'.repeat(level) + ' ' + title;
+    const titles = chapters.map(ch => key(ch.level || 2, (ch.name || '').trim()));
+    const knownTitles = new Set(titles);
+    const parse = window.ZWChapterModel.parseChapters;
+    const parsed = parse(text);
+    let headings = parsed.filter(h => knownTitles.has(key(h.level, h.title)));
+    if (headings.length !== chapters.length || !headings.every((h, i) => key(h.level, h.title) === titles[i])) {
+      // A writer can rename an episode inline, or reuse its title in a subheading.
+      // Align the existing heading structure before changing a stored name.
+      let cursor = 0;
+      headings = [];
+      for (const ch of chapters) {
+        const heading = parsed[cursor++];
+        if (heading?.level !== (ch.level || 2)) return;
+        headings.push(heading);
+        for (const nested of parse(ch.content || '')) {
+          const other = parsed[cursor++];
+          if (other?.level !== nested.level || other.title !== nested.title) return;
+        }
+      }
+      if (cursor !== parsed.length) return;
+    }
+    if (text.slice(0, headings[0].startOffset).trim()) return;
+    chapters.forEach((ch, i) => {
+      const body = text.slice(headings[i].headingEnd, headings[i + 1]?.startOffset).replace(/^\n+|\n+$/g, '');
+      if (headings[i].title !== (ch.name || '').trim()) store.renameChapter(ch.id, headings[i].title);
+      if (body !== (ch.content || '')) store.updateChapterContent(ch.id, body);
+    });
+  }
+
   function project(html, editing) {
     if (!html.includes(marker) && !html.includes('asset://')) return html;
     const template = document.createElement('template');
@@ -229,5 +275,5 @@
     }
   });
 
-  window.ZWPlayDiary = { project, serialize, canInsert, rememberPosition, open };
+  window.ZWPlayDiary = { project, serialize, syncChapterBodies, canInsert, rememberPosition, open };
 })();

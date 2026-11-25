@@ -80,6 +80,7 @@
                     content = manager.richTextEditor.getContent();
                 }
                 const ok = window.ZenWriterStorage.saveContent(content);
+                if (ok) window.ZWPlayDiary?.syncChapterBodies(content);
                 try {
                     document.dispatchEvent(new CustomEvent(ok ? 'zen-content-saved' : 'zen-content-save-failed', { detail: { content: content } }));
                 } catch (_e) { /* イベント発火失敗は無視 */ }
