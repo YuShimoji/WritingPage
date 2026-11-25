@@ -9,6 +9,9 @@
   const fields = form.elements;
   const error = form.querySelector('[role="alert"]');
   const submit = form.querySelector('[type="submit"]');
+  const turnList = form.querySelector('#play-diary-turns');
+  const blankTurn = turnList.firstElementChild.cloneNode(true);
+  const roleLabels = { unknown: 'ゲーム内の台詞', npc: '登場人物', player: 'プレイヤー' };
   let position = null;
   let generation = 0;
   const editingUrls = new Map();
@@ -97,6 +100,46 @@
     });
   }
 
+  function caption(label) {
+    const el = document.createElement('div');
+    el.className = 'play-diary-caption';
+    const role = document.createElement('span');
+    role.textContent = label;
+    role.contentEditable = 'false';
+    el.append(role);
+    return el;
+  }
+
+  function projectDialogue(quote, scene) {
+    const dialogue = document.createElement('div');
+    dialogue.className = 'play-diary-dialogue';
+    while (quote.firstElementChild) {
+      const first = quote.firstElementChild;
+      const match = first.tagName === 'P' && /^\[!SPEAKER:(npc|player|unknown)\](?: (.*))?$/u.exec(first.textContent);
+      const speech = match ? first.nextElementSibling : first;
+      if (speech?.tagName !== 'BLOCKQUOTE') break;
+      const role = match ? match[1] : 'unknown';
+      const turn = document.createElement('div');
+      turn.className = 'play-diary-turn';
+      turn.dataset.speaker = role;
+      const label = caption(roleLabels[role]);
+      if (match) {
+        label.dataset.speaker = role;
+        if (match[2]) {
+          const name = document.createElement('strong');
+          name.textContent = match[2];
+          label.append(name);
+        }
+        first.remove();
+      }
+      turn.append(label, speech);
+      dialogue.append(turn);
+      // The original format has one unlabelled quotation; anything after it is the author's note.
+      if (!match) break;
+    }
+    if (dialogue.childElementCount) scene.append(dialogue);
+  }
+
   function project(html, editing) {
     if (!html.includes(marker) && !html.includes('asset://')) return html;
     const template = document.createElement('template');
@@ -116,12 +159,11 @@
         date.textContent = day;
         scene.append(date);
       }
-      const speech = quote.firstElementChild;
-      if (speech && speech.tagName === 'BLOCKQUOTE') scene.append(speech);
+      projectDialogue(quote, scene);
       if (quote.childElementCount) {
         const note = document.createElement('div');
         note.className = 'play-diary-note';
-        note.append(...quote.childNodes);
+        note.append(caption('筆者の記録'), ...quote.childNodes);
         scene.append(note);
       }
       quote.replaceWith(scene);
@@ -158,6 +200,7 @@
   function open() {
     if (!canInsert() || dialog.open) return;
     if (!position) rememberPosition();
+    turnList.replaceChildren(blankTurn.cloneNode(true));
     form.reset();
     error.hidden = true;
     fields.alt.parentElement.hidden = true;
@@ -198,6 +241,35 @@
     return '\n\n' + quote(heading + '\n\n' + content.trim()) + '\n\n';
   }
 
+  function speakerMarker(role, name) {
+    return '[!SPEAKER:' + role + ']' + (name ? ' ' + literal(name).replace(/\s*\n\s*/g, ' ') : '');
+  }
+
+  function serializeCaption(node) {
+    const role = node.dataset.speaker;
+    return role ? '\n\n' + speakerMarker(role, node.querySelector('strong')?.textContent.trim()) + '\n\n' : '';
+  }
+
+  function dialogueParts() {
+    const parts = [];
+    for (const turn of turnList.children) {
+      const inputs = turn.elements;
+      const name = inputs.speaker.value.trim();
+      const speech = literal(inputs.speech.value);
+      const translation = literal(inputs.translation.value);
+      if (!speech && !translation) {
+        if (name || inputs.role.value !== 'unknown') {
+          inputs.speech.focus();
+          throw new Error(turn.querySelector('legend').textContent + 'の台詞または和訳を入力してください。');
+        }
+        continue;
+      }
+      const paragraphs = [speech, translation && translation.split(/\n\s*\n/).map(p => '*' + p + '*').join('\n\n')];
+      parts.push(speakerMarker(inputs.role.value, name), quote(paragraphs.filter(Boolean).join('\n\n')));
+    }
+    return parts;
+  }
+
   function insert(markdown) {
     const manager = window.ZenWriterEditor;
     const { root, block, offset } = position;
@@ -226,6 +298,21 @@
     rich._captureUndoSnapshot();
   }
 
+  fields.addTurn.addEventListener('click', () => {
+    const turn = blankTurn.cloneNode(true);
+    turn.querySelector('legend').textContent = '発言 ' + (turnList.childElementCount + 1);
+    turn.elements.removeTurn.hidden = false;
+    turnList.append(turn);
+    turn.elements.role.focus();
+  });
+  turnList.addEventListener('click', event => {
+    if (event.target.name !== 'removeTurn') return;
+    const turn = event.target.closest('fieldset');
+    const focusTarget = turn.nextElementSibling?.elements.role || fields.addTurn;
+    turn.remove();
+    Array.from(turnList.children).forEach((item, i) => { item.querySelector('legend').textContent = '発言 ' + (i + 1); });
+    focusTarget.focus();
+  });
   fields.picture.addEventListener('change', () => {
     fields.alt.parentElement.hidden = !fields.picture.files.length;
   });
@@ -235,8 +322,6 @@
     event.preventDefault();
     if (submit.disabled) return;
     const file = fields.picture.files[0];
-    const speech = literal(fields.speech.value);
-    const translation = literal(fields.translation.value);
     const narrative = literal(fields.narrative.value);
     const day = literal(fields.day.value);
     const description = fields.alt.value.trim();
@@ -244,12 +329,11 @@
     const attempt = generation;
     submit.disabled = true;
     try {
-      if (!speech && !translation && !narrative && !file) {
+      const dialogue = dialogueParts();
+      if (!dialogue.length && !narrative && !file) {
         throw new Error('台詞・和訳・画像・日記本文のいずれかを入力してください。');
       }
-      const parts = [marker + (day ? ' ' + day : '')];
-      const dialogue = [speech, translation && translation.split(/\n\s*\n/).map(p => '*' + p + '*').join('\n\n')].filter(Boolean);
-      if (dialogue.length) parts.push(quote(dialogue.join('\n\n')));
+      const parts = [marker + (day ? ' ' + day : ''), ...dialogue];
       if (file) {
         if (!/^image\/(?:png|jpeg|gif|webp)$/i.test(file.type)) throw new Error('PNG・JPEG・GIF・WebP の画像を選んでください。');
         const dataUrl = await readImage(file);
@@ -275,5 +359,5 @@
     }
   });
 
-  window.ZWPlayDiary = { project, serialize, syncChapterBodies, canInsert, rememberPosition, open };
+  window.ZWPlayDiary = { project, serialize, serializeCaption, syncChapterBodies, canInsert, rememberPosition, open };
 })();

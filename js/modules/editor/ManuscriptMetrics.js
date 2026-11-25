@@ -39,7 +39,8 @@
     if (!markdown) return '';
     return String(markdown)
       .replace(/^> \[!PLAY-DIARY\]([^\n]*)((?:\n>[^\n]*)*)/gm, (_match, day, body) =>
-        (day.trimStart() + body.replace(/\n>(?: ?>(?: )?| )?/g, '\n'))
+        (day.trimStart() + body.replace(/^> \[!SPEAKER:(?:npc|player|unknown)\] ?/gm, '> ')
+          .replace(/\n>(?: ?>(?: )?| )?/g, '\n'))
           .replace(/!\[(?:\\.|[^\]\\])*\]\([^)]+\)/g, '')
           .replace(/&#(\d{1,3});/g, (_entity, number) => String.fromCharCode(Number(number))))
       .replace(/^:::zw-[^\n]*\n?/gm, '')

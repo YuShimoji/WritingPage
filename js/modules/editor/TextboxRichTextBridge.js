@@ -49,7 +49,7 @@
     for (const scene of container.querySelectorAll('.play-diary-scene')) {
       const text = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT);
       while (text.nextNode()) {
-        if (!text.currentNode.parentElement.closest('code, .play-diary-day')) {
+        if (!text.currentNode.parentElement.closest('code, .play-diary-day, .play-diary-caption')) {
           text.currentNode.data = text.currentNode.data.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
       }

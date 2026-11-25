@@ -67,6 +67,10 @@
       filter: node => node.nodeName === 'HEADER' && node.classList.contains('play-diary-day'),
       replacement: () => ''
     });
+    turndownService.addRule('playDiaryCaption', {
+      filter: node => node.classList.contains('play-diary-caption'),
+      replacement: (_content, node) => root.ZWPlayDiary.serializeCaption(node)
+    });
     turndownService.addRule('storedImage', {
       filter: node => node.nodeName === 'IMG' && !!node.getAttribute('data-zw-asset'),
       replacement: (_content, node) => {

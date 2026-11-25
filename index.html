@@ -67,16 +67,23 @@
       font-weight: 650;
       color: inherit;
     }
-    .play-diary-scene > blockquote, .play-diary-note {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0.65em 0.9em;
+    .play-diary-dialogue { display: grid; gap: 1em; }
+    .play-diary-turn { min-inline-size: 0; padding-inline-start: 0.9em; border-inline-start: 0.16em solid currentColor; }
+    .play-diary-turn[data-speaker="npc"] { margin-inline-end: 1.4em; }
+    .play-diary-turn[data-speaker="player"] {
+      margin-inline-start: 1.4em; padding-inline: 0.8em; padding-block: 0.55em;
+      border-inline-start: 0; border-inline-end: 0.16em solid currentColor;
+      background: color-mix(in srgb, currentColor 5%, transparent);
     }
-    .play-diary-scene > blockquote {
-      border-inline-start: 2px solid currentColor;
-      color: inherit;
+    .play-diary-scene .play-diary-turn > blockquote {
+      margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font-style: normal;
     }
-    .play-diary-note { background: color-mix(in srgb, currentColor 7%, transparent); }
+    .play-diary-note { padding: 0.75em 1em; background: color-mix(in srgb, currentColor 7%, transparent); }
+    .play-diary-caption {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.1em 0.65em;
+      margin-block-end: 0.45em; font: 650 0.84em/1.4 system-ui, sans-serif;
+    }
+    .play-diary-caption strong { font-size: 1.16em; }
     .play-diary-scene p { text-indent: 0; margin-block: 0 0.6em; }
     .play-diary-scene p:last-child { margin-block-end: 0; }
     .play-diary-scene blockquote em { font-size: 0.91em; }
@@ -474,10 +481,19 @@
     <form>
       <h2 id="play-diary-title">プレイ日記の場面を挿入</h2>
       <label>ゲーム内の日付<input name="day" type="text" autofocus></label>
-      <div class="play-diary-fields">
-        <label>ゲーム内の台詞<textarea name="speech" rows="3"></textarea></label>
-        <label>和訳<textarea name="translation" rows="3"></textarea></label>
+      <div id="play-diary-turns">
+        <fieldset class="play-diary-turn-fields">
+          <legend>発言 1</legend>
+          <div class="play-diary-fields">
+            <label>話者の種類<select name="role"><option value="unknown">指定なし</option><option value="npc">登場人物</option><option value="player">プレイヤー</option></select></label>
+            <label>話者名（任意）<input name="speaker" type="text"></label>
+            <label>ゲーム内の台詞<textarea name="speech" rows="2"></textarea></label>
+            <label>和訳<textarea name="translation" rows="2"></textarea></label>
+          </div>
+          <button type="button" class="zw-shell-control" name="removeTurn" hidden>この発言を外す</button>
+        </fieldset>
       </div>
+      <button type="button" class="zw-shell-control" name="addTurn">発言を追加</button>
       <label>スクリーンショット<input name="picture" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
       <label hidden>画像の説明<input name="alt" type="text"></label>
       <label>日記本文<textarea name="narrative" rows="4"></textarea></label>
