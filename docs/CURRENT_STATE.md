@@ -2,7 +2,7 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-24 / Windows 候補 `61333a8`。空の原稿は書き出し位置に案内を表示し、文字数と保存状態を右下に表示する。「構造」の原稿ツリーと F2 のコマンドパレットを整理した。[開発プラン](ROADMAP.md)
+更新: 2026-11-25 / 候補ブランチに文書ごとの組み設定を実装。11月24日の Windows 体験確認版は `61333a8`。[開発プラン](ROADMAP.md)
 
 ## いまいる場所
 
@@ -18,7 +18,8 @@
 | 製品と CI | [iA Writer の Library と Editor](https://ia.net/writer/how-to/quick-tour)、[Obsidian のコマンド検索](https://obsidian.md/help/plugins/command-palette)を参考に原稿選択・検索・保存表示を整理。390×540 でも候補のスクロール・絞り込み・キーボード選択、保存表示の画面内配置を確認。[候補と一致する CI](https://github.com/YuShimoji/WritingPage/actions/runs/45371004911) は E2E 616件成功・4件スキップ。調査から実機・CI確認まで約25分（見込み20〜40分）。 |
 | 候補 | 上記 source の clean checkout から生成。exe SHA `50f35480…5e08a42d`、app.asar SHA `b90b4984…7241b3445`。入口 HTML と css・js・electron 配下の実行用 HTML/CSS/JS 133ファイルが source と一致。 |
 | Native | 1200×800 の Windows 版で F2 →「構造」→ フォルダ内に文書を作成 → 入力・自動保存、フォルダ開閉、F2 の絞り込み・矢印選択・Esc 復帰を検証。明暗両テーマで見出しと保存表示を確認。実画面は `output/release-readiness/2026-11-24/writing-interface/`。 |
-| 文字数集計 (2026-11-25) | 下線・太字・取消線・傍点・揃え用HTMLを数えない（17文字に下線を付けて40→17、`{kenten\|…}` が "kenten" と数えられる順序誤りも修正）。実装は `EditorUI._countPlainChars`、E2E は `first-writing-comfort.spec.js`。空の原稿には左端ホバーと F2 の案内を追加。**単一集計（再設計案②、同日）**: `ManuscriptMetrics.js` が文字数・枚数を一本で持ち、右下の表示・執筆目標・Design Cockpit・セクション一覧が共有する。数え方は設定「UI設定 > 文字数の数え方」かコマンド `文字数の数え方を切り替える` で「改行・空白を除く（既定）／改行を除く／すべて数える」を選べ、右下に原稿用紙の枚数（400字詰め、約0.5枚以上）と選択文字数（ルビの読みは除く）が出る。既定を変えたため、同じ原稿の表示数は従来より段落数と字下げぶん減る。unit 63件・関連E2E 80件 pass。行×字の指定と節ごとの集計は未着手（案③と一緒に扱う）。Electron 候補への反映は未実施（`61333a8` の exe は旧集計）。 |
+| 文字数と組み設定 (2026-11-25) | `ManuscriptMetrics` がルビの読み・下線タグ・傍点記法を除いた本文を数える。右下、執筆目標、Design Cockpit、セクション一覧が共有する。改行・空白を除く方式が既定。改行だけを除く／すべて数える方式に切替可能。「表示 → この文書の組み設定」で縦横・1行の字数・1ページの行数・ページ枠を指定し、編集・MDプレビュー・Reader・印刷・HTMLに反映する。右下は文書の字数×行数で約0.5枚から枚数を表示する（既定換算20×20）。セクション一覧は各見出しから次の見出しまでの本文字数を示す。JSONの書き出し・読み込みで文書の設定を引き継ぐ。 |
+| 組み設定の検証 | Windows Electron の編集面と MD プレビューで22字の同じ長さを実測。Reader・印刷PDF・HTML・JSON往復、節本文138字を確認。unit 64件、lint、smoke、Webビルド成功。全E2Eは612成功・4スキップ・7失敗。選択ツールバーの1件は単独再検証で成功。他の6件は[変更前のCI](https://github.com/YuShimoji/WritingPage/actions/runs/45549508729)でも失敗している。 |
 | ローカルの一時出力 | 自動承認が削除を拒否し、今回の中間ビルド `output/electron-candidates/5798130890332e0ab7091706537c7184a35012b3/`、検証プロファイル `writing-interface-*` 5個、画像 `writing-interface/after-*.png` 3枚が残る。前回の `7de4a938…`、`sidebar-review-rXlFUE`・`structure-sidebar-7de4a93` と `structure-sidebar/draft.png` も同じ状態。いずれも現行の体験確認リンクの対象外。 |
 | 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
 
@@ -32,7 +33,7 @@
 | 作業 | 目的と次に可能になること |
 | --- | --- |
 | 新候補の本人操作感レビュー | 体験確認ウィンドウを使用中なら保存後に閉じ、`output/electron-candidates/61333a8916c87ec5c175ab55b52ec5c665a23458/Zen Writer 体験確認.lnk` を開く。以前の体験確認リンクも同じ版と本人用プロファイルを開く。「構造」で原稿を選んだときの見分けやすさ、執筆中の右下表示、F2 の候補の読みやすさを本人が判断する。 |
-| UI 再設計案の判断（本人） | 2026-11-25 の再評価で、局所修正では届かない3点を確認。①は実装済み（2026-11-25）: 左ナビを作業単位の4区分（原稿 / 資料 / 表示 / 設定）へ統合し、集中・タイプライター・目標を表示区分へ上げ、VN専用の選択肢を標準の左ナビから外した。旧6区分のID・保存済みの配置は読み取り専用の別名で新区分へ移る。②は着手済み（上の「文字数集計」。節別集計と行×字は③と一緒に残る）。③縦横・行字数・ページ枠を文書の組み設定として持たせ、編集面・MDプレビュー・Reader・出力で共有する。選択肢の目安と根拠は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の次スライス候補表。 |
+| UI 再設計案の確認（本人） | ①左ナビ4区分、②文字数・枚数の集計と節別表示、③文書の組み設定を候補ブランチに実装。確認対象は、普段の原稿での文字数の既定（改行・空白を除く）とページ枠の見やすさ。旧文書の向きは旧編集設定を優先し、未設定時は旧Reader設定を参照する。[要望と採否](USER_REQUEST_LEDGER.md) |
 | 次の切り出し（1回1クラスタ） | ルビ/傍点・DSL モーダル/ブロック挿入・リンク挿入・フローティングツールバー/書式状態同期（`RichTextRubyKentenActions.js` / `RichTextDslActions.js` / `RichTextLinkActions.js` / `RichTextFloatingToolbarActions.js`）は切り出し済み（`editor-wysiwyg.js` 2895→1944行。lint・unit 56・関連E2E・build 確認、リンクは実ブラウザで差し込み・モーダル開閉も確認）。`editor-wysiwyg.js` 内の次の候補は未選定（`_showWikiComplete` 周辺の Wiki 補完など）。他の大物は `storage.js` 1928 / `story-wiki.js` 1655 / `sidebar-manager.js` 1602 / `floating-memo-field.js` 1513 行。 |
 | 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用（差分は上記 `codex/*` に残る）。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
 | 通常利用への切替判断 | 候補source・profile・既存原稿の扱いを確認して、通常起動先を変えるか判断する。今回の技術合格だけで切替・公開・配布を実行しない |

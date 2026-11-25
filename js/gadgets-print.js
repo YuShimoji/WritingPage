@@ -6,28 +6,29 @@
   var ZWGadgets = window.ZWGadgets;
   if (!utils || !ZWGadgets) return;
 
+  // ガジェット、ブラウザ、Electron の印刷メニューが同じ最新の本文を使用する。
+  window.addEventListener('beforeprint', function () {
+    const view = document.getElementById('print-view');
+    const editor = window.ZenWriterEditor;
+    if (!view || !editor) return;
+    const html = window.ZWMdItBody.renderToHtmlBeforePipeline(editor.getEditorValue(), { editorManager: editor });
+    view.innerHTML = window.ZWPostMarkdownHtmlPipeline.apply(html, {
+      settings: window.ZenWriterStorage.loadSettings(),
+      surface: 'reader'
+    });
+  });
+
   // PrintSettings gadget (個別ファイル化)
   ZWGadgets.register('PrintSettings', function (el, _api) {
     try {
       var ed = (window.ZenWriterEditor && window.ZenWriterEditor.editor) || document.getElementById('editor');
 
-      function createPrintButton(editorEl) {
+      function createPrintButton() {
         const printBtn = document.createElement('button');
         printBtn.type = 'button';
         printBtn.className = 'small';
         printBtn.textContent = (window.UILabels && window.UILabels.PRINT_PREVIEW) || '印刷プレビュー';
         printBtn.addEventListener('click', function () {
-          const pv = document.getElementById('print-view');
-          if (!pv || !editorEl) return;
-          const text = editorEl.value || '';
-          pv.innerHTML = '';
-          const norm = text.replace(/\r\n/g, '\n');
-          const blocks = norm.split(/\n{2,}/);
-          blocks.forEach(function (seg) {
-            const p = document.createElement('p');
-            p.textContent = seg;
-            pv.appendChild(p);
-          });
           window.print();
         });
         return printBtn;
@@ -53,7 +54,7 @@
         return exportBtn;
       }
 
-      el.appendChild(createPrintButton(ed));
+      el.appendChild(createPrintButton());
       el.appendChild(createExportButton(ed));
     } catch (e) {
       console.error('PrintSettings gadget failed:', e);

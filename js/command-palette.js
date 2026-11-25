@@ -471,8 +471,8 @@
     {
       id: 'gadget-view',
       label: '表示',
-      description: '表示区分を開く（集中・タイプライター・執筆目標・テーマ・フォント）',
-      keywords: 'view 表示 集中 フォーカス タイプライター Typewriter 執筆目標 テーマ theme フォント typography 見出し visual profile プレビュー',
+      description: '表示区分を開く（文書の組み設定・集中・執筆目標・テーマ）',
+      keywords: 'view 表示 組み設定 縦書き 横書き 字数 行数 ページ枠 集中 フォーカス タイプライター Typewriter 執筆目標 テーマ theme フォント typography 見出し visual profile プレビュー',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {

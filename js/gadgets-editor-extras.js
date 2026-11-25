@@ -208,7 +208,7 @@
       countModeHint.style.opacity = '0.75';
       var syncCountModeHint = function () {
         var info = countModeApi && countModeApi.MODES[countModeSelect.value];
-        countModeHint.textContent = (info ? info.hint + '。' : '') + 'ルビは親文字、傍点は本文を数えます。原稿用紙は 400 字詰めで換算します。';
+        countModeHint.textContent = (info ? info.hint + '。' : '') + 'ルビは親文字、傍点は本文を数えます。枚数は「表示」の「この文書の組み設定」で指定した字数と行数で換算します。';
       };
       syncCountModeHint();
       countModeRow.appendChild(countModeLabel);

@@ -115,6 +115,25 @@ test('importProjectJSON rejects invalid JSON without mutating documents', () => 
   assert.equal(JSON.stringify(storage.loadDocuments()), before);
 });
 
+test('chapter layout belongs to its document, retains legacy direction, and survives a failed save', () => {
+  const storage = freshStorage();
+  localStorage.setItem('zenwriter-vertical-writing', 'true');
+  storage.saveDocuments([{ id: 'a', type: 'document' }, { id: 'c', type: 'chapter', parentId: 'a' }]);
+  const newDoc = storage.createDocument('New');
+  storage.setCurrentDocId('c');
+  assert.equal(storage.getDocumentLayout().direction, 'vertical');
+  assert.equal(storage.updateDocumentLayout({ charsPerLine: 32, linesPerPage: 16, pageFrame: true }), true);
+  storage.setCurrentDocId('a');
+  const layout = { direction: 'vertical', charsPerLine: 32, linesPerPage: 16, pageFrame: true };
+  assert.deepEqual(storage.getDocumentLayout(), layout);
+  storage.setCurrentDocId(newDoc.id);
+  assert.equal(storage.getDocumentLayout().direction, 'horizontal');
+  storage.setCurrentDocId('a');
+  localStorage.failKeys.add('zenWriter_docs');
+  assert.equal(storage.updateDocumentLayout({ direction: 'horizontal' }), false);
+  assert.deepEqual(storage.getDocumentLayout(), layout);
+});
+
 test('project pages preserve explicit empty and whitespace titles while missing titles use fallback', () => {
   const storage = freshStorage();
   const importedId = storage.importProjectJSON(JSON.stringify({

@@ -152,10 +152,8 @@
     if (verticalToggle) {
       verticalToggle.addEventListener('click', toggleVerticalMode);
     }
-    // 前回の縦書き設定を復元
-    try {
-      isVertical = localStorage.getItem('zenwriter-reader-vertical') === 'true';
-    } catch (_) { /* noop */ }
+    syncDocumentDirection();
+    window.addEventListener('ZWDocumentLayoutChanged', syncDocumentDirection);
 
     // スクロール連動
     previewEl.addEventListener('scroll', onScroll, { passive: true });
@@ -452,11 +450,12 @@
    * 縦書き/横書きを切り替える
    */
   function toggleVerticalMode() {
-    isVertical = !isVertical;
-    applyVerticalMode(isVertical);
-    try {
-      localStorage.setItem('zenwriter-reader-vertical', isVertical ? 'true' : 'false');
-    } catch (_) { /* noop */ }
+    window.ManuscriptLayout.update({ direction: isVertical ? 'horizontal' : 'vertical' });
+  }
+
+  function syncDocumentDirection() {
+    isVertical = window.ZenWriterStorage.getDocumentLayout().direction === 'vertical';
+    if (isOpen) applyVerticalMode(isVertical);
   }
 
   /**
@@ -474,7 +473,7 @@
       verticalToggle.textContent = vertical ? '横書き' : '縦書き';
       verticalToggle.setAttribute(
         'aria-label',
-        vertical ? '横書き表示に切り替え（再生オーバーレイ）' : '縦書き表示に切り替え（再生オーバーレイ）'
+        vertical ? 'この文書を横書きに切り替え' : 'この文書を縦書きに切り替え'
       );
     }
     // プログレスバーをリセット
@@ -601,11 +600,22 @@
     tempDiv.innerHTML = bodyHtml;
     tempDiv.querySelectorAll('.chapter-nav-bar').forEach(function (el) { el.remove(); });
     bodyHtml = tempDiv.innerHTML;
+    var article = document.createElement('article');
+    article.id = 'manuscript-export';
+    var layout = window.ZenWriterStorage.getDocumentLayout();
+    window.ManuscriptLayout.apply(article, layout);
+    article.innerHTML = bodyHtml;
+    if (title) {
+      var heading = document.createElement('h1');
+      heading.textContent = title;
+      article.prepend(heading);
+    }
 
     // 縦書きモードの場合、bodyスタイルを変更
     var bodyStyle = isVertical
-      ? 'writing-mode: vertical-rl; max-height: 100vh; overflow-x: auto; overflow-y: hidden; margin: 2rem; padding: 0 1rem; '
-      : 'max-width: 720px; margin: 2rem auto; padding: 0 1rem; ';
+      ? 'writing-mode: vertical-rl; height: calc(100vh - 4rem); margin: 2rem; '
+      : 'margin: 2rem auto; padding: 0 1rem; ';
+    if (!isVertical && !layout.charsPerLine && !layout.pageFrame) bodyStyle += 'max-width: 720px; ';
 
     var html = '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
       + '<meta charset="UTF-8">\n'
@@ -616,6 +626,7 @@
       + 'font-family: ' + fontFamily + '; line-height: 1.8; '
       + 'background: ' + bgColor + '; color: ' + textColor + '; }\n'
       + '  a { color: ' + linkColor + '; }\n'
+      + '  #manuscript-export[data-manuscript-direction="horizontal"] { margin-inline: auto; }\n'
       + '  h1, h2, h3 { margin-top: 2em; margin-bottom: 0.5em; }\n'
       + '  hr { border: none; border-top: 1px solid #ccc; margin: 2em 0; }\n'
       + '  p { text-indent: 1em; margin: 0.5em 0; }\n'
@@ -677,9 +688,9 @@
       + '  a.wikilink { color: ' + linkColor + '; text-decoration: underline dotted; }\n'
       + '  a.wikilink.is-broken { color: #e53935; text-decoration: line-through; }\n'
       + '  ruby rt { font-size: 0.5em; }\n'
+      + document.getElementById('manuscript-page-style').textContent
       + '</style>\n</head>\n<body>\n'
-      + (title ? '<h1>' + title.replace(/</g, '&lt;') + '</h1>\n' : '')
-      + bodyHtml + '\n'
+      + article.outerHTML + '\n'
       + '</body>\n</html>';
 
     // Blobダウンロード

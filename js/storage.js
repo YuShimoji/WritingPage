@@ -539,6 +539,7 @@ function _initIDB() {
                     var docs = results[0], assets = results[1], snaps = results[2], wiki = results[3];
                     if (docs && docs.length > 0 && (!_docsCache || _docsCache.length === 0) && !_docsCacheDirty) {
                         _docsCache = docs;
+                        notifyDocumentLayoutChanged();
                     }
                     if (assets && assets.length > 0) {
                         _assetsCache = {};
@@ -610,8 +611,58 @@ function setCurrentDocId(id) {
     try {
         if (id) localStorage.setItem(STORAGE_KEYS.CURRENT_DOC_ID, id);
         else localStorage.removeItem(STORAGE_KEYS.CURRENT_DOC_ID);
+        notifyDocumentLayoutChanged();
         return true;
     } catch (e) { return false; }
+}
+
+function normalizeDocumentLayout(value) {
+    const layout = value || {};
+    const validSize = n => Number.isInteger(n) && n >= 1 && n <= 200;
+    return {
+        direction: layout.direction === 'vertical' ? 'vertical' : 'horizontal',
+        charsPerLine: validSize(layout.charsPerLine) ? layout.charsPerLine : null,
+        linesPerPage: validSize(layout.linesPerPage) ? layout.linesPerPage : 20,
+        pageFrame: layout.pageFrame === true
+    };
+}
+
+function layoutForRecord(doc) {
+    if (!doc || doc.layout) return normalizeDocumentLayout(doc && doc.layout);
+    // 旧文書では編集面の設定を優先し、未設定なら Reader の設定を引き継ぐ。
+    let legacy = null;
+    try {
+        legacy = localStorage.getItem('zenwriter-vertical-writing') ?? localStorage.getItem('zenwriter-reader-vertical');
+    } catch (_) { /* storage unavailable */ }
+    return normalizeDocumentLayout({ direction: legacy === 'true' ? 'vertical' : 'horizontal' });
+}
+
+function currentLayoutRecord(docs) {
+    const id = getCurrentDocId();
+    const selected = docs.find(doc => doc && doc.id === id);
+    if (!selected || selected.type === 'folder') return null;
+    if (selected.type !== 'chapter') return selected;
+    return docs.find(doc => doc && doc.id === selected.parentId && doc.type === 'document');
+}
+
+function getDocumentLayout() {
+    return layoutForRecord(currentLayoutRecord(loadDocuments()));
+}
+
+function notifyDocumentLayoutChanged() {
+    if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('ZWDocumentLayoutChanged'));
+    }
+}
+
+function updateDocumentLayout(patch) {
+    const docs = loadDocuments();
+    const current = currentLayoutRecord(docs);
+    if (!current) return false;
+    const layout = normalizeDocumentLayout({ ...layoutForRecord(current), ...patch });
+    if (!saveDocuments(docs.map(doc => doc === current ? { ...doc, layout, updatedAt: Date.now() } : doc))) return false;
+    notifyDocumentLayoutChanged();
+    return true;
 }
 
 function createDocument(name = '新規ドキュメント', content = '', parentId = null) {
@@ -622,6 +673,7 @@ function createDocument(name = '新規ドキュメント', content = '', parentI
         name: String(name || '新規ドキュメント'),
         content: String(content || ''),
         chapterMode: true,
+        layout: normalizeDocumentLayout(),
         parentId: parentId || null,
         createdAt: Date.now(),
         updatedAt: Date.now()
@@ -1174,6 +1226,7 @@ function exportProjectJSON(docId) {
                 name: doc.name || '',
                 content: documentContent,
                 chapterMode: doc.chapterMode !== false,
+                layout: layoutForRecord(doc),
                 createdAt: doc.createdAt || null,
                 updatedAt: doc.updatedAt || null
             },
@@ -1333,6 +1386,7 @@ function _normalizeImportedProject(jsonString) {
         name: _normalizeImportTitle(documentRecord && documentRecord.name, '読み込みドキュメント'),
         content,
         chapterMode: documentRecord ? documentRecord.chapterMode !== false : true,
+        layout: normalizeDocumentLayout(documentRecord && documentRecord.layout),
         createdAt: documentRecord ? documentRecord.createdAt : null,
         pages
     };
@@ -1353,6 +1407,7 @@ function importProjectJSON(jsonString) {
             name: _resolveImportedDocumentName(normalized.name, docs),
             content: normalized.content,
             chapterMode: normalized.chapterMode,
+            layout: normalized.layout,
             parentId: null,
             createdAt: _normalizeImportTimestamp(normalized.createdAt, now),
             updatedAt: now
@@ -1817,6 +1872,8 @@ if (typeof module !== 'undefined' && module.exports) {
         saveDocuments,
         getCurrentDocId,
         setCurrentDocId,
+        getDocumentLayout,
+        updateDocumentLayout,
         createDocument,
         updateDocumentContent,
         renameDocument,
@@ -1885,6 +1942,8 @@ if (typeof module !== 'undefined' && module.exports) {
         saveDocuments,
         getCurrentDocId,
         setCurrentDocId,
+        getDocumentLayout,
+        updateDocumentLayout,
         createDocument,
         updateDocumentContent,
         renameDocument,

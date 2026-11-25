@@ -1333,6 +1333,7 @@ html[data-reader-overlay-open='true'] .reader-preview,
 }
 
 /* 縦書き: 固定UI要素は横書きを維持 */
+.reader-preview--vertical .reader-preview__mode-hint,
 .reader-preview--vertical .reader-preview__back-fab,
 .reader-preview--vertical .reader-preview__export-btn,
 .reader-preview--vertical .reader-preview__vertical-toggle,
@@ -1940,7 +1941,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 }
 
 /* ===== WYSIWYG 縦書きモード (実験的) ===== */
-#wysiwyg-editor.vertical-writing {
+:is(#wysiwyg-editor, #editor, #editor-preview)[data-manuscript-direction='vertical'] {
   writing-mode: vertical-rl;
   overflow-x: auto;
   overflow-y: hidden;
@@ -1952,11 +1953,51 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
   text-orientation: mixed;
 }
 
-#wysiwyg-editor.vertical-writing p {
+:is(#wysiwyg-editor, #editor-preview)[data-manuscript-direction='vertical'] p {
   text-indent: 1em;
   margin-bottom: 0;
   margin-left: var(--paragraph-spacing, 1em);
 }
+
+:is(#editor, #wysiwyg-editor, #editor-preview)[data-manuscript-measure] {
+  --manuscript-inset: var(--editor-padding-x, 2.5rem);
+}
+:is(#editor, #wysiwyg-editor, #editor-preview)[data-manuscript-direction='vertical'][data-manuscript-measure] {
+  flex: none;
+  align-self: center;
+  --manuscript-inset: var(--editor-padding-y, 2rem);
+}
+#editor-preview:is([data-manuscript-measure], [data-manuscript-direction='vertical']) .editor-preview__back {
+  position: fixed;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  writing-mode: horizontal-tb;
+}
+.document-layout-fields {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.5rem 0.75rem;
+}
+.document-layout-fields label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+#document-layout label:has(select, input[type='number']) {
+  display: grid;
+  grid-template-columns: 1fr minmax(4rem, 5rem);
+}
+#document-layout :is(select, input[type='number']) {
+  min-width: 0;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+}
+.document-layout-fields [role='status']:empty { display: none; }
 
 /* ===== WYSIWYG見出しスタイル ===== */
 /* 切り替え式プレビュー（#markdown-preview-panel）も同じ見出し組みにして、書いた見た目と確認する見た目を揃える */
@@ -4517,6 +4558,17 @@ html[data-memo-lab-open='true'] .writing-status-chip {
   }
 
   /* 印刷ビューを表示 */
+  body > :not(#print-view) {
+    display: none !important;
+  }
+  html, body {
+    display: block;
+    height: auto;
+    overflow: visible;
+  }
+  html:has(#print-view[data-manuscript-direction='vertical']) {
+    writing-mode: vertical-rl;
+  }
   .print-view {
     display: block !important;
   }

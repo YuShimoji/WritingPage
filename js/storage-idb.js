@@ -213,7 +213,7 @@
               counts.documents = docs.length;
               migrated = true;
               return putAll('documents', docs).then(function () {
-                localStorage.removeItem('zenWriter_docs');
+                if (localStorage.getItem('zenWriter_docs') === raw) localStorage.removeItem('zenWriter_docs');
               });
             }
           } catch (e) {

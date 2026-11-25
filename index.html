@@ -51,6 +51,32 @@
   <link rel="stylesheet" href="css/editor-decorations.css" />
   <link rel="stylesheet" href="css/theme-transition.css" />
   <link rel="stylesheet" href="css/dock-panel.css" />
+  <!-- Reader の単独 HTML にもこの組版規則をそのまま含める。 -->
+  <style id="manuscript-page-style">
+    [data-manuscript-direction="vertical"] {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      --page-flow: to left;
+      --page-edges: to bottom;
+    }
+    :is(#editor, #wysiwyg-editor, #editor-preview, #reader-preview-inner, #print-view, #manuscript-export)[data-manuscript-measure] {
+      box-sizing: border-box;
+      inline-size: min(100%, calc(var(--manuscript-measure) + 2 * var(--manuscript-inset, 0px)));
+      max-inline-size: 100%;
+      padding-inline: var(--manuscript-inset, 0px);
+    }
+    [data-page-frame] {
+      --page-line: color-mix(in srgb, currentColor 28%, transparent);
+      background-image:
+        linear-gradient(var(--page-edges, to right), var(--page-line) 1px, transparent 1px, transparent calc(100% - 1px), var(--page-line) 0),
+        repeating-linear-gradient(var(--page-flow, to bottom), var(--page-line) 0 1px, transparent 1px var(--manuscript-page));
+      background-attachment: local;
+      background-origin: content-box;
+      background-clip: content-box;
+      background-repeat: no-repeat;
+      print-color-adjust: exact;
+    }
+  </style>
   <script>
     // フォント読み込み: ローカル優先、失敗時のみ Google Fonts へフォールバック
     (function () {
@@ -230,6 +256,17 @@
                 </button>
               </div>
             </details>
+            <details class="sidebar-editor-view-details" id="document-layout">
+              <summary class="sidebar-editor-view-summary">この文書の組み設定</summary>
+              <div class="document-layout-fields">
+                <label>書字方向<select name="direction"><option value="horizontal">横書き</option><option value="vertical">縦書き</option></select></label>
+                <label>1行の字数<input name="charsPerLine" type="number" min="1" max="200" step="1" placeholder="自動"></label>
+                <label>1ページの行数<input name="linesPerPage" type="number" min="1" max="200" step="1" required></label>
+                <label><input name="pageFrame" type="checkbox">ページ枠を表示</label>
+                <small>字数が自動のとき、ページ枠と枚数は1行20字で換算します。</small>
+                <span role="status" id="document-layout-status"></span>
+              </div>
+            </details>
             <div id="view-gadgets-panel" class="gadgets-panel" data-gadget-group="view" aria-label="表示ガジェット"></div>
           </div>
         </section>
@@ -341,7 +378,7 @@
             <button role="menuitem" data-overflow="align-start">段落 左揃え</button>
             <button role="menuitem" data-overflow="align-center">段落 中央揃え</button>
             <button role="menuitem" data-overflow="align-end">段落 右揃え</button>
-            <button role="menuitem" data-overflow="vertical-toggle">縦書き/横書き切替</button>
+            <button role="menuitem" data-overflow="vertical-toggle">この文書の縦書き/横書き切替</button>
             <button role="menuitem" data-overflow="switch-textarea">テキストエディタに切り替え</button>
           </div>
         </div>
@@ -382,7 +419,6 @@
             <div id="images-preview-panel" class="images-preview-panel" role="region" aria-label="画像プレビュー"></div>
           </div>
         </div>
-        <div id="print-view" class="print-view" aria-hidden="true"></div>
         </div>
       </div>
     </main>
@@ -463,6 +499,7 @@
 
   <script defer src="js/storage-idb.js"></script>
   <script defer src="js/storage.js"></script>
+  <script defer src="js/modules/editor/ManuscriptLayout.js"></script>
   <script defer src="js/search-global.js"></script>
   <script defer src="js/global-search-ui.js"></script>
   <script defer src="js/theme-registry.js"></script>
@@ -662,13 +699,14 @@
     }
   </script>
 
+  <div id="print-view" class="print-view" aria-hidden="true"></div>
   <!-- SP-078+: 再生オーバーレイ -->
   <div class="reader-preview" id="reader-preview" role="document" aria-label="再生オーバーレイ" aria-describedby="reader-mode-hint">
     <p class="reader-preview__mode-hint" id="reader-mode-hint">再生オーバーレイ · 閲覧のみ（編集は「編集に戻る」）</p>
     <div class="reader-preview__controls" id="reader-preview-controls">
       <button class="reader-preview__back-fab" id="reader-back-fab" type="button" aria-label="編集に戻る（再生オーバーレイを終了）">編集に戻る</button>
       <button class="reader-preview__export-btn" id="reader-export-html" type="button" aria-label="HTMLとして保存（再生オーバーレイ）">HTMLとして保存</button>
-      <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="縦書き/横書き切替（再生オーバーレイ）" aria-label="縦書き表示に切り替え（再生オーバーレイ）">縦書き</button>
+      <button class="reader-preview__vertical-toggle" id="reader-vertical-toggle" type="button" aria-pressed="false" title="この文書の縦書き/横書き切替" aria-label="この文書を縦書きに切り替え">縦書き</button>
     </div>
     <div class="reader-preview__inner" id="reader-preview-inner"></div>
   </div>

@@ -31,11 +31,11 @@
     return String(text || '').trim().length;
   }
 
-  /** 原稿用紙（400字詰め）の枚数。半枚に満たない短文では出さない。 */
+  /** この文書の字数×行数で換算する。半枚に満たない短文では出さない。 */
   function getSheetCount(count) {
     var metrics = window.ManuscriptMetrics;
     if (!metrics || typeof metrics.sheets !== 'function') return 0;
-    var sheets = metrics.sheets(count);
+    var sheets = metrics.sheets(count, window.ManuscriptLayout.charsPerSheet);
     return sheets >= 0.5 ? sheets : 0;
   }
 
@@ -152,6 +152,7 @@
     });
 
     window.addEventListener('ZWManuscriptMetricsChanged', render);
+    window.addEventListener('ZWDocumentLayoutChanged', () => requestAnimationFrame(render));
     // 選択文字数は選択が動くたびに変わる。ドラッグ中の再描画は 1 フレームに 1 回へまとめる
     var selectionFrame = 0;
     document.addEventListener('selectionchange', function () {

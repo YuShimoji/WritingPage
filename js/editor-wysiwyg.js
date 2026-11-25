@@ -136,13 +136,6 @@
         });
       }
 
-      // 縦書き/横書き: 保存された設定を復元
-      try {
-        if (localStorage.getItem('zenwriter-vertical-writing') === 'true') {
-          this._setVerticalWriting(true);
-        }
-      } catch (_) { /* noop */ }
-
       // textarea モードからの復帰ボタン
       this.textareaModeBar = document.getElementById('textarea-mode-bar');
       var backBtn = document.getElementById('textarea-back-to-wysiwyg');
@@ -1446,23 +1439,8 @@
     // --- 縦書き/横書きトグル (実験的) ---
 
     _toggleVerticalWriting() {
-      var isVertical = this.wysiwygEditor.classList.contains('vertical-writing');
-      this._setVerticalWriting(!isVertical);
-    }
-
-    _setVerticalWriting(vertical) {
-      if (!this.wysiwygEditor) return;
-      if (vertical) {
-        this.wysiwygEditor.classList.add('vertical-writing');
-      } else {
-        this.wysiwygEditor.classList.remove('vertical-writing');
-      }
-      if (this._verticalToggleBtn) {
-        this._verticalToggleBtn.setAttribute('aria-pressed', String(vertical));
-      }
-      try {
-        localStorage.setItem('zenwriter-vertical-writing', String(vertical));
-      } catch (_) { /* noop */ }
+      const vertical = window.ZenWriterStorage.getDocumentLayout().direction === 'vertical';
+      window.ManuscriptLayout.update({ direction: vertical ? 'horizontal' : 'vertical' });
     }
 
     switchToTextarea() {

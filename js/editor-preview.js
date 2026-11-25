@@ -52,12 +52,20 @@
 
   function getScrollRatio(el) {
     if (!el) return 0;
+    if (el.dataset.manuscriptDirection === 'vertical') {
+      var width = el.scrollWidth - el.clientWidth;
+      return width > 0 ? -el.scrollLeft / width : 0;
+    }
     var max = el.scrollHeight - el.clientHeight;
     return max > 0 ? el.scrollTop / max : 0;
   }
 
   function applyScrollRatio(el, ratio) {
     if (!el) return;
+    if (el.dataset.manuscriptDirection === 'vertical') {
+      el.scrollLeft = -(el.scrollWidth - el.clientWidth) * ratio;
+      return;
+    }
     var max = el.scrollHeight - el.clientHeight;
     if (max > 0) el.scrollTop = ratio * max;
   }

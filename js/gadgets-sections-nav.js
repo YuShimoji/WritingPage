@@ -33,13 +33,15 @@
         level: match[1].length,
         title: (match[2] || '').trim(),
         offset: match.index,
-        titleOffset: match.index + match[1].length + (match[0].charAt(match[1].length) === ' ' ? 1 : 0)
+        titleOffset: match.index + match[1].length + (match[0].charAt(match[1].length) === ' ' ? 1 : 0),
+        bodyOffset: match.index + match[0].length
       });
     }
     for (var i = 0; i < headings.length; i++) {
       headings[i].endOffset = (i + 1 < headings.length)
         ? headings[i + 1].offset
         : text.length;
+      headings[i].bodyCount = window.ManuscriptMetrics.count(text.slice(headings[i].bodyOffset, headings[i].endOffset));
     }
     return headings;
   }
@@ -98,6 +100,26 @@
       });
     }
     return headings;
+  }
+
+  function countRichSections(headings) {
+    if (!headings.length) return;
+    var source = parseHeadings(document.getElementById('editor').value);
+    if (headings.length === source.length && headings.every(function (h, i) { return h.level === source[i].level; })) {
+      headings.forEach(function (h, i) { h.bodyCount = source[i].bodyCount; });
+      return;
+    }
+    // 揃え付きの HTML 見出しなど Markdown の # 行と一致しない場合は実際の節境界を使う。
+    var rich = window.ZenWriterEditor.richTextEditor;
+    headings.forEach(function (h, i) {
+      var range = document.createRange();
+      range.selectNodeContents(rich.wysiwygEditor);
+      range.setStartAfter(h.el);
+      if (headings[i + 1]) range.setEndBefore(headings[i + 1].el);
+      var body = document.createElement('div');
+      body.appendChild(range.cloneContents());
+      h.bodyCount = window.ManuscriptMetrics.count(rich.htmlToMarkdown(body.innerHTML));
+    });
   }
 
   /** WYSIWYG DOM からセクション境界を検出 (コラプス用) */
@@ -589,6 +611,7 @@
             offset: -1, // virtual (editor テキスト上の位置なし)
             endOffset: -1,
             _virtual: true,
+            bodyCount: window.ManuscriptMetrics.count(ch.content || ''),
             _chapterId: ch.id // クリック時 navigate のアンカー（章 id で一意）
           });
         });
@@ -634,6 +657,7 @@
       if (wysiwyg) {
         // WYSIWYG: DOM から直接見出しを取得 (syncToMarkdown 不要)
         currentHeadings = parseWysiwygHeadings();
+        countRichSections(currentHeadings);
         currentActiveIndex = findWysiwygActiveIndex(currentHeadings);
         // session 109: WYSIWYG でも ChapterStore 由来の virtual heading を統合
         mergeVirtualChapterHeadings(currentHeadings);
@@ -697,6 +721,9 @@
 
           node.appendChild(levelBadge);
           node.appendChild(titleSpan);
+          var count = document.createElement('small');
+          count.textContent = h.bodyCount + '字';
+          node.appendChild(count);
 
           if (idx === currentActiveIndex) {
             node.classList.add('sections-tree-node--active');
@@ -806,6 +833,7 @@
     };
     window.addEventListener('ZWDocumentsChanged', onDocsChanged);
     document.addEventListener('zen-content-saved', scheduleRender);
+    window.addEventListener('ZWManuscriptMetricsChanged', scheduleRender);
 
     // session 108: Focus モードでの章追加・削除・リネームにも追従する
     var onChapterStoreChanged = function () { scheduleRender(); };
@@ -815,6 +843,7 @@
     if (api && typeof api.addCleanup === 'function') {
       api.addCleanup(function () { window.removeEventListener('ZWDocumentsChanged', onDocsChanged); });
       api.addCleanup(function () { document.removeEventListener('zen-content-saved', scheduleRender); });
+      api.addCleanup(function () { window.removeEventListener('ZWManuscriptMetricsChanged', scheduleRender); });
       api.addCleanup(function () { window.removeEventListener('ZWChapterStoreChanged', onChapterStoreChanged); });
     }
 
