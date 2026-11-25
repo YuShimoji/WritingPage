@@ -144,6 +144,8 @@ test('large screenshots travel once in JSON and restore in an empty browser', as
   await page.reload();
   await expect(page.locator('#wysiwyg-editor .play-diary-scene img')).toHaveJSProperty('naturalWidth', 1600);
   async function openManuscriptMenu(tab) {
+    // Startup repaints the gadgets once, including their popup controls.
+    await tab.waitForLoadState('networkidle');
     await tab.evaluate(() => window.sidebarManager.activateSidebarGroup('manuscript'));
     await tab.locator('#documents-io-menu-btn').click();
   }
