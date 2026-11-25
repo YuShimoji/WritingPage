@@ -651,8 +651,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 最初の JSON ファイルをインポート
             var reader = new FileReader();
-            reader.onload = function (ev) {
-                var docId = storage.importProjectJSON(ev.target.result);
+            reader.onload = async function (ev) {
+                var docId = await storage.importProjectJSON(ev.target.result, true);
                 if (docId) {
                     storage.setCurrentDocId(docId);
                     window.dispatchEvent(new CustomEvent('ZWDocumentsChanged', {

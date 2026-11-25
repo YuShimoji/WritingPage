@@ -7872,7 +7872,7 @@ details[open] summary {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-#documents-name-dialog {
+#documents-name-dialog, #play-diary-dialog {
   width: min(21rem, calc(100vw - 2rem));
   box-sizing: border-box;
   margin: auto;
@@ -7883,16 +7883,21 @@ details[open] summary {
   border-radius: var(--shell-radius-md);
 }
 
-#documents-name-dialog::backdrop {
+#documents-name-dialog::backdrop, #play-diary-dialog::backdrop {
   background: rgba(0, 0, 0, 0.35);
 }
 
-#documents-name-dialog form {
+#documents-name-dialog form, #play-diary-dialog form {
   display: grid;
   gap: 0.75rem;
 }
 
-#documents-name-dialog input {
+#play-diary-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; }
+#play-diary-dialog h2 { font-size: 1.13rem; margin: 0 0 0.25rem; }
+#play-diary-dialog label:not([hidden]) { display: grid; gap: 0.25rem; font-size: 0.875rem; }
+.play-diary-fields { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
+#play-diary-dialog textarea { resize: vertical; }
+#documents-name-dialog input, #play-diary-dialog :is(input, textarea) {
   min-width: 0;
   padding: 0.5rem;
   font: inherit;

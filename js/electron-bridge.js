@@ -186,8 +186,14 @@
                 filters = [{ name: 'テキストファイル', extensions: ['txt'] }];
                 break;
             case 'html': {
-                const rendered = renderMarkdown(content);
-                exportContent = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>${baseName}</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.8;}</style></head><body>${rendered}</body></html>`;
+                const diary = window.ZWReaderPreview?.getDiaryExport();
+                if (diary) {
+                    exportContent = diary.html;
+                    defaultName = diary.title || baseName;
+                } else {
+                    const rendered = renderMarkdown(content);
+                    exportContent = `<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><title>${baseName}</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.8;}</style></head><body>${rendered}</body></html>`;
+                }
                 defaultName += '.html';
                 filters = [{ name: 'HTMLファイル', extensions: ['html'] }];
                 break;

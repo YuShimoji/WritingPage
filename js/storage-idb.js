@@ -125,6 +125,7 @@
       }
       tx.oncomplete = function () { resolve(); };
       tx.onerror = function () { reject(tx.error); };
+      tx.onabort = function () { reject(tx.error || new Error('Transaction aborted')); };
     });
   }
 
@@ -160,7 +161,7 @@
   // ---- Asset API ----
 
   function getAsset(id) { return getById('assets', id); }
-  function putAsset(asset) { return put('assets', asset); }
+  function putAsset(asset) { return putAll('assets', [asset]); }
   function deleteAsset(id) { return deleteById('assets', id); }
   function getAllAssets() { return getAll('assets'); }
 
@@ -307,6 +308,7 @@
     // Assets
     getAsset: getAsset,
     putAsset: putAsset,
+    putAssets: function (assets) { return putAll('assets', assets); },
     deleteAsset: deleteAsset,
     getAllAssets: getAllAssets,
 

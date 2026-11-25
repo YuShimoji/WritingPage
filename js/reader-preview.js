@@ -346,9 +346,9 @@
   /**
    * 全visible章を結合して読者向けHTMLを生成
    */
-  function buildReaderHTML() {
-    if (!innerEl) return;
-    innerEl.innerHTML = '';
+  function buildReaderHTML(target = innerEl) {
+    if (!target) return;
+    target.innerHTML = '';
 
     var Nav = window.ZWChapterNav;
     var ctx = getCurrentReaderDocContext();
@@ -364,13 +364,13 @@
       var titleEl = document.createElement('h1');
       titleEl.className = 'reader-preview__title';
       titleEl.textContent = docTitle;
-      innerEl.appendChild(titleEl);
+      target.appendChild(titleEl);
     }
 
     // 章のHTML生成
     var fullHtml = getFullContentHtml();
     if (!fullHtml) {
-      innerEl.innerHTML = '<p style="text-align:center;color:var(--text-muted,#999);padding:3rem;">コンテンツがありません</p>';
+      target.innerHTML = '<p style="text-align:center;color:var(--text-muted,#999);padding:3rem;">コンテンツがありません</p>';
       return;
     }
 
@@ -388,10 +388,13 @@
     var contentDiv = document.createElement('div');
     contentDiv.className = 'reader-preview__content';
     contentDiv.innerHTML = html;
-    innerEl.appendChild(contentDiv);
+    target.appendChild(contentDiv);
 
     // 目次とナビバーを注入
-    if (Nav) {
+    if (contentDiv.querySelector('.play-diary-entry')) {
+      addDiaryNavigation(contentDiv);
+      if (target === innerEl) bindReaderLinks(contentDiv);
+    } else if (Nav && target === innerEl) {
       if (typeof Nav.injectToc === 'function') {
         Nav.injectToc(contentDiv);
       }
@@ -408,6 +411,7 @@
       // アンカーリンクのみ（ToC/章末ナビは ZWChapterNav.dispatch 経路の単一リスナ）
       bindReaderLinks(contentDiv);
     }
+    if (target !== innerEl) return;
 
     // wikilinkクリックハンドラ — ポップオー���ーで用語プレビュー
     var wikiLinks = contentDiv.querySelectorAll('a.wikilink');
@@ -502,14 +506,16 @@
       // chapterMode: visible章のみ結合
       var chapters = Store.getChaptersForDoc(docId) || [];
       if (chapters.length > 0) {
-        var visibleParts = [];
-        chapters.forEach(function (ch) {
-          if (!ch.visibility || ch.visibility === 'visible') {
-            var heading = '## ' + (ch.name || 'Untitled');
-            visibleParts.push(heading + '\n\n' + (ch.content || ''));
-          }
-        });
-        markdown = visibleParts.join('\n\n---\n\n');
+        var visible = chapters.filter(ch => !ch.visibility || ch.visibility === 'visible');
+        if (!visible.length) return '';
+        if (chapters.some(ch => containsDiary(ch.content))) {
+          return visible.map((ch, index) => {
+            const body = window.ZWMdItBody.renderToHtmlBeforePipeline(ch.content || '');
+            return '<section class="play-diary-entry" id="diary-entry-' + (index + 1) + '"><h2>' +
+              escHtml(ch.name || '無題') + '</h2>' + body + '</section>';
+          }).join('\n');
+        }
+        markdown = visible.map(ch => '## ' + (ch.name || 'Untitled') + '\n\n' + (ch.content || '')).join('\n\n---\n\n');
       }
     }
 
@@ -575,14 +581,44 @@
     });
   }
 
+  function addDiaryNavigation(content) {
+    const entries = Array.from(content.querySelectorAll(':scope > .play-diary-entry'));
+    if (entries.length < 2) return;
+    function link(label, id) {
+      const anchor = document.createElement('a');
+      anchor.textContent = label;
+      anchor.href = '#' + id;
+      return anchor;
+    }
+    const toc = document.createElement('nav');
+    toc.className = 'chapter-toc';
+    toc.id = 'diary-contents';
+    toc.setAttribute('aria-label', '日記の目次');
+    const title = document.createElement('h2');
+    title.textContent = '目次';
+    const list = document.createElement('ol');
+    entries.forEach((entry, index) => {
+      const item = document.createElement('li');
+      item.append(link(entry.firstElementChild.textContent, entry.id));
+      list.append(item);
+      const nav = document.createElement('nav');
+      nav.className = 'play-diary-navigation';
+      nav.setAttribute('aria-label', '日記の移動');
+      if (index) nav.append(link('← 前の話', entries[index - 1].id));
+      nav.append(link('目次', toc.id));
+      if (index + 1 < entries.length) nav.append(link('次の話 →', entries[index + 1].id));
+      entry.append(nav);
+    });
+    toc.append(title, list);
+    content.prepend(toc);
+  }
+
   /**
    * 読者プレビューのHTMLをスタンドアロンファイルとしてダウンロード
    */
-  function exportHtml() {
-    if (!innerEl) return;
-
+  function standaloneHtml(target) {
     var title = '';
-    var titleEl = innerEl.querySelector('.reader-preview__title');
+    var titleEl = target.querySelector('.reader-preview__title');
     if (titleEl) title = titleEl.textContent || '';
 
     // CSSテーマ変数を取得
@@ -592,8 +628,8 @@
     var linkColor = cs.getPropertyValue('--link-color').trim() || cs.getPropertyValue('--accent-color').trim() || '#4a90d9';
     var fontFamily = cs.getPropertyValue('--font-family').trim() || "'Noto Serif JP', serif";
 
-    var content = innerEl.querySelector('.reader-preview__content');
-    var bodyHtml = content ? content.innerHTML : innerEl.innerHTML;
+    var content = target.querySelector('.reader-preview__content');
+    var bodyHtml = content ? content.innerHTML : target.innerHTML;
 
     // ナビバーを出力から除外（編集ツール用）
     var tempDiv = document.createElement('div');
@@ -612,10 +648,11 @@
     }
 
     // 縦書きモードの場合、bodyスタイルを変更
-    var bodyStyle = isVertical
+    var vertical = layout.direction === 'vertical';
+    var bodyStyle = vertical
       ? 'writing-mode: vertical-rl; height: calc(100vh - 4rem); margin: 2rem; '
       : 'margin: 2rem auto; padding: 0 1rem; ';
-    if (!isVertical && !layout.charsPerLine && !layout.pageFrame) bodyStyle += 'max-width: 720px; ';
+    if (!vertical && !layout.charsPerLine && !layout.pageFrame) bodyStyle += 'max-width: 720px; ';
 
     var html = '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
       + '<meta charset="UTF-8">\n'
@@ -693,7 +730,26 @@
       + article.outerHTML + '\n'
       + '</body>\n</html>';
 
-    // Blobダウンロード
+    return { html, title };
+  }
+
+  function containsDiary(markdown) {
+    return /^> \[!PLAY-DIARY\](?:[ \t]|$)/m.test(markdown || '');
+  }
+
+  function getDiaryExport() {
+    const ctx = getCurrentReaderDocContext();
+    const chapters = ctx.store?.getChaptersForDoc(ctx.docId) || [];
+    if (!containsDiary(document.getElementById('editor')?.value) && !chapters.some(ch => containsDiary(ch.content))) return null;
+    window.ZWContentGuard?.ensureSaved();
+    const target = document.createElement('div');
+    buildReaderHTML(target);
+    return standaloneHtml(target);
+  }
+
+  function exportHtml() {
+    if (!innerEl) return;
+    const { html, title } = standaloneHtml(innerEl);
     var blob = new Blob([html], { type: 'text/html; charset=utf-8' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
@@ -807,6 +863,7 @@
     },
     isOpen: function () { return isOpen; },
     exportHtml: exportHtml,
+    getDiaryExport: getDiaryExport,
     toggleVertical: toggleVerticalMode,
     get isVertical() { return isVertical; },
     getProgress: function () {

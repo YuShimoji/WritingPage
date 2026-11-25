@@ -371,10 +371,8 @@ function loadAssets() {
 }
 
 function saveAssets(map) {
-    _assetsCache = map || {};
-    _assetsCacheDirty = true;
     try {
-        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(_assetsCache));
+        localStorage.setItem(STORAGE_KEYS.ASSETS, JSON.stringify(map));
     } catch (e) {
         if (window.ZenWriterIDB && window.ZenWriterIDB.isAvailable()) {
             console.warn('[Storage] localStorage quota exceeded for assets, using IDB only');
@@ -383,6 +381,8 @@ function saveAssets(map) {
             return false;
         }
     }
+    _assetsCache = map;
+    _assetsCacheDirty = true;
     setTimeout(_flushAssetsToIDB, 1000);
     return true;
 }
@@ -411,22 +411,17 @@ function findExistingAssetByDataUrl(map, dataUrl) {
     return null;
 }
 
-function saveAssetFromDataUrl(dataUrl, meta = {}) {
+function prepareImageAsset(dataUrl, meta = {}) {
     if (typeof dataUrl !== 'string' || !dataUrl.startsWith('data:image')) return null;
     const assets = loadAssets();
     const existing = findExistingAssetByDataUrl(assets, dataUrl);
-    if (existing) {
-        const normalized = normalizeAsset(existing);
-        assets[normalized.id] = normalized;
-        saveAssets(assets);
-        return normalized;
-    }
+    if (existing) return existing;
     const id = 'asset_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
     const name = sanitizeAssetName(meta.name || meta.fileName || 'image');
-    const extensionMatch = (meta.name || meta.fileName || '').match(/\.([a-zA-Z0-9]+)$/);
+    const extensionMatch = (meta.fileName || meta.name || '').match(/\.([a-zA-Z0-9]+)$/);
     const extension = extensionMatch ? extensionMatch[1].toLowerCase() : 'png';
     const fileName = `${id}.${extension}`;
-    const asset = {
+    return {
         id,
         name,
         fileName,
@@ -439,15 +434,33 @@ function saveAssetFromDataUrl(dataUrl, meta = {}) {
         alignment: 'auto',
         order: meta.order || 0
     };
-    assets[id] = asset;
-    saveAssets(assets);
-    return asset;
+}
+
+function saveAssetFromDataUrl(dataUrl, meta) {
+    const asset = prepareImageAsset(dataUrl, meta);
+    if (!asset || getAsset(asset.id)) return asset;
+    return saveAssets({ ...loadAssets(), [asset.id]: asset }) ? asset : null;
+}
+
+// Screenshots can exceed Web Storage quota. Commit this image before its
+// manuscript reference, without rewriting the entire image collection.
+async function storeScreenshot(dataUrl, meta) {
+    const asset = prepareImageAsset(dataUrl, meta);
+    if (!asset) return null;
+    if (window.ZenWriterIDB?.isAvailable()) {
+        try {
+            await window.ZenWriterIDB.putAsset(asset);
+            loadAssets()[asset.id] = asset;
+            return asset;
+        } catch (_) { /* Try the local store when IndexedDB is unavailable. */ }
+    }
+    return saveAssetFromDataUrl(dataUrl, meta);
 }
 
 function getAsset(id) {
     if (!id) return null;
     const assets = loadAssets();
-    return assets[id] || null;
+    return Object.prototype.hasOwnProperty.call(assets, id) ? assets[id] : null;
 }
 
 function deleteAsset(id) {
@@ -468,16 +481,18 @@ function updateAssetMeta(id, patch) {
     return next;
 }
 
+const ASSET_MARKDOWN_SOURCE = /(!\[(?:\\.|[^\]\\])*\]\()asset:\/\/([^\s)]+)(?=[\s)])/g;
+
 function replaceAssetPlaceholders(text, mode = 'data-url') {
     if (typeof text !== 'string' || text.indexOf('asset://') === -1) return text;
     const assets = loadAssets();
-    return text.replace(/(!\[[^\]]*\])\((asset:\/\/([^\s)]+))\)/g, (match, label, _link, assetId) => {
+    return text.replace(ASSET_MARKDOWN_SOURCE, (match, label, assetId) => {
         const asset = assets[assetId];
         if (!asset) return match;
         if (mode === 'relative-path' && asset.fileName) {
-            return `${label}(assets/${asset.fileName})`;
+            return label + 'assets/' + asset.fileName;
         }
-        return `${label}(${asset.dataUrl})`;
+        return label + asset.dataUrl;
     });
 }
 
@@ -542,10 +557,12 @@ function _initIDB() {
                         notifyDocumentLayoutChanged();
                     }
                     if (assets && assets.length > 0) {
-                        _assetsCache = {};
+                        const restored = {};
                         for (var i = 0; i < assets.length; i++) {
-                            if (assets[i] && assets[i].id) _assetsCache[assets[i].id] = normalizeAsset(assets[i]);
+                            if (assets[i] && assets[i].id) restored[assets[i].id] = normalizeAsset(assets[i]);
                         }
+                        _assetsCache = Object.assign(restored, loadAssets());
+                        window.dispatchEvent(new Event('ZenWriterAssetsReady'));
                     }
                     if (snaps && snaps.length > 0) _snapsCache = snaps;
                     // Once this session has edited Wiki data, its cache owns the state,
@@ -1234,6 +1251,15 @@ function exportProjectJSON(docId) {
             exportedAt: new Date().toISOString()
         };
 
+        const attachments = Object.create(null);
+        for (const source of [documentContent, ...pages.map(p => p.content)]) {
+            for (const match of source.matchAll(ASSET_MARKDOWN_SOURCE)) {
+                const asset = getAsset(match[2]);
+                if (asset) attachments[asset.id] = asset;
+            }
+        }
+        if (Object.keys(attachments).length) project.assets = attachments;
+
         const json = JSON.stringify(project, null, 2);
         const filename = (doc.name || 'untitled') + '.zwp.json';
         const blob = new Blob([json], { type: 'application/json' });
@@ -1388,14 +1414,33 @@ function _normalizeImportedProject(jsonString) {
         chapterMode: documentRecord ? documentRecord.chapterMode !== false : true,
         layout: normalizeDocumentLayout(documentRecord && documentRecord.layout),
         createdAt: documentRecord ? documentRecord.createdAt : null,
-        pages
+        pages,
+        assets: _isImportRecord(project.assets) ? project.assets : {}
     };
 }
 
-function importProjectJSON(jsonString) {
-    const normalized = _normalizeImportedProject(jsonString);
-    if (!normalized) return null;
+function prepareImportedImages(project) {
+    const added = {};
+    if (!Object.keys(project.assets).length) return added;
+    const importedIds = new Map();
+    function resolve(reference, label, id) {
+        if (!Object.prototype.hasOwnProperty.call(project.assets, id)) return reference;
+        const saved = project.assets[id];
+        if (!importedIds.has(id)) {
+            if (typeof saved.dataUrl !== 'string' || !saved.dataUrl.startsWith('data:image/')) throw new Error('画像データが無効です');
+            const asset = prepareImageAsset(saved.dataUrl, saved);
+            if (!getAsset(asset.id)) added[asset.id] = asset;
+            importedIds.set(id, asset.id);
+        }
+        return label + 'asset://' + importedIds.get(id);
+    }
+    for (const record of [project, ...project.pages]) {
+        record.content = record.content.replace(ASSET_MARKDOWN_SOURCE, resolve);
+    }
+    return added;
+}
 
+function saveImportedDocument(normalized) {
     try {
         const existingDocs = loadDocuments();
         const docs = existingDocs.slice();
@@ -1432,10 +1477,32 @@ function importProjectJSON(jsonString) {
             });
         }
 
-        if (!saveDocuments(docs)) return null;
-        return docId;
+        return saveDocuments(docs) ? docId : null;
     } catch (e) {
         console.error('Project JSON import failed:', e);
+        return null;
+    }
+}
+
+function importProjectJSON(jsonString, persistImages = false) {
+    const project = _normalizeImportedProject(jsonString);
+    if (!project) return null;
+    try {
+        const added = prepareImportedImages(project);
+        if (!Object.keys(added).length) return saveImportedDocument(project);
+        if (persistImages && window.ZenWriterIDB?.isAvailable()) {
+            return window.ZenWriterIDB.putAssets(Object.values(added)).then(() => {
+                Object.assign(loadAssets(), added);
+                return saveImportedDocument(project);
+            }).catch(() => null);
+        }
+        const original = loadAssets();
+        if (!saveAssets({ ...original, ...added })) return null;
+        const docId = saveImportedDocument(project);
+        if (!docId) saveAssets(original);
+        return docId;
+    } catch (error) {
+        console.error('Project image import failed:', error);
         return null;
     }
 }
@@ -1454,8 +1521,7 @@ function importProjectJSONFromFile() {
             if (!file) { resolve(null); return; }
             const reader = new FileReader();
             reader.onload = (ev) => {
-                const docId = importProjectJSON(ev.target.result);
-                resolve(docId);
+                resolve(importProjectJSON(ev.target.result, true));
             };
             reader.onerror = () => resolve(null);
             reader.readAsText(file);
@@ -1858,6 +1924,7 @@ if (typeof module !== 'undefined' && module.exports) {
         // assets
         loadAssets,
         saveAssetFromDataUrl,
+        storeScreenshot,
         getAsset,
         deleteAsset,
         updateAssetMeta,
@@ -1932,6 +1999,7 @@ if (typeof module !== 'undefined' && module.exports) {
         getAsset,
         deleteAsset,
         replaceAssetPlaceholders,
+        storeScreenshot,
         DEFAULT_SETTINGS,
         // snapshots
         loadSnapshots,

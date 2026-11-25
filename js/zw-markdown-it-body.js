@@ -10,6 +10,22 @@
 
   var sharedFallbackRenderer = null;
 
+  function createRenderer(options) {
+    const md = window.markdownit(options);
+    const renderImage = md.renderer.rules.image;
+    md.renderer.rules.image = function (tokens, index, options, env, renderer) {
+      const image = tokens[index];
+      if (image.attrGet('src')?.startsWith('asset://')) {
+        // markdown-it's plain-text alt renderer skips escaped punctuation and entities.
+        for (const child of image.children || []) {
+          if (child.type === 'text_special') child.type = 'text';
+        }
+      }
+      return renderImage(tokens, index, options, env, renderer);
+    };
+    return md;
+  }
+
   function extractDslBlocks(markdown) {
     var placeholders = [];
     var counter = 0;
@@ -95,7 +111,7 @@
   function resolveMarkdownRenderer(editorManager) {
     if (editorManager && window.markdownit) {
       if (!editorManager._markdownRenderer) {
-        editorManager._markdownRenderer = window.markdownit({
+        editorManager._markdownRenderer = createRenderer({
           html: false,
           linkify: true,
           breaks: true,
@@ -112,7 +128,7 @@
 
     if (window.markdownit) {
       if (!sharedFallbackRenderer) {
-        sharedFallbackRenderer = window.markdownit({
+        sharedFallbackRenderer = createRenderer({
           html: false,
           linkify: true,
           breaks: true,
@@ -159,6 +175,7 @@
   }
 
   window.ZWMdItBody = {
+    createRenderer: createRenderer,
     renderToHtmlBeforePipeline: renderToHtmlBeforePipeline,
   };
 })();

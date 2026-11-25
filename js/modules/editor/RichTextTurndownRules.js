@@ -59,6 +59,23 @@
   function install(turndownService) {
     if (!turndownService || typeof turndownService.addRule !== 'function') return;
 
+    turndownService.addRule('playDiary', {
+      filter: node => node.nodeName === 'SECTION' && node.classList.contains('play-diary-scene'),
+      replacement: (content, node) => root.ZWPlayDiary.serialize(content, node)
+    });
+    turndownService.addRule('playDiaryDay', {
+      filter: node => node.nodeName === 'HEADER' && node.classList.contains('play-diary-day'),
+      replacement: () => ''
+    });
+    turndownService.addRule('storedImage', {
+      filter: node => node.nodeName === 'IMG' && !!node.getAttribute('data-zw-asset'),
+      replacement: (_content, node) => {
+        const alt = (node.getAttribute('alt') || '').replace(/[\\[\]]/g, '\\$&');
+        const title = (node.getAttribute('title') || '').replace(/["\\]/g, '\\$&');
+        return '![' + alt + '](asset://' + node.getAttribute('data-zw-asset') + (title ? ' "' + title + '"' : '') + ')';
+      }
+    });
+
     turndownService.addRule('fontDecorations', {
       filter: function (node) {
         return node.nodeName === 'SPAN' && !!getDecorTag(node);

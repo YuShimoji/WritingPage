@@ -517,6 +517,15 @@
       }
     },
     {
+      id: 'insert-play-diary',
+      label: 'プレイ日記の場面を挿入',
+      description: '台詞・和訳・スクリーンショットと本文を、編集中の段落の後に並べます',
+      keywords: '画像 日誌 ゲーム diary screenshot',
+      category: '編集',
+      shortcut: '',
+      execute: () => window.ZWPlayDiary.open()
+    },
+    {
       id: 'toggle-markdown-preview',
       label: 'MD プレビュー',
       description: '執筆面を読み取り専用のプレビューに切り替えます。「編集に戻る」で続きを書けます。',
@@ -671,6 +680,7 @@
     filterCommands(query) {
       const lowerQuery = (query || '').toLowerCase().trim();
       this.filteredCommands = COMMANDS.filter(cmd => {
+        if (cmd.id === 'insert-play-diary' && !window.ZWPlayDiary.canInsert()) return false;
         if (cmd.devOnly && !isCommandPaletteDevMode()) return false;
         if (cmd.hidden) return false;
         if (!lowerQuery) return true;
@@ -832,7 +842,7 @@
     executeCommand(cmd) {
       try {
         const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
-        const keepFocusOffEditor = deferEditingFocus;
+        const keepFocusOffEditor = deferEditingFocus || cmd.id === 'insert-play-diary';
         cmd.execute();
         this.hide({ skipEditingSurfaceFocus: keepFocusOffEditor });
         if (deferEditingFocus) {
@@ -851,6 +861,7 @@
     }
 
     show() {
+      window.ZWPlayDiary.rememberPosition();
       if (!this.panel || !this.input || !this.list) {
         this.init();
       }

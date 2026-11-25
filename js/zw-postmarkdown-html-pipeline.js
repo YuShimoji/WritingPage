@@ -55,7 +55,7 @@
       html = Nav.convertForExport(html);
     }
 
-    return html || '';
+    return window.ZWPlayDiary ? window.ZWPlayDiary.project(html || '', false) : html || '';
   }
 
   window.ZWPostMarkdownHtmlPipeline = {

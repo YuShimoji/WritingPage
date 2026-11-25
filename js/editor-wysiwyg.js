@@ -56,7 +56,8 @@
       // Markdown → HTML変換用（markdown-itは既に読み込まれている）
       this.markdownRenderer = null;
       if (window.markdownit) {
-        this.markdownRenderer = window.markdownit({
+        const createRenderer = window.ZWMdItBody?.createRenderer || window.markdownit;
+        this.markdownRenderer = createRenderer({
           html: true,
           linkify: true,
           breaks: true
@@ -1558,7 +1559,7 @@
         html = window.ZWChapterNav.convertChapterLinks(html);
       }
 
-      return html;
+      return window.ZWPlayDiary ? window.ZWPlayDiary.project(html, true) : html;
     }
 
     /**

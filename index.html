@@ -53,6 +53,35 @@
   <link rel="stylesheet" href="css/dock-panel.css" />
   <!-- Reader の単独 HTML にもこの組版規則をそのまま含める。 -->
   <style id="manuscript-page-style">
+    .play-diary-scene {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: start;
+      gap: 0.75em 1.5em;
+      margin-block: 1.25em;
+      overflow-wrap: anywhere;
+    }
+    .play-diary-scene > * { flex: 1 1 15em; min-inline-size: 0; }
+    .play-diary-scene > .play-diary-day {
+      flex: 0 0 100%;
+      font-weight: 650;
+      color: var(--accent-color, inherit);
+    }
+    .play-diary-scene > blockquote, .play-diary-note {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0.65em 0.9em;
+    }
+    .play-diary-scene > blockquote {
+      border-inline-start: 2px solid currentColor;
+      color: inherit;
+    }
+    .play-diary-note { background: color-mix(in srgb, currentColor 7%, transparent); }
+    .play-diary-scene p { text-indent: 0; margin-block: 0 0.6em; }
+    .play-diary-scene p:last-child { margin-block-end: 0; }
+    .play-diary-scene blockquote em { font-size: 0.91em; }
+    .play-diary-scene img { display: block; max-width: 100%; height: auto; }
+    .play-diary-navigation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75em; margin-block: 1.5em; }
     [data-manuscript-direction="vertical"] {
       writing-mode: vertical-rl;
       text-orientation: mixed;
@@ -440,6 +469,25 @@
     </form>
   </dialog>
 
+  <dialog id="play-diary-dialog" aria-labelledby="play-diary-title">
+    <form>
+      <h2 id="play-diary-title">プレイ日記の場面を挿入</h2>
+      <label>ゲーム内の日付<input name="day" type="text" autofocus></label>
+      <div class="play-diary-fields">
+        <label>ゲーム内の台詞<textarea name="speech" rows="3"></textarea></label>
+        <label>和訳<textarea name="translation" rows="3"></textarea></label>
+      </div>
+      <label>スクリーンショット<input name="picture" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
+      <label hidden>画像の説明<input name="alt" type="text"></label>
+      <label>日記本文<textarea name="narrative" rows="4"></textarea></label>
+      <div role="alert" hidden></div>
+      <div class="documents-name-actions">
+        <button type="button" class="zw-shell-control" name="cancel">キャンセル</button>
+        <button type="submit" class="zw-shell-control" value="accept">場面を挿入</button>
+      </div>
+    </form>
+  </dialog>
+
   <!-- 設定モーダル -->
   <div id="settings-modal" class="modal-overlay" style="display: none" role="dialog"
     aria-labelledby="settings-modal-title" aria-modal="true">
@@ -562,6 +610,7 @@
   <script defer src="js/zw-inline-html-postmarkdown.js"></script>
   <script defer src="js/zw-postmarkdown-html-pipeline.js"></script>
   <script defer src="js/zw-markdown-it-body.js"></script>
+  <script defer src="js/play-diary.js"></script>
   <script defer src="js/editor-preview.js"></script>
   <script defer src="js/editor-images.js"></script>
   <script defer src="js/editor-overlays.js"></script>

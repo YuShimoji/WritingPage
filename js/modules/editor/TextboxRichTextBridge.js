@@ -45,6 +45,15 @@
 
     var container = document.createElement('div');
     container.innerHTML = html || '';
+    // Literal angle brackets typed in a diary must survive the rich editor's HTML-enabled Markdown renderer.
+    for (const scene of container.querySelectorAll('.play-diary-scene')) {
+      const text = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT);
+      while (text.nextNode()) {
+        if (!text.currentNode.parentElement.closest('code, .play-diary-day')) {
+          text.currentNode.data = text.currentNode.data.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+      }
+    }
     var placeholders = [];
     var nodes = container.querySelectorAll('.zw-textbox');
 
