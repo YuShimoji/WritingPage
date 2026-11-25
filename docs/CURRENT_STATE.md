@@ -2,14 +2,16 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-25 / Windows プレイ日記確認版 `a0dbe26`。F2「プレイ日記の場面を挿入」から話者を選んで会話を書き、名前・和訳・筆者の記録を含むHTMLを保存できる。[日記の書き方](../README.md#プレイ日記を書く)・[開発プラン](ROADMAP.md)
+更新: 2026-11-25 / Windows 確認版 `c44aa9b`。日記と通常原稿の F2 に「場面字幕を挿入」「伏せ書きを挿入」を追加。[書き方と Markdown の例](../README.md#場面字幕と伏せ書き)・[操作できる HTML 見本](<D:/AI-Runs/WritingPage/verification/reading-effects.html>)
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
 | MDプレビュー | 並べる配置をやめ、開いている間は執筆面と同じ位置・幅・文字組みで入れ替わる切り替え式にした（開く瞬間は同期描画、開いている間は次フレーム更新、`編集に戻る`で復帰）。プレビュー中は読み取り専用（2026-11-15 に本人が現状維持で確定）。あわせて下線の保存、ダークテーマの光彩・影、狭幅で非表示の3点を修正。リファクタは Turndown ルールを `RichTextTurndownRules.js` へ切り出し、傍点/ルビ変換を `ZWInlineHtmlPostMarkdown.applyKentenRuby` に一本化。関連E2E 251件・unit 56件・lint pass。記録は [`verification/2026-11-04/preview-effect-visibility.md`](verification/2026-11-04/preview-effect-visibility.md)。 |
-| Git / main | プレイ日記の Windows 版は `feat/play-diary-scenes` の `a0dbe26c9577082289703175ec93f6f7eb5158bb`。組み設定の確認版は `feature/daily-writing-candidate` の `04cd77305c0143d93ddee49c598ec6785863a7b8`。いずれも候補ブランチ。 |
+| Git / main | プレイ日記・場面字幕・伏せ書きの Windows 版は `feat/play-diary-scenes` の `c44aa9b4e9e48ffa97b67af15e686c1be559f0d6`。組み設定の確認版は `feature/daily-writing-candidate` の `04cd77305c0143d93ddee49c598ec6785863a7b8`。いずれも候補ブランチ。 |
+| 記法と画面効果 | 脚本の中央字幕と場面転換を参考に、任意の副題を付けた場面字幕を組み、読者表示で画面に入ると濃くする。折りたたみ注記を参考に、手掛かりをその場で開閉できる伏せ書きを追加。OS の動きを減らす設定とアプリ設定に対応。比較した別方式は、本文の近くに補足を置く [Tufte CSS](https://edwardtufte.github.io/tufte-css/)、分岐先を用意する [ink](https://www.inklestudios.com/ink/web-tutorial/)、同じ構図の画像2枚を重ねる [Juxtapose](https://juxtapose.knightlab.com/)。今回は文章だけで使える2つを実装。 |
+| 表現の確認 | Windows 版で新規原稿に両方を入力し、保存復帰・読者表示の Enter 開閉・HTML 出力を確認。[Windows 実画面](<D:/AI-Runs/WritingPage/verification/reading-effects-windows.png>)・[390px の HTML](<D:/AI-Runs/WritingPage/verification/reading-effects-narrow.png>)。梱包136ファイルがソースと一致。関連 E2E 10件・unit 64件・lint・smoke・build 成功。[全633件](<D:/AI-Runs/WritingPage/tmp/reading-effects-suite.log>)は623成功・4スキップ・6失敗。6件すべて前版にもある。調査から Windows 実機・全体試験まで約21分（見込み20〜40分）。 |
 | プレイ日記 | [参考日記](https://len.s71.xrea.com/morrowind/)に合わせ、1章を1話とする。F2の場面挿入で、登場人物・プレイヤーの名前、原文、和訳を発言順に追加できる。過去の無記名の発言は「ゲーム内の台詞」と表示する。画像と本文は「筆者の記録」にまとめ、狭幅は会話の下に置く。読者表示と単体HTMLは目次・前後リンクに対応し、JSONで画像を含めて編集を再開できる。 |
 | 日記の確認 | Windows確認版で旅人の質問・渡し守の返答を1場面に入力し、再読み込み後の[読者表示](<D:/AI-Runs/WritingPage/verification/speaker-layout-windows.png>)で名前と和訳を確認。[書き出したHTML](<D:/AI-Runs/WritingPage/verification/speaker-layouts.html>)は900px幅で会話と記録が横並び、390px幅で縦並び。実行用136ファイルがsourceと一致。旧形式・2話の目次・画像のJSON復元も日記のE2Eで確認。 |
 | 日記版の検証結果 | 日記のE2E 8件、unit 64件、smoke、Web・Windowsビルド、変更JSとMarkdownのlintが成功。[全631件のログ](<D:/AI-Runs/WritingPage/tmp/diary-speakers-suite.log>)は620成功・4スキップ・7失敗。うち6件は前版と同じ項目。残る箇条書きの試験は準備中にタイムアウトし、単独再実行で成功。話者別レイアウトの実機・全体試験の確認まで約21分（見込み15〜30分）。 |
@@ -25,7 +27,7 @@
 | 組み設定の検証 | Windows Electron の編集面と MD プレビューで22字の同じ長さを実測。Reader・印刷PDF・HTML・JSON往復、節本文138字を確認。unit 64件、lint、smoke、Webビルド成功。全E2Eは612成功・4スキップ・7失敗。選択ツールバーの1件は単独再検証で成功。他の6件は[変更前のCI](https://github.com/YuShimoji/WritingPage/actions/runs/45549508729)でも失敗している。 |
 | ローカルの一時出力 | 自動承認が削除を拒否し、今回の中間ビルド `output/electron-candidates/5798130890332e0ab7091706537c7184a35012b3/`、検証プロファイル `writing-interface-*` 5個、画像 `writing-interface/after-*.png` 3枚が残る。前回の `7de4a938…`、`sidebar-review-rXlFUE`・`structure-sidebar-7de4a93` と `structure-sidebar/draft.png` も同じ状態。組み設定の検証用プロファイル（output/verification-profiles に6個、D:\AI-Runs\WritingPage\tmp に4個）、同じ tmp の検証用3ファイル、output/release-readiness/document-layout-focused も自動承認が再帰削除を拒否して残る。いずれも体験確認リンクの対象外。 |
 | 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
-| 日記の中間出力 | 削除コマンドがポリシーで拒否されたため、話者配置の検証出力は `output/playwright/diary-speakers*`、一時プロファイル2個と確認スクリプトは `D:\AI-Runs\WritingPage\tmp` に残る。前版の中間候補 `a5228eba`、`output/playwright/play-diary*`、同じtmp内の `play-diary-native-*` 5個も残る。 |
+| 日記の中間出力 | 再帰削除がポリシーで拒否され、[一時出力](<D:/AI-Runs/WritingPage/tmp>) に字幕・伏せ書きの検証プロファイル6個（`reading-effects-native/diag/inspect-*`）と試験出力2個（`reading-effects-focused`・`reading-effects-tests`）が残る。話者配置の `output/playwright/diary-speakers*`、同じ tmp のプロファイル2個と確認スクリプト、前版の候補 `a5228eba`・`output/playwright/play-diary*`・`play-diary-native-*` 5個も残る。 |
 
 前候補 `c61d9c0` の Undo/Redo 修正・native 観察の記録は
 [`verification/2026-11-02/undo-redo-wiki-candidate.md`](verification/2026-11-02/undo-redo-wiki-candidate.md)。
@@ -36,7 +38,7 @@
 
 | 作業 | 目的と次に可能になること |
 | --- | --- |
-| 新候補の本人操作感レビュー | 使用中の体験確認ウィンドウは保存後に閉じ、[Zen Writer プレイ日記](../output/electron-candidates/a0dbe26c9577082289703175ec93f6f7eb5158bb/Zen%20Writer%20プレイ日記.lnk) のF2で2人が話す場面を書き、名前と台詞の対応を確認する。既存の体験確認用プロファイルを使用。組み設定は [11月25日の組み設定版](../output/electron-candidates/04cd77305c0143d93ddee49c598ec6785863a7b8/Zen%20Writer%20体験確認.lnk) で字数・行数とページ枠を確かめる。 |
+| 新候補の本人操作感レビュー | 使用中の体験確認ウィンドウは保存後に閉じ、[場面字幕と伏せ書きの Windows 確認版](<../output/electron-candidates/c44aa9b4e9e48ffa97b67af15e686c1be559f0d6/Zen Writer 場面字幕と伏せ書き.lnk>) の F2 から普段の原稿に場面の切り替わりと伏せたい情報を入れ、Alt+Shift+R で読む。既存の体験確認用プロファイルを使用。話者別会話も同じ版に含む。組み設定は [11月25日の組み設定版](../output/electron-candidates/04cd77305c0143d93ddee49c598ec6785863a7b8/Zen%20Writer%20体験確認.lnk) で確認。 |
 | UI 再設計案の確認（本人） | ①左ナビ4区分、②文字数・枚数の集計と節別表示、③文書の組み設定を候補ブランチに実装。確認対象は、普段の原稿での文字数の既定（改行・空白を除く）とページ枠の見やすさ。旧文書の向きは旧編集設定を優先し、未設定時は旧Reader設定を参照する。[要望と採否](USER_REQUEST_LEDGER.md) |
 | 次の切り出し（1回1クラスタ） | ルビ/傍点・DSL モーダル/ブロック挿入・リンク挿入・フローティングツールバー/書式状態同期（`RichTextRubyKentenActions.js` / `RichTextDslActions.js` / `RichTextLinkActions.js` / `RichTextFloatingToolbarActions.js`）は切り出し済み（`editor-wysiwyg.js` 2895→1944行。lint・unit 56・関連E2E・build 確認、リンクは実ブラウザで差し込み・モーダル開閉も確認）。`editor-wysiwyg.js` 内の次の候補は未選定（`_showWikiComplete` 周辺の Wiki 補完など）。他の大物は `storage.js` 1928 / `story-wiki.js` 1655 / `sidebar-manager.js` 1602 / `floating-memo-field.js` 1513 行。 |
 | 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用（差分は上記 `codex/*` に残る）。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
