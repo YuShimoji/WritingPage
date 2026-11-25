@@ -1520,7 +1520,7 @@
         : {};
       if (this.markdownRenderer) {
         try {
-          html = this.markdownRenderer.render(markdown);
+          html = this.markdownRenderer.render(markdown, { zwEditing: true });
         } catch (e) {
           console.warn('Markdown to HTML conversion failed:', e);
         }

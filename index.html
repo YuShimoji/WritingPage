@@ -53,6 +53,32 @@
   <link rel="stylesheet" href="css/dock-panel.css" />
   <!-- Reader の単独 HTML にもこの組版規則をそのまま含める。 -->
   <style id="manuscript-page-style">
+    .zw-intertitle, .zw-spoiler { margin-block: 1.5em; overflow-wrap: anywhere; }
+    .zw-intertitle {
+      padding-block: 1.25em; padding-inline: .75em; text-align: center;
+      border-block: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    }
+    .zw-intertitle .zw-reading-title { font-size: 1.35em; font-weight: 600; letter-spacing: .08em; }
+    .zw-intertitle > p { text-align: center; text-indent: 0; margin-block: .45em 0; }
+    .zw-spoiler {
+      border-inline-start: .18em solid currentColor; padding: .65em 1em;
+      background: color-mix(in srgb, currentColor 6%, transparent);
+    }
+    .zw-spoiler > .zw-reading-title { font-weight: 600; }
+    .zw-spoiler > summary { cursor: pointer; }
+    .zw-spoiler > summary:focus-visible { outline: 2px solid currentColor; outline-offset: .12em; }
+    .zw-spoiler > :last-child { margin-block-end: 0; }
+    @keyframes zw-reading-fade { from { opacity: .45; } to { opacity: 1; } }
+    @media screen and (prefers-reduced-motion: no-preference) {
+      :root:not([data-reduce-motion="true"]) details.zw-spoiler[open] > :not(summary) { animation: zw-reading-fade .24s ease-out; }
+      @supports (animation-timeline: view()) {
+        :root:not([data-reduce-motion="true"]) :is(#reader-preview, #manuscript-export) .zw-intertitle > .zw-reading-title {
+          animation: zw-reading-fade linear both;
+          animation-timeline: view(); animation-range: entry 0% entry 100%;
+        }
+      }
+    }
+    @media print { details.zw-spoiler::details-content { content-visibility: visible; } }
     .play-diary-scene {
       display: flex;
       flex-wrap: wrap;
@@ -477,7 +503,19 @@
     </form>
   </dialog>
 
-  <dialog id="play-diary-dialog" aria-labelledby="play-diary-title">
+  <dialog id="reading-block-dialog" class="writing-insert-dialog" aria-labelledby="reading-block-title">
+    <form>
+      <h2 id="reading-block-title"></h2>
+      <label><span id="reading-block-label"></span><input name="titleText" type="text" required autofocus></label>
+      <label><span id="reading-block-body-label"></span><textarea name="body" rows="3"></textarea></label>
+      <div class="documents-name-actions">
+        <button type="button" class="zw-shell-control" name="cancel">キャンセル</button>
+        <button type="submit" class="zw-shell-control" value="accept">挿入</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="play-diary-dialog" class="writing-insert-dialog" aria-labelledby="play-diary-title">
     <form>
       <h2 id="play-diary-title">プレイ日記の場面を挿入</h2>
       <label>ゲーム内の日付<input name="day" type="text" autofocus></label>

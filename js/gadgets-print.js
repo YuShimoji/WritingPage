@@ -16,6 +16,7 @@
       settings: window.ZenWriterStorage.loadSettings(),
       surface: 'reader'
     });
+    view.querySelectorAll('details.zw-spoiler').forEach(block => { block.open = true; });
   });
 
   // PrintSettings gadget (個別ファイル化)

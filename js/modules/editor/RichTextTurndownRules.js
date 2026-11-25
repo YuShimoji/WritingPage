@@ -59,6 +59,17 @@
   function install(turndownService) {
     if (!turndownService || typeof turndownService.addRule !== 'function') return;
 
+    turndownService.addRule('readingBlock', {
+      filter: node => node.matches('section.zw-intertitle, section.zw-spoiler'),
+      replacement: (content, node) => {
+        const marker = node.classList.contains('zw-intertitle') ? '[!SCENE]' : '[!SPOILER]';
+        return '\n\n' + (marker + ' ' + content.trim()).split('\n').map(line => ('> ' + line).trimEnd()).join('\n') + '\n\n';
+      }
+    });
+    turndownService.addRule('readingTitle', {
+      filter: node => node.matches('header.zw-reading-title'),
+      replacement: content => content.trim() + '\n\n'
+    });
     turndownService.addRule('playDiary', {
       filter: node => node.nodeName === 'SECTION' && node.classList.contains('play-diary-scene'),
       replacement: (content, node) => root.ZWPlayDiary.serialize(content, node)

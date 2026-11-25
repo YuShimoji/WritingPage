@@ -7872,7 +7872,7 @@ details[open] summary {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-#documents-name-dialog, #play-diary-dialog {
+#documents-name-dialog, .writing-insert-dialog {
   width: min(21rem, calc(100vw - 2rem));
   box-sizing: border-box;
   margin: auto;
@@ -7883,26 +7883,26 @@ details[open] summary {
   border-radius: var(--shell-radius-md);
 }
 
-#documents-name-dialog::backdrop, #play-diary-dialog::backdrop {
+#documents-name-dialog::backdrop, .writing-insert-dialog::backdrop {
   background: rgba(0, 0, 0, 0.35);
 }
 
-#documents-name-dialog form, #play-diary-dialog form {
+#documents-name-dialog form, .writing-insert-dialog form {
   display: grid;
   gap: 0.75rem;
 }
 
-#play-diary-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; }
-#play-diary-dialog h2 { font-size: 1.13rem; margin: 0 0 0.25rem; }
-#play-diary-dialog label:not([hidden]) { display: grid; gap: 0.25rem; font-size: 0.875rem; }
+.writing-insert-dialog { width: min(34rem, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; }
+.writing-insert-dialog h2 { font-size: 1.13rem; margin: 0 0 0.25rem; }
+.writing-insert-dialog label:not([hidden]) { display: grid; gap: 0.25rem; font-size: 0.875rem; }
 .play-diary-fields { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
 #play-diary-turns { display: grid; gap: 0.75rem; }
 .play-diary-turn-fields { min-width: 0; margin: 0; border: 1px solid var(--border-color); border-radius: var(--shell-radius-sm); }
 .play-diary-turn-fields legend { font-size: 0.875rem; }
 #play-diary-dialog [name="addTurn"] { justify-self: start; }
 #play-diary-dialog [name="removeTurn"]:not([hidden]) { margin-top: 0.5rem; }
-#play-diary-dialog textarea { resize: vertical; }
-#documents-name-dialog input, #play-diary-dialog :is(input, textarea, select) {
+.writing-insert-dialog textarea { resize: vertical; }
+#documents-name-dialog input, .writing-insert-dialog :is(input, textarea, select) {
   min-width: 0;
   padding: 0.5rem;
   font: inherit;

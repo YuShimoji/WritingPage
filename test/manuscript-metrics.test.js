@@ -10,6 +10,7 @@ test('visibleText: 装飾・傍点・ルビ・揃え用HTMLの記号を除き、
   assert.equal(Metrics.visibleText('{漢字|かんじ}です'), '漢字です');
   assert.equal(Metrics.visibleText('<p data-zw-align="center">中央</p>'), '中央');
   assert.equal(Metrics.visibleText('## 第一章'), '第一章');
+  assert.equal(Metrics.count('> [!SCENE] 朝\n\n> [!SPOILER] 地図\n> **北**へ', 'noSpaces'), 5);
 });
 
 test('visibleText: 一覧にない括弧書きや、数式の * は本文として残す', () => {

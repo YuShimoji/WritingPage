@@ -63,7 +63,8 @@
     const id = window.ZenWriterStorage.getCurrentDocId();
     if (!id || !store?.isChapterMode(id)) return;
     const chapters = store.getChaptersForDoc(id);
-    if (!chapters.length || (!text.includes(marker) && !chapters.some(ch => ch.content?.includes(marker)))) return;
+    const hasScene = source => source?.includes(marker) || window.ZWMdItBody.hasReadingBlocks(source);
+    if (!chapters.length || (!hasScene(text) && !chapters.some(ch => hasScene(ch.content)))) return;
     if (chapters.length === 1 && chapters[0].name === '本文') {
       if (chapters[0].content !== text) store.updateChapterContent(chapters[0].id, text);
       return;
@@ -359,5 +360,48 @@
     }
   });
 
-  window.ZWPlayDiary = { project, serialize, serializeCaption, syncChapterBodies, canInsert, rememberPosition, open };
+  const readingDialog = document.getElementById('reading-block-dialog');
+  const readingForm = readingDialog.querySelector('form');
+  const readingFields = readingForm.elements;
+
+  function openReadingBlock(type) {
+    if (!canInsert() || readingDialog.open) return;
+    if (!position) rememberPosition();
+    const spoiler = type === 'SPOILER';
+    readingForm.reset();
+    readingForm.dataset.type = type;
+    readingDialog.querySelector('h2').textContent = spoiler ? '伏せ書きを挿入' : '場面字幕を挿入';
+    readingDialog.querySelector('#reading-block-label').textContent = spoiler ? '開く前に見せる見出し' : '場面字幕';
+    readingDialog.querySelector('#reading-block-body-label').textContent = spoiler ? '開くと読める本文' : '副題（任意）';
+    readingFields.body.required = spoiler;
+    readingDialog.showModal();
+  }
+
+  readingForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const title = literal(readingFields.titleText.value);
+    const body = literal(readingFields.body.value);
+    if (!title || (readingFields.body.required && !body)) {
+      const invalid = title ? readingFields.body : readingFields.titleText;
+      invalid.setCustomValidity('文字を入力してください。');
+      invalid.reportValidity();
+      invalid.setCustomValidity('');
+      return;
+    }
+    readingDialog.close();
+    insert(quote('[!' + readingForm.dataset.type + '] ' + title + (body ? '\n\n' + body : '')));
+    position = null;
+  });
+  function cancelReadingBlock() {
+    readingDialog.close();
+    position?.root.focus();
+    position = null;
+  }
+  readingFields.cancel.addEventListener('click', cancelReadingBlock);
+  readingDialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    cancelReadingBlock();
+  });
+
+  window.ZWPlayDiary = { project, serialize, serializeCaption, syncChapterBodies, canInsert, rememberPosition, open, openReadingBlock };
 })();

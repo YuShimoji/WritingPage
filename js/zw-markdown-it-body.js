@@ -10,8 +10,45 @@
 
   var sharedFallbackRenderer = null;
 
+  // Recognize markers in parsed blockquotes, before Markdown parses their
+  // titles. Escaped markers, ordinary quotes and code examples remain literal.
+  function renderReadingBlocks(state) {
+    if (!state.src.includes('[!SCENE]') && !state.src.includes('[!SPOILER]')) return;
+    const tokens = state.tokens;
+    const quotes = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      if (token.type === 'blockquote_close') {
+        token.tag = quotes.pop();
+        continue;
+      }
+      if (token.type !== 'blockquote_open') continue;
+      quotes.push(token.tag);
+      const inline = tokens[i + 2];
+      if (tokens[i + 1]?.type !== 'paragraph_open' || inline?.type !== 'inline') continue;
+      const lines = inline.content.split('\n');
+      const marker = /^\[!(SCENE|SPOILER)\][ \t]+(.+)$/.exec(lines[0]);
+      if (!marker) continue;
+      const spoiler = marker[1] === 'SPOILER';
+      const interactive = spoiler && !state.env.zwEditing;
+      token.tag = interactive ? 'details' : 'section';
+      quotes[quotes.length - 1] = token.tag;
+      token.attrSet('class', spoiler ? 'zw-spoiler' : 'zw-intertitle');
+      const titleTag = interactive ? 'summary' : 'header';
+      const start = new state.Token('reading_title_open', titleTag, 1);
+      start.attrSet('class', 'zw-reading-title');
+      const title = new state.Token('inline', '', 0);
+      title.content = marker[2];
+      title.children = [];
+      const end = new state.Token('reading_title_close', titleTag, -1);
+      inline.content = lines.slice(1).join('\n');
+      tokens.splice(i + 1, inline.content ? 0 : 3, start, title, end);
+    }
+  }
+
   function createRenderer(options) {
     const md = window.markdownit(options);
+    md.core.ruler.before('inline', 'reading_blocks', renderReadingBlocks);
     const renderImage = md.renderer.rules.image;
     md.renderer.rules.image = function (tokens, index, options, env, renderer) {
       const image = tokens[index];
@@ -176,6 +213,7 @@
 
   window.ZWMdItBody = {
     createRenderer: createRenderer,
+    hasReadingBlocks: source => /^ {0,3}>[ \t]?\[!(?:SCENE|SPOILER)\][ \t]+\S/m.test(source || ''),
     renderToHtmlBeforePipeline: renderToHtmlBeforePipeline,
   };
 })();

@@ -42,6 +42,8 @@
         { syntax: '- 項目', shortcut: null, desc: '順序なしリスト（* でも可）' },
         { syntax: '1. 項目', shortcut: null, desc: '順序付きリスト' },
         { syntax: '> 引用テキスト', shortcut: null, desc: '引用ブロック' },
+        { syntax: '> [!SCENE] 翌朝', shortcut: null, desc: '場面字幕。次の引用行に副題を書けます。F2 からも挿入できます' },
+        { syntax: '> [!SPOILER] 手掛かり', shortcut: null, desc: '伏せ書き。次の引用行に、開くと読める本文を書きます。F2 からも挿入できます' },
         { syntax: '```\nコード\n```', shortcut: null, desc: 'コードブロック' },
         { syntax: '---', shortcut: null, desc: '水平線（区切り）' }
       ]

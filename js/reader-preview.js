@@ -650,6 +650,7 @@
     var tempDiv = document.createElement('div');
     tempDiv.innerHTML = bodyHtml;
     tempDiv.querySelectorAll('.chapter-nav-bar').forEach(function (el) { el.remove(); });
+    tempDiv.querySelectorAll('details.zw-spoiler[open]').forEach(el => { el.open = false; });
     bodyHtml = tempDiv.innerHTML;
     var article = document.createElement('article');
     article.id = 'manuscript-export';
@@ -669,7 +670,8 @@
       : 'margin: 2rem auto; padding: 0 1rem; ';
     if (!vertical && !layout.charsPerLine && !layout.pageFrame) bodyStyle += 'max-width: 720px; ';
 
-    var html = '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
+    var reduceMotion = document.documentElement.dataset.reduceMotion === 'true' ? ' data-reduce-motion="true"' : '';
+    var html = '<!DOCTYPE html>\n<html lang="ja"' + reduceMotion + '>\n<head>\n'
       + '<meta charset="UTF-8">\n'
       + '<meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
       + '<title>' + (title || 'Zen Writer Export').replace(/</g, '&lt;') + '</title>\n'
@@ -752,10 +754,11 @@
     return /^> \[!PLAY-DIARY\](?:[ \t]|$)/m.test(markdown || '');
   }
 
-  function getDiaryExport() {
+  function getFormattedManuscriptExport() {
     const ctx = getCurrentReaderDocContext();
     const chapters = ctx.store?.getChaptersForDoc(ctx.docId) || [];
-    if (!containsDiary(document.getElementById('editor')?.value) && !chapters.some(ch => containsDiary(ch.content))) return null;
+    const needsLayout = source => containsDiary(source) || window.ZWMdItBody.hasReadingBlocks(source);
+    if (!needsLayout(document.getElementById('editor')?.value) && !chapters.some(ch => needsLayout(ch.content))) return null;
     window.ZWContentGuard?.ensureSaved();
     const target = document.createElement('div');
     buildReaderHTML(target);
@@ -878,7 +881,8 @@
     },
     isOpen: function () { return isOpen; },
     exportHtml: exportHtml,
-    getDiaryExport: getDiaryExport,
+    getFormattedManuscriptExport: getFormattedManuscriptExport,
+    getDiaryExport: getFormattedManuscriptExport,
     toggleVertical: toggleVerticalMode,
     get isVertical() { return isVertical; },
     getProgress: function () {

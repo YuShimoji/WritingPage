@@ -518,12 +518,25 @@
     },
     {
       id: 'insert-play-diary',
+      manuscriptInsert: true,
       label: 'プレイ日記の場面を挿入',
       description: '台詞・和訳・スクリーンショットと本文を、編集中の段落の後に並べます',
       keywords: '画像 日誌 ゲーム diary screenshot',
       category: '編集',
       shortcut: '',
       execute: () => window.ZWPlayDiary.open()
+    },
+    {
+      id: 'insert-intertitle', manuscriptInsert: true,
+      label: '場面字幕を挿入', description: '場所や時間を中央に置き、場面の切り替わりを示します',
+      keywords: '場面転換 字幕 時間 場所 scene', category: '編集', shortcut: '',
+      execute: () => window.ZWPlayDiary.openReadingBlock('SCENE')
+    },
+    {
+      id: 'insert-spoiler', manuscriptInsert: true,
+      label: '伏せ書きを挿入', description: '読者が見出しを開くと、隠していた本文を表示します',
+      keywords: '折りたたみ ネタバレ 手掛かり 注記 spoiler', category: '編集', shortcut: '',
+      execute: () => window.ZWPlayDiary.openReadingBlock('SPOILER')
     },
     {
       id: 'toggle-markdown-preview',
@@ -680,7 +693,7 @@
     filterCommands(query) {
       const lowerQuery = (query || '').toLowerCase().trim();
       this.filteredCommands = COMMANDS.filter(cmd => {
-        if (cmd.id === 'insert-play-diary' && !window.ZWPlayDiary.canInsert()) return false;
+        if (cmd.manuscriptInsert && !window.ZWPlayDiary.canInsert()) return false;
         if (cmd.devOnly && !isCommandPaletteDevMode()) return false;
         if (cmd.hidden) return false;
         if (!lowerQuery) return true;
@@ -842,7 +855,7 @@
     executeCommand(cmd) {
       try {
         const deferEditingFocus = cmd.id === 'ui-mode-normal' || cmd.id === 'ui-mode-focus';
-        const keepFocusOffEditor = deferEditingFocus || cmd.id === 'insert-play-diary';
+        const keepFocusOffEditor = deferEditingFocus || cmd.manuscriptInsert;
         cmd.execute();
         this.hide({ skipEditingSurfaceFocus: keepFocusOffEditor });
         if (deferEditingFocus) {

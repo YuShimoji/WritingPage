@@ -12,6 +12,85 @@ async function command(page, label) {
 
 const sample = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64');
 
+test('scene titles and disclosures survive editing and export with reader-controlled reveal', async ({ page, context }, testInfo) => {
+  await page.goto('/index.html');
+  const rich = page.locator('#wysiwyg-editor');
+  await rich.fill('渡し場の記録');
+  await command(page, '場面字幕を挿入');
+  const dialog = page.locator('#reading-block-dialog');
+  await dialog.getByLabel('場面字幕', { exact: true }).fill('夜明けの北門');
+  await dialog.getByLabel('副題').fill('霧月四日、出発の一時間前');
+  await dialog.getByRole('button', { name: '挿入', exact: true }).click();
+  await page.keyboard.insertText('門番が地図の裏を指さした。');
+  await command(page, '伏せ書きを挿入');
+  await dialog.getByLabel('開く前に見せる見出し').fill('地図の印を読む');
+  await dialog.getByLabel('開くと読める本文').fill('二重丸は、水門の下を通る抜け道を示す。');
+  await dialog.getByRole('button', { name: '挿入', exact: true }).click();
+  await expect(rich.locator('.zw-spoiler p')).toBeVisible();
+  await expect(page.locator('#editor')).toHaveValue(/\[!SCENE\] 夜明けの北門[\s\S]+\[!SPOILER\] 地図の印を読む/);
+  await page.reload();
+  await expect(rich.locator('.zw-intertitle header')).toHaveText('夜明けの北門');
+  await expect(rich.locator('.zw-spoiler p')).toContainText('抜け道');
+  await command(page, 'MD プレビュー');
+  const preview = page.locator('#markdown-preview-panel .zw-spoiler');
+  await expect(preview.locator('p')).toBeHidden();
+  await preview.locator('summary').click();
+  await expect(preview.locator('p')).toBeVisible();
+  await page.locator('#editor-preview-back').click();
+  await page.keyboard.press('Alt+Shift+r');
+  const reader = page.locator('#reader-preview');
+  const summary = reader.locator('.zw-spoiler summary');
+  await summary.focus();
+  await summary.press('Enter');
+  await expect(reader.locator('.zw-spoiler p')).toBeVisible();
+  const downloading = page.waitForEvent('download');
+  await reader.getByRole('button', { name: 'HTMLとして保存' }).click();
+  const file = testInfo.outputPath('reading-effects.html');
+  await (await downloading).saveAs(file);
+  const exported = await context.newPage();
+  await exported.setViewportSize({ width: 390, height: 680 });
+  await exported.goto(pathToFileURL(file).href);
+  await expect(exported.locator('.zw-intertitle header')).toHaveText('夜明けの北門');
+  const body = exported.locator('details p');
+  await expect(body).toBeHidden();
+  await exported.locator('summary').press('Space');
+  await expect(body).toBeVisible();
+  await expect(body).toHaveCSS('animation-name', 'zw-reading-fade');
+  await exported.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(body).toHaveCSS('animation-name', 'none');
+  await expect(exported.locator('.zw-intertitle header')).toHaveCSS('animation-name', 'none');
+  expect(await exported.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await exported.locator('article').screenshot({ path: testInfo.outputPath('reading-effects.png') });
+});
+
+test('handwritten reading blocks preserve inline markup and leave examples and ordinary quotes alone', async ({ page }) => {
+  await page.goto('/index.html');
+  await command(page, 'Markdown ソース');
+  await page.locator('#editor').fill([
+    '> [!SCENE] 北の**城門**', '> 夜明け前', '', '> [!SPOILER] 開く', '> **北**へ。', '>',
+    '> - 地図', '> - 鍵', '', '> 通常の引用', '', '> \\[!SCENE] 記法の説明', '',
+    '```markdown', '> [!SPOILER] 記法例', '```'
+  ].join('\n'));
+  await page.getByRole('button', { name: 'リッチテキストに戻る' }).click();
+  const rich = page.locator('#wysiwyg-editor');
+  await expect(rich.locator('.zw-intertitle header strong')).toHaveText('城門');
+  await expect(rich.locator('.zw-spoiler li')).toHaveText(['地図', '鍵']);
+  await expect(rich.locator('blockquote')).toHaveCount(2);
+  await expect(rich.locator('pre')).toContainText('[!SPOILER] 記法例');
+  await rich.locator('.zw-spoiler p').click();
+  await page.keyboard.press('End');
+  await page.keyboard.insertText('門へ。');
+  await expect(page.locator('#editor')).toHaveValue(/門へ。/);
+  await page.reload();
+  await expect(rich.locator('blockquote')).toHaveCount(2);
+  await expect(rich.locator('.zw-intertitle')).toHaveCount(1);
+  await expect(rich.locator('.zw-spoiler li')).toHaveText(['地図', '鍵']);
+  await expect(rich.locator('.zw-spoiler strong')).toHaveText('北');
+  await page.evaluate(() => window.dispatchEvent(new Event('beforeprint')));
+  await expect(page.locator('#print-view details')).toHaveAttribute('open', '');
+  await expect(page.locator('#print-view details p')).toContainText('門へ。');
+});
+
 test('source insertion keeps surrounding paragraphs, and cancel leaves the manuscript alone', async ({ page }) => {
   await page.goto('/index.html');
   await page.waitForLoadState('networkidle');
