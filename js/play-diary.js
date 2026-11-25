@@ -142,7 +142,7 @@
   }
 
   function project(html, editing) {
-    if (!html.includes(marker) && !html.includes('asset://')) return html;
+    if (!html.includes(marker) && !html.includes('asset://') && !html.includes('zw-inquiry')) return html;
     const template = document.createElement('template');
     template.innerHTML = html;
     const fragment = template.content;
@@ -168,6 +168,15 @@
         scene.append(note);
       }
       quote.replaceWith(scene);
+    }
+    for (const inquiry of fragment.querySelectorAll('section.zw-inquiry')) {
+      const intro = inquiry.firstElementChild?.nextElementSibling;
+      const sideContent = intro?.tagName === 'BLOCKQUOTE' ? intro.nextElementSibling : intro;
+      if (!sideContent || sideContent.classList.contains('zw-inquiry-side')) continue;
+      const side = document.createElement('div');
+      side.className = 'zw-inquiry-side';
+      inquiry.insertBefore(side, sideContent);
+      while (side.nextSibling) side.append(side.nextSibling);
     }
     resolveImages(fragment, editing);
     return template.innerHTML;
@@ -205,6 +214,7 @@
     form.reset();
     error.hidden = true;
     fields.alt.parentElement.hidden = true;
+    fields.pictureCaption.parentElement.hidden = true;
     submit.disabled = false;
     dialog.showModal();
   }
@@ -316,6 +326,7 @@
   });
   fields.picture.addEventListener('change', () => {
     fields.alt.parentElement.hidden = !fields.picture.files.length;
+    fields.pictureCaption.parentElement.hidden = !fields.picture.files.length;
   });
   fields.cancel.addEventListener('click', close);
   dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
@@ -326,6 +337,7 @@
     const narrative = literal(fields.narrative.value);
     const day = literal(fields.day.value);
     const description = fields.alt.value.trim();
+    const pictureCaption = literal(fields.pictureCaption.value);
     error.hidden = true;
     const attempt = generation;
     submit.disabled = true;
@@ -344,7 +356,8 @@
         if (attempt !== generation || !dialog.open) return;
         if (!asset) throw new Error('画像を保存できませんでした。');
         if (!editingUrls.has(asset.id)) editingUrls.set(asset.id, URL.createObjectURL(file));
-        parts.push('![' + literal(alt) + '](asset://' + asset.id + ')');
+        const image = '![' + literal(alt) + '](asset://' + asset.id + ')';
+        parts.push(pictureCaption ? image + '\n*' + pictureCaption + '*' : image);
       }
       if (narrative) parts.push(narrative);
       const markdown = quote(parts.join('\n\n'));
@@ -403,5 +416,77 @@
     cancelReadingBlock();
   });
 
-  window.ZWPlayDiary = { project, serialize, serializeCaption, syncChapterBodies, canInsert, rememberPosition, open, openReadingBlock };
+  const inquiryDialog = document.getElementById('inquiry-dialog');
+  const inquiryForm = inquiryDialog.querySelector('form');
+  const inquiryFields = inquiryForm.elements;
+  const inquiryTopics = inquiryForm.querySelector('#inquiry-topics');
+  const inquiryTemplate = inquiryForm.querySelector('#inquiry-topic-template');
+  const inquiryError = inquiryForm.querySelector('[role="alert"]');
+
+  function addTopic() {
+    const topic = inquiryTemplate.content.firstElementChild.cloneNode(true);
+    inquiryTopics.append(topic);
+    return topic;
+  }
+
+  function openInquiry() {
+    if (!canInsert() || inquiryDialog.open) return;
+    if (!position) rememberPosition();
+    inquiryTopics.replaceChildren();
+    inquiryForm.reset();
+    inquiryError.hidden = true;
+    addTopic();
+    inquiryDialog.showModal();
+  }
+
+  function cancelInquiry() {
+    inquiryDialog.close();
+    position?.root.focus();
+    position = null;
+  }
+
+  inquiryFields.addTopic.addEventListener('click', () => addTopic().elements.topic.focus());
+  inquiryTopics.addEventListener('click', event => {
+    if (event.target.name !== 'removeTopic') return;
+    const topic = event.target.closest('fieldset');
+    const next = topic.nextElementSibling?.elements.topic || inquiryFields.addTopic;
+    topic.remove();
+    next.focus();
+  });
+  inquiryFields.cancel.addEventListener('click', cancelInquiry);
+  inquiryDialog.addEventListener('cancel', event => { event.preventDefault(); cancelInquiry(); });
+
+  inquiryForm.addEventListener('submit', event => {
+    event.preventDefault();
+    const speaker = literal(inquiryFields.speaker.value);
+    const intro = literal(inquiryFields.intro.value);
+    const place = literal(inquiryFields.place.value);
+    const journal = literal(inquiryFields.journal.value);
+    const parts = ['[!INQUIRY] ' + speaker, quote([place && '**' + place + '**', intro].filter(Boolean).join('\n\n'))];
+    const invalid = (field, message) => {
+      inquiryError.textContent = message;
+      inquiryError.hidden = false;
+      field.focus();
+    };
+    if (!speaker || !intro) {
+      invalid(speaker ? inquiryFields.intro : inquiryFields.speaker, '話者と導入の台詞・状況を入力してください。');
+      return;
+    }
+    for (const { elements } of inquiryTopics.children) {
+      const topic = literal(elements.topic.value);
+      const answer = literal(elements.answer.value);
+      if (!topic && !answer) continue;
+      if (!topic || !answer) {
+        invalid(topic ? elements.answer : elements.topic, '話題名と返答を両方入力してください。');
+        return;
+      }
+      parts.push(quote('[!SPOILER] ' + topic + '\n\n' + answer));
+    }
+    if (journal) parts.push(quote('[!SPOILER] 旅の手帳\n\n' + journal));
+    inquiryDialog.close();
+    insert(quote(parts.join('\n\n')));
+    position = null;
+  });
+
+  window.ZWPlayDiary = { project, serialize, serializeCaption, syncChapterBodies, canInsert, rememberPosition, open, openReadingBlock, openInquiry };
 })();

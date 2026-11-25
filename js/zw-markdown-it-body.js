@@ -13,7 +13,7 @@
   // Recognize markers in parsed blockquotes, before Markdown parses their
   // titles. Escaped markers, ordinary quotes and code examples remain literal.
   function renderReadingBlocks(state) {
-    if (!state.src.includes('[!SCENE]') && !state.src.includes('[!SPOILER]')) return;
+    if (!/\[!(?:SCENE|SPOILER|INQUIRY)\]/.test(state.src)) return;
     const tokens = state.tokens;
     const quotes = [];
     for (let i = 0; i < tokens.length; i++) {
@@ -27,13 +27,14 @@
       const inline = tokens[i + 2];
       if (tokens[i + 1]?.type !== 'paragraph_open' || inline?.type !== 'inline') continue;
       const lines = inline.content.split('\n');
-      const marker = /^\[!(SCENE|SPOILER)\][ \t]+(.+)$/.exec(lines[0]);
+      const marker = /^\[!(SCENE|SPOILER|INQUIRY)\][ \t]+(.+)$/.exec(lines[0]);
       if (!marker) continue;
       const spoiler = marker[1] === 'SPOILER';
+      const inquiry = marker[1] === 'INQUIRY';
       const interactive = spoiler && !state.env.zwEditing;
       token.tag = interactive ? 'details' : 'section';
       quotes[quotes.length - 1] = token.tag;
-      token.attrSet('class', spoiler ? 'zw-spoiler' : 'zw-intertitle');
+      token.attrSet('class', spoiler ? 'zw-spoiler' : inquiry ? 'zw-inquiry' : 'zw-intertitle');
       const titleTag = interactive ? 'summary' : 'header';
       const start = new state.Token('reading_title_open', titleTag, 1);
       start.attrSet('class', 'zw-reading-title');
@@ -213,7 +214,7 @@
 
   window.ZWMdItBody = {
     createRenderer: createRenderer,
-    hasReadingBlocks: source => /^ {0,3}>[ \t]?\[!(?:SCENE|SPOILER)\][ \t]+\S/m.test(source || ''),
+    hasReadingBlocks: source => /^ {0,3}>[ \t]?\[!(?:SCENE|SPOILER|INQUIRY)\][ \t]+\S/m.test(source || ''),
     renderToHtmlBeforePipeline: renderToHtmlBeforePipeline,
   };
 })();

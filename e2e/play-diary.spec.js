@@ -12,6 +12,54 @@ async function command(page, label) {
 
 const sample = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII=', 'base64');
 
+test('inquiry form preserves topics and journal through rich editing and standalone reading', async ({ page, context }, testInfo) => {
+  await page.goto('/index.html');
+  const rich = page.locator('#wysiwyg-editor');
+  await rich.fill('渡し場の記録');
+  await command(page, '聞き込みの場面を挿入');
+  const dialog = page.getByRole('dialog', { name: '聞き込みの場面を挿入' });
+  await dialog.getByLabel('話者').fill('帳付けのイサ');
+  await dialog.getByLabel('場所').fill('検札小屋');
+  await dialog.getByLabel('導入の台詞・状況').fill('銅貨を七枚、帳面に並べた。');
+  await dialog.getByLabel('話題名').fill('七人目の客 [調査] <仮>');
+  await dialog.getByRole('button', { name: '場面を挿入' }).click();
+  await expect(dialog.getByRole('alert')).toHaveText('話題名と返答を両方入力してください。');
+  await dialog.getByLabel('返答').fill('渡ったのは六人。\n\n帳面に拇印がある。');
+  await dialog.getByRole('button', { name: '話題を追加' }).click();
+  await dialog.getByLabel('話題名').last().fill('港の帳面');
+  await dialog.getByLabel('返答').last().fill('冬の灯祭で名を読む。');
+  await dialog.getByLabel('旅の手帳に残す内容').fill('舟番に訊く。');
+  await dialog.getByRole('button', { name: '場面を挿入' }).click();
+  await expect(page.locator('#editor')).toHaveValue(/\[!INQUIRY\] 帳付けのイサ[\s\S]+> > \[!SPOILER\] 旅の手帳/);
+  await page.reload();
+  const inquiry = rich.locator('.zw-inquiry');
+  await expect(inquiry.locator('.zw-inquiry-side header')).toHaveText(['七人目の客 [調査] <仮>', '港の帳面', '旅の手帳']);
+  await expect(inquiry.locator('blockquote strong')).toHaveText('検札小屋');
+  await inquiry.getByText('舟番に訊く。').click();
+  await page.keyboard.press('End');
+  await page.keyboard.insertText('灯台にも寄る。');
+  await page.reload();
+  await page.keyboard.press('Alt+Shift+r');
+  const reader = page.locator('#reader-preview');
+  const summaries = reader.locator('.zw-inquiry summary');
+  const response = reader.getByText('渡ったのは六人。');
+  await expect(response).toBeHidden();
+  await summaries.first().press('Enter');
+  await expect(response).toBeVisible();
+  const downloading = page.waitForEvent('download');
+  await reader.getByRole('button', { name: 'HTMLとして保存' }).click();
+  const file = testInfo.outputPath('inquiry.html');
+  await (await downloading).saveAs(file);
+  const exported = await context.newPage();
+  await exported.setViewportSize({ width: 390, height: 700 });
+  await exported.goto(pathToFileURL(file).href);
+  await expect(exported.locator('.zw-inquiry summary')).toHaveCount(3);
+  await expect(exported.getByText('渡ったのは六人。')).toBeHidden();
+  await exported.getByText('旅の手帳', { exact: true }).press('Space');
+  await expect(exported.getByText(/灯台にも寄る。/)).toBeVisible();
+  expect(await exported.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
 test('scene titles and disclosures survive editing and export with reader-controlled reveal', async ({ page, context }, testInfo) => {
   await page.goto('/index.html');
   const rich = page.locator('#wysiwyg-editor');
@@ -126,6 +174,7 @@ test('write a scene, resume editing, preview and open its standalone HTML', asyn
   await dialog.getByLabel('和訳').fill('港に続くのはどちらの道？');
   await dialog.getByLabel('スクリーンショット').setInputFiles({ name: 'map.png', mimeType: 'image/png', buffer: sample });
   await dialog.getByLabel('画像の説明').fill('分かれ道[東]の地図');
+  await dialog.getByLabel('キャプション').fill('東側の道に目印 <旗>');
   await dialog.getByLabel('日記本文').fill('港を目印に東へ進む。');
   await dialog.getByRole('button', { name: '場面を挿入', exact: true }).click();
   const scene = rich.locator('.play-diary-scene');
@@ -154,6 +203,7 @@ test('write a scene, resume editing, preview and open its standalone HTML', asyn
   await standalone.goto(pathToFileURL(file).href);
   const rendered = standalone.locator('.play-diary-scene');
   await expect(rendered.getByAltText('分かれ道[東]の地図')).toHaveJSProperty('naturalWidth', 1);
+  await expect(rendered.locator('.play-diary-note img ~ em')).toHaveText('東側の道に目印 <旗>');
   const speech = rendered.locator('blockquote');
   const note = rendered.locator('.play-diary-note');
   expect((await note.boundingBox()).x).toBeGreaterThan((await speech.boundingBox()).x);

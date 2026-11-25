@@ -38,6 +38,9 @@
   function visibleText(markdown) {
     if (!markdown) return '';
     return String(markdown)
+      .replace(/^ {0,3}>[ \t]?\[!INQUIRY\][ \t]+(\S[^\n]*)((?:\n {0,3}>[^\n]*)*)/gm, (_match, title, body) =>
+        (title + body.replace(/\n {0,3}>[ \t]?>[ \t]?(?:\[!SPOILER\][ \t]+)?/g, '\n').replace(/\n {0,3}> ?/g, '\n'))
+          .replace(/&#(\d{1,3});/g, (_entity, number) => String.fromCharCode(Number(number))))
       .replace(/^ {0,3}>[ \t]?\[!(?:SCENE|SPOILER)\][ \t]+(\S[^\n]*)((?:\n {0,3}>[^\n]*)*)/gm, (_match, title, body) =>
         (title + body.replace(/\n {0,3}> ?/g, '\n')).replace(/&#(\d{1,3});/g, (_entity, number) => String.fromCharCode(Number(number))))
       .replace(/^> \[!PLAY-DIARY\]([^\n]*)((?:\n>[^\n]*)*)/gm, (_match, day, body) =>

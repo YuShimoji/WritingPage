@@ -4,7 +4,7 @@
 
 ## プロジェクトファイル (.zwp.json)
 
-インポート手順: サイドバー > 構造 > ... > JSON読込 でファイルを選択。
+左端の「原稿」を開き、「入出力」→「JSON読み込み」からファイルを選びます。
 
 | ファイル | 内容 | 確認できる機能 |
 |----------|------|----------------|
@@ -12,6 +12,10 @@
 | sample-effects-showcase.zwp.json | 装飾・演出の全種サンプル | テキストアニメ, テクスチャ, テキストボックス, タイピング演出, ダイアログ, 再生オーバーレイ |
 | sample-file-management.zwp.json | ファイル管理操作ガイド | インポート/エクスポート, フォルダ作成, D&D移動, スナップショット, 複数選択削除 |
 | sample-wp004-parity-pack.zwp.json | WP-004 手動パック専用の 5 章サンプル | chapter:// 相互リンク, textbox 複合, typing/dialog + ルビ, broken wikilink, Reader genre preset 手動比較 |
+| [七人目の渡し賃](ash-ferry-inquiry.zwp.json) | NarrativeGenで遊んだ聞き込み経路 | 話者別の場面、話題と旅の手帳の開閉、5章の目次 |
+| [玄武岩砦の当番帳](basalt-watch.zwp.json) | [Boatmurdered](https://lparchive.org/Dwarf-Fortress-Boatmurdered/) を参考にした架空の日記 | 3人の担当交代、見取り図、開いて読める伝言 |
+| [雨の日、窓辺の席](lamp-in-the-window.zwp.json) | [Alice and Kev](https://aliceandkev.wordpress.com/2009/06/09/alice-and-kev/) を参考にした架空の日記 | 時刻順の観察、2枚の挿絵とキャプション |
+| [北堰の十二年](twelve-years-at-the-dam.zwp.json) | [The Eternal War](https://www.reddit.com/r/gaming/comments/uxpil/ive_been_playing_the_same_game_of_civilization_ii/) を参考にした架空の日記 | 4時点の比較図、判断が分かれた2人の聞き込み、数値の記録 |
 
 ## Markdown サンプル (.md)
 
@@ -32,9 +36,8 @@
 ### .zwp.json ファイル
 
 1. `npm run dev` でエディタを起動
-2. サイドバーを開く (Alt+1 または左端ホバー)
-3. 「構造」カテゴリの「...」メニューから「JSON読込」を選択
-4. サンプルファイルを選んで読み込み
+2. 左端の「原稿」で「入出力」→「JSON読み込み」を選び、サンプルファイルを開く
+3. Alt+Shift+R で読者表示を開く。「HTMLとして保存」でブラウザだけで読めるファイルを保存
 
 ### .md ファイル
 

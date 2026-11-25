@@ -45,11 +45,13 @@
 
     var container = document.createElement('div');
     container.innerHTML = html || '';
-    // Literal angle brackets typed in a diary must survive the rich editor's HTML-enabled Markdown renderer.
-    for (const scene of container.querySelectorAll('.play-diary-scene')) {
+    // Literal angle brackets in a scene must survive the HTML-enabled Markdown renderer.
+    const scenes = '.play-diary-scene, .zw-inquiry';
+    for (const scene of container.querySelectorAll(scenes)) {
       const text = document.createTreeWalker(scene, NodeFilter.SHOW_TEXT);
       while (text.nextNode()) {
-        if (!text.currentNode.parentElement.closest('code, .play-diary-day, .play-diary-caption')) {
+        const parent = text.currentNode.parentElement;
+        if (parent.closest(scenes) === scene && !parent.closest('code, .play-diary-day, .play-diary-caption')) {
           text.currentNode.data = text.currentNode.data.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
       }

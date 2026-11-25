@@ -391,7 +391,7 @@
     target.appendChild(contentDiv);
 
     // 目次とナビバーを注入
-    if (!contentDiv.querySelector('.play-diary-entry') && contentDiv.querySelector('.play-diary-scene')) {
+    if (!contentDiv.querySelector('.play-diary-entry') && contentDiv.querySelector('.play-diary-scene, .zw-inquiry')) {
       // Markdown manuscripts can have episode headings before chapter records exist.
       const headings = contentDiv.querySelectorAll(':scope > h2');
       if (headings.length > 1) headings.forEach((heading, index) => {
@@ -751,7 +751,7 @@
   }
 
   function containsDiary(markdown) {
-    return /^> \[!PLAY-DIARY\](?:[ \t]|$)/m.test(markdown || '');
+    return /^ {0,3}>[ \t]?\[!(?:PLAY-DIARY|INQUIRY)\](?:[ \t]|$)/m.test(markdown || '');
   }
 
   function getFormattedManuscriptExport() {

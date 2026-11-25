@@ -527,6 +527,12 @@
       execute: () => window.ZWPlayDiary.open()
     },
     {
+      id: 'insert-inquiry', manuscriptInsert: true,
+      label: '聞き込みの場面を挿入', description: '話者の導入、開いて読める話題と旅の手帳をまとめて挿入します',
+      keywords: '証言 会話 手掛かり クエスト 日記', category: '編集', shortcut: '',
+      execute: () => window.ZWPlayDiary.openInquiry()
+    },
+    {
       id: 'insert-intertitle', manuscriptInsert: true,
       label: '場面字幕を挿入', description: '場所や時間を中央に置き、場面の切り替わりを示します',
       keywords: '場面転換 字幕 時間 場所 scene', category: '編集', shortcut: '',

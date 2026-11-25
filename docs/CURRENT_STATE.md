@@ -2,7 +2,7 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-25 / Windows 確認版 `c44aa9b`。日記と通常原稿の F2 に「場面字幕を挿入」「伏せ書きを挿入」を追加。[書き方と Markdown の例](../README.md#場面字幕と伏せ書き)・[操作できる HTML 見本](<D:/AI-Runs/WritingPage/verification/reading-effects.html>)
+更新: 2026-11-25 / `feat/play-diary-scenes` に聞き込みの場面と画像キャプションを追加。[作り方](../README.md#聞き込みの場面)・[編集用サンプル](../samples/README.md)。直近の Windows 確認版は `c44aa9b`（[場面字幕と伏せ書きの HTML](<D:/AI-Runs/WritingPage/verification/reading-effects.html>)）。
 
 ## いまいる場所
 
@@ -13,6 +13,8 @@
 | 記法と画面効果 | 脚本の中央字幕と場面転換を参考に、任意の副題を付けた場面字幕を組み、読者表示で画面に入ると濃くする。折りたたみ注記を参考に、手掛かりをその場で開閉できる伏せ書きを追加。OS の動きを減らす設定とアプリ設定に対応。比較した別方式は、本文の近くに補足を置く [Tufte CSS](https://edwardtufte.github.io/tufte-css/)、分岐先を用意する [ink](https://www.inklestudios.com/ink/web-tutorial/)、同じ構図の画像2枚を重ねる [Juxtapose](https://juxtapose.knightlab.com/)。今回は文章だけで使える2つを実装。 |
 | 表現の確認 | Windows 版で新規原稿に両方を入力し、保存復帰・読者表示の Enter 開閉・HTML 出力を確認。[Windows 実画面](<D:/AI-Runs/WritingPage/verification/reading-effects-windows.png>)・[390px の HTML](<D:/AI-Runs/WritingPage/verification/reading-effects-narrow.png>)。梱包136ファイルがソースと一致。関連 E2E 10件・unit 64件・lint・smoke・build 成功。[全633件](<D:/AI-Runs/WritingPage/tmp/reading-effects-suite.log>)は623成功・4スキップ・6失敗。6件すべて前版にもある。調査から Windows 実機・全体試験まで約21分（見込み20〜40分）。 |
 | プレイ日記 | [参考日記](https://len.s71.xrea.com/morrowind/)に合わせ、1章を1話とする。F2の場面挿入で、登場人物・プレイヤーの名前、原文、和訳を発言順に追加できる。過去の無記名の発言は「ゲーム内の台詞」と表示する。画像と本文は「筆者の記録」にまとめ、狭幅は会話の下に置く。読者表示と単体HTMLは目次・前後リンクに対応し、JSONで画像を含めて編集を再開できる。 |
+| 聞き込み | F2 の「聞き込みの場面を挿入」で話者・場所・導入・複数の返答・旅の手帳を一度に入力。NarrativeGen `bc87be5` の [七人目の渡し賃](<D:/AI-Runs/WritingPage/verification/ash-ferry-inquiry.html>) を、Studio で結末まで実行した経路に沿って5章の編集用見本にした。正式な双方向連携は [NarrativeGen の契約](https://github.com/YuShimoji/NarrativeGen/blob/bc87be58e4135af5c66a6f67f109d77642cfc706/docs/specs/writingpage-io-contract.md) の着手条件（形式の安定・双方合意など）を待つ。 |
+| 閲覧用プレイ日記 | [玄武岩砦の当番帳](<D:/AI-Runs/WritingPage/verification/basalt-watch.html>)、[雨の日、窓辺の席](<D:/AI-Runs/WritingPage/verification/lamp-in-the-window.html>)、[北堰の十二年](<D:/AI-Runs/WritingPage/verification/twelve-years-at-the-dam.html>)。各3章。通常のJSON読み込み→再読込→読者表示→HTML保存を4原稿で確認。外部通信を切ったHTMLで画像・目次・開閉、幅390pxで横はみ出しなしを確認。聞き込みの入れ子がリッチ編集とHTMLの往復で崩れる回帰を守る試験を追加。関連E2E 37件、unit 64件、lint・smoke・Webビルド成功。 |
 | 日記の確認 | Windows確認版で旅人の質問・渡し守の返答を1場面に入力し、再読み込み後の[読者表示](<D:/AI-Runs/WritingPage/verification/speaker-layout-windows.png>)で名前と和訳を確認。[書き出したHTML](<D:/AI-Runs/WritingPage/verification/speaker-layouts.html>)は900px幅で会話と記録が横並び、390px幅で縦並び。実行用136ファイルがsourceと一致。旧形式・2話の目次・画像のJSON復元も日記のE2Eで確認。 |
 | 日記版の検証結果 | 日記のE2E 8件、unit 64件、smoke、Web・Windowsビルド、変更JSとMarkdownのlintが成功。[全631件のログ](<D:/AI-Runs/WritingPage/tmp/diary-speakers-suite.log>)は620成功・4スキップ・7失敗。うち6件は前版と同じ項目。残る箇条書きの試験は準備中にタイムアウトし、単独再実行で成功。話者別レイアウトの実機・全体試験の確認まで約21分（見込み15〜30分）。 |
 | ブランチ統一 (2026-11-15) | main = origin/main。docs スリム化 `52bfb8e` と参照切れ修正を ff 統合。旧 cascade / feature 系25本・`.windsurf` worktree 15本・stash 3件・リモート slim ブランチは、全 ref の bundle と未コミット差分・stash patch を `D:\AI-Runs\WritingPage\removed\20261115\`（`all-refs.bundle` + `refs.txt`）へ退避してから削除。残りは `codex/*`（ローカル2本・リモート4本。10月候補で一部のみ採用）と、その worktree `D:\AI-Runs\WritingPage\worktree-2966f3-20261005`。 |

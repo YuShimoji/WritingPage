@@ -79,6 +79,28 @@
       }
     }
     @media print { details.zw-spoiler::details-content { content-visibility: visible; } }
+    .zw-inquiry {
+      display: flex; flex-wrap: wrap; align-items: start; gap: .85em 1.25em;
+      margin-block: 1.5em; padding: 1em;
+      border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+      background: color-mix(in srgb, currentColor 3%, transparent);
+      overflow-wrap: anywhere;
+    }
+    .zw-inquiry > header {
+      flex: 0 0 100%; font-size: 1.35em; font-weight: 650;
+      border-block-end: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+      padding-block-end: .35em;
+    }
+    .zw-inquiry > blockquote {
+      flex: 2 1 16em; min-inline-size: 0; margin: 0; padding: 0; border: 0;
+      background: transparent; color: inherit; font-style: normal;
+    }
+    .zw-inquiry-side { display: grid; gap: .5em; flex: 1 1 13em; min-inline-size: 0; }
+    .zw-inquiry-side > .zw-spoiler { margin: 0; padding: .5em .75em; }
+    .zw-inquiry-side > :not(.zw-spoiler) { margin: 0; }
+    .zw-inquiry p { text-indent: 0; }
+    .zw-inquiry p:first-child { margin-block-start: 0; }
+    .zw-inquiry p:last-child { margin-block-end: 0; }
     .play-diary-scene {
       display: flex;
       flex-wrap: wrap;
@@ -114,7 +136,18 @@
     .play-diary-scene p:last-child { margin-block-end: 0; }
     .play-diary-scene blockquote em { font-size: 0.91em; }
     .play-diary-scene img { display: block; max-width: 100%; height: auto; }
+    .play-diary-note img + br:has(+ em:last-child) { display: none; }
+    .play-diary-note img + br + em:last-child {
+      display: block; margin-block-start: .4em; font-size: .88em;
+    }
     .play-diary-navigation { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75em; margin-block: 1.5em; }
+    #manuscript-export:has(#diary-contents) > h1 { margin-block: .6em .75em; text-wrap: balance; }
+    #manuscript-export #diary-contents {
+      margin-block: 1em 1.6em; padding: .7em 1em; min-inline-size: 0;
+      border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+    }
+    #manuscript-export #diary-contents h2 { margin-block: 0 .35em; font-size: 1em; }
+    #manuscript-export #diary-contents ol { margin: 0; padding-inline-start: 1.5em; }
     #diary-contents a, .play-diary-navigation a { color: inherit; text-decoration: underline; text-underline-offset: 0.18em; }
     [data-manuscript-direction="vertical"] {
       writing-mode: vertical-rl;
@@ -534,11 +567,41 @@
       <button type="button" class="zw-shell-control" name="addTurn">発言を追加</button>
       <label>スクリーンショット<input name="picture" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>
       <label hidden>画像の説明<input name="alt" type="text"></label>
+      <label hidden>キャプション（画像の下に表示）<input name="pictureCaption" type="text"></label>
       <label>日記本文<textarea name="narrative" rows="4"></textarea></label>
       <div role="alert" hidden></div>
       <div class="documents-name-actions">
         <button type="button" class="zw-shell-control" name="cancel">キャンセル</button>
         <button type="submit" class="zw-shell-control" value="accept">場面を挿入</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="inquiry-dialog" class="writing-insert-dialog" aria-labelledby="inquiry-title">
+    <form>
+      <h2 id="inquiry-title">聞き込みの場面を挿入</h2>
+      <div class="play-diary-fields">
+        <label>話者<input name="speaker" type="text" required autofocus></label>
+        <label>場所<input name="place" type="text"></label>
+      </div>
+      <label>導入の台詞・状況<textarea name="intro" rows="3" required></textarea></label>
+      <div id="inquiry-topics"></div>
+      <template id="inquiry-topic-template">
+        <fieldset class="play-diary-turn-fields">
+          <legend>話題</legend>
+          <div class="play-diary-fields">
+            <label>話題名<input name="topic" type="text"></label>
+            <label>返答<textarea name="answer" rows="2"></textarea></label>
+          </div>
+          <button type="button" class="zw-shell-control" name="removeTopic">この話題を外す</button>
+        </fieldset>
+      </template>
+      <button type="button" class="zw-shell-control" name="addTopic">話題を追加</button>
+      <label>旅の手帳に残す内容<textarea name="journal" rows="3"></textarea></label>
+      <div role="alert" hidden></div>
+      <div class="documents-name-actions">
+        <button type="button" class="zw-shell-control" name="cancel">キャンセル</button>
+        <button type="submit" class="zw-shell-control">場面を挿入</button>
       </div>
     </form>
   </dialog>
