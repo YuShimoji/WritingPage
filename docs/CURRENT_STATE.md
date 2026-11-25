@@ -18,7 +18,7 @@
 | 製品と CI | [iA Writer の Library と Editor](https://ia.net/writer/how-to/quick-tour)、[Obsidian のコマンド検索](https://obsidian.md/help/plugins/command-palette)を参考に原稿選択・検索・保存表示を整理。390×540 でも候補のスクロール・絞り込み・キーボード選択、保存表示の画面内配置を確認。[候補と一致する CI](https://github.com/YuShimoji/WritingPage/actions/runs/45371004911) は E2E 616件成功・4件スキップ。調査から実機・CI確認まで約25分（見込み20〜40分）。 |
 | 候補 | 上記 source の clean checkout から生成。exe SHA `50f35480…5e08a42d`、app.asar SHA `b90b4984…7241b3445`。入口 HTML と css・js・electron 配下の実行用 HTML/CSS/JS 133ファイルが source と一致。 |
 | Native | 1200×800 の Windows 版で F2 →「構造」→ フォルダ内に文書を作成 → 入力・自動保存、フォルダ開閉、F2 の絞り込み・矢印選択・Esc 復帰を検証。明暗両テーマで見出しと保存表示を確認。実画面は `output/release-readiness/2026-11-24/writing-interface/`。 |
-| 残る不具合 | テスト原稿「文字数」の3文字に下線を付けると、本文は同じでもステータス表示が26文字になる。装飾込みの文字数集計を独立した修正候補とする。 |
+| 文字数集計 (2026-11-25) | 下線・太字・取消線・傍点・揃え用HTMLを数えない（17文字に下線を付けて40→17、`{kenten\|…}` が "kenten" と数えられる順序誤りも修正）。実装は `EditorUI._countPlainChars`、E2E は `first-writing-comfort.spec.js`。改行・空白の扱いは従来どおり（本人の判断待ち、下記）。空の原稿には左端ホバーと F2 の案内を追加。関連E2E 39件 pass。Electron 候補への反映は未実施（`61333a8` の exe は旧集計）。 |
 | ローカルの一時出力 | 自動承認が削除を拒否し、今回の中間ビルド `output/electron-candidates/5798130890332e0ab7091706537c7184a35012b3/`、検証プロファイル `writing-interface-*` 5個、画像 `writing-interface/after-*.png` 3枚が残る。前回の `7de4a938…`、`sidebar-review-rXlFUE`・`structure-sidebar-7de4a93` と `structure-sidebar/draft.png` も同じ状態。いずれも現行の体験確認リンクの対象外。 |
 | 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
 
@@ -32,6 +32,7 @@
 | 作業 | 目的と次に可能になること |
 | --- | --- |
 | 新候補の本人操作感レビュー | 体験確認ウィンドウを使用中なら保存後に閉じ、`output/electron-candidates/61333a8916c87ec5c175ab55b52ec5c665a23458/Zen Writer 体験確認.lnk` を開く。以前の体験確認リンクも同じ版と本人用プロファイルを開く。「構造」で原稿を選んだときの見分けやすさ、執筆中の右下表示、F2 の候補の読みやすさを本人が判断する。 |
+| UI 再設計案の判断（本人） | 2026-11-25 の再評価で、局所修正では届かない3点を確認。①左ナビを作業単位の4区分（原稿 / 資料 / 表示 / 設定）へ統合し、集中・タイプライター・目標を表示区分へ上げる。②文字数・枚数・節別集計を、見えている本文から数える単一の集計に集約し、改行・空白の数え方と原稿用紙換算（行×字）を選べるようにする。③縦横・行字数・ページ枠を文書の組み設定として持たせ、編集面・MDプレビュー・Reader・出力で共有する。選択肢の目安と根拠は [`USER_REQUEST_LEDGER.md`](USER_REQUEST_LEDGER.md) の次スライス候補表。 |
 | 次の切り出し（1回1クラスタ） | ルビ/傍点・DSL モーダル/ブロック挿入・リンク挿入・フローティングツールバー/書式状態同期（`RichTextRubyKentenActions.js` / `RichTextDslActions.js` / `RichTextLinkActions.js` / `RichTextFloatingToolbarActions.js`）は切り出し済み（`editor-wysiwyg.js` 2895→1944行。lint・unit 56・関連E2E・build 確認、リンクは実ブラウザで差し込み・モーダル開閉も確認）。`editor-wysiwyg.js` 内の次の候補は未選定（`_showWikiComplete` 周辺の Wiki 補完など）。他の大物は `storage.js` 1928 / `story-wiki.js` 1655 / `sidebar-manager.js` 1602 / `floating-memo-field.js` 1513 行。 |
 | 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用（差分は上記 `codex/*` に残る）。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
 | 通常利用への切替判断 | 候補source・profile・既存原稿の扱いを確認して、通常起動先を変えるか判断する。今回の技術合格だけで切替・公開・配布を実行しない |

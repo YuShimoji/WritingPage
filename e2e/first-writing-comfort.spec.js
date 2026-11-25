@@ -64,4 +64,28 @@ test.describe('First writing comfort', () => {
     await expect(page.locator('#design-cockpit')).not.toBeVisible();
     await expect(page.locator('#wysiwyg-editor')).toBeFocused();
   });
+
+  // 実機で、3文字に下線を付けると右下の文字数が 26 になった。装飾の記号は数えない。
+  test('status chip counts only visible characters after underline, kenten and ruby', async ({ page }) => {
+    await page.goto('/index.html?reset=1');
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
+
+    const editor = page.locator('#wysiwyg-editor');
+    await expect(editor).toBeFocused();
+    await page.keyboard.insertText('駅を出ると、雨はもう上がっていた。');
+    await page.keyboard.press('Control+A');
+    await page.keyboard.press('Control+U');
+
+    const chip = page.locator('#writing-status-chip');
+    await expect(chip).toHaveAttribute('data-char-count', '17');
+    expect(await page.evaluate(() => window.ZenWriterEditor.getEditorValue())).toContain('[underline]');
+
+    const counts = await page.evaluate(() => ({
+      kenten: window.EditorUI._countPlainChars('{kenten|傍点}です'),
+      ruby: window.EditorUI._countPlainChars('{漢字|かんじ}です'),
+      bracketNote: window.EditorUI._countPlainChars('[メモ]と書く')
+    }));
+    expect(counts).toEqual({ kenten: 4, ruby: 4, bracketNote: 7 });
+  });
 });

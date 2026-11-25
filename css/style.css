@@ -1895,6 +1895,7 @@ html[data-line-break-mode='strict-ja'] .editor-preview {
 
 #wysiwyg-editor[data-empty='true']::before {
   content: attr(data-empty-hint);
+  white-space: pre-line;
   position: absolute;
   inset-block-start: var(--editor-padding-y, 2rem);
   inset-inline: calc(var(--editor-padding-x, 2.5rem) + 0.25rem) var(--editor-padding-x, 2.5rem);

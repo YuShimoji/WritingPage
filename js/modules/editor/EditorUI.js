@@ -47,7 +47,17 @@
         },
 
         /**
+         * 装飾・アニメーション・テクスチャの対記法 `[tag]…[/tag]` のタグ名（閉じた一覧）。
+         * RichTextTurndownRules / TextAnimationDictionary が書き出す名前と一致させる。
+         * 本文中の `[メモ]` のような括弧書きを巻き込まないよう、任意の英小文字ではなく一覧に限る。
+         */
+        _INLINE_MARKUP_TAG_RE: /\[\/?(?:bold|italic|underline|strike|smallcaps|light|shadow|black|uppercase|lowercase|capitalize|outline|glow|wide|narrow|fade|slide|type|pulse|shake|bounce|fadein|wave|sparkle|cosmic|fire|glitch)\]/g,
+
+        /**
          * Markdown ソースからプレーンテキスト文字数を返す (DSL/見出し/装飾記法を除外)
+         * 読者に見える文字だけを数える: ルビは親文字、傍点・リンクは本文、
+         * 装飾タグ・強調記号・揃え用の HTML 断片は数えない。
+         * 改行・空白の扱いは従来どおり（先頭と末尾の空白のみ除外）。
          */
         _countPlainChars(markdown) {
             if (!markdown) return 0;
@@ -56,8 +66,13 @@
                 .replace(/^:::\s*$/gm, '')
                 .replace(/^#{1,6}\s+/gm, '')
                 .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-                .replace(/\{([^|]+)\|[^}]+\}/g, '$1')
+                // 傍点はルビ記法 {親|ルビ} と同じ形なので、先に処理しないと "kenten" が数えられる
                 .replace(/\{kenten\|([^}]+)\}/g, '$1')
+                .replace(/\{([^|}]+)\|[^}]+\}/g, '$1')
+                .replace(this._INLINE_MARKUP_TAG_RE, '')
+                .replace(/<\/?(?:p|h[1-3]|blockquote|li)\b[^>]*>/gi, '')
+                .replace(/\*\*|~~/g, '')
+                .replace(/(^|[^*\w])\*([^*\n]+)\*(?=[^*\w]|$)/g, '$1$2')
                 .trim()
                 .length;
         },
