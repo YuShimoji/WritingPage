@@ -57,7 +57,7 @@ test.describe('A2 daily writing proof', () => {
     await expect(chip).toContainText('文字数:');
 
     await openSidebarGroup(page, 'sections');
-    await expect(page.locator('#sections-gadgets-panel')).toBeVisible();
+    await expect(page.locator('#manuscript-gadgets-panel')).toBeVisible();
     await expect(page.locator('.sections-node-title').filter({ hasText: 'A2 Daily Proof' })).toBeVisible();
     await expect(page.locator('.sections-node-title').filter({ hasText: 'セクション確認' })).toBeVisible();
 

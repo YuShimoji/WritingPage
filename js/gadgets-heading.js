@@ -468,7 +468,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['theme'],
+    groups: ['view'],
     title: '見出しスタイル',
     description: '見出しプリセット選択と H1-H6 の個別調整。'
   });

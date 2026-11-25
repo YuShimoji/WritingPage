@@ -175,7 +175,7 @@ test.describe('Plugin Manager', () => {
       name: 'SampleWordCountMod',
       source: 'plugin',
       pluginId: 'sample-word-count-gadget',
-      groups: ['assist'],
+      groups: ['view'],
     });
   });
 
@@ -206,11 +206,11 @@ test.describe('Plugin Manager', () => {
       name: 'MarkdownPreview',
       source: 'plugin',
       pluginId: 'markdown-preview-gadget',
-      groups: ['edit'],
+      groups: ['view'],
     });
 
-    await openSidebarGroup(page, 'edit');
-    const wrapper = page.locator('#edit-gadgets-panel .gadget-wrapper[data-gadget-name="MarkdownPreview"]');
+    await openSidebarGroup(page, 'view');
+    const wrapper = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="MarkdownPreview"]');
     await expect(wrapper).toBeVisible();
 
     const previewPanel = page.locator('#editor-preview');
@@ -287,12 +287,12 @@ test.describe('Plugin Manager', () => {
       name: 'PomodoroTimer',
       source: 'plugin',
       pluginId: 'pomodoro-timer-gadget',
-      groups: ['assist'],
+      groups: ['view'],
       kind: 'tool',
     });
 
-    await openSidebarGroup(page, 'assist');
-    const wrapper = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    await openSidebarGroup(page, 'view');
+    const wrapper = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(wrapper).toBeVisible();
     await expect(wrapper.locator('.pomodoro-display')).toBeVisible();
   });

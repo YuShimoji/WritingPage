@@ -26,6 +26,8 @@
     MarkdownPreview: true,
     HUDSettings: true,
     PomodoroTimer: true,
+    // 選択肢・ジャンプ記法はビジュアルノベル向け。小説・脚本の標準では出さない。
+    ChoiceTools: { exceptLoadouts: { 'vn-layout': true } },
     TextEffects: { exceptLoadouts: { 'vn-layout': true } }
   };
 

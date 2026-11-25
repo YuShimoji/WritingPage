@@ -166,7 +166,7 @@
       console.error('Outline gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.OUTLINE_INIT_FAILED) || 'アウトラインの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_OUTLINE_TITLE) || 'アウトライン', description: '見出しをツリー表示し、クリックで本文へ移動。' });
+  }, { groups: ['manuscript'], title: (window.UILabels && window.UILabels.GADGET_OUTLINE_TITLE) || 'アウトライン', description: '見出しをツリー表示し、クリックで本文へ移動。' });
 
   // Documents gadget - 階層対応版は gadgets-documents-hierarchy.js に移行
   /* DISABLED - Using hierarchy version
@@ -582,7 +582,7 @@
       console.error('Documents gadget failed:', e);
       try { el.textContent = (window.UILabels && window.UILabels.DOCS_INIT_FAILED) || 'ドキュメントガジェットの初期化に失敗しました。'; } catch (_) { }
     }
-  }, { groups: ['structure'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
+  }, { groups: ['manuscript'], title: (window.UILabels && window.UILabels.GADGET_DOCUMENTS_TITLE) || 'ドキュメント' });
   END OF DISABLED DOCUMENTS GADGET */
 
   // TypographyThemes gadget (個別ファイル化済み - gadgets-typography.js)

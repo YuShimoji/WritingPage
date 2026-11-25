@@ -3063,11 +3063,8 @@ html[data-writing-sidebar-focus="true"] .sidebar-accordion {
   gap: 0.625rem;
 }
 
-html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] #structure-gadgets-panel {
-  display: none;
-}
-
-html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] .accordion-category[data-category="structure"] {
+/* 執筆集中表示（focus モード）では、原稿区分のうちセクション移動だけを残す */
+html[data-writing-sidebar-focus="true"][data-writing-settings-open="false"] #manuscript-gadgets-panel .gadget-wrapper:not([data-gadget-name="SectionsNavigator"]) {
   display: none;
 }
 
@@ -10274,17 +10271,17 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .accordion-content .
   padding-bottom: 2rem;
 }
 
-html[data-ui-mode='normal'][data-left-nav-state='category'] #structure-gadgets-panel {
+html[data-ui-mode='normal'][data-left-nav-state='category'] #manuscript-gadgets-panel {
   gap: 0;
   padding-bottom: 0.5rem;
 }
 
-#structure-gadgets-panel .gadget-wrapper {
+#manuscript-gadgets-panel .gadget-wrapper {
   padding: 0.125rem 0;
   gap: 0;
 }
 
-#structure-gadgets-panel .gadget-header {
+#manuscript-gadgets-panel .gadget-header {
   min-height: 2.5rem;
 }
 

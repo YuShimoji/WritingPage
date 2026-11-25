@@ -492,7 +492,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['theme'],
+    groups: ['view'],
     title: (window.UILabels && window.UILabels.GADGET_TYPOGRAPHY_TITLE) || 'フォント',
     description: 'フォント・文字サイズ・行間を調整。'
   });

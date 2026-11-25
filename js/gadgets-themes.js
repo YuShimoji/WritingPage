@@ -257,7 +257,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['theme'],
+    groups: ['view'],
     title: (window.UILabels && window.UILabels.GADGET_THEMES_TITLE) || 'テーマ',
     description: 'テーマプリセットと背景・文字色を調整。'
   });

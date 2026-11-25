@@ -25,54 +25,39 @@ class SidebarManager {
         this._writingFocusAddBusy = false;
         this._toggleAccordionInProgress = false;
         this.leftNavState = 'root';
-        this.activeCategoryId = 'sections';
-        // アコーディオンカテゴリ設定の統一管理
+        this.activeCategoryId = 'manuscript';
+        // 左ナビの区分は作業単位の4つ（1区分 = 1グループ = 1パネル）。
+        // 区分とガジェットの対応は gadgets-utils.js / loadouts-presets.js が正本。
         this.accordionCategories = [
             {
-                id: 'sections',
-                label: 'セクション',
-                icon: 'list-tree',
-                description: '見出しツリーと話ナビゲーション',
-                panelId: 'sections-gadgets-panel',
+                id: 'manuscript',
+                label: '原稿',
+                icon: 'file-text',
+                description: '書く・構成する（セクション・文書・アウトライン・バックアップ）',
+                panelId: 'manuscript-gadgets-panel',
                 defaultExpanded: true
             },
             {
-                id: 'structure',
-                label: '構造',
-                icon: 'file-text',
-                description: '構成管理（ドキュメント・アウトライン・物語Wiki）',
-                panelId: 'structure-gadgets-panel',
+                id: 'reference',
+                label: '資料',
+                icon: 'book-open',
+                description: '参照する（Wiki・リンクグラフ・画像・Markdown早見表）',
+                panelId: 'reference-gadgets-panel',
                 defaultExpanded: false
             },
             {
-                id: 'edit',
-                label: '編集',
-                icon: 'edit',
-                description: '編集支援（装飾・プレビュー・画像）',
-                panelId: 'edit-gadgets-panel',
-                defaultExpanded: false
-            },
-            {
-                id: 'theme',
-                label: 'テーマ',
-                icon: 'palette',
-                description: '表示調整（テーマ・フォント・見出しスタイル）',
-                panelId: 'theme-gadgets-panel',
-                defaultExpanded: false
-            },
-            {
-                id: 'assist',
-                label: '補助',
-                icon: 'zap',
-                description: '補助。執筆の継続を支える進捗・集中・参照。',
-                panelId: 'assist-gadgets-panel',
+                id: 'view',
+                label: '表示',
+                icon: 'sliders-horizontal',
+                description: '見え方と集中（集中・タイプライター・目標・テーマ・フォント）',
+                panelId: 'view-gadgets-panel',
                 defaultExpanded: false
             },
             {
                 id: 'advanced',
-                label: '詳細設定',
+                label: '設定',
                 icon: 'settings',
-                description: '詳細。環境設定・運用管理・出力を調整。',
+                description: '環境設定・運用管理・出力・キー割り当て',
                 panelId: 'advanced-gadgets-panel',
                 defaultExpanded: false
             }
@@ -84,6 +69,23 @@ class SidebarManager {
     bootstrapTabs() {
         // アコーディオンモードにリダイレクト
         return this.bootstrapAccordion();
+    }
+
+    /**
+     * 区分ID（旧6区分のID・設定モーダルのID を含む）を現行の4区分IDへ解決する。
+     * 保存済みの leftNavCategory や外部からの activateSidebarGroup('structure') を壊さないための読み替え。
+     * @param {string} groupId
+     * @returns {string} 現行の区分ID。解決できなければ空文字
+     */
+    _resolveCategoryId(groupId) {
+        const raw = typeof groupId === 'string' ? groupId.trim().toLowerCase() : '';
+        if (!raw) return '';
+        if (this.accordionCategories.some((category) => category.id === raw)) return raw;
+        if (raw === 'settings') return 'advanced';
+        const utils = window.ZWGadgetsUtils;
+        const legacyMap = utils && utils.LEGACY_GROUP_MAP ? utils.LEGACY_GROUP_MAP : {};
+        const mapped = legacyMap[raw];
+        return mapped && this.accordionCategories.some((category) => category.id === mapped) ? mapped : '';
     }
 
     _persistLeftNavState() {
@@ -381,8 +383,8 @@ class SidebarManager {
             document.documentElement.setAttribute('data-sidebar-slim', 'true');
 
             const settings = this._loadSidebarUISettings() || {};
-            const savedGroup = settings && settings.ui && settings.ui.leftNavCategory;
-            if (savedGroup && this.accordionCategories.some((category) => category.id === savedGroup)) {
+            const savedGroup = this._resolveCategoryId(settings && settings.ui && settings.ui.leftNavCategory);
+            if (savedGroup) {
                 this.activeCategoryId = savedGroup;
             }
             this.leftNavState = 'root';
@@ -768,7 +770,6 @@ class SidebarManager {
         const effective = this._isWritingFocusSidebarEffective();
         const rail = document.getElementById('writing-focus-rail');
         const footer = document.getElementById('writing-focus-footer');
-        const structurePanel = document.getElementById('structure-gadgets-panel');
 
         document.documentElement.setAttribute('data-writing-sidebar-focus', effective ? 'true' : 'false');
         document.documentElement.setAttribute('data-writing-settings-open', effective && this._writingFocusSettingsOpen ? 'true' : 'false');
@@ -795,7 +796,8 @@ class SidebarManager {
         const categories = document.querySelectorAll('.accordion-category[data-category]');
         categories.forEach((section) => {
             const categoryId = section.getAttribute('data-category');
-            if (effective && !this._writingFocusSettingsOpen && categoryId !== 'sections') {
+            // 執筆集中表示では原稿区分だけを残す（中身は CSS がセクション移動だけに絞る）
+            if (effective && !this._writingFocusSettingsOpen && categoryId !== 'manuscript') {
                 section.style.display = 'none';
                 section.setAttribute('aria-hidden', 'true');
                 this._silentAccordionSetExpanded(categoryId, false);
@@ -806,29 +808,21 @@ class SidebarManager {
         });
 
         if (effective) {
-            this._expandAccordionIfCollapsed('sections');
-            this._ensureAccordionGadgetInitialized('sections');
+            this._expandAccordionIfCollapsed('manuscript');
+            this._ensureAccordionGadgetInitialized('manuscript');
             if (this._writingFocusSettingsOpen) {
-                // 設定表示時: structure を展開し他を閉じる
-                this._setAccordionState('structure', true);
-                this._ensureAccordionGadgetInitialized('structure');
+                // 設定表示時: 原稿を展開し他を閉じる
+                this._setAccordionState('manuscript', true);
                 this.accordionCategories.forEach((category) => {
-                    if (category.id !== 'structure') this._setAccordionState(category.id, false);
+                    if (category.id !== 'manuscript') this._setAccordionState(category.id, false);
                 });
-            }
-            if (structurePanel) {
-                structurePanel.style.display = this._writingFocusSettingsOpen ? '' : 'none';
             }
             return;
         }
 
-        if (structurePanel) {
-            structurePanel.style.display = '';
-        }
-
         const savedState = this._loadAccordionState();
-        // 保存が空でも各カテゴリの defaultExpanded が適用される（例: sections は true）。
-        // 旧フォールバック「saved に展開キーが無いと structure を開く」は、
+        // 保存が空でも各カテゴリの defaultExpanded が適用される（例: manuscript は true）。
+        // 旧フォールバック「saved に展開キーが無いと構造を開く」は、
         // 空オブジェクト {} で常に誤判定し更新のたびに構造が開いて見えたため廃止。
         this.accordionCategories.forEach((category) => {
             const isExpanded = savedState[category.id] !== undefined
@@ -1509,7 +1503,7 @@ class SidebarManager {
 
                 // 現在のアクティブグループを選択
                 const activeTab = document.querySelector('.sidebar-tab.active');
-                const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                const gid = activeTab ? activeTab.getAttribute('data-group') : 'manuscript';
                 dd.value = gid;
             }
 
@@ -1524,7 +1518,7 @@ class SidebarManager {
             } else {
                 // 通常（Tabs）または Dropdown モード（選択されたものだけ表示）
                 const activeTab = document.querySelector('.sidebar-tab.active');
-                const gid = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                const gid = activeTab ? activeTab.getAttribute('data-group') : 'manuscript';
 
                 // 表示状態のリセットと更新
                 document.querySelectorAll('.sidebar-group').forEach(sec => {
@@ -1578,12 +1572,7 @@ class SidebarManager {
         }
 
         const opts = (options && typeof options === 'object') ? options : {};
-        const legacyGroupMap = {
-            wiki: 'edit',
-            typography: 'theme',
-            settings: 'advanced'
-        };
-        const normalizedGroupId = legacyGroupMap[groupId] || groupId;
+        const normalizedGroupId = this._resolveCategoryId(groupId);
         const category = this.accordionCategories.find((item) => item.id === normalizedGroupId);
         if (!category) {
             console.warn(`Unknown sidebar group: ${groupId}`);

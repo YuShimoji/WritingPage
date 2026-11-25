@@ -670,7 +670,7 @@ test.describe('UI Mode Consistency', () => {
 
     await page.evaluate(() => {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('theme');
+        window.sidebarManager.activateSidebarGroup('view');
       }
     });
     await page.waitForTimeout(150);
@@ -678,8 +678,8 @@ test.describe('UI Mode Consistency', () => {
     const state = await page.evaluate(() => {
       const html = document.documentElement;
       const shellHeader = document.getElementById('sidebar-shell-header');
-      const active = document.querySelector('.accordion-category[data-category="theme"]');
-      const hidden = document.querySelector('.accordion-category[data-category="sections"]');
+      const active = document.querySelector('.accordion-category[data-category="view"]');
+      const hidden = document.querySelector('.accordion-category[data-category="manuscript"]');
       return {
         navState: html.getAttribute('data-left-nav-state'),
         active: html.getAttribute('data-left-nav-active'),
@@ -693,9 +693,9 @@ test.describe('UI Mode Consistency', () => {
     });
 
     expect(state.navState).toBe('category');
-    expect(state.active).toBe('theme');
+    expect(state.active).toBe('view');
     expect(state.shellVisible).toBe('false');
-    expect(state.anchorLabel).toBe('テーマ');
+    expect(state.anchorLabel).toBe('表示');
     expect(state.activeHeaderDisplay).toBe('none');
     expect(state.hiddenCategoryAria).toBe('true');
     expect(state.hiddenCategoryPointerEvents).toBe('none');
@@ -724,7 +724,7 @@ test.describe('UI Mode Consistency', () => {
         navState: document.documentElement.getAttribute('data-left-nav-state'),
         active: document.documentElement.getAttribute('data-left-nav-active'),
         shellVisible: document.getElementById('sidebar-shell-header')?.getAttribute('aria-hidden'),
-        themeAria: document.querySelector('.accordion-category[data-category="theme"]')?.getAttribute('aria-hidden'),
+        themeAria: document.querySelector('.accordion-category[data-category="view"]')?.getAttribute('aria-hidden'),
         sidebarOpenClass: document.getElementById('sidebar')?.classList.contains('open') || false,
       };
     });
@@ -825,16 +825,16 @@ test.describe('UI Mode Consistency', () => {
   test('session 127: sidebar gadget foundation keeps shell controls stable', async ({ page }) => {
     await setUIMode(page, 'normal');
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]', { state: 'attached' });
+    await openSidebarGroup(page, 'manuscript');
+    await page.waitForSelector('#manuscript-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]', { state: 'attached' });
 
     const metrics = await page.evaluate(() => {
       const html = document.documentElement;
       const toolbar = document.querySelector('.sidebar-chrome-toolbar');
       const dockControls = document.getElementById('sidebar-dock-controls');
-      const content = document.querySelector('.accordion-category[data-category="structure"] .accordion-content');
-      const panel = document.getElementById('structure-gadgets-panel');
-      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
+      const content = document.querySelector('.accordion-category[data-category="manuscript"] .accordion-content');
+      const panel = document.getElementById('manuscript-gadgets-panel');
+      const wrapper = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
       const header = wrapper ? wrapper.querySelector('.gadget-header') : null;
       const body = wrapper ? wrapper.querySelector('.gadget') : null;
       const menuBtn = document.getElementById('documents-io-menu-btn');
@@ -868,7 +868,7 @@ test.describe('UI Mode Consistency', () => {
     });
 
     expect(metrics.navState).toBe('category');
-    expect(metrics.active).toBe('structure');
+    expect(metrics.active).toBe('manuscript');
     expect(metrics.toolbarPointerEvents).toBe('none');
     expect(metrics.toolbarOpacity).toBeLessThanOrEqual(0.01);
     expect(metrics.toolbarMaxHeight).toBeLessThanOrEqual(1);
@@ -885,13 +885,13 @@ test.describe('UI Mode Consistency', () => {
     expect(metrics.treeScrollbarWidth === 'thin' || metrics.treeScrollbarWidth === 'auto').toBe(true);
 
     await page.evaluate(() => {
-      const header = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"] .gadget-header');
+      const header = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"] .gadget-header');
       if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     });
     await page.waitForTimeout(120);
 
     const collapsed = await page.evaluate(() => {
-      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
+      const wrapper = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]');
       const header = wrapper ? wrapper.querySelector('.gadget-header') : null;
       const body = wrapper ? wrapper.querySelector('.gadget') : null;
       return {
@@ -906,7 +906,7 @@ test.describe('UI Mode Consistency', () => {
     expect(collapsed.bodyHidden).toBe('true');
   });
 
-  test('session 127: legacy wiki sidebar command resolves into edit category', async ({ page }) => {
+  test('session 127: legacy wiki sidebar command resolves into reference category', async ({ page }) => {
     await setUIMode(page, 'normal');
     await page.evaluate(() => {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
@@ -918,27 +918,27 @@ test.describe('UI Mode Consistency', () => {
     const state = await page.evaluate(() => ({
       navState: document.documentElement.getAttribute('data-left-nav-state'),
       active: document.documentElement.getAttribute('data-left-nav-active'),
-      editExpanded: document.querySelector('.accordion-category[data-category="edit"] .accordion-header')?.getAttribute('aria-expanded') || null,
+      editExpanded: document.querySelector('.accordion-category[data-category="reference"] .accordion-header')?.getAttribute('aria-expanded') || null,
     }));
 
     expect(state.navState).toBe('category');
-    expect(state.active).toBe('edit');
+    expect(state.active).toBe('reference');
     expect(state.editExpanded).toBe('true');
   });
 
   test('session 128: Story Wiki and Link Graph fit the shell foundation', async ({ page }) => {
     await setUIMode(page, 'normal');
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]', { state: 'attached' });
-    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container', { state: 'attached' });
+    await openSidebarGroup(page, 'reference');
+    await page.waitForSelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]', { state: 'attached' });
+    await page.waitForSelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container', { state: 'attached' });
 
     const expandedMetrics = await page.evaluate(() => {
-      const storyWrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
+      const storyWrapper = document.querySelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
       const newButton = storyWrapper ? storyWrapper.querySelector('.swiki-footer .swiki-btn-new') : null;
       const newButtonStyle = newButton ? window.getComputedStyle(newButton) : null;
       const newButtonRect = newButton ? newButton.getBoundingClientRect() : null;
-      const graph = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container');
+      const graph = document.querySelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="LinkGraph"] .link-graph-container');
       const graphStyle = graph ? window.getComputedStyle(graph) : null;
       return {
         buttonWritingMode: newButtonStyle ? newButtonStyle.writingMode : null,
@@ -960,13 +960,13 @@ test.describe('UI Mode Consistency', () => {
     expect(expandedMetrics.graphScrollbarWidth === 'thin' || expandedMetrics.graphScrollbarWidth === 'auto').toBe(true);
 
     await page.evaluate(() => {
-      const header = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"] .gadget-header');
+      const header = document.querySelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"] .gadget-header');
       if (header) header.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     });
     await page.waitForTimeout(260);
 
     const collapsedMetrics = await page.evaluate(() => {
-      const storyWrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
+      const storyWrapper = document.querySelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
       const header = storyWrapper ? storyWrapper.querySelector('.gadget-header') : null;
       const body = storyWrapper ? storyWrapper.querySelector('.gadget') : null;
       const bodyStyle = body ? window.getComputedStyle(body) : null;
@@ -995,7 +995,7 @@ test.describe('UI Mode Consistency', () => {
 
   test('WP-005 Slice C: public compare entries stay isolated from structure, command palette, preview, and Reader', async ({ page }) => {
     await setUIMode(page, 'normal');
-    await openSidebarGroup(page, 'structure');
+    await openSidebarGroup(page, 'manuscript');
 
     const metrics = await page.evaluate(() => {
       const controls = document.querySelector('.sidebar-compare-controls');
@@ -1097,28 +1097,33 @@ test.describe('UI Mode Consistency', () => {
       });
     };
 
-    const sections = await activate('sections');
-    expect(sections.active).toBe('sections');
-    expect(sections.label).toBe('セクション');
-    expect(sections.group).toBe('sections');
-    expect(sections.icon).toBe('list-tree');
+    const manuscript = await activate('manuscript');
+    expect(manuscript.active).toBe('manuscript');
+    expect(manuscript.label).toBe('原稿');
+    expect(manuscript.group).toBe('manuscript');
+    expect(manuscript.icon).toBe('file-text');
 
-    const structure = await activate('structure');
-    expect(structure.active).toBe('structure');
-    expect(structure.label).toBe('構造');
-    expect(structure.group).toBe('structure');
-    expect(structure.icon).toBe('file-text');
+    const reference = await activate('reference');
+    expect(reference.active).toBe('reference');
+    expect(reference.label).toBe('資料');
+    expect(reference.group).toBe('reference');
+    expect(reference.icon).toBe('book-open');
 
-    const sectionsAgain = await activate('sections');
-    expect(sectionsAgain.active).toBe('sections');
-    expect(sectionsAgain.label).toBe('セクション');
-    expect(sectionsAgain.group).toBe('sections');
-    expect(sectionsAgain.icon).toBe('list-tree');
+    const view = await activate('view');
+    expect(view.active).toBe('view');
+    expect(view.label).toBe('表示');
+    expect(view.group).toBe('view');
+    expect(view.icon).toBe('sliders-horizontal');
+
+    const manuscriptAgain = await activate('manuscript');
+    expect(manuscriptAgain.active).toBe('manuscript');
+    expect(manuscriptAgain.label).toBe('原稿');
+    expect(manuscriptAgain.icon).toBe('file-text');
   });
 
   test('friction sweep: left nav title icon is display-only and back icon returns root', async ({ page }) => {
     await setUIMode(page, 'normal');
-    await openSidebarGroup(page, 'sections');
+    await openSidebarGroup(page, 'manuscript');
     await page.waitForTimeout(150);
 
     await page.evaluate(() => {
@@ -1129,17 +1134,17 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(120);
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
-    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'sections');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'manuscript');
 
     await page.click('#sidebar-nav-back');
     await page.waitForTimeout(120);
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'root');
-    await expect(page.locator('html')).not.toHaveAttribute('data-left-nav-active', 'sections');
+    await expect(page.locator('html')).not.toHaveAttribute('data-left-nav-active', 'manuscript');
   });
 
   test('left nav category back rail uses the left column without appearing in root icon rail', async ({ page }) => {
     await setUIMode(page, 'normal');
-    await openSidebarGroup(page, 'sections');
+    await openSidebarGroup(page, 'manuscript');
     await page.waitForTimeout(150);
 
     const categoryRail = await page.evaluate(() => {
@@ -1198,10 +1203,10 @@ test.describe('UI Mode Consistency', () => {
     });
     await page.waitForTimeout(220);
 
-    await page.click('.accordion-category[data-category="structure"] .accordion-header:visible');
+    await page.click('.accordion-category[data-category="manuscript"] .accordion-header:visible');
     await page.waitForTimeout(160);
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
-    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'manuscript');
   });
 
   test('startup keeps left nav root even when stored structure category was open', async ({ page }) => {
@@ -1211,7 +1216,7 @@ test.describe('UI Mode Consistency', () => {
       settings.sidebarVisible = true;
       settings.ui = settings.ui || {};
       settings.ui.uiMode = 'normal';
-      settings.ui.leftNavCategory = 'structure';
+      settings.ui.leftNavCategory = 'manuscript';
       window.ZenWriterStorage.saveSettings(settings);
     });
 
@@ -1223,8 +1228,8 @@ test.describe('UI Mode Consistency', () => {
       const settings = window.ZenWriterStorage.loadSettings();
       const html = document.documentElement;
       const sidebar = document.getElementById('sidebar');
-      const structureHeader = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
-      const structureContent = document.getElementById('accordion-structure');
+      const structureHeader = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
+      const structureContent = document.getElementById('accordion-manuscript');
       return {
         navState: html.getAttribute('data-left-nav-state'),
         active: html.getAttribute('data-left-nav-active'),
@@ -1238,7 +1243,7 @@ test.describe('UI Mode Consistency', () => {
 
     expect(state.navState).toBe('root');
     expect(state.active).toBeNull();
-    expect(state.lastActive).toBe('structure');
+    expect(state.lastActive).toBe('manuscript');
     expect(state.sidebarOpenClass).toBe(false);
     expect(state.sidebarOpenSetting).toBe(false);
     expect(state.structureExpanded).toBe('false');
@@ -1335,60 +1340,48 @@ test.describe('UI Mode Consistency', () => {
     expect(dismissed.pointerEvents).toBe('none');
   });
 
-  test('session 129: sections and structure keep distinct gadget panels', async ({ page }) => {
+  test('session 129: manuscript and reference keep distinct gadget panels', async ({ page }) => {
     await setUIMode(page, 'normal');
 
-    await openSidebarGroup(page, 'sections');
-    await page.waitForSelector('#sections-gadgets-panel .gadget-wrapper[data-gadget-name="SectionsNavigator"]', { state: 'attached' });
-
-    const sectionsState = await page.evaluate(() => {
+    const readCategory = () => page.evaluate(() => {
       const collect = (panelId) => [...document.querySelectorAll(`#${panelId} .gadget-wrapper`)]
         .map((wrapper) => wrapper.getAttribute('data-gadget-name'))
         .filter(Boolean);
-      const sectionsContent = document.querySelector('.accordion-header[aria-controls="accordion-sections"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
-      const structureContent = document.querySelector('.accordion-header[aria-controls="accordion-structure"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
+      const hiddenOf = (category) => {
+        const content = document.querySelector(`.accordion-category[data-category="${category}"] .accordion-content`);
+        return content ? content.hidden || window.getComputedStyle(content).display === 'none' : true;
+      };
       return {
         active: document.documentElement.getAttribute('data-left-nav-active'),
         label: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
-        sectionsHidden: sectionsContent ? sectionsContent.hidden || window.getComputedStyle(sectionsContent).display === 'none' : true,
-        structureHidden: structureContent ? structureContent.hidden || window.getComputedStyle(structureContent).display === 'none' : true,
-        sectionsGadgets: collect('sections-gadgets-panel'),
-        structureGadgets: collect('structure-gadgets-panel'),
+        manuscriptHidden: hiddenOf('manuscript'),
+        referenceHidden: hiddenOf('reference'),
+        manuscriptGadgets: collect('manuscript-gadgets-panel'),
+        referenceGadgets: collect('reference-gadgets-panel'),
       };
     });
 
-    expect(sectionsState.active).toBe('sections');
-    expect(sectionsState.label).toBe('セクション');
-    expect(sectionsState.sectionsHidden).toBe(false);
-    expect(sectionsState.structureHidden).toBe(true);
-    expect(sectionsState.sectionsGadgets).toContain('SectionsNavigator');
-    expect(sectionsState.sectionsGadgets).not.toContain('Documents');
+    await openSidebarGroup(page, 'manuscript');
+    await page.waitForSelector('#manuscript-gadgets-panel .gadget-wrapper[data-gadget-name="SectionsNavigator"]', { state: 'attached' });
+    const manuscript = await readCategory();
+    expect(manuscript.active).toBe('manuscript');
+    expect(manuscript.label).toBe('原稿');
+    expect(manuscript.manuscriptHidden).toBe(false);
+    expect(manuscript.referenceHidden).toBe(true);
+    expect(manuscript.manuscriptGadgets).toEqual(expect.arrayContaining(['SectionsNavigator', 'Documents', 'Outline']));
+    expect(manuscript.manuscriptGadgets).not.toContain('StoryWiki');
+    // 標準の原稿区分にビジュアルノベル専用の「選択肢」を常設しない
+    expect(manuscript.manuscriptGadgets).not.toContain('ChoiceTools');
 
-    await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="Documents"]', { state: 'attached' });
-
-    const structureState = await page.evaluate(() => {
-      const collect = (panelId) => [...document.querySelectorAll(`#${panelId} .gadget-wrapper`)]
-        .map((wrapper) => wrapper.getAttribute('data-gadget-name'))
-        .filter(Boolean);
-      const sectionsContent = document.querySelector('.accordion-header[aria-controls="accordion-sections"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
-      const structureContent = document.querySelector('.accordion-header[aria-controls="accordion-structure"]')?.closest('.accordion-category')?.querySelector('.accordion-content');
-      return {
-        active: document.documentElement.getAttribute('data-left-nav-active'),
-        label: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
-        sectionsHidden: sectionsContent ? sectionsContent.hidden || window.getComputedStyle(sectionsContent).display === 'none' : true,
-        structureHidden: structureContent ? structureContent.hidden || window.getComputedStyle(structureContent).display === 'none' : true,
-        sectionsGadgets: collect('sections-gadgets-panel'),
-        structureGadgets: collect('structure-gadgets-panel'),
-      };
-    });
-
-    expect(structureState.active).toBe('structure');
-    expect(structureState.label).toBe('構造');
-    expect(structureState.sectionsHidden).toBe(true);
-    expect(structureState.structureHidden).toBe(false);
-    expect(structureState.structureGadgets).toEqual(expect.arrayContaining(['Documents', 'Outline', 'StoryWiki']));
-    expect(structureState.structureGadgets).not.toContain('SectionsNavigator');
+    await openSidebarGroup(page, 'reference');
+    await page.waitForSelector('#reference-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]', { state: 'attached' });
+    const reference = await readCategory();
+    expect(reference.active).toBe('reference');
+    expect(reference.label).toBe('資料');
+    expect(reference.manuscriptHidden).toBe(true);
+    expect(reference.referenceHidden).toBe(false);
+    expect(reference.referenceGadgets).toEqual(expect.arrayContaining(['StoryWiki', 'LinkGraph']));
+    expect(reference.referenceGadgets).not.toContain('Documents');
   });
 
   test('session 123: root left nav keeps a cue for the last active category', async ({ page }) => {

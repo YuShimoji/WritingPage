@@ -555,7 +555,7 @@ async function captureAll(baseUrl, outDir) {
     };
 
     // 02: サイドバー (structure)
-    await openCategory('structure');
+    await openCategory('manuscript');
     await shotSidebar(page, '02-sidebar-structure.png');
 
     // 03: サイドバー (edit)
@@ -567,7 +567,7 @@ async function captureAll(baseUrl, outDir) {
     await shotSidebar(page, '04-sidebar-theme.png');
 
     // 05: サイドバー (assist)
-    await openCategory('assist');
+    await openCategory('view');
     await shotSidebar(page, '05-sidebar-assist.png');
 
     // 06: サイドバー (advanced)
@@ -680,7 +680,7 @@ async function captureAll(baseUrl, outDir) {
         window.ZenWriterApp.setUIMode('normal');
       }
     });
-    await openSidebarCategory(page, 'structure');
+    await openSidebarCategory(page, 'manuscript');
     await setCaptureStateLabel(
       page,
       '15 Normal shell',
@@ -728,7 +728,7 @@ async function captureAll(baseUrl, outDir) {
     await shot(mp, '17-mobile-main.png');
 
     // 18: モバイルサイドバー
-    await openSidebarCategory(mp, 'structure');
+    await openSidebarCategory(mp, 'manuscript');
     const mobileReadback = await readShowcaseState(mp, 'mobile_sidebar');
     assertShowcaseReadback(mobileReadback);
     readbacks.push(mobileReadback);

@@ -261,7 +261,7 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
       // slim モード解除
       document.documentElement.removeAttribute('data-sidebar-slim');
       // structure アコーディオンを展開
-      var header = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
+      var header = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
     });
     await page.waitForTimeout(500);
@@ -275,7 +275,7 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
 
   async function expandDocumentsGadget(page) {
     await page.evaluate(() => {
-      var gadgets = document.querySelectorAll('#structure-gadgets-panel [data-gadget-collapsed]');
+      var gadgets = document.querySelectorAll('#manuscript-gadgets-panel [data-gadget-collapsed]');
       gadgets.forEach(function (g) { g.removeAttribute('data-gadget-collapsed'); });
     });
     await page.waitForTimeout(300);
@@ -354,8 +354,8 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
     await expandDocumentsGadget(page);
 
     await page.evaluate(() => {
-      var sections = document.querySelector('.accordion-header[aria-controls="accordion-sections"]');
-      var structure = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
+      var sections = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
+      var structure = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
       if (sections) sections.click();
       if (structure) structure.click();
     });

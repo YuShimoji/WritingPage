@@ -362,13 +362,14 @@ test.describe('Sidebar Layout', () => {
       }));
     }
 
-    expect(await activate('structure')).toMatchObject({ navState: 'category', active: 'structure' });
-    expect(await activate('edit')).toMatchObject({ navState: 'category', active: 'edit' });
-    expect(await activate('assist')).toMatchObject({ navState: 'category', active: 'assist' });
-    expect(await activate('structure')).toMatchObject({ navState: 'category', active: 'structure' });
-    expect(await activate('assist')).toMatchObject({ navState: 'category', active: 'assist' });
+    expect(await activate('manuscript')).toMatchObject({ navState: 'category', active: 'manuscript' });
+    expect(await activate('reference')).toMatchObject({ navState: 'category', active: 'reference' });
+    expect(await activate('view')).toMatchObject({ navState: 'category', active: 'view' });
+    expect(await activate('manuscript')).toMatchObject({ navState: 'category', active: 'manuscript' });
+    // 旧6区分のID（assist）で呼んでも現行の区分（表示）へ読み替えられる
+    expect(await activate('assist')).toMatchObject({ navState: 'category', active: 'view' });
 
-    const assistPanel = page.locator('#accordion-assist');
+    const assistPanel = page.locator('#accordion-view');
     await expect(assistPanel).toHaveAttribute('aria-hidden', 'false');
   });
 

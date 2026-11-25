@@ -8,7 +8,7 @@ async function ready(page) {
   await page.waitForFunction(() => window.ZenWriterStorage?.initIDB && window.ZenWriterIDB);
   await page.evaluate(() => window.ZenWriterStorage.initIDB());
   await enableAllGadgets(page);
-  await openSidebarGroup(page, 'structure');
+  await openSidebarGroup(page, 'reference');
 }
 
 async function seed(page) {

@@ -1426,7 +1426,7 @@
 
     renderCompact();
 
-  }, { title: 'Story Wiki', groups: ['structure'], description: 'Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。' });
+  }, { title: 'Story Wiki', groups: ['reference'], description: 'Wiki形式のストーリーノート管理。ページ作成・リンク・検索が可能。' });
 
 })();
 

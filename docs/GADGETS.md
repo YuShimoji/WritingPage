@@ -42,7 +42,7 @@
 
 ### レイアウト構造とカテゴリ（現行）
 
-- left nav は root/category 階層で6カテゴリを扱う。root ではカテゴリ一覧、category では active category の panel と gadget loadout を表示する。
+- left nav は root/category 階層で、作業単位の4区分（原稿 / 資料 / 表示 / 設定）を扱う。root ではカテゴリ一覧、category では active category の panel と gadget loadout を表示する。
 - 現行カテゴリ（`index.html` の `data-category` 属性と一致）:
   1. **sections**: セクションナビゲーション（SP-052、見出しツリー）
   2. **structure**: 構成管理（ドキュメント、アウトライン、スナップショット、タグ）
@@ -58,7 +58,7 @@
 
 #### UI仕様（現行）
 
-- root でカテゴリを選び、category で該当 panel と gadget loadout を表示する。コマンドパレットからは6カテゴリへ直接ジャンプできる。
+- root でカテゴリを選び、category で該当 panel と gadget loadout を表示する。コマンドパレットからは4区分へ直接ジャンプできる。
 - 各ガジェットセクションの header / chevron は collapse affordance として扱う。`SectionsNavigator` は single item category のため内側ヘッダーを出さず、カテゴリ選択だけで本文を使える状態にする。
 - `kind: 'tool'|'settings'|'admin'` で表示制御を分ける。通常UIでは drag handle を露出せず、settings/admin は detach/help も抑制する。
 - Embed モード（`?embed=1`）ではサイドバー全体を非表示とする（詳細は `docs/EMBED_SDK.md` と同期）。
@@ -219,7 +219,7 @@
   - `data-group="<groupId>"` … left nav の category anchor およびカテゴリパネル。
   - `data-gadget-group="<groupId>"` … 各カテゴリ内のガジェットコンテナ。
   - `data-gadget-name="<Name>"` … 各ガジェットインスタンス。
-- `groupId` は `sections` / `structure` / `edit` / `theme` / `assist` / `advanced` を基準とし、ロードアウト設定のキーと一致。
+- `groupId` は `manuscript` / `reference` / `view` / `advanced` を基準とし、ロードアウト設定のキーと一致。旧6区分のID（`sections` / `structure` / `edit` / `theme` / `assist`）は読み込み時に現行区分へ読み替える（Wiki・リンクグラフ・画像・Markdown早見表は `reference`、プレビューは `view`）。
 - 旧グループ名 `typography` / `wiki` / `settings` は互換用に `gadgets-utils.js` の `GADGET_GROUPS` に残存するが、現行 left nav のカテゴリには使用されない。
 
 ## ロードアウトプリセット（現行）
@@ -268,7 +268,7 @@
 
 ## 実装概要
 
-- `index.html` に各カテゴリ用の `.gadgets-panel[data-gadget-group]` を配置（例: `sections` / `structure` / `edit` / `theme` / `assist` / `advanced`）
+- `index.html` に各カテゴリ用の `.gadgets-panel[data-gadget-group]` を配置（例: `manuscript` / `reference` / `view` / `advanced`）
 - ガジェット基盤は `js/gadgets-*.js` の複数ファイルで提供され、`index.html` から読み込まれます。
 - 初期化は `js/gadgets-init.js` が `data-gadget-group` を基準に各パネルへ `ZWGadgets.init(panel, { group })` を適用します。
 
@@ -574,7 +574,7 @@ Pomodoro/集中タイマーは、小説執筆そのものの基盤ではない�
 
 ### 使用方法
 
-1. left nav の「構造」カテゴリから「Story Wiki」を選択
+1. left nav の「資料」区分から「Story Wiki」を選択
 2. カテゴリを選択（人物/場所/アイテムなど）
 3. 「新規作成」ボタンでWikiページを作成
 4. 左側のツリーからページを選択、右側の詳細ペインで編集

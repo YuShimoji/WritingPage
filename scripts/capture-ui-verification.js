@@ -544,14 +544,14 @@ async function captureDesktop(baseUrl, outDir) {
     await mobilePage.waitForTimeout(300);
     await mobilePage.evaluate(() => {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('structure');
+        window.sidebarManager.activateSidebarGroup('manuscript');
       } else if (window.sidebarManager && typeof window.sidebarManager.toggleSidebar === 'function') {
         window.sidebarManager.toggleSidebar();
       } else {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) sidebar.classList.add('open');
         document.documentElement.setAttribute('data-left-nav-state', 'category');
-        document.documentElement.setAttribute('data-left-nav-active', 'structure');
+        document.documentElement.setAttribute('data-left-nav-active', 'manuscript');
       }
     });
     await mobilePage.waitForFunction(() => {

@@ -10,7 +10,7 @@ test.describe('Current shell icon rendering', () => {
         await page.waitForLoadState('networkidle');
         await ensureNormalMode(page);
         await openSidebarGroup(page, 'structure');
-        await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
+        await page.waitForSelector('#manuscript-gadgets-panel', { state: 'visible', timeout: 10000 });
 
         const iconButtons = page.locator('#sidebar-nav-back:visible, #sidebar-nav-anchor:visible, .accordion-category.is-active-category .accordion-header:visible');
         const count = await iconButtons.count();
@@ -59,12 +59,12 @@ test.describe('Gadget header layout', () => {
 
         await enableAllGadgets(page);
         await openSidebarGroup(page, 'structure');
-        await page.waitForSelector('#structure-gadgets-panel .gadget-header', {
+        await page.waitForSelector('#manuscript-gadgets-panel .gadget-header', {
             state: 'visible',
             timeout: 10000,
         });
 
-        const header = page.locator('#structure-gadgets-panel .gadget-header').first();
+        const header = page.locator('#manuscript-gadgets-panel .gadget-header').first();
         await expect(header).toBeVisible();
 
         const headerBox = await header.boundingBox();
@@ -85,12 +85,12 @@ test.describe('Gadget header layout', () => {
 
         await enableAllGadgets(page);
         await openSidebarGroup(page, 'structure');
-        await page.waitForSelector('#structure-gadgets-panel .gadget-header', {
+        await page.waitForSelector('#manuscript-gadgets-panel .gadget-header', {
             state: 'visible',
             timeout: 10000,
         });
 
-        const header = page.locator('#structure-gadgets-panel .gadget-header').first();
+        const header = page.locator('#manuscript-gadgets-panel .gadget-header').first();
         const detachBtn = header.locator('.gadget-detach-btn');
         const hasDetachBtn = (await detachBtn.count()) > 0;
 

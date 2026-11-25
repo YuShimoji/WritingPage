@@ -822,7 +822,7 @@
     render();
 
   }, {
-    groups: ['sections'],
+    groups: ['manuscript'],
     title: '\u30bb\u30af\u30b7\u30e7\u30f3\u30ca\u30d3\u30b2\u30fc\u30bf\u30fc',
     description: '\u898b\u51fa\u3057\u30c4\u30ea\u30fc\u3068\u8a71\u30ca\u30d3\u30b2\u30fc\u30b7\u30e7\u30f3 (SP-052)',
     defaultCollapsed: false

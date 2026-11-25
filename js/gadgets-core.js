@@ -79,7 +79,7 @@
       this._renderers = {};
       this._roots = {};
       this._loadouts = null;
-      this._activeGroup = 'structure';
+      this._activeGroup = 'manuscript';
       this._defaults = {};
       this._renderPending = null;
       this._cleanups = {};  // group → [cleanup functions]
@@ -103,7 +103,7 @@
       });
       for (var j = 0; j < this._list.length; j++) {
         var item = this._list[j];
-        var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['structure'];
+        var fallback = this._defaults[item.name] ? this._defaults[item.name].slice() : ['manuscript'];
         var current = Array.isArray(item.groups) ? item.groups.slice() : [];
         item.groups = map[item.name] ? map[item.name].slice() : (current.length ? current : fallback);
       }
@@ -178,7 +178,7 @@
           title: opts.title || safeName,
           description: opts.description || '',
           factory: factory,
-          groups: normalizeGroupList(opts.groups || ['structure']),
+          groups: normalizeGroupList(opts.groups || ['manuscript']),
           kind: normalizeGadgetKind(opts.kind, safeName),
           source: opts.source || '',
           pluginId: opts.pluginId || ''
@@ -186,7 +186,7 @@
         if (typeof opts.defaultCollapsed === 'boolean') {
           entry.defaultCollapsed = opts.defaultCollapsed;
         }
-        if (!entry.groups.length) entry.groups = ['structure'];
+        if (!entry.groups.length) entry.groups = ['manuscript'];
         this._defaults[safeName] = entry.groups.slice();
         this._list.push(entry);
         try { emit('ZWGadgetRegistered', { name: safeName, source: entry.source, pluginId: entry.pluginId }); } catch (_) { }
@@ -533,7 +533,7 @@
       var sel = selector || '#gadgets-panel';
       var root = typeof sel === 'string' ? document.querySelector(sel) : sel;
       if (!root) return;
-      var group = normalizeGroupName(opts.group) || 'structure';
+      var group = normalizeGroupName(opts.group) || 'manuscript';
 
       try {
         var prevGroup = root.getAttribute('data-zwg-init-group');
@@ -785,8 +785,8 @@
 
     assignGroups(name, groups) {
       if (!name) return;
-      var normalized = normalizeGroupList(groups || ['structure']);
-      if (!normalized.length) normalized = ['structure'];
+      var normalized = normalizeGroupList(groups || ['manuscript']);
+      if (!normalized.length) normalized = ['manuscript'];
       for (var i = 0; i < this._list.length; i++) {
         if ((this._list[i].name || '') === name) {
           this._list[i].groups = normalized;
@@ -961,7 +961,7 @@
           if (state && state.floating) {
             // 少し遅延してDOMが安定してから復元
             setTimeout(function () {
-              try { self.detachGadget(name, state.group || 'structure'); } catch (_) { }
+              try { self.detachGadget(name, state.group || 'manuscript'); } catch (_) { }
             }, 500);
           }
         });

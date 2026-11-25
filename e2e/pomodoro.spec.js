@@ -7,7 +7,7 @@ const pageUrl = '/index.html';
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#assist-gadgets-panel');
+      return !!window.ZWGadgets && !!document.querySelector('#view-gadgets-panel');
     } catch (_) { return false; }
   });
   await page.waitForFunction(() => {
@@ -25,7 +25,7 @@ async function waitGadgetsReady(page) {
   // サイドバーを開いてassistグループをアクティブにする
   await openSidebarGroup(page, 'assist');
   // 初回レンダ後のガジェット要素を待機
-  await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
+  await page.waitForSelector('#view-gadgets-panel .gadget-wrapper', { state: 'attached', timeout: 10000 });
   return true;
 }
 
@@ -42,8 +42,8 @@ test.describe('Pomodoro Timer E2E', () => {
     await waitGadgetsReady(page);
 
     // ガジェットパネルと PomodoroTimer の存在を確認
-    await expect(page.locator('#assist-gadgets-panel')).toBeVisible();
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    await expect(page.locator('#view-gadgets-panel')).toBeVisible();
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // タイマー表示エリアの存在確認
@@ -65,7 +65,7 @@ test.describe('Pomodoro Timer E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // 開始ボタンをクリック
@@ -88,7 +88,7 @@ test.describe('Pomodoro Timer E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // タイマーを開始
@@ -124,7 +124,7 @@ test.describe('Pomodoro Timer E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // カスタムモードボタンをクリック
@@ -155,7 +155,7 @@ test.describe('Pomodoro Timer E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // 進捗バーの存在確認
@@ -210,7 +210,7 @@ test.describe('Pomodoro Timer E2E', () => {
     });
     expect(hudAvailable).toBeTruthy();
 
-    const pomodoroGadget = page.locator('#assist-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
+    const pomodoroGadget = page.locator('#view-gadgets-panel .gadget-wrapper[data-gadget-name="PomodoroTimer"]');
     await expect(pomodoroGadget).toBeVisible();
 
     // タイマーを開始（HUD通知が表示される）

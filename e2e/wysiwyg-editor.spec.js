@@ -217,7 +217,7 @@ test.describe('WYSIWYG Editor', () => {
 
   test('FR-008: タイプライター ON かつスクロール可能な本文で input 後 scrollTop がクランプ範囲内', async ({ page }) => {
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
-    await page.locator('#assist-gadgets-panel #typewriter-enabled').check();
+    await page.locator('#view-gadgets-panel #typewriter-enabled').check();
     await page.waitForTimeout(200);
     const editor = page.locator('#wysiwyg-editor');
     await editor.click();
@@ -250,18 +250,18 @@ test.describe('WYSIWYG Editor', () => {
     });
     expect(scrollState.scrollTop).toBeGreaterThanOrEqual(0);
     expect(scrollState.scrollTop).toBeLessThanOrEqual(scrollState.maxScroll + 1);
-    await page.locator('#assist-gadgets-panel #typewriter-enabled').uncheck();
+    await page.locator('#view-gadgets-panel #typewriter-enabled').uncheck();
     await page.waitForTimeout(150);
   });
 
   test('タイプライター ON で WYSIWYG に上方向余白（短文アンカー用）が付く', async ({ page }) => {
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
-    await page.locator('#assist-gadgets-panel #typewriter-enabled').check();
+    await page.locator('#view-gadgets-panel #typewriter-enabled').check();
     await page.waitForTimeout(150);
     var topPad = await page.locator('#wysiwyg-editor').evaluate(function (el) { return el.style.paddingTop; });
     expect(topPad).toMatch(/calc\(/);
     expect(topPad).toMatch(/vh\)/);
-    await page.locator('#assist-gadgets-panel #typewriter-enabled').uncheck();
+    await page.locator('#view-gadgets-panel #typewriter-enabled').uncheck();
     await page.waitForTimeout(150);
     var cleared = await page.locator('#wysiwyg-editor').evaluate(function (el) { return el.style.paddingTop; });
     expect(cleared).toBe('');

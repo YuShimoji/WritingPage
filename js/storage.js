@@ -81,7 +81,7 @@ const DEFAULT_SETTINGS = {
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
         showWordCount: false,
         uiMode: 'normal', // 'normal' | 'focus'
-        leftNavCategory: 'sections',
+        leftNavCategory: 'manuscript',
         tabPlacement: 'left', // 'left' | 'right' | 'top' | 'bottom'
         tabOrder: [] // タブIDの配列（空の場合はデフォルト順序）
     },

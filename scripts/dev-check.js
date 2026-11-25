@@ -147,7 +147,7 @@ async function loadCssWithImports(url) {
       /id=\"goal-progress\"/i.test(index.body) &&
       /id=\"goal-target\"/i.test(index.body) &&
       /id=\"goal-deadline\"/i.test(index.body) &&
-      /id=\"structure-gadgets-panel\"/i.test(index.body) &&
+      /id=\"manuscript-gadgets-panel\"/i.test(index.body) &&
       /class=\"sidebar-accordion\"/i.test(index.body) &&
       /id=\"settings-modal\"/i.test(index.body) &&
       /id=\"help-modal\"/i.test(index.body);
@@ -193,7 +193,7 @@ async function loadCssWithImports(url) {
     });
 
     // ガジェットの存在検証（アコーディオンUI: structure/settingsパネル + accordion + settings/helpモーダル）
-    const hasStructurePanel = /id="structure-gadgets-panel"/i.test(index.body);
+    const hasStructurePanel = /id="manuscript-gadgets-panel"/i.test(index.body);
     const hasSettingsPanel = /id="settings-gadgets-panel"/i.test(index.body);
     const hasAccordion = /class="sidebar-accordion"/i.test(index.body);
     const hasSettingsModal = /id="settings-modal"/i.test(index.body);

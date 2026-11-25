@@ -61,7 +61,7 @@
         root.appendChild(button);
       }, {
         title: 'Markdownプレビュー',
-        groups: ['edit'],
+        groups: ['view'],
         description: '執筆面を読み取り専用の Markdown プレビューに切り替えます。',
         kind: 'tool'
       });

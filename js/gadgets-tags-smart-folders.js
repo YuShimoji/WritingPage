@@ -275,7 +275,7 @@
       el.textContent = 'タグ/スマートフォルダガジェットの初期化に失敗しました。';
     }
   }, { 
-    groups: ['structure'],
+    groups: ['manuscript'],
     title: 'タグ/スマートフォルダ',
     description: 'タグ分類とスマートフォルダでページを整理。'
   });

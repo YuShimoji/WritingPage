@@ -182,26 +182,26 @@
     {
       id: 'font-decoration-panel',
       label: 'フォント装飾パネル',
-      description: '装飾用フローティングパネルを開く（サイドバー編集の「フォント装飾」ガジェットと同系）',
+      description: '装飾用フローティングパネルを開く（サイドバー原稿区分の「テキスト効果」ガジェットと同系）',
       keywords: '装飾 文字装飾 Font Decoration',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
         if (window.sidebarManager) {
-          window.sidebarManager.activateSidebarGroup('edit');
+          window.sidebarManager.activateSidebarGroup('manuscript');
         }
       }
     },
     {
       id: 'text-animation-panel',
       label: 'テキストアニメーションパネル',
-      description: 'サイドバーの編集カテゴリを開く（テキストアニメーション）',
+      description: 'サイドバーの原稿区分を開く（テキスト効果は原稿区分にあります）',
       keywords: '文字アニメーション Text Animation',
       shortcut: '',
       category: 'テキスト装飾',
       execute: () => {
         if (window.sidebarManager) {
-          window.sidebarManager.activateSidebarGroup('edit');
+          window.sidebarManager.activateSidebarGroup('manuscript');
         }
       }
     },
@@ -447,65 +447,43 @@
     },
     // ガジェット操作（動的に追加）
     {
-      id: 'gadget-sections',
-      label: 'セクション',
-      description: 'セクションナビを開く',
-      keywords: 'sections 章 見出し セクションナビゲーター',
+      id: 'gadget-manuscript',
+      label: '原稿',
+      description: '原稿区分を開く（セクション・文書・アウトライン・バックアップ）',
+      keywords: 'manuscript 原稿 セクション sections 章 見出し ドキュメント 構造 アウトライン バックアップ snapshot outline',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        openLeftNavCategory('sections');
+        openLeftNavCategory('manuscript');
       }
     },
     {
-      id: 'gadget-structure',
-      label: '構造',
-      description: '構造カテゴリを開く（ドキュメント・アウトライン・Wiki）',
-      keywords: 'ドキュメント 構造 アウトライン StoryWiki LinkGraph バックアップ snapshot outline',
+      id: 'gadget-reference',
+      label: '資料',
+      description: '資料区分を開く（Wiki・リンクグラフ・画像・Markdown早見表）',
+      keywords: 'reference 資料 Wiki StoryWiki LinkGraph 画像 Markdownリファレンス 設定資料',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        openLeftNavCategory('structure');
+        openLeftNavCategory('reference');
       }
     },
     {
-      id: 'gadget-edit',
-      label: '編集',
-      description: '編集カテゴリを開く（MDプレビュー・装飾・選択肢）',
-      keywords: 'edit Markdownプレビュー MD プレビュー 装飾 選択肢 画像 animation',
+      id: 'gadget-view',
+      label: '表示',
+      description: '表示区分を開く（集中・タイプライター・執筆目標・テーマ・フォント）',
+      keywords: 'view 表示 集中 フォーカス タイプライター Typewriter 執筆目標 テーマ theme フォント typography 見出し visual profile プレビュー',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        openLeftNavCategory('edit');
-      }
-    },
-    {
-      id: 'gadget-theme',
-      label: 'テーマ',
-      description: 'テーマカテゴリを開く（テーマ・フォント・見出しスタイル）',
-      keywords: 'theme テーマ フォント typography 見出し style visual profile',
-      shortcut: '',
-      category: 'ガジェット',
-      execute: () => {
-        openLeftNavCategory('theme');
-      }
-    },
-    {
-      id: 'gadget-assist',
-      label: '補助',
-      description: '補助カテゴリを開く（進捗・集中・参照）',
-      keywords: 'アシスト assist タイプライター Typewriter 執筆目標 Markdownリファレンス',
-      shortcut: '',
-      category: 'ガジェット',
-      execute: () => {
-        openLeftNavCategory('assist');
+        openLeftNavCategory('view');
       }
     },
     {
       id: 'gadget-advanced',
-      label: '詳細設定',
-      description: '詳細設定カテゴリを開く（UI設定・出力・キー割り当て）',
-      keywords: 'advanced キー割り当て ショートカット keybind 印刷 ロードアウト Loadout HUD UI設定 プリセット',
+      label: '設定',
+      description: '設定区分を開く（UI設定・出力・キー割り当て・ロードアウト）',
+      keywords: 'advanced 設定 詳細設定 キー割り当て ショートカット keybind 印刷 ロードアウト Loadout HUD UI設定 プリセット',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
@@ -515,7 +493,7 @@
     {
       id: 'open-settings',
       label: '設定を開く',
-      description: 'サイドバー詳細設定カテゴリを開く (キー割当・ロードアウト・スナップショット等)',
+      description: 'サイドバー設定区分を開く (キー割当・ロードアウト・スナップショット等)',
       keywords: '環境 preferences オプション 詳細 advanced キーバインド shortcut keybind ロードアウト Loadout スナップショット',
       shortcut: 'Ctrl+, / Cmd+,',
       category: 'UI操作',
@@ -602,12 +580,12 @@
     {
       id: 'gadget-wiki',
       label: '物語Wikiガジェット',
-      description: 'Wikiタブを開く（用語・リンク管理）',
+      description: '資料区分を開く（用語・リンク管理）',
       keywords: 'story wiki wikilink 物語 百科 用語 リンク 設定',
       shortcut: '',
       category: 'ガジェット',
       execute: () => {
-        openLeftNavCategory('structure');
+        openLeftNavCategory('reference');
       }
     }
   ];

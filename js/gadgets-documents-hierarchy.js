@@ -761,7 +761,7 @@
       } catch (_) { }
     }
   }, {
-    groups: ['structure'],
+    groups: ['manuscript'],
     title: 'ドキュメント',
     description: 'ドキュメント階層をツリー表示し、並び替え・移動を管理。'
   });

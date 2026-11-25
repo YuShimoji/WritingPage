@@ -31,8 +31,8 @@ test.describe('Sidebar Writing Focus', () => {
     await page.waitForTimeout(300);
 
     await expect(page.locator('#writing-focus-rail')).toBeHidden();
-    await expect(page.locator('.accordion-category[data-category="structure"]')).toBeVisible();
-    await expect(page.locator('.accordion-category[data-category="edit"]')).toBeVisible();
+    await expect(page.locator('.accordion-category[data-category="manuscript"]')).toBeVisible();
+    await expect(page.locator('.accordion-category[data-category="reference"]')).toBeVisible();
 
     await setUIMode(page, 'focus');
     await ensureSidebarOpen(page);
@@ -45,7 +45,7 @@ test.describe('Sidebar Writing Focus', () => {
     await expect(page.locator('#writing-focus-exit-to-normal-btn')).toBeAttached();
 
     const nonStructureHidden = await page.evaluate(() => {
-      const ids = ['structure', 'edit', 'theme', 'assist', 'advanced'];
+      const ids = ['reference', 'view', 'advanced'];
       return ids.every((id) => {
         const el = document.querySelector(`.accordion-category[data-category="${id}"]`);
         if (!el) return false;
@@ -59,7 +59,7 @@ test.describe('Sidebar Writing Focus', () => {
     await page.waitForTimeout(120);
 
     const categoriesVisibleInSettings = await page.evaluate(() => {
-      const ids = ['structure', 'edit', 'theme', 'assist', 'advanced'];
+      const ids = ['manuscript', 'reference', 'view', 'advanced'];
       return ids.every((id) => {
         const el = document.querySelector(`.accordion-category[data-category="${id}"]`);
         if (!el) return false;
@@ -69,8 +69,8 @@ test.describe('Sidebar Writing Focus', () => {
     expect(categoriesVisibleInSettings).toBe(true);
 
     const expandedState = await page.evaluate(() => {
-      const structure = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
-      const others = ['edit', 'theme', 'assist', 'advanced']
+      const structure = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
+      const others = ['reference', 'view', 'advanced']
         .map((id) => document.querySelector(`.accordion-header[aria-controls="accordion-${id}"]`))
         .filter(Boolean);
       return {

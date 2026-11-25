@@ -57,7 +57,7 @@
 
                         if (typeof window.ZWGadgets.setActiveGroup === 'function') {
                             const activeTab = document.querySelector('.sidebar-tab.active');
-                            const group = activeTab ? activeTab.getAttribute('data-group') : 'structure';
+                            const group = activeTab ? activeTab.getAttribute('data-group') : 'manuscript';
                             window.ZWGadgets.setActiveGroup(group);
                         }
 

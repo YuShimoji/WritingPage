@@ -6,9 +6,11 @@
 
 ## UX / Algorithmic Invariants
 
-## Session 129: Left Nav Category Mapping
+## Left Nav Category Mapping（作業単位の4区分 / 2026-11-25 に6区分から統合）
 
-- Left nav の category anchor は、active category の `label` / `icon` / `panelId` / gadget loadout と常に同じ対象を指す。`sections` は `セクション` + `list-tree` + `sections-gadgets-panel` + `SectionsNavigator`、`structure` は `構造` + `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph / SnapshotManager 系を持つ。
+- Left nav の区分は作業単位の4つで、1区分 = 1グループ = 1パネル。category anchor は、active category の `label` / `icon` / `panelId` / gadget loadout と常に同じ対象を指す。`manuscript` は `原稿` + `file-text` + `manuscript-gadgets-panel` + SectionsNavigator / Documents / Outline / TagsAndSmartFolders / SnapshotManager、`reference` は `資料` + `book-open` + `reference-gadgets-panel` + StoryWiki / LinkGraph / Images / MarkdownReference、`view` は `表示` + `sliders-horizontal` + `view-gadgets-panel` + FocusMode / Typewriter / WritingGoal / Themes / Typography / HeadingStyles / VisualProfile（と「エディタ表示」切替）、`advanced` は `設定` + `settings` + `advanced-gadgets-panel`。区分とガジェットの対応の正本は `js/gadgets-utils.js`（`KNOWN_GROUPS` / `LEGACY_GROUP_MAP` / `GADGET_HOME_OVERRIDES`）と `js/loadouts-presets.js`。
+- 旧6区分のID（`sections` / `structure` / `edit` / `theme` / `assist`）は読み取り専用の別名として残す。保存済みの `leftNavCategory`・ロードアウト・外部プラグインの `groups`・`activateSidebarGroup('structure')` は読み込み時に現行区分へ読み替え、Wiki・リンクグラフ・画像・Markdown早見表は `reference`、プレビューは `view` へ移す。新規の保存・仕様・テストでは旧IDを書かない。
+- ビジュアルノベル向けの「選択肢」（`ChoiceTools`）と `TextEffects` は `vn-layout` ロードアウトにだけ出す（`HIDE_BY_DEFAULT_GADGETS`）。標準の小説・脚本の左ナビに VN 専用ツールを常設しない。
 - Lucide は初回描画後に `<i data-lucide>` を `<svg>` へ置換するため、category 切替で icon を更新するときは `<i>` だけを探して属性変更しない。既存 `<svg>` を新しい `<i data-lucide>` に差し替え、Lucide 再描画に渡す。
 - `#sidebar-nav-anchor` は `data-group` と `data-current-icon` を active category と同期する表示専用 anchor。root 戻りは `#sidebar-nav-back` と category-only の `#sidebar-nav-back-rail` が担う。E2E は label だけでなく icon と panel/gadget 対応も見る。
 
@@ -75,7 +77,7 @@
 
 ## レイアウト（ツールバー・Focus サイドバー）
 
-- Normal サイドバーは「セクション」「構造」カテゴリを既定で折りたたみ。初回 category open の体感を優先し、`app-gadgets-init.js` で structure / sections を eager mount せず、表示時に遅延初期化する
+- Normal サイドバーは各区分を既定で折りたたみ。初回 category open の体感を優先し、`app-gadgets-init.js` で原稿区分などを eager mount せず、表示時に遅延初期化する
 - Focus で閉じた `#sidebar` の右端がビューポート左縁と一致する場合、`box-shadow` / `border-right` が画面内に漏れないよう非オーバーレイ時は抑制する
 - Focus かつ `data-edge-hover-top='true'` の間、`--toolbar-height`（`syncToolbarHeightWithCSSVar` 実測）分だけ `.editor-container` に `padding-top` を付け、上端スライドインしたツールバーと本文を重ねない
 - ツールバー実高とレイアウトは `e2e/toolbar-editor-geometry.spec.js` で検証する。`--toolbar-height` は実測高と 2px 以内で一致すること

@@ -40,7 +40,7 @@
         update();
       }, {
         title: '文字数Modサンプル',
-        groups: ['assist'],
+        groups: ['view'],
         description: 'ローカルModから追加されたサンプルガジェット。',
         defaultCollapsed: true,
         kind: 'tool'

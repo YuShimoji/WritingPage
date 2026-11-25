@@ -25,8 +25,8 @@ async function readLeftNavState(page) {
       active: html.getAttribute('data-left-nav-active'),
       lastActive: html.getAttribute('data-left-nav-last-active'),
       anchorLabel: document.getElementById('sidebar-nav-anchor-label')?.textContent?.trim() || '',
-      sections: readCategory('sections'),
-      structure: readCategory('structure'),
+      manuscript: readCategory('manuscript'),
+      reference: readCategory('reference'),
       advanced: readCategory('advanced')
     };
   });
@@ -44,25 +44,25 @@ test.describe('Sidebar root/category shell contract', () => {
 
     expect(state.navState).toBe('root');
     expect(state.active).toBeNull();
-    expect(state.sections.exists).toBe(true);
-    expect(state.structure.exists).toBe(true);
+    expect(state.manuscript.exists).toBe(true);
+    expect(state.reference.exists).toBe(true);
     expect(state.advanced.exists).toBe(true);
   });
 
   test('activating a category shows only that category content', async ({ page }) => {
-    await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
+    await openSidebarGroup(page, 'manuscript');
+    await page.waitForSelector('#manuscript-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     const state = await readLeftNavState(page);
 
     expect(state.navState).toBe('category');
-    expect(state.active).toBe('structure');
-    expect(state.anchorLabel).toBe('構造');
-    expect(state.structure.expanded).toBe('true');
-    expect(state.structure.contentHidden).toBe(false);
-    expect(state.structure.activeClass).toBe(true);
-    expect(state.sections.ariaHidden).toBe('true');
-    expect(state.sections.contentHidden).toBe(true);
+    expect(state.active).toBe('manuscript');
+    expect(state.anchorLabel).toBe('原稿');
+    expect(state.manuscript.expanded).toBe('true');
+    expect(state.manuscript.contentHidden).toBe(false);
+    expect(state.manuscript.activeClass).toBe(true);
+    expect(state.reference.ariaHidden).toBe('true');
+    expect(state.reference.contentHidden).toBe(true);
   });
 
   test('returning to root preserves the last-active cue but does not reopen content', async ({ page }) => {
@@ -81,7 +81,7 @@ test.describe('Sidebar root/category shell contract', () => {
   });
 
   test('reload starts at root while keeping the last-active category cue', async ({ page }) => {
-    await openSidebarGroup(page, 'structure');
+    await openSidebarGroup(page, 'manuscript');
     await page.reload();
     await page.waitForLoadState('networkidle');
     await ensureNormalMode(page);
@@ -90,9 +90,9 @@ test.describe('Sidebar root/category shell contract', () => {
 
     expect(state.navState).toBe('root');
     expect(state.active).toBeNull();
-    expect(state.lastActive).toBe('structure');
-    expect(state.structure.lastActiveClass).toBe(true);
-    expect(state.structure.expanded).toBe('false');
+    expect(state.lastActive).toBe('manuscript');
+    expect(state.manuscript.lastActiveClass).toBe(true);
+    expect(state.manuscript.expanded).toBe('false');
   });
 
   test.skip('category-header drag and drop is not implemented in the current root/category shell', async () => {});

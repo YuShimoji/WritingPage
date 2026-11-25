@@ -9,23 +9,23 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#view-gadgets-panel #typewriter-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
-    const anchor = page.locator('#assist-gadgets-panel #typewriter-anchor-ratio');
+    const anchor = page.locator('#view-gadgets-panel #typewriter-anchor-ratio');
     await anchor.fill('0.7');
 
-    const stickiness = page.locator('#assist-gadgets-panel #typewriter-stickiness');
+    const stickiness = page.locator('#view-gadgets-panel #typewriter-stickiness');
     await stickiness.fill('0.8');
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    await expect(page.locator('#assist-gadgets-panel #typewriter-enabled')).toBeChecked();
-    await expect(page.locator('#assist-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
-    await expect(page.locator('#assist-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
+    await expect(page.locator('#view-gadgets-panel #typewriter-enabled')).toBeChecked();
+    await expect(page.locator('#view-gadgets-panel #typewriter-anchor-ratio')).toHaveValue('0.7');
+    await expect(page.locator('#view-gadgets-panel #typewriter-stickiness')).toHaveValue('0.8');
   });
 
   test('should toggle focus mode and save settings', async ({ page }) => {
@@ -33,23 +33,23 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    const checkbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    const checkbox = page.locator('#view-gadgets-panel #focus-mode-enabled');
     await expect(checkbox).toBeVisible();
     await checkbox.check();
 
-    const dimOpacity = page.locator('#assist-gadgets-panel #focus-dim-opacity');
+    const dimOpacity = page.locator('#view-gadgets-panel #focus-dim-opacity');
     await dimOpacity.fill('0.5');
 
-    const blurRadius = page.locator('#assist-gadgets-panel #focus-blur-radius');
+    const blurRadius = page.locator('#view-gadgets-panel #focus-blur-radius');
     await blurRadius.fill('3');
 
     await page.reload();
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    await expect(page.locator('#assist-gadgets-panel #focus-mode-enabled')).toBeChecked();
-    await expect(page.locator('#assist-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
-    await expect(page.locator('#assist-gadgets-panel #focus-blur-radius')).toHaveValue('3');
+    await expect(page.locator('#view-gadgets-panel #focus-mode-enabled')).toBeChecked();
+    await expect(page.locator('#view-gadgets-panel #focus-dim-opacity')).toHaveValue('0.5');
+    await expect(page.locator('#view-gadgets-panel #focus-blur-radius')).toHaveValue('3');
   });
 
   test('UI Settings: effectPersistDecorAcrossNewline をチェックして永続化する', async ({ page }) => {
@@ -130,10 +130,10 @@ test.describe('Editor Settings', () => {
     await page.waitForSelector('#editor', { timeout: 10000 });
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    const typewriterCheckbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const typewriterCheckbox = page.locator('#view-gadgets-panel #typewriter-enabled');
     await typewriterCheckbox.check();
 
-    const focusCheckbox = page.locator('#assist-gadgets-panel #focus-mode-enabled');
+    const focusCheckbox = page.locator('#view-gadgets-panel #focus-mode-enabled');
     await focusCheckbox.check();
 
     await expect(typewriterCheckbox).toBeChecked();
@@ -224,7 +224,7 @@ test.describe('Editor Settings', () => {
 
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    const chk = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const chk = page.locator('#view-gadgets-panel #typewriter-enabled');
     await chk.check();
     await page.waitForTimeout(200);
 
@@ -278,11 +278,11 @@ test.describe('Editor Settings', () => {
   test('should create and search wiki page', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });
-    await openSidebarPanel(page, 'structure');
+    await openSidebarPanel(page, 'reference');
 
     // Story Wiki (story-wiki.js) は input[type="text"] を使用
-    await page.waitForSelector('#structure-gadgets-panel .swiki-search-input', { timeout: 10000 });
-    await expect(page.locator('#structure-gadgets-panel .swiki-search-input').first()).toBeVisible();
+    await page.waitForSelector('#reference-gadgets-panel .swiki-search-input', { timeout: 10000 });
+    await expect(page.locator('#reference-gadgets-panel .swiki-search-input').first()).toBeVisible();
   });
 
   test('should have smooth typewriter scroll without jitter', async ({ page }) => {
@@ -295,7 +295,7 @@ test.describe('Editor Settings', () => {
 
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
 
-    const checkbox = page.locator('#assist-gadgets-panel #typewriter-enabled');
+    const checkbox = page.locator('#view-gadgets-panel #typewriter-enabled');
     await checkbox.check();
 
     // サイドバーを閉じてエディタにフォーカス

@@ -59,7 +59,7 @@
       btnApply.addEventListener('click', refreshTypewriter);
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3); root.appendChild(row4); root.appendChild(btnApply);
-    }, { title: 'タイプライター', groups: ['assist'], description: 'カーソル行を画面中央へ寄せて視線移動を減らします。', defaultCollapsed: true });
+    }, { title: 'タイプライター', groups: ['view'], description: 'カーソル行を画面中央へ寄せて視線移動を減らします。', defaultCollapsed: true });
 
     // Focus Mode Gadget
     window.ZWGadgets.register('FocusMode', function (root) {
@@ -116,7 +116,7 @@
       });
 
       root.appendChild(row1); root.appendChild(row2); root.appendChild(row3);
-    }, { title: 'フォーカスモード', groups: ['assist'], description: '編集中の段落以外を減光して集中を維持します。', defaultCollapsed: true });
+    }, { title: 'フォーカスモード', groups: ['view'], description: '編集中の段落以外を減光して集中を維持します。', defaultCollapsed: true });
 
     // SnapshotManager は gadgets-snapshot.js に個別ファイル化済み
     // MarkdownPreview は Local Gadget Mod (`markdown-preview-gadget`) へ移動済み
@@ -756,10 +756,9 @@
       var floatTabSelect = el('select');
       floatTabSelect.style.width = '100%';
       var tabOptions = [
-        { id: 'structure', label: '構造', group: 'structure' },
-        { id: 'typography', label: 'テーマ・フォント', group: 'typography' },
-        { id: 'assist', label: 'アシスト', group: 'assist' },
-        { id: 'wiki', label: 'Wiki', group: 'wiki' }
+        { id: 'manuscript', label: '原稿', group: 'manuscript' },
+        { id: 'reference', label: '資料', group: 'reference' },
+        { id: 'view', label: '表示', group: 'view' }
       ];
       tabOptions.forEach(function (opt) {
         var o = el('option'); o.value = opt.id; o.textContent = opt.label; floatTabSelect.appendChild(o);
@@ -966,7 +965,7 @@
       appendEffectButtons(root, 'animation', [['fade', 'フェード'], ['slide', 'スライド'], ['type', 'タイプ'], ['pulse', 'パルス']]);
       appendEffectButtons(root, 'animation', [['shake', 'シェイク'], ['bounce', 'バウンス'], ['fadein', '遅フェード']]);
       bindTextEffectButtons(root);
-    }, { title: 'テキスト効果', groups: ['edit'], description: '装飾とアニメーションを選択範囲に適用します。', defaultCollapsed: true, kind: 'settings' });
+    }, { title: 'テキスト効果', groups: ['manuscript'], description: '装飾とアニメーションを選択範囲に適用します。', defaultCollapsed: true, kind: 'settings' });
 
     // Editor Layout Gadget (余白・幅・背景色)
     window.ZWGadgets.register('EditorLayout', function (root) {

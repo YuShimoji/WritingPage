@@ -173,45 +173,45 @@
           <i data-lucide="arrow-left" aria-hidden="true"></i>
         </button>
         <button type="button" class="sidebar-shell-header__anchor" id="sidebar-nav-anchor" aria-current="page" title="現在のカテゴリ">
-          <i data-lucide="list-tree" aria-hidden="true"></i>
+          <i data-lucide="file-text" aria-hidden="true"></i>
           <span class="sidebar-shell-header__anchor-text">
-            <span id="sidebar-nav-anchor-label">セクション</span>
+            <span id="sidebar-nav-anchor-label">原稿</span>
           </span>
         </button>
       </div>
       <div class="sidebar-accordion">
-        <!-- sections カテゴリ (SP-052) -->
-        <section class="accordion-category" data-category="sections">
-          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-sections">
-            <i data-lucide="list-tree" aria-hidden="true"></i>
-            <span>セクション</span>
-            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
-          </button>
-          <div class="accordion-content" id="accordion-sections" aria-hidden="true">
-            <div id="sections-gadgets-panel" class="gadgets-panel" data-gadget-group="sections" aria-label="セクションガジェット"></div>
-          </div>
-        </section>
-
-        <!-- structure カテゴリ -->
-        <section class="accordion-category" data-category="structure">
-          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-structure">
+        <!-- manuscript カテゴリ: 書く・構成する（セクション・文書・アウトライン・バックアップ） -->
+        <section class="accordion-category" data-category="manuscript">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-manuscript">
             <i data-lucide="file-text" aria-hidden="true"></i>
-            <span>構造</span>
+            <span>原稿</span>
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
-          <div class="accordion-content" id="accordion-structure" aria-hidden="true">
-            <div id="structure-gadgets-panel" class="gadgets-panel" data-gadget-group="structure" aria-label="構造ガジェット"></div>
+          <div class="accordion-content" id="accordion-manuscript" aria-hidden="true">
+            <div id="manuscript-gadgets-panel" class="gadgets-panel" data-gadget-group="manuscript" aria-label="原稿ガジェット"></div>
           </div>
         </section>
 
-        <!-- edit カテゴリ -->
-        <section class="accordion-category" data-category="edit">
-          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-edit">
-            <i data-lucide="edit" aria-hidden="true"></i>
-            <span>編集</span>
+        <!-- reference カテゴリ: 参照する（Wiki・リンクグラフ・画像・Markdown早見表） -->
+        <section class="accordion-category" data-category="reference">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-reference">
+            <i data-lucide="book-open" aria-hidden="true"></i>
+            <span>資料</span>
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
-          <div class="accordion-content" id="accordion-edit" aria-hidden="true">
+          <div class="accordion-content" id="accordion-reference" aria-hidden="true">
+            <div id="reference-gadgets-panel" class="gadgets-panel" data-gadget-group="reference" aria-label="資料ガジェット"></div>
+          </div>
+        </section>
+
+        <!-- view カテゴリ: 見え方と集中（エディタ表示・集中・タイプライター・目標・テーマ・フォント） -->
+        <section class="accordion-category" data-category="view">
+          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-view">
+            <i data-lucide="sliders-horizontal" aria-hidden="true"></i>
+            <span>表示</span>
+            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
+          </button>
+          <div class="accordion-content" id="accordion-view" aria-hidden="true">
             <details class="sidebar-editor-view-details sidebar-editor-controls" aria-label="エディタ表示メニュー">
               <summary class="sidebar-editor-view-summary">
                 <i data-lucide="layout" aria-hidden="true"></i>
@@ -230,43 +230,19 @@
                 </button>
               </div>
             </details>
-            <div id="edit-gadgets-panel" class="gadgets-panel" data-gadget-group="edit" aria-label="編集ガジェット"></div>
+            <div id="view-gadgets-panel" class="gadgets-panel" data-gadget-group="view" aria-label="表示ガジェット"></div>
           </div>
         </section>
 
-        <!-- theme カテゴリ -->
-        <section class="accordion-category" data-category="theme">
-          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-theme">
-            <i data-lucide="palette" aria-hidden="true"></i>
-            <span>テーマ</span>
-            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
-          </button>
-          <div class="accordion-content" id="accordion-theme" aria-hidden="true">
-            <div id="theme-gadgets-panel" class="gadgets-panel" data-gadget-group="theme" aria-label="テーマガジェット"></div>
-          </div>
-        </section>
-
-        <!-- assist カテゴリ -->
-        <section class="accordion-category" data-category="assist">
-          <button class="accordion-header" aria-expanded="false" aria-controls="accordion-assist">
-            <i data-lucide="zap" aria-hidden="true"></i>
-            <span>補助</span>
-            <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
-          </button>
-          <div class="accordion-content" id="accordion-assist" aria-hidden="true">
-            <div id="assist-gadgets-panel" class="gadgets-panel" data-gadget-group="assist" aria-label="補助ガジェット"></div>
-          </div>
-        </section>
-
-        <!-- advanced カテゴリ -->
+        <!-- advanced カテゴリ: 環境設定・運用管理・出力・キー割り当て -->
         <section class="accordion-category" data-category="advanced">
           <button class="accordion-header" aria-expanded="false" aria-controls="accordion-advanced">
             <i data-lucide="settings" aria-hidden="true"></i>
-            <span>詳細設定</span>
+            <span>設定</span>
             <i class="accordion-icon" data-lucide="chevron-down" aria-hidden="true"></i>
           </button>
           <div class="accordion-content" id="accordion-advanced" aria-hidden="true">
-            <div id="advanced-gadgets-panel" class="gadgets-panel" data-gadget-group="advanced" aria-label="詳細設定ガジェット"></div>
+            <div id="advanced-gadgets-panel" class="gadgets-panel" data-gadget-group="advanced" aria-label="設定ガジェット"></div>
           </div>
         </section>
       </div>

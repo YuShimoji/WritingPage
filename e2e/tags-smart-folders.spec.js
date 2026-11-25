@@ -2,7 +2,7 @@
 const { test, expect } = require('@playwright/test');
 const { enableAllGadgets, openSidebarGroup } = require('./helpers');
 
-const PANEL = '#structure-gadgets-panel';
+const PANEL = '#manuscript-gadgets-panel';
 
 async function seedWikiPage(page, title, tags) {
   await page.evaluate(

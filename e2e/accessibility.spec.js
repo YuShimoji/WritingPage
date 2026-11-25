@@ -254,7 +254,7 @@ test.describe('Accessibility E2E', () => {
     await page.waitForTimeout(150);
     await page.evaluate(() => {
       if (window.sidebarManager && typeof window.sidebarManager.activateSidebarGroup === 'function') {
-        window.sidebarManager.activateSidebarGroup('edit');
+        window.sidebarManager.activateSidebarGroup('view');
       }
       var details = document.querySelector('.sidebar-editor-view-details');
       if (details) {

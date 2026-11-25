@@ -66,7 +66,7 @@ npm run dev
 
 ## 2. サンプル読み込み
 
-1. left nav root から「構造」カテゴリを開く
+1. left nav root から「資料」区分を開く（Story Wiki）
 2. Documents の「入出力」メニュー > 「JSON読み込み」
 3. `samples/sample-novel-chapters.zwp.json` を選択
 4. ドキュメント一覧に「月の裏側 - 章管理サンプル」が追加されることを確認
@@ -131,7 +131,7 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 
 サンプル「月の裏側」(3 章構成) で確認。
 
-- [ ] left nav の「セクション」カテゴリで章リストが表示される
+- [ ] left nav の「原稿」区分の先頭に章リスト（セクション）が表示される
 - [ ] 章をクリックして切替できる
 - [ ] 「+ 新しい章」で空タイトルの章を追加でき、保存値に `新しい章` というテンプレート文字列が入らない
 - [ ] 章名をダブルクリックでリネームできる
@@ -160,8 +160,8 @@ sample-effects-showcase の「再生オーバーレイ演出」章で確認:
 - [ ] root からカテゴリを選ぶと、active category が左上固定で表示される
 - [ ] 非 active category は fade-out 後に hit-test 対象にならない
 - [ ] category から root に戻れる
-- [ ] `sections` は「セクション」+ `list-tree` + `sections-gadgets-panel` + SectionsNavigator に対応する
-- [ ] `structure` は「構造」+ `file-text` + `structure-gadgets-panel` + Documents / Outline / StoryWiki / LinkGraph 系に対応する
+- [ ] `manuscript` は「原稿」+ `file-text` + `manuscript-gadgets-panel` + SectionsNavigator / Documents / Outline / バックアップに対応する
+- [ ] `reference` は「資料」+ `book-open` + `reference-gadgets-panel` + StoryWiki / LinkGraph / Markdown早見表に対応し、`view` は「表示」+ `sliders-horizontal` + `view-gadgets-panel` + 集中・タイプライター・執筆目標・テーマ系に対応する
 
 ### 5.3 再生オーバーレイ
 
@@ -288,8 +288,8 @@ Ctrl+P で開き、以下のコマンドを実行:
 - [ ] 「左ナビのルートへ戻る」 > category から root に戻る
 - [ ] Reader surface の開閉 command > 再生オーバーレイ開閉
 - [ ] 「フォントサイズ拡大」 > フォントサイズ増
-- [ ] 「補助」 > left nav の補助カテゴリを展開
-- [ ] 「詳細設定」 > left nav の詳細設定カテゴリを展開
+- [ ] 「表示」 > left nav の表示区分を展開（集中・タイプライター・執筆目標）
+- [ ] 「設定」 > left nav の設定区分を展開
 
 ## 10. ロードアウト
 

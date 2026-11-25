@@ -241,7 +241,7 @@
 
     el.appendChild(wrap);
   }, {
-    groups: ['assist'],
+    groups: ['reference'],
     title: (window.UILabels && window.UILabels.GADGET_MARKDOWN_REF_TITLE) || 'Markdownリファレンス',
     description: 'Markdown記法・ショートカット・拡張記法を参照。',
     defaultCollapsed: true

@@ -2,15 +2,17 @@
  * ロードアウトプリセット定義
  * ハードコーディングを避けるため外部ファイルに分離
  *
- * グループ名は KNOWN_GROUPS と一致させること:
- *   sections, structure, edit, theme, assist, advanced
+ * グループ名は KNOWN_GROUPS と一致させること（左ナビの4区分と同じ）:
+ *   manuscript(原稿), reference(資料), view(表示), advanced(設定)
+ * 旧6区分のキー（sections / structure / edit / theme / assist）で保存された配置は
+ * gadgets-utils.js の normaliseGroups が現行区分へ移す。ここでは使わない。
  *
  * 執筆優先の並び（方針）:
- * - sections: 章・セクション移動を最上段に
- * - structure: 原稿ツリー・アウトライン・Wiki・リンク系を続ける
- * - edit: プレビュー・装飾・表現ツール
- * - theme / assist / advanced: 低頻度・補助を後方カテゴリへ
- * 各配列の先頭に近いほど、サイドバー一覧では上側に表示されやすい（カテゴリ内順）。
+ * - manuscript: 章・セクション移動を最上段に、続けて文書・アウトライン・バックアップ
+ * - reference: Wiki・リンク・画像・Markdown早見表（書きながら参照するもの）
+ * - view: 執筆中に切り替える集中・タイプライター・目標を上に、設定頻度の低いテーマ系を下に
+ * - advanced: 環境設定・出力・キー割り当て
+ * 各配列の先頭に近いほど、サイドバー一覧では上側に表示されやすい（区分内順）。
  * ドック初期値は各エントリの dockLayout を参照（spec-writing-mode-unification-prep.md session 79）。
  */
 (function () {
@@ -23,31 +25,26 @@
         label: '小説・長編',
         description: '長編小説向けの標準構成',
         groups: {
-          sections: [
-            'SectionsNavigator'
-          ],
-          structure: [
+          manuscript: [
+            'SectionsNavigator',
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
-            'SnapshotManager',
+            'SnapshotManager'
+          ],
+          reference: [
             'StoryWiki',
-            'LinkGraph'
+            'LinkGraph',
+            'MarkdownReference'
           ],
-          edit: [
-            'ChoiceTools'
-          ],
-          theme: [
+          view: [
+            'FocusMode',
+            'Typewriter',
+            'WritingGoal',
             'Themes',
             'Typography',
             'HeadingStyles',
             'VisualProfile'
-          ],
-          assist: [
-            'Typewriter',
-            'FocusMode',
-            'WritingGoal',
-            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
@@ -68,25 +65,22 @@
         label: 'ミニマル',
         description: '最小限の機能で集中執筆',
         groups: {
-          sections: [
-            'SectionsNavigator'
-          ],
-          structure: [
+          manuscript: [
+            'SectionsNavigator',
             'Documents',
             'Outline',
-            'SnapshotManager',
-            'StoryWiki'
+            'SnapshotManager'
           ],
-          edit: [],
-          theme: [
+          reference: [
+            'StoryWiki',
+            'MarkdownReference'
+          ],
+          view: [
+            'WritingGoal',
             'Themes',
             'Typography',
             'HeadingStyles',
             'VisualProfile'
-          ],
-          assist: [
-            'WritingGoal',
-            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
@@ -103,33 +97,29 @@
         label: 'ビジュアルノベル',
         description: 'VN・ゲームシナリオ向け',
         groups: {
-          sections: [
-            'SectionsNavigator'
-          ],
-          structure: [
+          manuscript: [
+            'SectionsNavigator',
             'Documents',
             'Outline',
             'TagsAndSmartFolders',
             'SnapshotManager',
-            'StoryWiki',
-            'LinkGraph'
-          ],
-          edit: [
-            'Images',
             'ChoiceTools',
             'TextEffects'
           ],
-          theme: [
+          reference: [
+            'StoryWiki',
+            'LinkGraph',
+            'Images',
+            'MarkdownReference'
+          ],
+          view: [
+            'FocusMode',
+            'Typewriter',
+            'WritingGoal',
             'Themes',
             'Typography',
             'HeadingStyles',
             'VisualProfile'
-          ],
-          assist: [
-            'Typewriter',
-            'FocusMode',
-            'WritingGoal',
-            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',
@@ -149,27 +139,22 @@
         label: '脚本・シナリオ',
         description: '映像・舞台脚本向け',
         groups: {
-          sections: [
-            'SectionsNavigator'
-          ],
-          structure: [
+          manuscript: [
+            'SectionsNavigator',
             'Documents',
             'Outline',
-            'SnapshotManager',
-            'StoryWiki'
+            'SnapshotManager'
           ],
-          edit: [
-            'ChoiceTools'
+          reference: [
+            'StoryWiki',
+            'MarkdownReference'
           ],
-          theme: [
+          view: [
+            'WritingGoal',
             'Themes',
             'Typography',
             'HeadingStyles',
             'VisualProfile'
-          ],
-          assist: [
-            'WritingGoal',
-            'MarkdownReference'
           ],
           advanced: [
             'EditorLayout',

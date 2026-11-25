@@ -342,7 +342,7 @@ test.describe('Rich Editing control friction', () => {
     await page.evaluate(() => window.ZWReaderPreview.exit());
 
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'structure');
+    await openSidebarGroup(page, 'reference');
     await page.evaluate(() => {
       window.ZenWriterStorage.createStoryWikiEntry({
         title: 'リンク契約ノート',
@@ -350,7 +350,7 @@ test.describe('Rich Editing control friction', () => {
         content: '参照 https://example.net と wiki@example.net',
       });
     });
-    await page.locator('#structure-gadgets-panel .swiki-btn-expand').click();
+    await page.locator('#reference-gadgets-panel .swiki-btn-expand').click();
     await page.locator('.swiki-tree-item', { hasText: 'リンク契約ノート' }).click();
     const wikiLinks = page.locator('.swiki-full:visible .swiki-detail-content a');
     await expect(wikiLinks.filter({ hasText: 'https://example.net' })).toHaveAttribute('href', 'https://example.net');

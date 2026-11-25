@@ -41,13 +41,13 @@ test.describe('SP-052 Sections Navigator', () => {
     // サイドバーを開く
     await openSidebar(page);
 
-    // sections カテゴリが存在する
+    // 原稿区分（セクション移動を含む）が存在する
     const sectionsCategory = await page.evaluate(() => {
-      return !!document.querySelector('[data-category="sections"]');
+      return !!document.querySelector('[data-category="manuscript"]');
     });
     expect(sectionsCategory).toBe(true);
 
-    // sections が最上段にある（structure より前）
+    // 原稿区分が最上段にある
     const order = await page.evaluate(() => {
       var cats = document.querySelectorAll('.accordion-category');
       var result = [];
@@ -56,7 +56,7 @@ test.describe('SP-052 Sections Navigator', () => {
       }
       return result;
     });
-    expect(order.indexOf('sections')).toBeLessThan(order.indexOf('structure'));
+    expect(order).toEqual(['manuscript', 'reference', 'view', 'advanced']);
   });
 
   test('見出しツリーが正しくレンダリングされる', async ({ page }) => {
@@ -396,7 +396,7 @@ test.describe('SP-052 Sections Navigator', () => {
     await openSidebar(page);
     await page.waitForTimeout(300);
     await page.evaluate(() => {
-      var header = document.querySelector('.accordion-header[aria-controls="accordion-sections"]');
+      var header = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
       // sections ガジェットへ再描画を促す
       window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
@@ -456,7 +456,7 @@ test.describe('SP-052 Sections Navigator', () => {
     await openSidebar(page);
     await page.waitForTimeout(300);
     await page.evaluate(() => {
-      var header = document.querySelector('.accordion-header[aria-controls="accordion-sections"]');
+      var header = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
       window.dispatchEvent(new CustomEvent('ZWChapterStoreChanged'));
     });

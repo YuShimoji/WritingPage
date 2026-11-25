@@ -28,15 +28,16 @@ test.describe('UI label consistency', () => {
   test('sidebar gadget actions use role-specific labels where context can collide', async ({ page }) => {
     await setupAllGadgets(page);
 
-    const structureLabels = await panelLabels(page, 'structure');
+    const structureLabels = await panelLabels(page, 'manuscript');
+    const referenceLabels = await panelLabels(page, 'reference');
     expect(structureLabels).toContain('+ 文書');
     expect(structureLabels).toContain('+ フォルダ');
     expect(structureLabels).toContain('入出力');
     expect(structureLabels).toContain('管理');
-    expect(structureLabels).toContain('+ Wikiページ');
-    expect(structureLabels).toContain('+ 構成プリセット');
+    expect(referenceLabels).toContain('+ Wikiページ');
+    expect(referenceLabels).toContain('+ 構成プリセット');
 
-    const themeLabels = await panelLabels(page, 'theme');
+    const themeLabels = await panelLabels(page, 'view');
     expect(themeLabels).toContain('プロファイル適用');
     expect(themeLabels).toContain('プロファイル保存');
     expect(themeLabels).toContain('プロファイル削除');

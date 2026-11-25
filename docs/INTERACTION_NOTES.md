@@ -1,9 +1,9 @@
 # Interaction Notes
 
-## Session 129: Left Nav 対応確認メモ
+## Left Nav 対応確認メモ（4区分: 原稿 / 資料 / 表示 / 設定）
 
-- セクション / 構造の中身が入れ替わったように見える場合は、まず `#sidebar-nav-anchor` の label / `data-group` / `data-current-icon` と、active panel (`sections-gadgets-panel` / `structure-gadgets-panel`) を同時に確認する。
-- `sections` の正しい見え方は「セクション」+ `list-tree` + `SectionsNavigator`。`structure` の正しい見え方は「構造」+ `file-text` + Documents / Outline / Tags/SmartFolders / StoryWiki / LinkGraph / SnapshotManager 系。
+- 区分の中身が入れ替わったように見える場合は、まず `#sidebar-nav-anchor` の label / `data-group` / `data-current-icon` と、active panel (`manuscript-gadgets-panel` / `reference-gadgets-panel` / `view-gadgets-panel` / `advanced-gadgets-panel`) を同時に確認する。
+- 正しい見え方: 「原稿」+ `file-text` + SectionsNavigator / Documents / Outline / Tags / バックアップ、「資料」+ `book-open` + StoryWiki / LinkGraph / Markdown早見表、「表示」+ `sliders-horizontal` + 集中・タイプライター・執筆目標・テーマ系、「設定」+ `settings`。旧6区分（セクション / 構造 / 編集 / テーマ / 補助 / 詳細設定）の語は案内文・手動確認に使わない。
 - Lucide の `<svg>` 化後に icon だけ stale になると、カテゴリ内容は正しくても「対応づけが壊れた」ように見える。session 129 では anchor icon を差し替え直す実装と E2E で固定済み。
 
 報告UI・手動確認・質問形式に関する project-local メモ。

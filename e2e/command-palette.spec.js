@@ -217,7 +217,7 @@ test.describe('Command Palette E2E', () => {
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
 
-    const structureHeader = page.locator('.accordion-header[aria-controls="accordion-structure"]');
+    const structureHeader = page.locator('.accordion-header[aria-controls="accordion-manuscript"]');
     await expect(structureHeader).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -237,7 +237,7 @@ test.describe('Command Palette E2E', () => {
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toHaveClass(/open/);
 
-    const assistHeader = page.locator('.accordion-header[aria-controls="accordion-assist"]');
+    const assistHeader = page.locator('.accordion-header[aria-controls="accordion-view"]');
     await expect(assistHeader).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -271,7 +271,7 @@ test.describe('Command Palette E2E', () => {
     }
   });
 
-  test('Story Wiki command opens the structure category', async ({ page }) => {
+  test('Story Wiki command opens the reference category', async ({ page }) => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await openCommandPalette(page);
@@ -279,8 +279,8 @@ test.describe('Command Palette E2E', () => {
     await page.locator('.command-palette-item[data-command-id="gadget-wiki"]').click();
     await page.waitForTimeout(300);
 
-    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
-    await expect(page.locator('.accordion-header[aria-controls="accordion-structure"]')).toHaveAttribute('aria-expanded', 'true');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'reference');
+    await expect(page.locator('.accordion-header[aria-controls="accordion-reference"]')).toHaveAttribute('aria-expanded', 'true');
   });
 
   test('Markdown source command is developer-mode gated', async ({ page }) => {

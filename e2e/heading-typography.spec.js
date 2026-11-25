@@ -167,7 +167,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
 
     // テーマカテゴリを展開
     await page.evaluate(() => {
-      const header = document.querySelector('.accordion-header[aria-controls="accordion-theme"]');
+      const header = document.querySelector('.accordion-header[aria-controls="accordion-view"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
     });
     await page.waitForTimeout(300);
@@ -207,7 +207,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
       await page.waitForTimeout(200);
     }
     await page.evaluate(() => {
-      const header = document.querySelector('.accordion-header[aria-controls="accordion-theme"]');
+      const header = document.querySelector('.accordion-header[aria-controls="accordion-view"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
     });
     await page.waitForTimeout(300);
@@ -255,7 +255,7 @@ test.describe('SP-058 Heading Typography Phase 2 - UI Gadget', () => {
       await page.waitForTimeout(200);
     }
     await page.evaluate(() => {
-      const header = document.querySelector('.accordion-header[aria-controls="accordion-theme"]');
+      const header = document.querySelector('.accordion-header[aria-controls="accordion-view"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
     });
     await page.waitForTimeout(300);
@@ -364,7 +364,7 @@ test.describe('SP-058 Heading Typography Phase 3 - H4-H6 + Extended Properties',
       await page.waitForTimeout(200);
     }
     await page.evaluate(() => {
-      const header = document.querySelector('.accordion-header[aria-controls="accordion-theme"]');
+      const header = document.querySelector('.accordion-header[aria-controls="accordion-view"]');
       if (header && header.getAttribute('aria-expanded') !== 'true') header.click();
     });
     await page.waitForTimeout(300);

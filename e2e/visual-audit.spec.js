@@ -18,14 +18,14 @@ test.describe('Visual audit current-shell smoke', () => {
   test('captures the active current-shell sidebar panel into Playwright output', async ({ page }, testInfo) => {
     await waitForApp(page);
     await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel', { state: 'visible', timeout: 10000 });
+    await page.waitForSelector('#manuscript-gadgets-panel', { state: 'visible', timeout: 10000 });
 
     const output = testInfo.outputPath('visual-audit', 'structure-panel.png');
-    await page.locator('.accordion-category[data-category="structure"]').screenshot({ path: output });
+    await page.locator('.accordion-category[data-category="manuscript"]').screenshot({ path: output });
 
     expect(fs.existsSync(output)).toBe(true);
     await expect(page.locator('html')).toHaveAttribute('data-left-nav-state', 'category');
-    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'structure');
+    await expect(page.locator('html')).toHaveAttribute('data-left-nav-active', 'manuscript');
   });
 
   test('ordinary visual audit does not write tracked baseline screenshots', async ({ page }) => {
@@ -36,7 +36,7 @@ test.describe('Visual audit current-shell smoke', () => {
       ? fs.readdirSync(TRACKED_SHOTS).filter((name) => name.endsWith('.png')).sort()
       : [];
 
-    await page.locator('.accordion-category[data-category="sections"]').screenshot();
+    await page.locator('.accordion-category[data-category="manuscript"]').screenshot();
 
     const trackedAfter = fs.existsSync(TRACKED_SHOTS)
       ? fs.readdirSync(TRACKED_SHOTS).filter((name) => name.endsWith('.png')).sort()

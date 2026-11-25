@@ -6,7 +6,7 @@ const pageUrl = '/index.html';
 async function waitGadgetsReady(page) {
   await page.waitForFunction(() => {
     try {
-      return !!window.ZWGadgets && !!document.querySelector('#structure-gadgets-panel');
+      return !!window.ZWGadgets && !!document.querySelector('#manuscript-gadgets-panel');
     } catch (_) {
       return false;
     }
@@ -17,18 +17,18 @@ async function waitGadgetsReady(page) {
   await page.evaluate(() => {
     document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     // structure カテゴリと gadgets-panel を確実に表示
-    var cat = document.querySelector('.accordion-category[data-category="structure"]');
+    var cat = document.querySelector('.accordion-category[data-category="manuscript"]');
     if (cat) cat.style.display = '';
-    var panel = document.getElementById('structure-gadgets-panel');
+    var panel = document.getElementById('manuscript-gadgets-panel');
     if (panel) panel.style.display = '';
   });
-  await openSidebarGroup(page, 'structure');
+  await openSidebarGroup(page, 'manuscript');
   await page.evaluate(() => {
     if (window.sidebarManager && typeof window.sidebarManager._setAccordionState === 'function') {
-      window.sidebarManager._setAccordionState('structure', true);
+      window.sidebarManager._setAccordionState('manuscript', true);
     }
-    var header = document.querySelector('.accordion-header[aria-controls="accordion-structure"]');
-    var content = document.getElementById('accordion-structure');
+    var header = document.querySelector('.accordion-header[aria-controls="accordion-manuscript"]');
+    var content = document.getElementById('accordion-manuscript');
     if (header) header.setAttribute('aria-expanded', 'true');
     if (content) {
       content.hidden = false;
@@ -38,7 +38,7 @@ async function waitGadgetsReady(page) {
     }
   });
   await page.waitForTimeout(200);
-  await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
+  await page.waitForSelector('#manuscript-gadgets-panel .gadget-wrapper', {
     state: 'visible',
     timeout: 10000,
   });
@@ -110,7 +110,7 @@ test.describe('Gadgets E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const source = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
+    const source = page.locator('#manuscript-gadgets-panel .gadget-wrapper').first();
     await expect(source).toBeVisible();
     const gadgetName = await source.getAttribute('data-gadget-name');
     expect(gadgetName).toBeTruthy();
@@ -119,14 +119,14 @@ test.describe('Gadgets E2E', () => {
       const list = window.ZWGadgets && Array.isArray(window.ZWGadgets._list) ? window.ZWGadgets._list : [];
       const item = list.find((g) => g && g.name === name);
       const groups = item && Array.isArray(item.groups) ? item.groups.slice() : [];
-      if (!groups.includes('wiki')) groups.push('wiki');
+      if (!groups.includes('reference')) groups.push('reference');
       if (window.ZWGadgets && typeof window.ZWGadgets.assignGroups === 'function') {
         window.ZWGadgets.assignGroups(name, groups);
       }
       const updatedItem = list.find((g) => g && g.name === name);
       const updatedGroups = updatedItem && Array.isArray(updatedItem.groups) ? updatedItem.groups.slice() : [];
       return {
-        hasWikiInItem: updatedGroups.includes('wiki'),
+        hasWikiInItem: updatedGroups.includes('reference'),
       };
     }, gadgetName);
 
@@ -137,7 +137,7 @@ test.describe('Gadgets E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const wrapper = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
+    const wrapper = page.locator('#manuscript-gadgets-panel .gadget-wrapper').first();
     await expect(wrapper).toBeVisible();
     await expect(wrapper).not.toHaveAttribute('draggable', 'true');
     await expect(wrapper).toHaveAttribute('role', 'group');
@@ -160,10 +160,10 @@ test.describe('Gadgets E2E', () => {
   test('Gadget range controls do not start gadget dragging', async ({ page }) => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
-    await openSidebarGroup(page, 'theme');
+    await openSidebarGroup(page, 'view');
 
     const state = await page.evaluate(() => {
-      var range = document.querySelector('#theme-gadgets-panel .gadget-wrapper input[type="range"]');
+      var range = document.querySelector('#view-gadgets-panel .gadget-wrapper input[type="range"]');
       if (!range) {
         range = document.querySelector('.gadget-wrapper input[type="range"]');
       }
@@ -206,7 +206,7 @@ test.describe('Gadgets E2E', () => {
     await page.goto(pageUrl);
     await waitGadgetsReady(page);
 
-    const panel = page.locator('#structure-gadgets-panel');
+    const panel = page.locator('#manuscript-gadgets-panel');
     await expect(panel).toBeVisible();
 
     const dataTransfer = await page.evaluateHandle(() => new DataTransfer());
@@ -236,8 +236,8 @@ test.describe('Gadgets E2E', () => {
     await page.evaluate(() => {
       document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     });
-    await openSidebarGroup(page, 'assist');
-    await page.waitForSelector('#assist-gadgets-panel .gadget-wrapper', {
+    await openSidebarGroup(page, 'view');
+    await page.waitForSelector('#view-gadgets-panel .gadget-wrapper', {
       state: 'visible',
       timeout: 15000,
     });
@@ -246,7 +246,7 @@ test.describe('Gadgets E2E', () => {
       var list = window.ZWGadgets && window.ZWGadgets._list ? window.ZWGadgets._list : [];
       return list
         .filter(function (e) {
-          return e && e.groups && e.groups.indexOf('assist') >= 0 && e.defaultCollapsed === true;
+          return e && e.groups && e.groups.indexOf('view') >= 0 && e.defaultCollapsed === true;
         })
         .map(function (e) {
           return e.name;
@@ -255,7 +255,7 @@ test.describe('Gadgets E2E', () => {
     expect(assistCollapsedNames.length).toBeGreaterThan(0);
 
     for (const name of assistCollapsedNames) {
-      const wrap = page.locator(`#assist-gadgets-panel .gadget-wrapper[data-gadget-name="${name}"]`);
+      const wrap = page.locator(`#view-gadgets-panel .gadget-wrapper[data-gadget-name="${name}"]`);
       await expect(wrap).toHaveCount(1);
       await expect(wrap).toHaveAttribute('data-gadget-collapsed', 'true');
     }
@@ -322,7 +322,7 @@ test.describe('Gadgets E2E', () => {
 
     const edit = await page.evaluate(() => {
       const data = window.ZWGadgets._ensureLoadouts();
-      return data.entries['custom-effects'].groups.edit;
+      return data.entries['custom-effects'].groups.manuscript;
     });
 
     expect(edit).toContain('TextEffects');
@@ -350,9 +350,9 @@ test.describe('Gadgets E2E', () => {
       Object.keys(data.entries || {}).forEach((key) => {
         const entry = data.entries[key] || {};
         result[key] = {
-          structure: entry.groups?.structure || [],
-          edit: entry.groups?.edit || [],
-          assist: entry.groups?.assist || [],
+          manuscript: entry.groups?.manuscript || [],
+          reference: entry.groups?.reference || [],
+          view: entry.groups?.view || [],
           advanced: entry.groups?.advanced || [],
         };
       });
@@ -360,10 +360,10 @@ test.describe('Gadgets E2E', () => {
     });
 
     for (const [name, groups] of Object.entries(placement)) {
-      expect(groups.structure, `${name} structure placement`).toEqual(expect.arrayContaining(['SnapshotManager']));
-      expect(groups.assist, `${name} assist excludes snapshot`).not.toContain('SnapshotManager');
-      expect(groups.assist, `${name} assist excludes HUD`).not.toContain('HUDSettings');
-      expect(groups.assist, `${name} assist excludes PomodoroTimer by default`).not.toContain('PomodoroTimer');
+      expect(groups.manuscript, `${name} manuscript placement`).toEqual(expect.arrayContaining(['SnapshotManager']));
+      expect(groups.view, `${name} view excludes snapshot`).not.toContain('SnapshotManager');
+      expect(groups.view, `${name} view excludes HUD`).not.toContain('HUDSettings');
+      expect(groups.view, `${name} view excludes PomodoroTimer by default`).not.toContain('PomodoroTimer');
       expect(groups.advanced, `${name} advanced placement`).toEqual(expect.arrayContaining(['EditorLayout']));
       expect(groups.advanced, `${name} advanced excludes HUD by default`).not.toContain('HUDSettings');
       if (name !== 'novel-minimal') {
@@ -371,13 +371,20 @@ test.describe('Gadgets E2E', () => {
           expect.arrayContaining(['UISettings', 'EditorAdvancedSettings']),
         );
       }
-      expect(groups.edit, `${name} edit excludes MarkdownPreview`).not.toContain('MarkdownPreview');
-      expect(groups.edit, `${name} edit excludes FontDecoration`).not.toContain('FontDecoration');
-      expect(groups.edit, `${name} edit excludes TextAnimation`).not.toContain('TextAnimation');
+      expect(groups.manuscript, `${name} manuscript excludes MarkdownPreview`).not.toContain('MarkdownPreview');
+      expect(groups.manuscript, `${name} manuscript excludes FontDecoration`).not.toContain('FontDecoration');
+      expect(groups.manuscript, `${name} manuscript excludes TextAnimation`).not.toContain('TextAnimation');
       if (name === 'vn-layout') {
-        expect(groups.edit, `${name} keeps TextEffects for VN workflow`).toContain('TextEffects');
+        expect(groups.manuscript, `${name} keeps TextEffects for VN workflow`).toContain('TextEffects');
+        expect(groups.manuscript, `${name} keeps ChoiceTools for VN workflow`).toContain('ChoiceTools');
       } else {
-        expect(groups.edit, `${name} edit excludes TextEffects by default`).not.toContain('TextEffects');
+        expect(groups.manuscript, `${name} manuscript excludes TextEffects by default`).not.toContain('TextEffects');
+        expect(groups.manuscript, `${name} manuscript excludes ChoiceTools by default`).not.toContain('ChoiceTools');
+      }
+      // 集中・タイプライター・目標は表示区分、Wiki・リンクグラフは資料区分に置く
+      if (name !== 'novel-minimal') {
+        expect(groups.view, `${name} view carries focus tools`).toEqual(expect.arrayContaining(['FocusMode', 'Typewriter']));
+        expect(groups.reference, `${name} reference carries wiki`).toEqual(expect.arrayContaining(['StoryWiki']));
       }
     }
   });
@@ -394,14 +401,14 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await ensureNormalMode(page);
     await page.waitForFunction(() => {
       try {
-        return !!window.ZWGadgets && !!document.querySelector('#structure-gadgets-panel');
+        return !!window.ZWGadgets && !!document.querySelector('#manuscript-gadgets-panel');
       } catch (_) {
         return false;
       }
     }, { timeout: 15000 });
     await enableAllGadgets(page);
-    await openSidebarGroup(page, 'structure');
-    await page.waitForSelector('#structure-gadgets-panel .gadget-wrapper', {
+    await openSidebarGroup(page, 'manuscript');
+    await page.waitForSelector('#manuscript-gadgets-panel .gadget-wrapper', {
       state: 'visible',
       timeout: 10000,
     });
@@ -411,7 +418,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.goto(pageUrl);
     await waitDetachReady(page);
 
-    const wrapper = page.locator('#structure-gadgets-panel .gadget-wrapper').first();
+    const wrapper = page.locator('#manuscript-gadgets-panel .gadget-wrapper').first();
     await expect(wrapper).toBeVisible();
 
     const detachBtn = wrapper.locator('.gadget-detach-btn');
@@ -423,7 +430,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await disableWritingFocus(page);
-    await page.waitForSelector('#structure-gadgets-panel', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('#manuscript-gadgets-panel', { state: 'attached', timeout: 10000 });
 
     const hasDetach = await page.evaluate(() => {
       return typeof window.ZWGadgets?.detachGadget === 'function';
@@ -435,7 +442,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.goto(pageUrl);
     await ensureNormalMode(page);
     await disableWritingFocus(page);
-    await page.waitForSelector('#structure-gadgets-panel', { state: 'attached', timeout: 10000 });
+    await page.waitForSelector('#manuscript-gadgets-panel', { state: 'attached', timeout: 10000 });
 
     const hasRestore = await page.evaluate(() => {
       return typeof window.ZWGadgets?.restoreGadget === 'function';
@@ -449,7 +456,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.waitForFunction(() => !!window.ZenWriterPanels, { timeout: 10000 });
 
     const gadgetName = await page.evaluate(() => {
-      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper');
+      const wrapper = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper');
       return wrapper ? wrapper.getAttribute('data-gadget-name') : null;
     });
     expect(gadgetName).toBeTruthy();
@@ -457,7 +464,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     const detached = await page.evaluate((name) => {
       try {
         if (window.ZWGadgets && typeof window.ZWGadgets.detachGadget === 'function') {
-          window.ZWGadgets.detachGadget(name, 'structure');
+          window.ZWGadgets.detachGadget(name, 'manuscript');
           const prefs = window.ZWGadgets.getPrefs();
           return prefs.detached && prefs.detached[name] && prefs.detached[name].floating === true;
         }
@@ -484,7 +491,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.waitForFunction(() => !!window.ZenWriterPanels, { timeout: 10000 });
 
     const gadgetName = await page.evaluate(() => {
-      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper');
+      const wrapper = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper');
       return wrapper ? wrapper.getAttribute('data-gadget-name') : null;
     });
     expect(gadgetName).toBeTruthy();
@@ -494,7 +501,7 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
         if (!window.ZWGadgets) return false;
 
         if (typeof window.ZWGadgets.detachGadget === 'function') {
-          window.ZWGadgets.detachGadget(name, 'structure');
+          window.ZWGadgets.detachGadget(name, 'manuscript');
         }
 
         let prefs = window.ZWGadgets.getPrefs();
@@ -524,14 +531,14 @@ test.describe('Gadget Detach/Restore Flow (TASK_048)', () => {
     await page.waitForFunction(() => !!window.ZenWriterPanels, { timeout: 10000 });
 
     const gadgetName = await page.evaluate(() => {
-      const wrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper');
+      const wrapper = document.querySelector('#manuscript-gadgets-panel .gadget-wrapper');
       return wrapper ? wrapper.getAttribute('data-gadget-name') : null;
     });
     expect(gadgetName).toBeTruthy();
 
     await page.evaluate((name) => {
       if (window.ZWGadgets && typeof window.ZWGadgets.detachGadget === 'function') {
-        window.ZWGadgets.detachGadget(name, 'structure');
+        window.ZWGadgets.detachGadget(name, 'manuscript');
       }
     }, gadgetName);
 

@@ -48,6 +48,28 @@ async function showFullToolbar(page) {
 
 
 /**
+ * 左ナビは4区分（manuscript / reference / view / advanced）。
+ * 旧6区分のID（sections / structure / edit / theme / assist など）で呼ぶ既存テストを壊さないため、
+ * ヘルパーの入口で現行の区分IDへ読み替える。
+ */
+const LEGACY_GROUP_IDS = {
+  sections: 'manuscript',
+  structure: 'manuscript',
+  edit: 'manuscript',
+  theme: 'view',
+  assist: 'view',
+  wiki: 'reference',
+  typography: 'view',
+  settings: 'advanced'
+};
+
+/** @param {string} group */
+function resolveGroupId(group) {
+  const id = String(group || '').trim().toLowerCase();
+  return LEGACY_GROUP_IDS[id] || id;
+}
+
+/**
  * 全ガジェットをサイドバーに載せるロードアウトを適用する。
  * @param {import('@playwright/test').Page} page
  * @param {{ expandAllGadgets?: boolean }} [opts] - `expandAllGadgets: false` で初回折りたたみ状態を上書きしない（defaultCollapsed の E2E 用）
@@ -65,7 +87,7 @@ async function enableAllGadgets(page, opts) {
     var allNames = gadgets._list.map(function (g) { return g.name; });
 
     // KNOWN_GROUPS (sidebar groups only — 'settings' is NOT included)
-    var KNOWN = ['structure', 'edit', 'theme', 'assist', 'advanced'];
+    var KNOWN = ['manuscript', 'reference', 'view', 'advanced'];
     if (window.ZWGadgetsUtils && Array.isArray(window.ZWGadgetsUtils.KNOWN_GROUPS)) {
       KNOWN = window.ZWGadgetsUtils.KNOWN_GROUPS.slice();
     }
@@ -79,7 +101,7 @@ async function enableAllGadgets(page, opts) {
     if (presets && presets.entries) {
       var ref = presets.entries[presets.active || Object.keys(presets.entries)[0]];
       if (ref && ref.groups) {
-        var groupMap = { wiki: 'edit', typography: 'theme' };
+        var groupMap = (window.ZWGadgetsUtils && window.ZWGadgetsUtils.LEGACY_GROUP_MAP) || {};
         Object.keys(ref.groups).forEach(function (key) {
           if (key === 'settings') {
             // Collect settings gadgets separately (normaliseGroups strips this)
@@ -115,7 +137,7 @@ async function enableAllGadgets(page, opts) {
             }
           }
         }
-        if (!placed) sidebarGroups['structure'].push(name);
+        if (!placed) sidebarGroups['manuscript'].push(name);
       }
     });
 
@@ -164,7 +186,7 @@ async function enableAllGadgets(page, opts) {
     document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     document.documentElement.setAttribute('data-writing-settings-open', 'false');
     document.documentElement.removeAttribute('data-sidebar-slim');
-    var sp = document.getElementById('structure-gadgets-panel');
+    var sp = document.getElementById('manuscript-gadgets-panel');
     if (sp) sp.style.display = '';
     document.querySelectorAll('.accordion-category[data-category]').forEach(function(s) {
       s.style.display = '';
@@ -214,6 +236,7 @@ async function expandAllGadgets(page, panelSelector) {
  * サイドバーを開き、指定カテゴリのアコーディオンを展開する。
  */
 async function openSidebarGroup(page, group) {
+  group = resolveGroupId(group);
   await page.evaluate((g) => {
     var sidebar = document.getElementById('sidebar');
     if (sidebar && !sidebar.classList.contains('open')) {
@@ -240,9 +263,10 @@ async function openSidebarGroup(page, group) {
 /**
  * アコーディオンカテゴリを展開する。
  * @param {import('@playwright/test').Page} page
- * @param {string} categoryId - structure, edit, theme, assist, advanced
+ * @param {string} categoryId - manuscript, reference, view, advanced（旧ID sections/structure/edit/theme/assist も可）
  */
 async function expandAccordion(page, categoryId) {
+  categoryId = resolveGroupId(categoryId);
   await page.evaluate((id) => {
     var header = document.querySelector(
       '.accordion-header[aria-controls="accordion-' + id + '"]'
@@ -270,7 +294,7 @@ async function openSettingsModal(page) {
 
 /**
  * 執筆集中サイドバーモードを無効化する。
- * writing-focus が有効だと structure-gadgets-panel や assist/edit 等のカテゴリが非表示になるため、
+ * writing-focus が有効だと manuscript 以外の区分が非表示になるため、
  * ガジェット操作テストでは事前に呼び出す。
  */
 async function disableWritingFocus(page) {
@@ -278,8 +302,8 @@ async function disableWritingFocus(page) {
     document.documentElement.setAttribute('data-writing-sidebar-focus', 'false');
     document.documentElement.setAttribute('data-writing-settings-open', 'false');
     document.documentElement.removeAttribute('data-sidebar-slim');
-    // CSS非表示を解除: structure-gadgets-panel
-    var sp = document.getElementById('structure-gadgets-panel');
+    // CSS非表示を解除: manuscript-gadgets-panel
+    var sp = document.getElementById('manuscript-gadgets-panel');
     if (sp) sp.style.display = '';
     // JS非表示を解除: 全アコーディオンカテゴリ
     document.querySelectorAll('.accordion-category[data-category]').forEach(function(s) {
@@ -293,10 +317,11 @@ async function disableWritingFocus(page) {
  * サイドバーを Normal モードで開き、指定グループのパネルを表示する。
  * openAssistPanel / openThemePanel / openSidebarAndStructurePanel の共通化。
  * @param {import('@playwright/test').Page} page
- * @param {string} group - 'structure' | 'edit' | 'theme' | 'assist' | 'advanced'
+ * @param {string} group - 'manuscript' | 'reference' | 'view' | 'advanced'（旧IDも可）
  * @param {{ expandGadgets?: boolean, waitSelector?: string }} [opts]
  */
 async function openSidebarPanel(page, group, opts = {}) {
+  group = resolveGroupId(group);
   await setUIMode(page, 'normal');
   await page.waitForFunction(() => {
     try { return !!window.ZWGadgets; } catch (_) { return false; }
@@ -562,6 +587,7 @@ module.exports = {
   openCommandPalette,
   showFullToolbar,
   enableAllGadgets,
+  resolveGroupId,
   expandAllGadgets,
   openSidebarGroup,
   expandAccordion,
