@@ -31,6 +31,39 @@
     return String(text || '').trim().length;
   }
 
+  /** 原稿用紙（400字詰め）の枚数。半枚に満たない短文では出さない。 */
+  function getSheetCount(count) {
+    var metrics = window.ManuscriptMetrics;
+    if (!metrics || typeof metrics.sheets !== 'function') return 0;
+    var sheets = metrics.sheets(count);
+    return sheets >= 0.5 ? sheets : 0;
+  }
+
+  /** 選択中の文字数。編集面の外や未選択では 0。ルビの読みは数えない。 */
+  function getSelectionCount() {
+    var metrics = window.ManuscriptMetrics;
+    if (!metrics || typeof metrics.countRendered !== 'function') return 0;
+    try {
+      var active = document.activeElement;
+      if (active && active.id === 'editor' && typeof active.selectionStart === 'number') {
+        if (active.selectionStart === active.selectionEnd) return 0;
+        return metrics.count(active.value.slice(active.selectionStart, active.selectionEnd));
+      }
+      var selection = window.getSelection && window.getSelection();
+      var rich = document.getElementById('wysiwyg-editor');
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !rich) return 0;
+      var range = selection.getRangeAt(0);
+      if (!rich.contains(range.commonAncestorContainer)) return 0;
+      var holder = document.createElement('div');
+      holder.appendChild(range.cloneContents());
+      var readings = holder.querySelectorAll('rt, rp');
+      for (var i = 0; i < readings.length; i++) readings[i].remove();
+      return metrics.countRendered(holder.textContent || '', metrics.getMode());
+    } catch (_) {
+      return 0;
+    }
+  }
+
   function isEditorInput(target) {
     if (!target || !target.closest) return false;
     return !!target.closest('#editor, #wysiwyg-editor');
@@ -68,13 +101,22 @@
 
     function render() {
       var count = countChars(getEditorText());
-      var label = '文字数: ' + count + ' · ' + getSaveLabel();
+      var selected = getSelectionCount();
+      var sheets = getSheetCount(count);
+      var label = '文字数: ' + count
+        + (sheets ? '（約' + sheets + '枚）' : '')
+        + (selected ? ' · 選択 ' + selected : '')
+        + ' · ' + getSaveLabel();
       chip.textContent = label;
       chip.setAttribute('data-save-state', state);
       chip.setAttribute('data-char-count', String(count));
+      chip.setAttribute('data-selection-count', String(selected));
       chip.setAttribute('data-last-saved-at', lastSavedAt ? lastSavedAt.toISOString() : '');
-      chip.setAttribute('aria-label', label + '。' + SAVE_HELP_TEXT);
-      chip.setAttribute('title', lastSavedAt ? '最終保存: ' + formatSavedTime(lastSavedAt) + '。' + SAVE_HELP_TEXT : SAVE_HELP_TEXT);
+      var metrics = window.ManuscriptMetrics;
+      var modeNote = metrics && metrics.MODES && metrics.MODES[metrics.getMode()]
+        ? '数え方: ' + metrics.MODES[metrics.getMode()].label + '。' : '';
+      chip.setAttribute('aria-label', label + '。' + modeNote + SAVE_HELP_TEXT);
+      chip.setAttribute('title', (lastSavedAt ? '最終保存: ' + formatSavedTime(lastSavedAt) + '。' : '') + modeNote + SAVE_HELP_TEXT);
     }
 
     function setState(next, options) {
@@ -109,6 +151,18 @@
       setState('failed');
     });
 
+    window.addEventListener('ZWManuscriptMetricsChanged', render);
+    // 選択文字数は選択が動くたびに変わる。ドラッグ中の再描画は 1 フレームに 1 回へまとめる
+    var selectionFrame = 0;
+    document.addEventListener('selectionchange', function () {
+      if (selectionFrame) return;
+      selectionFrame = window.requestAnimationFrame(function () {
+        selectionFrame = 0;
+        var before = chip.getAttribute('data-selection-count') || '0';
+        if (before === '0' && !window.getSelection().toString()) return;
+        render();
+      });
+    });
     window.addEventListener('ZWChapterStoreChanged', render);
     window.addEventListener('ZenWriterUIModeChanged', render);
     window.addEventListener('ZWReaderPreviewChanged', render);

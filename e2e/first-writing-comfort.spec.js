@@ -88,4 +88,38 @@ test.describe('First writing comfort', () => {
     }));
     expect(counts).toEqual({ kenten: 4, ruby: 4, bracketNote: 7 });
   });
+
+  test('count mode switches from the command palette, and the chip shows sheets and the selection', async ({ page }) => {
+    await page.goto('/index.html?reset=1');
+    await page.waitForLoadState('networkidle');
+    await ensureNormalMode(page);
+
+    // 1 段落 = 全角スペースの字下げ + 17 文字、段落の間は空行
+    const paragraph = '　駅を出ると、雨はもう上がっていた。\n\n';
+    await page.evaluate((text) => window.ZenWriterEditor.setContent(text), paragraph.repeat(40));
+
+    const chip = page.locator('#writing-status-chip');
+    await expect(chip).toHaveAttribute('data-char-count', '680');
+    await expect(chip).toContainText('約1.7枚');
+
+    await openCommandPalette(page);
+    await page.locator('#command-palette-input').fill('文字数の数え方');
+    await page.locator('.command-palette-item[data-command-id="cycle-count-mode"]').click();
+    await expect(chip).toHaveAttribute('data-char-count', '720');
+    await expect(chip).toHaveAttribute('aria-label', /数え方: 改行を除く/);
+
+    await page.evaluate(() => {
+      const editor = document.getElementById('wysiwyg-editor');
+      editor.focus();
+      const paragraphs = editor.querySelectorAll('p');
+      const range = document.createRange();
+      range.setStartBefore(paragraphs[0].firstChild);
+      range.setEndAfter(paragraphs[1].lastChild);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+    });
+    await expect(chip).toHaveAttribute('data-selection-count', '36');
+    await expect(chip).toContainText('選択 36');
+  });
 });

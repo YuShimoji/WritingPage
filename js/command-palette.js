@@ -388,6 +388,24 @@
         }
       }
     },
+    {
+      id: 'cycle-count-mode',
+      label: '文字数の数え方を切り替える',
+      description: '改行・空白を除く／改行を除く／すべて数える を順に切り替える（右下の文字数に反映）',
+      keywords: '文字数 カウント 数え方 改行 空白 原稿用紙 countMode',
+      shortcut: '',
+      category: '編集',
+      execute: () => {
+        try {
+          const metrics = window.ManuscriptMetrics;
+          if (!metrics) return;
+          const next = metrics.cycleMode();
+          if (window.ZenWriterHUD && typeof window.ZenWriterHUD.show === 'function') {
+            window.ZenWriterHUD.show('文字数の数え方: ' + metrics.MODES[next].label, 2000);
+          }
+        } catch (_) { }
+      }
+    },
     // リッチ編集の改行挙動の切替 — サイドバー設定に埋もれている機能を発見性の高いコマンドパレットへ昇格
     {
       id: 'toggle-effect-break-at-newline',

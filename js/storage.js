@@ -89,6 +89,7 @@ const DEFAULT_SETTINGS = {
     editor: {
         richtextEnhanced: true,
         effectBreakAtNewline: true,
+        countMode: 'noSpaces',
         effectPersistDecorAcrossNewline: false,
         wordWrap: {
             enabled: false,

@@ -606,7 +606,10 @@
       var editor = document.getElementById('editor');
       var content = editor ? (editor.value || '') : '';
       var surface = isWysiwygMode() ? 'リッチ編集' : 'Markdown ソース';
-      var meta = '現在: ' + surface + ' / 本文 ' + content.trim().length + ' 文字';
+      var bodyCount = window.EditorUI && typeof window.EditorUI._countPlainChars === 'function'
+        ? window.EditorUI._countPlainChars(content)
+        : content.trim().length;
+      var meta = '現在: ' + surface + ' / 本文 ' + bodyCount + ' 文字';
       var hint = '本文に # 見出し を追加すると、ここに一覧が出ます。';
 
       if (chapterMode) {

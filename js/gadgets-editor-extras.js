@@ -185,6 +185,40 @@
       placeholderRow.appendChild(placeholderLabel);
       placeholderRow.appendChild(placeholderInput);
 
+      // 文字数の数え方（settings.editor.countMode。右下の表示・執筆目標・Design Cockpit が共有する）
+      var countModeRow = el('div');
+      countModeRow.style.display = 'grid';
+      countModeRow.style.gap = '0.25rem';
+      var countModeLabel = el('label');
+      countModeLabel.textContent = '文字数の数え方';
+      countModeLabel.htmlFor = 'count-mode-select';
+      var countModeSelect = el('select');
+      countModeSelect.id = 'count-mode-select';
+      var countModeApi = window.ManuscriptMetrics;
+      var countModeOrder = (countModeApi && countModeApi.MODE_ORDER) || ['noSpaces'];
+      countModeOrder.forEach(function (key) {
+        var o = el('option');
+        o.value = key;
+        o.textContent = countModeApi && countModeApi.MODES[key] ? countModeApi.MODES[key].label : key;
+        countModeSelect.appendChild(o);
+      });
+      countModeSelect.value = countModeApi ? countModeApi.getMode() : 'noSpaces';
+      var countModeHint = el('span');
+      countModeHint.style.fontSize = '0.7rem';
+      countModeHint.style.opacity = '0.75';
+      var syncCountModeHint = function () {
+        var info = countModeApi && countModeApi.MODES[countModeSelect.value];
+        countModeHint.textContent = (info ? info.hint + '。' : '') + 'ルビは親文字、傍点は本文を数えます。原稿用紙は 400 字詰めで換算します。';
+      };
+      syncCountModeHint();
+      countModeRow.appendChild(countModeLabel);
+      countModeRow.appendChild(countModeSelect);
+      countModeRow.appendChild(countModeHint);
+      countModeSelect.addEventListener('change', function () {
+        if (countModeApi) countModeApi.setMode(countModeSelect.value);
+        syncCountModeHint();
+      });
+
       // リッチ編集: 改行で装飾・効果を切る（BL-002・settings.editor.effectBreakAtNewline、既定 true）
       var effectBreakRow = el('div');
       effectBreakRow.style.display = 'grid';
@@ -856,6 +890,7 @@
         root.appendChild(widthRow);
         root.appendChild(fontRow);
         root.appendChild(placeholderRow);
+        root.appendChild(countModeRow);
         root.appendChild(autoSaveRow);
       }
       if (includeAdvanced) {
