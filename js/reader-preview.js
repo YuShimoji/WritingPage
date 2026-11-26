@@ -13,6 +13,7 @@
   var controlsEl = null;
   var toggleButtons = [];
   var isOpen = false;
+  var isFrameRoute = false;
   var progressBar = null;
   var progressFill = null;
   var scrollRAF = null;
@@ -279,19 +280,20 @@
     });
   }
 
-  function enterReaderMode() {
+  function enterReaderMode(markdown) {
     if (isOpen) return;
+    isFrameRoute = typeof markdown === 'string';
 
     // ContentGuard: 現在の編集内容を保存してからモード切替
     var G = window.ZWContentGuard;
-    if (G && typeof G.ensureSaved === 'function') {
+    if (!isFrameRoute && G && typeof G.ensureSaved === 'function') {
       G.ensureSaved();
     }
 
     registerReaderChapterNavHandler();
 
     // 読者プレビューHTMLを生成
-    buildReaderHTML();
+    buildReaderHTML(isFrameRoute ? markdown : null);
 
     // 縦書き設定を適用
     applyVerticalMode(isVertical);
@@ -304,6 +306,22 @@
     restoreScrollPosition();
   }
 
+  async function openFrameRouteFromFile() {
+    try {
+      var json = await window.ZenWriterStorage.selectJSONFile();
+      if (json === null) return;
+      var route = JSON.parse(json);
+      var frames = Array.isArray(route) ? route : route && route.frames;
+      var markdown = window.NarrativeScreenBridge.framesToMarkdown(frames);
+      if (isOpen) exitReaderMode();
+      enterReaderMode(markdown);
+      if (backFab) backFab.focus({ preventScroll: true });
+    } catch (error) {
+      var editor = window.ZenWriterEditor;
+      if (editor && editor.showNotification) editor.showNotification('画面フレームを開けません: ' + error.message, 8000);
+    }
+  }
+
   function exitReaderMode() {
     if (!isOpen) return;
     unregisterReaderChapterNavHandler();
@@ -312,6 +330,7 @@
     saveScrollPosition();
 
     isOpen = false;
+    isFrameRoute = false;
     document.documentElement.removeAttribute('data-reader-overlay-open');
     if (previewEl) previewEl.classList.remove('is-open');
 
@@ -348,7 +367,7 @@
   /**
    * 全visible章を結合して読者向けHTMLを生成
    */
-  function buildReaderHTML() {
+  function buildReaderHTML(routeMarkdown) {
     if (!innerEl) return;
     innerEl.innerHTML = '';
 
@@ -357,7 +376,7 @@
 
     // 作品タイトル
     var docTitle = '';
-    if (ctx.docId && ctx.docs.length) {
+    if (routeMarkdown === null && ctx.docId && ctx.docs.length) {
       var doc = ctx.docs.find(function (d) { return d && d.id === ctx.docId; });
       if (doc) docTitle = doc.name || doc.title || '';
     }
@@ -370,7 +389,7 @@
     }
 
     // 章のHTML生成
-    var fullHtml = getFullContentHtml();
+    var fullHtml = routeMarkdown === null ? getFullContentHtml() : renderReaderMarkdown(routeMarkdown);
     if (!fullHtml) {
       innerEl.innerHTML = '<p style="text-align:center;color:var(--text-muted,#999);padding:3rem;">コンテンツがありません</p>';
       return;
@@ -533,10 +552,13 @@
     // エディタが一時的に不整合なとき、## 見出しが一斉に章レコード化される事故の原因になる）。
     // 章への分解は ensureChapterMode や明示的な移行処理に限定する。
 
-    if (!markdown.trim()) return '';
+    return renderReaderMarkdown(markdown);
+  }
 
+  function renderReaderMarkdown(markdown) {
+    if (!markdown.trim()) return '';
     if (window.ZWMdItBody && typeof window.ZWMdItBody.renderToHtmlBeforePipeline === 'function') {
-      return window.ZWMdItBody.renderToHtmlBeforePipeline(markdown);
+      return window.ZWMdItBody.renderToHtmlBeforePipeline(markdown, { imported: isFrameRoute });
     }
 
     return '<pre>' + markdown.replace(/</g, '&lt;') + '</pre>';
@@ -768,6 +790,7 @@
    * 現在のドキュメントIDに基づくスクロールキー
    */
   function getScrollKey() {
+    if (isFrameRoute) return null;
     var docId = getCurrentReaderDocContext().docId;
     return docId ? 'reader-scroll-' + docId : 'reader-scroll-default';
   }
@@ -789,6 +812,7 @@
   // Public API
   window.ZWReaderPreview = {
     enter: enterReaderMode,
+    openFrameRouteFromFile: openFrameRouteFromFile,
     exit: exitReaderMode,
     toggle: function () {
       if (isOpen) exitReaderMode();

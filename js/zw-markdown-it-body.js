@@ -10,40 +10,42 @@
 
   var sharedFallbackRenderer = null;
 
-  function extractDslBlocks(markdown) {
+  function extractDslBlocks(markdown, md) {
     var placeholders = [];
-    var counter = 0;
-    var processed = (markdown || '').replace(DSL_BLOCK_RE, function (match) {
-      var token = '\n\nZWDSLBLOCK' + counter + '\n\n';
-      placeholders.push({ token: 'ZWDSLBLOCK' + counter, dsl: match });
-      counter++;
-      return token;
+    var source = markdown || '';
+    var prefix = availableTokenPrefix(source, md, 'ZWDSLBLOCK');
+    var processed = source.replace(DSL_BLOCK_RE, function (match) {
+      var token = prefix + placeholders.length + 'END';
+      placeholders.push({ token: token, dsl: match });
+      return '\n\n' + token + '\n\n';
     });
     return { markdown: processed, placeholders: placeholders };
   }
 
-  function extractAlignedBlocks(markdown, md) {
-    var placeholders = [];
-    var counter = 0;
-    var source = markdown || '';
+  function availableTokenPrefix(source, md, label) {
     var reserved = source;
     if (md && md.utils && typeof md.utils.unescapeAll === 'function') {
       reserved += md.utils.unescapeAll(source);
     }
     // Reserve namespaces in one scan, including text produced by entity decoding.
-    var namespaces = new Set(reserved.match(/ZWALIGNBLOCK\d+X/g) || []);
+    var namespaces = new Set(reserved.match(new RegExp(label + '\\d+X', 'g')) || []);
     var namespace = 0;
-    while (namespaces.has('ZWALIGNBLOCK' + namespace + 'X')) namespace++;
-    var prefix = 'ZWALIGNBLOCK' + namespace + 'X';
+    while (namespaces.has(label + namespace + 'X')) namespace++;
+    return label + namespace + 'X';
+  }
+
+  function extractAlignedBlocks(markdown, md) {
+    var placeholders = [];
+    var source = markdown || '';
+    var prefix = availableTokenPrefix(source, md, 'ZWALIGNBLOCK');
     var processed = source.replace(ALIGN_BLOCK_RE, function (_match, tag, align, content) {
-      var token = prefix + counter + 'END';
+      var token = prefix + placeholders.length + 'END';
       placeholders.push({
         token: token,
         tag: String(tag || 'p').toLowerCase(),
         align: String(align || 'start').toLowerCase(),
         content: content || ''
       });
-      counter++;
       return '\n\n' + token + '\n\n';
     });
     return { markdown: processed, placeholders: placeholders };
@@ -52,8 +54,7 @@
   function restoreDslBlocks(html, placeholders) {
     for (var i = 0; i < placeholders.length; i++) {
       var p = placeholders[i];
-      html = html.replace(new RegExp('<p>' + p.token + '</p>', 'g'), p.dsl);
-      html = html.replace(new RegExp(p.token, 'g'), p.dsl);
+      html = html.replace(new RegExp('<p>' + p.token + '</p>|' + p.token, 'g'), function () { return p.dsl; });
     }
     return html;
   }
@@ -92,7 +93,7 @@
    * @param {object} [editorManager] 指定時は editorManager._markdownRenderer を利用（MD プレビューと同一インスタンス）
    * @returns {object|null} markdown-it インスタンス
    */
-  function resolveMarkdownRenderer(editorManager) {
+  function resolveMarkdownRenderer(editorManager, imported) {
     if (editorManager && window.markdownit) {
       if (!editorManager._markdownRenderer) {
         editorManager._markdownRenderer = window.markdownit({
@@ -106,7 +107,7 @@
 
     var Z = window.ZenWriterEditor;
     var rte = Z && Z.richTextEditor;
-    if (rte && rte.markdownRenderer) {
+    if (!imported && rte && rte.markdownRenderer) {
       return rte.markdownRenderer;
     }
 
@@ -126,7 +127,7 @@
 
   /**
    * @param {string} markdown
-   * @param {{ editorManager?: object }} [opts]
+   * @param {{ editorManager?: object, imported?: boolean }} [opts]
    * @returns {string}
    */
   function renderToHtmlBeforePipeline(markdown, opts) {
@@ -137,9 +138,9 @@
     var md = null;
 
     try {
-      md = resolveMarkdownRenderer(opts.editorManager);
+      md = resolveMarkdownRenderer(opts.editorManager, opts.imported);
       aligned = extractAlignedBlocks(markdown, md);
-      extracted = extractDslBlocks(aligned.markdown);
+      extracted = extractDslBlocks(aligned.markdown, md);
       var mdSrc = extracted.markdown;
       if (md) {
         html = md.render(mdSrc);

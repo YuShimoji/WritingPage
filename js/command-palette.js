@@ -297,6 +297,14 @@
       }
     },
     {
+      id: 'reader-open-narrativegen-frames',
+      label: 'NarrativeGenの再生記録を開く',
+      description: '画面フレームのJSONをReaderで読む',
+      keywords: '画面フレーム 再生 読者 リーダー reader',
+      category: 'サーフェス',
+      execute: () => window.ZWReaderPreview.openFrameRouteFromFile()
+    },
+    {
       id: 'design-cockpit',
       label: 'Design Cockpit',
       description: '保存状態、執筆準備、レビュー状態を確認するローカル dashboard',

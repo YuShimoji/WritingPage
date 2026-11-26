@@ -435,10 +435,30 @@
               refreshUI();
               notify('プロジェクトを読み込みました');
               dispatchChanged();
-            } else {
+            } else if (docId === null) {
               notify((window.UILabels && window.UILabels.PROJECT_IMPORT_SAFE_FAILURE) || 'JSON読み込みに失敗しました。現在の文書は保持されています。');
             }
           });
+        }
+      }));
+      ioMenu.appendChild(createMenuItem('NarrativeGen用に書き出す', '現在の原稿をwp-ng形式で書き出す', function () {
+        if (!saveCurrentContent()) { notify('現在の原稿を保存できなかったため、書き出しを中止しました', 6000); return; }
+        var docId = storage.getCurrentDocId();
+        var Store = window.ZWChapterStore;
+        if (docId && Store) docId = Store.resolveParentDocumentId(docId, storage.loadDocuments());
+        if (!docId) { notify('ドキュメントが選択されていません'); return; }
+        try {
+          if (storage.exportProjectJSON(docId, { narrativeGen: true })) notify('NarrativeGen用の原稿を書き出しました');
+        } catch (error) {
+          notify('書き出せません: ' + error.message, 6000);
+        }
+      }));
+      ioMenu.appendChild(createMenuItem('NarrativeGenの原稿を読み込む', 'wp-ng形式の原稿を新規ドキュメントに読み込む', async function () {
+        try {
+          var docId = await storage.importProjectJSONFromFile({ narrativeGen: true });
+          if (docId) switchDocument(docId, { focusEditorAfterSelect: true });
+        } catch (error) {
+          notify('NarrativeGenの原稿を読み込めません: ' + error.message, 8000);
         }
       }));
 

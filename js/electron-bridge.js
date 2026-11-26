@@ -132,7 +132,7 @@
                             if (window.ZenWriterEditor && typeof window.ZenWriterEditor.loadContent === 'function') {
                                 window.ZenWriterEditor.loadContent();
                             }
-                        } else if (window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
+                        } else if (docId === null && window.ZenWriterEditor && typeof window.ZenWriterEditor.showNotification === 'function') {
                             const message = (window.UILabels && window.UILabels.PROJECT_IMPORT_SAFE_FAILURE) || 'JSON読み込みに失敗しました。現在の文書は保持されています。';
                             window.ZenWriterEditor.showNotification(message, 3000);
                         }

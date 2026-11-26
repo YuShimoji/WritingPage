@@ -59,3 +59,17 @@ test('replacement metacharacters are manuscript content in every aligned render 
     assert.equal(output.split('<p>After</p>').length - 1, 1, surface);
   }
 });
+
+test('the Reader preserves every DSL block in a full NarrativeGen route', () => {
+  const parser = require('../js/modules/editor/TextboxDslParser.js');
+  const bridge = require('../js/modules/narrative/NarrativeScreenBridge.js');
+  const route = require('./fixtures/narrativegen/screen-route-blue-selvedge.json');
+  const source = bridge.framesToMarkdown(route.frames);
+  const literal = 'ZWDSLBLOCK0X0END';
+  const extraBlock = parser.wrap('Dollar $& / ' + literal, { role: 'system' }, 'textbox');
+  const combined = literal + '\n\n' + source + '\n' + extraBlock;
+  const rendered = body.renderToHtmlBeforePipeline(combined, { imported: true });
+  const dsl = (text) => parser.parseSegments(text).filter((segment) => segment.type !== 'text');
+  assert.ok(rendered.includes('<p>' + literal + '</p>'));
+  assert.deepEqual(dsl(rendered), dsl(combined));
+});

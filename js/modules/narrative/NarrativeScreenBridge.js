@@ -85,8 +85,8 @@
     if (!visible.length) throw new Error('表示する章がありません');
 
     var ids = visible.map(pageNodeId);
-    var bySlug = {};
-    var seen = {};
+    var bySlug = Object.create(null);
+    var seen = Object.create(null);
     ids.forEach(function (id, i) {
       if (seen[id]) throw new Error('nodeId ' + id + ' が重複しています（章名を変えるか metadata.narrativegen.nodeId を付けてください）');
       seen[id] = true;
@@ -174,17 +174,22 @@
     if (!version || Number(version[1]) !== 0) {
       throw new Error('contractVersion ' + envelope.contractVersion + ' は互換がありません（期待 ' + CONTRACT_VERSION + '）');
     }
-    if (!Array.isArray(envelope.nodes)) throw new Error('必須フィールド nodes がありません');
+    if (typeof envelope.modelId !== 'string') throw new Error('必須フィールド modelId がありません');
+    if (!Array.isArray(envelope.nodes) || !envelope.nodes.length) throw new Error('必須フィールド nodes がないか空です');
     var name = (options && options.name) || envelope.modelId || 'NarrativeGen';
-    var seen = {};
+    var seen = new Set();
     var pages = envelope.nodes.map(function (node, index) {
-      if (!node || typeof node.nodeId !== 'string' || typeof node.text !== 'string') {
+      if (!node || typeof node.nodeId !== 'string' || !node.nodeId || typeof node.text !== 'string') {
         throw new Error('nodes[' + index + '] に必須フィールド nodeId / text がありません');
       }
-      if (seen[node.nodeId]) throw new Error('nodeId ' + node.nodeId + ' が重複しています');
-      seen[node.nodeId] = true;
+      if (seen.has(node.nodeId)) throw new Error('nodeId ' + node.nodeId + ' が重複しています');
+      seen.add(node.nodeId);
       var blocks = paragraphs(node.text).map(function (p) { return node.speaker ? dialog(node.speaker, p) : p; });
-      (node.choices || []).forEach(function (c) { blocks.push(choiceLink(c.text, c.target)); });
+      if (node.choices !== undefined && !Array.isArray(node.choices)) throw new Error(node.nodeId + ': choices が配列ではありません');
+      (node.choices || []).forEach(function (c) {
+        if (!c || typeof c.text !== 'string' || typeof c.target !== 'string') throw new Error(node.nodeId + ': 選択肢に text / target がありません');
+        blocks.push(choiceLink(c.text, c.target));
+      });
       return {
         title: node.nodeId,
         content: blocks.join('\n\n'),

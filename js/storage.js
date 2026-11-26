@@ -1139,7 +1139,7 @@ function exportText(text, filename, type = 'text/plain') {
  * @param {string} docId - 対象ドキュメントID
  * @returns {boolean} 成功/失敗
  */
-function exportProjectJSON(docId) {
+function exportProjectJSON(docId, options) {
     try {
         const docs = loadDocuments();
         const doc = docs.find(d => d.id === docId && d.type === 'document');
@@ -1153,6 +1153,7 @@ function exportProjectJSON(docId) {
             .sort((a, b) => (a.order || 0) - (b.order || 0));
 
         const pages = chapters.map(ch => ({
+            ...(options && options.narrativeGen ? { id: ch.id } : {}),
             title: ch.name || '',
             content: ch.content || '',
             order: ch.order || 0,
@@ -1180,8 +1181,15 @@ function exportProjectJSON(docId) {
             exportedAt: new Date().toISOString()
         };
 
-        const json = JSON.stringify(project, null, 2);
-        const filename = (doc.name || 'untitled') + '.zwp.json';
+        let payload = project;
+        let filename = (doc.name || 'untitled') + '.zwp.json';
+        if (options && options.narrativeGen) {
+            const { envelope, warnings } = window.NarrativeScreenBridge.projectToContract(project);
+            if (warnings.length && !window.confirm('原稿の書き出しで失われる情報があります。\n\n' + warnings.join('\n') + '\n\nNarrativeGen用に書き出しますか？')) return false;
+            payload = envelope;
+            filename = (doc.name || 'untitled') + '.wp-ng.json';
+        }
+        const json = JSON.stringify(payload, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -1193,6 +1201,7 @@ function exportProjectJSON(docId) {
         URL.revokeObjectURL(url);
         return true;
     } catch (e) {
+        if (options && options.narrativeGen) throw e;
         console.error('プロジェクト JSON エクスポート中にエラー:', e);
         return false;
     }
@@ -1385,27 +1394,41 @@ function importProjectJSON(jsonString) {
 }
 
 /**
- * ファイル選択ダイアログを開いて JSON プロジェクトをインポート
- * @returns {Promise<string|null>} 作成されたドキュメントID
+ * ファイル選択ダイアログから JSON ファイルの本文を取得する。
+ * @returns {Promise<string|null>} 本文、取り消し時は null
  */
-function importProjectJSONFromFile() {
-    return new Promise((resolve) => {
+function selectJSONFile() {
+    return new Promise((resolve, reject) => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.json,.zwp.json';
-        input.onchange = (e) => {
+        input.addEventListener('cancel', () => resolve(null), { once: true });
+        input.onchange = async (e) => {
             const file = e.target.files[0];
             if (!file) { resolve(null); return; }
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const docId = importProjectJSON(ev.target.result);
-                resolve(docId);
-            };
-            reader.onerror = () => resolve(null);
-            reader.readAsText(file);
+            try {
+                resolve(await file.text());
+            } catch (error) {
+                reject(error);
+            }
         };
         input.click();
     });
+}
+
+async function importProjectJSONFromFile(options) {
+    try {
+        const json = await selectJSONFile();
+        if (json === null) return undefined;
+        if (!options || !options.narrativeGen) return importProjectJSON(json);
+        const project = window.NarrativeScreenBridge.contractToProject(JSON.parse(json));
+        const docId = importProjectJSON(JSON.stringify(project));
+        if (!docId) throw new Error('原稿を保存できませんでした。');
+        return docId;
+    } catch (error) {
+        if (options && options.narrativeGen) throw error;
+        return null;
+    }
 }
 
 // ===== Wiki ページ管理 =====
@@ -1868,6 +1891,7 @@ if (typeof module !== 'undefined' && module.exports) {
         exportProjectJSON,
         importProjectJSON,
         importProjectJSONFromFile,
+        selectJSONFile,
         // assets
         loadAssets,
         saveAssetFromDataUrl,
