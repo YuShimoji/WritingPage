@@ -28,6 +28,18 @@
 前候補の[技術確認](verification/2026-11-02/ci-package-verification.md)と、
 [Wikiの仕様・画面確認](verification/2026-11-02/wiki-requirements-verification.md)は各sourceの記録として保持する。
 
+## NarrativeGen連携の再開
+
+WritingPageの `main` に、原稿とSP-WP-001 0.2を相互に変換し、SP-SCREEN-001 v1の画面フレームをReader用Markdownにする[変換器](../js/modules/narrative/NarrativeScreenBridge.js)と[共有試験データ](../test/fixtures/narrativegen/README.md)を収録した。変換試験は `node --test test/narrative-screen-bridge.test.js`。原稿の取り込み・書き出しと再生オーバーレイをつなぐアプリ内の入口は未接続。
+
+1. 以下で「藍布の耳」の固定経路をMarkdownにする。試験用の新規原稿にMarkdown本文として貼り、通常の「Reader を開く」から再生オーバーレイを開く。話者とプレイヤーの吹き出し、場所、手帳、結末を照合し、「編集に戻る」まで確認する。
+
+   ```powershell
+   node -p 'require("./js/modules/narrative/NarrativeScreenBridge.js").framesToMarkdown(require("./test/fixtures/narrativegen/screen-route-blue-selvedge.json").frames)'
+   ```
+
+2. WritingPage側は既存の原稿入出力へ0.2変換を接続し、フレームの閲覧に再生オーバーレイを使う。正常なサンプルで本文・話者・章リンクが保存後に開き直せること、互換エラー・重複IDでは書き込まないこと、変換時の警告が見えることを確認する。NarrativeGen Studio側は同じ0.2ファイルを扱う入口を担当する。契約・共通の完了条件は[NarrativeGenの申し送り](https://github.com/YuShimoji/NarrativeGen/blob/main/HANDOVER.md#unitychatnovelgamewritingpageとの接続)。
+
 ## 次に推奨する作業
 
 | 作業 | 目的と次に可能になること |
