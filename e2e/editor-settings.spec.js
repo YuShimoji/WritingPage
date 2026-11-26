@@ -4,6 +4,36 @@ const { setUIMode, openSidebarPanel, openSettingsModal, mockDialogs, restoreDial
 
 test.describe('Editor Settings', () => {
   test.setTimeout(60000);
+
+  test('changes shell display size immediately and restores it on reload', async ({ page }) => {
+    await page.goto('/');
+    await openSettingsModal(page);
+
+    const size = page.getByLabel('画面の表示サイズ', { exact: true });
+    const heading = page.locator('#advanced-gadgets-panel .gadget-header').first();
+    const editor = page.locator('#editor');
+    await expect(size).toHaveValue('compact');
+    await expect(heading).toBeVisible();
+    const compactHeight = await heading.evaluate(el => el.offsetHeight);
+    const editorFont = await editor.evaluate(el => getComputedStyle(el).fontSize);
+
+    await size.selectOption('standard');
+    const standardHeight = await heading.evaluate(el => el.offsetHeight);
+    expect(standardHeight).toBeGreaterThan(compactHeight);
+
+    await size.selectOption('large');
+    const largeHeight = await heading.evaluate(el => el.offsetHeight);
+    expect(largeHeight).toBeGreaterThan(standardHeight);
+    await expect(editor).toHaveCSS('font-size', editorFont);
+
+    await page.reload();
+    await openSettingsModal(page);
+    await expect(size).toHaveValue('large');
+    await expect(page.locator('html')).toHaveAttribute('data-display-size', 'large');
+    await size.selectOption('compact');
+    expect(await heading.evaluate(el => el.offsetHeight)).toBe(compactHeight);
+  });
+
   test('should toggle typewriter mode and save settings', async ({ page }) => {
     await page.goto('/');
     await page.waitForSelector('#editor', { timeout: 10000 });

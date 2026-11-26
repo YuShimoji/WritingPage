@@ -2,10 +2,21 @@
 class SettingsManager {
     constructor(elementManager) {
         this.elementManager = elementManager;
+        this.displaySizeSelect = document.getElementById('display-size-select');
+        this.displaySizeSelect.addEventListener('change', () => {
+            window.ZenWriterStorage.saveSettings({ ui: { displaySize: this.displaySizeSelect.value } });
+            this.applyDisplaySize(window.ZenWriterStorage.loadSettings().ui.displaySize);
+        });
+    }
+
+    applyDisplaySize(size) {
+        document.documentElement.dataset.displaySize = size;
+        this.displaySizeSelect.value = size;
     }
 
     applySettingsToUI() {
         const settings = window.ZenWriterStorage.loadSettings();
+        this.applyDisplaySize(settings.ui.displaySize);
 
         // テーマプリセットを選択
         const themePresets = this.elementManager.getMultiple('themePresets');

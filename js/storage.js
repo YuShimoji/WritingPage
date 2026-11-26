@@ -76,6 +76,7 @@ const DEFAULT_SETTINGS = {
     },
     // UI設定
     ui: {
+        displaySize: 'compact', // 'compact' | 'standard' | 'large'
         tabsPresentation: 'tabs', // 'buttons' | 'tabs' | 'dropdown' | 'accordion'
         sidebarWidth: 320,
         sidebarSettingsOpen: false, // 執筆集中サイドバー: 設定領域の開閉
@@ -1035,6 +1036,9 @@ function normalizeSettingsShape(raw) {
     merged.preview = { ...defaults.preview, ...(parsed.preview || {}) };
     merged.autoSave = { ...defaults.autoSave, ...(parsed.autoSave || {}) };
     merged.ui = { ...defaults.ui, ...(parsed.ui || {}) };
+    if (!['compact', 'standard', 'large'].includes(merged.ui.displaySize)) {
+        merged.ui.displaySize = defaults.ui.displaySize;
+    }
     if (merged.ui.uiMode === 'reader' || merged.ui.uiMode === 'blank' || merged.ui.uiMode === 'focus') {
         merged.ui.uiMode = 'normal';
     }

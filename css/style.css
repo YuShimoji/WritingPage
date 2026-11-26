@@ -3831,9 +3831,9 @@ body.dragging-floating-panel {
 
 .command-palette .panel-header {
   flex: none;
-  min-height: 2.75rem;
+  min-height: var(--shell-palette-header-height);
   padding: 0 var(--shell-space-4);
-  font-size: 0.875rem;
+  font-size: var(--shell-font-size);
   font-weight: 600;
   background: var(--ui-bg);
   color: var(--ui-text);
@@ -3887,7 +3887,7 @@ body.dragging-floating-panel {
 .command-palette-search .command-palette-input:focus {
   flex: 1;
   min-width: 0;
-  height: 2.6rem;
+  height: var(--shell-header-height);
   padding: 0;
   font: inherit;
   color: var(--ui-text);
@@ -3906,7 +3906,7 @@ body.dragging-floating-panel {
 }
 
 .command-palette-category-title {
-  padding: 0.75rem 0.75rem 0.3rem;
+  padding: var(--shell-space-3) var(--shell-space-3) var(--shell-space-1);
   color: color-mix(in srgb, var(--ui-text) 80%, var(--ui-bg));
   font-size: 0.75rem;
   font-weight: 600;
@@ -3917,7 +3917,7 @@ body.dragging-floating-panel {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.15rem var(--shell-space-2);
-  padding: 0.55rem 0.75rem;
+  padding: var(--shell-space-2) var(--shell-space-3);
   border-radius: var(--shell-radius-sm);
   cursor: pointer;
 }
@@ -3928,7 +3928,7 @@ body.dragging-floating-panel {
 }
 
 .command-palette-item-label {
-  font-size: 0.94rem;
+  font-size: var(--shell-font-size-md);
   line-height: 1.4;
   font-weight: 600;
 }
@@ -3936,7 +3936,7 @@ body.dragging-floating-panel {
 .command-palette-item-description {
   grid-row: 2;
   grid-column: 1 / -1;
-  font-size: 0.8rem;
+  font-size: var(--shell-font-size);
   line-height: 1.5;
   color: color-mix(in srgb, var(--ui-text) 80%, var(--ui-bg));
   overflow-wrap: anywhere;
@@ -4263,12 +4263,12 @@ body.dragging-floating-panel {
   display: inline-flex;
   align-items: center;
   max-width: min(24rem, calc(100vw - 2rem));
-  padding: 0.25rem 0.5rem;
+  padding: var(--shell-space-1) var(--shell-space-2);
   border-radius: var(--shell-radius-sm);
   background: var(--ui-bg);
   color: color-mix(in srgb, var(--ui-text) 80%, var(--ui-bg));
   font-variant-numeric: tabular-nums;
-  font-size: 0.75rem;
+  font-size: var(--shell-font-size-sm);
   line-height: 1.3;
   letter-spacing: 0.02em;
   /* 枚数・選択文字数が加わっても、狭い画面で画面外へ出ず折り返す */
@@ -10002,21 +10002,25 @@ html[data-theme='dark'] .memo-field-lab__memo[data-memo-state='dragging'] .memo-
 
 /* ===== Unified Shell UI (session 121) ===== */
 :root {
-  --left-nav-root-width: 4.75rem;
-  --left-nav-category-width: clamp(16.5rem, 21vw, 20rem);
+  --shell-size: 0.9;
+  --left-nav-root-width: 4.25rem;
+  --left-nav-category-width: clamp(15.5rem, 20vw, 19rem);
   --left-nav-category-panel-width: min(var(--left-nav-category-width), calc(100vw - 1rem));
-  --left-nav-category-content-width: calc(var(--left-nav-category-panel-width) - 1.5rem);
-  --shell-space-1: 0.25rem;
-  --shell-space-2: 0.5rem;
-  --shell-space-3: 0.75rem;
-  --shell-space-4: 1rem;
+  --left-nav-category-content-width: calc(var(--left-nav-category-panel-width) - 2 * var(--shell-space-3));
+  --shell-space-1: calc(0.25rem * var(--shell-size));
+  --shell-space-2: calc(0.5rem * var(--shell-size));
+  --shell-space-3: calc(0.75rem * var(--shell-size));
+  --shell-space-4: calc(1rem * var(--shell-size));
   --shell-radius-sm: 0.45rem;
   --shell-radius-md: 0.75rem;
   --shell-radius-lg: 1rem;
-  --shell-control-height: 2.25rem;
-  --shell-icon-button-size: 2.25rem;
-  --shell-font-size: 0.82rem;
-  --shell-font-size-sm: 0.74rem;
+  --shell-control-height: calc(2.25rem * var(--shell-size));
+  --shell-icon-button-size: var(--shell-control-height);
+  --shell-header-height: calc(2.5rem * var(--shell-size));
+  --shell-palette-header-height: calc(2.75rem * var(--shell-size));
+  --shell-font-size-sm: calc(0.74rem * (0.5 + 0.5 * var(--shell-size)));
+  --shell-font-size: calc(0.85rem * (0.5 + 0.5 * var(--shell-size)));
+  --shell-font-size-md: calc(0.94rem * (0.5 + 0.5 * var(--shell-size)));
   --shell-scrollbar-size: 0.5rem;
   --shell-scrollbar-thumb: color-mix(in srgb, var(--text-color) 22%, transparent);
   --shell-scrollbar-track: color-mix(in srgb, var(--sidebar-bg) 72%, transparent);
@@ -10024,6 +10028,18 @@ html[data-theme='dark'] .memo-field-lab__memo[data-memo-state='dragging'] .memo-
   --shell-control-bg-hover: color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 88%, var(--ui-focus-color, #4a90e2) 6%);
   --shell-control-border: color-mix(in srgb, var(--border-color) 58%, transparent);
   --shell-field-bg: color-mix(in srgb, var(--sidebar-bg) 84%, var(--ui-bg) 16%);
+}
+
+:root[data-display-size='standard'] {
+  --shell-size: 1;
+  --left-nav-root-width: 4.75rem;
+  --left-nav-category-width: clamp(16.5rem, 21vw, 20rem);
+}
+
+:root[data-display-size='large'] {
+  --shell-size: 1.2;
+  --left-nav-root-width: 5.25rem;
+  --left-nav-category-width: clamp(18rem, 24vw, 22rem);
 }
 
 body.is-electron .app-container {
@@ -10065,7 +10081,7 @@ html[data-ui-mode='normal'] .sidebar {
   visibility: visible;
   pointer-events: auto;
   height: 100vh;
-  padding: 0.75rem;
+  padding: var(--shell-space-3);
   overflow: hidden;
   background: color-mix(in srgb, var(--sidebar-bg) 86%, transparent);
   backdrop-filter: blur(14px) saturate(1.08);
@@ -10212,7 +10228,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-shell-heade
 
 .sidebar-shell-header__back,
 .sidebar-shell-header__anchor {
-  min-height: 2.5rem;
+  min-height: var(--shell-header-height);
   border-radius: 0.8rem;
   border: 1px solid color-mix(in srgb, var(--border-color) 54%, transparent);
   background: color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 76%, transparent);
@@ -10220,7 +10236,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-shell-heade
 }
 
 .sidebar-shell-header__back {
-  width: 2.5rem;
+  width: var(--shell-header-height);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -10251,7 +10267,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-shell-heade
   flex-direction: column;
   align-items: flex-start;
   gap: 0.1rem;
-  font-size: 1.1rem;
+  font-size: var(--shell-font-size-md);
 }
 
 .sidebar-shell-header__anchor span {
@@ -10262,7 +10278,7 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .sidebar-shell-heade
 }
 
 html[data-ui-mode='normal'] .sidebar-accordion {
-  gap: 0.4rem;
+  gap: var(--shell-space-2);
 }
 
 html[data-ui-mode='normal'] .accordion-category {
@@ -10275,10 +10291,10 @@ html[data-ui-mode='normal'][data-left-nav-state='root'] .accordion-category {
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='root'] .accordion-header {
-  min-height: 3rem;
+  min-height: calc(3rem * var(--shell-size));
   justify-content: center;
   border-radius: 0.95rem;
-  padding: 0.8rem 0;
+  padding: var(--shell-space-3) 0;
   border: 1px solid transparent;
   background: color-mix(in srgb, var(--toolbar-bg, var(--ui-bg)) 48%, transparent);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -10332,6 +10348,31 @@ html[data-ui-mode='normal'][data-left-nav-state='category'] .accordion-content[a
 html[data-ui-mode='normal'][data-left-nav-state='category'] .accordion-content .gadgets-panel {
   gap: 0.9rem;
   padding-bottom: 2rem;
+}
+
+html[data-ui-mode='normal'][data-left-nav-state='category'] #advanced-gadgets-panel {
+  gap: var(--shell-space-1);
+  padding-bottom: var(--shell-space-2);
+}
+
+.display-size-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--shell-space-2);
+  padding: var(--shell-space-1) var(--shell-space-2) var(--shell-space-2);
+}
+
+.display-size-setting select {
+  margin-bottom: 0;
+}
+
+html[data-ui-mode='normal'] #advanced-gadgets-panel .gadget-wrapper {
+  padding-block: var(--shell-space-1);
+}
+
+html[data-ui-mode='normal'] #advanced-gadgets-panel .gadget-wrapper[data-gadget-collapsed='true'] {
+  gap: 0;
 }
 
 html[data-ui-mode='normal'][data-left-nav-state='category'] #manuscript-gadgets-panel {
