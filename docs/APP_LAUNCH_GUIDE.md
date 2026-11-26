@@ -124,19 +124,19 @@ npm run clean:builds:all
 `build/` がロックされた場合は、セッション別フォルダを増やす前に、起動中の
 packaged app を閉じてから `npm run electron:build` を再実行してください。
 
-### 方法3：インストーラー作成
+### 方法3：Windows のデスクトップとスタートメニューから起動
 
-Windows用の配布可能なアプリを作成します。
+Windows 版をビルドし、現在のユーザーのデスクトップとスタートメニューに「WritingPage」を登録します。どちらからも `build/win-unpacked/Zen Writer.exe` が起動し、同じ原稿を開けます。
 
-```bash
-# ビルド＋インストール＋スタートメニューショートカット
+```powershell
+# Windows版をビルドしてショートカットを登録
 npm run app:install
 
-# インストール後に起動
+# 登録後に起動する場合
 npm run app:install:open
 ```
 
-**出力先：** `build/win-unpacked/`
+編集用の `.zwp.json` を開くには、左端の「原稿」から「入出力」→「JSON読み込み」を選びます。[サンプルの一覧](../samples/README.md)にファイルと内容を掲載しています。
 
 ---
 

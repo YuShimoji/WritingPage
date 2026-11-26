@@ -2,7 +2,7 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-25 / `feat/play-diary-scenes` に聞き込みの場面と画像キャプションを追加。[作り方](../README.md#聞き込みの場面)・[編集用サンプル](../samples/README.md)。直近の Windows 確認版は `c44aa9b`（[場面字幕と伏せ書きの HTML](<D:/AI-Runs/WritingPage/verification/reading-effects.html>)）。
+更新: 2026-11-26 / この端末のデスクトップとスタートメニューから「WritingPage」で起動できます。[起動と読み込み](APP_LAUNCH_GUIDE.md#方法3windows-のデスクトップとスタートメニューから起動)・[編集用サンプル](../samples/README.md)。
 
 ## いまいる場所
 
@@ -28,7 +28,7 @@
 | 文字数と組み設定 (2026-11-25) | `ManuscriptMetrics` がルビの読み・下線タグ・傍点記法を除いた本文を数える。右下、執筆目標、Design Cockpit、セクション一覧が共有する。改行・空白を除く方式が既定。改行だけを除く／すべて数える方式に切替可能。「表示 → この文書の組み設定」で縦横・1行の字数・1ページの行数・ページ枠を指定し、編集・MDプレビュー・Reader・印刷・HTMLに反映する。右下は文書の字数×行数で約0.5枚から枚数を表示する（既定換算20×20）。セクション一覧は各見出しから次の見出しまでの本文字数を示す。JSONの書き出し・読み込みで文書の設定を引き継ぐ。 |
 | 組み設定の検証 | Windows Electron の編集面と MD プレビューで22字の同じ長さを実測。Reader・印刷PDF・HTML・JSON往復、節本文138字を確認。unit 64件、lint、smoke、Webビルド成功。全E2Eは612成功・4スキップ・7失敗。選択ツールバーの1件は単独再検証で成功。他の6件は[変更前のCI](https://github.com/YuShimoji/WritingPage/actions/runs/45549508729)でも失敗している。 |
 | ローカルの一時出力 | 自動承認が削除を拒否し、今回の中間ビルド `output/electron-candidates/5798130890332e0ab7091706537c7184a35012b3/`、検証プロファイル `writing-interface-*` 5個、画像 `writing-interface/after-*.png` 3枚が残る。前回の `7de4a938…`、`sidebar-review-rXlFUE`・`structure-sidebar-7de4a93` と `structure-sidebar/draft.png` も同じ状態。組み設定の検証用プロファイル（output/verification-profiles に6個、D:\AI-Runs\WritingPage\tmp に4個）、同じ tmp の検証用3ファイル、output/release-readiness/document-layout-focused も自動承認が再帰削除を拒否して残る。いずれも体験確認リンクの対象外。 |
-| 人の受入 / release | 技術確認と本人の操作感受入を分ける。通常起動先の切替、公開・配布は今回の範囲に含めない。 |
+| Windows の通常起動 | この端末に「WritingPage」を登録。両方のショートカットは通常の保存先を使う [Windows アプリ](<../build/win-unpacked/Zen Writer.exe>) を指す。スタートメニューのリンクから起動し F2 の表示を確認。パッケージの実行用137ファイルがソースと一致。隔離プロファイルで4原稿を読み込み、読者表示・折りたたみの開閉・画像を確認。[実画面](<D:/AI-Runs/WritingPage/verification/ash-ferry-inquiry-windows.png>)。削除コマンドがポリシーで拒否され、[一時プロファイル](<D:/AI-Runs/WritingPage/tmp/writingpage-shortcut-profile>)と確認用3ファイルが残る。 |
 | 日記の中間出力 | 再帰削除がポリシーで拒否され、[一時出力](<D:/AI-Runs/WritingPage/tmp>) に字幕・伏せ書きの検証プロファイル6個（`reading-effects-native/diag/inspect-*`）と試験出力2個（`reading-effects-focused`・`reading-effects-tests`）が残る。話者配置の `output/playwright/diary-speakers*`、同じ tmp のプロファイル2個と確認スクリプト、前版の候補 `a5228eba`・`output/playwright/play-diary*`・`play-diary-native-*` 5個も残る。 |
 
 前候補 `c61d9c0` の Undo/Redo 修正・native 観察の記録は
@@ -44,7 +44,7 @@
 | UI 再設計案の確認（本人） | ①左ナビ4区分、②文字数・枚数の集計と節別表示、③文書の組み設定を候補ブランチに実装。確認対象は、普段の原稿での文字数の既定（改行・空白を除く）とページ枠の見やすさ。旧文書の向きは旧編集設定を優先し、未設定時は旧Reader設定を参照する。[要望と採否](USER_REQUEST_LEDGER.md) |
 | 次の切り出し（1回1クラスタ） | ルビ/傍点・DSL モーダル/ブロック挿入・リンク挿入・フローティングツールバー/書式状態同期（`RichTextRubyKentenActions.js` / `RichTextDslActions.js` / `RichTextLinkActions.js` / `RichTextFloatingToolbarActions.js`）は切り出し済み（`editor-wysiwyg.js` 2895→1944行。lint・unit 56・関連E2E・build 確認、リンクは実ブラウザで差し込み・モーダル開閉も確認）。`editor-wysiwyg.js` 内の次の候補は未選定（`_showWikiComplete` 周辺の Wiki 補完など）。他の大物は `storage.js` 1928 / `story-wiki.js` 1655 / `sidebar-manager.js` 1602 / `floating-memo-field.js` 1513 行。 |
 | 未採用Rich候補の限定評価 | Enter後の太字解除や選択toolbar等は今回未採用（差分は上記 `codex/*` に残る）。実際に困る場面を再現し、一括統合せず必要な差分を選ぶ |
-| 通常利用への切替判断 | 候補source・profile・既存原稿の扱いを確認して、通常起動先を変えるか判断する。今回の技術合格だけで切替・公開・配布を実行しない |
+| サンプルを編集 | Windows の「WritingPage」を開き、「原稿」→「入出力」→「JSON読み込み」で[編集用サンプル](../samples/README.md)を開く。Alt+Shift+R で読者表示。 |
 
 <!-- CURRENT_STATE_LIVE_END -->
 

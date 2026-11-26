@@ -275,16 +275,15 @@ npm run app:install:update
 
 - `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Zen Writer Update and Launch.lnk`
 
-通常の quick open だけなら下の `Zen Writer.url` を使い、更新も含めたい時だけ `Zen Writer Update and Launch` を使います。
+日常の執筆用には、次の手順で Windows アプリ `WritingPage` を登録できます。
 
 ## Start Menu Registration (Windows)
 
-`npm run app:install` を実行すると、`dist/` を生成した上で、
-Windows のスタートメニューに `Zen Writer` ショートカット（`.url`）を作成します。
+`npm run app:install` は Windows 版を `build/win-unpacked/` に作り、現在のユーザーのスタートメニューとデスクトップに `WritingPage` を登録します。両方から同じアプリと原稿を開けます。
 
 作成先:
 
-- `%APPDATA%\Microsoft\Windows\Start Menu\Programs\Zen Writer.url`
+- スタートメニューの `WritingPage.lnk`
+- デスクトップの `WritingPage.lnk`
 
-`npm run app:open` でビルド済みの `dist/index.html` を既定ブラウザで開きます。
-`npm run app:install:open` を使うと、スタートメニュー登録と起動を一度に実行できます。
+`npm run app:install:open` で登録と起動を一度に実行できます。アプリを開いたら、左端の「原稿」→「入出力」→「JSON読み込み」から[編集用サンプル](samples/README.md)を読み込めます。ブラウザ版を開くコマンドは `npm run app:open:dist` です。
