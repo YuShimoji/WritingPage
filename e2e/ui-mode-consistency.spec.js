@@ -935,6 +935,12 @@ test.describe('UI Mode Consistency', () => {
 
     const expandedMetrics = await page.evaluate(() => {
       const storyWrapper = document.querySelector('#structure-gadgets-panel .gadget-wrapper[data-gadget-name="StoryWiki"]');
+      const footer = storyWrapper ? storyWrapper.querySelector('.swiki-footer') : null;
+      const footerRect = footer ? footer.getBoundingClientRect() : null;
+      const footerButtons = footer ? Array.from(footer.querySelectorAll('button')) : [];
+      const clippedFooterButtons = footerRect
+        ? footerButtons.filter((btn) => btn.getBoundingClientRect().right > footerRect.right + 1).length
+        : -1;
       const newButton = storyWrapper ? storyWrapper.querySelector('.swiki-footer .swiki-btn-new') : null;
       const newButtonStyle = newButton ? window.getComputedStyle(newButton) : null;
       const newButtonRect = newButton ? newButton.getBoundingClientRect() : null;
@@ -944,6 +950,8 @@ test.describe('UI Mode Consistency', () => {
         buttonWritingMode: newButtonStyle ? newButtonStyle.writingMode : null,
         buttonWhiteSpace: newButtonStyle ? newButtonStyle.whiteSpace : null,
         buttonHeight: newButtonRect ? Math.round(newButtonRect.height) : 0,
+        footerButtonCount: footerButtons.length,
+        clippedFooterButtons,
         graphClientWidth: graph ? graph.clientWidth : 0,
         graphScrollWidth: graph ? graph.scrollWidth : 0,
         graphOverflowX: graphStyle ? graphStyle.overflowX : null,
@@ -954,6 +962,8 @@ test.describe('UI Mode Consistency', () => {
     expect(expandedMetrics.buttonWritingMode).toBe('horizontal-tb');
     expect(expandedMetrics.buttonWhiteSpace).toBe('nowrap');
     expect(expandedMetrics.buttonHeight).toBeLessThanOrEqual(40);
+    expect(expandedMetrics.footerButtonCount).toBe(5);
+    expect(expandedMetrics.clippedFooterButtons).toBe(0);
     expect(expandedMetrics.graphClientWidth).toBeGreaterThan(120);
     expect(expandedMetrics.graphScrollWidth).toBeLessThanOrEqual(expandedMetrics.graphClientWidth + 2);
     expect(expandedMetrics.graphOverflowX).toBe('hidden');

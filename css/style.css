@@ -10553,13 +10553,12 @@ html[data-ui-mode='normal'] .swiki-root {
 
 html[data-ui-mode='normal'] .swiki-footer {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--shell-space-1);
   padding-top: var(--shell-space-2);
   margin-top: var(--shell-space-2);
   min-width: 0;
-  overflow: hidden;
 }
 
 html[data-ui-mode='normal'] .swiki-btn,
@@ -10569,7 +10568,7 @@ html[data-ui-mode='normal'] .link-graph-action {
   align-items: center;
   justify-content: center;
   gap: var(--shell-space-1);
-  padding: 0 var(--shell-space-2);
+  padding: 0 var(--shell-space-1);
   border: 1px solid var(--shell-control-border);
   border-radius: var(--shell-radius-md);
   background: var(--shell-control-bg);
@@ -10592,15 +10591,15 @@ html[data-ui-mode='normal'] .link-graph-action:hover {
 
 html[data-ui-mode='normal'] .swiki-btn-new {
   flex: 1 1 auto;
-  min-width: 4.5rem;
+  min-width: 3.5rem;
 }
 
 html[data-ui-mode='normal'] .swiki-btn-scan,
 html[data-ui-mode='normal'] .swiki-btn-graph,
 html[data-ui-mode='normal'] .swiki-btn-expand {
   flex: 0 0 auto;
-  min-width: 2.35rem;
-  max-width: 2.9rem;
+  min-width: 0;
+  padding: 0 0.3rem;
 }
 
 html[data-ui-mode='normal'] .swiki-btn-settings {

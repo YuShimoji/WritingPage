@@ -141,7 +141,7 @@
       lineHeightInput.type = 'range';
       lineHeightInput.min = '1';
       lineHeightInput.max = '3';
-      lineHeightInput.step = '0.1';
+      lineHeightInput.step = '0.05';
       lineHeightInput.value = settings.lineHeight || 1.45;
 
       var lineHeightLabel = document.createElement('div');
@@ -199,7 +199,7 @@
       paragraphSpacingInput.type = 'range';
       paragraphSpacingInput.min = '0';
       paragraphSpacingInput.max = '3';
-      paragraphSpacingInput.step = '0.1';
+      paragraphSpacingInput.step = '0.05';
       paragraphSpacingInput.value = typeof micro.paragraphSpacing === 'number' ? micro.paragraphSpacing : 0.65;
 
       var paragraphSpacingLabel = document.createElement('div');
