@@ -99,7 +99,7 @@
                 window.ZenWriterTheme.applyFontSettings(
                     current.fontFamily || defaults.fontFamily || '"Noto Serif JP", serif',
                     size,
-                    current.lineHeight || defaults.lineHeight || 1.6,
+                    current.lineHeight || defaults.lineHeight || 1.45,
                     current.uiFontSize || current.fontSize || defaults.uiFontSize || size,
                     size
                 );

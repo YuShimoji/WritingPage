@@ -142,7 +142,7 @@
       lineHeightInput.min = '1';
       lineHeightInput.max = '3';
       lineHeightInput.step = '0.1';
-      lineHeightInput.value = settings.lineHeight || 1.6;
+      lineHeightInput.value = settings.lineHeight || 1.45;
 
       var lineHeightLabel = document.createElement('div');
       lineHeightLabel.style.fontSize = '0.85rem';
@@ -200,7 +200,7 @@
       paragraphSpacingInput.min = '0';
       paragraphSpacingInput.max = '3';
       paragraphSpacingInput.step = '0.1';
-      paragraphSpacingInput.value = typeof micro.paragraphSpacing === 'number' ? micro.paragraphSpacing : 1;
+      paragraphSpacingInput.value = typeof micro.paragraphSpacing === 'number' ? micro.paragraphSpacing : 0.65;
 
       var paragraphSpacingLabel = document.createElement('div');
       paragraphSpacingLabel.style.fontSize = '0.85rem';
@@ -449,14 +449,14 @@
           editorFontSizeInput.value = latest.editorFontSize || latest.fontSize || 16;
           editorFontSizeLabel.textContent = ((window.UILabels && window.UILabels.EDITOR_FONT_SIZE_PREFIX) || 'エディタフォントサイズ: ') + editorFontSizeInput.value + 'px';
 
-          lineHeightInput.value = latest.lineHeight || 1.6;
+          lineHeightInput.value = latest.lineHeight || 1.45;
           lineHeightLabel.textContent = ((window.UILabels && window.UILabels.LINE_HEIGHT_PREFIX) || '行間: ') + lineHeightInput.value;
 
           var latestMicro = latest.microTypography || {};
           letterSpacingInput.value = typeof latestMicro.letterSpacing === 'number' ? latestMicro.letterSpacing : 0;
           letterSpacingLabel.textContent = ((window.UILabels && window.UILabels.LETTER_SPACING_PREFIX) || '字間: ') + letterSpacingInput.value + 'em';
 
-          paragraphSpacingInput.value = typeof latestMicro.paragraphSpacing === 'number' ? latestMicro.paragraphSpacing : 1;
+          paragraphSpacingInput.value = typeof latestMicro.paragraphSpacing === 'number' ? latestMicro.paragraphSpacing : 0.65;
           paragraphSpacingLabel.textContent = ((window.UILabels && window.UILabels.PARAGRAPH_SPACING_PREFIX) || '段落間: ') + paragraphSpacingInput.value + 'em';
 
           paragraphIndentInput.value = typeof latestMicro.paragraphIndent === 'number' ? latestMicro.paragraphIndent : 0;

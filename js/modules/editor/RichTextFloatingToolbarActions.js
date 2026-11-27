@@ -195,7 +195,7 @@
       var editorStyle = window.getComputedStyle(this.wysiwygEditor);
       var lineHeight = parseFloat(editorStyle.lineHeight);
       if (!Number.isFinite(lineHeight)) {
-        lineHeight = (parseFloat(editorStyle.fontSize) || 16) * 1.6;
+        lineHeight = (parseFloat(editorStyle.fontSize) || 16) * 1.45;
       }
       // 選択行に加え、直前・直後の可視 1 行を protected band とする。
       // 隣接 block がある場合は段落間 margin も含め、直前 block の最終行／直後 block の先頭行まで保護する。

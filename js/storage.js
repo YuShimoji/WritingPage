@@ -21,7 +21,7 @@ const DEFAULT_SETTINGS = {
     fontSize: 16,
     uiFontSize: 16,
     editorFontSize: 16,
-    lineHeight: 1.6,
+    lineHeight: 1.45,
     bgColor: '#1e1e1e',
     textColor: '#cccccc',
     // カスタムカラーを適用するか（true のときだけCSS変数を上書き）
@@ -129,7 +129,7 @@ const DEFAULT_SETTINGS = {
     // 本文マイクロタイポグラフィ設定 (SP-057)
     microTypography: {
         letterSpacing: 0,        // em (-0.02 ~ 0.12)
-        paragraphSpacing: 1,     // em (段落末尾マージン)
+        paragraphSpacing: 0.65,  // em (段落末尾マージン)
         paragraphIndent: 0,      // em (段落頭字下げ, 和文向け既定1em)
         lineBreakMode: 'normal'  // 'normal' | 'strict-ja'
     },

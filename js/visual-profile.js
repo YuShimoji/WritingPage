@@ -96,7 +96,7 @@ const BUILT_IN_PROFILES = [
     fontFamily: 'serif',
     uiFontSize: 16,
     editorFontSize: 16,
-    lineHeight: 1.6,
+    lineHeight: 1.45,
     editorWidthMode: 'medium'
   },
   {

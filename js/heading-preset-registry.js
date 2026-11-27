@@ -15,12 +15,12 @@
       id: 'default',
       label: '標準',
       values: {
-        h1: { size: '1.5em', weight: 'bold', lineHeight: '1.2', marginTop: '1.5em', marginBottom: '0.5em', letterSpacing: '0em' },
-        h2: { size: '1.3em', weight: 'bold', lineHeight: '1.3', marginTop: '1.5em', marginBottom: '0.8em', letterSpacing: '0em' },
-        h3: { size: '1.2em', weight: 'bold', lineHeight: '1.4', marginTop: '1.2em', marginBottom: '0.6em', letterSpacing: '0em' },
-        h4: { size: '1.1em', weight: 'bold', lineHeight: '1.4', marginTop: '1em', marginBottom: '0.5em', letterSpacing: '0em' },
-        h5: { size: '1.1em', weight: 'bold', lineHeight: '1.4', marginTop: '1em', marginBottom: '0.5em', letterSpacing: '0em' },
-        h6: { size: '1.1em', weight: 'bold', lineHeight: '1.4', marginTop: '1em', marginBottom: '0.5em', letterSpacing: '0em' }
+        h1: { size: '1.5em', weight: 'bold', lineHeight: '1.2', marginTop: '1.05em', marginBottom: '0.35em', letterSpacing: '0em' },
+        h2: { size: '1.3em', weight: 'bold', lineHeight: '1.25', marginTop: '1.05em', marginBottom: '0.5em', letterSpacing: '0em' },
+        h3: { size: '1.2em', weight: 'bold', lineHeight: '1.3', marginTop: '0.85em', marginBottom: '0.4em', letterSpacing: '0em' },
+        h4: { size: '1.1em', weight: 'bold', lineHeight: '1.3', marginTop: '0.7em', marginBottom: '0.35em', letterSpacing: '0em' },
+        h5: { size: '1.1em', weight: 'bold', lineHeight: '1.3', marginTop: '0.7em', marginBottom: '0.35em', letterSpacing: '0em' },
+        h6: { size: '1.1em', weight: 'bold', lineHeight: '1.3', marginTop: '0.7em', marginBottom: '0.35em', letterSpacing: '0em' }
       }
     },
     {

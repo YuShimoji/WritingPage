@@ -290,7 +290,7 @@ test.describe('Editor Settings', () => {
     await setUIMode(page, 'normal');
     await page.waitForSelector('#editor', { timeout: 10000 });
 
-    const lines = Array.from({ length: 30 }, (_, i) => `Line ${i + 1}`).join('\n');
+    const lines = Array.from({ length: 50 }, (_, i) => `Line ${i + 1}`).join('\n');
     await page.locator('#editor').fill(lines);
 
     await openSidebarPanel(page, 'assist', { expandGadgets: true });
