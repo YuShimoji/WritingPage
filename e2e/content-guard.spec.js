@@ -376,7 +376,13 @@ test.describe('Documents Hierarchy UX (session 105)', () => {
     expect(counts.ioMenus).toBe(1);
     expect(counts.manageMenus).toBe(1);
     expect(counts.restoreItems).toBe(1);
-    expect(counts.ioItems).toEqual(['TXT書き出し', 'JSON書き出し', 'JSON読み込み']);
+    expect(counts.ioItems).toEqual([
+      'TXT書き出し',
+      'JSON書き出し',
+      'JSON読み込み',
+      'NarrativeGen用に書き出す',
+      'NarrativeGenの原稿を読み込む'
+    ]);
   });
 
   async function getMultiSelectState(page) {
