@@ -2,19 +2,18 @@
 
 <!-- CURRENT_STATE_LIVE_START -->
 
-更新: 2026-11-15 / main へ docs スリム化を統合しブランチ整理、パステキスト操作を `RichTextPathTextActions.js`、ルビ/傍点操作を `RichTextRubyKentenActions.js`、DSL モーダルとブロック挿入を `RichTextDslActions.js` へ、リンク挿入を `RichTextLinkActions.js` へ切り出し（候補 `c61d9c0` の source には未反映）
+更新: 2026-11-27 / NarrativeGen 連携を続けるブランチと起動・検証手順を更新。
 
 ## いまいる場所
 
 | 観点 | 現在地 |
 | --- | --- |
 | MDプレビュー | 並べる配置をやめ、開いている間は執筆面と同じ位置・幅・文字組みで入れ替わる切り替え式にした（開く瞬間は同期描画、開いている間は次フレーム更新、`編集に戻る`で復帰）。プレビュー中は読み取り専用（2026-11-15 に本人が現状維持で確定）。あわせて下線の保存、ダークテーマの光彩・影、狭幅で非表示の3点を修正。リファクタは Turndown ルールを `RichTextTurndownRules.js` へ切り出し、傍点/ルビ変換を `ZWInlineHtmlPostMarkdown.applyKentenRuby` に一本化。関連E2E 251件・unit 56件・lint pass。記録は [`verification/2026-11-04/preview-effect-visibility.md`](verification/2026-11-04/preview-effect-visibility.md)。 |
-| Git / main | 修正source `c61d9c0d46c25b074bab963305f085bd5e837174` をmainへcommit/push済み。候補もこのclean sourceから生成。後続の技術結果追記はdocs-onlyで、最終HEADとremote parityはGitで読む。 |
-| ブランチ統一 (2026-11-15) | main = origin/main。docs スリム化 `52bfb8e` と参照切れ修正を ff 統合。旧 cascade / feature 系25本・`.windsurf` worktree 15本・stash 3件・リモート slim ブランチは、全 ref の bundle と未コミット差分・stash patch を `D:\AI-Runs\WritingPageemoved61115\`（`all-refs.bundle` + `refs.txt`）へ退避してから削除。残りは `codex/*`（ローカル2本・リモート4本。10月候補で一部のみ採用）と、その worktree `D:\AI-Runs\WritingPage\worktree-2966f3-20261005`。 |
+| Git / 開発ブランチ | `writingpage-narrativegen-connection` の実装版は `9cb4adf`。NarrativeGen の原稿入出力・Reader、章末編集の保存、文字組みと Story Wiki の調整を含む。`main` の `0dc5ef7` は変換器・試験データと当時の再開手順まで。旧 Windows 候補の source は `c61d9c0d46c25b074bab963305f085bd5e837174`。 |
+| ブランチ統一 (2026-11-15) | main = origin/main。docs スリム化 `52bfb8e` と参照切れ修正を ff 統合。旧 cascade / feature 系25本・`.windsurf` worktree 15本・stash 3件・リモート slim ブランチは、全 ref の bundle と未コミット差分・stash patch を `D:\AI-Runs\WritingPage\removed\20261115\`（`all-refs.bundle` + `refs.txt`）へ退避してから削除。残りは `codex/*`（ローカル2本・リモート4本。10月候補で一部のみ採用）と、その worktree `D:\AI-Runs\WritingPage\worktree-2966f3-20261005`。 |
 | リファクタ (2026-11-15) | `editor-wysiwyg.js` のパステキスト操作 約280行を `js/modules/editor/RichTextPathTextActions.js` へ移動（メソッド名・挙動は不変、プロトタイプへ差し込み）。lint・unit 56・関連E2E 74件 pass。 |
-| 別端末での再開 | `git fetch && git switch main && git pull --ff-only` で `git rev-list --left-right --count origin/main...main` が `0 0` を確認 → `npm ci` → `npm run lint:js:check` / `npm run test:unit`（56件）/ `npx playwright test e2e/dsl-insertion-gui.spec.js e2e/wysiwyg-editor.spec.js e2e/pathtext-handles.spec.js`（74件）。実行コードを変えたら `npm run build`（OPERATOR_WORKFLOW）。読み順は本ファイル → INVARIANTS → INTERACTION_NOTES。 |
-| この端末だけにあるもの | 退避物 `D:\AI-Runs\WritingPageemoved61115\`（旧ブランチ25本の bundle・未コミット差分・stash patch）と `output/electron-candidates/c61d9c0.../`（候補exe）は git に無く、他端末からは見えない。旧ブランチの内容が要るときはこの端末で `git fetch <bundle> <ref>`。 |
-| 今回見送った範囲 | ①`codex/*` の未採用差分は丸ごと merge しない（`codex/rich-editor-control-friction` の toolbar 配置・リンク affordance は本文/CSS/E2E のみ移植済み、CI binding=`codex/release-ci-evidence-binding`、release identity=`codex/release-candidate-identity-b02ceb1`）。②追加の大規模分割（下表）は未着手。③本ファイルの Historical 節は 2026-11-15 の本人承認で削除済み（1287行/178663B→44行/7734B。原本は D:\AI-Runs\WritingPageemoved61115-current-state\、git 履歴にも残る）。④リファクタの Electron 実機確認と E2E 全件は未実行（CI 側で確認）。ブラウザ実画面ではツールバー配置・リンクモーダル・ルビを確認済み、傍点は未確認。 |
+| この端末だけにあるもの | 退避物 `D:\AI-Runs\WritingPage\removed\20261115\`（旧ブランチ25本の bundle・未コミット差分・stash patch）と `output/electron-candidates/c61d9c0.../`（候補exe）は git に無く、他端末からは見えない。旧ブランチの内容が要るときはこの端末で `git fetch <bundle> <ref>`。 |
+| 今回見送った範囲 | ①`codex/*` の未採用差分は丸ごと merge しない（`codex/rich-editor-control-friction` の toolbar 配置・リンク affordance は本文/CSS/E2E のみ移植済み、CI binding=`codex/release-ci-evidence-binding`、release identity=`codex/release-candidate-identity-b02ceb1`）。②追加の大規模分割（下表）は未着手。③本ファイルの Historical 節は 2026-11-15 の本人承認で削除済み（1287行/178663B→44行/7734B。原本は D:\AI-Runs\WritingPage\removed\20261115-current-state\、git 履歴にも残る）。④リファクタの Electron 実機確認と E2E 全件は未実行（CI 側で確認）。ブラウザ実画面ではツールバー配置・リンクモーダル・ルビを確認済み、傍点は未確認。 |
 | 今回の製品修正 | 初回入力が履歴に確定する前のUndo不発と、Undo後の新規入力を古いRedo分岐が上書きする問題をブラウザで再現。`js/editor-wysiwyg.js` の履歴確定順序だけを修正。 |
 | Web / Node | 修正前2件を画面で再現。修正後は関連E2E 75/75、unit 56/56、JS lint、dist build、smokeがpass。source一致のCI run `41406872761` は606 passed / 4 skippedでsuccess。既定500msの追加ブラウザ確認でも2件の改善を確認。 |
 | Wiki | title一意・カスタムカテゴリ追加・390px幅の修正は統合済み。今回の75件にWiki 25件を含み、新app.asar内のWiki JS/CSSもsourceとhash一致。 |
@@ -30,9 +29,15 @@
 
 ## NarrativeGen連携の再開
 
+1. `git fetch origin` → `git switch writingpage-narrativegen-connection` → `git pull --ff-only`。`git rev-list --left-right --count "HEAD...@{u}"` が `0 0` になることを確認する。
+2. [README](../README.md) の Node 要件に従い（CI の指定は [`.nvmrc`](../.nvmrc)）、`npm ci` → `npm run dev`。ブラウザで `http://localhost:8080` を開く。
+3. 基本確認は `npm run test:smoke`、`npm run test:unit`、`npm run lint:js:check`。入出力の回帰を実行するには `npx playwright install chromium` → `npx playwright test e2e/export-trust.spec.js`。Web 配布用の出力は `npm run build` で生成する。
+
+`9cb4adf` を Windows の Node 22.19.0 で検証し、起動スモーク、単体63件、JavaScript lint、Web ビルドが成功。入出力・保存保護・設定・コマンドパレット・表示・Story Wiki のブラウザ回帰は113件成功、1件スキップ。全件 E2E とこの版の Windows パッケージ再検証は未実施。
+
 「構造 → ドキュメント → 入出力」から「NarrativeGenの原稿を読み込む」「NarrativeGen用に書き出す」を使う。取り込みは新しい原稿を作成する。非表示の章や装飾などが渡らない場合は書き出し前に確認が出る。[変換器](../js/modules/narrative/NarrativeScreenBridge.js)
 
-`F2` →「NarrativeGenの再生記録を開く」で、[「藍布の耳」の固定経路](../test/fixtures/narrativegen/screen-route-blue-selvedge.json)をReaderに開く。「編集に戻る」で元の原稿へ戻る。
+`F2` →「NarrativeGenの再生記録を開く」で、[「藍布の耳」の固定経路](../test/fixtures/narrativegen/screen-route-blue-selvedge.json)の JSON を選ぶ。Reader の「編集に戻る」で元の原稿へ戻る。
 
 Windows版 0.3.32（Electron 35.7.5、x64）の通常表示で、表示中の章末を保存しても章レコードに入らず、書き出しも旧本文になる問題を修正。隔離プロファイルで「受付」の原稿を編集・保存・終了し、再起動後の章本文と書き出しJSONに変更が残ることを確認した。対象外の章レコード・話者・分岐・ルビを保持し、Studioの「書類を出す → 帰る」「帰る」の両経路が改訂後の結末に到達した。[回帰試験](../e2e/export-trust.spec.js)
 

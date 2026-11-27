@@ -39,6 +39,7 @@ _site/
 test-results/
 playwright-report/
 .playwright-mcp/
+/.playwright-cli/
 .tmp-playwright-libs/
 debug-screenshot-*.png
 debug-*.md
