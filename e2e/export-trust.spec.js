@@ -3,6 +3,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs/promises');
 const path = require('path');
 const { ensureNormalMode } = require('./helpers');
+const branching = require('../test/fixtures/narrativegen/wp-ng-0.2-branching.json');
 
 function normalizeNewlines(text) {
   return String(text || '').replace(/\r\n/g, '\n');
@@ -125,6 +126,46 @@ async function getCanonicalEditorValue(page) {
       : '';
   }));
 }
+
+test('Normal rich editing saves the revised ending into chapter storage and NarrativeGen export', async ({ page }, testInfo) => {
+  await page.addInitScript(() => localStorage.setItem('zenwriter-wysiwyg-mode', 'true'));
+  await page.goto('/index.html');
+  await page.waitForLoadState('networkidle');
+  const editor = page.locator('#wysiwyg-editor');
+  await expect(editor).toBeVisible();
+  await openDocumentsIoMenu(page);
+  const [chooser] = await Promise.all([
+    page.waitForEvent('filechooser'),
+    page.getByRole('menuitem', { name: 'NarrativeGenの原稿を読み込む' }).click()
+  ]);
+  await chooser.setFiles({
+    name: 'branching.wp-ng.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({ ...branching, modelId: 'branching' }))
+  });
+
+  const ending = branching.nodes.at(-1).text;
+  const revision = '【改訂】';
+  await editor.getByText(ending, { exact: true }).click();
+  await page.keyboard.press('Control+End');
+  await page.keyboard.insertText(revision);
+  await expect(editor).toContainText(ending + revision);
+  const beforeSave = await getCurrentDocState(page);
+  expect(beforeSave.editorValue).toContain('{書類|しょるい}');
+  await page.locator('#documents-save-current-btn').click();
+  const saved = await getCurrentDocState(page);
+  expect(saved.chapters.slice(0, -1)).toEqual(beforeSave.chapters.slice(0, -1));
+  expect(saved.chapters.at(-1).content).toBe(ending + revision);
+
+  await page.reload();
+  await page.waitForLoadState('networkidle');
+  await expect(editor).toContainText(ending + revision);
+  await expect(editor.locator('ruby rt')).toHaveText('しょるい');
+  const exported = await downloadFromDocumentsIo(page, 'NarrativeGen用に書き出す', testInfo, 'revised.wp-ng.json');
+  const expectedNodes = branching.nodes.map(node => ({ ...node }));
+  expectedNodes.at(-1).text += revision;
+  expect(JSON.parse(exported.text).nodes).toEqual(expectedNodes);
+});
 
 test.describe('Export Trust Proof', () => {
   test.beforeEach(async ({ page }) => {

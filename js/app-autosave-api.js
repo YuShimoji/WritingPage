@@ -50,20 +50,8 @@
             try {
                 var G = window.ZWContentGuard;
                 if (G) {
-                    // ContentGuard 経由: chapterMode flush + ドキュメント保存
+                    // 章とドキュメントは ContentGuard が同じ編集内容から保存する。
                     G.ensureSaved({ snapshot: false });
-                    // chapterMode: 全文で上書き（ensureSaved はアクティブ章テキストのみ保存するため）
-                    var _Store2 = window.ZWChapterStore;
-                    var _S2 = window.ZenWriterStorage;
-                    var _dId = getCurrentChapterStoreDocId();
-                    if (_dId && _Store2 && _Store2.isChapterMode(_dId)) {
-                        var _chapters2 = typeof _Store2.getChaptersForDoc === 'function'
-                            ? (_Store2.getChaptersForDoc(_dId) || [])
-                            : [];
-                        if (_chapters2.length > 0) {
-                            _S2.saveContent(_Store2.assembleFullText(_dId));
-                        }
-                    }
                 } else {
                     // フォールバック: ContentGuard 未ロード時
                     var content = '';

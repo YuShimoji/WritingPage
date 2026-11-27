@@ -286,6 +286,10 @@
 
   // ---- Assembly / Splitting ----
 
+  function hasImplicitBodyChapter(chapters) {
+    return chapters.length === 1 && chapters[0].name === '本文';
+  }
+
   /**
    * 全章を結合して全文テキストを生成
    */
@@ -294,7 +298,7 @@
     if (chapters.length === 0) return '';
 
     // 自動生成の単一章 ("本文") の場合、ヘッダーを付加しない
-    if (chapters.length === 1 && chapters[0].name === '\u672C\u6587') {
+    if (hasImplicitBodyChapter(chapters)) {
       return chapters[0].content || '';
     }
 
@@ -309,6 +313,47 @@
       parts.push(heading + '\n\n' + body);
     }
     return parts.join('\n\n');
+  }
+
+  /** Save body edits from the assembled editor without changing chapter identities or order. */
+  function saveAssembledChapterBodies(docId, fullText, normalizeBody) {
+    var chapters = getChaptersForDoc(docId);
+    if (!chapters.length) return true;
+
+    var bodies;
+    if (hasImplicitBodyChapter(chapters)) {
+      bodies = [fullText];
+    } else {
+      var model = window.ZWChapterModel;
+      var headingKeys = new Set(chapters.map(chapterHeadingKey));
+      var headings = model.parseChapters(fullText).filter(function (heading) {
+        return headingKeys.has(chapterHeadingKey({ name: heading.title, level: heading.level }));
+      });
+      if (headings.length !== chapters.length || fullText.slice(0, headings[0].startOffset).trim()) return false;
+      bodies = [];
+      for (var i = 0; i < chapters.length; i++) {
+        var heading = headings[i];
+        if (heading.title !== String(chapters[i].name || '').trim() || heading.level !== (chapters[i].level || 2)) return false;
+        var end = headings[i + 1] ? headings[i + 1].startOffset : fullText.length;
+        bodies.push(fullText.slice(heading.headingEnd, end).replace(/^\n+|\n+$/g, ''));
+      }
+    }
+
+    var updates = new Map();
+    chapters.forEach(function (chapter, index) {
+      var original = chapter.content || '';
+      var body = bodies[index];
+      if (body === original || (normalizeBody && body.trim() === normalizeBody(original).trim())) return;
+      updates.set(chapter.id, Object.assign({}, chapter, { content: body, updatedAt: Date.now() }));
+    });
+    if (!updates.size) return true;
+    return STORAGE.saveDocuments(STORAGE.loadDocuments().map(function (record) {
+      return updates.get(record.id) || record;
+    }));
+  }
+
+  function chapterHeadingKey(chapter) {
+    return (chapter.level || 2) + ':' + String(chapter.name || '').trim();
   }
 
   /**
@@ -470,6 +515,7 @@
     // Assembly / Splitting
     assembleFullText: assembleFullText,
     splitIntoChapters: splitIntoChapters,
+    saveAssembledChapterBodies: saveAssembledChapterBodies,
 
     // ensureChapterMode: 新規ドキュメントは常に chapterMode
     ensureChapterMode: function (docId) {

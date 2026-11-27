@@ -34,7 +34,9 @@
 
 `F2` →「NarrativeGenの再生記録を開く」で、[「藍布の耳」の固定経路](../test/fixtures/narrativegen/screen-route-blue-selvedge.json)をReaderに開く。「編集に戻る」で元の原稿へ戻る。
 
-ブラウザで、Studioが書き出した受付の原稿を保存・再読込・再書き出しし、本文・話者・章リンクを照合した。同じ固定経路をReaderに開き、左右の吹き出し・場所・手帳3件・依頼完了・編集への復帰を確認した。変換とReader前処理の回帰試験は `node --test test/narrative-screen-bridge.test.js test/markdown-aligned-blocks.test.js`。[3プロジェクトの申し送り](https://github.com/YuShimoji/NarrativeGen/blob/main/HANDOVER.md#unitychatnovelgamewritingpageとの接続)
+Windows版 0.3.32（Electron 35.7.5、x64）の通常表示で、表示中の章末を保存しても章レコードに入らず、書き出しも旧本文になる問題を修正。隔離プロファイルで「受付」の原稿を編集・保存・終了し、再起動後の章本文と書き出しJSONに変更が残ることを確認した。対象外の章レコード・話者・分岐・ルビを保持し、Studioの「書類を出す → 帰る」「帰る」の両経路が改訂後の結末に到達した。[回帰試験](../e2e/export-trust.spec.js)
+
+固定経路のReader表示では、左右の吹き出し・場所・手帳3件・依頼完了・編集への復帰をブラウザで確認済み。既存モデルへの改訂適用、同期、Unity向け同梱は後続候補。[3プロジェクトの申し送り](https://github.com/YuShimoji/NarrativeGen/blob/main/HANDOVER.md#unitychatnovelgamewritingpageとの接続)
 
 ## 次に推奨する作業
 

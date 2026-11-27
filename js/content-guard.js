@@ -87,7 +87,7 @@
     var E = _getEditor();
     if (E && typeof E.getEditorValue === 'function') {
       var val = E.getEditorValue();
-      if (val) return val;
+      if (typeof val === 'string') return val;
     }
 
     // 2. textarea 直接
@@ -169,18 +169,30 @@
     var S = _getStorage();
     var Store = _getChapterStore();
     var docId = _getCurrentChapterStoreDocId();
+    var chaptersSaved = true;
 
     if (docId && Store && typeof Store.isChapterMode === 'function' && Store.isChapterMode(docId) &&
         typeof Store.getChaptersForDoc === 'function' && typeof Store.assembleFullText === 'function') {
       var chapters = Store.getChaptersForDoc(docId) || [];
-      var assembled = chapters.length > 0 ? (Store.assembleFullText(docId) || '') : '';
-      if (assembled) content = assembled;
+      if (chapters.length > 0) {
+        var mode = document.documentElement.getAttribute('data-ui-mode') || 'normal';
+        if (mode === 'normal' && !_isChapterSliceEditingActive()) {
+          var E = _getEditor();
+          var rich = E && E.richTextEditor;
+          // Compare in the same representation so untouched chapters retain their original markup.
+          var normalizeBody = rich && rich.isWysiwygMode ? function (body) {
+            return rich.htmlToMarkdown(rich.markdownToHtml(body));
+          } : null;
+          chaptersSaved = Store.saveAssembledChapterBodies(docId, content, normalizeBody);
+        }
+        if (chaptersSaved) content = Store.assembleFullText(docId);
+      }
     }
 
-    if (S && content) {
+    if (S) {
       // ドキュメントの content フィールドを更新
       if (typeof S.saveContent === 'function') {
-        reportSaveResult(S.saveContent(content), content);
+        reportSaveResult(S.saveContent(content) && chaptersSaved, content);
       }
 
       // スナップショット退避

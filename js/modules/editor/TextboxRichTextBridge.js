@@ -87,6 +87,11 @@
     var dialogNodes = container.querySelectorAll('.zw-dialog');
     Array.prototype.forEach.call(dialogNodes, function (node, localIdx) {
       var contentEl = node.querySelector('.zw-dialog__content');
+      if (contentEl && options && typeof options.serializeFragment === 'function') {
+        contentEl.querySelectorAll('ruby').forEach(function (ruby) {
+          ruby.replaceWith(document.createTextNode(options.serializeFragment(ruby.outerHTML)));
+        });
+      }
       var content = contentEl ? (contentEl.textContent || '') : '';
       var attrs = {};
       var speaker = node.getAttribute('data-dialog-speaker') || '';
